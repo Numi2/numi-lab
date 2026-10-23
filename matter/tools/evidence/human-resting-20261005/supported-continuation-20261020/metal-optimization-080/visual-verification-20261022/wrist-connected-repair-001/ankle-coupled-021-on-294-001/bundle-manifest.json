@@ -1,0 +1,252 @@
+{
+  "candidate_status": "proposal_only_not_active_or_dynamically_admitted",
+  "errors": [],
+  "external_inputs_and_build_artifacts": [
+    {
+      "expected_sha256": "ea5184dcc4652c318f0ad818dfcb135f95ed569953719727625881d6ce3a0aec",
+      "label": "raw_021_npz",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-coupled-021-candidate.npz",
+      "sha256": "ea5184dcc4652c318f0ad818dfcb135f95ed569953719727625881d6ce3a0aec"
+    },
+    {
+      "expected_sha256": "39011d487170e7b535295887aa96c73d485db20f96a0edf1999faf912749192d",
+      "label": "exact_index_map",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-patch-069i-to-294-exact-index-map.npz",
+      "sha256": "39011d487170e7b535295887aa96c73d485db20f96a0edf1999faf912749192d"
+    },
+    {
+      "expected_sha256": "52f9dc4010a17c78a7ac341632270886011e00a4a90006125d138d7ea119ef05",
+      "label": "exact_correspondence",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-patch-069i-to-294-exact-correspondence.json",
+      "sha256": "52f9dc4010a17c78a7ac341632270886011e00a4a90006125d138d7ea119ef05"
+    },
+    {
+      "expected_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+      "label": "upstream_069i_payload",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-069i-left-ring-web-retreat/replacement-bilateral-hands038.nhskin",
+      "sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc"
+    },
+    {
+      "expected_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+      "label": "base_294_payload",
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+    },
+    {
+      "expected_sha256": "a0e6d69706611257556c74ab7815ca2605f1f3c5f5530d9dd3472ecf482f5200",
+      "label": "main_294_reduction_header",
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/build-wholebody-016/source/apps/NumiHumanWholeBodySkinReduction.hpp",
+      "sha256": "a0e6d69706611257556c74ab7815ca2605f1f3c5f5530d9dd3472ecf482f5200"
+    },
+    {
+      "expected_sha256": "f4b375a3c1476b9e4dcf506fc4001afa8ab4079070644af7b7d473cb43366818",
+      "label": "reference_snapshot",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-skin-pose-clean-014/registered-reference-elevation-010-014/registered-skin-poses.json",
+      "sha256": "f4b375a3c1476b9e4dcf506fc4001afa8ab4079070644af7b7d473cb43366818"
+    },
+    {
+      "expected_sha256": "04de51e3e5ec9e6c736aab3c1217aceb4f6780254da16070e7d8278dbebfd425",
+      "label": "dorsiflexion_snapshot",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-joint-reference-pairs-016/ankle-dorsiflexion-020-ref010/registered-skin-poses.json",
+      "sha256": "04de51e3e5ec9e6c736aab3c1217aceb4f6780254da16070e7d8278dbebfd425"
+    },
+    {
+      "expected_sha256": "37cee243eef596013c1b71fa6862334b8dae343fe7df60b966026b05dfc1243f",
+      "label": "plantarflexion_snapshot",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-joint-reference-pairs-016/ankle-plantarflexion-020-ref010/registered-skin-poses.json",
+      "sha256": "37cee243eef596013c1b71fa6862334b8dae343fe7df60b966026b05dfc1243f"
+    },
+    {
+      "expected_sha256": "b4c83d0df4edec0cc00fb40853158499a9d34d90e315a63f9af554b065657149",
+      "label": "compileworld_link_033",
+      "path": "/tmp/numi-human-joint-owner-build-033/lib/libmetalrobo.dylib",
+      "sha256": "b4c83d0df4edec0cc00fb40853158499a9d34d90e315a63f9af554b065657149"
+    },
+    {
+      "expected_sha256": "8e9a30b92e6c024e4c8a785669b01e105026d02fded69e29885875af20450c6e",
+      "label": "source_021_solid_occupancy_receipt",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-solid-occupancy-root-036/solid-occupancy.json",
+      "sha256": "8e9a30b92e6c024e4c8a785669b01e105026d02fded69e29885875af20450c6e"
+    }
+  ],
+  "internal_files": [
+    {
+      "path": "README.md",
+      "sha256": "cf91e29c520ab3efb338e48e18e48faf48e404a95c49a926acc76cff8501acbc",
+      "size_bytes": 2956
+    },
+    {
+      "path": "ankle-coupled-021-on-294.nhskin",
+      "sha256": "d07b27e7d9d6952a3bc33d41535693b45f107f629e69520c2afbfb990ed1237f",
+      "size_bytes": 26091000
+    },
+    {
+      "path": "emission-receipt.json",
+      "sha256": "831059a1c619961114b331f81e2389e4e7bcd7134d39997d834420080b58df18",
+      "size_bytes": 9026
+    },
+    {
+      "path": "freeze_bundle_manifest.py",
+      "sha256": "439019126220cbaebeac0eabee9f5db51bd1db519b5fa50ed2f26b0cd460f3e4",
+      "size_bytes": 3768
+    },
+    {
+      "path": "layer-rebuild-receipt.json",
+      "sha256": "7d714341fc400e4ea2b8713942ba8b8ca4a77a97a84933fc03c72c0f348f79c7",
+      "size_bytes": 6883
+    },
+    {
+      "path": "main-294-coarse2332-ankle-consequence.json",
+      "sha256": "2a2e202332e4c90b0dc89d2a3a6fee5a0e50d8b29f4ba7124b157900e7337d8e",
+      "size_bytes": 12221
+    },
+    {
+      "path": "main294-commonmode-layer-candidate-001/candidate-layers.npz",
+      "sha256": "c68d8d8408975c8aed0802d39148e65ae82de811ec8717e2b91d01f48bc35e9b",
+      "size_bytes": 331669
+    },
+    {
+      "path": "main294-commonmode-layer-candidate-001/layer-candidate-report.json",
+      "sha256": "522a7911851efd0d9b28dbad351e76ec945c7ceb2d9551eb61f594e41918d430",
+      "size_bytes": 4490
+    },
+    {
+      "path": "native-compileworld-candidate-001/NumiHumanWholeBodySkinReduction.hpp",
+      "sha256": "9d488196e9d7632408ced2fa80061564df0e66807d16c667041da6013f4ed11c",
+      "size_bytes": 2211398
+    },
+    {
+      "path": "native-compileworld-candidate-001/audit_donor_transport_residuals.py",
+      "sha256": "a9f11014cdd2a50d9691ba358306d24f2170b04a77b6d4066f083b2bb22f926e",
+      "size_bytes": 10510
+    },
+    {
+      "path": "native-compileworld-candidate-001/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "native-compileworld-candidate-001/candidate-input-report.json",
+      "sha256": "2a8031955907e17c465629099098c26fa556ff6c4ea5c7f79b64ee4f9909d171",
+      "size_bytes": 3444
+    },
+    {
+      "path": "native-compileworld-candidate-001/candidate_data.hpp",
+      "sha256": "248ec78dcc2a922a035afef29ea875a6ca7db33be58d3103d81b47690593499f",
+      "size_bytes": 1121141
+    },
+    {
+      "path": "native-compileworld-candidate-001/check_commonmode_compileworld",
+      "sha256": "500a34bc0ca705a69ef0bc5c70bfc1c2c815bcb4deff9c201179e9adc2af78ad",
+      "size_bytes": 794864
+    },
+    {
+      "path": "native-compileworld-candidate-001/check_commonmode_compileworld.cpp",
+      "sha256": "057529d0cbdfa0c6eadd974de639ffcdeaaf83c8ef316d87793b3db31bc9178f",
+      "size_bytes": 10191
+    },
+    {
+      "path": "native-compileworld-candidate-001/check_commonmode_compileworld.rebuilt",
+      "sha256": "24aec9fbfe890cb071b40314d926a2c2e02cd9000555d521ba51bfa8b248b572",
+      "size_bytes": 794872
+    },
+    {
+      "path": "native-compileworld-candidate-001/donor-transport-residual-comparison.json",
+      "sha256": "121efed45ce16b3cdd2a6c7323e13811fba3796034edec0cb21f2515e9d7bc1f",
+      "size_bytes": 11878
+    },
+    {
+      "path": "native-compileworld-candidate-001/human_fat_candidate.nmatter",
+      "sha256": "33d9bd42cf67f89e4876f6afa57af9a91b3a0bbbcaeebac28b45fedb6554cee7",
+      "size_bytes": 1437
+    },
+    {
+      "path": "native-compileworld-candidate-001/human_skin_candidate.nmatter",
+      "sha256": "7f6a269ddd7402b5785a92aa7c78a7148ff3ef1aac62014d7fd134a4f1928578",
+      "size_bytes": 1558
+    },
+    {
+      "path": "native-compileworld-candidate-001/preparation.stdout.json",
+      "sha256": "b1356fd012020af75c846dbc6323452ba9c1c18a7dfa80f70ba1a69b39b443f3",
+      "size_bytes": 580
+    },
+    {
+      "path": "native-compileworld-candidate-001/prepare_compileworld_candidate.py",
+      "sha256": "3c83a67b89ea04c148a6cbc030e2223a0b139b3f82e27aa271edfd24c110d566",
+      "size_bytes": 20145
+    },
+    {
+      "path": "native-compileworld-candidate-001/prepare_compileworld_candidate.py.pre-diagnostic-only-fix",
+      "sha256": "e4d058535b2fcb65b194c76df84aafadbac558b5df9c6008275eede8686b7371",
+      "size_bytes": 19819
+    },
+    {
+      "path": "native-compileworld-candidate-001/rebuild_commonmode_layer_candidate.py",
+      "sha256": "2be8b00a1cebbd6ad452c1deb8d9aa7a90992fa65e3162a4b40a6ebf4c87fe06",
+      "size_bytes": 10061
+    },
+    {
+      "path": "native-compileworld-candidate-001/run-attempt-001-threshold-gate.json",
+      "sha256": "474bb29ecbab799abe044538fee5b44243249e9ef06da14d7c27f85ba1ae3916",
+      "size_bytes": 364
+    },
+    {
+      "path": "native-compileworld-candidate-001/run-attempt-001-threshold-gate.log",
+      "sha256": "4a076596d5c558eb7e9c71027f0925605a4aa404e2fbe941940154c13b4a6b2b",
+      "size_bytes": 2473
+    },
+    {
+      "path": "native-compileworld-candidate-001/run-attempt-001-threshold-gate.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "native-compileworld-candidate-001/run-final-receipt.json",
+      "sha256": "0ff51aca97424132b0dbff67c814e97c03591c70dc01fd74785390291b0846c7",
+      "size_bytes": 118
+    },
+    {
+      "path": "native-compileworld-candidate-001/run-final.log",
+      "sha256": "7fa83e697e980bf6512c5c7e83ed4c0bf36a788afcf048950acbf0e4f8278f17",
+      "size_bytes": 2835
+    },
+    {
+      "path": "native-compileworld-candidate-001/run-final.stderr",
+      "sha256": "26bdda5041e3c5ba60e3c7685ff485f9d96a47120061be4f6c3b8d3e61cf18f4",
+      "size_bytes": 273
+    },
+    {
+      "path": "native-compileworld-candidate-001/run-reproduced.log",
+      "sha256": "4a076596d5c558eb7e9c71027f0925605a4aa404e2fbe941940154c13b4a6b2b",
+      "size_bytes": 2473
+    },
+    {
+      "path": "native-compileworld-candidate-001/run-reproduced.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "native-compileworld-candidate-001/run.log",
+      "sha256": "827fae9f07c3fb0fa2c6a07c0b40e4f4941d286334ebf27bad8caf92135deaaf",
+      "size_bytes": 3108
+    },
+    {
+      "path": "native-compileworld-candidate-001/run_cpu_checks.sh",
+      "sha256": "722b9ceac9255546587e031a0f6e9fc072e646d0417868efd8b148aa1e9cc33b",
+      "size_bytes": 1687
+    },
+    {
+      "path": "pose-audit-partial.json",
+      "sha256": "bce3d04ea0dd8c5969e89e422c8a0bd7a94b1e9dc5a1946bf2c4f1a552a4a0f3",
+      "size_bytes": 12578
+    },
+    {
+      "path": "pose-audit-receipt.json",
+      "sha256": "b5efe2f372f746c7d0ff3bdbcf605b326d05789cf49a8e9f870a7add53e2a7dd",
+      "size_bytes": 12606
+    }
+  ],
+  "reproduction_command": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/run_cpu_checks.sh",
+  "root": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001",
+  "schema": "numi.human.ankle-021-on-294-bundle-manifest.v1"
+}

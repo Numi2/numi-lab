@@ -1,0 +1,82 @@
+{
+  "candidate_patch": {
+    "021_changed_source_rows": 73,
+    "changed_face_support_coords_bitwise_equal": true,
+    "changed_face_support_full86_weights_bitwise_equal": true,
+    "changed_face_triangle_id_mismatch_count": 195,
+    "changed_row_weight_deltas_to_294": {
+      "count": 73,
+      "max_half_L1": 0.291235089302063
+    },
+    "changed_source_faces": 195,
+    "changed_vertex_coords_bitwise_equal": true,
+    "changed_vertex_full86_weights_bitwise_equal": true,
+    "max_changed_row_coordinate_delta_mm": 0.0,
+    "max_patch_support_coordinate_delta_mm": 0.0,
+    "max_patch_support_weight_delta": 0.0,
+    "one_ring_coords_bitwise_equal": true,
+    "one_ring_face_count": 324,
+    "one_ring_vertex_count": 203,
+    "one_ring_weights_bitwise_equal": true,
+    "patch_triangles_bitwise_equal": false,
+    "patch_vertex_ids_count": 124
+  },
+  "donor_binding_correspondence": {
+    "binding_indices": {
+      "global_bitwise_equal": true,
+      "shape_294": [
+        86,
+        9
+      ],
+      "shape_left": [
+        86,
+        9
+      ]
+    },
+    "binding_transforms": {
+      "global_bitwise_equal": true,
+      "shape_294": [
+        86,
+        9
+      ],
+      "shape_left": [
+        86,
+        9
+      ]
+    }
+  },
+  "global_shape": {
+    "faces": [
+      108987,
+      108987
+    ],
+    "vertices": [
+      61950,
+      61950
+    ],
+    "weight_shape": [
+      [
+        61950,
+        86
+      ],
+      [
+        61950,
+        86
+      ]
+    ]
+  },
+  "inputs": {
+    "069i_payload": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-069i-left-ring-web-retreat/replacement-bilateral-hands038.nhskin",
+    "069i_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+    "294_payload": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+    "294_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "candidate021_sha256": "ea5184dcc4652c318f0ad818dfcb135f95ed569953719727625881d6ce3a0aec"
+  },
+  "limits": [
+    "Only source topology/coordinates/weights/binding correspondence is compared; no candidate delta is applied to 294.",
+    "A bitwise match would justify a bounded transplant experiment, not physical acceptance or updated coarse/FEM maps.",
+    "Registration snapshots, C maps, mechanical attachments, tissue layers, and dynamics are not certified by this comparison."
+  ],
+  "schema": "numi.human.ankle-source-patch-069i-vs-294-exact-comparison.v1",
+  "status": "read_only_correspondence_diagnostic_not_transplant_or_admission"
+}

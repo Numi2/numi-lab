@@ -1,0 +1,333 @@
+{
+  "base_commit": "29287f8350e2d245c232cf6ba0b85c3b6ab7edda",
+  "qualification": "static_preparation_only_not_active_or_dynamic",
+  "files": [
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/README.md",
+      "sha256": "cf91e29c520ab3efb338e48e18e48faf48e404a95c49a926acc76cff8501acbc",
+      "bytes": 2956
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/ankle-coupled-021-on-294.nhskin",
+      "sha256": "d07b27e7d9d6952a3bc33d41535693b45f107f629e69520c2afbfb990ed1237f",
+      "bytes": 26091000
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/bundle-manifest.json",
+      "sha256": "967ee42093b009fcbb3bd58c428fb9a93d91ce9e5e5450b1665e6c9413b56ae0",
+      "bytes": 12905
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/emission-receipt.json",
+      "sha256": "831059a1c619961114b331f81e2389e4e7bcd7134d39997d834420080b58df18",
+      "bytes": 9026
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/freeze_bundle_manifest.py",
+      "sha256": "439019126220cbaebeac0eabee9f5db51bd1db519b5fa50ed2f26b0cd460f3e4",
+      "bytes": 3768
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/layer-rebuild-receipt.json",
+      "sha256": "7d714341fc400e4ea2b8713942ba8b8ca4a77a97a84933fc03c72c0f348f79c7",
+      "bytes": 6883
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/main-294-coarse2332-ankle-consequence.json",
+      "sha256": "2a2e202332e4c90b0dc89d2a3a6fee5a0e50d8b29f4ba7124b157900e7337d8e",
+      "bytes": 12221
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/main294-commonmode-layer-candidate-001/candidate-layers.npz",
+      "sha256": "c68d8d8408975c8aed0802d39148e65ae82de811ec8717e2b91d01f48bc35e9b",
+      "bytes": 331669
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/main294-commonmode-layer-candidate-001/layer-candidate-report.json",
+      "sha256": "522a7911851efd0d9b28dbad351e76ec945c7ceb2d9551eb61f594e41918d430",
+      "bytes": 4490
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/NumiHumanWholeBodySkinReduction.hpp",
+      "sha256": "9d488196e9d7632408ced2fa80061564df0e66807d16c667041da6013f4ed11c",
+      "bytes": 2211398
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/audit_donor_transport_residuals.py",
+      "sha256": "a9f11014cdd2a50d9691ba358306d24f2170b04a77b6d4066f083b2bb22f926e",
+      "bytes": 10510
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/candidate-input-report.json",
+      "sha256": "2a8031955907e17c465629099098c26fa556ff6c4ea5c7f79b64ee4f9909d171",
+      "bytes": 3444
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/candidate_data.hpp",
+      "sha256": "248ec78dcc2a922a035afef29ea875a6ca7db33be58d3103d81b47690593499f",
+      "bytes": 1121141
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/check_commonmode_compileworld.cpp",
+      "sha256": "057529d0cbdfa0c6eadd974de639ffcdeaaf83c8ef316d87793b3db31bc9178f",
+      "bytes": 10191
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/donor-transport-residual-comparison.json",
+      "sha256": "121efed45ce16b3cdd2a6c7323e13811fba3796034edec0cb21f2515e9d7bc1f",
+      "bytes": 11878
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/human_fat_candidate.nmatter",
+      "sha256": "33d9bd42cf67f89e4876f6afa57af9a91b3a0bbbcaeebac28b45fedb6554cee7",
+      "bytes": 1437
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/human_skin_candidate.nmatter",
+      "sha256": "7f6a269ddd7402b5785a92aa7c78a7148ff3ef1aac62014d7fd134a4f1928578",
+      "bytes": 1558
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/preparation.stdout.json",
+      "sha256": "b1356fd012020af75c846dbc6323452ba9c1c18a7dfa80f70ba1a69b39b443f3",
+      "bytes": 580
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/prepare_compileworld_candidate.py",
+      "sha256": "3c83a67b89ea04c148a6cbc030e2223a0b139b3f82e27aa271edfd24c110d566",
+      "bytes": 20145
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/prepare_compileworld_candidate.py.pre-diagnostic-only-fix",
+      "sha256": "e4d058535b2fcb65b194c76df84aafadbac558b5df9c6008275eede8686b7371",
+      "bytes": 19819
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/rebuild_commonmode_layer_candidate.py",
+      "sha256": "2be8b00a1cebbd6ad452c1deb8d9aa7a90992fa65e3162a4b40a6ebf4c87fe06",
+      "bytes": 10061
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/run-attempt-001-threshold-gate.json",
+      "sha256": "474bb29ecbab799abe044538fee5b44243249e9ef06da14d7c27f85ba1ae3916",
+      "bytes": 364
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/run-attempt-001-threshold-gate.log",
+      "sha256": "4a076596d5c558eb7e9c71027f0925605a4aa404e2fbe941940154c13b4a6b2b",
+      "bytes": 2473
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/run-attempt-001-threshold-gate.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/run-final-receipt.json",
+      "sha256": "0ff51aca97424132b0dbff67c814e97c03591c70dc01fd74785390291b0846c7",
+      "bytes": 118
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/run-final.log",
+      "sha256": "7fa83e697e980bf6512c5c7e83ed4c0bf36a788afcf048950acbf0e4f8278f17",
+      "bytes": 2835
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/run-final.stderr",
+      "sha256": "26bdda5041e3c5ba60e3c7685ff485f9d96a47120061be4f6c3b8d3e61cf18f4",
+      "bytes": 273
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/run-reproduced.log",
+      "sha256": "4a076596d5c558eb7e9c71027f0925605a4aa404e2fbe941940154c13b4a6b2b",
+      "bytes": 2473
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/run-reproduced.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/run.log",
+      "sha256": "827fae9f07c3fb0fa2c6a07c0b40e4f4941d286334ebf27bad8caf92135deaaf",
+      "bytes": 3108
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/run_cpu_checks.sh",
+      "sha256": "722b9ceac9255546587e031a0f6e9fc072e646d0417868efd8b148aa1e9cc33b",
+      "bytes": 1687
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/pose-audit-partial.json",
+      "sha256": "bce3d04ea0dd8c5969e89e422c8a0bd7a94b1e9dc5a1946bf2c4f1a552a4a0f3",
+      "bytes": 12578
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/pose-audit-receipt.json",
+      "sha256": "b5efe2f372f746c7d0ff3bdbcf605b326d05789cf49a8e9f870a7add53e2a7dd",
+      "bytes": 12606
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-coupled-021-C014-mechanical-rebase-corrected.json",
+      "sha256": "1d7de93f2a8b1cb0e8ff51977577cf2c3c1dcdc5eff9c4c5de2ec2a19dbce371",
+      "bytes": 801167
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-coupled-021-C014-mechanical-rebase-diagnostic.json",
+      "sha256": "4ff1fbf921f998de8a3df791accfe0f3b379d197f2e1359c172e3e3a5f24e3df",
+      "bytes": 691701
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-coupled-021-candidate.npz",
+      "sha256": "ea5184dcc4652c318f0ad818dfcb135f95ed569953719727625881d6ce3a0aec",
+      "bytes": 2054395
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-coupled-021-f32-emission-audit.json",
+      "sha256": "1a8783b0ef46bd9716b46612a2c0665c48b9aace09200a5dd069070f48bf5585",
+      "bytes": 10641
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-coupled-021-nearby-all-bone-exact-audit-v2.json",
+      "sha256": "69995f365ff6ae6793baf0b4eb14dd0a850f4b253e89d9ea392c87e251a42115",
+      "bytes": 5223
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-coupled-021-nearby-all-bone-exact-audit.json",
+      "sha256": "10589d2b9d8d02c3090da4dbec4c3618e4bb7f575c5d965ad11ceb3a54bce347",
+      "bytes": 5220
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-coupled-021-report.json",
+      "sha256": "ea3daf5f1617dac0862c74c0031892a7bb8d9beef7c651e0eabc7881a64aa495",
+      "bytes": 49299
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-patch-069i-to-294-exact-correspondence.json",
+      "sha256": "52f9dc4010a17c78a7ac341632270886011e00a4a90006125d138d7ea119ef05",
+      "bytes": 13876
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-patch-069i-to-294-exact-index-map.npz",
+      "sha256": "39011d487170e7b535295887aa96c73d485db20f96a0edf1999faf912749192d",
+      "bytes": 4733
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-patch-069i-vs-294-correspondence.json",
+      "sha256": "55a4ac7d337b76a8e2a584af8760517872c0b5e41b3f69f52dacc06120f16f8a",
+      "bytes": 2780
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/audit_021_ankle_patch_294_correspondence.py",
+      "sha256": "269fcedd05a458b77238666c8aa6f26faca42827d0e4d15d9926cd69cb5a268b",
+      "bytes": 4707
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/audit_021_c014_mechanical_rebase.py",
+      "sha256": "7b8470f23d16cdf3614e3b47ff6b9d110e7ced864f998fac2af07eab3dca1a07",
+      "bytes": 12296
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/audit_021_c014_mechanical_rebase_corrected.py",
+      "sha256": "9c76e89452b1d405101650b17d7fa848322ab7e15676b604d0a66fdcf03f3df1",
+      "bytes": 7175
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/audit_021_nearby_all_bones.py",
+      "sha256": "dc348aea85bb695aefe5b06dc8bd731fb7f61aa3b4437504392cb30bfab04e19",
+      "bytes": 5704
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/audit_candidate021_float32.py",
+      "sha256": "a74ad85a4d228ba5aa2e0442279a9c48ef7f08a84181857cafbabf6d1b16c174",
+      "bytes": 7144
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/build_ankle_021_294_exact_map.py",
+      "sha256": "37141b40683863f41f7e62cc32c711188c442455728af2591a9447f153351849",
+      "bytes": 6840
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/run_ankle_coupled_candidate_021.py",
+      "sha256": "f52af90708ccc73abb8ba1ccc7e4e4d7a7f6abd4f263a81108921ea1d33069ba",
+      "bytes": 13847
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-preparation-root-verification-037/run-receipt.json",
+      "sha256": "725b4ae39829c7cc5ec7817d020167c6a9eeddd7d6ec15d66063effa48e03e2a",
+      "bytes": 1320
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-preparation-root-verification-037/stderr.log",
+      "sha256": "26bdda5041e3c5ba60e3c7685ff485f9d96a47120061be4f6c3b8d3e61cf18f4",
+      "bytes": 273
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-preparation-root-verification-037/stdout.log",
+      "sha256": "7fa83e697e980bf6512c5c7e83ed4c0bf36a788afcf048950acbf0e4f8278f17",
+      "bytes": 2835
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-solid-occupancy-root-036/README.md",
+      "sha256": "d9030b3d4df57c126f76f2537297f2caf6fd892c02145eb849e7196f03187ae7",
+      "bytes": 644
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-solid-occupancy-root-036/attempt001-error.txt",
+      "sha256": "ff8028bb5a0a5ce58a6844dbce857743493cf779166e5a2e6aad018059229681",
+      "bytes": 159
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-solid-occupancy-root-036/audit_solid_occupancy.pre-manifest-fix.py",
+      "sha256": "ffa6a82f4578722c8ed264bbfad508893cefea2ee143c7dd2c2949e8fe7ebd9c",
+      "bytes": 4608
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-solid-occupancy-root-036/audit_solid_occupancy.py",
+      "sha256": "e3f95feba5bf4f6b529468b86583f93008bc6be8f1aa6a29dfc789ebf88b0f63",
+      "bytes": 4614
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-solid-occupancy-root-036/predicate-sanity.json",
+      "sha256": "5316edbb01bd659ab23a8a1e532e3164aace188430507aed0b7a7898d2c962b4",
+      "bytes": 682
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-solid-occupancy-root-036/run-receipt.json",
+      "sha256": "52ec0ecf48d4e20f0cf344763a1e60acef894e4043406643184463cdce28317b",
+      "bytes": 2858
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-solid-occupancy-root-036/solid-occupancy.json",
+      "sha256": "8e9a30b92e6c024e4c8a785669b01e105026d02fded69e29885875af20450c6e",
+      "bytes": 4032
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-solid-occupancy-root-036/test_signed_winding_owner.py",
+      "sha256": "1bbc3ae7a2176ef428c72d51ec312462ed1e3da12d6e9526d541cbbeca671a79",
+      "bytes": 1262
+    }
+  ],
+  "excluded_retained_host_artifacts": [
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/check_commonmode_compileworld",
+      "sha256": "500a34bc0ca705a69ef0bc5c70bfc1c2c815bcb4deff9c201179e9adc2af78ad",
+      "retained_locally": true
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/check_commonmode_compileworld.rebuilt",
+      "sha256": "24aec9fbfe890cb071b40314d926a2c2e02cd9000555d521ba51bfa8b248b572",
+      "retained_locally": true
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-solid-occupancy-root-036/progress.json",
+      "sha256": "d406aece5e4138431356c8c34173f6abc58da48836bdd569db703f9ebde0e0bd",
+      "retained_locally": true
+    }
+  ]
+}

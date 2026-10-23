@@ -1,0 +1,268 @@
+{
+  "inputs": {
+    "base_registered_csv_sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327",
+    "baseline_payload": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+    "baseline_payload_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "candidate_layers_npz": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/main294-commonmode-layer-candidate-001/candidate-layers.npz",
+    "candidate_layers_npz_sha256": "c68d8d8408975c8aed0802d39148e65ae82de811ec8717e2b91d01f48bc35e9b",
+    "candidate_payload": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/ankle-coupled-021-on-294.nhskin",
+    "candidate_payload_sha256": "d07b27e7d9d6952a3bc33d41535693b45f107f629e69520c2afbfb990ed1237f",
+    "clean_294_reduction_header": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/build-wholebody-016/source/apps/NumiHumanWholeBodySkinReduction.hpp",
+    "clean_294_reduction_header_sha256": "a0e6d69706611257556c74ab7815ca2605f1f3c5f5530d9dd3472ecf482f5200",
+    "dorsiflexion_pose": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-joint-reference-pairs-016/ankle-dorsiflexion-020-ref010/registered-skin-poses.json",
+    "dorsiflexion_pose_sha256": "04de51e3e5ec9e6c736aab3c1217aceb4f6780254da16070e7d8278dbebfd425",
+    "plantarflexion_pose": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-joint-reference-pairs-016/ankle-plantarflexion-020-ref010/registered-skin-poses.json",
+    "plantarflexion_pose_sha256": "37cee243eef596013c1b71fa6862334b8dae343fe7df60b966026b05dfc1243f",
+    "reference_pose": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-skin-pose-clean-014/registered-reference-elevation-010-014/registered-skin-poses.json",
+    "reference_pose_sha256": "f4b375a3c1476b9e4dcf506fc4001afa8ab4079070644af7b7d473cb43366818"
+  },
+  "limits": [
+    "No FEM simulation, layer deformation, dynamic contact, or native admission is tested.",
+    "The matched snapshots are registration-only body poses; this isolates the donor rigid-transport versus surface-LBS mismatch.",
+    "Unaffected coarse rows are retained in global distributions; affected row set is determined by exact source-position or 86-weight changes in the candidate payload."
+  ],
+  "measurements": {
+    "dorsiflexion": {
+      "affected_rows": [
+        {
+          "baseline_residual_mm": 8.082324981689453,
+          "candidate_minus_baseline_mm": -0.4346909523010254,
+          "candidate_residual_mm": 7.647634029388428,
+          "coarse_row": 1741,
+          "donor_body": 150,
+          "source_vertex": 37849
+        },
+        {
+          "baseline_residual_mm": 7.383547782897949,
+          "candidate_minus_baseline_mm": -2.344076633453369,
+          "candidate_residual_mm": 5.03947114944458,
+          "coarse_row": 1759,
+          "donor_body": 150,
+          "source_vertex": 38360
+        },
+        {
+          "baseline_residual_mm": 7.037674427032471,
+          "candidate_minus_baseline_mm": 0.12594890594482422,
+          "candidate_residual_mm": 7.163623332977295,
+          "coarse_row": 1773,
+          "donor_body": 150,
+          "source_vertex": 38763
+        }
+      ],
+      "base_LBS_vs_saved_native_pose_CSV_max_mm": 620.8076782226562,
+      "base_LBS_vs_saved_native_pose_CSV_p99_mm": 583.0215454101562,
+      "baseline_affected_coarse_rows": {
+        "count": 3,
+        "max_mm": 8.082324981689453,
+        "p50_mm": 7.383547782897949,
+        "p95_mm": 8.012447261810303,
+        "p99_mm": 8.068349437713623
+      },
+      "baseline_all_rows": {
+        "count": 2332,
+        "max_mm": 8.340482711791992,
+        "p50_mm": 0.003327811718918383,
+        "p95_mm": 2.3400298118591305,
+        "p99_mm": 6.225539116859439
+      },
+      "candidate_affected_coarse_rows": {
+        "count": 3,
+        "max_mm": 7.647634029388428,
+        "p50_mm": 7.163623332977295,
+        "p95_mm": 7.599232959747314,
+        "p99_mm": 7.637953815460205
+      },
+      "candidate_all_rows": {
+        "count": 2332,
+        "max_mm": 8.340482711791992,
+        "p50_mm": 0.003327811718918383,
+        "p95_mm": 2.3400298118591305,
+        "p99_mm": 6.184446611404421
+      },
+      "reported_witness_rows": [
+        {
+          "baseline_residual_mm": 7.383547782897949,
+          "candidate_minus_baseline_mm": -2.344076633453369,
+          "candidate_residual_mm": 5.03947114944458,
+          "coarse_row": 1759,
+          "donor_body": 150,
+          "source_vertex": 38360
+        },
+        {
+          "baseline_residual_mm": 7.037674427032471,
+          "candidate_minus_baseline_mm": 0.12594890594482422,
+          "candidate_residual_mm": 7.163623332977295,
+          "coarse_row": 1773,
+          "donor_body": 150,
+          "source_vertex": 38763
+        }
+      ]
+    },
+    "plantarflexion": {
+      "affected_rows": [
+        {
+          "baseline_residual_mm": 8.082306861877441,
+          "candidate_minus_baseline_mm": -0.43466901779174805,
+          "candidate_residual_mm": 7.647637844085693,
+          "coarse_row": 1741,
+          "donor_body": 150,
+          "source_vertex": 37849
+        },
+        {
+          "baseline_residual_mm": 7.3835978507995605,
+          "candidate_minus_baseline_mm": -2.3440685272216797,
+          "candidate_residual_mm": 5.039529323577881,
+          "coarse_row": 1759,
+          "donor_body": 150,
+          "source_vertex": 38360
+        },
+        {
+          "baseline_residual_mm": 7.03769588470459,
+          "candidate_minus_baseline_mm": 0.1259598731994629,
+          "candidate_residual_mm": 7.163655757904053,
+          "coarse_row": 1773,
+          "donor_body": 150,
+          "source_vertex": 38763
+        }
+      ],
+      "base_LBS_vs_saved_native_pose_CSV_max_mm": 620.8076782226562,
+      "base_LBS_vs_saved_native_pose_CSV_p99_mm": 583.021484375,
+      "baseline_affected_coarse_rows": {
+        "count": 3,
+        "max_mm": 8.082306861877441,
+        "p50_mm": 7.3835978507995605,
+        "p95_mm": 8.012435960769654,
+        "p99_mm": 8.068332681655884
+      },
+      "baseline_all_rows": {
+        "count": 2332,
+        "max_mm": 8.340497970581055,
+        "p50_mm": 0.003239762270823121,
+        "p95_mm": 2.3433057546615594,
+        "p99_mm": 6.225576429367068
+      },
+      "candidate_affected_coarse_rows": {
+        "count": 3,
+        "max_mm": 7.647637844085693,
+        "p50_mm": 7.163655757904053,
+        "p95_mm": 7.599239635467529,
+        "p99_mm": 7.637958202362061
+      },
+      "candidate_all_rows": {
+        "count": 2332,
+        "max_mm": 8.340497970581055,
+        "p50_mm": 0.003239762270823121,
+        "p95_mm": 2.3433057546615594,
+        "p99_mm": 6.184473481178285
+      },
+      "reported_witness_rows": [
+        {
+          "baseline_residual_mm": 7.3835978507995605,
+          "candidate_minus_baseline_mm": -2.3440685272216797,
+          "candidate_residual_mm": 5.039529323577881,
+          "coarse_row": 1759,
+          "donor_body": 150,
+          "source_vertex": 38360
+        },
+        {
+          "baseline_residual_mm": 7.03769588470459,
+          "candidate_minus_baseline_mm": 0.1259598731994629,
+          "candidate_residual_mm": 7.163655757904053,
+          "coarse_row": 1773,
+          "donor_body": 150,
+          "source_vertex": 38763
+        }
+      ]
+    },
+    "pose_frame_validation": {
+      "affected_direct_coarse_rows": [
+        1741,
+        1759,
+        1773
+      ],
+      "base_294_reference_LBS_vs_registered_csv_max_mm": 0.0021464137826114893,
+      "base_294_reference_LBS_vs_registered_csv_p99_mm": 0.0012102886103093624,
+      "base_donor_transport_vs_header_outer_max_mm": 0.00011755996150084,
+      "candidate_changed_source_rows": 73,
+      "candidate_donor_transport_vs_layer_outer_max_mm": 0.00012105760833946988,
+      "direct_source_rows": 2332
+    },
+    "reference": {
+      "affected_rows": [
+        {
+          "baseline_residual_mm": 1.5359764802269638e-05,
+          "candidate_minus_baseline_mm": 0.0,
+          "candidate_residual_mm": 1.5359764802269638e-05,
+          "coarse_row": 1741,
+          "donor_body": 150,
+          "source_vertex": 37849
+        },
+        {
+          "baseline_residual_mm": 1.666000571276527e-05,
+          "candidate_minus_baseline_mm": 0.0,
+          "candidate_residual_mm": 1.666000571276527e-05,
+          "coarse_row": 1759,
+          "donor_body": 150,
+          "source_vertex": 38360
+        },
+        {
+          "baseline_residual_mm": 6.006850162521005e-05,
+          "candidate_minus_baseline_mm": -3.475543053355068e-07,
+          "candidate_residual_mm": 5.972094731987454e-05,
+          "coarse_row": 1773,
+          "donor_body": 150,
+          "source_vertex": 38763
+        }
+      ],
+      "baseline_affected_coarse_rows": {
+        "count": 3,
+        "max_mm": 6.006850162521005e-05,
+        "p50_mm": 1.666000571276527e-05,
+        "p95_mm": 5.572765203396557e-05,
+        "p99_mm": 5.920033170696115e-05
+      },
+      "baseline_all_rows": {
+        "count": 2332,
+        "max_mm": 2.9460222721099854,
+        "p50_mm": 0.00014136482786852866,
+        "p95_mm": 1.0913781106472005,
+        "p99_mm": 1.6197586941719067
+      },
+      "candidate_affected_coarse_rows": {
+        "count": 3,
+        "max_mm": 5.972094731987454e-05,
+        "p50_mm": 1.666000571276527e-05,
+        "p95_mm": 5.541485315916361e-05,
+        "p99_mm": 5.885972848773236e-05
+      },
+      "candidate_all_rows": {
+        "count": 2332,
+        "max_mm": 2.9460222721099854,
+        "p50_mm": 0.00014136482786852866,
+        "p95_mm": 1.0913781106472005,
+        "p99_mm": 1.6197586941719067
+      },
+      "reported_witness_rows": [
+        {
+          "baseline_residual_mm": 1.666000571276527e-05,
+          "candidate_minus_baseline_mm": 0.0,
+          "candidate_residual_mm": 1.666000571276527e-05,
+          "coarse_row": 1759,
+          "donor_body": 150,
+          "source_vertex": 38360
+        },
+        {
+          "baseline_residual_mm": 6.006850162521005e-05,
+          "candidate_minus_baseline_mm": -3.475543053355068e-07,
+          "candidate_residual_mm": 5.972094731987454e-05,
+          "coarse_row": 1773,
+          "donor_body": 150,
+          "source_vertex": 38763
+        }
+      ]
+    }
+  },
+  "method": "At the same matched registered rigid-body snapshots, evaluate baseline 294 and candidate NHSKIN with the exact 86-binding LBS. Compare each mapped 2332 source vertex with the same donor-local coarse outer point transported by that donor body. Baseline donor-local coordinates are clean 294 donorLocalPoint plus its authored mechanical donor-local delta; candidate coordinates are the exact candidate-layers outer_donor_local_m. Distances are magnitudes in mm. This compares source-render to coarse rigid-donor transport, not FEM motion or contact.",
+  "schema": "numi.human.ankle-294-commonmode-donor-residual-comparison.v1",
+  "status": "candidate_only_diagnostic_not_dynamically_qualified"
+}

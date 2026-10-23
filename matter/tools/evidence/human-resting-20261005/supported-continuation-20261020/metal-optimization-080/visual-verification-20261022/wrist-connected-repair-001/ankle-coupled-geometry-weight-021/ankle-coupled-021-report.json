@@ -1,0 +1,2043 @@
+{
+  "all_pair_constraints": 47,
+  "boundary": "Incremental exact-pair-driven source-rest geometry continuation over candidate 020 plus the same 018 s=0.33 weight field. No shared source payload/runtime/header edits. Not a compiled admission or physical/dynamic/clinical qualification.",
+  "candidate_id": "021",
+  "candidate_npz": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-coupled-021-candidate.npz",
+  "candidate_npz_sha256": "ea5184dcc4652c318f0ad818dfcb135f95ed569953719727625881d6ce3a0aec",
+  "changed_source_faces": [
+    46317,
+    46323,
+    46326,
+    47244,
+    47245,
+    47246,
+    47248,
+    47251,
+    47252,
+    47253,
+    47255,
+    47263,
+    47264,
+    47265,
+    47266,
+    47268,
+    47269,
+    47270,
+    47274,
+    47275,
+    47281,
+    47282,
+    47284,
+    48199,
+    48200,
+    48201,
+    48206,
+    48208,
+    48211,
+    48218,
+    48219,
+    48220,
+    48221,
+    48222,
+    48223,
+    48224,
+    48225,
+    48226,
+    48227,
+    48228,
+    48229,
+    48230,
+    48231,
+    48232,
+    48233,
+    48234,
+    48235,
+    48236,
+    48237,
+    48238,
+    48242,
+    48243,
+    48244,
+    48245,
+    48246,
+    48247,
+    48248,
+    48249,
+    48250,
+    49043,
+    49044,
+    49045,
+    49046,
+    49054,
+    49055,
+    49056,
+    49057,
+    49058,
+    49059,
+    49060,
+    49061,
+    49062,
+    49063,
+    49064,
+    49065,
+    49066,
+    49067,
+    49068,
+    49069,
+    49070,
+    49071,
+    49072,
+    49073,
+    49074,
+    49075,
+    49076,
+    49077,
+    49081,
+    49082,
+    49083,
+    49084,
+    49085,
+    49086,
+    49087,
+    49088,
+    49089,
+    49090,
+    49091,
+    49092,
+    49093,
+    49094,
+    49095,
+    49096,
+    49097,
+    49098,
+    49828,
+    49842,
+    49843,
+    49844,
+    49845,
+    49846,
+    49847,
+    49848,
+    49849,
+    49850,
+    49851,
+    49852,
+    49853,
+    49854,
+    49856,
+    49857,
+    49858,
+    49859,
+    49860,
+    49861,
+    49862,
+    49863,
+    49864,
+    49865,
+    49866,
+    49867,
+    49868,
+    49869,
+    49870,
+    49871,
+    49872,
+    49873,
+    49874,
+    49875,
+    49876,
+    49877,
+    49878,
+    49879,
+    50607,
+    50613,
+    50614,
+    50615,
+    50619,
+    50620,
+    50621,
+    50622,
+    50623,
+    50624,
+    50625,
+    50626,
+    50627,
+    50630,
+    50631,
+    50632,
+    50633,
+    50634,
+    50635,
+    50636,
+    50637,
+    50638,
+    50639,
+    50640,
+    50641,
+    50642,
+    51395,
+    51396,
+    51419,
+    51429,
+    51430,
+    51431,
+    51432,
+    51441,
+    51442,
+    51443,
+    51444,
+    51445,
+    51452,
+    51454,
+    51455,
+    52407,
+    52408,
+    52409,
+    52410,
+    52421,
+    52431,
+    53444,
+    53445,
+    53446,
+    53455,
+    53457
+  ],
+  "changed_source_rows": [
+    37195,
+    37197,
+    37201,
+    37204,
+    37836,
+    37838,
+    37839,
+    37840,
+    37841,
+    37842,
+    37844,
+    37845,
+    37846,
+    37847,
+    37849,
+    37853,
+    37854,
+    37855,
+    37858,
+    38356,
+    38357,
+    38358,
+    38359,
+    38360,
+    38361,
+    38362,
+    38363,
+    38364,
+    38365,
+    38366,
+    38367,
+    38368,
+    38369,
+    38370,
+    38371,
+    38372,
+    38373,
+    38374,
+    38375,
+    38376,
+    38377,
+    38749,
+    38752,
+    38753,
+    38754,
+    38755,
+    38756,
+    38757,
+    38758,
+    38759,
+    38760,
+    38761,
+    38762,
+    38763,
+    38764,
+    38765,
+    38766,
+    38768,
+    39141,
+    39142,
+    39143,
+    39144,
+    39146,
+    39147,
+    39148,
+    39149,
+    39150,
+    39553,
+    39559,
+    39560,
+    39561,
+    40046,
+    40584
+  ],
+  "current_df_pair_count": 20,
+  "current_df_pairs": [
+    [
+      49867,
+      446
+    ],
+    [
+      49867,
+      447
+    ],
+    [
+      49867,
+      622
+    ],
+    [
+      49867,
+      623
+    ],
+    [
+      49869,
+      446
+    ],
+    [
+      49869,
+      623
+    ],
+    [
+      49869,
+      624
+    ],
+    [
+      49870,
+      446
+    ],
+    [
+      49870,
+      451
+    ],
+    [
+      49870,
+      454
+    ],
+    [
+      49872,
+      624
+    ],
+    [
+      49872,
+      626
+    ],
+    [
+      49873,
+      447
+    ],
+    [
+      49873,
+      452
+    ],
+    [
+      49873,
+      458
+    ],
+    [
+      49873,
+      626
+    ],
+    [
+      50624,
+      446
+    ],
+    [
+      50624,
+      447
+    ],
+    [
+      50624,
+      451
+    ],
+    [
+      50624,
+      454
+    ]
+  ],
+  "input_candidate": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-020/ankle-coupled-020-candidate.npz",
+  "input_candidate_sha256": "06b24c3a0c7223e19372fb333c8dff3765821293f643b65b27f7a35a1d931993",
+  "limits": [
+    "All other candidate static checks are local to the ankle-patch plus whole-skin complement, and ankle-group bones.",
+    "No layer/FEM source mapping rebuilt or qualified.",
+    "No native dynamics/contact or whole-body admission claim."
+  ],
+  "method": "At DF, exactly enumerate residual skin/tibia intersections on 020. Reapply oriented bone-face halfspace constraints to all prior separated and current crossing pairs with 0.05 mm construction margin. Solve minimum incremental source-rest displacement on affected source rows plus one mesh ring; boundary edges receive zero-displacement Laplacian anchoring. Propagate this same source delta through matched reference/DF/PF registrations and exact-test.",
+  "old_separated_pair_count": 27,
+  "pose_results": {
+    "dorsiflexion": {
+      "changed_face_area_ratio": {
+        "max": 2.2049069637650613,
+        "min": 0.7198598734698993,
+        "n": 195,
+        "p50": 1.016165278728758,
+        "p95": 1.3229609196711403
+      },
+      "changed_face_normal_cosine": {
+        "max": 0.9999999999292517,
+        "min": 0.5763161757767002,
+        "n": 195,
+        "p50": 0.9892868623876283,
+        "p95": 0.9999975694547983
+      },
+      "changed_row_motion_mm": {
+        "max": 9.036568413844956,
+        "min": 0.0001519626234052415,
+        "n": 73,
+        "p50": 1.2509853010014753,
+        "p95": 4.241183428433688
+      },
+      "degenerate_count": 0,
+      "exact_static_gates": {
+        "bone_owners": {
+          "calcn_l": 9384,
+          "talus_l": 1356,
+          "tibia_l": 2816
+        },
+        "bone_surface_faces": 13556,
+        "patch_faces": 195,
+        "patch_self": {
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 1029
+          },
+          "allowed_shared_seam_pairs": 1029,
+          "candidate_pairs": 1073,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_left_ankle_bones": {
+          "allowed_seams_by_owner_pair": {},
+          "allowed_shared_seam_pairs": 0,
+          "candidate_pairs": 264,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_other_full_skin": {
+          "allowed_seams_by_owner_pair": {
+            "left/digits|calcn_l": 26,
+            "left/digits|tibia_l": 74,
+            "left/elbow_forearm|calcn_l": 45,
+            "left/elbow_forearm|tibia_l": 5,
+            "left/other|calcn_l": 68,
+            "left/other|tibia_l": 41,
+            "left/palm_metacarpals|calcn_l": 52,
+            "left/palm_metacarpals|tibia_l": 84,
+            "left/upper_arm|calcn_l": 16,
+            "left/upper_arm|tibia_l": 9
+          },
+          "allowed_shared_seam_pairs": 420,
+          "candidate_pairs": 458,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        }
+      },
+      "orientation_reversals": 0,
+      "registered_csv_sha256": "b88a9eac85426afcb94878b746e56bfc51b5f7d711e58b2ea3e6ca9ab1838c32",
+      "requested_q": {
+        "109": 0.2,
+        "123": 0.2,
+        "36": 0.1,
+        "74": 0.1
+      },
+      "snapshot_sha256": "04de51e3e5ec9e6c736aab3c1217aceb4f6780254da16070e7d8278dbebfd425"
+    },
+    "plantarflexion": {
+      "changed_face_area_ratio": {
+        "max": 2.452900248699607,
+        "min": 0.5613373592452192,
+        "n": 195,
+        "p50": 1.0033169759158482,
+        "p95": 1.2681987753202593
+      },
+      "changed_face_normal_cosine": {
+        "max": 0.9999999998978226,
+        "min": 0.6646806696039916,
+        "n": 195,
+        "p50": 0.9893027105545366,
+        "p95": 0.9999974765581163
+      },
+      "changed_row_motion_mm": {
+        "max": 7.846220237512784,
+        "min": 0.00013514129182113003,
+        "n": 73,
+        "p50": 1.179945340094057,
+        "p95": 3.6457172378958833
+      },
+      "degenerate_count": 0,
+      "exact_static_gates": {
+        "bone_owners": {
+          "calcn_l": 9384,
+          "talus_l": 1356,
+          "tibia_l": 2816
+        },
+        "bone_surface_faces": 13556,
+        "patch_faces": 195,
+        "patch_self": {
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 1029
+          },
+          "allowed_shared_seam_pairs": 1029,
+          "candidate_pairs": 1078,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_left_ankle_bones": {
+          "allowed_seams_by_owner_pair": {},
+          "allowed_shared_seam_pairs": 0,
+          "candidate_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_other_full_skin": {
+          "allowed_seams_by_owner_pair": {
+            "left/digits|calcn_l": 26,
+            "left/digits|tibia_l": 74,
+            "left/elbow_forearm|calcn_l": 45,
+            "left/elbow_forearm|tibia_l": 5,
+            "left/other|calcn_l": 68,
+            "left/other|tibia_l": 41,
+            "left/palm_metacarpals|calcn_l": 52,
+            "left/palm_metacarpals|tibia_l": 84,
+            "left/upper_arm|calcn_l": 16,
+            "left/upper_arm|tibia_l": 9
+          },
+          "allowed_shared_seam_pairs": 420,
+          "candidate_pairs": 453,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        }
+      },
+      "orientation_reversals": 0,
+      "registered_csv_sha256": "32cb7b175f2686077b1e76fa47bc725ff28549e6aea7958efa06a3df54a3a616",
+      "requested_q": {
+        "109": -0.2,
+        "123": -0.2,
+        "36": 0.1,
+        "74": 0.1
+      },
+      "snapshot_sha256": "37cee243eef596013c1b71fa6862334b8dae343fe7df60b966026b05dfc1243f"
+    },
+    "reference": {
+      "changed_face_area_ratio": {
+        "max": 2.3242995726941484,
+        "min": 0.824998416393341,
+        "n": 195,
+        "p50": 1.0000002637667251,
+        "p95": 1.1869086391108592
+      },
+      "changed_face_normal_cosine": {
+        "max": 1.0000000000000004,
+        "min": 0.6481563452387873,
+        "n": 195,
+        "p50": 0.9997910048209765,
+        "p95": 1.0
+      },
+      "changed_row_motion_mm": {
+        "max": 8.455000698675429,
+        "min": 0.0,
+        "n": 73,
+        "p50": 0.225441038241927,
+        "p95": 3.235585560978169
+      },
+      "degenerate_count": 0,
+      "exact_static_gates": {
+        "bone_owners": {
+          "calcn_l": 9384,
+          "talus_l": 1356,
+          "tibia_l": 2816
+        },
+        "bone_surface_faces": 13556,
+        "patch_faces": 195,
+        "patch_self": {
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 1029
+          },
+          "allowed_shared_seam_pairs": 1029,
+          "candidate_pairs": 1078,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_left_ankle_bones": {
+          "allowed_seams_by_owner_pair": {},
+          "allowed_shared_seam_pairs": 0,
+          "candidate_pairs": 20,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_other_full_skin": {
+          "allowed_seams_by_owner_pair": {
+            "left/digits|calcn_l": 26,
+            "left/digits|tibia_l": 74,
+            "left/elbow_forearm|calcn_l": 45,
+            "left/elbow_forearm|tibia_l": 5,
+            "left/other|calcn_l": 68,
+            "left/other|tibia_l": 41,
+            "left/palm_metacarpals|calcn_l": 52,
+            "left/palm_metacarpals|tibia_l": 84,
+            "left/upper_arm|calcn_l": 16,
+            "left/upper_arm|tibia_l": 9
+          },
+          "allowed_shared_seam_pairs": 420,
+          "candidate_pairs": 458,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        }
+      },
+      "orientation_reversals": 0,
+      "registered_csv_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+      "requested_q": {
+        "36": 0.1,
+        "74": 0.1
+      },
+      "snapshot_sha256": "f4b375a3c1476b9e4dcf506fc4001afa8ab4079070644af7b7d473cb43366818"
+    }
+  },
+  "preserved_pair_constraints": 27,
+  "qp": {
+    "constraint_count": 141,
+    "constraint_witnesses": [
+      {
+        "bone_face": 620,
+        "rhs_mm": -2.6874266455918727,
+        "signed_before_mm": 2.7374266455918725,
+        "skin_face": 49086,
+        "source_vertex": 38361
+      },
+      {
+        "bone_face": 620,
+        "rhs_mm": -2.5160398051748847,
+        "signed_before_mm": 2.5660398051748845,
+        "skin_face": 49086,
+        "source_vertex": 38372
+      },
+      {
+        "bone_face": 620,
+        "rhs_mm": -4.8499389492248195,
+        "signed_before_mm": 4.899938949224819,
+        "skin_face": 49086,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 620,
+        "rhs_mm": -2.2931465917543736,
+        "signed_before_mm": 2.343146591754374,
+        "skin_face": 49087,
+        "source_vertex": 38373
+      },
+      {
+        "bone_face": 620,
+        "rhs_mm": -2.6874266455918727,
+        "signed_before_mm": 2.7374266455918725,
+        "skin_face": 49087,
+        "source_vertex": 38361
+      },
+      {
+        "bone_face": 620,
+        "rhs_mm": -4.8499389492248195,
+        "signed_before_mm": 4.899938949224819,
+        "skin_face": 49087,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 622,
+        "rhs_mm": -1.925839959358401,
+        "signed_before_mm": 1.9758399593584008,
+        "skin_face": 49087,
+        "source_vertex": 38373
+      },
+      {
+        "bone_face": 622,
+        "rhs_mm": -2.8799018201187447,
+        "signed_before_mm": 2.929901820118745,
+        "skin_face": 49087,
+        "source_vertex": 38361
+      },
+      {
+        "bone_face": 622,
+        "rhs_mm": -4.884160142553434,
+        "signed_before_mm": 4.934160142553433,
+        "skin_face": 49087,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 623,
+        "rhs_mm": -2.239914372800466,
+        "signed_before_mm": 2.289914372800466,
+        "skin_face": 49087,
+        "source_vertex": 38373
+      },
+      {
+        "bone_face": 623,
+        "rhs_mm": -2.5035840488185768,
+        "signed_before_mm": 2.553584048818577,
+        "skin_face": 49087,
+        "source_vertex": 38361
+      },
+      {
+        "bone_face": 623,
+        "rhs_mm": -1.6565697849068566,
+        "signed_before_mm": 1.7065697849068566,
+        "skin_face": 49087,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 624,
+        "rhs_mm": -2.0001653897248346,
+        "signed_before_mm": 2.050165389724835,
+        "skin_face": 49089,
+        "source_vertex": 37853
+      },
+      {
+        "bone_face": 624,
+        "rhs_mm": -1.8882422985989629,
+        "signed_before_mm": 1.9382422985989627,
+        "skin_face": 49089,
+        "source_vertex": 38373
+      },
+      {
+        "bone_face": 624,
+        "rhs_mm": -0.6255932927470622,
+        "signed_before_mm": 0.6755932927470623,
+        "skin_face": 49089,
+        "source_vertex": 38374
+      },
+      {
+        "bone_face": 783,
+        "rhs_mm": -3.0407486254629807,
+        "signed_before_mm": 3.090748625462981,
+        "skin_face": 49089,
+        "source_vertex": 37853
+      },
+      {
+        "bone_face": 783,
+        "rhs_mm": -0.8258784617686515,
+        "signed_before_mm": 0.8758784617686516,
+        "skin_face": 49089,
+        "source_vertex": 38373
+      },
+      {
+        "bone_face": 783,
+        "rhs_mm": -0.20000073802787893,
+        "signed_before_mm": 0.2500007380278789,
+        "skin_face": 49089,
+        "source_vertex": 38374
+      },
+      {
+        "bone_face": 428,
+        "rhs_mm": -1.2421415222441972,
+        "signed_before_mm": 1.292141522244197,
+        "skin_face": 49861,
+        "source_vertex": 38760
+      },
+      {
+        "bone_face": 428,
+        "rhs_mm": -1.6795227279078386,
+        "signed_before_mm": 1.7295227279078385,
+        "skin_face": 49861,
+        "source_vertex": 38757
+      },
+      {
+        "bone_face": 428,
+        "rhs_mm": -1.8353443502560038,
+        "signed_before_mm": 1.8853443502560039,
+        "skin_face": 49861,
+        "source_vertex": 38761
+      },
+      {
+        "bone_face": 429,
+        "rhs_mm": -2.1335540335900602,
+        "signed_before_mm": 2.1835540335900605,
+        "skin_face": 49862,
+        "source_vertex": 38372
+      },
+      {
+        "bone_face": 429,
+        "rhs_mm": -2.211142935153362,
+        "signed_before_mm": 2.2611429351533623,
+        "skin_face": 49862,
+        "source_vertex": 38759
+      },
+      {
+        "bone_face": 429,
+        "rhs_mm": -6.201932632683549,
+        "signed_before_mm": 6.251932632683549,
+        "skin_face": 49862,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 619,
+        "rhs_mm": -2.5673712838818035,
+        "signed_before_mm": 2.6173712838818037,
+        "skin_face": 49862,
+        "source_vertex": 38372
+      },
+      {
+        "bone_face": 619,
+        "rhs_mm": -1.8229579626331773,
+        "signed_before_mm": 1.8729579626331774,
+        "skin_face": 49862,
+        "source_vertex": 38759
+      },
+      {
+        "bone_face": 619,
+        "rhs_mm": -5.56249759726546,
+        "signed_before_mm": 5.61249759726546,
+        "skin_face": 49862,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 620,
+        "rhs_mm": -2.5160398051748847,
+        "signed_before_mm": 2.5660398051748845,
+        "skin_face": 49862,
+        "source_vertex": 38372
+      },
+      {
+        "bone_face": 620,
+        "rhs_mm": -1.0623480908400826,
+        "signed_before_mm": 1.1123480908400827,
+        "skin_face": 49862,
+        "source_vertex": 38759
+      },
+      {
+        "bone_face": 620,
+        "rhs_mm": -4.8499389492248195,
+        "signed_before_mm": 4.899938949224819,
+        "skin_face": 49862,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 428,
+        "rhs_mm": -1.7224237602059065,
+        "signed_before_mm": 1.7724237602059065,
+        "skin_face": 49864,
+        "source_vertex": 38759
+      },
+      {
+        "bone_face": 428,
+        "rhs_mm": -1.2421415222441972,
+        "signed_before_mm": 1.292141522244197,
+        "skin_face": 49864,
+        "source_vertex": 38760
+      },
+      {
+        "bone_face": 428,
+        "rhs_mm": -1.8353443502560038,
+        "signed_before_mm": 1.8853443502560039,
+        "skin_face": 49864,
+        "source_vertex": 38761
+      },
+      {
+        "bone_face": 429,
+        "rhs_mm": -2.211142935153362,
+        "signed_before_mm": 2.2611429351533623,
+        "skin_face": 49864,
+        "source_vertex": 38759
+      },
+      {
+        "bone_face": 429,
+        "rhs_mm": -1.330715690818361,
+        "signed_before_mm": 1.3807156908183609,
+        "skin_face": 49864,
+        "source_vertex": 38760
+      },
+      {
+        "bone_face": 429,
+        "rhs_mm": -1.3662133144941908,
+        "signed_before_mm": 1.4162133144941909,
+        "skin_face": 49864,
+        "source_vertex": 38761
+      },
+      {
+        "bone_face": 429,
+        "rhs_mm": -6.201932632683549,
+        "signed_before_mm": 6.251932632683549,
+        "skin_face": 49865,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 429,
+        "rhs_mm": -2.211142935153362,
+        "signed_before_mm": 2.2611429351533623,
+        "skin_face": 49865,
+        "source_vertex": 38759
+      },
+      {
+        "bone_face": 429,
+        "rhs_mm": -1.3662133144941908,
+        "signed_before_mm": 1.4162133144941909,
+        "skin_face": 49865,
+        "source_vertex": 38761
+      },
+      {
+        "bone_face": 623,
+        "rhs_mm": -2.239914372800466,
+        "signed_before_mm": 2.289914372800466,
+        "skin_face": 49866,
+        "source_vertex": 38373
+      },
+      {
+        "bone_face": 623,
+        "rhs_mm": -1.6565697849068566,
+        "signed_before_mm": 1.7065697849068566,
+        "skin_face": 49866,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 623,
+        "rhs_mm": -0.5534462642846318,
+        "signed_before_mm": 0.6034462642846318,
+        "skin_face": 49866,
+        "source_vertex": 38374
+      },
+      {
+        "bone_face": 624,
+        "rhs_mm": -1.8882422985989629,
+        "signed_before_mm": 1.9382422985989627,
+        "skin_face": 49866,
+        "source_vertex": 38373
+      },
+      {
+        "bone_face": 624,
+        "rhs_mm": -0.19999366455726486,
+        "signed_before_mm": 0.24999366455726485,
+        "skin_face": 49866,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 624,
+        "rhs_mm": -0.6255932927470622,
+        "signed_before_mm": 0.6755932927470623,
+        "skin_face": 49866,
+        "source_vertex": 38374
+      },
+      {
+        "bone_face": 446,
+        "rhs_mm": 1.8084200117990685,
+        "signed_before_mm": -1.7584200117990685,
+        "skin_face": 49867,
+        "source_vertex": 38374
+      },
+      {
+        "bone_face": 446,
+        "rhs_mm": -6.26606911900104,
+        "signed_before_mm": 6.31606911900104,
+        "skin_face": 49867,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 446,
+        "rhs_mm": -1.7364525491720124,
+        "signed_before_mm": 1.7864525491720122,
+        "skin_face": 49867,
+        "source_vertex": 38763
+      },
+      {
+        "bone_face": 447,
+        "rhs_mm": 0.7010317217444623,
+        "signed_before_mm": -0.6510317217444622,
+        "skin_face": 49867,
+        "source_vertex": 38374
+      },
+      {
+        "bone_face": 447,
+        "rhs_mm": -5.495458391953225,
+        "signed_before_mm": 5.5454583919532245,
+        "skin_face": 49867,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 447,
+        "rhs_mm": -0.2977349578685919,
+        "signed_before_mm": 0.3477349578685919,
+        "skin_face": 49867,
+        "source_vertex": 38763
+      },
+      {
+        "bone_face": 622,
+        "rhs_mm": 0.2353054563822606,
+        "signed_before_mm": -0.18530545638226062,
+        "skin_face": 49867,
+        "source_vertex": 38374
+      },
+      {
+        "bone_face": 622,
+        "rhs_mm": -4.884160142553434,
+        "signed_before_mm": 4.934160142553433,
+        "skin_face": 49867,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 622,
+        "rhs_mm": 0.5923451919333174,
+        "signed_before_mm": -0.5423451919333173,
+        "skin_face": 49867,
+        "source_vertex": 38763
+      },
+      {
+        "bone_face": 623,
+        "rhs_mm": -0.5534462642846318,
+        "signed_before_mm": 0.6034462642846318,
+        "skin_face": 49867,
+        "source_vertex": 38374
+      },
+      {
+        "bone_face": 623,
+        "rhs_mm": -1.6565697849068566,
+        "signed_before_mm": 1.7065697849068566,
+        "skin_face": 49867,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 623,
+        "rhs_mm": 3.3063959443141373,
+        "signed_before_mm": -3.2563959443141375,
+        "skin_face": 49867,
+        "source_vertex": 38763
+      },
+      {
+        "bone_face": 444,
+        "rhs_mm": -0.19999833069802325,
+        "signed_before_mm": 0.24999833069802324,
+        "skin_face": 49868,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 444,
+        "rhs_mm": -3.1679077627362515,
+        "signed_before_mm": 3.217907762736252,
+        "skin_face": 49868,
+        "source_vertex": 39150
+      },
+      {
+        "bone_face": 444,
+        "rhs_mm": -0.19999715962763062,
+        "signed_before_mm": 0.24999715962763064,
+        "skin_face": 49868,
+        "source_vertex": 38763
+      },
+      {
+        "bone_face": 446,
+        "rhs_mm": 1.8084200117990685,
+        "signed_before_mm": -1.7584200117990685,
+        "skin_face": 49869,
+        "source_vertex": 38374
+      },
+      {
+        "bone_face": 446,
+        "rhs_mm": -1.7364525491720124,
+        "signed_before_mm": 1.7864525491720122,
+        "skin_face": 49869,
+        "source_vertex": 38763
+      },
+      {
+        "bone_face": 446,
+        "rhs_mm": 0.9958378921780613,
+        "signed_before_mm": -0.9458378921780614,
+        "skin_face": 49869,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 623,
+        "rhs_mm": -0.5534462642846318,
+        "signed_before_mm": 0.6034462642846318,
+        "skin_face": 49869,
+        "source_vertex": 38374
+      },
+      {
+        "bone_face": 623,
+        "rhs_mm": 3.3063959443141373,
+        "signed_before_mm": -3.2563959443141375,
+        "skin_face": 49869,
+        "source_vertex": 38763
+      },
+      {
+        "bone_face": 623,
+        "rhs_mm": 2.6995350298863623,
+        "signed_before_mm": -2.649535029886362,
+        "skin_face": 49869,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 624,
+        "rhs_mm": -0.6255932927470622,
+        "signed_before_mm": 0.6755932927470623,
+        "skin_face": 49869,
+        "source_vertex": 38374
+      },
+      {
+        "bone_face": 624,
+        "rhs_mm": 4.218303266813513,
+        "signed_before_mm": -4.168303266813514,
+        "skin_face": 49869,
+        "source_vertex": 38763
+      },
+      {
+        "bone_face": 624,
+        "rhs_mm": 2.9178394441557893,
+        "signed_before_mm": -2.867839444155789,
+        "skin_face": 49869,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 446,
+        "rhs_mm": 0.9958378921780613,
+        "signed_before_mm": -0.9458378921780614,
+        "skin_face": 49870,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 446,
+        "rhs_mm": -1.7364525491720124,
+        "signed_before_mm": 1.7864525491720122,
+        "skin_face": 49870,
+        "source_vertex": 38763
+      },
+      {
+        "bone_face": 446,
+        "rhs_mm": 0.319623226416523,
+        "signed_before_mm": -0.269623226416523,
+        "skin_face": 49870,
+        "source_vertex": 39142
+      },
+      {
+        "bone_face": 451,
+        "rhs_mm": 1.3084211201291305,
+        "signed_before_mm": -1.2584211201291307,
+        "skin_face": 49870,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 451,
+        "rhs_mm": -1.7965443965900494,
+        "signed_before_mm": 1.8465443965900492,
+        "skin_face": 49870,
+        "source_vertex": 38763
+      },
+      {
+        "bone_face": 451,
+        "rhs_mm": -0.3953443383409857,
+        "signed_before_mm": 0.44534433834098575,
+        "skin_face": 49870,
+        "source_vertex": 39142
+      },
+      {
+        "bone_face": 454,
+        "rhs_mm": 1.138930294164679,
+        "signed_before_mm": -1.088930294164679,
+        "skin_face": 49870,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 454,
+        "rhs_mm": -1.8546350986981417,
+        "signed_before_mm": 1.9046350986981417,
+        "skin_face": 49870,
+        "source_vertex": 38763
+      },
+      {
+        "bone_face": 454,
+        "rhs_mm": -0.3350223763973144,
+        "signed_before_mm": 0.3850223763973144,
+        "skin_face": 49870,
+        "source_vertex": 39142
+      },
+      {
+        "bone_face": 624,
+        "rhs_mm": -0.6255932927470622,
+        "signed_before_mm": 0.6755932927470623,
+        "skin_face": 49872,
+        "source_vertex": 38374
+      },
+      {
+        "bone_face": 624,
+        "rhs_mm": 2.9178394441557893,
+        "signed_before_mm": -2.867839444155789,
+        "skin_face": 49872,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 624,
+        "rhs_mm": -0.814281323429272,
+        "signed_before_mm": 0.864281323429272,
+        "skin_face": 49872,
+        "source_vertex": 38375
+      },
+      {
+        "bone_face": 626,
+        "rhs_mm": -0.9509035256114957,
+        "signed_before_mm": 1.0009035256114958,
+        "skin_face": 49872,
+        "source_vertex": 38374
+      },
+      {
+        "bone_face": 626,
+        "rhs_mm": 2.670373410780918,
+        "signed_before_mm": -2.6203734107809176,
+        "skin_face": 49872,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 626,
+        "rhs_mm": -0.5313125863689574,
+        "signed_before_mm": 0.5813125863689574,
+        "skin_face": 49872,
+        "source_vertex": 38375
+      },
+      {
+        "bone_face": 447,
+        "rhs_mm": 1.7374052534993512,
+        "signed_before_mm": -1.687405253499351,
+        "skin_face": 49873,
+        "source_vertex": 38375
+      },
+      {
+        "bone_face": 447,
+        "rhs_mm": 1.4407778841543386,
+        "signed_before_mm": -1.3907778841543386,
+        "skin_face": 49873,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 447,
+        "rhs_mm": -1.89981961539074,
+        "signed_before_mm": 1.94981961539074,
+        "skin_face": 49873,
+        "source_vertex": 38765
+      },
+      {
+        "bone_face": 452,
+        "rhs_mm": 1.852555297189534,
+        "signed_before_mm": -1.8025552971895342,
+        "skin_face": 49873,
+        "source_vertex": 38375
+      },
+      {
+        "bone_face": 452,
+        "rhs_mm": 1.336828979214695,
+        "signed_before_mm": -1.286828979214695,
+        "skin_face": 49873,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 452,
+        "rhs_mm": -1.8166259837535859,
+        "signed_before_mm": 1.8666259837535857,
+        "skin_face": 49873,
+        "source_vertex": 38765
+      },
+      {
+        "bone_face": 458,
+        "rhs_mm": 0.04981926010679398,
+        "signed_before_mm": 0.0001807398932060217,
+        "skin_face": 49873,
+        "source_vertex": 38375
+      },
+      {
+        "bone_face": 458,
+        "rhs_mm": 2.4748309599321017,
+        "signed_before_mm": -2.4248309599321014,
+        "skin_face": 49873,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 458,
+        "rhs_mm": -2.0952811451073807,
+        "signed_before_mm": 2.1452811451073805,
+        "skin_face": 49873,
+        "source_vertex": 38765
+      },
+      {
+        "bone_face": 626,
+        "rhs_mm": -0.5313125863689574,
+        "signed_before_mm": 0.5813125863689574,
+        "skin_face": 49873,
+        "source_vertex": 38375
+      },
+      {
+        "bone_face": 626,
+        "rhs_mm": 2.670373410780918,
+        "signed_before_mm": -2.6203734107809176,
+        "skin_face": 49873,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 626,
+        "rhs_mm": -1.8425723512729058,
+        "signed_before_mm": 1.8925723512729056,
+        "skin_face": 49873,
+        "source_vertex": 38765
+      },
+      {
+        "bone_face": 626,
+        "rhs_mm": -0.5313125863689574,
+        "signed_before_mm": 0.5813125863689574,
+        "skin_face": 49874,
+        "source_vertex": 38375
+      },
+      {
+        "bone_face": 626,
+        "rhs_mm": -1.8425723512729058,
+        "signed_before_mm": 1.8925723512729056,
+        "skin_face": 49874,
+        "source_vertex": 38765
+      },
+      {
+        "bone_face": 626,
+        "rhs_mm": -4.111718099930266,
+        "signed_before_mm": 4.161718099930265,
+        "skin_face": 49874,
+        "source_vertex": 38377
+      },
+      {
+        "bone_face": 627,
+        "rhs_mm": -0.5416705620335932,
+        "signed_before_mm": 0.5916705620335933,
+        "skin_face": 49874,
+        "source_vertex": 38375
+      },
+      {
+        "bone_face": 627,
+        "rhs_mm": -0.19999740032073995,
+        "signed_before_mm": 0.24999740032073994,
+        "skin_face": 49874,
+        "source_vertex": 38765
+      },
+      {
+        "bone_face": 627,
+        "rhs_mm": -3.568417408163466,
+        "signed_before_mm": 3.618417408163466,
+        "skin_face": 49874,
+        "source_vertex": 38377
+      },
+      {
+        "bone_face": 628,
+        "rhs_mm": -0.5920297249544667,
+        "signed_before_mm": 0.6420297249544668,
+        "skin_face": 49874,
+        "source_vertex": 38375
+      },
+      {
+        "bone_face": 628,
+        "rhs_mm": -1.6119010627986696,
+        "signed_before_mm": 1.6619010627986697,
+        "skin_face": 49874,
+        "source_vertex": 38765
+      },
+      {
+        "bone_face": 628,
+        "rhs_mm": -4.219897466939862,
+        "signed_before_mm": 4.269897466939861,
+        "skin_face": 49874,
+        "source_vertex": 38377
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -1.7856459397594662,
+        "signed_before_mm": 1.8356459397594662,
+        "skin_face": 50623,
+        "source_vertex": 38761
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -1.4472300515321845,
+        "signed_before_mm": 1.4972300515321846,
+        "skin_face": 50623,
+        "source_vertex": 38757
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -2.2013441700051746,
+        "signed_before_mm": 2.2513441700051744,
+        "skin_face": 50623,
+        "source_vertex": 39147
+      },
+      {
+        "bone_face": 428,
+        "rhs_mm": -1.8353443502560038,
+        "signed_before_mm": 1.8853443502560039,
+        "skin_face": 50623,
+        "source_vertex": 38761
+      },
+      {
+        "bone_face": 428,
+        "rhs_mm": -1.6795227279078386,
+        "signed_before_mm": 1.7295227279078385,
+        "skin_face": 50623,
+        "source_vertex": 38757
+      },
+      {
+        "bone_face": 428,
+        "rhs_mm": -1.2751890162817516,
+        "signed_before_mm": 1.3251890162817517,
+        "skin_face": 50623,
+        "source_vertex": 39147
+      },
+      {
+        "bone_face": 446,
+        "rhs_mm": 0.9958378921780613,
+        "signed_before_mm": -0.9458378921780614,
+        "skin_face": 50624,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 446,
+        "rhs_mm": 0.319623226416523,
+        "signed_before_mm": -0.269623226416523,
+        "skin_face": 50624,
+        "source_vertex": 39142
+      },
+      {
+        "bone_face": 446,
+        "rhs_mm": -1.1343047150758283,
+        "signed_before_mm": 1.1843047150758281,
+        "skin_face": 50624,
+        "source_vertex": 38765
+      },
+      {
+        "bone_face": 447,
+        "rhs_mm": 1.4407778841543386,
+        "signed_before_mm": -1.3907778841543386,
+        "skin_face": 50624,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 447,
+        "rhs_mm": 1.7214663336049434,
+        "signed_before_mm": -1.6714663336049436,
+        "skin_face": 50624,
+        "source_vertex": 39142
+      },
+      {
+        "bone_face": 447,
+        "rhs_mm": -1.89981961539074,
+        "signed_before_mm": 1.94981961539074,
+        "skin_face": 50624,
+        "source_vertex": 38765
+      },
+      {
+        "bone_face": 451,
+        "rhs_mm": 1.3084211201291305,
+        "signed_before_mm": -1.2584211201291307,
+        "skin_face": 50624,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 451,
+        "rhs_mm": -0.3953443383409857,
+        "signed_before_mm": 0.44534433834098575,
+        "skin_face": 50624,
+        "source_vertex": 39142
+      },
+      {
+        "bone_face": 451,
+        "rhs_mm": 0.026697643050067933,
+        "signed_before_mm": 0.02330235694993207,
+        "skin_face": 50624,
+        "source_vertex": 38765
+      },
+      {
+        "bone_face": 454,
+        "rhs_mm": 1.138930294164679,
+        "signed_before_mm": -1.088930294164679,
+        "skin_face": 50624,
+        "source_vertex": 38764
+      },
+      {
+        "bone_face": 454,
+        "rhs_mm": -0.3350223763973144,
+        "signed_before_mm": 0.3850223763973144,
+        "skin_face": 50624,
+        "source_vertex": 39142
+      },
+      {
+        "bone_face": 454,
+        "rhs_mm": -0.44485864365024935,
+        "signed_before_mm": 0.49485864365024934,
+        "skin_face": 50624,
+        "source_vertex": 38765
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -1.7856459397594662,
+        "signed_before_mm": 1.8356459397594662,
+        "skin_face": 50631,
+        "source_vertex": 38761
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -2.2013441700051746,
+        "signed_before_mm": 2.2513441700051744,
+        "skin_face": 50631,
+        "source_vertex": 39147
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -3.6045966739488144,
+        "signed_before_mm": 3.6545966739488147,
+        "skin_face": 50631,
+        "source_vertex": 39560
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -3.9000450979515247,
+        "signed_before_mm": 3.9500450979515245,
+        "skin_face": 50635,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -1.7856459397594662,
+        "signed_before_mm": 1.8356459397594662,
+        "skin_face": 50635,
+        "source_vertex": 38761
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -3.1360814520079616,
+        "signed_before_mm": 3.186081452007962,
+        "skin_face": 50635,
+        "source_vertex": 39150
+      },
+      {
+        "bone_face": 444,
+        "rhs_mm": -0.19999833069802325,
+        "signed_before_mm": 0.24999833069802324,
+        "skin_face": 50635,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 444,
+        "rhs_mm": -0.19999437535791886,
+        "signed_before_mm": 0.24999437535791885,
+        "skin_face": 50635,
+        "source_vertex": 38761
+      },
+      {
+        "bone_face": 444,
+        "rhs_mm": -3.1679077627362515,
+        "signed_before_mm": 3.217907762736252,
+        "skin_face": 50635,
+        "source_vertex": 39150
+      },
+      {
+        "bone_face": 451,
+        "rhs_mm": -4.49559950434632,
+        "signed_before_mm": 4.545599504346319,
+        "skin_face": 50635,
+        "source_vertex": 38762
+      },
+      {
+        "bone_face": 451,
+        "rhs_mm": -2.0833813301385518,
+        "signed_before_mm": 2.133381330138552,
+        "skin_face": 50635,
+        "source_vertex": 38761
+      },
+      {
+        "bone_face": 451,
+        "rhs_mm": -2.358857106470338,
+        "signed_before_mm": 2.408857106470338,
+        "skin_face": 50635,
+        "source_vertex": 39150
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -1.7856459397594662,
+        "signed_before_mm": 1.8356459397594662,
+        "skin_face": 50636,
+        "source_vertex": 38761
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -3.4420014815053506,
+        "signed_before_mm": 3.4920014815053504,
+        "skin_face": 50636,
+        "source_vertex": 39149
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -3.1360814520079616,
+        "signed_before_mm": 3.186081452007962,
+        "skin_face": 50636,
+        "source_vertex": 39150
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -1.7856459397594662,
+        "signed_before_mm": 1.8356459397594662,
+        "skin_face": 51429,
+        "source_vertex": 38761
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -3.6045966739488144,
+        "signed_before_mm": 3.6545966739488147,
+        "skin_face": 51429,
+        "source_vertex": 39560
+      },
+      {
+        "bone_face": 427,
+        "rhs_mm": -3.4420014815053506,
+        "signed_before_mm": 3.4920014815053504,
+        "skin_face": 51429,
+        "source_vertex": 39149
+      }
+    ],
+    "iterations": 29,
+    "max_increment_mm": 4.2328509779813555,
+    "max_total_rest_delta_mm": 8.39114992844909,
+    "message": "Optimization terminated successfully",
+    "minimum_linearized_margin_m": -2.8189256484623115e-18,
+    "objective": 5.777418632084088e-05,
+    "success": true,
+    "variable_count": 43,
+    "variable_rows": [
+      37204,
+      37841,
+      37842,
+      37853,
+      37854,
+      37855,
+      38359,
+      38360,
+      38361,
+      38363,
+      38372,
+      38373,
+      38374,
+      38375,
+      38376,
+      38377,
+      38754,
+      38756,
+      38757,
+      38758,
+      38759,
+      38760,
+      38761,
+      38762,
+      38763,
+      38764,
+      38765,
+      38766,
+      39141,
+      39142,
+      39143,
+      39144,
+      39146,
+      39147,
+      39148,
+      39149,
+      39150,
+      39553,
+      39559,
+      39560,
+      39561,
+      40046,
+      40584
+    ]
+  },
+  "schema": "numi.human.left-ankle-coupled-geometry-weight-candidate.v1",
+  "separation_margin_m": 5e-05,
+  "source_faces_for_constraint_patch": [
+    49086,
+    49087,
+    49089,
+    49861,
+    49862,
+    49864,
+    49865,
+    49866,
+    49867,
+    49868,
+    49869,
+    49870,
+    49872,
+    49873,
+    49874,
+    50623,
+    50624,
+    50631,
+    50635,
+    50636,
+    51429
+  ],
+  "source_identity": {
+    "outside_changed_rows_equal_native_csv": true,
+    "payload_source_row_ids_preserved": true,
+    "source_ancestry": [
+      {
+        "candidate_row": 37195,
+        "source_vertex": 37195
+      },
+      {
+        "candidate_row": 37197,
+        "source_vertex": 37197
+      },
+      {
+        "candidate_row": 37201,
+        "source_vertex": 37201
+      },
+      {
+        "candidate_row": 37204,
+        "source_vertex": 37204
+      },
+      {
+        "candidate_row": 37836,
+        "source_vertex": 37836
+      },
+      {
+        "candidate_row": 37838,
+        "source_vertex": 37838
+      },
+      {
+        "candidate_row": 37839,
+        "source_vertex": 37839
+      },
+      {
+        "candidate_row": 37840,
+        "source_vertex": 37840
+      },
+      {
+        "candidate_row": 37841,
+        "source_vertex": 37841
+      },
+      {
+        "candidate_row": 37842,
+        "source_vertex": 37842
+      },
+      {
+        "candidate_row": 37844,
+        "source_vertex": 37844
+      },
+      {
+        "candidate_row": 37845,
+        "source_vertex": 37845
+      },
+      {
+        "candidate_row": 37846,
+        "source_vertex": 37846
+      },
+      {
+        "candidate_row": 37847,
+        "source_vertex": 37847
+      },
+      {
+        "candidate_row": 37849,
+        "source_vertex": 37849
+      },
+      {
+        "candidate_row": 37853,
+        "source_vertex": 37853
+      },
+      {
+        "candidate_row": 37854,
+        "source_vertex": 37854
+      },
+      {
+        "candidate_row": 37855,
+        "source_vertex": 37855
+      },
+      {
+        "candidate_row": 37858,
+        "source_vertex": 37858
+      },
+      {
+        "candidate_row": 38356,
+        "source_vertex": 38356
+      },
+      {
+        "candidate_row": 38357,
+        "source_vertex": 38357
+      },
+      {
+        "candidate_row": 38358,
+        "source_vertex": 38358
+      },
+      {
+        "candidate_row": 38359,
+        "source_vertex": 38359
+      },
+      {
+        "candidate_row": 38360,
+        "source_vertex": 38360
+      },
+      {
+        "candidate_row": 38361,
+        "source_vertex": 38361
+      },
+      {
+        "candidate_row": 38362,
+        "source_vertex": 38362
+      },
+      {
+        "candidate_row": 38363,
+        "source_vertex": 38363
+      },
+      {
+        "candidate_row": 38364,
+        "source_vertex": 38364
+      },
+      {
+        "candidate_row": 38365,
+        "source_vertex": 38365
+      },
+      {
+        "candidate_row": 38366,
+        "source_vertex": 38366
+      },
+      {
+        "candidate_row": 38367,
+        "source_vertex": 38367
+      },
+      {
+        "candidate_row": 38368,
+        "source_vertex": 38368
+      },
+      {
+        "candidate_row": 38369,
+        "source_vertex": 38369
+      },
+      {
+        "candidate_row": 38370,
+        "source_vertex": 38370
+      },
+      {
+        "candidate_row": 38371,
+        "source_vertex": 38371
+      },
+      {
+        "candidate_row": 38372,
+        "source_vertex": 38372
+      },
+      {
+        "candidate_row": 38373,
+        "source_vertex": 38373
+      },
+      {
+        "candidate_row": 38374,
+        "source_vertex": 38374
+      },
+      {
+        "candidate_row": 38375,
+        "source_vertex": 38375
+      },
+      {
+        "candidate_row": 38376,
+        "source_vertex": 38376
+      },
+      {
+        "candidate_row": 38377,
+        "source_vertex": 38377
+      },
+      {
+        "candidate_row": 38749,
+        "source_vertex": 38749
+      },
+      {
+        "candidate_row": 38752,
+        "source_vertex": 38752
+      },
+      {
+        "candidate_row": 38753,
+        "source_vertex": 38753
+      },
+      {
+        "candidate_row": 38754,
+        "source_vertex": 38754
+      },
+      {
+        "candidate_row": 38755,
+        "source_vertex": 38755
+      },
+      {
+        "candidate_row": 38756,
+        "source_vertex": 38756
+      },
+      {
+        "candidate_row": 38757,
+        "source_vertex": 38757
+      },
+      {
+        "candidate_row": 38758,
+        "source_vertex": 38758
+      },
+      {
+        "candidate_row": 38759,
+        "source_vertex": 38759
+      },
+      {
+        "candidate_row": 38760,
+        "source_vertex": 38760
+      },
+      {
+        "candidate_row": 38761,
+        "source_vertex": 38761
+      },
+      {
+        "candidate_row": 38762,
+        "source_vertex": 38762
+      },
+      {
+        "candidate_row": 38763,
+        "source_vertex": 38763
+      },
+      {
+        "candidate_row": 38764,
+        "source_vertex": 38764
+      },
+      {
+        "candidate_row": 38765,
+        "source_vertex": 38765
+      },
+      {
+        "candidate_row": 38766,
+        "source_vertex": 38766
+      },
+      {
+        "candidate_row": 38768,
+        "source_vertex": 38768
+      },
+      {
+        "candidate_row": 39141,
+        "source_vertex": 39141
+      },
+      {
+        "candidate_row": 39142,
+        "source_vertex": 39142
+      },
+      {
+        "candidate_row": 39143,
+        "source_vertex": 39143
+      },
+      {
+        "candidate_row": 39144,
+        "source_vertex": 39144
+      },
+      {
+        "candidate_row": 39146,
+        "source_vertex": 39146
+      },
+      {
+        "candidate_row": 39147,
+        "source_vertex": 39147
+      },
+      {
+        "candidate_row": 39148,
+        "source_vertex": 39148
+      },
+      {
+        "candidate_row": 39149,
+        "source_vertex": 39149
+      },
+      {
+        "candidate_row": 39150,
+        "source_vertex": 39150
+      },
+      {
+        "candidate_row": 39553,
+        "source_vertex": 39553
+      },
+      {
+        "candidate_row": 39559,
+        "source_vertex": 39559
+      },
+      {
+        "candidate_row": 39560,
+        "source_vertex": 39560
+      },
+      {
+        "candidate_row": 39561,
+        "source_vertex": 39561
+      },
+      {
+        "candidate_row": 40046,
+        "source_vertex": 40046
+      },
+      {
+        "candidate_row": 40584,
+        "source_vertex": 40584
+      }
+    ],
+    "topology_order_preserved": true
+  },
+  "source_payload": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-069i-left-ring-web-retreat/replacement-bilateral-hands038.nhskin",
+  "source_payload_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+  "source_rows_for_constraint_patch": [
+    37853,
+    38361,
+    38372,
+    38373,
+    38374,
+    38375,
+    38377,
+    38757,
+    38759,
+    38760,
+    38761,
+    38762,
+    38763,
+    38764,
+    38765,
+    39142,
+    39147,
+    39149,
+    39150,
+    39560
+  ],
+  "status": "candidate_only_not_admitted_pending_mechanical_FEM_mapping_and_independent_review",
+  "tibia_oriented_signed_six_volume_m3": 0.0019583279850346933,
+  "tibia_outward_orientation_sign": 1.0,
+  "weight_candidate": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-tibia-weight-counterfactual-018/s0p33-weights.npz",
+  "weight_candidate_sha256": "90c94cfbb86c5bc979a4ad1e2c2fd32d4c0205a19eb9748a9bc74c97b501d6fe"
+}

@@ -1,0 +1,118 @@
+{
+  "bounds": {
+    "fat_mm": [
+      0.51969976517374,
+      9.902890265391271
+    ],
+    "max_world_fat_width_error_mm": 0.0,
+    "max_world_skin_width_error_mm": 4.938868414933184e-06,
+    "native_relative_width_tolerance_max_mm": 2.454307144129911e-05,
+    "skin_mm": [
+      0.5492099909235224,
+      2.4543071441299107
+    ]
+  },
+  "donor_frame": {
+    "baseline_world_local_mechanical_delta_error_max_mm": 1.533694050169436e-09,
+    "candidate_outer_frame_reconstruction_error_max_mm": 6.111299849042614e-10,
+    "fat_displacement_frame_error_max_mm": 7.829065510105711e-09,
+    "skin_displacement_frame_error_max_mm": 5.3350746008739815e-06
+  },
+  "input_sha256": {
+    "base294_skin": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "candidate_ankle_skin": "d07b27e7d9d6952a3bc33d41535693b45f107f629e69520c2afbfb990ed1237f",
+    "main294_reduction_header": "a0e6d69706611257556c74ab7815ca2605f1f3c5f5530d9dd3472ecf482f5200",
+    "matched_reference_snapshot": "f4b375a3c1476b9e4dcf506fc4001afa8ab4079070644af7b7d473cb43366818"
+  },
+  "layer_geometry": {
+    "baseline_fat_volume_m3": 0.011652343293850826,
+    "baseline_skin_volume_m3": 0.0034525707761420958,
+    "fat_min_abs_tet_m3": 7.748779894799076e-14,
+    "fat_prism_bad_faces": 0,
+    "fat_volume_change_pct": 0.02850771278555264,
+    "fat_volume_m3": 0.011655665110409823,
+    "float32_interlayer_checks": {
+      "outer_fat_deep": {
+        "aabb_candidate_pairs": 24387,
+        "intersection_pairs": 0,
+        "witnesses": []
+      },
+      "outer_skin_inner": {
+        "aabb_candidate_pairs": 37337,
+        "intersection_pairs": 0,
+        "witnesses": []
+      },
+      "skin_inner_fat_deep": {
+        "aabb_candidate_pairs": 29139,
+        "intersection_pairs": 0,
+        "witnesses": []
+      }
+    },
+    "float32_self_boundary_checks": {
+      "fat_deep": {
+        "boundary_edges": 0,
+        "exact_intersection_pairs": 0,
+        "nonmanifold_edges": 0,
+        "witnesses": []
+      },
+      "outer": {
+        "boundary_edges": 0,
+        "exact_intersection_pairs": 0,
+        "nonmanifold_edges": 0,
+        "witnesses": []
+      },
+      "skin_inner": {
+        "boundary_edges": 0,
+        "exact_intersection_pairs": 0,
+        "nonmanifold_edges": 0,
+        "witnesses": []
+      }
+    },
+    "skin_min_abs_tet_m3": 2.8926343765111277e-13,
+    "skin_prism_bad_faces": 0,
+    "skin_volume_change_pct": 0.025423227411436322,
+    "skin_volume_m3": 0.0034534485310620555
+  },
+  "layer_npz_sha256": "c68d8d8408975c8aed0802d39148e65ae82de811ec8717e2b91d01f48bc35e9b",
+  "limits": [
+    "The exact cross/self checks cover only these 2332-row coarse boundary meshes at Float32 coordinate precision; no near-bone or deformed-pose check was done on this mechanical layer candidate.",
+    "Volume changes preserve the existing donor mass only by resolving density to the stated in-range values. The current material files carry defaults of 1000 and 900, and appendRegisteredSkinFatFEMFromLayers rejects a differing positive default; therefore a private candidate material overlay or an exact volume-preserving adjustment is required before the native owner can accept it.",
+    "No native FromLayers/compileWorld test was run, and this candidate is not admitted or a physical repair."
+  ],
+  "mapping": {
+    "changed_source_rows": [
+      38360,
+      38763
+    ],
+    "coarse_rows": 2332,
+    "direct_changed_rows": 2,
+    "donor_identity_changes": 0,
+    "faces": 4619,
+    "max_reference_delta_mm": 6.243970517060163,
+    "source_face_ancestry_preserved": true
+  },
+  "mass": {
+    "current_material_defaults_kg_m3": [
+      1000,
+      900
+    ],
+    "existing_append_owner_default_conflict": true,
+    "existing_fat_donor_debit_kg": 10.487108964465744,
+    "existing_skin_donor_debit_kg": 3.4525707761420956,
+    "fat_material_density_range_kg_m3": [
+      850,
+      950
+    ],
+    "resolved_density_kg_m3": [
+      999.7458323435068,
+      899.7435037061568
+    ],
+    "skin_material_density_range_kg_m3": [
+      900,
+      1100
+    ]
+  },
+  "method": "common-mode per-coarse-row shift of all frozen O/I/D world boundaries by candidate-minus-base weighted-LBS displacement at matched reference; same transformed shift in existing frozen donor-local frames; no positions outside the direct-source delta rows changed",
+  "schema": "numi.human.main294.ankle.transplant.layers.v1",
+  "status": "proposal_only_exact_geometry_preflight_not_native_FromLayers_or_scene_admission"
+}

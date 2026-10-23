@@ -1,0 +1,221 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+import csv, hashlib, json, re
+from pathlib import Path
+import numpy as np
+
+ROOT=Path('/Users/n/numi-human-aortic-contact-opt-20261019')
+E=ROOT/'matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001'
+OUT=E/'ankle-coupled-021-on-294-001/native-compileworld-candidate-001'
+NPZ=E/'ankle-coupled-021-on-294-001/main294-commonmode-layer-candidate-001/candidate-layers.npz'
+PAYLOAD=E/'ankle-coupled-021-on-294-001/ankle-coupled-021-on-294.nhskin'
+BASE=Path('/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/build-wholebody-016/source/apps')
+CSV=Path('/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/native-wholebody-001/registered-skin.csv')
+RED=BASE/'NumiHumanWholeBodySkinReduction.hpp'
+LIB=Path('/tmp/numi-human-joint-owner-build-033/lib/libmetalrobo.dylib')
+
+def sha(p:Path)->str:return hashlib.sha256(p.read_bytes()).hexdigest()
+def parse_int_array(text,name):
+ m=re.search(r'\b'+re.escape(name)+r'\s*=\s*\{(.*?)\}\s*;',text,re.S)
+ if not m:raise ValueError('missing array '+name)
+ return np.array([int(x) for x in re.findall(r'(?<![A-Za-z_])(\d+)(?:u)?',m.group(1))],dtype=np.int64)
+def parse_faces(text,name):
+ m=re.search(r'\b'+re.escape(name)+r'\s*=\s*\{(.*?)\}\s*;',text,re.S)
+ if not m:raise ValueError('missing face array '+name)
+ return np.array([[int(x) for x in row] for row in re.findall(r'Face\s*\{\s*(\d+)u?\s*,\s*(\d+)u?\s*,\s*(\d+)u?\s*\}',m.group(1))],dtype=np.int64)
+def fmt(x):
+ x=float(x)
+ if not np.isfinite(x):raise ValueError('nonfinite C++ candidate scalar')
+ return format(x,'.17g')
+def emit_vec(name,a):
+ rows=np.asarray(a,dtype=np.float64)
+ lines=[f'    V3{{{fmt(r[0])}, {fmt(r[1])}, {fmt(r[2])}}},' for r in rows]
+ return f'inline constexpr std::array<V3,{len(rows)}> {name}={{{{\n'+'\n'.join(lines)+'\n}};\n'
+def emit_scalar(name,a):
+ vals=np.asarray(a,dtype=np.float64).ravel()
+ lines=[]
+ for j in range(0,len(vals),4):lines.append('    '+', '.join(fmt(x) for x in vals[j:j+4])+',')
+ return f'inline constexpr std::array<double,{len(vals)}> {name}={{{{\n'+'\n'.join(lines)+'\n}};\n'
+def emit_u32(name,a):
+ vals=np.asarray(a,dtype=np.uint32).ravel()
+ lines=[]
+ for j in range(0,len(vals),12):lines.append('    '+', '.join(f'{int(x)}u' for x in vals[j:j+12])+',')
+ return f'inline constexpr std::array<std::uint32_t,{len(vals)}> {name}={{{{\n'+'\n'.join(lines)+'\n}};\n'
+
+base_text=RED.read_text()
+with np.load(NPZ,allow_pickle=False) as z:A={k:np.array(z[k]) for k in z.files}
+base_vertices=parse_int_array(base_text,'kWholeBodySkinSourceVertices')
+base_parents=parse_int_array(base_text,'kWholeBodySkinSourceFaces')
+base_faces=parse_faces(base_text,'kWholeBodySkinFaces')
+for key in ('outer_world_m','skin_inner_world_m','fat_deep_world_m','outer_donor_local_m','skin_inner_donor_local_m','fat_deep_donor_local_m'):
+ if A[key].shape!=(2332,3):raise ValueError(f'{key} has shape {A[key].shape}')
+if not np.array_equal(A['faces'],base_faces):raise ValueError('candidate topology differs from clean 294 main header')
+if not np.array_equal(A['source_vertex_ids'],base_vertices):raise ValueError('candidate source IDs differ from clean 294 main header')
+if not np.array_equal(A['source_face_parents'],base_parents):raise ValueError('candidate source-face ancestry differs from clean 294 main header')
+if A['donor_body_indices'].shape!=(2332,):raise ValueError('candidate donor IDs do not cover all coarse rows')
+if sha(CSV)!='4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327':raise ValueError('registered CSV no longer matches frozen 294 header')
+if sha(PAYLOAD)!='d07b27e7d9d6952a3bc33d41535693b45f107f629e69520c2afbfb990ed1237f':raise ValueError('candidate NHSKIN hash differs from the frozen 021 transplant')
+if not LIB.exists():raise ValueError('ABI15 link033 library missing')
+
+# Verify the static registered-world -> donor-local map for the candidate's O/I/D arrays.
+byid={}
+with CSV.open(newline='') as f:
+ for r in csv.DictReader(f):
+  i=int(r['vertex'])
+  byid[i]={
+   'body':int(r['donor']),
+   'world':np.array([float(np.float32(r['w'+a])) for a in 'xyz']),
+   'local':np.array([float(np.float32(r['l'+a])) for a in 'xyz']),
+   'matrix':np.array([[float(np.float32(r[f'm{i}{j}'])) for j in range(3)] for i in range(3)]),
+  }
+frame_err=0.0;body_mismatch=[]
+for row,sv in enumerate(base_vertices):
+ c=byid[int(sv)]
+ if int(A['donor_body_indices'][row])!=c['body']:body_mismatch.append(row)
+ for wk,lk in [('outer_world_m','outer_donor_local_m'),('skin_inner_world_m','skin_inner_donor_local_m'),('fat_deep_world_m','fat_deep_donor_local_m')]:
+  predicted=c['local']+c['matrix']@(A[wk][row]-c['world'])
+  frame_err=max(frame_err,float(np.max(np.abs(predicted-A[lk][row]))))
+if body_mismatch:raise ValueError(f'candidate donor ownership differs from registered source at {body_mismatch[:8]}')
+if frame_err>2e-6:raise ValueError(f'candidate O/I/D donor-frame displacement mismatch {frame_err} m')
+
+# Copy the exact clean main header; this harness consumes layer arrays from the NPZ separately.
+candidate_header=RED.read_text().replace('d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04',sha(PAYLOAD)).replace('kWholeBodySkinLayersAdmitted=true','kWholeBodySkinLayersAdmitted=false')
+(OUT/'NumiHumanWholeBodySkinReduction.hpp').write_text(candidate_header)
+# Create compact compile-time arrays for the owner harness. This is evidence-only generated input.
+header=['#pragma once','#include <array>','#include <cstdint>','namespace commonmode_candidate {','using V3=std::array<double,3>;',f'inline constexpr char layerNPZSHA256[]="{sha(NPZ)}";',f'inline constexpr char sourcePayloadSHA256[]="{sha(PAYLOAD)}";',f'inline constexpr double frameDisplacementMaxResidualM={fmt(frame_err)};']
+for name,key in [('outerWorld','outer_world_m'),('skinInnerWorld','skin_inner_world_m'),('fatDeepWorld','fat_deep_world_m'),('outerLocal','outer_donor_local_m'),('skinInnerLocal','skin_inner_donor_local_m'),('fatDeepLocal','fat_deep_donor_local_m')]:header.append(emit_vec(name,A[key]))
+for name,key in [('skinThickness','skin_thickness_m'),('fatThickness','fat_thickness_m')]:header.append(emit_scalar(name,A[key]))
+header.append(emit_u32('donorBody',A['donor_body_indices']))
+header += ['} // namespace commonmode_candidate','']
+(OUT/'candidate_data.hpp').write_text('\n'.join(header))
+
+cpp=r'''#include "NumiHumanCoarseTissuePreparation.hpp"
+#include "NumiHumanWholeBodySkinReduction.hpp"
+#include "NumiHumanMaterialColumnSelfContact.hpp"
+#include "candidate_data.hpp"
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdint>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
+using namespace metalrobo::human::coarse_tissue;
+namespace cc=commonmode_candidate;
+static constexpr double kSkinMassDebitKg=3.4525707761420956;
+static constexpr double kFatMassDebitKg=10.487108964465744;
+static double layerVolume(const std::vector<V3>& outer,const std::vector<V3>& inner,const std::vector<Face>& faces){
+ double v=0.0;for(const auto& face:faces){auto f=face;std::sort(f.begin(),f.end());auto a=f[0],b=f[1],c=f[2];
+  v+=std::abs(tetVolume(outer[a],outer[b],outer[c],inner[c]));
+  v+=std::abs(tetVolume(outer[a],outer[b],inner[b],inner[c]));
+  v+=std::abs(tetVolume(outer[a],inner[a],inner[b],inner[c]));
+ }return v;
+}
+static double fieldMin(const std::vector<double>& x){return *std::min_element(x.begin(),x.end());}
+static double fieldMax(const std::vector<double>& x){return *std::max_element(x.begin(),x.end());}
+static numi::matter::MaterialProgram parseMaterial(const char* path){
+ auto r=numi::matter::parseMatterFile(path);if(!r.succeeded())throw std::runtime_error("material parse failed");
+ for(auto& p:r.material.parameters)p.identifiable=false;return std::move(r.material);
+}
+static double signedVolumeFromRest(const numi::matter::CompiledWorld& c,const NMTetrahedronGPU& t){
+ const auto id=std::array<std::uint32_t,4>{t.nodes.x,t.nodes.y,t.nodes.z,t.nodes.w};
+ auto p=[&](std::uint32_t i){const auto& v=c.fem.nodes[i].restAndFixed;return V3{double(v.x),double(v.y),double(v.z)};};
+ return tetVolume(p(id[0]),p(id[1]),p(id[2]),p(id[3]));
+}
+int main(int argc,char** argv){
+ if(argc!=3){std::cerr<<"expected skin and fat material paths\n";return 64;}
+ constexpr std::size_t n=kWholeBodySkinSourceVertexCount;
+ if(n!=2332||kWholeBodySkinFaceCount!=4619)return 2;
+ RegisteredSurface s;s.name="294 ankle common-mode layer candidate";s.provider="frozen 294 BodyParts3D source";s.sourceMember="main294-commonmode-layer-candidate-001/candidate-layers.npz";s.sourceMeshSHA256=cc::layerNPZSHA256;s.sourcePayloadSHA256=cc::sourcePayloadSHA256;s.aggregateIdentity=true;
+ s.faces.assign(kWholeBodySkinFaces.begin(),kWholeBodySkinFaces.end());s.sourceFaceIndices.assign(kWholeBodySkinSourceFaces.begin(),kWholeBodySkinSourceFaces.end());s.sourceVertexIndices.assign(kWholeBodySkinSourceVertices.begin(),kWholeBodySkinSourceVertices.end());
+ s.worldPoints.assign(cc::outerWorld.begin(),cc::outerWorld.end());s.donorLocalPoints.assign(cc::outerLocal.begin(),cc::outerLocal.end());
+ s.donorBodyIndices.assign(cc::donorBody.begin(),cc::donorBody.end());s.worldToDonorLocalLinear.reserve(n);
+ double frameResidual=0.0;
+ for(std::size_t i=0;i<n;i++){const auto& f=kWholeBodySkinDonorFrames[i];std::array<double,9> m{};std::copy(f.worldToDonorLocalLinear.begin(),f.worldToDonorLocalLinear.end(),m.begin());s.worldToDonorLocalLinear.push_back(m);if(f.donorBodyIndex!=cc::donorBody[i])return 15;for(unsigned a=0;a<3;a++){double pred=f.donorLocalPoint[a];for(unsigned b=0;b<3;b++)pred+=m[3*a+b]*(cc::outerWorld[i][b]-double(f.registeredWorldPoint[b]));frameResidual=std::max(frameResidual,std::abs(pred-cc::outerLocal[i][a]));}}
+ if(s.worldPoints.size()!=n||s.donorLocalPoints.size()!=n||s.faces.size()!=kWholeBodySkinFaceCount||frameResidual>2e-6)return 3;
+ PairedBoundaryLayer skin, fat;
+ auto assign=[&](PairedBoundaryLayer& dst,const std::vector<V3>& ow,const std::vector<V3>& iw,const std::vector<V3>& ol,const std::vector<V3>& il,const auto& thickness,const char* provenance){
+  dst.outerWorld=ow;dst.innerWorld=iw;dst.outerLocal=ol;dst.innerLocal=il;dst.thicknessByVertexM.assign(thickness.begin(),thickness.end());dst.thicknessProvenance=provenance;dst.minThicknessM=fieldMin(dst.thicknessByVertexM);dst.maxThicknessM=fieldMax(dst.thicknessByVertexM);dst.volumeM3=layerVolume(dst.outerWorld,dst.innerWorld,s.faces);
+ };
+ assign(skin,s.worldPoints,std::vector<V3>(cc::skinInnerWorld.begin(),cc::skinInnerWorld.end()),s.donorLocalPoints,std::vector<V3>(cc::skinInnerLocal.begin(),cc::skinInnerLocal.end()),cc::skinThickness,"candidate common-mode 294 skin field; exact carried O/I columns");
+ assign(fat,std::vector<V3>(cc::skinInnerWorld.begin(),cc::skinInnerWorld.end()),std::vector<V3>(cc::fatDeepWorld.begin(),cc::fatDeepWorld.end()),std::vector<V3>(cc::skinInnerLocal.begin(),cc::skinInnerLocal.end()),std::vector<V3>(cc::fatDeepLocal.begin(),cc::fatDeepLocal.end()),cc::fatThickness,"candidate common-mode 294 fat field; exact carried I/D columns");
+ std::vector<double> st(cc::skinThickness.begin(),cc::skinThickness.end()),ft(cc::fatThickness.begin(),cc::fatThickness.end());
+ SkinFatReference ref;ref.minSkinThicknessM=kWholeBodySkinMinThicknessM;ref.maxSkinThicknessM=kWholeBodySkinMaxThicknessM;ref.minFatThicknessM=kWholeBodyFatMinThicknessM;ref.maxFatThicknessM=kWholeBodyFatMaxThicknessM;
+ numi::matter::WorldSource w;w.compactImmutableFEMSurfaces=true;w.frameTimestep=.001;w.environmentCount=1;w.materials={parseMaterial(argv[1]),parseMaterial(argv[2])};
+ PreparedOrganicFEM skinReport,fatReport;std::string error;
+ const std::array<std::uint64_t,4> identity{0x414e4b4c45303231ull,0x434f4d4d4f4e4d4full,0x444541544543414eull,0x4449444154453031ull};
+ if(!appendRegisteredSkinFatFEMFromLayers(w,s,0,w.materials[0].name,"existing source debit, exact candidate volume",kSkinMassDebitKg,1,w.materials[1].name,"existing source debit, exact candidate volume",kFatMassDebitKg,st,ft,skin.thicknessProvenance,fat.thicknessProvenance,ref,skin,fat,"294 ankle candidate skin","294 ankle candidate fat",identity,skinReport,fatReport,error)){
+  std::cerr<<"from_layers=FAIL reason="<<error<<"\n";return 1;
+ }
+ if(w.objects.size()!=1)return 4;
+ const auto& obj=w.objects.front();
+ if(obj.femNodes.size()!=3*n||obj.tetrahedra.size()!=6*s.faces.size()||obj.femMaterialIndices.size()!=obj.tetrahedra.size())return 5;
+ if(skinReport.donorMassNodes.size()!=3*n)return 6;
+ std::map<std::uint32_t,std::pair<std::size_t,double>> owner;
+ double partitionMass=0;for(const auto& row:skinReport.donorMassNodes){if(row.nodeIndex>=3*n||row.donorBody!=cc::donorBody[row.nodeIndex%n]||!std::isfinite(row.massKg)||row.massKg<=0)return 7;auto& x=owner[row.donorBody];++x.first;x.second+=row.massKg;partitionMass+=row.massKg;}
+ if(std::abs(partitionMass-kSkinMassDebitKg-kFatMassDebitKg)>1e-8)return 8;
+ auto density=[&](std::size_t i){for(const auto& p:w.materials[i].parameters)if(p.name=="density")return p.defaultValue;return -1.0;};
+ const double rs=kSkinMassDebitKg/skin.volumeM3,rf=kFatMassDebitKg/fat.volumeM3;
+ if(std::abs(density(0)-rs)>1e-12||std::abs(density(1)-rf)>1e-12)return 9;
+ std::cout<<std::setprecision(17)<<"from_layers=PASS candidate_only=true nodes="<<obj.femNodes.size()<<" tets="<<obj.tetrahedra.size()<<" skin_tets="<<3*s.faces.size()<<" fat_tets="<<3*s.faces.size()<<" source_rows="<<n<<" faces="<<s.faces.size()<<"\n";
+ std::cout<<"skin_volume_m3="<<skin.volumeM3<<" fat_volume_m3="<<fat.volumeM3<<" skin_mass_debit_kg="<<kSkinMassDebitKg<<" fat_mass_debit_kg="<<kFatMassDebitKg<<" skin_density_kg_m3="<<density(0)<<" fat_density_kg_m3="<<density(1)<<" source_frame_displacement_max_residual_m="<<cc::frameDisplacementMaxResidualM<<"\n";
+ std::cout<<"donor_owner_rows="<<skinReport.donorMassNodes.size()<<" donor_count="<<owner.size()<<" nodal_mass_sum_kg="<<partitionMass<<" layer_columns=O/I/D\n";
+ for(const auto& [body,m]:owner)std::cout<<"donor="<<body<<" owned_nodes="<<m.first<<" tissue_mass_kg="<<m.second<<"\n";
+ auto compiled=numi::matter::compileWorld(w,numi::matter::CompileOptions{});if(!compiled.succeeded()){for(const auto& d:compiled.diagnostics)std::cerr<<d.message<<"\n";return 10;}
+ auto& c=compiled.world;std::string layoutError;if(!numi::matter::validateCompiledWorldLayout(c,&layoutError)){std::cerr<<"layout="<<layoutError<<"\n";return 11;}
+ if(c.fem.nodes.size()!=3*n||c.fem.tetrahedra.size()!=6*s.faces.size())return 12;
+ double compiledMass=0,minJ=std::numeric_limits<double>::infinity(),minNormDet=std::numeric_limits<double>::infinity(),minVol=std::numeric_limits<double>::infinity(),maxVol=0;std::size_t neg=0;
+ for(const auto& nd:c.fem.nodes)compiledMass+=double(nd.positionAndMass.w);
+ for(const auto& t:c.fem.tetrahedra){double v=signedVolumeFromRest(c,t);if(!(std::isfinite(v)&&v>0)){++neg;continue;}const double rv=double(t.inverseRestRow0.w);if(!(std::isfinite(rv)&&rv>0)){++neg;continue;}minJ=std::min(minJ,v/rv);minVol=std::min(minVol,v);maxVol=std::max(maxVol,v);
+  const std::array<std::uint32_t,4> id{t.nodes.x,t.nodes.y,t.nodes.z,t.nodes.w};double le=0;for(unsigned i=0;i<4;i++)for(unsigned j=i+1;j<4;j++){const auto& a=c.fem.nodes[id[i]].restAndFixed;const auto& b=c.fem.nodes[id[j]].restAndFixed;le=std::max(le,norm(V3{double(a.x-b.x),double(a.y-b.y),double(a.z-b.z)}));}minNormDet=std::min(minNormDet,6*v/(le*le*le));
+ }
+ if(neg||!std::isfinite(minJ)||!std::isfinite(minNormDet)||minNormDet<1e-5||std::abs(compiledMass-partitionMass)>1e-6*partitionMass)return 13;
+ const auto binding=numi::matter::human::bindHumanThreeLayerMaterialColumnSelfContact(c,obj,0u,static_cast<std::uint32_t>(n));
+ if(!numi::matter::validateCompiledWorldLayout(c,&layoutError)){std::cerr<<"post_bind_layout="<<layoutError<<"\n";return 14;}
+ std::cout<<"compile_world=PASS compiled_nodes="<<c.fem.nodes.size()<<" compiled_tets="<<c.fem.tetrahedra.size()<<" positive_tets="<<c.fem.tetrahedra.size()<<" min_J_over_reference="<<minJ<<" min_normalized_det="<<minNormDet<<" min_tet_volume_m3="<<minVol<<" max_tet_volume_m3="<<maxVol<<" compiled_mass_kg="<<compiledMass<<" binding_columns="<<binding.columnCount<<" gpu_execution=false simulation_steps=0 layers_admitted=false\n";
+ return 0;
+}
+'''
+(OUT/'check_commonmode_compileworld.cpp').write_text(cpp)
+
+# Exact candidate material defaults are emitted after computing owner-matched volumes.
+def layer_volume_py(o,i,faces):
+ o=np.asarray(o,float);i=np.asarray(i,float);faces=np.asarray(faces,int);v=0.0
+ for tri in faces:
+  a,b,c=sorted(map(int,tri))
+  def tv(p0,p1,p2,p3):return float(np.dot(p1-p0,np.cross(p2-p0,p3-p0))/6.0)
+  v+=abs(tv(o[a],o[b],o[c],i[c]))+abs(tv(o[a],o[b],i[b],i[c]))+abs(tv(o[a],i[a],i[b],i[c]))
+ return v
+
+# Compute exact boundary volumes using the native 3-tet decomposition.
+mass_s=3.4525707761420956;mass_f=10.487108964465744
+vol_s=layer_volume_py(A['outer_world_m'],A['skin_inner_world_m'],A['faces'])
+vol_f=layer_volume_py(A['skin_inner_world_m'],A['fat_deep_world_m'],A['faces'])
+rho_s=mass_s/vol_s;rho_f=mass_f/vol_f
+for src,dst,rho in [
+ (ROOT/'matter/materials/human_skin_dermis_frequency_specific_effective.nmatter',OUT/'human_skin_candidate.nmatter',rho_s),
+ (ROOT/'matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter',OUT/'human_fat_candidate.nmatter',rho_f),
+]:
+ text=src.read_text();text2,nsub=re.subn(r'(parameter\s+density\s*:\s*kg/m\^3\s*=\s*)[-+0-9.eE]+',lambda m:m.group(1)+fmt(rho),text,count=1)
+ if nsub!=1:raise ValueError('could not set exact candidate density')
+ (OUT/dst.name).write_text(text2)
+
+report={
+ 'schema':'numi.human.ankle-294-commonmode-compileworld-candidate.v1',
+ 'status':'candidate_only_no_active_header_or_world_changed',
+ 'inputs':{
+  'candidate_layers_npz':{'path':str(NPZ),'sha256':sha(NPZ)},
+  'candidate_nhskin_payload':{'path':str(PAYLOAD),'sha256':sha(PAYLOAD)},
+  'clean_main_294_reduction_header':{'path':str(RED),'sha256':sha(RED)},
+  'clean_main_294_registered_csv':{'path':str(CSV),'sha256':sha(CSV)},
+  'abi15_link033_library':{'path':str(LIB),'sha256':sha(LIB)},
+  'skin_material_source':{'path':str(ROOT/'matter/materials/human_skin_dermis_frequency_specific_effective.nmatter'),'sha256':sha(ROOT/'matter/materials/human_skin_dermis_frequency_specific_effective.nmatter')},
+  'fat_material_source':{'path':str(ROOT/'matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter'),'sha256':sha(ROOT/'matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter')},
+ },
+ 'measurements':{'source_rows':2332,'faces':4619,'outer_topology_source_identity_equal':True,'direct_source_ids_equal':True,'source_face_parents_equal':True,'max_static_donor_frame_displacement_residual_m':frame_err,'skin_volume_m3':vol_s,'fat_volume_m3':vol_f,'skin_mass_debit_kg':mass_s,'fat_mass_debit_kg':mass_f,'resolved_skin_density_kg_m3':rho_s,'resolved_fat_density_kg_m3':rho_f,'skin_material_bounds_kg_m3':[900,1100],'fat_material_bounds_kg_m3':[850,950]},
+ 'limitations':['compileWorld/FromLayers preparation only; no GPU execution or simulated time.','Common-mode rebase is statically layer-consistent but matched DF/PF donor-local coarse-to-render residual remains about 7.16 mm on affected rows 1759/1773; not dynamically qualified.','The detailed surface multipose audit does not establish FEM layer/bone clearance or runtime contact admission.','No production headers, active world, app source, or original material files are modified.']
+}
+(OUT/'candidate-input-report.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
+print(json.dumps({'status':'prepared','out':str(OUT),'layer_npz_sha256':sha(NPZ),'frame_residual_m':frame_err,'skin_volume_m3':vol_s,'fat_volume_m3':vol_f,'skin_density':rho_s,'fat_density':rho_f},sort_keys=True))

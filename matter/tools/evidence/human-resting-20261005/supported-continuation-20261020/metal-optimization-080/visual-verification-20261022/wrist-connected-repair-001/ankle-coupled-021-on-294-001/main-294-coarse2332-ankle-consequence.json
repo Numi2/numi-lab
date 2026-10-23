@@ -1,0 +1,407 @@
+{
+  "fixed_existing_layer_fields_at_matched_reference": {
+    "assumption": "Use candidate-minus-base 294 Float32 weighted-LBS delta at matched ref q36=q74=0.1 on the 2332 direct source IDs; keep pinned 294 mechanical world residual, IWorld, DWorld and thickness fields unchanged. This is diagnostic for stale-map consequences only.",
+    "fat_depth_bounds_mm": [
+      0.5,
+      10.0
+    ],
+    "fat_depth_violation_count": 0,
+    "fat_prism_baseline": {
+      "faces": 4619,
+      "first_invalid": [],
+      "invalid_face_count": 0,
+      "tet_abs_min_m3": [
+        1.3015948653791375e-12,
+        7.748779894799076e-14,
+        3.393166802818633e-13,
+        7.809569192274825e-12
+      ],
+      "tet_sign_counts": [
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        },
+        {
+          "negative": 2308,
+          "positive": 2311,
+          "zero": 0
+        },
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        },
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        }
+      ]
+    },
+    "fat_prism_reusing_fixed_interface": {
+      "faces": 4619,
+      "first_invalid": [],
+      "invalid_face_count": 0,
+      "tet_abs_min_m3": [
+        1.3015948653791375e-12,
+        7.748779894799076e-14,
+        3.393166802818633e-13,
+        7.809569192274825e-12
+      ],
+      "tet_sign_counts": [
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        },
+        {
+          "negative": 2308,
+          "positive": 2311,
+          "zero": 0
+        },
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        },
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        }
+      ]
+    },
+    "skin_depth_bounds_mm": [
+      0.5,
+      2.5
+    ],
+    "skin_depth_changed_rows": 2,
+    "skin_depth_max_abs_change_mm": 6.102617234835737,
+    "skin_depth_violation_count": 2,
+    "skin_prism_baseline": {
+      "faces": 4619,
+      "first_invalid": [],
+      "invalid_face_count": 0,
+      "tet_abs_min_m3": [
+        4.363860376869419e-12,
+        2.885344569527512e-13,
+        5.765881749013077e-13,
+        2.618316226121982e-11
+      ],
+      "tet_sign_counts": [
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        },
+        {
+          "negative": 2308,
+          "positive": 2311,
+          "zero": 0
+        },
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        },
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        }
+      ]
+    },
+    "skin_prism_reusing_fixed_inner": {
+      "faces": 4619,
+      "first_invalid": [],
+      "invalid_face_count": 0,
+      "tet_abs_min_m3": [
+        4.363860376869419e-12,
+        2.885344569527512e-13,
+        5.765881749013077e-13,
+        2.618316226121982e-11
+      ],
+      "tet_sign_counts": [
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        },
+        {
+          "negative": 2308,
+          "positive": 2311,
+          "zero": 0
+        },
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        },
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        }
+      ]
+    }
+  },
+  "inputs": {
+    "candidate_npz": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-geometry-weight-021/ankle-coupled-021-candidate.npz",
+    "candidate_npz_sha256": "ea5184dcc4652c318f0ad818dfcb135f95ed569953719727625881d6ce3a0aec",
+    "candidate_payload": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/ankle-coupled-021-on-294.nhskin",
+    "candidate_payload_sha256": "d07b27e7d9d6952a3bc33d41535693b45f107f629e69520c2afbfb990ed1237f",
+    "header_sha256": "a0e6d69706611257556c74ab7815ca2605f1f3c5f5530d9dd3472ecf482f5200",
+    "main_2332_header": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/build-wholebody-016/source/apps/NumiHumanWholeBodySkinReduction.hpp",
+    "matched_reference_snapshot": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-skin-pose-clean-014/registered-reference-elevation-010-014/registered-skin-poses.json",
+    "snapshot_sha256": "f4b375a3c1476b9e4dcf506fc4001afa8ab4079070644af7b7d473cb43366818",
+    "source_csv": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/native-wholebody-001/registered-skin.csv",
+    "source_csv_sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327",
+    "source_payload294": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+    "source_payload294_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+  },
+  "limits": [
+    "This uses the pinned main 294 coarse surface/header (2332 nodes, 4619 faces), not the later 119-layer candidate.",
+    "Candidate pose delta is produced by the existing 86-weight LBS source evaluator under the matched reference snapshot.",
+    "Only directly selected coarse source vertex rows can be updated through the pinned source-vertex map; parent-face incidence is reported separately and is not a substitute for a regenerated source-to-reduced transfer.",
+    "No header, donor frame, C transfer map, attachment, skin/fat arrays, mass owner, or runtime scene was modified or promoted."
+  ],
+  "main_coarse_identity": {
+    "baseline_header_outer_fat_depth_error_mm": {
+      "max_abs": 0.0,
+      "p99_abs": 0.0
+    },
+    "baseline_header_outer_skin_depth_error_mm": {
+      "max_abs": 0.0,
+      "p99_abs": 0.0
+    },
+    "coarse_faces": 4619,
+    "coarse_source_rows": 2332,
+    "header_payload_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "header_registered_csv_matches_input": true,
+    "main_donor_body_owner_counts": {
+      "1": 95,
+      "100": 1,
+      "128": 293,
+      "131": 23,
+      "136": 60,
+      "138": 32,
+      "139": 27,
+      "142": 7,
+      "145": 29,
+      "150": 60,
+      "152": 40,
+      "153": 24,
+      "156": 11,
+      "20": 472,
+      "23": 353,
+      "26": 14,
+      "29": 1,
+      "34": 2,
+      "4": 2,
+      "41": 76,
+      "42": 14,
+      "43": 15,
+      "46": 2,
+      "49": 386,
+      "50": 1,
+      "79": 1,
+      "84": 4,
+      "91": 31,
+      "92": 19,
+      "93": 14,
+      "95": 1,
+      "98": 12,
+      "99": 210
+    },
+    "registered_csv_sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327"
+  },
+  "mapping_scope": {
+    "candidate_changed_source_vertices": 73,
+    "coarse_outer_row_delta_range_ref_mm": {
+      "max": 6.243970517060163,
+      "median": 0.0,
+      "nonzero_count": 2
+    },
+    "coarse_source_face_parent_count_hitting_candidate_faces": 6,
+    "coarse_source_faces_hitting_candidate_faces": [
+      2681,
+      2718,
+      2750,
+      2803,
+      2821,
+      2823
+    ],
+    "direct_rows": [
+      {
+        "baseline_fat_depth_mm": 9.900579562928954,
+        "baseline_skin_depth_mm": 2.450822455975612,
+        "baseline_skin_thickness_field_mm": 2.450822455975612,
+        "coarse_row": 1741,
+        "donor_body_index": 150,
+        "fat_declared_bounds_mm": [
+          0.5,
+          10.0
+        ],
+        "fixed_header_inner_skin_depth_mm": 2.450822455975612,
+        "fixed_header_skin_bound_pass": true,
+        "reference_pose_delta_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "reference_pose_delta_mm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "skin_declared_bounds_mm": [
+          0.5,
+          2.5
+        ],
+        "source_vertex_id": 37849
+      },
+      {
+        "baseline_fat_depth_mm": 8.144285984411049,
+        "baseline_skin_depth_mm": 2.4502229346811584,
+        "baseline_skin_thickness_field_mm": 2.4502229346811584,
+        "coarse_row": 1759,
+        "donor_body_index": 150,
+        "fat_declared_bounds_mm": [
+          0.5,
+          10.0
+        ],
+        "fixed_header_inner_skin_depth_mm": 3.0074348349872544,
+        "fixed_header_skin_bound_pass": false,
+        "reference_pose_delta_m": [
+          0.0003739073872566223,
+          -0.0005693733692169189,
+          -5.698204040527344e-05
+        ],
+        "reference_pose_delta_mm": [
+          0.3739073872566223,
+          -0.569373369216919,
+          -0.05698204040527344
+        ],
+        "skin_declared_bounds_mm": [
+          0.5,
+          2.5
+        ],
+        "source_vertex_id": 38360
+      },
+      {
+        "baseline_fat_depth_mm": 9.900619342398965,
+        "baseline_skin_depth_mm": 2.450812974482211,
+        "baseline_skin_thickness_field_mm": 2.450812974482211,
+        "coarse_row": 1773,
+        "donor_body_index": 150,
+        "fat_declared_bounds_mm": [
+          0.5,
+          10.0
+        ],
+        "fixed_header_inner_skin_depth_mm": 8.553430209317947,
+        "fixed_header_skin_bound_pass": false,
+        "reference_pose_delta_m": [
+          0.0011361241340637207,
+          -0.006127521395683289,
+          -0.0003871321678161621
+        ],
+        "reference_pose_delta_mm": [
+          1.1361241340637207,
+          -6.127521395683289,
+          -0.3871321678161621
+        ],
+        "skin_declared_bounds_mm": [
+          0.5,
+          2.5
+        ],
+        "source_vertex_id": 38763
+      }
+    ],
+    "directly_affected_coarse_rows": [
+      1741,
+      1759,
+      1773
+    ],
+    "main_coarse_rows_directly_referencing_changed_source_vertices": 3,
+    "main_csv_vs_matched_294_base_LBS_replay_residual_mm_on_directly_affected_coarse_rows": [
+      1.666000468656264e-05,
+      1.666000468656264e-05,
+      6.006850114687196e-05
+    ],
+    "unique_candidate_source_faces_seen_by_coarse_map": 6
+  },
+  "same_column_translation_counterfactual": {
+    "fat_depth_error_mm_vs_declared_field_max": 0.0,
+    "fat_prism": {
+      "faces": 4619,
+      "first_invalid": [],
+      "invalid_face_count": 0,
+      "tet_abs_min_m3": [
+        1.3015948653791375e-12,
+        7.748779894799076e-14,
+        3.393166802818633e-13,
+        7.809569192274825e-12
+      ],
+      "tet_sign_counts": [
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        },
+        {
+          "negative": 2308,
+          "positive": 2311,
+          "zero": 0
+        },
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        },
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        }
+      ]
+    },
+    "meaning": "Purely geometric diagnostic: translate each direct coarse I and D point by the same candidate O delta, with all outer changes as above; not an emitted native layer map.",
+    "skin_depth_error_mm_vs_declared_field_max": 0.0,
+    "skin_prism": {
+      "faces": 4619,
+      "first_invalid": [],
+      "invalid_face_count": 0,
+      "tet_abs_min_m3": [
+        4.363860376869419e-12,
+        2.885344569527512e-13,
+        5.765881749013077e-13,
+        2.618316226121982e-11
+      ],
+      "tet_sign_counts": [
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        },
+        {
+          "negative": 2308,
+          "positive": 2311,
+          "zero": 0
+        },
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        },
+        {
+          "negative": 2311,
+          "positive": 2308,
+          "zero": 0
+        }
+      ]
+    }
+  },
+  "schema": "numi.human.ankle-candidate-294-main2332-layer-consequence.v1",
+  "status": "bounded_source_to_main_coarse_impact_diagnostic_not_layer_regeneration"
+}

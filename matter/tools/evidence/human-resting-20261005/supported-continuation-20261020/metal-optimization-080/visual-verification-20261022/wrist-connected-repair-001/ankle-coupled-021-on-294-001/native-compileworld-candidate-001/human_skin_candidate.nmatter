@@ -1,0 +1,25 @@
+// Passive continuum reference only. OCE measured dermal Young's moduli of
+// 52 +/- 7 kPa and 27 +/- 1 kPa in two healthy volunteers at 0.2-1 kHz;
+// this 39.5 kPa value is their midpoint, not a population estimate.
+// Source: In vivo stiffness measurement of epidermis, dermis, and hypodermis
+// using broadband Rayleigh-wave optical coherence elastography, Acta Biomater.
+// 2022 Jul;146:295-305. doi:10.1016/j.actbio.2022.04.030. PMCID PMC11878153,
+// Table 3 and discussion.
+// The study notes frequency dependence and overestimation versus quasi-static
+// response. This homogeneous isotropic neo-Hookean layer has no rate law and is
+// an explicit frequency-specific effective inference, not a skin calibration.
+// nu=0.49 is an explicit near-incompressible model assumption; mu=E/2(1+nu)
+// and K=E/3(1-2nu). Density default 1000 kg/m3 follows the OCE inverse-model
+// assumption (1 g/cm3); [900,1100] is a caller sensitivity interval.
+material human_skin_dermis_frequency_specific_effective {
+    parameter density : kg/m^3 = 999.7458323435053 in [900, 1100] log;
+    parameter shear : MPa = 0.0132550336 in [0.0067, 0.0201] log;
+    parameter bulk : MPa = 0.658333333 in [0.3, 1.0] log;
+    model generic;
+    energy = 0.5 * shear * (I1() - 3 - 2 * log(J()))
+        + 0.5 * bulk * pow(log(J()), 2);
+    valid = J() - 0.35;
+    supports fem;
+    interface { static_friction = 0.05; dynamic_friction = 0.03; restitution = 0.0; adhesion = 0.0; }
+    limits { minimum_J = 0.35; maximum_J = 2.5; maximum_stress = 5e6; maximum_energy_density = 5e6; }
+}

@@ -1,0 +1,1 @@
+First attempt exited before geometry evaluation: AttributeError module nearby has no attribute MAN. Fixed reference to nearby.audit.MAN; no candidate changes.

@@ -1,0 +1,123 @@
+{
+  "candidate_sha256": "ea5184dcc4652c318f0ad818dfcb135f95ed569953719727625881d6ce3a0aec",
+  "bone_manifest_sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+  "bone_payload_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+  "method": "Existing exact Float32 lattice signed winding against complete source-bone triangles; coordinate-identical seams identified before closure/orientation validation. Queries are all vertices incident to changed skin faces whose coordinates lie inside each complete bone AABB. Outside-AABB points are rigorously outside. Triangle crossing checks remain a separate gate.",
+  "poses": {
+    "reference": {
+      "pose_sha256": "f4b375a3c1476b9e4dcf506fc4001afa8ab4079070644af7b7d473cb43366818",
+      "patch_vertices": 124,
+      "bones_with_AABB_candidates": [
+        {
+          "body": "tibia_l",
+          "bone_stable_id": 5,
+          "source_vertices": 880,
+          "unique_exact_coordinates": 848,
+          "triangles": 1692,
+          "query_count": 84,
+          "inside": [],
+          "boundary": [],
+          "indeterminate": [],
+          "closed_oriented_topology": true,
+          "winding_counts": {
+            "0": 84
+          }
+        },
+        {
+          "body": "calcn_l",
+          "bone_stable_id": 7,
+          "source_vertices": 719,
+          "unique_exact_coordinates": 646,
+          "triangles": 1288,
+          "query_count": 5,
+          "inside": [],
+          "boundary": [],
+          "indeterminate": [],
+          "closed_oriented_topology": true,
+          "winding_counts": {
+            "0": 5
+          }
+        }
+      ]
+    },
+    "dorsiflexion": {
+      "pose_sha256": "04de51e3e5ec9e6c736aab3c1217aceb4f6780254da16070e7d8278dbebfd425",
+      "patch_vertices": 124,
+      "bones_with_AABB_candidates": [
+        {
+          "body": "tibia_l",
+          "bone_stable_id": 5,
+          "source_vertices": 880,
+          "unique_exact_coordinates": 848,
+          "triangles": 1692,
+          "query_count": 103,
+          "inside": [],
+          "boundary": [],
+          "indeterminate": [],
+          "closed_oriented_topology": true,
+          "winding_counts": {
+            "0": 103
+          }
+        },
+        {
+          "body": "calcn_l",
+          "bone_stable_id": 7,
+          "source_vertices": 719,
+          "unique_exact_coordinates": 646,
+          "triangles": 1288,
+          "query_count": 2,
+          "inside": [],
+          "boundary": [],
+          "indeterminate": [],
+          "closed_oriented_topology": true,
+          "winding_counts": {
+            "0": 2
+          }
+        },
+        {
+          "body": "tibia_l",
+          "bone_stable_id": 21,
+          "source_vertices": 577,
+          "unique_exact_coordinates": 564,
+          "triangles": 1124,
+          "query_count": 4,
+          "inside": [],
+          "boundary": [],
+          "indeterminate": [],
+          "closed_oriented_topology": true,
+          "winding_counts": {
+            "0": 4
+          }
+        }
+      ]
+    },
+    "plantarflexion": {
+      "pose_sha256": "37cee243eef596013c1b71fa6862334b8dae343fe7df60b966026b05dfc1243f",
+      "patch_vertices": 124,
+      "bones_with_AABB_candidates": [
+        {
+          "body": "tibia_l",
+          "bone_stable_id": 5,
+          "source_vertices": 880,
+          "unique_exact_coordinates": 848,
+          "triangles": 1692,
+          "query_count": 53,
+          "inside": [],
+          "boundary": [],
+          "indeterminate": [],
+          "closed_oriented_topology": true,
+          "winding_counts": {
+            "0": 53
+          }
+        }
+      ]
+    }
+  },
+  "limits": [
+    "Three static captured poses only; no FEM motion or admission.",
+    "Signed winding requires closed oriented topology but this receipt does not prove each bone shell is self-intersection free.",
+    "Source069i-to294 exact mapped patch equivalence is a separate retained receipt."
+  ],
+  "elapsed_seconds": 1.1069831848144531,
+  "passed": true
+}

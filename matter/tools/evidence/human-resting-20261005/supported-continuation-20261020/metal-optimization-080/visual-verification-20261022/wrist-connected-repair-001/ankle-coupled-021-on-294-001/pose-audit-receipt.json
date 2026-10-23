@@ -1,0 +1,312 @@
+{
+  "candidate": {
+    "021_candidate_sha256": "ea5184dcc4652c318f0ad818dfcb135f95ed569953719727625881d6ce3a0aec",
+    "base_294_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "local_map_sha256": "39011d487170e7b535295887aa96c73d485db20f96a0edf1999faf912749192d",
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/ankle-coupled-021-on-294.nhskin",
+    "sha256": "d07b27e7d9d6952a3bc33d41535693b45f107f629e69520c2afbfb990ed1237f"
+  },
+  "limits": [
+    "Exact static Float32 triangle-pair geometry only under the three retained registered snapshots.",
+    "No GPU, native scene admission, continuous swept collision, or FEM tissue-layer qualification.",
+    "Only changed ankle patch versus its own faces, all remaining skin faces, and the selected exact left-ankle bone neighborhood is checked."
+  ],
+  "local_patch": {
+    "boundary_edge_count": 49,
+    "changed_faces": 195,
+    "changed_rows": 73,
+    "edge_manifold_orientation_errors": 0,
+    "topology_and_face_indices_bit_exact_to_294": true
+  },
+  "pose_semantics": "The full 294 candidate surface is reconstructed from the 294 NHSKIN payload, all 86 weights/bindings, and the exact matched 016 registered body snapshots via the existing weighted-LBS source evaluator. The saved 016 native CSV is used as an evaluator replay check on the matched 069i capture, not as the candidate 294 full-surface geometry.",
+  "poses": {
+    "dorsiflexion": {
+      "candidate021_npz_changedrow_replay_delta_mm": {
+        "max": 0.0001197320124506071,
+        "min": 0.0,
+        "n": 73,
+        "p01": 0.0,
+        "p50": 2.3853496601554932e-05
+      },
+      "candidate_pose_hash_of_float32_xyz": "8458f0baca1f2fa3b54ce0ca436f54b208f9bd21306710f4e5dd872aced210a8",
+      "changed_patch_area_ratio_vs_294_base_pose": {
+        "max": 2.2049086393085036,
+        "min": 0.7198604837123347,
+        "n": 195,
+        "p01": 0.8098353112421895,
+        "p50": 1.0161638757375329
+      },
+      "changed_patch_degenerate_face_count": 0,
+      "changed_patch_normal_cosine_vs_294_base_pose": {
+        "max": 0.9999999999292516,
+        "min": 0.5763162116460847,
+        "n": 195,
+        "p01": 0.7352603575553194,
+        "p50": 0.9892869872446175
+      },
+      "changed_patch_orientation_reversal_count": 0,
+      "elapsed_seconds": 1.470365285873413,
+      "exact_static_gates": {
+        "bone_owners": {
+          "calcn_l": 9384,
+          "talus_l": 1356,
+          "tibia_l": 2816
+        },
+        "bone_surface_faces": 13556,
+        "patch_faces": 195,
+        "patch_self": {
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 1029
+          },
+          "allowed_shared_seam_pairs": 1029,
+          "candidate_pairs": 1073,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_left_ankle_bones": {
+          "allowed_seams_by_owner_pair": {},
+          "allowed_shared_seam_pairs": 0,
+          "candidate_pairs": 264,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_other_full_skin": {
+          "allowed_seams_by_owner_pair": {
+            "left/foot|calcn_l": 188,
+            "left/lower_leg|calcn_l": 19,
+            "left/lower_leg|tibia_l": 213
+          },
+          "allowed_shared_seam_pairs": 420,
+          "candidate_pairs": 458,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        }
+      },
+      "joint_units": "radians",
+      "matched_069i_registered_csv_LBS_replay_error_mm": {
+        "max": 0.002146413866263217,
+        "min": 0.0,
+        "n": 61950,
+        "p01": 0.0,
+        "p50": 0.00011920928955078125
+      },
+      "native_csv_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-joint-reference-pairs-016/ankle-dorsiflexion-020-ref010/registered-skin.csv",
+      "native_csv_sha256": "b88a9eac85426afcb94878b746e56bfc51b5f7d711e58b2ea3e6ca9ab1838c32",
+      "requested_q": {
+        "109": 0.2,
+        "123": 0.2,
+        "36": 0.1,
+        "74": 0.1
+      },
+      "snapshot_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-joint-reference-pairs-016/ankle-dorsiflexion-020-ref010/registered-skin-poses.json",
+      "snapshot_sha256": "04de51e3e5ec9e6c736aab3c1217aceb4f6780254da16070e7d8278dbebfd425"
+    },
+    "plantarflexion": {
+      "candidate021_npz_changedrow_replay_delta_mm": {
+        "max": 6.322027276634104e-05,
+        "min": 0.0,
+        "n": 73,
+        "p01": 2.682209014892578e-06,
+        "p50": 3.003425057343598e-05
+      },
+      "candidate_pose_hash_of_float32_xyz": "2fc7510354039dfc0044f9adc205f1440ed5c141a00447a83e934eafae5db293",
+      "changed_patch_area_ratio_vs_294_base_pose": {
+        "max": 2.452901051041967,
+        "min": 0.5613361549067835,
+        "n": 195,
+        "p01": 0.774851899707238,
+        "p50": 1.003317249249555
+      },
+      "changed_patch_degenerate_face_count": 0,
+      "changed_patch_normal_cosine_vs_294_base_pose": {
+        "max": 0.9999999998978225,
+        "min": 0.6646792076236743,
+        "n": 195,
+        "p01": 0.7033675662326586,
+        "p50": 0.9893027917839408
+      },
+      "changed_patch_orientation_reversal_count": 0,
+      "elapsed_seconds": 1.4501409530639648,
+      "exact_static_gates": {
+        "bone_owners": {
+          "calcn_l": 9384,
+          "talus_l": 1356,
+          "tibia_l": 2816
+        },
+        "bone_surface_faces": 13556,
+        "patch_faces": 195,
+        "patch_self": {
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 1029
+          },
+          "allowed_shared_seam_pairs": 1029,
+          "candidate_pairs": 1078,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_left_ankle_bones": {
+          "allowed_seams_by_owner_pair": {},
+          "allowed_shared_seam_pairs": 0,
+          "candidate_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_other_full_skin": {
+          "allowed_seams_by_owner_pair": {
+            "left/foot|calcn_l": 188,
+            "left/lower_leg|calcn_l": 19,
+            "left/lower_leg|tibia_l": 213
+          },
+          "allowed_shared_seam_pairs": 420,
+          "candidate_pairs": 453,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        }
+      },
+      "joint_units": "radians",
+      "matched_069i_registered_csv_LBS_replay_error_mm": {
+        "max": 0.002146413866263217,
+        "min": 0.0,
+        "n": 61950,
+        "p01": 0.0,
+        "p50": 0.00011920928955078125
+      },
+      "native_csv_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-joint-reference-pairs-016/ankle-plantarflexion-020-ref010/registered-skin.csv",
+      "native_csv_sha256": "32cb7b175f2686077b1e76fa47bc725ff28549e6aea7958efa06a3df54a3a616",
+      "requested_q": {
+        "109": -0.2,
+        "123": -0.2,
+        "36": 0.1,
+        "74": 0.1
+      },
+      "snapshot_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-joint-reference-pairs-016/ankle-plantarflexion-020-ref010/registered-skin-poses.json",
+      "snapshot_sha256": "37cee243eef596013c1b71fa6862334b8dae343fe7df60b966026b05dfc1243f"
+    },
+    "reference": {
+      "candidate021_npz_changedrow_replay_delta_mm": {
+        "max": 0.00012013700229374392,
+        "min": 0.0,
+        "n": 73,
+        "p01": 0.0,
+        "p50": 1.862645149230957e-05
+      },
+      "candidate_pose_hash_of_float32_xyz": "4508be938d956b20f81a3b3f48fb0015893064fa56ba2dddb133d61119e7dddf",
+      "changed_patch_area_ratio_vs_294_base_pose": {
+        "max": 2.324306325092445,
+        "min": 0.8249985416237263,
+        "n": 195,
+        "p01": 0.8788044085553623,
+        "p50": 1.00000026377688
+      },
+      "changed_patch_degenerate_face_count": 0,
+      "changed_patch_normal_cosine_vs_294_base_pose": {
+        "max": 1.0000000000000002,
+        "min": 0.6481586875711874,
+        "n": 195,
+        "p01": 0.7880405552457981,
+        "p50": 0.9997910045983438
+      },
+      "changed_patch_orientation_reversal_count": 0,
+      "elapsed_seconds": 1.4649279117584229,
+      "exact_static_gates": {
+        "bone_owners": {
+          "calcn_l": 9384,
+          "talus_l": 1356,
+          "tibia_l": 2816
+        },
+        "bone_surface_faces": 13556,
+        "patch_faces": 195,
+        "patch_self": {
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 1029
+          },
+          "allowed_shared_seam_pairs": 1029,
+          "candidate_pairs": 1078,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_left_ankle_bones": {
+          "allowed_seams_by_owner_pair": {},
+          "allowed_shared_seam_pairs": 0,
+          "candidate_pairs": 20,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_other_full_skin": {
+          "allowed_seams_by_owner_pair": {
+            "left/foot|calcn_l": 188,
+            "left/lower_leg|calcn_l": 19,
+            "left/lower_leg|tibia_l": 213
+          },
+          "allowed_shared_seam_pairs": 420,
+          "candidate_pairs": 458,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersection_pairs": 0,
+          "intersections_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        }
+      },
+      "joint_units": "radians",
+      "matched_069i_registered_csv_LBS_replay_error_mm": {
+        "max": 0.002146413866263217,
+        "min": 0.0,
+        "n": 61950,
+        "p01": 0.0,
+        "p50": 0.00011920928955078125
+      },
+      "native_csv_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-skin-pose-clean-014/registered-reference-elevation-010-014/registered-skin.csv",
+      "native_csv_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+      "requested_q": {
+        "36": 0.1,
+        "74": 0.1
+      },
+      "snapshot_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-skin-pose-clean-014/registered-reference-elevation-010-014/registered-skin-poses.json",
+      "snapshot_sha256": "f4b375a3c1476b9e4dcf506fc4001afa8ab4079070644af7b7d473cb43366818"
+    }
+  },
+  "schema": "numi.human.ankle-candidate-294-exact-pose-audit.v1",
+  "status": "completed_exact_static_candidate_audit_not_admission"
+}

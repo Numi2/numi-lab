@@ -1,0 +1,62 @@
+{
+  "inputs": {
+    "abi15_link033_library": {
+      "path": "/tmp/numi-human-joint-owner-build-033/lib/libmetalrobo.dylib",
+      "sha256": "b4c83d0df4edec0cc00fb40853158499a9d34d90e315a63f9af554b065657149"
+    },
+    "candidate_layers_npz": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/main294-commonmode-layer-candidate-001/candidate-layers.npz",
+      "sha256": "c68d8d8408975c8aed0802d39148e65ae82de811ec8717e2b91d01f48bc35e9b"
+    },
+    "candidate_nhskin_payload": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/ankle-coupled-021-on-294.nhskin",
+      "sha256": "d07b27e7d9d6952a3bc33d41535693b45f107f629e69520c2afbfb990ed1237f"
+    },
+    "clean_main_294_reduction_header": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/build-wholebody-016/source/apps/NumiHumanWholeBodySkinReduction.hpp",
+      "sha256": "a0e6d69706611257556c74ab7815ca2605f1f3c5f5530d9dd3472ecf482f5200"
+    },
+    "clean_main_294_registered_csv": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/native-wholebody-001/registered-skin.csv",
+      "sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327"
+    },
+    "fat_material_source": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter",
+      "sha256": "3d3a83e9d1803a60b103a45064c4b4020ebc6bfc8ae518acb6e4d3ec0cc8e29f"
+    },
+    "skin_material_source": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/materials/human_skin_dermis_frequency_specific_effective.nmatter",
+      "sha256": "c575b204d975bfb77ae16973708e833796e3a4ad71794d69ac7e433f58dbd7ad"
+    }
+  },
+  "limitations": [
+    "compileWorld/FromLayers preparation only; no GPU execution or simulated time.",
+    "Common-mode rebase is statically layer-consistent but matched DF/PF donor-local coarse-to-render residual remains about 7.16 mm on affected rows 1759/1773; not dynamically qualified.",
+    "The detailed surface multipose audit does not establish FEM layer/bone clearance or runtime contact admission.",
+    "No production headers, active world, app source, or original material files are modified."
+  ],
+  "measurements": {
+    "direct_source_ids_equal": true,
+    "faces": 4619,
+    "fat_mass_debit_kg": 10.487108964465744,
+    "fat_material_bounds_kg_m3": [
+      850,
+      950
+    ],
+    "fat_volume_m3": 0.011655665110409812,
+    "max_static_donor_frame_displacement_residual_m": 5.192715257784641e-09,
+    "outer_topology_source_identity_equal": true,
+    "resolved_fat_density_kg_m3": 899.7435037061576,
+    "resolved_skin_density_kg_m3": 999.7458323435053,
+    "skin_mass_debit_kg": 3.4525707761420956,
+    "skin_material_bounds_kg_m3": [
+      900,
+      1100
+    ],
+    "skin_volume_m3": 0.0034534485310620607,
+    "source_face_parents_equal": true,
+    "source_rows": 2332
+  },
+  "schema": "numi.human.ankle-294-commonmode-compileworld-candidate.v1",
+  "status": "candidate_only_no_active_header_or_world_changed"
+}

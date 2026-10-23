@@ -1,0 +1,1 @@
+{"schema":"numi.human.compileworld-candidate-attempt.v1","attempt":"001","exit_code":13,"status":"rejected_by_nonphysical_normalized_det_diagnostic_threshold","input_cpp_sha256":"eac46f2a0b81c9732d18d7b68b524270cddb5c31efa83f4dc926c8350db0d4fc","predicate":"minNormDet < 1e-5 (diagnostic only; all compiled tets were positive and minJ about 1)","admission":false}

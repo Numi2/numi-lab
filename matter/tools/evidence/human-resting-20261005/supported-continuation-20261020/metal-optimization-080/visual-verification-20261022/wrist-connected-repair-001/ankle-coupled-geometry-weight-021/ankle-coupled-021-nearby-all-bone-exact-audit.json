@@ -1,0 +1,169 @@
+{
+  "bone_manifest_sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+  "bone_payload_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+  "candidate_npz_sha256": "ea5184dcc4652c318f0ad818dfcb135f95ed569953719727625881d6ce3a0aec",
+  "limits": [
+    "Static triangle crossing diagnostic only; no penetration-depth clearance, continuum contact, FEM transfer, dynamics, or admission.",
+    "Unselected distant bone triangles have disjoint AABBs from the padded changed-patch AABB and cannot intersect changed skin triangles."
+  ],
+  "method": "Exact triangle intersection of all changed candidate skin faces against every bone-mesh triangle whose world AABB intersects the changed-patch world AABB expanded by 10 mm. Bone meshes are transformed by each matching native registered snapshot; no nearest-bone-group token filter.",
+  "payload_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+  "poses": {
+    "dorsiflexion": {
+      "all_nearby_bones_exact_intersections": {
+        "allowed_seams_by_owner_pair": {},
+        "allowed_shared_seam_pairs": 0,
+        "candidate_pairs": 264,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "bone_face_counts": {
+        "calcn_l": 446,
+        "talus_l": 1169,
+        "tibia_l": 222
+      },
+      "bone_parts_tested": [
+        "tibia_l",
+        "calcn_l",
+        "tibia_l",
+        "talus_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l"
+      ],
+      "changed_skin_faces": 195,
+      "patch_aabb_world_m": {
+        "max": [
+          0.09497988224029541,
+          0.1711023449897766,
+          0.6687024831771851
+        ],
+        "min": [
+          0.02492847479879856,
+          0.0980406105518341,
+          0.4054362177848816
+        ],
+        "padding_m": 0.01
+      },
+      "pose_snapshot_sha256": "04de51e3e5ec9e6c736aab3c1217aceb4f6780254da16070e7d8278dbebfd425",
+      "registered_csv_sha256": "b88a9eac85426afcb94878b746e56bfc51b5f7d711e58b2ea3e6ca9ab1838c32"
+    },
+    "plantarflexion": {
+      "all_nearby_bones_exact_intersections": {
+        "allowed_seams_by_owner_pair": {},
+        "allowed_shared_seam_pairs": 0,
+        "candidate_pairs": 0,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "bone_face_counts": {
+        "calcn_l": 471,
+        "talus_l": 1202,
+        "tibia_l": 366
+      },
+      "bone_parts_tested": [
+        "tibia_l",
+        "calcn_l",
+        "tibia_l",
+        "talus_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l"
+      ],
+      "changed_skin_faces": 195,
+      "patch_aabb_world_m": {
+        "max": [
+          0.09576347470283508,
+          0.1753498762845993,
+          0.6651124954223633
+        ],
+        "min": [
+          0.025485960766673088,
+          0.10245122760534286,
+          0.39528682827949524
+        ],
+        "padding_m": 0.01
+      },
+      "pose_snapshot_sha256": "37cee243eef596013c1b71fa6862334b8dae343fe7df60b966026b05dfc1243f",
+      "registered_csv_sha256": "32cb7b175f2686077b1e76fa47bc725ff28549e6aea7958efa06a3df54a3a616"
+    },
+    "reference": {
+      "all_nearby_bones_exact_intersections": {
+        "allowed_seams_by_owner_pair": {},
+        "allowed_shared_seam_pairs": 0,
+        "candidate_pairs": 20,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "bone_face_counts": {
+        "calcn_l": 446,
+        "talus_l": 1112,
+        "tibia_l": 125
+      },
+      "bone_parts_tested": [
+        "tibia_l",
+        "calcn_l",
+        "tibia_l",
+        "talus_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l",
+        "calcn_l"
+      ],
+      "changed_skin_faces": 195,
+      "patch_aabb_world_m": {
+        "max": [
+          0.09545039385557175,
+          0.16737103462219238,
+          0.6676360964775085
+        ],
+        "min": [
+          0.02534443326294422,
+          0.10669101029634476,
+          0.40232473611831665
+        ],
+        "padding_m": 0.01
+      },
+      "pose_snapshot_sha256": "f4b375a3c1476b9e4dcf506fc4001afa8ab4079070644af7b7d473cb43366818",
+      "registered_csv_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e"
+    }
+  },
+  "schema": "numi.human.ankle-021-nearby-all-bone-exact-audit.v1",
+  "source_geometry_sha256": "ad2fefb2d2401cc4660d63877c4dbee32021471d004a827c5bb4241bdc26852f",
+  "status": "candidate_only_static_exact_triangle_intersection_diagnostic"
+}

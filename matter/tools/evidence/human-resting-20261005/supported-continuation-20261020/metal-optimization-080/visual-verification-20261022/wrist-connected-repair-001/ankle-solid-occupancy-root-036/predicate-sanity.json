@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "results": {
+    "inside": {
+      "status": "resolved",
+      "winding_number": 1,
+      "ray": [
+        1,
+        1,
+        1
+      ],
+      "crossings": 1,
+      "attempts": 1
+    },
+    "outside": {
+      "status": "resolved",
+      "winding_number": 0,
+      "ray": [
+        1,
+        1,
+        1
+      ],
+      "crossings": 0,
+      "attempts": 1
+    },
+    "boundary": {
+      "status": "boundary",
+      "winding_number": null,
+      "ray": null,
+      "crossings": null,
+      "attempts": 0
+    },
+    "open_shell_rejected": "cardiac cavity intersections: signed winding requires every topological edge to have exactly two incident faces"
+  }
+}

@@ -1,0 +1,38 @@
+from_layers=PASS candidate_only=true nodes=6996 tets=27714 skin_tets=13857 fat_tets=13857 source_rows=2332 faces=4619
+skin_volume_m3=0.0034534485310620576 fat_volume_m3=0.011655665110409837 skin_mass_debit_kg=3.4525707761420956 fat_mass_debit_kg=10.487108964465744 skin_density_kg_m3=999.74583234350621 fat_density_kg_m3=899.74350370615582 source_frame_displacement_max_residual_m=5.1927152577846414e-09
+donor_owner_rows=6996 donor_count=33 nodal_mass_sum_kg=13.939679740607824 layer_columns=O/I/D
+donor=1 owned_nodes=285 tissue_mass_kg=0.068603807204536835
+donor=4 owned_nodes=6 tissue_mass_kg=0.055331353229974262
+donor=20 owned_nodes=1416 tissue_mass_kg=3.7269393854482984
+donor=23 owned_nodes=1059 tissue_mass_kg=0.91189659420975799
+donor=26 owned_nodes=42 tissue_mass_kg=0.20778584719150303
+donor=29 owned_nodes=3 tissue_mass_kg=0.013510861849551966
+donor=34 owned_nodes=6 tissue_mass_kg=0.036735244337371908
+donor=41 owned_nodes=228 tissue_mass_kg=0.17471834417456286
+donor=42 owned_nodes=42 tissue_mass_kg=0.1321428164775891
+donor=43 owned_nodes=45 tissue_mass_kg=0.18431282246016584
+donor=46 owned_nodes=6 tissue_mass_kg=0.018951354648181064
+donor=49 owned_nodes=1158 tissue_mass_kg=0.12468932034700934
+donor=50 owned_nodes=3 tissue_mass_kg=0.00056249555924846849
+donor=79 owned_nodes=3 tissue_mass_kg=0.018195699274194316
+donor=84 owned_nodes=12 tissue_mass_kg=0.068102758692970833
+donor=91 owned_nodes=93 tissue_mass_kg=0.2898614511975246
+donor=92 owned_nodes=57 tissue_mass_kg=0.19194281317445891
+donor=93 owned_nodes=42 tissue_mass_kg=0.14252416441984828
+donor=95 owned_nodes=3 tissue_mass_kg=0.0025848351302319552
+donor=98 owned_nodes=36 tissue_mass_kg=0.00047523029527981599
+donor=99 owned_nodes=630 tissue_mass_kg=0.11985740396349795
+donor=100 owned_nodes=3 tissue_mass_kg=0.00055382038525150106
+donor=128 owned_nodes=879 tissue_mass_kg=2.6803453533574495
+donor=131 owned_nodes=69 tissue_mass_kg=0.80015199663478154
+donor=136 owned_nodes=180 tissue_mass_kg=1.1138225891163005
+donor=138 owned_nodes=96 tissue_mass_kg=0.30744200911545461
+donor=139 owned_nodes=81 tissue_mass_kg=0.073332533894761007
+donor=142 owned_nodes=21 tissue_mass_kg=0.10597308779632769
+donor=145 owned_nodes=87 tissue_mass_kg=0.69902748023684302
+donor=150 owned_nodes=180 tissue_mass_kg=1.1491764670347122
+donor=152 owned_nodes=120 tissue_mass_kg=0.25113250188543734
+donor=153 owned_nodes=72 tissue_mass_kg=0.049543970342760493
+donor=156 owned_nodes=33 tissue_mass_kg=0.2194533275219806
+compiled_diag nodes=6996 tets=27714 neg_or_nonpositive=0 minJ=0.99999994110349288 minNormDet=6.1912133815338878e-08 minVol=7.7487798947990759e-14 maxVol=1.9911263348832222e-05 compiledMass=13.939680067240573 expectedMass=13.939679740607824 massDelta=3.2663274929234376e-07
+compile_world=PASS compiled_nodes=6996 compiled_tets=27714 positive_tets=27714 min_J_over_reference=0.99999994110349288 min_normalized_det=6.1912133815338878e-08 min_tet_volume_m3=7.7487798947990759e-14 max_tet_volume_m3=1.9911263348832222e-05 compiled_mass_kg=13.939680067240573 binding_columns=2332 gpu_execution=false simulation_steps=0 layers_admitted=false

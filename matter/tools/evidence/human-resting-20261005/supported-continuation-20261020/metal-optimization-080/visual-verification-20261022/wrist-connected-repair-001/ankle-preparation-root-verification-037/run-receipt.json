@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/check_commonmode_compileworld.rebuilt",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/human_skin_candidate.nmatter",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-coupled-021-on-294-001/native-compileworld-candidate-001/human_fat_candidate.nmatter"
+  ],
+  "binary_sha256": "24aec9fbfe890cb071b40314d926a2c2e02cd9000555d521ba51bfa8b248b572",
+  "linked_library_sha256": "b4c83d0df4edec0cc00fb40853158499a9d34d90e315a63f9af554b065657149",
+  "returncode": 0,
+  "elapsed_wall_seconds": 0.15768979210406542,
+  "gpu_execution": false,
+  "simulated_steps": 0,
+  "active_scene_admission": false,
+  "all_frozen_manifest_entries_verified": true
+}
