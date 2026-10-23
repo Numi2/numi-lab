@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_human_skin_patch_geometry.py",
+    "-v"
+  ],
+  "elapsed_seconds": 0.6644818329950795,
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "test_collinear_surface_rejected (test_human_skin_patch_geometry.AnnularPatchTests.test_collinear_surface_rejected) ... ok\ntest_cyclic_reindexing_has_same_optimum (test_human_skin_patch_geometry.AnnularPatchTests.test_cyclic_reindexing_has_same_optimum) ... ok\ntest_impossible_edge_cap_rejected (test_human_skin_patch_geometry.AnnularPatchTests.test_impossible_edge_cap_rejected) ... ok\ntest_invalid_geometry_and_limits_rejected (test_human_skin_patch_geometry.AnnularPatchTests.test_invalid_geometry_and_limits_rejected) ... ok\ntest_invalid_indices_rejected (test_human_skin_patch_geometry.AnnularPatchTests.test_invalid_indices_rejected) ... ok\ntest_unequal_loops_form_oriented_annulus (test_human_skin_patch_geometry.AnnularPatchTests.test_unequal_loops_form_oriented_annulus) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.618s\n\nOK\n",
+  "scope": "annular candidate construction only, not collision or physical admission"
+}

@@ -1,0 +1,3 @@
+The local surface patch zipper searches cyclic loop alignments with a dynamic program instead of greedy nearest matching. It preserves exact oriented boundary edges and rejects strips violating declared triangle-quality or edge-length limits. This is a construction helper; it does not certify intersections, layered tissue cells, anatomical thickness, mass or accepted physics.
+
+Six regression tests cover unequal loop sampling, cyclic reindexing, exact oriented boundaries and annular topology, collinear geometry, invalid indices and impossible limits. The axial ankle 053 candidate uses this helper: its bridge closes and skin layer cells pass, while fat-cell failures remain separately recorded. No physical scene admission is claimed.
