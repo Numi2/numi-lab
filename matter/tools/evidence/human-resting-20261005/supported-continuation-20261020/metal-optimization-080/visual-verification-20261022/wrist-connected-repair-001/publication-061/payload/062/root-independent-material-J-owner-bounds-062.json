@@ -1,0 +1,31 @@
+{
+  "status": "CONFIRMED_162_DESCRIPTOR_J_VIOLATIONS",
+  "tetrahedra": 28632,
+  "candidate_sha256": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b",
+  "reference_sha256": "b536764105cd9e9cb0c7936f5a4409896e8370ac150214a63a362158af5783ed",
+  "reviewed_report_sha256": "df5e22a56697cfecebdf1bde719012126891dab5f5c4cf423f20e6787f617d2b",
+  "materials": {
+    "skin": {
+      "cells": 14316,
+      "below": 26,
+      "above": 3,
+      "inverted": 0,
+      "min_J": 0.0012284713877821676,
+      "max_J": 5.226289896776641,
+      "minimum_J": 0.35,
+      "maximum_J": 2.5
+    },
+    "fat": {
+      "cells": 14316,
+      "below": 92,
+      "above": 41,
+      "inverted": 0,
+      "min_J": 0.0002154656345437567,
+      "max_J": 60.39088795016721,
+      "minimum_J": 0.35,
+      "maximum_J": 2.5
+    }
+  },
+  "total_violations": 162,
+  "limitations": "Offline owner-reference determinant check, not a bitwise Metal replay; no physical admission."
+}

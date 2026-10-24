@@ -1,0 +1,2 @@
+Command: /Users/n/numi-human-prep-venv-20261005/bin/python -m unittest -v test_prepare_candidate_nodes.py
+Result: 5 tests passed in 0.001s

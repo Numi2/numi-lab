@@ -1,0 +1,12 @@
+{
+  "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root-reference-relative-j-062/apps/numilab_human_myosim_visual_probe.mm",
+  "source_sha256": "69a92fd7ad96e92b95d42de25cc34c7ffd3464c99b0200e83a8cbfe2794fd1e4",
+  "original_source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/numilab_human_myosim_visual_probe.mm",
+  "original_source_sha256": "9a5cac841d817a4fdff22a124648f06484eb947b6d709b18d9f452def8b38713",
+  "build_seconds": 34.35315991693642,
+  "compile_returncode": 0,
+  "link_returncode": 0,
+  "binary_sha256": "125323acf580f066eb4e4b295d33e390880f528fc774c9a5ae285fb07c702a4d",
+  "source_preflight_run": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root-reference-relative-j-062/source-preflight",
+  "scope": "private diagnostic instrumentation only; no physical/native qualification"
+}

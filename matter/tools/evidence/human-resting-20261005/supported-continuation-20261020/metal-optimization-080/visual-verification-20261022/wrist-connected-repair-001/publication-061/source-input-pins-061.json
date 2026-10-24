@@ -1,0 +1,172 @@
+{
+  "base_origin_main": "008a2adb6870e7eca594aa7cabca258a5adc4f91",
+  "external_inputs_not_duplicated": [
+    {
+      "bytes": 24135771,
+      "copied": false,
+      "independent_archive_claim": false,
+      "observed_bytes": 24135771,
+      "observed_matches_declared": true,
+      "observed_sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+      "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/registered-skin.csv",
+      "used_as": "registered skin source input; no independent archive claim"
+    },
+    {
+      "bytes": null,
+      "copied": false,
+      "independent_archive_claim": false,
+      "observed_bytes": 1545,
+      "observed_matches_declared": true,
+      "observed_sha256": "c575b204d975bfb77ae16973708e833796e3a4ad71794d69ac7e433f58dbd7ad",
+      "sha256": "c575b204d975bfb77ae16973708e833796e3a4ad71794d69ac7e433f58dbd7ad",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/materials/human_skin_dermis_frequency_specific_effective.nmatter",
+      "used_as": "owner descriptor bounds for skin in 062"
+    },
+    {
+      "bytes": null,
+      "copied": false,
+      "independent_archive_claim": false,
+      "observed_bytes": 1422,
+      "observed_matches_declared": true,
+      "observed_sha256": "3d3a83e9d1803a60b103a45064c4b4020ebc6bfc8ae518acb6e4d3ec0cc8e29f",
+      "sha256": "3d3a83e9d1803a60b103a45064c4b4020ebc6bfc8ae518acb6e4d3ec0cc8e29f",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter",
+      "used_as": "owner descriptor bounds for fat in 062"
+    },
+    {
+      "bytes": null,
+      "copied": false,
+      "independent_archive_claim": false,
+      "sha256": "11452398859d5dd435ec8fbbe4a02c0b1797e5f337b3749850671093ecb231aa",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/source-preflight-003/all-bank-containment.csv",
+      "used_as": "input to the separate 12-node baseline outer-plane diagnostic; external path/hash only"
+    },
+    {
+      "bytes": null,
+      "copied": false,
+      "independent_archive_claim": false,
+      "sha256": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz",
+      "used_as": "input to the separate 12-node baseline outer-plane diagnostic; external path/hash only"
+    }
+  ],
+  "inherited_git_artifacts": [
+    {
+      "blob_sha1": "8d13aae47be29e1026fe6ddd192c3bb57778008f",
+      "bytes": 406591,
+      "commit": "008a2adb6870e7eca594aa7cabca258a5adc4f91",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-060/payload/037/attempt-002/candidate.npz",
+      "sha256": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b",
+      "used_as": "37-002 candidate array used by the 062 J audit"
+    },
+    {
+      "blob_sha1": "9374cca5cf627ac24c8cd22319ba7220614e33a2",
+      "bytes": 521139,
+      "commit": "008a2adb6870e7eca594aa7cabca258a5adc4f91",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-060/payload/038/run-002/candidate-node-override.csv",
+      "sha256": "058db5c144a48d84670963081e2b1a6cfab826d79ec098e19eefd07d14841681",
+      "used_as": "038 exact candidate nodes and native export input"
+    },
+    {
+      "blob_sha1": "70b1e71d2851c71ee0a66f890c2d080a7789c240",
+      "bytes": 459966,
+      "commit": "008a2adb6870e7eca594aa7cabca258a5adc4f91",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-060/payload/038/run-002/source-preflight/all-bank-containment.csv",
+      "sha256": "a8d7e197db58019cb16f6f89d0ccb63f6e4f7e6f2fc3f6495fd4ee07c1d7a281",
+      "used_as": "038 typed per-bone query and inventory comparison"
+    },
+    {
+      "blob_sha1": "396b613bde7cdae94c3677a748f7c4f4beb65aa9",
+      "bytes": 2391397,
+      "commit": "008a2adb6870e7eca594aa7cabca258a5adc4f91",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-060/payload/038/source/numilab_human_myosim_visual_probe.mm",
+      "sha256": "0134fb29b34a03530e308d7c4898d45199f97af37c7830421c26522ab2c181d9",
+      "used_as": "039 app-patch base source"
+    },
+    {
+      "blob_sha1": "d8287b3b419bbc66d0b6d450da4928f6d688bf12",
+      "bytes": 17154,
+      "commit": "008a2adb6870e7eca594aa7cabca258a5adc4f91",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-060/payload/038/source/NumiHumanD37InitialSkinBoneWitness.hpp",
+      "sha256": "7f1ca8a2f76cbaac640abf5e05b2646ae65854a3b4722250540d9deaa99e3241",
+      "used_as": "039 app-patch base helper"
+    }
+  ],
+  "provenance_corrections": [
+    {
+      "actual_app_source_sha256": "72b0726f3c6190f36e706dcb83f3ecb4b5c4f3370c8abacabf57e9b298b1c762",
+      "as_run_report_sha256": "a52f3f54e9c17fce192d51e668b1dbf42d9384bab0359dd323777e2e72470586",
+      "compiled_binary_sha256": "dc463fb9c341448e0a7d4accd52ba392c4bd757c8226541de0890462bd04b6ab",
+      "corrected_report_sha256": "48fec5abb489f9830cf033ea940244fd4c7d141f8ed1260a0c54afb7fb5601d7",
+      "note": "As-run field source_app_sha256 contained the binary digest; the immutable as-run report is retained.",
+      "path": "payload/039/run-002/export-report-provenance-correction.json"
+    }
+  ],
+  "publication": "061",
+  "report_input_hashes": {
+    "039_candidate_node_override": "058db5c144a48d84670963081e2b1a6cfab826d79ec098e19eefd07d14841681",
+    "039_registered_skin_poses": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "062_baseline_current_csv": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+    "062_candidate_037_002": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b",
+    "062_reference_points": "b536764105cd9e9cb0c7936f5a4409896e8370ac150214a63a362158af5783ed"
+  },
+  "results": {
+    "039": {
+      "as_run_report_sha256": "a52f3f54e9c17fce192d51e668b1dbf42d9384bab0359dd323777e2e72470586",
+      "banks": 185,
+      "body_transforms": 157,
+      "candidate_nodes": 7233,
+      "corrected_report_sha256": "48fec5abb489f9830cf033ea940244fd4c7d141f8ed1260a0c54afb7fb5601d7",
+      "note": "The as-run report is preserved; source_app_sha256 had been mislabeled with the binary digest. The corrected report separates both digests.",
+      "physical_qualification": false,
+      "run": "run-002",
+      "status": "SOURCE_ONLY_INTENTIONAL_STOP",
+      "triangles": 469136
+    },
+    "041": {
+      "adapter_receipt_sha256": "8f42d76e791b978d33a5399bd7e77f7a278158108e335809537e137835a01a51",
+      "baseline_outer_inside": {
+        "count": 12,
+        "max_native_frame_residual_m": 3.476216610979977e-18,
+        "note": "Nearest boundary planes for baseline O12 interior nodes only; not first-entry witnesses or network clearance.",
+        "npz_sha256": "8c223d3a34103a57c034c3e9abae8b4bf5c7f554a3b94ddf2cf4d9b50c397e2d",
+        "report_sha256": "5af06fdd5d2cdf9edc9c805b682724b81d1ca69d2b280fe4e99085cf38e1f5e4",
+        "status": "12_BASELINE_OUTER_INSIDE_LOCAL_EXIT_CONSTRAINTS"
+      },
+      "columns_with_hits": 121,
+      "constraint_npz_sha256": "a096082f597b7a0bcc9c37af5f2f82b889064a2382d8f7b45535e096b934159c",
+      "construction_planes": 121,
+      "expanded_endpoint_constraints": 125,
+      "native_or_physical_admission": false,
+      "note": "Local route-entry constraints only; not complete tissue or tetrahedron clearance.",
+      "proper_hits": 241,
+      "route_report_sha256": "c631c390dc8c0acb5f5673d2d7c3efddcbe8d312d41427167eaf272d42fb8124",
+      "status": "EXACT_NATIVE_GEOMETRY_ROUTE_WITNESSES_NOT_FULL_TISSUE_CLEARANCE"
+    },
+    "062": {
+      "baseline_violations": 0,
+      "candidate_sha256": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b",
+      "existing_positive_q_floor": {
+        "below_1e_minus_5": 0,
+        "below_stricter_1_25e_minus_5_construction_target": 24,
+        "minimum_q": 1.2160859598096454e-05,
+        "nonpositive": 0
+      },
+      "fat": {
+        "above_2_5": 41,
+        "below_0_35": 92,
+        "inverted": 0
+      },
+      "native_or_physical_admission": false,
+      "skin": {
+        "above_2_5": 3,
+        "below_0_35": 26,
+        "inverted": 0
+      },
+      "status": "REFERENCE_RELATIVE_MATERIAL_SPECIFIC_DIAGNOSTIC_NOT_ADMISSION",
+      "total_descriptor_J_violations": 162
+    }
+  },
+  "schema": "numi.human.publication.source-input-pins.v1"
+}

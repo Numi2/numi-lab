@@ -1,0 +1,243 @@
+{
+  "status": "REFERENCE_RELATIVE_MATERIAL_SPECIFIC_DIAGNOSTIC_NOT_ADMISSION",
+  "reference_points_sha256": "b536764105cd9e9cb0c7936f5a4409896e8370ac150214a63a362158af5783ed",
+  "baseline_current_csv_sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+  "candidate_sha256": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b",
+  "materials": {
+    "skin": {
+      "minimum_J": 0.35,
+      "maximum_J": 2.5,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/materials/human_skin_dermis_frequency_specific_effective.nmatter",
+      "sha256": "c575b204d975bfb77ae16973708e833796e3a4ad71794d69ac7e433f58dbd7ad"
+    },
+    "fat": {
+      "minimum_J": 0.35,
+      "maximum_J": 2.5,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter",
+      "sha256": "3d3a83e9d1803a60b103a45064c4b4020ebc6bfc8ae518acb6e4d3ec0cc8e29f"
+    }
+  },
+  "nodes": 7233,
+  "tetrahedra": 28632,
+  "tetrahedron_row_space": "0-based row index into the combined candidate tetrahedra/material_ids arrays; not a native global FEM cell ID",
+  "material_id_counts": {
+    "1": 14316,
+    "2": 14316
+  },
+  "material_role_proof_from_layer_rows": {
+    "1": {
+      "O_I_D_layer_patterns": [
+        [
+          0,
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          1,
+          1,
+          1
+        ]
+      ],
+      "tet_counts": [
+        4777,
+        4762,
+        4777
+      ]
+    },
+    "2": {
+      "O_I_D_layer_patterns": [
+        [
+          1,
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          2,
+          2
+        ],
+        [
+          1,
+          2,
+          2,
+          2
+        ]
+      ],
+      "tet_counts": [
+        4777,
+        4762,
+        4777
+      ]
+    }
+  },
+  "material_id_mapping": {
+    "1": "skin O/I band",
+    "2": "fat I/D band"
+  },
+  "reference_vs_native_current_max_m": 6.064084820716452e-08,
+  "results": {
+    "baseline_native_current": {
+      "skin": {
+        "material_id": 1,
+        "tet_count": 14316,
+        "J_quantiles_0_1_50_99_100": [
+          0.9904676796365302,
+          0.9999310511092807,
+          1.00000002872138,
+          1.0000669703577432,
+          1.0208892265440166
+        ],
+        "below_minimum_J_count": 0,
+        "above_maximum_J_count": 0,
+        "inverted_count": 0,
+        "min_J": 0.9904676796365302,
+        "max_J": 1.0208892265440166,
+        "tetrahedron_rows_in_combined_candidate_array": [
+          11044,
+          4255,
+          3884,
+          13336,
+          5866,
+          9765,
+          9359,
+          396
+        ],
+        "overmaximum_tetrahedron_rows_in_combined_candidate_array": [
+          1978,
+          6128,
+          4320,
+          3575,
+          6402,
+          11806,
+          3572,
+          4493
+        ]
+      },
+      "fat": {
+        "material_id": 2,
+        "tet_count": 14316,
+        "J_quantiles_0_1_50_99_100": [
+          0.9890460461049548,
+          0.9998960872230388,
+          1.0000000034447398,
+          1.0001358060554382,
+          1.0413084071818788
+        ],
+        "below_minimum_J_count": 0,
+        "above_maximum_J_count": 0,
+        "inverted_count": 0,
+        "min_J": 0.9890460461049548,
+        "max_J": 1.0413084071818788,
+        "tetrahedron_rows_in_combined_candidate_array": [
+          25214,
+          22152,
+          25378,
+          26180,
+          15530,
+          22151,
+          25447,
+          18809
+        ],
+        "overmaximum_tetrahedron_rows_in_combined_candidate_array": [
+          18200,
+          14489,
+          25360,
+          25423,
+          14387,
+          25381,
+          26122,
+          17885
+        ]
+      }
+    },
+    "candidate_037_002": {
+      "skin": {
+        "material_id": 1,
+        "tet_count": 14316,
+        "J_quantiles_0_1_50_99_100": [
+          0.0012284713877822593,
+          0.9330438607466697,
+          0.999999837573619,
+          1.0133004599056101,
+          5.226289896776632
+        ],
+        "below_minimum_J_count": 26,
+        "above_maximum_J_count": 3,
+        "inverted_count": 0,
+        "min_J": 0.0012284713877822593,
+        "max_J": 5.226289896776632,
+        "tetrahedron_rows_in_combined_candidate_array": [
+          11513,
+          11511,
+          2056,
+          2010,
+          14307,
+          11885,
+          13630,
+          1295
+        ],
+        "overmaximum_tetrahedron_rows_in_combined_candidate_array": [
+          11828,
+          10714,
+          11508,
+          11879,
+          1945,
+          11512,
+          11507,
+          11346
+        ]
+      },
+      "fat": {
+        "material_id": 2,
+        "tet_count": 14316,
+        "J_quantiles_0_1_50_99_100": [
+          0.00021546563454383937,
+          0.509643581452968,
+          0.9999998540839117,
+          1.2861921797977427,
+          60.39088795016759
+        ],
+        "below_minimum_J_count": 92,
+        "above_maximum_J_count": 41,
+        "inverted_count": 0,
+        "min_J": 0.00021546563454383937,
+        "max_J": 60.39088795016759,
+        "tetrahedron_rows_in_combined_candidate_array": [
+          24680,
+          27548,
+          27196,
+          27025,
+          27160,
+          27226,
+          25827,
+          25262
+        ],
+        "overmaximum_tetrahedron_rows_in_combined_candidate_array": [
+          27580,
+          25441,
+          25252,
+          18997,
+          28025,
+          25570,
+          25435,
+          25214
+        ]
+      }
+    }
+  },
+  "limitations": [
+    "Evaluates emitted Float32 candidate/current points in Float64 against owner reference point geometry; not a bitwise replay of compiled Metal inverse-rest arithmetic.",
+    "Checks elementwise J against descriptor bounds only; it does not establish contact, anatomy, constitutive history, or accepted native runtime behavior.",
+    "Candidate 037-002 is rejected; no native admission is claimed."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "returncode": 1,
+  "error": null,
+  "wall_seconds": 5.120928916963749,
+  "launch_manifest_sha256": "002529cafd2d64902144edb3d3abad023799c7b431e9c01cc02cfae0c32e49c0",
+  "stdout_sha256": "6415f364ad7c9402dc9ef97cf4a1e4aebcc78b2323c6afc1c68c2fafc8e64f20",
+  "stderr_sha256": "b62d01ad34dc03738c582beb3a94759d9c985218bd08d4f01eedccf1d552f489",
+  "status": "FAILED",
+  "physical_qualification": false,
+  "source_only_marker_present": false,
+  "requested_diagnostics_complete": false,
+  "missing_requested_outputs": [
+    {
+      "environment_key": "NUMI_HUMAN_TISSUE_MASS_REFERENCE_DUMP",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root-reference-relative-j-062/source-preflight/tissue-mass-reference.txt"
+    },
+    {
+      "environment_key": "NUMI_HUMAN_INITIAL_SKIN_FEM_NODES_CSV",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root-reference-relative-j-062/source-preflight/initial-skin-fem-nodes.csv"
+    }
+  ]
+}

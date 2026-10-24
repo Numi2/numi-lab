@@ -1,0 +1,9 @@
+{
+  "status": "PASS_ADAPTER_EXACT_PLANES_AND_LAYER_EXPANSION",
+  "planes": 121,
+  "constraints": 125,
+  "min_exterior_start_distance_m": 5.370907417857468e-05,
+  "report_sha256": "c631c390dc8c0acb5f5673d2d7c3efddcbe8d312d41427167eaf272d42fb8124",
+  "npz_sha256": "a096082f597b7a0bcc9c37af5f2f82b889064a2382d8f7b45535e096b934159c",
+  "limitation": "Construction constraints only; not full surface or physical acceptance"
+}

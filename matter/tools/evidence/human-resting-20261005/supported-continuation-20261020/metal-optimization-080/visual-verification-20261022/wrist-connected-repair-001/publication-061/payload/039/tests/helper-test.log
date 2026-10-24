@@ -1,0 +1,3 @@
+Command: /usr/bin/clang++ -std=c++23 -Wall -Wextra -Wpedantic -Werror -UNDEBUG tests/NumiHumanD37ExactBankDumpTest.cpp -o tests/NumiHumanD37ExactBankDumpTest
+Result: PASS
+Output: PASS exact F32 bits, body-local rows, double inverse quaternion matrix, COM offsets, source identity failure

@@ -1,0 +1,34 @@
+{
+  "assertions": [
+    "every plane maps to one exact first-route proper interior witness",
+    "entry starts are outside or AABB-proven outside",
+    "outside normal points toward the start-side endpoint",
+    "target layers exactly follow mask 6 for O-I and mask 4 for I-D",
+    "all target global node IDs match the native 039 Float32 node dump"
+  ],
+  "candidate_world_nodes": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-candidate-query/run-002/candidate-node-override.csv",
+  "candidate_world_nodes_sha256": "058db5c144a48d84670963081e2b1a6cfab826d79ec098e19eefd07d14841681",
+  "constraint_npz": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-041-exact-material-routes/construction-plane-constraints.npz",
+  "constraint_npz_sha256": "a096082f597b7a0bcc9c37af5f2f82b889064a2382d8f7b45535e096b934159c",
+  "current_violation_summary": {
+    "maximum_margin_violation_m": 0.009763331603440756,
+    "minimum_signed_distance_m": -0.009663331603440756,
+    "positive_margin_violation_constraints": 125
+  },
+  "expanded_endpoint_constraints": 125,
+  "limitations": [
+    "The plane rows encode local route-entry construction constraints only.",
+    "They do not certify tissue surface or tetrahedron clearance and do not admit a physical/native state.",
+    "Ambiguous and nonconstruction route hits remain in the frozen route-report JSON and are not binding rows."
+  ],
+  "native_emitted_nodes": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv",
+  "native_emitted_nodes_sha256": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+  "policies": {
+    "ID_entry_requires_D": 117,
+    "OI_entry_requires_I_and_D": 8
+  },
+  "route_planes": 121,
+  "route_report": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-041-exact-material-routes/route-report.json",
+  "route_report_sha256": "c631c390dc8c0acb5f5673d2d7c3efddcbe8d312d41427167eaf272d42fb8124",
+  "status": "derived_constraint_sidecar_not_physical_acceptance"
+}

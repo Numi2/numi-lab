@@ -1,0 +1,29 @@
+{
+  "status": "PASS_EXACT_NATIVE_BANK_FRAME_AND_ROW946_WITNESS",
+  "triangles": 469136,
+  "banks": 185,
+  "candidate_nodes": 7233,
+  "total_node_bank_pairs": 1338105,
+  "exact_F32_triangle_components_verified": 4222224,
+  "native_query_keys": 2109,
+  "all_missing_keys_AABB_proven_outside": 1335996,
+  "max_raw_matrix_difference": 0,
+  "max_native_query_local_residual_m": 6.216025217875883e-17,
+  "row946_triangle1381_exact_sign_result": {
+    "classification": "proper_interior_hit",
+    "t": 0.30025836149950424,
+    "barycentric": [
+      0.14693238952883267,
+      0.5108852375791348,
+      0.34218237289203246
+    ],
+    "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+  },
+  "input_sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90"
+  },
+  "elapsed_seconds": 0.9149478750769049,
+  "limitation": "Certifies emitted frames, sparse-query coverage and one exact crossing witness; no all-column, triangle/tet-clearance, or native physical admission."
+}

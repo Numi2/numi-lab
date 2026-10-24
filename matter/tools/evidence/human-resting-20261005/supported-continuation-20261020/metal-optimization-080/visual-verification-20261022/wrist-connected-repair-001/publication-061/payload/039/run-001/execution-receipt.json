@@ -1,0 +1,18 @@
+{
+  "returncode": 1,
+  "error": null,
+  "wall_seconds": 7.687631541979499,
+  "launch_manifest_sha256": "65970ed0683bc2be313029049b1d12da9bab8e4d1a8fb05abc3e2738fed50935",
+  "stdout_sha256": "83af90b91157e03c70652b44d13c03b6833384db6e04d3d82021898c5d457070",
+  "stderr_sha256": "ef6d258dd05fba906db97312d239071419c9002d85064113a7ee8cc544c0d00c",
+  "status": "FAILED",
+  "physical_qualification": false,
+  "source_only_marker_present": false,
+  "requested_diagnostics_complete": false,
+  "missing_requested_outputs": [
+    {
+      "environment_key": "NUMI_HUMAN_INITIAL_SKIN_BONE_WITNESS_CSV",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-001/source-preflight/initial-skin-bone-contact.csv"
+    }
+  ]
+}

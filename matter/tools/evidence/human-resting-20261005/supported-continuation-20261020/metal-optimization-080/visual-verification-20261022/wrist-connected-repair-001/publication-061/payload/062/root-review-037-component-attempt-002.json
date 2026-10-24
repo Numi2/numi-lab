@@ -1,0 +1,14 @@
+{
+  "status": "PASS_EXISTING_POSITIVE_GEOMETRY_FLOOR_ONLY",
+  "candidate_sha256": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b",
+  "nonpositive_cells": 0,
+  "below_q_1e_minus_5": 0,
+  "below_construction_target_q_1_25e_minus_5": 24,
+  "min_q": 1.2160859598096454e-05,
+  "witnesses": 139,
+  "min_frozen_plane_gap_m": 9.997556667613105e-05,
+  "unchanged_fixed_nodes": 6375,
+  "max_movement_m": 0.009233570374108688,
+  "invalid_tet_rows": [],
+  "no_native_admission": true
+}

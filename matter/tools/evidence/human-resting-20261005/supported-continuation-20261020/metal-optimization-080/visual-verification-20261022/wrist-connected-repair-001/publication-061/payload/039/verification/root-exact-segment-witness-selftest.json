@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "checks": 8,
+  "scope": "Offline exact witness signs only; no whole-scene clearance or physical admission.",
+  "source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2"
+}

@@ -1,0 +1,342 @@
+{
+  "count": 67,
+  "files": [
+    {
+      "bytes": 6968,
+      "path": "payload/039/build/build-report.json",
+      "sha256": "06a95b4724bcdb3ff082c5006a8717547408c95df570995c16f532adbc45968f"
+    },
+    {
+      "bytes": 4632,
+      "path": "payload/039/build/compile-command.json",
+      "sha256": "bb285d2de5ec684f2bf32a6332b4aab34099772c3ef927e2278896511bf842eb"
+    },
+    {
+      "bytes": 0,
+      "path": "payload/039/build/compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "payload/039/build/compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1131,
+      "path": "payload/039/build/link-command.json",
+      "sha256": "92b3b7b149de3f7f7b0c7725bf3a8428d4c0b7568bedcbb8110957fc01c9573a"
+    },
+    {
+      "bytes": 0,
+      "path": "payload/039/build/link.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "payload/039/build/link.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "payload/039/run-001/checked-runner.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 874,
+      "path": "payload/039/run-001/checked-runner.stdout.txt",
+      "sha256": "22de4e39e7ffdf2375daaae9c25f35e4338c54613bf66375c2ecd0f8191318cc"
+    },
+    {
+      "bytes": 923,
+      "path": "payload/039/run-001/execution-receipt.json",
+      "sha256": "55e9d7f79ef93e775ff0a3cdd3bb855869866fd9f1dfc84926d0f6d3d0dc89dd"
+    },
+    {
+      "bytes": 20802,
+      "path": "payload/039/run-001/launch-manifest.snapshot.json",
+      "sha256": "65970ed0683bc2be313029049b1d12da9bab8e4d1a8fb05abc3e2738fed50935"
+    },
+    {
+      "bytes": 74170,
+      "path": "payload/039/run-001/stderr.log",
+      "sha256": "ef6d258dd05fba906db97312d239071419c9002d85064113a7ee8cc544c0d00c"
+    },
+    {
+      "bytes": 207525,
+      "path": "payload/039/run-001/stdout.log",
+      "sha256": "83af90b91157e03c70652b44d13c03b6833384db6e04d3d82021898c5d457070"
+    },
+    {
+      "bytes": 26176,
+      "path": "payload/039/run-002/all-bank-containment.banks.csv",
+      "sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df"
+    },
+    {
+      "bytes": 459966,
+      "path": "payload/039/run-002/all-bank-containment.csv",
+      "sha256": "a8d7e197db58019cb16f6f89d0ccb63f6e4f7e6f2fc3f6495fd4ee07c1d7a281"
+    },
+    {
+      "bytes": 263350,
+      "path": "payload/039/run-002/all-bank-containment.nodes.csv",
+      "sha256": "f6464f287dbfbd9aa5872ead08e368f9fa7d6eb7a4166a95aa73d7cef7d01ca5"
+    },
+    {
+      "bytes": 19354,
+      "path": "payload/039/run-002/base-launch-manifest.json",
+      "sha256": "617dee1b93d08960daea7d006602b7df02e6f00e693de3b419aba7d424b1b655"
+    },
+    {
+      "bytes": 0,
+      "path": "payload/039/run-002/checked-runner.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 516,
+      "path": "payload/039/run-002/checked-runner.stdout.txt",
+      "sha256": "86d255a9f30d3809cea9a60543f50d9be457a2986542970ad4a1b2d7e3159551"
+    },
+    {
+      "bytes": 80016,
+      "path": "payload/039/run-002/exact-emitted.bodies.csv",
+      "sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90"
+    },
+    {
+      "bytes": 1056107,
+      "path": "payload/039/run-002/exact-emitted.nodes.csv",
+      "sha256": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c"
+    },
+    {
+      "bytes": 24491271,
+      "path": "payload/039/run-002/exact-emitted.triangles.csv.gz",
+      "sha256": "fa6f21f77da7836b110bc73ec2f48bf99e29cb3b502788fb6021b4634d91dc96"
+    },
+    {
+      "bytes": 539,
+      "path": "payload/039/run-002/execution-receipt.json",
+      "sha256": "8bf9c1cdca95331ef23b5359fc8bf60a4e2e468220946155c15f5a105465b142"
+    },
+    {
+      "bytes": 1807,
+      "path": "payload/039/run-002/export-report-as-run.json",
+      "sha256": "a52f3f54e9c17fce192d51e668b1dbf42d9384bab0359dd323777e2e72470586"
+    },
+    {
+      "bytes": 3536,
+      "path": "payload/039/run-002/export-report-final.json",
+      "sha256": "48fec5abb489f9830cf033ea940244fd4c7d141f8ed1260a0c54afb7fb5601d7"
+    },
+    {
+      "bytes": 895,
+      "path": "payload/039/run-002/export-report-provenance-correction.json",
+      "sha256": "2081ed7a69f80f3694b2f2877f3dc394492154c5b9261794225a02020b850393"
+    },
+    {
+      "bytes": 20430,
+      "path": "payload/039/run-002/launch-manifest.snapshot.json",
+      "sha256": "e45c6709dfcc66518dd97e7a678b4294e31ef530ee6ce26cdabec1a12a88f565"
+    },
+    {
+      "bytes": 73339,
+      "path": "payload/039/run-002/registered-skin-poses.json",
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+    },
+    {
+      "bytes": 77117,
+      "path": "payload/039/run-002/stderr.log",
+      "sha256": "924c871d3ec34226fcdeff625a6432812a1b2f10408a45a9e9a4834eaf85104c"
+    },
+    {
+      "bytes": 213068,
+      "path": "payload/039/run-002/stdout.log",
+      "sha256": "6171a935c4a6cc4264b617f1e3d0bd3200f55a4c4bb849885e591125b1bd1829"
+    },
+    {
+      "bytes": 5481,
+      "path": "payload/039/source/NumiHumanD37ExactBankDump.hpp",
+      "sha256": "c116306940faa97b7ea22b3dea138491c7ed9879a5b6abd8e4785cb412a52fe8"
+    },
+    {
+      "bytes": 2654,
+      "path": "payload/039/source/NumiHumanD37ExactBankDumpTest.cpp",
+      "sha256": "d88374b051976fdeda071fb119766078bf8f0286adda52427f061a0fd4017e32"
+    },
+    {
+      "bytes": 6551,
+      "path": "payload/039/source/numilab_human_myosim_visual_probe.mm.patch",
+      "sha256": "a9e94d72495ae07a4498daf9e73451f06af7cf01b6151bbf0e73eb18a803652d"
+    },
+    {
+      "bytes": 8532,
+      "path": "payload/039/source/prepare_candidate_nodes.py",
+      "sha256": "3b35789785965f20837c4c3a101674e936956f5a4febc42156ec37a4cb4a8359"
+    },
+    {
+      "bytes": 8520,
+      "path": "payload/039/source/run_exact_bank_export_039.py",
+      "sha256": "60c2dd2e52c51e74041873c088580b803a7c8bf8fb81f65bbabf0cfa906029a1"
+    },
+    {
+      "bytes": 2026,
+      "path": "payload/039/source/test_prepare_candidate_nodes.py",
+      "sha256": "38d5ced59258585c474ce1771838a96549eedcb31e3c2adadceec7924b264004"
+    },
+    {
+      "bytes": 139,
+      "path": "payload/039/tests/candidate-exporter-tests.log",
+      "sha256": "c0977c9c9ce34cce5ddb8deff71c28eacc75cf751d2186d60345e014b2821805"
+    },
+    {
+      "bytes": 288,
+      "path": "payload/039/tests/helper-test.log",
+      "sha256": "beae4ca9953dcdc2f11c6f8e29cbf301ef2596eb0c15e1d4e50ccbe839f413e4"
+    },
+    {
+      "bytes": 221,
+      "path": "payload/039/verification/root-exact-segment-witness-selftest.json",
+      "sha256": "66a693425be1b627c6eea8aa33484d0325db9fe71055ff1f9772ec0a16192d2d"
+    },
+    {
+      "bytes": 2082,
+      "path": "payload/039/verification/root-independent-exact-bank-frame-039.json",
+      "sha256": "4362a4135b36f8b2fe04187d8a0d79822f801b84b38d9d709b97e451f5b5a437"
+    },
+    {
+      "bytes": 2734,
+      "path": "payload/039/verification/root_exact_segment_witness.py",
+      "sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2"
+    },
+    {
+      "bytes": 4340,
+      "path": "payload/039/verification/root_verify_exact_bank_frame_039.py",
+      "sha256": "69657c157040f791d4dec42140f5d6ba70e69d4c4e4b089ef9ac52b7aee042ae"
+    },
+    {
+      "bytes": 1556,
+      "path": "payload/041/baseline-outer-inside-local-planes.json",
+      "sha256": "5af06fdd5d2cdf9edc9c805b682724b81d1ca69d2b280fe4e99085cf38e1f5e4"
+    },
+    {
+      "bytes": 2301,
+      "path": "payload/041/baseline-outer-inside-local-planes.npz",
+      "sha256": "8c223d3a34103a57c034c3e9abae8b4bf5c7f554a3b94ddf2cf4d9b50c397e2d"
+    },
+    {
+      "bytes": 2717,
+      "path": "payload/041/construction-plane-adapter-receipt.json",
+      "sha256": "8f42d76e791b978d33a5399bd7e77f7a278158108e335809537e137835a01a51"
+    },
+    {
+      "bytes": 28634,
+      "path": "payload/041/construction-plane-constraints.npz",
+      "sha256": "a096082f597b7a0bcc9c37af5f2f82b889064a2382d8f7b45535e096b934159c"
+    },
+    {
+      "bytes": 12525,
+      "path": "payload/041/convert_route_planes_041.py",
+      "sha256": "edcb5254e1ed6948f370b96ebd7c8e0ad7b5c8fdd0d47c732a115eed03d15c88"
+    },
+    {
+      "bytes": 422,
+      "path": "payload/041/root-independent-route-adapter-041.json",
+      "sha256": "2aef54bf100626918ad263f290425137dcd9dc33948ea107fc07dd603c7fb54c"
+    },
+    {
+      "bytes": 2667,
+      "path": "payload/041/root_build_baseline_outer_planes_041.py",
+      "sha256": "c25f859e5fe2f4e39c86a1af8ecb81db90e6f6535f259ddedcd9546ea772af7f"
+    },
+    {
+      "bytes": 9202,
+      "path": "payload/041/root_run_material_routes_041.py",
+      "sha256": "f077e764f4062481d2a376abd0c718ef398f4ea33fde854768c42d72f76c7476"
+    },
+    {
+      "bytes": 2206,
+      "path": "payload/041/root_verify_route_adapter_041.py",
+      "sha256": "a0ad3c3e0a23e7ea1a6dfb368072f4303c4abdc22dab289946a65f3555bb1e4b"
+    },
+    {
+      "bytes": 333787,
+      "path": "payload/041/route-report.json",
+      "sha256": "c631c390dc8c0acb5f5673d2d7c3efddcbe8d312d41427167eaf272d42fb8124"
+    },
+    {
+      "bytes": 22741,
+      "path": "payload/062/app-integration.diff",
+      "sha256": "6f12bcab9779ce2924f9914f371b34b6cb5aa328a4b67fe41c066db32939a37f"
+    },
+    {
+      "bytes": 6195,
+      "path": "payload/062/audit_material_j_062.py",
+      "sha256": "a2a1d6b740f589b35959b2493e315475866c9d9c110b5515cd548aab6c1110be"
+    },
+    {
+      "bytes": 1331,
+      "path": "payload/062/build-receipt.json",
+      "sha256": "48dcf9f09018c9c2faba41eb27b88af6167deb10d4ccb7457ec159db46717579"
+    },
+    {
+      "bytes": 6085,
+      "path": "payload/062/material-specific-reference-J-062.json",
+      "sha256": "df5e22a56697cfecebdf1bde719012126891dab5f5c4cf423f20e6787f617d2b"
+    },
+    {
+      "bytes": 959,
+      "path": "payload/062/root-independent-material-J-owner-bounds-062.json",
+      "sha256": "8fae70da633d97a8ee444471d0ea76bf7fb028c022691a2a0baef62298e0c452"
+    },
+    {
+      "bytes": 493,
+      "path": "payload/062/root-review-037-component-attempt-002.json",
+      "sha256": "06009b268f8788284c83bbe09f918ab2ffe962435befac226cec49a1b91f9c5f"
+    },
+    {
+      "bytes": 2256,
+      "path": "payload/062/root_independent_material_J_owner_bounds_062.py",
+      "sha256": "bc820242d1017eb838cf4e0b0c47ed2d1fa62724765247c1be13a3bacd345462"
+    },
+    {
+      "bytes": 1266,
+      "path": "payload/062/source-preflight/execution-receipt.json",
+      "sha256": "dfd77dd130aa41914a3f74ab2cb2c3783de4805a5b09de435d6c0e4fb938abea"
+    },
+    {
+      "bytes": 530760,
+      "path": "payload/062/source-preflight/identity-reference-points.csv",
+      "sha256": "b536764105cd9e9cb0c7936f5a4409896e8370ac150214a63a362158af5783ed"
+    },
+    {
+      "bytes": 19800,
+      "path": "payload/062/source-preflight/launch-manifest.snapshot.json",
+      "sha256": "002529cafd2d64902144edb3d3abad023799c7b431e9c01cc02cfae0c32e49c0"
+    },
+    {
+      "bytes": 73339,
+      "path": "payload/062/source-preflight/registered-skin-poses.json",
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+    },
+    {
+      "bytes": 1769,
+      "path": "payload/062/source-preflight/resting-coupled.csv",
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    {
+      "bytes": 74184,
+      "path": "payload/062/source-preflight/stderr.log",
+      "sha256": "b62d01ad34dc03738c582beb3a94759d9c985218bd08d4f01eedccf1d552f489"
+    },
+    {
+      "bytes": 15148,
+      "path": "payload/062/source-preflight/stdout.log",
+      "sha256": "6415f364ad7c9402dc9ef97cf4a1e4aebcc78b2323c6afc1c68c2fafc8e64f20"
+    },
+    {
+      "bytes": 3587,
+      "path": "payload/062/source-preflight-command.json",
+      "sha256": "05c730660286359d5cc3f5b0698293647d2d3fd058f414ab29f93e1447dd7fb3"
+    }
+  ],
+  "schema": "numi.human.publication.payload-files.v1",
+  "total_bytes": 28304010
+}

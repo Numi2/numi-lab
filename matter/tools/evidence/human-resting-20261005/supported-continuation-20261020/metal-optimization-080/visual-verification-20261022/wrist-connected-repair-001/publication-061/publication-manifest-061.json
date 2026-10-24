@@ -1,0 +1,39 @@
+{
+  "base_origin_main": "008a2adb6870e7eca594aa7cabca258a5adc4f91",
+  "limitations": [
+    "039 is a source-only preflight with zero physical simulation steps.",
+    "039 exact-frame report certifies exported data and one exact segment witness only, not full clearance or anatomy.",
+    "041 records exact route-entry construction constraints; 125 rows remain violated and no layer or tetrahedron clearance is certified.",
+    "062 confirms 162 material-specific J-bound violations and rejects candidate 037-002.",
+    "The positive Float32 geometry-floor result does not imply material validity or physical admission."
+  ],
+  "local_head_at_prepare": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "normal_index_tree_at_prepare": "b8d44c114ef552130634d80d7e94488ee5136201",
+  "omissions": [
+    {
+      "path": "039/run-002/exact-emitted.triangles.csv",
+      "reason": "Stored as lossless deterministic gzip; verifier restores and checks original hash."
+    },
+    {
+      "path": "039/run-002/registered-skin.csv",
+      "reason": "Large source input is referenced by path and SHA only; no independent archive-recovery claim."
+    },
+    {
+      "path": "compiled binaries and object files",
+      "reason": "Source, compile/link commands and receipts are retained; generated binaries are not duplicated."
+    },
+    {
+      "path": "037-002 candidate NPZ",
+      "reason": "Inherited by exact Git blob pin from publication 060."
+    }
+  ],
+  "payload_bytes": 28304010,
+  "payload_files_count": 67,
+  "payload_files_sha256": "ff17da520a58425855d22d6d4aa8ec8725556118ad0f893a4ad6d72a69af63ec",
+  "publication": "061",
+  "readme_sha256": "7acd399b66fe92980f81d7559dc1e97011e069a2b9c98436c1e986bdb66d0044",
+  "schema": "numi.human.publication.manifest.v1",
+  "source_input_pins_sha256": "93e10d79b0ce0ac0acc455dce25a6429c4a189184c97b48c2af8bb560e479a16",
+  "status": "READY_FOR_ROOT_REVIEW_NOT_PUSHED",
+  "verifier_sha256": "556ec3a3bcf6b7514aa8badba46d23959639a17c12bb1cfd07ff2cd85f0cc914"
+}

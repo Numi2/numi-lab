@@ -1,0 +1,95 @@
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -31,6 +31,7 @@
+ #include "numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp"
+ #include "NumiHumanInitialSkinBoneContactWitness.hpp"
+ #include "NumiHumanD37InitialSkinBoneWitness.hpp"
++#include "NumiHumanD37ExactBankDump.hpp"
+ #import <Foundation/Foundation.h>
+ #import <CoreGraphics/CoreGraphics.h>
+ #import <ImageIO/ImageIO.h>
+@@ -25536,6 +25537,9 @@
+             "NUMI_HUMAN_INITIAL_SKIN_BONE_WITNESS_CSV");
+         const char* allBankContainmentPath=std::getenv(
+             "NUMI_HUMAN_INITIAL_SKIN_BONE_ALL_BANK_CSV");
++        const char* exactBankDumpPrefix=std::getenv(
++            "NUMI_HUMAN_D37_EXACT_EMITTED_BANK_DUMP_PREFIX");
++        const bool writeExactBankDump=exactBankDumpPrefix&&exactBankDumpPrefix[0]!='\0';
+         const char* candidateAuditOverridePath=std::getenv(
+             "NUMI_HUMAN_D37_CANDIDATE_NODE_OVERRIDE_CSV");
+         const char* candidateAuditOverrideSHA=std::getenv(
+@@ -25553,6 +25557,12 @@
+             require(writeAllBankContainment&&!writeInitialWitness&&sourceOnly&&
+                         std::string_view(sourceOnly)=="1",
+                     "D37 candidate node override is restricted to all-bank source-only audit");
++        }
++        if(writeExactBankDump) {
++            const char* sourceOnly=std::getenv("NM_FEM_WRITE_NATIVE_TANGENT_SOURCE_ONLY");
++            require(writeAllBankContainment&&!writeInitialWitness&&candidateAuditOverrideRequested&&
++                        sourceOnly&&std::string_view(sourceOnly)=="1"&&staticBVHEnabled,
++                    "D37 exact bank dump is restricted to candidate all-bank source-only static-BVH audit");
+         }
+         if(writeInitialWitness||writeAllBankContainment) {
+             namespace d37w=numi::human::d37_initial_skin_bone_witness;
+@@ -25831,6 +25841,61 @@
+             require(bankInventoryOutput.good(),"could not create D37 all-bank inventory CSV");
+             bankInventoryOutput<<bankInventoryCSV.str();bankInventoryOutput.flush();
+             require(bankInventoryOutput.good(),"failed writing D37 all-bank inventory CSV");
++            if(writeExactBankDump) {
++                require(candidateAuditNodes.has_value()&&bones&&bones->sourceOwnerBindingsVerified&&
++                            bones->records.size()==bones->sourceRecordIndices.size(),
++                        "D37 exact bank dump requires candidate nodes and source-bound bone records");
++                std::map<std::pair<std::uint32_t,std::uint32_t>,std::uint32_t> bankSourceRecords;
++                for(std::size_t i=0u;i<bones->records.size();++i) {
++                    const auto& record=bones->records[i];
++                    const auto key=std::pair{record.bodyIndex,record.stableId};
++                    require(record.bodyIndex<bodies.size()&&record.stableId!=MR_INVALID_INDEX&&
++                                bones->sourceRecordIndices[i]!=MR_INVALID_INDEX&&
++                                bankSourceRecords.emplace(key,bones->sourceRecordIndices[i]).second,
++                            "D37 exact bank source-record map is invalid or ambiguous");
++                }
++                const std::string prefix=exactBankDumpPrefix;
++                const std::string trianglePath=prefix+".triangles.csv";
++                const std::string nodePath=prefix+".nodes.csv";
++                const std::string bodyPath=prefix+".bodies.csv";
++                std::ofstream triangleOutput(trianglePath,std::ios::out|std::ios::binary|std::ios::trunc);
++                std::ofstream exactNodeOutput(nodePath,std::ios::out|std::ios::binary|std::ios::trunc);
++                std::ofstream bodyOutput(bodyPath,std::ios::out|std::ios::binary|std::ios::trunc);
++                require(triangleOutput.good()&&exactNodeOutput.good()&&bodyOutput.good(),
++                        "D37 exact bank dump output files could not be opened");
++                const auto sourceRecordIndex=[&](std::uint32_t body,std::uint32_t bone) {
++                    const auto found=bankSourceRecords.find({body,bone});
++                    return found==bankSourceRecords.end()?MR_INVALID_INDEX:found->second;
++                };
++                const auto rotateForDump=[](const std::array<double,4>& q,
++                                             const std::array<double,4>& point) {
++                    const auto v=contactWitness::rotate(q,{point[0],point[1],point[2]});
++                    return std::array<double,4>{v.x,v.y,v.z,0.0};
++                };
++                namespace exactDump=numi::human::d37_exact_bank_export;
++                const auto dump=exactDump::writeExactEmittedBankSnapshot(
++                    triangleOutput,exactNodeOutput,bodyOutput,
++                    fasciaBodyContactNeighborhoodTriangles,allBankAuditNodes,bodies,
++                    object.stateOffset,static_cast<std::uint32_t>(volumeCount),
++                    std::span<const std::uint8_t>(roleMask.data(),roleMask.size()),
++                    std::span<const std::uint32_t>(roleRow.data(),roleRow.size()),
++                    offset,sourceRecordIndex,rotateForDump);
++                require(dump.valid,
++                        "D37 exact emitted bank dump failed: "+dump.failure);
++                require(dump.triangles==fasciaBodyContactNeighborhoodTriangles.size()&&
++                            dump.nodes==volumeCount&&dump.bodies==bodies.size()&&
++                            dump.banks==inventoryBanks,
++                        "D37 exact emitted bank dump coverage differs from queried asset");
++                triangleOutput.flush();exactNodeOutput.flush();bodyOutput.flush();
++                require(triangleOutput.good()&&exactNodeOutput.good()&&bodyOutput.good(),
++                        "D37 exact emitted bank dump flush failed");
++                std::cout<<"d37_exact_emitted_bank_dump=written triangles="<<dump.triangles
++                    <<" banks="<<dump.banks<<" nodes="<<dump.nodes<<" bodies="<<dump.bodies
++                    <<" triangle_csv="<<trianglePath<<" node_csv="<<nodePath
++                    <<" body_csv="<<bodyPath
++                    <<" coordinate_space=post_COM_bodyLocal_float32"
++                    <<" scope=source_only_no_physical_steps"<<std::endl;
++            }
+             std::cout<<"d37_initial_skin_bone_all_bank=written path="<<allBankContainmentPath
+                 <<" volume_nodes="<<allBankSummary.nodes
+                 <<" complete_bone_banks="<<allBankSummary.banks

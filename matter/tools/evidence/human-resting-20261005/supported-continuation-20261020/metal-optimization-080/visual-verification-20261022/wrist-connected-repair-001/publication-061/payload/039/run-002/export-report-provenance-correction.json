@@ -1,0 +1,13 @@
+{
+  "app_binary_sha256": "dc463fb9c341448e0a7d4accd52ba392c4bd757c8226541de0890462bd04b6ab",
+  "app_source_sha256": "72b0726f3c6190f36e706dcb83f3ecb4b5c4f3370c8abacabf57e9b298b1c762",
+  "as_run_field_name": "source_app_sha256",
+  "as_run_field_value": "dc463fb9c341448e0a7d4accd52ba392c4bd757c8226541de0890462bd04b6ab",
+  "as_run_field_value_semantics": "The as-run field value is the compiled binary digest, despite the field name.",
+  "as_run_report_path": "payload/039/run-002/export-report-as-run.json",
+  "as_run_report_sha256": "a52f3f54e9c17fce192d51e668b1dbf42d9384bab0359dd323777e2e72470586",
+  "corrected_report_path": "payload/039/run-002/export-report-final.json",
+  "corrected_report_sha256": "48fec5abb489f9830cf033ea940244fd4c7d141f8ed1260a0c54afb7fb5601d7",
+  "correction_changes_execution_or_measurements": false,
+  "schema": "numi.human.publication.provenance-correction.v1"
+}
