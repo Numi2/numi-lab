@@ -1,7 +1,7 @@
 {
   "source_sha256": "e1b5a246e531a16d8d2438b8569d31a27c9a10712f0de063084bed87db58c436",
   "test_sha256": "f7353c70789cabd29ade631c57c95c33228f2255b1a15634b011808d38607b37",
-  "command": "PYTHONPATH=tools /Users/n/numi-human-prep-venv-20261005/bin/python -m unittest discover -s tests -p test_human_skin_p1_*.py -v",
+  "command": "PYTHONPATH=/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/robust-p1-construction-clip-owner-302/tools /Users/n/numi-human-prep-venv-20261005/bin/python -m unittest discover -s /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/robust-p1-construction-clip-owner-302/tests -p test_human_skin_p1_*.py -v",
   "tested_tests": 31,
   "actual_failure_witness": "tet97486 / registered soft-tissue stable120 face65; positive binary32 parent condition5.16e6; prior barycentric sum error1.455e-11 exceeds unchanged2e-12 certificate",
   "result": "exact-rational construction fallback returns nonnegative barycentrics and parent/source reconstruction without coordinate or tolerance changes",

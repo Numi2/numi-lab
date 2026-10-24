@@ -1,0 +1,27 @@
+{
+  "source_parent": "4f3aba0106007c0e2004df5e508b37e8bcab56f1",
+  "host": "SSH numi",
+  "scope": "source preparation: combine disjoint CSR surface patches before existing NHSKIN append and reference rebind",
+  "tests": {
+    "command": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-patch-bindings-owner-308/tests",
+      "-p",
+      "test_human_skin_reference_rebind.py"
+    ],
+    "count": 42,
+    "passed": true,
+    "log_sha256": "ce7085b47d1e95a10e35554e341dc7242b78c7dbd2e7c1b999b8ac600274e494"
+  },
+  "source_sha256": "4144e90e7e2f690b54876db055b35dad54802b3f1e527cf52266a42050672a25",
+  "tests_sha256": "872bc07e0949156db8313a3260ec96d6ef40b6c0bc61a131c35abc0f707ce89c",
+  "physical_admission": false,
+  "limitations": [
+    "No new arm/hand geometry admitted by this helper test.",
+    "No mechanical, contact, physiological or performance qualification."
+  ]
+}

@@ -789,6 +789,145 @@ def validate_protected_source_faces(payload, candidate_faces, protected_source_f
                               " is missing, reversed or duplicated")
     return int(len(ids))
 
+
+def combine_registered_surface_patch_inputs(payload, vertices_world_m, patches):
+    """Join disjoint local repairs before one NHSKIN append/reference rebind.
+
+    Each local plan uses the original vertex prefix and original-source CSR,
+    replacement-only faces and explicit removed source-face rows. Boundary edges
+    must match the removed region exactly, including direction. This is source
+    preparation; it does not certify collision, material volume or physical use.
+    """
+    x0 = np.asarray(vertices_world_m, dtype=float)
+    old = payload["nv"]
+    if x0.shape != (old, 3) or not np.isfinite(x0).all():
+        raise RebindError("invalid common registered surface coordinates")
+    if not patches:
+        raise RebindError("no connected surface patches supplied")
+
+    def boundary(faces):
+        edges, seen = {}, set()
+        parent = list(range(len(faces)))
+        def root(i):
+            while parent[i] != i:
+                parent[i] = parent[parent[i]]
+                i = parent[i]
+            return i
+        for face_row, tri in enumerate(faces):
+            if len(set(map(int, tri))) != 3:
+                raise RebindError("patch has a repeated face corner")
+            key = tuple(sorted(map(int, tri)))
+            if key in seen:
+                raise RebindError("patch has a duplicate triangle")
+            seen.add(key)
+            for a, b in zip(tri, np.roll(tri, -1)):
+                a, b = int(a), int(b)
+                edges.setdefault(tuple(sorted((a, b))), []).append((a, b, face_row))
+        for rows in edges.values():
+            if len(rows) > 2 or (len(rows) == 2 and rows[0][:2] != rows[1][:2][::-1]):
+                raise RebindError("patch has a nonmanifold or inconsistently oriented edge")
+            if len(rows) == 2:
+                parent[root(rows[1][2])] = root(rows[0][2])
+        components = {}
+        for row, tri in enumerate(faces):
+            comp = components.setdefault(root(row), dict(vertices=set(),edges=set(),faces=0,boundary=set()))
+            comp["vertices"].update(map(int,tri))
+            comp["faces"] += 1
+        result = set()
+        for key, rows in edges.items():
+            comp = components[root(rows[0][2])]
+            comp["edges"].add(key)
+            if len(rows) == 1:
+                directed = rows[0][:2]
+                comp["boundary"].add(directed)
+                result.add(directed)
+        signatures = set()
+        for comp in components.values():
+            if not comp["boundary"]:
+                raise RebindError("local patch has a closed detached component")
+            signatures.add((frozenset(comp["boundary"]),
+                            len(comp["vertices"])-len(comp["edges"])+comp["faces"]))
+        return result, signatures
+
+    removed = set()
+    coords, ids, weights = [x0], [np.arange(old)], [np.ones(old)]
+    counts = [np.ones(old, dtype=np.int64)]
+    faces_out, face_parents = [], []
+    reports = []
+    cursor = old
+    for number, patch in enumerate(patches):
+        x = np.asarray(patch["vertices_world_m"], dtype=float)
+        f = np.asarray(patch["faces"])
+        src = np.asarray(patch["replaced_source_face_ids"])
+        off = np.asarray(patch["ancestry_offsets"])
+        sid = np.asarray(patch["source_vertex_ids"])
+        sw = np.asarray(patch["source_weights"], dtype=float)
+        if (x.ndim != 2 or x.shape[1] != 3 or len(x) < old or
+                not np.isfinite(x).all() or not np.array_equal(x[:old], x0) or
+                f.ndim != 2 or f.shape[1] != 3 or f.dtype.kind not in "iu" or not len(f) or
+                src.ndim != 1 or src.dtype.kind not in "iu" or not len(src) or
+                len(np.unique(src)) != len(src) or np.any(src < 0) or np.any(src >= len(payload["inds"])) or
+                off.ndim != 1 or off.dtype.kind not in "iu" or len(off) != len(x)+1 or
+                np.any(off > np.iinfo(np.int64).max) or
+                off[0] != 0 or np.any(off[1:] <= off[:-1]) or
+                sid.ndim != 1 or sid.dtype.kind not in "iu" or off[-1] != len(sid) or
+                sw.shape != sid.shape or not np.isfinite(sw).all() or np.any(sw < 0) or
+                np.any(sid < 0) or np.any(sid >= old) or
+                np.any(f < 0) or np.any(f >= len(x))):
+            raise RebindError("invalid regional patch geometry or ancestry at patch " + str(number))
+        off = off.astype(np.int64)
+        if (not np.array_equal(off[:old+1], np.arange(old+1)) or
+                not np.array_equal(sid[:old], np.arange(old)) or
+                not np.array_equal(sw[:old], np.ones(old))):
+            raise RebindError("regional patch changed original source ancestry")
+        rows = np.repeat(np.arange(len(x)), np.diff(off))
+        if np.max(np.abs(np.bincount(rows, weights=sw, minlength=len(x))-1)) > 1e-10:
+            raise RebindError("regional patch ancestry is not an affine partition")
+        selected = set(map(int, src))
+        if removed & selected:
+            raise RebindError("regional patches overlap source faces")
+        original_faces = payload["inds"][src]
+        if boundary(f) != boundary(original_faces):
+            raise RebindError("regional patch does not preserve its exact directed source boundary")
+        allowed = set(map(int, original_faces.ravel()))
+        if not set(map(int, f[f < old])).issubset(allowed):
+            raise RebindError("regional patch references unrelated original vertices")
+        if not set(map(int, sid[old:])).issubset(allowed):
+            raise RebindError("regional patch ancestry crosses outside its source region")
+        if not np.array_equal(np.unique(f[f >= old]), np.arange(old, len(x))):
+            raise RebindError("regional patch has unreferenced appended vertices")
+        parent = np.asarray(patch["face_parent_source_rows"])
+        if (parent.shape != (len(f),) or parent.dtype.kind not in "iu" or
+                not set(map(int, parent)).issubset(selected)):
+            raise RebindError("regional patch face ancestry is outside its removed region")
+        mapped = np.asarray(f, dtype=np.int64).copy()
+        mapped[mapped >= old] += cursor-old
+        faces_out.append(mapped)
+        face_parents.append(parent.astype(np.int64))
+        coords.append(x[old:])
+        counts.append(np.diff(off)[old:].astype(np.int64))
+        ids.append(sid[old:].astype(np.int64))
+        weights.append(sw[old:])
+        reports.append(dict(patch_index=number, removed_source_faces=len(src),
+                            appended_vertices=len(x)-old, replacement_faces=len(f),
+                            first_appended_vertex=cursor))
+        cursor += len(x)-old
+        removed |= selected
+    kept = np.asarray([i for i in range(len(payload["inds"])) if i not in removed], dtype=np.int64)
+    all_counts = np.concatenate(counts)
+    return dict(
+        vertices_world_m=np.concatenate(coords),
+        faces=np.concatenate([payload["inds"][kept], *faces_out]).astype(np.int64),
+        ancestry_offsets=np.r_[0, np.cumsum(all_counts)],
+        source_vertex_ids=np.concatenate(ids).astype(np.int64),
+        source_weights=np.concatenate(weights),
+        face_parent_source_rows=np.concatenate([kept, *face_parents]),
+        protected_source_face_ids=kept,
+        report=dict(patches=reports, kept_source_faces=len(kept),
+                    removed_source_faces=len(removed), original_vertices_exact=True,
+                    physical_admission=False))
+
+
 def append_registered_surface_patch(payload, pose, rest_pose, root_lift_m,
                                     vertices_world_m, faces, ancestry_offsets,
                                     source_vertex_ids, source_weights,

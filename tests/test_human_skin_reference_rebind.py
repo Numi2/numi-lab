@@ -269,6 +269,101 @@ class RebindTests(unittest.TestCase):
         return [p,pose,rest,[0,0,.35],x,f,np.array([0,1,2,3,4,5,8]),
                 np.array([0,1,2,3,4,0,1,2]),np.array([1,1,1,1,1,1/3,1/3,1/3])]
 
+
+    def _local_composition_plans(self):
+        args = self._append_patch_args()
+        p, pose, rest, lift = args[:4]
+        x = args[4][:p["nv"]].copy()
+        plans = []
+        for row, triangle in enumerate(p["inds"]):
+            a,b,c = map(int,triangle)
+            point = x[triangle].mean(axis=0) + np.array([.001,0,.001])
+            plans.append(dict(vertices_world_m=np.r_[x,point[None]],
+                faces=np.array([[a,b,5],[b,c,5],[c,a,5]]),
+                replaced_source_face_ids=np.array([row]),
+                ancestry_offsets=np.array([0,1,2,3,4,5,8]),
+                source_vertex_ids=np.r_[np.arange(5),triangle],
+                source_weights=np.r_[np.ones(5),[1/3]*3],
+                face_parent_source_rows=np.array([row]*3)))
+        return p,pose,rest,lift,x,plans
+
+    def test_combine_local_regions_one_reference_rebind(self):
+        p,pose,rest,lift,x,plans = self._local_composition_plans()
+        assembled = m.combine_registered_surface_patch_inputs(p,x,plans)
+        self.assertEqual(assembled["vertices_world_m"].shape,(7,3))
+        self.assertEqual(assembled["faces"].shape,(6,3))
+        np.testing.assert_array_equal(assembled["faces"][3:],[[1,3,6],[3,2,6],[2,1,6]])
+        np.testing.assert_array_equal(assembled["face_parent_source_rows"],[0,0,0,1,1,1])
+        data,report=m.append_registered_surface_patch(p,pose,rest,lift,
+            *[assembled[k] for k in ("vertices_world_m","faces","ancestry_offsets",
+                                    "source_vertex_ids","source_weights")],
+            protected_source_face_ids=assembled["protected_source_face_ids"])
+        result=m.decode(data)
+        self.assertEqual(result["verts"][:5].tobytes(),p["verts"].tobytes())
+        self.assertEqual(result["weights"][:5].tobytes(),p["weights"].tobytes())
+        a,b=m.reference_transforms(p,pose,lift)
+        np.testing.assert_allclose(m.positions(result,a,b),assembled["vertices_world_m"],atol=2e-7)
+        self.assertFalse(report["physical_admission"])
+
+    def test_combine_preserves_unaffected_faces_and_ancestry(self):
+        p,pose,rest,lift,x,plans=self._local_composition_plans()
+        assembled=m.combine_registered_surface_patch_inputs(p,x,plans[:1])
+        np.testing.assert_array_equal(assembled["faces"][0],p["inds"][1])
+        np.testing.assert_array_equal(assembled["protected_source_face_ids"],[1])
+        np.testing.assert_array_equal(assembled["ancestry_offsets"],plans[0]["ancestry_offsets"])
+        np.testing.assert_array_equal(assembled["source_vertex_ids"],plans[0]["source_vertex_ids"])
+        self.assertEqual(assembled["vertices_world_m"][:5].tobytes(),x.tobytes())
+
+    def test_combine_topology_only_region_with_appended_region(self):
+        p,pose,rest,lift,x,plans=self._local_composition_plans()
+        plans[1].update(vertices_world_m=x.copy(),faces=p["inds"][1:2].copy(),
+            ancestry_offsets=np.arange(6),source_vertex_ids=np.arange(5),
+            source_weights=np.ones(5),face_parent_source_rows=np.array([1]))
+        assembled=m.combine_registered_surface_patch_inputs(p,x,plans)
+        self.assertEqual(assembled["vertices_world_m"].shape,(6,3))
+        self.assertEqual(assembled["faces"].shape,(4,3))
+        np.testing.assert_array_equal(assembled["faces"][-1],p["inds"][1])
+        self.assertEqual(assembled["report"]["patches"][1]["appended_vertices"],0)
+
+    def test_combine_rejects_unsigned_offset_wrap_without_allocation(self):
+        p,pose,rest,lift,x,plans=self._local_composition_plans()
+        for offsets in (np.array([0,1,2,1,4,5,8],dtype=np.uint64),
+                        np.array([0,1,2,2**64-1,4,5,8],dtype=np.uint64)):
+            plan=dict(plans[0],ancestry_offsets=offsets)
+            with self.assertRaises(m.RebindError):
+                m.combine_registered_surface_patch_inputs(p,x,[plan])
+
+    def test_combine_rejects_detached_closed_bubble(self):
+        p,pose,rest,lift,x,plans=self._local_composition_plans()
+        plan={k:v.copy() for k,v in plans[0].items()}
+        plan["vertices_world_m"]=np.r_[plan["vertices_world_m"],
+            [[.1,.1,.2],[.2,.1,.2],[.1,.2,.2],[.1,.1,.3]]]
+        plan["faces"]=np.r_[plan["faces"],[[6,8,7],[6,7,9],[7,8,9],[8,6,9]]]
+        plan["ancestry_offsets"]=np.r_[plan["ancestry_offsets"],[11,14,17,20]]
+        plan["source_vertex_ids"]=np.r_[plan["source_vertex_ids"],np.tile([0,1,2],4)]
+        plan["source_weights"]=np.r_[plan["source_weights"],np.full(12,1/3)]
+        plan["face_parent_source_rows"]=np.zeros(7,dtype=np.int64)
+        with self.assertRaisesRegex(m.RebindError,"closed detached"):
+            m.combine_registered_surface_patch_inputs(p,x,[plan])
+
+    def test_combine_rejects_overlap_and_wrong_boundaries(self):
+        p,pose,rest,lift,x,plans=self._local_composition_plans()
+        with self.assertRaisesRegex(m.RebindError,"overlap"):
+            m.combine_registered_surface_patch_inputs(p,x,[plans[0],plans[0]])
+        for mode in ("reversed","missing_face","unrelated_ancestry","original_coordinate",
+                     "bad_parent","bad_partition","duplicate_face","unreferenced"):
+            plan={k:v.copy() for k,v in plans[0].items()}
+            if mode=="reversed":plan["faces"]=plan["faces"][:,::-1]
+            elif mode=="missing_face":plan["faces"]=plan["faces"][:-1];plan["face_parent_source_rows"]=plan["face_parent_source_rows"][:-1]
+            elif mode=="unrelated_ancestry":plan["source_vertex_ids"][-1]=4
+            elif mode=="original_coordinate":plan["vertices_world_m"][0,0]+=.001
+            elif mode=="bad_parent":plan["face_parent_source_rows"][-1]=1
+            elif mode=="bad_partition":plan["source_weights"][-1]=.5
+            elif mode=="duplicate_face":plan["faces"]=np.r_[plan["faces"],plan["faces"][:1]]
+            elif mode=="unreferenced":plan["faces"]=p["inds"][:1].copy();plan["face_parent_source_rows"]=np.array([0])
+            with self.subTest(mode=mode),self.assertRaises(m.RebindError):
+                m.combine_registered_surface_patch_inputs(p,x,[plan])
+
     def test_appended_patch_preserves_original_records_and_reference(self):
         args = self._append_patch_args()
         p,pose,rest,lift,x,f = args[:6]
