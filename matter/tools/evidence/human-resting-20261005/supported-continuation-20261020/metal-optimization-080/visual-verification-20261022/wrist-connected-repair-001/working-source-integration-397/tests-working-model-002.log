@@ -1,0 +1,16 @@
+
+==================================== ERRORS ====================================
+_ ERROR collecting n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/validation/tests/test_bodyparts_source_identity.py _
+ImportError while importing test module '/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/validation/tests/test_bodyparts_source_identity.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/validation/tests/test_bodyparts_source_identity.py:8: in <module>
+    from numilab_human.resting_anatomy import rebind_central_canal_identity_metadata
+E   ImportError: cannot import name 'rebind_central_canal_identity_metadata' from 'numilab_human.resting_anatomy' (/Users/n/numi-human-anatomy-finish-1378/src/numilab_human/resting_anatomy.py)
+=========================== short test summary info ============================
+ERROR ../n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/validation/tests/test_bodyparts_source_identity.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.22s

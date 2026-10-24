@@ -1,0 +1,9 @@
+test_bad_hash_pin_creates_no_output (__main__.CoherentReferenceTests.test_bad_hash_pin_creates_no_output) ... ok
+test_centered_translation_rotation_cancellation_and_eight_bank_byte_scope (__main__.CoherentReferenceTests.test_centered_translation_rotation_cancellation_and_eight_bank_byte_scope) ... ok
+test_optional_retained_393_byte_exact_replay (__main__.CoherentReferenceTests.test_optional_retained_393_byte_exact_replay) ... ok
+test_zero_and_nonunit_quaternions_fail_without_output (__main__.CoherentReferenceTests.test_zero_and_nonunit_quaternions_fail_without_output) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.978s
+
+OK

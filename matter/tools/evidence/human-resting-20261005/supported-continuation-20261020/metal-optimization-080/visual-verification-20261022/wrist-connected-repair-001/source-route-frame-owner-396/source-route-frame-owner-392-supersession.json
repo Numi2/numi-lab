@@ -1,0 +1,75 @@
+{
+  "schema": "numi.human.nhtiss.reference-rebind-supersession.v1",
+  "owner": "source-route-frame-owner-396",
+  "status": "392 method superseded; original 392 files retained unchanged",
+  "supersedes": {
+    "owner": "source-route-frame-owner-392",
+    "builder": {
+      "path": "../source-route-frame-owner-392/build_source_route_inverse_bind_392.py",
+      "sha256": "8029318d61056a572cd626cf532fbdd7f711a8aa93965c1b7611084cd5404d18"
+    },
+    "candidate": {
+      "path": "../source-route-frame-owner-392/corrected-route-weights-inverse-current-bind.nhtissue",
+      "sha256": "fdb8953787e88751f48177852f8622702bad8aa4486349eac05859e5f7335889"
+    },
+    "candidate_report": {
+      "path": "../source-route-frame-owner-392/candidate-report.json",
+      "sha256": "8fc6d2ca16469b6026f9423122644b78a4f86737d9be05543bb083279c3d41da"
+    },
+    "exact_current_failure": {
+      "path": "../source-route-frame-owner-392/exact-current-gate-001/exact-current-pose-gate-392-001.stop.json",
+      "sha256": "2d7c0867fe5b5a795046d9e70b1e2e3c3b04d5085d41a5cb9626bbc657a4709f",
+      "gate_status": "FAIL_FIRST_NEW_EXACT_PAIR",
+      "first_failure": "stable surface 132: 6 new exact current-pose self pairs; matched baseline 0",
+      "receipt_note": "The retained stop JSON has a historical key candidate389_report_sha256 whose value is the pinned 392 report hash; the file is preserved verbatim and pinned above."
+    }
+  },
+  "root_cause": {
+    "392_reference_point": "p_mm = 1000 * (x_current_world_m - origin_world_m)",
+    "392_bind_translation": "R_current_inverse * (-body_position_world)",
+    "defect": "the per-record origin was omitted from the inverse-bind translation, so the stored centered point and body bind did not map to the same world point; subsequent residual additions pushed reference coordinates toward absolute world coordinates and defeated centering",
+    "corrected_bind_translation": "R_current_inverse * (origin_world_m - body_position_world)",
+    "preserve_original_evidence": true
+  },
+  "superseding_method_candidate": {
+    "owner": "source-route-frame-owner-393-centered",
+    "builder": {
+      "path": "../source-route-frame-owner-393-centered/build_source_route_centered_393.py",
+      "sha256": "42828c00f19ef033deab0a60a36faa9d26f3be920d89f26f927723dbee9645eb"
+    },
+    "candidate": {
+      "path": "../source-route-frame-owner-393-centered/corrected-route-weights-centered-inverse-current-bind.nhtissue",
+      "sha256": "8f456e52ac4a63d7b82af2f85e7b5f81f6bb156fad06216e3fe3269bba04ffcc"
+    },
+    "candidate_report": {
+      "path": "../source-route-frame-owner-393-centered/candidate-report.json",
+      "sha256": "5cb3a24731904ebc75f37c14b02aed2a8890535d1ed3a5bd4940114230780132"
+    },
+    "inputs": {
+      "baseline_nhtiss_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+      "weight_candidate_386_sha256": "7a40994f497555111652ac9c621b7f8d90b498d6e7be8bfda9193910060a65b2",
+      "identity003_pose_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+      "exact191_emitter_sha256": "3606321c1265fd1350afb2c1ce765ce7f7afe99d65f0cebfd77a4504c58d235b",
+      "inventory_sha256": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+      "cache_sha256": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+      "weight_candidate_386_receipt_sha256": "44f2ae1d2fd216d6864e1810c4c99ed11b190981dc900da4c337606d747da022",
+      "weight_candidate_386_receipt_path": "../source-route-frame-owner-386/candidate-receipt.json"
+    },
+    "outcome": "corrected coherent inverse-current construction; candidate remains unqualified for contact/pose or physical admission"
+  },
+  "retained_diagnostic": {
+    "candidate": {
+      "path": "../source-route-frame-owner-393-centered-quantization/candidate.nhtissue",
+      "sha256": "dddda77c9970d520ee5736b51970a38e7471079cd01616b5896a6cada946ae08"
+    },
+    "report": {
+      "path": "../source-route-frame-owner-393-centered-quantization/report.json",
+      "sha256": "5c8563a28e750eaf15bf6c7b2516a3c48e69b9376510ce88574a4d2f3f30844f"
+    },
+    "scope": "bounded local Float32 quantization diagnostic only; no contact gate rerun or admission claim"
+  },
+  "nonclaims": [
+    "The supersession corrects the 392 coordinate-frame formula and does not qualify either 393 payload for physical use.",
+    "No contact, self-intersection, bone/muscle clearance, motion, force, or dynamic qualification is implied."
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "elapsed_s": 1.2211117499973625,
+  "model_sha256": "52699cc4846175c77eccb1def32bd6a6d0196cd1ae480cb0ff9697e6b8f7f24e",
+  "registration_sha256": "31c77660a16e8688fe68489eadff9d3861ceb27ed3b73d0288bda330d2a13b8c",
+  "payload": {
+    "file": "bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+    "sha256": "6d0d82a0d89dbc57ba46a871de2231fe114d787b172b0ce065565802fad7c713",
+    "bytes": 2018432,
+    "magic": "NHTISS4",
+    "payload_abi": 5,
+    "registration_fingerprint32": "31c77660",
+    "surface_count": 8,
+    "binding_count": 126,
+    "vertex_count": 28011,
+    "index_count": 111240
+  },
+  "physical_admission": false
+}

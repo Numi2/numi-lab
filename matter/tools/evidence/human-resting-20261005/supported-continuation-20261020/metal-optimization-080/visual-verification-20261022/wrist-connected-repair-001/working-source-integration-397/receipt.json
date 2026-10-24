@@ -1,0 +1,70 @@
+{
+  "published_owner_commit": "3b364f4a1d0622f007aa05814706561dc576f701",
+  "normal_head_unchanged": "2d6aedd424035372058b1be79dc57a7e27348b78",
+  "normal_index_sha256_unchanged": "2eca6d498c86ab958cd115a928502f7b2b857955fcab3f0f7a02cc851cd4becb",
+  "model_sha256_before": "29d5664ce1485c520c8ab8cb088f496a82c68e570400030dcaea98b2c9d6450e",
+  "model_sha256_after": "52699cc4846175c77eccb1def32bd6a6d0196cd1ae480cb0ff9697e6b8f7f24e",
+  "applied_patch_sha256": "f009656b2e59e8bedf680a1ce57a6cf85849b28cbed914a1f50e85737bac584c",
+  "test_command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "/Users/n/numi-human-anatomy-finish-1378/tests/test_conforming_surface_refinement.py",
+    "/Users/n/numi-human-anatomy-finish-1378/tests/test_bodyparts_opposite_surface_faces.py",
+    "/Users/n/numi-human-anatomy-finish-1378/tests/test_bodyparts_source_identity.py",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/tests/test_source_route_frame.py",
+    "-q"
+  ],
+  "test_exit_code": 4,
+  "scope": "Apply only published source-route frame patch to previously clean working model.py. Other dirty files and index untouched. Geometry/native admission unchanged.",
+  "validation_002": {
+    "command": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "no:cacheprovider",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/validation/tests",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/tests",
+      "-q"
+    ],
+    "exit_code": 2
+  },
+  "validation_003": {
+    "command": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "no:cacheprovider",
+      "/Users/n/numi-human-anatomy-finish-1378/tests/test_conforming_surface_refinement.py",
+      "/Users/n/numi-human-anatomy-finish-1378/tests/test_bodyparts_opposite_surface_faces.py",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/tests",
+      "-q"
+    ],
+    "exit_code": 0,
+    "scope": "Existing working conforming/opposite-face tests and eight new route-frame tests. Separate canonical38-test result retained in385; canonical source-identity tests require newer resting_anatomy APIs absent from preserved working checkout."
+  },
+  "working_compiler_005": {
+    "elapsed_s": 1.2211117499973625,
+    "model_sha256": "52699cc4846175c77eccb1def32bd6a6d0196cd1ae480cb0ff9697e6b8f7f24e",
+    "registration_sha256": "31c77660a16e8688fe68489eadff9d3861ceb27ed3b73d0288bda330d2a13b8c",
+    "payload": {
+      "file": "bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+      "sha256": "6d0d82a0d89dbc57ba46a871de2231fe114d787b172b0ce065565802fad7c713",
+      "bytes": 2018432,
+      "magic": "NHTISS4",
+      "payload_abi": 5,
+      "registration_fingerprint32": "31c77660",
+      "surface_count": 8,
+      "binding_count": 126,
+      "vertex_count": 28011,
+      "index_count": 111240
+    },
+    "physical_admission": false,
+    "matches_published_canonical_subset_bitwise": true
+  },
+  "working_integration_pass": true
+}

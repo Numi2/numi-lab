@@ -1,0 +1,118 @@
+diff --git a/src/numilab_human/model.py b/src/numilab_human/model.py
+index 6ee381fe..a3066296 100644
+--- a/src/numilab_human/model.py
++++ b/src/numilab_human/model.py
+@@ -11444,6 +11444,57 @@ def _bodyparts_registered_attachment_support_weights(
+         "myosim_route_added": False,
+     }
+ 
++def _bodyparts_myosim_route_points_in_source_registration(
++    route_points: list[dict[str, Any]],
++    body_local_source_mm_transforms: dict[str, list[list[float]]],
++    default_bodies: dict[str, dict[str, Any]],
++    global_source_mm_transform: list[list[float]], context: str,
++) -> list[dict[str, Any]]:
++    """Pull named MyoSim nodes into the same atlas metric as source vertices.
++
++    This is preparation for a source-registration experiment, not an inferred
++    attachment or a replacement force route. The existing nearest-route query
++    uses the returned source_registration_query_world_m against globally registered source
++    vertices. Emission may subsequently blend the actual per-bone transforms.
++    Missing anchors fail closed; never fall back to a different coordinate frame.
++    """
++    _bodyparts_visual_local_pose(global_source_mm_transform, context + " global source")
++    if not isinstance(route_points, list) or not route_points:
++        raise ImportError(context + " has no route points")
++    cache = {}
++    result = []
++    for point in route_points:
++        if not isinstance(point, dict) or not isinstance(point.get("body"), str):
++            raise ImportError(context + " has an invalid named route point")
++        name = point["body"]
++        p = point.get("world_m")
++        if not isinstance(p, (list, tuple)) or len(p) != 3:
++            raise ImportError(context + " has an invalid route world point")
++        p = [_finite_scalar(v, context + " route world") for v in p]
++        if name not in cache:
++            if name not in body_local_source_mm_transforms or name not in default_bodies:
++                raise ImportError(context + " lacks source registration for route body " + name)
++            t, quat, scale = _bodyparts_visual_local_pose(
++                body_local_source_mm_transforms[name], context + " " + name)
++            reg_rotation = _myosim_matrix_from_quaternion_xyzw(quat)
++            body = default_bodies[name]
++            pos = _myosim_vector(body.get("default_com_position_world_m"), context + " body position")
++            rot = _myosim_matrix_from_quaternion_xyzw(
++                body.get("default_inertial_quaternion_world_xyzw", []))
++            cache[name] = pos, rot, t, reg_rotation, scale
++        pos, rot, t, reg_rotation, scale = cache[name]
++        local = [sum(rot[j][i] * (p[j] - pos[j]) for j in range(3)) for i in range(3)]
++        source_mm = [
++            sum(reg_rotation[j][i] * (local[j] - t[j]) for j in range(3))
++            / (scale * 0.001) for i in range(3)]
++        common = [
++            sum(global_source_mm_transform[i][j] * source_mm[j] for j in range(3))
++            + global_source_mm_transform[i][3] for i in range(3)]
++        if any(not math.isfinite(v) for v in common):
++            raise ImportError(context + " source route pullback is non-finite")
++        result.append({**point, "source_registration_query_world_m": common})
++    return result
++
+ def _bodyparts_myosim_route_weights_for_world_point(
+     world_point_m: list[float], binding_names: list[str],
+     route_points: list[dict[str, Any]], context: str,
+@@ -11457,8 +11508,12 @@ def _bodyparts_myosim_route_weights_for_world_point(
+         index = binding_index.get(point.get("body"))
+         if index is None:
+             raise ImportError(f"{context} route point escapes its binding table")
+-        route_world = point.get("world_m")
+-        if not isinstance(route_world, (list, tuple)) or len(route_world) != 3:
++        route_world = point.get("source_registration_query_world_m", point.get("world_m"))
++        if (
++            not isinstance(route_world, (list, tuple)) or len(route_world) != 3
++            or any(isinstance(value, bool) or not isinstance(value, (int, float))
++                   or not math.isfinite(value) for value in route_world)
++        ):
+             raise ImportError(f"{context} has a malformed MyoSim route point")
+         squared = sum(
+             (world_point_m[axis] - route_world[axis]) ** 2 for axis in range(3)
+@@ -11729,7 +11784,7 @@ def _bodyparts_refine_conforming_route_edge(
+         "authored_route_points": [
+             {
+                 key: point[key]
+-                for key in ("body", "core_body_index", "kind", "world_m")
++                for key in ("body", "core_body_index", "kind", "world_m", "source_registration_query_world_m")
+                 if key in point
+             }
+             for point in route_points
+@@ -12406,6 +12461,22 @@ def bodyparts_myosim_fullbody_soft_tissue_visual_payload(
+                     raise ImportError(
+                         f"BodyParts3D full-body tissue surface {member_id} has no route points"
+                     )
++                # Query in the same common atlas metric as global_vertices.
++                # Each output binding may have its own bone registration;
++                # authored MyoSim world nodes are not in that query frame.
++                query_source_transforms = {}
++                for name, (translation, quaternion, scale) in zip(
++                    binding_names, binding_local_poses, strict=True
++                ):
++                    rotation = _myosim_matrix_from_quaternion_xyzw(quaternion)
++                    query_source_transforms[name] = [
++                        [rotation[i][j] * scale * 0.001 for j in range(3)] + [translation[i]]
++                        for i in range(3)
++                    ] + [[0.0, 0.0, 0.0, 1.0]]
++                route_points = _bodyparts_myosim_route_points_in_source_registration(
++                    route_points, query_source_transforms, bodies, global_matrix,
++                    f"BodyParts3D tissue {member_id}",
++                )
+                 refinement_route_points = route_points
+                 vertex_weights = []
+                 maximum_influences = 0
+@@ -12428,6 +12499,8 @@ def bodyparts_myosim_fullbody_soft_tissue_visual_payload(
+                     "maximum_vertex_influences": maximum_influences,
+                     "maximum_nearest_route_distance_m": maximum_nearest_route_distance,
+                     "matched_route_count": len(matched_routes),
++                    "query_frame": "global_source_atlas_after_named_bone_route_pullback",
++                    "authored_world_route_nodes_changed": False,
+                 }
+ 
+             # The lower-body source has one EDL/FDL route for four anatomical

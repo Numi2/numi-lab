@@ -1,0 +1,40 @@
+{
+  "schema": "numi.human.nhtiss.reference-rebind.replay-receipt.v1",
+  "owner": "source-route-frame-owner-396",
+  "test": {
+    "path": "tests/test_rebind_human_tissue_reference.py::CoherentReferenceTests.test_optional_retained_393_byte_exact_replay",
+    "tool_path": "tools/rebind_human_tissue_reference.py",
+    "tool_sha256": "7adf9cb321168e859f21ae62cf79ee59d94ce50fffbc0aeac2971feb18defa83",
+    "test_sha256": "f154c4cdc7d87ddd805d7a51cb4f3c474c742c6fd7c5eb476f1431e55176efcd",
+    "command": "/Users/n/numi-human-prep-venv-20261005/bin/python tests/test_rebind_human_tissue_reference.py",
+    "result": "PASS; generated NHTISS bytes exactly equal frozen 393 output",
+    "suite_result": "4 tests passed with all NUMI_NHTISS_REPLAY_* pins set"
+  },
+  "inputs": {
+    "baseline_nhtiss_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+    "weight_candidate_386_sha256": "7a40994f497555111652ac9c621b7f8d90b498d6e7be8bfda9193910060a65b2",
+    "identity003_pose_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "registered191_inventory_sha256": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+    "registered191_cache_sha256": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "exact191_emitter_sha256": "3606321c1265fd1350afb2c1ce765ce7f7afe99d65f0cebfd77a4504c58d235b",
+    "stable_surface_ids": [
+      131,
+      132,
+      133,
+      134,
+      137,
+      138,
+      141,
+      142
+    ]
+  },
+  "output": {
+    "frozen_393_path": "../source-route-frame-owner-393-centered/corrected-route-weights-centered-inverse-current-bind.nhtissue",
+    "sha256": "8f456e52ac4a63d7b82af2f85e7b5f81f6bb156fad06216e3fe3269bba04ffcc",
+    "comparison": "complete serialized payload byte-for-byte"
+  },
+  "limitations": [
+    "This verifies reproducibility and exact current-pose replay only.",
+    "It does not qualify contact, self-intersection, bone or muscle clearance, digit motion, or physical use."
+  ]
+}
