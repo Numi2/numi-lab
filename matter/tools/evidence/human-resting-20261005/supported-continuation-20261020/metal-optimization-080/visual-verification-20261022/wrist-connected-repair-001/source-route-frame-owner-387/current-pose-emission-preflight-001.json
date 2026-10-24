@@ -1,0 +1,242 @@
+{
+  "schema": "numi.human.nhtiss.route-weight-counterfactual.current-pose-191.v1",
+  "candidate386_receipt_sha256": "44f2ae1d2fd216d6864e1810c4c99ed11b190981dc900da4c337606d747da022",
+  "candidate_sha256": "7a40994f497555111652ac9c621b7f8d90b498d6e7be8bfda9193910060a65b2",
+  "baseline_payload_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "identity003_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/registered-skin-poses.json",
+  "identity003_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "registered191_inventory_sha256": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+  "registered191_npz_sha256": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+  "emission_code_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/prepare_registered_surrounding.py",
+  "emission_code_sha256": "3606321c1265fd1350afb2c1ce765ce7f7afe99d65f0cebfd77a4504c58d235b",
+  "selected_stable_ids": [
+    131,
+    132,
+    133,
+    134,
+    137,
+    138,
+    141,
+    142
+  ],
+  "pose": "current from identity-003; identical rotate/bodyworld expression and payload lane order as prepare_registered_surrounding.py",
+  "baseline_match": {
+    "max_vertex_delta_m": 0.0,
+    "all_faces_exact": true,
+    "per_bank_submicron": true
+  },
+  "rows": [
+    {
+      "stable_id": 131,
+      "kind": "soft_tissue",
+      "layer": 1,
+      "vertices": 6729,
+      "faces": 13466,
+      "baseline_vs_191_max_abs_axis_m": 0.0,
+      "baseline_vs_191_max_vertex_delta_m": 0.0,
+      "baseline_faces_match_191": true,
+      "candidate_displacement_mm": {
+        "p50": 13.15984985067762,
+        "p95": 33.67629178005702,
+        "max": 44.057073842660515
+      },
+      "candidate_face_degenerates": 0,
+      "candidate_vs_baseline_area_ratio": {
+        "min": 0.08994060059100878,
+        "p01": 0.48766438693483427,
+        "median": 1.094802087896214
+      },
+      "candidate_vs_baseline_normal_cosine": {
+        "min": -0.9996456490174792,
+        "negative": 731
+      },
+      "candidate_vertices_sha256": "1553c0b1e6bf9a5a63af3e52eaba2b4098f473cb6c777cd1cb15e871c8225a68"
+    },
+    {
+      "stable_id": 132,
+      "kind": "soft_tissue",
+      "layer": 1,
+      "vertices": 14710,
+      "faces": 29412,
+      "baseline_vs_191_max_abs_axis_m": 0.0,
+      "baseline_vs_191_max_vertex_delta_m": 0.0,
+      "baseline_faces_match_191": true,
+      "candidate_displacement_mm": {
+        "p50": 10.188836968836164,
+        "p95": 40.08053734044022,
+        "max": 46.66443703451321
+      },
+      "candidate_face_degenerates": 0,
+      "candidate_vs_baseline_area_ratio": {
+        "min": 0.06739636999585813,
+        "p01": 0.462392571601659,
+        "median": 1.1548899352927466
+      },
+      "candidate_vs_baseline_normal_cosine": {
+        "min": -0.9999763543056954,
+        "negative": 4156
+      },
+      "candidate_vertices_sha256": "6da0d1799de8d712b79999ac6bb3be6a67b8a80c6e82e0152cc0a6b821968c5d"
+    },
+    {
+      "stable_id": 133,
+      "kind": "soft_tissue",
+      "layer": 1,
+      "vertices": 6711,
+      "faces": 13376,
+      "baseline_vs_191_max_abs_axis_m": 0.0,
+      "baseline_vs_191_max_vertex_delta_m": 0.0,
+      "baseline_faces_match_191": true,
+      "candidate_displacement_mm": {
+        "p50": 16.41406883076301,
+        "p95": 31.31146876480331,
+        "max": 44.692237902141855
+      },
+      "candidate_face_degenerates": 0,
+      "candidate_vs_baseline_area_ratio": {
+        "min": 0.0364939843002396,
+        "p01": 0.2810529991263087,
+        "median": 1.0356680770239701
+      },
+      "candidate_vs_baseline_normal_cosine": {
+        "min": -0.9994969897117782,
+        "negative": 1072
+      },
+      "candidate_vertices_sha256": "5b5731b3b409cc91ca1bf2d0ee9512441025e95c8433105e796606b082fde3d1"
+    },
+    {
+      "stable_id": 134,
+      "kind": "soft_tissue",
+      "layer": 1,
+      "vertices": 39167,
+      "faces": 64686,
+      "baseline_vs_191_max_abs_axis_m": 0.0,
+      "baseline_vs_191_max_vertex_delta_m": 0.0,
+      "baseline_faces_match_191": true,
+      "candidate_displacement_mm": {
+        "p50": 12.37751616813998,
+        "p95": 29.015650116397055,
+        "max": 63.302469190603134
+      },
+      "candidate_face_degenerates": 0,
+      "candidate_vs_baseline_area_ratio": {
+        "min": 0.010640296369163148,
+        "p01": 0.2653007119400772,
+        "median": 0.9449433862720831
+      },
+      "candidate_vs_baseline_normal_cosine": {
+        "min": -0.9999687959279302,
+        "negative": 11513
+      },
+      "candidate_vertices_sha256": "49facf6f426af10ad0849fcb87024cd79a6b453df7f7073ca9ffaf62f26dea8d"
+    },
+    {
+      "stable_id": 137,
+      "kind": "soft_tissue",
+      "layer": 1,
+      "vertices": 2147,
+      "faces": 4320,
+      "baseline_vs_191_max_abs_axis_m": 0.0,
+      "baseline_vs_191_max_vertex_delta_m": 0.0,
+      "baseline_faces_match_191": true,
+      "candidate_displacement_mm": {
+        "p50": 15.63778908289746,
+        "p95": 53.098452727541584,
+        "max": 66.3819612998201
+      },
+      "candidate_face_degenerates": 0,
+      "candidate_vs_baseline_area_ratio": {
+        "min": 0.009698439219382456,
+        "p01": 0.05602944805549044,
+        "median": 1.4688490299132364
+      },
+      "candidate_vs_baseline_normal_cosine": {
+        "min": -0.9992747207910541,
+        "negative": 421
+      },
+      "candidate_vertices_sha256": "26cd7f8ec66aeae5a92add7c5131363b6fb0116c4fa81c13a5d1cfee1fa7fe80"
+    },
+    {
+      "stable_id": 138,
+      "kind": "soft_tissue",
+      "layer": 1,
+      "vertices": 2147,
+      "faces": 4320,
+      "baseline_vs_191_max_abs_axis_m": 0.0,
+      "baseline_vs_191_max_vertex_delta_m": 0.0,
+      "baseline_faces_match_191": true,
+      "candidate_displacement_mm": {
+        "p50": 13.55069997501319,
+        "p95": 51.37023021473852,
+        "max": 64.46758320704485
+      },
+      "candidate_face_degenerates": 0,
+      "candidate_vs_baseline_area_ratio": {
+        "min": 0.004506634684520578,
+        "p01": 0.052883703306280325,
+        "median": 1.526236958379348
+      },
+      "candidate_vs_baseline_normal_cosine": {
+        "min": -0.9998206683885573,
+        "negative": 367
+      },
+      "candidate_vertices_sha256": "5de440f62eb29ed7d14bbfae3aa9b006df5c37011613251fce84aac6d89dff38"
+    },
+    {
+      "stable_id": 141,
+      "kind": "soft_tissue",
+      "layer": 1,
+      "vertices": 361,
+      "faces": 714,
+      "baseline_vs_191_max_abs_axis_m": 0.0,
+      "baseline_vs_191_max_vertex_delta_m": 0.0,
+      "baseline_faces_match_191": true,
+      "candidate_displacement_mm": {
+        "p50": 3.4482716128973343,
+        "p95": 8.133697795780982,
+        "max": 9.572189439443951
+      },
+      "candidate_face_degenerates": 0,
+      "candidate_vs_baseline_area_ratio": {
+        "min": 0.025650499867339378,
+        "p01": 0.3054779728897315,
+        "median": 1.109265201495084
+      },
+      "candidate_vs_baseline_normal_cosine": {
+        "min": -0.9786165233960175,
+        "negative": 18
+      },
+      "candidate_vertices_sha256": "af0766e55fad8fd748d51ca68efea409326cb015906685dbeb3671df044191e9"
+    },
+    {
+      "stable_id": 142,
+      "kind": "soft_tissue",
+      "layer": 1,
+      "vertices": 692,
+      "faces": 714,
+      "baseline_vs_191_max_abs_axis_m": 0.0,
+      "baseline_vs_191_max_vertex_delta_m": 0.0,
+      "baseline_faces_match_191": true,
+      "candidate_displacement_mm": {
+        "p50": 4.211222046978054,
+        "p95": 7.83211183816006,
+        "max": 8.208665223063713
+      },
+      "candidate_face_degenerates": 0,
+      "candidate_vs_baseline_area_ratio": {
+        "min": 0.10954254149360491,
+        "p01": 0.3252145150173654,
+        "median": 1.0887376650398752
+      },
+      "candidate_vs_baseline_normal_cosine": {
+        "min": -0.9987072005808061,
+        "negative": 18
+      },
+      "candidate_vertices_sha256": "b750e8452953321da2eb1a8dda670359d9fff9fead7d08b36328a418c9e0a9e4"
+    }
+  ],
+  "gate_status": "baseline_preflight_only",
+  "limitations": [
+    "This script verifies the current-pose Float32 CPU emission against the retained 191 cache and reports geometric displacement/face metrics only. No exact intersection, containment, soft-tissue or bone gate has run yet."
+  ]
+}

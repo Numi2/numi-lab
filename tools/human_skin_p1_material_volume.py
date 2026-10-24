@@ -332,3 +332,67 @@ def refine_interior_support(points, tetrahedra, *, selected_edges=(),
                   "below_quality_floor_1e_5":int(np.count_nonzero(quality<1e-5)),
                   "maximum_source_cell_relative_volume_change":float(rel.max()) if len(rel) else 0.,
                   "physical_admission":False}}
+
+def check_material_volume_targets(points, tetrahedra, phi, target_volumes_m3):
+    """Reject provably unattainable P1 sublevel-volume targets before cutting.
+
+    A constant-field tetrahedron contributes a volume jump at its field value.
+    Bounds from all other cells give guaranteed gaps that no isovalue can hit.
+    Passing this necessary check is not a level solve, contact/mesh certificate,
+    or physical admission. Exact field equality is used; no plateau tolerance.
+    """
+    x=np.asarray(points,dtype=np.float32)
+    t=np.asarray(tetrahedra);p=np.asarray(phi,dtype=np.float64)
+    if x.ndim!=2 or x.shape[1]!=3 or not np.isfinite(x).all():
+        raise ValueError("finite Float32 Nx3 points required")
+    if t.ndim!=2 or t.shape[1]!=4 or t.dtype.kind not in "iu" or np.any(t<0) or np.any(t>=len(x)):
+        raise ValueError("integer source tetrahedron identities required")
+    if not len(t):raise ValueError("nonempty material domain required")
+    if p.shape!=(len(x),) or not np.isfinite(p).all():
+        raise ValueError("finite source P1 field required")
+    if not isinstance(target_volumes_m3,dict) or not target_volumes_m3:
+        raise ValueError("named material volume targets required")
+    targets={}
+    for name,value in target_volumes_m3.items():
+        if not isinstance(name,str) or not name or isinstance(value,(bool,np.bool_)):
+            raise ValueError("named finite nonnegative volume targets required")
+        try:value=float(value)
+        except (TypeError,ValueError):raise ValueError("finite volume targets required") from None
+        if not np.isfinite(value) or value<0:
+            raise ValueError("finite nonnegative volume targets required")
+        targets[name]=value
+    v=x[t].astype(float);e=v[:,1:]-v[:,:1]
+    volumes=np.einsum("ij,ij->i",e[:,0],np.cross(e[:,1],e[:,2]))/6
+    if np.any(volumes<=0) or not np.isfinite(volumes).all():
+        raise ValueError("positive finite source tetrahedra required")
+    q=p[t];lo=q.min(axis=1);hi=q.max(axis=1);flat=lo==hi
+    total=float(volumes.sum())
+    # Prefix volumes bound the non-constant contribution at each jump.
+    il=np.argsort(lo,kind="stable");ih=np.argsort(hi,kind="stable")
+    low_cdf=np.r_[0.,np.cumsum(volumes[il])]
+    high_cdf=np.r_[0.,np.cumsum(volumes[ih])]
+    levels,inverse=np.unique(lo[flat],return_inverse=True)
+    atoms=np.bincount(inverse,weights=volumes[flat],minlength=len(levels))
+    counts=np.bincount(inverse,minlength=len(levels))
+    gaps=[];failures=[]
+    # Roundoff bounds are only in volume accounting, never field classification.
+    tol=(len(volumes)+8)*np.finfo(float).eps*total
+    for level,atom,count in zip(levels,atoms,counts,strict=True):
+        below_upper=float(low_cdf[np.searchsorted(lo[il],level,side="left")])
+        below_lower=float(high_cdf[np.searchsorted(hi[ih],level,side="right")]-atom)
+        gap_lo=below_upper;gap_hi=below_lower+float(atom)
+        if gap_hi>gap_lo+2*tol:
+            gap={"field_value":float(level),"flat_tetrahedra":int(count),
+                 "flat_volume_m3":float(atom),"unattainable_open_interval_m3":[gap_lo,gap_hi]}
+            gaps.append(gap)
+            for name,value in targets.items():
+                if gap_lo+tol<value<gap_hi-tol:
+                    failures.append({"target":name,"target_m3":value,**gap})
+    for name,value in targets.items():
+        if value>total+tol:
+            failures.append({"target":name,"target_m3":value,"reason":"exceeds_domain_volume"})
+    return {"necessary_conditions_pass":not failures,"total_volume_m3":total,
+            "constant_field_tetrahedra":int(flat.sum()),
+            "constant_field_volume_m3":float(volumes[flat].sum()),
+            "target_volumes_m3":targets,"guaranteed_volume_gaps":gaps,
+            "failures":failures,"native_admission":False}

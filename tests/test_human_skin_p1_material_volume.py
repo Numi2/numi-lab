@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from human_skin_p1_material_volume import split_material_bands,material_role_faces,exterior_source_face_rows
+from human_skin_p1_material_volume import split_material_bands,material_role_faces,exterior_source_face_rows,check_material_volume_targets
 from human_skin_material_boundary import certify_material_boundaries
 
 
@@ -95,6 +95,44 @@ class MaterialVolumeTests(unittest.TestCase):
             split_material_bands(self.x,self.t,[0,1,2,np.nan,4],.2,.3)
         with self.assertRaisesRegex(ValueError,"integer"):
             split_material_bands(self.x,self.t.astype(float),np.zeros(5),.2,.3)
+
+    def test_flat_minimum_makes_small_target_unattainable(self):
+        p=np.zeros(5)
+        r=check_material_volume_targets(self.x,self.t,p,{"skin":.01,"all":1/3,"none":0.})
+        self.assertFalse(r["necessary_conditions_pass"])
+        self.assertEqual([v["target"] for v in r["failures"]],["skin"])
+        self.assertEqual(r["constant_field_tetrahedra"],2)
+        np.testing.assert_allclose(r["guaranteed_volume_gaps"][0]["unattainable_open_interval_m3"],[0,1/3])
+
+    def test_interior_jump_is_also_detected(self):
+        # Disconnected tetrahedra with constant values 0, 1 and 2.
+        x=np.vstack([self.x[:4]+[3*i,0,0] for i in range(3)])
+        t=np.arange(12).reshape(-1,4)
+        p=np.repeat([0.,1.,2.],4)
+        r=check_material_volume_targets(x,t,p,{"inside_middle_jump":.25,"at_lower":1/6,"at_upper":1/3})
+        self.assertEqual([v["target"] for v in r["failures"]],["inside_middle_jump"])
+        self.assertEqual(r["failures"][0]["field_value"],1.)
+
+    def test_nonconstant_field_and_outside_domain(self):
+        r=check_material_volume_targets(self.x,self.t,self.x[:,0],{"skin":.01,"too_large":1.})
+        self.assertEqual(r["constant_field_tetrahedra"],0)
+        self.assertEqual(r["guaranteed_volume_gaps"],[])
+        self.assertEqual([v["target"] for v in r["failures"]],["too_large"])
+
+    def test_nearly_constant_is_not_flat(self):
+        p=np.array([0.,1e-20,0.,0.,0.])
+        r=check_material_volume_targets(self.x,self.t,p,{"skin":.01})
+        self.assertTrue(r["necessary_conditions_pass"])
+        self.assertEqual(r["constant_field_tetrahedra"],0)
+
+    def test_target_check_rejects_invalid_geometry_and_targets(self):
+        for target in ({"skin":float("nan")},{"skin":-1.},{"skin":True},{}):
+            with self.subTest(target=target),self.assertRaises(ValueError):
+                check_material_volume_targets(self.x,self.t,np.zeros(5),target)
+        with self.assertRaisesRegex(ValueError,"positive"):
+            check_material_volume_targets(self.x,self.t[:,[0,2,1,3]],np.zeros(5),{"skin":.1})
+        with self.assertRaisesRegex(ValueError,"finite source"):
+            check_material_volume_targets(self.x,self.t,[0,0,0,0,float("nan")],{"skin":.1})
 
 
 if __name__=="__main__":unittest.main()

@@ -1,0 +1,1009 @@
+{
+  "schema": "numi.human.nhtiss.route-weight-counterfactual.exact-current-pose.v1",
+  "candidate386_receipt_sha256": "44f2ae1d2fd216d6864e1810c4c99ed11b190981dc900da4c337606d747da022",
+  "candidate_payload_sha256": "7a40994f497555111652ac9c621b7f8d90b498d6e7be8bfda9193910060a65b2",
+  "emission_preflight_sha256": "cfb4f48be1ac8e16d5c58f06607bde6f40e00c457bdffcb015a26d6f1bf31327",
+  "identity003_pose_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "registered191_inventory_sha256": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+  "registered191_cache_sha256": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+  "exact_predicate_sha256": "207236eb886e921b21ff281f44637140ea4bf9438b27561954dfe9528be71d27",
+  "pose": "identity-003 current; exact 191 emission order",
+  "baseline_match": {
+    "max_vertex_delta_m": 0.0,
+    "all_faces_exact": true,
+    "per_bank_submicron": true
+  },
+  "topology": {
+    "131": {
+      "baseline": {
+        "unique_edges": 20199,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "candidate": {
+        "unique_edges": 20199,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "same_face_indices": true,
+      "baseline_zero_area_faces": 0,
+      "candidate_zero_area_faces": 0,
+      "baseline_min_cross_norm": 3.595359517327331e-13,
+      "candidate_min_cross_norm": 9.603209169474616e-13
+    },
+    "132": {
+      "baseline": {
+        "unique_edges": 44118,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "candidate": {
+        "unique_edges": 44118,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "same_face_indices": true,
+      "baseline_zero_area_faces": 0,
+      "candidate_zero_area_faces": 0,
+      "baseline_min_cross_norm": 2.2041325121967224e-12,
+      "candidate_min_cross_norm": 6.217282237563545e-12
+    },
+    "133": {
+      "baseline": {
+        "unique_edges": 20064,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "candidate": {
+        "unique_edges": 20064,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "same_face_indices": true,
+      "baseline_zero_area_faces": 0,
+      "candidate_zero_area_faces": 0,
+      "baseline_min_cross_norm": 1.4613663034737116e-12,
+      "candidate_min_cross_norm": 4.276035750314791e-12
+    },
+    "134": {
+      "baseline": {
+        "unique_edges": 97029,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "candidate": {
+        "unique_edges": 97029,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "same_face_indices": true,
+      "baseline_zero_area_faces": 0,
+      "candidate_zero_area_faces": 0,
+      "baseline_min_cross_norm": 2.4212363173563515e-13,
+      "candidate_min_cross_norm": 6.430290614367682e-14
+    },
+    "137": {
+      "baseline": {
+        "unique_edges": 6480,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "candidate": {
+        "unique_edges": 6480,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "same_face_indices": true,
+      "baseline_zero_area_faces": 0,
+      "candidate_zero_area_faces": 0,
+      "baseline_min_cross_norm": 1.2816052210661272e-12,
+      "candidate_min_cross_norm": 3.133760813127431e-12
+    },
+    "138": {
+      "baseline": {
+        "unique_edges": 6480,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "candidate": {
+        "unique_edges": 6480,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "same_face_indices": true,
+      "baseline_zero_area_faces": 0,
+      "candidate_zero_area_faces": 0,
+      "baseline_min_cross_norm": 1.3260634682404235e-12,
+      "candidate_min_cross_norm": 3.0375396803193067e-12
+    },
+    "141": {
+      "baseline": {
+        "unique_edges": 1071,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "candidate": {
+        "unique_edges": 1071,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "same_face_indices": true,
+      "baseline_zero_area_faces": 0,
+      "candidate_zero_area_faces": 0,
+      "baseline_min_cross_norm": 3.4178523205768143e-09,
+      "candidate_min_cross_norm": 4.33514929558598e-09
+    },
+    "142": {
+      "baseline": {
+        "unique_edges": 1346,
+        "boundary_edges": 550,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "candidate": {
+        "unique_edges": 1346,
+        "boundary_edges": 550,
+        "nonmanifold_edges": 0,
+        "same_direction_two_face_edges": 0,
+        "max_incidence": 2
+      },
+      "same_face_indices": true,
+      "baseline_zero_area_faces": 0,
+      "candidate_zero_area_faces": 0,
+      "baseline_min_cross_norm": 3.7073458714269503e-09,
+      "candidate_min_cross_norm": 4.5961505874924885e-09
+    }
+  },
+  "self_pairs": [
+    {
+      "label": "self:131",
+      "baseline_pair_count": 0,
+      "candidate_pair_count": 2670,
+      "new_pair_count": 2670,
+      "removed_pair_count": 0,
+      "baseline_aabb_candidates": 156472,
+      "candidate_aabb_candidates": 352408,
+      "baseline_allowed_shared": 95897,
+      "candidate_allowed_shared": 95595,
+      "new_pairs": [
+        [
+          0,
+          27
+        ],
+        [
+          0,
+          28
+        ],
+        [
+          9,
+          27
+        ],
+        [
+          14,
+          27
+        ],
+        [
+          15,
+          27
+        ],
+        [
+          27,
+          32
+        ],
+        [
+          27,
+          60
+        ],
+        [
+          28,
+          30
+        ],
+        [
+          28,
+          60
+        ],
+        [
+          30,
+          34
+        ],
+        [
+          30,
+          41
+        ],
+        [
+          30,
+          44
+        ],
+        [
+          31,
+          44
+        ],
+        [
+          31,
+          68
+        ],
+        [
+          31,
+          69
+        ],
+        [
+          31,
+          72
+        ],
+        [
+          31,
+          76
+        ],
+        [
+          31,
+          99
+        ],
+        [
+          31,
+          100
+        ],
+        [
+          31,
+          159
+        ],
+        [
+          31,
+          163
+        ],
+        [
+          34,
+          37
+        ],
+        [
+          34,
+          60
+        ],
+        [
+          37,
+          44
+        ],
+        [
+          37,
+          68
+        ],
+        [
+          39,
+          72
+        ],
+        [
+          39,
+          75
+        ],
+        [
+          40,
+          75
+        ],
+        [
+          41,
+          60
+        ],
+        [
+          42,
+          72
+        ],
+        [
+          44,
+          60
+        ],
+        [
+          71,
+          75
+        ],
+        [
+          226,
+          243
+        ],
+        [
+          226,
+          248
+        ],
+        [
+          247,
+          505
+        ],
+        [
+          247,
+          506
+        ],
+        [
+          247,
+          507
+        ],
+        [
+          247,
+          510
+        ],
+        [
+          247,
+          523
+        ],
+        [
+          248,
+          505
+        ],
+        [
+          248,
+          506
+        ],
+        [
+          248,
+          507
+        ],
+        [
+          248,
+          510
+        ],
+        [
+          248,
+          511
+        ],
+        [
+          248,
+          512
+        ],
+        [
+          248,
+          523
+        ],
+        [
+          249,
+          523
+        ],
+        [
+          266,
+          523
+        ],
+        [
+          267,
+          523
+        ],
+        [
+          267,
+          524
+        ],
+        [
+          267,
+          756
+        ],
+        [
+          323,
+          741
+        ],
+        [
+          327,
+          741
+        ],
+        [
+          328,
+          741
+        ],
+        [
+          329,
+          741
+        ],
+        [
+          330,
+          741
+        ],
+        [
+          476,
+          484
+        ],
+        [
+          476,
+          485
+        ],
+        [
+          476,
+          486
+        ],
+        [
+          476,
+          487
+        ],
+        [
+          476,
+          675
+        ],
+        [
+          476,
+          991
+        ],
+        [
+          476,
+          992
+        ],
+        [
+          484,
+          488
+        ],
+        [
+          486,
+          488
+        ],
+        [
+          487,
+          488
+        ],
+        [
+          488,
+          492
+        ],
+        [
+          488,
+          500
+        ],
+        [
+          488,
+          501
+        ],
+        [
+          488,
+          502
+        ],
+        [
+          488,
+          503
+        ],
+        [
+          488,
+          504
+        ],
+        [
+          488,
+          513
+        ],
+        [
+          488,
+          514
+        ],
+        [
+          488,
+          515
+        ],
+        [
+          488,
+          516
+        ],
+        [
+          488,
+          678
+        ],
+        [
+          496,
+          988
+        ],
+        [
+          496,
+          989
+        ],
+        [
+          496,
+          991
+        ],
+        [
+          496,
+          996
+        ],
+        [
+          496,
+          997
+        ],
+        [
+          496,
+          998
+        ],
+        [
+          496,
+          999
+        ],
+        [
+          496,
+          1011
+        ],
+        [
+          496,
+          1012
+        ],
+        [
+          496,
+          1013
+        ],
+        [
+          496,
+          1014
+        ],
+        [
+          496,
+          1015
+        ],
+        [
+          496,
+          1018
+        ],
+        [
+          497,
+          1018
+        ],
+        [
+          505,
+          695
+        ],
+        [
+          505,
+          696
+        ],
+        [
+          505,
+          697
+        ],
+        [
+          505,
+          708
+        ],
+        [
+          505,
+          1020
+        ],
+        [
+          505,
+          1021
+        ],
+        [
+          505,
+          1024
+        ],
+        [
+          505,
+          1027
+        ],
+        [
+          505,
+          1030
+        ],
+        [
+          523,
+          535
+        ],
+        [
+          523,
+          540
+        ],
+        [
+          523,
+          541
+        ],
+        [
+          523,
+          708
+        ],
+        [
+          523,
+          716
+        ],
+        [
+          523,
+          717
+        ],
+        [
+          523,
+          1030
+        ],
+        [
+          524,
+          718
+        ],
+        [
+          524,
+          719
+        ],
+        [
+          524,
+          722
+        ],
+        [
+          524,
+          1030
+        ],
+        [
+          524,
+          1031
+        ],
+        [
+          526,
+          1018
+        ],
+        [
+          526,
+          1019
+        ],
+        [
+          526,
+          1239
+        ],
+        [
+          532,
+          741
+        ],
+        [
+          532,
+          742
+        ],
+        [
+          532,
+          756
+        ],
+        [
+          543,
+          741
+        ],
+        [
+          543,
+          756
+        ],
+        [
+          544,
+          740
+        ],
+        [
+          546,
+          740
+        ],
+        [
+          547,
+          741
+        ],
+        [
+          548,
+          741
+        ],
+        [
+          549,
+          740
+        ],
+        [
+          549,
+          741
+        ],
+        [
+          550,
+          740
+        ],
+        [
+          550,
+          741
+        ],
+        [
+          551,
+          740
+        ],
+        [
+          552,
+          740
+        ],
+        [
+          561,
+          740
+        ],
+        [
+          561,
+          741
+        ],
+        [
+          562,
+          740
+        ],
+        [
+          562,
+          741
+        ],
+        [
+          699,
+          702
+        ],
+        [
+          700,
+          1034
+        ],
+        [
+          700,
+          1239
+        ],
+        [
+          700,
+          1240
+        ],
+        [
+          702,
+          1025
+        ],
+        [
+          702,
+          1026
+        ],
+        [
+          702,
+          1032
+        ],
+        [
+          702,
+          1033
+        ],
+        [
+          702,
+          1034
+        ],
+        [
+          702,
+          1035
+        ],
+        [
+          702,
+          1038
+        ],
+        [
+          718,
+          753
+        ],
+        [
+          723,
+          726
+        ],
+        [
+          723,
+          737
+        ],
+        [
+          723,
+          738
+        ],
+        [
+          723,
+          1033
+        ],
+        [
+          723,
+          1038
+        ],
+        [
+          726,
+          729
+        ],
+        [
+          726,
+          738
+        ],
+        [
+          726,
+          745
+        ],
+        [
+          726,
+          746
+        ],
+        [
+          726,
+          748
+        ],
+        [
+          726,
+          1033
+        ],
+        [
+          728,
+          1033
+        ],
+        [
+          728,
+          1038
+        ],
+        [
+          729,
+          730
+        ],
+        [
+          729,
+          737
+        ],
+        [
+          730,
+          737
+        ],
+        [
+          730,
+          738
+        ],
+        [
+          730,
+          745
+        ],
+        [
+          730,
+          746
+        ],
+        [
+          730,
+          748
+        ],
+        [
+          730,
+          1033
+        ],
+        [
+          733,
+          734
+        ],
+        [
+          733,
+          737
+        ],
+        [
+          734,
+          746
+        ],
+        [
+          734,
+          1037
+        ],
+        [
+          735,
+          746
+        ],
+        [
+          735,
+          749
+        ],
+        [
+          735,
+          1033
+        ],
+        [
+          735,
+          1037
+        ],
+        [
+          737,
+          745
+        ],
+        [
+          737,
+          746
+        ],
+        [
+          737,
+          748
+        ],
+        [
+          737,
+          1033
+        ],
+        [
+          737,
+          1037
+        ],
+        [
+          740,
+          753
+        ],
+        [
+          740,
+          755
+        ],
+        [
+          740,
+          767
+        ],
+        [
+          740,
+          786
+        ],
+        [
+          741,
+          786
+        ],
+        [
+          751,
+          1033
+        ],
+        [
+          752,
+          1036
+        ],
+        [
+          752,
+          1037
+        ],
+        [
+          752,
+          1039
+        ],
+        [
+          753,
+          1031
+        ],
+        [
+          753,
+          1039
+        ],
+        [
+          979,
+          1376
+        ],
+        [
+          980,
+          1376
+        ],
+        [
+          981,
+          1376
+        ],
+        [
+          982,
+          1376
+        ],
+        [
+          1223,
+          1376
+        ],
+        [
+          1224,
+          1376
+        ],
+        [
+          1226,
+          1376
+        ],
+        [
+          1228,
+          1235
+        ],
+        [
+          1228,
+          1377
+        ]
+      ],
+      "removed_pairs": [],
+      "witness_limit": 200
+    }
+  ],
+  "selected_bank_pairs": [],
+  "registered_surrounding_pairs": [],
+  "bone_pairs": [],
+  "limitations": [
+    "Exact intersections are evaluated on Float32 current-pose outputs. Pair counts are compared against the matched 191 baseline. No physical/dynamic or tissue-attachment qualification is implied."
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "necessary_conditions_pass": false,
+  "total_volume_m3": 0.06960080435892788,
+  "constant_field_tetrahedra": 140571,
+  "constant_field_volume_m3": 0.06410148805253663,
+  "target_volumes_m3": {
+    "skin": 0.003452570641581807,
+    "skin_plus_fat": 0.015104913880526613
+  },
+  "guaranteed_volume_gaps": [
+    {
+      "field_value": 0.0,
+      "flat_tetrahedra": 140323,
+      "flat_volume_m3": 0.06410148192331105,
+      "unattainable_open_interval_m3": [
+        0.0,
+        0.06410148192331105
+      ]
+    },
+    {
+      "field_value": 1.0,
+      "flat_tetrahedra": 248,
+      "flat_volume_m3": 6.129225159290854e-09,
+      "unattainable_open_interval_m3": [
+        0.06960079822970179,
+        0.06960080435892779
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "target": "skin",
+      "target_m3": 0.003452570641581807,
+      "field_value": 0.0,
+      "flat_tetrahedra": 140323,
+      "flat_volume_m3": 0.06410148192331105,
+      "unattainable_open_interval_m3": [
+        0.0,
+        0.06410148192331105
+      ]
+    },
+    {
+      "target": "skin_plus_fat",
+      "target_m3": 0.015104913880526613,
+      "field_value": 0.0,
+      "flat_tetrahedra": 140323,
+      "flat_volume_m3": 0.06410148192331105,
+      "unattainable_open_interval_m3": [
+        0.0,
+        0.06410148192331105
+      ]
+    }
+  ],
+  "native_admission": false,
+  "elapsed_s": 0.02789024997036904,
+  "inputs": {
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/candidate.npz": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-independent-volume-001/field-transfer-preflight.npz": "3dfab2cdb6b4d0ee0f170ce9bd3a2ee30fd7cd064e92542c58b600a61653336b"
+  },
+  "scope": "Only positive Float32 volume cells and transferred scalar values used. Boundary ancestry and native admission are not certified. The cache is an LP initializer, not a solved thickness field."
+}

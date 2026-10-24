@@ -1,0 +1,38 @@
+{
+  "schema": "numi.human.nhtiss.route-weight-counterfactual.exact-gate-stop.v1",
+  "status": "stopped_after_first_failed_exact_self_gate",
+  "stop_reason": "Parent requested halting broad exact work on the first strong failure; no further self, surrounding, or bone results are claimed.",
+  "pose": "identity-003 current, with exact 191 current-pose emission order",
+  "candidate_sha256": "7a40994f497555111652ac9c621b7f8d90b498d6e7be8bfda9193910060a65b2",
+  "candidate_receipt_sha256": "44f2ae1d2fd216d6864e1810c4c99ed11b190981dc900da4c337606d747da022",
+  "exact_gate_builder_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-387/exact_current_pose_gate.py",
+  "exact_gate_builder_sha256": "40b61661b061b9e95ee665a00cc4c852b665dde712c41f93f618e5ed4869433b",
+  "partial_report_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-387/exact-current-pose-gate-001.partial.json",
+  "partial_report_sha256": "47f2004b24d9a805964813975e348555dc5068f3769e97247c04714bbe91625b",
+  "log_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-387/exact-current-pose-gate-001.log",
+  "log_sha256": "47d0e59ad36b10bf73f554d32cb4c4c4e083ee8471bdc874adceaa5c9f09e4a0",
+  "frozen_surface_arrays_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-387/emitted-surfaces-identity003-current-191.npz",
+  "frozen_surface_arrays_sha256": "39639b286844ab2985698a09c31b60c5d2d64a81f67712861bd5d81fc2a4b91e",
+  "frozen_surface_array_receipt_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-387/emitted-surfaces-identity003-current-191.receipt.json",
+  "frozen_surface_array_receipt_sha256": "b95f7973d8105c78bd162fea67974a43f4b641e048f1bb980794684c977a26fc",
+  "baseline_current_pose_match": {
+    "max_vertex_delta_m": 0,
+    "all_faces_exact": true
+  },
+  "completed_stage": {
+    "topology_and_face_degeneracy": "all eight banks; unchanged face topology; 0 exact-zero-area faces for baseline and candidate; stable ID 142 has 550 unchanged boundary edges",
+    "self_intersection": {
+      "stable_id": 131,
+      "baseline_pairs": 0,
+      "candidate_pairs": 2670,
+      "new_pairs": 2670,
+      "removed_pairs": 0,
+      "aabb_candidate_pairs_baseline": 156472,
+      "aabb_candidate_pairs_candidate": 352408,
+      "exact_predicate": "cardiac_cavity_intersections._audit_pair(..., same_surface=True)",
+      "first_200_new_face_pairs_saved": true
+    }
+  },
+  "incomplete_stage": "stable ID 132 self test had started but was interrupted; selected-bank, 689-bank surroundings and bone tests did not run.",
+  "gate_result": "FAIL; candidate is not qualified."
+}

@@ -1,0 +1,21 @@
+{
+  "points": 35962,
+  "tets": 164176,
+  "allzero_tets": 140323,
+  "boundary_nodes": 19041,
+  "zero_boundary_nodes": 18219,
+  "zero_interior_nodes": 15679,
+  "allzero_tets_with_only_boundary_vertices": 6041,
+  "allzero_tets_with_at_least_one_interior_vertex": 134282,
+  "allzero_unique_edges": 197730,
+  "allzero_nonboundary_edges": 143179,
+  "allzero_nonboundary_edge_length_m_quantiles": [
+    1.4057727071303816e-07,
+    0.0009835039265453816,
+    0.006560612469911575,
+    0.05579662300646308,
+    0.20338383316993713
+  ],
+  "elapsed_s": 0.3152888329932466,
+  "scope": "Mesh topology and cached-field audit only. Boundary includes physical O and explicit construction closure; boundary membership is not a skin closure claim. No refinement or scalar solve executed."
+}

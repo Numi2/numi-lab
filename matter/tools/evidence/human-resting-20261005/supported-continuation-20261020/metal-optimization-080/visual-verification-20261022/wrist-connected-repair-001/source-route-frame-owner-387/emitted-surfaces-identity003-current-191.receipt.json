@@ -1,0 +1,83 @@
+{
+  "schema": "numi.human.nhtiss.route-weight-counterfactual.emitted-surfaces.v1",
+  "candidate_receipt_sha256": "44f2ae1d2fd216d6864e1810c4c99ed11b190981dc900da4c337606d747da022",
+  "candidate_payload_sha256": "7a40994f497555111652ac9c621b7f8d90b498d6e7be8bfda9193910060a65b2",
+  "baseline_payload_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "preflight_builder_sha256": "f34897a3cbad65313ee59b164a33cb528dfad0fe94e2f683fa1e49a1baecb201",
+  "identity003_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "registered191_cache_sha256": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+  "baseline_match": {
+    "max_vertex_delta_m": 0.0,
+    "all_faces_exact": true,
+    "per_bank_submicron": true
+  },
+  "array_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-387/emitted-surfaces-identity003-current-191.npz",
+  "array_sha256": "39639b286844ab2985698a09c31b60c5d2d64a81f67712861bd5d81fc2a4b91e",
+  "rows": [
+    {
+      "stable_id": 131,
+      "vertices": 6729,
+      "faces": 13466,
+      "baseline_xyz_sha256": "a885fc0735f5e73cd60713330c85b398d09b3ee713a9ebb650cd5ca2fdac93fa",
+      "candidate_xyz_sha256": "1553c0b1e6bf9a5a63af3e52eaba2b4098f473cb6c777cd1cb15e871c8225a68",
+      "faces_sha256": "bad288466a5b372d2cce162fadb7292538f2780fba7ccb2bcfa9411ccb196114"
+    },
+    {
+      "stable_id": 132,
+      "vertices": 14710,
+      "faces": 29412,
+      "baseline_xyz_sha256": "b42d6039d53cd068dd7b0ac43f4a901ec8a32088426554be924748b0b6b11678",
+      "candidate_xyz_sha256": "6da0d1799de8d712b79999ac6bb3be6a67b8a80c6e82e0152cc0a6b821968c5d",
+      "faces_sha256": "64ec03417525eeb14acef32b2fb618008197dc4fe7beeba10c63022cd86faf5e"
+    },
+    {
+      "stable_id": 133,
+      "vertices": 6711,
+      "faces": 13376,
+      "baseline_xyz_sha256": "a754cc4cbd9ad301439bab8279843cc170c03b0bfad538f952e7710d2c20d65b",
+      "candidate_xyz_sha256": "5b5731b3b409cc91ca1bf2d0ee9512441025e95c8433105e796606b082fde3d1",
+      "faces_sha256": "e37b278d6bedeff41a06512344ab89c5b20a5c091d9cb275e839a5cb02689fab"
+    },
+    {
+      "stable_id": 134,
+      "vertices": 39167,
+      "faces": 64686,
+      "baseline_xyz_sha256": "f677d37a2d7d52e5df774b313f048f6675ac7265b2c1826054860a19a10edd62",
+      "candidate_xyz_sha256": "49facf6f426af10ad0849fcb87024cd79a6b453df7f7073ca9ffaf62f26dea8d",
+      "faces_sha256": "33d339d9c4b2802b040465ec7eab5e7398ef1950ffe7025b82e724ce7b4fecee"
+    },
+    {
+      "stable_id": 137,
+      "vertices": 2147,
+      "faces": 4320,
+      "baseline_xyz_sha256": "7e234c8348ab99e2f7349200d7074be5227b79986e7a1488b708a4db8c8e66ce",
+      "candidate_xyz_sha256": "26cd7f8ec66aeae5a92add7c5131363b6fb0116c4fa81c13a5d1cfee1fa7fe80",
+      "faces_sha256": "597240774b0aafb69faa6bb5845a392303149af38a3f704725a2f67ec17ae35c"
+    },
+    {
+      "stable_id": 138,
+      "vertices": 2147,
+      "faces": 4320,
+      "baseline_xyz_sha256": "e4acaf70b6c3a21eaa48e87e9a21d5a73eb062c079efac519ba3655a195b8aad",
+      "candidate_xyz_sha256": "5de440f62eb29ed7d14bbfae3aa9b006df5c37011613251fce84aac6d89dff38",
+      "faces_sha256": "f87833261da9b0ea334cdf00a878dbf6bf0e9068d4be6f8c8db65cf7d206621f"
+    },
+    {
+      "stable_id": 141,
+      "vertices": 361,
+      "faces": 714,
+      "baseline_xyz_sha256": "599fcf122346e99a2ac002be41fb71308b69b6af0ab91cea4e19b86893116213",
+      "candidate_xyz_sha256": "af0766e55fad8fd748d51ca68efea409326cb015906685dbeb3671df044191e9",
+      "faces_sha256": "4976c91841a95eff6c9f12b9e9a93177c9d9f55e522fac9b334af6f08f26c44b"
+    },
+    {
+      "stable_id": 142,
+      "vertices": 692,
+      "faces": 714,
+      "baseline_xyz_sha256": "46bb0e9864765e95b5d17d23ba7ec65e116bcde121afbd6249309af8b9829a0f",
+      "candidate_xyz_sha256": "b750e8452953321da2eb1a8dda670359d9fff9fead7d08b36328a418c9e0a9e4",
+      "faces_sha256": "c4cfa37073ab7d7df54b69a54db0248f3aa2474549c21d2735b867fae3ddda1a"
+    }
+  ],
+  "scope": "Exact 191-order Float32 current-pose emitted XYZ and unchanged face indices for source and 386 candidate. The exact test stopped after stable 131 self-intersection failure; no uncompleted bank is represented as gated."
+}

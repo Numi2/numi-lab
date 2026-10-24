@@ -1,0 +1,137 @@
+{
+  "alias_pairs_drop_to_keep": [
+    [
+      18029,
+      18028
+    ],
+    [
+      18024,
+      18023
+    ]
+  ],
+  "c10_physical_shell_faces": 38082,
+  "c10_typed_node_map_rows": 19043,
+  "c14_physical_outer_faces": 36393,
+  "candidate014_parent_script": "build_014-executed.py",
+  "face_row_mismatch_count": 0,
+  "input_candidate014_sha256": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba",
+  "limitations": [
+    "This verifies ancestry only to candidate010 physical shell input-face rows through its explicit source-row-to-output-node map and the two declared collapse aliases. It does not establish direct detailed-source face identity for coarse-parent faces. Geometry, scalar field, material volume, and native admission are not changed or qualified."
+  ],
+  "parent_candidate010_sha256": "a0b5b4eb1a6e8b138dba4d471aa1c8e1bde91027b724429d02da7ebfbb8ab8e8",
+  "replay_sources": {
+    "audit_script": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/ancestry-domain-audit-001/audit_row_domain.py",
+      "sha256": "1463214021f1c2064e2b3b108feaef75bfec10f3c0d3d69b9634096e3265ee52"
+    },
+    "candidate014_builder": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/build_014-executed.py",
+      "sha256": "2dc2d5e9670c373fa40a94cf651e9c697ff5e0832d6e4560b911d21ae11e39d3"
+    }
+  },
+  "role_subset_alignment": true,
+  "schema": "physical_outer_parent_input_face_row indexes the c10 physical_shell_faces row domain",
+  "status": "PASS",
+  "witnesses": [
+    {
+      "candidate010_raw_shell_nodes": [
+        18197,
+        8391,
+        18196
+      ],
+      "candidate010_shell_parent_row": 9081,
+      "candidate014_output_nodes": [
+        18030,
+        8224,
+        18028
+      ],
+      "exact_oriented_match": true,
+      "mapped_nodes_after_alias": [
+        18030,
+        8224,
+        18028
+      ],
+      "mapped_nodes_before_alias": [
+        18030,
+        8224,
+        18029
+      ],
+      "output_face_row": 9081
+    },
+    {
+      "candidate010_raw_shell_nodes": [
+        8391,
+        8137,
+        18195
+      ],
+      "candidate010_shell_parent_row": 9083,
+      "candidate014_output_nodes": [
+        8224,
+        7970,
+        18028
+      ],
+      "exact_oriented_match": true,
+      "mapped_nodes_after_alias": [
+        8224,
+        7970,
+        18028
+      ],
+      "mapped_nodes_before_alias": [
+        8224,
+        7970,
+        18028
+      ],
+      "output_face_row": 9082
+    },
+    {
+      "candidate010_raw_shell_nodes": [
+        18191,
+        7878,
+        18186
+      ],
+      "candidate010_shell_parent_row": 9562,
+      "candidate014_output_nodes": [
+        18023,
+        7711,
+        18019
+      ],
+      "exact_oriented_match": true,
+      "mapped_nodes_after_alias": [
+        18023,
+        7711,
+        18019
+      ],
+      "mapped_nodes_before_alias": [
+        18024,
+        7711,
+        18019
+      ],
+      "output_face_row": 9561
+    },
+    {
+      "candidate010_raw_shell_nodes": [
+        18186,
+        18472,
+        18191
+      ],
+      "candidate010_shell_parent_row": 36233,
+      "candidate014_output_nodes": [
+        18019,
+        18305,
+        18023
+      ],
+      "exact_oriented_match": true,
+      "mapped_nodes_after_alias": [
+        18019,
+        18305,
+        18023
+      ],
+      "mapped_nodes_before_alias": [
+        18019,
+        18305,
+        18024
+      ],
+      "output_face_row": 36231
+    }
+  ]
+}
