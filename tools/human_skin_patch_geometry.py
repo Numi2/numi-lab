@@ -892,3 +892,101 @@ def undirected_boundary_loops(edges):
             previous, current = current, next(iter(following))
         loops.append(np.asarray(sequence, dtype=np.int64))
     return loops
+
+
+def surface_topology_signature(faces):
+    """Audit an oriented triangle manifold using referenced vertex IDs only.
+
+    Return each edge-connected component's Euler characteristic, boundary
+    cycles and genus. Unused payload rows cannot hide handles; components
+    touching at a vertex are rejected by the vertex-link check. This is a
+    combinatorial gate, not a geometric intersection or anatomical proof.
+    """
+    raw = np.asarray(faces)
+    if (raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in 'iu'
+            or np.any(raw < 0) or np.any(raw > np.iinfo(np.int64).max)):
+        raise ValueError('nonnegative int64 triangle identities required')
+    f = raw.astype(np.int64)
+    if not len(f):
+        return []
+    sf = np.sort(f, axis=1)
+    if np.any(np.diff(sf, axis=1) == 0) or len(np.unique(sf, axis=0)) != len(f):
+        raise ValueError('repeated corners or duplicate triangles')
+    # A dictionary avoids arrays sized by the largest source identity.
+    edges, links = {}, {}
+    parent = np.arange(len(f), dtype=np.int64)
+    def root(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return int(i)
+    for row, (a, b, c) in enumerate(f.tolist()):
+        for u, v, w in ((a, b, c), (b, c, a), (c, a, b)):
+            key = (min(u, v), max(u, v))
+            direction = 1 if u < v else -1
+            previous = edges.get(key)
+            if previous is None:
+                edges[key] = [row, direction, 1]
+            else:
+                if previous[2] != 1 or previous[1] == direction:
+                    raise ValueError('nonmanifold or inconsistently oriented edges')
+                previous[2] = 2
+                x, y = root(row), root(previous[0])
+                parent[max(x, y)] = min(x, y)
+            graph = links.setdefault(u, {})
+            graph.setdefault(v, set()).add(w)
+            graph.setdefault(w, set()).add(v)
+    for graph in links.values():
+        degrees = [len(v) for v in graph.values()]
+        if any(d not in (1, 2) for d in degrees) or degrees.count(1) not in (0, 2):
+            raise ValueError('vertex link is not a cycle or boundary path')
+        seen, pending = set(), [next(iter(graph))]
+        while pending:
+            v = pending.pop()
+            if v not in seen:
+                seen.add(v)
+                pending.extend(graph[v] - seen)
+        if len(seen) != len(graph):
+            raise ValueError('disconnected vertex link')
+    parts = {}
+    for row in range(len(f)):
+        part = parts.setdefault(root(row), {'faces': [], 'vertices': set(),
+                                            'edge_count': 0, 'boundary': []})
+        part['faces'].append(row)
+        part['vertices'].update(map(int, f[row]))
+    for edge, (row, _, count) in edges.items():
+        part = parts[root(row)]
+        part['edge_count'] += 1
+        if count == 1:
+            part['boundary'].append(edge)
+    result = []
+    for part in parts.values():
+        boundary = np.asarray(part['boundary'], dtype=np.int64).reshape(-1, 2)
+        loops = undirected_boundary_loops(boundary)
+        chi = len(part['vertices']) - part['edge_count'] + len(part['faces'])
+        twice_genus = 2 - len(loops) - chi
+        if twice_genus < 0 or twice_genus % 2:
+            raise ValueError('surface has no orientable manifold genus')
+        result.append({'face_rows': np.array(part['faces'], dtype=np.int64),
+                       'used_vertex_count': len(part['vertices']),
+                       'edge_count': part['edge_count'],
+                       'face_count': len(part['faces']),
+                       'boundary_loops': loops,
+                       'euler_characteristic': chi,
+                       'genus': twice_genus // 2})
+    return result
+
+
+def require_matching_surface_topology(reference_faces, candidate_faces):
+    """Reject changed component/boundary/genus counts before geometry work.
+
+    IDs and triangulation may change. Exact retained boundary identities,
+    ancestry, mass, geometry and physical admission remain separate gates.
+    """
+    def signature(f):
+        return sorted((len(p['boundary_loops']), p['genus'])
+                      for p in surface_topology_signature(f))
+    a, b = signature(reference_faces), signature(candidate_faces)
+    if a != b:
+        raise ValueError('surface component/boundary/genus topology changed')
+    return a

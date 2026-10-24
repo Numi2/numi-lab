@@ -1,0 +1,30 @@
+{
+  "source128_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+  "source_patch": [
+    {
+      "face_count": 12090,
+      "used_vertex_count": 6078,
+      "edges": 18167,
+      "euler": 1,
+      "genus": 0,
+      "boundary_sizes": [
+        64
+      ]
+    }
+  ],
+  "rejected_field": [
+    {
+      "face_count": 133667,
+      "used_vertex_count": 67067,
+      "edges": 200745,
+      "euler": -11,
+      "genus": 6,
+      "boundary_sizes": [
+        489
+      ]
+    }
+  ],
+  "physical_admission": false,
+  "early_gate_rejection": "surface component/boundary/genus topology changed",
+  "elapsed_seconds": 1.138595208991319
+}
