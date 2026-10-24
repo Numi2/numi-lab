@@ -1,0 +1,38 @@
+{
+  "physical_admission": false,
+  "scope": "right foot/ankle common-field O/I/D source boundaries at actual007 pose; reference assembly, not measured individual",
+  "tested": "40 geometry tests plus exact emitted Float32 interface/self/cross/bone gates inattempt003/004",
+  "construction_volume_m3": {
+    "skin": 0.0003491,
+    "fat": 0.0011945
+  },
+  "targets_are_measurements": false,
+  "registered_anatomy_cache": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native007-190/registered-tissue-banks.npz",
+    "sha256": "533fdd2d109c9e97ad615c6865f5cbd6d3d3fb9357c06cb28ef9db8862338b7a",
+    "bytes": 41760986,
+    "included_in_this_commit": false
+  },
+  "native_accepted_steps": 0,
+  "main_parent": "c7248e833b737c469827f454dd5e560034af51ed",
+  "source_geometry_pass_does_not_establish": [
+    "retained motion",
+    "all muscle/vessel/nerve interactions",
+    "full volume quality",
+    "conservative physical ancestry and mass",
+    "native selfcontact ownership",
+    "physiological qualification or performance"
+  ],
+  "receipts": {
+    "attempt-003": "66ff59c4a361d2b0d62db8303776019f945d199f5af08a835bd376ecdeb3d26d",
+    "attempt-004": "75b55faf408c0e66742477c0fd71d5e7456ad4bdaff4efc88d869236ef08b558"
+  },
+  "failed_trials_preserved": [
+    "202 original threshold plateau",
+    "202attempt002 D/bone crossings",
+    "203 four inverted Float32 cells",
+    "204 preflight-on-threshold identity error",
+    "205 zero inverted cells but41activequalityfailures",
+    "206 twenty-five activequalityfailures after topologyrepair"
+  ]
+}

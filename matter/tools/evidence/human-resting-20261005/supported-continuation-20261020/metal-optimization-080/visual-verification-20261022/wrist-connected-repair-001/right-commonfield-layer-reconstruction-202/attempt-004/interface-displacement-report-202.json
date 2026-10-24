@@ -1,0 +1,38 @@
+{
+  "physical_admission": false,
+  "method": "source-edge identity comparison of emitted interfaces; diagnostic vertex displacement, not a global Hausdorff certificate",
+  "roles": {
+    "I": {
+      "old_vertices": 21013,
+      "new_vertices": 20990,
+      "old_faces": 42011,
+      "new_faces": 41965,
+      "matched_rows": 21013,
+      "unmatched_rows": [],
+      "maximum_matched_vertex_displacement_m": 4.219247412043529e-05,
+      "quantiles_m": [
+        0.0,
+        0.0,
+        7.450580596923828e-09,
+        1.4901161193847656e-08,
+        4.219247412043529e-05
+      ]
+    },
+    "D": {
+      "old_vertices": 10739,
+      "new_vertices": 10719,
+      "old_faces": 21463,
+      "new_faces": 21423,
+      "matched_rows": 10739,
+      "unmatched_rows": [],
+      "maximum_matched_vertex_displacement_m": 9.377049265501853e-06,
+      "quantiles_m": [
+        0.0,
+        0.0,
+        7.450580596923828e-09,
+        1.666000468656264e-08,
+        9.377049265501853e-06
+      ]
+    }
+  }
+}

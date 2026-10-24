@@ -1,0 +1,40 @@
+{
+  "physical_admission": false,
+  "source_sha256": "8c7e0411342df7dea80fb3af73ab94f237586f90156d4827d847837a5609c7d9",
+  "interfaces": {
+    "I": {
+      "level": 0.023512603307184316,
+      "vertices": 20990,
+      "faces": 41965,
+      "boundary_edges": 13,
+      "incidence_histogram": {
+        "2": 62941,
+        "1": 13
+      },
+      "inconsistent_interior_edges": 0,
+      "exact_inherited_cut_ring": true,
+      "missing_inherited_nodes": [],
+      "minimum_area_m2": 1.0060397793076127e-11,
+      "source_edge_ancestry_rows": 20990,
+      "discarded_unreferenced_vertices": 0
+    },
+    "D": {
+      "level": 0.1359041214108271,
+      "vertices": 10719,
+      "faces": 21423,
+      "boundary_edges": 13,
+      "incidence_histogram": {
+        "2": 32128,
+        "1": 13
+      },
+      "inconsistent_interior_edges": 0,
+      "exact_inherited_cut_ring": true,
+      "missing_inherited_nodes": [],
+      "minimum_area_m2": 2.6865079252192744e-11,
+      "source_edge_ancestry_rows": 10719,
+      "discarded_unreferenced_vertices": 0
+    }
+  },
+  "preparation_pass": true,
+  "wall_seconds": 1.4874971250537783
+}

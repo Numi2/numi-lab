@@ -1,0 +1,35 @@
+{
+  "physical_admission": false,
+  "self": {
+    "I": {
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 305719,
+      "allowed_shared_vertex_or_edge_pairs": 277063
+    },
+    "D": {
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 154616,
+      "allowed_shared_vertex_or_edge_pairs": 141538
+    }
+  },
+  "cross": {
+    "I_D": {
+      "aabb_candidates": 33545,
+      "intersection_pairs": 0,
+      "witnesses": []
+    },
+    "O_I": {
+      "aabb_candidates": 117109,
+      "intersection_pairs": 0,
+      "witnesses": []
+    },
+    "O_D": {
+      "aabb_candidates": 17028,
+      "intersection_pairs": 0,
+      "witnesses": []
+    }
+  },
+  "wall_seconds": 39.50795537501108
+}

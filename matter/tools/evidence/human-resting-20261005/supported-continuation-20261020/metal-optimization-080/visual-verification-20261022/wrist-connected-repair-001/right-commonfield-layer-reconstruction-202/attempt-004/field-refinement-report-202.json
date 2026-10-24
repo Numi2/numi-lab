@@ -1,0 +1,71 @@
+{
+  "physical_admission": false,
+  "method": "collapse near-endpoint contour features by equal field knots, retaining exact volume/source nodes; only nodes whose entire incident old contour cuts lie within 50um are eligible",
+  "endpoint_trigger_m": 5e-06,
+  "maximum_star_cut_displacement_before_recalibration_m": 5e-05,
+  "selection": {
+    "I": [
+      {
+        "node": 10277,
+        "maximum_affected_edge_cut_distance_m": 4.2189498184888916e-05,
+        "selected": true
+      },
+      {
+        "node": 10762,
+        "maximum_affected_edge_cut_distance_m": 1.927232755979525e-05,
+        "selected": true
+      },
+      {
+        "node": 11108,
+        "maximum_affected_edge_cut_distance_m": 3.788672468654777e-05,
+        "selected": true
+      }
+    ],
+    "D": [
+      {
+        "node": 7862,
+        "maximum_affected_edge_cut_distance_m": 9.657194489706677e-05,
+        "selected": false
+      },
+      {
+        "node": 9098,
+        "maximum_affected_edge_cut_distance_m": 2.3625439691212832e-06,
+        "selected": true
+      },
+      {
+        "node": 9466,
+        "maximum_affected_edge_cut_distance_m": 3.9654062647444395e-06,
+        "selected": true
+      },
+      {
+        "node": 9805,
+        "maximum_affected_edge_cut_distance_m": 9.367703779123009e-06,
+        "selected": true
+      }
+    ]
+  },
+  "source_sha256": "9f960a6d23c34ea65d701fd33d601bdbe50c6315e4a8763a153c3c6bbf017af8",
+  "levels_before": [
+    0.023512608993224295,
+    0.13590410667085165
+  ],
+  "levels_after": [
+    0.023512603307184316,
+    0.1359041214108271
+  ],
+  "relative_target_error": [
+    -1.9984014443252818e-14,
+    1.6497914145929826e-13
+  ],
+  "constant_threshold_cells": [
+    0,
+    0
+  ],
+  "volume_calibration_pass": true,
+  "remaining": [
+    "measure actual emitted interface displacement",
+    "exact interface and bone tests",
+    "Float32 material volume quality",
+    "conservative physical ancestry and native mechanics"
+  ]
+}

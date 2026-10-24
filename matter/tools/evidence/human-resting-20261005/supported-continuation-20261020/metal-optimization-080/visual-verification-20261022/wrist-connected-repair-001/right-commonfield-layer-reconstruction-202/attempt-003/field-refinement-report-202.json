@@ -1,0 +1,36 @@
+{
+  "physical_admission": false,
+  "source_calibrated_sha256": "8ba8e1d598ffe3d4403786d97dbb1c183f6110bc74ee5928f75dee747b019977",
+  "exact_bone_witnesses": 50,
+  "witness_interface_faces": [
+    9922,
+    15696
+  ],
+  "adjusted_free_volume_nodes": [
+    12545
+  ],
+  "before_nodal_field": [
+    0.8210794071705824
+  ],
+  "after_nodal_field": [
+    1.0
+  ],
+  "method": "raise only free support nodes of exact D/bone witnesses to the existing bone-exclusion field endpoint; preserve every O and inherited cut node; recalibrate original construction material-volume targets",
+  "levels_before": [
+    0.023512289948902993,
+    0.1359017551722481
+  ],
+  "levels_after": [
+    0.023512608993224295,
+    0.13590410667085165
+  ],
+  "target_relative_error": [
+    0.0,
+    0.0
+  ],
+  "constant_threshold_cells": [
+    0,
+    0
+  ],
+  "volume_calibration_pass": true
+}

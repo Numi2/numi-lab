@@ -1,0 +1,7 @@
+{
+  "physical_admission": false,
+  "failure": "inherited cut node missing from original PLC boundary",
+  "stage": "PLC node identity before TetGen",
+  "input": "attempt-004",
+  "corrected_by": "build_right_material_volume_general_203_v2.py; exact new on-threshold volume-node identity is retained in ancestry; see205"
+}

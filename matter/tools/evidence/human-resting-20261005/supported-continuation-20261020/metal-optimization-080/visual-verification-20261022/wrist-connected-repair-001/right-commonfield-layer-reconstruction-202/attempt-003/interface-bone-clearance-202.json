@@ -1,0 +1,25 @@
+{
+  "physical_admission": false,
+  "roles": {
+    "O": {
+      "aabb_queries": 2532,
+      "bone_crossing_pairs": 0,
+      "witnesses": [],
+      "vertices_inside_bone": []
+    },
+    "I": {
+      "aabb_queries": 2446,
+      "bone_crossing_pairs": 0,
+      "witnesses": [],
+      "vertices_inside_bone": []
+    },
+    "D": {
+      "aabb_queries": 2670,
+      "bone_crossing_pairs": 0,
+      "witnesses": [],
+      "vertices_inside_bone": []
+    }
+  },
+  "pass": true,
+  "wall_seconds": 19.006027707946487
+}

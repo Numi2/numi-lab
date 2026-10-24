@@ -1,0 +1,93 @@
+{
+  "physical_admission": false,
+  "source_receipt_sha256": "75b55faf408c0e66742477c0fd71d5e7456ad4bdaff4efc88d869236ef08b558",
+  "command": [
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-remesh-118/tetgen-v1.6.0/tetgen",
+    "-pYq1.2/5AS50000",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-material-volume-205/right-material-plc.poly"
+  ],
+  "tetgen_sha256": "95b1df3923d7405b168ba5a3c4b39498ddfc0e7ba94000dedff7ebf93350de07",
+  "script_sha256": "ca843b9ce85f673f817050c412501385607092647041d12e562045ceeede0042",
+  "plc_nodes": 38943,
+  "plc_faces": 77904,
+  "marker_counts": {
+    "1": 14451,
+    "2": 65,
+    "3": 41965,
+    "4": 21423
+  },
+  "anchors": [
+    {
+      "attribute": 1,
+      "point": [
+        -0.10989110730588436,
+        -1.1942151486873627,
+        0.06404261384159327
+      ],
+      "source_tet": 4388,
+      "P1_field": 0.011756301653592158
+    },
+    {
+      "attribute": 2,
+      "point": [
+        -0.05976461432874203,
+        -1.093924343585968,
+        0.0776023231446743
+      ],
+      "source_tet": 157,
+      "P1_field": 0.07970836235900572
+    },
+    {
+      "attribute": 3,
+      "point": [
+        -0.13778760097920895,
+        -1.4407310485839844,
+        0.12427935004234314
+      ],
+      "source_tet": 50351,
+      "P1_field": 0.5681557298702969
+    }
+  ],
+  "exit_code": 0,
+  "nodes": 62898,
+  "tetrahedra": 370758,
+  "nonpositive_F32_cells": 0,
+  "below_quality_floor": 51,
+  "minimum_normalized_determinant": 7.231515095757993e-08,
+  "material_volumes_m3": {
+    "1": 0.00034909996499295204,
+    "2": 0.0011945000254335247,
+    "3": 0.00473261566918769
+  },
+  "material_quality": {
+    "1": {
+      "cells": 103974,
+      "nonpositive": 0,
+      "below_floor": 15,
+      "minimum_q": 7.231515095757993e-08
+    },
+    "2": {
+      "cells": 172674,
+      "nonpositive": 0,
+      "below_floor": 26,
+      "minimum_q": 9.507192778020286e-08
+    },
+    "3": {
+      "cells": 94110,
+      "nonpositive": 0,
+      "below_floor": 10,
+      "minimum_q": 3.1148898754012244e-07
+    }
+  },
+  "construction_material_volume_relative_error": {
+    "1": -1.0027799465256253e-07,
+    "2": 2.129219308831e-08
+  },
+  "geometric_volume_pass": false,
+  "wall_seconds": 4.295295499963686,
+  "remaining": [
+    "exact material interface incidence and boundary ownership",
+    "old/new conservative overlap ancestry and regional mass mapping",
+    "retained-pose/native mechanical qualification"
+  ]
+}

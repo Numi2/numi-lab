@@ -1,0 +1,75 @@
+{
+  "source_geometry_pass": true,
+  "physical_admission": false,
+  "accepted_native_steps": 0,
+  "host": "numi.local",
+  "device": "Apple M6 Mac18,5",
+  "frame": "actual007 registered Float32 world",
+  "commands": [
+    [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/extract_right_interfaces_202.py",
+      "attempt-004"
+    ],
+    [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/audit_right_interfaces_202.py",
+      "attempt-004"
+    ],
+    [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/audit_right_bone_clearance_202.py",
+      "attempt-004"
+    ]
+  ],
+  "wall_seconds": 63.84105083299801,
+  "anatomy_assembly": "mixed-source reference adult",
+  "files": {
+    "right-D-interface-202.npz": {
+      "sha256": "8fde39eeb2e3b3ab2b020e4befeae512f7f15971851636b4d4cf5c90feb26dc4",
+      "bytes": 360471
+    },
+    "interface-preflight-report-202.json": {
+      "sha256": "25c545bf8af177831961a9e4190155933ceae1fa6d2c7cbebb49a7658279d059",
+      "bytes": 1121
+    },
+    "audit_right_bone_clearance_202.py.log": {
+      "sha256": "12b0c51d01e05b79661abb1d6c26726ff4b4f337f9da71336850789370b5ff48",
+      "bytes": 1147
+    },
+    "interface-bone-clearance-202.json": {
+      "sha256": "ba866dd91ddb040d9086bb1451c6689dc80822008804b9750b326b6de6c384c5",
+      "bytes": 507
+    },
+    "audit_right_interfaces_202.py.log": {
+      "sha256": "7f2e639f9a9d1acb2a2121b5826eb40328828dc8bdb9f34512423bfd786eb3a2",
+      "bytes": 412
+    },
+    "interface-exact-audit-202.json": {
+      "sha256": "d719a3c32a6a967e132201c6bace4ee89a3efb23d32f70483ea071f10da57b69",
+      "bytes": 728
+    },
+    "right-commonfield-calibrated-202.npz": {
+      "sha256": "8c7e0411342df7dea80fb3af73ab94f237586f90156d4827d847837a5609c7d9",
+      "bytes": 1737866
+    },
+    "field-refinement-report-202.json": {
+      "sha256": "54332a24b8a198e2fc4e9cd37c69be1c246875b95b619af94be1629bb077f2f1",
+      "bytes": 1952
+    },
+    "extract_right_interfaces_202.py.log": {
+      "sha256": "aa2ab24c11d37b33503a1fbd113c1106a8b63bdb4471d19e3c116390686e8cfb",
+      "bytes": 726
+    },
+    "right-I-interface-202.npz": {
+      "sha256": "8d08b19c2b33eadf33f151f9e60a6bcb5f3e16f400387a7be402cff99ca89237",
+      "bytes": 689695
+    }
+  },
+  "limitations": [
+    "single captured pose",
+    "construction volume targets, not measured anatomical thickness",
+    "skin/fat cell emission, quality and conservative mechanical ancestry required",
+    "native contact and accepted-state qualification pending"
+  ]
+}

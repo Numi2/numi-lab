@@ -1,0 +1,125 @@
+{
+  "source_mesh": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-225-actual007-cut-stitch-domain-preflight/local-quality-remesh-right-225-o-face-barycenter-subdivision/right-tetgen-local-quality-repaired.npz",
+  "source_mesh_sha256": "c6a4cd542b1e2cdd0a973bf527c2d774e471836a4460ffd4b25159c0d81da8d7",
+  "closed_domain_sha256": "794a40ad789313c8272cd397226be0737b69657eea221439f8e89c6be72ce0c9",
+  "script_sha256": "49ad249de765dcb5d244cf973dcf135b31a1db3f965154d1fbf9147fa9160517",
+  "geometry_helper_sha256": "5ebab2fc6b3c408c1ece539b0ec336baa57687dc015bb0cfb53d04a51b1c947d",
+  "frame": "source-preflight-007 actual registered Float32 world",
+  "physical_O_faces": 14451,
+  "construction_faces_excluded_from_outer_distance": 65,
+  "nodes": 13690,
+  "tetrahedra": 62699,
+  "minimum_normalized_determinant": 2.331789119405915e-05,
+  "total_domain_volume_m3": 0.006276215659614167,
+  "targets_m3": [
+    0.0003491,
+    0.0015436
+  ],
+  "targets_provenance": "retained 126/224 reference construction targets; not measured regional anatomy or validated thickness",
+  "levels": [
+    0.023512289948902993,
+    0.1359017551722481
+  ],
+  "actual_sublevel_volume_m3": [
+    0.0003490999999999998,
+    0.0015436000000000004
+  ],
+  "relative_target_error": [
+    -4.658559893234766e-16,
+    2.8095417789207166e-16
+  ],
+  "positive_volume_constant_threshold_cells": [
+    0,
+    0
+  ],
+  "volume_calibration_pass": true,
+  "optimizer_success": true,
+  "residual_evaluations": 24,
+  "field_diagnostics": {
+    "outside_signed_distance_classifier": "unsigned nearest-face distance plus closed-solid generalized solid-angle winding per selected registered anatomy bank; inside iff abs(winding)>0.5; near-surface margin 0.25mm sets phi=1",
+    "nodes_inside_closed_banks": 5,
+    "nodes_within_0.25mm_of_bone": 2,
+    "bone_distance_quantiles_mm": [
+      0.0411490007663836,
+      7.196413055098917,
+      17.693764093187244,
+      52.357295179003486,
+      171.32856687329385,
+      175.75592267943247,
+      177.53385899123958
+    ],
+    "outer_distance_quantiles_mm": [
+      0.0,
+      0.0,
+      0.0,
+      26.43017740345186,
+      55.04820075085774
+    ],
+    "winding_by_bank": [
+      {
+        "body_indices": [
+          131
+        ],
+        "banks": [
+          "bank_0650",
+          "bank_0652"
+        ],
+        "closed_union": true,
+        "topology": {
+          "edges": 2115,
+          "incidence_histogram": {
+            "2": 2115
+          },
+          "same_direction_edges": 0
+        },
+        "tested_points": 7,
+        "inside_points": 0,
+        "max_abs_winding": 3.865257425389691e-18
+      },
+      {
+        "body_indices": [
+          136
+        ],
+        "banks": [
+          "bank_0654",
+          "bank_0656",
+          "bank_0658",
+          "bank_0660",
+          "bank_0662",
+          "bank_0663",
+          "bank_0666"
+        ],
+        "closed_union": true,
+        "topology": {
+          "edges": 139920,
+          "incidence_histogram": {
+            "2": 139920
+          },
+          "same_direction_edges": 0
+        },
+        "tested_points": 1298,
+        "inside_points": 5,
+        "max_abs_winding": 1.0
+      }
+    ],
+    "nearest_bone_bank_counts": {
+      "bank_0652": 14,
+      "bank_0656": 597,
+      "bank_0650": 223,
+      "bank_0662": 1549,
+      "bank_0654": 1076,
+      "bank_0660": 1850,
+      "bank_0658": 1730,
+      "bank_0666": 5929,
+      "bank_0663": 722
+    }
+  },
+  "wall_seconds": 6.572583916946314,
+  "physical_admission": false,
+  "remaining": [
+    "extract independent interfaces including exact inherited cut rings",
+    "exact intersection/orientation/clearance checks",
+    "ancestry/material mass/transfer mapping",
+    "native contact ownership and physical acceptance"
+  ]
+}

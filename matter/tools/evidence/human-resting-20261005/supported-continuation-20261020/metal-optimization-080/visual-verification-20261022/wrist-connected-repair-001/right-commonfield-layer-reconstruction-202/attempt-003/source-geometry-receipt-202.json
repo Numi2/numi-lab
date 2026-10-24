@@ -1,0 +1,113 @@
+{
+  "source_revision": "c7248e833b737c469827f454dd5e560034af51ed",
+  "host": "numi.local",
+  "device": "Apple M6 Mac18,5",
+  "frame": "actual source-preflight-007 registered Float32 world",
+  "anatomy_assembly": "mixed-source reference adult, not one measured individual",
+  "source_geometry_pass": true,
+  "physical_admission": false,
+  "accepted_native_steps": 0,
+  "commands": [
+    "python3 /tmp/numi-human-geometry-slot.py /Users/n/numi-human-prep-venv-20261005/bin/python /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/extract_right_interfaces_202.py attempt-003",
+    "python3 /tmp/numi-human-geometry-slot.py /Users/n/numi-human-prep-venv-20261005/bin/python /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/audit_right_interfaces_202.py attempt-003",
+    "python3 /tmp/numi-human-geometry-slot.py /Users/n/numi-human-prep-venv-20261005/bin/python /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/audit_right_bone_clearance_202.py attempt-003"
+  ],
+  "inputs": {
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/tools/human_skin_patch_geometry.py": {
+      "sha256": "5da1d85ba688b76835d0b9e9f0f1b3dfe3e8dae9549f0e90c012b24b5a274032",
+      "bytes": 36146
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/field-interface-helper-frozen-202.py": {
+      "sha256": "5ebab2fc6b3c408c1ece539b0ec336baa57687dc015bb0cfb53d04a51b1c947d",
+      "bytes": 34714
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/field-integration-helper-frozen-202.py": {
+      "sha256": "9755d46f17e42488edb800ce53b7c96e8010a26aa82a294c0cc6e54de877a95f",
+      "bytes": 29777
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/build_right_field_202.py": {
+      "sha256": "144e3c8f6fc5301a708d16ec33d78b5389ab9dca098214d9964496216e7ba7cc",
+      "bytes": 5722
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/build_right_field_202_002.py": {
+      "sha256": "49ad249de765dcb5d244cf973dcf135b31a1db3f965154d1fbf9147fa9160517",
+      "bytes": 5862
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/refine_right_field_202_003.py": {
+      "sha256": "5fdd75df94aa03f25bff8bed98eea7aca3c5b88f395853f5e0fb2c6abf9c514a",
+      "bytes": 2974
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/extract_right_interfaces_202.py": {
+      "sha256": "d9b7dac46b6106d8f3784a5669bc1fda33ef33e7f292bcfbdc43208ab6c76d35",
+      "bytes": 3022
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/audit_right_interfaces_202.py": {
+      "sha256": "70b96379246976ac157babd6ffe9c9fe9861e6e3555c6a9df5a37dec8a3905ba",
+      "bytes": 2327
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/audit_right_bone_clearance_202.py": {
+      "sha256": "f92e9af968788dec40318928afd49e0e03fc9b9ad3f22e29782b27883232df4e",
+      "bytes": 4044
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native007-190/inventory.json": {
+      "sha256": "863774f2d1255d5de649ccc574768864df198d648badeeadd3cbcb973aee3c85",
+      "bytes": 299475
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native007-190/registered-tissue-banks.npz": {
+      "sha256": "533fdd2d109c9e97ad615c6865f5cbd6d3d3fb9357c06cb28ef9db8862338b7a",
+      "bytes": 41760986
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/source-preflight-007/registered-skin-poses.json": {
+      "sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+      "bytes": 26358
+    }
+  },
+  "outputs": {
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/attempt-003/right-D-interface-202.npz": {
+      "sha256": "d4fd4b3780f47c7bd51aead5e33e8b8d80b93468141eb16a0c8ac241af4fddbf",
+      "bytes": 361167
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/attempt-003/interface-preflight-report-202.json": {
+      "sha256": "492b8aa945e6c8d8cf0a2337e8d4eb9912d30a13e7912e6bca6e6c21340c2cfe",
+      "bytes": 1120
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/attempt-003/interface-bone-clearance-202.json": {
+      "sha256": "1b292bcbccccbc7ab06037e2d6b37648f78d8a69116589efe015bb9089ab3205",
+      "bytes": 507
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/attempt-003/interface-exact-audit-202.json": {
+      "sha256": "30f8bb29611b702fd7a349469b601a4c427a71ea70933da829409cb7d398ae4b",
+      "bytes": 728
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/attempt-003/right-commonfield-calibrated-202.npz": {
+      "sha256": "9f960a6d23c34ea65d701fd33d601bdbe50c6315e4a8763a153c3c6bbf017af8",
+      "bytes": 1738278
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/attempt-003/field-refinement-report-202.json": {
+      "sha256": "7c57be31ef2770cb886b57bcec5b2d87756cb65c4bfe47313bed71cecb9d7630",
+      "bytes": 862
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/attempt-003/right-I-interface-202.npz": {
+      "sha256": "2787130611a2c8eb2ef8f40af22dd847a770c00c53eef09ea588782616e49a9c",
+      "bytes": 690551
+    }
+  },
+  "checks": [
+    "Float32 positive construction volume mesh and q>=1e-5",
+    "exact inherited 13-node I/D cut rings",
+    "nondegenerate, consistently oriented manifold interfaces",
+    "exact self-intersection counts zero",
+    "exact O-I/O-D/I-D intersection counts zero",
+    "exact O/I/D intersection count with all nine nearby bone banks zero",
+    "closed-solid containment: no layer-surface vertex inside bone",
+    "original construction material volumes retained by direct P1 integration"
+  ],
+  "limitations": [
+    "single captured source pose; retained-motion transfer not yet generated",
+    "material-volume targets are declared construction values, not measured regional anatomy",
+    "muscle/tendon/vessel interfaces not all audited by this bone-only gate",
+    "partitioned skin/fat volume cells, conservative state/mass ancestry and mechanical boundary transfer remain to be emitted",
+    "native unpaired self-contact owner and accepted mechanics not qualified",
+    "left foot and bilateral arm repair candidates remain separate unadmitted work"
+  ]
+}
