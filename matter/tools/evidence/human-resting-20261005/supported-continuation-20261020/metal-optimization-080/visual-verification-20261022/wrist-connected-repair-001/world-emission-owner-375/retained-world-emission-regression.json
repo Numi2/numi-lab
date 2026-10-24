@@ -1,0 +1,19 @@
+{
+  "cases": [
+    {
+      "name": "left-connected-expanded-forearm-envelope-369",
+      "expected_pass": false,
+      "passed": false,
+      "error": "surface face degenerates or reverses after Float32 emission; rows 381199,381339",
+      "mesh_sha256": "29fcbbe51df676e98dcb2333f320a4f0553dc2ae8291619ff62f35c5eb16c48c"
+    },
+    {
+      "name": "left-world-float32-conditioned-envelope-373",
+      "expected_pass": true,
+      "passed": true,
+      "error": null,
+      "mesh_sha256": "f7ec9cc3e6ebdf2975d75b355821795233877b176109b76e4110f2552b4e001d"
+    }
+  ],
+  "physical_admission": false
+}

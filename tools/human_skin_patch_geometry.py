@@ -1258,3 +1258,35 @@ def connected_positive_plane_face_component(vertices, faces, *, axis, coordinate
                     parents[max(ra, rb)] = min(ra, rb)
     seed_root = root(int(seed_face))
     return np.asarray([i for i in np.flatnonzero(active) if root(int(i)) == seed_root], dtype=np.int64)
+
+
+def validate_float32_surface_emission(reference_vertices, emitted_vertices, faces):
+    """Certify orientation in the final emitted frame, including world space.
+
+    No welding, face deletion or tolerance is used. A locally valid Float32
+    interface may still collapse after a rigid world transform plus rounding.
+    Pass the unrounded and actual emitted positions in that same final frame.
+    """
+    x = np.asarray(reference_vertices)
+    y = np.asarray(emitted_vertices)
+    raw = np.asarray(faces)
+    if (x.ndim != 2 or x.shape[1] != 3 or x.dtype.kind not in "fiu"
+            or y.shape != x.shape or y.dtype != np.dtype(np.float32)
+            or not np.isfinite(x).all() or not np.isfinite(y).all()):
+        raise ValueError("matching finite Nx3 reference and emitted Float32 positions required")
+    if raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in "iu":
+        raise ValueError("integer Fx3 faces required")
+    if raw.size and (raw.min() < 0 or raw.max() >= len(x)):
+        raise ValueError("surface face index outside positions")
+    f = raw.astype(np.int64)
+    before = x.astype(np.float64)[f]
+    after = y.astype(np.float64)[f]
+    nr = np.cross(before[:,1]-before[:,0], before[:,2]-before[:,0])
+    ne = np.cross(after[:,1]-after[:,0], after[:,2]-after[:,0])
+    reference_area2 = np.einsum("ij,ij->i", nr, nr)
+    if np.any(reference_area2 == 0):
+        raise ValueError("nondegenerate reference surface faces required")
+    failed = np.flatnonzero(np.einsum("ij,ij->i", nr, ne) <= 0)
+    if len(failed):
+        raise ValueError("surface face degenerates or reverses after Float32 emission; rows "
+                         + ",".join(map(str, failed[:16])))
