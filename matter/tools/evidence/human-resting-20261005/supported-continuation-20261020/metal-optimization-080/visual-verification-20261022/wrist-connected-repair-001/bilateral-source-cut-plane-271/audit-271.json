@@ -1,0 +1,89 @@
+{
+  "elapsed_s": 20.28726979100611,
+  "frame": "candidate 253 geometry expressed directly in the actual native007 registered world frame; vertices rounded to Float32 before exact predicates",
+  "pins": {
+    "baseline_d36_faces_sha256": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "candidate_sha256": "92f0079a8266bb1f5bdeb289bffa51c2624341e6e6f2e1e9e0eb0c6d969e3f1d",
+    "inventory_sha256": "863774f2d1255d5de649ccc574768864df198d648badeeadd3cbcb973aee3c85",
+    "registered_bank_npz_sha256": "533fdd2d109c9e97ad615c6865f5cbd6d3d3fb9357c06cb28ef9db8862338b7a"
+  },
+  "registered_anatomy_bone_intersections": {
+    "1": {
+      "aabb_overlapping_anatomy_banks": 11,
+      "anatomy_triangles_in_selected_banks": 97672,
+      "candidate_bbox_max_m": [
+        0.1500213013420105,
+        -0.8981993927230835,
+        0.2957146332988739
+      ],
+      "candidate_bbox_min_m": [
+        -0.028973694650292398,
+        -1.746855543685913,
+        0.034603832530021666
+      ],
+      "candidate_faces": 16105,
+      "candidate_side": 1,
+      "exact_intersection_pairs": 0,
+      "examples": [],
+      "per_bank": [],
+      "tested_aabb_pairs": 2091
+    },
+    "2": {
+      "aabb_overlapping_anatomy_banks": 9,
+      "anatomy_triangles_in_selected_banks": 94690,
+      "candidate_bbox_max_m": [
+        -0.03091732809150219,
+        -0.9311556948890686,
+        0.29643432958221433
+      ],
+      "candidate_bbox_min_m": [
+        -0.20706872804260254,
+        -1.7474583850631713,
+        0.03439032869243622
+      ],
+      "candidate_faces": 16173,
+      "candidate_side": 2,
+      "exact_intersection_pairs": 0,
+      "examples": [],
+      "per_bank": [],
+      "tested_aabb_pairs": 2527
+    }
+  },
+  "schema": "numi.human.candidate271-actual007-f32-exact-surface-bone-audit.v1",
+  "self_surface": {
+    "allowed_shared_vertex_or_edge_pairs": 203287,
+    "complete_surface_faces": 36397,
+    "exact_aabb_candidate_pairs": 212370,
+    "first_pairs": [],
+    "nonlocal_exact_intersection_count": 0,
+    "queried_faces": 32278
+  },
+  "status": "pass-exact-surface-and-bone",
+  "surface_topology": {
+    "all_open_edges_are_original_d36_boundary": true,
+    "edge_incidence_histogram": {
+      "1": 45,
+      "2": 54573
+    },
+    "f32_zero_area_faces": 0,
+    "face_side_counts": {
+      "0": 4232,
+      "1": 16047,
+      "2": 16118
+    },
+    "faces": 36397,
+    "kind_counts": {
+      "0": 4232,
+      "2": 31730,
+      "3": 435
+    },
+    "min_f32_area2_m2": 2.254213557667685e-09,
+    "new_nonmanifold_edges": 0,
+    "open_boundary_edges": 45,
+    "open_boundary_exact_match_original": true,
+    "original_d36_open_boundary_edges": 45,
+    "same_direction_two-face_edges": 0,
+    "unchanged_faces_bitwise_preserved": true,
+    "vertices": 18533
+  }
+}

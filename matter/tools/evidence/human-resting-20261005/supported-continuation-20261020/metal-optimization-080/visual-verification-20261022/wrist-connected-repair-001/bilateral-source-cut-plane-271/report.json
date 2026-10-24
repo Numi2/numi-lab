@@ -1,0 +1,88 @@
+{
+  "schema": "numi.human.bilateral-full-source-transverse-collar-cutplane-271.v1",
+  "status": "unadmitted outer candidate; exact self/tissue/bone gates pending; no I/D or volume claim",
+  "inputs": {
+    "skin_payload": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin",
+    "skin_payload_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+    "registered_skin_sha256": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e",
+    "native007_node_dump_sha256": "cb7cd7c5772532819bfcbc0931ac8cc5825237e64aed34821d6bf7ca3e66849b",
+    "native007_pose_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+    "d36_faces_sha256": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c"
+  },
+  "plane": {
+    "normal_actual007": [
+      0.00030006736420277655,
+      0.9950063413036561,
+      -0.09981127554083968
+    ],
+    "origin_actual007_m": [
+      -0.02518901025,
+      -1.71472341,
+      0.145499341
+    ],
+    "distal_s0_m": 0.6508132,
+    "proximal_s1_m": 0.654,
+    "width_m": 0.003186800000000045,
+    "source_basis": "full NHSKIN128 actual007 registered source triangles clipped at s0; D36 clipped at s1; plane axis bisects bilateral tibia-minus-calcaneus vectors"
+  },
+  "source": {
+    "vertices": 61950,
+    "faces": 108987,
+    "left_lower_component_faces": 15830,
+    "right_lower_component_faces": 15900,
+    "left_loop": 178,
+    "right_loop": 182,
+    "used_source_vertices": 15687,
+    "source_cut_points": 360,
+    "detailed_face_id_domain": "original NHSKIN payload face-row ordinal; matches D36 DetailedSourceFaceIds (sampled 200/200 candidate223 kind-2 triangles)",
+    "whole_component_winding_reversed_from_payload_to_match_D36_physical_O": true
+  },
+  "coarse": {
+    "input_faces": 4777,
+    "retained_faces": 4232,
+    "cut_points": 75,
+    "left_loop": 39,
+    "right_loop": 36,
+    "face_parents_preserved": true
+  },
+  "collars": {
+    "L": {
+      "score": 16.79151054940121,
+      "inner_phase": 1,
+      "triangles": 217,
+      "minimum_area_m2": 4.5195027110870426e-08,
+      "minimum_quality": 0.005276988706376813,
+      "maximum_edge_m": 0.061756987251037586,
+      "maximum_crossring_edge_m": 0.03245559729002197,
+      "oriented_boundary_exact": true,
+      "physical_admission": false
+    },
+    "R": {
+      "score": 19.982084962137115,
+      "inner_phase": 34,
+      "triangles": 218,
+      "minimum_area_m2": 2.1120523652517218e-07,
+      "minimum_quality": 0.004962508182596622,
+      "maximum_edge_m": 0.05354962505835278,
+      "maximum_crossring_edge_m": 0.03621669321628469,
+      "oriented_boundary_exact": true,
+      "physical_admission": false
+    }
+  },
+  "surface": {
+    "nodes": 18533,
+    "faces": 36397,
+    "edge_incidence_histogram": {
+      "2": 54573,
+      "1": 45
+    },
+    "same_direction_edges": 0,
+    "boundary_edges": 45,
+    "boundary_matches_original_head": true,
+    "min_area_f64_m2": 1.1267403415364345e-09,
+    "min_area_actual007_f32_m2": 1.1271067412721436e-09,
+    "f32_zero_area_faces": 0
+  },
+  "candidate_sha256": "92f0079a8266bb1f5bdeb289bffa51c2624341e6e6f2e1e9e0eb0c6d969e3f1d",
+  "elapsed_s": 1.4142570495605469
+}

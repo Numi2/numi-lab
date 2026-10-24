@@ -1,0 +1,28 @@
+{
+  "schema": "numi.human.candidate271-actual007-f32-nearby-nonbone-tissue-audit.v1",
+  "physical_admission": false,
+  "scope": "changed registered outer triangles versus all spatially overlapping non-anatomy source-pose banks; exact triangle intersection predicate only",
+  "candidate_sha256": "92f0079a8266bb1f5bdeb289bffa51c2624341e6e6f2e1e9e0eb0c6d969e3f1d",
+  "bone_self_audit_sha256": "1ac991fb19e0ffcfbfe66f6fea29d4039fa5ad268322866c690e5d9c96bf7dd3",
+  "bank_sha256": "533fdd2d109c9e97ad615c6865f5cbd6d3d3fb9357c06cb28ef9db8862338b7a",
+  "inventory_sha256": "863774f2d1255d5de649ccc574768864df198d648badeeadd3cbcb973aee3c85",
+  "changed_face_count": 32278,
+  "candidate_changed_bbox_min_m": [
+    -0.20706872804260254,
+    -1.7474583850631713,
+    0.03439032869243622
+  ],
+  "candidate_changed_bbox_max_m": [
+    0.1500213013420105,
+    -0.8981993927230835,
+    0.29643432958221433
+  ],
+  "nearby_nonbone_bank_count": 68,
+  "roles": {},
+  "exact_nonbone_intersection_pairs": 0,
+  "aabb_candidate_pairs": 17570,
+  "intersections_by_bank": {},
+  "witnesses": [],
+  "zero_nonbone_intersections": true,
+  "elapsed_s": 2.001976417028345
+}
