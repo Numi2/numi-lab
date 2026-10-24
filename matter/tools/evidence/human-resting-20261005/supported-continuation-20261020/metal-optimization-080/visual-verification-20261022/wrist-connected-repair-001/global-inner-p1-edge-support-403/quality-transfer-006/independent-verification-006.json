@@ -1,0 +1,55 @@
+{
+  "checks": {
+    "A_014_parent_column_max_abs_error": 4.440892098500626e-16,
+    "B_old_parent_column_max_abs_error": 2.220446049250313e-16,
+    "B_row_sum_range_diagnostic_only": [
+      0.11171212449948638,
+      1.7886323333813117
+    ],
+    "C_014_parent_column_max_abs_error": 2.220446049250313e-16,
+    "C_row_sum_range_diagnostic_only": [
+      0.006710597714207117,
+      2.0001091915433444
+    ],
+    "independent_BA_vs_C_max_abs_difference": 1.1102230246251565e-16,
+    "independent_BA_vs_C_nnz_difference": 5,
+    "material_regions": {
+      "1": {
+        "composed_synthetic_mass": 180903.70866466622,
+        "new_synthetic_mass": 180903.70866466622,
+        "new_volume_m3": 0.06960080435892788,
+        "old_synthetic_mass": 180903.70866466622,
+        "old_volume_m3": 0.06960080435892788
+      }
+    },
+    "report_claims_admission": false,
+    "report_transfer_ready": true,
+    "synthetic_mass_B_vs_C_max_abs": 2.220446049250313e-16,
+    "synthetic_mass_total_composed": 180903.70866466622,
+    "synthetic_mass_total_new": 180903.70866466622,
+    "synthetic_mass_total_old": 180903.70866466622,
+    "total_volume_delta_m3": 0.0,
+    "total_volume_new005_m3": 0.06960080435892788,
+    "total_volume_old002_m3": 0.06960080435892788
+  },
+  "matrix_shapes": {
+    "A_old002_by_parent014": [
+      248662,
+      164176
+    ],
+    "B_new005_by_old002": [
+      248662,
+      248662
+    ],
+    "C_new005_by_parent014": [
+      248662,
+      164176
+    ]
+  },
+  "sha256": {
+    "candidate_002": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744",
+    "candidate_005": "5b54ffd34d74d717579fcb14677cbf2bfba01f4d4562652605b9207e65f8f698",
+    "transfer_npz": "875bb77bfa65486c6856b04d3b3ad4c4ffd8d471a2fc4297d6d2809a70f5ae41",
+    "transfer_report": "a8de7a0585ec612c004ad70f3e39be200e08dbcc24749f86e840bae3ae08be50"
+  }
+}

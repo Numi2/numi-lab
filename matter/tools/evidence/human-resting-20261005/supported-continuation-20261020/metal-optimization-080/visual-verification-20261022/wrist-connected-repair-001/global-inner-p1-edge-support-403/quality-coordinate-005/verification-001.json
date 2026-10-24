@@ -1,0 +1,70 @@
+{
+  "candidate_sha256": "5b54ffd34d74d717579fcb14677cbf2bfba01f4d4562652605b9207e65f8f698",
+  "changed_point_rows": [
+    55529,
+    55530
+  ],
+  "changed_support_nodes_absent_from_physical_outer_shell_and_closure_faces": true,
+  "coordinate_change_m": {
+    "55529": [
+      -2.384185791015625e-07,
+      -4.172325134277344e-06,
+      4.24310564994812e-06
+    ],
+    "55530": [
+      -8.046627044677734e-07,
+      -1.1920928955078125e-06,
+      3.7886202335357666e-06
+    ]
+  },
+  "coordinate_change_norm_m": {
+    "55529": 5.955592833765999e-06,
+    "55530": 4.052432703135019e-06
+  },
+  "global_min_normalized_determinant": 1.0305495205375494e-05,
+  "global_nonpositive_tets": 0,
+  "global_tetrahedron_count": 248662,
+  "global_tets_below_1e-5": 0,
+  "immutable_mesh_and_boundary_fields": {
+    "construction_closure_faces": true,
+    "parent_input_candidate_offsets": true,
+    "parent_input_candidate_rows": true,
+    "physical_outer_faces": true,
+    "physical_outer_node_ids": true,
+    "physical_shell_faces": true,
+    "region_attributes": true,
+    "tetrahedra": true
+  },
+  "incident_star_row_count": 14,
+  "incident_star_signed_volume_after_m3": 4.1679372999484443e-08,
+  "incident_star_signed_volume_before_m3": 4.167937299948445e-08,
+  "incident_star_signed_volume_delta_m3": -6.617444900424222e-24,
+  "input_sha256": "ff882067af08d4d749d516fdf51fc8f81bb83f85e611f352e394d00c67c52932",
+  "native_admission": false,
+  "node_source_csr_max_row_sum_error": 0.0,
+  "node_source_parent398_barycentric": [
+    [
+      0.5018402542865434,
+      0.4971690564729717,
+      7.422124775421013e-05,
+      0.0009164679927306533
+    ],
+    [
+      0.4969829022213722,
+      0.5023092906828345,
+      0.0002694992661595829,
+      0.0004383078296337733
+    ]
+  ],
+  "node_source_parent398_tet_rows": [
+    211238,
+    211241
+  ],
+  "physical_admission": false,
+  "schema": "numi.human.global-inner-p1-quality-coordinate-005.independent-verification.v1",
+  "source398_sha256": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+  "source403_sha256": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744",
+  "whole_domain_signed_volume_after_m3": 0.06960080435892788,
+  "whole_domain_signed_volume_before_m3": 0.06960080435892788,
+  "whole_domain_signed_volume_delta_m3": 0.0
+}

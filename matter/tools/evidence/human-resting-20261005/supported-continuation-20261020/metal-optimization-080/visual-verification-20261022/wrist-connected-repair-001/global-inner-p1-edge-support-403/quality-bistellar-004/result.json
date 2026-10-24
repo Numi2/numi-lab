@@ -1,0 +1,52 @@
+{
+  "input_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-bistellar-003/candidate-geometry-only.npz",
+  "input_sha256": "176900d57eedb40255298ad77860317ab97e31a6792bc4dc76c4d48ec7d060e8",
+  "owner014_sha256": "82ea2fb8ea96ed2f4bdba0124bbd37a05e28ead7e3568da24fad7e9c7c071ef2",
+  "attempted_cavities": 49,
+  "accepted_flips": [
+    {
+      "iteration": 0,
+      "kind": "5-6",
+      "old_active_rows": [
+        248409,
+        248411,
+        248413,
+        248415,
+        248417
+      ],
+      "new_active_rows": [
+        248661,
+        248662,
+        248663,
+        248664,
+        248665,
+        248666
+      ],
+      "input_candidate_ancestry": [
+        248409,
+        248411,
+        248413,
+        248415,
+        248417
+      ],
+      "old_min_quality": 7.140821679489462e-06,
+      "new_min_quality": 0.00013976247345194972,
+      "old_below_count": 1,
+      "new_below_count": 0
+    }
+  ],
+  "output_tets": 248662,
+  "output_nodes": 55553,
+  "nonpositive_tets": 0,
+  "quality_below_1e5": 2,
+  "minimum_normalized_determinant": 6.20230939246995e-06,
+  "boundary_oriented_exact": true,
+  "all_support_nodes_still_referenced": true,
+  "support_gate_pass": true,
+  "global_relative_volume_change": 0.0,
+  "material_overlap_transfer_pending": true,
+  "native_admission": false,
+  "elapsed_s": 3.0973599159624428,
+  "candidate_sha256": "ff882067af08d4d749d516fdf51fc8f81bb83f85e611f352e394d00c67c52932",
+  "geometry_support_gate_pass": false
+}

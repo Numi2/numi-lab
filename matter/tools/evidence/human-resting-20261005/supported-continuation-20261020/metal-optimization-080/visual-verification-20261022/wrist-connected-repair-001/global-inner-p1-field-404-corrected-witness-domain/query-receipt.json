@@ -1,0 +1,133 @@
+{
+  "schema": "bounded_registered_skin_witness_query_v1",
+  "status": "diagnostic_only_not_admission",
+  "geometry_input": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/candidate-with-transfer.npz",
+    "sha256": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410a11a357890",
+    "points_shape": [
+      49951,
+      3
+    ],
+    "tets_shape": [
+      211439,
+      4
+    ],
+    "tet_row": 88190,
+    "tet_node_ids": [
+      9451,
+      9471,
+      9473,
+      27269
+    ],
+    "barycentric": [
+      0.7473772446,
+      0,
+      0.2526227554,
+      0
+    ],
+    "query_world_m": [
+      -0.046370682593577024,
+      -1.4937671433282247,
+      0.10053062839141552
+    ],
+    "note": "This is an interior tetrahedral diagonal witness; 9451-9473 is not an O surface edge."
+  },
+  "pose": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/registered-skin-poses.json",
+    "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "frame": "current",
+    "emitter_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/regional-refinement-compose-255/tools/rebind_human_skin_reference.py",
+    "emitter_sha256": "8941586ea427143c3bc7ac5c63ef26ba76fcc7fd196810a577414c1c9e00e3f5"
+  },
+  "exact_nearest_triangle_helper": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/exact-plane-filter-owner-264/src/numilab_human/bodyparts_adm.py",
+    "sha256": "abb1438ea3915a4e4b3d06004155efb343071a846e76b001fc40553a179f4eba",
+    "method": "bounding-sphere-pruned exact closest-triangle query in Float64; not a solid/collision oracle"
+  },
+  "assets": [
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin",
+      "sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+      "emitted_current_xyz_sha256": "e0858a2982c114396375ba0dfa93b2351a5f37f8e0ed32a58463b0c31b4054d1",
+      "closest_distance_m": 0.0003738231562615611,
+      "face_row": 40538,
+      "face_vertices": [
+        22336,
+        22337,
+        22322
+      ],
+      "normal": [
+        0.9880824696611062,
+        -0.1499355187914929,
+        -0.03481915210247088
+      ],
+      "signed_offset_m": -0.0003738231562615611,
+      "generalized_winding": 0.9999979327951524,
+      "winding_offsets_m": {
+        "-0.001": 0.999997932874807,
+        "-0.0001": 0.9999979328029244,
+        "0.0001": 0.9999979327874235,
+        "0.001": -0.000002067280209013564
+      },
+      "boundary_edges": 115,
+      "nonmanifold_edges": 0
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+      "emitted_current_xyz_sha256": "ecb83d7fb712e6d1f878e60cce25f28cfe8b624f7deab6cc8f53875ce707ea",
+      "closest_distance_m": 0.0003738231562615611,
+      "face_row": 40538,
+      "face_vertices": [
+        22336,
+        22337,
+        22322
+      ],
+      "normal": [
+        0.9880824696611062,
+        -0.1499355187914929,
+        -0.03481915210247088
+      ],
+      "signed_offset_m": -0.0003738231562615611,
+      "generalized_winding": 0.9999979327951527,
+      "winding_offsets_m": {
+        "-0.001": 0.999997932874807,
+        "-0.0001": 0.9999979328029247,
+        "0.0001": 0.9999979327874237,
+        "0.001": -0.0000020672802091195826
+      },
+      "boundary_edges": 115,
+      "nonmanifold_edges": 0
+    }
+  ],
+  "connected_component_diagnostic": {
+    "asset": "294",
+    "faces": 108841,
+    "boundary_edges": 107,
+    "nearest_boundary_edge_distance_m": 1.342328739983032,
+    "edges_within_0_01m": 0,
+    "winding_at_query": 0.9994620210562084,
+    "winding_offsets_m": {
+      "-0.001": 0.9994572650178274,
+      "-0.0001": 0.9994615485771629,
+      "0.0001": 0.9994624928307493,
+      "0.001": -0.0005332933403244571
+    },
+    "caveat": "Component is not closed; winding is diagnostic, not a certified solid predicate."
+  },
+  "superseded_wrong_domain_observation": {
+    "status": "superseded_invalid_mesh_domain",
+    "old_mesh_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/candidate.npz",
+    "old_mesh_sha256": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba",
+    "mistaken_tet_row": 88190,
+    "mistaken_node_ids": [
+      14224,
+      14222,
+      14227,
+      29716
+    ],
+    "old_reported_distance_m": 1.169575904638961e-8,
+    "disposition": "The 11.696 nm output belongs to another tet-row domain and must not be attributed to 398."
+  },
+  "limitation": "No input geometry was changed. Diagnostic only; no physical admission or certified watertight-solid claim."
+}

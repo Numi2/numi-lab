@@ -1,0 +1,163 @@
+{
+  "displacement_radius_m": [
+    6.053914926607408e-06,
+    1.1737958204802663e-05
+  ],
+  "elapsed_seconds": 0.1260209083557129,
+  "float32_emission": {
+    "changed_node_rows": [
+      55529,
+      55530
+    ],
+    "euclidean_displacement_m": [
+      6.071195787927037e-06,
+      4.092241142698236e-06
+    ],
+    "global_count_below_floor": 0,
+    "global_min_q": 1.0305495205375494e-05,
+    "global_nonpositive_count": 0,
+    "star_det_by_row_m3": {
+      "248409": 1.0320761715561323e-07,
+      "248410": 9.261667448646912e-11,
+      "248411": 1.036566449928336e-10,
+      "248412": 2.547957045665576e-08,
+      "248413": 6.215661196930394e-08,
+      "248414": 2.3444846373875082e-11,
+      "248415": 1.6682469575971946e-11,
+      "248416": 7.232326277464031e-09,
+      "248417": 1.1877102521038147e-08,
+      "248653": 5.750558719722672e-09,
+      "248654": 3.5669947184697203e-09,
+      "248659": 1.6808027975246094e-08,
+      "248660": 1.123010960139553e-08,
+      "248661": 2.530917966568402e-09
+    },
+    "star_max_edge_m_by_row": {
+      "248409": 0.04539577939239033,
+      "248410": 0.020625485192181173,
+      "248411": 0.006402610774366468,
+      "248412": 0.015321417069706581,
+      "248413": 0.04539577939239033,
+      "248414": 0.013052840852329956,
+      "248415": 0.003466858164318553,
+      "248416": 0.009512121964137856,
+      "248417": 0.012826011470858411,
+      "248653": 0.013052840852329956,
+      "248654": 0.00966508006472741,
+      "248659": 0.04547869233428674,
+      "248660": 0.04547869233428674,
+      "248661": 0.015435355495865704
+    },
+    "star_min_q": 1.0542224554551374e-05,
+    "star_q_by_row": {
+      "248409": 0.0011032281143675358,
+      "248410": 1.0555447794093057e-05,
+      "248411": 0.0003949352011376138,
+      "248412": 0.007084273145832268,
+      "248413": 0.0006644172562862067,
+      "248414": 1.0542224554551374e-05,
+      "248415": 0.00040036132588786515,
+      "248416": 0.0084032208975006,
+      "248417": 0.005629056830336176,
+      "248653": 0.0025857998969446724,
+      "248654": 0.003950809579929893,
+      "248659": 0.00017868695822918204,
+      "248660": 0.00011938783825259066,
+      "248661": 0.0006882213797435034
+    }
+  },
+  "geometry_quality_gate_pass": false,
+  "initial_star_min_q": 6.2023093924699475e-06,
+  "initial_star_q_by_row": {
+    "248409": 0.0010841026506190905,
+    "248410": 7.73012638172084e-06,
+    "248411": 0.0003870782178236029,
+    "248412": 0.007055296225646197,
+    "248413": 0.0007004947691046083,
+    "248414": 6.2023093924699475e-06,
+    "248415": 0.00028150227101252643,
+    "248416": 0.008354109849891336,
+    "248417": 0.005614328308912141,
+    "248653": 0.0026029448263425415,
+    "248654": 0.003997794722412102,
+    "248659": 0.00014113018799363506,
+    "248660": 0.00013976247345194993,
+    "248661": 0.0007206400735316247
+  },
+  "input_candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-bistellar-004/candidate-geometry-only.npz",
+  "input_candidate_sha256": "ff882067af08d4d749d516fdf51fc8f81bb83f85e611f352e394d00c67c52932",
+  "input_star_rows": {
+    "55529": [
+      248409,
+      248410,
+      248411,
+      248412,
+      248413,
+      248659,
+      248660,
+      248661
+    ],
+    "55530": [
+      248414,
+      248415,
+      248416,
+      248417,
+      248653,
+      248654
+    ]
+  },
+  "limitations": [
+    "quality-only geometry candidate; no material mass, transfer, field, boundary, native, or physical admission claim"
+  ],
+  "min_incident_edge_m": [
+    0.00012107829853214815,
+    0.00023475916409605325
+  ],
+  "native_admission": false,
+  "nodes": [
+    55529,
+    55530
+  ],
+  "optimizer": {
+    "iterations": 80,
+    "message": "Optimization terminated successfully",
+    "method": "SLSQP max-min normalized determinant",
+    "min_q_target_ratio_float64": 1.0547416966341143,
+    "normalized_displacement_variables": [
+      -0.03997440842843515,
+      -0.7048240515023647,
+      0.708254970398814,
+      -0.06920347205937528,
+      -0.10330923038996119,
+      0.3261634313098835
+    ],
+    "objective": -1.0547405747896128,
+    "predicted_star_q_min_float64": 1.0547416966332875e-05,
+    "status": 0,
+    "success": true
+  },
+  "physical_admission": false,
+  "schema": "numi.human.global-inner-p1-quality-coordinate-005.report.v1",
+  "shared_star_rows": [],
+  "source398_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/candidate-with-transfer.npz",
+  "source398_sha256": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+  "source403_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/build-002/candidate.npz",
+  "source403_sha256": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744",
+  "star_tet_rows": [
+    248409,
+    248410,
+    248411,
+    248412,
+    248413,
+    248414,
+    248415,
+    248416,
+    248417,
+    248653,
+    248654,
+    248659,
+    248660,
+    248661
+  ],
+  "target_normalized_determinant": 1e-05
+}

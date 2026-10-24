@@ -1,0 +1,70 @@
+{
+  "input_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/build-002/candidate.npz",
+  "input_sha256": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744",
+  "owner014_sha256": "82ea2fb8ea96ed2f4bdba0124bbd37a05e28ead7e3568da24fad7e9c7c071ef2",
+  "attempted_cavities": 75,
+  "accepted_flips": [
+    {
+      "iteration": 0,
+      "kind": "3-2",
+      "old_active_rows": [
+        173369,
+        219514,
+        219516
+      ],
+      "new_active_rows": [
+        248662,
+        248663
+      ],
+      "input_403_ancestry": [
+        173369,
+        219514,
+        219516
+      ],
+      "old_min_quality": 6.1234265493115355e-06,
+      "new_min_quality": 0.1021455841482111,
+      "old_below_count": 2,
+      "new_below_count": 0
+    },
+    {
+      "iteration": 1,
+      "kind": "4-4",
+      "old_active_rows": [
+        248422,
+        248424,
+        248426,
+        248428
+      ],
+      "new_active_rows": [
+        248664,
+        248665,
+        248666,
+        248667
+      ],
+      "input_403_ancestry": [
+        248422,
+        248424,
+        248426,
+        248428
+      ],
+      "old_min_quality": 5.911613348546739e-06,
+      "new_min_quality": 0.0026029448263425506,
+      "old_below_count": 1,
+      "new_below_count": 0
+    }
+  ],
+  "output_tets": 248661,
+  "output_nodes": 55553,
+  "nonpositive_tets": 0,
+  "quality_below_1e5": 3,
+  "minimum_normalized_determinant": 6.20230939246995e-06,
+  "boundary_oriented_exact": true,
+  "all_support_nodes_still_referenced": true,
+  "support_gate_pass": true,
+  "global_relative_volume_change": 0.0,
+  "material_overlap_transfer_pending": true,
+  "native_admission": false,
+  "elapsed_s": 3.2076867090072483,
+  "candidate_sha256": "176900d57eedb40255298ad77860317ab97e31a6792bc4dc76c4d48ec7d060e8",
+  "geometry_support_gate_pass": false
+}

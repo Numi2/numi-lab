@@ -1,0 +1,191 @@
+{
+  "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-coordinate-005/candidate.npz",
+  "candidate_sha256": "5b54ffd34d74d717579fcb14677cbf2bfba01f4d4562652605b9207e65f8f698",
+  "displacement_radius_m": [
+    6.053914926607408e-06,
+    1.1737958204802663e-05
+  ],
+  "elapsed_seconds": 0.12540888786315918,
+  "float32_emission": {
+    "changed_node_rows": [
+      55529,
+      55530
+    ],
+    "euclidean_displacement_m": [
+      5.955592833765999e-06,
+      4.052432703135019e-06
+    ],
+    "global_count_below_floor": 0,
+    "global_min_q": 1.0305495205375494e-05,
+    "global_nonpositive_count": 0,
+    "star_det_by_row_m3": {
+      "248409": 1.0317017876968928e-07,
+      "248410": 9.214427935664549e-11,
+      "248411": 1.0386706822144252e-10,
+      "248412": 2.548084757239585e-08,
+      "248413": 6.224086959696436e-08,
+      "248414": 2.3351069501328726e-11,
+      "248415": 1.6611017208643456e-11,
+      "248416": 7.231740130724763e-09,
+      "248417": 1.187576236992605e-08,
+      "248653": 5.752029841782703e-09,
+      "248654": 3.5676151235009364e-09,
+      "248659": 1.6720148968772828e-08,
+      "248660": 1.1270825876095888e-08,
+      "248661": 2.5302463127659587e-09
+    },
+    "star_max_edge_m_by_row": {
+      "248409": 0.0453957890086339,
+      "248410": 0.020625485192181173,
+      "248411": 0.006402610774366468,
+      "248412": 0.015321453415170088,
+      "248413": 0.0453957890086339,
+      "248414": 0.013052840852329956,
+      "248415": 0.003466858164318553,
+      "248416": 0.009512155483158516,
+      "248417": 0.012826016410520474,
+      "248653": 0.013052840852329956,
+      "248654": 0.00966508006472741,
+      "248659": 0.04547869233428674,
+      "248660": 0.04547869233428674,
+      "248661": 0.015435355495865704
+    },
+    "star_min_q": 1.050005678630748e-05,
+    "star_q_by_row": {
+      "248409": 0.001102827219423332,
+      "248410": 1.0501609301632763e-05,
+      "248411": 0.0003957369205075629,
+      "248412": 0.007084577813530038,
+      "248413": 0.000665317497465427,
+      "248414": 1.050005678630748e-05,
+      "248415": 0.0003986465459273092,
+      "248416": 0.008402451028616639,
+      "248417": 0.005628415173547401,
+      "248653": 0.002586461402627272,
+      "248654": 0.003951496741626004,
+      "248659": 0.0001777527122615982,
+      "248660": 0.00011982069493794039,
+      "248661": 0.000688038739882104
+    }
+  },
+  "geometry_quality_gate_pass": true,
+  "initial_star_min_q": 6.2023093924699475e-06,
+  "initial_star_q_by_row": {
+    "248409": 0.0010841026506190905,
+    "248410": 7.73012638172084e-06,
+    "248411": 0.0003870782178236029,
+    "248412": 0.007055296225646197,
+    "248413": 0.0007004947691046083,
+    "248414": 6.2023093924699475e-06,
+    "248415": 0.00028150227101252643,
+    "248416": 0.008354109849891336,
+    "248417": 0.005614328308912141,
+    "248653": 0.0026029448263425415,
+    "248654": 0.003997794722412102,
+    "248659": 0.00014113018799363506,
+    "248660": 0.00013976247345194993,
+    "248661": 0.0007206400735316247
+  },
+  "input_candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-bistellar-004/candidate-geometry-only.npz",
+  "input_candidate_sha256": "ff882067af08d4d749d516fdf51fc8f81bb83f85e611f352e394d00c67c52932",
+  "input_star_rows": {
+    "55529": [
+      248409,
+      248410,
+      248411,
+      248412,
+      248413,
+      248659,
+      248660,
+      248661
+    ],
+    "55530": [
+      248414,
+      248415,
+      248416,
+      248417,
+      248653,
+      248654
+    ]
+  },
+  "limitations": [
+    "quality-only geometry candidate; no material mass, transfer, field, boundary, native, or physical admission claim"
+  ],
+  "min_incident_edge_m": [
+    0.00012107829853214815,
+    0.00023475916409605325
+  ],
+  "native_admission": false,
+  "nodes": [
+    55529,
+    55530
+  ],
+  "optimizer": {
+    "iterations": 80,
+    "message": "Optimization terminated successfully",
+    "method": "SLSQP max-min normalized determinant",
+    "min_q_target_ratio_float64": 1.0547416966341143,
+    "normalized_displacement_variables": [
+      -0.03997440842843515,
+      -0.7048240515023647,
+      0.708254970398814,
+      -0.06920347205937528,
+      -0.10330923038996119,
+      0.3261634313098835
+    ],
+    "objective": -1.0547405747896128,
+    "predicted_star_q_min_float64": 1.0547416966332875e-05,
+    "status": 0,
+    "success": true
+  },
+  "physical_admission": false,
+  "schema": "numi.human.global-inner-p1-quality-coordinate-005.report.v1",
+  "shared_star_rows": [],
+  "source398_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/candidate-with-transfer.npz",
+  "source398_sha256": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+  "source403_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/build-002/candidate.npz",
+  "source403_sha256": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744",
+  "source_ancestry": {
+    "max_csr_row_sum_error": 0.0,
+    "method": "barycentric composition through a containing original398 tetrahedron",
+    "node_source_rows_replaced": [
+      55529,
+      55530
+    ],
+    "parent_398_tet_rows": [
+      211238,
+      211241
+    ],
+    "parent_barycentric": [
+      [
+        0.5018402542865434,
+        0.4971690564729717,
+        7.422124775421013e-05,
+        0.0009164679927306533
+      ],
+      [
+        0.4969829022213722,
+        0.5023092906828345,
+        0.0002694992661595829,
+        0.0004383078296337733
+      ]
+    ]
+  },
+  "star_tet_rows": [
+    248409,
+    248410,
+    248411,
+    248412,
+    248413,
+    248414,
+    248415,
+    248416,
+    248417,
+    248653,
+    248654,
+    248659,
+    248660,
+    248661
+  ],
+  "target_normalized_determinant": 1e-05
+}

@@ -1,0 +1,73 @@
+{
+  "pass": true,
+  "baseline_398_witness": {
+    "pass": false,
+    "status": "fixed_support_conflict",
+    "constraints": 1,
+    "conflict_rows": [
+      0
+    ],
+    "conflict_tet_ids": [
+      0
+    ],
+    "minimum_capacity": 0.0,
+    "target": 0.341,
+    "initializer_as_lower_bound": false
+  },
+  "refined_403_actual_clipped_triangle": {
+    "pass": true,
+    "status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "solver_status": 0,
+    "iterations": 0,
+    "constraints": 5,
+    "active_rows": 5,
+    "sparse_shape": [
+      5,
+      3
+    ],
+    "sparse_nnz": 12,
+    "initializer_role": "diagnostic_only_not_bound_or_objective",
+    "absolute_bounds": [
+      0.0,
+      1.0
+    ],
+    "fixed_node_count": 1,
+    "target": 0.341,
+    "objective_policy": "preserved 311 weighted minimum c^T phi",
+    "changed_nodes": 2,
+    "objective": 3.053100825178719e-08,
+    "minimum_constraint_value": 0.341,
+    "maximum_field_value": 0.9443797595603216,
+    "fixed_values_exact": true
+  },
+  "global_child_row": 222192,
+  "typed_bank_key": "bank_0004",
+  "triangle_row": 2562,
+  "original_node_ids": [
+    53331,
+    9451,
+    53330,
+    27269
+  ],
+  "physical_O_mask": [
+    false,
+    true,
+    false,
+    false
+  ],
+  "raw_barycentric_min": -3.863576125695545e-14,
+  "construction_barycentric_clamp_max_change": 3.863576125695545e-14,
+  "local_solution": [
+    0.9443797595603216,
+    0.0,
+    0.6487722732345155,
+    0.0
+  ],
+  "target": 0.341,
+  "constraints_solved": 5,
+  "source402_sha256": "3a3ccbb93efa463f15575c4e9d96aef50576be9784ca1928ec741e3fefd8f446",
+  "source405_receipt_sha256": "c7c868cd2b5aaf0c4f62e49d3a2e077758126c8fc73aa2da47b59119dba907e5",
+  "candidate403_sha256": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744",
+  "scope": "Only one actual clipped source triangle and its child tetrahedron; no full field or native admission.",
+  "native_admission": false
+}

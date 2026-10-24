@@ -1,0 +1,175 @@
+{
+  "algorithm": "deterministic sequential globally-conforming tetra edge bisection for all internal physical-O/O edges, followed by stellar centroid splits of every residual internal all-physical-O face; dynamic edge/face-to-cell incidence updates handle multiple selected supports in shared cells",
+  "builder_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/refine_internal_o_edges_403.py",
+  "builder_sha256": "231219282f03a830e9857c327e44d2835ce5c831d9eab09ebc598e37a6775826",
+  "candidate_bytes": 6449930,
+  "candidate_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/build-003-strict-orientation/candidate.npz",
+  "candidate_sha256": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744",
+  "child_parent_alias": "parent_398_tet_row (identical to child_source_tetrahedron_rows)",
+  "elapsed_build_s": 3.173802625038661,
+  "geometry_and_ancestry": {
+    "398_parent_conservative_fraction_min_max": [
+      0.24953915967085707,
+      1.0
+    ],
+    "398_parent_raw_child_volume_ratio_min_max": [
+      0.24923821213537986,
+      1.0
+    ],
+    "all_398_parents_covered": true,
+    "all_selected_edges_split": true,
+    "boundary": {
+      "exact_unoriented_set": true,
+      "extra_count": 0,
+      "face_count_actual": 38078,
+      "face_count_expected": 38078,
+      "missing_count": 0,
+      "oriented_mismatch_count": 0
+    },
+    "edge_support_residuals": {
+      "original_o_o_edge_incidence_counts": {
+        "1": 1,
+        "10": 332,
+        "11": 122,
+        "12": 85,
+        "13": 19,
+        "14": 24,
+        "15": 6,
+        "16": 8,
+        "17": 1,
+        "18": 2,
+        "2": 22262,
+        "3": 16258,
+        "4": 5855,
+        "5": 4087,
+        "6": 2751,
+        "7": 1233,
+        "8": 1094,
+        "9": 472
+      },
+      "remaining_all_o_tet_count": 0,
+      "remaining_internal_all_o_face_count": 0,
+      "remaining_internal_original_o_o_edge_count": 0,
+      "remaining_internal_original_o_o_edges_first16": []
+    },
+    "face_centroid_count": 4,
+    "face_support_centroid_node_rows": [
+      55549,
+      55550,
+      55551,
+      55552
+    ],
+    "face_support_parent_faces": [
+      [
+        359,
+        369,
+        388
+      ],
+      [
+        573,
+        575,
+        655
+      ],
+      [
+        2033,
+        2049,
+        2062
+      ],
+      [
+        2083,
+        2085,
+        2098
+      ]
+    ],
+    "field_transfer": "No P1 field values are emitted for new midpoint rows. They are free volume support DOFs, not zero-valued physical O constraints; a subsequent field solve/reinitialization is required.",
+    "global_volume_delta_m3": 0.0,
+    "global_volume_relative_error": 0.0,
+    "inherited_398_to_014_conservative_map": {
+      "child_csr_offsets_shape": [
+        248663
+      ],
+      "entry_count": 249243,
+      "fresh_geometric_overlap_recomputed": false,
+      "max_parent_column_sum_error": 4.440892098500626e-16,
+      "method": "scale each 398 conservative parent contribution by measured 403 child/398 parent volume fraction",
+      "parent_column_count": 164176,
+      "source_map_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/material-parent-014-conservative-map.npz",
+      "source_map_sha256": "e4ac929347673e55082c8bf2b4fa239617c18ac297195c18fae60ce8602bf38d"
+    },
+    "input_min_normalized_determinant": 1.0769711886750688e-05,
+    "input_node_count": 49951,
+    "input_residual_all_o_face_summary": {
+      "internal_all_o_face_count": 4,
+      "internal_face_count": 478253
+    },
+    "input_tet_count": 211439,
+    "input_total_volume_m3": 0.06960080435892788,
+    "inserted_midpoint_count": 5598,
+    "internal_all_o_faces_support_split": 4,
+    "internal_o_o_edges_selected": 5598,
+    "max_398_parent_conservative_fraction_closure_error": 2.220446049250313e-16,
+    "max_abs_raw_398_parent_volume_ratio_error": 0.016637985756989604,
+    "midpoint_max_off_edge_distance_m": 6.180454406980134e-08,
+    "midpoint_max_rounding_displacement_m": 6.188917057900187e-08,
+    "multi_marked_edges_per_parent_distribution": {
+      "1": 28275,
+      "2": 3992,
+      "3": 316
+    },
+    "native_admission": false,
+    "node_source_csr": {
+      "edge_midpoints": {
+        "max_abs_weight_sum_error": 0.0,
+        "new_rows": 5598,
+        "new_source_nonzeros": 11196
+      },
+      "face_centroids": {
+        "max_abs_weight_sum_error": 0.0,
+        "new_rows": 4,
+        "new_source_nonzeros": 12
+      }
+    },
+    "output_below_1e_5_count": 6,
+    "output_below_1e_5_impacted_by_new_support_count": 6,
+    "output_min_normalized_determinant": 5.911613348546739e-06,
+    "output_node_count": 55553,
+    "output_tet_count": 248662,
+    "output_total_volume_m3": 0.06960080435892788,
+    "parent_398_row_alias_exact": true,
+    "parent_transfer_method": "each 403 child maps to one input 398 tet; conservative weights normalize measured child volumes within each parent. Raw child-volume/398-parent-volume ratios and parent volume drift are reported separately. Existing 398-to-014 map remains a separate owner input and is composed using conservative weights. This is topology ancestry, not a recomputed geometric overlap certificate.",
+    "physical_outer_node_ids_unchanged": true,
+    "selected_edge_incident_tet_count_total": 37207,
+    "selected_edge_length_mm": {
+      "max": 203.38383347502563,
+      "median": 11.741520012014787,
+      "min": 0.2724911557261822
+    },
+    "shell_and_typed_surface_arrays_unchanged": true,
+    "source_prefix_byte_exact": true,
+    "tetra_positive_finite": true,
+    "touched_input_tets": 32583,
+    "touched_input_tets_with_multiple_marked_edges": 4308
+  },
+  "geometry_gate_pass": true,
+  "input_node_count": 49951,
+  "input_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/candidate-with-transfer.npz",
+  "input_sha256": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+  "input_shell_faces_sha256": "dd1227df2e814fa2697ca7eda12c4da305f1a8193866f05a6b45457c39e52420",
+  "input_tet_count": 211439,
+  "input_tetrahedra_sha256": "0d9b41a93b8ac9c1ee1d67e6ccf4179ef06e223e3480efad10b51d139217c4ef",
+  "native_admission": false,
+  "output_dir": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/build-003-strict-orientation",
+  "parent_398_to_014_map_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/material-parent-014-conservative-map.npz",
+  "parent_398_to_014_map_sha256": "e4ac929347673e55082c8bf2b4fa239617c18ac297195c18fae60ce8602bf38d",
+  "quality_gate_pass": false,
+  "raw_volume_retention_gate_pass": false,
+  "schema": "numi.global-inner-p1-internal-o-edge-support-403.report.v1",
+  "selected_edge_summary": {
+    "internal_outer_edge_count": 5598,
+    "outer_endpoint_edges_in_tets": 60210,
+    "shell_edge_count": 57117
+  },
+  "source_398_overlap_arrays": "Not copied into standard per-child arrays because their 398-local row semantics do not index 403 children; the pinned map is retained separately and a clearly labeled conservative parent-volume composition is emitted.",
+  "status": "edge-support-refinement-candidate-unadmitted",
+  "support_gate_pass": true
+}

@@ -1,0 +1,41 @@
+{
+  "artifacts": [
+    {
+      "bytes": 12926,
+      "name": "attempt-001-builder.py",
+      "sha256": "e35d3d93bb370861dfd8177962d72e9babea3bd268765d10f5858600564b35b5"
+    },
+    {
+      "bytes": 12979,
+      "name": "attempt-002-builder.py",
+      "sha256": "da97fd6d2668477259b0d13796f1dc6516319b9f028139329ac5fade5880ef07"
+    },
+    {
+      "bytes": 4017472,
+      "name": "candidate.npz",
+      "sha256": "5b54ffd34d74d717579fcb14677cbf2bfba01f4d4562652605b9207e65f8f698"
+    },
+    {
+      "bytes": 6515,
+      "name": "optimization-report-002.json",
+      "sha256": "be50a48f1622008ec5a598cf51ab2e7ba37e64cf297dcf4419a45213ce7ecc70"
+    },
+    {
+      "bytes": 5555,
+      "name": "optimization-report.json",
+      "sha256": "64d7f6201191a989a5cde6dc4b68a339a52a01a83ae9dc83765c93fe83ef2b87"
+    }
+  ],
+  "candidate_input_sha256": "ff882067af08d4d749d516fdf51fc8f81bb83f85e611f352e394d00c67c52932",
+  "candidate_sha256": "5b54ffd34d74d717579fcb14677cbf2bfba01f4d4562652605b9207e65f8f698",
+  "moved_node_rows": [
+    55529,
+    55530
+  ],
+  "native_admission": false,
+  "physical_admission": false,
+  "quality_report_sha256": "be50a48f1622008ec5a598cf51ab2e7ba37e64cf297dcf4419a45213ce7ecc70",
+  "schema": "numi.human.global-inner-p1-quality-coordinate-005.manifest.v1",
+  "source_398_sha256": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+  "source_403_build_002_sha256": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744"
+}

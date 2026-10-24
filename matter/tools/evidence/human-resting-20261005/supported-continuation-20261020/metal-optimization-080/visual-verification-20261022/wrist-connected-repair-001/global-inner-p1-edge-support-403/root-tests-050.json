@@ -1,0 +1,10 @@
+{
+  "tests": 8,
+  "pass": true,
+  "source_sha256": "231219282f03a830e9857c327e44d2835ce5c831d9eab09ebc598e37a6775826",
+  "test_source_sha256": "b01f2661fe0c9f2dea8431c9faab643195226646c0f9999e0944e03ce60d8227",
+  "actual_full_mesh_strict_orientation_replay": true,
+  "candidate_arrays_file_sha256_identical_to_frozen_002": true,
+  "candidate_sha256": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744",
+  "native_admission": false
+}

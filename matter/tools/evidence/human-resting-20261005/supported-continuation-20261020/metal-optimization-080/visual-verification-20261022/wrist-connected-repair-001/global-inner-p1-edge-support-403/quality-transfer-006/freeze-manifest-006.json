@@ -1,0 +1,179 @@
+{
+  "candidate_admission": false,
+  "conservative_mapping": {
+    "A": "pinned old002 to original014 attribution CSR.",
+    "A_original014_parent_column_max_abs_error": 4.440892098500626e-16,
+    "B": "new005 rows to old002 cells; parent-column normalized, with measured raw coverage and per-column normalizers retained.",
+    "B_old_parent_column_max_abs_error": 2.220446049250313e-16,
+    "C": "new005 to original014 CSR, independently rechecked against sparse multiplication B*A.",
+    "C_original014_parent_column_max_abs_error": 2.220446049250313e-16,
+    "independent_BA_minus_C_max_abs": 1.1102230246251565e-16,
+    "nonzero_structural_difference_count": 5,
+    "output_row_sums_are_not_one": "Correct: these matrices are parent-mass attribution fractions. Column conservation is the relevant invariant."
+  },
+  "files": {
+    "candidate_002": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/build-002/candidate.npz",
+      "sha256": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744",
+      "size_bytes": 6449930
+    },
+    "candidate_003": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-bistellar-003/candidate-geometry-only.npz",
+      "sha256": "176900d57eedb40255298ad77860317ab97e31a6792bc4dc76c4d48ec7d060e8",
+      "size_bytes": 3756609
+    },
+    "candidate_004": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-bistellar-004/candidate-geometry-only.npz",
+      "sha256": "ff882067af08d4d749d516fdf51fc8f81bb83f85e611f352e394d00c67c52932",
+      "size_bytes": 3756610
+    },
+    "candidate_005": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-coordinate-005/candidate.npz",
+      "sha256": "5b54ffd34d74d717579fcb14677cbf2bfba01f4d4562652605b9207e65f8f698",
+      "size_bytes": 4017472
+    },
+    "executed_builder": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-transfer-006/build_conservative_transfer_006.py",
+      "sha256": "ac9b1a67ce1d3d4c8829315f99dea55510ba1480e2aaad7a3a8491536c4117d3",
+      "size_bytes": 18762
+    },
+    "failed_pre_root_review_source": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-transfer-006/build_conservative_transfer_006.failed-pre-root-review-001.py",
+      "sha256": "adead05f0572cc5daeaf19251950c4d6371ca0e19f1e5e39855fb7a5080ee522",
+      "size_bytes": 17166
+    },
+    "first_root_executed_source": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-transfer-006/build_conservative_transfer_006.root-first-executed.py",
+      "sha256": "1ef38541c6ad3c86a0148d400e7cfe070d1db9e590391f97e65b9ceab687fbf7",
+      "size_bytes": 18289
+    },
+    "independent_verification": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-transfer-006/independent-verification-006.json",
+      "sha256": "df7124df9391c5e7fc776247a88fe6628799b561056d60fa9315b40959de2787",
+      "size_bytes": 1851
+    },
+    "local_overlap_and_composed_csr": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-transfer-006/local-overlap-005-to-002.npz",
+      "sha256": "875bb77bfa65486c6856b04d3b3ad4c4ffd8d471a2fc4297d6d2809a70f5ae41",
+      "size_bytes": 2099795
+    },
+    "mass_attribution_tests": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-transfer-006/test_parent_mass_attribution_006.py",
+      "sha256": "3aa54fa078f89fa9101394b7b36e0d1b7af528ca2395f07537910258b5d4cc58",
+      "size_bytes": 1560
+    },
+    "material_parent_014_map_398": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/material-parent-014-conservative-map.npz",
+      "sha256": "e4ac929347673e55082c8bf2b4fa239617c18ac297195c18fae60ce8602bf38d",
+      "size_bytes": 964547
+    },
+    "overlap_routine_source": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/build_014-replay.py",
+      "sha256": "82ea2fb8ea96ed2f4bdba0124bbd37a05e28ead7e3568da24fad7e9c7c071ef2",
+      "size_bytes": 28588
+    },
+    "transfer_report": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-transfer-006/transfer-report.json",
+      "sha256": "a8de7a0585ec612c004ad70f3e39be200e08dbcc24749f86e840bae3ae08be50",
+      "size_bytes": 7149
+    }
+  },
+  "frozen": true,
+  "geometry": {
+    "005_sha_pinned_unchanged": true,
+    "boundary_facet_sets_match": true,
+    "changed_node_rows": [
+      55529,
+      55530
+    ],
+    "local_boundary_facets": 24,
+    "local_new_cells": 21,
+    "local_new_volume_m3": 7.56332294277885e-08,
+    "local_old_cells": 21,
+    "local_old_volume_m3": 7.563322942778839e-08,
+    "local_volume_delta_m3": 1.0587911840678754e-22,
+    "outside_local_rows_exactly_unchanged": true
+  },
+  "independent_verification_checks": {
+    "A_014_parent_column_max_abs_error": 4.440892098500626e-16,
+    "B_old_parent_column_max_abs_error": 2.220446049250313e-16,
+    "B_row_sum_range_diagnostic_only": [
+      0.11171212449948638,
+      1.7886323333813117
+    ],
+    "C_014_parent_column_max_abs_error": 2.220446049250313e-16,
+    "C_row_sum_range_diagnostic_only": [
+      0.006710597714207117,
+      2.0001091915433444
+    ],
+    "independent_BA_vs_C_max_abs_difference": 1.1102230246251565e-16,
+    "independent_BA_vs_C_nnz_difference": 5,
+    "material_regions": {
+      "1": {
+        "composed_synthetic_mass": 180903.70866466622,
+        "new_synthetic_mass": 180903.70866466622,
+        "new_volume_m3": 0.06960080435892788,
+        "old_synthetic_mass": 180903.70866466622,
+        "old_volume_m3": 0.06960080435892788
+      }
+    },
+    "report_claims_admission": false,
+    "report_transfer_ready": true,
+    "synthetic_mass_B_vs_C_max_abs": 2.220446049250313e-16,
+    "synthetic_mass_total_composed": 180903.70866466622,
+    "synthetic_mass_total_new": 180903.70866466622,
+    "synthetic_mass_total_old": 180903.70866466622,
+    "total_volume_delta_m3": 0.0,
+    "total_volume_new005_m3": 0.06960080435892788,
+    "total_volume_old002_m3": 0.06960080435892788
+  },
+  "inputs_from_report": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/build_014-replay.py": "82ea2fb8ea96ed2f4bdba0124bbd37a05e28ead7e3568da24fad7e9c7c071ef2",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/material-parent-014-conservative-map.npz": "e4ac929347673e55082c8bf2b4fa239617c18ac297195c18fae60ce8602bf38d",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/build-002/candidate.npz": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-bistellar-003/candidate-geometry-only.npz": "176900d57eedb40255298ad77860317ab97e31a6792bc4dc76c4d48ec7d060e8",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-bistellar-004/candidate-geometry-only.npz": "ff882067af08d4d749d516fdf51fc8f81bb83f85e611f352e394d00c67c52932",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-coordinate-005/candidate.npz": "5b54ffd34d74d717579fcb14677cbf2bfba01f4d4562652605b9207e65f8f698"
+  },
+  "limitations": [
+    "conservative attribution only; geometric overlap values are numerical not exact-predicate certificates",
+    "parent-column normalization is reported explicitly and does not conceal raw volume gaps",
+    "no absolute kg ledger, physical-material admission, registered-source admission, field validity, or native run is claimed",
+    "No absolute kg ledger, physical layer admission, registered-source admission, native compile/run, or physical qualification is claimed."
+  ],
+  "purpose": "Numerical local geometric overlap attribution for quality-coordinate-005 to build-002, composed through the pinned existing 002-to-014 material parent map.",
+  "raw_overlap": {
+    "aabb_candidate_pairs": 313,
+    "max_abs_new_gap_fraction": 6.243117134374643e-12,
+    "max_abs_old_gap_fraction": 2.3102453283740942e-10,
+    "new_coverage_range": [
+      0.9999999999937569,
+      1.0000000000034173
+    ],
+    "new_uncovered_volume_m3": -5.955700410381799e-22,
+    "old_parent_coverage_range": [
+      0.9999999999966606,
+      1.0000000002310245
+    ],
+    "old_swept_volume_m3": -7.014491594449675e-22,
+    "overlap_predicate": "Existing normalized-frame Float64/ConvexHull tet intersection; numerical, not an exact predicate.",
+    "positive_entries": 85
+  },
+  "schema": "numi.human.global-inner-p1-quality-transfer-006.freeze.v1",
+  "synthetic_mass_regression": {
+    "composed_total": 180903.70866466622,
+    "new_total": 180903.70866466622,
+    "old_total": 180903.70866466622,
+    "seed": 6006,
+    "sequential_vs_composed_max_abs": 2.220446049250313e-16,
+    "unit": "arbitrary synthetic parent-mass units; not kg."
+  },
+  "tests": {
+    "parent_mass_attribution": "4 passed; pytest emitted only a cache-directory permission warning."
+  },
+  "volume_scope": {
+    "material_code_1_volume_new_m3": 0.06960080435892788,
+    "material_code_1_volume_old_m3": 0.06960080435892788,
+    "note": "All current background cells carry code 1; this is not a skin/fat material ledger."
+  }
+}

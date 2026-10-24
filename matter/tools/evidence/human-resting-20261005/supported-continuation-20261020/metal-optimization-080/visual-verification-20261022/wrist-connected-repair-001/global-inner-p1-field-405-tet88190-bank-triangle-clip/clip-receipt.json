@@ -1,0 +1,272 @@
+{
+  "bank_triangle_clips": [
+    {
+      "all_descendant_capacity_values": [
+        0.5052321967116018,
+        0.634551135062736,
+        0.6423903309238499,
+        0.5314681931088828,
+        0.3641780209269711
+      ],
+      "bank_face_row_zero_based": 2562,
+      "bank_face_vertex_rows": [
+        1414,
+        946,
+        1328
+      ],
+      "bank_key": "bank_0004",
+      "body_indices": [
+        136,
+        138
+      ],
+      "capacity_rows_below_0p341": 0,
+      "child_over_parent_area_ratio": 0.9999559152168704,
+      "children": [
+        {
+          "clipped_area_m2": 0.0,
+          "free_nonphysical_O_nodes": 2,
+          "intersection_polygon_vertices": 0,
+          "max_capacity": null,
+          "min_capacity": null,
+          "p1_capacity_phi_free_max1": [],
+          "tet_node_rows": [
+            53330,
+            9471,
+            9473,
+            27269
+          ],
+          "tet_row_403": 222172,
+          "vertices_world_m": []
+        },
+        {
+          "clipped_area_m2": 3.2425275446821875e-06,
+          "free_nonphysical_O_nodes": 3,
+          "intersection_polygon_vertices": 5,
+          "max_capacity": 0.6423903309238499,
+          "min_capacity": 0.3641780209269711,
+          "p1_capacity_phi_free_max1": [
+            0.5052321967116018,
+            0.634551135062736,
+            0.6423903309238499,
+            0.5314681931088828,
+            0.3641780209269711
+          ],
+          "tet_node_rows": [
+            53331,
+            9451,
+            53330,
+            27269
+          ],
+          "tet_row_403": 222192,
+          "vertices_world_m": [
+            [
+              -0.04637067848892083,
+              -1.4937671849974545,
+              0.10053074624909147
+            ],
+            [
+              -0.0462283806556946,
+              -1.4925753613633475,
+              0.10009720291141357
+            ],
+            [
+              -0.04598398295172791,
+              -1.4916445191939152,
+              0.10126588020760521
+            ],
+            [
+              -0.04605383515431995,
+              -1.49247669264309,
+              0.1019023249919969
+            ],
+            [
+              -0.046373820850514134,
+              -1.4945133842688334,
+              0.10177435855547991
+            ]
+          ]
+        },
+        {
+          "clipped_area_m2": 0.0,
+          "free_nonphysical_O_nodes": 3,
+          "intersection_polygon_vertices": 0,
+          "max_capacity": null,
+          "min_capacity": null,
+          "p1_capacity_phi_free_max1": [],
+          "tet_node_rows": [
+            9473,
+            53331,
+            53330,
+            27269
+          ],
+          "tet_row_403": 222193,
+          "vertices_world_m": []
+        }
+      ],
+      "inventory_bank_index": 4,
+      "kind": "soft_tissue",
+      "minimum_p1_capacity_phi_free_max1": 0.3641780209269711,
+      "parent_398_nodes": [
+        9451,
+        9471,
+        9473,
+        27269
+      ],
+      "parent_398_tet_row": 88190,
+      "parent_clipped_area_m2": 3.2426704971078132e-06,
+      "parent_intersection_polygon_vertices": 5,
+      "stable_id": 5,
+      "sum_descendant_clipped_area_m2": 3.2425275446821875e-06,
+      "triangle_world_vertices_m": [
+        [
+          -0.04583236575126648,
+          -1.4910670518875122,
+          0.10199089348316193
+        ],
+        [
+          -0.052408672869205475,
+          -1.5329248905181885,
+          0.09936094284057617
+        ],
+        [
+          -0.04648829996585846,
+          -1.493565320968628,
+          0.09885430335998535
+        ]
+      ]
+    },
+    {
+      "all_descendant_capacity_values": [],
+      "bank_face_row_zero_based": 2562,
+      "bank_face_vertex_rows": [
+        1282,
+        1283,
+        1236
+      ],
+      "bank_key": "bank_0168",
+      "body_indices": [
+        20
+      ],
+      "capacity_rows_below_0p341": 0,
+      "child_over_parent_area_ratio": null,
+      "children": [
+        {
+          "clipped_area_m2": 0.0,
+          "free_nonphysical_O_nodes": 2,
+          "intersection_polygon_vertices": 0,
+          "max_capacity": null,
+          "min_capacity": null,
+          "p1_capacity_phi_free_max1": [],
+          "tet_node_rows": [
+            53330,
+            9471,
+            9473,
+            27269
+          ],
+          "tet_row_403": 222172,
+          "vertices_world_m": []
+        },
+        {
+          "clipped_area_m2": 0.0,
+          "free_nonphysical_O_nodes": 3,
+          "intersection_polygon_vertices": 0,
+          "max_capacity": null,
+          "min_capacity": null,
+          "p1_capacity_phi_free_max1": [],
+          "tet_node_rows": [
+            53331,
+            9451,
+            53330,
+            27269
+          ],
+          "tet_row_403": 222192,
+          "vertices_world_m": []
+        },
+        {
+          "clipped_area_m2": 0.0,
+          "free_nonphysical_O_nodes": 3,
+          "intersection_polygon_vertices": 0,
+          "max_capacity": null,
+          "min_capacity": null,
+          "p1_capacity_phi_free_max1": [],
+          "tet_node_rows": [
+            9473,
+            53331,
+            53330,
+            27269
+          ],
+          "tet_row_403": 222193,
+          "vertices_world_m": []
+        }
+      ],
+      "inventory_bank_index": 168,
+      "kind": "anatomy",
+      "minimum_p1_capacity_phi_free_max1": null,
+      "parent_398_nodes": [
+        9451,
+        9471,
+        9473,
+        27269
+      ],
+      "parent_398_tet_row": 88190,
+      "parent_clipped_area_m2": 0.0,
+      "parent_intersection_polygon_vertices": 0,
+      "stable_id": 5,
+      "sum_descendant_clipped_area_m2": 0.0,
+      "triangle_world_vertices_m": [
+        [
+          0.06041254848241806,
+          -0.666283369064331,
+          0.1230541467666626
+        ],
+        [
+          0.06064525991678238,
+          -0.6668648719787598,
+          0.12550513446331024
+        ],
+        [
+          0.05989069491624832,
+          -0.6681258678436279,
+          0.12472003698348999
+        ]
+      ]
+    }
+  ],
+  "build403_descendant_rows": [
+    222172,
+    222192,
+    222193
+  ],
+  "build403_descendant_volume_m3": [
+    1.5331271155034272e-07,
+    7.665560504788034e-08,
+    7.665486310509049e-08
+  ],
+  "capacity_definition": "At each clipped polygon vertex, sum barycentric weights on non-physical-O nodes, assuming phi=0 on physical O and phi<=1 on free nodes. Necessary P1 support capacity only; no solved-field claim.",
+  "descendant_over_parent_volume_ratio": 0.9999928796546099,
+  "limitations": [
+    "Both typed inventory entries with stable_id=5 are reported separately; they are not conflated.",
+    "302 Float64 clipper with exact-binary-rational fallback is construction arithmetic, not final exact collision authority.",
+    "Only the designated triangle row and parent/three descendants were queried; no whole-bank or global collision gate was run.",
+    "Build-002 remains unadmitted; its recorded six quality failures and parent-volume drift are not resolved here."
+  ],
+  "parent_398_node_rows": [
+    9451,
+    9471,
+    9473,
+    27269
+  ],
+  "parent_398_tet_row": 88190,
+  "parent_398_volume_m3": 3.0662536298180335e-07,
+  "physical_outer_node_count": 18219,
+  "pins": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/candidate-with-transfer.npz": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/build-002/candidate.npz": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/inventory.json": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/registered-tissue-banks.npz": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/robust-p1-construction-clip-owner-302/tools/human_skin_p1_obstacles.py": "e1b5a246e531a16d8d2438b8569d31a27c9a10712f0de063084bed87db58c436"
+  },
+  "schema": "human-global-p1-field-405-tet88190-stable5-face2562-clip.v1",
+  "status": "bounded exact-construction clip diagnostic; not a solved/admitted material field",
+  "target_phi_for_capacity_screen": 0.341
+}

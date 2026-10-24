@@ -1,0 +1,501 @@
+{
+  "affected_support_node_count": 3,
+  "bad_cell_count": 6,
+  "bad_cells": [
+    {
+      "normalized_determinant": 6.123426549316757e-06,
+      "output_tet_row": 219514,
+      "parent_398_tet_row": 198300,
+      "support_nodes": [
+        {
+          "kind": "edge_midpoint",
+          "node": 53105,
+          "parents": [
+            8578,
+            8844
+          ]
+        }
+      ],
+      "vertices": [
+        53105,
+        8578,
+        993,
+        8843
+      ]
+    },
+    {
+      "normalized_determinant": 9.512708022043997e-06,
+      "output_tet_row": 219516,
+      "parent_398_tet_row": 202249,
+      "support_nodes": [
+        {
+          "kind": "edge_midpoint",
+          "node": 53105,
+          "parents": [
+            8578,
+            8844
+          ]
+        }
+      ],
+      "vertices": [
+        8578,
+        53105,
+        993,
+        35175
+      ]
+    },
+    {
+      "normalized_determinant": 7.140821679489462e-06,
+      "output_tet_row": 248414,
+      "parent_398_tet_row": 211195,
+      "support_nodes": [
+        {
+          "kind": "edge_midpoint",
+          "node": 55529,
+          "parents": [
+            18017,
+            18023
+          ]
+        }
+      ],
+      "vertices": [
+        18017,
+        55529,
+        18019,
+        18305
+      ]
+    },
+    {
+      "normalized_determinant": 7.730126381720861e-06,
+      "output_tet_row": 248415,
+      "parent_398_tet_row": 211195,
+      "support_nodes": [
+        {
+          "kind": "edge_midpoint",
+          "node": 55529,
+          "parents": [
+            18017,
+            18023
+          ]
+        }
+      ],
+      "vertices": [
+        55529,
+        18023,
+        18019,
+        18305
+      ]
+    },
+    {
+      "normalized_determinant": 5.911613348546739e-06,
+      "output_tet_row": 248422,
+      "parent_398_tet_row": 211231,
+      "support_nodes": [
+        {
+          "kind": "edge_midpoint",
+          "node": 55530,
+          "parents": [
+            18027,
+            18030
+          ]
+        }
+      ],
+      "vertices": [
+        55530,
+        18027,
+        18305,
+        18028
+      ]
+    },
+    {
+      "normalized_determinant": 6.20230939246995e-06,
+      "output_tet_row": 248423,
+      "parent_398_tet_row": 211231,
+      "support_nodes": [
+        {
+          "kind": "edge_midpoint",
+          "node": 55530,
+          "parents": [
+            18027,
+            18030
+          ]
+        }
+      ],
+      "vertices": [
+        18030,
+        55530,
+        18305,
+        18028
+      ]
+    }
+  ],
+  "candidate_emitted": false,
+  "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/build-002/candidate.npz",
+  "candidate_sha256": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744",
+  "input_geometry_mutated": false,
+  "quality_floor": 1e-05,
+  "result": "No tested one-node floor/ceil alternative clears all cells in its incident star.",
+  "schema": "numi.global-inner-p1-edge-support-403.float32-alternative-diagnostic.v1",
+  "selection": "For each edge midpoint appearing in a failing cell, enumerate the Float32 floor/ceil product around its exact F64 endpoint midpoint and the frozen coordinate; evaluate every coordinate on the full incident tet star. No coordinate was written.",
+  "support_nodes": [
+    {
+      "any_candidate_clears_full_star": false,
+      "candidate_evaluations": [
+        {
+          "below_1e_5_count_in_star": 2,
+          "coordinate_f32": [
+            -0.0837475061416626,
+            -1.7392768859863281,
+            0.09861457347869873
+          ],
+          "delta_from_exact_edge_midpoint_um": [
+            0.0,
+            0.0,
+            0.003725290298461914
+          ],
+          "distance_from_exact_edge_m": 3.699151403596508e-09,
+          "is_frozen_coordinate": true,
+          "min_star_normalized_determinant": 6.123426549316757e-06,
+          "movement_from_frozen_node_um": 0.0,
+          "nonpositive_count_in_star": 0
+        },
+        {
+          "below_1e_5_count_in_star": 2,
+          "coordinate_f32": [
+            -0.0837475061416626,
+            -1.7392768859863281,
+            0.09861456602811813
+          ],
+          "delta_from_exact_edge_midpoint_um": [
+            0.0,
+            0.0,
+            -0.003725290298461914
+          ],
+          "distance_from_exact_edge_m": 3.699151403596508e-09,
+          "is_frozen_coordinate": false,
+          "min_star_normalized_determinant": 5.8164000691307345e-06,
+          "movement_from_frozen_node_um": 0.007450580596923828,
+          "nonpositive_count_in_star": 0
+        }
+      ],
+      "current_below_1e_5_count_in_star": 2,
+      "current_min_star_normalized_determinant": 6.123426549316757e-06,
+      "exact_midpoint_f64_m": [
+        -0.0837475061416626,
+        -1.7392768859863281,
+        0.09861456975340843
+      ],
+      "floor_ceil_values_per_axis": [
+        [
+          -0.0837475061416626,
+          -0.0837475061416626
+        ],
+        [
+          -1.7392768859863281,
+          -1.7392768859863281
+        ],
+        [
+          0.09861456602811813,
+          0.09861457347869873
+        ]
+      ],
+      "frozen_coordinate_f32_m": [
+        -0.0837475061416626,
+        -1.7392768859863281,
+        0.09861457347869873
+      ],
+      "incident_output_tet_rows": [
+        219506,
+        219507,
+        219508,
+        219509,
+        219510,
+        219511,
+        219512,
+        219513,
+        219514,
+        219515,
+        219516,
+        219517
+      ],
+      "incident_parent_398_rows": [
+        31571,
+        31571,
+        31573,
+        31573,
+        90536,
+        90536,
+        90540,
+        90540,
+        198300,
+        198300,
+        202249,
+        202249
+      ],
+      "incident_tet_count": 12,
+      "is_physical_outer_node": false,
+      "is_physical_shell_node": false,
+      "kind": "edge_midpoint",
+      "node": 53105,
+      "parent_edge": [
+        8578,
+        8844
+      ],
+      "raw_floor_ceil_combinations": 8,
+      "unique_candidates_including_frozen": 2
+    },
+    {
+      "any_candidate_clears_full_star": false,
+      "candidate_evaluations": [
+        {
+          "below_1e_5_count_in_star": 2,
+          "coordinate_f32": [
+            -0.09768559783697128,
+            -1.0705572366714478,
+            0.046457771211862564
+          ],
+          "delta_from_exact_edge_midpoint_um": [
+            0.003725290298461914,
+            -0.059604644775390625,
+            0.0
+          ],
+          "distance_from_exact_edge_m": 5.961255083094047e-08,
+          "is_frozen_coordinate": false,
+          "min_star_normalized_determinant": 7.179568147164592e-06,
+          "movement_from_frozen_node_um": 0.11944189326376765,
+          "nonpositive_count_in_star": 0
+        },
+        {
+          "below_1e_5_count_in_star": 2,
+          "coordinate_f32": [
+            -0.09768560528755188,
+            -1.0705572366714478,
+            0.046457771211862564
+          ],
+          "delta_from_exact_edge_midpoint_um": [
+            -0.003725290298461914,
+            -0.059604644775390625,
+            0.0
+          ],
+          "distance_from_exact_edge_m": 5.959660850404535e-08,
+          "is_frozen_coordinate": false,
+          "min_star_normalized_determinant": 7.179528413727402e-06,
+          "movement_from_frozen_node_um": 0.11920928955078125,
+          "nonpositive_count_in_star": 0
+        },
+        {
+          "below_1e_5_count_in_star": 2,
+          "coordinate_f32": [
+            -0.09768559783697128,
+            -1.0705571174621582,
+            0.046457771211862564
+          ],
+          "delta_from_exact_edge_midpoint_um": [
+            0.003725290298461914,
+            0.059604644775390625,
+            0.0
+          ],
+          "distance_from_exact_edge_m": 5.959660850404535e-08,
+          "is_frozen_coordinate": false,
+          "min_star_normalized_determinant": 7.1408614129266455e-06,
+          "movement_from_frozen_node_um": 0.007450580596923828,
+          "nonpositive_count_in_star": 0
+        },
+        {
+          "below_1e_5_count_in_star": 2,
+          "coordinate_f32": [
+            -0.09768560528755188,
+            -1.0705571174621582,
+            0.046457771211862564
+          ],
+          "delta_from_exact_edge_midpoint_um": [
+            -0.003725290298461914,
+            0.059604644775390625,
+            0.0
+          ],
+          "distance_from_exact_edge_m": 5.961255083094047e-08,
+          "is_frozen_coordinate": true,
+          "min_star_normalized_determinant": 7.140821679489462e-06,
+          "movement_from_frozen_node_um": 0.0,
+          "nonpositive_count_in_star": 0
+        }
+      ],
+      "current_below_1e_5_count_in_star": 2,
+      "current_min_star_normalized_determinant": 7.140821679489462e-06,
+      "exact_midpoint_f64_m": [
+        -0.09768560156226158,
+        -1.070557177066803,
+        0.046457771211862564
+      ],
+      "floor_ceil_values_per_axis": [
+        [
+          -0.09768560528755188,
+          -0.09768559783697128
+        ],
+        [
+          -1.0705572366714478,
+          -1.0705571174621582
+        ],
+        [
+          0.046457771211862564,
+          0.046457771211862564
+        ]
+      ],
+      "frozen_coordinate_f32_m": [
+        -0.09768560528755188,
+        -1.0705571174621582,
+        0.046457771211862564
+      ],
+      "incident_output_tet_rows": [
+        248412,
+        248413,
+        248414,
+        248415,
+        248416,
+        248417,
+        248418,
+        248419,
+        248420,
+        248421
+      ],
+      "incident_parent_398_rows": [
+        211186,
+        211186,
+        211195,
+        211195,
+        211200,
+        211200,
+        211238,
+        211238,
+        211402,
+        211402
+      ],
+      "incident_tet_count": 10,
+      "is_physical_outer_node": false,
+      "is_physical_shell_node": false,
+      "kind": "edge_midpoint",
+      "node": 55529,
+      "parent_edge": [
+        18017,
+        18023
+      ],
+      "raw_floor_ceil_combinations": 8,
+      "unique_candidates_including_frozen": 4
+    },
+    {
+      "any_candidate_clears_full_star": false,
+      "candidate_evaluations": [
+        {
+          "below_1e_5_count_in_star": 2,
+          "coordinate_f32": [
+            -0.08983024954795837,
+            -1.0704541206359863,
+            0.0475090816617012
+          ],
+          "delta_from_exact_edge_midpoint_um": [
+            0.0,
+            -0.059604644775390625,
+            0.0
+          ],
+          "distance_from_exact_edge_m": 5.95922878341554e-08,
+          "is_frozen_coordinate": true,
+          "min_star_normalized_determinant": 5.911613348546739e-06,
+          "movement_from_frozen_node_um": 0.0,
+          "nonpositive_count_in_star": 0
+        },
+        {
+          "below_1e_5_count_in_star": 2,
+          "coordinate_f32": [
+            -0.08983024954795837,
+            -1.0704540014266968,
+            0.0475090816617012
+          ],
+          "delta_from_exact_edge_midpoint_um": [
+            0.0,
+            0.059604644775390625,
+            0.0
+          ],
+          "distance_from_exact_edge_m": 5.95922878341554e-08,
+          "is_frozen_coordinate": false,
+          "min_star_normalized_determinant": 5.892381980567797e-06,
+          "movement_from_frozen_node_um": 0.11920928955078125,
+          "nonpositive_count_in_star": 0
+        }
+      ],
+      "current_below_1e_5_count_in_star": 2,
+      "current_min_star_normalized_determinant": 5.911613348546739e-06,
+      "exact_midpoint_f64_m": [
+        -0.08983024954795837,
+        -1.0704540610313416,
+        0.0475090816617012
+      ],
+      "floor_ceil_values_per_axis": [
+        [
+          -0.08983024954795837,
+          -0.08983024954795837
+        ],
+        [
+          -1.0704541206359863,
+          -1.0704540014266968
+        ],
+        [
+          0.0475090816617012,
+          0.0475090816617012
+        ]
+      ],
+      "frozen_coordinate_f32_m": [
+        -0.08983024954795837,
+        -1.0704541206359863,
+        0.0475090816617012
+      ],
+      "incident_output_tet_rows": [
+        248422,
+        248423,
+        248424,
+        248425,
+        248426,
+        248427,
+        248428,
+        248429
+      ],
+      "incident_parent_398_rows": [
+        211231,
+        211231,
+        211240,
+        211240,
+        211241,
+        211241,
+        211413,
+        211413
+      ],
+      "incident_tet_count": 8,
+      "is_physical_outer_node": false,
+      "is_physical_shell_node": false,
+      "kind": "edge_midpoint",
+      "node": 55530,
+      "parent_edge": [
+        18027,
+        18030
+      ],
+      "raw_floor_ceil_combinations": 8,
+      "unique_candidates_including_frozen": 2
+    }
+  ],
+  "support_star_pairwise_intersections": [
+    {
+      "node_a": 53105,
+      "node_b": 55529,
+      "shared_output_tet_count": 0
+    },
+    {
+      "node_a": 53105,
+      "node_b": 55530,
+      "shared_output_tet_count": 0
+    },
+    {
+      "node_a": 55529,
+      "node_b": 55530,
+      "shared_output_tet_count": 0
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "candidate_sha256": "5b54ffd34d74d717579fcb14677cbf2bfba01f4d4562652605b9207e65f8f698",
+  "baseline398_sha256": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+  "nodes": 55553,
+  "tets": 248662,
+  "original398_coordinate_prefix_bitwise_exact": true,
+  "typed_boundary_arrays_bitwise_exact": true,
+  "boundary_oriented_exact": true,
+  "internal_orientation_mismatches": 0,
+  "nonpositive_tets": 0,
+  "minimum_normalized_determinant": 1.0305495205375531e-05,
+  "quality_below_1e5": 0,
+  "remaining_internal_all_O_edges": 0,
+  "remaining_internal_all_O_faces": 0,
+  "remaining_all_O_tets": 0,
+  "total_volume_m3": 0.06960080435892788,
+  "global_relative_volume_change": 0.0,
+  "source_row_sum_error": 0.0,
+  "changed_interior_nodes": [
+    55529,
+    55530
+  ],
+  "changed_node_displacements_m": [
+    5.955592833765999e-06,
+    4.052432703135019e-06
+  ],
+  "new_source_rows_reconstruction": [
+    {
+      "node": 55529,
+      "parent_398": 211238,
+      "coordinate_reconstruction_error_m": 0.0
+    },
+    {
+      "node": 55530,
+      "parent_398": 211241,
+      "coordinate_reconstruction_error_m": 0.0
+    }
+  ],
+  "unreferenced_nodes": 140,
+  "elapsed_s": 1.0311122910352424,
+  "native_admission": false,
+  "limitations": [
+    "No full material field, source anatomical clearance, physical skin/fat compilation, or native simulation qualification.",
+    "Construction closure facets remain separately typed, not physical skin.",
+    "Conservative material transfer requires separate validation."
+  ],
+  "geometry_support_pass": true
+}

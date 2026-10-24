@@ -1,0 +1,40 @@
+Opening /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-cavities-001/cavities.poly.
+Delaunizing vertices...
+Delaunay seconds:  0.000129
+Creating surface mesh ...
+Surface mesh seconds:  3.9e-05
+Recovering boundaries...
+Boundary recovery seconds:  0.000216
+Removing exterior tetrahedra ...
+Spreading region attributes.
+Exterior tets removal seconds:  4.6e-05
+Recovering Delaunayness...
+Delaunay recovery seconds:  4.2e-05
+Refining mesh...
+Refinement seconds:  2.5e-05
+Improving mesh...
+Mesh improvement seconds:  6.6e-05
+
+Writing /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-cavities-001/cavities.1.node.
+Writing /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-cavities-001/cavities.1.ele.
+Writing /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-cavities-001/cavities.1.face.
+Writing /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-cavities-001/cavities.1.edge.
+
+Output seconds:  0.000331
+Total running seconds:  0.000925
+
+Statistics:
+
+  Input points: 80
+  Input facets: 144
+  Input segments: 216
+  Input holes: 0
+  Input regions: 2
+
+  Mesh points: 80
+  Mesh tetrahedra: 173
+  Mesh faces: 412
+  Mesh faces on exterior boundary: 132
+  Mesh faces on input facets: 144
+  Mesh edges on input segments: 216
+
