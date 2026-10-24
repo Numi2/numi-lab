@@ -1,0 +1,49 @@
+{
+  "native_admission": false,
+  "physical_admission": false,
+  "schema": "numi.human.global-skin-crossing-patches.source-output-manifest.v1",
+  "selection": {
+    "canonical_exact011_pairs": 11251,
+    "edge_connected_patch_count": 9,
+    "exact_hit_points": 22502,
+    "expansion_rings": 2,
+    "seed_physical_O_faces": 426,
+    "selected_O_faces": 1171,
+    "selected_O_nodes": 808
+  },
+  "sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/candidate-with-transfer-partial-field.npz": "b76368d95c95e74c780999391eb5785a6311c43879ac3ceb6d5c134494a1850b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/exact-O-pair-011/run-001/canonical-pair-classification.npz": "72f40200ee6f8d7fb5b6c0630bfd7f115a5431363adf01185930b4fa43169462",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/validation-001/zero-capacity-witness-index-009.npz": "f2b7b820729dad25f90ac9ca3416dcc7dbee4816b6f42eb0023dfd78da38ddb8",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/validation-001/zero-support-physical-O-face-pairs-010.npz": "4ac5c272ec0b006871d2a81d4b0133a53f2e5517d0d80a9a42458360500f89d2",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/connected-physical-O-patches-012.npz": "26aa6b847fd9267322a01d938dc1c1f861be7ecfba41cf4226374eb71f698bc9",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/extract_physical_O_patches_012.py": "d0b58890c4cc13f8bbb09bbb25135512ac435a0d7683fe5308c162a2cc429158",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/freeze_manifest_012.py": "61d98888a3e34b374438ed26efd82ebf54d826c2a240dbbe92c9aa1e3f4d933c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/patch-bounds-summary-012.json": "14912819005378ba615fd219978b4400999ceff80c259b7f1b144f16f9b5f70e",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/patch-report-012.json": "cfe689a4e55ad9273d8f60d8cc5efe45032851710db1c2b291d77c927483f5ca",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/patch_bounds_summary_012.py": "7a4a43feee70929bc7519d3cd0d0bd7e4c62bd71f8243047473ba8656b4f9a77",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/source294-mapping-status-012.json": "6782879fd0c0b9540395c64b2671d978d2236e9a8984a3069c4f89b03bc5dd78",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/test_extract_physical_O_patches_012.py": "3b870ed174543d8a771bdd5592f36959d3e3a544648c30cd8c3b0b4150738388",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/test_verify_patches_012.py": "910b08ebdbe337b9b71847acc157865c1842f3ad1a32ac8d044842946c9d86a5",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/tests-extraction-012.log": "fd353d04c41a88033e16aa4a10a7b95660989ee2920ca89df26811267f69325f",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/tests-verification-012.log": "1b9efa776f539c8595cc93115ab64b5972a89ec97e5bd9c03e54ebcdbb235cc4",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/validation-report-012.json": "aae5d8ecc5377095e1f71d07a2ae28d7e91e53665c51e5a1cf1368094b24ecad",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/verify_patches_012.py": "0318b5970b090669ff750f49dd188594d3d56df9bf7d51bf062703ad7e1a5be9",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-pose-frame-helper-194/tools/rebind_human_skin_reference.py": "be36923a62ebae0ecd475b57d5a413f424712c4fa129c23e6fe4620479869693",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/inventory.json": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-004/registered-skin-poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+  },
+  "source294_correspondence": {
+    "candidate_nearest_face_rows_within_2um": 507,
+    "direct_vertex_rows_within_0p2um": 216,
+    "note": "Nearest map is explicitly a diagnostic candidate, not exact ancestry; 85 of 808 rows unmatched. Do not propagate repair from this map. Canonical typed O-to-detailed transfer remains required.",
+    "status": "PROVISIONAL_MAP_FAILURE_UNRESOLVED",
+    "unmatched_rows": 85
+  },
+  "status": "PATCH_INPUT_EXTRACTION_AND_LINEAGE_CHECK_ONLY",
+  "tests": {
+    "extraction": "4 passed",
+    "verification": "6 passed"
+  }
+}

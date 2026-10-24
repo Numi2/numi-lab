@@ -1,0 +1,89 @@
+waiting_for_human_geometry_slot pid=34113
+acquired_human_geometry_slot pid=34113
+{
+  "admission_limitation": "No full all-bank clearance, positive-quality floor >=1e-5, material FEM recompilation, or native run is claimed.",
+  "ancestry": {
+    "midpoint_edge_endpoints_domain": "input 008 volume node rows",
+    "new_detailed_294_mapping_supplied": false,
+    "node_source_domain": "input 008 remesh-014 rows; averaged endpoint CSR; NOT detailed-294 mapping",
+    "physical_O_parent_barycentric_shape": [
+      38104,
+      3,
+      3
+    ],
+    "physical_O_parent_face_rows_domain": "dense row in input 008 physical_outer_faces",
+    "typed_source_ids_propagated_from_verified_008_014_271_face_map": true
+  },
+  "boundary_parity": {
+    "input_shell_matches_tet_boundary": true,
+    "oriented_interior_facet_incidence_validated": true,
+    "output_shell_exactly_matches_sequential_face_splits": true,
+    "unmodified_old_coordinate_prefix_bitwise_equal": true
+  },
+  "builder_sha256": "20248e43cc9806d5096b83a757d12786694490f82a4ece1f30b20fa1141f5874",
+  "elapsed_s": 10.746476173400879,
+  "field_limitation": "partial_single_face_phi is endpoint-interpolated initializer only; lumped_volume_cost_m3 is recomputed from emitted tetra volumes. This does not solve/qualify a physical field.",
+  "helper_sha256": "231219282f03a830e9857c327e44d2835ce5c831d9eab09ebc598e37a6775826",
+  "input_counts": {
+    "construction_closure_faces": 1685,
+    "nodes": 55657,
+    "outer_faces": 36393,
+    "seed_faces": 426,
+    "shell_faces": 38078,
+    "tets": 249227
+  },
+  "input_sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-source-cut-plane-271/candidate-271-max-cut-distance-bilateral-collar.npz": "92f0079a8266bb1f5bdeb289bffa51c2624341e6e6f2e1e9e0eb0c6d969e3f1d",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-independent-volume-001/field-transfer-preflight.npz": "3dfab2cdb6b4d0ee0f170ce9bd3a2ee30fd7cd064e92542c58b600a61653336b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/candidate-with-transfer-partial-field.npz": "b76368d95c95e74c780999391eb5785a6311c43879ac3ceb6d5c134494a1850b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/refine_internal_o_edges_403.py": "231219282f03a830e9857c327e44d2835ce5c831d9eab09ebc598e37a6775826",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/connected-physical-O-patches-012.npz": "26aa6b847fd9267322a01d938dc1c1f861be7ecfba41cf4226374eb71f698bc9"
+  },
+  "output_counts": {
+    "construction_closure_faces": 1688,
+    "midpoint_edges": 857,
+    "nodes": 56514,
+    "outer_faces": 38104,
+    "shell_faces": 39792,
+    "tets": 253425
+  },
+  "output_sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1",
+  "quality": {
+    "min_normalized_det_F64": 1.0305495205375494e-05,
+    "min_signed_det_F32_m3": 3.866416735387457e-14,
+    "min_signed_det_F64_m3": 3.8664166930358094e-14,
+    "nonpositive_F32_determinants": 0,
+    "nonpositive_F64_determinants": 0,
+    "p01_normalized_det_F64": 0.00045787123952936845
+  },
+  "schema": "connected-skin-mechanical-transfer-013-boundary-refinement-v1",
+  "seed_face_identity_matches": 426,
+  "source_mapping_limitation": "new edge midpoints have exact old-parent O face barycentrics and remesh-014 node ancestry only; detailed-294 correspondence remains unresolved and is not inferred from nearest-point mapping.",
+  "status": "unadmitted conforming topology refinement candidate",
+  "volume": {
+    "max_parent_cell_raw_split_volume_abs_error_m3": 4.58373409961319e-11,
+    "max_parent_cell_raw_split_volume_relative_error": 0.0002017838018888401,
+    "max_transfer_column_closure_after_conservative_within_parent_redistribution": {
+      "005": {
+        "max_abs_column_sum_error": 4.440892098500626e-16,
+        "max_relative_column_sum_error": 4.440892098500626e-16,
+        "parent_column_count": 248662
+      },
+      "014": {
+        "max_abs_column_sum_error": 4.440892098500626e-16,
+        "max_relative_column_sum_error": 4.440892098500627e-16,
+        "parent_column_count": 164176
+      }
+    },
+    "new_lumped_volume_cost_sum_m3": 0.06960080443848116,
+    "new_total_cell_volume_m3": 0.06960080443848114,
+    "regional_material_m3": {
+      "1": {
+        "new_m3": 0.06960080443848114,
+        "old_m3": 0.06960080435892788,
+        "relative_delta": 1.1429934967655847e-09
+      }
+    },
+    "regional_total_relative_deltas_are_raw_geometry": true
+  }
+}

@@ -1,0 +1,410 @@
+{
+  "ancestry": {
+    "O_face": "patch_face_ids indexes original 008 physical_outer_faces rows",
+    "O_node": "patch_node_ids indexes original 008 points_world_m rows",
+    "O_source_CSR": "patch_node_source_* copies original 008 source interpolation per O node",
+    "detailed294": "source294_mapping_* maps each O node into source294 current-pose vertices/faces"
+  },
+  "contact_constraints": {
+    "barycentric_max": 0.9988436111775628,
+    "barycentric_min": -2.711751586726897e-13,
+    "exact_hit_points": 22502,
+    "max_O_triangle_projection_residual_m": 1.5947552845505132e-14,
+    "meaning": "exact011 pair hits with barycentric support on the unchanged O face; repair input only, not solved force constraints."
+  },
+  "exact011": {
+    "class_code_counts": {
+      "0": 11251
+    },
+    "exact011_report_sha256": "8e164e6f32032b2cb614bea7f58a42cd77bb05cf28ed03d836148afc2f23e37f",
+    "pair_seed_input_sha256": "4ac5c272ec0b006871d2a81d4b0133a53f2e5517d0d80a9a42458360500f89d2",
+    "pairs": 11251,
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/exact-O-pair-011/run-001/canonical-pair-classification.npz",
+    "sha256": "72f40200ee6f8d7fb5b6c0630bfd7f115a5431363adf01185930b4fa43169462"
+  },
+  "inputs_sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/candidate-with-transfer-partial-field.npz": "b76368d95c95e74c780999391eb5785a6311c43879ac3ceb6d5c134494a1850b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/exact-O-pair-011/run-001/canonical-pair-classification.npz": "72f40200ee6f8d7fb5b6c0630bfd7f115a5431363adf01185930b4fa43169462",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/validation-001/zero-capacity-witness-index-009.npz": "f2b7b820729dad25f90ac9ca3416dcc7dbee4816b6f42eb0023dfd78da38ddb8",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/validation-001/zero-support-physical-O-face-pairs-010.npz": "4ac5c272ec0b006871d2a81d4b0133a53f2e5517d0d80a9a42458360500f89d2",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-pose-frame-helper-194/tools/rebind_human_skin_reference.py": "be36923a62ebae0ecd475b57d5a413f424712c4fa129c23e6fe4620479869693",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/inventory.json": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-004/registered-skin-poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+  },
+  "limitations": [
+    "009 is a processed prefix; unlinked does not imply absence of zero support or physical crossing.",
+    "Source294 map is candidate-bounded and not certified global nearest or topology identity.",
+    "No repair, force solve, pose sweep, full physical qualification, or native admission was performed."
+  ],
+  "native_admission": false,
+  "original009_zero_support": {
+    "canonical011_pairs_linked": 3631,
+    "canonical011_pairs_not_in_009_partial_prefix": 7620,
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/validation-001/zero-capacity-witness-index-009.npz",
+    "sha256": "f2b7b820729dad25f90ac9ca3416dcc7dbee4816b6f42eb0023dfd78da38ddb8",
+    "unique_zero_bank_face_keys": 3269,
+    "zero_rows": 8017
+  },
+  "physical_admission": false,
+  "rings_expanded": 2,
+  "schema": "numi.human.global-skin-crossing-patches.report.v1",
+  "selection": {
+    "boundary_edges": 483,
+    "connected_patch_count": 9,
+    "duplicate_face_rows": 0,
+    "patches": [
+      {
+        "bank_ids": [
+          74,
+          78,
+          80,
+          82,
+          92,
+          102,
+          104,
+          108,
+          110,
+          112,
+          114,
+          116,
+          118,
+          120,
+          122,
+          130,
+          132,
+          134,
+          136,
+          138,
+          140,
+          142,
+          144,
+          146,
+          148,
+          640,
+          642,
+          648
+        ],
+        "boundary_edge_count": 164,
+        "face_count": 454,
+        "face_id_max": 1858,
+        "face_id_min": 0,
+        "node_count": 298,
+        "pair_count": 3312,
+        "pairs_from_original009_zero_support": 364,
+        "patch_id": 0,
+        "ring_level_counts": {
+          "0": 169,
+          "1": 145,
+          "2": 140
+        },
+        "seed_face_count": 169,
+        "stable_ids": [
+          75,
+          79,
+          81,
+          83,
+          93,
+          103,
+          105,
+          109,
+          111,
+          113,
+          115,
+          117,
+          119,
+          121,
+          123,
+          131,
+          133,
+          135,
+          137,
+          139,
+          141,
+          143,
+          145,
+          147,
+          149,
+          478,
+          480,
+          486
+        ]
+      },
+      {
+        "bank_ids": [
+          66,
+          67,
+          72,
+          73,
+          75,
+          77,
+          79,
+          81,
+          103,
+          152,
+          153,
+          157,
+          641,
+          643
+        ],
+        "boundary_edge_count": 106,
+        "face_count": 308,
+        "face_id_max": 4059,
+        "face_id_min": 1379,
+        "node_count": 203,
+        "pair_count": 4270,
+        "pairs_from_original009_zero_support": 3215,
+        "patch_id": 1,
+        "ring_level_counts": {
+          "0": 120,
+          "1": 96,
+          "2": 92
+        },
+        "seed_face_count": 120,
+        "stable_ids": [
+          67,
+          68,
+          73,
+          74,
+          76,
+          78,
+          80,
+          82,
+          104,
+          152,
+          160,
+          164,
+          479,
+          481
+        ]
+      },
+      {
+        "bank_ids": [
+          54
+        ],
+        "boundary_edge_count": 16,
+        "face_count": 18,
+        "face_id_max": 1572,
+        "face_id_min": 1462,
+        "node_count": 18,
+        "pair_count": 33,
+        "pairs_from_original009_zero_support": 33,
+        "patch_id": 2,
+        "ring_level_counts": {
+          "0": 3,
+          "1": 5,
+          "2": 10
+        },
+        "seed_face_count": 3,
+        "stable_ids": [
+          55
+        ]
+      },
+      {
+        "bank_ids": [
+          156
+        ],
+        "boundary_edge_count": 34,
+        "face_count": 64,
+        "face_id_max": 2078,
+        "face_id_min": 1668,
+        "node_count": 50,
+        "pair_count": 913,
+        "pairs_from_original009_zero_support": 0,
+        "patch_id": 3,
+        "ring_level_counts": {
+          "0": 22,
+          "1": 18,
+          "2": 24
+        },
+        "seed_face_count": 22,
+        "stable_ids": [
+          163
+        ]
+      },
+      {
+        "bank_ids": [
+          548
+        ],
+        "boundary_edge_count": 12,
+        "face_count": 12,
+        "face_id_max": 2212,
+        "face_id_min": 1934,
+        "node_count": 13,
+        "pair_count": 54,
+        "pairs_from_original009_zero_support": 0,
+        "patch_id": 4,
+        "ring_level_counts": {
+          "0": 2,
+          "1": 4,
+          "2": 6
+        },
+        "seed_face_count": 2,
+        "stable_ids": [
+          386
+        ]
+      },
+      {
+        "bank_ids": [
+          557
+        ],
+        "boundary_edge_count": 10,
+        "face_count": 10,
+        "face_id_max": 2732,
+        "face_id_min": 2457,
+        "node_count": 11,
+        "pair_count": 44,
+        "pairs_from_original009_zero_support": 0,
+        "patch_id": 5,
+        "ring_level_counts": {
+          "0": 2,
+          "1": 4,
+          "2": 4
+        },
+        "seed_face_count": 2,
+        "stable_ids": [
+          395
+        ]
+      },
+      {
+        "bank_ids": [
+          83
+        ],
+        "boundary_edge_count": 7,
+        "face_count": 9,
+        "face_id_max": 3289,
+        "face_id_min": 2547,
+        "node_count": 9,
+        "pair_count": 19,
+        "pairs_from_original009_zero_support": 19,
+        "patch_id": 6,
+        "ring_level_counts": {
+          "0": 1,
+          "1": 3,
+          "2": 5
+        },
+        "seed_face_count": 1,
+        "stable_ids": [
+          84
+        ]
+      },
+      {
+        "bank_ids": [
+          552,
+          553,
+          557
+        ],
+        "boundary_edge_count": 10,
+        "face_count": 8,
+        "face_id_max": 2874,
+        "face_id_min": 2733,
+        "node_count": 10,
+        "pair_count": 211,
+        "pairs_from_original009_zero_support": 0,
+        "patch_id": 7,
+        "ring_level_counts": {
+          "0": 3,
+          "1": 2,
+          "2": 3
+        },
+        "seed_face_count": 3,
+        "stable_ids": [
+          390,
+          391,
+          395
+        ]
+      },
+      {
+        "bank_ids": [
+          109,
+          111,
+          113,
+          115,
+          117,
+          119,
+          121,
+          123,
+          131,
+          133,
+          135,
+          137,
+          139,
+          141,
+          143,
+          145,
+          147,
+          149
+        ],
+        "boundary_edge_count": 124,
+        "face_count": 288,
+        "face_id_max": 4209,
+        "face_id_min": 3354,
+        "node_count": 196,
+        "pair_count": 2395,
+        "pairs_from_original009_zero_support": 0,
+        "patch_id": 8,
+        "ring_level_counts": {
+          "0": 104,
+          "1": 85,
+          "2": 99
+        },
+        "seed_face_count": 104,
+        "stable_ids": [
+          110,
+          112,
+          114,
+          116,
+          118,
+          120,
+          122,
+          124,
+          132,
+          134,
+          136,
+          138,
+          140,
+          142,
+          144,
+          146,
+          148,
+          150
+        ]
+      }
+    ],
+    "seed_faces": 426,
+    "selected_faces": 1171,
+    "selected_nodes": 808,
+    "selected_pairs": 11251
+  },
+  "source294_current_pose_mapping": {
+    "barycentric_face_candidates": 507,
+    "direct_vertex_candidates": 216,
+    "frame": "current",
+    "global_nearest_certified": false,
+    "max_mapped_residual_m": 9.245621202035101e-07,
+    "max_residual_m": 0.011597981071915805,
+    "method_codes": {
+      "0": "unmatched",
+      "1": "nearest source294 vertex within 0.2um",
+      "2": "nearest source294 triangle within 2um and 48-vs-128 centroid candidates stable"
+    },
+    "note": "Barycentric correspondence is a bounded nearest-face candidate map, not certified global closest point or topology identity.",
+    "p50_residual_m": 9.116684044652786e-08,
+    "p95_residual_m": 0.00039310502807306984,
+    "pose_snapshot_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "source_faces": 108987,
+    "source_fingerprint32": 835155552,
+    "source_payload_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "source_vertices": 61950,
+    "stable_48_vs_128_count": 808,
+    "unmatched": 85
+  },
+  "source_O_mesh": {
+    "nodes": 55657,
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/candidate-with-transfer-partial-field.npz",
+    "physical_outer_faces": 36393,
+    "physical_outer_nodes": 18219,
+    "sha256": "b76368d95c95e74c780999391eb5785a6311c43879ac3ceb6d5c134494a1850b"
+  },
+  "status": "PATCH_INPUTS_EXTRACTED_NO_REPAIR_OR_ADMISSION"
+}

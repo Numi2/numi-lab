@@ -1,0 +1,19 @@
+{
+  "admission": false,
+  "barycentric_face_candidates": 507,
+  "candidate_rows": 723,
+  "direct_vertex_candidates": 216,
+  "failure_reason": "85 of 808 physical-O nodes have no candidate within the recorded direct/triangle thresholds; remaining nearest candidates are not certified topology ancestry. Preserve all unmatched rows and do not use this map to propagate the repair.",
+  "input_patch_sha256": "26aa6b847fd9267322a01d938dc1c1f861be7ecfba41cf4226374eb71f698bc9",
+  "max_residual_m": 0.011597981071915805,
+  "method": "Barycentric correspondence is a bounded nearest-face candidate map, not certified global closest point or topology identity.",
+  "next_required_input": "Canonical AcceptedFEMSkinTransfer O-to-detailed map with typed source-face embedding and explicit residuals; no additional nearest search was performed for this record.",
+  "p95_residual_m": 0.00039310502807306984,
+  "pose_snapshot_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "schema": "numi.human.global-skin-crossing-patches.source294-mapping-status.v1",
+  "scope": "Current-pose nearest candidates only; not exact ancestry, source transfer, or accepted repair mapping.",
+  "source_payload_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+  "stable_48_vs_128_count": 808,
+  "status": "PROVISIONAL_MAP_FAILURE_UNRESOLVED",
+  "unmatched_rows": 85
+}

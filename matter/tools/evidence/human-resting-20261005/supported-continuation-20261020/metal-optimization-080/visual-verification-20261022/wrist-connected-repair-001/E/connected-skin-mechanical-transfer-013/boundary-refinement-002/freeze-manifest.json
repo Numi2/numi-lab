@@ -1,0 +1,93 @@
+{
+  "candidate_arrays": {
+    "lumped_volume_cost_m3": "recomputed from output tetrahedron volumes",
+    "midpoint_edge_endpoints": "I64 [857,2], endpoint rows in 008 node table",
+    "node_source_*": "remesh-014 node ancestry; midpoint rows use endpoint-average CSR",
+    "parent_008_tet_rows": "I64 [253425]",
+    "physical_O_parent_barycentric": "F64 [38104,3,3], vertices embedded in their 008 parent O face",
+    "physical_O_parent_detailed_source_face_ids": "I64 [38104], stable ID or -1",
+    "physical_O_parent_face_rows": "I64 [38104], dense row in 008 physical_outer_faces",
+    "physical_O_parent_source271_face_rows": "I64 [38104], dense row in 271 face table",
+    "physical_O_parent_surface_ids": "I64 [38104]",
+    "physical_outer_faces": "I64 [38104,3]",
+    "points_world_m": "F32 [56514,3]",
+    "tetrahedra": "I64 [253425,4]",
+    "transfer_new_to_005_* and transfer_new_to_014_*": "conservative parent-column remap by normalized actual child volumes"
+  },
+  "created_utc": "2026-10-24",
+  "files": {
+    "builder": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013/build_boundary_refinement_013_v2.py",
+      "sha256": "20248e43cc9806d5096b83a757d12786694490f82a4ece1f30b20fa1141f5874",
+      "size_bytes": 25751
+    },
+    "candidate": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013/boundary-refinement-002/candidate.npz",
+      "sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1",
+      "size_bytes": 7234783
+    },
+    "input_008": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/candidate-with-transfer-partial-field.npz",
+      "sha256": "b76368d95c95e74c780999391eb5785a6311c43879ac3ceb6d5c134494a1850b",
+      "size_bytes": 6266179
+    },
+    "input_012": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/connected-physical-O-patches-012.npz",
+      "sha256": "26aa6b847fd9267322a01d938dc1c1f861be7ecfba41cf4226374eb71f698bc9",
+      "size_bytes": 728739
+    },
+    "input_014_face_map": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-independent-volume-001/field-transfer-preflight.npz",
+      "sha256": "3dfab2cdb6b4d0ee0f170ce9bd3a2ee30fd7cd064e92542c58b600a61653336b",
+      "size_bytes": 348422
+    },
+    "input_271": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-source-cut-plane-271/candidate-271-max-cut-distance-bilateral-collar.npz",
+      "sha256": "92f0079a8266bb1f5bdeb289bffa51c2624341e6e6f2e1e9e0eb0c6d969e3f1d",
+      "size_bytes": 587126
+    },
+    "report": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013/boundary-refinement-002/report.json",
+      "sha256": "273ee809708612dcc81e5d6f251312861b1817a669b1590f29c06687823be174",
+      "size_bytes": 5279
+    },
+    "split_helper_403": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/refine_internal_o_edges_403.py",
+      "sha256": "231219282f03a830e9857c327e44d2835ce5c831d9eab09ebc598e37a6775826",
+      "size_bytes": 36806
+    },
+    "tests": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013/test_boundary_refinement_013.py",
+      "sha256": "315c897aeaab4298def114753c7cd88d40283dda3cd10138b061d79a85e2eead",
+      "size_bytes": 5865
+    }
+  },
+  "limitations": [
+    "This refines the shell and tetrahedral boundary conformingly; it does not by itself clear the source-bank crossings.",
+    "New midpoint rows have exact coarse-parent O barycentrics and remesh-014 ancestry, but no verified dense detailed-294 barycentric/residual mapping.",
+    "Per-parent F32 midpoint rounding causes a small raw local volume drift; it is reported, while transfer fractions conserve each original parent contribution.",
+    "No physical admission, full-bank collision clearance, material-field solution, or native-runtime claim."
+  ],
+  "schema": "connected-skin-mechanical-transfer-013-freeze-manifest-v1",
+  "status": "unadmitted conforming topology-refinement candidate",
+  "validation": {
+    "all_bank_clearance": "not run",
+    "boundary_refinement_tests": "5/5 passed",
+    "detailed_294_vertex_barycentric_embedding": "not emitted",
+    "midpoint_representative_faces_with_detailed_stable_id": 0,
+    "midpoint_representative_faces_without_detailed_stable_id": 857,
+    "min_normalized_det": 1.0305495205375494e-05,
+    "native_FEM_recompile_or_run": "not run",
+    "old_coordinate_prefix": "bitwise unchanged",
+    "output_child_O_faces_with_detailed_stable_id": 32161,
+    "output_child_O_faces_without_detailed_stable_id": 5943,
+    "positive_F32_and_F64_tet_determinants": true,
+    "raw_max_local_parent_geometric_volume_relative_error": 0.0002017838018888401,
+    "raw_total_region_volume_relative_delta": 1.1429934967655847e-09,
+    "sequential_surface_and_tet_split_parity": "exact for all 39,792 output shell triangles",
+    "test_command": "/Users/n/numi-human-prep-venv-20261005/bin/python test_boundary_refinement_013.py",
+    "transfer_005_parent_column_max_abs_error": 4.440892098500626e-16,
+    "transfer_014_parent_column_max_abs_error": 4.440892098500626e-16,
+    "typed_face_map": "008 outer row -> 014 typed map -> 271 dense face row verified; detailed IDs are stable face identities, -1 means coarse-parent-only"
+  }
+}

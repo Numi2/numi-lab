@@ -1,0 +1,11 @@
+test_frozen_full_artifact (test_verify_patches_012.OffsetValidationTests.test_frozen_full_artifact) ... ok
+test_reject_decreasing_offsets (test_verify_patches_012.OffsetValidationTests.test_reject_decreasing_offsets) ... ok
+test_reject_nonzero_start (test_verify_patches_012.OffsetValidationTests.test_reject_nonzero_start) ... ok
+test_reject_wrong_component_count (test_verify_patches_012.OffsetValidationTests.test_reject_wrong_component_count) ... ok
+test_reject_wrong_terminal (test_verify_patches_012.OffsetValidationTests.test_reject_wrong_terminal) ... ok
+test_valid_offsets_partition_rows (test_verify_patches_012.OffsetValidationTests.test_valid_offsets_partition_rows) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 3.175s
+
+OK

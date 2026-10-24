@@ -1,0 +1,30 @@
+{
+  "schema": "numi.human.publication-test-receipts-054.v1",
+  "python": {
+    "command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m unittest -v test_boundary_refinement_013.py",
+    "cwd": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013",
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "status": "PASS",
+    "log": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-054/python-tests.log"
+  },
+  "cpp": {
+    "compile": "clang++ -std=c++20 -O2 test_ConnectedSkinMechanicalTransfer013.cpp -o /tmp/test-ConnectedSkinMechanicalTransfer013-054",
+    "run": "/tmp/test-ConnectedSkinMechanicalTransfer013-054",
+    "cwd": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013",
+    "status": "PASS",
+    "log": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-054/cpp-tests.log"
+  },
+  "012": {
+    "status": "PASS_EXTRACTION_AND_SOURCE_CSR_LINEAGE; SOURCE294_MAP_UNCERTIFIED",
+    "previous_focused_tests": "4 extraction tests and 6 verifier tests passed; logs hash-pinned in the 012 package",
+    "source294_mapping": "PROVISIONAL_MAP_FAILURE_UNRESOLVED; 85 unmatched rows"
+  },
+  "admission": {
+    "mechanical": false,
+    "physical": false,
+    "native": false,
+    "performance": false
+  }
+}

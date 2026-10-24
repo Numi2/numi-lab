@@ -1,0 +1,10 @@
+test_emitted_shell_and_parent_barycentric_map (test_boundary_refinement_013.BoundaryRefinement013Tests.test_emitted_shell_and_parent_barycentric_map) ... ok
+test_emitted_transfer_columns_and_lumped_volume (test_boundary_refinement_013.BoundaryRefinement013Tests.test_emitted_transfer_columns_and_lumped_volume) ... ok
+test_midpoint_source_ancestry_is_affine (test_boundary_refinement_013.BoundaryRefinement013Tests.test_midpoint_source_ancestry_is_affine) ... ok
+test_parent_volume_shares_conserve_csr_columns (test_boundary_refinement_013.BoundaryRefinement013Tests.test_parent_volume_shares_conserve_csr_columns) ... ok
+test_sequential_boundary_templates_match_tets (test_boundary_refinement_013.BoundaryRefinement013Tests.test_sequential_boundary_templates_match_tets) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.696s
+
+OK

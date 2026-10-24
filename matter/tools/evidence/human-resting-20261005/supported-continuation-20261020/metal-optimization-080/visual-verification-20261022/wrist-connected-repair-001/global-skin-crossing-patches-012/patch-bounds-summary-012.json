@@ -1,0 +1,1111 @@
+{
+  "patches": [
+    {
+      "O_AABB_max_m": [
+        -0.022334162145853043,
+        -0.2666381299495697,
+        0.18596430122852325
+      ],
+      "O_AABB_min_m": [
+        -0.32804757356643677,
+        -1.0380337238311768,
+        0.0009894255781546235
+      ],
+      "O_face_count": 454,
+      "O_node_count": 298,
+      "canonical_pair_count": 3312,
+      "patch_id": 0,
+      "typed_banks_by_pair_count": [
+        {
+          "bank_id": 136,
+          "body_indices": [
+            41,
+            43,
+            45,
+            57,
+            59,
+            60,
+            61,
+            62,
+            64,
+            67,
+            72
+          ],
+          "key": "bank_0136",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 521,
+          "stable_id": 137
+        },
+        {
+          "bank_id": 130,
+          "body_indices": [
+            41,
+            42,
+            43,
+            49,
+            57,
+            59,
+            60,
+            62,
+            67
+          ],
+          "key": "bank_0130",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 351,
+          "stable_id": 131
+        },
+        {
+          "bank_id": 132,
+          "body_indices": [
+            41,
+            42,
+            43,
+            45,
+            49,
+            57,
+            59,
+            60,
+            62,
+            67
+          ],
+          "key": "bank_0132",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 320,
+          "stable_id": 133
+        },
+        {
+          "bank_id": 102,
+          "body_indices": [
+            25,
+            29,
+            34,
+            41,
+            43
+          ],
+          "key": "bank_0102",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 211,
+          "stable_id": 103
+        },
+        {
+          "bank_id": 134,
+          "body_indices": [
+            41,
+            43,
+            45,
+            49,
+            52,
+            53,
+            54
+          ],
+          "key": "bank_0134",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 211,
+          "stable_id": 135
+        },
+        {
+          "bank_id": 110,
+          "body_indices": [
+            41,
+            43,
+            45,
+            57
+          ],
+          "key": "bank_0110",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 132,
+          "stable_id": 111
+        },
+        {
+          "bank_id": 118,
+          "body_indices": [
+            41,
+            43,
+            47,
+            72
+          ],
+          "key": "bank_0118",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 126,
+          "stable_id": 119
+        },
+        {
+          "bank_id": 74,
+          "body_indices": [
+            29,
+            34,
+            41,
+            43
+          ],
+          "key": "bank_0074",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 122,
+          "stable_id": 75
+        },
+        {
+          "bank_id": 108,
+          "body_indices": [
+            41,
+            43,
+            45,
+            49,
+            52
+          ],
+          "key": "bank_0108",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 115,
+          "stable_id": 109
+        },
+        {
+          "bank_id": 648,
+          "body_indices": [
+            42
+          ],
+          "key": "bank_0648",
+          "kind": "anatomy",
+          "layer": 2,
+          "pair_rows": 115,
+          "stable_id": 486
+        },
+        {
+          "bank_id": 146,
+          "body_indices": [
+            43,
+            52
+          ],
+          "key": "bank_0146",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 98,
+          "stable_id": 147
+        },
+        {
+          "bank_id": 78,
+          "body_indices": [
+            34,
+            41
+          ],
+          "key": "bank_0078",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 87,
+          "stable_id": 79
+        },
+        {
+          "bank_id": 92,
+          "body_indices": [
+            34,
+            41,
+            42
+          ],
+          "key": "bank_0092",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 85,
+          "stable_id": 93
+        },
+        {
+          "bank_id": 116,
+          "body_indices": [
+            41,
+            42,
+            43,
+            45,
+            49,
+            57,
+            62
+          ],
+          "key": "bank_0116",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 82,
+          "stable_id": 117
+        },
+        {
+          "bank_id": 104,
+          "body_indices": [
+            34,
+            41,
+            43
+          ],
+          "key": "bank_0104",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 74,
+          "stable_id": 105
+        },
+        {
+          "bank_id": 114,
+          "body_indices": [
+            41,
+            42,
+            43,
+            72
+          ],
+          "key": "bank_0114",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 71,
+          "stable_id": 115
+        },
+        {
+          "bank_id": 640,
+          "body_indices": [
+            41
+          ],
+          "key": "bank_0640",
+          "kind": "anatomy",
+          "layer": 2,
+          "pair_rows": 68,
+          "stable_id": 478
+        },
+        {
+          "bank_id": 642,
+          "body_indices": [
+            41
+          ],
+          "key": "bank_0642",
+          "kind": "anatomy",
+          "layer": 2,
+          "pair_rows": 60,
+          "stable_id": 480
+        },
+        {
+          "bank_id": 112,
+          "body_indices": [
+            41,
+            43,
+            45,
+            62
+          ],
+          "key": "bank_0112",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 55,
+          "stable_id": 113
+        },
+        {
+          "bank_id": 138,
+          "body_indices": [
+            41,
+            42,
+            43,
+            45,
+            72,
+            74,
+            75
+          ],
+          "key": "bank_0138",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 54,
+          "stable_id": 139
+        },
+        {
+          "bank_id": 148,
+          "body_indices": [
+            50,
+            52
+          ],
+          "key": "bank_0148",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 54,
+          "stable_id": 149
+        },
+        {
+          "bank_id": 140,
+          "body_indices": [
+            42,
+            43,
+            45,
+            57,
+            59,
+            60,
+            61
+          ],
+          "key": "bank_0140",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 53,
+          "stable_id": 141
+        },
+        {
+          "bank_id": 120,
+          "body_indices": [
+            41,
+            43,
+            47,
+            72
+          ],
+          "key": "bank_0120",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 51,
+          "stable_id": 121
+        },
+        {
+          "bank_id": 142,
+          "body_indices": [
+            42,
+            43,
+            49,
+            50,
+            52
+          ],
+          "key": "bank_0142",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 51,
+          "stable_id": 143
+        },
+        {
+          "bank_id": 144,
+          "body_indices": [
+            43,
+            49,
+            52,
+            53
+          ],
+          "key": "bank_0144",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 50,
+          "stable_id": 145
+        },
+        {
+          "bank_id": 80,
+          "body_indices": [
+            34,
+            41
+          ],
+          "key": "bank_0080",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 41,
+          "stable_id": 81
+        },
+        {
+          "bank_id": 82,
+          "body_indices": [
+            34,
+            41
+          ],
+          "key": "bank_0082",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 29,
+          "stable_id": 83
+        },
+        {
+          "bank_id": 122,
+          "body_indices": [
+            41,
+            43,
+            49,
+            62
+          ],
+          "key": "bank_0122",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 25,
+          "stable_id": 123
+        }
+      ]
+    },
+    {
+      "O_AABB_max_m": [
+        0.20643438398838043,
+        -0.03570472076535225,
+        0.29399895668029785
+      ],
+      "O_AABB_min_m": [
+        -0.22781886160373688,
+        -0.9058218598365784,
+        0.01563984714448452
+      ],
+      "O_face_count": 308,
+      "O_node_count": 203,
+      "canonical_pair_count": 4270,
+      "patch_id": 1,
+      "typed_banks_by_pair_count": [
+        {
+          "bank_id": 67,
+          "body_indices": [
+            7,
+            20
+          ],
+          "key": "bank_0067",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 894,
+          "stable_id": 68
+        },
+        {
+          "bank_id": 157,
+          "body_indices": [
+            23
+          ],
+          "key": "bank_0157",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 761,
+          "stable_id": 164
+        },
+        {
+          "bank_id": 66,
+          "body_indices": [
+            7,
+            20
+          ],
+          "key": "bank_0066",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 722,
+          "stable_id": 67
+        },
+        {
+          "bank_id": 73,
+          "body_indices": [
+            25,
+            79,
+            91
+          ],
+          "key": "bank_0073",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 533,
+          "stable_id": 74
+        },
+        {
+          "bank_id": 72,
+          "body_indices": [
+            25,
+            29,
+            41
+          ],
+          "key": "bank_0072",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 488,
+          "stable_id": 73
+        },
+        {
+          "bank_id": 75,
+          "body_indices": [
+            79,
+            84,
+            91
+          ],
+          "key": "bank_0075",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 283,
+          "stable_id": 76
+        },
+        {
+          "bank_id": 77,
+          "body_indices": [
+            79,
+            84,
+            91
+          ],
+          "key": "bank_0077",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 151,
+          "stable_id": 78
+        },
+        {
+          "bank_id": 81,
+          "body_indices": [
+            84,
+            91
+          ],
+          "key": "bank_0081",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 74,
+          "stable_id": 82
+        },
+        {
+          "bank_id": 79,
+          "body_indices": [
+            84,
+            91
+          ],
+          "key": "bank_0079",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 70,
+          "stable_id": 80
+        },
+        {
+          "bank_id": 152,
+          "body_indices": [
+            23
+          ],
+          "key": "bank_0152",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 69,
+          "stable_id": 160
+        },
+        {
+          "bank_id": 153,
+          "body_indices": [
+            20,
+            23,
+            79
+          ],
+          "key": "bank_0153",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 68,
+          "stable_id": 152
+        },
+        {
+          "bank_id": 641,
+          "body_indices": [
+            91
+          ],
+          "key": "bank_0641",
+          "kind": "anatomy",
+          "layer": 2,
+          "pair_rows": 58,
+          "stable_id": 479
+        },
+        {
+          "bank_id": 643,
+          "body_indices": [
+            91
+          ],
+          "key": "bank_0643",
+          "kind": "anatomy",
+          "layer": 2,
+          "pair_rows": 58,
+          "stable_id": 481
+        },
+        {
+          "bank_id": 103,
+          "body_indices": [
+            84,
+            91,
+            93
+          ],
+          "key": "bank_0103",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 41,
+          "stable_id": 104
+        }
+      ]
+    },
+    {
+      "O_AABB_max_m": [
+        -0.12071706354618073,
+        -0.6892606616020203,
+        0.20381410419940948
+      ],
+      "O_AABB_min_m": [
+        -0.1916099190711975,
+        -1.0052484273910522,
+        0.02525046095252037
+      ],
+      "O_face_count": 18,
+      "O_node_count": 18,
+      "canonical_pair_count": 33,
+      "patch_id": 2,
+      "typed_banks_by_pair_count": [
+        {
+          "bank_id": 54,
+          "body_indices": [
+            128,
+            131,
+            136
+          ],
+          "key": "bank_0054",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 33,
+          "stable_id": 55
+        }
+      ]
+    },
+    {
+      "O_AABB_max_m": [
+        -0.02885316126048565,
+        -0.0327642448246479,
+        0.22934988141059875
+      ],
+      "O_AABB_min_m": [
+        -0.10531343519687653,
+        -0.24473345279693604,
+        0.06061660125851631
+      ],
+      "O_face_count": 64,
+      "O_node_count": 50,
+      "canonical_pair_count": 913,
+      "patch_id": 3,
+      "typed_banks_by_pair_count": [
+        {
+          "bank_id": 156,
+          "body_indices": [
+            23
+          ],
+          "key": "bank_0156",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 913,
+          "stable_id": 163
+        }
+      ]
+    },
+    {
+      "O_AABB_max_m": [
+        -0.05569209158420563,
+        -0.14976033568382263,
+        0.2190031111240387
+      ],
+      "O_AABB_min_m": [
+        -0.07600900530815125,
+        -0.1757226139307022,
+        0.2040616273880005
+      ],
+      "O_face_count": 12,
+      "O_node_count": 13,
+      "canonical_pair_count": 54,
+      "patch_id": 4,
+      "typed_banks_by_pair_count": [
+        {
+          "bank_id": 548,
+          "body_indices": [
+            23
+          ],
+          "key": "bank_0548",
+          "kind": "anatomy",
+          "layer": 1,
+          "pair_rows": 54,
+          "stable_id": 386
+        }
+      ]
+    },
+    {
+      "O_AABB_max_m": [
+        0.0016726143658161163,
+        -0.13871759176254272,
+        0.2430344969034195
+      ],
+      "O_AABB_min_m": [
+        -0.027679305523633957,
+        -0.15380743145942688,
+        0.21100740134716034
+      ],
+      "O_face_count": 10,
+      "O_node_count": 11,
+      "canonical_pair_count": 44,
+      "patch_id": 5,
+      "typed_banks_by_pair_count": [
+        {
+          "bank_id": 557,
+          "body_indices": [
+            23
+          ],
+          "key": "bank_0557",
+          "kind": "anatomy",
+          "layer": 1,
+          "pair_rows": 44,
+          "stable_id": 395
+        }
+      ]
+    },
+    {
+      "O_AABB_max_m": [
+        0.10466601699590683,
+        -0.3453204333782196,
+        0.03370748460292816
+      ],
+      "O_AABB_min_m": [
+        -0.022334162145853043,
+        -0.5491248965263367,
+        0.0034620254300534725
+      ],
+      "O_face_count": 9,
+      "O_node_count": 9,
+      "canonical_pair_count": 19,
+      "patch_id": 6,
+      "typed_banks_by_pair_count": [
+        {
+          "bank_id": 83,
+          "body_indices": [
+            84,
+            91
+          ],
+          "key": "bank_0083",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 19,
+          "stable_id": 84
+        }
+      ]
+    },
+    {
+      "O_AABB_max_m": [
+        0.01854299008846283,
+        -0.13966155052185059,
+        0.21529674530029297
+      ],
+      "O_AABB_min_m": [
+        0.0016726143658161163,
+        -0.15357819199562073,
+        0.2038392275571823
+      ],
+      "O_face_count": 8,
+      "O_node_count": 10,
+      "canonical_pair_count": 211,
+      "patch_id": 7,
+      "typed_banks_by_pair_count": [
+        {
+          "bank_id": 557,
+          "body_indices": [
+            23
+          ],
+          "key": "bank_0557",
+          "kind": "anatomy",
+          "layer": 1,
+          "pair_rows": 160,
+          "stable_id": 395
+        },
+        {
+          "bank_id": 553,
+          "body_indices": [
+            23
+          ],
+          "key": "bank_0553",
+          "kind": "anatomy",
+          "layer": 1,
+          "pair_rows": 31,
+          "stable_id": 391
+        },
+        {
+          "bank_id": 552,
+          "body_indices": [
+            23
+          ],
+          "key": "bank_0552",
+          "kind": "anatomy",
+          "layer": 1,
+          "pair_rows": 20,
+          "stable_id": 390
+        }
+      ]
+    },
+    {
+      "O_AABB_max_m": [
+        0.2729341983795166,
+        -0.5824113488197327,
+        0.183334618806839
+      ],
+      "O_AABB_min_m": [
+        0.10346361249685287,
+        -1.0415842533111572,
+        0.05633904039859772
+      ],
+      "O_face_count": 288,
+      "O_node_count": 196,
+      "canonical_pair_count": 2395,
+      "patch_id": 8,
+      "typed_banks_by_pair_count": [
+        {
+          "bank_id": 137,
+          "body_indices": [
+            91,
+            93,
+            95,
+            107,
+            109,
+            110,
+            111,
+            112,
+            114,
+            117,
+            122
+          ],
+          "key": "bank_0137",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 462,
+          "stable_id": 138
+        },
+        {
+          "bank_id": 119,
+          "body_indices": [
+            91,
+            93,
+            97,
+            122
+          ],
+          "key": "bank_0119",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 329,
+          "stable_id": 120
+        },
+        {
+          "bank_id": 133,
+          "body_indices": [
+            91,
+            92,
+            93,
+            95,
+            99,
+            107,
+            109,
+            110,
+            111,
+            112,
+            114,
+            115
+          ],
+          "key": "bank_0133",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 246,
+          "stable_id": 134
+        },
+        {
+          "bank_id": 121,
+          "body_indices": [
+            91,
+            93,
+            97,
+            122
+          ],
+          "key": "bank_0121",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 226,
+          "stable_id": 122
+        },
+        {
+          "bank_id": 149,
+          "body_indices": [
+            100,
+            102
+          ],
+          "key": "bank_0149",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 158,
+          "stable_id": 150
+        },
+        {
+          "bank_id": 131,
+          "body_indices": [
+            91,
+            92,
+            93,
+            95,
+            99,
+            107,
+            109,
+            110,
+            112,
+            114,
+            115
+          ],
+          "key": "bank_0131",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 155,
+          "stable_id": 132
+        },
+        {
+          "bank_id": 111,
+          "body_indices": [
+            91,
+            93,
+            95,
+            107
+          ],
+          "key": "bank_0111",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 147,
+          "stable_id": 112
+        },
+        {
+          "bank_id": 109,
+          "body_indices": [
+            91,
+            93
+          ],
+          "key": "bank_0109",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 107,
+          "stable_id": 110
+        },
+        {
+          "bank_id": 147,
+          "body_indices": [
+            93,
+            102
+          ],
+          "key": "bank_0147",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 99,
+          "stable_id": 148
+        },
+        {
+          "bank_id": 141,
+          "body_indices": [
+            92,
+            93,
+            95,
+            107,
+            109,
+            110,
+            111
+          ],
+          "key": "bank_0141",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 75,
+          "stable_id": 142
+        },
+        {
+          "bank_id": 135,
+          "body_indices": [
+            93,
+            95,
+            99,
+            102,
+            103,
+            104
+          ],
+          "key": "bank_0135",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 73,
+          "stable_id": 136
+        },
+        {
+          "bank_id": 115,
+          "body_indices": [
+            91,
+            92,
+            93,
+            122
+          ],
+          "key": "bank_0115",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 61,
+          "stable_id": 116
+        },
+        {
+          "bank_id": 117,
+          "body_indices": [
+            91,
+            93,
+            95,
+            107
+          ],
+          "key": "bank_0117",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 57,
+          "stable_id": 118
+        },
+        {
+          "bank_id": 139,
+          "body_indices": [
+            91,
+            92,
+            93,
+            95,
+            122,
+            124,
+            125
+          ],
+          "key": "bank_0139",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 53,
+          "stable_id": 140
+        },
+        {
+          "bank_id": 145,
+          "body_indices": [
+            93,
+            99,
+            102,
+            103
+          ],
+          "key": "bank_0145",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 50,
+          "stable_id": 146
+        },
+        {
+          "bank_id": 113,
+          "body_indices": [
+            91,
+            93,
+            95,
+            112
+          ],
+          "key": "bank_0113",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 47,
+          "stable_id": 114
+        },
+        {
+          "bank_id": 123,
+          "body_indices": [
+            91,
+            93,
+            99,
+            112
+          ],
+          "key": "bank_0123",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 25,
+          "stable_id": 124
+        },
+        {
+          "bank_id": 143,
+          "body_indices": [
+            92,
+            93,
+            99,
+            100,
+            102
+          ],
+          "key": "bank_0143",
+          "kind": "soft_tissue",
+          "layer": 1,
+          "pair_rows": 25,
+          "stable_id": 144
+        }
+      ]
+    }
+  ],
+  "schema": "numi.human.global-skin-crossing-patches.patch-bounds.v1",
+  "scope": "Each label is a registered typed-bank key/stable ID with layer and body-index owner IDs; coordinates are original physical-O patch bounds.",
+  "status": "extraction_label_and_bounds_only"
+}

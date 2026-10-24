@@ -1,0 +1,9 @@
+test_edge_connected_seed_and_two_ring_expansion (test_extract_physical_O_patches_012.PatchExtractionTests.test_edge_connected_seed_and_two_ring_expansion) ... ok
+test_hit_barycentric_roundtrip (test_extract_physical_O_patches_012.PatchExtractionTests.test_hit_barycentric_roundtrip) ... ok
+test_multiple_seeds_merge_when_rings_connect (test_extract_physical_O_patches_012.PatchExtractionTests.test_multiple_seeds_merge_when_rings_connect) ... ok
+test_surface_mapping_direct_and_barycentric (test_extract_physical_O_patches_012.PatchExtractionTests.test_surface_mapping_direct_and_barycentric) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK
