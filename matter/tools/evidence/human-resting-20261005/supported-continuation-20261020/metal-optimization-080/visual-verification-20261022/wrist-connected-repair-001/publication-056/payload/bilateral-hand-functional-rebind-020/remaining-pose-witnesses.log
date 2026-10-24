@@ -1,0 +1,29 @@
+waiting_for_human_geometry_slot pid=38128
+acquired_human_geometry_slot pid=38128
+Traceback (most recent call last):
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/audit_remaining_pose_witnesses_020.py", line 32, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/audit_remaining_pose_witnesses_020.py", line 22, in main
+    rows.append(dict(face_ids=[ia,ib],vertex_ids=[f1.tolist(),f2.tolist()],classification=classify(v[f1].astype(float),v[f2].astype(float)),
+                                                                                          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/exact-O-pair-011/audit_exact_pairs_011.py", line 15, in classify
+    points=tuple(sorted(set(ci.triangle_intersection_points(a,b))))
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py", line 248, in triangle_intersection_points
+    exact_points = tuple(_exact_rational_xyz(point, "triangle intersection vertex")
+                         for point in tuple(first) + tuple(second))
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py", line 248, in <genexpr>
+    exact_points = tuple(_exact_rational_xyz(point, "triangle intersection vertex")
+                         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py", line 836, in _exact_rational_xyz
+    return tuple(_exact_rational_coordinate(coordinate, context) for coordinate in coordinates)
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py", line 836, in <genexpr>
+    return tuple(_exact_rational_coordinate(coordinate, context) for coordinate in coordinates)
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py", line 827, in _exact_rational_coordinate
+    require(False, f"{context} must use exact integer or Fraction coordinates")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py", line 31, in require
+    raise HumanImportError("cardiac cavity intersections: " + message)
+numilab_human.model.ImportError: cardiac cavity intersections: triangle intersection vertex must use exact integer or Fraction coordinates

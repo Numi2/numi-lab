@@ -1,0 +1,175 @@
+{
+  "bad_tet_edge_stars": [
+    {
+      "boundary_edge": true,
+      "edge_local_rows": [
+        170,
+        2934
+      ],
+      "eligible_3to2": false,
+      "incident_local_tet_rows": [
+        940,
+        20525
+      ],
+      "incident_tet_count": 2
+    },
+    {
+      "boundary_edge": true,
+      "edge_local_rows": [
+        170,
+        2932
+      ],
+      "eligible_3to2": false,
+      "incident_local_tet_rows": [
+        940,
+        1439
+      ],
+      "incident_tet_count": 2
+    },
+    {
+      "boundary_edge": false,
+      "edge_local_rows": [
+        170,
+        239
+      ],
+      "eligible_3to2": false,
+      "incident_local_tet_rows": [
+        940,
+        1439,
+        5569,
+        5619,
+        20376,
+        20525
+      ],
+      "incident_tet_count": 6
+    },
+    {
+      "boundary_edge": true,
+      "edge_local_rows": [
+        2932,
+        2934
+      ],
+      "eligible_3to2": false,
+      "incident_local_tet_rows": [
+        940
+      ],
+      "incident_tet_count": 1
+    },
+    {
+      "boundary_edge": true,
+      "edge_local_rows": [
+        239,
+        2934
+      ],
+      "eligible_3to2": false,
+      "incident_local_tet_rows": [
+        940,
+        20525
+      ],
+      "incident_tet_count": 2
+    },
+    {
+      "boundary_edge": true,
+      "edge_local_rows": [
+        239,
+        2932
+      ],
+      "eligible_3to2": false,
+      "incident_local_tet_rows": [
+        940,
+        1439,
+        5521
+      ],
+      "incident_tet_count": 3
+    }
+  ],
+  "boundary_facet_equality_is_insufficient": true,
+  "candidate_npz_sha256": "5b5a33f1294d4a33fc1600e7ad323cc10e40ca630bed0d7da88c3a66f2f5a7db",
+  "conclusion": "No admissible quality-passing one-step 2-to-3 or 3-to-2 flip was established. Both proposed 2-to-3 retriangulations fail same-volume coverage; original global TetGen mesh remains at one q-floor failure. Local TetGen\u2192original-parent ancestry and full material mass map remain pending.",
+  "eligible_3to2_edge_count": 0,
+  "initial_flip_report_sha256": "f51fa6c5c0819cf93cb1c8ffa098072044a0bf16c32368fda89720738ea414b8",
+  "overlap_owner_sha256": "82ea2fb8ea96ed2f4bdba0124bbd37a05e28ead7e3568da24fad7e9c7c071ef2",
+  "overlap_witness_npz_sha256": "8787dce76c9aed87389455702a0a1345620ba4037582574de4b5d773ed75a7ff",
+  "schema": "numi.local-bistellar-flip-validity-audit-018.v1",
+  "status": "both_quality_passing_2to3_trials_rejected_as_nonconforming_retriangulations",
+  "trials": [
+    {
+      "key": [
+        170,
+        239,
+        2932
+      ],
+      "kind": "2to3",
+      "new_child_overlap_coverage": [
+        0.8867006955035027,
+        0.0,
+        0.8867006955035173
+      ],
+      "new_patch_volume_m3": 2.5741947820429243e-08,
+      "old_cell_coverage": [
+        0.9999999999999722,
+        0.9999999999999943
+      ],
+      "old_local_rows": [
+        940,
+        1439
+      ],
+      "old_patch_volume_m3": 2.0502485669218235e-08,
+      "overlap_volume_m3": [
+        [
+          1.098025408836786e-09,
+          1.1538430081062671e-08
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          6.835066218111867e-10,
+          7.182523557507436e-09
+        ]
+      ],
+      "relative_patch_volume_delta": 0.2555525332753855,
+      "volume_delta_m3": 5.239462151211008e-09
+    },
+    {
+      "key": [
+        170,
+        239,
+        2934
+      ],
+      "kind": "2to3",
+      "new_child_overlap_coverage": [
+        0.6407844482505562,
+        0.6407844482505481,
+        0.0
+      ],
+      "new_patch_volume_m3": 1.170483807374747e-07,
+      "old_cell_coverage": [
+        1.0000000000000353,
+        1.0000000000000002
+      ],
+      "old_local_rows": [
+        940,
+        20525
+      ],
+      "old_patch_volume_m3": 5.5180932835080784e-08,
+      "overlap_volume_m3": [
+        [
+          1.436074992883203e-09,
+          4.304471814761371e-08
+        ],
+        [
+          3.4545703776488195e-10,
+          1.0354682656819068e-08
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "relative_patch_volume_delta": 1.1211743753462289,
+      "volume_delta_m3": 6.186744790239391e-08
+    }
+  ]
+}

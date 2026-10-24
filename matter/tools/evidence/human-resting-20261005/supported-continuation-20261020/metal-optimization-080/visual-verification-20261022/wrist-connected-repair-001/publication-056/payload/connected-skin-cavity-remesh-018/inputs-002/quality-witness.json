@@ -1,0 +1,210 @@
+{
+  "global_tet_count": 380933,
+  "nonpositive_count": 0,
+  "below_floor_count": 1,
+  "min_q": 6.464373194514433e-06,
+  "min_global_tet_row": 234652,
+  "unmodified_tet_count": 233712,
+  "is_remeshed_child": true,
+  "material_attribute": 1,
+  "child_local_tet_row": 940,
+  "tetgen_node_ids": [
+    172,
+    2936,
+    2934,
+    241
+  ],
+  "global_node_rows": [
+    563,
+    55906,
+    55904,
+    670
+  ],
+  "xyz_float32_m": [
+    [
+      -0.24701499938964844,
+      -0.479301780462265,
+      0.07023786753416061
+    ],
+    [
+      -0.23621375858783722,
+      -0.42151445150375366,
+      0.06392107158899307
+    ],
+    [
+      -0.24578115344047546,
+      -0.47032785415649414,
+      0.06916121393442154
+    ],
+    [
+      -0.225032776594162,
+      -0.36374664306640625,
+      0.05810621753334999
+    ]
+  ],
+  "signed_det_m3": 1.0689192183888132e-08,
+  "max_edge_m": 0.11825136290693807,
+  "lowest_10": [
+    [
+      234652,
+      6.464373194514433e-06,
+      true,
+      1
+    ],
+    [
+      202715,
+      1.0305495205375494e-05,
+      false,
+      1
+    ],
+    [
+      229972,
+      1.050005678630748e-05,
+      false,
+      1
+    ],
+    [
+      229968,
+      1.0501609301632763e-05,
+      false,
+      1
+    ],
+    [
+      68168,
+      1.076971188675068e-05,
+      false,
+      1
+    ],
+    [
+      12312,
+      1.0809591613415798e-05,
+      false,
+      1
+    ],
+    [
+      51719,
+      1.161854559610536e-05,
+      false,
+      1
+    ],
+    [
+      230170,
+      1.1726713765647202e-05,
+      false,
+      1
+    ],
+    [
+      230171,
+      1.1748577750413019e-05,
+      false,
+      1
+    ],
+    [
+      3517,
+      1.1806336799286868e-05,
+      false,
+      1
+    ]
+  ],
+  "status": "unadmitted_quality_gate_failure",
+  "pins": {
+    "baseline_sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1",
+    "candidate_sha256": "64f40e915703e35950ba2d3ab95b01a5e75681616c316cace25518c3a0ccb054",
+    "exact_surface_gate_sha256": "70f073ca1c18e091958b7030878f59a035e684f8e4c363b731d445e1d0ba4b99",
+    "builder_sha256": "e39b9e7450b3ed4346462895d5778a181dbb82e7cb05573a8ba6ae0ea8b26816",
+    "tetgen_sha256": "95b1df3923d7405b168ba5a3c4b39498ddfc0e7ba94000dedff7ebf93350de07",
+    "poly_sha256": "91be63a73766b96833c3b9ec98003867b8d0e834d35a67b7f594cda4a30d1860",
+    "selection_sha256": "646ab7648cf2f8d20c19904190fab8f40328b58f7da77f855b5e102185e19727",
+    "tetgen_node_sha256": "00777aca8500ddac0e74fd74fe94db0d6ff45170546370a62166b5a04b200f7b",
+    "tetgen_ele_sha256": "488b29ddee6ababfb089849a847b2519ee2bdd2a45823c2c54af7b8d623f8588",
+    "tetgen_stdout_sha256": "ebe8d8b1f0d5cabff8baa5dcb133cf6ead561e23e2187f465336b67e0e70b861",
+    "tetgen_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "exact_full_surface_self_gate": {
+    "aabb_candidate_pairs": 345772,
+    "allowed_shared_vertex_or_edge_pairs": 299933,
+    "complete_surface_audit": true,
+    "exact_pair_count": 0,
+    "face_count": 43004,
+    "pass": true,
+    "roles": {
+      "construction_closure": 1374,
+      "fixed_internal_stitch": 3526,
+      "physical_outer": 38104
+    },
+    "witnesses_first32": []
+  },
+  "hole_count": 1,
+  "boundary_roles": {
+    "all_fixed_facets": 6804,
+    "construction_closure": 1374,
+    "fixed_internal_stitch": 3526,
+    "physical_O": 1904
+  },
+  "node_provenance": [
+    {
+      "global_row": 563,
+      "kind": "existing_candidate_node",
+      "existing_physical_O": true,
+      "existing_construction_closure": false,
+      "xyz_float32_m": [
+        -0.24701499938964844,
+        -0.479301780462265,
+        0.07023786753416061
+      ]
+    },
+    {
+      "global_row": 55906,
+      "kind": "existing_candidate_node",
+      "existing_physical_O": true,
+      "existing_construction_closure": false,
+      "xyz_float32_m": [
+        -0.23621375858783722,
+        -0.42151445150375366,
+        0.06392107158899307
+      ]
+    },
+    {
+      "global_row": 55904,
+      "kind": "existing_candidate_node",
+      "existing_physical_O": true,
+      "existing_construction_closure": false,
+      "xyz_float32_m": [
+        -0.24578115344047546,
+        -0.47032785415649414,
+        0.06916121393442154
+      ]
+    },
+    {
+      "global_row": 670,
+      "kind": "existing_candidate_node",
+      "existing_physical_O": true,
+      "existing_construction_closure": false,
+      "xyz_float32_m": [
+        -0.225032776594162,
+        -0.36374664306640625,
+        0.05810621753334999
+      ]
+    }
+  ],
+  "child_boundary_facets": [
+    {
+      "global_nodes": [
+        670,
+        55904,
+        55906
+      ],
+      "role": 1,
+      "parent_surface_face_row": 1934
+    },
+    {
+      "global_nodes": [
+        563,
+        55904,
+        55906
+      ],
+      "role": 1,
+      "parent_surface_face_row": 1586
+    }
+  ]
+}

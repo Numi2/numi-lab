@@ -1,0 +1,59 @@
+{
+  "status": "PASS_ASSET_INFLUENCE_RESPONSE",
+  "scope": "Synthetic one-body palette translation through existing source replay. It tests skin input connectivity, not an anatomically admissible joint pose, dynamics, physical forces, or native execution.",
+  "results": [
+    {
+      "side": "right",
+      "body_index": 54,
+      "probe_translation_world_m": [
+        0.001,
+        0,
+        0
+      ],
+      "metrics": {
+        "294": {
+          "own_selected_response_max_m": 0.0,
+          "own_selected_responding_rows_over_1um": 0,
+          "opposite_selected_response_max_m": 0.0
+        },
+        "candidate020": {
+          "own_selected_response_max_m": 0.0009121596813201904,
+          "own_selected_responding_rows_over_1um": 1820,
+          "opposite_selected_response_max_m": 0.0
+        }
+      },
+      "pass_asset_response_gate": true
+    },
+    {
+      "side": "left",
+      "body_index": 104,
+      "probe_translation_world_m": [
+        0.001,
+        0,
+        0
+      ],
+      "metrics": {
+        "294": {
+          "own_selected_response_max_m": 0.0,
+          "own_selected_responding_rows_over_1um": 0,
+          "opposite_selected_response_max_m": 0.0
+        },
+        "candidate020": {
+          "own_selected_response_max_m": 0.0009096115827560425,
+          "own_selected_responding_rows_over_1um": 2184,
+          "opposite_selected_response_max_m": 0.0
+        }
+      },
+      "pass_asset_response_gate": true
+    }
+  ],
+  "input_sha256": {
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-004/registered-skin-poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/probe_palette_response_020.py": "3c7f734d725453027832460cc13ed45c64028c39c3e54de1ac5af9e6d3126b56",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-pose-frame-helper-194/tools/rebind_human_skin_reference.py": "be36923a62ebae0ecd475b57d5a413f424712c4fa129c23e6fe4620479869693"
+  },
+  "physical_admission": false,
+  "native_admission": false
+}

@@ -1,0 +1,181 @@
+{
+  "bad_global_tet_row": 234652,
+  "bad_local_tet_row": 940,
+  "bad_tet_global_nodes": [
+    563,
+    55906,
+    55904,
+    670
+  ],
+  "bad_tet_local_nodes": [
+    170,
+    2934,
+    2932,
+    239
+  ],
+  "baseline_below_floor_local_count": 1,
+  "baseline_min_local_q": 6.464373194514433e-06,
+  "baseline_sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1",
+  "candidate_admission": false,
+  "candidate_unadmitted": true,
+  "complete_original_parent_ancestry": "pending; TetGen output has no full parent map",
+  "elapsed_s": 4.914161583059467,
+  "flip_kind": "2to3",
+  "flip_record": {
+    "face": [
+      170,
+      239,
+      2934
+    ],
+    "kind": "2to3",
+    "local_boundary_preserved": true,
+    "neighbor_tet": 20525,
+    "new_min_q": 3.5723088952351104e-05,
+    "new_q": [
+      0.00014850192384248718,
+      3.5723088952351104e-05,
+      0.00033554976488597816
+    ],
+    "new_tets": [
+      [
+        2933,
+        2932,
+        170,
+        239
+      ],
+      [
+        2933,
+        2932,
+        239,
+        2934
+      ],
+      [
+        2932,
+        2933,
+        2934,
+        170
+      ]
+    ],
+    "positive_f32": true,
+    "removed_tets": [
+      940,
+      20525
+    ],
+    "status": "quality_pass"
+  },
+  "full_material_mass_ledger": "pending; this local topology delta is not mass qualification",
+  "geometry_checkpoint": "local-flip-geometry.npz",
+  "geometry_checkpoint_sha256": "5b5a33f1294d4a33fc1600e7ad323cc10e40ca630bed0d7da88c3a66f2f5a7db",
+  "global_below_floor_after": 0,
+  "global_below_floor_after_flip": 0,
+  "global_boundary_exact": true,
+  "global_min_q_after": 1.0305495205375494e-05,
+  "global_min_q_after_flip": 1.0305495205375494e-05,
+  "global_nonpositive_after_flip": 0,
+  "global_nonpositive_f32_after": 0,
+  "global_p01_q_after": 0.0006387138468861713,
+  "global_tet_count_after": 380934,
+  "input_surface_candidate_sha256": "64f40e915703e35950ba2d3ab95b01a5e75681616c316cace25518c3a0ccb054",
+  "local_below_floor_after": 0,
+  "local_flip_overlap_error": "RuntimeError: overlap contains an uncovered child or old parent",
+  "local_flip_overlap_status": "pending_or_failed",
+  "local_min_q_after": 3.5723088952351104e-05,
+  "local_nonpositive_f32_after": 0,
+  "local_p01_q_after": 0.010074801249218088,
+  "local_tet_count_after": 147222,
+  "material_mass_ledger": "not asserted; no independently validated physical reference inverse",
+  "physical_outer_faces_exact": true,
+  "prior_tetgen_local_element_sha256": "488b29ddee6ababfb089849a847b2519ee2bdd2a45823c2c54af7b8d623f8588",
+  "prior_tetgen_local_node_sha256": "00777aca8500ddac0e74fd74fe94db0d6ff45170546370a62166b5a04b200f7b",
+  "schema": "numi.local-internal-bistellar-flip-018.v1",
+  "status": "invalid_flip_candidate_superseded",
+  "superseded_by": "flip-validity-audit.json",
+  "superseding_reason": "quality and boundary-facet equality passed, but the changed tetrahedra do not cover the same local domain; exact overlap found uncovered replacement cells.",
+  "trial_count": 2,
+  "trials": [
+    {
+      "face": [
+        170,
+        239,
+        2932
+      ],
+      "kind": "2to3",
+      "local_boundary_preserved": true,
+      "neighbor_tet": 1439,
+      "new_min_q": 1.208972916137539e-05,
+      "new_q": [
+        5.171077045688878e-05,
+        1.208972916137539e-05,
+        0.0002575034723348325
+      ],
+      "new_tets": [
+        [
+          2934,
+          2261,
+          170,
+          239
+        ],
+        [
+          2261,
+          2934,
+          239,
+          2932
+        ],
+        [
+          2934,
+          2261,
+          2932,
+          170
+        ]
+      ],
+      "positive_f32": true,
+      "removed_tets": [
+        940,
+        1439
+      ],
+      "status": "quality_pass"
+    },
+    {
+      "face": [
+        170,
+        239,
+        2934
+      ],
+      "kind": "2to3",
+      "local_boundary_preserved": true,
+      "neighbor_tet": 20525,
+      "new_min_q": 3.5723088952351104e-05,
+      "new_q": [
+        0.00014850192384248718,
+        3.5723088952351104e-05,
+        0.00033554976488597816
+      ],
+      "new_tets": [
+        [
+          2933,
+          2932,
+          170,
+          239
+        ],
+        [
+          2933,
+          2932,
+          239,
+          2934
+        ],
+        [
+          2932,
+          2933,
+          2934,
+          170
+        ]
+      ],
+      "positive_f32": true,
+      "removed_tets": [
+        940,
+        20525
+      ],
+      "status": "quality_pass"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "status": "PASS_NO_NEW_EXACT_SELF_PAIRS",
+  "scope": "Same recorded source pose only; no motion or physical qualification",
+  "input_sha256": {
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/selected-hand-rows.npz": "0e82da742218cbdc10549d924eb2851244848cec22645710a84e5d1a54fe057c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/audit_reference_surface_020.py": "5430b6f9ba6eedd7655457e89eebb0979935d7f744f1d38fe78388fb5feb12f2",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-pose-frame-helper-194/tools/rebind_human_skin_reference.py": "be36923a62ebae0ecd475b57d5a413f424712c4fa129c23e6fe4620479869693"
+  },
+  "physical_admission": false,
+  "native_admission": false,
+  "baseline_self_pairs": 0,
+  "candidate_self_pairs": 0,
+  "added_pairs": [],
+  "removed_pairs": [],
+  "baseline_aabb_candidates": 724832,
+  "candidate_reaudited_faces": 18069,
+  "complete_surface_audit": true,
+  "elapsed_s": 11.819114832906052
+}

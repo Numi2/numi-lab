@@ -1,0 +1,155 @@
+{
+  "candidate_selected_edges_global": [
+    [
+      563,
+      670
+    ],
+    [
+      670,
+      55904
+    ]
+  ],
+  "files": {
+    "018_quality_witness": {
+      "bytes": 4785,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/quality-witness.json",
+      "sha256": "c636d0d22ca4bfd29797c96d075f88978c99d52c8bbed04cc3debe03ef9cfe06"
+    },
+    "018_selection": {
+      "bytes": 376748,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/cavity-selection.npz",
+      "sha256": "646ab7648cf2f8d20c19904190fab8f40328b58f7da77f855b5e102185e19727"
+    },
+    "018_tetgen_ele": {
+      "bytes": 5495014,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/cavity.1.ele",
+      "sha256": "488b29ddee6ababfb089849a847b2519ee2bdd2a45823c2c54af7b8d623f8588"
+    },
+    "018_tetgen_node": {
+      "bytes": 2034134,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/cavity.1.node",
+      "sha256": "00777aca8500ddac0e74fd74fe94db0d6ff45170546370a62166b5a04b200f7b"
+    },
+    "403_edge_split_helper": {
+      "bytes": 36806,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/refine_internal_o_edges_403.py",
+      "sha256": "231219282f03a830e9857c327e44d2835ce5c831d9eab09ebc598e37a6775826"
+    },
+    "baseline_013_candidate": {
+      "bytes": 7234783,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013/boundary-refinement-002/candidate.npz",
+      "sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1"
+    },
+    "candidate_geometry": {
+      "bytes": 5544605,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/edge-split-geometry.npz",
+      "sha256": "c3ca2e5383a6424ec3feeb83ccfde2d269950eced21cf4d9e578c4a0385ac417"
+    },
+    "edge_trial_report": {
+      "bytes": 25669,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/edge-split-report.json",
+      "sha256": "e6088df8cf717ae266848e9cbac1e2e2865ebceda58d23db13edd6d037a54d44"
+    },
+    "exact_self_audit": {
+      "bytes": 1468,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/exact-self-audit-001/report.json",
+      "sha256": "2d07d9ef628ac1e036d7d569b0d88b3410c6c2fbe95b527a02a8a671a966d121"
+    },
+    "exact_self_audit_source": {
+      "bytes": 2552,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/exact-self-audit-001/audit_edge_split_surface_001.py",
+      "sha256": "3bd4b768ddab3515ab84bcde355156effe3eae274d159feb82cc316302246bf5"
+    },
+    "executed_builder": {
+      "bytes": 14053,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/build_edge_splits_001.py",
+      "sha256": "4ca61bfd7aee716ec5b058a73d77d689f36796b13b41703dcc6101ef4c2d70ef"
+    },
+    "geometry_slot_wrapper": {
+      "bytes": 692,
+      "path": "/tmp/numi-human-geometry-slot.py",
+      "sha256": "716fbdeea6fac8f3426e2c083ed4573e8554017ea75f4d4d20318400fa74c8e1"
+    },
+    "roundoff_certificate": {
+      "bytes": 840,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/float32-roundoff-certificate.json",
+      "sha256": "2b04beb66624e88d77549614e12d67b1d0be026235812f1a93619bec945421a0"
+    },
+    "roundoff_certificate_source": {
+      "bytes": 3296,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/certify_float32_roundoff_001.py",
+      "sha256": "baece68ae956932d34c6ad585bb300a3099e5c328921a4f8c22753783e86f033"
+    },
+    "surface_proposal_017": {
+      "bytes": 2985799,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-safe-flow-017/run-002/connected-rest-proposal.npz",
+      "sha256": "64f40e915703e35950ba2d3ab95b01a5e75681616c316cace25518c3a0ccb054"
+    }
+  },
+  "float32_roundoff": {
+    "all_ideal_child_areas_partition_parent": true,
+    "all_parent_faces_present": true,
+    "bound_fail_count": 0,
+    "child_face_count": 38106,
+    "edges": [
+      [
+        563,
+        670
+      ],
+      [
+        670,
+        55904
+      ]
+    ],
+    "float32_roundoff_area_bound_pass": true,
+    "max_parent_area_abs_error_m2": 9.503499316200535e-11,
+    "max_parent_error_over_bound": 0.9349099555200873,
+    "max_parent_relative_area_error": 9.358848446498995e-06,
+    "max_parent_roundoff_bound_m2": 1.0168763707862346e-10,
+    "midpoint_error_over_half_ulp": 0.5,
+    "midpoint_max_component_rounding_error_m": 1.4901161193847656e-08,
+    "midpoint_max_component_ulp_m": 2.9802322387695312e-08,
+    "parent_face_count": 38104,
+    "total_area_rel_error": 1.0373153124975112e-10,
+    "total_emitted_area_m2": 1.8018975858128947,
+    "total_parent_area_m2": 1.8018975856259811
+  },
+  "geometry_gates": {
+    "all_f32_tets_positive": true,
+    "below_1e_5_count": 0,
+    "degenerate_outer_faces": 0,
+    "exact_self_pair_count": 0,
+    "full_exact_self_surface_audit": "EXACT_COMPLETE_SURFACE_AUDIT_PASS",
+    "global_boundary_exact_oriented": {
+      "exact_unoriented_set": true,
+      "extra_count": 0,
+      "face_count_actual": 39794,
+      "face_count_expected": 39794,
+      "missing_count": 0,
+      "oriented_mismatch_count": 0
+    },
+    "min_normalized_f32_quality": 1.0305495205375494e-05,
+    "nonpositive_f32_tets": 0,
+    "physical_outer_faces_positive_area": true,
+    "physical_outer_parent_barycentric_min": 0.0,
+    "physical_outer_parent_barycentric_sum_error": 0.0,
+    "registered_shell_exact_oriented": {
+      "exact_unoriented_set": true,
+      "extra_count": 0,
+      "face_count_actual": 39794,
+      "face_count_expected": 39794,
+      "missing_count": 0,
+      "oriented_mismatch_count": 0
+    }
+  },
+  "geometry_slot_elapsed_s": 24.13859979202971,
+  "interpretation": {
+    "boundary_geometry": "The exact real midpoint subdivision partitions each parent triangle exactly. Stored F32 midpoint coordinates differ by at most 0.5 ULP per component; the measured per-parent area discrepancy is bounded by the explicit cross-product perturbation bound for every parent. No existing input point was moved.",
+    "original_script_gate": "The raw trial report marks no candidate as passing because it uses max relative parent-face area error <1e-6. The selected pair measured 9.36e-6 max relative error on a tiny parent face; the bound certificate shows this is within F32 midpoint rounding, while total area error is 1.04e-10 relative.",
+    "scope": "Geometry/topology checkpoint only. Full original source-tet ancestry, conservative material overlap/mass ledger, regional material closure, native integration, and physical admission are pending."
+  },
+  "method": "conforming global exact-midpoint bisection of two original bad-tet edges using the 403 shared splitter; original edge endpoints and all prior node rows are unchanged; the emitted F32 midpoint is rounded to nearest representable coordinate",
+  "schema": "numi.connected-skin-edge-split-018-freeze.v1",
+  "status": "unadmitted_geometry_candidate_with_float32_roundoff_certificate",
+  "tested_trials": 12
+}

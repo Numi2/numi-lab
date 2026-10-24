@@ -1,0 +1,433 @@
+{
+  "schema": "numi.human.connected-skin-transfer-015.candidate020-coarse-owner-coverage.v2",
+  "pins": {
+    "candidate020_nhskin_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "candidate020_selected_hand_rows_sha256": "0e82da742218cbdc10549d924eb2851244848cec22645710a84e5d1a54fe057c",
+    "candidate020_input_sha256": "a5046a5927fb91a8996bc455a61beae34ca234a9b648e6c05dee413ceaffcbc2",
+    "candidate020_mapping_npz_sha256": "16cf55073f7c34e2262b6f8cf4bb040f7a265bd034876b156abf97b462d61e39",
+    "candidate020_mapping_report_sha256": "f7043bf9175aa8c2c642f1a2a5712a951d6f689cb834fca1a36b4e148d6ce915",
+    "baseline294_mapping_npz_sha256": "63f8c5275edea5630082634836e6a63fd248e45c460b37a080542bfc8bc53d28",
+    "baseline294_mapping_report_sha256": "643e6fa67400cbb3e5767edef99f9b1772228b1a1854cd7768e4e1ad3f0e2063",
+    "identity004_snapshot_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "physical013_sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1"
+  },
+  "input_consistency": {
+    "source_vertex_count": 61950,
+    "source_face_count": 108987,
+    "same_source_face_indices_as_294": true,
+    "face_referenced_active_rows": 54551,
+    "all_active_rows_mapped": true,
+    "active_unmapped_rows": 0,
+    "unreferenced_rows": 7399,
+    "current_position_changed_rows_vs_original294": 8938,
+    "max_current_position_delta_vs_original294_m": 5.967910407334801e-07,
+    "rms_current_position_delta_vs_original294_m": 4.9366241351668016e-08,
+    "weights_changed_rows": 9030
+  },
+  "dominant_owner": {
+    "active_rows_with_changed_argmax": 8963,
+    "transitions": [
+      {
+        "from_body_index": 49,
+        "to_body_index": 52,
+        "active_rows": 13
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 53,
+        "active_rows": 221
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 54,
+        "active_rows": 546
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 57,
+        "active_rows": 34
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 59,
+        "active_rows": 369
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 60,
+        "active_rows": 103
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 61,
+        "active_rows": 521
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 62,
+        "active_rows": 50
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 64,
+        "active_rows": 249
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 65,
+        "active_rows": 129
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 66,
+        "active_rows": 487
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 67,
+        "active_rows": 10
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 69,
+        "active_rows": 144
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 70,
+        "active_rows": 349
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 71,
+        "active_rows": 491
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 72,
+        "active_rows": 28
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 74,
+        "active_rows": 218
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 75,
+        "active_rows": 165
+      },
+      {
+        "from_body_index": 49,
+        "to_body_index": 76,
+        "active_rows": 420
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 102,
+        "active_rows": 15
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 103,
+        "active_rows": 277
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 104,
+        "active_rows": 537
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 107,
+        "active_rows": 75
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 109,
+        "active_rows": 282
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 110,
+        "active_rows": 83
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 111,
+        "active_rows": 492
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 112,
+        "active_rows": 44
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 114,
+        "active_rows": 276
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 115,
+        "active_rows": 116
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 116,
+        "active_rows": 464
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 117,
+        "active_rows": 13
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 119,
+        "active_rows": 154
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 120,
+        "active_rows": 295
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 121,
+        "active_rows": 512
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 122,
+        "active_rows": 29
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 124,
+        "active_rows": 205
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 125,
+        "active_rows": 180
+      },
+      {
+        "from_body_index": 99,
+        "to_body_index": 126,
+        "active_rows": 367
+      }
+    ],
+    "candidate020_hand_right": {
+      "source_rows": 4579,
+      "new_dominant_body_ids": [
+        52,
+        53,
+        54,
+        57,
+        59,
+        60,
+        61,
+        62,
+        64,
+        65,
+        66,
+        67,
+        69,
+        70,
+        71,
+        72,
+        74,
+        75,
+        76
+      ],
+      "source_row_coverage": {
+        "source_rows": 4547,
+        "mapped_rows": 4547,
+        "direct_rows": 4547,
+        "fallback_rows": 0,
+        "unmapped_active_rows": 0,
+        "dominant_lane_rows": {
+          "52": 13,
+          "53": 221,
+          "54": 546,
+          "57": 34,
+          "59": 369,
+          "60": 103,
+          "61": 521,
+          "62": 50,
+          "64": 249,
+          "65": 129,
+          "66": 487,
+          "67": 10,
+          "69": 144,
+          "70": 349,
+          "71": 491,
+          "72": 28,
+          "74": 218,
+          "75": 165,
+          "76": 420
+        }
+      }
+    },
+    "candidate020_hand_left": {
+      "source_rows": 4451,
+      "new_dominant_body_ids": [
+        102,
+        103,
+        104,
+        107,
+        109,
+        110,
+        111,
+        112,
+        114,
+        115,
+        116,
+        117,
+        119,
+        120,
+        121,
+        122,
+        124,
+        125,
+        126
+      ],
+      "source_row_coverage": {
+        "source_rows": 4416,
+        "mapped_rows": 4416,
+        "direct_rows": 4416,
+        "fallback_rows": 0,
+        "unmapped_active_rows": 0,
+        "dominant_lane_rows": {
+          "102": 15,
+          "103": 277,
+          "104": 537,
+          "107": 75,
+          "109": 282,
+          "110": 83,
+          "111": 492,
+          "112": 44,
+          "114": 276,
+          "115": 116,
+          "116": 464,
+          "117": 13,
+          "119": 154,
+          "120": 295,
+          "121": 512,
+          "122": 29,
+          "124": 205,
+          "125": 180,
+          "126": 367
+        }
+      }
+    },
+    "all_candidate_hand_dominant_body_ids": [
+      52,
+      53,
+      54,
+      57,
+      59,
+      60,
+      61,
+      62,
+      64,
+      65,
+      66,
+      67,
+      69,
+      70,
+      71,
+      72,
+      74,
+      75,
+      76,
+      102,
+      103,
+      104,
+      107,
+      109,
+      110,
+      111,
+      112,
+      114,
+      115,
+      116,
+      117,
+      119,
+      120,
+      121,
+      122,
+      124,
+      125,
+      126
+    ],
+    "hand_ids_present_on_physical_O_owner_map": [
+      52,
+      53,
+      54,
+      57,
+      59,
+      60,
+      61,
+      62,
+      64,
+      65,
+      66,
+      67,
+      69,
+      70,
+      71,
+      72,
+      74,
+      75,
+      76,
+      102,
+      103,
+      104,
+      107,
+      109,
+      110,
+      111,
+      112,
+      114,
+      115,
+      116,
+      117,
+      119,
+      120,
+      121,
+      122,
+      124,
+      125,
+      126
+    ],
+    "hand_ids_missing_from_physical_O_owner_map": [],
+    "distinct_physical_O_dominant_body_ids_baseline294": 38,
+    "distinct_physical_O_dominant_body_ids_candidate020": 75
+  },
+  "transfer": {
+    "active_rows": 54551,
+    "mapped_rows": 54551,
+    "direct_rows": 54539,
+    "source_connected_fallback_rows": 12,
+    "fallback_by_original_dominant_donor": {
+      "10": 12
+    },
+    "fallback_representative_physical_O_donors": {
+      "4": 9,
+      "20": 2,
+      "128": 1
+    },
+    "max_owner_projection_m": 0.04827504977583885,
+    "rms_owner_projection_m": 0.0027736210417174893,
+    "configured_projection_cap_m": 0.05,
+    "cap_is_anatomical_acceptance": false
+  },
+  "admission": {
+    "status": "counterfactual owner mapping only",
+    "source_embeddings": "INFERRED_CONSTRUCTION_EMBEDDING; not measured ancestry",
+    "physical_or_native_admission": false,
+    "geometry_mass_pose_acceptance": false
+  }
+}

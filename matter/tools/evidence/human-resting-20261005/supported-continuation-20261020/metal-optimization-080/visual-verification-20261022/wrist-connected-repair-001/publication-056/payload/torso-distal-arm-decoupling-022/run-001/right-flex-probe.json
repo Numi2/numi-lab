@@ -1,0 +1,128 @@
+{
+  "status": "UNRESOLVED_OR_REGRESSED_PROBE",
+  "scope": "Exact source-only causal probe, not physical/native qualification",
+  "snapshot_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-006/right-flex/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+  "snapshot_sha256": "e7e812918d01f852aa6f8ab51c4bf5be3cabcd87be4af94552d7270a947dff21",
+  "baseline_pairs": [
+    [
+      70395,
+      75804
+    ],
+    [
+      70395,
+      75805
+    ],
+    [
+      70395,
+      75806
+    ],
+    [
+      70396,
+      75804
+    ],
+    [
+      75640,
+      79225
+    ],
+    [
+      75641,
+      79224
+    ],
+    [
+      75641,
+      79225
+    ]
+  ],
+  "candidate_pairs": [
+    [
+      69086,
+      78991
+    ],
+    [
+      69086,
+      78992
+    ],
+    [
+      69087,
+      78992
+    ],
+    [
+      74617,
+      79878
+    ],
+    [
+      79875,
+      79878
+    ],
+    [
+      79876,
+      79878
+    ],
+    [
+      79878,
+      79879
+    ]
+  ],
+  "added_pairs": [
+    [
+      69086,
+      78991
+    ],
+    [
+      69086,
+      78992
+    ],
+    [
+      69087,
+      78992
+    ],
+    [
+      74617,
+      79878
+    ],
+    [
+      79875,
+      79878
+    ],
+    [
+      79876,
+      79878
+    ],
+    [
+      79878,
+      79879
+    ]
+  ],
+  "removed_pairs": [
+    [
+      70395,
+      75804
+    ],
+    [
+      70395,
+      75805
+    ],
+    [
+      70395,
+      75806
+    ],
+    [
+      70396,
+      75804
+    ],
+    [
+      75640,
+      79225
+    ],
+    [
+      75641,
+      79224
+    ],
+    [
+      75641,
+      79225
+    ]
+  ],
+  "physical_admission": false,
+  "native_admission": false
+}

@@ -1,0 +1,25 @@
+{
+  "status": "PASS_EXACT_NATIVE_SOURCE_SURFACE",
+  "scope": "Actual native source-emission positions only, before accepted FEM deformation. Launch may stop at a later admission guard; this is not a physical/native simulation qualification.",
+  "input_sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-transfer-owner-015/candidate020-counterfactual/native-source-emission-identity004-001/registered-skin.csv": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-transfer-owner-015/candidate020-counterfactual/native-source-emission-identity004-001/registered-skin-poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-transfer-owner-015/candidate020-counterfactual/native-source-emission-identity004-001/launch-manifest.snapshot.json": "2f06f2bad80df5c73cbb9159150d6ab138720f19aed6907c7b277a78b57772ce",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-exact-surface-023/audit_registered_skin_surface.py": "708c1145cf2321e6d9326c40dc78afe7a1262d4a58d6997ee1903c5fb3a562e7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-pose-frame-helper-194/tools/rebind_human_skin_reference.py": "be36923a62ebae0ecd475b57d5a413f424712c4fa129c23e6fe4620479869693"
+  },
+  "vertex_count": 61950,
+  "face_count": 108987,
+  "exact_self_pair_count": 0,
+  "exact_self_pairs": [],
+  "degenerate_faces": [],
+  "helper_position_error_max_m": 5.974650265853253e-07,
+  "helper_position_error_rms_m": 7.495541095008907e-08,
+  "aabb_candidates": 724831,
+  "complete_surface_audit": true,
+  "elapsed_s": 9.83077666698955,
+  "physical_admission": false,
+  "native_simulation_admission": false
+}

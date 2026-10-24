@@ -1,0 +1,11 @@
+$ /Users/n/numi-human-prep-venv-20261005/bin/python -m unittest -v test_flip_validity_018
+exit_code=0
+test_both_2to3_candidates_fail_same_domain_overlap (test_flip_validity_018.FlipValidityReceipt.test_both_2to3_candidates_fail_same_domain_overlap) ... ok
+test_full_ancestry_and_mass_are_pending (test_flip_validity_018.FlipValidityReceipt.test_full_ancestry_and_mass_are_pending) ... ok
+test_no_eligible_3to2_star (test_flip_validity_018.FlipValidityReceipt.test_no_eligible_3to2_star) ... ok
+test_quality_only_candidates_are_not_admitted (test_flip_validity_018.FlipValidityReceipt.test_quality_only_candidates_are_not_admitted) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.002s
+
+OK

@@ -1,0 +1,10 @@
+$ /Users/n/numi-human-prep-venv-20261005/bin/python -m unittest -v test_recover_hand_joint_influences_020
+exit_code=0
+test_binding_identity_mismatch_is_rejected (test_recover_hand_joint_influences_020.InfluenceScopeTests.test_binding_identity_mismatch_is_rejected) ... ok
+test_both_hands_gain_finger_support_without_neighbor_change (test_recover_hand_joint_influences_020.InfluenceScopeTests.test_both_hands_gain_finger_support_without_neighbor_change) ... ok
+test_registered_lineage_mismatch_is_rejected (test_recover_hand_joint_influences_020.InfluenceScopeTests.test_registered_lineage_mismatch_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.006s
+
+OK

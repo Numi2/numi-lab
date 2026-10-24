@@ -1,0 +1,952 @@
+{
+  "schema": "numi.human.connected-skin-transfer-015.source-connected-representatives.v2",
+  "source_payload_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+  "candidate013_sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1",
+  "embedding_v2_sha256": "7caa180a1bfc94fc10494a591aded2ea39cff1353c8cad493a67e7e460d3526e",
+  "registered_position_sha256": "ecb83d7fb712e6d1f8b878e60cce25f28cfe8b624f7deab6cc8f53875ce707ea",
+  "graph": {
+    "vertices": 61950,
+    "edges": 163538,
+    "components": 7400,
+    "unsupported_component_counts": {
+      "0": 26
+    },
+    "source_x_median_m": -0.024114031344652176,
+    "edge_metric": "Euclidean lengths over exact source294 registered faces"
+  },
+  "selection": {
+    "max_owner_one_ring_projection_m": 0.05,
+    "graph_path_cap": "none; graph path and connector distance are reported as locality diagnostics; existing owner maxProjection=0.05 m is enforced on one-ring projection",
+    "region": "same registered-face connected component; donor102 requires +x path and representative, donor10 is side-neutral because its current body center is within 10mm of source x median",
+    "deterministic_tie": "stable lowest physical O local row after graph-plus-anchor cost ordering; face corner order on equal corner costs",
+    "owner": "AcceptedFEMSkinTransfer::detailRepresentativeCoarseIndex, sourceConnectedFaceRings=1; one-ring projection <= representative Euclidean parent distance; donor identity remains unchanged"
+  },
+  "rows": [
+    {
+      "source_vertex": 24974,
+      "donor": 10,
+      "eligible": true,
+      "representative_o_local": 1013,
+      "representative_o_global": 1072,
+      "representative_o_donor": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_source_face_vertices": [
+        22545,
+        24974,
+        24973
+      ],
+      "anchor_vertex": 24974,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "source_graph_path_vertex_ids": [
+        24974
+      ],
+      "graph_plus_anchor_connector_m": 0.015924570725022954,
+      "direct_source_to_o_vertex_m": 0.015924570725022954,
+      "path_euclidean_upper_m": 0.015924570725022954,
+      "path_vertex_count": 1,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": -0.04331953823566437,
+      "path_x_max_m": -0.04331953823566437,
+      "representative_x_side": -1
+    },
+    {
+      "source_vertex": 25774,
+      "donor": 10,
+      "eligible": true,
+      "representative_o_local": 1013,
+      "representative_o_global": 1072,
+      "representative_o_donor": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_source_face_vertices": [
+        22545,
+        24974,
+        24973
+      ],
+      "anchor_vertex": 24973,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "source_graph_path_vertex_ids": [
+        25774,
+        24973
+      ],
+      "graph_plus_anchor_connector_m": 0.023707447668622,
+      "direct_source_to_o_vertex_m": 0.023304003003351073,
+      "path_euclidean_upper_m": 0.023707447668622,
+      "path_vertex_count": 2,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": -0.04390702024102211,
+      "path_x_max_m": -0.034970130771398544,
+      "representative_x_side": -1
+    },
+    {
+      "source_vertex": 25775,
+      "donor": 10,
+      "eligible": true,
+      "representative_o_local": 1013,
+      "representative_o_global": 1072,
+      "representative_o_donor": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_source_face_vertices": [
+        22545,
+        24974,
+        24973
+      ],
+      "anchor_vertex": 24974,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "source_graph_path_vertex_ids": [
+        25775,
+        24974
+      ],
+      "graph_plus_anchor_connector_m": 0.022877005959883318,
+      "direct_source_to_o_vertex_m": 0.02281051522990636,
+      "path_euclidean_upper_m": 0.022877005959883318,
+      "path_vertex_count": 2,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": -0.04331953823566437,
+      "path_x_max_m": -0.03655685856938362,
+      "representative_x_side": -1
+    },
+    {
+      "source_vertex": 26698,
+      "donor": 10,
+      "eligible": true,
+      "representative_o_local": 1013,
+      "representative_o_global": 1072,
+      "representative_o_donor": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_source_face_vertices": [
+        22545,
+        24974,
+        24973
+      ],
+      "anchor_vertex": 24974,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "source_graph_path_vertex_ids": [
+        26698,
+        25775,
+        24974
+      ],
+      "graph_plus_anchor_connector_m": 0.02803269907473054,
+      "direct_source_to_o_vertex_m": 0.027368696304762973,
+      "path_euclidean_upper_m": 0.0277553265207848,
+      "path_vertex_count": 3,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": -0.04331953823566437,
+      "path_x_max_m": -0.03153001517057419,
+      "representative_x_side": -1
+    },
+    {
+      "source_vertex": 28558,
+      "donor": 10,
+      "eligible": true,
+      "representative_o_local": 1013,
+      "representative_o_global": 1072,
+      "representative_o_donor": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_source_face_vertices": [
+        22545,
+        24974,
+        24973
+      ],
+      "anchor_vertex": 24973,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "source_graph_path_vertex_ids": [
+        28558,
+        25774,
+        24973
+      ],
+      "graph_plus_anchor_connector_m": 0.040634694127713304,
+      "direct_source_to_o_vertex_m": 0.04018614757505642,
+      "path_euclidean_upper_m": 0.04031751757498683,
+      "path_vertex_count": 3,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": -0.04390702024102211,
+      "path_x_max_m": -0.018046071752905846,
+      "representative_x_side": -1
+    },
+    {
+      "source_vertex": 28559,
+      "donor": 10,
+      "eligible": true,
+      "representative_o_local": 1013,
+      "representative_o_global": 1072,
+      "representative_o_donor": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_source_face_vertices": [
+        22545,
+        24974,
+        24973
+      ],
+      "anchor_vertex": 24974,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "source_graph_path_vertex_ids": [
+        28559,
+        26698,
+        25775,
+        24974
+      ],
+      "graph_plus_anchor_connector_m": 0.04013535036237763,
+      "direct_source_to_o_vertex_m": 0.03918245149377444,
+      "path_euclidean_upper_m": 0.03923743842098627,
+      "path_vertex_count": 4,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": -0.04331953823566437,
+      "path_x_max_m": -0.020821113139390945,
+      "representative_x_side": -1
+    },
+    {
+      "source_vertex": 29408,
+      "donor": 10,
+      "eligible": true,
+      "representative_o_local": 1013,
+      "representative_o_global": 1072,
+      "representative_o_donor": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_source_face_vertices": [
+        22545,
+        24974,
+        24973
+      ],
+      "anchor_vertex": 24974,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "source_graph_path_vertex_ids": [
+        29408,
+        28559,
+        26698,
+        25775,
+        24974
+      ],
+      "graph_plus_anchor_connector_m": 0.046169710230743906,
+      "direct_source_to_o_vertex_m": 0.043861174408274084,
+      "path_euclidean_upper_m": 0.044152605216980306,
+      "path_vertex_count": 5,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": -0.04331953823566437,
+      "path_x_max_m": -0.015325593762099743,
+      "representative_x_side": -1
+    },
+    {
+      "source_vertex": 30308,
+      "donor": 10,
+      "eligible": true,
+      "representative_o_local": 1124,
+      "representative_o_global": 1194,
+      "representative_o_donor": 4,
+      "anchor_source_face_row": 46394,
+      "anchor_source_face_vertices": [
+        26723,
+        26725,
+        26724
+      ],
+      "anchor_vertex": 26725,
+      "anchor_barycentric": [
+        1.9401352122605802e-05,
+        0.9999153136767691,
+        6.528497110824816e-05
+      ],
+      "source_graph_path_vertex_ids": [
+        30308,
+        30307,
+        29407,
+        28557,
+        27539,
+        26694,
+        26692,
+        26725
+      ],
+      "graph_plus_anchor_connector_m": 0.05007752173406648,
+      "direct_source_to_o_vertex_m": 0.04784253852299839,
+      "path_euclidean_upper_m": 0.04784260981106822,
+      "path_vertex_count": 8,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": -0.029258184134960175,
+      "path_x_max_m": -0.006134666968137026,
+      "representative_x_side": -1
+    },
+    {
+      "source_vertex": 30309,
+      "donor": 10,
+      "eligible": true,
+      "representative_o_local": 1013,
+      "representative_o_global": 1072,
+      "representative_o_donor": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_source_face_vertices": [
+        22545,
+        24974,
+        24973
+      ],
+      "anchor_vertex": 24974,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "source_graph_path_vertex_ids": [
+        30309,
+        29408,
+        28559,
+        26698,
+        25775,
+        24974
+      ],
+      "graph_plus_anchor_connector_m": 0.05196053210707552,
+      "direct_source_to_o_vertex_m": 0.049539283885981916,
+      "path_euclidean_upper_m": 0.04974849436781803,
+      "path_vertex_count": 6,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": -0.04331953823566437,
+      "path_x_max_m": -0.009973580949008465,
+      "representative_x_side": -1
+    },
+    {
+      "source_vertex": 32680,
+      "donor": 10,
+      "eligible": true,
+      "representative_o_local": 1486,
+      "representative_o_global": 1580,
+      "representative_o_donor": 20,
+      "anchor_source_face_row": 59679,
+      "anchor_source_face_vertices": [
+        36865,
+        36829,
+        36828
+      ],
+      "anchor_vertex": 36865,
+      "anchor_barycentric": [
+        0.999997452167197,
+        1.8715307134790364e-06,
+        6.763020894780809e-07
+      ],
+      "source_graph_path_vertex_ids": [
+        32680,
+        34205,
+        34843,
+        36174,
+        36205,
+        36865
+      ],
+      "graph_plus_anchor_connector_m": 0.04918995381408147,
+      "direct_source_to_o_vertex_m": 0.04640301460708612,
+      "path_euclidean_upper_m": 0.046403114737657486,
+      "path_vertex_count": 6,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.00984201580286026,
+      "path_x_max_m": 0.03952837362885475,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 32681,
+      "donor": 10,
+      "eligible": true,
+      "representative_o_local": 1486,
+      "representative_o_global": 1580,
+      "representative_o_donor": 20,
+      "anchor_source_face_row": 59679,
+      "anchor_source_face_vertices": [
+        36865,
+        36829,
+        36828
+      ],
+      "anchor_vertex": 36865,
+      "anchor_barycentric": [
+        0.999997452167197,
+        1.8715307134790364e-06,
+        6.763020894780809e-07
+      ],
+      "source_graph_path_vertex_ids": [
+        32681,
+        32682,
+        34844,
+        36205,
+        36865
+      ],
+      "graph_plus_anchor_connector_m": 0.045502527384315164,
+      "direct_source_to_o_vertex_m": 0.04362384883308605,
+      "path_euclidean_upper_m": 0.04362395100555515,
+      "path_vertex_count": 5,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.006888323463499546,
+      "path_x_max_m": 0.03952837362885475,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 33427,
+      "donor": 10,
+      "eligible": true,
+      "representative_o_local": 1503,
+      "representative_o_global": 1599,
+      "representative_o_donor": 128,
+      "anchor_source_face_row": 60626,
+      "anchor_source_face_vertices": [
+        36825,
+        38043,
+        37487
+      ],
+      "anchor_vertex": 37487,
+      "anchor_barycentric": [
+        1.2432489615942386e-05,
+        1.1297844961993098e-05,
+        0.9999762696654221
+      ],
+      "source_graph_path_vertex_ids": [
+        33427,
+        34204,
+        34841,
+        35537,
+        36204,
+        37487
+      ],
+      "graph_plus_anchor_connector_m": 0.0491694064445168,
+      "direct_source_to_o_vertex_m": 0.04090114976572166,
+      "path_euclidean_upper_m": 0.04090160649548074,
+      "path_vertex_count": 6,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.01238546334207058,
+      "path_x_max_m": 0.0468132421374321,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 52578,
+      "donor": 102,
+      "eligible": true,
+      "representative_o_local": 19021,
+      "representative_o_global": 56459,
+      "representative_o_donor": 100,
+      "anchor_source_face_row": 88594,
+      "anchor_source_face_vertices": [
+        51526,
+        52269,
+        52270
+      ],
+      "anchor_vertex": 52270,
+      "anchor_barycentric": [
+        0.21677643904756191,
+        0.1719089844253962,
+        0.6113145765270418
+      ],
+      "source_graph_path_vertex_ids": [
+        52578,
+        52273,
+        52271,
+        52270
+      ],
+      "graph_plus_anchor_connector_m": 0.009823572290906284,
+      "direct_source_to_o_vertex_m": 0.004326715864311606,
+      "path_euclidean_upper_m": 0.006540671230569077,
+      "path_vertex_count": 4,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.23866473138332367,
+      "path_x_max_m": 0.24099062383174896,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 52579,
+      "donor": 102,
+      "eligible": true,
+      "representative_o_local": 19021,
+      "representative_o_global": 56459,
+      "representative_o_donor": 100,
+      "anchor_source_face_row": 88594,
+      "anchor_source_face_vertices": [
+        51526,
+        52269,
+        52270
+      ],
+      "anchor_vertex": 52270,
+      "anchor_barycentric": [
+        0.21677643904756191,
+        0.1719089844253962,
+        0.6113145765270418
+      ],
+      "source_graph_path_vertex_ids": [
+        52579,
+        52576,
+        52271,
+        52270
+      ],
+      "graph_plus_anchor_connector_m": 0.01076350203059482,
+      "direct_source_to_o_vertex_m": 0.005477047702480926,
+      "path_euclidean_upper_m": 0.00978021714360936,
+      "path_vertex_count": 4,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.23629340529441833,
+      "path_x_max_m": 0.23952266573905945,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 52580,
+      "donor": 102,
+      "eligible": true,
+      "representative_o_local": 19021,
+      "representative_o_global": 56459,
+      "representative_o_donor": 100,
+      "anchor_source_face_row": 88594,
+      "anchor_source_face_vertices": [
+        51526,
+        52269,
+        52270
+      ],
+      "anchor_vertex": 52270,
+      "anchor_barycentric": [
+        0.21677643904756191,
+        0.1719089844253962,
+        0.6113145765270418
+      ],
+      "source_graph_path_vertex_ids": [
+        52580,
+        52578,
+        52273,
+        52271,
+        52270
+      ],
+      "graph_plus_anchor_connector_m": 0.010484687975799115,
+      "direct_source_to_o_vertex_m": 0.004750633756429673,
+      "path_euclidean_upper_m": 0.007196622342088016,
+      "path_vertex_count": 5,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.23866473138332367,
+      "path_x_max_m": 0.24099062383174896,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 52581,
+      "donor": 102,
+      "eligible": true,
+      "representative_o_local": 19021,
+      "representative_o_global": 56459,
+      "representative_o_donor": 100,
+      "anchor_source_face_row": 88594,
+      "anchor_source_face_vertices": [
+        51526,
+        52269,
+        52270
+      ],
+      "anchor_vertex": 52270,
+      "anchor_barycentric": [
+        0.21677643904756191,
+        0.1719089844253962,
+        0.6113145765270418
+      ],
+      "source_graph_path_vertex_ids": [
+        52581,
+        52579,
+        52576,
+        52271,
+        52270
+      ],
+      "graph_plus_anchor_connector_m": 0.01220183789391427,
+      "direct_source_to_o_vertex_m": 0.006806186359152869,
+      "path_euclidean_upper_m": 0.011175222278297627,
+      "path_vertex_count": 5,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.23596659302711487,
+      "path_x_max_m": 0.23952266573905945,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 52582,
+      "donor": 102,
+      "eligible": true,
+      "representative_o_local": 19021,
+      "representative_o_global": 56459,
+      "representative_o_donor": 100,
+      "anchor_source_face_row": 88594,
+      "anchor_source_face_vertices": [
+        51526,
+        52269,
+        52270
+      ],
+      "anchor_vertex": 52270,
+      "anchor_barycentric": [
+        0.21677643904756191,
+        0.1719089844253962,
+        0.6113145765270418
+      ],
+      "source_graph_path_vertex_ids": [
+        52582,
+        52580,
+        52578,
+        52273,
+        52271,
+        52270
+      ],
+      "graph_plus_anchor_connector_m": 0.013268357435744758,
+      "direct_source_to_o_vertex_m": 0.005760998285535684,
+      "path_euclidean_upper_m": 0.00945737697219368,
+      "path_vertex_count": 6,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.23771807551383972,
+      "path_x_max_m": 0.24099062383174896,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 52593,
+      "donor": 102,
+      "eligible": true,
+      "representative_o_local": 19021,
+      "representative_o_global": 56459,
+      "representative_o_donor": 100,
+      "anchor_source_face_row": 88594,
+      "anchor_source_face_vertices": [
+        51526,
+        52269,
+        52270
+      ],
+      "anchor_vertex": 52270,
+      "anchor_barycentric": [
+        0.21677643904756191,
+        0.1719089844253962,
+        0.6113145765270418
+      ],
+      "source_graph_path_vertex_ids": [
+        52593,
+        52591,
+        52589,
+        52273,
+        52271,
+        52270
+      ],
+      "graph_plus_anchor_connector_m": 0.011509703788424499,
+      "direct_source_to_o_vertex_m": 0.005686118826649856,
+      "path_euclidean_upper_m": 0.007302237182274432,
+      "path_vertex_count": 6,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.23866473138332367,
+      "path_x_max_m": 0.24265825748443604,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 52746,
+      "donor": 102,
+      "eligible": true,
+      "representative_o_local": 19021,
+      "representative_o_global": 56459,
+      "representative_o_donor": 100,
+      "anchor_source_face_row": 88594,
+      "anchor_source_face_vertices": [
+        51526,
+        52269,
+        52270
+      ],
+      "anchor_vertex": 52270,
+      "anchor_barycentric": [
+        0.21677643904756191,
+        0.1719089844253962,
+        0.6113145765270418
+      ],
+      "source_graph_path_vertex_ids": [
+        52746,
+        52581,
+        52579,
+        52576,
+        52271,
+        52270
+      ],
+      "graph_plus_anchor_connector_m": 0.013333446645799435,
+      "direct_source_to_o_vertex_m": 0.007847642671426572,
+      "path_euclidean_upper_m": 0.012302190287449,
+      "path_vertex_count": 6,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.23555003106594086,
+      "path_x_max_m": 0.23952266573905945,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 52750,
+      "donor": 102,
+      "eligible": true,
+      "representative_o_local": 19050,
+      "representative_o_global": 56488,
+      "representative_o_donor": 99,
+      "anchor_source_face_row": 91570,
+      "anchor_source_face_vertices": [
+        53316,
+        52993,
+        53315
+      ],
+      "anchor_vertex": 52993,
+      "anchor_barycentric": [
+        0.17078787088394165,
+        0.8292121291160583,
+        0.0
+      ],
+      "source_graph_path_vertex_ids": [
+        52750,
+        52753,
+        52754,
+        52764,
+        52975,
+        52993
+      ],
+      "graph_plus_anchor_connector_m": 0.013821400845612683,
+      "direct_source_to_o_vertex_m": 0.007278398943187187,
+      "path_euclidean_upper_m": 0.008428523560280416,
+      "path_vertex_count": 6,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.23756344616413116,
+      "path_x_max_m": 0.24145421385765076,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 52751,
+      "donor": 102,
+      "eligible": true,
+      "representative_o_local": 19021,
+      "representative_o_global": 56459,
+      "representative_o_donor": 100,
+      "anchor_source_face_row": 88594,
+      "anchor_source_face_vertices": [
+        51526,
+        52269,
+        52270
+      ],
+      "anchor_vertex": 52270,
+      "anchor_barycentric": [
+        0.21677643904756191,
+        0.1719089844253962,
+        0.6113145765270418
+      ],
+      "source_graph_path_vertex_ids": [
+        52751,
+        52593,
+        52591,
+        52589,
+        52273,
+        52271,
+        52270
+      ],
+      "graph_plus_anchor_connector_m": 0.013517383518005065,
+      "direct_source_to_o_vertex_m": 0.005798368375926345,
+      "path_euclidean_upper_m": 0.008303898973892946,
+      "path_vertex_count": 7,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.23866473138332367,
+      "path_x_max_m": 0.24265825748443604,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 52752,
+      "donor": 102,
+      "eligible": true,
+      "representative_o_local": 1960,
+      "representative_o_global": 2105,
+      "representative_o_donor": 100,
+      "anchor_source_face_row": 90134,
+      "anchor_source_face_vertices": [
+        52606,
+        52605,
+        52608
+      ],
+      "anchor_vertex": 52605,
+      "anchor_barycentric": [
+        0.9999501816158881,
+        0.0,
+        4.9818384111888214e-05
+      ],
+      "source_graph_path_vertex_ids": [
+        52752,
+        52749,
+        52594,
+        52605
+      ],
+      "graph_plus_anchor_connector_m": 0.013357654650722505,
+      "direct_source_to_o_vertex_m": 0.013341694075020782,
+      "path_euclidean_upper_m": 0.013351983308733955,
+      "path_vertex_count": 4,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.24137583374977112,
+      "path_x_max_m": 0.24795421957969666,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 52753,
+      "donor": 102,
+      "eligible": true,
+      "representative_o_local": 19050,
+      "representative_o_global": 56488,
+      "representative_o_donor": 99,
+      "anchor_source_face_row": 91570,
+      "anchor_source_face_vertices": [
+        53316,
+        52993,
+        53315
+      ],
+      "anchor_vertex": 52993,
+      "anchor_barycentric": [
+        0.17078787088394165,
+        0.8292121291160583,
+        0.0
+      ],
+      "source_graph_path_vertex_ids": [
+        52753,
+        52754,
+        52764,
+        52975,
+        52993
+      ],
+      "graph_plus_anchor_connector_m": 0.012391192048945785,
+      "direct_source_to_o_vertex_m": 0.007639348989799413,
+      "path_euclidean_upper_m": 0.008422671967327426,
+      "path_vertex_count": 5,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.23891720175743103,
+      "path_x_max_m": 0.24145421385765076,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 52754,
+      "donor": 102,
+      "eligible": true,
+      "representative_o_local": 19050,
+      "representative_o_global": 56488,
+      "representative_o_donor": 99,
+      "anchor_source_face_row": 91570,
+      "anchor_source_face_vertices": [
+        53316,
+        52993,
+        53315
+      ],
+      "anchor_vertex": 52993,
+      "anchor_barycentric": [
+        0.17078787088394165,
+        0.8292121291160583,
+        0.0
+      ],
+      "source_graph_path_vertex_ids": [
+        52754,
+        52764,
+        52975,
+        52993
+      ],
+      "graph_plus_anchor_connector_m": 0.011109879094427422,
+      "direct_source_to_o_vertex_m": 0.008250205907925749,
+      "path_euclidean_upper_m": 0.00884323703452773,
+      "path_vertex_count": 4,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.23950931429862976,
+      "path_x_max_m": 0.24145421385765076,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 52968,
+      "donor": 102,
+      "eligible": true,
+      "representative_o_local": 19050,
+      "representative_o_global": 56488,
+      "representative_o_donor": 99,
+      "anchor_source_face_row": 91570,
+      "anchor_source_face_vertices": [
+        53316,
+        52993,
+        53315
+      ],
+      "anchor_vertex": 52993,
+      "anchor_barycentric": [
+        0.17078787088394165,
+        0.8292121291160583,
+        0.0
+      ],
+      "source_graph_path_vertex_ids": [
+        52968,
+        52974,
+        52975,
+        52993
+      ],
+      "graph_plus_anchor_connector_m": 0.010302248222818205,
+      "direct_source_to_o_vertex_m": 0.004861582397894073,
+      "path_euclidean_upper_m": 0.0061546885607643865,
+      "path_vertex_count": 4,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.23798422515392303,
+      "path_x_max_m": 0.24050591886043549,
+      "representative_x_side": 1
+    },
+    {
+      "source_vertex": 52974,
+      "donor": 102,
+      "eligible": true,
+      "representative_o_local": 19050,
+      "representative_o_global": 56488,
+      "representative_o_donor": 99,
+      "anchor_source_face_row": 91570,
+      "anchor_source_face_vertices": [
+        53316,
+        52993,
+        53315
+      ],
+      "anchor_vertex": 52993,
+      "anchor_barycentric": [
+        0.17078787088394165,
+        0.8292121291160583,
+        0.0
+      ],
+      "source_graph_path_vertex_ids": [
+        52974,
+        52975,
+        52993
+      ],
+      "graph_plus_anchor_connector_m": 0.009668954084877935,
+      "direct_source_to_o_vertex_m": 0.0045313417710072705,
+      "path_euclidean_upper_m": 0.005527410992265076,
+      "path_vertex_count": 3,
+      "source_component": 0,
+      "anchor_component": 0,
+      "path_x_min_m": 0.23847155272960663,
+      "path_x_max_m": 0.24050591886043549,
+      "representative_x_side": 1
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+test_changed_payload_at_same_path_is_rejected (test_registered_skin_surface.IdentityTests.test_changed_payload_at_same_path_is_rejected) ... ok
+test_same_bytes_at_different_unlaunched_path_rejected (test_registered_skin_surface.IdentityTests.test_same_bytes_at_different_unlaunched_path_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK

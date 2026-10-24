@@ -1,0 +1,85 @@
+{
+  "created_files_are_evidence_only": true,
+  "current_checkout_head_at_prepare": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "excluded": [
+    "candidate activation/native scene changes",
+    "claim of anatomical/physical/native qualification",
+    "021 and 022 unadmitted candidate payloads (hashes retained in reports)",
+    "020/015 external raw source assets except the explicitly copied 013 physical-O candidate",
+    "23 MB identity-004 emitted CSV (retained externally and hash-pinned)",
+    "018 TetGen node and element inputs (retained externally and hash-pinned byte-for-byte)",
+    "all unlisted mutable experiments"
+  ],
+  "included_unadmitted_candidate_hashes": {
+    "018-edge-split-geometry": "c3ca2e5383a6424ec3feeb83ccfde2d269950eced21cf4d9e578c4a0385ac417",
+    "020-hand-influence-rebind": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb"
+  },
+  "interpretation": [
+    "020 has no new exact self-pairs across eight retained wrist probes but retains pre-existing exact pairs; unresolved pairs are transverse interior witnesses.",
+    "Identity-004 source emission stopped at the declared source-payload hash guard before Matter initialization; 023 separately found no exact self-pairs or degenerate faces in the emitted source CSV, before FEM deformation.",
+    "015 v3 and candidate020 transfer maps are inferred construction embeddings, not measured ancestry; 48.275 mm is a construction projection, not anatomy.",
+    "018 bistellar flip is rejected by same-domain overlap; the separate edge-split geometry candidate passes the included geometry/topology checks but has unresolved material ancestry/mass and native admission.",
+    "021 weight counterfactual is rejected because it creates more pose pairs than it removes.",
+    "022 arm-weight counterfactual is rejected because it removes seven old pairs and introduces seven new pairs."
+  ],
+  "normal_index_tree_before_and_after": "b8d44c114ef552130634d80d7e94488ee5136201",
+  "omitted_candidate_payload_hashes": {
+    "021": "f3b200c292238e317109bf82cfebd978a9b82abf923f8b22d5339acf7805bacc",
+    "022": "582dd74a879da31e2af553b91c8211ca45b8eeff0c329f23cca6270c27726c73"
+  },
+  "origin_main_at_prepare": "805765221ea8b01d8c0c115381f226db670bb29b",
+  "payload_file_count": 107,
+  "payload_filelist_sha256": "047a0228dd1b9e2b3c07573fe5c368a53f56b57498cf59881242f7da329c65d9",
+  "payload_total_bytes": 169547170,
+  "prepare_script_sha256": "9aee56eb2b13b2cb9c9f41424fff584bd871fb93f8e8fa650f2ba00b9aba43ed",
+  "publication_path_from_repository_root": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-056",
+  "repository": "numi-human-aortic-contact-opt-20261019",
+  "repository_root": "/Users/n/numi-human-aortic-contact-opt-20261019",
+  "rights_note": "No explicit license or redistribution terms were found in the checked local source records. This publication makes no ownership claim or license grant; original asset terms remain controlling.",
+  "schema": "wrist-connected-repair-publication-056-v1",
+  "scope": [
+    "bilateral hand influence recovery 020 and retained-pose exact checks",
+    "identity-004 native source-emission preflight and owner-194 parity comparison (rejected before Matter initialization)",
+    "023 exact self-surface and degenerate-face audit of the actual emitted source CSV before FEM deformation",
+    "connected skin transfer 015 v3 inferred maps and candidate020 mapping counterfactual",
+    "rejected local cavity bistellar-flip experiment 018",
+    "unadmitted conforming edge-split geometry candidate 018 with roundoff certificate and exact surface audit",
+    "failed torso-distal-hand weight counterfactual 021",
+    "failed torso-distal-arm weight counterfactual 022"
+  ],
+  "source_input_pins_sha256": "b6c138fb6448f0155a9bfe9081fffbd130b15408f0bd40239ff907c43d317fe9",
+  "status": "PREPARED_FOR_REVIEW_UNPUBLISHED",
+  "target_parent_commit": "805765221ea8b01d8c0c115381f226db670bb29b",
+  "tests": [
+    {
+      "exit_code": 0,
+      "path": "test-results/020-unit.log"
+    },
+    {
+      "exit_code": 0,
+      "path": "test-results/015-v3-owner.log"
+    },
+    {
+      "exit_code": 0,
+      "path": "test-results/018-rejected-method-regression.log"
+    },
+    {
+      "exit_code": 0,
+      "path": "test-results/023-source-surface-identity.log"
+    }
+  ],
+  "whitespace_check": {
+    "allowed_findings": [
+      "payload/bilateral-hand-functional-rebind-020/audit_remaining_pose_witnesses_020-failed-float-classifier.py:33",
+      "payload/bilateral-hand-functional-rebind-020/audit_remaining_pose_witnesses_020_v2.py:34",
+      "payload/bilateral-hand-functional-rebind-020/audit_retained_wrist_poses_020.py:52",
+      "payload/dependencies/NumiHumanAcceptedFEMSkinTransfer.hpp:609",
+      "payload/dependencies/numi-human-geometry-slot.py:14",
+      "payload/native-source-exact-surface-023/audit_registered_skin_surface.py:39",
+      "payload/native-source-exact-surface-023/test_registered_skin_surface.py:17",
+      "payload/torso-distal-hand-decoupling-021/recover_local_torso_weights_021.py:54",
+      "payload/torso-distal-arm-decoupling-022/recover_local_torso_weights_022.py:54"
+    ],
+    "status": "PASS_WITH_PINNED_RETAINED_BLANK_AT_EOF_IN_SOURCE_EVIDENCE"
+  }
+}

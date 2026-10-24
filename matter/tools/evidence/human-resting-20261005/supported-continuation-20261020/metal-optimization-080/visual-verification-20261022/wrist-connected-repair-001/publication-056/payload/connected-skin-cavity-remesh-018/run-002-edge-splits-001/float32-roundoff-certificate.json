@@ -1,0 +1,28 @@
+{
+  "parent_face_count": 38104,
+  "child_face_count": 38106,
+  "all_parent_faces_present": true,
+  "all_ideal_child_areas_partition_parent": true,
+  "float32_roundoff_area_bound_pass": true,
+  "bound_fail_count": 0,
+  "max_parent_area_abs_error_m2": 9.503499316200535e-11,
+  "max_parent_relative_area_error": 9.358848446498995e-06,
+  "max_parent_roundoff_bound_m2": 1.0168763707862346e-10,
+  "max_parent_error_over_bound": 0.9349099555200873,
+  "total_parent_area_m2": 1.8018975856259811,
+  "total_emitted_area_m2": 1.8018975858128947,
+  "total_area_rel_error": 1.0373153124975112e-10,
+  "midpoint_max_component_rounding_error_m": 1.4901161193847656e-08,
+  "midpoint_max_component_ulp_m": 2.9802322387695312e-08,
+  "midpoint_error_over_half_ulp": 0.5,
+  "edges": [
+    [
+      563,
+      670
+    ],
+    [
+      670,
+      55904
+    ]
+  ]
+}

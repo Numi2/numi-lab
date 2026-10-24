@@ -1,0 +1,341 @@
+{
+  "schema": "numi.human.connected-skin-transfer-015.source-connected-representatives.candidate020.v1",
+  "counterfactual_only": true,
+  "input_sha256": "a5046a5927fb91a8996bc455a61beae34ca234a9b648e6c05dee413ceaffcbc2",
+  "owner_diagnostic_sha256": "5a2b78cfeaf591f62689363338ed17c573664cb3097502652bba49700d0ab9a6",
+  "registered_surface_graph": {
+    "vertex_count": 61950,
+    "face_count": 108987,
+    "unique_edges": 163538,
+    "component_count": 7400,
+    "metric": "Euclidean edge lengths on exact source294 face graph using identity-004 current 020 replayed Float32 coordinates",
+    "source_x_median_m": -0.024114031344652176
+  },
+  "selection": {
+    "fallback_count": 12,
+    "fallback_donor_counts": {
+      "10": 12
+    },
+    "rule": "preserve target dominant donor ID; anchor through current owner-selected O-to-source face; require same source-face graph component; choose deterministic minimum graph distance plus face-corner connector; existing owner searches the representative one-ring while retaining the target donor, and imposes the representative-distance and projection caps; no scene-wide remap",
+    "configured_owner_projection_cap_m": 0.05,
+    "graph_distance_cap": "none; reported as locality diagnostic only"
+  },
+  "rows": [
+    {
+      "source_vertex": 24974,
+      "dominant_donor_body_index": 10,
+      "representative_o_local": 1013,
+      "representative_o_donor_body_index": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "anchor_vertex": 24974,
+      "source_graph_path_vertex_ids": [
+        24974
+      ],
+      "source_graph_plus_anchor_connector_m": 0.015924570725022954,
+      "direct_source_to_representative_m": 0.015924570725022954,
+      "path_euclidean_upper_m": 0.015924570725022954,
+      "graph_path_vertex_count": 1,
+      "source_component": 0,
+      "anchor_component": 0,
+      "x_side_filter": "side-neutral donor"
+    },
+    {
+      "source_vertex": 25774,
+      "dominant_donor_body_index": 10,
+      "representative_o_local": 1013,
+      "representative_o_donor_body_index": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "anchor_vertex": 24973,
+      "source_graph_path_vertex_ids": [
+        25774,
+        24973
+      ],
+      "source_graph_plus_anchor_connector_m": 0.023707447668622,
+      "direct_source_to_representative_m": 0.023304003003351073,
+      "path_euclidean_upper_m": 0.023707447668622,
+      "graph_path_vertex_count": 2,
+      "source_component": 0,
+      "anchor_component": 0,
+      "x_side_filter": "side-neutral donor"
+    },
+    {
+      "source_vertex": 25775,
+      "dominant_donor_body_index": 10,
+      "representative_o_local": 1013,
+      "representative_o_donor_body_index": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "anchor_vertex": 24974,
+      "source_graph_path_vertex_ids": [
+        25775,
+        24974
+      ],
+      "source_graph_plus_anchor_connector_m": 0.022877005959883318,
+      "direct_source_to_representative_m": 0.02281051522990636,
+      "path_euclidean_upper_m": 0.022877005959883318,
+      "graph_path_vertex_count": 2,
+      "source_component": 0,
+      "anchor_component": 0,
+      "x_side_filter": "side-neutral donor"
+    },
+    {
+      "source_vertex": 26698,
+      "dominant_donor_body_index": 10,
+      "representative_o_local": 1013,
+      "representative_o_donor_body_index": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "anchor_vertex": 24974,
+      "source_graph_path_vertex_ids": [
+        26698,
+        25775,
+        24974
+      ],
+      "source_graph_plus_anchor_connector_m": 0.02803269907473054,
+      "direct_source_to_representative_m": 0.027368696304762973,
+      "path_euclidean_upper_m": 0.0277553265207848,
+      "graph_path_vertex_count": 3,
+      "source_component": 0,
+      "anchor_component": 0,
+      "x_side_filter": "side-neutral donor"
+    },
+    {
+      "source_vertex": 28558,
+      "dominant_donor_body_index": 10,
+      "representative_o_local": 1013,
+      "representative_o_donor_body_index": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "anchor_vertex": 24973,
+      "source_graph_path_vertex_ids": [
+        28558,
+        25774,
+        24973
+      ],
+      "source_graph_plus_anchor_connector_m": 0.040634694127713304,
+      "direct_source_to_representative_m": 0.04018614757505642,
+      "path_euclidean_upper_m": 0.04031751757498683,
+      "graph_path_vertex_count": 3,
+      "source_component": 0,
+      "anchor_component": 0,
+      "x_side_filter": "side-neutral donor"
+    },
+    {
+      "source_vertex": 28559,
+      "dominant_donor_body_index": 10,
+      "representative_o_local": 1013,
+      "representative_o_donor_body_index": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "anchor_vertex": 24974,
+      "source_graph_path_vertex_ids": [
+        28559,
+        26698,
+        25775,
+        24974
+      ],
+      "source_graph_plus_anchor_connector_m": 0.04013535036237763,
+      "direct_source_to_representative_m": 0.03918245149377444,
+      "path_euclidean_upper_m": 0.03923743842098627,
+      "graph_path_vertex_count": 4,
+      "source_component": 0,
+      "anchor_component": 0,
+      "x_side_filter": "side-neutral donor"
+    },
+    {
+      "source_vertex": 29408,
+      "dominant_donor_body_index": 10,
+      "representative_o_local": 1013,
+      "representative_o_donor_body_index": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "anchor_vertex": 24974,
+      "source_graph_path_vertex_ids": [
+        29408,
+        28559,
+        26698,
+        25775,
+        24974
+      ],
+      "source_graph_plus_anchor_connector_m": 0.046169710230743906,
+      "direct_source_to_representative_m": 0.043861174408274084,
+      "path_euclidean_upper_m": 0.044152605216980306,
+      "graph_path_vertex_count": 5,
+      "source_component": 0,
+      "anchor_component": 0,
+      "x_side_filter": "side-neutral donor"
+    },
+    {
+      "source_vertex": 30308,
+      "dominant_donor_body_index": 10,
+      "representative_o_local": 1124,
+      "representative_o_donor_body_index": 4,
+      "anchor_source_face_row": 46394,
+      "anchor_barycentric": [
+        1.9401352122605802e-05,
+        0.9999153136767691,
+        6.528497110824816e-05
+      ],
+      "anchor_vertex": 26725,
+      "source_graph_path_vertex_ids": [
+        30308,
+        30307,
+        29407,
+        28557,
+        27539,
+        26694,
+        26692,
+        26725
+      ],
+      "source_graph_plus_anchor_connector_m": 0.05007752173406648,
+      "direct_source_to_representative_m": 0.04784253852299839,
+      "path_euclidean_upper_m": 0.04784260981106822,
+      "graph_path_vertex_count": 8,
+      "source_component": 0,
+      "anchor_component": 0,
+      "x_side_filter": "side-neutral donor"
+    },
+    {
+      "source_vertex": 30309,
+      "dominant_donor_body_index": 10,
+      "representative_o_local": 1013,
+      "representative_o_donor_body_index": 4,
+      "anchor_source_face_row": 42871,
+      "anchor_barycentric": [
+        0.9999971547143339,
+        7.705222181654198e-07,
+        2.0747634479100277e-06
+      ],
+      "anchor_vertex": 24974,
+      "source_graph_path_vertex_ids": [
+        30309,
+        29408,
+        28559,
+        26698,
+        25775,
+        24974
+      ],
+      "source_graph_plus_anchor_connector_m": 0.05196053210707552,
+      "direct_source_to_representative_m": 0.049539283885981916,
+      "path_euclidean_upper_m": 0.04974849436781803,
+      "graph_path_vertex_count": 6,
+      "source_component": 0,
+      "anchor_component": 0,
+      "x_side_filter": "side-neutral donor"
+    },
+    {
+      "source_vertex": 32680,
+      "dominant_donor_body_index": 10,
+      "representative_o_local": 1486,
+      "representative_o_donor_body_index": 20,
+      "anchor_source_face_row": 59679,
+      "anchor_barycentric": [
+        0.999997452167197,
+        1.8715307134790364e-06,
+        6.763020894780809e-07
+      ],
+      "anchor_vertex": 36865,
+      "source_graph_path_vertex_ids": [
+        32680,
+        34205,
+        34843,
+        36174,
+        36205,
+        36865
+      ],
+      "source_graph_plus_anchor_connector_m": 0.04918995381408147,
+      "direct_source_to_representative_m": 0.04640301460708612,
+      "path_euclidean_upper_m": 0.046403114737657486,
+      "graph_path_vertex_count": 6,
+      "source_component": 0,
+      "anchor_component": 0,
+      "x_side_filter": "side-neutral donor"
+    },
+    {
+      "source_vertex": 32681,
+      "dominant_donor_body_index": 10,
+      "representative_o_local": 1486,
+      "representative_o_donor_body_index": 20,
+      "anchor_source_face_row": 59679,
+      "anchor_barycentric": [
+        0.999997452167197,
+        1.8715307134790364e-06,
+        6.763020894780809e-07
+      ],
+      "anchor_vertex": 36865,
+      "source_graph_path_vertex_ids": [
+        32681,
+        32682,
+        34844,
+        36205,
+        36865
+      ],
+      "source_graph_plus_anchor_connector_m": 0.045502527384315164,
+      "direct_source_to_representative_m": 0.04362384883308605,
+      "path_euclidean_upper_m": 0.04362395100555515,
+      "graph_path_vertex_count": 5,
+      "source_component": 0,
+      "anchor_component": 0,
+      "x_side_filter": "side-neutral donor"
+    },
+    {
+      "source_vertex": 33427,
+      "dominant_donor_body_index": 10,
+      "representative_o_local": 1503,
+      "representative_o_donor_body_index": 128,
+      "anchor_source_face_row": 60626,
+      "anchor_barycentric": [
+        1.2432489615942386e-05,
+        1.1297844961993098e-05,
+        0.9999762696654221
+      ],
+      "anchor_vertex": 37487,
+      "source_graph_path_vertex_ids": [
+        33427,
+        34204,
+        34841,
+        35537,
+        36204,
+        37487
+      ],
+      "source_graph_plus_anchor_connector_m": 0.0491694064445168,
+      "direct_source_to_representative_m": 0.04090114976572166,
+      "path_euclidean_upper_m": 0.04090160649548074,
+      "graph_path_vertex_count": 6,
+      "source_component": 0,
+      "anchor_component": 0,
+      "x_side_filter": "side-neutral donor"
+    }
+  ],
+  "physical_or_native_admission": false
+}

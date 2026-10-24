@@ -1,0 +1,21 @@
+{
+  "aabb_candidate_pairs": 260930,
+  "allowed_shared_vertex_or_edge_pairs": 243303,
+  "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/edge-split-geometry.npz",
+  "candidate_sha256": "c3ca2e5383a6424ec3feeb83ccfde2d269950eced21cf4d9e578c4a0385ac417",
+  "degenerate_face_count": 0,
+  "degenerate_face_rows": [],
+  "deterministic_first_64_pairs": [],
+  "elapsed_s": 3.2962539999280125,
+  "exact_pair_set_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "exact_predicate_algorithm": "exact_binary64_integer_triangle_predicates_and_rational_ray_parity_v1",
+  "exact_self_pair_count": 0,
+  "face_count": 38106,
+  "full_exact_audit": true,
+  "owner_source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+  "owner_source_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "point_count": 79446,
+  "points_f32": true,
+  "schema": "connected-skin-edge-split-exact-self-audit-018.v1",
+  "status": "EXACT_COMPLETE_SURFACE_AUDIT_PASS"
+}

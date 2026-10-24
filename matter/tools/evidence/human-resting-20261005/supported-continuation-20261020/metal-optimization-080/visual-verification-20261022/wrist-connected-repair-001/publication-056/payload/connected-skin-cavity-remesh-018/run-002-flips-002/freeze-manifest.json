@@ -1,0 +1,61 @@
+{
+  "builder": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/flip_local_cavity_018_checkpoint.py",
+    "sha256": "6f18e6fcec7fb58dfd6975dcc758846c932fb67bf667df7589c7df6f9b860909"
+  },
+  "candidate_admission": false,
+  "conclusion": "The bounded one-step 2-to-3/3-to-2 search did not produce a valid repair. The only two quality-passing 2-to-3 trials fail same-domain overlap; no eligible 3-to-2 edge star exists. The original TetGen mesh remains at one normalized-quality-floor failure.",
+  "elapsed_flip_construction_s": 4.914161583059467,
+  "full_material_mass_ledger": "pending",
+  "full_parent_ancestry": "pending",
+  "geometry_attempt": {
+    "note": "retained for diagnosis only; invalid local topology/domain",
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-flips-002/local-flip-geometry.npz",
+    "sha256": "5b5a33f1294d4a33fc1600e7ad323cc10e40ca630bed0d7da88c3a66f2f5a7db"
+  },
+  "input_pins": {
+    "baseline_013": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013/boundary-refinement-002/candidate.npz",
+      "sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1"
+    },
+    "overlap_owner_sha256": "82ea2fb8ea96ed2f4bdba0124bbd37a05e28ead7e3568da24fad7e9c7c071ef2",
+    "surface_017_run002": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-safe-flow-017/run-002/connected-rest-proposal.npz",
+      "sha256": "64f40e915703e35950ba2d3ab95b01a5e75681616c316cace25518c3a0ccb054"
+    },
+    "tetgen_elements": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/cavity.1.ele",
+      "sha256": "488b29ddee6ababfb089849a847b2519ee2bdd2a45823c2c54af7b8d623f8588"
+    },
+    "tetgen_nodes": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/cavity.1.node",
+      "sha256": "00777aca8500ddac0e74fd74fe94db0d6ff45170546370a62166b5a04b200f7b"
+    }
+  },
+  "overlap_witness": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-flips-002/flip-overlap-validity-witness.npz",
+    "sha256": "8787dce76c9aed87389455702a0a1345620ba4037582574de4b5d773ed75a7ff"
+  },
+  "quality_only_as_run_report": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-flips-002/flip-report-quality-only-as-run.json",
+    "sha256": "f51fa6c5c0819cf93cb1c8ffa098072044a0bf16c32368fda89720738ea414b8"
+  },
+  "regression_test": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-flips-002/test_flip_validity_018.py",
+    "sha256": "f670e8828b421b2dde4976d53b633b8df38c56f3ec988e6784519912d0da7fb1"
+  },
+  "schema": "numi.local-flip-018-freeze.v1",
+  "status": "rejected_geometry_method_checkpointed",
+  "superseding_report": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-flips-002/flip-report.json",
+    "sha256": "9f25546ff69320cf56eaf43b65ab941b6588c148fef6c685bba00dd9c7b46a10"
+  },
+  "validity_audit": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-flips-002/flip-validity-audit.json",
+    "sha256": "0c4612d030d606b8ed1a8e8e6a0ef93d87fb7d249f409f91a3faeb9c096bf3dd"
+  },
+  "validity_audit_source": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-flips-002/audit_flip_validity_018.py",
+    "sha256": "01cb89c52ddc1b0efd40ecc306b7bda7e4e60a15c9bfb1cb19f2980b5b49216c"
+  }
+}

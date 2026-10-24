@@ -1,0 +1,30 @@
+{
+  "binding_count": 86,
+  "body_pose_frame_records_compared": 314,
+  "body_pose_rows": 157,
+  "candidate_payload_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+  "csv_rows": 61950,
+  "finite_native": true,
+  "identity004_snapshot_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "identity004_vs_native_pose_max_position_delta_m": 0.0,
+  "identity004_vs_native_pose_max_quaternion_component_delta": 0.0,
+  "native_dump_csv_sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+  "native_dump_pose_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "native_run_status": "FAILED",
+  "native_vs_owner194_using_identity004_pose": {
+    "bitwise_equal_rows": 9716,
+    "max_component_m": 5.140900611877441e-07,
+    "max_euclidean_m": 5.974650265853253e-07,
+    "rms_euclidean_m": 7.495541095008907e-08
+  },
+  "native_vs_owner194_using_native_pose_dump": {
+    "bitwise_equal_rows": 9716,
+    "max_component_m": 5.140900611877441e-07,
+    "max_euclidean_m": 5.974650265853253e-07,
+    "rms_euclidean_m": 7.495541095008907e-08
+  },
+  "owner194_helper_sha256": "be36923a62ebae0ecd475b57d5a413f424712c4fa129c23e6fe4620479869693",
+  "registration_fingerprint32": 835155552,
+  "scope": "native source-emission parity only; source-only init intentionally rejected before state/pipeline/physics; no FEM accepted-state or physical qualification",
+  "vertex_count": 61950
+}

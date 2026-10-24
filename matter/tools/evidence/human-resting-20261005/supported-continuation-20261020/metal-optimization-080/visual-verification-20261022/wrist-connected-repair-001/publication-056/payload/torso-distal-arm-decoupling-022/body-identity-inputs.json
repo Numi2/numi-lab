@@ -1,0 +1,37 @@
+{
+  "scope": "Historical owner identity reference only, not current native pose qualification",
+  "core_body_to_source": {
+    "20": {
+      "source_body_id": 9,
+      "name": "torso"
+    },
+    "41": {
+      "source_body_id": 23,
+      "name": "humerus_r"
+    },
+    "42": {
+      "source_body_id": 24,
+      "name": "ulna_r"
+    },
+    "43": {
+      "source_body_id": 25,
+      "name": "radius_r"
+    },
+    "91": {
+      "source_body_id": 60,
+      "name": "humerus_l"
+    },
+    "92": {
+      "source_body_id": 61,
+      "name": "ulna_l"
+    },
+    "93": {
+      "source_body_id": 62,
+      "name": "radius_l"
+    }
+  },
+  "input_sha256": {
+    "/Users/n/numi-human-anatomy-finish-1378/Docs/media/skin-exact-seam-continuity-20260929/after-coupled-reach.audit.json": "5a84bb896bbec40c9f6d04bd66e7279a14125371aeb76e616e20e20ab43fc121",
+    "/Users/n/numi-human-anatomy-finish-1378/Docs/data/source-bone-proximity-v1/myosim-source-bone-proximity-v1.json": "aaa2a70d1aeb528ec7bbac90a7cfe1de15b5b195a26704c4b20ca92840366125"
+  }
+}

@@ -1,0 +1,842 @@
+{
+  "bad_local_tet_nodes": [
+    170,
+    2934,
+    2932,
+    239
+  ],
+  "bad_local_tet_row": 940,
+  "candidate_geometry_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/edge-split-geometry.npz",
+  "candidate_geometry_sha256": "c3ca2e5383a6424ec3feeb83ccfde2d269950eced21cf4d9e578c4a0385ac417",
+  "candidate_unadmitted": true,
+  "chosen_edges": [
+    [
+      563,
+      670
+    ],
+    [
+      670,
+      55904
+    ]
+  ],
+  "elapsed_s": 24.13859979202971,
+  "full_material_mass_ledger": "pending; no mass qualification",
+  "full_original_parent_ancestry": "pending; no whole TetGen ancestry map",
+  "input_baseline_sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1",
+  "input_holefix_elements_sha256": "488b29ddee6ababfb089849a847b2519ee2bdd2a45823c2c54af7b8d623f8588",
+  "input_holefix_nodes_sha256": "00777aca8500ddac0e74fd74fe94db0d6ff45170546370a62166b5a04b200f7b",
+  "input_surface_candidate_sha256": "64f40e915703e35950ba2d3ab95b01a5e75681616c316cace25518c3a0ccb054",
+  "schema": "numi.holefix018-conforming-edge-split-quality-trial.v1",
+  "six_original_edges": [
+    {
+      "global": [
+        563,
+        670
+      ],
+      "length_m": 0.11825136290693807,
+      "local": [
+        170,
+        239
+      ]
+    },
+    {
+      "global": [
+        670,
+        55904
+      ],
+      "length_m": 0.10914331241360699,
+      "local": [
+        239,
+        2932
+      ]
+    },
+    {
+      "global": [
+        670,
+        55906
+      ],
+      "length_m": 0.05912653023546524,
+      "local": [
+        239,
+        2934
+      ]
+    },
+    {
+      "global": [
+        563,
+        55906
+      ],
+      "length_m": 0.05912650930023521,
+      "local": [
+        170,
+        2934
+      ]
+    },
+    {
+      "global": [
+        55904,
+        55906
+      ],
+      "length_m": 0.050017421111101,
+      "local": [
+        2932,
+        2934
+      ]
+    },
+    {
+      "global": [
+        563,
+        55904
+      ],
+      "length_m": 0.00912211116691351,
+      "local": [
+        170,
+        2932
+      ]
+    }
+  ],
+  "source_domain": "original positive holefix merged mesh, before rejected 018 bistellar flip",
+  "splitter_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/refine_internal_o_edges_403.py",
+  "splitter_sha256": "231219282f03a830e9857c327e44d2835ce5c831d9eab09ebc598e37a6775826",
+  "status": "no_passing_bounded_edge_split_found",
+  "trials": [
+    {
+      "below_1e_5_count": 1,
+      "candidate_meets_quality_and_boundary": false,
+      "global_boundary_parent_split_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39792,
+        "face_count_expected": 39792,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "global_volume_after_m3": 0.06961443007353998,
+      "global_volume_before_m3": 0.06961443007353998,
+      "global_volume_delta_m3": 0.0,
+      "incident_tets_split": 6,
+      "midpoint_max_off_edge_distance_m": 1.501712528671799e-08,
+      "min_normalized_quality_f32": 4.1108168208696395e-06,
+      "new_node_ancestry": "endpoint-pair/alpha=0.5 emitted; full source and original-parent CSR pending",
+      "new_outer_barycentric_min": 0.0,
+      "new_outer_barycentric_sum_error_max": 0.0,
+      "new_tets": 6,
+      "nonpositive_f32_count": 0,
+      "old_coordinate_prefix_exact": true,
+      "output_nodes": 79445,
+      "output_tets": 380939,
+      "p01_normalized_quality_f32": 0.0006385060798694796,
+      "physical_outer_face_count_before_after": [
+        38104,
+        38104
+      ],
+      "physical_outer_faces_positive_area": true,
+      "physical_outer_parent_area_relative_error_max": 0.0,
+      "positive_f32": true,
+      "registered_shell_boundary_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39792,
+        "face_count_expected": 39792,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "split_edges_global": [
+        [
+          563,
+          670
+        ]
+      ],
+      "split_edges_local": [
+        [
+          170,
+          239
+        ]
+      ],
+      "split_lengths_m": [
+        0.11825136290693807
+      ]
+    },
+    {
+      "below_1e_5_count": 1,
+      "candidate_meets_quality_and_boundary": false,
+      "global_boundary_parent_split_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "global_volume_after_m3": 0.06961443007352938,
+      "global_volume_before_m3": 0.06961443007353998,
+      "global_volume_delta_m3": -1.0602629885170245e-14,
+      "incident_tets_split": 3,
+      "midpoint_max_off_edge_distance_m": 1.862645149230957e-09,
+      "min_normalized_quality_f32": 3.2322115538266246e-06,
+      "new_node_ancestry": "endpoint-pair/alpha=0.5 emitted; full source and original-parent CSR pending",
+      "new_outer_barycentric_min": 0.0,
+      "new_outer_barycentric_sum_error_max": 0.0,
+      "new_tets": 3,
+      "nonpositive_f32_count": 0,
+      "old_coordinate_prefix_exact": true,
+      "output_nodes": 79445,
+      "output_tets": 380936,
+      "p01_normalized_quality_f32": 0.0006386106933708196,
+      "physical_outer_face_count_before_after": [
+        38104,
+        38106
+      ],
+      "physical_outer_faces_positive_area": true,
+      "physical_outer_parent_area_relative_error_max": 9.358848446498995e-06,
+      "positive_f32": true,
+      "registered_shell_boundary_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "split_edges_global": [
+        [
+          670,
+          55904
+        ]
+      ],
+      "split_edges_local": [
+        [
+          239,
+          2932
+        ]
+      ],
+      "split_lengths_m": [
+        0.10914331241360699
+      ]
+    },
+    {
+      "below_1e_5_count": 2,
+      "candidate_meets_quality_and_boundary": false,
+      "global_boundary_parent_split_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "global_volume_after_m3": 0.06961443007379868,
+      "global_volume_before_m3": 0.06961443007353998,
+      "global_volume_delta_m3": 2.586958425254693e-13,
+      "incident_tets_split": 2,
+      "midpoint_max_off_edge_distance_m": 7.679882693323606e-09,
+      "min_normalized_quality_f32": 3.232054952621056e-06,
+      "new_node_ancestry": "endpoint-pair/alpha=0.5 emitted; full source and original-parent CSR pending",
+      "new_outer_barycentric_min": 0.0,
+      "new_outer_barycentric_sum_error_max": 0.0,
+      "new_tets": 2,
+      "nonpositive_f32_count": 0,
+      "old_coordinate_prefix_exact": true,
+      "output_nodes": 79445,
+      "output_tets": 380935,
+      "p01_normalized_quality_f32": 0.0006386390359811974,
+      "physical_outer_face_count_before_after": [
+        38104,
+        38106
+      ],
+      "physical_outer_faces_positive_area": true,
+      "physical_outer_parent_area_relative_error_max": 1.1965799058451415e-05,
+      "positive_f32": true,
+      "registered_shell_boundary_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "split_edges_global": [
+        [
+          670,
+          55906
+        ]
+      ],
+      "split_edges_local": [
+        [
+          239,
+          2934
+        ]
+      ],
+      "split_lengths_m": [
+        0.05912653023546524
+      ]
+    },
+    {
+      "below_1e_5_count": 2,
+      "candidate_meets_quality_and_boundary": false,
+      "global_boundary_parent_split_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "global_volume_after_m3": 0.06961443007317215,
+      "global_volume_before_m3": 0.06961443007353998,
+      "global_volume_delta_m3": -3.678307658461222e-13,
+      "incident_tets_split": 2,
+      "midpoint_max_off_edge_distance_m": 1.666000468656264e-08,
+      "min_normalized_quality_f32": 3.2321782480931063e-06,
+      "new_node_ancestry": "endpoint-pair/alpha=0.5 emitted; full source and original-parent CSR pending",
+      "new_outer_barycentric_min": 0.0,
+      "new_outer_barycentric_sum_error_max": 0.0,
+      "new_tets": 2,
+      "nonpositive_f32_count": 0,
+      "old_coordinate_prefix_exact": true,
+      "output_nodes": 79445,
+      "output_tets": 380935,
+      "p01_normalized_quality_f32": 0.0006386390359811974,
+      "physical_outer_face_count_before_after": [
+        38104,
+        38106
+      ],
+      "physical_outer_faces_positive_area": true,
+      "physical_outer_parent_area_relative_error_max": 1.0839189052743228e-05,
+      "positive_f32": true,
+      "registered_shell_boundary_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "split_edges_global": [
+        [
+          563,
+          55906
+        ]
+      ],
+      "split_edges_local": [
+        [
+          170,
+          2934
+        ]
+      ],
+      "split_lengths_m": [
+        0.05912650930023521
+      ]
+    },
+    {
+      "below_1e_5_count": 2,
+      "candidate_meets_quality_and_boundary": false,
+      "global_boundary_parent_split_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "global_volume_after_m3": 0.06961443007355654,
+      "global_volume_before_m3": 0.06961443007353998,
+      "global_volume_delta_m3": 1.6556200854722647e-14,
+      "incident_tets_split": 1,
+      "midpoint_max_off_edge_distance_m": 7.450580596923828e-09,
+      "min_normalized_quality_f32": 3.2321165576947286e-06,
+      "new_node_ancestry": "endpoint-pair/alpha=0.5 emitted; full source and original-parent CSR pending",
+      "new_outer_barycentric_min": 0.0,
+      "new_outer_barycentric_sum_error_max": 0.0,
+      "new_tets": 1,
+      "nonpositive_f32_count": 0,
+      "old_coordinate_prefix_exact": true,
+      "output_nodes": 79445,
+      "output_tets": 380934,
+      "p01_normalized_quality_f32": 0.0006387138468861713,
+      "physical_outer_face_count_before_after": [
+        38104,
+        38106
+      ],
+      "physical_outer_faces_positive_area": true,
+      "physical_outer_parent_area_relative_error_max": 1.3488389394505862e-05,
+      "positive_f32": true,
+      "registered_shell_boundary_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "split_edges_global": [
+        [
+          55904,
+          55906
+        ]
+      ],
+      "split_edges_local": [
+        [
+          2932,
+          2934
+        ]
+      ],
+      "split_lengths_m": [
+        0.050017421111101
+      ]
+    },
+    {
+      "below_1e_5_count": 2,
+      "candidate_meets_quality_and_boundary": false,
+      "global_boundary_parent_split_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "global_volume_after_m3": 0.06961443007354118,
+      "global_volume_before_m3": 0.06961443007353998,
+      "global_volume_delta_m3": 1.1934897514720433e-15,
+      "incident_tets_split": 3,
+      "midpoint_max_off_edge_distance_m": 1.4901161193847656e-08,
+      "min_normalized_quality_f32": 3.232116123497606e-06,
+      "new_node_ancestry": "endpoint-pair/alpha=0.5 emitted; full source and original-parent CSR pending",
+      "new_outer_barycentric_min": 0.0,
+      "new_outer_barycentric_sum_error_max": 0.0,
+      "new_tets": 3,
+      "nonpositive_f32_count": 0,
+      "old_coordinate_prefix_exact": true,
+      "output_nodes": 79445,
+      "output_tets": 380936,
+      "p01_normalized_quality_f32": 0.0006386391384980448,
+      "physical_outer_face_count_before_after": [
+        38104,
+        38106
+      ],
+      "physical_outer_faces_positive_area": true,
+      "physical_outer_parent_area_relative_error_max": 5.446966565231767e-07,
+      "positive_f32": true,
+      "registered_shell_boundary_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "split_edges_global": [
+        [
+          563,
+          55904
+        ]
+      ],
+      "split_edges_local": [
+        [
+          170,
+          2932
+        ]
+      ],
+      "split_lengths_m": [
+        0.00912211116691351
+      ]
+    },
+    {
+      "below_1e_5_count": 0,
+      "candidate_meets_quality_and_boundary": false,
+      "global_boundary_parent_split_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "global_volume_after_m3": 0.06961443007352938,
+      "global_volume_before_m3": 0.06961443007353998,
+      "global_volume_delta_m3": -1.0602629885170245e-14,
+      "incident_tets_split": 7,
+      "midpoint_max_off_edge_distance_m": 1.501712528671799e-08,
+      "min_normalized_quality_f32": 1.0305495205375494e-05,
+      "new_node_ancestry": "endpoint-pair/alpha=0.5 emitted; full source and original-parent CSR pending",
+      "new_outer_barycentric_min": 0.0,
+      "new_outer_barycentric_sum_error_max": 0.0,
+      "new_tets": 9,
+      "nonpositive_f32_count": 0,
+      "old_coordinate_prefix_exact": true,
+      "output_nodes": 79446,
+      "output_tets": 380942,
+      "p01_normalized_quality_f32": 0.0006382550934811322,
+      "physical_outer_face_count_before_after": [
+        38104,
+        38106
+      ],
+      "physical_outer_faces_positive_area": true,
+      "physical_outer_parent_area_relative_error_max": 9.358848446498995e-06,
+      "positive_f32": true,
+      "registered_shell_boundary_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "split_edges_global": [
+        [
+          563,
+          670
+        ],
+        [
+          670,
+          55904
+        ]
+      ],
+      "split_edges_local": [
+        [
+          170,
+          239
+        ],
+        [
+          239,
+          2932
+        ]
+      ],
+      "split_lengths_m": [
+        0.11825136290693807,
+        0.10914331241360699
+      ]
+    },
+    {
+      "below_1e_5_count": 2,
+      "candidate_meets_quality_and_boundary": false,
+      "global_boundary_parent_split_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "global_volume_after_m3": 0.06961443007379868,
+      "global_volume_before_m3": 0.06961443007353998,
+      "global_volume_delta_m3": 2.586958425254693e-13,
+      "incident_tets_split": 6,
+      "midpoint_max_off_edge_distance_m": 1.501712528671799e-08,
+      "min_normalized_quality_f32": 2.055324695383186e-06,
+      "new_node_ancestry": "endpoint-pair/alpha=0.5 emitted; full source and original-parent CSR pending",
+      "new_outer_barycentric_min": 0.0,
+      "new_outer_barycentric_sum_error_max": 0.0,
+      "new_tets": 8,
+      "nonpositive_f32_count": 0,
+      "old_coordinate_prefix_exact": true,
+      "output_nodes": 79446,
+      "output_tets": 380941,
+      "p01_normalized_quality_f32": 0.0006383061995969597,
+      "physical_outer_face_count_before_after": [
+        38104,
+        38106
+      ],
+      "physical_outer_faces_positive_area": true,
+      "physical_outer_parent_area_relative_error_max": 1.1965799058451415e-05,
+      "positive_f32": true,
+      "registered_shell_boundary_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "split_edges_global": [
+        [
+          563,
+          670
+        ],
+        [
+          670,
+          55906
+        ]
+      ],
+      "split_edges_local": [
+        [
+          170,
+          239
+        ],
+        [
+          239,
+          2934
+        ]
+      ],
+      "split_lengths_m": [
+        0.11825136290693807,
+        0.05912653023546524
+      ]
+    },
+    {
+      "below_1e_5_count": 1,
+      "candidate_meets_quality_and_boundary": false,
+      "global_boundary_parent_split_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "global_volume_after_m3": 0.06961443007317215,
+      "global_volume_before_m3": 0.06961443007353998,
+      "global_volume_delta_m3": -3.678307658461222e-13,
+      "incident_tets_split": 6,
+      "midpoint_max_off_edge_distance_m": 1.666000468656264e-08,
+      "min_normalized_quality_f32": 4.1108168208696395e-06,
+      "new_node_ancestry": "endpoint-pair/alpha=0.5 emitted; full source and original-parent CSR pending",
+      "new_outer_barycentric_min": 0.0,
+      "new_outer_barycentric_sum_error_max": 0.0,
+      "new_tets": 8,
+      "nonpositive_f32_count": 0,
+      "old_coordinate_prefix_exact": true,
+      "output_nodes": 79446,
+      "output_tets": 380941,
+      "p01_normalized_quality_f32": 0.0006383061995969597,
+      "physical_outer_face_count_before_after": [
+        38104,
+        38106
+      ],
+      "physical_outer_faces_positive_area": true,
+      "physical_outer_parent_area_relative_error_max": 1.0839189052743228e-05,
+      "positive_f32": true,
+      "registered_shell_boundary_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39794,
+        "face_count_expected": 39794,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "split_edges_global": [
+        [
+          563,
+          670
+        ],
+        [
+          563,
+          55906
+        ]
+      ],
+      "split_edges_local": [
+        [
+          170,
+          239
+        ],
+        [
+          170,
+          2934
+        ]
+      ],
+      "split_lengths_m": [
+        0.11825136290693807,
+        0.05912650930023521
+      ]
+    },
+    {
+      "below_1e_5_count": 2,
+      "candidate_meets_quality_and_boundary": false,
+      "global_boundary_parent_split_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39796,
+        "face_count_expected": 39796,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "global_volume_after_m3": 0.06961443007377743,
+      "global_volume_before_m3": 0.06961443007353998,
+      "global_volume_delta_m3": 2.3744894939170536e-13,
+      "incident_tets_split": 4,
+      "midpoint_max_off_edge_distance_m": 7.679882693323606e-09,
+      "min_normalized_quality_f32": 1.6160399555650644e-06,
+      "new_node_ancestry": "endpoint-pair/alpha=0.5 emitted; full source and original-parent CSR pending",
+      "new_outer_barycentric_min": 0.0,
+      "new_outer_barycentric_sum_error_max": 0.0,
+      "new_tets": 5,
+      "nonpositive_f32_count": 0,
+      "old_coordinate_prefix_exact": true,
+      "output_nodes": 79446,
+      "output_tets": 380938,
+      "p01_normalized_quality_f32": 0.0006383998369168567,
+      "physical_outer_face_count_before_after": [
+        38104,
+        38108
+      ],
+      "physical_outer_faces_positive_area": true,
+      "physical_outer_parent_area_relative_error_max": 2.806042065438792e-06,
+      "positive_f32": true,
+      "registered_shell_boundary_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39796,
+        "face_count_expected": 39796,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "split_edges_global": [
+        [
+          670,
+          55904
+        ],
+        [
+          670,
+          55906
+        ]
+      ],
+      "split_edges_local": [
+        [
+          239,
+          2932
+        ],
+        [
+          239,
+          2934
+        ]
+      ],
+      "split_lengths_m": [
+        0.10914331241360699,
+        0.05912653023546524
+      ]
+    },
+    {
+      "below_1e_5_count": 2,
+      "candidate_meets_quality_and_boundary": false,
+      "global_boundary_parent_split_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39796,
+        "face_count_expected": 39796,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "global_volume_after_m3": 0.06961443007316157,
+      "global_volume_before_m3": 0.06961443007353998,
+      "global_volume_delta_m3": -3.784195179434846e-13,
+      "incident_tets_split": 4,
+      "midpoint_max_off_edge_distance_m": 1.666000468656264e-08,
+      "min_normalized_quality_f32": 1.6161016017304116e-06,
+      "new_node_ancestry": "endpoint-pair/alpha=0.5 emitted; full source and original-parent CSR pending",
+      "new_outer_barycentric_min": 0.0,
+      "new_outer_barycentric_sum_error_max": 0.0,
+      "new_tets": 6,
+      "nonpositive_f32_count": 0,
+      "old_coordinate_prefix_exact": true,
+      "output_nodes": 79446,
+      "output_tets": 380939,
+      "p01_normalized_quality_f32": 0.0006383040636187078,
+      "physical_outer_face_count_before_after": [
+        38104,
+        38108
+      ],
+      "physical_outer_faces_positive_area": true,
+      "physical_outer_parent_area_relative_error_max": 1.0839189052743228e-05,
+      "positive_f32": true,
+      "registered_shell_boundary_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39796,
+        "face_count_expected": 39796,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "split_edges_global": [
+        [
+          670,
+          55904
+        ],
+        [
+          563,
+          55906
+        ]
+      ],
+      "split_edges_local": [
+        [
+          239,
+          2932
+        ],
+        [
+          170,
+          2934
+        ]
+      ],
+      "split_lengths_m": [
+        0.10914331241360699,
+        0.05912650930023521
+      ]
+    },
+    {
+      "below_1e_5_count": 3,
+      "candidate_meets_quality_and_boundary": false,
+      "global_boundary_parent_split_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39796,
+        "face_count_expected": 39796,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "global_volume_after_m3": 0.06961443007343085,
+      "global_volume_before_m3": 0.06961443007353998,
+      "global_volume_delta_m3": -1.0913492332065289e-13,
+      "incident_tets_split": 2,
+      "midpoint_max_off_edge_distance_m": 1.666000468656264e-08,
+      "min_normalized_quality_f32": 2.0553890399204343e-06,
+      "new_node_ancestry": "endpoint-pair/alpha=0.5 emitted; full source and original-parent CSR pending",
+      "new_outer_barycentric_min": 0.0,
+      "new_outer_barycentric_sum_error_max": 0.0,
+      "new_tets": 4,
+      "nonpositive_f32_count": 0,
+      "old_coordinate_prefix_exact": true,
+      "output_nodes": 79446,
+      "output_tets": 380937,
+      "p01_normalized_quality_f32": 0.0006385031370003618,
+      "physical_outer_face_count_before_after": [
+        38104,
+        38108
+      ],
+      "physical_outer_faces_positive_area": true,
+      "physical_outer_parent_area_relative_error_max": 1.1965799058451415e-05,
+      "positive_f32": true,
+      "registered_shell_boundary_exact_oriented": {
+        "exact_unoriented_set": true,
+        "extra_count": 0,
+        "face_count_actual": 39796,
+        "face_count_expected": 39796,
+        "missing_count": 0,
+        "oriented_mismatch_count": 0
+      },
+      "split_edges_global": [
+        [
+          670,
+          55906
+        ],
+        [
+          563,
+          55906
+        ]
+      ],
+      "split_edges_local": [
+        [
+          239,
+          2934
+        ],
+        [
+          170,
+          2934
+        ]
+      ],
+      "split_lengths_m": [
+        0.05912653023546524,
+        0.05912650930023521
+      ]
+    }
+  ]
+}

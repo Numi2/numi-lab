@@ -1,0 +1,107 @@
+{
+  "inputs": [
+    {
+      "location": "external source; also pinned by publication-055",
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "role": "source 294 NHSKIN reference asset",
+      "sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+    },
+    {
+      "location": "external evidence input",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin",
+      "role": "source 128 NHSKIN influence reference",
+      "sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5"
+    },
+    {
+      "location": "copied",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-056/payload/inputs/physical-O-013-candidate.npz",
+      "role": "physical O 013 candidate",
+      "sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1"
+    },
+    {
+      "location": "external input",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-004/registered-skin-poses.json",
+      "role": "identity 004 registered pose snapshot",
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+    },
+    {
+      "location": "external input",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/source-preflight-007/registered-skin-poses.json",
+      "role": "identity 007 registered pose snapshot",
+      "sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6"
+    },
+    {
+      "location": "external frozen evidence source; hash-pinned",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+      "role": "exact seam-record intersection owner",
+      "sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d"
+    },
+    {
+      "location": "external frozen helper source",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-pose-frame-helper-194/tools/rebind_human_skin_reference.py",
+      "role": "registered pose-frame helper 194",
+      "sha256": "be36923a62ebae0ecd475b57d5a413f424712c4fa129c23e6fe4620479869693"
+    },
+    {
+      "location": "external frozen source dependency",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/current-detailed-skin-crossing-audit-018/audit_current_detailed_skin_018.py",
+      "role": "023 exact-surface audit imported current detailed-skin helper",
+      "sha256": "87b756150f663aa12786a6f45ebf7acdb37d77d4925f3328e028e1d2a14988aa"
+    },
+    {
+      "location": "external frozen source dependency",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/exact-O-pair-011/audit_exact_pairs_011.py",
+      "role": "023 exact-pair source imported by current detailed-skin helper",
+      "sha256": "baa5280affb42574cc7e209e963ca0843be92c2daab986c19bf2435547967d71"
+    },
+    {
+      "location": "retained external output; intentionally omitted from bundle",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-transfer-owner-015/candidate020-counterfactual/native-source-emission-identity004-001/registered-skin.csv",
+      "role": "identity-004 source-emission registered-skin CSV (retained external output; intentionally not copied)",
+      "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524"
+    },
+    {
+      "location": "retained external input; omitted byte-for-byte because git diff --check reports existing trailing whitespace",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/cavity.1.ele",
+      "role": "018 TetGen element input (retained external input; exact source whitespace intentionally preserved)",
+      "sha256": "488b29ddee6ababfb089849a847b2519ee2bdd2a45823c2c54af7b8d623f8588"
+    },
+    {
+      "location": "retained external input; omitted byte-for-byte because git diff --check reports existing trailing whitespace",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/cavity.1.node",
+      "role": "018 TetGen node input (retained external input; exact source whitespace intentionally preserved)",
+      "sha256": "00777aca8500ddac0e74fd74fe94db0d6ff45170546370a62166b5a04b200f7b"
+    },
+    {
+      "location": "retained external runtime input",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/build-014/numi-human-native",
+      "role": "native binary used by rejected source-emission preflight",
+      "sha256": "27ebf5eace0f4d7872b218c1b210871ad32c9b19dad520c31fae10188aba8aa0"
+    },
+    {
+      "location": "repository source at pinned revision a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm",
+      "role": "runtime source revision used by rejected source-emission preflight",
+      "sha256": "ae77770eac80699d1987f912b61b927fd4b55ebcac026d1ae308caf32c0fecc3"
+    },
+    {
+      "location": "retained external runtime input",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/build-runtime-004/libmetalrobo.dylib",
+      "role": "runtime dylib used by rejected source-emission preflight",
+      "sha256": "b7cba8777b071eb1df0dbdadc24f9a4963eb92b2e85bf1121a97d29328d5c26b"
+    },
+    {
+      "location": "retained external runtime input",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/build-runtime-004/candidate.metallib",
+      "role": "metallib used by rejected source-emission preflight",
+      "sha256": "544c8e8a8a5019ca728d1026b4a8a52ed88ec54b782610e5fae5dd81c5bf3845"
+    },
+    {
+      "location": "copied",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-056/payload/dependencies/NumiHumanAcceptedFEMSkinTransfer.hpp",
+      "role": "accepted transfer owner",
+      "sha256": "b7f23c1d9f7279e05f995fcc1cb1d417675f3ffac845220e42ffc8204cf2a72d"
+    }
+  ],
+  "schema": "numi.human.publication.external-input-pins.v1"
+}
