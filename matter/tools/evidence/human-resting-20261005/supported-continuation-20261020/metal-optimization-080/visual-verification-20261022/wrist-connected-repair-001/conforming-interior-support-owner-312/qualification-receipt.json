@@ -1,0 +1,18 @@
+{
+  "source_owner": "tools/human_skin_p1_material_volume.py",
+  "source_sha256": "37ed34ff7fee9454652b93e14d9cc3a858cac9d630fe293a665e1ceb390fdc51",
+  "test_log_sha256": "15532ca66f64719f42efbf4286514be2154a0004e98566b5099e4e689709c695",
+  "tests": 18,
+  "tests_pass": true,
+  "device_host": "SSH numi",
+  "command": "PYTHONPATH=tools /Users/n/numi-human-prep-venv-20261005/bin/python -m unittest discover -s tests -p test_human_skin*.py -v",
+  "behavior": "conforming source-ancestry-preserving interior support refinement; exact Float32 prefix and physical boundary; positive child construction or explicit diagnostic failure",
+  "actual_scene_trial": {
+    "passed": false,
+    "source_cell": 97486,
+    "reason": "an existing almost-flat cell cannot be safely center-refined after Float32 emission; failed children and original inputs retained",
+    "failure_analysis_sha256": "8e3ec31439a9d399fa12832f682749c5da36bbe5ecdf0ce747f0e09d964272d3"
+  },
+  "physical_admission": false,
+  "native_scene_changed": false
+}

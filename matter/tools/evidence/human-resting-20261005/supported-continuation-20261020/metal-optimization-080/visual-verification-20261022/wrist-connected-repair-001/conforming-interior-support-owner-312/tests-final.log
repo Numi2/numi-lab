@@ -1,0 +1,23 @@
+test_all_outer_node_interior_cell_gains_free_support (test_human_skin_interior_support.InteriorSupportTests.test_all_outer_node_interior_cell_gains_free_support) ... ok
+test_empty_selection_is_identity (test_human_skin_interior_support.InteriorSupportTests.test_empty_selection_is_identity) ... ok
+test_float32_failure_retains_exact_parent_and_child_witness (test_human_skin_interior_support.InteriorSupportTests.test_float32_failure_retains_exact_parent_and_child_witness) ... ok
+test_internal_edge_fan_has_no_hanging_faces (test_human_skin_interior_support.InteriorSupportTests.test_internal_edge_fan_has_no_hanging_faces) ... ok
+test_invalid_features_and_source_rejected (test_human_skin_interior_support.InteriorSupportTests.test_invalid_features_and_source_rejected) ... ok
+test_order_duplicate_and_orientation_independent_selection (test_human_skin_interior_support.InteriorSupportTests.test_order_duplicate_and_orientation_independent_selection) ... ok
+test_physical_boundary_edge_and_face_are_rejected (test_human_skin_interior_support.InteriorSupportTests.test_physical_boundary_edge_and_face_are_rejected) ... ok
+test_shared_interior_face_is_subdivided_consistently (test_human_skin_interior_support.InteriorSupportTests.test_shared_interior_face_is_subdivided_consistently) ... ok
+test_unselected_cells_are_exact_and_prefix_preserved (test_human_skin_interior_support.InteriorSupportTests.test_unselected_cells_are_exact_and_prefix_preserved) ... ok
+test_analytical_linear_band_volumes (test_human_skin_p1_material_volume.MaterialVolumeTests.test_analytical_linear_band_volumes) ... ok
+test_constant_exact_levels_own_volume_once (test_human_skin_p1_material_volume.MaterialVolumeTests.test_constant_exact_levels_own_volume_once) ... ok
+test_constant_fields_and_empty_volume (test_human_skin_p1_material_volume.MaterialVolumeTests.test_constant_fields_and_empty_volume) ... ok
+test_exact_level_vertex_keeps_source_identity (test_human_skin_p1_material_volume.MaterialVolumeTests.test_exact_level_vertex_keeps_source_identity) ... ok
+test_invalid_inputs (test_human_skin_p1_material_volume.MaterialVolumeTests.test_invalid_inputs) ... ok
+test_parent_edge_ancestry_replays_positions (test_human_skin_p1_material_volume.MaterialVolumeTests.test_parent_edge_ancestry_replays_positions) ... ok
+test_random_fields_full_volume_and_conforming_interface (test_human_skin_p1_material_volume.MaterialVolumeTests.test_random_fields_full_volume_and_conforming_interface) ... ok
+test_shared_crossings_and_interface_facets (test_human_skin_p1_material_volume.MaterialVolumeTests.test_shared_crossings_and_interface_facets) ... ok
+test_source_boundary_ancestry_distinguishes_isosurfaces (test_human_skin_p1_material_volume.MaterialVolumeTests.test_source_boundary_ancestry_distinguishes_isosurfaces) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.035s
+
+OK
