@@ -1,0 +1,42 @@
+{
+  "conditioning": {
+    "changed_nodes": 8,
+    "maximum_actual_raise": 0.0006741826750465418,
+    "maximum_allowed_raise": 0.003,
+    "minimum_fraction_requested": 0.001,
+    "minimum_crossing_edge_fraction": 0.001000000000000223,
+    "crossing_edges": 46324,
+    "unresolved_edges": 0,
+    "iterations": 2,
+    "conditioning_complete": true,
+    "physical_admission": false
+  },
+  "tool_hashes": {
+    "human_skin_p1_material_volume.py": "425c083c4f192e7182b08099a814471ba1e8e656222623860953f14f81f2764c",
+    "human_skin_p1_cut_conditioning.py": "c55168c9d311673ee0975fd50cfa9309a7ec3eb57822c759aa9fea58003bf893",
+    "human_skin_material_boundary.py": "d0b30c1aa1c6ae69188c3030224f4bc6a0b27b5271956794cdccdbb760106584"
+  },
+  "builder_sha256": "001e47b9deaf9d938e474646a4848d785648344087df6e44367af35c05307b51",
+  "source_cache_sha256": "8babe5ddc927d22207cd311b10748a636f3c1d216b2f0a10eb4c26f58f0da866",
+  "points": 57749,
+  "tetrahedra": 257142,
+  "minimum_float32_quality": 1.4280420151798267e-09,
+  "nonpositive_cells": 0,
+  "below_owner_quality_floor": 252,
+  "roles": {
+    "outer_faces": 16167,
+    "interface_faces": 55405,
+    "deep_faces": 37311
+  },
+  "construction_facets": 351,
+  "material_volume_m3": {
+    "1": 0.0003296790313241818,
+    "2": 0.0011372197162090225
+  },
+  "native_admission": false,
+  "scope": "retained left280 construction-method diagnostic; source has retained anatomy crossings; not current wholebody candidate",
+  "owner_quality_boundary_pass": false,
+  "failure": "invalid Float32 tetrahedron quality at row 551: 9.5039014797883824e-06",
+  "output_sha256": "8b2c2ac5b0c9043eccb516ad6cae3c0f1ec4f855b2e28748fa8ac6a206f47e08",
+  "elapsed_s": 7.478522707941011
+}

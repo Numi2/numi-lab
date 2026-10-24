@@ -1,0 +1,17 @@
+test_avoids_near_source_vertex_and_respects_window (test_human_skin_p1_cut_conditioning.CutConditioningTests.test_avoids_near_source_vertex_and_respects_window) ... ok
+test_constant_edges_do_not_create_cuts (test_human_skin_p1_cut_conditioning.CutConditioningTests.test_constant_edges_do_not_create_cuts) ... ok
+test_empty_edges_and_constant_fields (test_human_skin_p1_cut_conditioning.CutConditioningTests.test_empty_edges_and_constant_fields) ... ok
+test_fixed_or_raise_budget_failure_remains_explicit (test_human_skin_p1_cut_conditioning.CutConditioningTests.test_fixed_or_raise_budget_failure_remains_explicit) ... ok
+test_invalid_input (test_human_skin_p1_cut_conditioning.CutConditioningTests.test_invalid_input) ... ok
+test_monotone_changes_preserve_all_lower_bound_obstacles (test_human_skin_p1_cut_conditioning.CutConditioningTests.test_monotone_changes_preserve_all_lower_bound_obstacles) ... ok
+test_monotone_conditioning_resolves_near_both_endpoints (test_human_skin_p1_cut_conditioning.CutConditioningTests.test_monotone_conditioning_resolves_near_both_endpoints) ... ok
+test_multiple_levels_have_no_silent_budget_escape (test_human_skin_p1_cut_conditioning.CutConditioningTests.test_multiple_levels_have_no_silent_budget_escape) ... ok
+test_nodal_invalid_domains_rejected (test_human_skin_p1_cut_conditioning.CutConditioningTests.test_nodal_invalid_domains_rejected) ... ok
+test_retained_hand_float32_microcut_regression (test_human_skin_p1_cut_conditioning.CutConditioningTests.test_retained_hand_float32_microcut_regression) ... ok
+test_scale_offset_and_edge_order (test_human_skin_p1_cut_conditioning.CutConditioningTests.test_scale_offset_and_edge_order) ... ok
+test_single_edge_finds_balanced_cut (test_human_skin_p1_cut_conditioning.CutConditioningTests.test_single_edge_finds_balanced_cut) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.050s
+
+OK

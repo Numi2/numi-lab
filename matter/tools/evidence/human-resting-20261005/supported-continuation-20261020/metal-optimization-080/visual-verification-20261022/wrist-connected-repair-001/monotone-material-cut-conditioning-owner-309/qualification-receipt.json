@@ -1,0 +1,27 @@
+{
+  "device": "SSH numi Apple M6",
+  "scope": "bounded monotone inferred P1 field conditioning and retained Float32 extraction regression; no physical admission",
+  "tests": 12,
+  "command": "PYTHONPATH=tools /Users/n/numi-human-prep-venv-20261005/bin/python -m unittest discover -s tests -p test_human_skin_p1_cut_conditioning.py -v",
+  "working_directory": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/monotone-material-cut-conditioning-owner-309",
+  "files": {
+    "tools/human_skin_p1_cut_conditioning.py": "c55168c9d311673ee0975fd50cfa9309a7ec3eb57822c759aa9fea58003bf893",
+    "tools/human_skin_patch_geometry.py": "04958116eb503b171e5fd1a8d6e248cbdfd2c141917c4e63dda33c5eef5098b5",
+    "tests/test_human_skin_p1_cut_conditioning.py": "cc9267d05d44bf457a3fcb9dbebfdf9ed600b30071088892c08d4c2130b1a7ec",
+    "tests.log": "3f5a920af51c3fb5018274e8d71281617a232e8c2923d14003d4b2f3dd597c2a"
+  },
+  "retained_hand_parent_tet": 242790,
+  "retained_hand_source_node_rows": [
+    1862061,
+    1879377,
+    1879525,
+    1879526
+  ],
+  "limits": [
+    "Monotonic coefficients preserve nonnegative-barycentric lower bounds, not anatomy or mass equivalence.",
+    "Field changes can change volume, thickness, contact and material quality; all unchanged admission gates remain required.",
+    "Left280 material-volume diagnostic remains rejected: 252 cells below quality floor versus 248 before conditioning.",
+    "Full hand extraction now passes, but topology, self-intersection, surrounding anatomy, mapping and native scene qualification remain pending."
+  ],
+  "physical_admission": false
+}
