@@ -1,0 +1,28 @@
+[
+  {
+    "selected_level": 0.06642863100720746,
+    "target_level": 0.06649512613334074,
+    "maximum_shift": 6.649512613334074e-05,
+    "actual_shift": -6.649512613328412e-05,
+    "minimum_edge_fraction": 0.0009012745030929873,
+    "crossing_edges": 27743,
+    "source_value_interval": [
+      0.0664286310072074,
+      0.0664885554469793
+    ],
+    "physical_admission": false
+  },
+  {
+    "selected_level": 0.34079955258503536,
+    "target_level": 0.3409776256947127,
+    "maximum_shift": 0.0003409776256947127,
+    "actual_shift": -0.0001780731096773236,
+    "minimum_edge_fraction": 0.00031218476476624997,
+    "crossing_edges": 18575,
+    "source_value_interval": [
+      0.3406448676808243,
+      0.3409059782376589
+    ],
+    "physical_admission": false
+  }
+]
