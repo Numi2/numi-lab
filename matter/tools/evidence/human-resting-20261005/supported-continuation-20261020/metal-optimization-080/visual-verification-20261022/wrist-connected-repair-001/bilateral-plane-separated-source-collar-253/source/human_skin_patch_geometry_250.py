@@ -1,0 +1,1045 @@
+"""Ordered annular triangulation for local Human surface repair.
+
+This constructs a candidate strip only. Callers must independently check
+closure, intersections, layer cells, source ancestry and mass before admission.
+"""
+import numpy as np
+
+
+def triangle_deformation_metrics(reference_triangles, candidate_triangles):
+    """Return per-face area ratio, normal cosine, and oriented-area ratio.
+
+    Inputs are already gathered Nx3x3 triangle coordinates: the second axis
+    always selects corners, the third coordinates. This explicit contract
+    avoids confusing a vertex-index array with a triangle/corner array.
+    Collapsed candidate faces return zero in all three metrics. Degenerate
+    reference faces cannot define a comparison and are rejected.
+    """
+    reference = np.asarray(reference_triangles, dtype=np.float64)
+    candidate = np.asarray(candidate_triangles, dtype=np.float64)
+    if (reference.ndim != 3 or reference.shape[1:] != (3, 3)
+            or reference.shape != candidate.shape
+            or not np.isfinite(reference).all() or not np.isfinite(candidate).all()):
+        raise ValueError("matching finite Nx3x3 triangle coordinates required")
+    nr = np.cross(reference[:, 1]-reference[:, 0], reference[:, 2]-reference[:, 0])
+    nc = np.cross(candidate[:, 1]-candidate[:, 0], candidate[:, 2]-candidate[:, 0])
+    ar = np.linalg.norm(nr, axis=1); ac = np.linalg.norm(nc, axis=1)
+    if np.any(ar == 0):
+        raise ValueError("nondegenerate reference triangles required")
+    dot = np.einsum("ij,ij->i", nr, nc)
+    cosine = np.divide(dot, ar*ac, out=np.zeros(len(ar)), where=ac != 0)
+    return ac/ar, np.clip(cosine, -1, 1), dot/(ar*ar)
+
+
+def p1_tetrahedral_sublevel_fractions(nodal_values, tetrahedra, level):
+    """Exact volume fractions of a linear nodal field <= level in each tet.
+
+    This is a scalar-field integration primitive, independent of orientation
+    and physical cell volume. Repeated nodal values are supported without a
+    divided-difference denominator across equal knots. A constant cell at the
+    threshold has fraction one; interface builders must separately reject a
+    positive-volume plateau rather than interpreting it as a unique surface.
+    No surface closure or anatomical/material admission is implied.
+    """
+    values = np.asarray(nodal_values, dtype=np.float64)
+    raw = np.asarray(tetrahedra)
+    threshold = np.asarray(level, dtype=np.float64)
+    if values.ndim != 1 or not np.isfinite(values).all():
+        raise ValueError("finite one-dimensional nodal values required")
+    if raw.ndim != 2 or raw.shape[1] != 4 or raw.dtype.kind not in "iu":
+        raise ValueError("Nx4 integer tetrahedral indices required")
+    if threshold.ndim != 0 or not np.isfinite(threshold):
+        raise ValueError("finite scalar level required")
+    if raw.size and (raw.min() < 0 or raw.max() >= len(values)):
+        raise ValueError("tetrahedral index outside nodal values")
+    if raw.size and np.any(np.diff(np.sort(raw, axis=1), axis=1) == 0):
+        raise ValueError("four distinct node indices per tetrahedron required")
+    knots = np.sort(values[raw], axis=1)
+    below = np.sum(knots <= threshold, axis=1)
+    result = (below == 4).astype(np.float64)
+    for count in (1, 2, 3):
+        rows = np.flatnonzero(below == count)
+        if not len(rows):
+            continue
+        a, b, c, d = knots[rows].T
+        if count == 1:
+            fraction = ((threshold-a)/(b-a) * (threshold-a)/(c-a)
+                        * (threshold-a)/(d-a))
+        elif count == 3:
+            fraction = 1 - ((d-threshold)/(d-a) * (d-threshold)/(d-b)
+                            * (d-threshold)/(d-c))
+        else:
+            ac = (threshold-a)/(c-a)
+            ad = (threshold-a)/(d-a)
+            bc = (threshold-b)/(c-b)
+            bd = (threshold-b)/(d-b)
+            # Three tetrahedra partition the clipped six-vertex polyhedron.
+            fraction = ac*ad + ad*bc*(1-ac) + bc*bd*(1-ad)
+        result[rows] = fraction
+    if not np.isfinite(result).all() or np.any((result < -1e-14) | (result > 1+1e-14)):
+        raise ValueError("invalid linear-field fraction; rescale extreme nodal values")
+    return np.clip(result, 0, 1)
+
+
+def extract_p1_tetrahedral_interface(vertices, tetrahedra, nodal_values, level):
+    """Extract the oriented boundary of a P1 sublevel inside tetrahedra.
+
+    Exact threshold vertices retain their coordinates and identity. Shared
+    edges share one interpolated vertex; no coordinate welding, perturbation,
+    or degenerate-face removal is performed. Returns Float32 positions,
+    triangles, source edge endpoints, and endpoint-one interpolation weights.
+    Construction-domain exterior faces are not automatically physical skin.
+    """
+    x = np.asarray(vertices, dtype=np.float64)
+    raw = np.asarray(tetrahedra)
+    phi = np.asarray(nodal_values, dtype=np.float64)
+    # Reuse strict field and index validation, including repeated-node rejection.
+    p1_tetrahedral_sublevel_fractions(phi, raw, level)
+    if x.shape != (len(phi), 3) or not np.isfinite(x).all():
+        raise ValueError("finite Nx3 vertices matching nodal values required")
+    t = raw.astype(np.int64)
+    threshold = float(level)
+    values = phi[t]
+    if np.any(np.all(values == threshold, axis=1)):
+        raise ValueError("constant threshold cell has no unique interface")
+    active = np.flatnonzero((np.min(values, axis=1) < threshold)
+                            & (np.max(values, axis=1) >= threshold))
+    keys, points, weights, index = [], [], [], {}
+    triangles = []
+    facet_owners = {}
+    facet_counts = {}
+    for row in active:
+        nodes = t[row]
+        local = values[row]
+        edges = []
+        for node in nodes[local == threshold]:
+            edges.append((int(node), int(node)))
+        for i, j in ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)):
+            if (local[i] < threshold < local[j]
+                    or local[j] < threshold < local[i]):
+                edges.append(tuple(sorted((int(nodes[i]), int(nodes[j])))))
+        if len(edges) < 3:
+            continue
+        if len(edges) > 4:
+            raise ValueError("nonregular tetrahedral interface")
+        ids = []
+        for key in edges:
+            if key not in index:
+                a, b = key
+                alpha = 0. if a == b else (threshold-phi[a])/(phi[b]-phi[a])
+                point = x[a] if a == b else (1-alpha)*x[a]+alpha*x[b]
+                index[key] = len(points)
+                keys.append(key); points.append(point); weights.append(alpha)
+            ids.append(index[key])
+        p = np.asarray([points[i] for i in ids])
+        try:
+            gradient = np.linalg.solve(x[nodes[1:]]-x[nodes[0]], local[1:]-local[0])
+        except np.linalg.LinAlgError as exc:
+            raise ValueError("singular tetrahedral geometry") from exc
+        normal = gradient/np.linalg.norm(gradient)
+        axis = np.eye(3)[np.argmin(np.abs(normal))]
+        u = np.cross(axis, normal); u /= np.linalg.norm(u)
+        v = np.cross(normal, u)
+        center = p.mean(axis=0)
+        order = np.argsort(np.arctan2((p-center)@v, (p-center)@u))
+        ids = [ids[i] for i in order]
+        if len(ids) == 3:
+            children = [ids]
+        else:
+            diagonal0 = tuple(sorted((keys[ids[0]], keys[ids[2]])))
+            diagonal1 = tuple(sorted((keys[ids[1]], keys[ids[3]])))
+            if diagonal0 <= diagonal1:
+                children = [[ids[0], ids[1], ids[2]], [ids[0], ids[2], ids[3]]]
+            else:
+                children = [[ids[1], ids[2], ids[3]], [ids[1], ids[3], ids[0]]]
+        for face in children:
+            key = tuple(sorted(face))
+            facet_counts[key] = facet_counts.get(key, 0)+1
+            if facet_counts[key] > 2:
+                raise ValueError("nonmanifold interface facet")
+            if key in facet_owners:
+                # Two sublevel cells sharing an all-threshold facet cancel.
+                previous = facet_owners.pop(key)
+                old = triangles[previous]
+                same_orientation = any(tuple(face) == tuple(old[k:]+old[:k])
+                                       for k in range(3))
+                if same_orientation:
+                    raise ValueError("overlapping oriented interface facet")
+                triangles[previous] = None
+            else:
+                facet_owners[key] = len(triangles)
+                triangles.append(face)
+    faces = np.asarray([f for f in triangles if f is not None], dtype=np.int64).reshape(-1, 3)
+    emitted = np.asarray(points, dtype=np.float32).reshape(-1, 3)
+    if len(faces):
+        p = emitted.astype(np.float64)[faces]
+        cross = np.cross(p[:, 1]-p[:, 0], p[:, 2]-p[:, 0])
+        before = np.asarray(points)[faces]
+        reference = np.cross(before[:, 1]-before[:, 0], before[:, 2]-before[:, 0])
+        if np.any(np.einsum("ij,ij->i", cross, reference) <= 0):
+            raise ValueError("interface face degenerates or reverses after Float32 emission")
+    return (emitted, faces, np.asarray(keys, dtype=np.int64).reshape(-1, 2),
+            np.asarray(weights, dtype=np.float64))
+
+
+def zipper_annulus(vertices, outer_loop, inner_loop, *, quality_floor=1e-5,
+                   max_edge=None, phase_band=0.35):
+    """Return (triangles, report) for disjoint, consistently ordered loops.
+
+    The returned outer boundary follows outer_loop; its inner boundary runs
+    opposite inner_loop. Reverse the complete result if the existing boundary
+    requires opposite winding. Every cyclic inner phase is considered.
+    """
+    x = np.asarray(vertices, dtype=np.float64)
+    raw_a, raw_b = np.asarray(outer_loop), np.asarray(inner_loop)
+    if raw_a.ndim != 1 or raw_b.ndim != 1 or raw_a.dtype.kind not in "iu" or raw_b.dtype.kind not in "iu":
+        raise ValueError("one-dimensional integer index loops required")
+    a = raw_a.astype(np.int64)
+    b0 = raw_b.astype(np.int64)
+    if x.ndim != 2 or x.shape[1] != 3 or not np.isfinite(x).all():
+        raise ValueError("finite Nx3 vertices required")
+    if min(len(a), len(b0)) < 3:
+        raise ValueError("loops need at least three vertices")
+    if (len(np.unique(a)) != len(a) or len(np.unique(b0)) != len(b0)
+            or np.intersect1d(a, b0).size or min(a.min(), b0.min()) < 0
+            or max(a.max(), b0.max()) >= len(x)):
+        raise ValueError("valid disjoint simple index loops required")
+    if not 0 < quality_floor < 1 or not 0 < phase_band <= 1:
+        raise ValueError("quality floor and phase band must be positive fractions")
+    n, m = len(a), len(b0)
+    scale = max(np.ptp(x[np.r_[a, b0]], axis=0).max(), 1e-12)
+    if max_edge is not None and (not np.isfinite(max_edge) or max_edge <= 0):
+        raise ValueError("maximum edge must be finite and positive")
+    edge_limit = np.inf if max_edge is None else float(max_edge)
+    best = None
+
+    def metric(p, q, r):
+        e0 = q - p
+        e1 = r - p
+        e2 = r - q
+        areas2 = np.linalg.norm(np.cross(e0, e1), axis=-1)
+        lengths2 = np.stack((np.sum(e0*e0, axis=-1),
+                             np.sum(e1*e1, axis=-1),
+                             np.sum(e2*e2, axis=-1)), axis=-1)
+        quality = 2*np.sqrt(3)*areas2 / np.maximum(lengths2.sum(-1), 1e-300)
+        longest2 = lengths2.max(-1)
+        cost = longest2/(scale*scale) + 0.01/np.maximum(quality, 1e-300)
+        return np.where((quality >= quality_floor) &
+                        (longest2 <= edge_limit*edge_limit), cost, np.inf)
+
+    aa = np.r_[a, a[:1]]
+    for phase in range(m):
+        b = np.roll(b0, -phase)
+        bb = np.r_[b, b[:1]]
+        # Advancing A: (A_i,A_i+1,B_j).
+        ca = metric(np.broadcast_to(x[aa[:-1], None], (n, m+1, 3)),
+                    np.broadcast_to(x[aa[1:], None], (n, m+1, 3)),
+                    np.broadcast_to(x[bb][None], (n, m+1, 3)))
+        # Advancing B: (A_i,B_j+1,B_j).
+        cb = metric(np.broadcast_to(x[aa, None], (n+1, m, 3)),
+                    np.broadcast_to(x[bb[1:]][None], (n+1, m, 3)),
+                    np.broadcast_to(x[bb[:-1]][None], (n+1, m, 3)))
+        d = np.full((n+1, m+1), np.inf)
+        prev = np.zeros((n+1, m+1), dtype=np.uint8)
+        d[0, 0] = 0.0
+        for i in range(n+1):
+            lo = max(0, int(np.ceil((i/n-phase_band)*m)))
+            hi = min(m, int(np.floor((i/n+phase_band)*m)))
+            for j in range(lo, hi+1):
+                if i == j == 0:
+                    continue
+                da = d[i-1, j]+ca[i-1, j] if i else np.inf
+                db = d[i, j-1]+cb[i, j-1] if j else np.inf
+                if da <= db:
+                    d[i, j], prev[i, j] = da, 1
+                else:
+                    d[i, j], prev[i, j] = db, 2
+        if not np.isfinite(d[n, m]) or (best is not None and d[n, m] >= best[0]):
+            continue
+        i, j = n, m
+        faces = []
+        while i or j:
+            if prev[i, j] == 1:
+                faces.append((aa[i-1], aa[i], bb[j]))
+                i -= 1
+            elif prev[i, j] == 2:
+                faces.append((aa[i], bb[j], bb[j-1]))
+                j -= 1
+            else:
+                raise RuntimeError("incomplete dynamic-programming path")
+        best = (float(d[n, m]), phase, np.asarray(faces[::-1], dtype=np.int64))
+    if best is None:
+        raise ValueError("no strip satisfies quality/edge/progress constraints")
+    score, phase, faces = best
+    edges = {}
+    for face in faces:
+        for i, j in zip(face, np.roll(face, -1)):
+            key = tuple(sorted((int(i), int(j))))
+            edges.setdefault(key, []).append((int(i), int(j)))
+    boundary = {v[0] for v in edges.values() if len(v) == 1}
+    expected = {(int(i), int(j)) for i, j in zip(a, np.roll(a, -1))}
+    expected |= {(int(j), int(i)) for i, j in zip(b0, np.roll(b0, -1))}
+    if boundary != expected or any(len(v) > 2 or
+            (len(v) == 2 and v[0] != v[1][::-1]) for v in edges.values()):
+        raise RuntimeError("constructed strip violates oriented boundary contract")
+    pts = x[faces]
+    area = np.linalg.norm(np.cross(pts[:,1]-pts[:,0], pts[:,2]-pts[:,0]), axis=1)/2
+    edge = np.linalg.norm(pts-np.roll(pts, -1, axis=1), axis=2)
+    quality = 4*np.sqrt(3)*area/np.sum(edge*edge, axis=1)
+    return faces, dict(score=score, inner_phase=phase, triangles=len(faces),
+                       minimum_area_m2=float(area.min()),
+                       minimum_quality=float(quality.min()),
+                       maximum_edge_m=float(edge.max()),
+                       oriented_boundary_exact=True,
+                       physical_admission=False)
+
+def ordered_layer_prism_tets(faces):
+    """Return node IDs, O/I/D layer IDs and signs for native three-tet prisms.
+
+    Axes are (face, region [skin, fat], local tet, corner). Both regions use
+    identical sorted-global-ID connectivity; only the layer pair changes.
+    Signs follow the source face winding, using integer inversion counts.
+    No material, thickness or admission criterion is changed here.
+    """
+    raw = np.asarray(faces)
+    if raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in "iu":
+        raise ValueError("integer Fx3 faces required")
+    if raw.size and (np.any(raw < 0) or np.any(raw > np.iinfo(np.int64).max)):
+        raise ValueError("nonnegative int64 source IDs required")
+    f = raw.astype(np.int64)
+    if np.any((f[:, 0] == f[:, 1]) | (f[:, 0] == f[:, 2]) | (f[:, 1] == f[:, 2])):
+        raise ValueError("three distinct source IDs required per face")
+    v = np.sort(f, axis=1)
+    rows = v[:, np.array([[0, 1, 2, 2], [0, 1, 1, 2], [0, 0, 1, 2]])]
+    nodes = np.repeat(rows[:, None], 2, axis=1)
+    local_layers = np.array([[0, 0, 0, 1], [0, 0, 1, 1], [0, 1, 1, 1]], dtype=np.int8)
+    layers = np.broadcast_to(local_layers[None, None] +
+                             np.arange(2, dtype=np.int8)[None, :, None, None],
+                             nodes.shape).copy()
+    # Do not sum NumPy bool scalars: their addition is logical OR.
+    inversions = ((f[:, 0] > f[:, 1]).astype(np.int8) +
+                  (f[:, 0] > f[:, 2]).astype(np.int8) +
+                  (f[:, 1] > f[:, 2]).astype(np.int8))
+    sign = np.where(inversions % 2, 1., -1.)
+    signs = np.broadcast_to(sign[:, None, None] * np.array([1., -1., 1.]),
+                            (len(f), 2, 3)).copy()
+    return nodes, layers, signs
+
+
+def tetra_determinants_and_gradients(points):
+    """Batched signed six-volumes and exact coordinate gradients.
+
+    The final axes of points are (4, 3); preceding batch axes are retained.
+    Gradients have the same shape as points, in physical coordinate units.
+    """
+    p = np.asarray(points, dtype=np.float64)
+    if p.ndim < 2 or p.shape[-2:] != (4, 3) or not np.isfinite(p).all():
+        raise ValueError("finite (...,4,3) tetrahedron points required")
+    a, b, c = p[..., 1, :] - p[..., 0, :], p[..., 2, :] - p[..., 0, :], p[..., 3, :] - p[..., 0, :]
+    g1, g2, g3 = np.cross(b, c), np.cross(c, a), np.cross(a, b)
+    gradient = np.stack((-(g1 + g2 + g3), g1, g2, g3), axis=-2)
+    return np.sum(a * g1, axis=-1), gradient
+
+def split_surface_edges(vertices, faces, edge_parameters):
+    """Conformingly split selected edges in every incident source triangle.
+
+    edge_parameters maps oriented (i,j) to 0<t<1 from i toward j. Return
+    (vertices, faces, parent_face_rows, new_vertex_edges, new_vertex_weights).
+    The last two arrays give affine ancestry in the input vertex array.
+    Untouched triangles retain their exact indices and orientation.
+    This is source preparation, not physical or collision admission.
+    """
+    x = np.asarray(vertices, dtype=np.float64)
+    raw = np.asarray(faces)
+    if x.ndim != 2 or x.shape[1] != 3 or not np.isfinite(x).all():
+        raise ValueError("finite Nx3 vertices required")
+    if raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in "iu":
+        raise ValueError("integer Fx3 faces required")
+    if raw.size and (np.any(raw < 0) or np.any(raw >= len(x))):
+        raise ValueError("source face index outside vertex range")
+    f = raw.astype(np.int64)
+    if np.any((f[:, 0] == f[:, 1]) | (f[:, 0] == f[:, 2]) | (f[:, 1] == f[:, 2])):
+        raise ValueError("three distinct source IDs required per face")
+    cuts = {}
+    for edge, value in edge_parameters.items():
+        e = np.asarray(edge)
+        if e.shape != (2,) or e.dtype.kind not in "iu":
+            raise ValueError("integer source edge pairs required")
+        i, j = map(int, e)
+        t = float(value)
+        if not 0 <= i < len(x) or not 0 <= j < len(x) or i == j or not np.isfinite(t) or not 0 < t < 1:
+            raise ValueError("valid source edge and interior finite parameter required")
+        if i > j:
+            i, j, t = j, i, 1-t
+        key = (i, j)
+        if key in cuts and abs(cuts[key]-t) > 1e-14:
+            raise ValueError("conflicting oriented edge parameters")
+        cuts[key] = t
+    edges = np.array(sorted(cuts), dtype=np.int64).reshape(-1, 2)
+    weights = np.array([[1-cuts[tuple(e)], cuts[tuple(e)]] for e in edges],
+                       dtype=np.float64).reshape(-1, 2)
+    new_points = np.sum(x[edges]*weights[:, :, None], axis=1)
+    result_x = np.concatenate((x, new_points))
+    ids = {tuple(e): len(x)+k for k, e in enumerate(edges)}
+    used = set()
+    result_f, parents = [], []
+    for fi, face in enumerate(f):
+        polygon = []
+        touched = False
+        for i, j in zip(face, np.roll(face, -1)):
+            polygon.append(int(i))
+            key = tuple(sorted((int(i), int(j))))
+            if key in ids:
+                polygon.append(ids[key])
+                used.add(key)
+                touched = True
+        if not touched:
+            result_f.append(face.tolist())
+            parents.append(fi)
+            continue
+        p = x[face]
+        normal = np.cross(p[1]-p[0], p[2]-p[0])
+        norm = np.linalg.norm(normal)
+        if norm <= 0:
+            raise ValueError("cannot split a degenerate source triangle")
+        normal /= norm
+        floor = norm*1e-14
+        # The polygon is a convex source triangle with collinear edge points.
+        # Remove positive-area ears, never a collinear edge-point triple.
+        while len(polygon) > 3:
+            candidates = []
+            for k in range(len(polygon)):
+                a, b, c = polygon[k-1], polygon[k], polygon[(k+1) % len(polygon)]
+                u, v = result_x[b]-result_x[a], result_x[c]-result_x[a]
+                area2 = float(np.dot(np.cross(u, v), normal))
+                if area2 > floor:
+                    # A source-edge point on the candidate diagonal must not
+                    # be skipped: doing so leaves a degenerate remainder.
+                    other = [j for j in polygon if j not in (a,b,c)]
+                    contains = False
+                    for j in other:
+                        point = result_x[j]
+                        h = [np.dot(np.cross(result_x[t]-result_x[s],
+                                             point-result_x[s]),normal)
+                             for s,t in ((a,b),(b,c),(c,a))]
+                        if min(h) >= -floor:
+                            contains = True
+                            break
+                    if contains:
+                        continue
+                    lengths2 = np.dot(u,u)+np.dot(v,v)+np.sum((result_x[c]-result_x[b])**2)
+                    candidates.append((area2/max(lengths2, 1e-300), -k, (a,b,c)))
+            if not candidates:
+                raise ValueError("source edge split has no nondegenerate triangulation")
+            _, negative_k, tri = max(candidates)
+            result_f.append(tri); parents.append(fi)
+            polygon.pop(-negative_k)
+        a,b,c = polygon
+        if np.dot(np.cross(result_x[b]-result_x[a], result_x[c]-result_x[a]), normal) <= floor:
+            raise ValueError("degenerate final source-edge triangle")
+        result_f.append(polygon); parents.append(fi)
+    if used != set(cuts):
+        raise ValueError("selected split edge is absent from source faces")
+    return (result_x, np.asarray(result_f, dtype=np.int64).reshape(-1,3),
+            np.asarray(parents,dtype=np.int64), edges, weights)
+
+
+def clip_surface_halfspace(vertices, faces, normal, offset, *, keep_less=True):
+    """Conformingly clip an oriented surface; do not cap its new boundary.
+
+    Keep n.x <= offset (or >= when keep_less=False). Original rows remain
+    unchanged, including unused rows. Return the split_surface_edges tuple;
+    parent faces and affine edge ancestry refer to the input surface. New
+    edge points are classified by construction rather than a rounded plane
+    test. No coordinate welding or anatomical/physical admission is implied.
+    """
+    x = np.asarray(vertices, dtype=np.float64)
+    raw = np.asarray(faces)
+    n = np.asarray(normal, dtype=np.float64)
+    d = float(offset)
+    if (x.ndim != 2 or x.shape[1] != 3 or not np.isfinite(x).all()
+            or raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in 'iu'
+            or n.shape != (3,) or not np.isfinite(n).all()
+            or not np.isfinite(d) or not isinstance(keep_less, (bool, np.bool_))):
+        raise ValueError('finite geometry, integer faces and finite plane required')
+    scale = float(np.max(np.abs(n)))
+    if scale == 0:
+        raise ValueError('nonzero plane normal required')
+    n = n / scale
+    d = d / scale
+    if not np.isfinite(d):
+        raise ValueError('unrepresentable normalized plane offset')
+    if raw.size and (np.any(raw < 0) or np.any(raw >= len(x))):
+        raise ValueError('source face index outside vertex range')
+    f = raw.astype(np.int64)
+    h = x @ n - d
+    if not np.isfinite(h).all():
+        raise ValueError('unrepresentable plane distances')
+    cuts = {}
+    if len(f):
+        edges = np.unique(np.sort(np.concatenate((f[:, [0, 1]], f[:, [1, 2]],
+                                                   f[:, [2, 0]])), axis=1), axis=0)
+        for i, j in edges:
+            if (h[i] < 0 < h[j]) or (h[j] < 0 < h[i]):
+                # Normalize first to avoid overflow in opposite-sign sums.
+                a, b = abs(h[i]), abs(h[j])
+                s = max(a, b)
+                t = (a/s) / (a/s + b/s)
+                if not 0 < t < 1:
+                    raise ValueError('plane split collapses to a source endpoint')
+                cuts[(int(i), int(j))] = t
+    sx, sf, parents, edges, weights = split_surface_edges(x, f, cuts)
+    side = np.concatenate((np.sign(h), np.zeros(len(edges))))
+    tri_side = side[sf]
+    if np.any(np.any(tri_side < 0, axis=1) & np.any(tri_side > 0, axis=1)):
+        raise ValueError('source splitting left a triangle crossing the plane')
+    retain = np.all(tri_side <= 0 if keep_less else tri_side >= 0, axis=1)
+    return sx, sf[retain], parents[retain], edges, weights
+
+
+def transverse_surface_section(vertices, faces, value, *, axis=2):
+    """Audit a transverse plane section using mesh-edge identity.
+
+    No coordinate rounding or welding is used: coincident but disconnected
+    sheets remain disconnected. A plane through a referenced vertex is
+    rejected so a caller must choose and record an unambiguous nearby plane.
+    This reports topology only, not collision clearance or anatomical validity.
+    """
+    x = np.asarray(vertices, dtype=np.float64)
+    raw = np.asarray(faces)
+    if x.ndim != 2 or x.shape[1] != 3 or not np.isfinite(x).all():
+        raise ValueError("finite Nx3 vertices required")
+    if raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in "iu":
+        raise ValueError("integer Mx3 faces required")
+    f = raw.astype(np.int64)
+    if axis not in (0, 1, 2) or not np.isfinite(value):
+        raise ValueError("finite plane and axis 0, 1 or 2 required")
+    if len(f) and (f.min() < 0 or f.max() >= len(x)
+                   or np.any(np.sort(f, axis=1)[:, 1:] ==
+                             np.sort(f, axis=1)[:, :-1])):
+        raise ValueError("valid nonrepeating triangle indices required")
+    h = x[:, axis] - value
+    if len(f) and np.any(h[np.unique(f)] == 0):
+        raise ValueError("section plane passes through a referenced vertex")
+    active = np.flatnonzero((h[f].min(1) < 0) & (h[f].max(1) > 0))
+    edge_to_node, edges, xyz, segments = {}, [], [], []
+    for fi in active:
+        tri = f[fi]
+        nodes = []
+        for a, b in zip(tri, np.roll(tri, -1)):
+            if (h[a] < 0) == (h[b] < 0):
+                continue
+            edge = (int(min(a, b)), int(max(a, b)))
+            if edge not in edge_to_node:
+                u, v = edge
+                edge_to_node[edge] = len(edges)
+                edges.append(edge)
+                t = -h[u] / (h[v]-h[u])
+                xyz.append(x[u]+t*(x[v]-x[u]))
+            nodes.append(edge_to_node[edge])
+        if len(nodes) != 2 or nodes[0] == nodes[1]:
+            raise RuntimeError("invalid transverse triangle section")
+        segments.append(nodes)
+    adj = [[] for _ in edges]
+    for a, b in segments:
+        adj[a].append(b)
+        adj[b].append(a)
+    visited, components = set(), []
+    for v in range(len(edges)):
+        if v in visited:
+            continue
+        todo, component = [v], []
+        visited.add(v)
+        while todo:
+            u = todo.pop()
+            component.append(u)
+            for n in adj[u]:
+                if n not in visited:
+                    visited.add(n)
+                    todo.append(n)
+        components.append(component)
+    degrees = np.array([len(a) for a in adj], dtype=np.int64)
+    return {
+        "plane_axis": int(axis), "plane_value": float(value),
+        "edge_nodes": np.asarray(edges, dtype=np.int64).reshape(-1, 2),
+        "points": np.asarray(xyz, dtype=np.float64).reshape(-1, 3),
+        "segments": np.asarray(segments, dtype=np.int64).reshape(-1, 2),
+        "source_face_rows": active,
+        "components": components,
+        "closed_loops": sum(all(len(adj[v]) == 2 for v in c) for c in components),
+        "degree_histogram": {int(k): int(np.count_nonzero(degrees == k))
+                             for k in np.unique(degrees)},
+    }
+
+
+def select_tetrahedra_by_surface_parent(face_parents, selected_face_rows, tet_parents):
+    """Select complete parent columns, never treating current face rows as IDs.
+
+    A refined face may share its parent identity with other faces. Selecting it
+    intentionally includes that complete parent column for a conforming cavity.
+    """
+    fp = np.asarray(face_parents)
+    rows = np.asarray(selected_face_rows)
+    tp = np.asarray(tet_parents)
+    for name, a in (("face parents", fp), ("face rows", rows), ("tet parents", tp)):
+        if a.ndim != 1 or not np.issubdtype(a.dtype, np.integer) or np.any(a < 0):
+            raise ValueError(name + " must be nonnegative integer identities")
+    if len(rows) and np.max(rows) >= len(fp):
+        raise ValueError("selected surface face row out of range")
+    parents = np.unique(fp[rows])
+    if not np.all(np.isin(parents, tp)):
+        raise ValueError("selected surface parent has no tetrahedral descendants")
+    return np.flatnonzero(np.isin(tp, parents))
+
+
+def tetrahedral_region_boundary(tetrahedra, materials):
+    """Extract oriented exterior and material interfaces from a tet region.
+
+    Assumes positive geometric orientation; callers separately check signed
+    volumes in both source precision and emitted Float32 coordinates.
+    Rejects nonmanifold or inconsistently oriented faces and pinched boundaries.
+    """
+    t = np.asarray(tetrahedra)
+    m = np.asarray(materials)
+    if (t.ndim != 2 or t.shape[1] != 4 or not np.issubdtype(t.dtype, np.integer)
+            or np.any(t < 0) or m.shape != (len(t),)
+            or not np.issubdtype(m.dtype, np.integer) or np.any(m < 0)):
+        raise ValueError("invalid tetrahedron or material identities")
+    if len(t) and np.any(np.diff(np.sort(t, axis=1), axis=1) == 0):
+        raise ValueError("tetrahedron has repeated nodes")
+    if len(np.unique(np.sort(t, axis=1), axis=0)) != len(t):
+        raise ValueError("duplicate tetrahedron")
+    uses = {}
+    template = ((1, 2, 3), (0, 3, 2), (0, 1, 3), (0, 2, 1))
+    for i, tet in enumerate(t):
+        for ids in template:
+            f = tuple(int(tet[j]) for j in ids)
+            sign = 1 if sum(f[a] > f[b] for a in range(3) for b in range(a+1, 3)) % 2 == 0 else -1
+            uses.setdefault(tuple(sorted(f)), []).append((f, i, sign))
+    exterior, owners, interfaces, pairs = [], [], [], []
+    for key in sorted(uses):
+        u = uses[key]
+        if len(u) == 1:
+            exterior.append(u[0][0])
+            owners.append(u[0][1])
+        elif len(u) == 2:
+            if u[0][2] + u[1][2] != 0:
+                raise ValueError("shared tetrahedron face has inconsistent orientation")
+            a, b = u
+            if m[a[1]] != m[b[1]]:
+                if m[a[1]] > m[b[1]]:
+                    a, b = b, a
+                interfaces.append(a[0])
+                pairs.append((a[1], b[1]))
+        else:
+            raise ValueError("nonmanifold tetrahedron face")
+    edges = {}
+    for f in exterior:
+        for a, b in zip(f, f[1:]+f[:1]):
+            e = tuple(sorted((a, b)))
+            count, sign = edges.get(e, (0, 0))
+            edges[e] = (count+1, sign+(1 if a < b else -1))
+    if any(v != (2, 0) for v in edges.values()):
+        raise ValueError("region boundary is pinched, open or inconsistently oriented")
+    # Edge-manifold tests do not detect two closed shells touching at one
+    # vertex. Each exterior vertex must have exactly one cyclic triangle link.
+    links = {}
+    for f in exterior:
+        for j, v in enumerate(f):
+            a, b = f[(j+1) % 3], f[(j+2) % 3]
+            adj = links.setdefault(v, {})
+            adj.setdefault(a, []).append(b)
+            adj.setdefault(b, []).append(a)
+    for adj in links.values():
+        if any(len(neighbors) != 2 for neighbors in adj.values()):
+            raise ValueError("boundary vertex link is not a cycle")
+        seen, todo = set(), [next(iter(adj))]
+        while todo:
+            v = todo.pop()
+            if v not in seen:
+                seen.add(v)
+                todo.extend(adj[v])
+        if len(seen) != len(adj):
+            raise ValueError("boundary vertex joins disconnected shells")
+    return {
+        "exterior_faces": np.asarray(exterior, dtype=np.int64).reshape(-1, 3),
+        "exterior_tet_rows": np.asarray(owners, dtype=np.int64),
+        "interface_faces": np.asarray(interfaces, dtype=np.int64).reshape(-1, 3),
+        "interface_tet_pairs": np.asarray(pairs, dtype=np.int64).reshape(-1, 2),
+    }
+
+
+def partition_tetrahedral_repair_batch(tetrahedra, selected_tet_sets, movable_node_sets):
+    """Group a repair batch by actual tetrahedral ownership, not fixed stitches.
+
+    Every movable node's complete incident tetrahedron star is included before
+    merging. Components may share *fixed* node IDs; these are exact retained
+    stitches, not independent copies to move. Only overlapping element sets
+    merge. Returned rows refer to the original input arrays and are sorted
+    deterministically. This selects construction domains; it does not establish
+    geometric closure, collision freedom, source ancestry, mass or admission.
+    """
+    def ids(value, name, *, upper=None, empty_ok=False):
+        a = np.asarray(value)
+        if a.ndim == 1 and a.size == 0 and empty_ok:
+            return set()
+        if a.ndim != 1 or a.dtype.kind not in "iu":
+            raise ValueError(name + " must contain one-dimensional integer IDs")
+        if not empty_ok and not a.size:
+            raise ValueError(name + " must not be empty")
+        if a.size and (np.any(a > np.iinfo(np.int64).max) or
+                       np.any(a < 0) or (upper is not None and np.any(a >= upper))):
+            raise ValueError(name + " contains an out-of-range ID")
+        return set(map(int, a))
+    raw = np.asarray(tetrahedra)
+    if raw.ndim != 2 or raw.shape[1] != 4 or raw.dtype.kind not in "iu":
+        raise ValueError("integer Tx4 tetrahedra required")
+    if raw.size and (np.any(raw < 0) or np.any(raw > np.iinfo(np.int64).max)):
+        raise ValueError("tetrahedral node IDs must be nonnegative int64")
+    t = raw.astype(np.int64)
+    if any(len(set(map(int, row))) != 4 for row in t):
+        raise ValueError("tetrahedra need four distinct node IDs")
+    if len(selected_tet_sets) != len(movable_node_sets):
+        raise ValueError("one movable-node set is required per selected-tet set")
+    if not len(selected_tet_sets):
+        return [], []
+    incidence = {}
+    for ti, row in enumerate(t):
+        for node in row:
+            incidence.setdefault(int(node), set()).add(ti)
+    parts = []
+    for ci, (selected, movable) in enumerate(zip(selected_tet_sets, movable_node_sets)):
+        cells = ids(selected, "selected tetrahedra", upper=len(t))
+        moved = ids(movable, "movable nodes", empty_ok=True)
+        original_nodes = set(map(int, t[sorted(cells)].ravel()))
+        if not moved <= original_nodes:
+            raise ValueError("a movable node is absent from its selected component")
+        for node in moved:
+            cells.update(incidence[node])
+        parts.append({"seed_components": {ci}, "selected_global_tet_ids": cells,
+                      "movable_global_node_ids": moved})
+    # Union on tetrahedral IDs. Shared fixed vertices do not create ownership
+    # conflicts, including contact between distinct volume components.
+    parent = list(range(len(parts)))
+    def root(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+    owner = {}
+    for ci, part in enumerate(parts):
+        for ti in sorted(part["selected_global_tet_ids"]):
+            if ti in owner:
+                a, b = root(ci), root(owner[ti])
+                parent[max(a, b)] = min(a, b)
+            else:
+                owner[ti] = ci
+    merged = {}
+    for ci, part in enumerate(parts):
+        g = merged.setdefault(root(ci), {k: set() for k in part})
+        for key, value in part.items():
+            g[key].update(value)
+    result = sorted(merged.values(),
+                    key=lambda g: (min(g["selected_global_tet_ids"]),
+                                   min(g["seed_components"])))
+    node_sets = []
+    for g in result:
+        cells, moved = g["selected_global_tet_ids"], g["movable_global_node_ids"]
+        for node in moved:
+            if not incidence[node] <= cells:
+                raise RuntimeError("movable node has an unowned incident tetrahedron")
+        node_sets.append(set(map(int, t[sorted(cells)].ravel())))
+    shared = []
+    for i in range(len(result)):
+        for j in range(i+1, len(result)):
+            common = node_sets[i] & node_sets[j]
+            if common:
+                if common & (result[i]["movable_global_node_ids"] |
+                             result[j]["movable_global_node_ids"]):
+                    raise RuntimeError("independent repair components share a movable node")
+                shared.append({"component_a": i, "component_b": j,
+                               "fixed_global_node_ids": np.array(sorted(common), dtype=np.int64)})
+    return [{k: np.array(sorted(v), dtype=np.int64) for k, v in g.items()}
+            for g in result], shared
+
+
+def boundary_tetrahedron_quality_ceiling(vertices, faces):
+    """Upper-bound any incident tet's abs(det)/longest_edge**3, per face.
+
+    For a face with double area a and longest edge l, an incident tet with
+    longest edge L >= l obeys abs(det) <= a*L. Thus its normalized determinant
+    is at most a/l**2. A ceiling below a required quality proves fixed-face
+    meshing impossible; a higher ceiling does NOT prove a valid tet exists.
+    Pass the reference coordinates actually used by the volume compiler.
+    This scale-invariant local metric is not area/max_area over a mesh.
+    """
+    x = np.asarray(vertices, dtype=np.float64)
+    raw = np.asarray(faces)
+    if (x.ndim != 2 or x.shape[1] != 3 or not np.isfinite(x).all()
+            or raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in "iu"):
+        raise ValueError("finite Nx3 vertices and integer Fx3 faces required")
+    f = raw.astype(np.int64)
+    if f.size and (f.min() < 0 or f.max() >= len(x)):
+        raise ValueError("face vertex is out of range")
+    t = x[f]
+    a, b, c = t[:,1]-t[:,0], t[:,2]-t[:,0], t[:,2]-t[:,1]
+    longest2 = np.maximum.reduce((np.einsum("ij,ij->i",a,a),
+                                 np.einsum("ij,ij->i",b,b),
+                                 np.einsum("ij,ij->i",c,c)))
+    area2 = np.linalg.norm(np.cross(a,b),axis=1)
+    result = np.zeros(len(f),dtype=np.float64)
+    np.divide(area2,longest2,out=result,where=longest2>0)
+    return result
+
+
+def collapse_zero_length_surface_edges(vertices, faces, protected_vertices=()):
+    """Collapse only explicit interior edges with exactly equal endpoint coordinates.
+
+    Returns (faces, vertex_alias, retained_source_face_rows). Vertex rows remain
+    present for source identity; callers must retain the alias ancestry. This
+    is a topology repair, not arbitrary coordinate welding or mass transfer.
+    All boundary vertex IDs and supplied protected IDs stay fixed. Every kept
+    triangle has exactly the same coordinates as its source triangle.
+    """
+    v = np.asarray(vertices)
+    raw = np.asarray(faces)
+    if (v.ndim != 2 or v.shape[1] != 3 or v.dtype.kind not in "fiu" or
+            not np.isfinite(v).all()):
+        raise ValueError("finite Nx3 surface coordinates required")
+    if (raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in "iu" or
+            np.any(raw < 0) or np.any(raw >= len(v))):
+        raise ValueError("integer surface faces within vertex bounds required")
+    f = raw.astype(np.int64, copy=True)
+    protected = np.asarray(protected_vertices)
+    if protected.size == 0:
+        protected = np.empty(0, np.int64)
+    if (protected.ndim != 1 or protected.dtype.kind not in "iu" or
+            np.any(protected < 0) or np.any(protected >= len(v))):
+        raise ValueError("protected vertex identities are invalid")
+
+    def topology(triangles):
+        if np.any(np.diff(np.sort(triangles, axis=1), axis=1) == 0):
+            raise ValueError("source topology has repeated triangle corners")
+        if len(np.unique(np.sort(triangles, axis=1), axis=0)) != len(triangles):
+            raise ValueError("duplicate surface triangles")
+        directed = np.concatenate((triangles[:, [0, 1]], triangles[:, [1, 2]],
+                                   triangles[:, [2, 0]]))
+        edges = np.sort(directed, axis=1)
+        unique, inverse, counts = np.unique(edges, axis=0, return_inverse=True,
+                                           return_counts=True)
+        direction = np.where(directed[:, 0] < directed[:, 1], 1, -1)
+        signed = np.bincount(inverse, weights=direction, minlength=len(unique))
+        if np.any(counts > 2) or np.any((counts == 2) & (signed != 0)):
+            raise ValueError("nonmanifold or inconsistently oriented surface edges")
+        # Edge-manifold surfaces can still pinch at a vertex. The link of
+        # every used vertex must be one cycle or one boundary path.
+        links = {}
+        for a, b, c in triangles.tolist():
+            for center, left, right in ((a, b, c), (b, c, a), (c, a, b)):
+                graph = links.setdefault(center, {})
+                graph.setdefault(left, set()).add(right)
+                graph.setdefault(right, set()).add(left)
+        for graph in links.values():
+            degrees = [len(x) for x in graph.values()]
+            if any(d not in (1, 2) for d in degrees) or degrees.count(1) not in (0, 2):
+                raise ValueError("nonmanifold vertex link")
+            reached = set()
+            pending = [next(iter(graph))]
+            while pending:
+                node = pending.pop()
+                if node not in reached:
+                    reached.add(node)
+                    pending.extend(graph[node] - reached)
+            if len(reached) != len(graph):
+                raise ValueError("disconnected vertex link")
+        return unique, counts, unique[counts == 1]
+
+    edges, counts, boundary = topology(f)
+    exact_zero = np.all(v[edges[:, 0]] == v[edges[:, 1]], axis=1)
+    if np.any(exact_zero & (counts != 2)):
+        raise ValueError("zero-length boundary edges require a separate boundary repair")
+    p = v.astype(np.float64)[f]
+    areas = np.linalg.norm(np.cross(p[:, 1]-p[:, 0], p[:, 2]-p[:, 0]), axis=1)
+    zero_corner = (np.all(p[:, 0] == p[:, 1], axis=1) |
+                   np.all(p[:, 1] == p[:, 2], axis=1) |
+                   np.all(p[:, 2] == p[:, 0], axis=1))
+    if not np.isfinite(areas).all() or np.any((areas == 0) & ~zero_corner):
+        raise ValueError("collinear distinct-coordinate faces are not zero-edge repairs")
+    protected_set = set(map(int, protected)) | set(map(int, boundary.ravel()))
+    alias = np.arange(len(v), dtype=np.int64)
+    retained = np.arange(len(f), dtype=np.int64)
+    for source_u, source_w in edges[exact_zero]:
+        u, w = int(alias[source_u]), int(alias[source_w])
+        if u == w:
+            continue
+        if u in protected_set and w in protected_set:
+            raise ValueError("cannot merge two protected vertex identities")
+        if w in protected_set or (u not in protected_set and w < u):
+            u, w = w, u
+        at_u, at_w = np.any(f == u, axis=1), np.any(f == w, axis=1)
+        incident_edge = at_u & at_w
+        if int(incident_edge.sum()) != 2:
+            raise ValueError("zero-edge incidence changed during collapse")
+        link_u = set(map(int, f[at_u].ravel())) - {u, w}
+        link_w = set(map(int, f[at_w].ravel())) - {u, w}
+        opposite = set(map(int, f[incident_edge].ravel())) - {u, w}
+        if (link_u & link_w) != opposite:
+            raise ValueError("zero edge fails the surface link condition")
+        # These are the only removed faces, and each is geometrically zero.
+        if not np.all(v[u] == v[w]):
+            raise ValueError("collapse would change coordinate geometry")
+        alias[alias == w] = u
+        f = f[~incident_edge]
+        retained = retained[~incident_edge]
+        f[f == w] = u
+    _, _, after_boundary = topology(f)
+    if not np.array_equal(boundary, after_boundary):
+        raise ValueError("collapse changed boundary edge identities")
+    if not np.array_equal(v[f], v[raw[retained]]):
+        raise ValueError("collapse changed retained triangle coordinates")
+    p = v.astype(np.float64)[f]
+    areas = np.linalg.norm(np.cross(p[:, 1]-p[:, 0], p[:, 2]-p[:, 0]), axis=1)
+    if np.any(areas <= 0) or not np.isfinite(areas).all():
+        raise ValueError("unrepaired zero-area faces remain")
+    return f, alias, retained
+
+
+def undirected_boundary_loops(edges):
+    """Extract deterministic simple cycles from exact vertex-ID boundary edges.
+
+    A nonempty boundary must be a disjoint union of degree-two cycles. Open,
+    duplicate, branched and self edges fail before traversal. Each successful
+    walk consumes an edge on every iteration, so invalid input cannot hang.
+    Coincident coordinates are irrelevant: this operates on source identities.
+    """
+    raw = np.asarray(edges)
+    if (raw.ndim != 2 or raw.shape[1] != 2 or raw.dtype.kind not in 'iu'
+            or np.any(raw < 0)):
+        raise ValueError('nonnegative integer Nx2 boundary edges required')
+    if np.any(raw[:, 0] == raw[:, 1]):
+        raise ValueError('boundary self edges are invalid')
+    canonical = np.sort(raw, axis=1)
+    if len(np.unique(canonical, axis=0)) != len(raw):
+        raise ValueError('duplicate boundary edges are invalid')
+    graph = {}
+    for a, b in canonical.tolist():
+        graph.setdefault(a, set()).add(b)
+        graph.setdefault(b, set()).add(a)
+    if any(len(neighbors) != 2 for neighbors in graph.values()):
+        raise ValueError('boundary must have degree two at every vertex')
+    remaining = set(graph)
+    loops = []
+    while remaining:
+        start = min(remaining)
+        previous, current = start, min(graph[start])
+        sequence = [start]
+        remaining.remove(start)
+        while current != start:
+            if current not in remaining:
+                raise ValueError('boundary revisits a vertex before closing')
+            sequence.append(current)
+            remaining.remove(current)
+            following = graph[current] - {previous}
+            if len(following) != 1:
+                raise ValueError('boundary continuation is not unique')
+            previous, current = current, next(iter(following))
+        loops.append(np.asarray(sequence, dtype=np.int64))
+    return loops
+
+
+def surface_topology_signature(faces):
+    """Audit an oriented triangle manifold using referenced vertex IDs only.
+
+    Return each edge-connected component's Euler characteristic, boundary
+    cycles and genus. Unused payload rows cannot hide handles; components
+    touching at a vertex are rejected by the vertex-link check. This is a
+    combinatorial gate, not a geometric intersection or anatomical proof.
+    """
+    raw = np.asarray(faces)
+    if (raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in 'iu'
+            or np.any(raw < 0) or np.any(raw > np.iinfo(np.int64).max)):
+        raise ValueError('nonnegative int64 triangle identities required')
+    f = raw.astype(np.int64)
+    if not len(f):
+        return []
+    sf = np.sort(f, axis=1)
+    if np.any(np.diff(sf, axis=1) == 0) or len(np.unique(sf, axis=0)) != len(f):
+        raise ValueError('repeated corners or duplicate triangles')
+    # A dictionary avoids arrays sized by the largest source identity.
+    edges, links = {}, {}
+    parent = np.arange(len(f), dtype=np.int64)
+    def root(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return int(i)
+    for row, (a, b, c) in enumerate(f.tolist()):
+        for u, v, w in ((a, b, c), (b, c, a), (c, a, b)):
+            key = (min(u, v), max(u, v))
+            direction = 1 if u < v else -1
+            previous = edges.get(key)
+            if previous is None:
+                edges[key] = [row, direction, 1]
+            else:
+                if previous[2] != 1 or previous[1] == direction:
+                    raise ValueError('nonmanifold or inconsistently oriented edges')
+                previous[2] = 2
+                x, y = root(row), root(previous[0])
+                parent[max(x, y)] = min(x, y)
+            graph = links.setdefault(u, {})
+            graph.setdefault(v, set()).add(w)
+            graph.setdefault(w, set()).add(v)
+    for graph in links.values():
+        degrees = [len(v) for v in graph.values()]
+        if any(d not in (1, 2) for d in degrees) or degrees.count(1) not in (0, 2):
+            raise ValueError('vertex link is not a cycle or boundary path')
+        seen, pending = set(), [next(iter(graph))]
+        while pending:
+            v = pending.pop()
+            if v not in seen:
+                seen.add(v)
+                pending.extend(graph[v] - seen)
+        if len(seen) != len(graph):
+            raise ValueError('disconnected vertex link')
+    parts = {}
+    for row in range(len(f)):
+        part = parts.setdefault(root(row), {'faces': [], 'vertices': set(),
+                                            'edge_count': 0, 'boundary': []})
+        part['faces'].append(row)
+        part['vertices'].update(map(int, f[row]))
+    for edge, (row, _, count) in edges.items():
+        part = parts[root(row)]
+        part['edge_count'] += 1
+        if count == 1:
+            part['boundary'].append(edge)
+    result = []
+    for part in parts.values():
+        boundary = np.asarray(part['boundary'], dtype=np.int64).reshape(-1, 2)
+        loops = undirected_boundary_loops(boundary)
+        chi = len(part['vertices']) - part['edge_count'] + len(part['faces'])
+        twice_genus = 2 - len(loops) - chi
+        if twice_genus < 0 or twice_genus % 2:
+            raise ValueError('surface has no orientable manifold genus')
+        result.append({'face_rows': np.array(part['faces'], dtype=np.int64),
+                       'used_vertex_count': len(part['vertices']),
+                       'edge_count': part['edge_count'],
+                       'face_count': len(part['faces']),
+                       'boundary_loops': loops,
+                       'euler_characteristic': chi,
+                       'genus': twice_genus // 2})
+    return result
+
+
+def require_matching_surface_topology(reference_faces, candidate_faces):
+    """Reject changed component/boundary/genus counts before geometry work.
+
+    IDs and triangulation may change. Exact retained boundary identities,
+    ancestry, mass, geometry and physical admission remain separate gates.
+    """
+    def signature(f):
+        return sorted((len(p['boundary_loops']), p['genus'])
+                      for p in surface_topology_signature(f))
+    a, b = signature(reference_faces), signature(candidate_faces)
+    if a != b:
+        raise ValueError('surface component/boundary/genus topology changed')
+    return a

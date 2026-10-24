@@ -1,0 +1,12 @@
+{
+  "commit": "845b93be91e3de84807b2be2c246a7e140a5851c",
+  "parent": "80fe0fadc4c636d5ba911d78247a3423e4731865",
+  "normal_head": "2d6aedd424035372058b1be79dc57a7e27348b78",
+  "normal_index_sha256": "2eca6d498c86ab958cd115a928502f7b2b857955fcab3f0f7a02cc851cd4becb",
+  "files": {
+    "src/numilab_human/cardiac_cavity_intersections.py": "6f04ec7b129f47e810e75262f9f3ad3be0159bbe13dc2611a96e27141132b0fc",
+    "tests/test_cardiac_cavity_incremental_self_audit.py": "c3fee920f85b5b819821201578bb13f71dc8d715bb175ed4979cce6c1b8da694"
+  },
+  "pushed": true,
+  "validation": "40 existing predicate tests plus9 new incremental tests; one real exact full-pair parity replay; source fixture unavailable and not claimed"
+}

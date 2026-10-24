@@ -1,0 +1,289 @@
+{
+  "schema": "numi.human.incremental-exact-self-audit-replay.v1",
+  "inputs": {
+    "candidate003": "b0e2b052e2e4552767c500a93e99ca03f75fcdedccdbd4dbe8b225b5dd07ae8c",
+    "candidate004": "0de586c667f5ba6155364d95efa3ab20250c31d41ef807f62d6d8d868cb2c305",
+    "pose": "8d1ea7d2767fd359ec8dd0c8dc750a438c7438a3e7f094a3addbbadc770ec899",
+    "rebind_helper": "b360845d8402ddcf2fe691142861f9ee8a38c80d4d0743d4c451c0747521697c",
+    "exact_predicates": "6f04ec7b129f47e810e75262f9f3ad3be0159bbe13dc2611a96e27141132b0fc",
+    "script": "8feebf5afcdb674f707b798f8c90541a42bd41d9bdfddb79936c1a6bfc7f48f6"
+  },
+  "world_float32_sha256": [
+    "ad832d775460c17e1cdad553dac7effd9ac99b553bf4aeb8d0d4d3cde13ab45a",
+    "77cc7062f8aa41d10df2f8ddba864008ba5196c821202afeb3691557c783bfb3"
+  ],
+  "face_count": 108987,
+  "baseline_count": 25,
+  "candidate_count": 30,
+  "pair_sets_exactly_equal": true,
+  "baseline_seconds": 35.20030762499664,
+  "full_candidate_seconds": 35.42487745790277,
+  "incremental_candidate_seconds": 1.0851502090226859,
+  "incremental_report": {
+    "triangle_pairs": [
+      [
+        15485,
+        19438
+      ],
+      [
+        15485,
+        19439
+      ],
+      [
+        15486,
+        19438
+      ],
+      [
+        15486,
+        19439
+      ],
+      [
+        15487,
+        19439
+      ],
+      [
+        21765,
+        21787
+      ],
+      [
+        21765,
+        21788
+      ],
+      [
+        21766,
+        21788
+      ],
+      [
+        72751,
+        74836
+      ],
+      [
+        72752,
+        74835
+      ],
+      [
+        72752,
+        74836
+      ],
+      [
+        73681,
+        79913
+      ],
+      [
+        73681,
+        79914
+      ],
+      [
+        73683,
+        79913
+      ],
+      [
+        73683,
+        79914
+      ],
+      [
+        73812,
+        74832
+      ],
+      [
+        73812,
+        74833
+      ],
+      [
+        73812,
+        74834
+      ],
+      [
+        73813,
+        74833
+      ],
+      [
+        73813,
+        74834
+      ],
+      [
+        74815,
+        74825
+      ],
+      [
+        74815,
+        74828
+      ],
+      [
+        74817,
+        74828
+      ],
+      [
+        74818,
+        74825
+      ],
+      [
+        74818,
+        74828
+      ],
+      [
+        75640,
+        79225
+      ],
+      [
+        75641,
+        79224
+      ],
+      [
+        75641,
+        79225
+      ],
+      [
+        75642,
+        79224
+      ],
+      [
+        75642,
+        79225
+      ]
+    ],
+    "count": 30,
+    "aabb_candidate_pairs": 2578,
+    "allowed_shared_vertex_or_edge_pairs": 1809,
+    "selected_face_count": 168,
+    "complete_surface_face_count": 108987,
+    "complete_surface_audit": true,
+    "covered_required_witness_pairs": 25,
+    "exact_incremental_reuse": true,
+    "reused_unchanged_crossing_pairs": 0,
+    "unchanged_face_count": 108819,
+    "removed_face_count": 0
+  },
+  "full_candidate_report": {
+    "triangle_pairs": [
+      [
+        15485,
+        19438
+      ],
+      [
+        15485,
+        19439
+      ],
+      [
+        15486,
+        19438
+      ],
+      [
+        15486,
+        19439
+      ],
+      [
+        15487,
+        19439
+      ],
+      [
+        21765,
+        21787
+      ],
+      [
+        21765,
+        21788
+      ],
+      [
+        21766,
+        21788
+      ],
+      [
+        72751,
+        74836
+      ],
+      [
+        72752,
+        74835
+      ],
+      [
+        72752,
+        74836
+      ],
+      [
+        73681,
+        79913
+      ],
+      [
+        73681,
+        79914
+      ],
+      [
+        73683,
+        79913
+      ],
+      [
+        73683,
+        79914
+      ],
+      [
+        73812,
+        74832
+      ],
+      [
+        73812,
+        74833
+      ],
+      [
+        73812,
+        74834
+      ],
+      [
+        73813,
+        74833
+      ],
+      [
+        73813,
+        74834
+      ],
+      [
+        74815,
+        74825
+      ],
+      [
+        74815,
+        74828
+      ],
+      [
+        74817,
+        74828
+      ],
+      [
+        74818,
+        74825
+      ],
+      [
+        74818,
+        74828
+      ],
+      [
+        75640,
+        79225
+      ],
+      [
+        75641,
+        79224
+      ],
+      [
+        75641,
+        79225
+      ],
+      [
+        75642,
+        79224
+      ],
+      [
+        75642,
+        79225
+      ]
+    ],
+    "count": 30,
+    "aabb_candidate_pairs": 724619,
+    "allowed_shared_vertex_or_edge_pairs": 681865,
+    "selected_face_count": 108987,
+    "complete_surface_face_count": 108987,
+    "complete_surface_audit": true,
+    "covered_required_witness_pairs": 0
+  },
+  "scope": "Static source-preparation audit only. Both candidates fail anatomy. No physical simulation throughput claim."
+}

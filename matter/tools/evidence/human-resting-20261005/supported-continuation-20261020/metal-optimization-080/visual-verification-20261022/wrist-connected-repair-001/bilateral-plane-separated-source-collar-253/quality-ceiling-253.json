@@ -1,0 +1,64 @@
+{
+  "schema": "numi.human.candidate253-fixed-outer-face-tet-quality-ceiling.v1",
+  "candidate_sha256": "2d4cfc6306995cfd90fa67f9f28d7b1548f6b9d8a0bcd8c714d83ca47127fdeb",
+  "coordinates": "actual007 registered-world, rounded to emitted Float32 then evaluated F64",
+  "required_normalized_abs_det_floor": 1e-05,
+  "face_count": 36379,
+  "violating_fixed_face_count": 0,
+  "minimum_ceiling": 0.0009654629865041208,
+  "quantiles": {
+    "0": 0.0009654629865041208,
+    "0.001": 0.01430933883069075,
+    "0.01": 0.07115120199146296,
+    "0.05": 0.13915840115079242,
+    "0.5": 0.4743376331357199,
+    "1": 0.864302965933069
+  },
+  "by_kind": {
+    "0": {
+      "count": 4232,
+      "below_floor": 0,
+      "min": 0.0022828449821963763,
+      "p01": 0.03285306675467391,
+      "median": 0.38859814299251283
+    },
+    "2": {
+      "count": 31715,
+      "below_floor": 0,
+      "min": 0.002301204004197459,
+      "p01": 0.09842326722664765,
+      "median": 0.4872793153898756
+    },
+    "3": {
+      "count": 432,
+      "below_floor": 0,
+      "min": 0.0009654629865041208,
+      "p01": 0.0028789865326017696,
+      "median": 0.22039353076209395
+    }
+  },
+  "by_side": {
+    "0": {
+      "count": 4232,
+      "below_floor": 0,
+      "min": 0.0022828449821963763,
+      "p01": 0.03285306675467391,
+      "median": 0.38859814299251283
+    },
+    "1": {
+      "count": 16041,
+      "below_floor": 0,
+      "min": 0.001016875241717778,
+      "p01": 0.08649916658475079,
+      "median": 0.48227860455691357
+    },
+    "2": {
+      "count": 16106,
+      "below_floor": 0,
+      "min": 0.0009654629865041208,
+      "p01": 0.09039071236929216,
+      "median": 0.4862842758529764
+    }
+  },
+  "worst_faces": []
+}
