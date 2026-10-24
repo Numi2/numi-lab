@@ -22,5 +22,11 @@ int main(){
     m.fatDeep[1]=20;assert(!validateSkinBoundaryNodeMap(m,4,e));
     m.fatDeep[1]=6;assert(!validateSkinBoundaryNodeMap(m,5,e));
     m.outer.clear();assert(!validateSkinBoundaryNodeMap(m,4,e));
+    m.outer={0,1};m.skinInner={2,3,4};m.fatDeep={5,6,7,8};m.volumeNodeCount=10;
+    assert(validateSkinBoundaryNodeMap(m,std::array<std::size_t,3>{2,3,4},e));
+    assert(!validateSkinBoundaryNodeMap(m,std::array<std::size_t,3>{2,4,3},e));
+    m.skinInner[2]=8;assert(!validateSkinBoundaryNodeMap(m,std::array<std::size_t,3>{2,3,4},e));
+    m.skinInner[2]=4;
+    assert(!validateSkinBoundaryNodeMap(m,std::array<std::size_t,3>{0,3,4},e));
     std::cout<<"paired parity, arbitrary volume rows, disjoint roles, bounds and overflow: PASS\n";
 }

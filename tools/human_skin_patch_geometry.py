@@ -532,3 +532,32 @@ def partition_tetrahedral_repair_batch(tetrahedra, selected_tet_sets, movable_no
                                "fixed_global_node_ids": np.array(sorted(common), dtype=np.int64)})
     return [{k: np.array(sorted(v), dtype=np.int64) for k, v in g.items()}
             for g in result], shared
+
+
+def boundary_tetrahedron_quality_ceiling(vertices, faces):
+    """Upper-bound any incident tet's abs(det)/longest_edge**3, per face.
+
+    For a face with double area a and longest edge l, an incident tet with
+    longest edge L >= l obeys abs(det) <= a*L. Thus its normalized determinant
+    is at most a/l**2. A ceiling below a required quality proves fixed-face
+    meshing impossible; a higher ceiling does NOT prove a valid tet exists.
+    Pass the reference coordinates actually used by the volume compiler.
+    This scale-invariant local metric is not area/max_area over a mesh.
+    """
+    x = np.asarray(vertices, dtype=np.float64)
+    raw = np.asarray(faces)
+    if (x.ndim != 2 or x.shape[1] != 3 or not np.isfinite(x).all()
+            or raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in "iu"):
+        raise ValueError("finite Nx3 vertices and integer Fx3 faces required")
+    f = raw.astype(np.int64)
+    if f.size and (f.min() < 0 or f.max() >= len(x)):
+        raise ValueError("face vertex is out of range")
+    t = x[f]
+    a, b, c = t[:,1]-t[:,0], t[:,2]-t[:,0], t[:,2]-t[:,1]
+    longest2 = np.maximum.reduce((np.einsum("ij,ij->i",a,a),
+                                 np.einsum("ij,ij->i",b,b),
+                                 np.einsum("ij,ij->i",c,c)))
+    area2 = np.linalg.norm(np.cross(a,b),axis=1)
+    result = np.zeros(len(f),dtype=np.float64)
+    np.divide(area2,longest2,out=result,where=longest2>0)
+    return result

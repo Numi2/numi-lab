@@ -3041,7 +3041,24 @@ template<class VerifyBoundBody, class ParentBodyAt>
        topology.volumeNodeParentResidualWorldM.size()!=n||
        (maximumFacesPerBasisRegion==0u))
         return fail("unpaired source-label arrays do not cover the exact shell, node, or tetrahedron domains");
-    if(!numi::human::validateSkinBoundaryNodeMap(boundaryMap,surfaceRows,error))return false;
+    const bool independent=topology.independentSkinInnerSurface!=nullptr;
+    if(independent!=(topology.independentFatDeepSurface!=nullptr))
+        return fail("unpaired labels independent I/D boundaries must be supplied together");
+    const std::array<const RegisteredSurface*,3> roleSurfaces{
+        &surface,independent?topology.independentSkinInnerSurface:&surface,
+        independent?topology.independentFatDeepSurface:&surface};
+    const std::array<std::size_t,3> roleSizes{
+        roleSurfaces[0]->worldPoints.size(),roleSurfaces[1]->worldPoints.size(),
+        roleSurfaces[2]->worldPoints.size()};
+    if(!numi::human::validateSkinBoundaryNodeMap(boundaryMap,roleSizes,error))return false;
+    for(const auto* layer:roleSurfaces)
+        if(layer->faces.empty()||
+           (!layer->sourceVertexIndices.empty()&&layer->sourceVertexIndices.size()!=layer->worldPoints.size())||
+           (!layer->sourceFaceIndices.empty()&&layer->sourceFaceIndices.size()!=layer->faces.size())||
+           (!layer->sourceEmbeddingFaceIndices.empty()&&
+            (layer->sourceEmbeddingFaceIndices.size()!=layer->worldPoints.size()||
+             layer->sourceEmbeddingBarycentric.size()!=layer->worldPoints.size())))
+            return fail("unpaired labels independent registered boundary identity arrays are incomplete");
     if(boundaryMap.volumeNodeCount!=n||
        (!topology.volumeNodeSourceVertexIndices.empty()&&topology.volumeNodeSourceVertexIndices.size()!=n)||
        (!topology.volumeNodeSourceFaceIndices.empty()&&topology.volumeNodeSourceFaceIndices.size()!=n)||
@@ -3074,7 +3091,8 @@ template<class VerifyBoundBody, class ParentBodyAt>
     if(topology.volumeNodeSourceVertexIndices.size()!=n||topology.volumeNodeSourceFaceIndices.size()!=n||
        topology.volumeNodeSourceBarycentric.size()!=n)
         return fail("unpaired labels require explicit direct-or-embedded detailed source identity for every volume row");
-    if(!validateRegisteredSourceEmbedding(surface,0u,error))return false;
+    for(const auto* layer:roleSurfaces)
+        if(!validateRegisteredSourceEmbedding(*layer,topology.detailedSourceFaceCount,error))return false;
     if(surface.donorBodyIndices.size()!=surfaceRows||surface.sourceVertexIndices.size()!=surfaceRows||
        surface.donorLocalPoints.size()!=surfaceRows||surface.faces.empty()||
        (!surface.sourceFaceIndices.empty()&&surface.sourceFaceIndices.size()!=surface.faces.size())||
@@ -3114,21 +3132,25 @@ template<class VerifyBoundBody, class ParentBodyAt>
     std::array<const std::vector<std::uint32_t>*,3> roleMap{
         &boundaryMap.outer,&boundaryMap.skinInner,&boundaryMap.fatDeep};
     std::vector<std::uint32_t> nodeLayer(n,invalid),nodeSurfaceRow(n,invalid);
-    for(std::uint32_t role=0;role<3u;++role)for(std::uint32_t row=0;row<surfaceRows;++row){
+    for(std::uint32_t role=0;role<3u;++role)for(std::uint32_t row=0;row<roleSizes[role];++row){
         const auto node=(*roleMap[role])[row];
         if(nodeLayer[node]!=invalid)return fail("unpaired labels boundary roles alias a volume node");
         nodeLayer[node]=role;nodeSurfaceRow[node]=row;
     }
     using FaceKey=std::array<std::uint32_t,3>;
-    std::map<FaceKey,std::uint32_t> faceByKey;
-    for(std::uint32_t face=0;face<surface.faces.size();++face){
-        auto key=surface.faces[face];std::sort(key.begin(),key.end());
-        if(key[0]>=surfaceRows||key[1]>=surfaceRows||key[2]>=surfaceRows||
-           key[0]==key[1]||key[1]==key[2]||!faceByKey.emplace(key,face).second)
-            return fail("unpaired labels RegisteredSurface contains an invalid or duplicate face");
+    std::array<std::map<FaceKey,std::uint32_t>,3> faceByKey;
+    std::array<std::vector<std::uint32_t>,3> faceCounts;
+    for(unsigned role=0;role<3u;++role){
+        const auto& layer=*roleSurfaces[role];
+        faceCounts[role].assign(layer.faces.size(),0u);
+        for(std::uint32_t face=0;face<layer.faces.size();++face){
+            auto key=layer.faces[face];std::sort(key.begin(),key.end());
+            if(key[0]>=roleSizes[role]||key[1]>=roleSizes[role]||key[2]>=roleSizes[role]||
+               key[0]==key[1]||key[1]==key[2]||!faceByKey[role].emplace(key,face).second)
+                return fail("unpaired labels registered layer contains an invalid or duplicate face");
+        }
     }
-    std::vector<std::array<std::uint32_t,3>> faceCounts(surface.faces.size());
-    std::vector<std::vector<std::uint32_t>> interfaceMaterials(surface.faces.size());
+    std::vector<std::vector<std::uint32_t>> interfaceMaterials(roleSurfaces[1]->faces.size());
     std::uint32_t skinMaterial=invalid,fatMaterial=invalid;
     for(std::size_t ti=0;ti<nt;++ti){
         for(unsigned omitted=0;omitted<4u;++omitted){
@@ -3140,11 +3162,11 @@ template<class VerifyBoundBody, class ParentBodyAt>
             auto stable=topology.childRegisteredLayerFacetSourceFaceIdentities[4u*ti+omitted];
             std::uint32_t exact=invalid;
             if(same){FaceKey key{};for(unsigned k=0;k<3u;++k)key[k]=nodeSurfaceRow[nodes[k]];
-                std::sort(key.begin(),key.end());auto found=faceByKey.find(key);if(found!=faceByKey.end())exact=found->second;}
+                std::sort(key.begin(),key.end());auto found=faceByKey[role].find(key);if(found!=faceByKey[role].end())exact=found->second;}
             if(exact==invalid){if(declared!=invalid||stable!=invalid)return fail("unpaired labels facet ancestry claims a non-boundary triangle");continue;}
-            const auto expected=surface.sourceFaceIndices.empty()?exact:surface.sourceFaceIndices[exact];
+            const auto expected=roleSurfaces[role]->sourceFaceIndices.empty()?exact:roleSurfaces[role]->sourceFaceIndices[exact];
             if(declared!=exact||stable!=expected)return fail("unpaired labels facet row/stable identity differs from the exact mapped triangle");
-            ++faceCounts[exact][role];
+            ++faceCounts[role][exact];
             const auto material=topology.childMaterialIndices[ti];
             if(role==0u){if(skinMaterial==invalid)skinMaterial=material;else if(skinMaterial!=material)return fail("unpaired outer boundary changes skin material owner");}
             if(role==2u){if(fatMaterial==invalid)fatMaterial=material;else if(fatMaterial!=material)return fail("unpaired deep boundary changes fat material owner");}
@@ -3158,13 +3180,14 @@ template<class VerifyBoundBody, class ParentBodyAt>
     std::set<std::uint32_t> materialIDs(shell.femMaterialIndices.begin(),shell.femMaterialIndices.end());
     if(materialIDs.size()!=2u||!materialIDs.contains(skinMaterial)||!materialIDs.contains(fatMaterial))
         return fail("unpaired labels require exactly the O/D skin and fat material IDs");
-    for(std::size_t face=0;face<surface.faces.size();++face){
-        const auto& mats=interfaceMaterials[face];
+    for(unsigned role=0;role<3u;++role)for(std::size_t face=0;face<faceCounts[role].size();++face)
+        if(faceCounts[role][face]!=(role==1u?2u:1u))
+            return fail("unpaired labels do not cover every independent registered layer face per material side");
+    for(const auto& mats:interfaceMaterials){
         const auto skinCount=std::count(mats.begin(),mats.end(),skinMaterial);
         const auto fatCount=std::count(mats.begin(),mats.end(),fatMaterial);
-        if(faceCounts[face][0]!=1u||faceCounts[face][1]!=2u||faceCounts[face][2]!=1u||
-           mats.size()!=2u||skinCount!=1||fatCount!=1)
-            return fail("unpaired labels do not cover each O/I/D face once and each interface face once per material");
+        if(mats.size()!=2u||skinCount!=1||fatCount!=1)
+            return fail("unpaired labels interface lacks exactly one skin and one fat owner");
     }
 
     RegisteredSkinFatReductionSourceLabels next;
@@ -3197,10 +3220,12 @@ template<class VerifyBoundBody, class ParentBodyAt>
         auto sourceBary=topology.volumeNodeSourceBarycentric.empty()?std::array<double,3>{}:topology.volumeNodeSourceBarycentric[i];
         if(nodeLayer[i]!=invalid){
             const auto row=nodeSurfaceRow[i];
-            if(next.sourceNodeVertexIndices[i]==invalid)next.sourceNodeVertexIndices[i]=surface.sourceVertexIndices[row];
-            if(sourceFace==invalid&&!surface.sourceEmbeddingFaceIndices.empty()){
-                sourceFace=surface.sourceEmbeddingFaceIndices[row];
-                sourceBary=surface.sourceEmbeddingBarycentric[row];
+            const auto& layer=*roleSurfaces[nodeLayer[i]];
+            if(next.sourceNodeVertexIndices[i]==invalid&&!layer.sourceVertexIndices.empty())
+                next.sourceNodeVertexIndices[i]=layer.sourceVertexIndices[row];
+            if(sourceFace==invalid&&!layer.sourceEmbeddingFaceIndices.empty()){
+                sourceFace=layer.sourceEmbeddingFaceIndices[row];
+                sourceBary=layer.sourceEmbeddingBarycentric[row];
             }
         }
         if(next.sourceNodeVertexIndices[i]!=invalid){

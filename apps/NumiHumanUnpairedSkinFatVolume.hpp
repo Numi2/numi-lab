@@ -29,6 +29,11 @@ enum class VolumeAncestryVerificationKind : std::uint8_t {
 // SkinBoundaryNodeMap. CSR fractions are caller-supplied ancestry bookkeeping;
 // they establish neither geometric overlap nor conservative pullback by themselves.
 struct ExplicitUnpairedVolumeTopology {
+    // Optional independent I/D registered boundaries. Both must be present
+    // together; null keeps the legacy matched O/I/D face topology. The outer
+    // boundary remains the RegisteredSurface supplied to the compiler.
+    const RegisteredSurface* independentSkinInnerSurface=nullptr;
+    const RegisteredSurface* independentFatDeepSurface=nullptr;
     std::span<const V3> currentWorldPoints;
     std::span<const V3> referenceWorldPoints;
     std::span<const std::array<std::uint32_t,4>> childTetrahedra;
@@ -141,7 +146,24 @@ struct ExplicitUnpairedVolumeReport {
        fatMaterialProvenance.empty()||!std::isfinite(skinDonorDebitKg)||skinDonorDebitKg<=0.0||
        !std::isfinite(fatDonorDebitKg)||fatDonorDebitKg<=0.0)
         return fail("unpaired skin/fat volume arrays, materials, donor data, or budgets are incomplete");
-    if(!numi::human::validateSkinBoundaryNodeMap(boundaryMap,surface.worldPoints.size(),error))return false;
+    const bool independent=topology.independentSkinInnerSurface!=nullptr;
+    if(independent!=(topology.independentFatDeepSurface!=nullptr))
+        return fail("unpaired skin/fat independent I/D surfaces must be supplied together");
+    const std::array<const RegisteredSurface*,3> roleSurfaces{
+        &surface, independent?topology.independentSkinInnerSurface:&surface,
+        independent?topology.independentFatDeepSurface:&surface};
+    const std::array<std::size_t,3> roleSizes{
+        roleSurfaces[0]->worldPoints.size(),roleSurfaces[1]->worldPoints.size(),
+        roleSurfaces[2]->worldPoints.size()};
+    if(!numi::human::validateSkinBoundaryNodeMap(boundaryMap,roleSizes,error))return false;
+    for(const auto* layer:roleSurfaces)
+        if(layer->faces.empty()||layer->donorBodyIndices.size()!=layer->worldPoints.size()||
+           layer->donorLocalPoints.size()!=layer->worldPoints.size()||
+           (!layer->sourceFaceIndices.empty()&&layer->sourceFaceIndices.size()!=layer->faces.size()))
+            return fail("unpaired skin/fat registered layer geometry or identity arrays are incomplete");
+    if(independent)for(unsigned role=1u;role<3u;++role)
+        if(!validateRegisteredSourceEmbedding(*roleSurfaces[role],topology.detailedSourceFaceCount,error))
+            return false;
     if(boundaryMap.volumeNodeCount!=n)
         return fail("unpaired skin/fat boundary map volume count differs from the exact source node table");
     const auto receipt=topology.ancestryVerificationReceiptSHA256;
@@ -259,18 +281,36 @@ struct ExplicitUnpairedVolumeReport {
     const std::array<const std::vector<std::uint32_t>*,3> mappedRoles{
         &boundaryMap.outer,&boundaryMap.skinInner,&boundaryMap.fatDeep};
     std::array<std::vector<std::uint32_t>,3> roleNodeByFace;
-    for(auto& rows:roleNodeByFace)rows.assign(surface.worldPoints.size(),0u);
+    for(unsigned role=0;role<3u;++role)roleNodeByFace[role].assign(roleSizes[role],0u);
     for(std::uint32_t role=0u;role<3u;++role){
         const auto& mapping=*mappedRoles[role];
+        const auto& layer=*roleSurfaces[role];
         for(std::size_t row=0u;row<mapping.size();++row){
             const auto node=mapping[row];
-            if(node>=n||row>=surface.worldPoints.size())
+            if(node>=n||row>=layer.worldPoints.size())
                 return fail("unpaired skin/fat boundary map contains an out-of-range volume or surface row");
             if(volumeNodeLayer[node]!=invalid)
                 return fail("unpaired skin/fat boundary map aliases a volume node across surface roles");
             volumeNodeLayer[node]=role;volumeNodeSurfaceRow[node]=static_cast<std::uint32_t>(row);
-            if(topology.volumeNodeDonorBodyIndices[node]!=surface.donorBodyIndices[row])
+            if(topology.volumeNodeDonorBodyIndices[node]!=layer.donorBodyIndices[row])
                 return fail("unpaired skin/fat mapped boundary donor differs from RegisteredSurface at row "+std::to_string(row));
+            if(independent&&role!=0u&&
+               (norm(sub(current[node],layer.worldPoints[row]))>1.0e-8||
+                norm(sub(topology.volumeNodeDonorLocalPoints[node],layer.donorLocalPoints[row]))>1.0e-7))
+                return fail("unpaired skin/fat independent layer row differs from its exact current geometry or donor-local point");
+            if(independent&&role!=0u){
+                if(!layer.sourceVertexIndices.empty()&&
+                   layer.sourceVertexIndices[row]!=invalid&&
+                   (topology.volumeNodeSourceVertexIndices.size()!=n||
+                    topology.volumeNodeSourceVertexIndices[node]!=layer.sourceVertexIndices[row]))
+                    return fail("unpaired independent layer direct source identity differs from its volume node");
+                if(!layer.sourceEmbeddingFaceIndices.empty()&&
+                   layer.sourceEmbeddingFaceIndices[row]!=invalid&&
+                   (topology.volumeNodeSourceFaceIndices.size()!=n||
+                    topology.volumeNodeSourceFaceIndices[node]!=layer.sourceEmbeddingFaceIndices[row]||
+                    topology.volumeNodeSourceBarycentric[node]!=layer.sourceEmbeddingBarycentric[row]))
+                    return fail("unpaired independent layer source embedding differs from its volume node");
+            }
             if(role==0u){
                 if(topology.volumeNodeSourceVertexIndices.size()==n&&
                    topology.volumeNodeSourceVertexIndices[node]!=surface.sourceVertexIndices[row])
@@ -287,17 +327,21 @@ struct ExplicitUnpairedVolumeReport {
         if(std::any_of(counts.begin(),counts.end(),[](auto count){return count!=1u;}))
             return fail("unpaired skin/fat surface-row map is not one-to-one within a boundary layer");
 
-    std::map<Face,std::uint32_t> registeredFaceByKey;
-    for(std::uint32_t row=0;row<surface.faces.size();++row){
-        auto key=surface.faces[row];std::sort(key.begin(),key.end());
-        if(key[0]>=surface.worldPoints.size()||key[1]>=surface.worldPoints.size()||key[2]>=surface.worldPoints.size()||
-           key[0]==key[1]||key[1]==key[2]||!registeredFaceByKey.emplace(key,row).second)
-            return fail("unpaired skin/fat RegisteredSurface contains an invalid or duplicate face");
+    std::array<std::map<Face,std::uint32_t>,3> registeredFaceByKey;
+    for(unsigned role=0;role<3u;++role){
+        const auto& layer=*roleSurfaces[role];
+        for(std::uint32_t row=0;row<layer.faces.size();++row){
+            auto key=layer.faces[row];std::sort(key.begin(),key.end());
+            if(key[0]>=layer.worldPoints.size()||key[1]>=layer.worldPoints.size()||key[2]>=layer.worldPoints.size()||
+               key[0]==key[1]||key[1]==key[2]||!registeredFaceByKey[role].emplace(key,row).second)
+                return fail("unpaired skin/fat RegisteredSurface layer contains an invalid or duplicate face");
+        }
     }
     struct FacetUse { std::uint32_t child=0, omitted=0, material=0; int orientation=0; };
     std::map<Face,std::vector<FacetUse>> facetUses;
-    std::vector<std::array<std::uint32_t,3>> layerFaceCounts(3u*surface.faces.size());
-    std::vector<std::array<std::uint32_t,2>> interfaceMaterialCounts(surface.faces.size());
+    std::array<std::vector<std::uint32_t>,3> layerFaceCounts;
+    for(unsigned role=0;role<3u;++role)layerFaceCounts[role].assign(roleSurfaces[role]->faces.size(),0u);
+    std::vector<std::array<std::uint32_t,2>> interfaceMaterialCounts(roleSurfaces[1]->faces.size());
     for(std::size_t child=0;child<nt;++child){
         const auto material=topology.childMaterialIndices[child];
         const auto parent=topology.childDominantParentTetrahedra[child];
@@ -332,18 +376,18 @@ struct ExplicitUnpairedVolumeReport {
             std::uint32_t exact=invalid;
             if(sameRole){
                 Face key{};for(unsigned k=0;k<3u;++k)key[k]=volumeNodeSurfaceRow[nodes[k]];
-                std::sort(key.begin(),key.end());const auto found=registeredFaceByKey.find(key);
-                if(found!=registeredFaceByKey.end())exact=found->second;
+                std::sort(key.begin(),key.end());const auto found=registeredFaceByKey[role].find(key);
+                if(found!=registeredFaceByKey[role].end())exact=found->second;
             }
             if(exact==invalid){
                 if(declared!=invalid||declaredStable!=invalid)
                     return fail("unpaired skin/fat child facet claims a registered boundary face that its mapped nodes do not form");
                 continue;
             }
-            const auto expectedStable=surface.sourceFaceIndices.empty()?exact:surface.sourceFaceIndices[exact];
+            const auto expectedStable=roleSurfaces[role]->sourceFaceIndices.empty()?exact:roleSurfaces[role]->sourceFaceIndices[exact];
             if(declared!=exact||declaredStable!=expectedStable)
                 return fail("unpaired skin/fat child facet differs from the exact registered layer face row/stable identity");
-            ++layerFaceCounts[static_cast<std::size_t>(role)*surface.faces.size()+exact][0];
+            ++layerFaceCounts[role][exact];
             if(role==1u)++interfaceMaterialCounts[exact][material==skinMaterialIndex?0u:1u];
             else if((role==0u&&material!=skinMaterialIndex)||(role==2u&&material!=fatMaterialIndex))
                 return fail("unpaired skin/fat boundary facet is assigned to the wrong tissue material");
@@ -359,8 +403,8 @@ struct ExplicitUnpairedVolumeReport {
         bool sameRole=role!=invalid;for(auto node:nodes)if(volumeNodeLayer[node]!=role)sameRole=false;
         std::uint32_t exact=invalid;
         if(sameRole){Face rowKey{};for(unsigned k=0;k<3u;++k)rowKey[k]=volumeNodeSurfaceRow[nodes[k]];
-            std::sort(rowKey.begin(),rowKey.end());const auto found=registeredFaceByKey.find(rowKey);
-            if(found!=registeredFaceByKey.end())exact=found->second;}
+            std::sort(rowKey.begin(),rowKey.end());const auto found=registeredFaceByKey[role].find(rowKey);
+            if(found!=registeredFaceByKey[role].end())exact=found->second;}
         if(uses.size()==2u){
             if(uses[0].orientation+uses[1].orientation!=0)
                 return fail("unpaired skin/fat interior facet orientations do not oppose");
@@ -381,7 +425,7 @@ struct ExplicitUnpairedVolumeReport {
             const auto declared=topology.childRegisteredLayerFacetSurfaceFaces[slot];
             const auto declaredStable=topology.childRegisteredLayerFacetSourceFaceIdentities[slot];
             if(exact!=invalid&&role!=1u){
-                const auto expected=surface.sourceFaceIndices.empty()?exact:surface.sourceFaceIndices[exact];
+                const auto expected=roleSurfaces[role]->sourceFaceIndices.empty()?exact:roleSurfaces[role]->sourceFaceIndices[exact];
                 if(declared!=exact||declaredStable!=expected||wall!=0u||wallID!=invalid)
                     return fail("unpaired skin/fat external O/D facet lacks exact registered identity or conflicts with sidewall metadata");
             }else{
@@ -392,23 +436,22 @@ struct ExplicitUnpairedVolumeReport {
             }
         }
     }
-    for(std::size_t face=0;face<surface.faces.size();++face){
-        if(layerFaceCounts[face][0]!=1u||layerFaceCounts[surface.faces.size()+face][0]!=2u||
-           layerFaceCounts[2u*surface.faces.size()+face][0]!=1u||
-           interfaceMaterialCounts[face][0]!=1u||interfaceMaterialCounts[face][1]!=1u)
-            return fail("unpaired skin/fat child topology does not close each O/I/D registered face exactly once per material side");
+    for(unsigned role=0;role<3u;++role)for(std::size_t face=0;face<layerFaceCounts[role].size();++face){
+        if(layerFaceCounts[role][face]!=(role==1u?2u:1u)||
+           (role==1u&&(interfaceMaterialCounts[face][0]!=1u||interfaceMaterialCounts[face][1]!=1u)))
+            return fail("unpaired skin/fat child topology does not close every independent registered layer face once per material side");
     }
 
     // Independently audit the three mapped closed boundaries at both current
     // and stress-free reference coordinates; the volume mesh is not assumed paired.
     std::array<RegisteredSurface,3> mappedSurfaces;
     for(std::uint32_t role=0;role<3u;++role){
-        auto& mapped=mappedSurfaces[role];mapped=surface;mapped.name=surface.name+" unpaired layer boundary";
-        mapped.worldPoints.clear();mapped.worldPoints.reserve(surface.worldPoints.size());
+        auto& mapped=mappedSurfaces[role];mapped=*roleSurfaces[role];mapped.name=roleSurfaces[role]->name+" unpaired layer boundary";
+        mapped.worldPoints.clear();mapped.worldPoints.reserve(roleSizes[role]);
         for(auto node:*mappedRoles[role])mapped.worldPoints.push_back(current[node]);
         GeometryAudit audit;
         if(!auditClosedSurface(mapped,audit,error,true))return false;
-        mapped.worldPoints.clear();mapped.worldPoints.reserve(surface.worldPoints.size());
+        mapped.worldPoints.clear();mapped.worldPoints.reserve(roleSizes[role]);
         for(auto node:*mappedRoles[role])mapped.worldPoints.push_back(reference[node]);
         if(!auditClosedSurface(mapped,audit,error,true))return false;
     }
@@ -512,9 +555,11 @@ struct ExplicitUnpairedVolumeReport {
     for(const auto& tet:topology.childTetrahedra)object.tetrahedra.push_back({tet});
     for(auto node:boundaryMap.outer)object.femContactNodes.push_back(node);
     for(auto node:boundaryMap.fatDeep)object.femContactNodes.push_back(node);
+    // Internal layer rims are contact candidates at the explicitly authored
+    // open-head sidewalls. Independent I rows cannot be indexed by O rows.
     std::map<std::array<std::uint32_t,2>,unsigned> edgeUse;
-    for(const auto& face:surface.faces)for(unsigned e=0;e<3u;++e){auto a=face[e],b=face[(e+1u)%3u];if(a>b)std::swap(a,b);++edgeUse[{a,b}];}
-    for(const auto& [edge,count]:edgeUse){if(count>2u)return fail("unpaired RegisteredSurface has a nonmanifold edge while selecting contact rows");if(count==1u){object.femContactNodes.push_back(boundaryMap.skinInner[edge[0]]);object.femContactNodes.push_back(boundaryMap.skinInner[edge[1]]);}}
+    for(const auto& face:roleSurfaces[1]->faces)for(unsigned e=0;e<3u;++e){auto a=face[e],b=face[(e+1u)%3u];if(a>b)std::swap(a,b);++edgeUse[{a,b}];}
+    for(const auto& [edge,count]:edgeUse){if(count>2u)return fail("unpaired registered I layer has a nonmanifold edge while selecting contact rows");if(count==1u){object.femContactNodes.push_back(boundaryMap.skinInner[edge[0]]);object.femContactNodes.push_back(boundaryMap.skinInner[edge[1]]);}}
     std::sort(object.femContactNodes.begin(),object.femContactNodes.end());object.femContactNodes.erase(std::unique(object.femContactNodes.begin(),object.femContactNodes.end()),object.femContactNodes.end());
     if(std::any_of(object.femContactNodes.begin(),object.femContactNodes.end(),[&](auto node){return node>=n;}))return fail("unpaired skin/fat contact node map escapes the object-local volume domain");
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -14,12 +15,12 @@ struct SkinBoundaryNodeMap {
     std::vector<std::uint32_t> outer, skinInner, fatDeep;
 };
 inline bool validateSkinBoundaryNodeMap(const SkinBoundaryNodeMap& map,
-        std::size_t surfaceRows, std::string& error) {
+        const std::array<std::size_t,3>& surfaceRows, std::string& error) {
     const auto fail=[&](const char* reason){ error=reason; return false; };
-    if(surfaceRows==0 || map.volumeNodeCount==0 ||
-       map.outer.size()!=surfaceRows || map.skinInner.size()!=surfaceRows ||
-       map.fatDeep.size()!=surfaceRows)
-        return fail("skin boundary maps do not cover the registered surface");
+    if(surfaceRows[0]==0 || surfaceRows[1]==0 || surfaceRows[2]==0 ||
+       map.volumeNodeCount==0 || map.outer.size()!=surfaceRows[0] ||
+       map.skinInner.size()!=surfaceRows[1] || map.fatDeep.size()!=surfaceRows[2])
+        return fail("skin boundary maps do not cover the registered layer surfaces");
     std::vector<std::uint8_t> used(map.volumeNodeCount,0u);
     for(const auto* rows:{&map.outer,&map.skinInner,&map.fatDeep})
         for(const auto node:*rows) {
@@ -28,6 +29,11 @@ inline bool validateSkinBoundaryNodeMap(const SkinBoundaryNodeMap& map,
             used[node]=1u;
         }
     error.clear(); return true;
+}
+inline bool validateSkinBoundaryNodeMap(const SkinBoundaryNodeMap& map,
+        std::size_t surfaceRows, std::string& error) {
+    return validateSkinBoundaryNodeMap(map,
+        std::array<std::size_t,3>{surfaceRows,surfaceRows,surfaceRows},error);
 }
 inline bool makePairedSkinBoundaryNodeMap(std::size_t surfaceRows,
         SkinBoundaryNodeMap& map,std::string& error) {

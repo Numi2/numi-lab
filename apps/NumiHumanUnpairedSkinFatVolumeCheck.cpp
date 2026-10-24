@@ -167,6 +167,104 @@ struct Fixture {
     }
 };
 
+
+// Refine just one bonded I-layer face, without changing any O/D row or face.
+// Both incident material cells split conformingly, retaining exact parent volumes.
+void independentInnerFixture(Fixture& f,RegisteredSurface& inner,RegisteredSurface& deep) {
+    inner=f.surface;deep=f.surface;
+    inner.name="independent refined I";deep.name="independent D";
+    inner.worldPoints.clear();deep.worldPoints.clear();
+    for(auto node:f.boundary.skinInner)inner.worldPoints.push_back(f.current[node]);
+    for(auto node:f.boundary.fatDeep)deep.worldPoints.push_back(f.current[node]);
+    inner.donorLocalPoints=inner.worldPoints;deep.donorLocalPoints=deep.worldPoints;
+    for(std::uint32_t row=0;row<6u;++row){
+        f.sourceVertex[f.boundary.skinInner[row]]=row;
+        f.sourceVertex[f.boundary.fatDeep[row]]=row;
+    }
+    const auto iface=f.surface.faces[0];
+    std::array<std::uint32_t,3> oldFace{};
+    V3 point{};
+    for(unsigned k=0;k<3u;++k){
+        oldFace[k]=f.boundary.skinInner[iface[k]];
+        for(unsigned a=0;a<3u;++a)point[a]+=f.reference[oldFace[k]][a]/3.0;
+    }
+    const auto added=static_cast<std::uint32_t>(f.current.size());
+    std::uint32_t parent=kInvalid;
+    for(std::uint32_t at=0;at<f.parentTets.size();++at){
+        bool found=true;
+        for(auto node:oldFace)found&=std::find(f.parentTets[at].begin(),f.parentTets[at].end(),node)!=f.parentTets[at].end();
+        if(found){parent=at;break;}
+    }
+    assert(parent!=kInvalid);
+    std::array<double,4> bary{};
+    for(unsigned k=0;k<4u;++k)
+        if(std::find(oldFace.begin(),oldFace.end(),f.parentTets[parent][k])!=oldFace.end())bary[k]=1.0/3.0;
+    f.current.push_back(point);f.reference.push_back(point);f.localPoints.push_back(point);
+    f.origins.push_back({0,0,0});f.nodeRotations.push_back(kIdentity);f.nodeDonor.push_back(0u);
+    f.sourceVertex.push_back(kInvalid);f.sourceFace.push_back(0u);f.sourceBary.push_back({1.0/3,1.0/3,1.0/3});
+    f.nodeParent.push_back(parent);f.nodeParentBary.push_back(bary);f.nodeParentResidual.push_back({0,0,0});
+    f.boundary.skinInner.push_back(added);f.boundary.volumeNodeCount++;
+    const auto innerRow=static_cast<std::uint32_t>(inner.worldPoints.size());
+    inner.worldPoints.push_back(point);inner.donorLocalPoints.push_back(point);inner.donorBodyIndices.push_back(0u);
+    inner.sourceVertexIndices.push_back(kInvalid);
+    inner.sourceEmbeddingFaceIndices.assign(inner.worldPoints.size(),kInvalid);
+    inner.sourceEmbeddingBarycentric.assign(inner.worldPoints.size(),{});
+    inner.sourceEmbeddingFaceIndices.back()=0u;inner.sourceEmbeddingBarycentric.back()={1.0/3,1.0/3,1.0/3};
+    inner.faces.erase(inner.faces.begin());inner.sourceFaceIndices.erase(inner.sourceFaceIndices.begin());
+    for(unsigned k=0;k<3u;++k){
+        inner.faces.push_back({iface[k],iface[(k+1u)%3u],innerRow});
+        inner.sourceFaceIndices.push_back(1000u+k);
+    }
+    const auto oldChildren=f.children;const auto oldMaterial=f.childMaterial,oldDominant=f.dominant;
+    const auto oldParentSurface=f.parentSurface,oldStable=f.childStable,oldDonor=f.childDonor;
+    f.children.clear();f.childMaterial.clear();f.dominant.clear();f.parentSurface.clear();f.childStable.clear();f.childDonor.clear();
+    unsigned splits=0u;
+    for(std::size_t c=0;c<oldChildren.size();++c){
+        bool hasFace=true;
+        for(auto node:oldFace)hasFace&=std::find(oldChildren[c].begin(),oldChildren[c].end(),node)!=oldChildren[c].end();
+        const auto append=[&](std::array<std::uint32_t,4> tet){
+            if(tetVolume(f.reference[tet[0]],f.reference[tet[1]],f.reference[tet[2]],f.reference[tet[3]])<0.0)std::swap(tet[0],tet[1]);
+            f.children.push_back(tet);f.childMaterial.push_back(oldMaterial[c]);f.dominant.push_back(oldDominant[c]);
+            f.parentSurface.push_back(oldParentSurface[c]);f.childStable.push_back(oldStable[c]);f.childDonor.push_back(oldDonor[c]);
+        };
+        if(!hasFace){append(oldChildren[c]);continue;}
+        ++splits;std::uint32_t other=kInvalid;
+        for(auto node:oldChildren[c])if(std::find(oldFace.begin(),oldFace.end(),node)==oldFace.end())other=node;
+        assert(other!=kInvalid);
+        for(unsigned k=0;k<3u;++k)append({other,oldFace[k],oldFace[(k+1u)%3u],added});
+    }
+    assert(splits==2u);
+    f.refreshChildMetadata();
+    std::array<const RegisteredSurface*,3> surfaces{&f.surface,&inner,&deep};
+    std::array<const std::vector<std::uint32_t>*,3> maps{&f.boundary.outer,&f.boundary.skinInner,&f.boundary.fatDeep};
+    std::vector<std::uint32_t> layer(f.current.size(),kInvalid),row(f.current.size(),kInvalid);
+    std::array<std::map<Face,std::uint32_t>,3> faceRows;
+    for(unsigned role=0;role<3u;++role){
+        for(std::uint32_t r=0;r<maps[role]->size();++r){layer[(*maps[role])[r]]=role;row[(*maps[role])[r]]=r;}
+        for(std::uint32_t r=0;r<surfaces[role]->faces.size();++r){auto key=surfaces[role]->faces[r];std::sort(key.begin(),key.end());faceRows[role].emplace(key,r);}
+    }
+    std::fill(f.facetRows.begin(),f.facetRows.end(),kInvalid);std::fill(f.facetStable.begin(),f.facetStable.end(),kInvalid);
+    for(std::size_t c=0;c<f.children.size();++c)for(unsigned omit=0;omit<4u;++omit){
+        std::array<std::uint32_t,3> nodes{};unsigned at=0;
+        for(unsigned k=0;k<4u;++k)if(k!=omit)nodes[at++]=f.children[c][k];
+        const auto role=layer[nodes[0]];bool same=role!=kInvalid;
+        for(auto node:nodes)if(layer[node]!=role)same=false;
+        if(!same)continue;
+        Face key{};for(unsigned k=0;k<3u;++k)key[k]=row[nodes[k]];std::sort(key.begin(),key.end());
+        const auto found=faceRows[role].find(key);if(found==faceRows[role].end())continue;
+        f.facetRows[4*c+omit]=found->second;
+        f.facetStable[4*c+omit]=surfaces[role]->sourceFaceIndices[found->second];
+    }
+    f.topology.independentSkinInnerSurface=&inner;f.topology.independentFatDeepSurface=&deep;
+    f.topology.currentWorldPoints=f.current;f.topology.referenceWorldPoints=f.reference;
+    f.topology.volumeNodeDonorBodyIndices=f.nodeDonor;f.topology.volumeNodeDonorLocalPoints=f.localPoints;
+    f.topology.volumeNodeDonorLocalToWorldLinear=f.nodeRotations;f.topology.volumeNodeDonorOriginWorld=f.origins;
+    f.topology.volumeNodeSourceVertexIndices=f.sourceVertex;f.topology.volumeNodeSourceFaceIndices=f.sourceFace;
+    f.topology.volumeNodeSourceBarycentric=f.sourceBary;
+    f.topology.volumeNodeParentTetrahedra=f.nodeParent;f.topology.volumeNodeParentBarycentric=f.nodeParentBary;
+    f.topology.volumeNodeParentResidualWorldM=f.nodeParentResidual;
+}
+
 numi::matter::WorldSource worldFor() {
     numi::matter::WorldSource world;world.materials.resize(2u);
     for(std::uint32_t i=0;i<2u;++i) {
@@ -237,5 +335,43 @@ int main() {
     collapsed.topology.volumeNodeDonorLocalPoints=collapsed.localPoints;
     auto floatWorld=worldFor();assert(!emit(collapsed,floatWorld,report,error));
     assert(error.find("Float32 current orientation")!=std::string::npos&&floatWorld.objects.empty());
+
+    Fixture independent;RegisteredSurface inner,deep;
+    independentInnerFixture(independent,inner,deep);
+    auto independentWorld=worldFor();
+    if(!emit(independent,independentWorld,report,error)){std::cerr<<"independent boundary: "<<error;return 2;}
+    assert(report.volumeNodeCount==20u&&independent.boundary.outer.size()==6u&&independent.boundary.skinInner.size()==7u);
+    assert(inner.faces.size()==10u&&independent.surface.faces.size()==8u&&deep.faces.size()==8u);
+    assert(buildRegisteredSkinFatUnpairedReductionSourceLabels(independent.surface,independentWorld.objects.front(),
+        independent.boundary,independent.topology,1u,
+        [](std::uint32_t,std::uint32_t){return true;},[](std::uint32_t){return NM_INVALID_INDEX;},labels,error,36u,
+        [](std::uint32_t,std::uint32_t){return true;}));
+    assert(labels.sourceNodeLayerIndices[19]==1u);
+    assert(validateRegisteredSkinFatRemeshNodeAncestry(independentWorld.objects.front(),labels,error));
+    const auto independentObject=independentWorld.objects.front();
+    assert(independentObject.femNodes==independent.current);
+    assert(independentObject.femReferenceNodes==independent.reference);
+    assert(independentObject.femContactNodes.size()==12u); // Closed O/D only, no interior I contact.
+    // Mismatched independent contracts must fail before source/density mutation.
+    inner.sourceEmbeddingBarycentric.back()={.1,.1,.1};
+    auto badIndependentBaryWorld=worldFor();
+    assert(!emit(independent,badIndependentBaryWorld,report,error)&&badIndependentBaryWorld.objects.empty());
+    inner.sourceEmbeddingBarycentric.back()={1.0/3.0,1.0/3.0,1.0/3.0};
+    inner.sourceEmbeddingFaceIndices.back()=1u;
+    auto mismatchedIndependentWorld=worldFor();
+    assert(!emit(independent,mismatchedIndependentWorld,report,error)&&mismatchedIndependentWorld.objects.empty());
+    inner.sourceEmbeddingFaceIndices.back()=0u;
+    independent.topology.independentFatDeepSurface=nullptr;
+    auto incompleteWorld=worldFor();
+    assert(!emit(independent,incompleteWorld,report,error)&&incompleteWorld.objects.empty());
+    independent.topology.independentFatDeepSurface=&deep;
+    inner.worldPoints.back()[0]+=.01;
+    auto staleLayerWorld=worldFor();
+    assert(!emit(independent,staleLayerWorld,report,error)&&staleLayerWorld.objects.empty());
+    inner.worldPoints.back()[0]-=.01;
+    independent.boundary.skinInner.back()=independent.boundary.outer[0];
+    auto aliasedWorld=worldFor();
+    assert(!emit(independent,aliasedWorld,report,error)&&aliasedWorld.objects.empty());
+
     std::cout<<"unpaired skin/fat volume owner tests passed\n";
 }

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/boundary-tet-quality-ceiling-200/tests/test_human_skin_patch_geometry.py"
+  ],
+  "returncode": 0,
+  "wall_s": 0.6829414169769734,
+  "stdout": "",
+  "stderr": "...........................\n----------------------------------------------------------------------\nRan 27 tests in 0.637s\n\nOK\n",
+  "source_base": "8d2b6d82534262bef940a0e0c2355d660a1c6943",
+  "sha256": {
+    "tools/human_skin_patch_geometry.py": "48047b72c72ff1ec1c3683051f7ece427503c8ec2129846634265401bba75c71",
+    "tests/test_human_skin_patch_geometry.py": "30332990292bb81840677b859f3a12b80faf9ba2e4315ea0689cdb9e6209e745"
+  },
+  "scope": "Boundary quality upper bound is necessary, not sufficient, for incident tetrahedron quality; use reference coordinates for the compiler reference gate."
+}

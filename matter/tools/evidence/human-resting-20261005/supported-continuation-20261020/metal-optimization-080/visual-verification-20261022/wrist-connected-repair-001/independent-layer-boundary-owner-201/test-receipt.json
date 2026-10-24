@@ -1,0 +1,44 @@
+{
+  "device": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "host": "numi.local",
+  "source_base": "8d2b6d82534262bef940a0e0c2355d660a1c6943",
+  "compiler_flags": "clang++ -std=c++20 -O2 -Wall -Wextra -Werror; frozen owner headers first",
+  "tests": [
+    {
+      "binary": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-layer-boundary-owner-201/NumiHumanUnpairedSkinFatVolumeCheck",
+      "elapsed_s": 0.002340540988370776,
+      "returncode": 0,
+      "stdout": "unpaired skin/fat volume owner tests passed\n",
+      "stderr": ""
+    },
+    {
+      "binary": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-layer-boundary-owner-201/NumiHumanSkinBoundaryNodeMapCheck",
+      "elapsed_s": 0.0019209160236641765,
+      "returncode": 0,
+      "stdout": "paired parity, arbitrary volume rows, disjoint roles, bounds and overflow: PASS\n",
+      "stderr": ""
+    },
+    {
+      "binary": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-layer-boundary-owner-201/NumiHumanSkinFatReductionLabelsCheck",
+      "elapsed_s": 0.4197165830992162,
+      "returncode": 0,
+      "stdout": "registered_skin_fat_reduction_labels_check=pass\n",
+      "stderr": ""
+    }
+  ],
+  "sha256": {
+    "NumiHumanSkinBoundaryNodeMap.hpp": "beca5d261f144c1f68f0f8f985ed22d3e2cbcdff79d4083ddf09497bb70dcf4a",
+    "NumiHumanUnpairedSkinFatVolume.hpp": "6c6d8e4922198e5cf9fa97e883592242d37414cc55a9956927a4c9e13d023625",
+    "NumiHumanSkinBoundaryNodeMapCheck.cpp": "938eb47caab81de1c03105fa80f6f0f697094b009f498cab0539ac13baf0cf1e",
+    "NumiHumanUnpairedSkinFatVolumeCheck.cpp": "0565cd61d02e20dd2a7c7e826eaaf1ae13d05c290feb4d48a5c50d0a8b9ce1c1",
+    "NumiHumanOpticNerveTetGenAssets.hpp": "99a238fa875621e911323412ab3dbc2d439d1d3c68a48820469234b7ef62fc09",
+    "NumiHumanSkinFatReductionLabels.hpp": "538ec0623e6f051b2a5d11569c87cfd107e32cc1ce2545782e8d0632718bee49",
+    "NumiHumanSkinFatReductionLabelsCheck.cpp": "4c20d2b95b12c9ab17fb47a9e28d81d6da6a0dac7cbddd7882c88b904868768e",
+    "NumiHumanCoarseTissuePreparation.hpp": "72f8c9325c31e0259a09abfbf61a01c0239995e3cafbd32fbc80beeabedcba7b"
+  },
+  "scope": "Synthetic explicit independent I/D boundary topology, conservative ancestry bookkeeping and source labels; includes paired regressions. No native Human candidate admitted or simulated.",
+  "limits": [
+    "Ancestry receipt is synthetic syntax fixture, not geometric overlap proof.",
+    "Compiled material-column self-contact still requires paired layers; this source compiler test does not bypass it."
+  ]
+}

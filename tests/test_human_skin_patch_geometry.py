@@ -292,5 +292,40 @@ class RepairBatchTests(unittest.TestCase):
             partition(np.array([[0,1,1,3]]), [[0]], [[0]])
 
 
+
+
+class TetBoundaryCeilingTests(unittest.TestCase):
+    def test_ceiling_bounds_all_four_incident_face_tets(self):
+        rng = np.random.default_rng(200)
+        for _ in range(100):
+            x = rng.normal(size=(4,3))
+            det = abs(np.linalg.det((x[1:]-x[0]).T))
+            longest = max(np.linalg.norm(x[a]-x[b]) for a in range(4) for b in range(a))
+            actual = det/longest**3
+            faces = np.array([[0,1,2],[0,1,3],[0,2,3],[1,2,3]])
+            ceiling = geom.boundary_tetrahedron_quality_ceiling(x,faces)
+            self.assertTrue(np.all(actual <= ceiling+1e-14))
+
+    def test_local_scale_metric_and_sliver_impossibility(self):
+        x = np.array([[0.,0.,0.],[1.,0.,0.],[.5,1e-8,0.]])
+        face = np.array([[0,1,2]])
+        ceiling = geom.boundary_tetrahedron_quality_ceiling(x,face)
+        self.assertLess(ceiling[0],1e-5)
+        np.testing.assert_allclose(
+            geom.boundary_tetrahedron_quality_ceiling(x*1000,face),ceiling,rtol=1e-14)
+        # A remote large triangle cannot alter the local bound.
+        y = np.r_[x,[[0,0,10],[100,0,10],[0,100,10]]]
+        np.testing.assert_array_equal(
+            geom.boundary_tetrahedron_quality_ceiling(y,np.r_[face,[[3,4,5]]])[:1],ceiling)
+
+    def test_invalid_and_collapsed_faces(self):
+        x = np.array([[0.,0.,0.],[0.,0.,0.],[0.,0.,0.]])
+        self.assertEqual(geom.boundary_tetrahedron_quality_ceiling(x,np.array([[0,1,2]]))[0],0)
+        self.assertEqual(len(geom.boundary_tetrahedron_quality_ceiling(x,np.empty((0,3),int))),0)
+        for f in (np.array([[0.,1.,2.]]),np.array([[-1,1,2]]),np.array([[0,1,3]])):
+            with self.assertRaises(ValueError):
+                geom.boundary_tetrahedron_quality_ceiling(x,f)
+
+
 if __name__ == "__main__":
     unittest.main()
