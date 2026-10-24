@@ -460,3 +460,18 @@ remain subject to their respective copyrights and licenses.
 A 75 µm flexible pouch with ten thin metal coins is dropped, picked up at its opening corner by finite Franka fingertip contacts, then released onto the table. The eight-second run contains 1,921 native Metal states at 240 Hz; videos sample those states at 30 fps. Blender provides the presentation render and does not simulate the motion.
 
 [Preserved solver, measurements and limitations](examples/plastic_bag_franka/approved_20261024) · [Complete source, checkpoint and replay archive](https://github.com/Numi2/numi-lab/releases/tag/plastic-bag-franka-approved-2026-10-24)
+
+
+### Empty bag comparison
+
+[![Empty pouch: air drop, high corner pickup and release](docs/media/plastic-bag-franka-empty.gif)](https://github.com/Numi2/numi-lab/blob/numisolver/docs/media/plastic-bag-franka-empty-8s.mp4)
+
+**[Watch the complete normal-speed empty-bag run](docs/media/plastic-bag-franka-empty-8s.mp4)** · [Side view](docs/media/plastic-bag-franka-empty-side-8s.mp4)
+
+The same film material and contact solver, with zero active coins: air drop, finite fingertip corner pickup, a 0.50 m commanded lift, then release and table impact. Its folds and hanging shape emerge from the unloaded film dynamics. The eight-second run records 1,921 native Metal states at 240 Hz. Blender only renders the saved states.
+
+Measured film-corner lift: **0.501 m**. Omitting empty coin-only dispatches reduced median GPU time by **1.06%** across six paired eight-interval measurements; saved states and final checkpoint bytes matched in every pair. This timing is scoped to those intervals. Film, self-contact, table and gripper passes and solver tolerances were retained.
+
+[Source, exact identities, measurements and limits](examples/plastic_bag_franka/empty_20261024) · [Complete native replay and preserved rejected paths](https://github.com/Numi2/numi-lab/releases/tag/plastic-bag-empty-franka-2026-10-24)
+
+Air drag remains absent for this material comparison. Robot joints are prescribed; saved-state housing clearance is not continuous whole-robot contact dynamics. Stable replay is not experimental material validation.

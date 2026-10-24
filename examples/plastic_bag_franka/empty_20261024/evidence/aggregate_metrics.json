@@ -1,0 +1,38 @@
+{
+  "duration_s": 8,
+  "native_hz": 240,
+  "saved_states": 1921,
+  "film_mass_kg": 0.006519907166648409,
+  "final_film_kinetic_energy_J": 5.3646626475658e-10,
+  "final_film_mass_weighted_rms_speed_m_s": 0.00040566309543114303,
+  "actual_corner_lift_m": 0.5012958347009999,
+  "coin_count_from_gpu": 0,
+  "solver_accuracy_columns": [
+    "step",
+    "substeps",
+    "material_refinement",
+    "attempt",
+    "energy_bad",
+    "film_bad",
+    "balance_error_J"
+  ],
+  "accepted_interval_count": 1920,
+  "accepted_substeps": [
+    16
+  ],
+  "accepted_material_refinement": [
+    4
+  ],
+  "total_rejected_trials": 0,
+  "accepted_energy_bad_flags": 0,
+  "accepted_film_bad_flags": 0,
+  "first_drop_and_final_continuation_max_stretch_ratio": 1.020972187,
+  "stretch_scope": "Maxima from completed first-drop and 720\u20131920 continuation segments; the 240\u2013720 accepted prefix remains in its per-state history. Rejected states do not enter this aggregation.",
+  "final_energy_components_J": {
+    "kinetic_J": 5.3646626475658e-10,
+    "gravity_J": 0.00084235721733371,
+    "membrane_J": 0.00048875547319652,
+    "bending_J": 0.00069345849709178,
+    "total_J": 0.0020245717240883
+  }
+}

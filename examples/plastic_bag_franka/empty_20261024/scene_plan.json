@@ -1,0 +1,39 @@
+{
+  "created_utc": "2026-10-24T16:59:42.175114+00:00",
+  "approved_source": "plastic_bag_franka_contact_finish_20261024",
+  "scene": "same 75 micrometre film and actual Franka pad contacts; zero coins; air drop then 0.50 m corner lift then release",
+  "duration_s": 8,
+  "output_hz": 240,
+  "air_drag": "absent as in approved material comparison",
+  "optimization": {
+    "prediction": "Omitting coin-only dispatches with active coin count zero preserves every physical node and checkpoint byte. Table friction and all material, self-contact and gripper passes are unchanged.",
+    "comparison": "8 identical initial native intervals, baseline retain-empty-work versus default skip. Compare saved states and checkpoint bytes; report GPU and elapsed times.",
+    "acceptance": "bitwise physical state equivalence and identical accepted adaptive budgets; no tolerance or iteration reductions",
+    "baseline_flag": "--retain-empty-work"
+  },
+  "handling": {
+    "accepted_prefix_through_step": 720,
+    "approach": "same approved tilted jaw orientation, 6 mm outboard corner target",
+    "lift_height_m": 0.5,
+    "outboard_translation_m": 0.1,
+    "outboard_translation_s": [
+      3.0,
+      4.8
+    ],
+    "wrist_closing_axis_y": {
+      "initial": 0.5,
+      "final": 0.0,
+      "transition_s": [
+        3.0,
+        5.0
+      ]
+    },
+    "release_s": [
+      6.2,
+      6.4
+    ],
+    "reason": "clear stock finger housings while retaining natural unloaded film drape",
+    "maximum_planned_joint_speed_ratio": 0.935596,
+    "maximum_ik_position_error_m": 9.94841e-08
+  }
+}

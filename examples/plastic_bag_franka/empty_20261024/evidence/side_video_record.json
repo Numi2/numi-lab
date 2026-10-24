@@ -1,0 +1,23 @@
+{
+  "same_native_trajectory": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_empty_franka_20261024/trajectory.json",
+  "normal_speed": true,
+  "native_hz": 240,
+  "video_fps": 30,
+  "end_native_state_included": true,
+  "video_sha256": "09ed9805bf8adcbeac316306154f3e27470236d1e458919f94d2a09b6e8dfb7d",
+  "trajectory_sha256": "c8d84183fc82e7be99e1c56e30ac9bfcb5f0b29edfdc3ac27932e0efc359d627",
+  "decode_pass": true,
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "r_frame_rate": "30/1",
+        "nb_frames": "241"
+      }
+    ],
+    "format": {
+      "duration": "8.033333"
+    }
+  }
+}

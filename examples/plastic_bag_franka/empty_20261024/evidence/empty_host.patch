@@ -1,0 +1,230 @@
+--- work/plastic_bag_franka_contact_finish_20261024/source/plastic_bag_coins_scene.mm	2026-10-24 13:41:45
++++ work/plastic_bag_empty_franka_20261024/source/plastic_bag_coins_scene.mm	2026-10-24 18:59:42
+@@ -772,7 +772,7 @@
+     if(!first)out<<',';
+     first=false;
+     const double time=static_cast<double>(step)*kFrameDt;
+-    const char* phase=time<.23 ? "first_drop" : time<=1.0 ? "first_impact_and_settle" : time<2.6 ? "robot_approach" : time<3.2 ? "pinch_corner" : time<6.2 ? "lift" : time<=6.4 ? "hold" : time<6.6 ? "release" : "second_drop_and_settle";
++    const char* phase=time<.23 ? "first_drop" : time<=1.0 ? "first_impact_and_settle" : time<2.6 ? "robot_approach" : time<3.2 ? "pinch_corner" : time<6.2 ? "lift" : time<=6.4 ? "release" : time<6.6 ? "second_drop" : "second_drop_and_settle";
+     out<<"{\"step\":"<<step<<",\"time_s\":"<<std::setprecision(legacyPoseCheckpoint&&step==resumeSerializationStep?8:12)
+        <<time<<",\"motion_phase\":\""<<phase<<"\",\"gripped\":"
+        <<(lastGripContacts>0?"true":"false")<<",\"inside_coins\":"<<pouch.inside
+@@ -829,17 +829,20 @@
+ int run(int argc,char** argv) {
+     std::filesystem::path output,resume;
+     std::uint32_t traceFrame=0,checkpointEvery=120,startStep=0;
++    bool emptyBag=false,skipEmptyWork=true;
+     std::uint32_t steps=1920u,recordEvery=1u;
+     for(int i=1;i<argc;++i){
+         const std::string arg=argv[i];
+         if(arg=="--output"&&i+1<argc)output=argv[++i];
++        else if(arg=="--empty-bag")emptyBag=true;
++        else if(arg=="--retain-empty-work")skipEmptyWork=false;
+         else if(arg=="--steps"&&i+1<argc)steps=static_cast<std::uint32_t>(std::stoul(argv[++i]));
+         else if(arg=="--record-every"&&i+1<argc)recordEvery=static_cast<std::uint32_t>(std::stoul(argv[++i]));
+         else if(arg=="--resume"&&i+1<argc)resume=argv[++i];
+         else if(arg=="--trace-frame"&&i+1<argc)traceFrame=std::stoul(argv[++i]);
+         else if(arg=="--checkpoint-every"&&i+1<argc)checkpointEvery=std::stoul(argv[++i]);
+         else if(arg=="--help"){
+-            std::cout<<"usage: metalrobo_plastic_bag_scene --output DIR [--steps N] [--record-every N]\n";
++            std::cout<<"usage: metalrobo_plastic_bag_scene --output DIR [--steps N] [--record-every N] [--empty-bag] [--retain-empty-work]\n";
+             return 0;
+         }else throw std::runtime_error("unknown or incomplete argument: "+arg);
+     }
+@@ -917,9 +920,9 @@
+             nodes[i].restPosition=f4(scene.rest[i]);
+         }
+ 
+-        std::vector<PlasticBagCoinGPU> coins(kCoinCount);
++        std::vector<PlasticBagCoinGPU> coins(emptyBag?0u:kCoinCount);
+         const auto seeds=makeCoins();
+-        for(std::size_t i=0u;i<kCoinCount;++i){
++        for(std::size_t i=0u;i<coins.size();++i){
+             coins[i].positionAndInverseMass=f4(seeds[i].position,static_cast<float>(1.0/kCoinMass));
+             coins[i].velocityAndMass={0.0f,0.0f,0.0f,static_cast<float>(kCoinMass)};
+             coins[i].previousPosition=f4(seeds[i].position);
+@@ -993,7 +996,7 @@
+             (12.0*(1.0-kPoissonRatio*kPoissonRatio));
+         PlasticBagConfigGPU config{};
+         config.counts={static_cast<std::uint32_t>(nodes.size()),static_cast<std::uint32_t>(edges.size()),
+-            static_cast<std::uint32_t>(scene.triangles.size()),static_cast<std::uint32_t>(kCoinCount)};
++            static_cast<std::uint32_t>(scene.triangles.size()),static_cast<std::uint32_t>(coins.size())};
+         config.scales={static_cast<float>(kFrameDt/kSubsteps),static_cast<float>(kCoinRadius),
+             static_cast<float>(0.5*kCoinThickness),static_cast<float>(kContactSamples)};
+         config.gravityAndBending={0.0f,-static_cast<float>(kGravity),0.0f,static_cast<float>(bendingRigidity)};
+@@ -1069,7 +1072,7 @@
+             checkpoint(resume,saved,true);startStep=std::uint32_t(saved.step);resumeSerializationStep=startStep;
+             positiveActuatorWork=saved.positiveWork;signedActuatorWork=saved.signedWork;lastGripContacts=unsigned(saved.contacts);
+             std::memcpy(nodes.data(),nodeBuffer.contents,nodes.size()*sizeof(nodes[0]));
+-            std::memcpy(coins.data(),coinBuffer.contents,coins.size()*sizeof(coins[0]));
++            if(!coins.empty())std::memcpy(coins.data(),coinBuffer.contents,coins.size()*sizeof(coins[0]));
+         }
+         auto padEnergy=[&](){
+             const auto& pose=static_cast<const FrankaGripRuntimeGPU*>(gripRuntimeBuffer.contents)->current;
+@@ -1124,7 +1127,7 @@
+         std::size_t maxEscapedCoins=0u;
+         std::size_t maxProjectedDepthSpanExceeded=0u;
+         std::size_t escapedCoinsFinal=0u;
+-        std::size_t minInsideAfterDrop=kCoinCount;
++        std::size_t minInsideAfterDrop=coins.size();
+         double maxStretch=1.0;
+         double maxCoinLinearSpeed=0.0;
+         double maxCoinAngularSpeed=0.0;
+@@ -1186,7 +1189,7 @@
+             config.scales.x=static_cast<float>(kFrameDt/activeSubsteps);
+             config.iterations={4u,1u,1u,0u};
+             std::memcpy(configBuffer.contents,&config,sizeof(config));
+-            std::memcpy(coinBuffer.contents,coins.data(),coins.size()*sizeof(coins[0]));
++            if(!coins.empty())std::memcpy(coinBuffer.contents,coins.data(),coins.size()*sizeof(coins[0]));
+             std::memcpy(nodeBuffer.contents,nodes.data(),nodes.size()*sizeof(nodes[0]));
+             id<MTLCommandBuffer> command=[queue commandBuffer];
+             if(command==nil)throw std::runtime_error("Metal command buffer allocation failed");
+@@ -1210,6 +1213,7 @@
+             };
+             auto gripPosition=[&](){encodeKernel(encoder,gripPositionPipeline,{configBuffer,nodeBuffer,gripRuntimeBuffer,gripContactBuffer},nodes.size());[encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];};
+             auto pairPosition=[&](){
++                if(emptyBag&&skipEmptyWork)return;
+                 [encoder setComputePipelineState:pairSweepPipeline];
+                 std::array<id<MTLBuffer>,6u> bs{configBuffer,coinBuffer,nodeBuffer,panelPairBuffer,pairLoadBuffer,filmDiagnosticsBuffer};
+                 for(std::size_t j=0;j<bs.size();++j)[encoder setBuffer:bs[j] offset:0 atIndex:j];
+@@ -1224,6 +1228,10 @@
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+             };
+             auto fullPosition=[&](bool ccd=false){
++                if(emptyBag&&skipEmptyWork){
++                    encodeKernel(encoder,staticFloorPipeline,{configBuffer,nodeBuffer,coinBuffer,floorLoadBuffer},nodes.size());
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];return;
++                }
+                 encodeKernel(encoder,pipelines[33],{configBuffer,nodeBuffer,triangleBuffer,coinBuffer,fullContactBuffer,candidateTriangleBuffer,candidateCountBuffer},fullContacts.size());
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 if(ccd){
+@@ -1251,6 +1259,7 @@
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+             };
+             auto fullVelocity=[&](){
++                if(emptyBag&&skipEmptyWork)return;
+                 [encoder setComputePipelineState:pipelines[35]];
+                 std::array<id<MTLBuffer>,9u> buffers{configBuffer,nodeBuffer,coinBuffer,triangleBuffer,fullLoadBuffer,filmDiagnosticsBuffer,floorLoadBuffer,candidateTriangleBuffer,candidateCountBuffer};
+                 for(std::size_t j=0;j<buffers.size();++j)[encoder setBuffer:buffers[j] offset:0u atIndex:j];
+@@ -1285,7 +1294,7 @@
+                 solveHinges(true);
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 encodeKernel(encoder,pipelines[1],{configBuffer,nodeBuffer},nodes.size());
+-                encodeKernel(encoder,pipelines[2],{configBuffer,coinBuffer},kCoinCount);
++                encodeKernel(encoder,pipelines[2],{configBuffer,coinBuffer},coins.size());
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 encodeKernel(encoder,pipelines[3],{configBuffer,edgeBuffer},edges.size());
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+@@ -1361,6 +1370,7 @@
+                 fullVelocity();
+                 tableVelocity(true);
+                 for(std::uint32_t velocityRound=0u;velocityRound<kCoinPairVelocityIterations;++velocityRound){
++                    if(!emptyBag||!skipEmptyWork){
+                     [encoder setComputePipelineState:pipelines[18]];
+                     [encoder setBuffer:pairLoadBuffer offset:0u atIndex:2u];
+                     [encoder setBuffer:filmDiagnosticsBuffer offset:0u atIndex:3u];
+@@ -1370,6 +1380,7 @@
+                     [encoder dispatchThreadgroups:MTLSizeMake(1u,1u,1u)
+                         threadsPerThreadgroup:MTLSizeMake(static_cast<NSUInteger>(kCoinCount),1u,1u)];
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    }
+                     /* Full triangle velocity manifold owns film response. */
+                 fullVelocity();
+                     tableVelocity(false);
+@@ -1393,7 +1404,7 @@
+             for(std::size_t ti=0;ti<traceLabels.size();++ti){
+                 std::vector<PlasticBagNodeGPU> tn(nodes.size());std::vector<PlasticBagCoinGPU> tc(coins.size());
+                 std::memcpy(tn.data(),(char*)traceNodes.contents+ti*nodeBuffer.length,nodeBuffer.length);
+-                std::memcpy(tc.data(),(char*)traceCoins.contents+ti*coinBuffer.length,coinBuffer.length);
++                if(!coins.empty())std::memcpy(tc.data(),(char*)traceCoins.contents+ti*coinBuffer.length,coins.size()*sizeof(coins[0]));
+                 auto te=sceneEnergy(tn,tc,scene,bendingRigidity);
+                 double stretch=1,edgeEnergy=0;unsigned a=0,b=0;
+                 for(const auto& edge:scene.edges){
+@@ -1407,7 +1418,7 @@
+             }
+             stageHistory.flush();
+             std::memcpy(nodes.data(),nodeBuffer.contents,nodes.size()*sizeof(nodes[0]));
+-            std::memcpy(coins.data(),coinBuffer.contents,coins.size()*sizeof(coins[0]));
++            if(!coins.empty())std::memcpy(coins.data(),coinBuffer.contents,coins.size()*sizeof(coins[0]));
+             const EnergyState trialEnergy=sceneEnergy(nodes,coins,scene,bendingRigidity);
+             // Symplectic/discrete elastic energy may oscillate between frames.
+             // Enforce the closed-system initial budget; preserve and report
+@@ -1482,13 +1493,13 @@
+             auto* selfContactData=static_cast<PlasticBagContactGPU*>(selfContactCorrectionBuffer.contents);
+             auto* sideSeamData=static_cast<PlasticBagSeamContactGPU*>(sideSeamContactBuffer.contents);
+             std::memcpy(nodes.data(),nodeData,nodes.size()*sizeof(nodes[0]));
+-            std::memcpy(coins.data(),coinData,coins.size()*sizeof(coins[0]));
++            if(!coins.empty())std::memcpy(coins.data(),coinData,coins.size()*sizeof(coins[0]));
+             std::size_t activeSelfContactVertices=0u;
+             for(std::size_t nodeIndex=0u;nodeIndex<nodes.size();++nodeIndex)
+                 if(selfContactData[nodeIndex].normalAndActive.w>0.0f)++activeSelfContactVertices;
+             maxSelfContactVertices=std::max(maxSelfContactVertices,activeSelfContactVertices);
+             std::size_t activeSideSeamContacts=0u;
+-            for(std::size_t coinIndex=0u;coinIndex<kCoinCount;++coinIndex){
++            for(std::size_t coinIndex=0u;coinIndex<coins.size();++coinIndex){
+                 if(sideSeamData[coinIndex].nodesAndActive.w==0u)continue;
+                 ++activeSideSeamContacts;
+                 maxSideSeamPenetration=std::max(maxSideSeamPenetration,
+@@ -1542,14 +1553,14 @@
+                 candidateCounts.size()*sizeof(candidateCounts[0]));
+             std::memcpy(candidateOverflow.data(),candidateOverflowBuffer.contents,
+                 candidateOverflow.size()*sizeof(candidateOverflow[0]));
+-            for(std::size_t coinIndex=0u;coinIndex<kCoinCount;++coinIndex){
++            for(std::size_t coinIndex=0u;coinIndex<coins.size();++coinIndex){
+                 if(candidateOverflow[coinIndex]!=0u)
+                     throw std::runtime_error("coin-film swept broad phase overflow at frame "+std::to_string(step)+" coin "+std::to_string(coinIndex)+" capacity "+std::to_string(contactCandidateCapacity));
+                 maxContactCandidates=std::max(maxContactCandidates,
+                     static_cast<std::size_t>(candidateCounts[coinIndex]));
+             }
+             std::size_t activeContacts=0u;
+-            for(std::size_t coinIndex=0u;coinIndex<kCoinCount;++coinIndex){
++            for(std::size_t coinIndex=0u;coinIndex<coins.size();++coinIndex){
+                 for(std::uint32_t sampleIndex=0u;sampleIndex<kContactSamples;++sampleIndex){
+                     if(contactData[coinIndex*kContactSamples+sampleIndex].normalAndActive.w>0.0f){
+                         ++activeContacts;
+@@ -1578,16 +1589,14 @@
+             if(step%recordEvery==0u||step==steps)
+                 writeFrame(trajectory,step,scene,nodes,coins,pouch,firstFrame);
+             if(step%60u==0u){
+-                const double minimumCoinY=std::min_element(coins.begin(),coins.end(),
+-                    [](const auto& a,const auto& b){return a.positionAndInverseMass.y<b.positionAndInverseMass.y;})
+-                    ->positionAndInverseMass.y;
+-                const auto lowestCoin=std::min_element(coins.begin(),coins.end(),
+-                    [](const auto& a,const auto& b){return a.positionAndInverseMass.y<b.positionAndInverseMass.y;});
+-                const std::size_t lowestCoinIndex=static_cast<std::size_t>(lowestCoin-coins.begin());
+-                const auto* lowestCoinContacts=contactData+lowestCoinIndex*kContactSamples;
+-                const auto* deepestCoinContact=std::max_element(lowestCoinContacts,
+-                    lowestCoinContacts+kContactSamples,[](const auto& a,const auto& b){
+-                        return a.barycentricAndDepth.w<b.barycentricAndDepth.w;});
++                double minimumCoinY=0.0;std::size_t lowestCoinIndex=0u;
++                PlasticBagContactGPU emptyContact{};const PlasticBagContactGPU* deepestCoinContact=&emptyContact;
++                if(!coins.empty()){
++                    const auto lowestCoin=std::min_element(coins.begin(),coins.end(),[](const auto& a,const auto& b){return a.positionAndInverseMass.y<b.positionAndInverseMass.y;});
++                    minimumCoinY=lowestCoin->positionAndInverseMass.y;lowestCoinIndex=lowestCoin-coins.begin();
++                    const auto* rows=contactData+lowestCoinIndex*kContactSamples;
++                    deepestCoinContact=std::max_element(rows,rows+kContactSamples,[](const auto& a,const auto& b){return a.barycentricAndDepth.w<b.barycentricAndDepth.w;});
++                }
+                 double minimumBottomSeamY=std::numeric_limits<double>::infinity();
+                 for(std::size_t u=0u;u<scene.grids[0].nu;++u){
+                     const auto node=scene.grids[0].nodes[gridIndex(scene.grids[0],u,0u)];
+@@ -1627,9 +1636,9 @@
+             <<"  \"drop_clearance_m\": "<<kDropHeight<<",\n"
+             <<"  \"initial_tilt_deg\":12,\n"
+             <<"  \"release_event\":\"loaded bag free-falls 0.25 m; Panda approaches actual landed corner, pinches, lifts 0.32 m, opens fingers and drops again\",\n"
+-            <<"  \"coin_count\":"<<kCoinCount<<",\n"
++            <<"  \"coin_count\":"<<coins.size()<<",\n"
+             <<"  \"coin_mass_kg_each\":"<<kCoinMass<<",\n"
+-            <<"  \"total_coin_mass_kg\":"<<kCoinCount*kCoinMass<<",\n"
++            <<"  \"total_coin_mass_kg\":"<<coins.size()*kCoinMass<<",\n"
+             <<"  \"film_nodes\":"<<nodes.size()<<",\n"
+             <<"  \"film_triangles\":"<<scene.triangles.size()<<",\n"
+             <<"  \"degenerate_triangles_skipped\":"<<scene.skippedDegenerateTriangles<<",\n"
+@@ -1653,7 +1662,7 @@
+             <<"  \"maximum_coin_angular_speed_rad_s\":"<<maxCoinAngularSpeed<<",\n"
+             <<"  \"angular_speed_cap_rad_s\":"<<config.geometry.w<<",\n"
+             <<"  \"containment_test\":\"coin-center odd/even ray crossings through current front/back triangle sheets; sampled finite-cylinder film clearance is separate\",\n"
+-            <<"  \"final_coins_inside_pouch\":"<<kCoinCount-escapedCoinsFinal<<",\n"
++            <<"  \"final_coins_inside_pouch\":"<<coins.size()-escapedCoinsFinal<<",\n"
+             <<"  \"final_escaped_coins\":"<<escapedCoinsFinal<<",\n"
+             <<"  \"maximum_escaped_coins\":"<<maxEscapedCoins<<",\n"
+             <<"  \"maximum_coins_exceeding_flat_panel_depth_proxy\":"<<maxProjectedDepthSpanExceeded<<",\n"

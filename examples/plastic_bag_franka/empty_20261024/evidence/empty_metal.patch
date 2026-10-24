@@ -1,0 +1,18 @@
+--- work/plastic_bag_franka_contact_finish_20261024/source/PlasticBag.metal	2026-10-24 13:39:31
++++ work/plastic_bag_empty_franka_20261024/source/PlasticBag.metal	2026-10-24 18:56:15
+@@ -1579,6 +1579,7 @@
+     device mr_float4* diagnostics [[buffer(3)]],
+     device PlasticBagPairVelocityGeometryGPU* geometry [[buffer(4)]],
+     uint coinIndex [[thread_position_in_threadgroup]]) {
++    if(config.counts.w==0u)return;
+     constexpr uint coinCount=PLASTIC_BAG_COIN_COUNT;
+     constexpr uint ringCount=coinCount-1u;
+     threadgroup PlasticBagCoinGPU localCoins[coinCount];
+@@ -3115,6 +3116,7 @@
+     device PlasticBagPairLoadGPU* pairLoads [[buffer(4)]],
+     device mr_float4* diagnostics [[buffer(5)]],
+     uint coinIndex [[thread_position_in_threadgroup]]) {
++    if(config.counts.w==0u)return;
+     constexpr uint coinCount=PLASTIC_BAG_COIN_COUNT;
+     constexpr uint ringCount=coinCount-1u;
+     threadgroup PlasticBagCoinGPU localCoins[coinCount];
