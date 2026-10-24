@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "scope": "unchanged cavity selection replay; not geometry repair or physical admission",
+  "cavity_count": 10,
+  "selected_tetrahedra": 7280,
+  "witnessed_surface_faces_covered": 192,
+  "protected_unique_nodes": 729,
+  "shared_fixed_stitch_pairs": 4,
+  "selection_wall_seconds": 0.030348625034093857,
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/tetrahedra.csv": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/faces.csv": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-157-d36-actual007-O-affected-face-rerun/actual007-O-affected-faces.json": "27e1367549f59b1b14ab817a0c7d23ac8ad0d0348980d82e7b334ebb5e756015",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-210-independent-cavity-batch/cavity-batch-manifest.json": "bbedbc43909f165ef66307a68443c46b2c4a412d3d68e61f57cef91b5cc5b0d8"
+  },
+  "helper_sha256": "f8b50f2a56399719417dd97c6d943d9ef384333ffeafec45acb75b92c852a5e7",
+  "test_sha256": "124109c5767b300ff82265a2d83363dc79f8a1d4a589939fed8d8fa546297177"
+}

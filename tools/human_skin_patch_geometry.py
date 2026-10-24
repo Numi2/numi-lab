@@ -438,3 +438,97 @@ def tetrahedral_region_boundary(tetrahedra, materials):
         "interface_faces": np.asarray(interfaces, dtype=np.int64).reshape(-1, 3),
         "interface_tet_pairs": np.asarray(pairs, dtype=np.int64).reshape(-1, 2),
     }
+
+
+def partition_tetrahedral_repair_batch(tetrahedra, selected_tet_sets, movable_node_sets):
+    """Group a repair batch by actual tetrahedral ownership, not fixed stitches.
+
+    Every movable node's complete incident tetrahedron star is included before
+    merging. Components may share *fixed* node IDs; these are exact retained
+    stitches, not independent copies to move. Only overlapping element sets
+    merge. Returned rows refer to the original input arrays and are sorted
+    deterministically. This selects construction domains; it does not establish
+    geometric closure, collision freedom, source ancestry, mass or admission.
+    """
+    def ids(value, name, *, upper=None, empty_ok=False):
+        a = np.asarray(value)
+        if a.ndim == 1 and a.size == 0 and empty_ok:
+            return set()
+        if a.ndim != 1 or a.dtype.kind not in "iu":
+            raise ValueError(name + " must contain one-dimensional integer IDs")
+        if not empty_ok and not a.size:
+            raise ValueError(name + " must not be empty")
+        if a.size and (np.any(a > np.iinfo(np.int64).max) or
+                       np.any(a < 0) or (upper is not None and np.any(a >= upper))):
+            raise ValueError(name + " contains an out-of-range ID")
+        return set(map(int, a))
+    raw = np.asarray(tetrahedra)
+    if raw.ndim != 2 or raw.shape[1] != 4 or raw.dtype.kind not in "iu":
+        raise ValueError("integer Tx4 tetrahedra required")
+    if raw.size and (np.any(raw < 0) or np.any(raw > np.iinfo(np.int64).max)):
+        raise ValueError("tetrahedral node IDs must be nonnegative int64")
+    t = raw.astype(np.int64)
+    if any(len(set(map(int, row))) != 4 for row in t):
+        raise ValueError("tetrahedra need four distinct node IDs")
+    if len(selected_tet_sets) != len(movable_node_sets):
+        raise ValueError("one movable-node set is required per selected-tet set")
+    if not len(selected_tet_sets):
+        return [], []
+    incidence = {}
+    for ti, row in enumerate(t):
+        for node in row:
+            incidence.setdefault(int(node), set()).add(ti)
+    parts = []
+    for ci, (selected, movable) in enumerate(zip(selected_tet_sets, movable_node_sets)):
+        cells = ids(selected, "selected tetrahedra", upper=len(t))
+        moved = ids(movable, "movable nodes", empty_ok=True)
+        original_nodes = set(map(int, t[sorted(cells)].ravel()))
+        if not moved <= original_nodes:
+            raise ValueError("a movable node is absent from its selected component")
+        for node in moved:
+            cells.update(incidence[node])
+        parts.append({"seed_components": {ci}, "selected_global_tet_ids": cells,
+                      "movable_global_node_ids": moved})
+    # Union on tetrahedral IDs. Shared fixed vertices do not create ownership
+    # conflicts, including contact between distinct volume components.
+    parent = list(range(len(parts)))
+    def root(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+    owner = {}
+    for ci, part in enumerate(parts):
+        for ti in sorted(part["selected_global_tet_ids"]):
+            if ti in owner:
+                a, b = root(ci), root(owner[ti])
+                parent[max(a, b)] = min(a, b)
+            else:
+                owner[ti] = ci
+    merged = {}
+    for ci, part in enumerate(parts):
+        g = merged.setdefault(root(ci), {k: set() for k in part})
+        for key, value in part.items():
+            g[key].update(value)
+    result = sorted(merged.values(),
+                    key=lambda g: (min(g["selected_global_tet_ids"]),
+                                   min(g["seed_components"])))
+    node_sets = []
+    for g in result:
+        cells, moved = g["selected_global_tet_ids"], g["movable_global_node_ids"]
+        for node in moved:
+            if not incidence[node] <= cells:
+                raise RuntimeError("movable node has an unowned incident tetrahedron")
+        node_sets.append(set(map(int, t[sorted(cells)].ravel())))
+    shared = []
+    for i in range(len(result)):
+        for j in range(i+1, len(result)):
+            common = node_sets[i] & node_sets[j]
+            if common:
+                if common & (result[i]["movable_global_node_ids"] |
+                             result[j]["movable_global_node_ids"]):
+                    raise RuntimeError("independent repair components share a movable node")
+                shared.append({"component_a": i, "component_b": j,
+                               "fixed_global_node_ids": np.array(sorted(common), dtype=np.int64)})
+    return [{k: np.array(sorted(v), dtype=np.int64) for k, v in g.items()}
+            for g in result], shared

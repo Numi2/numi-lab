@@ -1,0 +1,12 @@
+{
+  "old_cavity_count": 5,
+  "new_cavity_count": 10,
+  "old_selected_tets": 14364,
+  "new_selected_tets": 7280,
+  "reduction_fraction": 0.49317738791423005,
+  "hit_faces": 192,
+  "all_hit_faces_covered": true,
+  "shared_fixed_stitch_pairs": 4,
+  "physical_geometry_changed": false,
+  "physical_qualification": false
+}

@@ -1,0 +1,626 @@
+{
+  "cavities": [
+    {
+      "actual007_candidate_npz": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-210-independent-cavity-batch/cavity-00-hand.npz",
+      "boundary_class_counts": {
+        "cut_sidewall": 208,
+        "deep_D": 318,
+        "outer_O": 318
+      },
+      "boundary_edge_count": 1266,
+      "boundary_edge_incidence_hist": {
+        "2": 1266
+      },
+      "boundary_facets": 844,
+      "boundary_nonmanifold_vertex_link_count": 0,
+      "boundary_orientation_bad": 0,
+      "cavity_id": 0,
+      "contains_hand_failure": true,
+      "diagnostic_mass_sum_unique_nodes_kg_not_donor_debit": 0.39001671917890235,
+      "internal_skin_fat_interface_facets": 318,
+      "material_volumes": {
+        "1": {
+          "actual007_volume_m3": 0.00010480202272286237,
+          "mass_node_sum_kg_diagnostic": 0.39001671917890235,
+          "reference_volume_m3": 0.00010480197365783898,
+          "tet_count": 953
+        },
+        "2": {
+          "actual007_volume_m3": 0.00019760995763102874,
+          "mass_node_sum_kg_diagnostic": 0.39001671917890235,
+          "reference_volume_m3": 0.00019760999182239574,
+          "tet_count": 953
+        }
+      },
+      "merged_expansion_rings_after_overlap": 0,
+      "parent_tet_row_25186_included": true,
+      "positive_actual007_F32_min_det_m3": 8.237716615936376e-11,
+      "positive_actual007_F64_min_det_m3": 8.237716615936376e-11,
+      "seed_component_indices": [
+        0
+      ],
+      "selected_material_tet_counts": {
+        "1": 953,
+        "2": 953
+      },
+      "selected_tet_count": 1906,
+      "sha256": "430c25415daa5a4e2df064ce743b61877bbb453185b9815ed59dc58c8928ad09",
+      "source_field_status": "unmodified baseline cavity topology only; geometry repair and donor-mass transfer are not yet qualified",
+      "stable89542_included": true,
+      "stable_source_face_count": 306,
+      "surface_child_face_count": 318,
+      "tet_row_26104_included": true,
+      "unique_parent_tet_count": 1836
+    },
+    {
+      "actual007_candidate_npz": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-210-independent-cavity-batch/cavity-01-region.npz",
+      "boundary_class_counts": {
+        "cut_sidewall": 272,
+        "deep_D": 272,
+        "outer_O": 272
+      },
+      "boundary_edge_count": 1224,
+      "boundary_edge_incidence_hist": {
+        "2": 1224
+      },
+      "boundary_facets": 816,
+      "boundary_nonmanifold_vertex_link_count": 0,
+      "boundary_orientation_bad": 0,
+      "cavity_id": 1,
+      "contains_hand_failure": false,
+      "diagnostic_mass_sum_unique_nodes_kg_not_donor_debit": 0.4423833266325232,
+      "internal_skin_fat_interface_facets": 272,
+      "material_volumes": {
+        "1": {
+          "actual007_volume_m3": 0.00010581589102224994,
+          "mass_node_sum_kg_diagnostic": 0.4423833266325232,
+          "reference_volume_m3": 0.00010581587678034072,
+          "tet_count": 814
+        },
+        "2": {
+          "actual007_volume_m3": 0.00026791281315140144,
+          "mass_node_sum_kg_diagnostic": 0.4423833266325232,
+          "reference_volume_m3": 0.0002679128356655207,
+          "tet_count": 814
+        }
+      },
+      "merged_expansion_rings_after_overlap": 0,
+      "parent_tet_row_25186_included": false,
+      "positive_actual007_F32_min_det_m3": 1.0963647110047804e-11,
+      "positive_actual007_F64_min_det_m3": 1.0963647110047804e-11,
+      "seed_component_indices": [
+        1
+      ],
+      "selected_material_tet_counts": {
+        "1": 814,
+        "2": 814
+      },
+      "selected_tet_count": 1628,
+      "sha256": "e0925541922b160dcd75b6c71c1e2d589209463de4f9f262b149909bbf6800e3",
+      "source_field_status": "unmodified baseline cavity topology only; geometry repair and donor-mass transfer are not yet qualified",
+      "stable89542_included": false,
+      "stable_source_face_count": 240,
+      "surface_child_face_count": 272,
+      "tet_row_26104_included": false,
+      "unique_parent_tet_count": 1440
+    },
+    {
+      "actual007_candidate_npz": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-210-independent-cavity-batch/cavity-02-region.npz",
+      "boundary_class_counts": {
+        "cut_sidewall": 304,
+        "deep_D": 310,
+        "outer_O": 310
+      },
+      "boundary_edge_count": 1386,
+      "boundary_edge_incidence_hist": {
+        "2": 1386
+      },
+      "boundary_facets": 924,
+      "boundary_nonmanifold_vertex_link_count": 0,
+      "boundary_orientation_bad": 0,
+      "cavity_id": 2,
+      "contains_hand_failure": false,
+      "diagnostic_mass_sum_unique_nodes_kg_not_donor_debit": 1.4892563736667483,
+      "internal_skin_fat_interface_facets": 310,
+      "material_volumes": {
+        "1": {
+          "actual007_volume_m3": 0.00030145584069021,
+          "mass_node_sum_kg_diagnostic": 1.4892563736667483,
+          "reference_volume_m3": 0.0003014559639103662,
+          "tet_count": 930
+        },
+        "2": {
+          "actual007_volume_m3": 0.0010207183468039648,
+          "mass_node_sum_kg_diagnostic": 1.4892563736667483,
+          "reference_volume_m3": 0.0010207183344585174,
+          "tet_count": 930
+        }
+      },
+      "merged_expansion_rings_after_overlap": 0,
+      "parent_tet_row_25186_included": false,
+      "positive_actual007_F32_min_det_m3": 1.4333052178946867e-10,
+      "positive_actual007_F64_min_det_m3": 1.4333052178946867e-10,
+      "seed_component_indices": [
+        2,
+        8
+      ],
+      "selected_material_tet_counts": {
+        "1": 930,
+        "2": 930
+      },
+      "selected_tet_count": 1860,
+      "sha256": "99189c60f0dcf4f626b35b17b8b5ca8d7b6f8b6b7ed326d4951fdfd87f0548e5",
+      "source_field_status": "unmodified baseline cavity topology only; geometry repair and donor-mass transfer are not yet qualified",
+      "stable89542_included": false,
+      "stable_source_face_count": 310,
+      "surface_child_face_count": 310,
+      "tet_row_26104_included": false,
+      "unique_parent_tet_count": 1860
+    },
+    {
+      "actual007_candidate_npz": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-210-independent-cavity-batch/cavity-03-region.npz",
+      "boundary_class_counts": {
+        "cut_sidewall": 96,
+        "deep_D": 72,
+        "outer_O": 72
+      },
+      "boundary_edge_count": 360,
+      "boundary_edge_incidence_hist": {
+        "2": 360
+      },
+      "boundary_facets": 240,
+      "boundary_nonmanifold_vertex_link_count": 0,
+      "boundary_orientation_bad": 0,
+      "cavity_id": 3,
+      "contains_hand_failure": false,
+      "diagnostic_mass_sum_unique_nodes_kg_not_donor_debit": 0.0014726993853173553,
+      "internal_skin_fat_interface_facets": 72,
+      "material_volumes": {
+        "1": {
+          "actual007_volume_m3": 6.072313451997699e-07,
+          "mass_node_sum_kg_diagnostic": 0.0014726993853173553,
+          "reference_volume_m3": 6.07230699090892e-07,
+          "tet_count": 216
+        },
+        "2": {
+          "actual007_volume_m3": 3.4086103375206355e-07,
+          "mass_node_sum_kg_diagnostic": 0.0014726993853173553,
+          "reference_volume_m3": 3.408612101049785e-07,
+          "tet_count": 216
+        }
+      },
+      "merged_expansion_rings_after_overlap": 0,
+      "parent_tet_row_25186_included": false,
+      "positive_actual007_F32_min_det_m3": 1.0238070171889874e-11,
+      "positive_actual007_F64_min_det_m3": 1.0238070171889874e-11,
+      "seed_component_indices": [
+        3
+      ],
+      "selected_material_tet_counts": {
+        "1": 216,
+        "2": 216
+      },
+      "selected_tet_count": 432,
+      "sha256": "31689e6243ad601aa57334a635410e4a99967ac47eda87327b1ff997bfdea337",
+      "source_field_status": "unmodified baseline cavity topology only; geometry repair and donor-mass transfer are not yet qualified",
+      "stable89542_included": false,
+      "stable_source_face_count": 72,
+      "surface_child_face_count": 72,
+      "tet_row_26104_included": false,
+      "unique_parent_tet_count": 432
+    },
+    {
+      "actual007_candidate_npz": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-210-independent-cavity-batch/cavity-04-region.npz",
+      "boundary_class_counts": {
+        "cut_sidewall": 148,
+        "deep_D": 83,
+        "outer_O": 83
+      },
+      "boundary_edge_count": 471,
+      "boundary_edge_incidence_hist": {
+        "2": 471
+      },
+      "boundary_facets": 314,
+      "boundary_nonmanifold_vertex_link_count": 0,
+      "boundary_orientation_bad": 0,
+      "cavity_id": 4,
+      "contains_hand_failure": false,
+      "diagnostic_mass_sum_unique_nodes_kg_not_donor_debit": 0.8089304449094925,
+      "internal_skin_fat_interface_facets": 83,
+      "material_volumes": {
+        "1": {
+          "actual007_volume_m3": 0.00014625540729233238,
+          "mass_node_sum_kg_diagnostic": 0.8089304449094925,
+          "reference_volume_m3": 0.00014625559056467965,
+          "tet_count": 249
+        },
+        "2": {
+          "actual007_volume_m3": 0.0004186056088580432,
+          "mass_node_sum_kg_diagnostic": 0.8089304449094925,
+          "reference_volume_m3": 0.00041860572797653545,
+          "tet_count": 249
+        }
+      },
+      "merged_expansion_rings_after_overlap": 0,
+      "parent_tet_row_25186_included": false,
+      "positive_actual007_F32_min_det_m3": 6.265324512321746e-10,
+      "positive_actual007_F64_min_det_m3": 6.265324512321746e-10,
+      "seed_component_indices": [
+        4
+      ],
+      "selected_material_tet_counts": {
+        "1": 249,
+        "2": 249
+      },
+      "selected_tet_count": 498,
+      "sha256": "57fb63c054e8ee53d882a96ba42bffc90112b07008bf940960e42c98eb466959",
+      "source_field_status": "unmodified baseline cavity topology only; geometry repair and donor-mass transfer are not yet qualified",
+      "stable89542_included": false,
+      "stable_source_face_count": 83,
+      "surface_child_face_count": 83,
+      "tet_row_26104_included": false,
+      "unique_parent_tet_count": 498
+    },
+    {
+      "actual007_candidate_npz": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-210-independent-cavity-batch/cavity-05-region.npz",
+      "boundary_class_counts": {
+        "cut_sidewall": 56,
+        "deep_D": 44,
+        "outer_O": 44
+      },
+      "boundary_edge_count": 216,
+      "boundary_edge_incidence_hist": {
+        "2": 216
+      },
+      "boundary_facets": 144,
+      "boundary_nonmanifold_vertex_link_count": 0,
+      "boundary_orientation_bad": 0,
+      "cavity_id": 5,
+      "contains_hand_failure": false,
+      "diagnostic_mass_sum_unique_nodes_kg_not_donor_debit": 0.23821014876739355,
+      "internal_skin_fat_interface_facets": 44,
+      "material_volumes": {
+        "1": {
+          "actual007_volume_m3": 3.825330418026889e-05,
+          "mass_node_sum_kg_diagnostic": 0.23821014876739355,
+          "reference_volume_m3": 3.8253389331059946e-05,
+          "tet_count": 132
+        },
+        "2": {
+          "actual007_volume_m3": 0.00012187098097673871,
+          "mass_node_sum_kg_diagnostic": 0.23821014876739355,
+          "reference_volume_m3": 0.00012187086549397729,
+          "tet_count": 132
+        }
+      },
+      "merged_expansion_rings_after_overlap": 0,
+      "parent_tet_row_25186_included": false,
+      "positive_actual007_F32_min_det_m3": 5.061781060893628e-09,
+      "positive_actual007_F64_min_det_m3": 5.061781060893628e-09,
+      "seed_component_indices": [
+        5
+      ],
+      "selected_material_tet_counts": {
+        "1": 132,
+        "2": 132
+      },
+      "selected_tet_count": 264,
+      "sha256": "b389bfdcbef5f6b9ae626debd0705865a116bcb98db60eb8ecc7a253e5fe82ae",
+      "source_field_status": "unmodified baseline cavity topology only; geometry repair and donor-mass transfer are not yet qualified",
+      "stable89542_included": false,
+      "stable_source_face_count": 44,
+      "surface_child_face_count": 44,
+      "tet_row_26104_included": false,
+      "unique_parent_tet_count": 264
+    },
+    {
+      "actual007_candidate_npz": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-210-independent-cavity-batch/cavity-06-region.npz",
+      "boundary_class_counts": {
+        "cut_sidewall": 68,
+        "deep_D": 35,
+        "outer_O": 35
+      },
+      "boundary_edge_count": 207,
+      "boundary_edge_incidence_hist": {
+        "2": 207
+      },
+      "boundary_facets": 138,
+      "boundary_nonmanifold_vertex_link_count": 0,
+      "boundary_orientation_bad": 0,
+      "cavity_id": 6,
+      "contains_hand_failure": false,
+      "diagnostic_mass_sum_unique_nodes_kg_not_donor_debit": 0.3371504176611779,
+      "internal_skin_fat_interface_facets": 35,
+      "material_volumes": {
+        "1": {
+          "actual007_volume_m3": 4.1347320261280504e-05,
+          "mass_node_sum_kg_diagnostic": 0.3371504176611779,
+          "reference_volume_m3": 4.1347395489448566e-05,
+          "tet_count": 105
+        },
+        "2": {
+          "actual007_volume_m3": 0.0001587019612731798,
+          "mass_node_sum_kg_diagnostic": 0.3371504176611779,
+          "reference_volume_m3": 0.0001587019493605739,
+          "tet_count": 105
+        }
+      },
+      "merged_expansion_rings_after_overlap": 0,
+      "parent_tet_row_25186_included": false,
+      "positive_actual007_F32_min_det_m3": 2.4443989884550557e-07,
+      "positive_actual007_F64_min_det_m3": 2.4443989884550557e-07,
+      "seed_component_indices": [
+        6
+      ],
+      "selected_material_tet_counts": {
+        "1": 105,
+        "2": 105
+      },
+      "selected_tet_count": 210,
+      "sha256": "3992410be1201f4ee4d39ea86c56b85c52fd25bc2d994454893aa77e464f637a",
+      "source_field_status": "unmodified baseline cavity topology only; geometry repair and donor-mass transfer are not yet qualified",
+      "stable89542_included": false,
+      "stable_source_face_count": 35,
+      "surface_child_face_count": 35,
+      "tet_row_26104_included": false,
+      "unique_parent_tet_count": 210
+    },
+    {
+      "actual007_candidate_npz": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-210-independent-cavity-batch/cavity-07-region.npz",
+      "boundary_class_counts": {
+        "cut_sidewall": 44,
+        "deep_D": 31,
+        "outer_O": 31
+      },
+      "boundary_edge_count": 159,
+      "boundary_edge_incidence_hist": {
+        "2": 159
+      },
+      "boundary_facets": 106,
+      "boundary_nonmanifold_vertex_link_count": 0,
+      "boundary_orientation_bad": 0,
+      "cavity_id": 7,
+      "contains_hand_failure": false,
+      "diagnostic_mass_sum_unique_nodes_kg_not_donor_debit": 0.04574467707061558,
+      "internal_skin_fat_interface_facets": 31,
+      "material_volumes": {
+        "1": {
+          "actual007_volume_m3": 8.481232607744675e-06,
+          "mass_node_sum_kg_diagnostic": 0.04574467707061558,
+          "reference_volume_m3": 8.481245054306373e-06,
+          "tet_count": 93
+        },
+        "2": {
+          "actual007_volume_m3": 8.775477267238798e-06,
+          "mass_node_sum_kg_diagnostic": 0.04574467707061558,
+          "reference_volume_m3": 8.775437864523014e-06,
+          "tet_count": 93
+        }
+      },
+      "merged_expansion_rings_after_overlap": 0,
+      "parent_tet_row_25186_included": false,
+      "positive_actual007_F32_min_det_m3": 1.3120359765556375e-09,
+      "positive_actual007_F64_min_det_m3": 1.3120359765556375e-09,
+      "seed_component_indices": [
+        7
+      ],
+      "selected_material_tet_counts": {
+        "1": 93,
+        "2": 93
+      },
+      "selected_tet_count": 186,
+      "sha256": "7a240f516b4d46d3f6ec035a59e64904f40c8b2c8d11f9698b3478a1fc7a19f8",
+      "source_field_status": "unmodified baseline cavity topology only; geometry repair and donor-mass transfer are not yet qualified",
+      "stable89542_included": false,
+      "stable_source_face_count": 31,
+      "surface_child_face_count": 31,
+      "tet_row_26104_included": false,
+      "unique_parent_tet_count": 186
+    },
+    {
+      "actual007_candidate_npz": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-210-independent-cavity-batch/cavity-08-region.npz",
+      "boundary_class_counts": {
+        "cut_sidewall": 68,
+        "deep_D": 23,
+        "outer_O": 23
+      },
+      "boundary_edge_count": 171,
+      "boundary_edge_incidence_hist": {
+        "2": 171
+      },
+      "boundary_facets": 114,
+      "boundary_nonmanifold_vertex_link_count": 0,
+      "boundary_orientation_bad": 0,
+      "cavity_id": 8,
+      "contains_hand_failure": false,
+      "diagnostic_mass_sum_unique_nodes_kg_not_donor_debit": 0.2630943425465375,
+      "internal_skin_fat_interface_facets": 23,
+      "material_volumes": {
+        "1": {
+          "actual007_volume_m3": 3.971901952877128e-05,
+          "mass_node_sum_kg_diagnostic": 0.2630943425465375,
+          "reference_volume_m3": 3.971901592950569e-05,
+          "tet_count": 68
+        },
+        "2": {
+          "actual007_volume_m3": 0.00013973734277301954,
+          "mass_node_sum_kg_diagnostic": 0.2630943425465375,
+          "reference_volume_m3": 0.00013973732230631114,
+          "tet_count": 68
+        }
+      },
+      "merged_expansion_rings_after_overlap": 0,
+      "parent_tet_row_25186_included": false,
+      "positive_actual007_F32_min_det_m3": 9.484667162812507e-09,
+      "positive_actual007_F64_min_det_m3": 9.484667162812507e-09,
+      "seed_component_indices": [
+        9
+      ],
+      "selected_material_tet_counts": {
+        "1": 68,
+        "2": 68
+      },
+      "selected_tet_count": 136,
+      "sha256": "e2917d6f5972994124001f7a975698bc39fab03cb04ea1ff59df3fcf12cfea0e",
+      "source_field_status": "unmodified baseline cavity topology only; geometry repair and donor-mass transfer are not yet qualified",
+      "stable89542_included": false,
+      "stable_source_face_count": 22,
+      "surface_child_face_count": 23,
+      "tet_row_26104_included": false,
+      "unique_parent_tet_count": 132
+    },
+    {
+      "actual007_candidate_npz": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-210-independent-cavity-batch/cavity-09-region.npz",
+      "boundary_class_counts": {
+        "cut_sidewall": 68,
+        "deep_D": 27,
+        "outer_O": 27
+      },
+      "boundary_edge_count": 183,
+      "boundary_edge_incidence_hist": {
+        "2": 183
+      },
+      "boundary_facets": 122,
+      "boundary_nonmanifold_vertex_link_count": 0,
+      "boundary_orientation_bad": 0,
+      "cavity_id": 9,
+      "contains_hand_failure": false,
+      "diagnostic_mass_sum_unique_nodes_kg_not_donor_debit": 0.3969470056326827,
+      "internal_skin_fat_interface_facets": 27,
+      "material_volumes": {
+        "1": {
+          "actual007_volume_m3": 4.60769300833915e-05,
+          "mass_node_sum_kg_diagnostic": 0.3969470056326827,
+          "reference_volume_m3": 4.6076969124655956e-05,
+          "tet_count": 80
+        },
+        "2": {
+          "actual007_volume_m3": 0.00018111156447956871,
+          "mass_node_sum_kg_diagnostic": 0.3969470056326827,
+          "reference_volume_m3": 0.00018111153058463482,
+          "tet_count": 80
+        }
+      },
+      "merged_expansion_rings_after_overlap": 0,
+      "parent_tet_row_25186_included": false,
+      "positive_actual007_F32_min_det_m3": 4.64926308863541e-07,
+      "positive_actual007_F64_min_det_m3": 4.64926308863541e-07,
+      "seed_component_indices": [
+        10
+      ],
+      "selected_material_tet_counts": {
+        "1": 80,
+        "2": 80
+      },
+      "selected_tet_count": 160,
+      "sha256": "bd6b9f882fb87d59baee832a89e0de08ec4bafd9985f4bddccb11407bd03e532",
+      "source_field_status": "unmodified baseline cavity topology only; geometry repair and donor-mass transfer are not yet qualified",
+      "stable89542_included": false,
+      "stable_source_face_count": 16,
+      "surface_child_face_count": 27,
+      "tet_row_26104_included": false,
+      "unique_parent_tet_count": 96
+    }
+  ],
+  "cavity_overlap_policy": "merge tetrahedral overlap only; shared fixed boundary node/edge IDs are allowed, with byte-identical fixed coordinates",
+  "exported_cavity_count": 10,
+  "full_hit_vertex_star_parent_ids": 849,
+  "hit_face_seed_parent_ids": 190,
+  "hit_surface_rows": 192,
+  "hit_vertex_rows": 243,
+  "identity": {
+    "full_vertex_star_stable_parent_ids": 849,
+    "hand_failure_included": true,
+    "hand_parent_surface_face": 3776,
+    "hand_parent_tet": 25186,
+    "hand_stable_source_face": 89542,
+    "hand_surface_face_row": 4643,
+    "hand_tet_row": 26104,
+    "hit_face_stable_parent_ids": 190,
+    "hit_vertex_row_count": 243,
+    "seed_dense_face_rows": 192,
+    "seed_stable_parent_faces": 849,
+    "stable_identity_join": "faces.csv stable_source_face to tetrahedra.csv stable_source_face; parent_surface_face retained separately"
+  },
+  "inputs": {
+    "actual007_launch_sha256": "5a139be96b4f4b518b6cb56e987eeebd749e530206fa3db429e4bf0de6459ade",
+    "actual007_node_dump_sha256": "cb7cd7c5772532819bfcbc0931ac8cc5825237e64aed34821d6bf7ca3e66849b",
+    "actual007_pose_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+    "d36_manifest_sha256": "467ab80f8973975713bbe33df20aa618ee3af280514d4f7af70e57648aab1fad",
+    "faces_csv_sha256": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "hit_report_sha256": "27e1367549f59b1b14ab817a0c7d23ac8ad0d0348980d82e7b334ebb5e756015",
+    "nodes_csv_sha256": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "tetrahedra_csv_sha256": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4"
+  },
+  "schema": "numi.human.current-d36-cavity-batch.v1",
+  "seed_components": 11,
+  "shared_fixed_stitch_pairs": [
+    {
+      "cavity_a": 1,
+      "cavity_b": 3,
+      "shared_global_local_node_ids": [
+        241,
+        245,
+        2652,
+        2656,
+        5063,
+        5067
+      ]
+    },
+    {
+      "cavity_a": 1,
+      "cavity_b": 8,
+      "shared_global_local_node_ids": [
+        339,
+        352,
+        353,
+        358,
+        375,
+        571,
+        648,
+        2333,
+        2750,
+        2763,
+        2764,
+        2769,
+        2786,
+        2982,
+        3059,
+        4744,
+        5161,
+        5174,
+        5175,
+        5180,
+        5197,
+        5393,
+        5470,
+        7155
+      ]
+    },
+    {
+      "cavity_a": 2,
+      "cavity_b": 6,
+      "shared_global_local_node_ids": [
+        1742,
+        1778,
+        1825,
+        4153,
+        4189,
+        4236,
+        6564,
+        6600,
+        6647
+      ]
+    },
+    {
+      "cavity_a": 2,
+      "cavity_b": 8,
+      "shared_global_local_node_ids": [
+        670,
+        3081,
+        5492
+      ]
+    }
+  ],
+  "source_method_status": "unchanged topology extraction; not geometry repair"
+}

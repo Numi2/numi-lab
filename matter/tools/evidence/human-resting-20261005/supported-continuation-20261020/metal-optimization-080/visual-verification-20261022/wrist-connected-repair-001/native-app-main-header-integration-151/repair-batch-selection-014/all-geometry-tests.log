@@ -1,0 +1,29 @@
+test_collinear_surface_rejected (__main__.AnnularPatchTests.test_collinear_surface_rejected) ... ok
+test_cyclic_reindexing_has_same_optimum (__main__.AnnularPatchTests.test_cyclic_reindexing_has_same_optimum) ... ok
+test_impossible_edge_cap_rejected (__main__.AnnularPatchTests.test_impossible_edge_cap_rejected) ... ok
+test_invalid_geometry_and_limits_rejected (__main__.AnnularPatchTests.test_invalid_geometry_and_limits_rejected) ... ok
+test_invalid_indices_rejected (__main__.AnnularPatchTests.test_invalid_indices_rejected) ... ok
+test_unequal_loops_form_oriented_annulus (__main__.AnnularPatchTests.test_unequal_loops_form_oriented_annulus) ... ok
+test_all_permutations_match_native_sorted_id_signs (__main__.LayerPrismTests.test_all_permutations_match_native_sorted_id_signs) ... ok
+test_batch_signed_and_absolute_volume_gradients (__main__.LayerPrismTests.test_batch_signed_and_absolute_volume_gradients) ... ok
+test_empty_and_invalid_faces (__main__.LayerPrismTests.test_empty_and_invalid_faces) ... ok
+test_empty_movable_regions_and_empty_batch (__main__.RepairBatchTests.test_empty_movable_regions_and_empty_batch) ... ok
+test_fixed_stitch_keeps_independent_regions (__main__.RepairBatchTests.test_fixed_stitch_keeps_independent_regions) ... ok
+test_invalid_identity_is_rejected (__main__.RepairBatchTests.test_invalid_identity_is_rejected) ... ok
+test_moved_vertex_claims_full_star_and_merges_transitively (__main__.RepairBatchTests.test_moved_vertex_claims_full_star_and_merges_transitively) ... ok
+test_topology_uses_ids_without_geometric_welding (__main__.RepairBatchTests.test_topology_uses_ids_without_geometric_welding) ... ok
+test_one_two_and_three_edge_cuts_preserve_signed_area (__main__.SurfaceEdgeSplitTests.test_one_two_and_three_edge_cuts_preserve_signed_area) ... ok
+test_reversed_parameters_and_invalid_edges (__main__.SurfaceEdgeSplitTests.test_reversed_parameters_and_invalid_edges) ... ok
+test_shared_edge_is_conforming_and_untouched_face_exact (__main__.SurfaceEdgeSplitTests.test_shared_edge_is_conforming_and_untouched_face_exact) ... ok
+test_bad_volume_topology_is_rejected (__main__.TetrahedralRegionTests.test_bad_volume_topology_is_rejected) ... ok
+test_empty_region (__main__.TetrahedralRegionTests.test_empty_region) ... ok
+test_parent_identity_join_and_complete_refined_parent (__main__.TetrahedralRegionTests.test_parent_identity_join_and_complete_refined_parent) ... ok
+test_two_material_positive_tets_preserve_interface (__main__.TetrahedralRegionTests.test_two_material_positive_tets_preserve_interface) ... ok
+test_closed_and_open_sections_use_edge_identity (__main__.TransverseSectionTests.test_closed_and_open_sections_use_edge_identity) ... ok
+test_coincident_disconnected_shells_are_not_welded (__main__.TransverseSectionTests.test_coincident_disconnected_shells_are_not_welded) ... ok
+test_empty_and_ambiguous_planes (__main__.TransverseSectionTests.test_empty_and_ambiguous_planes) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.633s
+
+OK

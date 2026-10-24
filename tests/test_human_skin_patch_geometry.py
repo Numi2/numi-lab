@@ -249,5 +249,48 @@ class TetrahedralRegionTests(unittest.TestCase):
         self.assertEqual(r["exterior_faces"].shape, (0, 3))
         self.assertEqual(r["interface_tet_pairs"].shape, (0, 2))
 
+partition = geom.partition_tetrahedral_repair_batch
+
+class RepairBatchTests(unittest.TestCase):
+    def test_fixed_stitch_keeps_independent_regions(self):
+        t = np.array([[0,1,2,3], [0,1,4,5], [6,7,8,9]])
+        groups, shared = partition(t, [[0], [1], [2]], [[2], [4], [6]])
+        self.assertEqual([g["selected_global_tet_ids"].tolist() for g in groups], [[0],[1],[2]])
+        self.assertEqual(shared[0]["fixed_global_node_ids"].tolist(), [0,1])
+        self.assertEqual(len(shared), 1)
+
+    def test_moved_vertex_claims_full_star_and_merges_transitively(self):
+        t = np.array([[0,1,2,3], [0,4,5,6], [4,7,8,9], [10,11,12,13]])
+        groups, _ = partition(t, [[0], [2], [3]], [[0], [4], [10]])
+        self.assertEqual(len(groups), 2)
+        self.assertEqual(groups[0]["selected_global_tet_ids"].tolist(), [0,1,2])
+        self.assertEqual(groups[0]["seed_components"].tolist(), [0,1])
+        self.assertEqual(groups[0]["movable_global_node_ids"].tolist(), [0,4])
+
+    def test_topology_uses_ids_without_geometric_welding(self):
+        t = np.array([[20,21,22,23], [24,25,26,27]])
+        groups, shared = partition(t, [[1], [0]], [[27], [20]])
+        self.assertEqual([g["selected_global_tet_ids"].tolist() for g in groups], [[0],[1]])
+        self.assertEqual(groups[0]["seed_components"].tolist(), [1])
+        self.assertFalse(shared)
+
+    def test_empty_movable_regions_and_empty_batch(self):
+        t = np.array([[0,1,2,3]])
+        groups, _ = partition(t, [[0]], [[]])
+        self.assertEqual(groups[0]["movable_global_node_ids"].size, 0)
+        self.assertEqual(partition(t, [], []), ([], []))
+
+    def test_invalid_identity_is_rejected(self):
+        t = np.array([[0,1,2,3]])
+        for selected, moved in [([[1]], [[0]]), ([[0]], [[4]]), ([[0.0]], [[0]]),
+                                 ([[0]], [[-1]]), ([[0]], [[2**64-1]]),
+                                 ([[0]], [[0],[1]]), ([[]], [[]])]:
+            with self.subTest(selected=selected, moved=moved):
+                with self.assertRaises(ValueError):
+                    partition(t, selected, moved)
+        with self.assertRaises(ValueError):
+            partition(np.array([[0,1,1,3]]), [[0]], [[0]])
+
+
 if __name__ == "__main__":
     unittest.main()
