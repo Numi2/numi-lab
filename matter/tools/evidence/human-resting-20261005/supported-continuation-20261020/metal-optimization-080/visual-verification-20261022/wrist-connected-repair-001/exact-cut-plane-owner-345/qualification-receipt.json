@@ -1,0 +1,18 @@
+{
+  "host": "ssh numi",
+  "physical_admission": false,
+  "construction_tests": {
+    "count": 47,
+    "result": "pass",
+    "command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m unittest discover -s tests -v",
+    "duration_seconds": 0.643
+  },
+  "retained_fields": {
+    "left323": "exact cap and genus0 disk pass",
+    "right342": "reject as hand disk: genus1; declared-genus1 diagnostics pass",
+    "corrugated340": "reject: no exact emitted planar cap"
+  },
+  "why": "Replace broad 50-micrometre near-plane deletion with exact Float32 plane membership plus mandatory one-component, one-boundary, declared-genus gates; no geometry acceptance by triangle counts alone.",
+  "native_steps": 0,
+  "scope": "construction owner only; no repaired scene admitted; tissue, mechanics, mass and retained-pose qualification outstanding"
+}

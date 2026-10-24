@@ -1,0 +1,54 @@
+{
+  "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/exact-cut-plane-owner-345/tools/human_skin_patch_geometry.py",
+  "source_sha256": "d1e1666fb75f1938267143df198f4322faf105f183f8cacba86731aa9ebe6365",
+  "cases": [
+    {
+      "name": "left323",
+      "mesh_sha256": "7317ba20dc7f354c3a2356c8aa0dea924aa8ed792453d2ed2d5373f282bb8ed6",
+      "field_sha256": "a873e31f88a7aa6a5ef7469bb12c6ee5a69dc5106ded3c4d0e7d999f7f05133d",
+      "expected_pass": true,
+      "expected_genus": 0,
+      "passed": true,
+      "removed_faces": 3611,
+      "boundary_edges": 173,
+      "genus": 0,
+      "euler_characteristic": 1,
+      "elapsed_seconds": 2.016265666927211
+    },
+    {
+      "name": "right342-as-disk",
+      "mesh_sha256": "6b107c31b1e9c4fb2fe41faef0e3370a6f375453e09d951edee2f8d13cd794af",
+      "field_sha256": "f968d6255ee6bd6fb2125b1f6fc7c1378b874656a7f9963d450ed72ae9a2ff68",
+      "expected_pass": false,
+      "expected_genus": 0,
+      "passed": false,
+      "error": "opened cap has unexpected component, boundary or genus",
+      "elapsed_seconds": 3.0686409580521286
+    },
+    {
+      "name": "right342-diagnostic-genus1",
+      "mesh_sha256": "6b107c31b1e9c4fb2fe41faef0e3370a6f375453e09d951edee2f8d13cd794af",
+      "field_sha256": "f968d6255ee6bd6fb2125b1f6fc7c1378b874656a7f9963d450ed72ae9a2ff68",
+      "expected_pass": true,
+      "expected_genus": 1,
+      "passed": true,
+      "removed_faces": 18728,
+      "boundary_edges": 422,
+      "genus": 1,
+      "euler_characteristic": -1,
+      "elapsed_seconds": 3.04621987498831
+    },
+    {
+      "name": "corrugated340",
+      "mesh_sha256": "6ea32987bf3adbb5c5ca7a6314c5f9020721d0a1b8787cd14d6e0ae903ebfb77",
+      "field_sha256": "1d520590085991218fc433809a3ca2efe5b4009f95f5fd5cb2ef7d14014733ae",
+      "expected_pass": false,
+      "expected_genus": 1,
+      "passed": false,
+      "error": "no exact emitted planar cap; reconstruct the cut",
+      "elapsed_seconds": 0.015529708005487919
+    }
+  ],
+  "physical_admission": false,
+  "scope": "Exact emitted-plane removal and topology gate only; right342 diagnostic acceptance at declared genus1 is not hand admission; requested hand genus0 rejects."
+}

@@ -1128,3 +1128,72 @@ def triangulate_boundary_disk(vertices, loop, *, relative_tolerance=1e-12):
                    "oriented_boundary_exact":True,"minimum_area_m2":float(areas.min()),
                    "projection_nonplanarity_m":float(np.max(np.abs(centered @ axes[2]))) if len(axes)>2 else 0.,
                    "physical_admission":False}
+
+
+def exact_float32_planar_face_mask(vertices, faces, *, axis, coordinate):
+    """Classify faces on a known construction plane after Float32 emission.
+
+    This is coordinate classification, not synthetic-cap provenance or a
+    closure certificate. Callers must check the resulting directed boundary.
+    Never delete nearby faces using a distance/normal tolerance: conditioning
+    can corrugate a cut cap and such deletion opens holes in valid side tissue.
+    """
+    raw_x, raw_f = np.asarray(vertices), np.asarray(faces)
+    if (raw_x.ndim != 2 or raw_x.shape[1] != 3 or
+            not np.issubdtype(raw_x.dtype, np.number) or
+            np.iscomplexobj(raw_x) or not np.isfinite(raw_x).all()):
+        raise ValueError("finite real Nx3 vertices required")
+    if (raw_f.ndim != 2 or raw_f.shape[1] != 3 or
+            raw_f.dtype.kind not in "iu"):
+        raise ValueError("integer Mx3 faces required")
+    if (isinstance(axis, (bool, np.bool_)) or
+            not isinstance(axis, (int, np.integer)) or axis not in (0, 1, 2)):
+        raise ValueError("axis must be 0, 1 or 2")
+    c = np.asarray(coordinate)
+    if (c.ndim != 0 or not np.issubdtype(c.dtype, np.number) or
+            np.iscomplexobj(c) or not np.isfinite(c)):
+        raise ValueError("finite real scalar plane coordinate required")
+    with np.errstate(over="ignore", invalid="ignore"):
+        x = raw_x.astype(np.float32)
+        plane = np.float32(c)
+    if not np.isfinite(x).all() or not np.isfinite(plane):
+        raise ValueError("geometry and plane must be finite in Float32")
+    if raw_f.size and (raw_f.max() >= len(x) or
+                       (raw_f.dtype.kind == "i" and raw_f.min() < 0)):
+        raise ValueError("face index outside vertex range")
+    f = raw_f.astype(np.int64)
+    mask = np.all(x[f, axis] == plane, axis=1)
+    if mask.any():
+        t = x[f[mask]].astype(np.float64)
+        n = np.cross(t[:, 1] - t[:, 0], t[:, 2] - t[:, 0])
+        if np.any(np.sum(n*n, axis=1) == 0):
+            raise ValueError("degenerate emitted face on construction plane")
+    return mask
+
+
+def remove_exact_planar_cap(vertices, faces, *, axis, coordinate,
+                            expected_genus=0):
+    """Open one closed candidate at its exact emitted construction plane.
+
+    Require a single manifold component, one remaining boundary loop and
+    the declared genus. This does not certify intersection clearance, source
+    ancestry or physical tissue cells. A corrugated/nonplanar cap is rejected
+    rather than widened into adjacent tissue with a geometric tolerance.
+    """
+    if (isinstance(expected_genus, (bool, np.bool_)) or
+            not isinstance(expected_genus, (int, np.integer)) or
+            expected_genus < 0):
+        raise ValueError("nonnegative integer expected genus required")
+    mask = exact_float32_planar_face_mask(
+        vertices, faces, axis=axis, coordinate=coordinate)
+    if not mask.any():
+        raise ValueError("no exact emitted planar cap; reconstruct the cut")
+    raw = surface_topology_signature(faces)
+    if len(raw) != 1 or raw[0]["boundary_loops"]:
+        raise ValueError("cap input must be one closed manifold component")
+    opened = np.asarray(faces)[~mask].copy()
+    topology = surface_topology_signature(opened)
+    if (len(topology) != 1 or len(topology[0]["boundary_loops"]) != 1 or
+            topology[0]["genus"] != expected_genus):
+        raise ValueError("opened cap has unexpected component, boundary or genus")
+    return opened, mask, topology[0]
