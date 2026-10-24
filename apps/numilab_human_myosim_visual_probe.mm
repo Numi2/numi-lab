@@ -24448,6 +24448,46 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 "skin-bone contact complete-neighborhood preflight rejected samples; failures="+
                 std::to_string(totalNeighborhoodFailures)+
                 " capacity_overflows="+std::to_string(totalNeighborhoodOverflows));
+        const char* initialSkinFEMNodesPath=std::getenv(
+            "NUMI_HUMAN_INITIAL_SKIN_FEM_NODES_CSV");
+        if(initialSkinFEMNodesPath&&initialSkinFEMNodesPath[0]!='\0') {
+            const std::uint64_t count=std::uint64_t(wholeBodySkinNodesPerLayer)*3u;
+            const std::uint64_t begin=wholeBodySkinFirstGlobalFEMNode;
+            require(wholeBodySkinNodesPerLayer>0u&&
+                        begin<=compiled.world.fem.nodes.size()&&
+                        count<=compiled.world.fem.nodes.size()-begin,
+                    "initial skin FEM node dump exceeds compiled FEM node bounds");
+            std::ofstream initialSkinFEM(initialSkinFEMNodesPath,
+                std::ios::out|std::ios::binary|std::ios::trunc);
+            require(initialSkinFEM.good(),
+                    "could not create initial skin FEM node/mass CSV");
+            initialSkinFEM<<"global_node,layer,row,x_m,y_m,z_m,mass_kg\n"
+                <<std::setprecision(17);
+            for(std::uint32_t layer=0u;layer<3u;++layer)
+                for(std::uint32_t row=0u;row<wholeBodySkinNodesPerLayer;++row) {
+                    const std::uint64_t global=begin+
+                        std::uint64_t(layer)*wholeBodySkinNodesPerLayer+row;
+                    const auto& point=compiled.world.fem.nodes[global].positionAndMass;
+                    require(std::isfinite(point.x)&&std::isfinite(point.y)&&
+                                std::isfinite(point.z)&&std::isfinite(point.w)&&point.w>0.0f,
+                            "initial skin FEM node dump encountered nonfinite coordinates or nonpositive mass at node="+
+                                std::to_string(global));
+                    initialSkinFEM<<global<<','<<layer<<','<<row<<','
+                        <<static_cast<double>(point.x)<<','
+                        <<static_cast<double>(point.y)<<','
+                        <<static_cast<double>(point.z)<<','
+                        <<static_cast<double>(point.w)<<'\n';
+                }
+            initialSkinFEM.flush();
+            require(initialSkinFEM.good(),
+                    "failed while writing initial skin FEM node/mass CSV");
+            std::cout<<"initial_skin_fem_nodes_csv=written"
+                <<" path="<<initialSkinFEMNodesPath
+                <<" nodes="<<count
+                <<" first_global_node="<<begin
+                <<" nodes_per_layer="<<wholeBodySkinNodesPerLayer
+                <<" coordinates=compiled_F32_initial_world"<<std::endl;
+        }
         const char* fullBankComparisonPath=std::getenv(
             "NUMI_HUMAN_INITIAL_SKIN_BONE_FULLBANK_COMPARISON_CSV");
         if(fullBankComparisonPath&&fullBankComparisonPath[0]!='\0') {

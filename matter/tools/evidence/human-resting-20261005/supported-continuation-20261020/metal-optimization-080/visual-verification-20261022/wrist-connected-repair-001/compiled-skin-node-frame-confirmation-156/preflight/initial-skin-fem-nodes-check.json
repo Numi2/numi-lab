@@ -1,0 +1,16 @@
+{
+  "nodes": 7233,
+  "csv_sha256": "cb7cd7c5772532819bfcbc0931ac8cc5825237e64aed34821d6bf7ca3e66849b",
+  "layers": {
+    "0": 2411,
+    "1": 2411,
+    "2": 2411
+  },
+  "mass_kg": 13.939678935082046,
+  "matches_native005_detail_sha": true,
+  "matches_native005_pose_sha": true,
+  "node_first_last": [
+    1666,
+    8898
+  ]
+}
