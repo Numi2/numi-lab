@@ -1,0 +1,24 @@
+{
+  "base": "7e6f4806df2acc3eb849d123b91b638489a7b2d4",
+  "tests": [
+    {
+      "binary": "NumiHumanUnpairedSkinFatVolumeCheck",
+      "returncode": 0,
+      "stdout": "unpaired skin/fat volume owner tests passed\n",
+      "stderr": "",
+      "wall_s": 0.0025325000751763582
+    },
+    {
+      "binary": "NumiHumanSkinFatReductionLabelsCheck",
+      "returncode": 0,
+      "stdout": "registered_skin_fat_reduction_labels_check=pass\n",
+      "stderr": "",
+      "wall_s": 0.42112262500450015
+    }
+  ],
+  "source_sha256": {
+    "NumiHumanSkinFatReductionLabels.hpp": "3da8c9965c90ff7a088623ffd63ee3535bef644613951c0bfd56a50bb54dde1e",
+    "NumiHumanUnpairedSkinFatVolumeCheck.cpp": "b81530a719848fd43a3df531ef8744df9f0ee184cc6b9bc8354e791ef985010c"
+  },
+  "scope": "Standalone label consumer rejects stale independent boundary donor/geometry/ancestry and clears labels on all failures; default paired owner regression passes. No Human volume admitted or native steps."
+}

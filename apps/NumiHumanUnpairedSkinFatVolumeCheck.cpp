@@ -348,6 +348,13 @@ int main() {
         [](std::uint32_t,std::uint32_t){return true;}));
     assert(labels.sourceNodeLayerIndices[19]==1u);
     assert(validateRegisteredSkinFatRemeshNodeAncestry(independentWorld.objects.front(),labels,error));
+    inner.sourceEmbeddingFaceIndices.back()=1u;
+    assert(!buildRegisteredSkinFatUnpairedReductionSourceLabels(independent.surface,independentWorld.objects.front(),
+        independent.boundary,independent.topology,1u,
+        [](std::uint32_t,std::uint32_t){return true;},[](std::uint32_t){return NM_INVALID_INDEX;},labels,error,36u,
+        [](std::uint32_t,std::uint32_t){return true;}));
+    assert(labels.sourceNodeLayerIndices.empty());
+    inner.sourceEmbeddingFaceIndices.back()=0u;
     const auto independentObject=independentWorld.objects.front();
     assert(independentObject.femNodes==independent.current);
     assert(independentObject.femReferenceNodes==independent.reference);

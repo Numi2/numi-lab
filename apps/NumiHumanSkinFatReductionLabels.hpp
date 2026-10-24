@@ -3018,6 +3018,7 @@ template<class VerifyBoundBody, class ParentBodyAt>
     const std::uint32_t maximumFacesPerBasisRegion=36u,
     const std::function<bool(std::uint32_t,std::uint32_t)>& verifyEmbeddedBody={}
 ) {
+    output={};
     const auto fail=[&](std::string message){error=std::move(message);output={};return false;};
     const auto n=topology.currentWorldPoints.size(),nt=topology.childTetrahedra.size();
     const auto surfaceRows=surface.worldPoints.size();
@@ -3136,6 +3137,22 @@ template<class VerifyBoundBody, class ParentBodyAt>
         const auto node=(*roleMap[role])[row];
         if(nodeLayer[node]!=invalid)return fail("unpaired labels boundary roles alias a volume node");
         nodeLayer[node]=role;nodeSurfaceRow[node]=row;
+        if(independent&&role!=0u){
+            const auto& layer=*roleSurfaces[role];
+            if(layer.donorBodyIndices.size()!=roleSizes[role]||
+               layer.donorLocalPoints.size()!=roleSizes[role]||
+               layer.donorBodyIndices[row]!=topology.volumeNodeDonorBodyIndices[node]||
+               norm(sub(layer.donorLocalPoints[row],topology.volumeNodeDonorLocalPoints[node]))>1.0e-7||
+               norm(sub(layer.worldPoints[row],topology.currentWorldPoints[node]))>1.0e-8)
+                return fail("unpaired labels independent layer geometry or donor differs from volume source");
+            if(!layer.sourceVertexIndices.empty()&&layer.sourceVertexIndices[row]!=invalid&&
+               layer.sourceVertexIndices[row]!=topology.volumeNodeSourceVertexIndices[node])
+                return fail("unpaired labels independent layer direct source identity differs from volume source");
+            if(!layer.sourceEmbeddingFaceIndices.empty()&&layer.sourceEmbeddingFaceIndices[row]!=invalid&&
+               (layer.sourceEmbeddingFaceIndices[row]!=topology.volumeNodeSourceFaceIndices[node]||
+                layer.sourceEmbeddingBarycentric[row]!=topology.volumeNodeSourceBarycentric[node]))
+                return fail("unpaired labels independent layer embedding differs from volume source");
+        }
     }
     using FaceKey=std::array<std::uint32_t,3>;
     std::array<std::map<FaceKey,std::uint32_t>,3> faceByKey;
