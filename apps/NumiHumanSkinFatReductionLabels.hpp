@@ -74,6 +74,13 @@ struct RegisteredSkinFatReductionSourceLabels {
     std::map<std::uint32_t, std::vector<std::uint32_t>> donorBodyAncestry;
     std::size_t registeredVertexCount = 0u;
     std::size_t registeredFaceCount = 0u;
+    // Independent local row domains for O/I/D. Facet rows are role-local, so
+    // retain each exact table and the corresponding volume-node map.
+    std::array<std::size_t,3> registeredLayerVertexCounts{};
+    std::array<std::size_t,3> registeredLayerFaceCounts{};
+    std::array<std::vector<std::array<std::uint32_t,3>>,3> registeredLayerFaces;
+    std::array<std::vector<std::uint32_t>,3> registeredLayerStableFaceIdentities;
+    std::array<std::vector<std::uint32_t>,3> registeredLayerVolumeNodeRows;
     std::size_t sourceTetrahedronCount = 0u;
     // A local volume remesh preserves original node IDs but can append genuine
     // interior nodes. Their ancestry is independent of O/I/D numbering.
@@ -206,6 +213,28 @@ struct RegisteredSkinFatReductionSourceLabels {
         }
         if(outer!=labels.registeredVertexCount)
             return fail("unpaired skin/fat outer boundary rows differ from the registered surface");
+        std::vector<std::uint8_t> mapped(n,0u);
+        for(std::size_t role=0;role<3u;++role){
+            if(labels.registeredLayerVertexCounts[role]==0u||
+               labels.registeredLayerFaceCounts[role]==0u||
+               labels.registeredLayerFaces[role].size()!=labels.registeredLayerFaceCounts[role]||
+               labels.registeredLayerStableFaceIdentities[role].size()!=labels.registeredLayerFaceCounts[role]||
+               labels.registeredLayerVolumeNodeRows[role].size()!=labels.registeredLayerVertexCounts[role])
+                return fail("unpaired role-local registered surface table is incomplete");
+            for(const auto node:labels.registeredLayerVolumeNodeRows[role]){
+                if(node>=n||mapped[node]++!=0u||labels.sourceNodeLayerIndices[node]!=role)
+                    return fail("unpaired role-local volume-node map is out of range, aliased, or mislabeled");
+            }
+            for(std::size_t face=0;face<labels.registeredLayerFaceCounts[role];++face){
+                const auto tri=labels.registeredLayerFaces[role][face];
+                if(tri[0]>=labels.registeredLayerVertexCounts[role]||
+                   tri[1]>=labels.registeredLayerVertexCounts[role]||
+                   tri[2]>=labels.registeredLayerVertexCounts[role]||
+                   tri[0]==tri[1]||tri[1]==tri[2]||
+                   labels.registeredLayerStableFaceIdentities[role][face]==NM_INVALID_INDEX)
+                    return fail("unpaired role-local registered face has invalid row or stable identity");
+            }
+        }
         return true;
     }
     if(old==0u) {
@@ -3060,6 +3089,11 @@ template<class VerifyBoundBody, class ParentBodyAt>
             (layer->sourceEmbeddingFaceIndices.size()!=layer->worldPoints.size()||
              layer->sourceEmbeddingBarycentric.size()!=layer->worldPoints.size())))
             return fail("unpaired labels independent registered boundary identity arrays are incomplete");
+    if(independent)for(const auto* layer:roleSurfaces)
+        if(layer->sourceFaceIndices.size()!=layer->faces.size()||
+           std::any_of(layer->sourceFaceIndices.begin(),layer->sourceFaceIndices.end(),
+               [](auto id){return id==NM_INVALID_INDEX;}))
+            return fail("unpaired labels require exact source-face ancestry for every independent registered layer face");
     if(boundaryMap.volumeNodeCount!=n||
        (!topology.volumeNodeSourceVertexIndices.empty()&&topology.volumeNodeSourceVertexIndices.size()!=n)||
        (!topology.volumeNodeSourceFaceIndices.empty()&&topology.volumeNodeSourceFaceIndices.size()!=n)||
@@ -3210,6 +3244,23 @@ template<class VerifyBoundBody, class ParentBodyAt>
     RegisteredSkinFatReductionSourceLabels next;
     next.explicitUnpairedVolumeTopology=true;
     next.registeredVertexCount=surfaceRows;next.registeredFaceCount=surface.faces.size();
+    next.registeredLayerVertexCounts=roleSizes;
+    for(std::size_t role=0;role<3u;++role){
+        const auto& layer=*roleSurfaces[role];
+        next.registeredLayerFaceCounts[role]=layer.faces.size();
+        next.registeredLayerFaces[role].assign(layer.faces.begin(),layer.faces.end());
+        next.registeredLayerVolumeNodeRows[role].assign(roleMap[role]->begin(),roleMap[role]->end());
+        if(layer.sourceFaceIndices.empty()){
+            // Preserve the legacy shared-surface fallback only. Independent
+            // role surfaces were required above to carry source face ancestry.
+            if(independent)return fail("independent registered layer cannot synthesize stable face IDs from row ordinals");
+            next.registeredLayerStableFaceIdentities[role].resize(layer.faces.size());
+            for(std::uint32_t face=0;face<layer.faces.size();++face)
+                next.registeredLayerStableFaceIdentities[role][face]=face;
+        }else{
+            next.registeredLayerStableFaceIdentities[role].assign(layer.sourceFaceIndices.begin(),layer.sourceFaceIndices.end());
+        }
+    }
     next.sourceTetrahedronCount=nt;next.remeshedOriginalNodeCount=topology.retainedOriginalNodeCount;
     next.sourceNodeVertexIndices.assign(n,invalid);next.sourceNodeEmbeddingFaceIndices.assign(n,invalid);
     next.sourceNodeEmbeddingBarycentric.assign(n,{});
@@ -3254,7 +3305,7 @@ template<class VerifyBoundBody, class ParentBodyAt>
         }else if(nodeLayer[i]!=invalid){
             return fail("unpaired registered boundary row has neither direct source ID nor detailed embedding");
         }
-        if(!topology.volumeNodeSourceFaceIndices.empty()||!surface.sourceEmbeddingFaceIndices.empty()){
+        if(!topology.volumeNodeSourceFaceIndices.empty()||!roleSurfaces[nodeLayer[i]==invalid?0u:nodeLayer[i]]->sourceEmbeddingFaceIndices.empty()){
             next.sourceNodeEmbeddingFaceIndices[i]=sourceFace;
             next.sourceNodeEmbeddingBarycentric[i]=sourceBary;
         }

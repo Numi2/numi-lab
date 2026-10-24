@@ -1,0 +1,30 @@
+[
+  {
+    "test": "NumiHumanSkinBoundaryNodeMapCheck",
+    "returncode": 0,
+    "status": "pass",
+    "stdout": "paired parity, arbitrary volume rows, disjoint roles, bounds and overflow: PASS",
+    "log": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-layer-contact-dispatch-301/against-main-318025f8/tests/NumiHumanSkinBoundaryNodeMapCheck-final-run.log"
+  },
+  {
+    "test": "NumiHumanUnpairedSkinFatVolumeCheck",
+    "returncode": 0,
+    "status": "pass",
+    "stdout": "unpaired skin/fat volume owner tests passed",
+    "log": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-layer-contact-dispatch-301/against-main-318025f8/tests/NumiHumanUnpairedSkinFatVolumeCheck-final-run.log"
+  },
+  {
+    "test": "NumiHumanSkinFatReductionLabelsCheck",
+    "returncode": 0,
+    "status": "pass",
+    "stdout": "registered_skin_fat_reduction_labels_check=pass",
+    "log": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-layer-contact-dispatch-301/against-main-318025f8/tests/NumiHumanSkinFatReductionLabelsCheck-final-run.log"
+  },
+  {
+    "test": "NumiHumanUnpairedSkinFatContactDispatchCheck",
+    "returncode": 0,
+    "status": "pass",
+    "stdout": "unpaired skin/fat volume owner tests passed",
+    "log": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-layer-contact-dispatch-301/against-main-318025f8/tests/NumiHumanUnpairedSkinFatContactDispatchCheck-final-run.log"
+  }
+]

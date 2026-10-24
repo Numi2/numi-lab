@@ -67,7 +67,7 @@ class NumiHumanRestingVisual {
     std::unique_ptr<numi::human::AcceptedFEMBoundaryRenderPass> acceptedFEMBoundaryRenderPass;
     std::vector<numi::human::AcceptedFEMBoundaryRenderPass::Point> acceptedFEMBoundaryPositions;
     std::uint32_t acceptedFEMBoundaryFirstInner=MR_INVALID_INDEX,acceptedFEMBoundaryFirstFat=MR_INVALID_INDEX;
-    std::uint32_t acceptedFEMBoundaryNodeCount=0u;
+    std::uint32_t acceptedFEMBoundaryNodeCount=0u,acceptedFEMBoundaryFatNodeCount=0u;
     unsigned skinFirstVertex=MR_INVALID_INDEX;
 
     id<MTLBuffer> meshAuditPartials,meshAuditResult,skinAuditPartials;
@@ -981,7 +981,8 @@ public:
         std::string acceptedBoundaryObjectName={},
         std::uint32_t acceptedBoundaryObjectIndex=MR_INVALID_INDEX,
         bool acceptedBoundarySelfContactBound=false,
-        std::string acceptedBoundaryLayerConfiguration={}):
+        std::string acceptedBoundaryLayerConfiguration={},
+        std::span<const std::array<std::uint32_t,3>> acceptedBoundaryFatFaces={}):
         coupled(owner),dimension(size),outputDirectory(output),acceptedGeometryDirectory(output/"accepted-geometry"),
         surfaceTrace(output/"resting-surface-audit.csv") {
         const bool ropeConfigured=NumiHumanRestingRopeSupport::configuredFromEnvironment();
@@ -2872,18 +2873,23 @@ public:
             bloodVisualLayout=NumiHumanRestingBloodVisual::appendGeometry(pack);
             visibleLayers.insert(visibleLayers.end(),NumiHumanRestingBloodVisual::capacity,127u);
         }
-        if(!acceptedSkinInnerRest.empty()||!acceptedFatRest.empty()||!acceptedBoundaryFaces.empty()) {
+        if(acceptedBoundaryFatFaces.empty()&&acceptedSkinInnerRest.size()==acceptedFatRest.size())
+            acceptedBoundaryFatFaces=acceptedBoundaryFaces;
+        if(!acceptedSkinInnerRest.empty()||!acceptedFatRest.empty()||!acceptedBoundaryFaces.empty()||!acceptedBoundaryFatFaces.empty()) {
             require(acceptedBoundaryObjectName=="BodyParts3D whole-body skin-fat bonded shell"&&
                     acceptedBoundaryObjectIndex!=MR_INVALID_INDEX&&acceptedBoundarySelfContactBound&&
                     !acceptedBoundaryLayerConfiguration.empty(),
                 "accepted FEM boundary renderer is not matched to the bound whole-body skin/fat object and layer configuration");
             require(acceptedSkinInnerRest.size()>=4u&&
-                    acceptedSkinInnerRest.size()==acceptedFatRest.size()&&
-                    acceptedSkinInnerRest.size()<=16384u&&!acceptedBoundaryFaces.empty()&&
-                    acceptedBoundaryFaces.size()<=32768u,
+                    acceptedFatRest.size()>=4u&&acceptedSkinInnerRest.size()<=200000u&&
+                    acceptedFatRest.size()<=200000u&&!acceptedBoundaryFaces.empty()&&
+                    !acceptedBoundaryFatFaces.empty()&&acceptedBoundaryFaces.size()<=400000u&&
+                    acceptedBoundaryFatFaces.size()<=400000u,
                 "accepted whole-body boundary render topology has invalid bounds");
             acceptedFEMBoundaryNodeCount=static_cast<std::uint32_t>(acceptedSkinInnerRest.size());
+            acceptedFEMBoundaryFatNodeCount=static_cast<std::uint32_t>(acceptedFatRest.size());
             const auto appendBoundary=[&](std::span<const std::array<double,3>> points,
+                                          std::span<const std::array<std::uint32_t,3>> faces,
                                           std::uint32_t stableID,std::uint32_t material,
                                           std::uint32_t inspectionMask) {
                 require(points.size()<=std::numeric_limits<std::uint32_t>::max()&&
@@ -2901,11 +2907,11 @@ public:
                     hi={std::max(hi.x,x),std::max(hi.y,y),std::max(hi.z,z),1.0f};
                 }
                 require(pack.indices.size()<=std::numeric_limits<std::uint32_t>::max()&&
-                        acceptedBoundaryFaces.size()<=
+                        faces.size()<=
                             (std::numeric_limits<std::uint32_t>::max()-pack.indices.size())/3u,
                     "accepted whole-body boundary render index range overflows");
                 const auto firstIndex=static_cast<std::uint32_t>(pack.indices.size());
-                for(const auto& face:acceptedBoundaryFaces) {
+                for(const auto& face:faces) {
                     require(face[0]<points.size()&&face[1]<points.size()&&face[2]<points.size(),
                         "accepted whole-body boundary render face is outside its node range");
                     pack.indices.insert(pack.indices.end(),{first+face[0],first+face[1],first+face[2]});
@@ -2924,17 +2930,18 @@ public:
                 pack.instances.push_back(instance);visibleLayers.push_back(inspectionMask);
                 return first;
             };
-            acceptedFEMBoundaryFirstInner=appendBoundary(acceptedSkinInnerRest,0xFFFFFD11u,
+            acceptedFEMBoundaryFirstInner=appendBoundary(acceptedSkinInnerRest,acceptedBoundaryFaces,0xFFFFFD11u,
                 static_cast<std::uint32_t>(pack.materials.size()),1u<<7u);
             pack.materials.push_back(makeMaterial({.76f,.31f,.28f,1.0f},{0,0,0,0},.82f));
-            acceptedFEMBoundaryFirstFat=appendBoundary(acceptedFatRest,0xFFFFFD12u,
+            acceptedFEMBoundaryFirstFat=appendBoundary(acceptedFatRest,acceptedBoundaryFatFaces,0xFFFFFD12u,
                 static_cast<std::uint32_t>(pack.materials.size()),1u<<8u);
             pack.materials.push_back(makeMaterial({.91f,.68f,.22f,1.0f},{0,0,0,0},.92f));
-            acceptedFEMBoundaryPositions.resize(2u*acceptedFEMBoundaryNodeCount);
+            acceptedFEMBoundaryPositions.resize(acceptedFEMBoundaryNodeCount+acceptedFEMBoundaryFatNodeCount);
             for(std::size_t i=0;i<acceptedFEMBoundaryNodeCount;++i) {
                 acceptedFEMBoundaryPositions[i]={float(acceptedSkinInnerRest[i][0]),float(acceptedSkinInnerRest[i][1]),float(acceptedSkinInnerRest[i][2]),1.0f};
-                acceptedFEMBoundaryPositions[acceptedFEMBoundaryNodeCount+i]={float(acceptedFatRest[i][0]),float(acceptedFatRest[i][1]),float(acceptedFatRest[i][2]),1.0f};
             }
+            for(std::size_t i=0;i<acceptedFEMBoundaryFatNodeCount;++i)
+                acceptedFEMBoundaryPositions[acceptedFEMBoundaryNodeCount+i]={float(acceptedFatRest[i][0]),float(acceptedFatRest[i][1]),float(acceptedFatRest[i][2]),1.0f};
             pack.preprocessingProvenance+="/accepted_fem_inner_skin_and_deep_fat_inspection_boundaries";
         }
         maps.resize(pack.vertices.size());
@@ -3028,20 +3035,20 @@ public:
         if(acceptedFEMBoundaryNodeCount) {
             acceptedFEMBoundaryRenderPass=std::make_unique<numi::human::AcceptedFEMBoundaryRenderPass>();
             std::string boundaryError;
-            require(acceptedFEMBoundaryRenderPass->initialize(device,acceptedBoundaryFaces,
-                        acceptedFEMBoundaryNodeCount,acceptedFEMBoundaryFirstInner,
+            require(acceptedFEMBoundaryRenderPass->initialize(device,acceptedBoundaryFaces,acceptedFEMBoundaryNodeCount,
+                        acceptedBoundaryFatFaces,acceptedFEMBoundaryFatNodeCount,acceptedFEMBoundaryFirstInner,
                         acceptedFEMBoundaryFirstFat,&boundaryError),
                 "accepted FEM inner-skin/deep-fat render pass initialization failed: "+boundaryError);
             require(acceptedFEMBoundaryRenderPass->updateAcceptedState(acceptedFEMBoundaryPositions,&boundaryError),
                 "accepted FEM inner-skin/deep-fat initial state failed: "+boundaryError);
             std::cout<<"accepted_fem_boundary_render=prepared object_name="<<acceptedBoundaryObjectName
                 <<" object_index="<<acceptedBoundaryObjectIndex
-                <<" layers=inner_skin,deep_fat nodes_per_layer="<<acceptedFEMBoundaryNodeCount
-                <<" faces="<<acceptedBoundaryFaces.size()<<" rendered_layers=2 inner_vertex_range=["
+                <<" layers=inner_skin,deep_fat inner_nodes="<<acceptedFEMBoundaryNodeCount<<" fat_nodes="<<acceptedFEMBoundaryFatNodeCount
+                <<" inner_faces="<<acceptedBoundaryFaces.size()<<" fat_faces="<<acceptedBoundaryFatFaces.size()<<" rendered_layers=2 inner_vertex_range=["
                 <<acceptedFEMBoundaryFirstInner<<","<<acceptedFEMBoundaryFirstInner+acceptedFEMBoundaryNodeCount
                 <<") deep_fat_vertex_range=["<<acceptedFEMBoundaryFirstFat<<"," 
-                <<acceptedFEMBoundaryFirstFat+acceptedFEMBoundaryNodeCount<<")"
-                <<" accepted_snapshot_owner=Runtime::snapshot layer_masks=128,256 self_contact=material_column_bound"
+                <<acceptedFEMBoundaryFirstFat+acceptedFEMBoundaryFatNodeCount<<")"
+                <<" accepted_snapshot_owner=Runtime::snapshot layer_masks=128,256 self_contact=prepared_owner_bound"
                 <<" layer_configuration="<<acceptedBoundaryLayerConfiguration<<"\n";
         }
         if(bedSurface) {
@@ -3998,7 +4005,7 @@ public:
     void updateAcceptedFEMBoundaries(
         const std::vector<numi::human::AcceptedFEMBoundaryRenderPass::Point>& positions) {
         require(acceptedFEMBoundaryRenderPass!=nullptr&&
-                    positions.size()==2ull*acceptedFEMBoundaryNodeCount,
+                    positions.size()==std::size_t(acceptedFEMBoundaryNodeCount)+acceptedFEMBoundaryFatNodeCount,
                 "accepted FEM inner-skin/deep-fat boundary update has invalid dimensions");
         std::string error;
         require(acceptedFEMBoundaryRenderPass->updateAcceptedState(positions,&error),

@@ -161,6 +161,12 @@ struct ExplicitUnpairedVolumeReport {
            layer->donorLocalPoints.size()!=layer->worldPoints.size()||
            (!layer->sourceFaceIndices.empty()&&layer->sourceFaceIndices.size()!=layer->faces.size()))
             return fail("unpaired skin/fat registered layer geometry or identity arrays are incomplete");
+    if(independent)for(const auto* layer:roleSurfaces){
+        if(layer->sourceFaceIndices.size()!=layer->faces.size()||
+           std::any_of(layer->sourceFaceIndices.begin(),layer->sourceFaceIndices.end(),
+               [&](auto id){return id==invalid;}))
+            return fail("independent registered layer lacks exact source-face ancestry identities");
+    }
     if(independent)for(unsigned role=1u;role<3u;++role)
         if(!validateRegisteredSourceEmbedding(*roleSurfaces[role],topology.detailedSourceFaceCount,error))
             return false;
@@ -542,7 +548,9 @@ struct ExplicitUnpairedVolumeReport {
     }
     numi::matter::ObjectSource object;object.name=std::string(objectName);object.materialIndex=skinMaterialIndex;
     object.representation=numi::matter::Representation::fem;object.twoWayCoupling=true;object.adaptive=false;
-    object.mixedFEM=false;object.deformableContact=true;object.deformableSelfContact=false;
+    // Only the separately validated independent-role mesh uses the canonical FEM self-contact path.
+    // The legacy shared-row O/I/D topology retains its paired material-column owner.
+    object.mixedFEM=false;object.deformableContact=true;object.deformableSelfContact=independent;
     object.characteristicLength=std::cbrt(skinVolume+fatVolume);object.femNodes.assign(current.begin(),current.end());
     object.femReferenceNodes.assign(reference.begin(),reference.end());
     object.femReferenceSourceIdentity=topology.referenceSourceIdentity;
@@ -553,13 +561,20 @@ struct ExplicitUnpairedVolumeReport {
     // No compaction or reordering: supplied volume row i remains object-local node i.
     object.tetrahedra.reserve(nt);object.femMaterialIndices.assign(topology.childMaterialIndices.begin(),topology.childMaterialIndices.end());
     for(const auto& tet:topology.childTetrahedra)object.tetrahedra.push_back({tet});
-    for(auto node:boundaryMap.outer)object.femContactNodes.push_back(node);
-    for(auto node:boundaryMap.fatDeep)object.femContactNodes.push_back(node);
-    // Internal layer rims are contact candidates at the explicitly authored
-    // open-head sidewalls. Independent I rows cannot be indexed by O rows.
-    std::map<std::array<std::uint32_t,2>,unsigned> edgeUse;
-    for(const auto& face:roleSurfaces[1]->faces)for(unsigned e=0;e<3u;++e){auto a=face[e],b=face[(e+1u)%3u];if(a>b)std::swap(a,b);++edgeUse[{a,b}];}
-    for(const auto& [edge,count]:edgeUse){if(count>2u)return fail("unpaired registered I layer has a nonmanifold edge while selecting contact rows");if(count==1u){object.femContactNodes.push_back(boundaryMap.skinInner[edge[0]]);object.femContactNodes.push_back(boundaryMap.skinInner[edge[1]]);}}
+    if(independent){
+        // The conforming independent-role path uses actual count-one volume
+        // facets, including explicitly validated head sidewalls. It creates no
+        // synthetic 3N material columns and never treats the I interface as exterior.
+        for(const auto& [facet,uses]:facetUses)if(uses.size()==1u)
+            object.femContactNodes.insert(object.femContactNodes.end(),facet.begin(),facet.end());
+    }else{
+        // Preserve the paired legacy contact-row selection exactly.
+        for(auto node:boundaryMap.outer)object.femContactNodes.push_back(node);
+        for(auto node:boundaryMap.fatDeep)object.femContactNodes.push_back(node);
+        std::map<std::array<std::uint32_t,2>,unsigned> edgeUse;
+        for(const auto& face:surface.faces)for(unsigned e=0;e<3u;++e){auto a=face[e],b=face[(e+1u)%3u];if(a>b)std::swap(a,b);++edgeUse[{a,b}];}
+        for(const auto& [edge,count]:edgeUse){if(count>2u)return fail("unpaired RegisteredSurface has a nonmanifold edge while selecting contact rows");if(count==1u){object.femContactNodes.push_back(boundaryMap.skinInner[edge[0]]);object.femContactNodes.push_back(boundaryMap.skinInner[edge[1]]);}}
+    }
     std::sort(object.femContactNodes.begin(),object.femContactNodes.end());object.femContactNodes.erase(std::unique(object.femContactNodes.begin(),object.femContactNodes.end()),object.femContactNodes.end());
     if(std::any_of(object.femContactNodes.begin(),object.femContactNodes.end(),[&](auto node){return node>=n;}))return fail("unpaired skin/fat contact node map escapes the object-local volume domain");
 

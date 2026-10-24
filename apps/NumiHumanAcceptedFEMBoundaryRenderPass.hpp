@@ -19,25 +19,40 @@ public:
  using Face=std::array<std::uint32_t,3>;
  bool initialize(id<MTLDevice> device,std::span<const Face> faces,std::uint32_t n,
                  std::uint32_t firstInner,std::uint32_t firstFat,std::string* error) {
+  return initialize(device,faces,n,faces,n,firstInner,firstFat,error);
+ }
+ bool initialize(id<MTLDevice> device,std::span<const Face> innerFaces,std::uint32_t innerCount,
+                 std::span<const Face> fatFaces,std::uint32_t fatCount,
+                 std::uint32_t firstInner,std::uint32_t firstFat,std::string* error) {
   reset();
   auto fail=[&](const char* m){if(error)*error=m;return false;};
-  if(!device||n<4||n>16384||faces.empty()||faces.size()>32768)
-   return fail("accepted boundary render topology is empty or outside reduced bounds");
-  if(firstInner>UINT32_MAX-n||firstFat>UINT32_MAX-n||
-     (firstInner<firstFat+n&&firstFat<firstInner+n))
+  constexpr std::uint32_t maximumRoleNodes=200000u,maximumRoleFaces=400000u;
+  if(!device||innerCount<4u||fatCount<4u||innerCount>maximumRoleNodes||
+     fatCount>maximumRoleNodes||innerFaces.empty()||fatFaces.empty()||
+     innerFaces.size()>maximumRoleFaces||fatFaces.size()>maximumRoleFaces)
+   return fail("accepted boundary render topology is empty or outside bounded role capacity");
+  if(firstInner>UINT32_MAX-innerCount||firstFat>UINT32_MAX-fatCount||
+     (firstInner<firstFat+fatCount&&firstFat<firstInner+innerCount))
    return fail("accepted boundary render output ranges overflow or overlap");
-  std::vector<std::vector<std::uint32_t>> incident(n);
-  std::vector<std::array<std::uint32_t,4>> triangles;triangles.reserve(faces.size());
-  for(std::uint32_t i=0;i<faces.size();i++){
-   auto f=faces[i];
-   if(f[0]>=n||f[1]>=n||f[2]>=n||f[0]==f[1]||f[1]==f[2]||f[2]==f[0])
-    return fail("accepted boundary render face has invalid vertices");
-   triangles.push_back({f[0],f[1],f[2],0});
-   for(auto v:f)incident[v].push_back(i);
-  }
-  std::vector<std::array<std::uint32_t,2>> ranges(n);
-  std::vector<std::uint32_t> refs;refs.reserve(3*faces.size());
-  for(std::uint32_t i=0;i<n;i++){
+  const std::uint32_t total=innerCount+fatCount;
+  std::vector<std::vector<std::uint32_t>> incident(total);
+  std::vector<std::array<std::uint32_t,4>> triangles;
+  triangles.reserve(innerFaces.size()+fatFaces.size());
+  const auto append=[&](std::span<const Face> faces,std::uint32_t n,std::uint32_t base){
+   for(const auto& f:faces){
+    if(f[0]>=n||f[1]>=n||f[2]>=n||f[0]==f[1]||f[1]==f[2]||f[2]==f[0])
+     return false;
+    const auto row=static_cast<std::uint32_t>(triangles.size());
+    triangles.push_back({base+f[0],base+f[1],base+f[2],0});
+    for(auto v:f)incident[base+v].push_back(row);
+   }
+   return true;
+  };
+  if(!append(innerFaces,innerCount,0u)||!append(fatFaces,fatCount,innerCount))
+   return fail("accepted boundary render face has invalid role-local vertices");
+  std::vector<std::array<std::uint32_t,2>> ranges(total);
+  std::vector<std::uint32_t> refs;refs.reserve(3*triangles.size());
+  for(std::uint32_t i=0;i<total;i++){
    if(incident[i].empty())return fail("accepted boundary render has an isolated node");
    ranges[i]={static_cast<std::uint32_t>(refs.size()),static_cast<std::uint32_t>(incident[i].size())};
    refs.insert(refs.end(),incident[i].begin(),incident[i].end());
@@ -58,15 +73,15 @@ public:
   triangles_=[device newBufferWithBytes:triangles.data() length:triangles.size()*sizeof(triangles[0]) options:MTLResourceStorageModeShared];
   ranges_=[device newBufferWithBytes:ranges.data() length:ranges.size()*sizeof(ranges[0]) options:MTLResourceStorageModeShared];
   refs_=[device newBufferWithBytes:refs.data() length:refs.size()*sizeof(refs[0]) options:MTLResourceStorageModeShared];
-  positions_=[device newBufferWithLength:2*n*sizeof(Point) options:MTLResourceStorageModeShared];
+  positions_=[device newBufferWithLength:total*sizeof(Point) options:MTLResourceStorageModeShared];
   if(!triangles_||!ranges_||!refs_||!positions_){reset();return fail("boundary Metal buffer allocation failed");}
-  n_=n;firstInner_=firstInner;firstFat_=firstFat;
+  n_=innerCount;fatCount_=fatCount;firstInner_=firstInner;firstFat_=firstFat;
   if(error)error->clear();
   return true;
  }
  // Shared buffers are reused only between synchronous native presentations.
  bool updateAcceptedState(std::span<const Point> positions,std::string* error){
-  if(!positions_||positions.size()!=2ull*n_){if(error)*error="accepted boundary point count mismatch";return false;}
+  if(!positions_||positions.size()!=std::size_t(n_)+fatCount_){if(error)*error="accepted boundary point count mismatch";return false;}
   for(const auto& p:positions)for(unsigned c=0;c<3;c++)if(!std::isfinite(p[c])){
    if(error)*error="accepted boundary point is nonfinite";return false;
   }
@@ -78,8 +93,8 @@ public:
  template<class Encoder>
  bool encode(const Encoder& e,void* vertices,std::uint32_t meshVertexCount)const{
   if(!ready_||!pipeline_||!vertices||!e.valid()||firstInner_>meshVertexCount||
-     n_>meshVertexCount-firstInner_||firstFat_>meshVertexCount||n_>meshVertexCount-firstFat_)return false;
-  const std::uint32_t p[4]={n_,firstInner_,firstFat_,2*n_};
+     n_>meshVertexCount-firstInner_||firstFat_>meshVertexCount||fatCount_>meshVertexCount-firstFat_)return false;
+  const std::uint32_t p[4]={n_,firstInner_,firstFat_,n_+fatCount_};
   e.setPipeline(e.context,(__bridge void*)pipeline_);
   e.setBytes(e.context,p,sizeof(p),0);
   e.setBuffer(e.context,(__bridge void*)positions_,0,1);
@@ -87,10 +102,10 @@ public:
   e.setBuffer(e.context,(__bridge void*)ranges_,0,3);
   e.setBuffer(e.context,(__bridge void*)refs_,0,4);
   e.setBuffer(e.context,vertices,0,5);
-  e.dispatchThreads(e.context,2*n_,64);
+  e.dispatchThreads(e.context,n_+fatCount_,64);
   return true;
  }
- void reset(){triangles_=nil;ranges_=nil;refs_=nil;positions_=nil;pipeline_=nil;n_=firstInner_=firstFat_=0;ready_=false;}
+ void reset(){triangles_=nil;ranges_=nil;refs_=nil;positions_=nil;pipeline_=nil;n_=fatCount_=firstInner_=firstFat_=0;ready_=false;}
  static const char* metalSource(){return R"MSL(
 #include <metal_stdlib>
 using namespace metal;
@@ -103,14 +118,13 @@ kernel void nm_human_accepted_fem_boundaries(
  device const uint* refs [[buffer(4)]],device MRVisualVertexGPUV2* outputs [[buffer(5)]],
  uint i [[thread_position_in_grid]]){
  if(i>=p.w)return;
- uint layer=i/p.x,v=i%p.x,base=layer*p.x;
- uint out=(layer==0?p.y:p.z)+v;
+ uint out=i<p.x?p.y+i:p.z+(i-p.x);
  float3 normal=float3(0.0f);
- uint2 range=ranges[v];
+ uint2 range=ranges[i];
  for(uint j=0;j<range.y;j++){
   uint3 f=triangles[refs[range.x+j]].xyz;
-  normal+=cross(points[base+f.y].xyz-points[base+f.x].xyz,
-                points[base+f.z].xyz-points[base+f.x].xyz);
+  normal+=cross(points[f.y].xyz-points[f.x].xyz,
+                points[f.z].xyz-points[f.x].xyz);
  }
  outputs[out].position=float4(points[i].xyz,1.0f);
  float n2=dot(normal,normal);
@@ -126,7 +140,7 @@ kernel void nm_human_accepted_fem_boundaries(
 private:
  __strong id<MTLBuffer> triangles_=nil,ranges_=nil,refs_=nil,positions_=nil;
  __strong id<MTLComputePipelineState> pipeline_=nil;
- std::uint32_t n_=0,firstInner_=0,firstFat_=0;
+ std::uint32_t n_=0,fatCount_=0,firstInner_=0,firstFat_=0;
  bool ready_=false;
 };
 }

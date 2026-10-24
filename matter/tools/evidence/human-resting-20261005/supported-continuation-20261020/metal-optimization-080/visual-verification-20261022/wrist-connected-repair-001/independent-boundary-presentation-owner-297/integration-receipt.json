@@ -1,0 +1,23 @@
+{
+  "parent": "318025f837e9aca63791bf74351fcbb6eb5eafc5",
+  "source_sha256": {
+    "apps/NumiHumanAcceptedFEMBoundaryRenderPass.hpp": "053c3129092c3ee64e7a0053fc314ededa347c89db5180872d66e130b69c1388",
+    "apps/NumiHumanRestingVisual.hpp": "9a82b0248eed042b5a5dc6bd5dbd167360033420831fffb170fa8bf948760272",
+    "apps/NumiHumanSkinBoundaryNodeMap.hpp": "2faed73fdce51c442d7888928288e992163ffa4445f529a40fb499fccd975693",
+    "apps/numilab_human_myosim_visual_probe.mm": "ddf5367df5d78077d9040507ba16145e304d5cec0b9bc40b2b84f57dc948d58d",
+    "apps/NumiHumanUnpairedSkinFatVolume.hpp": "88c0c8dff1d59aa17bf4ef248863c42a55b2abd5670f5f03a17f23ab0963eadc",
+    "apps/NumiHumanSkinFatReductionLabels.hpp": "0008724ec8ae5d10e93e4daf83625f71488280478f37d4d2ca047bd925223788",
+    "apps/NumiHumanUnpairedSkinFatContactDispatch.hpp": "395f6e6c3197c99def0adf02b7c201f5f68d23b021ecd041e67e96b21b78c661",
+    "tests/NumiHumanUnpairedSkinFatVolumeCheck.cpp": "d3e20d4991709b2739da47c511b796ad397557516acf85c498f2f3d569095620",
+    "tests/NumiHumanUnpairedSkinFatContactDispatchCheck.cpp": "f3ed398282f8300f851c61f8aecbbb058221bde4afaa5bcd5048ea3f3cb8944a",
+    "tests/human_accepted_fem_boundaries_independent.mm": "ba134a249f39e34a42786e6c410f8b0d05993a891a52ae488bdc687d74174c81",
+    "tests/human_skin_boundary_gather.cpp": "3b265f6aaf1f15856adaf6a40ad71164412f760619f9545eb47b82b5c8b7da38"
+  },
+  "app_compile_command": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-layer-contact-dispatch-301/build/main297-merged-apps/compile-command.json",
+  "app_compile_log": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-layer-contact-dispatch-301/build/main297-merged-apps/app-compile.log",
+  "app_source_sha256": "ddf5367df5d78077d9040507ba16145e304d5cec0b9bc40b2b84f57dc948d58d",
+  "app_compile_scope": "Objective-C++ translation unit, exact-main318 plus intended owner/presentation changes, warnings as errors; no complete linked scene run",
+  "device": "Apple M6 on SSH numi",
+  "tests": "4 CPU owner/map/contact compiler checks; independent and legacy accepted-boundary Metal GPU checks; gather count/range/finite/alias atomic failure checks",
+  "physical_scope": "No repaired geometry admitted; no accepted physical step or full native scene qualification. Source preparation still requires complete material geometry, mass mapping and motion gates."
+}

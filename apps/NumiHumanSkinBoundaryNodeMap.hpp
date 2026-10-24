@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -65,4 +66,40 @@ inline bool skinBoundaryNodeRangeFits(const SkinBoundaryNodeMap& map,
     return firstGlobalNode<=snapshotNodeCount &&
         map.volumeNodeCount<=snapshotNodeCount-firstGlobalNode;
 }
+
+inline std::array<std::size_t,3> skinBoundaryRoleCounts(const SkinBoundaryNodeMap& map) {
+    return {map.outer.size(),map.skinInner.size(),map.fatDeep.size()};
+}
+
+// Presentation/export only. Validate the complete immutable accepted snapshot
+// before writing any output; failed reads leave the prior display unchanged.
+template<class ReadPoint>
+inline bool gatherAcceptedSkinInnerFatPositions(const SkinBoundaryNodeMap& map,
+        std::size_t firstGlobalNode,std::size_t snapshotNodeCount,ReadPoint read,
+        std::vector<std::array<float,4>>& output,std::string& error) {
+    if(!validateSkinBoundaryNodeMap(map,skinBoundaryRoleCounts(map),error))
+        return false;
+    if(!skinBoundaryNodeRangeFits(map,firstGlobalNode,snapshotNodeCount)) {
+        error="accepted skin boundary volume range exceeds snapshot";return false;
+    }
+    if(map.skinInner.size()>std::numeric_limits<std::size_t>::max()-map.fatDeep.size()||
+       output.size()!=map.skinInner.size()+map.fatDeep.size()) {
+        error="accepted inner/fat output has incorrect independent role counts";return false;
+    }
+    for(const auto* rows:{&map.skinInner,&map.fatDeep})
+        for(const auto row:*rows) {
+            const auto p=read(firstGlobalNode+row);
+            if(!std::isfinite(p[0])||!std::isfinite(p[1])||!std::isfinite(p[2])) {
+                error="accepted skin boundary point is nonfinite";return false;
+            }
+        }
+    std::size_t destination=0;
+    for(const auto* rows:{&map.skinInner,&map.fatDeep})
+        for(const auto row:*rows) {
+            const auto p=read(firstGlobalNode+row);
+            output[destination++]={p[0],p[1],p[2],1.f};
+        }
+    error.clear();return true;
+}
+
 } // namespace numi::human

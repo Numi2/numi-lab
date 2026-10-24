@@ -1,0 +1,59 @@
+[
+  {
+    "argv": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/conforming-material-boundary-owner-294/tests",
+      "-v"
+    ],
+    "returncode": 0,
+    "elapsed_s": 0.05778720788657665,
+    "log": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-boundary-presentation-owner-297/qualification-0.log",
+    "input_sha256": "c2d16fe8332897836229aff307d1d9cb32432d405fa889f342ffe1830b1608c5"
+  },
+  {
+    "argv": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/conforming-p1-material-volume-owner-295/tests",
+      "-v"
+    ],
+    "returncode": 0,
+    "elapsed_s": 0.0755325419595465,
+    "log": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-boundary-presentation-owner-297/qualification-1.log",
+    "input_sha256": "c2d16fe8332897836229aff307d1d9cb32432d405fa889f342ffe1830b1608c5"
+  },
+  {
+    "argv": [
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-boundary-presentation-owner-297/boundary-independent-check"
+    ],
+    "returncode": 0,
+    "elapsed_s": 0.018227084074169397,
+    "log": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-boundary-presentation-owner-297/qualification-2.log",
+    "input_sha256": "63159afbc2b1cf46e24f85806461d062aa7e90bcedbe2206f6754f20d2adafe4"
+  },
+  {
+    "argv": [
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-boundary-presentation-owner-297/boundary-legacy-check"
+    ],
+    "returncode": 0,
+    "elapsed_s": 0.0162559999153018,
+    "log": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-boundary-presentation-owner-297/qualification-3.log",
+    "input_sha256": "7e035565498aad45c618632041ef0d6f0fe774fc3cd3d301c9490472d4e58831"
+  },
+  {
+    "argv": [
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-boundary-presentation-owner-297/boundary-gather-check"
+    ],
+    "returncode": 0,
+    "elapsed_s": 0.001960541936568916,
+    "log": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/independent-boundary-presentation-owner-297/qualification-4.log",
+    "input_sha256": "99b9fa02c33e1b9e3f94db867181112625d17c32c0d2d7f7fab25b3f0f46226a"
+  }
+]

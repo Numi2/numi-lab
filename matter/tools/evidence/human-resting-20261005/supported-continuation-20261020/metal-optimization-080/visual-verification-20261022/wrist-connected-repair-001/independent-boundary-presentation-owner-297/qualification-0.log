@@ -1,0 +1,14 @@
+test_construction_cannot_masquerade_as_physical_surface (test_human_skin_material_boundary.MaterialBoundaryTests.test_construction_cannot_masquerade_as_physical_surface) ... ok
+test_construction_requires_real_exterior_and_unique_rows (test_human_skin_material_boundary.MaterialBoundaryTests.test_construction_requires_real_exterior_and_unique_rows) ... ok
+test_duplicate_tables_tets_and_nonmanifold_faces (test_human_skin_material_boundary.MaterialBoundaryTests.test_duplicate_tables_tets_and_nonmanifold_faces) ... ok
+test_float32_collapse_and_negative_determinant (test_human_skin_material_boundary.MaterialBoundaryTests.test_float32_collapse_and_negative_determinant) ... ok
+test_independent_boundary_sizes_and_conservative_volume (test_human_skin_material_boundary.MaterialBoundaryTests.test_independent_boundary_sizes_and_conservative_volume) ... ok
+test_invalid_identity_and_nonfinite_geometry (test_human_skin_material_boundary.MaterialBoundaryTests.test_invalid_identity_and_nonfinite_geometry) ... ok
+test_missing_exterior_and_internal_faces (test_human_skin_material_boundary.MaterialBoundaryTests.test_missing_exterior_and_internal_faces) ... ok
+test_permutation_preserves_canonical_faces (test_human_skin_material_boundary.MaterialBoundaryTests.test_permutation_preserves_canonical_faces) ... ok
+test_wrong_material_role_or_orientation (test_human_skin_material_boundary.MaterialBoundaryTests.test_wrong_material_role_or_orientation) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.009s
+
+OK
