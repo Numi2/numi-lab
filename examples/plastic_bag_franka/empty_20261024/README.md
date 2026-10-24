@@ -37,3 +37,5 @@ The preserved replay contains the complete first drop and accepted states 0–72
 Presentation helpers retain absolute asset/output paths from this task. Restore those paths or edit their path constants when rendering elsewhere. They consume saved native states; they do not run Blender physics. `--retain-empty-work` selects the otherwise identical empty-work comparison used for the paired timing measurements.
 
 240 Hz describes the simulation step, not real-time throughput. The completed 720–1920 continuation simulated five seconds in 1,757.28 wall-clock seconds on Apple M4 Pro; raw GPU and wall timing records are preserved. The paired optimization result is scoped to the measured eight-interval windows.
+
+The repository example lists the active empty-scene helpers only. The release archive conservatively retains inherited historical helpers and snapshots; the entry points described here govern this delivery.
