@@ -1,0 +1,21 @@
+{
+  "status": "REJECTED_BEFORE_EXACT_OR_NATIVE_GATE",
+  "reason": [
+    "positive optimal contact slack; finite witness linearization not simultaneously feasible",
+    "39 surface orientation reversals",
+    "43.30mm maximum node displacement exceeds a local skin correction"
+  ],
+  "source_report_sha256": "11fabd202070ee1df93b6865499c9a59fc724cf53d62e668523852561c31b734",
+  "unresolved_contact_slack_sum_mm": 498.1694119486298,
+  "worst_contact_slack_mm": 32.83951637132212,
+  "next_change": "Refine the actual crossed physical boundary facets with conservative source/tet ancestry before re-fitting finite witnesses. Do not increase displacement bounds or promote the outer-only proposal.",
+  "physical_admission": false,
+  "native_admission": false,
+  "scene_unchanged": true,
+  "preparation_interruptions": {
+    "run003": "stopped during constraint construction; repeated NPZ bank reads replaced with one loaded cache",
+    "run004": "stopped during constraint construction; repeated NPZ witness reads replaced with one loaded cache"
+  },
+  "failed_scalar_direction": "incident crossed face normals do not all agree with the averaged vertex direction",
+  "failed_whole_triangle_plane": "infinite plane envelope constraints infeasible; not evidence that the finite geometry has no repair"
+}

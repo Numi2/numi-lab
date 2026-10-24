@@ -1,0 +1,15 @@
+{
+  "current_bitwise_equal_vertices": 9721,
+  "current_finite": true,
+  "current_max_error_m": 5.974650265853253e-07,
+  "current_rms_error_m": 7.482539953951837e-08,
+  "helper_sha256": "be36923a62ebae0ecd475b57d5a413f424712c4fa129c23e6fe4620479869693",
+  "native_csv_sha256": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e",
+  "poses_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "rest_current_max_distance_m": 1.9679845928278141,
+  "rest_finite": true,
+  "scope": "source-only Float32 registration replay; no accepted FEM deformation, geometry or physiology qualification",
+  "source_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+  "source_vertices": 61950,
+  "status": "pass"
+}

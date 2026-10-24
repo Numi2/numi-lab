@@ -1,0 +1,20 @@
+{
+  "status": "EXACT_RECLIP_OF_ORIGINAL_WITNESS_NEIGHBORHOOD",
+  "baseline_pairs": 11251,
+  "tested_child_pairs": 22469,
+  "child_hit_pairs": 6354,
+  "uncovered_original_pairs": 5510,
+  "new_domain_complete": false,
+  "physical_admission": false,
+  "native_admission": false,
+  "elapsed_s": 1.2552085830830038,
+  "input_sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-safe-flow-017/run-003/connected-rest-proposal.npz": "bacc0f763147b3e534f082b8797a865691b93b2134c1a9f9e86c9ff870ef0d1f",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/validation-001/zero-support-physical-O-face-pairs-010.npz": "4ac5c272ec0b006871d2a81d4b0133a53f2e5517d0d80a9a42458360500f89d2",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/registered-tissue-banks.npz": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/inventory.json": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-envelope-fit-014/reclip_refined_witnesses_014.py": "1c498a483a429e1081728ca1e7a61c510992f4cc5167ad29f4e41f113c30f1d8",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d"
+  },
+  "output_sha256": "fcff4cb01226e8cb5b2ac81f601db91000385b5577b9c74b98044c14a0dc221d"
+}

@@ -1,0 +1,8 @@
+test_collapsed_face_fails (test_incremental_surface_fit_017.SurfaceStepQualityTests.test_collapsed_face_fails) ... ok
+test_large_total_rotation_in_small_valid_steps (test_incremental_surface_fit_017.SurfaceStepQualityTests.test_large_total_rotation_in_small_valid_steps) ... ok
+test_nonfinite_fails (test_incremental_surface_fit_017.SurfaceStepQualityTests.test_nonfinite_fails) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK

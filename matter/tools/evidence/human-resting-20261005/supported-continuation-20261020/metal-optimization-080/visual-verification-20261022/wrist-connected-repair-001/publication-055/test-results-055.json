@@ -1,0 +1,53 @@
+{
+  "results": [
+    {
+      "log": "connected-skin-envelope-fit-014/tests.log",
+      "reported": "3 passed",
+      "sha256": "2e12f76d3925c3715f057c57db91855deaabf935e82482b4a4346f7096feb33d",
+      "suite": "connected-skin-envelope-fit-014"
+    },
+    {
+      "log": "connected-skin-ray-envelope-016/tests.log",
+      "reported": "3 passed",
+      "sha256": "33060fd73862c5e1af97335504d5b45211fce6d229657f556d8deceeadc52ce4",
+      "suite": "connected-skin-ray-envelope-016"
+    },
+    {
+      "log": "connected-skin-safe-flow-017/incremental-tests.log",
+      "reported": "3 passed",
+      "sha256": "75eff4c90fdccf1aa5675b94dcf65d00de5a009c71eabf2164c7791862e97909",
+      "suite": "connected-skin-safe-flow-017"
+    },
+    {
+      "log": "current-detailed-skin-crossing-audit-018/tests.log",
+      "reported": "3 passed",
+      "sha256": "c1bafc43b220a84c08b010e7011a3f9cfded86320f5c02f8a4c03cd06268ef1f",
+      "suite": "current-detailed-skin-crossing-audit-018"
+    },
+    {
+      "log": "dependencies/skin-repair-lexicographic-lp-276/tests.log",
+      "reported": "5 passed",
+      "sha256": "7bedbeb36b6a646ba4fc569e75eb4f14fb018c246478c286fce00dcc085eebf6",
+      "suite": "skin-repair-lexicographic-lp-276"
+    },
+    {
+      "log": "dependencies/registered-pose-frame-helper-194/test-results.log",
+      "reported": "28 passed",
+      "sha256": "b3700bb8c663aa81676188f747275004a874f8cb6b6782ef994cd2721fbf1da7",
+      "suite": "registered-pose-frame-helper-194"
+    },
+    {
+      "log": "dependencies/collision-free-seam-records-owner-315/tests-available.log",
+      "reported": "55 passed; one external-source test excluded",
+      "sha256": "03d5a7176a1a4af633659c4c571e38f9c114712a49cbf0123f72cbee4a01d759",
+      "suite": "collision-free-seam-records-owner-315"
+    },
+    {
+      "log": "dependencies/collision-free-seam-records-owner-315/tests.log",
+      "reported": "49 passed, 1 error: unavailable partof_element_parts.txt",
+      "sha256": "08f1a6dadb3b4cf70719e76589664eb225ee40240372dc04263ea7ccd2368cf6",
+      "suite": "collision-free-seam-records-owner-315-older-run"
+    }
+  ],
+  "status": "RETAINED_EXISTING_TEST_LOGS_NOT_RERUN"
+}

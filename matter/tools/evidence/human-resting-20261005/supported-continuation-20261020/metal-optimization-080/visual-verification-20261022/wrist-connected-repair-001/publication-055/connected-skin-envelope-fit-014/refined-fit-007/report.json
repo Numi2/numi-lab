@@ -1,0 +1,40 @@
+{
+  "status": "REJECTED_AT_LINEARIZED_FEASIBILITY",
+  "lp": {
+    "phase_one_status": 0,
+    "phase_one_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "phase_one_seconds": 0.5360277920262888,
+    "rows": 82638,
+    "variables": 60801,
+    "row_max_scale_range": [
+      1.0,
+      1.0
+    ],
+    "slack_sum_tolerance": 1e-07,
+    "minimum_contact_slack_sum": 603.353914895882,
+    "phase_two_run": true,
+    "phase_two_status": 0,
+    "phase_two_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "phase_two_seconds": 2.9007188340183347,
+    "shape_objective_scale": 1.0,
+    "contact_slack_sum": 603.3539149958871,
+    "contact_slack_max": 28.012455567471957,
+    "maximum_original_constraint_violation": 1.6462966406782797e-11,
+    "slack_rows_with_positive_optimal_value": 2918,
+    "feasibility_only": true
+  },
+  "constraints": 24990,
+  "physical_admission": false,
+  "native_admission": false,
+  "fitted_surface_emitted": false,
+  "elapsed_s": 4.1708336669253185,
+  "input_sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013/boundary-refinement-001/candidate.npz": "64ffb542f09eabe456fb1cfc6e1d4d50595aa1c670139d857545922a3569a7e0",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-envelope-fit-014/refined-reclip-006/refined-exact-witnesses.npz": "2f788d65b98da819a2eb9a249a332603babbc8b9785f4d212265256c38225a6f",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/registered-tissue-banks.npz": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/inventory.json": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-repair-lexicographic-lp-276/tools/human_skin_repair_lp.py": "6e4a3eb2b6355b082b3bc1b69e5a0325b5aa2abe61f4b75c5e12b9becc446c8c",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-envelope-fit-014/finite_witness_fit_014.py": "38f240a792a92fc6c6337e167053ab1fd362208107ec2cb02cef86b6bd8d5fd7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-envelope-fit-014/fit_refined_boundary_014.py": "d5785dd4087e40ab86097ea36e9dbd85dabbbef1a68139cf70d5dbdd830a1c95"
+  }
+}

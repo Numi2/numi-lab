@@ -1,0 +1,91 @@
+{
+  "status": "SAFE_GEOMETRY_PROPOSAL_ONLY",
+  "steps": 8,
+  "stopped_reason": "no safe connected geometry step within bounded line search",
+  "construction_time": 0.01241455078125,
+  "targets": 273,
+  "moved_nodes": 2897,
+  "max_displacement_mm": 0.2720631195365331,
+  "nonpositive_tets": 0,
+  "min_normalized_det": 3.779937520205953e-07,
+  "surface_normal_flips": 0,
+  "protected_outer_nodes_byte_identical": true,
+  "reference_volume_relative_delta": 3.5204683301837594e-05,
+  "history": [
+    {
+      "iteration": 0,
+      "dt": 0.00625,
+      "construction_time": 0.00625,
+      "max_target_residual_mm": 24.925441349123425,
+      "minimum_signed_tet_determinant_m3": 3.866416693035811e-14,
+      "minimum_face_normal_cosine": 0.9812019201500608
+    },
+    {
+      "iteration": 1,
+      "dt": 0.003125,
+      "construction_time": 0.009375000000000001,
+      "max_target_residual_mm": 24.89201505438726,
+      "minimum_signed_tet_determinant_m3": 3.866416693035811e-14,
+      "minimum_face_normal_cosine": 0.9580802104962548
+    },
+    {
+      "iteration": 2,
+      "dt": 0.0015625,
+      "construction_time": 0.010937500000000001,
+      "max_target_residual_mm": 24.87535570397847,
+      "minimum_signed_tet_determinant_m3": 3.866416693035811e-14,
+      "minimum_face_normal_cosine": 0.9434808726823432
+    },
+    {
+      "iteration": 3,
+      "dt": 0.00078125,
+      "construction_time": 0.011718750000000002,
+      "max_target_residual_mm": 24.867042013077874,
+      "minimum_signed_tet_determinant_m3": 3.866416693035811e-14,
+      "minimum_face_normal_cosine": 0.9355072774093252
+    },
+    {
+      "iteration": 4,
+      "dt": 0.000390625,
+      "construction_time": 0.012109375000000002,
+      "max_target_residual_mm": 24.86288564513895,
+      "minimum_signed_tet_determinant_m3": 3.866416693035811e-14,
+      "minimum_face_normal_cosine": 0.9313602816909223
+    },
+    {
+      "iteration": 5,
+      "dt": 0.0001953125,
+      "construction_time": 0.012304687500000001,
+      "max_target_residual_mm": 24.86080760245019,
+      "minimum_signed_tet_determinant_m3": 3.866416693035811e-14,
+      "minimum_face_normal_cosine": 0.929246394082941
+    },
+    {
+      "iteration": 6,
+      "dt": 9.765625e-05,
+      "construction_time": 0.012402343750000001,
+      "max_target_residual_mm": 24.859774728523238,
+      "minimum_signed_tet_determinant_m3": 3.866416693035811e-14,
+      "minimum_face_normal_cosine": 0.9281802525449249
+    },
+    {
+      "iteration": 7,
+      "dt": 1.220703125e-05,
+      "construction_time": 0.01241455078125,
+      "max_target_residual_mm": 24.859641137731003,
+      "minimum_signed_tet_determinant_m3": 3.866416693035811e-14,
+      "minimum_face_normal_cosine": 0.9280344629745517
+    }
+  ],
+  "input_sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013/boundary-refinement-002/candidate.npz": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-ray-envelope-016/run-001/outer-envelope-proposal.npz": "ee9f6173c6662d9ee52d624c7b22258b14b62d9e3b0170b1bf4c3eaa1df5f10e",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/connected-physical-O-patches-012.npz": "26aa6b847fd9267322a01d938dc1c1f861be7ecfba41cf4226374eb71f698bc9",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-safe-flow-017/safe_connected_fit_017.py": "6b1dd4581d97b97c4749934efc6339a5078224f30e4c9baa88c088ad2c280175"
+  },
+  "output_sha256": "5e65b3cacb4027ad35dc9e5eec0833c370c977c57565c40fc2f76b3d0d2b0115",
+  "physical_admission": false,
+  "native_admission": false,
+  "needs_exact_crossing_and_detailed_transfer_gates": true,
+  "elapsed_s": 3.460446916986257
+}

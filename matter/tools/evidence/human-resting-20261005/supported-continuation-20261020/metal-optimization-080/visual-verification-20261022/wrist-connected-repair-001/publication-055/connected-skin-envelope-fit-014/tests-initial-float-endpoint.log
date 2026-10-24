@@ -1,0 +1,14 @@
+..F
+======================================================================
+FAIL: test_lexicographic_fit_retains_unused_nodes (__main__.FiniteWitnessTest.test_lexicographic_fit_retains_unused_nodes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-envelope-fit-014/test_finite_witness_fit_014.py", line 28, in test_lexicographic_fit_retains_unused_nodes
+    self.assertLess(info['contact_slack_sum'],1e-6);self.assertGreaterEqual(d[0,2],.0001-1e-10)
+                                                    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: np.float64(9.99999e-05) not greater than or equal to 9.999990000000001e-05
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.087s
+
+FAILED (failures=1)

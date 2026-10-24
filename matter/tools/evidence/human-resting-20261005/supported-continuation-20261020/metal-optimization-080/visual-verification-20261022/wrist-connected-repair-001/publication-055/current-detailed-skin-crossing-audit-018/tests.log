@@ -1,0 +1,8 @@
+test_binary64_only_coordinates_rejected (test_audit_current_detailed_skin_018.NativePositionTests.test_binary64_only_coordinates_rejected) ... ok
+test_exact_f32_native_rows (test_audit_current_detailed_skin_018.NativePositionTests.test_exact_f32_native_rows) ... ok
+test_wrong_vertex_order_rejected (test_audit_current_detailed_skin_018.NativePositionTests.test_wrong_vertex_order_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.002s
+
+OK

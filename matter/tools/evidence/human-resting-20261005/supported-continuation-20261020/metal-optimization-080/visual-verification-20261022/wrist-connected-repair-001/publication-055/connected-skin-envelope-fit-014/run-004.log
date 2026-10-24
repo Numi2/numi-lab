@@ -1,0 +1,24 @@
+waiting_for_human_geometry_slot pid=32485
+acquired_human_geometry_slot pid=32485
+Traceback (most recent call last):
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-envelope-fit-014/finite_witness_fit_014.py", line 87, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-envelope-fit-014/finite_witness_fit_014.py", line 73, in main
+    A,b,witness,sign=contact_rows(x,f,z,banks,inv);print(json.dumps({'stage':'constraints','rows':len(b),'seconds':time.monotonic()-begun}),flush=True);delta,ids,info,owner=fit(x,f,A,b)
+                                                                        ^^^^^^^^^^^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-envelope-fit-014/finite_witness_fit_014.py", line 62, in fit
+    res,info=solve(c,matrix,rhs,bounds,2*n+ne,nc,time_limit=60.,slack_sum_tolerance=1e-7)
+             ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-repair-lexicographic-lp-276/tools/human_skin_repair_lp.py", line 105, in solve_contact_lp_lexicographic
+    final = linprog(secondary, A_ub=phase_two_matrix, b_ub=phase_two_rhs,
+                    bounds=bound_rows, method='highs', options=options)
+  File "/Users/numi/numi-human-prep-venv-20261005/lib/python3.13/site-packages/scipy/optimize/_linprog.py", line 660, in linprog
+    sol = _linprog_highs(lp, solver=highs_solvers[meth],
+                         **solver_options)
+  File "/Users/numi/numi-human-prep-venv-20261005/lib/python3.13/site-packages/scipy/optimize/_linprog_highs.py", line 355, in _linprog_highs
+    res = _highs_wrapper(c, A.indptr, A.indices, A.data, lhs, rhs,
+                         lb, ub, integrality.astype(np.uint8), options)
+  File "/Users/numi/numi-human-prep-venv-20261005/lib/python3.13/site-packages/scipy/optimize/_highspy/_highs_wrapper.py", line 206, in _highs_wrapper
+    run_status = highs.run()
+KeyboardInterrupt

@@ -1,0 +1,83 @@
+{
+  "status": "SURFACE_RECONSTRUCTION_REQUIRES_CAVITY_REMESH",
+  "steps": 7,
+  "stopped_reason": "no safe connected geometry step within bounded line search",
+  "construction_time": 0.06978759765625,
+  "targets": 273,
+  "moved_nodes": 3054,
+  "max_displacement_mm": 1.5132285892915087,
+  "nonpositive_tets": 78,
+  "min_normalized_det": -0.1182143813497939,
+  "surface_normal_flips": 0,
+  "protected_outer_nodes_byte_identical": true,
+  "reference_volume_relative_delta": 0.00019576835596607058,
+  "history": [
+    {
+      "iteration": 0,
+      "dt": 0.05,
+      "construction_time": 0.05,
+      "max_target_residual_mm": 24.454967647157368,
+      "minimum_signed_tet_determinant_m3": -5.8417923695164035e-08,
+      "minimum_face_normal_cosine": 0.44740503388896424
+    },
+    {
+      "iteration": 1,
+      "dt": 0.0125,
+      "construction_time": 0.0625,
+      "max_target_residual_mm": 24.328210779144968,
+      "minimum_signed_tet_determinant_m3": -2.806504017853713e-07,
+      "minimum_face_normal_cosine": 0.20326388114508023
+    },
+    {
+      "iteration": 2,
+      "dt": 0.00625,
+      "construction_time": 0.06875,
+      "max_target_residual_mm": 24.265738302190446,
+      "minimum_signed_tet_determinant_m3": -3.911507214044566e-07,
+      "minimum_face_normal_cosine": 0.07043557478039301
+    },
+    {
+      "iteration": 3,
+      "dt": 0.00078125,
+      "construction_time": 0.06953125,
+      "max_target_residual_mm": 24.25798191382187,
+      "minimum_signed_tet_determinant_m3": -4.0491979896309426e-07,
+      "minimum_face_normal_cosine": 0.05511869341655319
+    },
+    {
+      "iteration": 4,
+      "dt": 0.0001953125,
+      "construction_time": 0.0697265625,
+      "max_target_residual_mm": 24.25604810476708,
+      "minimum_signed_tet_determinant_m3": -4.0835692012977856e-07,
+      "minimum_face_normal_cosine": 0.05133062538957355
+    },
+    {
+      "iteration": 5,
+      "dt": 4.8828125e-05,
+      "construction_time": 0.069775390625,
+      "max_target_residual_mm": 24.255554506858182,
+      "minimum_signed_tet_determinant_m3": -4.092153772970898e-07,
+      "minimum_face_normal_cosine": 0.05043620076338709
+    },
+    {
+      "iteration": 6,
+      "dt": 1.220703125e-05,
+      "construction_time": 0.06978759765625,
+      "max_target_residual_mm": 24.2554300017058,
+      "minimum_signed_tet_determinant_m3": -4.0946968414832245e-07,
+      "minimum_face_normal_cosine": 0.05020596261176775
+    }
+  ],
+  "input_sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013/boundary-refinement-002/candidate.npz": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-ray-envelope-016/run-001/outer-envelope-proposal.npz": "ee9f6173c6662d9ee52d624c7b22258b14b62d9e3b0170b1bf4c3eaa1df5f10e",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/connected-physical-O-patches-012.npz": "26aa6b847fd9267322a01d938dc1c1f861be7ecfba41cf4226374eb71f698bc9",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-safe-flow-017/safe_connected_fit_017.py": "b90310933500710e118f5d3990b778a5e6b1bd452cb09d91ed797034a9c9dba9"
+  },
+  "output_sha256": "64f40e915703e35950ba2d3ab95b01a5e75681616c316cace25518c3a0ccb054",
+  "physical_admission": false,
+  "native_admission": false,
+  "needs_exact_crossing_and_detailed_transfer_gates": true,
+  "elapsed_s": 2.93284758401569
+}

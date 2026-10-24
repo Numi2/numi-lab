@@ -1,0 +1,20 @@
+{
+  "source_parent": "fe5197162ce783f4134cf75ab21233de9e4ae5dc",
+  "owner_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "tests_passed": 55,
+  "tests_unavailable": {
+    "test": "SourceGeometryTests.test_pinned_source_is_embedded_but_right_chambers_intersect",
+    "reason": "existing checkout lacks BodyParts3D source archive/tables; full attempt error retained in tests.log"
+  },
+  "native_pose_coordinate_parity": {
+    "source_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+    "pose_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "vertices": 61950,
+    "faces": 108987,
+    "all_triangle_coordinates_exact": true,
+    "identity_policy": "no unproven seam grouping",
+    "elapsed_seconds": 0.7821095410035923,
+    "physical_admission": false
+  },
+  "scope": "audit correctness only; no geometry, physics or anatomy admission"
+}

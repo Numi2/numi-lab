@@ -1,0 +1,8 @@
+test_clear_and_coplanar_overlap (test_exact_pairs_011.Tests.test_clear_and_coplanar_overlap) ... ok
+test_contact_is_not_classified_as_transverse_penetration (test_exact_pairs_011.Tests.test_contact_is_not_classified_as_transverse_penetration) ... ok
+test_crossing_both_interiors (test_exact_pairs_011.Tests.test_crossing_both_interiors) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK

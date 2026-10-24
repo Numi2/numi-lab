@@ -1,0 +1,13 @@
+waiting_for_human_geometry_slot pid=31983
+acquired_human_geometry_slot pid=31983
+Traceback (most recent call last):
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-envelope-fit-014/fit_connected_envelope_014.py", line 116, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-envelope-fit-014/fit_connected_envelope_014.py", line 94, in main
+    delta,ids,need,info=fit_vector_envelope(x,f,z['physical_O_face_ids'],a['pair_plane_heights_m'],n)
+                        ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-envelope-fit-014/fit_connected_envelope_014.py", line 72, in fit_vector_envelope
+    if not feasible.success:raise ValueError('local normal cone constraints infeasible: '+feasible.message)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: local normal cone constraints infeasible: The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)

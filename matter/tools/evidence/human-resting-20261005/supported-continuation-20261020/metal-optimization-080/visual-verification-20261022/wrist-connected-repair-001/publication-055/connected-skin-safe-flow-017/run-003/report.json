@@ -1,0 +1,246 @@
+{
+  "status": "UNADMITTED_REFERENCE_SURFACE_RECONSTRUCTION",
+  "steps": 23,
+  "stopped_reason": null,
+  "construction_time": 2.0,
+  "targets": 273,
+  "moved_nodes": 3907,
+  "max_displacement_mm": 20.80907631100351,
+  "initial_max_target_residual_mm": 24.992798243582843,
+  "final_max_target_residual_mm": 16.81747181686788,
+  "nonpositive_tets": 2652,
+  "min_normalized_det": -0.9337451361481813,
+  "reference_normal_deviations_over_90_degrees": 47,
+  "reference_normal_deviation_is_not_self_intersection_proof": true,
+  "area_ratio_quantiles": [
+    0.09693095804565482,
+    0.9991095127640944,
+    1.0,
+    1.1539827182226912,
+    42.01209602083797
+  ],
+  "protected_outer_nodes_byte_identical": true,
+  "reference_volume_relative_delta": 0.002621511188360305,
+  "history": [
+    {
+      "iteration": 0,
+      "dt": 0.05,
+      "construction_time": 0.05,
+      "target_sum_squared_residual_m2": 0.0136322392126083,
+      "max_target_residual_mm": 24.454967647157368,
+      "minimum_incremental_normal_cosine": 0.44740503388896424,
+      "minimum_reference_area_ratio": 0.5935595713134432
+    },
+    {
+      "iteration": 1,
+      "dt": 0.05,
+      "construction_time": 0.1,
+      "target_sum_squared_residual_m2": 0.012653029173881841,
+      "max_target_residual_mm": 23.94880647542708,
+      "minimum_incremental_normal_cosine": 0.6355534576934873,
+      "minimum_reference_area_ratio": 0.3716039623273509
+    },
+    {
+      "iteration": 2,
+      "dt": 0.1,
+      "construction_time": 0.2,
+      "target_sum_squared_residual_m2": 0.01090882947660184,
+      "max_target_residual_mm": 22.99696440698962,
+      "minimum_incremental_normal_cosine": 0.11061796986279973,
+      "minimum_reference_area_ratio": 0.32393363936858455
+    },
+    {
+      "iteration": 3,
+      "dt": 0.1,
+      "construction_time": 0.30000000000000004,
+      "target_sum_squared_residual_m2": 0.009463699525286199,
+      "max_target_residual_mm": 22.149309766076268,
+      "minimum_incremental_normal_cosine": 0.24399365456316172,
+      "minimum_reference_area_ratio": 0.21312061575904653
+    },
+    {
+      "iteration": 4,
+      "dt": 0.1,
+      "construction_time": 0.4,
+      "target_sum_squared_residual_m2": 0.008263024955372913,
+      "max_target_residual_mm": 21.387400803333296,
+      "minimum_incremental_normal_cosine": 0.21140821059947912,
+      "minimum_reference_area_ratio": 0.11739511995950651
+    },
+    {
+      "iteration": 5,
+      "dt": 0.1,
+      "construction_time": 0.5,
+      "target_sum_squared_residual_m2": 0.007261803988877215,
+      "max_target_residual_mm": 20.695197293293585,
+      "minimum_incremental_normal_cosine": 0.697848918991532,
+      "minimum_reference_area_ratio": 0.0766769093339839
+    },
+    {
+      "iteration": 6,
+      "dt": 0.05,
+      "construction_time": 0.55,
+      "target_sum_squared_residual_m2": 0.006832843749645376,
+      "max_target_residual_mm": 20.37634548413255,
+      "minimum_incremental_normal_cosine": 0.42609794070043283,
+      "minimum_reference_area_ratio": 0.042358436319554806
+    },
+    {
+      "iteration": 7,
+      "dt": 0.1,
+      "construction_time": 0.65,
+      "target_sum_squared_residual_m2": 0.006061396477886237,
+      "max_target_residual_mm": 19.762027286880958,
+      "minimum_incremental_normal_cosine": 0.42019626600303445,
+      "minimum_reference_area_ratio": 0.14606947036498563
+    },
+    {
+      "iteration": 8,
+      "dt": 0.1,
+      "construction_time": 0.75,
+      "target_sum_squared_residual_m2": 0.005408494369739426,
+      "max_target_residual_mm": 19.18468607290361,
+      "minimum_incremental_normal_cosine": 0.909611912813234,
+      "minimum_reference_area_ratio": 0.21793319101906103
+    },
+    {
+      "iteration": 9,
+      "dt": 0.1,
+      "construction_time": 0.85,
+      "target_sum_squared_residual_m2": 0.004851027841292735,
+      "max_target_residual_mm": 18.632438106292664,
+      "minimum_incremental_normal_cosine": 0.8874358416038801,
+      "minimum_reference_area_ratio": 0.23209767327471362
+    },
+    {
+      "iteration": 10,
+      "dt": 0.1,
+      "construction_time": 0.95,
+      "target_sum_squared_residual_m2": 0.004369824017544082,
+      "max_target_residual_mm": 18.171540751413502,
+      "minimum_incremental_normal_cosine": 0.9375178599341653,
+      "minimum_reference_area_ratio": 0.21925124998489343
+    },
+    {
+      "iteration": 11,
+      "dt": 0.1,
+      "construction_time": 1.05,
+      "target_sum_squared_residual_m2": 0.003948783201177419,
+      "max_target_residual_mm": 18.050067516818583,
+      "minimum_incremental_normal_cosine": 0.9767642553258888,
+      "minimum_reference_area_ratio": 0.17060694997222742
+    },
+    {
+      "iteration": 12,
+      "dt": 0.1,
+      "construction_time": 1.1500000000000001,
+      "target_sum_squared_residual_m2": 0.0035741452761005057,
+      "max_target_residual_mm": 17.947404693492206,
+      "minimum_incremental_normal_cosine": 0.989414675516578,
+      "minimum_reference_area_ratio": 0.1263603504984229
+    },
+    {
+      "iteration": 13,
+      "dt": 0.1,
+      "construction_time": 1.2500000000000002,
+      "target_sum_squared_residual_m2": 0.0032341437025620477,
+      "max_target_residual_mm": 17.85965380986479,
+      "minimum_incremental_normal_cosine": 0.9394869889421055,
+      "minimum_reference_area_ratio": 0.06862640330660098
+    },
+    {
+      "iteration": 14,
+      "dt": 0.1,
+      "construction_time": 1.3500000000000003,
+      "target_sum_squared_residual_m2": 0.0029192677861983466,
+      "max_target_residual_mm": 17.78286099498355,
+      "minimum_incremental_normal_cosine": 0.34790497955181793,
+      "minimum_reference_area_ratio": 0.04844387573838762
+    },
+    {
+      "iteration": 15,
+      "dt": 0.1,
+      "construction_time": 1.4500000000000004,
+      "target_sum_squared_residual_m2": 0.0026231263917549,
+      "max_target_residual_mm": 17.712674792122584,
+      "minimum_incremental_normal_cosine": 0.7493961449246117,
+      "minimum_reference_area_ratio": 0.016476745393380534
+    },
+    {
+      "iteration": 16,
+      "dt": 0.05,
+      "construction_time": 1.5000000000000004,
+      "target_sum_squared_residual_m2": 0.002480661731753715,
+      "max_target_residual_mm": 17.67765178417077,
+      "minimum_incremental_normal_cosine": 0.46265590930110156,
+      "minimum_reference_area_ratio": 0.00360255194308105
+    },
+    {
+      "iteration": 17,
+      "dt": 0.025,
+      "construction_time": 1.5250000000000004,
+      "target_sum_squared_residual_m2": 0.0024109449856308898,
+      "max_target_residual_mm": 17.65935059397675,
+      "minimum_incremental_normal_cosine": 0.23506542426468388,
+      "minimum_reference_area_ratio": 0.007174009540037397
+    },
+    {
+      "iteration": 18,
+      "dt": 0.1,
+      "construction_time": 1.6250000000000004,
+      "target_sum_squared_residual_m2": 0.002144987223088729,
+      "max_target_residual_mm": 17.584475914281132,
+      "minimum_incremental_normal_cosine": 0.9191811306948479,
+      "minimum_reference_area_ratio": 0.0347313245982206
+    },
+    {
+      "iteration": 19,
+      "dt": 0.1,
+      "construction_time": 1.7250000000000005,
+      "target_sum_squared_residual_m2": 0.0019028021126871358,
+      "max_target_residual_mm": 17.48788110084522,
+      "minimum_incremental_normal_cosine": 0.9914247502639898,
+      "minimum_reference_area_ratio": 0.060382179698155035
+    },
+    {
+      "iteration": 20,
+      "dt": 0.1,
+      "construction_time": 1.8250000000000006,
+      "target_sum_squared_residual_m2": 0.0016876010098140814,
+      "max_target_residual_mm": 17.340774725600163,
+      "minimum_incremental_normal_cosine": 0.9806347285766996,
+      "minimum_reference_area_ratio": 0.08375125375989455
+    },
+    {
+      "iteration": 21,
+      "dt": 0.1,
+      "construction_time": 1.9250000000000007,
+      "target_sum_squared_residual_m2": 0.0014975787500398747,
+      "max_target_residual_mm": 17.102312995795167,
+      "minimum_incremental_normal_cosine": 0.9386061080667082,
+      "minimum_reference_area_ratio": 0.10501687156153354
+    },
+    {
+      "iteration": 22,
+      "dt": 0.07499999999999929,
+      "construction_time": 2.0,
+      "target_sum_squared_residual_m2": 0.0013689834464882095,
+      "max_target_residual_mm": 16.81747181686788,
+      "minimum_incremental_normal_cosine": 0.9093223884151501,
+      "minimum_reference_area_ratio": 0.09693095804565482
+    }
+  ],
+  "input_sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013/boundary-refinement-002/candidate.npz": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-ray-envelope-016/run-001/outer-envelope-proposal.npz": "ee9f6173c6662d9ee52d624c7b22258b14b62d9e3b0170b1bf4c3eaa1df5f10e",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-skin-crossing-patches-012/connected-physical-O-patches-012.npz": "26aa6b847fd9267322a01d938dc1c1f861be7ecfba41cf4226374eb71f698bc9",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-safe-flow-017/safe_connected_fit_017.py": "b90310933500710e118f5d3990b778a5e6b1bd452cb09d91ed797034a9c9dba9",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-safe-flow-017/incremental_surface_fit_017.py": "d34ae057a7fa13144126909351f8505bbdeed34bb534b7c4e8dfcbe60c190673"
+  },
+  "output_sha256": "bacc0f763147b3e534f082b8797a865691b93b2134c1a9f9e86c9ff870ef0d1f",
+  "physical_admission": false,
+  "native_admission": false,
+  "exact_self_and_all_tissue_crossing_gate": "NOT_RUN",
+  "volume_remesh_required": true,
+  "elapsed_s": 0.7013955409638584
+}

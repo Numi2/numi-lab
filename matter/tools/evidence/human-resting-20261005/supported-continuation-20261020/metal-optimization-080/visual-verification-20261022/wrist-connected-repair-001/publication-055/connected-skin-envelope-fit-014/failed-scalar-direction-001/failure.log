@@ -1,0 +1,12 @@
+waiting_for_human_geometry_slot pid=31964
+acquired_human_geometry_slot pid=31964
+Traceback (most recent call last):
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-envelope-fit-014/fit_connected_envelope_014.py", line 87, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-envelope-fit-014/fit_connected_envelope_014.py", line 58, in main
+    lo=envelope_lower_bounds(f,n,dirs,z['physical_O_face_ids'],a['pair_plane_heights_m'],.00005)
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-envelope-fit-014/fit_connected_envelope_014.py", line 19, in envelope_lower_bounds
+    if np.any(cos<=0):raise ValueError('non-outward vertex direction needs a vector patch solve')
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: non-outward vertex direction needs a vector patch solve
