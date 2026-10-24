@@ -181,3 +181,32 @@ def finite_triangle_support_planes(triangle_a_m, triangle_b_m, preferred_normal=
             })
     # Stable ties preserve the axis enumeration, for deterministic replay.
     return sorted(results, key=lambda row: -row["gap_mm"])
+
+
+def transport_contact_normal(normal, displacement_map):
+    """Transport an oriented plane covector through an invertible affine map.
+
+    For x_new = M x_old + t, the corresponding halfspace is represented by
+    M**(-T) n, not M n. Normalize only after solving. This helper does not
+    establish a physical deformation's admissibility or choose a contact side.
+    Singular/nonfinite maps fail instead of silently retaining a stale axis.
+    """
+    n = np.asarray(normal, dtype=np.float64)
+    m = np.asarray(displacement_map, dtype=np.float64)
+    if n.shape != (3,) or m.shape != (3, 3):
+        raise ValueError("contact normal/map shapes must be (3,) and (3,3)")
+    if not np.isfinite(n).all() or not np.isfinite(m).all():
+        raise ValueError("contact normal/map must be finite")
+    ns = float(np.max(np.abs(n)))
+    ms = float(np.max(np.abs(m)))
+    if ns == 0.0 or ms == 0.0:
+        raise ValueError("contact normal/map must be nonzero and invertible")
+    try:
+        out = np.linalg.solve((m / ms).T, n / ns)
+    except np.linalg.LinAlgError as exc:
+        raise ValueError("contact normal map is singular") from exc
+    scale = float(np.max(np.abs(out)))
+    if not np.isfinite(out).all() or not np.isfinite(scale) or scale == 0.0:
+        raise ValueError("transported contact normal is invalid")
+    out = out / scale
+    return out / np.linalg.norm(out)
