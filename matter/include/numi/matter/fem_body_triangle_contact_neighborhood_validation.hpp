@@ -31,6 +31,29 @@ inline double dot3(nm_float4 a, nm_float4 b) noexcept {
 inline bool zero4(nm_float4 v) noexcept {
     return v.x==0.0f && v.y==0.0f && v.z==0.0f && v.w==0.0f;
 }
+inline bool validFeatureNormals(
+    const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU& t
+) noexcept {
+    constexpr std::uint32_t mask=
+        NM_NUMI_HUMAN_FEM_BODY_CONTACT_ALL_FEATURE_PSEUDONORMALS;
+    if ((t.featureNormalFlags & ~mask)!=0u) return false;
+    const std::array<nm_float4,6> normals{{t.edgePseudoNormal01,
+        t.edgePseudoNormal12,t.edgePseudoNormal20,t.vertexPseudoNormal0,
+        t.vertexPseudoNormal1,t.vertexPseudoNormal2}};
+    for (std::size_t i=0;i<normals.size();++i) {
+        const auto n=normals[i];
+        if (!finite4(n) || n.w!=0.0f) return false;
+        if ((t.featureNormalFlags & (1u<<i))!=0u) {
+            const double length=std::sqrt(dot3(n,n));
+            if (!std::isfinite(length) || std::abs(length-1.0)>1.0e-4)
+                return false;
+        } else if (n.x!=0.0f || n.y!=0.0f || n.z!=0.0f) {
+            return false;
+        }
+    }
+    return true;
+}
+
 inline double motionEnvelopeRoundoffMeters(
     nm_float4 restPointAndRadius
 ) noexcept {
@@ -125,7 +148,7 @@ inline bool validNeighborhoodSpans(
             const auto& t=triangles[static_cast<std::size_t>(expectedFirst+local)];
             if (t.bodyIndex != samples[sampleIndex].bodyIndex ||
                 t.boneStableId == kInvalidIndex ||
-                t.triangleStableId == kInvalidIndex || t.reserved0 != 0u ||
+                t.triangleStableId == kInvalidIndex || !validFeatureNormals(t) ||
                 !finite4(t.bodyLocalVertex0) ||
                 !finite4(t.bodyLocalVertex1) ||
                 !finite4(t.bodyLocalVertex2) ||
@@ -351,7 +374,7 @@ inline NeighborhoodBuildReport appendCompleteNeighborhood(
         if (triangle.bodyIndex!=bodyIndex ||
             triangle.boneStableId==kInvalidIndex ||
             triangle.triangleStableId==kInvalidIndex ||
-            triangle.reserved0!=0u || !finite4(triangle.bodyLocalVertex0) ||
+            !validFeatureNormals(triangle) || !finite4(triangle.bodyLocalVertex0) ||
             !finite4(triangle.bodyLocalVertex1) ||
             !finite4(triangle.bodyLocalVertex2) ||
             !finite4(triangle.authoredOutwardNormal) ||

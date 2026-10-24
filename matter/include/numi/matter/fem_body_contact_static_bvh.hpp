@@ -1,13 +1,17 @@
 #pragma once
 
 #include "numi/matter/numi_human_shared.h"
+#include "numi/matter/fem_body_triangle_contact_sample.hpp"
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <map>
+#include <set>
 #include <span>
 #include <tuple>
 #include <vector>
@@ -16,6 +20,30 @@ namespace numi::matter::fem_body_contact_bvh {
 
 inline constexpr std::uint32_t kInvalidIndex = UINT32_MAX;
 inline constexpr std::uint32_t kRangeFlagStaticCompleteBVH = 2u;
+inline constexpr std::uint32_t kRangeFlagStaticClosedOrientedBVH = 3u;
+
+// Conservative CPU mirror of the shader fast-path predicate. A true result is
+// a lower-bound proof that an exterior query is farther than the contact band.
+inline bool closedAABBProvesInactive(
+    nm_float4 query,nm_float4 minimum,nm_float4 maximum,float maximumDistance
+) noexcept {
+    const auto finite=[](float x){return std::isfinite(x);};
+    if (!finite(query.x)||!finite(query.y)||!finite(query.z)||query.w!=0.0f||
+        !finite(minimum.x)||!finite(minimum.y)||!finite(minimum.z)||minimum.w!=0.0f||
+        !finite(maximum.x)||!finite(maximum.y)||!finite(maximum.z)||maximum.w!=0.0f||
+        minimum.x>maximum.x||minimum.y>maximum.y||minimum.z>maximum.z||
+        !finite(maximumDistance)||!(maximumDistance>0.0f)) return false;
+    const float dx=std::max({minimum.x-query.x,query.x-maximum.x,0.0f});
+    const float dy=std::max({minimum.y-query.y,query.y-maximum.y,0.0f});
+    const float dz=std::max({minimum.z-query.z,query.z-maximum.z,0.0f});
+    const float distanceSquared=dx*dx+dy*dy+dz*dz;
+    const float querySquared=query.x*query.x+query.y*query.y+query.z*query.z;
+    const float coordinateScale=std::max(1.0f,querySquared);
+    const float roundingGuard=32.0f*std::numeric_limits<float>::epsilon()*coordinateScale;
+    const float bandSquared=maximumDistance*maximumDistance;
+    return finite(distanceSquared)&&finite(roundingGuard)&&
+        distanceSquared>bandSquared+roundingGuard;
+}
 
 struct BodyRange {
     std::uint32_t bodyIndex = kInvalidIndex;
@@ -23,12 +51,14 @@ struct BodyRange {
     std::uint32_t nodeCount = 0u;
     std::uint32_t firstTriangle = 0u;
     std::uint32_t triangleCount = 0u;
+    // Set only after exact-coordinate closed/oriented bank validation.
+    bool closedOrientedCertified = false;
 };
 
 enum class BuildFailure : std::uint8_t {
     none, emptyInventory, inventoryCountMismatch, flattenedIndexOverflow,
     invalidTriangle, duplicateStableIdentity, nodeIndexOverflow,
-    invalidContactSamples,
+    invalidContactSamples, invalidClosedOrientedBank,
 };
 
 struct BuildResult {
@@ -51,13 +81,30 @@ inline double dot3(nm_float4 a,nm_float4 b) noexcept {
 inline bool validTriangle(
     const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU& t
 ) noexcept {
+    constexpr std::uint32_t featureMask =
+        NM_NUMI_HUMAN_FEM_BODY_CONTACT_ALL_FEATURE_PSEUDONORMALS;
+    const std::array<nm_float4,6> featureNormals{{
+        t.edgePseudoNormal01,t.edgePseudoNormal12,t.edgePseudoNormal20,
+        t.vertexPseudoNormal0,t.vertexPseudoNormal1,t.vertexPseudoNormal2}};
     if (t.bodyIndex==kInvalidIndex || t.boneStableId==kInvalidIndex ||
-        t.triangleStableId==kInvalidIndex || t.reserved0!=0u ||
+        t.triangleStableId==kInvalidIndex ||
+        (t.featureNormalFlags & ~featureMask)!=0u ||
         !finite4(t.bodyLocalVertex0) || !finite4(t.bodyLocalVertex1) ||
         !finite4(t.bodyLocalVertex2) || !finite4(t.authoredOutwardNormal) ||
         t.bodyLocalVertex0.w!=0.0f || t.bodyLocalVertex1.w!=0.0f ||
         t.bodyLocalVertex2.w!=0.0f || t.authoredOutwardNormal.w!=0.0f)
         return false;
+    for (std::size_t i=0;i<featureNormals.size();++i) {
+        const auto v=featureNormals[i];
+        if (!finite4(v) || v.w!=0.0f) return false;
+        if ((t.featureNormalFlags & (1u<<i))!=0u) {
+            const double length=std::sqrt(dot3(v,v));
+            if (!std::isfinite(length) || std::abs(length-1.0)>1.0e-4)
+                return false;
+        } else if (v.x!=0.0f || v.y!=0.0f || v.z!=0.0f) {
+            return false;
+        }
+    }
     const auto a=t.bodyLocalVertex0,b=t.bodyLocalVertex1,c=t.bodyLocalVertex2;
     const double abx=double(b.x)-a.x, aby=double(b.y)-a.y, abz=double(b.z)-a.z;
     const double acx=double(c.x)-a.x, acy=double(c.y)-a.y, acz=double(c.z)-a.z;
@@ -74,9 +121,178 @@ inline bool validTriangle(
     return std::isfinite(alignment) && alignment>=0.999;
 }
 
+struct ExactPointKey {
+    std::array<std::uint32_t,3> bits{};
+    friend bool operator<(const ExactPointKey& a,const ExactPointKey& b) noexcept {
+        return a.bits<b.bits;
+    }
+    friend bool operator==(const ExactPointKey& a,const ExactPointKey& b) noexcept {
+        return a.bits==b.bits;
+    }
+};
+struct ExactEdgeKey {
+    ExactPointKey first{},second{};
+    friend bool operator<(const ExactEdgeKey& a,const ExactEdgeKey& b) noexcept {
+        return std::tie(a.first.bits,a.second.bits)<
+               std::tie(b.first.bits,b.second.bits);
+    }
+};
+struct DVec3 { double x=0.0,y=0.0,z=0.0; };
+inline DVec3 add(DVec3 a,DVec3 b) noexcept { return {a.x+b.x,a.y+b.y,a.z+b.z}; }
+inline DVec3 scale(DVec3 a,double s) noexcept { return {a.x*s,a.y*s,a.z*s}; }
+inline DVec3 sub(DVec3 a,DVec3 b) noexcept { return {a.x-b.x,a.y-b.y,a.z-b.z}; }
+inline double dot(DVec3 a,DVec3 b) noexcept { return a.x*b.x+a.y*b.y+a.z*b.z; }
+inline DVec3 cross(DVec3 a,DVec3 b) noexcept {
+    return {a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x};
+}
+inline double length(DVec3 a) noexcept { return std::sqrt(dot(a,a)); }
+inline bool normalize(DVec3 v,DVec3& out) noexcept {
+    const double n=length(v);
+    if (!std::isfinite(n) || !(n>0.0)) return false;
+    out=scale(v,1.0/n);
+    return std::isfinite(out.x)&&std::isfinite(out.y)&&std::isfinite(out.z);
+}
+inline DVec3 point(nm_float4 v) noexcept { return {v.x,v.y,v.z}; }
+inline ExactPointKey exactPointKey(nm_float4 p) noexcept {
+    const auto bits=[](float v) {
+        return v==0.0f ? 0u : std::bit_cast<std::uint32_t>(v);
+    };
+    return {{{bits(p.x),bits(p.y),bits(p.z)}}};
+}
+inline ExactEdgeKey exactEdgeKey(ExactPointKey a,ExactPointKey b) noexcept {
+    return b<a ? ExactEdgeKey{b,a} : ExactEdgeKey{a,b};
+}
+struct EdgeIncident { std::size_t triangle=0u; unsigned edge=0u; bool forward=false; };
+struct FaceFeatureData {
+    std::array<ExactPointKey,3> vertices{};
+    DVec3 normal{};
+    std::array<double,3> cornerAngles{};
+};
+
+// Compute the static signed-distance pseudonormals from exact F32 coordinate
+// identity. This deliberately does not repair face winding or weld by a
+// tolerance: an open, non-manifold, pinched, inconsistently wound, or
+// inward-oriented bank is rejected when requireClosedOriented is true.
+inline bool buildExactFeaturePseudonormals(
+    std::span<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> triangles,
+    bool requireClosedOriented
+) {
+    std::size_t bankBegin=0u;
+    while (bankBegin<triangles.size()) {
+        std::size_t bankEnd=bankBegin+1u;
+        const auto body=triangles[bankBegin].bodyIndex;
+        const auto bone=triangles[bankBegin].boneStableId;
+        while (bankEnd<triangles.size() && triangles[bankEnd].bodyIndex==body &&
+               triangles[bankEnd].boneStableId==bone) ++bankEnd;
+        if (!requireClosedOriented) { bankBegin=bankEnd; continue; }
+        const std::size_t count=bankEnd-bankBegin;
+        std::vector<FaceFeatureData> faces(count);
+        std::map<ExactEdgeKey,std::vector<EdgeIncident>> edges;
+        std::map<ExactPointKey,DVec3> vertexSums;
+        std::map<ExactPointKey,std::map<ExactPointKey,std::set<ExactPointKey>>> links;
+        double signedVolume=0.0;
+        for (std::size_t local=0;local<count;++local) {
+            const std::size_t ti=bankBegin+local;
+            auto& t=triangles[ti];
+            const std::array<nm_float4,3> p{{
+                t.bodyLocalVertex0,t.bodyLocalVertex1,t.bodyLocalVertex2}};
+            auto& f=faces[local];
+            for (unsigned k=0;k<3u;++k) f.vertices[k]=exactPointKey(p[k]);
+            if (f.vertices[0]==f.vertices[1] || f.vertices[1]==f.vertices[2] ||
+                f.vertices[2]==f.vertices[0]) return false;
+            const DVec3 a=point(p[0]),b=point(p[1]),c=point(p[2]);
+            const DVec3 ab=sub(b,a),ac=sub(c,a);
+            if (!normalize(cross(ab,ac),f.normal)) return false;
+            const DVec3 authored=point(t.authoredOutwardNormal);
+            if (dot(f.normal,authored)<0.999) return false;
+            signedVolume+=dot(a,cross(b,c))/6.0;
+            for (unsigned k=0;k<3u;++k) {
+                const unsigned j=(k+1u)%3u,l=(k+2u)%3u;
+                const DVec3 u=sub(point(p[j]),point(p[k]));
+                const DVec3 v=sub(point(p[l]),point(p[k]));
+                const double angle=std::atan2(length(cross(u,v)),dot(u,v));
+                if (!std::isfinite(angle) || !(angle>0.0)) return false;
+                f.cornerAngles[k]=angle;
+                vertexSums[f.vertices[k]]=add(vertexSums[f.vertices[k]],
+                                              scale(f.normal,angle));
+                links[f.vertices[k]][f.vertices[j]].insert(f.vertices[l]);
+                links[f.vertices[k]][f.vertices[l]].insert(f.vertices[j]);
+            }
+            constexpr unsigned edgeVertices[3][2]={{0u,1u},{1u,2u},{2u,0u}};
+            for (unsigned e=0;e<3u;++e) {
+                const auto x=f.vertices[edgeVertices[e][0]];
+                const auto y=f.vertices[edgeVertices[e][1]];
+                const auto key=exactEdgeKey(x,y);
+                edges[key].push_back({ti,e,x<y});
+            }
+        }
+        if (!std::isfinite(signedVolume) || !(signedVolume>0.0)) return false;
+        for (const auto& [edge,incident]:edges) {
+            (void)edge;
+            if (incident.size()!=2u || incident[0].forward==incident[1].forward)
+                return false;
+        }
+        for (const auto& [vertex,adjacency]:links) {
+            if (adjacency.size()<3u) return false;
+            for (const auto& [neighbor,ring]:adjacency) {
+                (void)neighbor;
+                if (ring.size()!=2u) return false;
+            }
+            std::set<ExactPointKey> visited;
+            std::vector<ExactPointKey> stack{adjacency.begin()->first};
+            while (!stack.empty()) {
+                const auto current=stack.back(); stack.pop_back();
+                if (!visited.insert(current).second) continue;
+                for (const auto& next:adjacency.at(current)) stack.push_back(next);
+            }
+            if (visited.size()!=adjacency.size()) return false;
+            DVec3 pseudo{};
+            if (!normalize(vertexSums.at(vertex),pseudo)) return false;
+            (void)pseudo;
+        }
+        // All banks pass their closure/orientation checks before any fields are
+        // emitted; caller discards the whole candidate on false.
+        for (const auto& [key,incident]:edges) {
+            DVec3 pseudo{};
+            if (!normalize(add(faces[incident[0].triangle-bankBegin].normal,
+                               faces[incident[1].triangle-bankBegin].normal),pseudo))
+                return false;
+            for (const auto& side:incident) {
+                auto& t=triangles[side.triangle];
+                const nm_float4 packed{float(pseudo.x),float(pseudo.y),float(pseudo.z),0.0f};
+                if (side.edge==0u) t.edgePseudoNormal01=packed;
+                else if (side.edge==1u) t.edgePseudoNormal12=packed;
+                else t.edgePseudoNormal20=packed;
+                t.featureNormalFlags|=1u<<side.edge;
+            }
+        }
+        std::map<ExactPointKey,DVec3> vertexPseudo;
+        for (const auto& [key,sum]:vertexSums) {
+            DVec3 pseudo{};
+            if (!normalize(sum,pseudo)) return false;
+            vertexPseudo.emplace(key,pseudo);
+        }
+        for (std::size_t local=0;local<count;++local) {
+            auto& t=triangles[bankBegin+local];
+            const auto& f=faces[local];
+            for (unsigned k=0;k<3u;++k) {
+                const auto pseudo=vertexPseudo.at(f.vertices[k]);
+                const nm_float4 packed{float(pseudo.x),float(pseudo.y),float(pseudo.z),0.0f};
+                if (k==0u) t.vertexPseudoNormal0=packed;
+                else if (k==1u) t.vertexPseudoNormal1=packed;
+                else t.vertexPseudoNormal2=packed;
+                t.featureNormalFlags|=1u<<(k+3u);
+            }
+        }
+        bankBegin=bankEnd;
+    }
+    return true;
+}
+
 inline BuildResult buildStaticCompleteBodyBVH(
     std::span<const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> input,
-    std::size_t expectedTriangleCount
+    std::size_t expectedTriangleCount,
+    bool requireClosedOrientedBanks = false
 ) {
     BuildResult result{};
     const auto fail=[&](BuildFailure failure) {
@@ -108,6 +324,8 @@ inline BuildResult buildStaticCompleteBodyBVH(
             a.triangleStableId==b.triangleStableId)
             return fail(BuildFailure::duplicateStableIdentity);
     }
+    if (!buildExactFeaturePseudonormals(result.triangles,requireClosedOrientedBanks))
+        return fail(BuildFailure::invalidClosedOrientedBank);
     if (result.triangles.size()>(std::numeric_limits<std::uint32_t>::max()+1ull)/2ull)
         return fail(BuildFailure::nodeIndexOverflow);
     result.nodes.reserve(result.triangles.size()*2u-result.bodies.size());
@@ -124,6 +342,7 @@ inline BuildResult buildStaticCompleteBodyBVH(
         bodyRange.firstNode=static_cast<std::uint32_t>(result.nodes.size());
         bodyRange.firstTriangle=static_cast<std::uint32_t>(firstTriangle);
         bodyRange.triangleCount=static_cast<std::uint32_t>(endTriangle-firstTriangle);
+        bodyRange.closedOrientedCertified=requireClosedOrientedBanks;
         std::vector<std::uint32_t> ids(bodyRange.triangleCount);
         for (std::uint32_t i=0;i<bodyRange.triangleCount;++i)
             ids[i]=bodyRange.firstTriangle+i;
@@ -241,7 +460,9 @@ inline bool makeStaticCompleteBodyContactRanges(
             return false;
         }
         output.push_back({it->firstNode,it->nodeCount,maximumDistanceMeters,
-            kRangeFlagStaticCompleteBVH,{0.0f,0.0f,0.0f,0.0f}});
+            it->closedOrientedCertified ? kRangeFlagStaticClosedOrientedBVH
+                                        : kRangeFlagStaticCompleteBVH,
+            {0.0f,0.0f,0.0f,0.0f}});
     }
     return true;
 }
@@ -252,7 +473,9 @@ inline bool validStaticBVHRange(
     std::span<const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> triangles,
     std::uint32_t expectedBodyIndex
 ) noexcept {
-    if (range.reserved0!=kRangeFlagStaticCompleteBVH || range.triangleCount==0u ||
+    if ((range.reserved0!=kRangeFlagStaticCompleteBVH &&
+         range.reserved0!=kRangeFlagStaticClosedOrientedBVH) ||
+        range.triangleCount==0u ||
         !std::isfinite(range.maximumDistanceMeters) || range.maximumDistanceMeters<=0.0f ||
         range.maximumDistanceMeters>0.05f || range.firstTriangle>nodes.size() ||
         range.triangleCount>nodes.size()-range.firstTriangle ||
@@ -286,8 +509,8 @@ inline bool validCompleteStaticBVHSpans(
     std::span<const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> triangles,
     std::span<const NMNumiHumanFEMBodyContactBVHNodeGPU> nodes
 ) noexcept {
-    if (ranges.size()!=samples.size() || triangles.empty() || nodes.empty() ||
-        triangles.size()>std::numeric_limits<std::uint32_t>::max() ||
+    if (ranges.size()!=samples.size() || samples.empty() || triangles.empty() ||
+        nodes.empty() || triangles.size()>std::numeric_limits<std::uint32_t>::max() ||
         nodes.size()>std::numeric_limits<std::uint32_t>::max()) return false;
     for (std::size_t i=0;i<triangles.size();++i) {
         if (!validTriangle(triangles[i])) return false;
@@ -297,121 +520,206 @@ inline bool validCompleteStaticBVHSpans(
                 std::tie(b.bodyIndex,b.boneStableId,b.triangleStableId)) return false;
         }
     }
-    struct TreeRef {
-        std::uint32_t body, firstNode, nodeCount, firstTriangle, triangleCount;
+    struct TreeRef { std::uint32_t body, firstNode, nodeCount; };
+    std::vector<TreeRef> trees;
+    std::size_t nodeCursor=0u;
+    std::set<std::uint32_t> closedCertifiedBodies;
+    const auto finiteBounds=[](const NMNumiHumanFEMBodyContactBVHNodeGPU& n) {
+        return finite4(n.boundsMinimum) && finite4(n.boundsMaximum) &&
+            n.boundsMinimum.w==0.0f && n.boundsMaximum.w==0.0f &&
+            n.boundsMinimum.x<=n.boundsMaximum.x &&
+            n.boundsMinimum.y<=n.boundsMaximum.y &&
+            n.boundsMinimum.z<=n.boundsMaximum.z && n.reserved0==0u;
     };
-    std::vector<TreeRef> refs;
-    for (std::size_t i=0;i<samples.size();++i) {
-        const auto& r=ranges[i];
-        const bool triangleSample=samples[i].flags==
-            (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
-             NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
-        if (r.triangleCount==0u) {
-            if (triangleSample || r.firstTriangle!=0u ||
-                r.maximumDistanceMeters!=0.0f || r.reserved0!=0u ||
-                r.restPointAndMotionRadius.x!=0.0f ||
-                r.restPointAndMotionRadius.y!=0.0f ||
-                r.restPointAndMotionRadius.z!=0.0f ||
-                r.restPointAndMotionRadius.w!=0.0f) return false;
-            continue;
-        }
-        if (!triangleSample ||
-            r.reserved0!=kRangeFlagStaticCompleteBVH ||
-            !std::isfinite(r.maximumDistanceMeters) ||
-            r.maximumDistanceMeters<=0.0f || r.maximumDistanceMeters>0.05f ||
-            r.firstTriangle>nodes.size() ||
-            r.triangleCount>nodes.size()-r.firstTriangle ||
-            r.restPointAndMotionRadius.x!=0.0f ||
-            r.restPointAndMotionRadius.y!=0.0f ||
-            r.restPointAndMotionRadius.z!=0.0f ||
-            r.restPointAndMotionRadius.w!=0.0f) return false;
-        const auto body=samples[i].bodyIndex;
-        const auto prior=std::find_if(refs.begin(),refs.end(),
-            [body](const TreeRef& x){return x.body==body;});
-        if (prior!=refs.end()) {
-            if (prior->firstNode!=r.firstTriangle ||
-                prior->nodeCount!=r.triangleCount) return false;
-            continue;
-        }
-        const auto first=std::lower_bound(triangles.begin(),triangles.end(),body,
-            [](const auto& t,std::uint32_t id){return t.bodyIndex<id;});
-        const auto last=std::upper_bound(first,triangles.end(),body,
-            [](std::uint32_t id,const auto& t){return id<t.bodyIndex;});
-        if (first==last) return false;
-        const auto triFirst=static_cast<std::uint32_t>(first-triangles.begin());
-        const auto triCount=static_cast<std::uint32_t>(last-first);
-        refs.push_back({body,r.firstTriangle,r.triangleCount,triFirst,triCount});
-    }
-    if (refs.empty()) return false;
-    // Static-complete mode guarantees every body in the triangle inventory has
-    // a query range, rather than silently leaving a registered body uncovered.
-    for (std::size_t first=0u;first<triangles.size();) {
-        const std::uint32_t body=triangles[first].bodyIndex;
-        if (std::find_if(refs.begin(),refs.end(),
-                [body](const TreeRef& x){return x.body==body;})==refs.end())
-            return false;
-        std::size_t last=first+1u;
-        while (last<triangles.size() && triangles[last].bodyIndex==body) ++last;
-        first=last;
-    }
-    for (const auto& ref:refs) {
-        const auto& firstRange=ranges[static_cast<std::size_t>(
-            std::find_if(samples.begin(),samples.end(),
-                [&ref](const auto& s){return s.bodyIndex==ref.body &&
-                    s.flags==(NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
-                              NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);})
-            -samples.begin())];
-        if (!validStaticBVHRange(firstRange,nodes,triangles,ref.body))
-            return false;
-        const std::uint64_t end64=std::uint64_t(ref.firstNode)+ref.nodeCount;
-        if (end64>nodes.size() ||
-            ref.triangleCount!=(ref.nodeCount+1u)/2u) return false;
-        const std::uint32_t end=static_cast<std::uint32_t>(end64);
-        std::vector<std::uint8_t> covered(ref.triangleCount,0u);
-        const auto contains=[](const NMNumiHumanFEMBodyContactBVHNodeGPU& parent,
-                               const NMNumiHumanFEMBodyContactBVHNodeGPU& child) {
-            return parent.boundsMinimum.x<=child.boundsMinimum.x &&
-                parent.boundsMinimum.y<=child.boundsMinimum.y &&
-                parent.boundsMinimum.z<=child.boundsMinimum.z &&
-                parent.boundsMaximum.x>=child.boundsMaximum.x &&
-                parent.boundsMaximum.y>=child.boundsMaximum.y &&
-                parent.boundsMaximum.z>=child.boundsMaximum.z;
-        };
+    const auto contains=[](const NMNumiHumanFEMBodyContactBVHNodeGPU& parent,
+                           const NMNumiHumanFEMBodyContactBVHNodeGPU& child) {
+        return parent.boundsMinimum.x<=child.boundsMinimum.x &&
+            parent.boundsMinimum.y<=child.boundsMinimum.y &&
+            parent.boundsMinimum.z<=child.boundsMinimum.z &&
+            parent.boundsMaximum.x>=child.boundsMaximum.x &&
+            parent.boundsMaximum.y>=child.boundsMaximum.y &&
+            parent.boundsMaximum.z>=child.boundsMaximum.z;
+    };
+    // Validate every asset tree from the sorted triangle inventory. A body
+    // need not have a contact sample this step; its complete tree still must
+    // be present and valid so later grouped/query rows cannot expose unchecked
+    // inventory. Trees are emitted contiguously in ascending body order.
+    for (std::size_t triFirst=0u;triFirst<triangles.size();) {
+        const std::uint32_t body=triangles[triFirst].bodyIndex;
+        std::size_t triEnd=triFirst+1u;
+        while (triEnd<triangles.size() && triangles[triEnd].bodyIndex==body) ++triEnd;
+        if (nodeCursor>=nodes.size() || !finiteBounds(nodes[nodeCursor])) return false;
+        const std::uint32_t firstNode=static_cast<std::uint32_t>(nodeCursor);
+        const auto rootEnd=nodes[nodeCursor].escapeIndex;
+        if (rootEnd<=nodeCursor || rootEnd>nodes.size()) return false;
+        const std::uint32_t nodeEnd=static_cast<std::uint32_t>(rootEnd);
+        const std::uint64_t triCount=triEnd-triFirst;
+        if (triCount>(std::numeric_limits<std::uint32_t>::max()+1ull)/2ull ||
+            std::uint64_t(nodeEnd)-nodeCursor!=2u*triCount-1u) return false;
+        const std::uint32_t triFirst32=static_cast<std::uint32_t>(triFirst);
+        const std::uint32_t triCount32=static_cast<std::uint32_t>(triCount);
+        std::vector<std::uint8_t> covered(triCount32,0u);
         const auto walk=[&](auto&& self,std::uint32_t index,unsigned depth)->std::uint32_t {
-            if (index>=end || depth>64u) return UINT32_MAX;
+            if (index<firstNode || index>=nodeEnd || depth>64u) return UINT32_MAX;
             const auto& n=nodes[index];
+            if (!finiteBounds(n) || n.escapeIndex<=index || n.escapeIndex>nodeEnd)
+                return UINT32_MAX;
             if (n.flags==NM_NUMI_HUMAN_FEM_BODY_CONTACT_BVH_NODE_LEAF) {
-                if (n.escapeIndex!=index+1u || n.triangleIndex<ref.firstTriangle ||
-                    n.triangleIndex-ref.firstTriangle>=ref.triangleCount)
+                if (n.escapeIndex!=index+1u || n.triangleIndex<triFirst32 ||
+                    n.triangleIndex-triFirst32>=triCount32) return UINT32_MAX;
+                const std::uint32_t local=n.triangleIndex-triFirst32;
+                if (covered[local]!=0u || triangles[n.triangleIndex].bodyIndex!=body)
                     return UINT32_MAX;
-                const std::uint32_t local=n.triangleIndex-ref.firstTriangle;
-                if (covered[local]!=0u) return UINT32_MAX;
                 covered[local]=1u;
                 const auto& t=triangles[n.triangleIndex];
-                if (t.bodyIndex!=ref.body) return UINT32_MAX;
                 for (const auto v:{t.bodyLocalVertex0,t.bodyLocalVertex1,t.bodyLocalVertex2})
                     if (v.x<n.boundsMinimum.x || v.y<n.boundsMinimum.y || v.z<n.boundsMinimum.z ||
                         v.x>n.boundsMaximum.x || v.y>n.boundsMaximum.y || v.z>n.boundsMaximum.z)
                         return UINT32_MAX;
                 return index+1u;
             }
-            if (n.flags!=0u || n.triangleIndex!=kInvalidIndex || index+1u>=end) return UINT32_MAX;
+            if (n.flags!=0u || n.triangleIndex!=kInvalidIndex || index+1u>=nodeEnd)
+                return UINT32_MAX;
             const std::uint32_t left=index+1u;
             const std::uint32_t right=self(self,left,depth+1u);
-            if (right==UINT32_MAX || right>=end || !contains(n,nodes[left]) ||
+            if (right==UINT32_MAX || right>=nodeEnd || !contains(n,nodes[left]) ||
                 !contains(n,nodes[right])) return UINT32_MAX;
             const std::uint32_t after=self(self,right,depth+1u);
             if (after==UINT32_MAX || n.escapeIndex!=after) return UINT32_MAX;
             return after;
         };
-        if (walk(walk,ref.firstNode,0u)!=end ||
+        if (walk(walk,firstNode,0u)!=nodeEnd ||
             std::find(covered.begin(),covered.end(),0u)!=covered.end()) return false;
+        trees.push_back({body,firstNode,nodeEnd-firstNode});
+        nodeCursor=nodeEnd;
+        triFirst=triEnd;
+    }
+    if (nodeCursor!=nodes.size() || trees.empty()) return false;
+
+    for (std::size_t i=0u;i<samples.size();++i) {
+        const auto& sample=samples[i];
+        const auto& range=ranges[i];
+        const bool triangleSample=sample.flags==
+            (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+             NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
+        if (range.triangleCount==0u) {
+            if (triangleSample || range.firstTriangle!=0u ||
+                range.maximumDistanceMeters!=0.0f || range.reserved0!=0u ||
+                range.restPointAndMotionRadius.x!=0.0f ||
+                range.restPointAndMotionRadius.y!=0.0f ||
+                range.restPointAndMotionRadius.z!=0.0f ||
+                range.restPointAndMotionRadius.w!=0.0f) return false;
+            continue;
+        }
+        if (!triangleSample ||
+            (range.reserved0!=kRangeFlagStaticCompleteBVH &&
+             range.reserved0!=kRangeFlagStaticClosedOrientedBVH) ||
+            !std::isfinite(range.maximumDistanceMeters) ||
+            range.maximumDistanceMeters<=0.0f || range.maximumDistanceMeters>0.05f ||
+            range.restPointAndMotionRadius.x!=0.0f ||
+            range.restPointAndMotionRadius.y!=0.0f ||
+            range.restPointAndMotionRadius.z!=0.0f ||
+            range.restPointAndMotionRadius.w!=0.0f) return false;
+        if (range.reserved0==kRangeFlagStaticClosedOrientedBVH &&
+            closedCertifiedBodies.insert(sample.bodyIndex).second) {
+            const auto first=std::lower_bound(triangles.begin(),triangles.end(),
+                sample.bodyIndex,[](const auto& triangle,std::uint32_t body) {
+                    return triangle.bodyIndex<body;
+                });
+            const auto last=std::upper_bound(first,triangles.end(),
+                sample.bodyIndex,[](std::uint32_t body,const auto& triangle) {
+                    return body<triangle.bodyIndex;
+                });
+            std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> bank(
+                first,last);
+            if (bank.empty() || !buildExactFeaturePseudonormals(bank,true))
+                return false;
+        }
+        const auto tree=std::lower_bound(trees.begin(),trees.end(),sample.bodyIndex,
+            [](const TreeRef& x,std::uint32_t body){return x.body<body;});
+        if (tree==trees.end() || tree->body!=sample.bodyIndex ||
+            range.firstTriangle!=tree->firstNode || range.triangleCount!=tree->nodeCount)
+            return false;
     }
     return true;
 }
 
+// Expands one triangle-contact template per slave into one deterministic row
+// for every complete registered body bank. Non-triangle rows (fascia glide and
+// elastic attachments) are preserved once. The generated triangle rows use a
+// valid seed face only as ABI storage; the GPU query resolves the live closest
+// face from the selected body's complete BVH each step.
+inline bool expandTriangleContactSamplesAcrossAllBodies(
+    std::span<const NMNumiHumanFEMBodyContactSampleGPU> input,
+    std::span<const BodyRange> bodies,
+    std::span<const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> triangles,
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU>& output
+) {
+    output.clear();
+    if (input.empty() || bodies.empty() || triangles.empty()) return false;
+    for (std::size_t i=1u;i<bodies.size();++i)
+        if (bodies[i-1u].bodyIndex>=bodies[i].bodyIndex) return false;
+    std::uint64_t triangleTemplates=0u,nonTriangleRows=0u;
+    std::uint32_t priorSlave=0u;
+    bool sawTriangleTemplate=false;
+    for (const auto& sample:input) {
+        const bool triangleSample=sample.flags==
+            (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+             NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
+        if (!triangleSample) { ++nonTriangleRows; continue; }
+        if (!numi::matter::fem_body_triangle_contact::validTriangleContactSample(sample) ||
+            (sawTriangleTemplate && sample.slaveNode<=priorSlave)) return false;
+        sawTriangleTemplate=true;
+        priorSlave=sample.slaveNode;
+        ++triangleTemplates;
+    }
+    if (triangleTemplates==0u ||
+        triangleTemplates*std::uint64_t(bodies.size())+nonTriangleRows>
+            std::numeric_limits<std::uint32_t>::max()) return false;
+    for (const auto& body:bodies) {
+        if (body.bodyIndex==kInvalidIndex || body.triangleCount==0u ||
+            body.firstTriangle>triangles.size() ||
+            body.triangleCount>triangles.size()-body.firstTriangle ||
+            triangles[body.firstTriangle].bodyIndex!=body.bodyIndex) return false;
+        for (std::uint32_t i=0u;i<body.triangleCount;++i)
+            if (triangles[body.firstTriangle+i].bodyIndex!=body.bodyIndex) return false;
+    }
+    output.reserve(static_cast<std::size_t>(triangleTemplates*bodies.size()+nonTriangleRows));
+    for (const auto& sample:input) {
+        const bool triangleSample=sample.flags==
+            (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+             NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
+        if (!triangleSample) {
+            output.push_back(sample);
+            continue;
+        }
+        for (const auto& body:bodies) {
+            const auto& seed=triangles[body.firstTriangle];
+            auto expanded=sample;
+            expanded.bodyIndex=body.bodyIndex;
+            expanded.bodyLocalPointAndArea.x=seed.bodyLocalVertex0.x;
+            expanded.bodyLocalPointAndArea.y=seed.bodyLocalVertex0.y;
+            expanded.bodyLocalPointAndArea.z=seed.bodyLocalVertex0.z;
+            expanded.bodyLocalNormalAndReferenceSeparation.x=seed.bodyLocalVertex1.x;
+            expanded.bodyLocalNormalAndReferenceSeparation.y=seed.bodyLocalVertex1.y;
+            expanded.bodyLocalNormalAndReferenceSeparation.z=seed.bodyLocalVertex1.z;
+            expanded.stiffnessAndNormalStrainPerPressure.x=seed.bodyLocalVertex2.x;
+            expanded.stiffnessAndNormalStrainPerPressure.y=seed.bodyLocalVertex2.y;
+            expanded.stiffnessAndNormalStrainPerPressure.z=seed.bodyLocalVertex2.z;
+            if (!numi::matter::fem_body_triangle_contact::validTriangleContactSample(expanded)) {
+                output.clear();
+                return false;
+            }
+            output.push_back(expanded);
+        }
+    }
+    return true;
+}
+
+
 struct PreparedStaticCompleteBodyBVH {
     BuildFailure failure=BuildFailure::none;
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> samples;
     std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> triangles;
     std::vector<NMNumiHumanFEMBodyContactBVHNodeGPU> nodes;
     std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> ranges;
@@ -420,26 +728,42 @@ struct PreparedStaticCompleteBodyBVH {
     }
 };
 
+struct PreparationOptions {
+    bool requireClosedOrientedBanks=false;
+    bool expandAllTriangleSamplesAcrossBodies=false;
+};
+
 // Asset-load entry point: validates and deterministically flattens the complete
 // body-local triangle table, builds per-body trees, and prepares aligned ranges.
 inline PreparedStaticCompleteBodyBVH prepareStaticCompleteBodyContactAsset(
     std::span<const NMNumiHumanFEMBodyContactSampleGPU> samples,
     std::span<const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> input,
     std::size_t expectedTriangleCount,
-    float maximumDistanceMeters
+    float maximumDistanceMeters,
+    PreparationOptions options = {}
 ) {
     PreparedStaticCompleteBodyBVH out{};
-    auto tree=buildStaticCompleteBodyBVH(input,expectedTriangleCount);
+    auto tree=buildStaticCompleteBodyBVH(
+        input,expectedTriangleCount,options.requireClosedOrientedBanks);
     if (!tree.succeeded()) {
         out.failure=tree.failure;
         return out;
     }
+    if (options.expandAllTriangleSamplesAcrossBodies) {
+        if (!expandTriangleContactSamplesAcrossAllBodies(
+                samples,tree.bodies,tree.triangles,out.samples)) {
+            out.failure=BuildFailure::invalidContactSamples;
+            return out;
+        }
+    } else {
+        out.samples.assign(samples.begin(),samples.end());
+    }
     if (!makeStaticCompleteBodyContactRanges(
-            samples,tree.bodies,maximumDistanceMeters,out.ranges)) {
+            out.samples,tree.bodies,maximumDistanceMeters,out.ranges)) {
         out.failure=BuildFailure::invalidContactSamples;
         return out;
     }
-    if (!validCompleteStaticBVHSpans(samples,out.ranges,
+    if (!validCompleteStaticBVHSpans(out.samples,out.ranges,
             tree.triangles,tree.nodes)) {
         out.failure=BuildFailure::invalidContactSamples;
         return out;

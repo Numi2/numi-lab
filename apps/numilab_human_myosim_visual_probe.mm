@@ -24,6 +24,10 @@
 #include "NumiHumanElbowExplicitPairedTopology008.hpp"
 #include "NumiHumanWholeBodyMassReference.hpp"
 #include "NumiHumanMaterialColumnSelfContact.hpp"
+#include "numi/matter/fem_body_triangle_contact_sample.hpp"
+#include "numi/matter/fem_body_contact_static_bvh.hpp"
+#include "numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp"
+#include "NumiHumanInitialSkinBoneContactWitness.hpp"
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <ImageIO/ImageIO.h>
@@ -20396,6 +20400,12 @@ struct PassiveFasciaRuntimeOwner {
     std::vector<std::array<std::uint32_t,4>> auditTetrahedra;
     std::vector<NMNumiHumanFEMBodyContactSampleGPU>
         regionalFasciaBodyContactSamples;
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>
+        regionalFasciaBodyContactNeighborhoodRanges;
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>
+        regionalFasciaBodyContactNeighborhoodTriangles;
+    std::vector<NMNumiHumanFEMBodyContactBVHNodeGPU>
+        regionalFasciaBodyContactNeighborhoodBVHNodes;
     std::uint32_t regionalFasciaBodyContactRegionCoverage = 0u;
     std::optional<numi::human::vessel_wall_coupling::Built> aorticWall;
     std::vector<double> aorticWallNodalMassKg;
@@ -20454,6 +20464,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             "whole-body skin-fat FEM requires the retained registered skin payload");
     require(!enableRegisteredLigaments || bones != nullptr,
             "registered ligament rows require the retained registered bone payload");
+    std::uint32_t wholeBodySkinMaterialIndex=NM_INVALID_INDEX;
+    std::uint32_t wholeBodyFatMaterialIndex=NM_INVALID_INDEX;
 
     constexpr std::uint32_t kRestingFasciaObjectCount = 12u;
     constexpr std::array<std::uint32_t, kRestingFasciaObjectCount>
@@ -22010,8 +22022,10 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 "registered skin/fat reference materials did not parse");
         const auto skinMaterialName=skinMaterial.material.name,fatMaterialName=fatMaterial.material.name;
         const auto skinMaterialIndex=static_cast<std::uint32_t>(source.materials.size());
+        wholeBodySkinMaterialIndex=skinMaterialIndex;
         source.materials.push_back(std::move(skinMaterial.material));
         const auto fatMaterialIndex=static_cast<std::uint32_t>(source.materials.size());
+        wholeBodyFatMaterialIndex=fatMaterialIndex;
         source.materials.push_back(std::move(fatMaterial.material));
         SkinFatReference reference;
         if(enableWholeBodySkinFat){
@@ -23443,6 +23457,17 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     }
     std::vector<NMNumiHumanFEMBodyContactSampleGPU>
         fasciaBodyContactSamples;
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>
+        fasciaBodyContactNeighborhoodRanges;
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>
+        fasciaBodyContactNeighborhoodTriangles;
+    std::vector<NMNumiHumanFEMBodyContactBVHNodeGPU> fasciaBodyContactNeighborhoodBVHNodes;
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> completeRegisteredBoneTriangles;
+    const char* staticBVHSetting=std::getenv("NUMI_HUMAN_SKIN_BONE_STATIC_BVH");
+    require(staticBVHSetting==nullptr||std::strcmp(staticBVHSetting,"0")==0||
+                std::strcmp(staticBVHSetting,"1")==0,
+            "NUMI_HUMAN_SKIN_BONE_STATIC_BVH must be 0 or 1");
+    const bool staticBVHEnabled=staticBVHSetting&&std::strcmp(staticBVHSetting,"1")==0;
     std::vector<std::uint32_t> fasciaBodyContactSamplesPerRegion(
         fascia.regions.size(), 0u);
     const char* fasciaBodyGlideSetting=std::getenv(
@@ -23549,6 +23574,932 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 skinAttachmentBoundStatus));
     const double maximumSkinAttachmentInertialRatio=
         skinAttachmentBound.maximumExplicitRatio;
+    const char* skinBoneTriangleSetting=std::getenv(
+        "NUMI_HUMAN_SKIN_BONE_TRIANGLE_CONTACT");
+    require(skinBoneTriangleSetting==nullptr||
+                std::strcmp(skinBoneTriangleSetting,"0")==0||
+                std::strcmp(skinBoneTriangleSetting,"1")==0,
+            "NUMI_HUMAN_SKIN_BONE_TRIANGLE_CONTACT must be 0 or 1");
+    const bool skinBoneTriangleContactEnabled=skinBoneTriangleSetting&&
+        std::strcmp(skinBoneTriangleSetting,"1")==0;
+    require(!staticBVHEnabled||skinBoneTriangleContactEnabled,
+            "static bone BVH requires the existing triangle contact source");
+    std::size_t skinBoneOuterBound=0u,skinBoneDeepBound=0u;
+    std::size_t skinBoneOuterUnbound=0u,skinBoneDeepUnbound=0u;
+    std::size_t skinBoneNoInventorySupport=0u;
+    double skinBoneMaximumRestDistanceM=0.0;
+    if(skinBoneTriangleContactEnabled) {
+        require(enableWholeBodySkinFat&&skin!=nullptr&&bones!=nullptr&&
+                    bones->sourceOwnerBindingsVerified&&
+                    skin->bindings.size()==86u&&
+                    wholeBodySkinCoarseRest.size()==wholeBodySkinCoarseNodeCount&&
+                    wholeBodyFatDeepRest.size()==wholeBodySkinCoarseNodeCount&&
+                    wholeBodySkinBoundaryFaces.size()==kWholeBodySkinFaces.size()&&
+                    wholeBodySkinSourceRows.fullBodyWeights86.size()==wholeBodySkinCoarseNodeCount,
+                "skin-bone triangle contact requires the exact retained ABI5 skin and ABI2 bone sources");
+        using Triangle=NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU;
+        using Range=NMNumiHumanFEMBodyContactNeighborhoodRangeGPU;
+        namespace neighborhood=numi::matter::fem_body_contact_neighborhood;
+        namespace triangleContact=numi::matter::fem_body_triangle_contact;
+        constexpr double kMotionEnvelopeRadiusM=0.002;
+        constexpr double kMaximumRestDistanceM=0.015;
+        const std::size_t nodeCount=wholeBodySkinCoarseNodeCount;
+        require(nodeCount>0u&&nodeCount<=std::numeric_limits<std::uint32_t>::max()/3u,
+                "skin-bone triangle contact source-node count is invalid");
+        const auto& descriptor=compiled.world.objects[wholeBodySkinObjectIndex];
+        require(descriptor.representation==NM_REPRESENTATION_FEM&&
+                    descriptor.stateCount==3u*nodeCount&&
+                    std::uint64_t(descriptor.stateOffset)+descriptor.stateCount<=
+                        compiled.world.fem.nodes.size(),
+                "skin-bone triangle contact cannot resolve the three-layer FEM node range");
+        using OrientedEdge=std::tuple<std::array<std::uint32_t,3>,
+            std::array<std::uint32_t,3>,int>;
+        struct BodySurfaceAudit {
+            std::size_t sourceRecords=0u;
+            std::size_t sourceFaces=0u;
+            std::size_t admittedFaces=0u;
+            std::size_t excludedFaces=0u;
+            std::size_t zeroAreaFaces=0u;
+            std::size_t belowAreaThresholdFaces=0u;
+            std::size_t unknownNormalFaces=0u;
+            std::size_t nonfiniteNormalFaces=0u;
+            std::size_t sourceNormalOpposedFaces=0u;
+            double excludedAreaM2=0.0;
+            double signedVolume6M3=0.0;
+            bool hasVolumeOrigin=false;
+            mr_float4 volumeOrigin{};
+            std::vector<OrientedEdge> orientedEdges;
+        };
+        struct BoneSurfaceAudit {
+            std::uint32_t bodyIndex=MR_INVALID_INDEX;
+            std::uint32_t stableId=MR_INVALID_INDEX;
+            std::size_t sourceFaces=0u;
+            std::size_t admittedFaces=0u;
+            std::size_t excludedFaces=0u;
+            std::size_t zeroAreaFaces=0u;
+            std::size_t belowAreaThresholdFaces=0u;
+            std::size_t unknownNormalFaces=0u;
+            std::size_t nonfiniteNormalFaces=0u;
+            std::size_t normalGuidedFlips=0u;
+            std::size_t sourceNormalOpposedFaces=0u;
+            double excludedAreaM2=0.0;
+            double signedVolume6M3=0.0;
+            bool hasVolumeOrigin=false;
+            mr_float4 volumeOrigin{};
+            std::string firstZeroArea;
+            std::string firstBelowAreaThreshold;
+            std::string firstUnknownNormal;
+            std::string firstNonfiniteNormal;
+            std::string firstFlip;
+            std::vector<std::tuple<std::array<std::uint32_t,3>,
+                std::array<std::uint32_t,3>,int>> orientedEdges;
+        };
+        std::map<std::pair<std::uint32_t,std::uint32_t>,BoneSurfaceAudit>
+            boneSurfaceAudits;
+        std::vector<BodySurfaceAudit> bodySurfaceAudits(model.bodies.size());
+        struct BodyTriangleBank {
+            std::vector<Triangle> triangles;
+            std::array<double,3> minimum{
+                std::numeric_limits<double>::infinity(),
+                std::numeric_limits<double>::infinity(),
+                std::numeric_limits<double>::infinity()};
+            std::array<double,3> maximum{
+                -std::numeric_limits<double>::infinity(),
+                -std::numeric_limits<double>::infinity(),
+                -std::numeric_limits<double>::infinity()};
+        };
+        std::vector<BodyTriangleBank> bodyBanks(model.bodies.size());
+        std::vector<bool> bodyBankEligible(model.bodies.size(),false);
+        std::size_t registeredBoneTriangleCount=0u;
+        std::size_t registeredBoneSourceTriangleCount=0u;
+        std::size_t zeroAreaBoneTriangleCount=0u;
+        std::size_t belowAreaThresholdBoneTriangleCount=0u;
+        std::size_t unknownNormalBoneTriangleCount=0u;
+        std::size_t nonfiniteNormalBoneTriangleCount=0u;
+        std::size_t sourceNormalOpposedFaceCount=0u;
+        double excludedBoneTriangleAreaM2=0.0;
+        std::size_t registeredBoneBodyCount=0u;
+        const auto boneBodyPoint=[](const BoneRecord& bone,const BoneVertex& vertex) {
+            const mr_float4 rotation{bone.quaternionX,bone.quaternionY,
+                bone.quaternionZ,bone.quaternionW};
+            const auto rotated=rotatePoint(rotation,
+                {vertex.positionX,vertex.positionY,vertex.positionZ,0.0f});
+            return addPoint({bone.translationX,bone.translationY,bone.translationZ,0.0f},
+                scalePoint(rotated,bone.uniformScale));
+        };
+        const auto boneBodyNormal=[](const BoneRecord& bone,const BoneVertex& vertex) {
+            const mr_float4 rotation{bone.quaternionX,bone.quaternionY,
+                bone.quaternionZ,bone.quaternionW};
+            return rotatePoint(rotation,
+                {vertex.normalX,vertex.normalY,vertex.normalZ,0.0f});
+        };
+        require(bones->records.size()==bones->sourceRecordIndices.size()&&
+                    bones->header.indexCount==bones->indices.size()&&
+                    bones->header.vertexCount==bones->vertices.size(),
+                "registered bone triangle inventory is internally misaligned");
+        for(const BoneRecord& bone:bones->records) {
+            require(bone.bodyIndex<model.bodies.size()&&
+                        bone.firstVertex<=bones->vertices.size()&&
+                        bone.vertexCount<=bones->vertices.size()-bone.firstVertex&&
+                        bone.firstIndex<=bones->indices.size()&&
+                        bone.indexCount<=bones->indices.size()-bone.firstIndex&&
+                        bone.indexCount%3u==0u&&bone.stableId!=MR_INVALID_INDEX&&
+                        std::isfinite(bone.uniformScale)&&bone.uniformScale>0.0f,
+                    "registered bone contains an invalid triangle inventory range");
+            auto& bank=bodyBanks[bone.bodyIndex];
+            auto& bodyAudit=bodySurfaceAudits[bone.bodyIndex];
+            ++bodyAudit.sourceRecords;
+            const std::uint32_t triangleCount=bone.indexCount/3u;
+            for(std::uint32_t ordinal=0u;ordinal<triangleCount;++ordinal) {
+                ++registeredBoneSourceTriangleCount;
+                auto& surfaceAudit=boneSurfaceAudits[{bone.bodyIndex,bone.stableId}];
+                surfaceAudit.bodyIndex=bone.bodyIndex;
+                surfaceAudit.stableId=bone.stableId;
+                ++surfaceAudit.sourceFaces;
+                ++bodyAudit.sourceFaces;
+                const auto indexBase=bone.firstIndex+3u*ordinal;
+                std::array<std::uint32_t,3> ids{
+                    bones->indices[indexBase],bones->indices[indexBase+1u],
+                    bones->indices[indexBase+2u]};
+                for(const auto id:ids)
+                    require(id>=bone.firstVertex&&
+                                id-bone.firstVertex<bone.vertexCount,
+                            "registered bone triangle references a vertex outside its source record");
+                std::array<mr_float4,3> points{
+                    boneBodyPoint(bone,bones->vertices[ids[0]]),
+                    boneBodyPoint(bone,bones->vertices[ids[1]]),
+                    boneBodyPoint(bone,bones->vertices[ids[2]])};
+                const auto subtract=[](mr_float4 a,mr_float4 b) {
+                    return mr_float4{a.x-b.x,a.y-b.y,a.z-b.z,0.0f};
+                };
+                const auto cross=[](mr_float4 a,mr_float4 b) {
+                    return mr_float4{a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,
+                        a.x*b.y-a.y*b.x,0.0f};
+                };
+                const auto dot=[](mr_float4 a,mr_float4 b) {
+                    return double(a.x)*b.x+double(a.y)*b.y+double(a.z)*b.z;
+                };
+                const std::array<double,3> edgeAB{
+                    double(points[1].x)-points[0].x,double(points[1].y)-points[0].y,
+                    double(points[1].z)-points[0].z};
+                const std::array<double,3> edgeAC{
+                    double(points[2].x)-points[0].x,double(points[2].y)-points[0].y,
+                    double(points[2].z)-points[0].z};
+                const std::array<double,3> exactCross{
+                    edgeAB[1]*edgeAC[2]-edgeAB[2]*edgeAC[1],
+                    edgeAB[2]*edgeAC[0]-edgeAB[0]*edgeAC[2],
+                    edgeAB[0]*edgeAC[1]-edgeAB[1]*edgeAC[0]};
+                const double geometricLength=std::hypot(exactCross[0],exactCross[1],exactCross[2]);
+                const mr_float4 geometric{float(exactCross[0]),float(exactCross[1]),
+                    float(exactCross[2]),0.0f};
+                require(std::isfinite(geometricLength),
+                        "registered bone triangle inventory contains a nonfinite face");
+                const double faceArea=0.5*geometricLength;
+                if(geometricLength==0.0) {
+                    ++zeroAreaBoneTriangleCount;
+                    ++surfaceAudit.zeroAreaFaces;
+                    ++surfaceAudit.excludedFaces;
+                    ++bodyAudit.zeroAreaFaces;
+                    ++bodyAudit.excludedFaces;
+                    bodyAudit.excludedAreaM2+=faceArea;
+                    if(surfaceAudit.firstZeroArea.empty())
+                        surfaceAudit.firstZeroArea=
+                            "bone_stable_id="+std::to_string(bone.stableId)+
+                            " triangle_ordinal="+std::to_string(ordinal);
+                    surfaceAudit.excludedAreaM2+=faceArea;
+                    excludedBoneTriangleAreaM2+=faceArea;
+                    continue;
+                }
+                // Do not excise finite nonzero source faces because of their
+                // absolute area: the normalized CPU/GPU primitive validates them.
+                mr_float4 sourceNormal{};
+                for(const auto id:ids) {
+                    const auto n=boneBodyNormal(bone,bones->vertices[id]);
+                    sourceNormal.x+=n.x;sourceNormal.y+=n.y;sourceNormal.z+=n.z;
+                }
+                if(!std::isfinite(sourceNormal.x)||!std::isfinite(sourceNormal.y)||
+                   !std::isfinite(sourceNormal.z)) {
+                    ++nonfiniteNormalBoneTriangleCount;
+                    ++surfaceAudit.nonfiniteNormalFaces;
+                    ++surfaceAudit.excludedFaces;
+                    ++bodyAudit.nonfiniteNormalFaces;
+                    ++bodyAudit.excludedFaces;
+                    bodyAudit.excludedAreaM2+=faceArea;
+                    if(surfaceAudit.firstNonfiniteNormal.empty())
+                        surfaceAudit.firstNonfiniteNormal=
+                            "bone_stable_id="+std::to_string(bone.stableId)+
+                            " triangle_ordinal="+std::to_string(ordinal);
+                    surfaceAudit.excludedAreaM2+=faceArea;
+                    excludedBoneTriangleAreaM2+=faceArea;
+                    continue;
+                }
+                const double sourceNormalLength=std::sqrt(dot(sourceNormal,sourceNormal));
+                const double normalAlignment=sourceNormalLength>0.0
+                    ?dot(geometric,sourceNormal)/
+                        (geometricLength*sourceNormalLength):0.0;
+                if(!(sourceNormalLength>1.0e-10)||
+                   !std::isfinite(normalAlignment)||std::abs(normalAlignment)<=1.0e-8) {
+                    ++unknownNormalBoneTriangleCount;
+                    ++surfaceAudit.unknownNormalFaces;
+                    ++surfaceAudit.excludedFaces;
+                    ++bodyAudit.unknownNormalFaces;
+                    ++bodyAudit.excludedFaces;
+                    bodyAudit.excludedAreaM2+=faceArea;
+                    if(surfaceAudit.firstUnknownNormal.empty())
+                        surfaceAudit.firstUnknownNormal=
+                            "bone_stable_id="+std::to_string(bone.stableId)+
+                            " triangle_ordinal="+std::to_string(ordinal);
+                    surfaceAudit.excludedAreaM2+=faceArea;
+                    excludedBoneTriangleAreaM2+=faceArea;
+                    continue;
+                }
+                if(normalAlignment<0.0) {
+                    ++sourceNormalOpposedFaceCount;
+                    ++surfaceAudit.sourceNormalOpposedFaces;
+                    ++bodyAudit.sourceNormalOpposedFaces;
+                    if(surfaceAudit.firstFlip.empty())
+                        surfaceAudit.firstFlip=
+                            "bone_stable_id="+std::to_string(bone.stableId)+
+                            " triangle_ordinal="+std::to_string(ordinal)+
+                            " source_alignment_cosine="+std::to_string(normalAlignment);
+                }
+                if(!surfaceAudit.hasVolumeOrigin) {
+                    surfaceAudit.volumeOrigin=points[0];
+                    surfaceAudit.hasVolumeOrigin=true;
+                }
+                const auto va=subtract(points[0],surfaceAudit.volumeOrigin);
+                const auto vb=subtract(points[1],surfaceAudit.volumeOrigin);
+                const auto vc=subtract(points[2],surfaceAudit.volumeOrigin);
+                surfaceAudit.signedVolume6M3+=dot(va,cross(vb,vc));
+                if(!bodyAudit.hasVolumeOrigin) {
+                    bodyAudit.volumeOrigin=points[0];
+                    bodyAudit.hasVolumeOrigin=true;
+                }
+                const auto bodyVa=subtract(points[0],bodyAudit.volumeOrigin);
+                const auto bodyVb=subtract(points[1],bodyAudit.volumeOrigin);
+                const auto bodyVc=subtract(points[2],bodyAudit.volumeOrigin);
+                bodyAudit.signedVolume6M3+=dot(bodyVa,cross(bodyVb,bodyVc));
+                const auto pointKey=[](mr_float4 point) {
+                    if(point.x==0.0f)point.x=0.0f;
+                    if(point.y==0.0f)point.y=0.0f;
+                    if(point.z==0.0f)point.z=0.0f;
+                    return std::array<std::uint32_t,3>{
+                        std::bit_cast<std::uint32_t>(point.x),
+                        std::bit_cast<std::uint32_t>(point.y),
+                        std::bit_cast<std::uint32_t>(point.z)};
+                };
+                for(unsigned edge=0u;edge<3u;++edge) {
+                    const auto from=pointKey(points[edge]);
+                    const auto to=pointKey(points[(edge+1u)%3u]);
+                    if(from<to) {
+                        surfaceAudit.orientedEdges.emplace_back(from,to,1);
+                        bodyAudit.orientedEdges.emplace_back(from,to,1);
+                    } else {
+                        surfaceAudit.orientedEdges.emplace_back(to,from,-1);
+                        bodyAudit.orientedEdges.emplace_back(to,from,-1);
+                    }
+                }
+                ++surfaceAudit.admittedFaces;
+                ++bodyAudit.admittedFaces;
+                Triangle triangle{};
+                triangle.bodyLocalVertex0={points[0].x,points[0].y,points[0].z,0.0f};
+                triangle.bodyLocalVertex1={points[1].x,points[1].y,points[1].z,0.0f};
+                triangle.bodyLocalVertex2={points[2].x,points[2].y,points[2].z,0.0f};
+                triangle.authoredOutwardNormal={float(exactCross[0]/geometricLength),
+                    float(exactCross[1]/geometricLength),float(exactCross[2]/geometricLength),0.0f};
+                triangle.bodyIndex=bone.bodyIndex;
+                triangle.boneStableId=bone.stableId;
+                triangle.triangleStableId=ordinal;
+                for(const auto point:points) {
+                    const std::array<double,3> xyz{point.x,point.y,point.z};
+                    for(unsigned axis=0u;axis<3u;++axis) {
+                        bank.minimum[axis]=std::min(bank.minimum[axis],xyz[axis]);
+                        bank.maximum[axis]=std::max(bank.maximum[axis],xyz[axis]);
+                    }
+                }
+                bank.triangles.push_back(triangle);
+                ++registeredBoneTriangleCount;
+            }
+        }
+        for(auto& [identity,audit]:boneSurfaceAudits) {
+            (void)identity;
+            std::sort(audit.orientedEdges.begin(),audit.orientedEdges.end(),
+                [](const auto& lhs,const auto& rhs) {
+                    return std::tie(std::get<0>(lhs),std::get<1>(lhs))<
+                           std::tie(std::get<0>(rhs),std::get<1>(rhs));
+                });
+            std::size_t boundaryEdges=0u,nonmanifoldEdges=0u;
+            std::size_t sameDirectionPairs=0u,edgeGroups=0u;
+            for(std::size_t first=0u;first<audit.orientedEdges.size();) {
+                std::size_t end=first+1u;
+                int direction=std::get<2>(audit.orientedEdges[first]);
+                while(end<audit.orientedEdges.size()&&
+                      std::get<0>(audit.orientedEdges[end])==std::get<0>(audit.orientedEdges[first])&&
+                      std::get<1>(audit.orientedEdges[end])==std::get<1>(audit.orientedEdges[first])) {
+                    direction+=std::get<2>(audit.orientedEdges[end]);
+                    ++end;
+                }
+                const std::size_t incidence=end-first;
+                ++edgeGroups;
+                if(incidence==1u)++boundaryEdges;
+                else if(incidence>2u)++nonmanifoldEdges;
+                else if(direction!=0)++sameDirectionPairs;
+                first=end;
+            }
+            std::cout<<"whole_body_skin_bone_source_record"
+                <<" body_index="<<audit.bodyIndex
+                <<" bone_stable_id="<<audit.stableId
+                <<" source_triangles="<<audit.sourceFaces
+                <<" admitted_triangles="<<audit.admittedFaces
+                <<" zero_area_triangles="<<audit.zeroAreaFaces
+                <<" below_contact_area_threshold_triangles="<<audit.belowAreaThresholdFaces
+                <<" unknown_normal_triangles="<<audit.unknownNormalFaces
+                <<" nonfinite_normal_triangles="<<audit.nonfiniteNormalFaces
+                <<" source_normal_opposed_faces="<<audit.sourceNormalOpposedFaces
+                <<" boundary_edges="<<boundaryEdges
+                <<" nonmanifold_edges="<<nonmanifoldEdges
+                <<" same_direction_edge_pairs="<<sameDirectionPairs
+                <<" edge_groups="<<edgeGroups
+                <<" signed_volume_m3="<<(audit.signedVolume6M3/6.0)
+                <<" excluded_area_m2="<<audit.excludedAreaM2
+                <<" first_zero_area="<<(audit.firstZeroArea.empty()?"none":audit.firstZeroArea)
+                <<" first_below_area_threshold="<<(audit.firstBelowAreaThreshold.empty()?"none":audit.firstBelowAreaThreshold)
+                <<" first_unknown_normal="<<(audit.firstUnknownNormal.empty()?"none":audit.firstUnknownNormal)
+                <<" first_nonfinite_normal="<<(audit.firstNonfiniteNormal.empty()?"none":audit.firstNonfiniteNormal)
+                <<" first_flip="<<(audit.firstFlip.empty()?"none":audit.firstFlip)
+                <<" source_normal_orientation=authored_per_face_sign_checked_not_global_outward_proof"
+                <<" seam_rule=exact_body_local_float32_coordinate_quotient"<<std::endl;
+        }
+        for(std::size_t bodyIndex=0u;bodyIndex<bodySurfaceAudits.size();++bodyIndex) {
+            auto& audit=bodySurfaceAudits[bodyIndex];
+            if(audit.sourceRecords==0u)continue;
+            std::sort(audit.orientedEdges.begin(),audit.orientedEdges.end(),
+                [](const auto& lhs,const auto& rhs) {
+                    return std::tie(std::get<0>(lhs),std::get<1>(lhs))<
+                           std::tie(std::get<0>(rhs),std::get<1>(rhs));
+                });
+            std::size_t boundaryEdges=0u,nonmanifoldEdges=0u;
+            std::size_t sameDirectionPairs=0u,edgeGroups=0u;
+            for(std::size_t first=0u;first<audit.orientedEdges.size();) {
+                std::size_t end=first+1u;
+                int direction=std::get<2>(audit.orientedEdges[first]);
+                while(end<audit.orientedEdges.size()&&
+                      std::get<0>(audit.orientedEdges[end])==std::get<0>(audit.orientedEdges[first])&&
+                      std::get<1>(audit.orientedEdges[end])==std::get<1>(audit.orientedEdges[first])) {
+                    direction+=std::get<2>(audit.orientedEdges[end]);
+                    ++end;
+                }
+                const std::size_t incidence=end-first;
+                ++edgeGroups;
+                if(incidence==1u)++boundaryEdges;
+                else if(incidence>2u)++nonmanifoldEdges;
+                else if(direction!=0)++sameDirectionPairs;
+                first=end;
+            }
+            const double signedVolumeM3=audit.signedVolume6M3/6.0;
+            const bool closedOriented=boundaryEdges==0u&&nonmanifoldEdges==0u&&
+                sameDirectionPairs==0u;
+            const bool positiveVolume=std::isfinite(signedVolumeM3)&&signedVolumeM3>0.0;
+            bodyBankEligible[bodyIndex]=closedOriented&&positiveVolume&&
+                audit.excludedFaces==0u&&
+                audit.admittedFaces==audit.sourceFaces&&
+                !bodyBanks[bodyIndex].triangles.empty();
+            std::cout<<"whole_body_skin_bone_source_bank"
+                <<" body_index="<<bodyIndex
+                <<" source_records="<<audit.sourceRecords
+                <<" source_triangles="<<audit.sourceFaces
+                <<" admitted_triangles="<<audit.admittedFaces
+                <<" excluded_triangles="<<audit.excludedFaces
+                <<" excluded_below_threshold="<<audit.belowAreaThresholdFaces
+                <<" excluded_unknown_normal="<<audit.unknownNormalFaces
+                <<" excluded_nonfinite_normal="<<audit.nonfiniteNormalFaces
+                <<" source_normal_opposed_faces="<<audit.sourceNormalOpposedFaces
+                <<" boundary_edges="<<boundaryEdges
+                <<" nonmanifold_edges="<<nonmanifoldEdges
+                <<" same_direction_edge_pairs="<<sameDirectionPairs
+                <<" edge_groups="<<edgeGroups
+                <<" signed_volume_m3="<<signedVolumeM3
+                <<" excluded_area_m2="<<audit.excludedAreaM2
+                <<" closed_oriented="<<(closedOriented?"true":"false")
+                <<" positive_input_winding_volume="<<(positiveVolume?"true":"false")
+                <<" eligible="<<(bodyBankEligible[bodyIndex]?"true":"false")
+                <<" edge_rule=exact_body_local_float32_coordinate_quotient"
+                <<" input_winding=preserved"<<std::endl;
+        }
+        std::size_t eligibleBoneBodyCount=0u;
+        for(std::size_t bodyIndex=0u;bodyIndex<bodyBanks.size();++bodyIndex) {
+            if(!bodyBanks[bodyIndex].triangles.empty())++registeredBoneBodyCount;
+            if(bodyBankEligible[bodyIndex])++eligibleBoneBodyCount;
+        }
+        require(registeredBoneTriangleCount>0u&&registeredBoneBodyCount>0u,
+                "registered bone source has no complete finite triangle inventory");
+        if(staticBVHEnabled) {
+            require(registeredBoneTriangleCount==registeredBoneSourceTriangleCount&&
+                        eligibleBoneBodyCount==registeredBoneBodyCount,
+                    "complete BVH requires every registered source triangle and body bank");
+            completeRegisteredBoneTriangles.reserve(registeredBoneTriangleCount);
+            for(std::size_t body=0u;body<bodyBanks.size();++body)
+                if(!bodyBanks[body].triangles.empty()) {
+                    require(bodyBankEligible[body],
+                            "complete BVH cannot omit an ineligible registered body bank");
+                    completeRegisteredBoneTriangles.insert(completeRegisteredBoneTriangles.end(),
+                        bodyBanks[body].triangles.begin(),bodyBanks[body].triangles.end());
+                }
+            require(completeRegisteredBoneTriangles.size()==registeredBoneTriangleCount,
+                    "complete BVH inventory count mismatch");
+        }
+        const auto effectiveYoungModulus=[](const numi::matter::MaterialProgram& material) {
+            double shear=0.0,bulk=0.0;
+            for(const auto& parameter:material.parameters) {
+                if(parameter.name=="shear")shear=parameter.defaultValue;
+                if(parameter.name=="bulk")bulk=parameter.defaultValue;
+            }
+            require(std::isfinite(shear)&&shear>0.0&&std::isfinite(bulk)&&bulk>0.0,
+                    "skin-bone contact requires positive source shear and bulk moduli");
+            const double young=9.0*bulk*shear/(3.0*bulk+shear);
+            require(std::isfinite(young)&&young>0.0,
+                    "skin-bone contact effective Young modulus is invalid");
+            return young;
+        };
+        require(source.materials.size()>=2u,
+                "skin-bone contact cannot resolve the appended skin/fat material programs");
+        require(wholeBodySkinMaterialIndex<source.materials.size()&&
+                    wholeBodyFatMaterialIndex<source.materials.size()&&
+                    wholeBodySkinMaterialIndex!=wholeBodyFatMaterialIndex,
+                "skin-bone contact cannot resolve its exact appended skin/fat material indices");
+        const double skinYoung=effectiveYoungModulus(
+            source.materials[wholeBodySkinMaterialIndex]);
+        const double fatYoung=effectiveYoungModulus(
+            source.materials[wholeBodyFatMaterialIndex]);
+        std::vector<double> outerArea(nodeCount,0.0),deepArea(nodeCount,0.0);
+        const auto accumulateArea=[&](
+            std::span<const std::array<double,3>> points,
+            std::vector<double>& area) {
+            require(points.size()==nodeCount&&area.size()==nodeCount,
+                    "skin-bone contact layer geometry is misaligned");
+            for(const auto& face:wholeBodySkinBoundaryFaces) {
+                require(face[0]<nodeCount&&face[1]<nodeCount&&face[2]<nodeCount,
+                        "skin-bone contact face has an invalid source vertex");
+                const V3 a{points[face[0]][0],points[face[0]][1],points[face[0]][2]};
+                const V3 b{points[face[1]][0],points[face[1]][1],points[face[1]][2]};
+                const V3 c{points[face[2]][0],points[face[2]][1],points[face[2]][2]};
+                const double faceArea=0.5*norm(cross(sub(b,a),sub(c,a)));
+                require(std::isfinite(faceArea)&&faceArea>0.0,
+                        "skin-bone contact surface has a degenerate Float64 face");
+                for(const auto vertex:face)area[vertex]+=faceArea/3.0;
+            }
+        };
+        accumulateArea(wholeBodySkinCoarseRest,outerArea);
+        accumulateArea(wholeBodyFatDeepRest,deepArea);
+        fasciaBodyContactNeighborhoodRanges.resize(fasciaBodyContactSamples.size());
+        std::vector<std::uint8_t> deepAnchored(nodeCount,0u);
+        for(const auto& site:kWholeBodySkinDeepAttachmentSites) {
+            require(site.reducedVertex<nodeCount&&deepAnchored[site.reducedVertex]==0u,
+                    "skin-bone contact found duplicate or invalid retained deep attachment sites");
+            deepAnchored[site.reducedVertex]=1u;
+        }
+        std::size_t supportedOuter=0u,supportedDeep=0u;
+        std::size_t positiveSupportBodiesWithoutInventory=0u;
+        std::size_t maximumCandidateCount=0u;
+        double nearestDistanceSum=0.0;
+        std::size_t totalInvalidBankPotentialRows=0u;
+        std::size_t totalNeighborhoodFailures=0u;
+        std::size_t totalNeighborhoodOverflows=0u;
+        std::size_t totalRowsWithMissingPositiveSupportInventory=0u;
+        std::size_t totalRowsWithMultipleCandidateMasters=0u;
+        std::size_t zeroWeightCandidateMasterCount=0u;
+        std::array<std::size_t,2> selectedSlaveRows{};
+        std::vector<std::array<std::size_t,2>> selectedPairsByBody(bodyBanks.size());
+        std::string firstInvalidBankPotentialOverall="none";
+        std::string firstMultipleCandidateMastersOverall="none";
+        for(unsigned layer=0u;layer<2u;++layer) {
+            const auto points=layer==0u
+                ?std::span<const std::array<double,3>>(wholeBodySkinCoarseRest)
+                :std::span<const std::array<double,3>>(wholeBodyFatDeepRest);
+            const auto& tributaryArea=layer==0u?outerArea:deepArea;
+            const double young=layer==0u?skinYoung:fatYoung;
+            const auto thickness=layer==0u
+                ?std::span<const double>(kWholeBodySkinThicknessM)
+                :std::span<const double>(kWholeBodyFatThicknessM);
+            std::size_t layerBound=0u,layerUnbound=0u,layerNoInventory=0u;
+            std::size_t layerInvalidBankPotentialRows=0u;
+            std::size_t layerNeighborhoodFailures=0u,layerNeighborhoodOverflows=0u;
+            std::size_t layerRowsWithMissingInventory=0u;
+            std::size_t layerRowsWithMultipleCandidateMasters=0u;
+            std::size_t layerMaximumRequiredCandidates=0u;
+            std::string firstNeighborhoodFailure="none";
+            std::string firstInvalidBankPotential="none";
+            std::string firstMultipleCandidateMasters="none";
+            for(std::size_t row=0u;row<nodeCount;++row) {
+                if(layer==1u&&deepAnchored[row])continue;
+                const auto& weights=wholeBodySkinSourceRows.fullBodyWeights86[row];
+                require(weights.size()==skin->bindings.size(),
+                        "skin-bone contact full-86 row differs from the candidate binding table");
+                std::vector<std::uint32_t> supportBodies;
+                for(std::size_t lane=0u;lane<weights.size();++lane) {
+                    const double weight=weights[lane];
+                    require(std::isfinite(weight)&&weight>=0.0,
+                            "skin-bone contact full-86 support contains an invalid weight");
+                    if(weight<=0.0)continue;
+                    const auto body=skin->bindings[lane].bodyIndex;
+                    require(body<model.bodies.size(),
+                            "skin-bone contact source lane references an invalid rigid body");
+                    if(std::find(supportBodies.begin(),supportBodies.end(),body)==supportBodies.end())
+                        supportBodies.push_back(body);
+                }
+                std::sort(supportBodies.begin(),supportBodies.end());
+                require(!supportBodies.empty(),
+                        "skin-bone contact source vertex has no positive full-86 binding weight");
+                if(staticBVHEnabled) {
+                    bool missingSupportInventory=false;
+                    for(const auto body:supportBodies)
+                        if(bodyBanks[body].triangles.empty()) {
+                            ++positiveSupportBodiesWithoutInventory;
+                            missingSupportInventory=true;
+                        }
+                    if(missingSupportInventory) {
+                        ++layerRowsWithMissingInventory;
+                        ++totalRowsWithMissingPositiveSupportInventory;
+                    }
+                    const std::uint64_t layerOffset=layer==0u?0u:2u*nodeCount;
+                    const std::uint64_t slave64=std::uint64_t(descriptor.stateOffset)+
+                        layerOffset+row;
+                    require(slave64<=std::numeric_limits<std::uint32_t>::max()&&
+                                slave64<compiled.world.fem.nodes.size(),
+                            "skin-bone FEM slave node exceeds the compiled solver range");
+                    require(row<thickness.size()&&std::isfinite(thickness[row])&&
+                                thickness[row]>0.0&&tributaryArea[row]>0.0&&
+                                std::isfinite(tributaryArea[row]),
+                            "skin-bone contact has invalid layer thickness or tributary area");
+                    const double stiffness=young/thickness[row];
+                    require(std::isfinite(stiffness)&&stiffness>0.0&&
+                                stiffness<=std::numeric_limits<float>::max()&&
+                                young<=std::numeric_limits<float>::max(),
+                            "skin-bone contact material-derived penalty is outside Float32 range");
+                    bool rowSelected=false;
+                    for(std::size_t bodyIndex=0u;bodyIndex<bodyBanks.size();++bodyIndex) {
+                        const auto& bank=bodyBanks[bodyIndex];
+                        if(bank.triangles.empty()) continue;
+                        require(bodyBankEligible[bodyIndex],
+                                "all-body contact pair requested an ineligible registered body bank");
+                        const auto& seed=bank.triangles.front();
+                        const auto sample=triangleContact::makeTriangleContactSample(
+                            static_cast<std::uint32_t>(slave64),
+                            static_cast<std::uint32_t>(bodyIndex),
+                            seed.bodyLocalVertex0,seed.bodyLocalVertex1,
+                            seed.bodyLocalVertex2,static_cast<float>(tributaryArea[row]),
+                            static_cast<float>(stiffness),static_cast<float>(1.0/young));
+                        require(triangleContact::validTriangleContactSample(sample),
+                                "all-body triangle-contact template failed ABI validation");
+                        if(!rowSelected) {
+                            fasciaBodyContactSamples.push_back(sample);
+                            fasciaBodyContactNeighborhoodRanges.push_back({});
+                        }
+                        ++layerBound;
+                        if(layer==0u)++supportedOuter;else ++supportedDeep;
+                        ++selectedPairsByBody[bodyIndex][layer];
+                        rowSelected=true;
+                    }
+                    if(!rowSelected) {
+                        ++layerUnbound;
+                        ++layerNoInventory;
+                        ++skinBoneNoInventorySupport;
+                    } else {
+                        ++selectedSlaveRows[layer];
+                    }
+                    continue;
+                }
+                struct MasterCandidate {std::uint32_t body;mr_float4 query;double distanceSquared;};
+                std::vector<MasterCandidate> masterCandidates;
+                std::uint32_t bestBody=MR_INVALID_INDEX;
+                double bestDistanceSquared=std::numeric_limits<double>::infinity();
+                bool anyInventory=false;
+                bool missingSupportInventory=false;
+                std::uint32_t nearestSupportBody=MR_INVALID_INDEX;
+                std::uint32_t secondSupportBody=MR_INVALID_INDEX;
+                double nearestSupportDistanceSquared=std::numeric_limits<double>::infinity();
+                double secondSupportDistanceSquared=std::numeric_limits<double>::infinity();
+                std::size_t supportBodiesWithinRestBand=0u;
+                bool invalidBankCouldCompete=false;
+                for(const auto bodyIndex:supportBodies)
+                    if(bodyBanks[bodyIndex].triangles.empty()) {
+                        ++positiveSupportBodiesWithoutInventory;
+                        missingSupportInventory=true;
+                    }
+                for(std::uint32_t bodyIndex=0u;bodyIndex<bodyBanks.size();++bodyIndex) {
+
+                    const auto& bank=bodyBanks[bodyIndex];
+                    if(bank.triangles.empty()) continue;
+                    anyInventory=true;
+                    const auto& body=bodies[bodyIndex];
+                    const mr_float4 inverseOrientation{-body.orientation.x,
+                        -body.orientation.y,-body.orientation.z,body.orientation.w};
+                    const auto world=mr_float4{float(points[row][0]),float(points[row][1]),
+                        float(points[row][2]),1.0f};
+                    const auto query=rotatePoint(inverseOrientation,
+                        femSubtract(world,body.position));
+                    double boxDistanceSquared=0.0;
+                    for(unsigned axis=0u;axis<3u;++axis) {
+                        const double q=axis==0u?query.x:axis==1u?query.y:query.z;
+                        const double d=q<bank.minimum[axis]?bank.minimum[axis]-q:
+                            q>bank.maximum[axis]?q-bank.maximum[axis]:0.0;
+                        boxDistanceSquared+=d*d;
+                    }
+                    if(boxDistanceSquared>kMaximumRestDistanceM*kMaximumRestDistanceM)
+                        continue;
+                    if(!bodyBankEligible[bodyIndex]) {
+                        invalidBankCouldCompete=true;
+                        continue;
+                    }
+                    double bodyBestDistanceSquared=std::numeric_limits<double>::infinity();
+                    for(const Triangle& triangle:bank.triangles) {
+                        const double distanceSquared=neighborhood::pointTriangleDistanceSquared(
+                            nm_float4{query.x,query.y,query.z,0.0f},triangle);
+                        bodyBestDistanceSquared=std::min(bodyBestDistanceSquared,distanceSquared);
+                    }
+                    if(bodyBestDistanceSquared<bestDistanceSquared||
+                       (bodyBestDistanceSquared==bestDistanceSquared&&bodyIndex<bestBody)) {
+                        bestDistanceSquared=bodyBestDistanceSquared;
+                        bestBody=bodyIndex;
+                    }
+                    if(bodyBestDistanceSquared<=
+                            kMaximumRestDistanceM*kMaximumRestDistanceM) {
+                        masterCandidates.push_back({bodyIndex,query,bodyBestDistanceSquared});
+                        if(std::find(supportBodies.begin(),supportBodies.end(),bodyIndex)==supportBodies.end())
+                            ++zeroWeightCandidateMasterCount;
+                        ++supportBodiesWithinRestBand;
+                        if(bodyBestDistanceSquared<nearestSupportDistanceSquared||
+                           (bodyBestDistanceSquared==nearestSupportDistanceSquared&&
+                            bodyIndex<nearestSupportBody)) {
+                            secondSupportDistanceSquared=nearestSupportDistanceSquared;
+                            secondSupportBody=nearestSupportBody;
+                            nearestSupportDistanceSquared=bodyBestDistanceSquared;
+                            nearestSupportBody=bodyIndex;
+                        } else if(bodyBestDistanceSquared<secondSupportDistanceSquared||
+                                  (bodyBestDistanceSquared==secondSupportDistanceSquared&&
+                                   bodyIndex<secondSupportBody)) {
+                            secondSupportDistanceSquared=bodyBestDistanceSquared;
+                            secondSupportBody=bodyIndex;
+                        }
+                    }
+                }
+                if(!anyInventory) {++layerNoInventory;++skinBoneNoInventorySupport;}
+                if(missingSupportInventory) {
+                    ++layerRowsWithMissingInventory;
+                    ++totalRowsWithMissingPositiveSupportInventory;
+                }
+                if(supportBodiesWithinRestBand>1u) {
+                    ++layerRowsWithMultipleCandidateMasters;
+                    ++totalRowsWithMultipleCandidateMasters;
+                    if(firstMultipleCandidateMasters=="none")
+                        firstMultipleCandidateMasters="row="+std::to_string(row)+
+                            " nearest_body="+std::to_string(nearestSupportBody)+
+                            " nearest_distance_m="+std::to_string(
+                                std::sqrt(nearestSupportDistanceSquared))+
+                            " second_body="+std::to_string(secondSupportBody)+
+                            " second_distance_m="+std::to_string(
+                                std::sqrt(secondSupportDistanceSquared))+
+                            " eligible_support_bodies_within_15mm="+
+                            std::to_string(supportBodiesWithinRestBand);
+                    if(firstMultipleCandidateMastersOverall=="none")
+                        firstMultipleCandidateMastersOverall=firstMultipleCandidateMasters;
+                }
+                if(invalidBankCouldCompete) {
+                    ++layerInvalidBankPotentialRows;
+                    ++totalInvalidBankPotentialRows;
+                    if(firstInvalidBankPotential=="none")
+                        firstInvalidBankPotential="layer="+
+                            std::string(layer==0u?"outer":"deep")+
+                            " row="+std::to_string(row);
+                    if(firstInvalidBankPotentialOverall=="none")
+                        firstInvalidBankPotentialOverall=firstInvalidBankPotential;
+                    ++layerUnbound;
+                    continue;
+                }
+                if(bestBody==MR_INVALID_INDEX||
+                   bestDistanceSquared>kMaximumRestDistanceM*kMaximumRestDistanceM) {
+                    ++layerUnbound;continue;
+                }
+                bool rowSelected=false;
+                for(const auto& master:masterCandidates) {
+                const double restDistance=std::sqrt(master.distanceSquared);
+                Range range{};
+                const std::size_t firstTriangle=fasciaBodyContactNeighborhoodTriangles.size();
+                const auto report=neighborhood::appendCompleteNeighborhood(
+                    master.body,{master.query.x,master.query.y,master.query.z,0.0f},
+                    static_cast<float>(kMotionEnvelopeRadiusM),
+                    bodyBanks[master.body].triangles.size(),bodyBanks[master.body].triangles,
+                    fasciaBodyContactNeighborhoodTriangles,range);
+                layerMaximumRequiredCandidates=std::max<std::size_t>(
+                    layerMaximumRequiredCandidates,report.candidateCount);
+                maximumCandidateCount=std::max<std::size_t>(
+                    maximumCandidateCount,report.candidateCount);
+                if(!report.complete()) {
+                    ++layerNeighborhoodFailures;
+                    ++totalNeighborhoodFailures;
+                    if(report.failure==
+                        neighborhood::NeighborhoodBuildFailure::candidateCapacityExceeded) {
+                        ++layerNeighborhoodOverflows;
+                        ++totalNeighborhoodOverflows;
+                    }
+                    if(firstNeighborhoodFailure=="none")
+                        firstNeighborhoodFailure="row="+std::to_string(row)+
+                            " body="+std::to_string(master.body)+
+                            " rest_distance_m="+std::to_string(restDistance)+
+                            " candidates="+std::to_string(report.candidateCount)+
+                            " failure="+std::to_string(static_cast<unsigned>(report.failure));
+                    continue;
+                }
+                require(range.firstTriangle==firstTriangle&&range.triangleCount>0u&&
+                            range.firstTriangle+range.triangleCount<=
+                                fasciaBodyContactNeighborhoodTriangles.size(),
+                        "skin-bone contact neighborhood emitted an invalid flattened range");
+                const auto& first=fasciaBodyContactNeighborhoodTriangles[range.firstTriangle];
+                const std::uint64_t layerOffset=layer==0u?0u:2u*nodeCount;
+                const std::uint64_t slave64=std::uint64_t(descriptor.stateOffset)+
+                    layerOffset+row;
+                require(slave64<=std::numeric_limits<std::uint32_t>::max()&&
+                            slave64<compiled.world.fem.nodes.size(),
+                        "skin-bone contact FEM slave node exceeds the compiled solver range");
+                require(row<thickness.size()&&std::isfinite(thickness[row])&&
+                            thickness[row]>0.0&&tributaryArea[row]>0.0&&
+                            std::isfinite(tributaryArea[row]),
+                        "skin-bone contact has invalid layer thickness or tributary area");
+                const double stiffness=young/thickness[row];
+                require(std::isfinite(stiffness)&&stiffness>0.0&&
+                            stiffness<=std::numeric_limits<float>::max()&&
+                            young<=std::numeric_limits<float>::max(),
+                        "skin-bone contact material-derived penalty is outside Float32 range");
+                const auto sample=triangleContact::makeTriangleContactSample(
+                    static_cast<std::uint32_t>(slave64),master.body,
+                    first.bodyLocalVertex0,first.bodyLocalVertex1,
+                    first.bodyLocalVertex2,static_cast<float>(tributaryArea[row]),
+                    static_cast<float>(stiffness),static_cast<float>(1.0/young));
+                require(triangleContact::validTriangleContactSample(sample),
+                        "skin-bone contact material sample failed ABI validation");
+                fasciaBodyContactSamples.push_back(sample);
+                fasciaBodyContactNeighborhoodRanges.push_back(range);
+                skinBoneMaximumRestDistanceM=std::max(skinBoneMaximumRestDistanceM,
+                    restDistance);
+                nearestDistanceSum+=restDistance;
+                ++layerBound; rowSelected=true;
+                ++selectedPairsByBody[master.body][layer];
+                if(layer==0u)++supportedOuter;else ++supportedDeep;
+                }
+                if(rowSelected)++selectedSlaveRows[layer];
+            }
+            if(layer==0u)skinBoneOuterBound=layerBound;
+            else skinBoneDeepBound=layerBound;
+            if(layer==0u)skinBoneOuterUnbound=layerUnbound;
+            else skinBoneDeepUnbound=layerUnbound;
+            std::cout<<"whole_body_skin_bone_triangle_contact_layer="
+                <<(layer==0u?"outer":"deep")<<" selected_master_pairs="<<layerBound
+                <<" selected_slave_rows="<<selectedSlaveRows[layer]
+                <<" outside_rest_band="<<layerUnbound
+                <<" rows_without_registered_support_inventory="<<layerNoInventory
+                <<" rows_with_any_missing_positive_support_inventory="<<layerRowsWithMissingInventory
+                <<" rows_with_multiple_candidate_masters_within_15mm="<<layerRowsWithMultipleCandidateMasters
+                <<" first_multiple_candidate_masters="<<firstMultipleCandidateMasters
+                <<" rows_with_nearby_ineligible_source_bank="<<layerInvalidBankPotentialRows
+                <<" neighborhood_failures="<<layerNeighborhoodFailures
+                <<" neighborhood_capacity_overflows="<<layerNeighborhoodOverflows
+                <<" maximum_required_candidates="<<layerMaximumRequiredCandidates
+                <<" first_neighborhood_failure="<<firstNeighborhoodFailure
+                <<" first_nearby_ineligible_bank="<<firstInvalidBankPotential
+                <<" anchors_excluded="<<(layer==1u?kWholeBodySkinDeepAttachmentSites.size():0u)
+                <<" support_policy=all_registered_bone_banks_spatially_near"
+                <<" maximum_rest_distance_m="<<kMaximumRestDistanceM
+                <<" motion_envelope_radius_m="<<kMotionEnvelopeRadiusM
+                <<" max_candidate_triangles="<<maximumCandidateCount<<"\n";
+        }
+        const std::size_t totalRows=2u*nodeCount-kWholeBodySkinDeepAttachmentSites.size();
+        const double meanRestDistance=(supportedOuter+supportedDeep)>0u
+            ?nearestDistanceSum/static_cast<double>(supportedOuter+supportedDeep):0.0;
+        std::cout<<"whole_body_skin_bone_triangle_contact_inventory=audited"
+            <<" source=all_registered_body_banks_spatially_near"
+            <<" registered_bone_bodies="<<registeredBoneBodyCount
+            <<" eligible_registered_bone_bodies="<<eligibleBoneBodyCount
+            <<" registered_bone_source_triangles="<<registeredBoneSourceTriangleCount
+            <<" registered_bone_triangles="<<registeredBoneTriangleCount
+            <<" excluded_zero_area_triangles="<<zeroAreaBoneTriangleCount
+            <<" excluded_below_contact_area_threshold_triangles="<<belowAreaThresholdBoneTriangleCount
+            <<" excluded_unknown_normal_triangles="<<unknownNormalBoneTriangleCount
+            <<" excluded_nonfinite_normal_triangles="<<nonfiniteNormalBoneTriangleCount
+            <<" source_normal_opposed_triangles="<<sourceNormalOpposedFaceCount
+            <<" excluded_triangle_area_m2="<<excludedBoneTriangleAreaM2
+            <<" selected_outer="<<skinBoneOuterBound
+            <<" selected_deep="<<skinBoneDeepBound
+            <<" unbound_outer="<<skinBoneOuterUnbound
+            <<" unbound_deep="<<skinBoneDeepUnbound
+            <<" positive_support_bodies_without_inventory="<<positiveSupportBodiesWithoutInventory
+            <<" rows_without_any_support_inventory="<<skinBoneNoInventorySupport
+            <<" rows_with_missing_positive_support_inventory="<<totalRowsWithMissingPositiveSupportInventory
+            <<" rows_with_multiple_candidate_masters_within_15mm="<<totalRowsWithMultipleCandidateMasters
+            <<" first_multiple_candidate_masters="<<firstMultipleCandidateMastersOverall
+            <<" rows_with_nearby_ineligible_source_bank="<<totalInvalidBankPotentialRows
+            <<" neighborhood_failures="<<totalNeighborhoodFailures
+            <<" neighborhood_capacity_overflows="<<totalNeighborhoodOverflows
+            <<" first_nearby_ineligible_bank="<<firstInvalidBankPotentialOverall
+            <<" total_eligible_slave_rows="<<totalRows
+            <<" selected_outer_slave_rows="<<selectedSlaveRows[0]
+            <<" selected_deep_slave_rows="<<selectedSlaveRows[1]
+            <<" samples="<<(supportedOuter+supportedDeep)
+            <<" max_candidate_triangles_per_sample="<<maximumCandidateCount
+            <<" mean_rest_distance_m="<<meanRestDistance
+            <<" maximum_rest_distance_m="<<skinBoneMaximumRestDistanceM
+            <<" flattened_triangles="<<fasciaBodyContactNeighborhoodTriangles.size()
+            <<" skin_material_index="<<wholeBodySkinMaterialIndex
+            <<" skin_material_name="<<source.materials[wholeBodySkinMaterialIndex].name
+            <<" skin_effective_young_pa="<<skinYoung
+            <<" fat_material_index="<<wholeBodyFatMaterialIndex
+            <<" fat_material_name="<<source.materials[wholeBodyFatMaterialIndex].name
+            <<" fat_effective_young_pa="<<fatYoung
+            <<" contact_law=source_material_E_over_layer_thickness_inferred"
+            <<" spatial_scope="<<(staticBVHEnabled?"all_eligible_complete_registered_body_banks":
+                "all_registered_body_banks_within_rest_band")
+            <<" rest_distance_statistics="<<(staticBVHEnabled?"not_computed_all_body_mode":"computed")
+            <<" global_anatomical_coverage=not_claimed"
+            <<" one_query_per_slave_master_body=true additional_candidate_masters_not_modeled="
+                <<(staticBVHEnabled?"false":"true")
+            <<" zero_skinning_weight_candidate_master_pairs="<<zeroWeightCandidateMasterCount<<std::endl;
+        for(std::size_t body=0;body<selectedPairsByBody.size();++body)
+            if(selectedPairsByBody[body][0]+selectedPairsByBody[body][1]>0u)
+                std::cout<<"whole_body_skin_bone_contact_master="<<body
+                    <<" outer_pairs="<<selectedPairsByBody[body][0]
+                    <<" deep_pairs="<<selectedPairsByBody[body][1]<<std::endl;
+        require(supportedOuter+supportedDeep>0u&&
+                    (staticBVHEnabled?!completeRegisteredBoneTriangles.empty():
+                        !fasciaBodyContactNeighborhoodTriangles.empty())&&
+                    fasciaBodyContactNeighborhoodRanges.size()==
+                        fasciaBodyContactSamples.size(),
+                "skin-bone contact opt-in produced no complete triangle inventory");
+        if(!staticBVHEnabled)
+            require(neighborhood::validNeighborhoodSpans(fasciaBodyContactSamples,
+                        fasciaBodyContactNeighborhoodRanges,
+                        fasciaBodyContactNeighborhoodTriangles),
+                    "skin-bone contact full-sample neighborhood arrays failed validation");
+        require(positiveSupportBodiesWithoutInventory==0u,
+                "skin-bone contact has positive full-86 support bodies without registered triangle inventories; count="+
+                std::to_string(positiveSupportBodiesWithoutInventory));
+        require(totalInvalidBankPotentialRows==0u,
+                "skin-bone contact has samples whose spatially-near source bank is ineligible within the rest band; first="+
+                firstInvalidBankPotentialOverall);
+        require(totalNeighborhoodFailures==0u,
+                "skin-bone contact complete-neighborhood preflight rejected samples; failures="+
+                std::to_string(totalNeighborhoodFailures)+
+                " capacity_overflows="+std::to_string(totalNeighborhoodOverflows));
+        const char* fullBankComparisonPath=std::getenv(
+            "NUMI_HUMAN_INITIAL_SKIN_BONE_FULLBANK_COMPARISON_CSV");
+        if(fullBankComparisonPath&&fullBankComparisonPath[0]!='\0') {
+            std::ofstream comparison(fullBankComparisonPath,
+                std::ios::out|std::ios::binary|std::ios::trunc);
+            require(comparison.good(),"could not create full-bank closest-point comparison CSV");
+            std::vector<std::uint32_t> compareSamples{584u};
+            for(const std::uint32_t row:{2261u,2262u}) {
+                const std::uint64_t targetNode=std::uint64_t(wholeBodySkinFirstGlobalFEMNode)+
+                    2ull*wholeBodySkinNodesPerLayer+row;
+                if(targetNode>std::numeric_limits<std::uint32_t>::max())continue;
+                for(std::uint32_t i=0u;i<fasciaBodyContactSamples.size();++i)
+                    if(fasciaBodyContactSamples[i].slaveNode==targetNode)
+                        compareSamples.push_back(i);
+            }
+            std::sort(compareSamples.begin(),compareSamples.end());
+            compareSamples.erase(std::unique(compareSamples.begin(),compareSamples.end()),
+                compareSamples.end());
+            bool wroteHeader=false;
+            for(const auto index:compareSamples) {
+                const auto result=numi::human::initial_skin_bone_contact_witness::
+                    writeFullBankComparison(comparison,
+                        std::span<const NMNumiHumanFEMBodyContactSampleGPU>(fasciaBodyContactSamples),
+                        std::span<const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>(fasciaBodyContactNeighborhoodRanges),
+                        std::span<const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>(fasciaBodyContactNeighborhoodTriangles),
+                        std::span<const NMFEMNodeStateGPU>(compiled.world.fem.nodes),
+                        std::span<const MRBodyStateGPU>(bodies),bodyBanks,bodyBankEligible,
+                        wholeBodySkinFirstGlobalFEMNode,wholeBodySkinNodesPerLayer,index,!wroteHeader);
+                require(result.valid,"full-bank closest-point comparison failed at sample="+
+                    std::to_string(index)+": "+result.failure);
+                wroteHeader=true;
+                std::cout<<"full_bank_closest_comparison=complete"
+                    <<" sample="<<result.sample<<" node="<<result.slaveNode
+                    <<" body="<<result.body<<" full_triangles="<<result.bankTriangleCount
+                    <<" bounded="<<result.boundedBone<<":"<<result.boundedTriangle
+                    <<":"<<numi::human::initial_skin_bone_contact_witness::featureName(result.boundedFeature)
+                    <<" d_m="<<result.boundedDistanceM<<" face_dot="<<result.boundedFaceDot
+                    <<" pseudo_dot="<<result.boundedPseudoDot
+                    <<" complete="<<result.fullBone<<":"<<result.fullTriangle
+                    <<":"<<numi::human::initial_skin_bone_contact_witness::featureName(result.fullFeature)
+                    <<" d_m="<<result.fullDistanceM<<" face_dot="<<result.fullFaceDot
+                    <<" pseudo_dot="<<result.fullPseudoDot
+                    <<" solid_inside_rays="<<result.fullSolid.insideRays
+                    <<" solid_outside_rays="<<result.fullSolid.outsideRays
+                    <<" solid_ambiguous="<<(result.fullSolid.ambiguous?"true":"false")<<std::endl;
+            }
+            comparison.flush();
+            require(comparison.good(),"failed while writing full-bank comparison CSV");
+        }
+        (void)skinBoneOuterBound;(void)skinBoneDeepBound;
+        (void)skinBoneOuterUnbound;(void)skinBoneDeepUnbound;
+    }
     std::cout<<"whole_body_skin_elastic_attachment_binding samples="<<skinElasticAttachmentSamples.size()
         <<" implicit_requested="<<requestedImplicitSkinSpringCount
         <<" implicit_selected="<<skinAttachmentBound.implicitSkinRows
@@ -24036,6 +24987,111 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         shift(a.localPoint,a.bodyIndex);
     for(auto& sample:fasciaBodyContactSamples)
         shift(sample.bodyLocalPointAndArea,sample.bodyIndex);
+    if(!fasciaBodyContactNeighborhoodRanges.empty()) {
+        require(fasciaBodyContactNeighborhoodRanges.size()==fasciaBodyContactSamples.size(),
+                "skin-bone contact ranges lost full-sample alignment before COM rebase");
+        const auto shiftFloat4=[&](nm_float4& point,std::uint32_t body) {
+            const auto o=offset(body);
+            point.x=float(double(point.x)-o[0]);
+            point.y=float(double(point.y)-o[1]);
+            point.z=float(double(point.z)-o[2]);
+        };
+        for(std::size_t i=0;i<fasciaBodyContactSamples.size();++i) {
+            auto& sample=fasciaBodyContactSamples[i];
+            const auto& range=fasciaBodyContactNeighborhoodRanges[i];
+            if(range.triangleCount==0u) {
+                const std::uint32_t triangleFlags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                    NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT;
+                if(staticBVHEnabled&&sample.flags==triangleFlags) {
+                    shiftFloat4(sample.bodyLocalNormalAndReferenceSeparation,sample.bodyIndex);
+                    shiftFloat4(sample.stiffnessAndNormalStrainPerPressure,sample.bodyIndex);
+                }
+                continue;
+            }
+            shiftFloat4(sample.bodyLocalNormalAndReferenceSeparation,sample.bodyIndex);
+            shiftFloat4(sample.stiffnessAndNormalStrainPerPressure,sample.bodyIndex);
+            shiftFloat4(fasciaBodyContactNeighborhoodRanges[i].restPointAndMotionRadius,
+                        sample.bodyIndex);
+            const std::uint64_t end=std::uint64_t(range.firstTriangle)+range.triangleCount;
+            require(end<=fasciaBodyContactNeighborhoodTriangles.size(),
+                    "skin-bone contact range exceeds its flattened triangles during COM rebase");
+            for(std::uint32_t triangleIndex=range.firstTriangle;
+                triangleIndex<end;++triangleIndex) {
+                auto& triangle=fasciaBodyContactNeighborhoodTriangles[triangleIndex];
+                shiftFloat4(triangle.bodyLocalVertex0,sample.bodyIndex);
+                shiftFloat4(triangle.bodyLocalVertex1,sample.bodyIndex);
+                shiftFloat4(triangle.bodyLocalVertex2,sample.bodyIndex);
+            }
+        }
+        if(staticBVHEnabled) {
+            // Complete-bank ranges are constructed after COM rebase. Validate
+            // each rebased material template here; the builder below certifies
+            // the final complete triangle/range/tree inventory before admission.
+            constexpr auto triangleFlags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT;
+            for(const auto& sample:fasciaBodyContactSamples)
+                require(sample.flags!=triangleFlags ||
+                    numi::matter::fem_body_triangle_contact::
+                        validTriangleContactSample(sample),
+                    "skin-bone material template lost validity after COM rebase");
+        } else {
+        require(numi::matter::fem_body_contact_neighborhood::validNeighborhoodSpans(
+                    fasciaBodyContactSamples,fasciaBodyContactNeighborhoodRanges,
+                    fasciaBodyContactNeighborhoodTriangles),
+                "skin-bone contact neighborhood lost validity after COM rebase");
+        }
+    }
+    if(staticBVHEnabled) {
+        for(auto& triangle:completeRegisteredBoneTriangles) {
+            shift(triangle.bodyLocalVertex0,triangle.bodyIndex);
+            shift(triangle.bodyLocalVertex1,triangle.bodyIndex);
+            shift(triangle.bodyLocalVertex2,triangle.bodyIndex);
+        }
+        const auto completeCount=completeRegisteredBoneTriangles.size();
+        numi::matter::fem_body_contact_bvh::PreparationOptions contactPreparation{};
+        contactPreparation.requireClosedOrientedBanks=true;
+        contactPreparation.expandAllTriangleSamplesAcrossBodies=true;
+        auto asset=numi::matter::fem_body_contact_bvh::prepareStaticCompleteBodyContactAsset(
+            fasciaBodyContactSamples,completeRegisteredBoneTriangles,completeCount,0.05f,
+            contactPreparation);
+        if(!asset.succeeded()) {
+            std::uint32_t invalidCount=0u;
+            for(const auto& triangle:completeRegisteredBoneTriangles) {
+                if(numi::matter::fem_body_contact_bvh::validTriangle(triangle)) continue;
+                if(invalidCount<16u) {
+                    const auto a=triangle.bodyLocalVertex0,b=triangle.bodyLocalVertex1,
+                               c=triangle.bodyLocalVertex2,n=triangle.authoredOutwardNormal;
+                    std::cerr<<std::setprecision(17)
+                        <<"complete_bone_bvh_invalid_triangle body="<<triangle.bodyIndex
+                        <<" bone="<<triangle.boneStableId<<" triangle="<<triangle.triangleStableId
+                        <<" a="<<a.x<<","<<a.y<<","<<a.z<<","<<a.w
+                        <<" b="<<b.x<<","<<b.y<<","<<b.z<<","<<b.w
+                        <<" c="<<c.x<<","<<c.y<<","<<c.z<<","<<c.w
+                        <<" n="<<n.x<<","<<n.y<<","<<n.z<<","<<n.w
+                        <<" reserved="<<triangle.featureNormalFlags<<std::endl;
+                }
+                ++invalidCount;
+            }
+            std::cerr<<"complete_bone_bvh_prepare_failure code="
+                <<static_cast<unsigned>(asset.failure)
+                <<" invalid_triangles="<<invalidCount
+                <<" inventory="<<completeRegisteredBoneTriangles.size()<<std::endl;
+        }
+        require(asset.succeeded(),"complete registered bone BVH asset preparation failed");
+        fasciaBodyContactSamples=std::move(asset.samples);
+        fasciaBodyContactNeighborhoodRanges=std::move(asset.ranges);
+        fasciaBodyContactNeighborhoodTriangles=std::move(asset.triangles);
+        fasciaBodyContactNeighborhoodBVHNodes=std::move(asset.nodes);
+        std::cout<<"whole_body_skin_bone_static_bvh=prepared triangles="
+            <<fasciaBodyContactNeighborhoodTriangles.size()<<" nodes="
+            <<fasciaBodyContactNeighborhoodBVHNodes.size()<<" samples="
+            <<fasciaBodyContactSamples.size()
+            <<" state_owner=existing_Human_FEM_contact source=complete_registered_bone_banks"
+            <<" sample_pair_scope=all_registered_bodies_per_triangle_slave"
+            <<" approaching_master_pairs=all_registered_banks"
+            <<" per_step_CPU_refresh=0 construction_envelope_restriction=removed"
+            <<std::endl;
+    }
     rebaseNumiHumanSurfaceFrames(bones,skin,&tissues,anatomy,effectiveMassPartitions);
     double executedPhysicalMass=0.0;for(const auto& b:rebased.bodies)executedPhysicalMass+=b.massAndInverseMass.x;
     double continuumMass=0.0;for(const auto& n:massNodes)continuumMass+=n.massKg;
@@ -24254,6 +25310,12 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     // this builder is preparation-only; otherwise the shared adapter would
     // receive an empty span while the standalone path worked.
     owner->regionalFasciaBodyContactSamples=std::move(fasciaBodyContactSamples);
+    owner->regionalFasciaBodyContactNeighborhoodRanges=
+        std::move(fasciaBodyContactNeighborhoodRanges);
+    owner->regionalFasciaBodyContactNeighborhoodTriangles=
+        std::move(fasciaBodyContactNeighborhoodTriangles);
+    owner->regionalFasciaBodyContactNeighborhoodBVHNodes=
+        std::move(fasciaBodyContactNeighborhoodBVHNodes);
     owner->regionalFasciaBodyContactRegionCoverage=
         static_cast<std::uint32_t>(fasciaBodyGlideRegionCoverage);
     owner->authoredWorldSource=std::move(source);
@@ -24381,6 +25443,12 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         require(owner->adapter.initialize(owner->runtime,{
             .nodeLoads=owner->nodeLoads,.nodeAnchors=owner->nodeAnchors,.endpointReplacements={},
             .femBodyContactSamples=owner->regionalFasciaBodyContactSamples,
+            .femBodyContactNeighborhoodRanges=
+                owner->regionalFasciaBodyContactNeighborhoodRanges,
+            .femBodyContactNeighborhoodTriangles=
+                owner->regionalFasciaBodyContactNeighborhoodTriangles,
+            .femBodyContactNeighborhoodBVHNodes=
+                owner->regionalFasciaBodyContactNeighborhoodBVHNodes,
             .passiveLigaments=owner->passiveLigaments,
             .endpointCount=static_cast<std::uint32_t>(muscles.tendonPayload.bindings.size()),
             .environmentCount=1u,.productionForceOwnerFraction=0.0},
@@ -33462,6 +34530,12 @@ int main(int argc, char** argv) {
                         .nodeLoads=owner.nodeLoads,.nodeAnchors=owner.nodeAnchors,
                         .endpointReplacements={},
                         .femBodyContactSamples=owner.regionalFasciaBodyContactSamples,
+                        .femBodyContactNeighborhoodRanges=
+                            owner.regionalFasciaBodyContactNeighborhoodRanges,
+                        .femBodyContactNeighborhoodTriangles=
+                            owner.regionalFasciaBodyContactNeighborhoodTriangles,
+                        .femBodyContactNeighborhoodBVHNodes=
+                            owner.regionalFasciaBodyContactNeighborhoodBVHNodes,
                         .passiveLigaments=owner.passiveLigaments,
                         .endpointCount=static_cast<std::uint32_t>(musclePayload.tendonPayload.bindings.size()),
                         .environmentCount=1u,.productionForceOwnerFraction=0.0};

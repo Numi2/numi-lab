@@ -473,10 +473,17 @@ inline HumanFEMBodyTriangleClosest humanClosestFeatureOnTriangle(
     return result.valid ? result : humanInvalidClosest();
 }
 
-inline bool humanFEMBodyTriangleContactState(
+inline bool humanFEMBodyTriangleContactStateWithFeatureNormals(
     const NMNumiHumanFEMBodyContactSampleGPU sample,
     const NMFEMNodeStateGPU slaveState,
     const MRArticulatedBodyPoseGPU bodyPose,
+    const uint featureNormalFlags,
+    const float3 edgePseudoNormal01,
+    const float3 edgePseudoNormal12,
+    const float3 edgePseudoNormal20,
+    const float3 vertexPseudoNormal0,
+    const float3 vertexPseudoNormal1,
+    const float3 vertexPseudoNormal2,
     thread float3& slavePoint,
     thread float3& bodyPoint,
     thread float3& normal,
@@ -519,9 +526,53 @@ inline bool humanFEMBodyTriangleContactState(
     const float distance=length(deltaLocal);
     if (!finite4(float4(closest.point,distance)) || !isfinite(distance))
         return false;
-    const float orientation=dot(deltaLocal,faceNormalLocal)<0.0f ? -1.0f : 1.0f;
+    // Legacy callers pass no feature normals. Keep their historical face
+    // orientation at edge/vertex closest points; zero-filled optional vectors
+    // are not valid pseudonormals. Strict complete banks select and validate
+    // the pseudonormal for the exact closest feature.
+    float3 featurePseudoNormal=faceNormalLocal;
+    float3 candidateFeaturePseudoNormal=float3(0.0f);
+    uint featureNormalBit=0u;
+    if (closest.feature==1u) {
+        if (closest.barycentric.z==0.0f) {
+            candidateFeaturePseudoNormal=edgePseudoNormal01;
+            featureNormalBit=NM_NUMI_HUMAN_FEM_BODY_CONTACT_EDGE_01_PSEUDONORMAL;
+        } else if (closest.barycentric.x==0.0f) {
+            candidateFeaturePseudoNormal=edgePseudoNormal12;
+            featureNormalBit=NM_NUMI_HUMAN_FEM_BODY_CONTACT_EDGE_12_PSEUDONORMAL;
+        } else {
+            candidateFeaturePseudoNormal=edgePseudoNormal20;
+            featureNormalBit=NM_NUMI_HUMAN_FEM_BODY_CONTACT_EDGE_20_PSEUDONORMAL;
+        }
+    } else if (closest.feature==2u) {
+        if (closest.barycentric.x>=closest.barycentric.y &&
+            closest.barycentric.x>=closest.barycentric.z) {
+            candidateFeaturePseudoNormal=vertexPseudoNormal0;
+            featureNormalBit=NM_NUMI_HUMAN_FEM_BODY_CONTACT_VERTEX_0_PSEUDONORMAL;
+        } else if (closest.barycentric.y>=closest.barycentric.z) {
+            candidateFeaturePseudoNormal=vertexPseudoNormal1;
+            featureNormalBit=NM_NUMI_HUMAN_FEM_BODY_CONTACT_VERTEX_1_PSEUDONORMAL;
+        } else {
+            candidateFeaturePseudoNormal=vertexPseudoNormal2;
+            featureNormalBit=NM_NUMI_HUMAN_FEM_BODY_CONTACT_VERTEX_2_PSEUDONORMAL;
+        }
+    }
+    // The face feature has bit 0: its authored face normal is always valid and
+    // must not be rejected merely because the mask contains only edge/vertex
+    // bits. Nonzero masks are strict for edge/vertex features.
+    if (featureNormalFlags!=0u && featureNormalBit!=0u) {
+        if ((featureNormalFlags & featureNormalBit)==0u) return false;
+        featurePseudoNormal=candidateFeaturePseudoNormal;
+        const float pseudoLength=length(featurePseudoNormal);
+        if (!finite4(float4(featurePseudoNormal,0.0f)) ||
+            !isfinite(pseudoLength) || abs(pseudoLength-1.0f)>1.0e-3f ||
+            dot(featurePseudoNormal,faceNormalLocal)<-1.0e-4f)
+            return false;
+    }
+    const float orientation=dot(deltaLocal,featurePseudoNormal)<0.0f
+        ? -1.0f : 1.0f;
     const float3 normalLocal=distance>1.0e-12f
-        ? orientation*deltaLocal/distance : faceNormalLocal;
+        ? orientation*deltaLocal/distance : featurePseudoNormal;
     normal=humanQuaternionRotate(bodyPose.orientation,normalLocal);
     const float signedDistance=distance>1.0e-12f
         ? orientation*distance : 0.0f;
@@ -562,6 +613,25 @@ inline bool humanFEMBodyTriangleContactState(
         finite4(float4(contactTangent[0],0.0f)) &&
         finite4(float4(contactTangent[1],0.0f)) &&
         finite4(float4(contactTangent[2],0.0f));
+}
+
+inline bool humanFEMBodyTriangleContactState(
+    const NMNumiHumanFEMBodyContactSampleGPU sample,
+    const NMFEMNodeStateGPU slaveState,
+    const MRArticulatedBodyPoseGPU bodyPose,
+    thread float3& slavePoint,
+    thread float3& bodyPoint,
+    thread float3& normal,
+    thread float& closure,
+    thread float& contactArea,
+    thread float3x3& contactTangent,
+    thread float& tangentialSlip
+) {
+    return humanFEMBodyTriangleContactStateWithFeatureNormals(
+        sample,slaveState,bodyPose,0u,float3(0.0f),float3(0.0f),
+        float3(0.0f),float3(0.0f),float3(0.0f),float3(0.0f),
+        slavePoint,bodyPoint,normal,closure,contactArea,contactTangent,
+        tangentialSlip);
 }
 
 inline bool humanFEMBodyContactState(
@@ -658,6 +728,30 @@ inline float humanFEMBodyContactAABBDistanceSquared(
     return dot(delta,delta);
 }
 
+inline bool humanValidBodyContactFeatureNormals(
+    const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU triangle
+) {
+    const uint allowed=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ALL_FEATURE_PSEUDONORMALS;
+    if ((triangle.featureNormalFlags & ~allowed)!=0u) return false;
+    const float4 values[6]={triangle.edgePseudoNormal01,
+        triangle.edgePseudoNormal12,triangle.edgePseudoNormal20,
+        triangle.vertexPseudoNormal0,triangle.vertexPseudoNormal1,
+        triangle.vertexPseudoNormal2};
+    for (uint i=0u;i<6u;++i) {
+        const float4 value=values[i];
+        if (!finite4(value) || value.w!=0.0f) return false;
+        const bool valid=(triangle.featureNormalFlags & (1u<<i))!=0u;
+        const float magnitude=length(value.xyz);
+        if (valid) {
+            if (!isfinite(magnitude) || abs(magnitude-1.0f)>1.0e-3f)
+                return false;
+        } else if (any(value.xyz!=float3(0.0f))) {
+            return false;
+        }
+    }
+    return true;
+}
+
 inline bool humanFEMBodyContactClosestOnStaticBVH(
     const float3 queryLocal,
     const uint bodyIndex,
@@ -700,7 +794,7 @@ inline bool humanFEMBodyContactClosestOnStaticBVH(
             if (candidate.bodyIndex!=bodyIndex ||
                 candidate.boneStableId==NM_INVALID_INDEX ||
                 candidate.triangleStableId==NM_INVALID_INDEX ||
-                candidate.reserved0!=0u ||
+                !humanValidBodyContactFeatureNormals(candidate) ||
                 !finite4(candidate.bodyLocalVertex0) ||
                 !finite4(candidate.bodyLocalVertex1) ||
                 !finite4(candidate.bodyLocalVertex2) ||
@@ -769,6 +863,11 @@ inline bool humanFEMBodyContactStateForSample(
     thread float3x3& contactTangent,
     thread float& tangentialSlip
 ) {
+    // Reject any host/Metal ABI mismatch before reading a range or triangle.
+    // In particular, v15 hosts stride this triangle table at 80 bytes while
+    // v16 feature-normal records are 176 bytes.
+    if (dispatch.abiVersion != NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION)
+        return false;
     if (dispatch.femBodyContactCandidateTriangleCount == 0u)
         return humanFEMBodyContactState(sample, slaveState, bodyPose,
             slavePoint, bodyPoint, normal, closure, contactArea,
@@ -778,7 +877,11 @@ inline bool humanFEMBodyContactStateForSample(
         ranges[sampleIndex];
     const bool legacyRange=range.reserved0==NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_LEGACY;
     const bool guardedRange=range.reserved0==NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_MOTION_ENVELOPE;
-    const bool staticBVHRange=range.reserved0==NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_STATIC_COMPLETE_BVH;
+    const bool staticBVHRange=
+        range.reserved0==NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_STATIC_COMPLETE_BVH ||
+        range.reserved0==NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_STATIC_CLOSED_ORIENTED_BVH;
+    const bool closedOrientedStaticBVHRange=
+        range.reserved0==NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_STATIC_CLOSED_ORIENTED_BVH;
     const float4 envelope=range.restPointAndMotionRadius;
     if ((!legacyRange && !guardedRange && !staticBVHRange) ||
         (!staticBVHRange && range.firstTriangle > dispatch.femBodyContactCandidateTriangleCount) ||
@@ -828,6 +931,48 @@ inline bool humanFEMBodyContactStateForSample(
         if (length(queryLocal-envelope.xyz)>envelope.w+motionGuard)
             return false;
     }
+    // A strict closed/oriented bank proves every point outside its bounds is
+    // outside the solid. If the conservative AABB distance already exceeds
+    // the prepared band, return a finite inactive state without traversing the
+    // complete tree. Uncertified/open banks keep the full-query behavior;
+    // points inside the box (including outside a concave surface) always query.
+    if (closedOrientedStaticBVHRange) {
+        const uint treeEnd=range.firstTriangle+range.triangleCount;
+        const NMNumiHumanFEMBodyContactBVHNodeGPU root=
+            bvhNodes[range.firstTriangle];
+        if (!finite4(root.boundsMinimum) || !finite4(root.boundsMaximum) ||
+            root.boundsMinimum.w!=0.0f || root.boundsMaximum.w!=0.0f ||
+            any(root.boundsMinimum.xyz>root.boundsMaximum.xyz) ||
+            root.escapeIndex!=treeEnd ||
+            (root.flags!=NM_NUMI_HUMAN_FEM_BODY_CONTACT_BVH_NODE_LEAF &&
+             root.flags!=0u)) return false;
+        const float3 outsideDelta=max(max(
+            root.boundsMinimum.xyz-queryLocal,
+            queryLocal-root.boundsMaximum.xyz),float3(0.0f));
+        const float distanceSquared=dot(outsideDelta,outsideDelta);
+        const float coordinateScale=max(1.0f,dot(queryLocal,queryLocal));
+        const float roundingGuard=
+            32.0f*1.1920928955078125e-7f*coordinateScale;
+        const float bandSquared=
+            range.maximumDistanceMeters*range.maximumDistanceMeters;
+        if (isfinite(distanceSquared) && isfinite(roundingGuard) &&
+            distanceSquared>bandSquared+roundingGuard) {
+            if (!(distanceSquared>0.0f) ||
+                !finite4(sample.bodyLocalPointAndArea) ||
+                sample.bodyLocalPointAndArea.w<0.0f) return false;
+            slavePoint=slaveState.positionAndMass.xyz;
+            bodyPoint=slavePoint;
+            normal=humanQuaternionRotate(bodyPose.orientation,
+                outsideDelta*rsqrt(distanceSquared));
+            closure=0.0f;
+            contactArea=sample.bodyLocalPointAndArea.w;
+            contactTangent=float3x3(0.0f);
+            tangentialSlip=0.0f;
+            return finite4(float4(slavePoint,closure)) &&
+                finite4(float4(bodyPoint,0.0f)) &&
+                finite4(float4(normal,contactArea));
+        }
+    }
     float bestSquaredDistance=INFINITY;
     uint bestBone=NM_INVALID_INDEX;
     uint bestTriangle=NM_INVALID_INDEX;
@@ -845,7 +990,7 @@ inline bool humanFEMBodyContactStateForSample(
             if (candidate.bodyIndex != sample.bodyIndex ||
                 candidate.boneStableId == NM_INVALID_INDEX ||
                 candidate.triangleStableId == NM_INVALID_INDEX ||
-                candidate.reserved0 != 0u ||
+                !humanValidBodyContactFeatureNormals(candidate) ||
                 !finite4(candidate.bodyLocalVertex0) ||
                 !finite4(candidate.bodyLocalVertex1) ||
                 !finite4(candidate.bodyLocalVertex2) ||
@@ -903,7 +1048,11 @@ inline bool humanFEMBodyContactStateForSample(
         best.bodyLocalVertex1.xyz;
     selected.stiffnessAndNormalStrainPerPressure.xyz=
         best.bodyLocalVertex2.xyz;
-    if (!humanFEMBodyContactState(selected,slaveState,bodyPose,
+    if (!humanFEMBodyTriangleContactStateWithFeatureNormals(
+            selected,slaveState,bodyPose,best.featureNormalFlags,
+            best.edgePseudoNormal01.xyz,best.edgePseudoNormal12.xyz,
+            best.edgePseudoNormal20.xyz,best.vertexPseudoNormal0.xyz,
+            best.vertexPseudoNormal1.xyz,best.vertexPseudoNormal2.xyz,
             slavePoint,bodyPoint,normal,closure,contactArea,contactTangent,
             tangentialSlip)) return false;
     return !(beyondPreparedRange && closure>0.0f);
@@ -1257,6 +1406,16 @@ inline bool passiveRoutedBandState(
 }
 
 } // namespace
+
+// Presence of this entry point is the host-side ABI 16 handshake. New hosts
+// refuse to create buffers against metallibs that predate the 176-byte triangle
+// record; old hosts are rejected by the version guard in the query path.
+kernel void nm_numi_human_contact_triangle_abi16_marker(
+    device uint* output [[buffer(0)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global == 0u) output[0] = NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
+}
 
 kernel void nm_numi_human_prepare_provisional_status(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
@@ -1731,6 +1890,8 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads(
         [[buffer(7)]],
     uint global [[thread_position_in_grid]]
 ) {
+    // Reject an old host dispatch before reading samples or any contact tables.
+    if (dispatch.abiVersion != NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION) return;
     // Admission guarantees one FEM/body-contact sample per slave node.
     // A sample-domain launch therefore has disjoint writes, without atomics.
     const uint total = dispatch.environmentCount * dispatch.femBodyContactSampleCount;

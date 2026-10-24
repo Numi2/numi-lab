@@ -1,0 +1,107 @@
+{
+  "matter/include/numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/matter/include/numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp",
+    "sha256": "617e86a4508b7fdd69539d904c43518ec6bb3d2d4939bbcf625051592fdda5a0",
+    "bytes": 21806
+  },
+  "matter/include/numi/matter/fem_body_contact_static_bvh.hpp": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/matter/include/numi/matter/fem_body_contact_static_bvh.hpp",
+    "sha256": "b2e3bc466341526d287e22d9995a33f79040fcb4d07f856eeb8b4a6b1ee83236",
+    "bytes": 38188
+  },
+  "matter/include/numi/matter/numi_human_shared.h": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/matter/include/numi/matter/numi_human_shared.h",
+    "sha256": "62a17ddd22d5b61297605c23ce789f900264d0b93cf351096cd57d19797435b4",
+    "bytes": 21208
+  },
+  "matter/src/metal/numi_human.metalinc": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/matter/src/metal/numi_human.metalinc",
+    "sha256": "b28611b6362ecceb5c2bf4034e0dce4f1a0e9f211827dc7643a5fe8d8e958ad4",
+    "bytes": 156141
+  },
+  "tests/numi_human_fem_body_triangle_contact/fem_body_contact_static_bvh_test.cpp": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/tests/numi_human_fem_body_triangle_contact/fem_body_contact_static_bvh_test.cpp",
+    "sha256": "3c5678ad538c995520236253f23373d477a2ac70c384de2092fb94dcf47b6c64",
+    "bytes": 29740
+  },
+  "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.metal": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.metal",
+    "sha256": "f53764d660af2c7aaa42a799db8819efc35a3236e4dc542f16f7011fbeea4247",
+    "bytes": 11620
+  },
+  "tests/numi_human_fem_body_triangle_contact/small_face_triangle_coupon.mm": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/tests/numi_human_fem_body_triangle_contact/small_face_triangle_coupon.mm",
+    "sha256": "bc63f70a1ebf49cf9341a878184c991c55b7859d1c96668cf5a519731a716079",
+    "bytes": 22929
+  },
+  "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.mm": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.mm",
+    "sha256": "f31ed7bce2d0fa391bc754e26542ef375bd9987e19cef5e062b6a9443016a8b8",
+    "bytes": 115450
+  },
+  "tests/numi_human_fem_body_triangle_contact/support/fem_body_triangle_contact_math.hpp": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/tests/numi_human_fem_body_triangle_contact/support/fem_body_triangle_contact_math.hpp",
+    "sha256": "08d4cbd7847054406ddf3f975260ff925182cdcf8b0a12a3da69619f0c565400",
+    "bytes": 12000
+  },
+  "apps/numilab_human_myosim_visual_probe.mm": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps/numilab_human_myosim_visual_probe.mm",
+    "sha256": "ba3a25a25fd729eacce6fef04960a29d4d06d1c483925e955a1bd35c51245ded",
+    "bytes": 2333491
+  },
+  "apps/NumiHumanInitialSkinBoneContactWitness.hpp": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps/NumiHumanInitialSkinBoneContactWitness.hpp",
+    "sha256": "958efbf0c48a8952672597690490dff4b5110c1c18aa5eab6f6842351b974f19",
+    "bytes": 25240
+  },
+  "tests/numi_human_fem_body_triangle_contact/all_body_moving_capacity_coupon.mm": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/tests/numi_human_fem_body_triangle_contact/all_body_moving_capacity_coupon.mm",
+    "sha256": "e45545f3518e36ae1c41809cc327a18af6ba0b9f56ffa3eb26632a3a5aa744d2",
+    "bytes": 11233
+  },
+  "tests/numi_human_fem_body_triangle_contact/all_body_moving_capacity_coupon.metal": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/tests/numi_human_fem_body_triangle_contact/all_body_moving_capacity_coupon.metal",
+    "sha256": "53e548ec3452b681ea564a0de4a6847608a08f0aa8b67caded128f337de911b8",
+    "bytes": 1966
+  },
+  "tests/numi_human_fem_body_triangle_contact/run.py": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/tests/numi_human_fem_body_triangle_contact/run.py",
+    "sha256": "3188f330d39bfc33b7f53267721956566b9b48325f3bbfb63f645c98310af076",
+    "bytes": 9178
+  },
+  "tests/numi_human_fem_body_triangle_contact/small_face_triangle_coupon.metal": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/tests/numi_human_fem_body_triangle_contact/small_face_triangle_coupon.metal",
+    "sha256": "372137e8515f0c39c4e553e18f7696a769d4bc76652f7f9dc861d350ee141f8f",
+    "bytes": 1876
+  },
+  "tests/numi_human_fem_body_triangle_contact/README.md": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/tests/numi_human_fem_body_triangle_contact/README.md",
+    "sha256": "b1d4640825d1e39bf2e7d55ea48015e4b31e11b894f0a259e83f169054062391",
+    "bytes": 3649
+  },
+  "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_arithmetic_coupon.mm": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_arithmetic_coupon.mm",
+    "sha256": "db637c0582aaf2ce35d4bdc297da605a27a05667c2b5b3f70d46aba20e54ac17",
+    "bytes": 6160
+  },
+  "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_math_test.cpp": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_math_test.cpp",
+    "sha256": "3b6d994755e39694ec7465f9fc1628114e43b43ff0cf0473efb5102913b6883b",
+    "bytes": 40897
+  },
+  "tests/numi_human_fem_body_triangle_contact/support/extract_small_face_geometry.cpp": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/tests/numi_human_fem_body_triangle_contact/support/extract_small_face_geometry.cpp",
+    "sha256": "40173ea9085b7e529f98de52af4533cf6fc565c3a6615f094f144bab6cf9b577",
+    "bytes": 4558
+  },
+  "tests/numi_human_fem_body_triangle_contact/support/small_triangles_107.hpp": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/tests/numi_human_fem_body_triangle_contact/support/small_triangles_107.hpp",
+    "sha256": "dcbf3637bcf77e1574e33e0ddc020ffdeb73c97bfa483c7540d161c7906e374c",
+    "bytes": 18570
+  },
+  "matter/src/numi_human.mm": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-004/matter/src/numi_human.mm",
+    "sha256": "cc7a09ac67160a6f9bf33e46671f5aa491f0516d006f73222e15e3244c69286d",
+    "bytes": 240192
+  }
+}

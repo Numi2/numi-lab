@@ -170,6 +170,56 @@ inline ClosestPoint closestPointOnTriangle(
     return best;
 }
 
+// CPU mirror of the production feature-normal selection contract. A zero
+// flags word is the legacy API and must fall back to the face normal. Face
+// projections always use that normal and have no pseudonormal bit; edge and
+// vertex projections in strict mode require their exact authored feature bit.
+inline bool featureOrientationNormal(
+    const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU& triangle,
+    const ClosestPoint& closest,
+    Vec3 faceNormal,
+    Vec3& selectedNormal
+) {
+    selectedNormal=faceNormal;
+    if (triangle.featureNormalFlags==0u || closest.feature==Feature::face)
+        return finite(selectedNormal);
+    Vec3 candidate{};
+    std::uint32_t bit=0u;
+    if (closest.feature==Feature::edge) {
+        if (closest.barycentric[2]==0.0) {
+            candidate=read(triangle.edgePseudoNormal01);
+            bit=NM_NUMI_HUMAN_FEM_BODY_CONTACT_EDGE_01_PSEUDONORMAL;
+        } else if (closest.barycentric[0]==0.0) {
+            candidate=read(triangle.edgePseudoNormal12);
+            bit=NM_NUMI_HUMAN_FEM_BODY_CONTACT_EDGE_12_PSEUDONORMAL;
+        } else {
+            candidate=read(triangle.edgePseudoNormal20);
+            bit=NM_NUMI_HUMAN_FEM_BODY_CONTACT_EDGE_20_PSEUDONORMAL;
+        }
+    } else if (closest.feature==Feature::vertex) {
+        if (closest.barycentric[0]>=closest.barycentric[1] &&
+            closest.barycentric[0]>=closest.barycentric[2]) {
+            candidate=read(triangle.vertexPseudoNormal0);
+            bit=NM_NUMI_HUMAN_FEM_BODY_CONTACT_VERTEX_0_PSEUDONORMAL;
+        } else if (closest.barycentric[1]>=closest.barycentric[2]) {
+            candidate=read(triangle.vertexPseudoNormal1);
+            bit=NM_NUMI_HUMAN_FEM_BODY_CONTACT_VERTEX_1_PSEUDONORMAL;
+        } else {
+            candidate=read(triangle.vertexPseudoNormal2);
+            bit=NM_NUMI_HUMAN_FEM_BODY_CONTACT_VERTEX_2_PSEUDONORMAL;
+        }
+    } else {
+        return false;
+    }
+    if ((triangle.featureNormalFlags & bit)==0u) return false;
+    const double candidateLength=norm(candidate);
+    if (!finite(candidate) || !std::isfinite(candidateLength) ||
+        std::abs(candidateLength-1.0)>1.0e-3 ||
+        dot(candidate,faceNormal)<-1.0e-4) return false;
+    selectedNormal=candidate;
+    return true;
+}
+
 inline Evaluation evaluate(
     Vec3 slave,
     Vec3 bodyOrigin,

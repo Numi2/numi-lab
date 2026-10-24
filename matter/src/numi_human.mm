@@ -1626,6 +1626,16 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->message = "Numi Matter metallib did not load for Human tendon/FEM assembly";
                 return false;
             }
+            // Versioned function presence prevents a new 176-byte triangle host
+            // from binding its buffers to an older 80-byte-triangle metallib.
+            id<MTLFunction> contactTriangleABI16Marker = [state_->library
+                newFunctionWithName:@"numi_matter_metal::nm_numi_human_contact_triangle_abi16_marker"];
+            if (contactTriangleABI16Marker == nil) {
+                state_->message =
+                    "Numi Matter metallib lacks Human contact triangle ABI 16";
+                state_->library = nil;
+                return false;
+            }
             const auto pipeline = [&](const char* name) {
                 const std::string qualified =
                     std::string("numi_matter_metal::") + name;

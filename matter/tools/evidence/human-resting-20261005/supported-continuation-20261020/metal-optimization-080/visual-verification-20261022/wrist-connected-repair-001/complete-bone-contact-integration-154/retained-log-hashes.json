@@ -1,0 +1,26 @@
+{
+  "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/source-preflight-005/stderr.log": {
+    "sha256": "9e5f0ff8bbe71546cfa339c721a626a958277ab5f07b4d102da7c40869b8c7ef",
+    "bytes": 77101
+  },
+  "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/source-preflight-005/stdout.log": {
+    "sha256": "d60d691fff8537f8f51c2d20be41aff705c968f4ca9c775e9fef6b38fdc276dd",
+    "bytes": 209893
+  },
+  "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/native-1ms-005/stderr.log": {
+    "sha256": "35d74c21b9d4e9950473edde2579ae37c7234855bf31c86180a69f3eb4e9d4d1",
+    "bytes": 140263
+  },
+  "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/native-1ms-005/stdout.log": {
+    "sha256": "0e5253167798a176bea2757ccee2277f53ec448beff96069e1091e955ca379a5",
+    "bytes": 288944
+  },
+  "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/native-1ms-006/stderr.log": {
+    "sha256": "938163d12ba6aadd6d3c1e367b64a29a3d40c53e547a851f3f0dcc1aa016c072",
+    "bytes": 713858
+  },
+  "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/native-1ms-006/stdout.log": {
+    "sha256": "cb6b3298f2caee709237ba2577cdad41c402bf885d950a32c5f3e9afa2f27852",
+    "bytes": 289117
+  }
+}

@@ -72,6 +72,7 @@ int main(int argc,const char* argv[]) {
         @"numi_matter_metal::nm_numi_human_assemble_fem_body_contact_loads_dense_oracle");
 
     NMNumiHumanTendonFEMLoadDispatchGPU dispatch{};
+    dispatch.abiVersion=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
     dispatch.environmentCount=1u; dispatch.femNodeCount=1u;
     dispatch.bodyPoseStride=2u; dispatch.articulationFirstBody=0u;
     dispatch.femBodyContactSampleCount=1u;

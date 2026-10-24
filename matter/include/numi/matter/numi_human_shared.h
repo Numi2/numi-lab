@@ -2,11 +2,12 @@
 
 #include "numi/matter/shared.h"
 
-#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 15u
+#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 16u
 #define NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS 4096u
 #define NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_LEGACY 0u
 #define NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_MOTION_ENVELOPE 1u
 #define NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_STATIC_COMPLETE_BVH 2u
+#define NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_STATIC_CLOSED_ORIENTED_BVH 3u
 // Bounded complete banks: the integrated source preflight requires up to 869.
 #define NM_NUMI_HUMAN_FEM_BODY_CONTACT_MAXIMUM_NEIGHBORHOOD_TRIANGLES 1024u
 
@@ -177,12 +178,12 @@ typedef struct NM_ALIGN16 NMNumiHumanFEMBodyContactSampleGPU {
     nm_float4 stiffnessAndNormalStrainPerPressure;
 } NMNumiHumanFEMBodyContactSampleGPU;
 
-// Optional bounded per-sample rigid-bone neighborhood. The legacy contact
-// sample above remains 64 bytes. Full-sample and filtered-solver range arrays
-// may index the same flattened triangle table. ABI 15 adds an explicit motion
-// envelope: reserved0 == 1 enables it and the xyz/w lanes store body-local rest
-// point / maximum motion radius in metres. reserved0 == 0 is legacy and requires
-// the added lanes to be zero; it carries no neighborhood-completeness claim.
+// Optional per-sample rigid-bone neighborhood. The legacy contact sample
+// above remains 64 bytes. reserved0 == 0 is legacy, 1 is a motion envelope,
+// 2 is a complete static BVH without a closed-solid claim, and 3 is a static
+// BVH whose entire exact-coordinate bank passed closed/oriented validation.
+// Only value 3 may use a certified outside-AABB inactive fast path. The
+// xyz/w envelope lanes are zero for both static variants.
 typedef struct NM_ALIGN16 NMNumiHumanFEMBodyContactNeighborhoodRangeGPU {
     nm_u32 firstTriangle;
     nm_u32 triangleCount;
@@ -191,15 +192,35 @@ typedef struct NM_ALIGN16 NMNumiHumanFEMBodyContactNeighborhoodRangeGPU {
     nm_float4 restPointAndMotionRadius;
 } NMNumiHumanFEMBodyContactNeighborhoodRangeGPU;
 
+enum NMNumiHumanFEMBodyContactFeatureNormalFlags : nm_u32 {
+    NM_NUMI_HUMAN_FEM_BODY_CONTACT_EDGE_01_PSEUDONORMAL = 1u << 0u,
+    NM_NUMI_HUMAN_FEM_BODY_CONTACT_EDGE_12_PSEUDONORMAL = 1u << 1u,
+    NM_NUMI_HUMAN_FEM_BODY_CONTACT_EDGE_20_PSEUDONORMAL = 1u << 2u,
+    NM_NUMI_HUMAN_FEM_BODY_CONTACT_VERTEX_0_PSEUDONORMAL = 1u << 3u,
+    NM_NUMI_HUMAN_FEM_BODY_CONTACT_VERTEX_1_PSEUDONORMAL = 1u << 4u,
+    NM_NUMI_HUMAN_FEM_BODY_CONTACT_VERTEX_2_PSEUDONORMAL = 1u << 5u,
+    NM_NUMI_HUMAN_FEM_BODY_CONTACT_ALL_FEATURE_PSEUDONORMALS = (1u << 6u) - 1u,
+};
+
 typedef struct NM_ALIGN16 NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU {
     nm_float4 bodyLocalVertex0;
     nm_float4 bodyLocalVertex1;
     nm_float4 bodyLocalVertex2;
     nm_float4 authoredOutwardNormal;
+    // Static complete closed banks carry three edge pseudonormals in 01, 12,
+    // 20 order and angle-weighted vertex pseudonormals in 0, 1, 2 order.
+    // They are computed once from exact-coordinate-welded outward triangles;
+    // the per-step query selects by its closest Voronoi feature.
+    nm_float4 edgePseudoNormal01;
+    nm_float4 edgePseudoNormal12;
+    nm_float4 edgePseudoNormal20;
+    nm_float4 vertexPseudoNormal0;
+    nm_float4 vertexPseudoNormal1;
+    nm_float4 vertexPseudoNormal2;
     nm_u32 bodyIndex;
     nm_u32 boneStableId;
     nm_u32 triangleStableId;
-    nm_u32 reserved0;
+    nm_u32 featureNormalFlags;
 } NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU;
 
 // Static body-local BVH node emitted once from a complete registered triangle
@@ -397,7 +418,16 @@ static_assert(sizeof(NMNumiHumanFEMBodyContactNeighborhoodRangeGPU) == 32u);
 static_assert(__builtin_offsetof(
     NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,
     restPointAndMotionRadius) == 16u);
-static_assert(sizeof(NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU) == 80u);
+static_assert(sizeof(NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU) == 176u);
+static_assert(__builtin_offsetof(
+    NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU, edgePseudoNormal01) == 64u);
+static_assert(__builtin_offsetof(
+    NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU, vertexPseudoNormal2) == 144u);
+static_assert(__builtin_offsetof(
+    NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU, bodyIndex) == 160u);
+static_assert(__builtin_offsetof(
+    NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU, featureNormalFlags) == 172u);
+static_assert(NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION == 16u);
 static_assert(sizeof(NMNumiHumanFEMBodyContactBVHNodeGPU) == 48u);
 static_assert(sizeof(NMNumiHumanFEMSurfaceAttachmentGPU) == 80u);
 static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 144u);

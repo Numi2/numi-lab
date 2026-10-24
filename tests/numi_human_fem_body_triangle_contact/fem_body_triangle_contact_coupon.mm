@@ -13,6 +13,8 @@
 #include <cstdlib>
 #include <vector>
 #include <cstring>
+#include <limits>
+#include <tuple>
 
 using namespace numi::matter::fem_body_triangle_contact;
 
@@ -42,6 +44,9 @@ int main(int argc, const char* argv[]) {
                 error.localizedDescription.UTF8String);
             return 1;
         }
+        require([library newFunctionWithName:
+            @"numi_matter_metal::nm_numi_human_contact_triangle_abi16_marker"] != nil,
+            "ABI 16 marker is exported by the matched metallib");
         id<MTLFunction> function=[library
             newFunctionWithName:@"nm_numi_human_fem_body_triangle_contact_coupon"];
         require(function!=nil,"triangle coupon kernel");
@@ -166,6 +171,14 @@ int main(int argc, const char* argv[]) {
                 std::abs(double(out[i*8u+0u].x)-expected.slaveForce.x),
                 std::abs(double(out[i*8u+0u].y)-expected.slaveForce.y),
                 std::abs(double(out[i*8u+0u].z)-expected.slaveForce.z)});
+            if (!(maxDifference<1.0e-3)) {
+                std::fprintf(stderr,"legacy triangle mismatch row=%zu got=(%.9g,%.9g,%.9g) expected=(%.17g,%.17g,%.17g) diff=%.9g rotated=%d point=(%.9g,%.9g,%.9g) closure=%.9g body=(%.9g,%.9g,%.9g) normal=(%.9g,%.9g,%.9g)\n",
+                    i,out[i*8u].x,out[i*8u].y,out[i*8u].z,
+                    expected.slaveForce.x,expected.slaveForce.y,expected.slaveForce.z,
+                    maxDifference,int(rotated),points[i].x,points[i].y,points[i].z,
+                    out[i*8u].w,out[i*8u+2u].x,out[i*8u+2u].y,out[i*8u+2u].z,
+                    out[i*8u+7u].x,out[i*8u+7u].y,out[i*8u+7u].z);
+            }
             require(maxDifference<1.0e-3,"Metal force matches CPU triangle query");
             for (std::size_t col=0;col<3u;++col) {
                 const nm_float4 got=out[i*8u+3u+col];
@@ -192,6 +205,7 @@ int main(int argc, const char* argv[]) {
         // Exercise the actual owner load, body-wrench, and audit kernels on
         // one valid triangle sample, using the same single Metal command path.
         NMNumiHumanTendonFEMLoadDispatchGPU dispatch{};
+        dispatch.abiVersion=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
         dispatch.environmentCount=1u;
         dispatch.femNodeCount=static_cast<nm_u32>(count);
         dispatch.bodyPoseStride=static_cast<nm_u32>(count);
@@ -369,6 +383,7 @@ int main(int argc, const char* argv[]) {
                     staticSamples,staticTree.bodies,0.05f,staticRanges),
                 "prepare complete per-sample BVH ranges");
         NMNumiHumanTendonFEMLoadDispatchGPU staticDispatch{};
+        staticDispatch.abiVersion=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
         staticDispatch.environmentCount=1u;
         staticDispatch.femNodeCount=2u;
         staticDispatch.bodyPoseStride=static_cast<nm_u32>(count);
@@ -440,6 +455,51 @@ int main(int argc, const char* argv[]) {
                 std::abs(staticResult[2].z+0.01f)<2.0e-5f &&
                 std::abs(staticResult[3].z-1.0f)<2.0e-5f,
                 "BVH finds nearest triangle in a distant branch");
+        // ABI 15 must be rejected before the 176-byte triangle table is read.
+        // Null contact-table arguments make any accidental range/triangle access
+        // a GPU fault instead of silently testing a compatible layout.
+        NMNumiHumanTendonFEMLoadDispatchGPU oldABIDispatch{};
+        oldABIDispatch.abiVersion = 15u;
+        oldABIDispatch.environmentCount = 1u;
+        oldABIDispatch.femNodeCount = 1u;
+        oldABIDispatch.bodyPoseStride = static_cast<nm_u32>(count);
+        oldABIDispatch.femBodyContactSampleCount = 1u;
+        oldABIDispatch.femBodyContactCandidateTriangleCount = 1u;
+        auto oldABIDispatchBuffer = dispatchBuffer(
+            &oldABIDispatch, sizeof(oldABIDispatch));
+        std::array<nm_float4,1> oldABIOutput{{f4(-1.0f,-1.0f,-1.0f,-1.0f)}};
+        auto oldABIOutputBuffer = dispatchBuffer(
+            oldABIOutput.data(), sizeof(oldABIOutput));
+        require(oldABIDispatchBuffer && oldABIOutputBuffer,
+                "old ABI mismatch test buffers");
+        id<MTLFunction> oldABIFunction = [library
+            newFunctionWithName:@"nm_numi_human_contact_abi16_mismatch_coupon"];
+        require(oldABIFunction != nil, "ABI mismatch guard kernel");
+        NSError* oldABIPipelineError = nil;
+        id<MTLComputePipelineState> oldABIPipeline = [device
+            newComputePipelineStateWithFunction:oldABIFunction
+                                          error:&oldABIPipelineError];
+        require(oldABIPipeline != nil, "ABI mismatch guard pipeline");
+        id<MTLCommandBuffer> oldABICommand = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> oldABIEncoder =
+            [oldABICommand computeCommandEncoder];
+        [oldABIEncoder setComputePipelineState:oldABIPipeline];
+        [oldABIEncoder setBuffer:oldABIDispatchBuffer offset:0 atIndex:0];
+        [oldABIEncoder setBuffer:oldABIOutputBuffer offset:0 atIndex:1];
+        [oldABIEncoder dispatchThreads:MTLSizeMake(1u,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+        [oldABIEncoder endEncoding];
+        [oldABICommand commit];
+        [oldABICommand waitUntilCompleted];
+        require(oldABICommand.status == MTLCommandBufferStatusCompleted,
+                "old ABI is rejected before unbound contact tables are read");
+        const auto* oldABIResult = static_cast<const nm_float4*>(
+            oldABIOutputBuffer.contents);
+        require(oldABIResult[0].x == 0.0f &&
+                oldABIResult[0].y == 15.0f &&
+                oldABIResult[0].z == 1.0f,
+                "ABI 15 dispatch returns invalid before triangle access");
+
         // Adversarial precision and coverage cases for complete static banks.
         // The two body-4 planes have different true distances below one Float32
         // ULP at z=1, but both rounded absolute closest points equal the query.
@@ -505,6 +565,7 @@ int main(int argc, const char* argv[]) {
                     precisionRanges),
                 "prepare complete precision and far-field ranges");
         NMNumiHumanTendonFEMLoadDispatchGPU precisionDispatch{};
+        precisionDispatch.abiVersion=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
         precisionDispatch.environmentCount=1u;
         precisionDispatch.femNodeCount=3u;
         precisionDispatch.bodyPoseStride=static_cast<nm_u32>(count);
@@ -563,6 +624,7 @@ int main(int argc, const char* argv[]) {
         // rule. Keep this as a separate execution of that branch so a future
         // static-BVH-only fix cannot leave neighborhood callers regressed.
         NMNumiHumanTendonFEMLoadDispatchGPU legacyPrecisionDispatch{};
+        legacyPrecisionDispatch.abiVersion=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
         legacyPrecisionDispatch.environmentCount=1u;
         legacyPrecisionDispatch.femNodeCount=1u;
         legacyPrecisionDispatch.bodyPoseStride=static_cast<nm_u32>(count);
@@ -1457,6 +1519,401 @@ int main(int argc, const char* argv[]) {
                 std::abs(dQsum+(kShared0+kShared1+kBody1Extra))<0.08f,
                 "two moving masters sum shared-slave tangent and source-row q contraction");
         std::printf("multi_master_coupled_tangent_gpu=PASS masters=2 shared_slave=3\n");
+
+        // Strict closed convex and concave source banks feed the production
+        // feature-aware triangle state. Face/edge/vertex signs and active
+        // force/tangent finite differences are checked on the GPU.
+        id<MTLFunction> pseudoFunction=[library
+            newFunctionWithName:@"nm_numi_human_closed_pseudonormal_state_coupon"];
+        require(pseudoFunction!=nil,"closed pseudonormal state kernel");
+        id<MTLComputePipelineState> pseudoPipeline=
+            [device newComputePipelineStateWithFunction:pseudoFunction error:&error];
+        require(pseudoPipeline!=nil,"closed pseudonormal state pipeline");
+        auto makeOutwardTriangle=[](std::uint32_t body,std::uint32_t bone,
+                                    std::uint32_t id,Vec3 a,Vec3 b,Vec3 c) {
+            NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU t{};
+            t.bodyIndex=body;t.boneStableId=bone;t.triangleStableId=id;
+            t.bodyLocalVertex0=f4(float(a.x),float(a.y),float(a.z),0.0f);
+            t.bodyLocalVertex1=f4(float(b.x),float(b.y),float(b.z),0.0f);
+            t.bodyLocalVertex2=f4(float(c.x),float(c.y),float(c.z),0.0f);
+            Vec3 n{};require(scaledFaceNormal(a,b,c,n),"nonzero coupon face normal");
+            t.authoredOutwardNormal=f4(float(n.x),float(n.y),float(n.z),0.0f);
+            return t;
+        };
+        const std::array<Vec3,4> tetraVertices{{
+            {0,0,0},{1,0,0},{0,1,0},{0,0,1}}};
+        std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> closedInput;
+        closedInput.push_back(makeOutwardTriangle(31u,7u,0u,tetraVertices[0],tetraVertices[2],tetraVertices[1]));
+        closedInput.push_back(makeOutwardTriangle(31u,7u,1u,tetraVertices[0],tetraVertices[3],tetraVertices[2]));
+        closedInput.push_back(makeOutwardTriangle(31u,7u,2u,tetraVertices[0],tetraVertices[1],tetraVertices[3]));
+        closedInput.push_back(makeOutwardTriangle(31u,7u,3u,tetraVertices[1],tetraVertices[2],tetraVertices[3]));
+        constexpr std::array<std::array<double,2>,7> polygon{{
+            {{0,0}},{{2,0}},{{2,1}},{{1,1}},{{1,2}},{{0,2}},{{0,1}}}};
+        std::vector<unsigned> ring{0u,1u,2u,3u,4u,5u,6u};
+        std::vector<std::array<unsigned,3>> caps;
+        const auto cross2=[&](unsigned a,unsigned b,unsigned c) {
+            const auto& A=polygon[a];const auto& B=polygon[b];const auto& C=polygon[c];
+            return (B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0]);
+        };
+        while(ring.size()>3u) {
+            bool clipped=false;
+            for(std::size_t i=0;i<ring.size();++i) {
+                const unsigned a=ring[(i+ring.size()-1u)%ring.size()];
+                const unsigned b=ring[i],c=ring[(i+1u)%ring.size()];
+                if(cross2(a,b,c)<=0.0)continue;
+                bool contains=false;
+                for(const unsigned q:ring)if(q!=a&&q!=b&&q!=c)
+                    if(cross2(a,b,q)>=0.0&&cross2(b,c,q)>=0.0&&cross2(c,a,q)>=0.0)
+                        {contains=true;break;}
+                if(contains)continue;
+                caps.push_back({a,b,c});
+                ring.erase(ring.begin()+static_cast<std::ptrdiff_t>(i));
+                clipped=true;break;
+            }
+            require(clipped,"concave L-prism cap triangulates");
+        }
+        caps.push_back({ring[0],ring[1],ring[2]});
+        std::array<Vec3,14> prismVertices{};
+        for(unsigned i=0;i<7u;++i) {
+            prismVertices[i]={polygon[i][0],polygon[i][1],0.0};
+            prismVertices[7u+i]={polygon[i][0],polygon[i][1],1.0};
+        }
+        std::uint32_t faceId=0u;
+        for(const auto& f:caps) {
+            closedInput.push_back(makeOutwardTriangle(32u,8u,faceId++,
+                prismVertices[7u+f[0]],prismVertices[7u+f[1]],prismVertices[7u+f[2]]));
+            closedInput.push_back(makeOutwardTriangle(32u,8u,faceId++,
+                prismVertices[f[2]],prismVertices[f[1]],prismVertices[f[0]]));
+        }
+        for(unsigned i=0;i<7u;++i) {
+            const unsigned j=(i+1u)%7u;
+            closedInput.push_back(makeOutwardTriangle(32u,8u,faceId++,
+                prismVertices[i],prismVertices[j],prismVertices[7u+j]));
+            closedInput.push_back(makeOutwardTriangle(32u,8u,faceId++,
+                prismVertices[i],prismVertices[7u+j],prismVertices[7u+i]));
+        }
+        const auto closed=numi::matter::fem_body_contact_bvh::
+            buildStaticCompleteBodyBVH(closedInput,closedInput.size(),true);
+        require(closed.succeeded(),"closed convex tetra and concave L-prism admit");
+        for(const auto& t:closed.triangles)
+            require(t.featureNormalFlags==NM_NUMI_HUMAN_FEM_BODY_CONTACT_ALL_FEATURE_PSEUDONORMALS,
+                "strict banks emit all feature pseudonormals");
+
+        struct Query {
+            const char* label;std::uint32_t body;Vec3 point;Feature expected;
+            int group;bool expectedAabbInactive;bool rotated;
+        };
+        std::vector<Query> queries;
+        const auto addQuery=[&](const char* label,std::uint32_t body,Vec3 q,
+                                Feature f,int group=-1,
+                                bool expectedAabbInactive=false,bool rotated=false) {
+            queries.push_back({label,body,q,f,group,expectedAabbInactive,rotated});
+        };
+        addQuery("convex-face-inside",31u,{0.2,0.2,0.58},Feature::face,0);
+        addQuery("convex-edge-outside",31u,{0.5,-0.02,-0.02},Feature::edge);
+        addQuery("convex-vertex-outside",31u,{-0.02,-0.02,-0.02},Feature::vertex);
+        addQuery("convex-face-outside",31u,{0.2,0.2,0.62},Feature::face);
+        addQuery("concave-face-inside",32u,{0.3,0.4,0.98},Feature::face,1);
+        addQuery("concave-notch-face-outside",32u,{1.02,1.02,0.5},Feature::face);
+        addQuery("concave-edge-inside",32u,{0.99,0.99,0.5},Feature::edge,2);
+        addQuery("concave-notch-edge-outside",32u,{1.02,1.02,1.02},Feature::edge);
+        addQuery("closed-aabb-face-outside",32u,{-0.2,0.5,0.5},
+                 Feature::face,-1,true);
+        addQuery("closed-aabb-edge-outside",32u,{-0.04,-0.04,0.5},
+                 Feature::edge,-1,true);
+        addQuery("closed-aabb-corner-outside-rotated",31u,{-0.2,-0.2,-0.2},
+                 Feature::vertex,-1,true,true);
+        addQuery("closed-aabb-boundary-ulp",32u,
+                 {double(-std::numeric_limits<float>::denorm_min()),0.5,0.5},
+                 Feature::face);
+        addQuery("closed-aabb-band-boundary",32u,{-0.05,0.5,0.5},
+                 Feature::face);
+        addQuery("concave-outside-inside-aabb",32u,{1.02,1.02,0.0},
+                 Feature::edge);
+        constexpr double fdStep=1.0e-4;
+        const std::array<Vec3,3> axes{{{1,0,0},{0,1,0},{0,0,1}}};
+        const std::array<Query,3> bases{{queries[0],queries[4],queries[6]}};
+        for(const auto& base:bases)for(unsigned axisIndex=0;axisIndex<3u;++axisIndex) {
+            addQuery("fd-plus",base.body,add(base.point,mul(axes[axisIndex],fdStep)),
+                     base.expected,base.group);
+            addQuery("fd-minus",base.body,sub(base.point,mul(axes[axisIndex],fdStep)),
+                     base.expected,base.group);
+        }
+        const auto choose=[&](std::uint32_t body,Vec3 q) {
+            const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* winner=nullptr;
+            double best=std::numeric_limits<double>::infinity();
+            std::uint32_t bestBone=UINT32_MAX,bestId=UINT32_MAX;
+            for(const auto& t:closed.triangles)if(t.bodyIndex==body) {
+                const auto cp=closestPointOnTriangle(q,read(t.bodyLocalVertex0),
+                    read(t.bodyLocalVertex1),read(t.bodyLocalVertex2));
+                const double d2=norm2(sub(q,cp.point));
+                if(d2<best||(d2==best&&std::tie(t.boneStableId,t.triangleStableId)<
+                                             std::tie(bestBone,bestId))) {
+                    winner=&t;best=d2;bestBone=t.boneStableId;bestId=t.triangleStableId;
+                }
+            }
+            require(winner!=nullptr,"complete source bank chooses query winner");
+            return std::pair{*winner,closestPointOnTriangle(q,
+                read(winner->bodyLocalVertex0),read(winner->bodyLocalVertex1),
+                read(winner->bodyLocalVertex2))};
+        };
+        // Exercise the CPU mirror at the two previously broken boundaries:
+        // legacy edge/vertex queries have zero flags and zero optional vectors,
+        // while strict face queries have no face-bit (bit zero is reserved).
+        auto legacyFeatureFixture=closed.triangles[0];
+        legacyFeatureFixture.featureNormalFlags=0u;
+        legacyFeatureFixture.edgePseudoNormal01={0,0,0,0};
+        legacyFeatureFixture.edgePseudoNormal12={0,0,0,0};
+        legacyFeatureFixture.edgePseudoNormal20={0,0,0,0};
+        legacyFeatureFixture.vertexPseudoNormal0={0,0,0,0};
+        legacyFeatureFixture.vertexPseudoNormal1={0,0,0,0};
+        legacyFeatureFixture.vertexPseudoNormal2={0,0,0,0};
+        ClosestPoint edgeFallback{};edgeFallback.feature=Feature::edge;
+        edgeFallback.barycentric={0.5,0.5,0.0};
+        Vec3 selectedNormal{};
+        const Vec3 legacyFace=read(legacyFeatureFixture.authoredOutwardNormal);
+        require(featureOrientationNormal(legacyFeatureFixture,edgeFallback,
+                    legacyFace,selectedNormal) && norm(sub(selectedNormal,legacyFace))==0.0,
+                "zero feature flags preserve legacy face-normal fallback at edges");
+        ClosestPoint vertexFallback{};vertexFallback.feature=Feature::vertex;
+        vertexFallback.barycentric={1.0,0.0,0.0};
+        require(featureOrientationNormal(legacyFeatureFixture,vertexFallback,
+                    legacyFace,selectedNormal) && norm(sub(selectedNormal,legacyFace))==0.0,
+                "zero feature flags preserve legacy face-normal fallback at vertices");
+        const Vec3 rotatedLegacyFace=quaternionRotate(rotatedQ,legacyFace);
+        require(featureOrientationNormal(legacyFeatureFixture,edgeFallback,
+                    rotatedLegacyFace,selectedNormal) &&
+                norm(sub(selectedNormal,rotatedLegacyFace))==0.0,
+                "zero feature flags preserve rotated legacy face-normal fallback");
+        auto strictFaceFixture=closed.triangles[0];
+        require(featureOrientationNormal(strictFaceFixture,ClosestPoint{},
+                    read(strictFaceFixture.authoredOutwardNormal),selectedNormal),
+                "strict face projection does not require a nonexistent face-bit");
+        auto strictMissingEdge=closed.triangles[0];
+        strictMissingEdge.featureNormalFlags &=
+            ~NM_NUMI_HUMAN_FEM_BODY_CONTACT_EDGE_01_PSEUDONORMAL;
+        require(!featureOrientationNormal(strictMissingEdge,edgeFallback,
+                    read(strictMissingEdge.authoredOutwardNormal),selectedNormal),
+                "strict edge projection rejects a missing feature bit");
+        std::printf("feature_normal_cpu_contract=PASS legacy_edge_vertex_fallback strict_face_bitless strict_missing_edge_reject\n");
+
+        struct Ref { Vec3 force{},point{};double closure=0.0;Matrix3 tangent{}; };
+        const auto reference=[&](Vec3 q,const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU& t) {
+            Ref r{};
+            const auto cp=closestPointOnTriangle(q,read(t.bodyLocalVertex0),
+                read(t.bodyLocalVertex1),read(t.bodyLocalVertex2));
+            require(finite(cp.point),"CPU coupon closest point finite");
+            Vec3 pseudo{};
+            require(featureOrientationNormal(t,cp,read(t.authoredOutwardNormal),pseudo),
+                    "CPU reference selects only the valid feature normal");
+            const Vec3 delta=sub(q,cp.point);const double d=norm(delta);
+            const double sign=dot(delta,pseudo)<0.0?-1.0:1.0;
+            const Vec3 n=d>1.0e-12?mul(delta,sign/d):pseudo;
+            r.point=cp.point;r.closure=std::max(0.0,sign<0.0?d-1.0e-7:-d-1.0e-7);
+            constexpr double stiffness=5000.0,area=0.25;
+            const double scale=stiffness*area;r.force=mul(n,scale*r.closure);
+            if(r.closure>0.0) {
+                for(unsigned row=0;row<3u;++row)for(unsigned col=0;col<3u;++col) {
+                    const double nr=row==0?n.x:(row==1?n.y:n.z);
+                    const double nc=col==0?n.x:(col==1?n.y:n.z);
+                    double projection=0.0;
+                    if(cp.feature==Feature::edge) {
+                        const double er=row==0?cp.edgeAxis.x:(row==1?cp.edgeAxis.y:cp.edgeAxis.z);
+                        const double ec=col==0?cp.edgeAxis.x:(col==1?cp.edgeAxis.y:cp.edgeAxis.z);
+                        projection=er*ec;
+                    }
+                    const double identity=row==col?1.0:0.0;
+                    const double curvature=d>1.0e-12?sign/std::max(d,1.0e-12):
+                        1.0/std::max(d,1.0e-12);
+                    const double h=cp.feature==Feature::face?0.0:
+                        curvature*(identity-projection-nr*nc);
+                    r.tangent[row][col]=scale*(nr*nc-r.closure*h);
+                }
+            }
+            return std::pair{r,cp.feature};
+        };
+        const std::size_t n=queries.size();
+        std::vector<NMNumiHumanFEMBodyContactSampleGPU> ps(n);
+        std::vector<NMFEMNodeStateGPU> pn(n);
+        std::vector<MRArticulatedBodyPoseGPU> pp(n);
+        std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> ranges(n);
+        std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> pt(n);
+        std::vector<Ref> pr(n);
+        std::vector<Vec3> worldQueries(n);
+        std::array<std::uint32_t,3> baseIndex{{UINT32_MAX,UINT32_MAX,UINT32_MAX}};
+        std::array<std::uint32_t,9> plusIndex{},minusIndex{};
+        std::array<unsigned,3> counts{};
+        for(std::size_t i=0;i<n;++i) {
+            const auto& q=queries[i];
+            const Vec3 qf{double(float(q.point.x)),double(float(q.point.y)),double(float(q.point.z))};
+            const auto [t,cp]=choose(q.body,qf);
+            if(cp.feature!=q.expected) {
+                std::fprintf(stderr,
+                    "feature_witness label=%s body=%u expected=%u actual=%u point=(%.9g,%.9g,%.9g) triangle=%u\n",
+                    q.label,q.body,unsigned(q.expected),unsigned(cp.feature),
+                    qf.x,qf.y,qf.z,t.triangleStableId);
+            }
+            require(cp.feature==q.expected,"CPU complete-bank winner has expected face/edge/vertex feature");
+            pt[i]=t;
+            ps[i]=makeSample(std::uint32_t(i),q.body,read(t.bodyLocalVertex0),
+                read(t.bodyLocalVertex1),read(t.bodyLocalVertex2),0.25f,5000.0f,1.0e-6f);
+            const Vec3 origin=q.rotated?rotatedOrigin:Vec3{0,0,0};
+            const auto orientation=q.rotated?rotatedQ:std::array<double,4>{{0,0,0,1}};
+            const Vec3 worldQ=add(origin,quaternionRotate(orientation,qf));
+            worldQueries[i]=worldQ;
+            pn[i].positionAndMass=f4(float(worldQ.x),float(worldQ.y),float(worldQ.z),1.0f);
+            pn[i].velocityAndInverseMass=f4(0,0,0,1);
+            pn[i].restAndFixed=f4(0,0,0,0);
+            pp[i].position={float(origin.x),float(origin.y),float(origin.z),0};
+            pp[i].orientation={float(orientation[0]),float(orientation[1]),
+                               float(orientation[2]),float(orientation[3])};
+            const auto body=std::find_if(closed.bodies.begin(),closed.bodies.end(),
+                [&](const auto& range){return range.bodyIndex==q.body;});
+            require(body!=closed.bodies.end(),"query body owns a complete BVH range");
+            ranges[i].firstTriangle=body->firstNode;
+            ranges[i].triangleCount=body->nodeCount;
+            ranges[i].maximumDistanceMeters=0.05f;
+            ranges[i].reserved0=body->closedOrientedCertified
+                ? numi::matter::fem_body_contact_bvh::kRangeFlagStaticClosedOrientedBVH
+                : numi::matter::fem_body_contact_bvh::kRangeFlagStaticCompleteBVH;
+            const auto [r,f]=reference(qf,t);require(f==q.expected,"reference feature agrees");
+            pr[i]=r;
+            if(q.group>=0) {
+                const auto g=unsigned(q.group);
+                if(std::strncmp(q.label,"fd-",3)!=0)baseIndex[g]=std::uint32_t(i);
+                else {
+                    const unsigned ordinal=counts[g]++;
+                    if(ordinal%2u==0u)plusIndex[g*3u+ordinal/2u]=std::uint32_t(i);
+                    else minusIndex[g*3u+ordinal/2u]=std::uint32_t(i);
+                    require(t.triangleStableId==pt[baseIndex[g]].triangleStableId,
+                        "finite-difference query retains its selected triangle");
+                }
+            }
+        }
+        require(std::all_of(baseIndex.begin(),baseIndex.end(),[](auto v){return v!=UINT32_MAX;})&&
+                std::all_of(counts.begin(),counts.end(),[](auto c){return c==6u;})&&
+                std::all_of(plusIndex.begin(),plusIndex.end(),[](auto v){return v!=0u;})&&
+                std::all_of(minusIndex.begin(),minusIndex.end(),[](auto v){return v!=0u;}),
+                "central-difference query inventory complete");
+        NMNumiHumanTendonFEMLoadDispatchGPU pseudoDispatch{};
+        pseudoDispatch.abiVersion=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
+        pseudoDispatch.environmentCount=1u;
+        pseudoDispatch.femNodeCount=static_cast<nm_u32>(n);
+        pseudoDispatch.bodyPoseStride=static_cast<nm_u32>(n);
+        pseudoDispatch.articulationFirstBody=0u;
+        pseudoDispatch.femBodyContactSampleCount=static_cast<nm_u32>(n);
+        pseudoDispatch.femBodyContactCandidateTriangleCount=
+            static_cast<nm_u32>(closed.triangles.size());
+        require(numi::matter::fem_body_contact_bvh::validCompleteStaticBVHSpans(
+                ps,ranges,closed.triangles,closed.nodes),
+                "strict closed source-bank ranges validate before GPU upload");
+        auto pDispatch=dispatchBuffer(&pseudoDispatch,sizeof(pseudoDispatch));
+        auto pSamples=dispatchBuffer(ps.data(),n*sizeof(ps[0]));
+        auto pNodes=dispatchBuffer(pn.data(),n*sizeof(pn[0]));
+        auto pPoses=dispatchBuffer(pp.data(),n*sizeof(pp[0]));
+        auto pRanges=dispatchBuffer(ranges.data(),n*sizeof(ranges[0]));
+        auto pTriangles=dispatchBuffer(closed.triangles.data(),
+            closed.triangles.size()*sizeof(closed.triangles[0]));
+        auto pBvhNodes=dispatchBuffer(closed.nodes.data(),
+            closed.nodes.size()*sizeof(closed.nodes[0]));
+        std::vector<nm_float4> pOut(n*8u);
+        auto pOutput=dispatchBuffer(pOut.data(),pOut.size()*sizeof(pOut[0]));
+        require(pDispatch&&pSamples&&pNodes&&pPoses&&pRanges&&pTriangles&&
+                pBvhNodes&&pOutput,"strict closed-bank GPU buffers");
+        auto pCmd=[queue commandBuffer];auto pEnc=[pCmd computeCommandEncoder];
+        [pEnc setComputePipelineState:pseudoPipeline];
+        [pEnc setBuffer:pDispatch offset:0 atIndex:0];
+        [pEnc setBuffer:pSamples offset:0 atIndex:1];
+        [pEnc setBuffer:pNodes offset:0 atIndex:2];
+        [pEnc setBuffer:pPoses offset:0 atIndex:3];
+        [pEnc setBuffer:pOutput offset:0 atIndex:4];
+        [pEnc setBuffer:pRanges offset:0 atIndex:5];
+        [pEnc setBuffer:pTriangles offset:0 atIndex:6];
+        [pEnc setBuffer:pBvhNodes offset:0 atIndex:7];
+        [pEnc dispatchThreads:MTLSizeMake(n,1,1) threadsPerThreadgroup:MTLSizeMake(4,1,1)];
+        [pEnc endEncoding];[pCmd commit];[pCmd waitUntilCompleted];
+        require(pCmd.status==MTLCommandBufferStatusCompleted,"pseudonormal production kernel completes");
+        const auto* po=static_cast<const nm_float4*>(pOutput.contents);
+        double maxCpuTangentError=0.0;
+        std::size_t maxCpuTangentQuery=0;
+        unsigned maxCpuTangentRow=0,maxCpuTangentCol=0;
+        double maxCpuTangentGot=0.0,maxCpuTangentExpected=0.0;
+        for(std::size_t i=0;i<n;++i) {
+            const auto force=po[i*8u];
+            require(std::isfinite(force.x)&&std::isfinite(force.y)&&
+                std::isfinite(force.z)&&std::isfinite(force.w),"finite feature contact output");
+            require(std::abs(double(force.x)-pr[i].force.x)<3.0e-3&&
+                std::abs(double(force.y)-pr[i].force.y)<3.0e-3&&
+                std::abs(double(force.z)-pr[i].force.z)<3.0e-3&&
+                std::abs(double(force.w)-pr[i].closure)<2.0e-6,
+                "GPU signed force matches independent CPU feature-pseudonormal oracle");
+            const auto reaction=po[i*8u+1u];
+            require(std::abs(reaction.x+force.x)<1.0e-5&&
+                std::abs(reaction.y+force.y)<1.0e-5&&std::abs(reaction.z+force.z)<1.0e-5,
+                "GPU body reaction balances the slave force");
+            const auto point=po[i*8u+2u];
+            if (queries[i].expectedAabbInactive) {
+                require(force.w==0.0f&&
+                        std::abs(double(point.x)-double(float(worldQueries[i].x)))<1.0e-7&&
+                        std::abs(double(point.y)-double(float(worldQueries[i].y)))<1.0e-7&&
+                        std::abs(double(point.z)-double(float(worldQueries[i].z)))<1.0e-7&&
+                        std::isfinite(po[i*8u+1u].x)&&
+                        std::abs(double(po[i*8u+1u].w)-0.25)<1.0e-7,
+                        "certified exterior AABB fast path returns finite zero-force state");
+            } else {
+                require(std::abs(double(point.x)-pr[i].point.x)<2.0e-5&&
+                    std::abs(double(point.y)-pr[i].point.y)<2.0e-5&&
+                    std::abs(double(point.z)-pr[i].point.z)<2.0e-5,
+                    "GPU closest point matches full-bank CPU query");
+            }
+            if (std::string_view(queries[i].label)=="concave-outside-inside-aabb")
+                require(norm(sub(Vec3{point.x,point.y,point.z},worldQueries[i]))>0.01,
+                    "inside-AABB concave exterior follows full closest-face query");
+            for(unsigned col=0;col<3u;++col) {
+                const auto got=po[i*8u+3u+col];
+                const std::array<double,3> values{{got.x,got.y,got.z}};
+                for(unsigned row=0;row<3u;++row) {
+                    const double errorValue=std::abs(values[row]-pr[i].tangent[row][col]);
+                    if(errorValue>maxCpuTangentError) {
+                        maxCpuTangentError=errorValue;
+                        maxCpuTangentQuery=i;maxCpuTangentRow=row;maxCpuTangentCol=col;
+                        maxCpuTangentGot=values[row];
+                        maxCpuTangentExpected=pr[i].tangent[row][col];
+                    }
+                }
+            }
+        }
+        std::printf("feature_tangent_cpu_max_abs=%.9g label=%s query=%zu feature=%u row=%u col=%u got=%.9g expected=%.9g\n",
+            maxCpuTangentError,queries[maxCpuTangentQuery].label,maxCpuTangentQuery,
+            unsigned(queries[maxCpuTangentQuery].expected),maxCpuTangentRow,maxCpuTangentCol,
+            maxCpuTangentGot,maxCpuTangentExpected);
+        constexpr double fdTolerance=0.35;
+        double maxFdError=0.0;
+        unsigned maxFdGroup=0,maxFdAxis=0,maxFdRow=0;
+        double maxFdValue=0.0,maxFdTangent=0.0;
+        for(unsigned g=0;g<3u;++g)for(unsigned c=0;c<3u;++c) {
+            const auto plus=plusIndex[g*3u+c],minus=minusIndex[g*3u+c];
+            const auto fp=po[plus*8u],fm=po[minus*8u];
+            const std::array<double,3> fd{{
+                -(double(fp.x)-fm.x)/(2.0*fdStep),
+                -(double(fp.y)-fm.y)/(2.0*fdStep),
+                -(double(fp.z)-fm.z)/(2.0*fdStep)}};
+            const auto k=po[baseIndex[g]*8u+3u+c];
+            const std::array<double,3> tangent{{k.x,k.y,k.z}};
+            for(unsigned row=0;row<3u;++row) {
+                const double errorValue=std::abs(fd[row]-tangent[row]);
+                if(errorValue>maxFdError) {
+                    maxFdError=errorValue;maxFdGroup=g;maxFdAxis=c;maxFdRow=row;
+                    maxFdValue=fd[row];maxFdTangent=tangent[row];
+                }
+            }
+        }
+        std::printf("feature_tangent_fd_max_abs=%.9g group=%u axis=%u row=%u fd=%.9g tangent=%.9g\n",
+            maxFdError,maxFdGroup,maxFdAxis,maxFdRow,maxFdValue,maxFdTangent);
+        require(maxCpuTangentError<2.0e-2,"GPU tangent matches CPU feature Hessian");
+        require(maxFdError<fdTolerance,"face/reflex-edge tangent agrees with GPU force finite difference");
+        std::printf("closed_pseudonormal_gpu=PASS convex_face_edge_vertex=3 concave_face_edge_vertex=3 active_fd=face+reflex_edge\n");
+        std::printf("closed_aabb_gpu=PASS outside_face_edge_corner=3 rotated=1 boundary_ulp_full_query=1 band_boundary_full_query=1 concave_inside_aabb_full_query=1\n");
 
         std::printf("{\"status\":\"PASS\",\"device\":\"%s\","
                     "\"triangle_cases\":5,\"legacy_cases\":3,"

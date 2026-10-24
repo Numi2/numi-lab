@@ -81,12 +81,51 @@ def main():
           "-framework", "Foundation", "-framework", "Metal", "-o", str(arithmetic_gpu)]),
         ("arithmetic-gpu-run", [str(arithmetic_gpu), str(library), "match"]),
     ]
+    # Full-capacity moving-master regression uses the same production kernel.
+    capacity = primary / "tests/numi_human_fem_body_triangle_contact"
+    capacity_air = build / "all-body-capacity.air"
+    capacity_library = build / "all-body-capacity.metallib"
+    capacity_binary = build / "all-body-capacity-test"
+    commands += [
+        ("all-body-metal-build",
+         ["xcrun", "-sdk", "macosx", "metal", "-std=metal4.0", "-O3",
+          "-fno-fast-math"] + source_include +
+         ["-c", str(capacity / "all_body_moving_capacity_coupon.metal"),
+          "-o", str(capacity_air)]),
+        ("all-body-metallib",
+         ["xcrun", "-sdk", "macosx", "metallib", str(capacity_air),
+          "-o", str(capacity_library)]),
+        ("all-body-host-build", host + ["-fobjc-arc"] + coupon_include +
+         [str(capacity / "all_body_moving_capacity_coupon.mm"),
+          "-framework", "Foundation", "-framework", "Metal",
+          "-o", str(capacity_binary)]),
+        ("all-body-gpu-run", [str(capacity_binary), str(capacity_library)]),
+    ]
+    # Recheck the retained tiny source faces after GPU record-layout changes.
+    tiny_air = build / "small-face.air"
+    tiny_library = build / "small-face.metallib"
+    tiny_binary = build / "small-face-test"
+    commands += [
+        ("small-face-metal-build",
+         ["xcrun", "-sdk", "macosx", "metal", "-std=metal4.0", "-O3",
+          "-fno-fast-math"] + source_include +
+         ["-c", str(capacity / "small_face_triangle_coupon.metal"),
+          "-o", str(tiny_air)]),
+        ("small-face-metallib",
+         ["xcrun", "-sdk", "macosx", "metallib", str(tiny_air),
+          "-o", str(tiny_library)]),
+        ("small-face-host-build", host + ["-fobjc-arc"] + coupon_include +
+         [str(capacity / "small_face_triangle_coupon.mm"),
+          "-framework", "Foundation", "-framework", "Metal",
+          "-o", str(tiny_binary)]),
+        ("small-face-gpu-run", [str(tiny_binary), str(tiny_library)]),
+    ]
     roots = [test, primary / "matter/include", repo / "matter/include", repo / "include",
              primary / "matter/src", repo / "matter/src",
              primary / "tests/numi_human_fem_body_triangle_contact", attachment_test]
     before = {str(p): sha(p) for p in source_files(roots)}
     revision = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
-    receipt = {"scope": "Prepared bounded body-local bone-triangle banks and legacy fallback; not global nearest-face or anatomical-coverage qualification",
+    receipt = {"scope": "Contact owner regression: closed-bank feature signs, complete BVHs, force/tangents, and all-body capacity; not whole-body anatomy qualification",
                "source_revision": revision, "source_sha256": before, "stages": [], "status": "running"}
     legacy_input = None
     if args.legacy_metallib:
@@ -110,7 +149,7 @@ def main():
                 raise RuntimeError(name + " failed; see " + str(build / (name + ".log")))
         if any(sha(Path(p)) != h for p, h in before.items()):
             raise RuntimeError("source changed during qualification")
-        receipt["binary_sha256"] = {p.name: sha(p) for p in (cpu, static_bvh_cpu, gpu, arithmetic_gpu, library)}
+        receipt["binary_sha256"] = {p.name: sha(p) for p in (cpu, static_bvh_cpu, gpu, arithmetic_gpu, library, capacity_binary, capacity_library, tiny_binary, tiny_library)}
         if legacy_input is not None:
             legacy_after = sha(Path(legacy_input["path"]))
             receipt["legacy_metallib_input"]["sha256_after"] = legacy_after
