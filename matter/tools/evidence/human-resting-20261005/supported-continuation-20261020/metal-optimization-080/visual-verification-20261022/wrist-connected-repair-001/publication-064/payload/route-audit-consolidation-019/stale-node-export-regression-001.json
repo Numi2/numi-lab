@@ -1,0 +1,127 @@
+{
+  "schema": "numi.human.route-audit-consolidation-019.stale-node-export-regression.v1",
+  "status": "PASS_EXACT_EMITTED_ACCEPTED_STALE_INITIAL_REJECTED",
+  "python": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "python_version": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "tool_sha256": "1e0575d2b2e1eba9fc98a2c4e3d479c9f421afd3be2685d1066b5beff699615b",
+  "candidate_sha256": "d02bccfbba026edb1a564c9a477d0d31deb704cd96b66091764e21ca32e7452a",
+  "candidate_report_sha256": "0cc0f0fbd5cfe339c1e341230f91a19bf8b27814e1527053783c354d904223c1",
+  "candidate_node_id_source_sha256": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+  "query_exact_emitted_nodes_sha256": "f82c65e1d8b839d86505ee2095e97e56790812d155f73fa83aed114a121e55cb",
+  "query_initial_nodes_sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+  "query_all_bank_sha256": "17825aed54a12442dc08826e8a42616a3bff2844961d95f0bbcef7c8d2f2ba7a",
+  "positive_cli": {
+    "returncode": 0,
+    "output_dir": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/run-022-matched-query-023-exact-emitted-001",
+    "exact_candidates": 20,
+    "proper_hits": 20,
+    "hit_segment_bank_pairs": 16,
+    "matched_node_file": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-022-query-023/source-preflight/exact-emitted.nodes.csv"
+  },
+  "negative_cli": {
+    "returncode": 1,
+    "explicit_node_file": "initial-skin-fem-nodes.csv",
+    "expected_error_substring": "matched query world positions differ from candidate Float32 positions",
+    "error_observed": true,
+    "output_dir_created": false,
+    "stderr_full_tail": "e_audit_consolidation_019.py\", line 529, in main\n    result = audit(args.candidate_npz, args.candidate_sha256, args.output_dir,\n                   args.evidence_root, args.bank_export_dir,\n                   args.candidate_report, args.candidate_report_sha256,\n                   args.node_ids_npz, args.node_ids_sha256,\n                   args.matched_query_run_dir, args.matched_query_node_file)\n  File \"/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/route_audit_consolidation_019.py\", line 328, in audit\n    qkeys, query_map, query_frame_max_error, query_pins = load_matched_query(\n                                                          ~~~~~~~~~~~~~~~~~~^\n        query_dir, gids, points, bodies, matrices, offsets, positions, ids[:, 0], query_node_file)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/route_audit_consolidation_019.py\", line 256, in load_matched_query\n    validate_node_query_parity(candidate_ids, candidate_points, node_rows)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/route_audit_consolidation_019.py\", line 114, in validate_node_query_parity\n    raise ValueError(\"matched query world positions differ from candidate Float32 positions\")\nValueError: matched query world positions differ from candidate Float32 positions\n"
+  },
+  "expected": {
+    "positive_returncode": 0,
+    "negative_returncode_nonzero": true,
+    "negative_output_dir_created": false
+  },
+  "cli_argv": {
+    "positive": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/route_audit_consolidation_019.py",
+      "--evidence-root",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001",
+      "--bank-export-dir",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight",
+      "--candidate-npz",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-022/candidate.npz",
+      "--candidate-sha256",
+      "d02bccfbba026edb1a564c9a477d0d31deb704cd96b66091764e21ca32e7452a",
+      "--candidate-report",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-022/report.json",
+      "--candidate-report-sha256",
+      "0cc0f0fbd5cfe339c1e341230f91a19bf8b27814e1527053783c354d904223c1",
+      "--node-ids-npz",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz",
+      "--node-ids-sha256",
+      "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+      "--matched-query-run-dir",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-022-query-023/source-preflight",
+      "--output-dir",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/run-022-matched-query-023-exact-emitted-001"
+    ],
+    "negative": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/route_audit_consolidation_019.py",
+      "--evidence-root",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001",
+      "--bank-export-dir",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight",
+      "--candidate-npz",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-022/candidate.npz",
+      "--candidate-sha256",
+      "d02bccfbba026edb1a564c9a477d0d31deb704cd96b66091764e21ca32e7452a",
+      "--candidate-report",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-022/report.json",
+      "--candidate-report-sha256",
+      "0cc0f0fbd5cfe339c1e341230f91a19bf8b27814e1527053783c354d904223c1",
+      "--node-ids-npz",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz",
+      "--node-ids-sha256",
+      "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+      "--matched-query-run-dir",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-022-query-023/source-preflight",
+      "--matched-query-node-file",
+      "initial-skin-fem-nodes.csv",
+      "--output-dir",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/run-022-matched-query-023-stale-initial-002"
+    ]
+  },
+  "test_sha256": "ca8ac5b8a5a102a71b71b188a500f418a3fc3dfb668e214e2137b17e168ed636",
+  "positive_report_sha256": "cfbf016c34cc1c3d794729d4e3489f8a77d2625bffa18b141e3b311d62505949",
+  "node_position_comparison": {
+    "candidate_sha256": "d02bccfbba026edb1a564c9a477d0d31deb704cd96b66091764e21ca32e7452a",
+    "exact_emitted_nodes_sha256": "f82c65e1d8b839d86505ee2095e97e56790812d155f73fa83aed114a121e55cb",
+    "exact_emitted": {
+      "rows": 7233,
+      "global_node_order_matches": true,
+      "bitwise_mismatched_rows": 0,
+      "max_abs_component_delta_m": 0.0,
+      "max_euclidean_delta_m": 0.0
+    },
+    "initial_nodes_sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+    "initial_nodes": {
+      "rows": 7233,
+      "global_node_order_matches": true,
+      "bitwise_mismatched_rows": 344,
+      "max_abs_component_delta_m": 0.009186357259750366,
+      "max_euclidean_delta_m": 0.011387652615935676
+    }
+  },
+  "regression_tests": {
+    "command": [
+      "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "unittest",
+      "-v",
+      "test_route_audit_consolidation_019.py"
+    ],
+    "returncode": 0,
+    "summary": "7 tests passed",
+    "stdout": "",
+    "stderr": "test_external_ids_require_exact_topology_identity (test_route_audit_consolidation_019.RouteAuditConsolidationTests.test_external_ids_require_exact_topology_identity) ... ok\ntest_matched_query_body_frame_mismatch_fails (test_route_audit_consolidation_019.RouteAuditConsolidationTests.test_matched_query_body_frame_mismatch_fails) ... ok\ntest_matched_query_id_mismatch_fails (test_route_audit_consolidation_019.RouteAuditConsolidationTests.test_matched_query_id_mismatch_fails) ... ok\ntest_matched_query_position_mismatch_fails (test_route_audit_consolidation_019.RouteAuditConsolidationTests.test_matched_query_position_mismatch_fails) ... ok\ntest_query_prefers_native_emitted_candidate_nodes (test_route_audit_consolidation_019.RouteAuditConsolidationTests.test_query_prefers_native_emitted_candidate_nodes) ... ok\ntest_stale_initial_export_is_rejected_and_exact_emitted_export_passes (test_route_audit_consolidation_019.RouteAuditConsolidationTests.test_stale_initial_export_is_rejected_and_exact_emitted_export_passes) ... ok\ntest_unknown_endpoints_are_not_queried_and_never_create_planes (test_route_audit_consolidation_019.RouteAuditConsolidationTests.test_unknown_endpoints_are_not_queried_and_never_create_planes) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.006s\n\nOK\n",
+    "host": "numi.local",
+    "python_executable": "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "python_version": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]"
+  },
+  "independent_static_query_review": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root-independent-static-query-023.json",
+    "sha256": "410e8fd571c0dfea3a2ad7e53a7c259c251a0b771944453442ff7ecf848e244e"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "status": "LOCAL_OUTER_ESCAPE_DIRECTION_DIAGNOSTIC",
+  "normal_orientation": "O_faces as source connectivity; opposite winding ambiguity retained; layer O-I direction independent",
+  "rows": [
+    {
+      "column": 204,
+      "escape_dot_source_normal": 0.37701537250249006,
+      "escape_dot_I_to_O_direction": -0.28913117121795523,
+      "source_normal_dot_I_to_O": -0.9956108399114691
+    },
+    {
+      "column": 215,
+      "escape_dot_source_normal": -0.6570946944047359,
+      "escape_dot_I_to_O_direction": 0.7102017062670818,
+      "source_normal_dot_I_to_O": -0.9950534431581556
+    },
+    {
+      "column": 217,
+      "escape_dot_source_normal": -0.47223916731538534,
+      "escape_dot_I_to_O_direction": 0.4440049041543992,
+      "source_normal_dot_I_to_O": -0.9988224435801244
+    },
+    {
+      "column": 218,
+      "escape_dot_source_normal": 0.9838823166513081,
+      "escape_dot_I_to_O_direction": -0.9307432553903191,
+      "source_normal_dot_I_to_O": -0.9808460084295583
+    },
+    {
+      "column": 219,
+      "escape_dot_source_normal": -0.30971823667941917,
+      "escape_dot_I_to_O_direction": 0.2522251657892963,
+      "source_normal_dot_I_to_O": -0.9981982856349041
+    },
+    {
+      "column": 231,
+      "escape_dot_source_normal": -0.16070471259524877,
+      "escape_dot_I_to_O_direction": 0.43878255876736205,
+      "source_normal_dot_I_to_O": -0.8950636859861926
+    },
+    {
+      "column": 233,
+      "escape_dot_source_normal": 0.6095137267904023,
+      "escape_dot_I_to_O_direction": -0.9853016352087417,
+      "source_normal_dot_I_to_O": -0.6594502944239833
+    },
+    {
+      "column": 271,
+      "escape_dot_source_normal": 0.1623152042599398,
+      "escape_dot_I_to_O_direction": -0.5766489879579957,
+      "source_normal_dot_I_to_O": -0.8922534020951545
+    },
+    {
+      "column": 337,
+      "escape_dot_source_normal": -0.8762088938706756,
+      "escape_dot_I_to_O_direction": 0.44997013883685777,
+      "source_normal_dot_I_to_O": -0.8129654362497163
+    },
+    {
+      "column": 2187,
+      "escape_dot_source_normal": 0.18821981799233578,
+      "escape_dot_I_to_O_direction": 0.2976392702722265,
+      "source_normal_dot_I_to_O": -0.871011837097097
+    },
+    {
+      "column": 2261,
+      "escape_dot_source_normal": -0.873067834142109,
+      "escape_dot_I_to_O_direction": -0.07988548791942124,
+      "source_normal_dot_I_to_O": -0.29132734668488136
+    },
+    {
+      "column": 2262,
+      "escape_dot_source_normal": -0.9257202915788781,
+      "escape_dot_I_to_O_direction": 0.6861158102105341,
+      "source_normal_dot_I_to_O": -0.6851650597160334
+    }
+  ]
+}

@@ -1,0 +1,437 @@
+{
+  "status": "DIRECTIONAL_EXIT_CONSTRUCTION_PLANES_NOT_GEOMETRY_ADMISSION",
+  "rows": [
+    {
+      "column": 204,
+      "body": 61,
+      "bone": 97,
+      "triangle": 61,
+      "status": "EXACT_SURFACE_NORMAL_EXIT",
+      "exit_distance_m": 0.0022154790447266683,
+      "hit_world_m": [
+        -0.3179369465651511,
+        -1.0265188409842705,
+        0.14406971959775314
+      ],
+      "outward_normal_world": [
+        -0.1751050883682779,
+        -0.5715935457330242,
+        -0.8016352203489358
+      ],
+      "ray_world": [
+        -0.3400181046447135,
+        -0.13070700576927916,
+        -0.9312912364865495
+      ],
+      "normal_dot_ray": 0.8808060367103641,
+      "nearest_exit_normal_dot_ray": -0.37701537250249006,
+      "exact_witness": {
+        "classification": "proper_interior_hit",
+        "t": 0.022154790447266683,
+        "barycentric": [
+          0.05648691972286892,
+          0.8424722454142848,
+          0.10104083486284629
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      }
+    },
+    {
+      "column": 215,
+      "body": 61,
+      "bone": 97,
+      "triangle": 105,
+      "status": "EXACT_SURFACE_NORMAL_EXIT",
+      "exit_distance_m": 0.0002626780945674039,
+      "hit_world_m": [
+        -0.31955202384587805,
+        -1.0216634516508978,
+        0.14662476867201818
+      ],
+      "outward_normal_world": [
+        -0.9800504291926796,
+        0.18604632719137904,
+        -0.06991366374209614
+      ],
+      "ray_world": [
+        -0.6164789887267522,
+        -0.011438069231620848,
+        -0.7872882744145842
+      ],
+      "normal_dot_ray": 0.6570946944047352,
+      "nearest_exit_normal_dot_ray": 0.6570946944047359,
+      "exact_witness": {
+        "classification": "proper_interior_hit",
+        "t": 0.002626780945674039,
+        "barycentric": [
+          0.6839275298082144,
+          0.13176841932099026,
+          0.18430405087079538
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      }
+    },
+    {
+      "column": 217,
+      "body": 61,
+      "bone": 97,
+      "triangle": 38,
+      "status": "EXACT_SURFACE_NORMAL_EXIT",
+      "exit_distance_m": 0.0024337871478999464,
+      "hit_world_m": [
+        -0.31890460568910906,
+        -1.020699153862612,
+        0.14363145409324232
+      ],
+      "outward_normal_world": [
+        -0.5771050472079522,
+        -0.06641241388637391,
+        -0.8139650826472179
+      ],
+      "ray_world": [
+        -0.4202312028846095,
+        -0.01597209571513393,
+        -0.9072764894345167
+      ],
+      "normal_dot_ray": 0.9820696763166874,
+      "nearest_exit_normal_dot_ray": 0.47223916731538534,
+      "exact_witness": {
+        "classification": "proper_interior_hit",
+        "t": 0.024337871478999462,
+        "barycentric": [
+          0.3902282377266062,
+          0.30526978395803245,
+          0.30450197831536135
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      }
+    },
+    {
+      "column": 218,
+      "body": 61,
+      "bone": 97,
+      "triangle": 81,
+      "status": "EXACT_SURFACE_NORMAL_EXIT",
+      "exit_distance_m": 0.002967879664050597,
+      "hit_world_m": [
+        -0.31877077887346794,
+        -1.0168334752584653,
+        0.14324041526906411
+      ],
+      "outward_normal_world": [
+        -0.8793513714836763,
+        -0.1476033131517953,
+        -0.45271892761004645
+      ],
+      "ray_world": [
+        -0.4549599675495758,
+        0.08525636483588125,
+        -0.886421333329845
+      ],
+      "normal_dot_ray": 0.7887852649535889,
+      "nearest_exit_normal_dot_ray": -0.9838823166513081,
+      "exact_witness": {
+        "classification": "proper_interior_hit",
+        "t": 0.02967879664050597,
+        "barycentric": [
+          0.002734481869459783,
+          0.850781417229424,
+          0.14648410090111616
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      }
+    },
+    {
+      "column": 219,
+      "body": 61,
+      "bone": 97,
+      "triangle": 100,
+      "status": "EXACT_SURFACE_NORMAL_EXIT",
+      "exit_distance_m": 0.00033491580121207664,
+      "hit_world_m": [
+        -0.31547398807375404,
+        -1.0198263686457043,
+        0.14476733686322546
+      ],
+      "outward_normal_world": [
+        0.8681521406353442,
+        -0.17533206963684614,
+        -0.46429573126093854
+      ],
+      "ray_world": [
+        -0.17436344308657295,
+        -0.023005927368834108,
+        -0.9844125745950705
+      ],
+      "normal_dot_ray": 0.30971823667941684,
+      "nearest_exit_normal_dot_ray": 0.30971823667941917,
+      "exact_witness": {
+        "classification": "proper_interior_hit",
+        "t": 0.0033491580121207663,
+        "barycentric": [
+          0.10303284468872274,
+          0.6995008401536034,
+          0.1974663151576739
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      }
+    },
+    {
+      "column": 231,
+      "body": 61,
+      "bone": 97,
+      "triangle": 88,
+      "status": "EXACT_SURFACE_NORMAL_EXIT",
+      "exit_distance_m": 0.0007029519921444661,
+      "hit_world_m": [
+        -0.3186834475039965,
+        -1.0137549425133,
+        0.14671776309396395
+      ],
+      "outward_normal_world": [
+        -0.8848028489494155,
+        0.09104210935560603,
+        0.4569849590687637
+      ],
+      "ray_world": [
+        -0.37766610116915805,
+        0.7587484336449655,
+        -0.5307250987743076
+      ],
+      "normal_dot_ray": 0.16070471259524644,
+      "nearest_exit_normal_dot_ray": 0.16070471259524877,
+      "exact_witness": {
+        "classification": "proper_interior_hit",
+        "t": 0.007029519921444661,
+        "barycentric": [
+          0.7142849174585587,
+          0.2615755778230034,
+          0.024139504718437926
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      }
+    },
+    {
+      "column": 233,
+      "body": 61,
+      "bone": 97,
+      "triangle": 152,
+      "status": "EXACT_SURFACE_NORMAL_EXIT",
+      "exit_distance_m": 0.0045467758864495495,
+      "hit_world_m": [
+        -0.31782012219864086,
+        -1.008893986501848,
+        0.14551107082802028
+      ],
+      "outward_normal_world": [
+        0.7181709871682611,
+        0.6945561377904265,
+        0.04268728906139768
+      ],
+      "ray_world": [
+        -0.19347673915169833,
+        0.9725942268919762,
+        -0.12894658283035254
+      ],
+      "normal_dot_ray": 0.5310675290619267,
+      "nearest_exit_normal_dot_ray": -0.6095137267904023,
+      "exact_witness": {
+        "classification": "proper_interior_hit",
+        "t": 0.04546775886449549,
+        "barycentric": [
+          0.418388488489575,
+          0.5773171067396797,
+          0.004294404770745251
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      }
+    },
+    {
+      "column": 271,
+      "body": 61,
+      "bone": 97,
+      "triangle": 33,
+      "status": "EXACT_SURFACE_NORMAL_EXIT",
+      "exit_distance_m": 0.0034587972330653253,
+      "hit_world_m": [
+        -0.31526846860932284,
+        -1.012582346446399,
+        0.14223737177728124
+      ],
+      "outward_normal_world": [
+        0.8085818402687946,
+        -0.41046624447909674,
+        -0.4215600428536316
+      ],
+      "ray_world": [
+        -0.13381580616999708,
+        0.5010126273782275,
+        -0.8550319743884663
+      ],
+      "normal_dot_ray": 0.04659751335789236,
+      "nearest_exit_normal_dot_ray": -0.1623152042599398,
+      "exact_witness": {
+        "classification": "proper_interior_hit",
+        "t": 0.03458797233065325,
+        "barycentric": [
+          0.20903206538881217,
+          0.2695650818266799,
+          0.5214028527845079
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      }
+    },
+    {
+      "column": 337,
+      "body": 59,
+      "bone": 95,
+      "triangle": 295,
+      "status": "EXACT_SURFACE_NORMAL_EXIT",
+      "exit_distance_m": 0.0011055260372680958,
+      "hit_world_m": [
+        -0.30841770910331456,
+        -0.9493613599979334,
+        0.13734634308856972
+      ],
+      "outward_normal_world": [
+        -0.8584531400350046,
+        0.37154098428738574,
+        0.35357531497377126
+      ],
+      "ray_world": [
+        -0.9927146956190958,
+        -0.042625280106119226,
+        0.11269702124617555
+      ],
+      "normal_dot_ray": 0.8762088938706759,
+      "nearest_exit_normal_dot_ray": 0.8762088938706756,
+      "exact_witness": {
+        "classification": "proper_interior_hit",
+        "t": 0.011055260372680958,
+        "barycentric": [
+          0.5073958715940939,
+          0.2578900079182239,
+          0.23471412048768223
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      }
+    },
+    {
+      "column": 2187,
+      "body": 124,
+      "bone": 123,
+      "triangle": 30,
+      "status": "EXACT_SURFACE_NORMAL_EXIT",
+      "exit_distance_m": 0.0020729613047787542,
+      "hit_world_m": [
+        0.23488158639225606,
+        -0.9571719077781828,
+        0.08643997504068424
+      ],
+      "outward_normal_world": [
+        0.010815417612160481,
+        0.08694046481443876,
+        -0.9961547983720823
+      ],
+      "ray_world": [
+        -0.8464748079709928,
+        -0.4494684109606459,
+        -0.28540943750861253
+      ],
+      "normal_dot_ray": 0.23608000956017597,
+      "nearest_exit_normal_dot_ray": -0.18821981799233578,
+      "exact_witness": {
+        "classification": "proper_interior_hit",
+        "t": 0.020729613047787542,
+        "barycentric": [
+          0.37622630811970753,
+          0.10086398268728979,
+          0.5229097091930027
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      }
+    },
+    {
+      "column": 2261,
+      "body": 109,
+      "bone": 114,
+      "triangle": 87,
+      "status": "EXACT_SURFACE_NORMAL_EXIT",
+      "exit_distance_m": 0.001907409842584613,
+      "hit_world_m": [
+        0.2600969060953052,
+        -0.9538303822481775,
+        0.13904471787361175
+      ],
+      "outward_normal_world": [
+        0.9478194969938958,
+        0.30558549358605863,
+        -0.09086092244745876
+      ],
+      "ray_world": [
+        0.95248426120004,
+        -0.006698233175789795,
+        0.3045141471894807
+      ],
+      "normal_dot_ray": 0.8730678341421086,
+      "nearest_exit_normal_dot_ray": 0.873067834142109,
+      "exact_witness": {
+        "classification": "proper_interior_hit",
+        "t": 0.01907409842584613,
+        "barycentric": [
+          0.07272436996392959,
+          0.024530249180546432,
+          0.902745380855524
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      }
+    },
+    {
+      "column": 2262,
+      "body": 107,
+      "bone": 108,
+      "triangle": 627,
+      "status": "EXACT_SURFACE_NORMAL_EXIT",
+      "exit_distance_m": 0.000996300427030036,
+      "hit_world_m": [
+        0.25688506242240566,
+        -0.9396433777118542,
+        0.1350921453981509
+      ],
+      "outward_normal_world": [
+        0.9405416861436284,
+        0.11960934481972497,
+        0.3179228542553942
+      ],
+      "ray_world": [
+        0.9921647098079867,
+        0.10739295973167073,
+        -0.06384309525473825
+      ],
+      "normal_dot_ray": 0.9257202915788785,
+      "nearest_exit_normal_dot_ray": 0.9257202915788781,
+      "exact_witness": {
+        "classification": "proper_interior_hit",
+        "t": 0.00996300427030036,
+        "barycentric": [
+          0.11243414652398698,
+          0.8016156804281404,
+          0.08595017304787268
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      }
+    }
+  ],
+  "certified_planes": 12,
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-041-exact-material-routes/baseline-outer-inside-local-planes.npz": "8c223d3a34103a57c034c3e9abae8b4bf5c7f554a3b94ddf2cf4d9b50c397e2d"
+  },
+  "limitations": [
+    "Outward uses negated area-weighted O-face normals; source connectivity winding is inward relative to O-I at all 12 witnesses. It is not newly measured anatomy.",
+    "Source O12 inside classification from retained baseline native query; nearest proper positive exit selected with exact rational narrowphase.",
+    "Triangle plane is a local construction constraint, not complete bone or tissue clearance."
+  ]
+}

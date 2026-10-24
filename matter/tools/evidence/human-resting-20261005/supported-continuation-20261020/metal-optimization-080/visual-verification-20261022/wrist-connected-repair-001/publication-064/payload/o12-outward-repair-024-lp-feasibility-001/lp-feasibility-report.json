@@ -1,0 +1,758 @@
+{
+  "schema": "numi.human.o12-outward-local-repair.024-lp-feasibility.001",
+  "source_sha256": "aca9912a5e5809179c6e70e763e84473fb3b8957ca3e9bd0ddef8ace1ac87e28",
+  "frozen_inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/baseline-depth-transition-014/candidate.npz": "f5b0e33933ddf0867715a877ade75279659034362ae8f586435ccbf00609f42c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-022/candidate.npz": "d02bccfbba026edb1a564c9a477d0d31deb704cd96b66091764e21ca32e7452a",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/run-022-matched-query-023-corrected-001/route-report.json": "2f4af36c838ecb2060db94ef7b1bc2b41b0ce9c4fc21e3e7597408c8eace73c7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/surface-normal-bone-exits-018/outward-exit-planes.npz": "1d54b19e89f17b32cfc3b325c90650bbc2faf41788151dfd2301682d41d48ebe",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/outward-skin-bone-exits-017/outward-exit-planes.npz": "3737e93d9d81c6ebac9a8116ee7e0addfe67553e438194cb006d575651b25312",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-022-query-023/source-preflight/all-bank-containment.csv": "17825aed54a12442dc08826e8a42616a3bff2844961d95f0bbcef7c8d2f2ba7a",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-022-query-023/source-preflight/exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-022-query-023/source-preflight/exact-emitted.nodes.csv": "f82c65e1d8b839d86505ee2095e97e56790812d155f73fa83aed114a121e55cb",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/column_fit_support.py": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16"
+  },
+  "existing_024_report_sha256": "1abb98635db2eaa0616d046b8c3e2ebec8669068d902b95244130a8ff2323517",
+  "existing_024_candidate_sha256": "575ca11bd665368e8e4cf5f75c31227fab7cfaa481750e1602c4316e349e827f",
+  "existing_024_state_sha256": "c4193e93e9fb0444ec62f1ff9044cdece2621e1bd34f47c6a029fe7bb4733503",
+  "matrix_rows": {
+    "planes": 85,
+    "quality": 1200,
+    "variables": 206
+  },
+  "unit_note": "plane values and slacks in millimetres; q rows are normalized quality multiplied by 1e3; linearization is at bounded cumulative 022 start x0; q rows are optional hard constraints only in second phase.",
+  "plane_only_phaseI": {
+    "success": true,
+    "status": 0,
+    "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "objective_sum_plane_slack_mm": 0.9594933355290426,
+    "max_plane_slack_mm": 0.9594933355290426,
+    "min_predicted_plane_mm": -0.959493335529042,
+    "min_predicted_q_scaled": -2733.7217587235655,
+    "max_abs_variable_delta_mm": 9.761481165885925,
+    "plane_slacks_mm": [
+      {
+        "row": 75,
+        "slack_mm": 0.9594933355290426,
+        "dual": -1.0,
+        "meta": {
+          "node": 5039,
+          "column": 217,
+          "layer": 2,
+          "kind": "023_native_inside_nearest_exit",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 172,
+          "global_node": 6705,
+          "query_world_match_error_m": 0.0,
+          "inside_distance_m": 0.0010185918793286877,
+          "signed_face_distance_m": -0.0010116088621851035
+        }
+      }
+    ],
+    "largest_abs_plane_duals": [
+      {
+        "row": 51,
+        "dual": -1.0,
+        "slack_mm": -0.0,
+        "meta": {
+          "node": 5039,
+          "column": 217,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 7,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 38,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 75,
+        "dual": -1.0,
+        "slack_mm": 0.9594933355290426,
+        "meta": {
+          "node": 5039,
+          "column": 217,
+          "layer": 2,
+          "kind": "023_native_inside_nearest_exit",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 172,
+          "global_node": 6705,
+          "query_world_match_error_m": 0.0,
+          "inside_distance_m": 0.0010185918793286877,
+          "signed_face_distance_m": -0.0010116088621851035
+        }
+      },
+      {
+        "row": 8,
+        "dual": -0.16575570432042153,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5039,
+          "column": 217,
+          "layer": 2,
+          "kind": "seed_outward_exit",
+          "bank_stable_id": 97,
+          "body_index": 61,
+          "triangle_stable_id": null
+        }
+      },
+      {
+        "row": 0,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 204,
+          "column": 204,
+          "layer": 0,
+          "kind": "seed_outward_exit",
+          "bank_stable_id": 97,
+          "body_index": 61,
+          "triangle_stable_id": null
+        }
+      },
+      {
+        "row": 60,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2682,
+          "column": 271,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 12,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 29,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 59,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5055,
+          "column": 233,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 11,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 163,
+          "outside_endpoint": "end"
+        }
+      },
+      {
+        "row": 58,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2644,
+          "column": 233,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 11,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 163,
+          "outside_endpoint": "end"
+        }
+      },
+      {
+        "row": 57,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5053,
+          "column": 231,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 10,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 88,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 56,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2642,
+          "column": 231,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 10,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 88,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 55,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5041,
+          "column": 219,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 9,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 42,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 54,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2630,
+          "column": 219,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 9,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 42,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 52,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2629,
+          "column": 218,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 8,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 82,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 61,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5093,
+          "column": 271,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 12,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 29,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 50,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2628,
+          "column": 217,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 7,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 38,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 49,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5037,
+          "column": 215,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 6,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 105,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 48,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2626,
+          "column": 215,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 6,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 105,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 47,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5026,
+          "column": 204,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 5,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 62,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 46,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2615,
+          "column": 204,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 5,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 62,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 45,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2631,
+          "column": 220,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 4,
+          "segment": "O-I",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 34,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 53,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5040,
+          "column": 218,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 8,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 82,
+          "outside_endpoint": "start"
+        }
+      }
+    ]
+  },
+  "q_hard_phaseI": {
+    "success": true,
+    "status": 0,
+    "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "objective_sum_plane_slack_mm": 0.9594933355290426,
+    "max_plane_slack_mm": 0.9594933355290426,
+    "min_predicted_plane_mm": -0.959493335529042,
+    "min_predicted_q_scaled": -6.252776074688882e-13,
+    "max_abs_variable_delta_mm": 8.49501657485962,
+    "plane_slacks_mm": [
+      {
+        "row": 75,
+        "slack_mm": 0.9594933355290426,
+        "dual": -1.0,
+        "meta": {
+          "node": 5039,
+          "column": 217,
+          "layer": 2,
+          "kind": "023_native_inside_nearest_exit",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 172,
+          "global_node": 6705,
+          "query_world_match_error_m": 0.0,
+          "inside_distance_m": 0.0010185918793286877,
+          "signed_face_distance_m": -0.0010116088621851035
+        }
+      }
+    ],
+    "largest_abs_plane_duals": [
+      {
+        "row": 8,
+        "dual": -1.0,
+        "slack_mm": -0.0,
+        "meta": {
+          "node": 5039,
+          "column": 217,
+          "layer": 2,
+          "kind": "seed_outward_exit",
+          "bank_stable_id": 97,
+          "body_index": 61,
+          "triangle_stable_id": null
+        }
+      },
+      {
+        "row": 75,
+        "dual": -1.0,
+        "slack_mm": 0.9594933355290426,
+        "meta": {
+          "node": 5039,
+          "column": 217,
+          "layer": 2,
+          "kind": "023_native_inside_nearest_exit",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 172,
+          "global_node": 6705,
+          "query_world_match_error_m": 0.0,
+          "inside_distance_m": 0.0010185918793286877,
+          "signed_face_distance_m": -0.0010116088621851035
+        }
+      },
+      {
+        "row": 51,
+        "dual": -0.16575570432042153,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5039,
+          "column": 217,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 7,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 38,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 0,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 204,
+          "column": 204,
+          "layer": 0,
+          "kind": "seed_outward_exit",
+          "bank_stable_id": 97,
+          "body_index": 61,
+          "triangle_stable_id": null
+        }
+      },
+      {
+        "row": 60,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2682,
+          "column": 271,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 12,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 29,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 59,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5055,
+          "column": 233,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 11,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 163,
+          "outside_endpoint": "end"
+        }
+      },
+      {
+        "row": 58,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2644,
+          "column": 233,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 11,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 163,
+          "outside_endpoint": "end"
+        }
+      },
+      {
+        "row": 57,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5053,
+          "column": 231,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 10,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 88,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 56,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2642,
+          "column": 231,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 10,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 88,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 55,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5041,
+          "column": 219,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 9,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 42,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 54,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2630,
+          "column": 219,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 9,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 42,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 52,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2629,
+          "column": 218,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 8,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 82,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 61,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5093,
+          "column": 271,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 12,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 29,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 50,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2628,
+          "column": 217,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 7,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 38,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 49,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5037,
+          "column": 215,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 6,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 105,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 48,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2626,
+          "column": 215,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 6,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 105,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 47,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5026,
+          "column": 204,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 5,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 62,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 46,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2615,
+          "column": 204,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 5,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 62,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 45,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 2631,
+          "column": 220,
+          "layer": 1,
+          "kind": "exact_first_route_hit",
+          "route_witness": 4,
+          "segment": "O-I",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 34,
+          "outside_endpoint": "start"
+        }
+      },
+      {
+        "row": 53,
+        "dual": -0.0,
+        "slack_mm": 0.0,
+        "meta": {
+          "node": 5040,
+          "column": 218,
+          "layer": 2,
+          "kind": "exact_first_route_hit",
+          "route_witness": 8,
+          "segment": "I-D",
+          "body_index": 61,
+          "bank_stable_id": 97,
+          "triangle_stable_id": 82,
+          "outside_endpoint": "start"
+        }
+      }
+    ]
+  }
+}

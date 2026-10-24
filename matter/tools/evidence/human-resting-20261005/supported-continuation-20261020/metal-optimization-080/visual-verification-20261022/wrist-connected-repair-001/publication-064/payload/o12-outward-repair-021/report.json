@@ -1,0 +1,230 @@
+{
+  "schema": "numi.human.o12-outward-local-repair.021",
+  "status": "GEOMETRY_CONSTRUCTION_DIAGNOSTIC_NOT_ADMITTED",
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/baseline-depth-transition-014/candidate.npz": "f5b0e33933ddf0867715a877ade75279659034362ae8f586435ccbf00609f42c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/depth014-exact-material-routes-015/route-report.json": "1d0b631edbc042c61d79858e07f8fc6e02cd8b2bc6f7b5501a2b1e7ba7c18c71",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/surface-normal-bone-exits-018/outward-exit-planes.npz": "1d54b19e89f17b32cfc3b325c90650bbc2faf41788151dfd2301682d41d48ebe",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/outward-skin-bone-exits-017/outward-exit-planes.npz": "3737e93d9d81c6ebac9a8116ee7e0addfe67553e438194cb006d575651b25312",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/column_fit_support.py": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16"
+  },
+  "candidate_sha256": "e8beb6c30a92cf7eb0309014663800d002ee0925b5bee2dbff0a8d900321da62",
+  "parameters": {
+    "outer_exit_source": "018 surface-normal exact exits; 017 I-to-O directional exit for column271 due grazing 018 normal",
+    "seed_columns": [
+      204,
+      215,
+      217,
+      218,
+      219,
+      231,
+      233,
+      271,
+      337,
+      2187,
+      2261,
+      2262
+    ],
+    "route_hit_columns": [
+      204,
+      215,
+      217,
+      218,
+      219,
+      231,
+      233,
+      271
+    ],
+    "constrained_endpoints": [
+      {
+        "column": 204,
+        "layer": "O"
+      },
+      {
+        "column": 204,
+        "layer": "I"
+      },
+      {
+        "column": 215,
+        "layer": "O"
+      },
+      {
+        "column": 215,
+        "layer": "I"
+      },
+      {
+        "column": 217,
+        "layer": "O"
+      },
+      {
+        "column": 217,
+        "layer": "I"
+      },
+      {
+        "column": 218,
+        "layer": "O"
+      },
+      {
+        "column": 218,
+        "layer": "I"
+      },
+      {
+        "column": 219,
+        "layer": "O"
+      },
+      {
+        "column": 219,
+        "layer": "I"
+      },
+      {
+        "column": 231,
+        "layer": "O"
+      },
+      {
+        "column": 231,
+        "layer": "I"
+      },
+      {
+        "column": 233,
+        "layer": "O"
+      },
+      {
+        "column": 233,
+        "layer": "I"
+      },
+      {
+        "column": 271,
+        "layer": "O"
+      },
+      {
+        "column": 271,
+        "layer": "I"
+      },
+      {
+        "column": 337,
+        "layer": "O"
+      },
+      {
+        "column": 2187,
+        "layer": "O"
+      },
+      {
+        "column": 2261,
+        "layer": "O"
+      },
+      {
+        "column": 2262,
+        "layer": "O"
+      }
+    ],
+    "free_column_count": 53,
+    "fixed_collar_ring": 2,
+    "affected_tet_count": 1134,
+    "q_min": 1e-05,
+    "clearance_margin_m": 0.0001,
+    "shared_column_translation_bound_mm": 8.0,
+    "objective": "minimum squared local shared-column displacement plus smoothness and bounded skin/fat shortening"
+  },
+  "derivative_checks": {
+    "objective_directional_abs_error": 1.125002868640479e-11,
+    "plane_directional_max_abs_error": 2.4967289347088695e-09,
+    "quality_directional_max_abs_error": 0.00011157582906662356
+  },
+  "solver": {
+    "success": false,
+    "message": "Iteration limit reached",
+    "nit": 35,
+    "fun": 719.7886374103753
+  },
+  "initial": {
+    "min_affected_q": 7.564202576236085e-05,
+    "min_all_q": 1.2325646074745337e-05,
+    "plane_slack_mm": [
+      -2.0514073168005322,
+      -4.3074817845863755,
+      -0.2726043822766149,
+      -2.012746610672001,
+      -2.4901485565618113,
+      -4.872722843564304,
+      -2.441019747158522,
+      -4.048977555485351,
+      -0.20372953138748912,
+      -0.7137723444816163,
+      -0.2129676978658506,
+      -1.2880843714268093,
+      -2.5146450352151,
+      -2.050337509958938,
+      -4.9689262215711265,
+      -6.675646390612582,
+      -1.0686717462598772,
+      -0.5893847246500467,
+      -1.7652981800866825,
+      -1.0222955218103869
+    ]
+  },
+  "candidate": {
+    "moved_source_rows": 159,
+    "max_displacement_mm": 6.825484346983469,
+    "free_columns_nonzero": 53,
+    "min_affected_q": 3.7527412344658786e-05,
+    "min_global_q": 1.2325646074745337e-05,
+    "q_below_1e-5_affected": 0,
+    "plane_slack_m": [
+      4.1166965736949007e-05,
+      -0.0001250761009972518,
+      0.0004107326336389116,
+      -5.7180266939745175e-05,
+      2.9127320391478085e-05,
+      -0.00014151780587704632,
+      4.276221175929149e-05,
+      -0.00011759267282431122,
+      4.200990964763555e-05,
+      -2.073695226155097e-05,
+      9.053616828329205e-05,
+      -3.328293220485629e-05,
+      -7.3021705778423e-05,
+      0.0002254850869622422,
+      -1.054842611737429e-05,
+      -0.00019387497052601054,
+      -3.103650264542564e-05,
+      -1.7122587043180942e-05,
+      -5.12633011920079e-05,
+      -2.9698057764811922e-05
+    ],
+    "plane_violations_tol1e-7m": 13,
+    "skin_shortening_mm": [
+      2.269607387298959,
+      1.7913566007856236,
+      2.2747259329950693,
+      1.819660953428453,
+      1.7734188960984711,
+      2.168042293542754,
+      0.8749085913254293,
+      1.807365338055596,
+      0.006252685819118593,
+      0.02633863305303972,
+      5.035557887211786e-05,
+      0.01590593001090162
+    ],
+    "fat_shortening_mm": [
+      0.0022784444792037194,
+      0.022888955557937365,
+      0.031939740677706115,
+      0.02264605125765815,
+      0.009867467262459153,
+      0.009449965996642584,
+      0.002047014347505369,
+      0.0625771760571147,
+      0.004112464173339891,
+      0.0021359690266902283,
+      0.0007193973911517079,
+      0.014231342790324642
+    ]
+  },
+  "limitations": [
+    "No exact whole-volume or all-bone requery has run on this candidate.",
+    "No reference-coordinate pullback, conservative material transfer, density/mass closure, or native admission.",
+    "Plane rows are construction constraints from exact emitted bone exits; only the existing eight O-I route hits are constrained at both O and I endpoints.",
+    "No existing source IDs, face topology, or material rows changed."
+  ]
+}

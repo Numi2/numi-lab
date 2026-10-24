@@ -1,0 +1,68 @@
+{
+  "schema": "numi.human.040-candidate-source-query.v1",
+  "scope": "022 proposed rest geometry STATIC source query ONLY: no reference/material/mass admission, no physical steps",
+  "source_only": true,
+  "physical_qualification": false,
+  "runner_returncode": 0,
+  "elapsed_s": 9.936508124927059,
+  "candidate_sha256": "d02bccfbba026edb1a564c9a477d0d31deb704cd96b66091764e21ca32e7452a",
+  "candidate_report_sha256": "0cc0f0fbd5cfe339c1e341230f91a19bf8b27814e1527053783c354d904223c1",
+  "wrapper_sha256": "ba2ed948aab0c726283eb45e0493bcd315bc43c9605e052d11a51b43f80d0fbf",
+  "original_runner_sha256": "920b1a1d3f4c90f8972e3c1467fba9e06899edca2bc3cf22dd8e5c2adf2c1ae6",
+  "native_app_sha256": "dc463fb9c341448e0a7d4accd52ba392c4bd757c8226541de0890462bd04b6ab",
+  "runtime_sha256": "b7cba8777b071eb1df0dbdadc24f9a4963eb92b2e85bf1121a97d29328d5c26b",
+  "metallib_sha256": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125",
+  "override_csv_sha256": "39f683aff7e89eb9def7328b4765ef4701f64799946222f2828965476171b523",
+  "input_global_id_owner": "035 baseline + AP exact row identity; mass CSV retained ONLY for static query metadata",
+  "minimum_q_f32": 1.2325646074736365e-05,
+  "nonpositive_tets": 0,
+  "accepted_physical_steps": 0,
+  "execution_receipt": {
+    "returncode": 1,
+    "error": null,
+    "wall_seconds": 9.746606207918376,
+    "launch_manifest_sha256": "647514a31811dc299ff7bc4cd041285d8f0e04430f0cefe37249b21226c26fd9",
+    "stdout_sha256": "485896e6f97f9f9a51c250f642199774632b87f780d3de76a2c93e3267d83782",
+    "stderr_sha256": "d776f49cf33fd3d1813c378fda8d504f45b59c68a58873000ef74b094e4e6502",
+    "status": "SOURCE_ONLY_INTENTIONAL_STOP",
+    "physical_qualification": false,
+    "source_only_marker_present": true,
+    "requested_diagnostics_complete": true,
+    "missing_requested_outputs": []
+  },
+  "status": "SOURCE_QUERY_PASS_BANKS_IDENTICAL_TO_039_NOT_PHYSICAL_ADMISSION",
+  "outputs": {
+    "all-bank-containment.csv.nodes.csv": {
+      "sha256": "9b555b00128dde8982b4cd3c09b717875e2b8b5fe461cd5f7b63aaadecfff599",
+      "bytes": 263350
+    },
+    "all-bank-containment.csv": {
+      "sha256": "17825aed54a12442dc08826e8a42616a3bff2844961d95f0bbcef7c8d2f2ba7a",
+      "bytes": 458754
+    },
+    "registered-skin.csv": {
+      "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+      "bytes": 24135771
+    },
+    "exact-emitted.triangles.csv": {
+      "sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+      "bytes": 146247212
+    },
+    "initial-skin-fem-nodes.csv": {
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+      "bytes": 694725
+    },
+    "exact-emitted.nodes.csv": {
+      "sha256": "f82c65e1d8b839d86505ee2095e97e56790812d155f73fa83aed114a121e55cb",
+      "bytes": 1056088
+    },
+    "exact-emitted.bodies.csv": {
+      "sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+      "bytes": 80016
+    },
+    "all-bank-containment.csv.banks.csv": {
+      "sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+      "bytes": 26176
+    }
+  }
+}

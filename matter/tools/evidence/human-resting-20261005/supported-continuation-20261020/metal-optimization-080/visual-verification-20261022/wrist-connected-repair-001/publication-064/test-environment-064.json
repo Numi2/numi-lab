@@ -1,0 +1,14 @@
+{
+  "host": "numi.local",
+  "device": "Apple M6",
+  "hardware_model": "Mac18,5",
+  "python": "3.13.16",
+  "tests": {
+    "canonical_audit_focused_cases": 11,
+    "result": "PASS",
+    "command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/canonical-promotion-001/matter/tools/test_human_skin_fat_bone_audit.py"
+  },
+  "native_023_scope": "STATIC source-only query; no physical steps",
+  "complete_scene_qualification": false,
+  "all_tet_edge_full_candidate_scan": false
+}

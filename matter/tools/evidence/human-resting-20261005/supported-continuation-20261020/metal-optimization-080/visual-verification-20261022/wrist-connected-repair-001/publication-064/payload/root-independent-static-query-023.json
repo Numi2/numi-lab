@@ -1,0 +1,172 @@
+{
+  "status": "INDEPENDENT_STATIC_QUERY_REVIEW_FAIL_CLEARANCE",
+  "candidate_sha256": "d02bccfbba026edb1a564c9a477d0d31deb704cd96b66091764e21ca32e7452a",
+  "exact_f32_matches_candidate": true,
+  "initial_node_export_is_pre_override_baseline": true,
+  "initial_export_mismatch_rows_vs_candidate": 344,
+  "all_bank_count": 185,
+  "node_count": 7233,
+  "query_classifications": {
+    "outside": 2086,
+    "inside": 17
+  },
+  "inside_by_layer": {
+    "0": 1,
+    "1": 5,
+    "2": 11
+  },
+  "inside_witnesses": [
+    {
+      "local_node": 233,
+      "global_node": 1899,
+      "layer": 0,
+      "row": 233,
+      "bank_body": 61,
+      "bank_stable_id": 97
+    },
+    {
+      "local_node": 2631,
+      "global_node": 4297,
+      "layer": 1,
+      "row": 220,
+      "bank_body": 61,
+      "bank_stable_id": 97
+    },
+    {
+      "local_node": 2644,
+      "global_node": 4310,
+      "layer": 1,
+      "row": 233,
+      "bank_body": 61,
+      "bank_stable_id": 97
+    },
+    {
+      "local_node": 2748,
+      "global_node": 4414,
+      "layer": 1,
+      "row": 337,
+      "bank_body": 59,
+      "bank_stable_id": 95
+    },
+    {
+      "local_node": 4598,
+      "global_node": 6264,
+      "layer": 1,
+      "row": 2187,
+      "bank_body": 124,
+      "bank_stable_id": 123
+    },
+    {
+      "local_node": 4673,
+      "global_node": 6339,
+      "layer": 1,
+      "row": 2262,
+      "bank_body": 107,
+      "bank_stable_id": 108
+    },
+    {
+      "local_node": 5037,
+      "global_node": 6703,
+      "layer": 2,
+      "row": 215,
+      "bank_body": 61,
+      "bank_stable_id": 97
+    },
+    {
+      "local_node": 5039,
+      "global_node": 6705,
+      "layer": 2,
+      "row": 217,
+      "bank_body": 61,
+      "bank_stable_id": 97
+    },
+    {
+      "local_node": 5040,
+      "global_node": 6706,
+      "layer": 2,
+      "row": 218,
+      "bank_body": 61,
+      "bank_stable_id": 97
+    },
+    {
+      "local_node": 5041,
+      "global_node": 6707,
+      "layer": 2,
+      "row": 219,
+      "bank_body": 61,
+      "bank_stable_id": 97
+    },
+    {
+      "local_node": 5042,
+      "global_node": 6708,
+      "layer": 2,
+      "row": 220,
+      "bank_body": 61,
+      "bank_stable_id": 97
+    },
+    {
+      "local_node": 5053,
+      "global_node": 6719,
+      "layer": 2,
+      "row": 231,
+      "bank_body": 61,
+      "bank_stable_id": 97
+    },
+    {
+      "local_node": 5093,
+      "global_node": 6759,
+      "layer": 2,
+      "row": 271,
+      "bank_body": 61,
+      "bank_stable_id": 97
+    },
+    {
+      "local_node": 5159,
+      "global_node": 6825,
+      "layer": 2,
+      "row": 337,
+      "bank_body": 59,
+      "bank_stable_id": 95
+    },
+    {
+      "local_node": 7009,
+      "global_node": 8675,
+      "layer": 2,
+      "row": 2187,
+      "bank_body": 124,
+      "bank_stable_id": 123
+    },
+    {
+      "local_node": 7083,
+      "global_node": 8749,
+      "layer": 2,
+      "row": 2261,
+      "bank_body": 109,
+      "bank_stable_id": 114
+    },
+    {
+      "local_node": 7084,
+      "global_node": 8750,
+      "layer": 2,
+      "row": 2262,
+      "bank_body": 107,
+      "bank_stable_id": 108
+    }
+  ],
+  "ambiguous_banks": 0,
+  "invalid_banks": 0,
+  "accepted_physical_steps": 0,
+  "physical_qualification": false,
+  "limitations": [
+    "Exact emitted nodes, not the pre-override initial-node export, own query geometry.",
+    "Node containment does not establish edge/surface/tet clearance.",
+    "Native query frame reconstruction is separately checked by the consolidated route owner."
+  ],
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-022/candidate.npz": "d02bccfbba026edb1a564c9a477d0d31deb704cd96b66091764e21ca32e7452a",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-022-query-023/source-preflight/exact-emitted.nodes.csv": "f82c65e1d8b839d86505ee2095e97e56790812d155f73fa83aed114a121e55cb",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-022-query-023/source-preflight/initial-skin-fem-nodes.csv": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-022-query-023/source-preflight/all-bank-containment.csv": "17825aed54a12442dc08826e8a42616a3bff2844961d95f0bbcef7c8d2f2ba7a",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-022-query-023/source-preflight/all-bank-containment.csv.nodes.csv": "9b555b00128dde8982b4cd3c09b717875e2b8b5fe461cd5f7b63aaadecfff599"
+  }
+}

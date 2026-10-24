@@ -1,0 +1,199 @@
+{
+  "schema": "numi.human.o12-outward-local-repair.failure-analysis.v1",
+  "status": "FAILED_CONSTRUCTION_NO_ADMISSION",
+  "as_run": {
+    "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-021/build_o12_outward_021.py",
+    "source_sha256": "a5bcac1397dbbbc793ec539624dcfb911f99849a8e53722fe7b7087ec6426357",
+    "report_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-021/report.json",
+    "report_sha256": "c850387ce015a29c815e82894d853c80e85928ca8a7b450e9328adf5e114189c",
+    "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-021/candidate.npz",
+    "candidate_sha256": "e8beb6c30a92cf7eb0309014663800d002ee0925b5bee2dbff0a8d900321da62",
+    "solver": {
+      "success": false,
+      "message": "Iteration limit reached",
+      "nit": 35,
+      "fun": 719.7886374103753
+    },
+    "derivative_checks": {
+      "objective_directional_abs_error": 1.125002868640479e-11,
+      "plane_directional_max_abs_error": 2.4967289347088695e-09,
+      "quality_directional_max_abs_error": 0.00011157582906662356
+    }
+  },
+  "quality": {
+    "affected_tets": 1134,
+    "min_affected_q": 3.7527412344658786e-05,
+    "min_global_q": 1.2325646074745337e-05,
+    "below_1e_5_affected": 0,
+    "global_min_q_unchanged_from_014": true
+  },
+  "plane_constraints": {
+    "columns": [
+      204,
+      215,
+      217,
+      218,
+      219,
+      231,
+      233,
+      271,
+      337,
+      2187,
+      2261,
+      2262
+    ],
+    "route_hit_columns": [
+      204,
+      215,
+      217,
+      218,
+      219,
+      231,
+      233,
+      271
+    ],
+    "endpoint_order": [
+      {
+        "column": 204,
+        "layer": "O"
+      },
+      {
+        "column": 204,
+        "layer": "I"
+      },
+      {
+        "column": 215,
+        "layer": "O"
+      },
+      {
+        "column": 215,
+        "layer": "I"
+      },
+      {
+        "column": 217,
+        "layer": "O"
+      },
+      {
+        "column": 217,
+        "layer": "I"
+      },
+      {
+        "column": 218,
+        "layer": "O"
+      },
+      {
+        "column": 218,
+        "layer": "I"
+      },
+      {
+        "column": 219,
+        "layer": "O"
+      },
+      {
+        "column": 219,
+        "layer": "I"
+      },
+      {
+        "column": 231,
+        "layer": "O"
+      },
+      {
+        "column": 231,
+        "layer": "I"
+      },
+      {
+        "column": 233,
+        "layer": "O"
+      },
+      {
+        "column": 233,
+        "layer": "I"
+      },
+      {
+        "column": 271,
+        "layer": "O"
+      },
+      {
+        "column": 271,
+        "layer": "I"
+      },
+      {
+        "column": 337,
+        "layer": "O"
+      },
+      {
+        "column": 2187,
+        "layer": "O"
+      },
+      {
+        "column": 2261,
+        "layer": "O"
+      },
+      {
+        "column": 2262,
+        "layer": "O"
+      }
+    ],
+    "slack_m": [
+      4.1166965736949007e-05,
+      -0.0001250761009972518,
+      0.0004107326336389116,
+      -5.7180266939745175e-05,
+      2.9127320391478085e-05,
+      -0.00014151780587704632,
+      4.276221175929149e-05,
+      -0.00011759267282431122,
+      4.200990964763555e-05,
+      -2.073695226155097e-05,
+      9.053616828329205e-05,
+      -3.328293220485629e-05,
+      -7.3021705778423e-05,
+      0.0002254850869622422,
+      -1.054842611737429e-05,
+      -0.00019387497052601054,
+      -3.103650264542564e-05,
+      -1.7122587043180942e-05,
+      -5.12633011920079e-05,
+      -2.9698057764811922e-05
+    ],
+    "violations_tol_1e_7m": 13,
+    "margin_m": 0.0001
+  },
+  "motion": {
+    "moved_rows": 159,
+    "max_node_displacement_mm": 6.825484346983469,
+    "skin_shortening_mm": [
+      2.269607387298959,
+      1.7913566007856236,
+      2.2747259329950693,
+      1.819660953428453,
+      1.7734188960984711,
+      2.168042293542754,
+      0.8749085913254293,
+      1.807365338055596,
+      0.006252685819118593,
+      0.02633863305303972,
+      5.035557887211786e-05,
+      0.01590593001090162
+    ],
+    "fat_shortening_mm": [
+      0.0022784444792037194,
+      0.022888955557937365,
+      0.031939740677706115,
+      0.02264605125765815,
+      0.009867467262459153,
+      0.009449965996642584,
+      0.002047014347505369,
+      0.0625771760571147,
+      0.004112464173339891,
+      0.0021359690266902283,
+      0.0007193973911517079,
+      0.014231342790324642
+    ]
+  },
+  "limitations": [
+    "Solver reached its 35-iteration limit; most plane rows remain violated, so candidate is not a passing construction.",
+    "The corrected solver is not evidence of actual bone or whole-volume clearance; no exact requery was run.",
+    "No reference pullback, conservative mass mapping, physical/native admission, or source topology change."
+  ]
+}

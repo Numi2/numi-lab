@@ -1,0 +1,259 @@
+{
+  "schema": "numi.human.o12-outward-local-repair.022",
+  "status": "GEOMETRY_CONSTRUCTION_DIAGNOSTIC_NOT_ADMITTED",
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/baseline-depth-transition-014/candidate.npz": "f5b0e33933ddf0867715a877ade75279659034362ae8f586435ccbf00609f42c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/depth014-exact-material-routes-015/route-report.json": "1d0b631edbc042c61d79858e07f8fc6e02cd8b2bc6f7b5501a2b1e7ba7c18c71",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/surface-normal-bone-exits-018/outward-exit-planes.npz": "1d54b19e89f17b32cfc3b325c90650bbc2faf41788151dfd2301682d41d48ebe",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/outward-skin-bone-exits-017/outward-exit-planes.npz": "3737e93d9d81c6ebac9a8116ee7e0addfe67553e438194cb006d575651b25312",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/column_fit_support.py": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16"
+  },
+  "candidate_sha256": "d02bccfbba026edb1a564c9a477d0d31deb704cd96b66091764e21ca32e7452a",
+  "parameters": {
+    "outer_exit_source": "018 surface-normal exact exits; 017 I-to-O directional exit for column271 due grazing 018 normal",
+    "seed_columns": [
+      204,
+      215,
+      217,
+      218,
+      219,
+      231,
+      233,
+      271,
+      337,
+      2187,
+      2261,
+      2262
+    ],
+    "route_hit_columns": [
+      204,
+      215,
+      217,
+      218,
+      219,
+      231,
+      233,
+      271
+    ],
+    "constrained_endpoints": [
+      {
+        "column": 204,
+        "layer": "O"
+      },
+      {
+        "column": 204,
+        "layer": "I"
+      },
+      {
+        "column": 215,
+        "layer": "O"
+      },
+      {
+        "column": 215,
+        "layer": "I"
+      },
+      {
+        "column": 217,
+        "layer": "O"
+      },
+      {
+        "column": 217,
+        "layer": "I"
+      },
+      {
+        "column": 218,
+        "layer": "O"
+      },
+      {
+        "column": 218,
+        "layer": "I"
+      },
+      {
+        "column": 219,
+        "layer": "O"
+      },
+      {
+        "column": 219,
+        "layer": "I"
+      },
+      {
+        "column": 231,
+        "layer": "O"
+      },
+      {
+        "column": 231,
+        "layer": "I"
+      },
+      {
+        "column": 233,
+        "layer": "O"
+      },
+      {
+        "column": 233,
+        "layer": "I"
+      },
+      {
+        "column": 271,
+        "layer": "O"
+      },
+      {
+        "column": 271,
+        "layer": "I"
+      },
+      {
+        "column": 337,
+        "layer": "O"
+      },
+      {
+        "column": 2187,
+        "layer": "O"
+      },
+      {
+        "column": 2261,
+        "layer": "O"
+      },
+      {
+        "column": 2262,
+        "layer": "O"
+      }
+    ],
+    "free_column_count": 53,
+    "fixed_collar_ring": 2,
+    "affected_tet_count": 1134,
+    "q_min": 1e-05,
+    "clearance_margin_m": 0.0001,
+    "shared_column_translation_bound_mm": 8.0,
+    "objective": "feasibility-first squared negative plane slack plus small displacement/smoothness regularizer and bounded skin/fat shortening"
+  },
+  "derivative_checks": {
+    "objective_directional_abs_error": 8.030708231743233e-08,
+    "plane_directional_max_abs_error": 2.4967289347088695e-09,
+    "quality_directional_max_abs_error": 1.1141666838021536e-06
+  },
+  "solver": {
+    "success": false,
+    "message": "Iteration limit reached",
+    "nit": 35,
+    "fun": 0.0007546208535658282
+  },
+  "selection": "best_feasible_iterate",
+  "restart": {
+    "source_candidate": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-021/candidate.npz",
+    "source_candidate_sha256": "e8beb6c30a92cf7eb0309014663800d002ee0925b5bee2dbff0a8d900321da62",
+    "roundtrip_max_error_m": 1.1920928955078125e-07,
+    "initial_plane_slack_mm": [
+      0.04116696573694901,
+      -0.12507658737551747,
+      0.4107326336389116,
+      -0.05718335359836734,
+      0.029127320391478084,
+      -0.14152075137933046,
+      0.04276221175929149,
+      -0.11761171983059163,
+      0.04200990964763555,
+      -0.02073352828265309,
+      0.09053616828329204,
+      -0.03326973753125859,
+      -0.073021705778423,
+      0.22549871640060087,
+      -0.01054842611737429,
+      -0.19386015918742558,
+      -0.03103650264542564,
+      -0.017122587043180943,
+      -0.0512633011920079,
+      -0.029698057764811922
+    ],
+    "initial_min_affected_q": 3.7527412344658786e-05
+  },
+  "initial": {
+    "min_affected_q": 3.7527412344658786e-05,
+    "min_all_q": 1.2325646074745337e-05,
+    "plane_slack_mm": [
+      0.04116696573694901,
+      -0.12507658737551747,
+      0.4107326336389116,
+      -0.05718335359836734,
+      0.029127320391478084,
+      -0.14152075137933046,
+      0.04276221175929149,
+      -0.11761171983059163,
+      0.04200990964763555,
+      -0.02073352828265309,
+      0.09053616828329204,
+      -0.03326973753125859,
+      -0.073021705778423,
+      0.22549871640060087,
+      -0.01054842611737429,
+      -0.19386015918742558,
+      -0.03103650264542564,
+      -0.017122587043180943,
+      -0.0512633011920079,
+      -0.029698057764811922
+    ]
+  },
+  "candidate": {
+    "moved_source_rows": 159,
+    "max_displacement_mm": 7.031989528905516,
+    "free_columns_nonzero": 53,
+    "min_affected_q": 3.7748514711812294e-05,
+    "min_global_q": 1.2325646074745337e-05,
+    "q_below_1e-5_affected": 0,
+    "plane_slack_m": [
+      9.207820386567232e-05,
+      -2.0884883532607955e-08,
+      0.0004899860851168462,
+      7.072974167405945e-05,
+      9.723663164003578e-05,
+      4.666928143877468e-09,
+      8.919302416359835e-05,
+      9.440533248245098e-06,
+      5.95865995241195e-05,
+      -1.7029341643559149e-09,
+      0.00011348272185494178,
+      -1.8365979340839332e-08,
+      2.4900505135382967e-08,
+      0.00029904210458057425,
+      8.429126987141032e-05,
+      1.009150318185745e-08,
+      -2.70071671154711e-09,
+      5.261707683002046e-07,
+      8.097494090319535e-09,
+      1.487886731617964e-06
+    ],
+    "plane_violations_tol1e-7m": 0,
+    "skin_shortening_mm": [
+      2.3501589601425623,
+      1.8598541616213367,
+      2.3502085124319754,
+      1.9210126191378498,
+      1.785983250335722,
+      2.1916132045135837,
+      0.8719748901052119,
+      1.924862614862982,
+      0.006249732911131233,
+      0.02623735620532486,
+      5.9327876981322505e-05,
+      0.015867731230695032
+    ],
+    "fat_shortening_mm": [
+      0.0022565252293697646,
+      0.022798916342539523,
+      0.031828352489403924,
+      0.0225738606473433,
+      0.009831738168545821,
+      0.009410936606004713,
+      0.0009118874000775323,
+      0.06234504347821342,
+      0.004074838732950469,
+      0.0021318061565486573,
+      0.0006819230299898323,
+      0.014185350601131836
+    ]
+  },
+  "limitations": [
+    "No exact whole-volume or all-bone requery has run on this candidate.",
+    "No reference-coordinate pullback, conservative material transfer, density/mass closure, or native admission.",
+    "Plane rows are construction constraints from exact emitted bone exits; only the existing eight O-I route hits are constrained at both O and I endpoints.",
+    "No existing source IDs, face topology, or material rows changed."
+  ]
+}

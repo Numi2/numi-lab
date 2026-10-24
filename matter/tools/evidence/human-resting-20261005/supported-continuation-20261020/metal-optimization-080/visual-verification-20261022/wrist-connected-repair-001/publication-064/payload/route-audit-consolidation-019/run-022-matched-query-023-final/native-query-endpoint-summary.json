@@ -1,0 +1,276 @@
+{
+  "schema": "numi.human.route-audit-consolidation-019.native-query-endpoint-summary.v1",
+  "candidate_npz_sha256": "d02bccfbba026edb1a564c9a477d0d31deb704cd96b66091764e21ca32e7452a",
+  "route_report_sha256": "357bcc143e54cd6bbabb695130e2cae73eefa5eac1423bf64c1800dca2990c17",
+  "native_source_only_query": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-022-query-023/source-preflight",
+  "native_source_only_query_file_sha256": {
+    "exact-emitted.nodes.csv": "f82c65e1d8b839d86505ee2095e97e56790812d155f73fa83aed114a121e55cb",
+    "all-bank-containment.csv": "17825aed54a12442dc08826e8a42616a3bff2844961d95f0bbcef7c8d2f2ba7a",
+    "all-bank-containment.csv.nodes.csv": "9b555b00128dde8982b4cd3c09b717875e2b8b5fe461cd5f7b63aaadecfff599",
+    "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "registered-skin-poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+  },
+  "all_185_bank_node_summary": {
+    "nodes": 7233,
+    "total_inside_node_bank_pairs": 17,
+    "nodes_with_any_inside_banks": 17,
+    "total_ambiguous_node_bank_pairs": 0,
+    "nodes_with_any_ambiguous_banks": 0,
+    "total_invalid_node_bank_pairs": 0,
+    "per_layer": {
+      "0": {
+        "nodes": 2411,
+        "nodes_with_any_inside_banks": 1,
+        "inside_node_bank_pairs": 1,
+        "nodes_with_any_ambiguous_banks": 0,
+        "ambiguous_node_bank_pairs": 0,
+        "invalid_node_bank_pairs": 0,
+        "nodes_with_any_parity_query": 457
+      },
+      "1": {
+        "nodes": 2411,
+        "nodes_with_any_inside_banks": 5,
+        "inside_node_bank_pairs": 5,
+        "nodes_with_any_ambiguous_banks": 0,
+        "ambiguous_node_bank_pairs": 0,
+        "invalid_node_bank_pairs": 0,
+        "nodes_with_any_parity_query": 505
+      },
+      "2": {
+        "nodes": 2411,
+        "nodes_with_any_inside_banks": 11,
+        "inside_node_bank_pairs": 11,
+        "nodes_with_any_ambiguous_banks": 0,
+        "ambiguous_node_bank_pairs": 0,
+        "invalid_node_bank_pairs": 0,
+        "nodes_with_any_parity_query": 769
+      }
+    }
+  },
+  "all_bank_containment_rows": {
+    "rows": 2103,
+    "classification_counts": {
+      "outside": 2086,
+      "inside": 17
+    }
+  },
+  "route_endpoint_occurrences_by_classification": {
+    "outside": 20,
+    "inside": 12
+  },
+  "route_witnesses": [
+    {
+      "row": 337,
+      "segment": "O-I",
+      "body": 59,
+      "bone_stable_id": 95,
+      "start_node_global": 2003,
+      "start_classification": "outside",
+      "end_classification": "inside",
+      "first_hit_triangle_stable_id": 295,
+      "first_hit_t": 0.2707100204961353,
+      "hit_triangle_count": 1,
+      "end_node_global": 4414
+    },
+    {
+      "row": 203,
+      "segment": "O-I",
+      "body": 61,
+      "bone_stable_id": 97,
+      "start_node_global": 1869,
+      "start_classification": "outside",
+      "end_classification": "outside",
+      "first_hit_triangle_stable_id": 121,
+      "first_hit_t": 0.6208586093588505,
+      "hit_triangle_count": 2,
+      "end_node_global": 4280
+    },
+    {
+      "row": 206,
+      "segment": "O-I",
+      "body": 61,
+      "bone_stable_id": 97,
+      "start_node_global": 1872,
+      "start_classification": "outside",
+      "end_classification": "outside",
+      "first_hit_triangle_stable_id": 63,
+      "first_hit_t": 0.5076793752048333,
+      "hit_triangle_count": 2,
+      "end_node_global": 4283
+    },
+    {
+      "row": 207,
+      "segment": "O-I",
+      "body": 61,
+      "bone_stable_id": 97,
+      "start_node_global": 1873,
+      "start_classification": "outside",
+      "end_classification": "outside",
+      "first_hit_triangle_stable_id": 107,
+      "first_hit_t": 0.7292085144433444,
+      "hit_triangle_count": 2,
+      "end_node_global": 4284
+    },
+    {
+      "row": 220,
+      "segment": "O-I",
+      "body": 61,
+      "bone_stable_id": 97,
+      "start_node_global": 1886,
+      "start_classification": "outside",
+      "end_classification": "inside",
+      "first_hit_triangle_stable_id": 34,
+      "first_hit_t": 0.28656291327290584,
+      "hit_triangle_count": 1,
+      "end_node_global": 4297
+    },
+    {
+      "row": 204,
+      "segment": "I-D",
+      "body": 61,
+      "bone_stable_id": 97,
+      "start_node_global": 4281,
+      "start_classification": "outside",
+      "end_classification": "outside",
+      "first_hit_triangle_stable_id": 62,
+      "first_hit_t": 0.37326925719053894,
+      "hit_triangle_count": 2,
+      "end_node_global": 6692
+    },
+    {
+      "row": 215,
+      "segment": "I-D",
+      "body": 61,
+      "bone_stable_id": 97,
+      "start_node_global": 4292,
+      "start_classification": "outside",
+      "end_classification": "inside",
+      "first_hit_triangle_stable_id": 105,
+      "first_hit_t": 0.0886322305430066,
+      "hit_triangle_count": 1,
+      "end_node_global": 6703
+    },
+    {
+      "row": 217,
+      "segment": "I-D",
+      "body": 61,
+      "bone_stable_id": 97,
+      "start_node_global": 4294,
+      "start_classification": "outside",
+      "end_classification": "inside",
+      "first_hit_triangle_stable_id": 38,
+      "first_hit_t": 0.030549632015662506,
+      "hit_triangle_count": 1,
+      "end_node_global": 6705
+    },
+    {
+      "row": 218,
+      "segment": "I-D",
+      "body": 61,
+      "bone_stable_id": 97,
+      "start_node_global": 4295,
+      "start_classification": "outside",
+      "end_classification": "inside",
+      "first_hit_triangle_stable_id": 82,
+      "first_hit_t": 0.14389122685323716,
+      "hit_triangle_count": 1,
+      "end_node_global": 6706
+    },
+    {
+      "row": 219,
+      "segment": "I-D",
+      "body": 61,
+      "bone_stable_id": 97,
+      "start_node_global": 4296,
+      "start_classification": "outside",
+      "end_classification": "inside",
+      "first_hit_triangle_stable_id": 42,
+      "first_hit_t": 0.4183296219081423,
+      "hit_triangle_count": 1,
+      "end_node_global": 6707
+    },
+    {
+      "row": 231,
+      "segment": "I-D",
+      "body": 61,
+      "bone_stable_id": 97,
+      "start_node_global": 4308,
+      "start_classification": "outside",
+      "end_classification": "inside",
+      "first_hit_triangle_stable_id": 88,
+      "first_hit_t": 0.29925160449267363,
+      "hit_triangle_count": 1,
+      "end_node_global": 6719
+    },
+    {
+      "row": 233,
+      "segment": "I-D",
+      "body": 61,
+      "bone_stable_id": 97,
+      "start_node_global": 4310,
+      "start_classification": "inside",
+      "end_classification": "outside",
+      "first_hit_triangle_stable_id": 163,
+      "first_hit_t": 0.7707505619866217,
+      "hit_triangle_count": 1,
+      "end_node_global": 6721
+    },
+    {
+      "row": 271,
+      "segment": "I-D",
+      "body": 61,
+      "bone_stable_id": 97,
+      "start_node_global": 4348,
+      "start_classification": "outside",
+      "end_classification": "inside",
+      "first_hit_triangle_stable_id": 29,
+      "first_hit_t": 0.7208227264988145,
+      "hit_triangle_count": 1,
+      "end_node_global": 6759
+    },
+    {
+      "row": 2262,
+      "segment": "O-I",
+      "body": 107,
+      "bone_stable_id": 108,
+      "start_node_global": 3928,
+      "start_classification": "outside",
+      "end_classification": "inside",
+      "first_hit_triangle_stable_id": 627,
+      "first_hit_t": 0.1711978374325202,
+      "hit_triangle_count": 1,
+      "end_node_global": 6339
+    },
+    {
+      "row": 2261,
+      "segment": "I-D",
+      "body": 109,
+      "bone_stable_id": 114,
+      "start_node_global": 6338,
+      "start_classification": "outside",
+      "end_classification": "inside",
+      "first_hit_triangle_stable_id": 80,
+      "first_hit_t": 0.4635223339028619,
+      "hit_triangle_count": 1,
+      "end_node_global": 8749
+    },
+    {
+      "row": 2187,
+      "segment": "O-I",
+      "body": 124,
+      "bone_stable_id": 123,
+      "start_node_global": 3853,
+      "start_classification": "outside",
+      "end_classification": "inside",
+      "first_hit_triangle_stable_id": 50,
+      "first_hit_t": 0.19333201738599742,
+      "hit_triangle_count": 1,
+      "end_node_global": 6264
+    }
+  ],
+  "limitations": [
+    "The native run is source-only and reports geometry queries; this is not a physical step or anatomy acceptance.",
+    "The route narrowphase tests O-I/I-D segments against registered bone-bank triangles only; it does not test layer triangles/tets or tissue clearance.",
+    "The query endpoint classifications are sourced from the hash-pinned exact native query; the route audit itself emits no construction planes."
+  ]
+}

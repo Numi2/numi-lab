@@ -1,0 +1,40 @@
+{
+  "schema": "numi.human.publication-manifest.v1",
+  "publication": "064",
+  "base_origin_main": "79dbbd107b36813cf9c9c84c4f92f8f9c821b479",
+  "native_or_physical_admission": false,
+  "accepted_physical_steps": 0,
+  "status": "READY_FOR_ROOT_REVIEW_NOT_PUSHED",
+  "payload_file_count": 81,
+  "payload_bytes": 6046268,
+  "payload_file_list_sha256": "43953a8c020f52c7fb6c215b906c79eb5889ff7a3a320f888b14b937ee931f36",
+  "candidate_022": {
+    "local_exit_plane_constraints_pass": 20,
+    "exact_route_hit_segment_bank_pairs": 16,
+    "proper_hits": 20,
+    "inside_node_bank_pairs": 17,
+    "invalid_or_ambiguous_node_banks": 0,
+    "reference_mass_admission": false
+  },
+  "audit_corrections": [
+    "Initial FEM node export is pre-override baseline; exact-emitted candidate nodes own 023 query.",
+    "New consolidated audit accidentally used a bank-local triangle index against the global array for reported normals/vertices. Corrected source reconstructs actual hit barycentrics. Counts unchanged.",
+    "Original root041/010/015 and direct017/018 used correct bank-local indexing.",
+    "Pre-fix consolidated source bytes 1e0575/e4dfe2 are unavailable; retained report source hashes do not imply byte recoverability."
+  ],
+  "inherited_dependencies": {
+    "parent": "79dbbd107b36813cf9c9c84c4f92f8f9c821b479",
+    "bank_archive_publication": "061",
+    "baseline_depth_source_publication": "063",
+    "duplicate_146MB_triangle_export_not_copied": true
+  },
+  "candidate_024_report_sha256": "1abb98635db2eaa0616d046b8c3e2ebec8669068d902b95244130a8ff2323517",
+  "candidate_024_as_run_status": "GEOMETRY_CONSTRUCTION_CANDIDATE_NOT_PHYSICALLY_ADMITTED",
+  "verifier_sha256": "3274171ac59b123a0b17cf1238d8328b1f951391943e9c9d6d71de5d6cedc2b4",
+  "test_environment_sha256": "b328ae566fadef3343796d61385374b08a5a37ee2dd9b26186abd9619421a219",
+  "canonical_paths": [
+    "matter/tools/human_skin_fat_bone_audit.py",
+    "matter/tools/test_human_skin_fat_bone_audit.py",
+    "matter/root_exact_segment_witness.py"
+  ]
+}

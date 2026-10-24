@@ -1,0 +1,144 @@
+{
+  "schema": "numi.human.route-audit-consolidation-019.bank-local-hit-index-correction.v1",
+  "status": "CORRECTED_DERIVED_WITNESS_FIELDS_COUNTS_UNCHANGED",
+  "issue": "Each exact-hit record stored candidate_tris[ci], an index local to one typed bone bank. It was later used to index the global triangles array when emitting triangle_body_local_f32_m and unit_exterior_normal_world. Exact classification/counts used the correct bank subset; those derived corners/normals in the listed prior consolidated-auditor reports are invalid.",
+  "scope_limitation": "This correction applies only to the listed route-audit-consolidation-019 reports. Existing root_run_material_routes_041.py, root_run_baseline_material_routes_010.py, root_run_depth014_material_routes_015.py and 017/018 were independently inspected by root and use bank-local tris[trirow] correctly.",
+  "correction": "The updated auditor resolves first-hit triangle through the current bank-local `tris` array and checks the associated stable triangle ID. It reconstructs the exact classifier barycentric witness against that triangle and local segment, failing closed above 2e-12 m. It reports unit_start_side_normal_world separately from unit_exterior_normal_world; an exterior normal is populated only from endpoint classifications (outside start points toward start; inside start with outside end points toward end; unresolved endpoints leave exterior normal null).",
+  "preserved_as_run_reports": [
+    {
+      "run_dir": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/run-baseline-035-matched-query-final",
+      "route_report_sha256": "5b1cccac2484f51c95d21b1bcfcab4b8723fa2087002b8f43187d7efc3434684",
+      "source_pins_sha256": "5c57be1f5798714c571462db0902353b436126e321fb262a7a98c60c1343d037",
+      "as_run_tool_sha256": "e4dfe2a5459bee95b1874c1e6c0a420b15488c5583034be99d8d95bc6b19b251",
+      "groups": 191,
+      "proper_hits": 256,
+      "boundary_hits": 0,
+      "coplanar_candidates": 0
+    },
+    {
+      "run_dir": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/run-014-geometry-only-final",
+      "route_report_sha256": "8806255f80087ed39ef648310a6bce4eaa698775511583ef71931922dc7e5cb2",
+      "source_pins_sha256": "d8e3cc48a8a4915befbe4a80b1d1ed41830c9dcf56f2d5ad64b13cf1e8d653f2",
+      "as_run_tool_sha256": "e4dfe2a5459bee95b1874c1e6c0a420b15488c5583034be99d8d95bc6b19b251",
+      "groups": 8,
+      "proper_hits": 8,
+      "boundary_hits": 0,
+      "coplanar_candidates": 0
+    },
+    {
+      "run_dir": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/run-022-geometry-only-final",
+      "route_report_sha256": "e4a6e2f89383887cb442b45686c4afc927bf0fb83b83207225c1d0d0fb76a4db",
+      "source_pins_sha256": "e0e48fdb47eb605983820061ad2ff0bdd421b50ca86fa98c2f84407e29e94b23",
+      "as_run_tool_sha256": "e4dfe2a5459bee95b1874c1e6c0a420b15488c5583034be99d8d95bc6b19b251",
+      "groups": 16,
+      "proper_hits": 20,
+      "boundary_hits": 0,
+      "coplanar_candidates": 0
+    },
+    {
+      "run_dir": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/run-022-matched-query-023-final",
+      "route_report_sha256": "357bcc143e54cd6bbabb695130e2cae73eefa5eac1423bf64c1800dca2990c17",
+      "source_pins_sha256": "a3f3280c745c9a71276cc18c6418637bd7afeb23e4b5e11f78e3832e7c9df94d",
+      "as_run_tool_sha256": "d543a8074bb1d07642001fcd92e5ddd0f0883249e8a139971bba263642789c28",
+      "groups": 16,
+      "proper_hits": 20,
+      "boundary_hits": 0,
+      "coplanar_candidates": 0
+    },
+    {
+      "run_dir": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/run-022-matched-query-023-exact-emitted-001",
+      "route_report_sha256": "cfbf016c34cc1c3d794729d4e3489f8a77d2625bffa18b141e3b311d62505949",
+      "source_pins_sha256": "3902b783b0417c64089d6da14263e5d34785281097c980d8a25a2df026177223",
+      "as_run_tool_sha256": "1e0575d2b2e1eba9fc98a2c4e3d479c9f421afd3be2685d1066b5beff699615b",
+      "groups": 16,
+      "proper_hits": 20,
+      "boundary_hits": 0,
+      "coplanar_candidates": 0
+    }
+  ],
+  "corrected_reruns": [
+    {
+      "run_dir": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/run-baseline-035-matched-query-corrected-001",
+      "route_report_sha256": "2d953097ec938d30074a25f4da4d43a8228042d95350ae968ef743046d292942",
+      "source_pins_sha256": "9d16359937d52b77a18723e44d2e243574ed204c7360c1e7415105a8c467f23a",
+      "tool_sha256": "339c93d6794a90937c0be9a5e75784deaf1f229884ca3a58bef2fb25a9b205f1",
+      "groups": 191,
+      "proper_hits": 256,
+      "boundary_hits": 0,
+      "uncertainties": 0,
+      "max_hit_reconstruction_error_m": 3.1031676915590914e-17,
+      "normal_orientation_basis_counts": {
+        "exterior_toward_outside_end": 8,
+        "exterior_toward_outside_start": 152,
+        "inside_start_end_unclassified_exterior_unknown": 2,
+        "start_endpoint_not_classified_exterior_unknown": 30
+      },
+      "construction_planes": 0
+    },
+    {
+      "run_dir": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/run-014-geometry-only-corrected-001",
+      "route_report_sha256": "2e685688ba357aafb3e08641b4a58b7c90e826fd2e8251cf465ba2d69b21f975",
+      "source_pins_sha256": "ad147ce9ca2365d142af8e76c1c5be416c2eaaca3c6c3cf7591576381eee751c",
+      "tool_sha256": "339c93d6794a90937c0be9a5e75784deaf1f229884ca3a58bef2fb25a9b205f1",
+      "groups": 8,
+      "proper_hits": 8,
+      "boundary_hits": 0,
+      "uncertainties": 0,
+      "max_hit_reconstruction_error_m": 4.84869951806108e-19,
+      "normal_orientation_basis_counts": {
+        "start_endpoint_not_classified_exterior_unknown": 8
+      },
+      "construction_planes": 0
+    },
+    {
+      "run_dir": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/run-022-geometry-only-corrected-001",
+      "route_report_sha256": "61224bb8f09eb245add991ebb86d2be2415399fd205a4b79e2b6ff2681ea3cd0",
+      "source_pins_sha256": "1d56f28aaf9525ab2ec0794b81e5356d027aeb21bb1ce67bae4ddf128343aa30",
+      "tool_sha256": "339c93d6794a90937c0be9a5e75784deaf1f229884ca3a58bef2fb25a9b205f1",
+      "groups": 16,
+      "proper_hits": 20,
+      "boundary_hits": 0,
+      "uncertainties": 0,
+      "max_hit_reconstruction_error_m": 3.878959614448864e-18,
+      "normal_orientation_basis_counts": {
+        "start_endpoint_not_classified_exterior_unknown": 16
+      },
+      "construction_planes": 0
+    },
+    {
+      "run_dir": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/run-022-matched-query-023-corrected-001",
+      "route_report_sha256": "2f4af36c838ecb2060db94ef7b1bc2b41b0ce9c4fc21e3e7597408c8eace73c7",
+      "source_pins_sha256": "8b4ac846b1d0dbbbb1feb9a0985da684ab19dc9356d53de3ea03a1e4656693f7",
+      "tool_sha256": "339c93d6794a90937c0be9a5e75784deaf1f229884ca3a58bef2fb25a9b205f1",
+      "groups": 16,
+      "proper_hits": 20,
+      "boundary_hits": 0,
+      "uncertainties": 0,
+      "max_hit_reconstruction_error_m": 3.878959614448864e-18,
+      "normal_orientation_basis_counts": {
+        "exterior_toward_outside_end": 1,
+        "exterior_toward_outside_start": 15
+      },
+      "construction_planes": 0
+    }
+  ],
+  "corrected_tool": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/route_audit_consolidation_019.py",
+    "sha256": "339c93d6794a90937c0be9a5e75784deaf1f229884ca3a58bef2fb25a9b205f1"
+  },
+  "tests": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/test_route_audit_consolidation_019.py",
+    "sha256": "dcbfbbb38fe78ac09e043ea74b4c61e91d1fcda7ee14ae002cdccc6b94339ccb",
+    "count": 9,
+    "status": "PASS"
+  },
+  "stale_node_export_regression": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/stale-node-export-regression-corrected-002.json",
+    "sha256": "1c9a013b83ec476981784604b65700ef1fc4e878c1a4dced48ba8477d4a00ca0"
+  },
+  "limitations": [
+    "Exact segment/bone bank witnesses are not a layer triangle/tet clearance test.",
+    "The native query remains source-only; no physical or anatomical admission.",
+    "Corrected route reports emit zero construction planes."
+  ]
+}

@@ -1,0 +1,409 @@
+{
+  "files": [
+    {
+      "path": "layer-depth-o12-reconstruction-007-run-002/candidate.npz",
+      "sha256": "65abfeeaf8edce9b3cffcb41b37325e520c1467f17e8c78802504505e6440b54",
+      "size_bytes": 220732
+    },
+    {
+      "path": "layer-depth-o12-reconstruction-007-run-002/report.json",
+      "sha256": "b460c4453cf68a9bb96c8768e1b161104d2b4383700a8d51ae8ec7202ae72b61",
+      "size_bytes": 10555
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/base-launch-manifest.json",
+      "sha256": "311daf1a5983035f74a84038c71786f16d51d22023b9f0f99382924388cbfa6f",
+      "size_bytes": 20164
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/candidate-node-override.csv",
+      "sha256": "39f683aff7e89eb9def7328b4765ef4701f64799946222f2828965476171b523",
+      "size_bytes": 521152
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/checked-runner.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/checked-runner.stdout.txt",
+      "sha256": "4ef22f6757ad2b151e52e14a599db19979a1ade6c22b96dd4a1f4a5413dae59b",
+      "size_bytes": 516
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/command.json",
+      "sha256": "9e9dd4b60c88b3e79b637420afe6a78dd507dd269f88aa40c7580626fed57e77",
+      "size_bytes": 1960
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/source-preflight/all-bank-containment.csv",
+      "sha256": "17825aed54a12442dc08826e8a42616a3bff2844961d95f0bbcef7c8d2f2ba7a",
+      "size_bytes": 458754
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/source-preflight/all-bank-containment.csv.banks.csv",
+      "sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+      "size_bytes": 26176
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/source-preflight/all-bank-containment.csv.nodes.csv",
+      "sha256": "9b555b00128dde8982b4cd3c09b717875e2b8b5fe461cd5f7b63aaadecfff599",
+      "size_bytes": 263350
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/source-preflight/exact-emitted.bodies.csv",
+      "sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+      "size_bytes": 80016
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/source-preflight/exact-emitted.nodes.csv",
+      "sha256": "f82c65e1d8b839d86505ee2095e97e56790812d155f73fa83aed114a121e55cb",
+      "size_bytes": 1056088
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/source-preflight/execution-receipt.json",
+      "sha256": "c78b908ced41de479cd1753883b66e1a8aa0ed9ce579f4b99953d0c417590185",
+      "size_bytes": 539
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/source-preflight/launch-manifest.snapshot.json",
+      "sha256": "647514a31811dc299ff7bc4cd041285d8f0e04430f0cefe37249b21226c26fd9",
+      "size_bytes": 20370
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/source-preflight/stderr.log",
+      "sha256": "d776f49cf33fd3d1813c378fda8d504f45b59c68a58873000ef74b094e4e6502",
+      "size_bytes": 77111
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/source-preflight/stdout.log",
+      "sha256": "485896e6f97f9f9a51c250f642199774632b87f780d3de76a2c93e3267d83782",
+      "size_bytes": 213027
+    },
+    {
+      "path": "native-source-only-rest-geometry-022-query-023/source-query-report.json",
+      "sha256": "667caa37a60bce59d691f1c6d5f8b8914f79cbea358c7995bfee67d702aa066e",
+      "size_bytes": 3134
+    },
+    {
+      "path": "o12-outward-repair-019/build_o12_outward_019.py",
+      "sha256": "8754708256517513658abf676dd347180d32fd662256ce2053b6486118e5ecba",
+      "size_bytes": 10671
+    },
+    {
+      "path": "o12-outward-repair-019/candidate.npz",
+      "sha256": "1d7eb093f7cf6ba71c774864254cf8dde601fcd17e17446a928862a05bd9ad63",
+      "size_bytes": 213074
+    },
+    {
+      "path": "o12-outward-repair-021/build_o12_outward_021.py",
+      "sha256": "a5bcac1397dbbbc793ec539624dcfb911f99849a8e53722fe7b7087ec6426357",
+      "size_bytes": 12213
+    },
+    {
+      "path": "o12-outward-repair-021/candidate.npz",
+      "sha256": "e8beb6c30a92cf7eb0309014663800d002ee0925b5bee2dbff0a8d900321da62",
+      "size_bytes": 213071
+    },
+    {
+      "path": "o12-outward-repair-021/failure-analysis.json",
+      "sha256": "a0de4e6faf1dd0eead45c5e3618594335ab14a86c21e2ff91320314088a4a5c3",
+      "size_bytes": 5207
+    },
+    {
+      "path": "o12-outward-repair-021/report.json",
+      "sha256": "c850387ce015a29c815e82894d853c80e85928ca8a7b450e9328adf5e114189c",
+      "size_bytes": 6976
+    },
+    {
+      "path": "o12-outward-repair-022/build_o12_outward_022.py",
+      "sha256": "711aebb515c27acdf9b455796eb53b8c89a97e9d6dde74c6f1eeb3dc5b0574ce",
+      "size_bytes": 15502
+    },
+    {
+      "path": "o12-outward-repair-022/candidate.npz",
+      "sha256": "d02bccfbba026edb1a564c9a477d0d31deb704cd96b66091764e21ca32e7452a",
+      "size_bytes": 213068
+    },
+    {
+      "path": "o12-outward-repair-022/report.json",
+      "sha256": "0cc0f0fbd5cfe339c1e341230f91a19bf8b27814e1527053783c354d904223c1",
+      "size_bytes": 8147
+    },
+    {
+      "path": "o12-outward-repair-022/solver-state.npz",
+      "sha256": "bd6124fb585ad20cd1452b9c584eea34fbdbf22fea66a18b7b08a8768e8b69d8",
+      "size_bytes": 5094
+    },
+    {
+      "path": "o12-outward-repair-024/build_o12_outward_024.py",
+      "sha256": "1a5506434e8cffb361427b583e2a00a6b89146ec3c37ec3e0a3ff20fcfa8cd18",
+      "size_bytes": 23120
+    },
+    {
+      "path": "o12-outward-repair-024/candidate.npz",
+      "sha256": "575ca11bd665368e8e4cf5f75c31227fab7cfaa481750e1602c4316e349e827f",
+      "size_bytes": 213067
+    },
+    {
+      "path": "o12-outward-repair-024/construction-planes.npz",
+      "sha256": "32ae1daf30f4b7581f9bd4adc0308b600c9fbe9ccb3209592d34061d8fb5d253",
+      "size_bytes": 5183
+    },
+    {
+      "path": "o12-outward-repair-024/report.json",
+      "sha256": "1abb98635db2eaa0616d046b8c3e2ebec8669068d902b95244130a8ff2323517",
+      "size_bytes": 32071
+    },
+    {
+      "path": "o12-outward-repair-024/solver-state.npz",
+      "sha256": "c4193e93e9fb0444ec62f1ff9044cdece2621e1bd34f47c6a029fe7bb4733503",
+      "size_bytes": 6204
+    },
+    {
+      "path": "o12-outward-repair-024-lp-feasibility-001/build_o12_outward_024_lp_probe.py",
+      "sha256": "aca9912a5e5809179c6e70e763e84473fb3b8957ca3e9bd0ddef8ace1ac87e28",
+      "size_bytes": 26208
+    },
+    {
+      "path": "o12-outward-repair-024-lp-feasibility-001/lp-feasibility-report.json",
+      "sha256": "0e17ddd820d1ddd66fc5fa8b81bdf3bb101fb9f3cefb4cdac20d9f2d8f869c8f",
+      "size_bytes": 22478
+    },
+    {
+      "path": "outward-skin-bone-exits-017/outward-exit-planes.npz",
+      "sha256": "3737e93d9d81c6ebac9a8116ee7e0addfe67553e438194cb006d575651b25312",
+      "size_bytes": 2038
+    },
+    {
+      "path": "outward-skin-bone-exits-017/report.json",
+      "sha256": "faae1c5e1047bcae75710b0f8a3c5153e4dbb6ae352f0ccc35dd2d585044ec7d",
+      "size_bytes": 13890
+    },
+    {
+      "path": "root-independent-static-query-023.json",
+      "sha256": "410e8fd571c0dfea3a2ad7e53a7c259c251a0b771944453442ff7ecf848e244e",
+      "size_bytes": 5321
+    },
+    {
+      "path": "root-outer-escape-direction-016.json",
+      "sha256": "626877abb59318dd2ff0f666ce25cfc4b3513db5ba41661371e29544a31e50f4",
+      "size_bytes": 2613
+    },
+    {
+      "path": "root_construct_outward_bone_exits_017.py",
+      "sha256": "395849b2f70677a56898db7a6879ef48c200f3dd0b81736c8c1ced6037e3793b",
+      "size_bytes": 7038
+    },
+    {
+      "path": "root_construct_surface_normal_bone_exits_018.py",
+      "sha256": "9d7b58dc83a1c087450356d797f3c3c269c0052fea90321c06d57df72d03bc88",
+      "size_bytes": 7402
+    },
+    {
+      "path": "root_run_geometry_only_native_query_023.py",
+      "sha256": "ba2ed948aab0c726283eb45e0493bcd315bc43c9605e052d11a51b43f80d0fbf",
+      "size_bytes": 5004
+    },
+    {
+      "path": "root_verify_static_query_023.py",
+      "sha256": "cd899b2a8cace3c56200a3d2147b6b65a98a715683a12e4675c60827dc096195",
+      "size_bytes": 3006
+    },
+    {
+      "path": "route-audit-consolidation-019/bank-local-index-correction-001.json",
+      "sha256": "d5d84ae3b215ddc80a7ecc14e056b5fe4b9b03de8ab633f3838ecb8c93ed8720",
+      "size_bytes": 10183
+    },
+    {
+      "path": "route-audit-consolidation-019/canonical-promotion-001/matter/root_exact_segment_witness.py",
+      "sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "size_bytes": 2734
+    },
+    {
+      "path": "route-audit-consolidation-019/canonical-promotion-001/matter/tools/human_skin_fat_bone_audit.py",
+      "sha256": "15b131942fe805746325dbbc4212307ddc785c1f20f66aa641752eb9e517c158",
+      "size_bytes": 46058
+    },
+    {
+      "path": "route-audit-consolidation-019/canonical-promotion-001/matter/tools/test_human_skin_fat_bone_audit.py",
+      "sha256": "cd9161755f53ae059f72e3d061efaf5cd4fb7eb493c25e29a9128f704beaef1b",
+      "size_bytes": 11334
+    },
+    {
+      "path": "route-audit-consolidation-019/route_audit_consolidation_019.py",
+      "sha256": "15b131942fe805746325dbbc4212307ddc785c1f20f66aa641752eb9e517c158",
+      "size_bytes": 46058
+    },
+    {
+      "path": "route-audit-consolidation-019/route_audit_consolidation_019_bankfix_001.py",
+      "sha256": "339c93d6794a90937c0be9a5e75784deaf1f229884ca3a58bef2fb25a9b205f1",
+      "size_bytes": 34739
+    },
+    {
+      "path": "route-audit-consolidation-019/route_audit_consolidation_019_tet_edges.py",
+      "sha256": "15b131942fe805746325dbbc4212307ddc785c1f20f66aa641752eb9e517c158",
+      "size_bytes": 46058
+    },
+    {
+      "path": "route-audit-consolidation-019/run-014-geometry-only/route-report.json",
+      "sha256": "eba09c2596a50f61df8fd58bef7842b783e70ba4df52f1f2e4d432392585b0bf",
+      "size_bytes": 20827
+    },
+    {
+      "path": "route-audit-consolidation-019/run-014-geometry-only/source-pins.json",
+      "sha256": "4816204e92b6d47da06781368f26f57f3e3bb3dffa226d505b83ed2f04631a62",
+      "size_bytes": 3463
+    },
+    {
+      "path": "route-audit-consolidation-019/run-014-geometry-only-corrected-001/route-report.json",
+      "sha256": "2e685688ba357aafb3e08641b4a58b7c90e826fd2e8251cf465ba2d69b21f975",
+      "size_bytes": 22725
+    },
+    {
+      "path": "route-audit-consolidation-019/run-014-geometry-only-corrected-001/source-pins.json",
+      "sha256": "ad147ce9ca2365d142af8e76c1c5be416c2eaaca3c6c3cf7591576381eee751c",
+      "size_bytes": 3854
+    },
+    {
+      "path": "route-audit-consolidation-019/run-014-geometry-only-final/route-report.json",
+      "sha256": "8806255f80087ed39ef648310a6bce4eaa698775511583ef71931922dc7e5cb2",
+      "size_bytes": 21151
+    },
+    {
+      "path": "route-audit-consolidation-019/run-014-geometry-only-final/source-pins.json",
+      "sha256": "d8e3cc48a8a4915befbe4a80b1d1ed41830c9dcf56f2d5ad64b13cf1e8d653f2",
+      "size_bytes": 3854
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-geometry-only/comparison-to-baseline-and-014.json",
+      "sha256": "91f04dc719d060efd915a15a149267c143390c26db339835d6ff248d592f6295",
+      "size_bytes": 39711
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-geometry-only/route-report.json",
+      "sha256": "6b56e5eada0ccdfa274dcb379c491d835dc62e889db10b9ebfe0d5f141346d56",
+      "size_bytes": 38290
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-geometry-only/source-pins.json",
+      "sha256": "efab5ea232b6580be8e7cd53f762cdf72915d1eaf4db9c6930ccf4905186f600",
+      "size_bytes": 3449
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-geometry-only-corrected-001/route-report.json",
+      "sha256": "61224bb8f09eb245add991ebb86d2be2415399fd205a4b79e2b6ff2681ea3cd0",
+      "size_bytes": 41835
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-geometry-only-corrected-001/source-pins.json",
+      "sha256": "1d56f28aaf9525ab2ec0794b81e5356d027aeb21bb1ce67bae4ddf128343aa30",
+      "size_bytes": 3840
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-geometry-only-final/comparison-to-baseline-and-014.json",
+      "sha256": "91f04dc719d060efd915a15a149267c143390c26db339835d6ff248d592f6295",
+      "size_bytes": 39711
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-geometry-only-final/route-report.json",
+      "sha256": "e4a6e2f89383887cb442b45686c4afc927bf0fb83b83207225c1d0d0fb76a4db",
+      "size_bytes": 38614
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-geometry-only-final/source-pins.json",
+      "sha256": "e0e48fdb47eb605983820061ad2ff0bdd421b50ca86fa98c2f84407e29e94b23",
+      "size_bytes": 3840
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-matched-query-023-corrected-001/route-report.json",
+      "sha256": "2f4af36c838ecb2060db94ef7b1bc2b41b0ce9c4fc21e3e7597408c8eace73c7",
+      "size_bytes": 44412
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-matched-query-023-corrected-001/source-pins.json",
+      "sha256": "8b4ac846b1d0dbbbb1feb9a0985da684ab19dc9356d53de3ea03a1e4656693f7",
+      "size_bytes": 5322
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-matched-query-023-exact-emitted-001/route-report.json",
+      "sha256": "cfbf016c34cc1c3d794729d4e3489f8a77d2625bffa18b141e3b311d62505949",
+      "size_bytes": 40014
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-matched-query-023-exact-emitted-001/source-pins.json",
+      "sha256": "3902b783b0417c64089d6da14263e5d34785281097c980d8a25a2df026177223",
+      "size_bytes": 5322
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-matched-query-023-final/native-query-endpoint-summary.json",
+      "sha256": "9db4828da721866132242d6b2d8a69588efa3c53c70c30884e50de8ad79bd1c3",
+      "size_bytes": 8742
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-matched-query-023-final/route-report.json",
+      "sha256": "357bcc143e54cd6bbabb695130e2cae73eefa5eac1423bf64c1800dca2990c17",
+      "size_bytes": 40014
+    },
+    {
+      "path": "route-audit-consolidation-019/run-022-matched-query-023-final/source-pins.json",
+      "sha256": "a3f3280c745c9a71276cc18c6418637bd7afeb23e4b5e11f78e3832e7c9df94d",
+      "size_bytes": 5322
+    },
+    {
+      "path": "route-audit-consolidation-019/run-baseline-035-matched-query/route-report.json",
+      "sha256": "4ba26c37d98c78fc61aad2a02ce40eac7471656b12f79fd8ed6a9b44ba349cc2",
+      "size_bytes": 418387
+    },
+    {
+      "path": "route-audit-consolidation-019/run-baseline-035-matched-query/source-pins.json",
+      "sha256": "c32e30f637ef31172b5f7403f15b3785f9b96488f5a319a6cc9667edf3ebd6f9",
+      "size_bytes": 4152
+    },
+    {
+      "path": "route-audit-consolidation-019/run-baseline-035-matched-query-corrected-001/route-report.json",
+      "sha256": "2d953097ec938d30074a25f4da4d43a8228042d95350ae968ef743046d292942",
+      "size_bytes": 465937
+    },
+    {
+      "path": "route-audit-consolidation-019/run-baseline-035-matched-query-corrected-001/source-pins.json",
+      "sha256": "9d16359937d52b77a18723e44d2e243574ed204c7360c1e7415105a8c467f23a",
+      "size_bytes": 4543
+    },
+    {
+      "path": "route-audit-consolidation-019/run-baseline-035-matched-query-final/route-report.json",
+      "sha256": "5b1cccac2484f51c95d21b1bcfcab4b8723fa2087002b8f43187d7efc3434684",
+      "size_bytes": 418752
+    },
+    {
+      "path": "route-audit-consolidation-019/run-baseline-035-matched-query-final/source-pins.json",
+      "sha256": "5c57be1f5798714c571462db0902353b436126e321fb262a7a98c60c1343d037",
+      "size_bytes": 4543
+    },
+    {
+      "path": "route-audit-consolidation-019/stale-node-export-regression-001.json",
+      "sha256": "38497d3ea880c2b2d69397d168d3aa5c26a586a2404514a8b4965d0b1146c0a7",
+      "size_bytes": 12842
+    },
+    {
+      "path": "route-audit-consolidation-019/stale-node-export-regression-corrected-002.json",
+      "sha256": "1c9a013b83ec476981784604b65700ef1fc4e878c1a4dced48ba8477d4a00ca0",
+      "size_bytes": 6996
+    },
+    {
+      "path": "route-audit-consolidation-019/test_route_audit_consolidation_019.py",
+      "sha256": "f37690c6e5ba02d441442cf034ba856944711d086892267455cc1e00fd37ded5",
+      "size_bytes": 11338
+    },
+    {
+      "path": "surface-normal-bone-exits-018/outward-exit-planes.npz",
+      "sha256": "1d54b19e89f17b32cfc3b325c90650bbc2faf41788151dfd2301682d41d48ebe",
+      "size_bytes": 2042
+    },
+    {
+      "path": "surface-normal-bone-exits-018/report.json",
+      "sha256": "296eb96ac48953ed24e6102ce5f9058b33a818ce1acf4383b94cfca2ea8a6dfc",
+      "size_bytes": 13950
+    }
+  ]
+}

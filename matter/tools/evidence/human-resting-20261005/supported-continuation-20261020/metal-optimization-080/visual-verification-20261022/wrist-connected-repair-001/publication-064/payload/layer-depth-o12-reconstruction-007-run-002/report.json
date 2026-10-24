@@ -1,0 +1,305 @@
+{
+  "schema": "numi.human.layer-depth-o12-reconstruction.v1",
+  "status": "GEOMETRY_ONLY_NOT_PHYSICAL_OR_NATIVE_ADMISSION",
+  "construction": "From frozen 009 geometry, harmonic O-surface patch displacement to clear 12 outer-plane witnesses; same translation applied to O/I/D nodes in each touched column; fixed outer ring. No 041 route planes used because provenance mismatch is under investigation.",
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/layer-depth-transition-009/candidate.npz": "c2e9576a62688249a31f40771032fec6610e5e2ea32848c16f093ddd8d5c8914",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-041-exact-material-routes/baseline-outer-inside-local-planes.npz": "8c223d3a34103a57c034c3e9abae8b4bf5c7f554a3b94ddf2cf4d9b50c397e2d",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-004/fit-input.npz": "b248bf0ee823ca1ab3b6d787fe3d427d8e080dcd528a57421235c7d6e1ed375e"
+  },
+  "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/layer-depth-o12-reconstruction-007-run-002/candidate.npz",
+  "candidate_sha256": "65abfeeaf8edce9b3cffcb41b37325e520c1467f17e8c78802504505e6440b54",
+  "selected": {
+    "radius": 4,
+    "variable_columns": 256,
+    "free_columns": 244,
+    "max_column_translation_m": 0.0017852981800866837,
+    "max_translation_column": 2261,
+    "minimum_q": -0.09225759154917706,
+    "nonpositive_tets": 14,
+    "q_below_1e_5": 16,
+    "min_O12_slack_m": 1.9961921265733074e-05,
+    "O12_violations_1e_7": 0
+  },
+  "attempts": [
+    {
+      "radius": 4,
+      "variable_columns": 256,
+      "free_columns": 244,
+      "max_column_translation_m": 0.0017852981800866837,
+      "max_translation_column": 2261,
+      "minimum_q": -0.09225759154917706,
+      "nonpositive_tets": 14,
+      "q_below_1e_5": 16,
+      "min_O12_slack_m": 1.9961921265733074e-05,
+      "O12_violations_1e_7": 0
+    },
+    {
+      "radius": 5,
+      "variable_columns": 381,
+      "free_columns": 369,
+      "max_column_translation_m": 0.0017852981800866837,
+      "max_translation_column": 2261,
+      "minimum_q": -0.09314823244610126,
+      "nonpositive_tets": 15,
+      "q_below_1e_5": 15,
+      "min_O12_slack_m": 1.9961921265733074e-05,
+      "O12_violations_1e_7": 0
+    },
+    {
+      "radius": 6,
+      "variable_columns": 502,
+      "free_columns": 490,
+      "max_column_translation_m": 0.0017852981800866837,
+      "max_translation_column": 2261,
+      "minimum_q": -0.09212773350465263,
+      "nonpositive_tets": 13,
+      "q_below_1e_5": 13,
+      "min_O12_slack_m": 1.9961921265733074e-05,
+      "O12_violations_1e_7": 0
+    },
+    {
+      "radius": 7,
+      "variable_columns": 617,
+      "free_columns": 605,
+      "max_column_translation_m": 0.0017852981800866837,
+      "max_translation_column": 2261,
+      "minimum_q": -0.09250056143389149,
+      "nonpositive_tets": 12,
+      "q_below_1e_5": 13,
+      "min_O12_slack_m": 1.9961921265733074e-05,
+      "O12_violations_1e_7": 0
+    },
+    {
+      "radius": 8,
+      "variable_columns": 701,
+      "free_columns": 689,
+      "max_column_translation_m": 0.0017852981800866837,
+      "max_translation_column": 2261,
+      "minimum_q": -0.09215180255109869,
+      "nonpositive_tets": 11,
+      "q_below_1e_5": 12,
+      "min_O12_slack_m": 1.9961921265733074e-05,
+      "O12_violations_1e_7": 0
+    }
+  ],
+  "O12_rows": [
+    {
+      "column": 204,
+      "baseline_signed_gap_m": -0.0003554595511610169,
+      "requested_extra_translation_m": 0.0003754595511610169,
+      "final_signed_gap_m": 0.00011996192126573308,
+      "normal_world": [
+        0.3355869740396549,
+        -0.851981136801042,
+        0.40188247708765834
+      ],
+      "closest_world_m": [
+        -0.3170979146829852,
+        -1.026446909072001,
+        0.14623564053244248
+      ]
+    },
+    {
+      "column": 215,
+      "baseline_signed_gap_m": -0.0002726043822765588,
+      "requested_extra_translation_m": 0.00029260438227655884,
+      "final_signed_gap_m": 0.0001199988018857228,
+      "normal_world": [
+        -0.9800504291926797,
+        0.18604632719137854,
+        -0.069913663742097
+      ],
+      "closest_world_m": [
+        -0.31955924931862867,
+        -1.0216283347088526,
+        0.1468195046511014
+      ]
+    },
+    {
+      "column": 217,
+      "baseline_signed_gap_m": -0.0014955496180556432,
+      "requested_extra_translation_m": 0.0015155496180556433,
+      "final_signed_gap_m": 0.00012000078283892201,
+      "normal_world": [
+        -0.9800882118176318,
+        0.18588305024974977,
+        -0.06981825467573513
+      ],
+      "closest_world_m": [
+        -0.3192496141173956,
+        -1.020400872158049,
+        0.14574213711439712
+      ]
+    },
+    {
+      "column": 218,
+      "baseline_signed_gap_m": -0.001666464004530166,
+      "requested_extra_translation_m": 0.0016864640045301659,
+      "final_signed_gap_m": 0.00012001075110893905,
+      "normal_world": [
+        0.3971763376241891,
+        0.08247630200055348,
+        0.9140287831571551
+      ],
+      "closest_world_m": [
+        -0.3167983500015348,
+        -1.0169573097272038,
+        0.14730300030558285
+      ]
+    },
+    {
+      "column": 219,
+      "baseline_signed_gap_m": -0.00020372953138746787,
+      "requested_extra_translation_m": 0.00022372953138746784,
+      "final_signed_gap_m": 0.00011999016309201635,
+      "normal_world": [
+        0.8681521406353437,
+        -0.17533206963684148,
+        -0.464295731260941
+      ],
+      "closest_world_m": [
+        -0.31532553798684726,
+        -1.019836850710831,
+        0.1450488710107469
+      ]
+    },
+    {
+      "column": 231,
+      "baseline_signed_gap_m": -0.00021296769786585272,
+      "requested_extra_translation_m": 0.00023296769786585266,
+      "final_signed_gap_m": 0.00012001440280917751,
+      "normal_world": [
+        -0.8848028489494151,
+        0.09104210935560934,
+        0.4569849590687637
+      ],
+      "closest_world_m": [
+        -0.3185179205067076,
+        -1.0142780214186082,
+        0.1471424618982167
+      ]
+    },
+    {
+      "column": 233,
+      "baseline_signed_gap_m": -0.0015304150447538378,
+      "requested_extra_translation_m": 0.0015504150447538377,
+      "final_signed_gap_m": 0.00012000566979427083,
+      "normal_world": [
+        0.5864441357943189,
+        -0.41804785340791867,
+        0.6937717692825831
+      ],
+      "closest_world_m": [
+        -0.316101568314174,
+        -1.0139141364271005,
+        0.14708974361501928
+      ]
+    },
+    {
+      "column": 271,
+      "baseline_signed_gap_m": -0.00032829818712028393,
+      "requested_extra_translation_m": 0.00034829818712028403,
+      "final_signed_gap_m": 0.00012001236308495329,
+      "normal_world": [
+        0.9861932441095078,
+        0.12493154343379084,
+        0.10869680182974881
+      ],
+      "closest_world_m": [
+        -0.314580480739519,
+        -1.0142867258900756,
+        0.1452195692873075
+      ]
+    },
+    {
+      "column": 337,
+      "baseline_signed_gap_m": -0.0010686717462599052,
+      "requested_extra_translation_m": 0.001088671746259905,
+      "final_signed_gap_m": 0.00011999412730658317,
+      "normal_world": [
+        -0.8584531400350043,
+        0.3715409842873854,
+        0.3535753149737719
+      ],
+      "closest_world_m": [
+        -0.3081517964597387,
+        -0.948954335381286,
+        0.13756425201459327
+      ]
+    },
+    {
+      "column": 2187,
+      "baseline_signed_gap_m": -0.0005357400488471714,
+      "requested_extra_translation_m": 0.0005557400488471715,
+      "final_signed_gap_m": 0.00011999818048791102,
+      "normal_world": [
+        0.47943657901555214,
+        0.07126259771016913,
+        -0.8746783459475048
+      ],
+      "closest_world_m": [
+        0.23684520563363695,
+        -0.9562091251933456,
+        0.08665048537527488
+      ]
+    },
+    {
+      "column": 2261,
+      "baseline_signed_gap_m": -0.0017652981800866834,
+      "requested_extra_translation_m": 0.0017852981800866835,
+      "final_signed_gap_m": 0.00012000539072877017,
+      "normal_world": [
+        0.947819496993896,
+        0.30558549358605835,
+        -0.09086092244745865
+      ],
+      "closest_world_m": [
+        0.2598585303465785,
+        -0.9533087150755208,
+        0.13831257406505396
+      ]
+    },
+    {
+      "column": 2262,
+      "baseline_signed_gap_m": -0.0010222955218103862,
+      "requested_extra_translation_m": 0.0010422955218103863,
+      "final_signed_gap_m": 0.00011999921705451153,
+      "normal_world": [
+        0.9405416861436281,
+        0.11960934481972502,
+        0.31792285425539496
+      ],
+      "closest_world_m": [
+        0.2567640256844747,
+        -0.9396400582092383,
+        0.13544897112655468
+      ]
+    }
+  ],
+  "tetrahedra": 28632,
+  "topology_changed": false,
+  "max_abs_point_delta_m": 0.0016921460628509521,
+  "moved_column_count": 256,
+  "material_current_volume_deltas": {
+    "1": {
+      "before_m3": 0.003449957058600382,
+      "after_m3": 0.0034502647984041984,
+      "delta_m3": 3.0773980381646956e-07,
+      "delta_percent": 0.008920105340131886
+    },
+    "2": {
+      "before_m3": 0.011291729655517519,
+      "after_m3": 0.011292375483338416,
+      "delta_m3": 6.458278208974072e-07,
+      "delta_percent": 0.005719476471718697
+    }
+  },
+  "limitations": [
+    "This is a local current-geometry construction only; reference coordinates, donor frames, source ancestry, conservative mass/overlap transfer, detailed material mapping, and native qualification were not regenerated.",
+    "The 12 outer planes were produced for the stated baseline outer witnesses; no claim of full per-bone clearance or complete route clearance is made.",
+    "121 route planes from 041 are not applied because their source is the 037 candidate rather than this baseline; route status remains unknown pending matched query.",
+    "No O/I/D mass or density claim; geometric volume deltas are reported only."
+  ],
+  "elapsed_s": 0.07310275000054389
+}
