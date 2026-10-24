@@ -1,0 +1,29 @@
+{
+  "step": 1560,
+  "time_s": 6.5,
+  "contact_nodes_by_robot": [
+    1,
+    1
+  ],
+  "receiver_contacts": [
+    {
+      "robot": 1,
+      "node": 550,
+      "point": [
+        -0.0523056599496,
+        0.503483935681,
+        0.020536137942
+      ],
+      "left_normal_N": 0.398666087747,
+      "right_normal_N": 0.401334204409
+    }
+  ],
+  "receiver_per_jaw_normal_N": [
+    0.398666087747,
+    0.401334204409
+  ],
+  "receiver_corner_550_captured": true,
+  "last_0p1_s_receiving_contact_continuous": true,
+  "no_housing_crossing_in_native_capture": true,
+  "giver_will_remain_closed_until_s": 6.55
+}

@@ -475,3 +475,18 @@ Measured film-corner lift: **0.501 m**. Omitting empty coin-only dispatches redu
 [Source, exact identities, measurements and limits](examples/plastic_bag_franka/empty_20261024) · [Complete native replay and preserved rejected paths](https://github.com/Numi2/numi-lab/releases/tag/plastic-bag-empty-franka-2026-10-24)
 
 Air drag remains absent for this material comparison. Robot joints are prescribed; saved-state housing clearance is not continuous whole-robot contact dynamics. Stable replay is not experimental material validation.
+
+
+### Two Franka handoff — empty bag
+
+[![Empty pouch passed between two Franka grippers](docs/media/plastic-bag-franka-handoff.gif)](https://github.com/Numi2/numi-lab/blob/numisolver/docs/media/plastic-bag-franka-handoff-8s.mp4)
+
+**[Watch the complete normal-speed handoff](docs/media/plastic-bag-franka-handoff-8s.mp4)**
+
+The first arm picks up the empty pouch by its opening corner. The second grips the opposite opening corner, the first releases and retreats, then the second holds the bag. Eight simulated seconds, 1,921 native Metal states at 240 Hz, zero coins and zero fixed film nodes. Both finite fingertip contacts contribute friction, spring energy and actuator work; rotating-pad material velocity is included. Blender only presents the saved states.
+
+Measured second-hand contact begins at **6.196 s**; the last first-hand contact is at **6.575 s**. The receiving hand supports the bag alone for **1.425 s**. Every saved state passes the authored solid-housing/film and inter-arm surface-crossing checks.
+
+The receiver uses a gentle pinch of approximately **0.4 N per jaw**. The receiver has an explicitly authored **12 mm forward pad extension**; native FK and visible contact faces match. Articulated poses were rebound to this fixture with the exact world pad input bytes retained; film forces, work and motion are unchanged. Its central rigid carrier has a leading tip recessed by 10 mm (4 × 8 × 4 mm), also included in the visible geometry and crossing checks. Robot joints are prescribed, and saved-state clearance is not continuous whole-robot collision dynamics. The approved film material and energy tolerances are preserved; the finite pad edge-entry model remains a documented limitation, and gentle preload is a scene choice rather than a repair of that discontinuity; its material constants remain uncalibrated and air drag is absent. The first five seconds retain the approved older gripper-model prefix; corrected rotating-pad dynamics continue its exact state thereafter.
+
+[Source, measurements and limits](examples/plastic_bag_franka/handoff_20261024) · [Full native replay, checkpoints and preserved rejected attempts](https://github.com/Numi2/numi-lab/releases/tag/plastic-bag-franka-handoff-2026-10-24)

@@ -1,0 +1,210 @@
+{
+  "duration_s": 8,
+  "native_hz": 240,
+  "native_states": 1921,
+  "coins": 0,
+  "dynamic_film_nodes": 1081,
+  "fixed_film_nodes": 0,
+  "film_mass_kg": 0.006519907166648409,
+  "receiver_first_contact_s": 6.195833333333334,
+  "donor_last_contact_s": 6.575,
+  "overlap_grip_duration_s": 0.38333333333333336,
+  "receiver_only_supported_duration_s": 1.425,
+  "receiver_continuous_only_support_after_s": 6.579166666666667,
+  "last_grip_nodes": [
+    0,
+    1
+  ],
+  "min_film_table_outer_gap_m": 1.5440000070509707e-09,
+  "receiver_corner_displacement_after_donor_release_m": 4.420939001233631e-08,
+  "final_film_corner_550_m": [
+    -0.0523056349359,
+    0.503483934079,
+    0.0205361254009
+  ],
+  "final_checkpoint_sha256": "1a7123f4d72d0c4b70a13bee545b33d4499fda714a64f305edd815d6af23e23a",
+  "limitations": [
+    "Prescribed native Franka joint trajectories, not motor dynamics.",
+    "Finite compliant fingertip model; housing/film and inter-arm mesh crossing audited at saved states, not continuous whole-robot CCD.",
+    "Same uncalibrated LDPE parameters as approved empty bag; no air drag.",
+    "Finite inward pad patches, not volumetric rubber or complete back/side surface contact.",
+    "Finite pad patch entry lacks a smooth tangential elastic edge potential; reduced preload is a scene choice, not a repair of that model limit."
+  ],
+  "handling_plan": {
+    "duration_s": 8,
+    "native_hz": 240,
+    "native_states": 1921,
+    "resume_step": 1200,
+    "receiver_capture_s": 6.2,
+    "receiver_brake_until_s": 6.4,
+    "donor_release_s": [
+      6.55,
+      6.75
+    ],
+    "donor_retreat_s": [
+      7,
+      8
+    ],
+    "receiver_grip_per_jaw_N": 0.4,
+    "receiver_total_gap_m": 7.1e-05,
+    "receiver_soft_pad_overhang_m": 0.012,
+    "receiver_hand_forward_world": [
+      0.026454622067362345,
+      -0.9995462596992195,
+      -0.014402350244785504
+    ],
+    "receiver_static_after_s": 6.4,
+    "corner_offset_in_pad_plane_m": [
+      0.0075,
+      0.0075
+    ],
+    "coins": 0,
+    "fixed_film_nodes": 0,
+    "reason": "Receiver approaches from above with fingertips downward, clearing hanging film from its wrist and palm. Gentle finite friction pinch, no attachments.",
+    "receiver_carrier_front_recess_m": 0.01,
+    "receiver_carrier_size_m": [
+      0.004,
+      0.008,
+      0.004
+    ],
+    "continuation_restart_step": 1680,
+    "geometry_rebound_with_identical_world_pad_trajectory": true
+  },
+  "kernel_identity": {
+    "all_code_before_gripper_block_byte_identical": true,
+    "all_code_after_gripper_block_byte_identical": true,
+    "common_before_sha256": "fb7fdec25f12675c7bf4937601aee9798c71b58aaa18a44feb3758d1849265f0",
+    "common_after_sha256": "db2c947c68d7adffdd529199b3f7441eeac9c66d732815f7ed4592fb118ba9c1",
+    "film_laws_table_self_contact_coin_kernels_preserved": true
+  },
+  "runtime_identity": {
+    "sha256": {
+      "source/PlasticBag.metal": "a4224125ffe46dd68a206e130588a7db0360386207c26e0cee2a42c177445c54",
+      "source/plastic_bag_coins_scene.mm": "48ad715dba09297d9400c3487f309c2c844f7a706036d4f3f5408b7102079d22",
+      "source/franka_grip_gpu.h": "301f1b73ec5550710bd64abb548ff65f679837305ca0b81737e3369b755a2932",
+      "source/plastic_bag_gpu.h": "adb224876e9517ae170d61430ad275d6af14cffe495ba51ea9c013bf4da564ec",
+      "source/franka_handoff_planner.cpp": "8a60a3adbc54c297da6efd531b31409123f40946f60a8cd729b174c4c04ef02f",
+      "build/numi_classic_bag_handoff": "0cfef643077e752fd074049c7ba031f80217953287eafa88a10975a7625e34b1",
+      "build/PlasticBag.metallib": "72c610246d38d3421ff805bbaa35176378cb1eb3d1fa7e2a37fb66b97b2554e4",
+      "build/franka_handoff_planner": "e1b0a60e956e5d90bafe8b0b6a32cb418bc7a033b8a07a4d2a7f0795b7c09f45",
+      "grip.csv": "1994a7690d092fbdcd9b75772e95ead6fbcddcd33d3b47fa04060ee8875ee5ac",
+      "grip2.csv": "330b17493ed62b4db3c038b6f1383eae555bc5aa889e1381056e942db070392b",
+      "robot.json": "6b2cfab6b284b5a38176f71a12716fffc7409fe6e1a59f4cd3b8c5d8280855ff",
+      "robot2.json": "b380610ed8e7ec3bd69b4c2388989adebfb983e4dcfd17565bc9429149a2d433",
+      "finish_prefix/checkpoint_1680.bin": "3e6c9761a9fdd72c16aa5692f80e7d298b3037d9b016943bb96da0a689b8efea"
+    },
+    "steps": 1920,
+    "resume_step": 1680,
+    "native_hz": 240,
+    "physical_pad_paths_identical_to_capture_and_finish_prefix": true,
+    "launch_source_and_input_hashes_verified_before_equivalent_geometry_rebind": true,
+    "derived_robot2_sha256": "72f4be27b827188cf4a0f22e3e691cfecf397069a2dbef68d5b5aee475ea6625",
+    "geometry_rebind": {
+      "receiver_pad_center_local_z_m": 0.0565,
+      "stock_pad_center_local_z_m": 0.0445,
+      "rubber_pad_forward_extension_m": 0.012,
+      "carrier_front_recess_m": 0.01,
+      "receiver_carrier_size_m": [
+        0.004,
+        0.008,
+        0.004
+      ],
+      "physical_world_pad_trajectory_byte_identical": true,
+      "world_pad_path_sha256": "330b17493ed62b4db3c038b6f1383eae555bc5aa889e1381056e942db070392b",
+      "native_fk_matching_max_errors": {
+        "center_m": 4.25653473166688e-09,
+        "normal": 2.189193994363108e-08,
+        "tangent": 2.1891884717685098e-08,
+        "half_gap_m": 7.28583859910259e-17
+      },
+      "robot2_sha256": "72f4be27b827188cf4a0f22e3e691cfecf397069a2dbef68d5b5aee475ea6625",
+      "physical_equivalence": "World pad geometry, forces, contact coefficients, film dynamics and actuator work unchanged. Authored receiver fixture and its full native rigid FK now keep the housing behind the contact faces. Saved-state geometry must pass again.",
+      "not_stock_hardware": true
+    },
+    "world_pad_inputs_binary_and_film_source_unchanged": true
+  },
+  "total_rejected_trials": 0,
+  "recorded_trial_rows": 1920,
+  "accepted_substeps": [
+    16
+  ],
+  "accepted_refinement": [
+    4
+  ],
+  "max_frame_energy_balance_J": 4.4518360366175e-08,
+  "max_balance_to_tolerance": 0.010013771605078443,
+  "final_film_kinetic_J": 0.00066055969291169,
+  "final_mass_weighted_rms_speed_m_s": 0.45014281927757793,
+  "prefix_source_sha256": "c8d84183fc82e7be99e1c56e30ac9bfcb5f0b29edfdc3ac27932e0efc359d627",
+  "trajectory_sha256": "c095645fb6a29ebd34d461b502dc44f7f6b13dbde2194cee0ea67d8aee393821",
+  "film_solver_preservation": {
+    "film_table_self_and_coin_kernels_unchanged": true,
+    "finite_pad_spring_parameters_unchanged": true,
+    "gripper_material_velocity_updated": true,
+    "change": "Finite rigid material-point displacement includes translation and rotation in both friction and actuator work. No film changes, attachments, pins, drag, or settling rules.",
+    "new_metal_sha256": "a4224125ffe46dd68a206e130588a7db0360386207c26e0cee2a42c177445c54",
+    "approved_parent_metal_sha256": "93d0b2ee4859278e85ce44bcdfbeb4e0bde22cfd4ee41918c4612fa2b540182b",
+    "approved_prefix_steps": [
+      0,
+      1200
+    ],
+    "new_contact_model_native_continuation_steps": [
+      1201,
+      1920
+    ],
+    "prefix_status": "Exact approved native drop/pickup history through 5 s; new handoff continues that state. The original prefix used the older gripper model.",
+    "receiver_hardware": "Visible 12 mm rubber pad extension with a 4\u00d78\u00d74 mm central rigid carrier recessed by 10 mm at its leading tip. Native rigid FK rebound to match the unchanged world pad trajectories; exact original film/contact records retained.",
+    "receiver_scene": "Upright approach from above; corner lies at x=z=7.5 mm in finite pad plane. Receiver 0.4 N per jaw. Both arms native world pad trajectories and articulated FK."
+  },
+  "actual_support_before_release": {
+    "step": 1560,
+    "time_s": 6.5,
+    "contact_nodes_by_robot": [
+      1,
+      1
+    ],
+    "receiver_contacts": [
+      {
+        "robot": 1,
+        "node": 550,
+        "point": [
+          -0.0523056599496,
+          0.503483935681,
+          0.020536137942
+        ],
+        "left_normal_N": 0.398666087747,
+        "right_normal_N": 0.401334204409
+      }
+    ],
+    "receiver_per_jaw_normal_N": [
+      0.398666087747,
+      0.401334204409
+    ],
+    "receiver_corner_550_captured": true,
+    "last_0p1_s_receiving_contact_continuous": true,
+    "no_housing_crossing_in_native_capture": true,
+    "giver_will_remain_closed_until_s": 6.55
+  },
+  "scene_geometry_binding": {
+    "receiver_pad_center_local_z_m": 0.0565,
+    "stock_pad_center_local_z_m": 0.0445,
+    "rubber_pad_forward_extension_m": 0.012,
+    "carrier_front_recess_m": 0.01,
+    "receiver_carrier_size_m": [
+      0.004,
+      0.008,
+      0.004
+    ],
+    "physical_world_pad_trajectory_byte_identical": true,
+    "world_pad_path_sha256": "330b17493ed62b4db3c038b6f1383eae555bc5aa889e1381056e942db070392b",
+    "native_fk_matching_max_errors": {
+      "center_m": 4.25653473166688e-09,
+      "normal": 2.189193994363108e-08,
+      "tangent": 2.1891884717685098e-08,
+      "half_gap_m": 7.28583859910259e-17
+    },
+    "robot2_sha256": "72f4be27b827188cf4a0f22e3e691cfecf397069a2dbef68d5b5aee475ea6625",
+    "physical_equivalence": "World pad geometry, forces, contact coefficients, film dynamics and actuator work unchanged. Authored receiver fixture and its full native rigid FK now keep the housing behind the contact faces. Saved-state geometry must pass again.",
+    "not_stock_hardware": true
+  }
+}

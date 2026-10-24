@@ -1,0 +1,26 @@
+{
+  "video": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_handoff_20261024/empty_bag_two_franka_handoff_8s_normal.mp4",
+  "native_hz": 240,
+  "native_states": 1921,
+  "physics_duration_s": 8,
+  "normal_motion": true,
+  "endpoint_included": true,
+  "decoded_without_errors": true,
+  "video_sha256": "62ca758285dbfded6a71383ea5f7855c94fce532cabbf92ac68f6951494a6711",
+  "trajectory_sha256": "c095645fb6a29ebd34d461b502dc44f7f6b13dbde2194cee0ea67d8aee393821",
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "width": 1920,
+        "height": 1040,
+        "r_frame_rate": "30/1",
+        "nb_frames": "241"
+      }
+    ],
+    "format": {
+      "duration": "8.033333"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+ProductName:		macOS
+ProductVersion:		26.6
+BuildVersion:		25G72
+arm64
+Apple M4 Pro
+Apple clang version 21.0.0 (clang-2100.1.1.101)
+Target: arm64-apple-darwin25.6.0
+Thread model: posix
+InstalledDir: /Applications/Xcode-26.6.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on
+/dev/disk3s5   460Gi   262Gi   165Gi    62%    3.4M  1.7G    0%   /System/Volumes/Data

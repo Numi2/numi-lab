@@ -1,0 +1,19 @@
+{
+  "film_table_self_and_coin_kernels_unchanged": true,
+  "finite_pad_spring_parameters_unchanged": true,
+  "gripper_material_velocity_updated": true,
+  "change": "Finite rigid material-point displacement includes translation and rotation in both friction and actuator work. No film changes, attachments, pins, drag, or settling rules.",
+  "new_metal_sha256": "a4224125ffe46dd68a206e130588a7db0360386207c26e0cee2a42c177445c54",
+  "approved_parent_metal_sha256": "93d0b2ee4859278e85ce44bcdfbeb4e0bde22cfd4ee41918c4612fa2b540182b",
+  "approved_prefix_steps": [
+    0,
+    1200
+  ],
+  "new_contact_model_native_continuation_steps": [
+    1201,
+    1920
+  ],
+  "prefix_status": "Exact approved native drop/pickup history through 5 s; new handoff continues that state. The original prefix used the older gripper model.",
+  "receiver_hardware": "Visible 12 mm rubber pad extension with a 4\u00d78\u00d74 mm central rigid carrier recessed by 10 mm at its leading tip. Native rigid FK rebound to match the unchanged world pad trajectories; exact original film/contact records retained.",
+  "receiver_scene": "Upright approach from above; corner lies at x=z=7.5 mm in finite pad plane. Receiver 0.4 N per jaw. Both arms native world pad trajectories and articulated FK."
+}

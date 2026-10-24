@@ -1,0 +1,6 @@
+{
+  "native_energy_and_film_accuracy_acceptance_unchanged": true,
+  "geometric_stop_converted_to_offline_full_trajectory_diagnostic": true,
+  "reason": "Finish requested eight seconds, then qualify a visible matched receiver fixture against every saved state. Preserve failed geometry and raw poses.",
+  "not_continuous_whole_robot_collision_qualification": true
+}

@@ -1,0 +1,50 @@
+--- approved/PlasticBag.metal
++++ handoff/PlasticBag.metal
+@@ -3016,6 +3016,17 @@
+  p.tangentX.xyz=normalize(p.tangentX.xyz-p.normal.xyz*dot(p.normal.xyz,p.tangentX.xyz));
+  p.tangentZ.xyz=normalize(cross(p.tangentX.xyz,p.normal.xyz));return p;
+ }
++// Backward rigid material-point displacement over this substep. The
++// center difference alone omits omega x r during a wrist turn. Evaluate
++// basis differences in the relative frame to retain tiny rotations without
++// subtracting two nearly equal world-space positions. Closing motion is
++// accounted separately by dh, as in the accepted two-plane pad springs.
++inline float3 fg_material_move(const FrankaGripPoseGPU p,const FrankaGripPoseGPU old,float3 offset){
++ return p.centerAndHalfGap.xyz-old.centerAndHalfGap.xyz
++  +(p.tangentX.xyz-old.tangentX.xyz)*dot(offset,p.tangentX.xyz)
++  +(p.normal.xyz-old.normal.xyz)*dot(offset,p.normal.xyz)
++  +(p.tangentZ.xyz-old.tangentZ.xyz)*dot(offset,p.tangentZ.xyz);
++}
+ kernel void fg_begin(constant PlasticBagConfigGPU& c [[buffer(0)]],device const FrankaGripPoseGPU* path [[buffer(1)]],
+  device FrankaGripRuntimeGPU* runtime [[buffer(2)]],device FrankaGripContactGPU* contacts [[buffer(3)]],
+  constant float2& times [[buffer(4)]],constant uint& lastStep [[buffer(5)]],uint i [[thread_position_in_grid]]){
+@@ -3053,7 +3064,8 @@
+  // 20 N per pad/node transient bound; preload comes from compressed pad springs.
+  nextN=clamp(nextN,0.0f,20.0f*dt*dt);
+  pb_node_delta(node,w*((nextN.x-oldN.x)-(nextN.y-oldN.y))*n);
+- const float3 padMove=p.centerAndHalfGap.xyz-runtime->previous.centerAndHalfGap.xyz;
++ const float3 contactOffset=(node.positionAndInverseMass.xyz-p.centerAndHalfGap.xyz)-node.positionRemainder.xyz;
++ const float3 padMove=fg_material_move(p,runtime->previous,contactOffset);
+  const float3 relative=dt*node.velocityAndMass.xyz+node.contactPositionCorrection.xyz-padMove;
+  const float3 tangent=relative-dot(relative,n)*n;
+  const float3 oldT=ct.tangentMultiplier.xyz;
+@@ -3071,7 +3083,9 @@
+  device const FrankaGripRuntimeGPU* runtime [[buffer(2)]],device FrankaGripContactGPU* contacts [[buffer(3)]],uint i [[thread_position_in_grid]]){
+  if(i>=c.counts.x)return;auto ct=contacts[i];if(ct.normalMultipliers.x+ct.normalMultipliers.y<=0)return;
+  auto nd=nodes[i];const float w=nd.positionAndInverseMass.w,dt=c.scales.x;const float3 n=runtime->current.normal.xyz;
+- const float3 pv=(runtime->current.centerAndHalfGap.xyz-runtime->previous.centerAndHalfGap.xyz)/dt;
++ const float3 offset=(nd.positionAndInverseMass.xyz-runtime->current.centerAndHalfGap.xyz)-nd.positionRemainder.xyz;
++ const float3 rigidMove=fg_material_move(runtime->current,runtime->previous,offset);
++ const float3 pv=rigidMove/dt;
+  float3 relative=nd.velocityAndMass.xyz-pv;
+  const float normalJ=clamp(-dot(relative,n)/w,-ct.normalMultipliers.y/dt,ct.normalMultipliers.x/dt);
+  nd.velocityAndMass.xyz+=w*normalJ*n;ct.normalMultipliers.z=normalJ*dt;
+@@ -3081,7 +3095,7 @@
+  nd.velocityAndMass.xyz+=w*(next-old);
+  const float3 dc=runtime->current.centerAndHalfGap.xyz-runtime->previous.centerAndHalfGap.xyz;
+  const float dh=runtime->current.centerAndHalfGap.w-runtime->previous.centerAndHalfGap.w;
+- ct.incrementalWork.x+=(dot(normalJ*n+next-old,dc)-abs(normalJ)*dh)/dt;
++ ct.incrementalWork.x+=(dot(normalJ*n+next-old,rigidMove)-abs(normalJ)*dh)/dt;
+  ct.tangentMultiplier=pb_f4(next*dt);contacts[i]=ct;nodes[i]=nd;
+ }
+ kernel void fg_work(constant PlasticBagConfigGPU& c [[buffer(0)]],device const FrankaGripRuntimeGPU* runtime [[buffer(1)]],
