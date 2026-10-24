@@ -1,0 +1,11 @@
+{
+  "status": "exact-byte-replay-pass",
+  "candidate_geometry_status": "failed exact surface/bone gate, not accepted skin",
+  "baseline_payload_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+  "candidate_payload_sha256": "24ee1aa733d82cce0fa2bbc6a603eeb8fa102e67d712c8457a1057213a049050",
+  "source_bytes": 26091000,
+  "changed_vertex_records": 12238,
+  "compressed_bytes": 495581,
+  "compressed_sha256": "7e1b50121078625a7cdf6e27b0c5f791eea8faa87e32358c0389d12aede90a42",
+  "bindings_weights_topology_and_outside_records_unchanged": true
+}

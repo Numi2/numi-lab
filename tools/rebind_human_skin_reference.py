@@ -183,6 +183,48 @@ def registered_positions_float32(payload, snapshot, *, frame):
     return out
 
 
+def registered_rest_vertex_normals_float32(payload, snapshot, vertex_rows):
+    """Construct selected ABI5 normals from emitted geometry in native rest.
+
+    Include every incident face, including faces outside the changed patch.
+    Return only requested rows; never replace unrelated authored normals.
+    This prepares surface records, not physical or collision admission.
+    """
+    rows = np.asarray(vertex_rows)
+    if rows.ndim != 1 or rows.dtype.kind not in "iu":
+        raise RebindError("normal rows must be an integer vector")
+    rows = rows.astype(np.int64)
+    if (len(np.unique(rows)) != len(rows) or
+            (len(rows) and (rows.min() < 0 or rows.max() >= payload["nv"]))):
+        raise RebindError("normal rows are duplicate or out of range")
+    faces = np.asarray(payload["inds"])
+    if (faces.ndim != 2 or faces.shape[1] != 3 or
+            faces.dtype.kind not in "iu" or
+            (faces.size and (faces.min() < 0 or faces.max() >= payload["nv"]))):
+        raise RebindError("normal topology contains invalid source indices")
+    xyz = registered_positions_float32(payload, snapshot, frame="rest").astype(float)
+    if not len(rows):
+        return np.empty((0, 3), dtype=np.float32)
+    selected = np.zeros(payload["nv"], dtype=bool)
+    selected[rows] = True
+    # Invalid geometry elsewhere cannot alter a requested patch, but every
+    # incident face must be finite and nondegenerate.
+    incident = faces[np.any(selected[faces], axis=1)]
+    tri = xyz[incident]
+    cross = np.cross(tri[:, 1]-tri[:, 0], tri[:, 2]-tri[:, 0])
+    lengths = np.linalg.norm(cross, axis=1)
+    if not np.isfinite(cross).all() or np.any(lengths <= 1e-20):
+        raise RebindError("degenerate incident face in rest-normal construction")
+    accum = np.zeros_like(xyz)
+    for corner in range(3):
+        np.add.at(accum, incident[:, corner], cross)
+    normals = accum[rows]
+    length = np.linalg.norm(normals, axis=1)
+    if not np.isfinite(length).all() or np.any(length <= 1e-20):
+        raise RebindError("unreferenced or cancelling selected rest normal")
+    return (normals/length[:, None]).astype(np.float32)
+
+
 def positions(payload, a, b):
     w = payload["weights"].astype(float)
     return np.einsum("nk,kij,nj->ni", w, a, payload["verts"][:, :3].astype(float)) + w @ b

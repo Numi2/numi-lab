@@ -48,6 +48,49 @@ class RebindTests(unittest.TestCase):
                     binding_count=payload["nb"], vertex_count=payload["nv"],
                     payload_abi=5, all_bodies=rows)
 
+    def test_selected_normals_use_native_rest_not_current_frame(self):
+        payload = fixture()
+        snap = self._registered_snapshot(payload)
+        # Current X rotation reverses the visible plane; ABI5 stores REST normals.
+        for row in snap["all_bodies"]:
+            row["current"]["orientation_world_xyzw"] = [1,0,0,0]
+        out = m.registered_rest_vertex_normals_float32(payload, snap, [3,0,1])
+        np.testing.assert_array_equal(out, [[0,0,1]]*3)
+        self.assertEqual(out.dtype, np.float32)
+        np.testing.assert_array_equal(payload["verts"], fixture()["verts"])
+        # A rest rotation must transform the constructed normals.
+        for row in snap["all_bodies"]:
+            row["rest"]["orientation_world_xyzw"] = [1,0,0,0]
+        np.testing.assert_array_equal(
+            m.registered_rest_vertex_normals_float32(payload, snap, [0,3]),
+            [[0,0,-1]]*2)
+
+    def test_patch_normals_include_retained_incident_faces(self):
+        payload = fixture()
+        verts = payload["verts"].copy()
+        verts[3,2] = 1
+        payload = dict(payload, verts=verts)
+        snap = self._registered_snapshot(payload)
+        out = m.registered_rest_vertex_normals_float32(payload, snap, [1])
+        expected = np.array([[-1,-1,2]],dtype=float)
+        expected /= np.linalg.norm(expected,axis=1)[:,None]
+        np.testing.assert_allclose(out,expected,rtol=1e-7)
+        # Restricting accumulation to the first changed face would return +Z.
+        self.assertFalse(np.array_equal(out,[[0,0,1]]))
+
+    def test_rest_normals_reject_invalid_and_unreferenced_rows(self):
+        payload = fixture()
+        snap = self._registered_snapshot(payload)
+        for rows in ([4], [0,0], [-1], [5], [0.5]):
+            with self.subTest(rows=rows), self.assertRaises(m.RebindError):
+                m.registered_rest_vertex_normals_float32(payload,snap,rows)
+        collapsed = dict(payload, verts=payload["verts"].copy())
+        collapsed["verts"][2,:3] = collapsed["verts"][1,:3]
+        with self.assertRaisesRegex(m.RebindError,"degenerate"):
+            m.registered_rest_vertex_normals_float32(collapsed,snap,[0])
+        empty = m.registered_rest_vertex_normals_float32(payload,snap,np.array([],dtype=int))
+        self.assertEqual(empty.shape,(0,3))
+
     def test_registered_frames_are_explicit_and_distinct(self):
         payload = fixture()
         snapshot = self._registered_snapshot(payload)

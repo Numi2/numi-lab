@@ -1,0 +1,13 @@
+{
+  "scope": "selected ABI5 native-rest normal construction; failed candidate002 remains geometrically rejected",
+  "tool_sha256": "9402d5be88205d0fe491b5e0f0edc009b834f684b2073fcaa6b651fcd757b5f5",
+  "candidate_sha256": "24ee1aa733d82cce0fa2bbc6a603eeb8fa102e67d712c8457a1057213a049050",
+  "snapshot_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "patch_arrays_sha256": "a05aa4b5a6c0c614a0d3c743f17c2272e63377cc9afa461de546091b52d9f310",
+  "selected_vertices": 12238,
+  "max_delta_from_candidate002_stored_rest_normal": 0.0,
+  "rms_delta": 0.0,
+  "elapsed_s": 0.11120583396404982,
+  "source_mutated": false,
+  "physical_admission": false
+}

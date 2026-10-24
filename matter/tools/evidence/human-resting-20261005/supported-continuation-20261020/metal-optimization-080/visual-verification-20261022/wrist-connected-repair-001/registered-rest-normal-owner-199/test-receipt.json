@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-rest-normal-owner-199/tests/test_human_skin_reference_rebind.py"
+  ],
+  "tests_passed": 31,
+  "elapsed_s_reported": 0.059,
+  "exit_code": 0,
+  "tool_sha256": "9402d5be88205d0fe491b5e0f0edc009b834f684b2073fcaa6b651fcd757b5f5",
+  "test_sha256": "dbf18742ee69181aa68f468a4b92386f2b09aa0a3b6e2fce0cd7201f579494db",
+  "executed_on": "ssh numi"
+}

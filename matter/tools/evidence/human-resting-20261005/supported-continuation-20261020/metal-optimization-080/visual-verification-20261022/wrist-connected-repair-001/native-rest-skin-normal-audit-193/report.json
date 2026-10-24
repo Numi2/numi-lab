@@ -1,0 +1,1543 @@
+{
+  "scope": "Numerical reference-normal diagnostic; smoothed authored normals are not expected to equal geometric normals exactly. No source edit or visual qualification.",
+  "skin_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+  "pose_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "whole": {
+    "vertices": 54551,
+    "negative": 4,
+    "below_05": 67,
+    "median_cosine": 0.9998257425458644,
+    "p01_cosine": 0.9197241918973853,
+    "worst_source_vertex_ids": [
+      55444,
+      55323,
+      55238,
+      55305,
+      55329,
+      55253,
+      10450,
+      2552,
+      52300,
+      55401
+    ]
+  },
+  "unreferenced_or_zero_geometry_normals": 7399,
+  "by_dominant_body": {
+    "sacrum": {
+      "vertices": 233,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9997586500136777,
+      "p01_cosine": 0.9913007359492186,
+      "worst_source_vertex_ids": [
+        28693,
+        28703,
+        28702,
+        26806,
+        28700,
+        26809,
+        29505,
+        29471,
+        26818,
+        30408
+      ]
+    },
+    "lumbar5": {
+      "vertices": 41,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9996128507774922,
+      "p01_cosine": 0.9984352709525486,
+      "worst_source_vertex_ids": [
+        25772,
+        29405,
+        26693,
+        25781,
+        29406,
+        24980,
+        29417,
+        24092,
+        30306,
+        28554
+      ]
+    },
+    "lumbar4": {
+      "vertices": 12,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999151780015842,
+      "p01_cosine": 0.9989896579718021,
+      "worst_source_vertex_ids": [
+        25775,
+        33427,
+        30309,
+        29408,
+        24974,
+        32681,
+        26698,
+        30308,
+        32680,
+        25774
+      ]
+    },
+    "torso": {
+      "vertices": 8339,
+      "negative": 4,
+      "below_05": 59,
+      "median_cosine": 0.9994998094219821,
+      "p01_cosine": 0.5752648638832236,
+      "worst_source_vertex_ids": [
+        55444,
+        55323,
+        55238,
+        55305,
+        55329,
+        55253,
+        10450,
+        55401,
+        55204,
+        45195
+      ]
+    },
+    "head": {
+      "vertices": 6425,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9998511319577212,
+      "p01_cosine": 0.9550508646035263,
+      "worst_source_vertex_ids": [
+        23637,
+        54770,
+        54763,
+        30725,
+        23642,
+        31502,
+        30722,
+        54830,
+        23638,
+        54769
+      ]
+    },
+    "cervical_spine": {
+      "vertices": 541,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9998086939874474,
+      "p01_cosine": 0.9979936076303506,
+      "worst_source_vertex_ids": [
+        21767,
+        15637,
+        34582,
+        29275,
+        22520,
+        16965,
+        36022,
+        18052,
+        35283,
+        20944
+      ]
+    },
+    "clavicle_r": {
+      "vertices": 39,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9993048882725085,
+      "p01_cosine": 0.9929755828386727,
+      "worst_source_vertex_ids": [
+        14717,
+        14188,
+        14742,
+        11562,
+        10996,
+        14734,
+        14741,
+        13720,
+        13150,
+        14770
+      ]
+    },
+    "scapula_r": {
+      "vertices": 23,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9980562830061568,
+      "p01_cosine": 0.9799402935590177,
+      "worst_source_vertex_ids": [
+        8304,
+        8298,
+        8307,
+        8760,
+        8752,
+        8305,
+        8050,
+        11042,
+        9890,
+        11043
+      ]
+    },
+    "humerus_r": {
+      "vertices": 651,
+      "negative": 0,
+      "below_05": 1,
+      "median_cosine": 0.9998232869195305,
+      "p01_cosine": 0.8808454989724221,
+      "worst_source_vertex_ids": [
+        7973,
+        7147,
+        7679,
+        7845,
+        7131,
+        8265,
+        7990,
+        7335,
+        8749,
+        7989
+      ]
+    },
+    "ulna_r": {
+      "vertices": 615,
+      "negative": 0,
+      "below_05": 1,
+      "median_cosine": 0.9994799981077668,
+      "p01_cosine": 0.819005698167801,
+      "worst_source_vertex_ids": [
+        6300,
+        5723,
+        5725,
+        5724,
+        5726,
+        6273,
+        6308,
+        6301,
+        6329,
+        6425
+      ]
+    },
+    "radius_r": {
+      "vertices": 664,
+      "negative": 0,
+      "below_05": 1,
+      "median_cosine": 0.9997908899685483,
+      "p01_cosine": 0.7778075483141433,
+      "worst_source_vertex_ids": [
+        2565,
+        2218,
+        2228,
+        4506,
+        2217,
+        5271,
+        2602,
+        4558,
+        4858,
+        2601
+      ]
+    },
+    "lunate_r": {
+      "vertices": 38,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999946816329581,
+      "p01_cosine": 0.9999353319830351,
+      "worst_source_vertex_ids": [
+        6235,
+        5759,
+        5300,
+        6268,
+        5299,
+        4904,
+        5305,
+        5721,
+        4903,
+        6271
+      ]
+    },
+    "scaphoid_r": {
+      "vertices": 34,
+      "negative": 0,
+      "below_05": 2,
+      "median_cosine": 0.9999773776061891,
+      "p01_cosine": 0.1899113328398353,
+      "worst_source_vertex_ids": [
+        2552,
+        2555,
+        2837,
+        4111,
+        3147,
+        2829,
+        2838,
+        2839,
+        2840,
+        2567
+      ]
+    },
+    "pisiform_r": {
+      "vertices": 11,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999998454390021,
+      "p01_cosine": 0.9999972964526838,
+      "worst_source_vertex_ids": [
+        5707,
+        5250,
+        5696,
+        5712,
+        5699,
+        5686,
+        5700,
+        5698,
+        5688,
+        5687
+      ]
+    },
+    "triquetrum_r": {
+      "vertices": 15,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999969433696676,
+      "p01_cosine": 0.999921206505353,
+      "worst_source_vertex_ids": [
+        5719,
+        5753,
+        6298,
+        6234,
+        5754,
+        5756,
+        6296,
+        6267,
+        6233,
+        6294
+      ]
+    },
+    "capitate_r": {
+      "vertices": 14,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999738035388154,
+      "p01_cosine": 0.999857929960143,
+      "worst_source_vertex_ids": [
+        3196,
+        3414,
+        3409,
+        3411,
+        3787,
+        3786,
+        3413,
+        4141,
+        3785,
+        3194
+      ]
+    },
+    "trapezium_r": {
+      "vertices": 73,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999998121458519,
+      "p01_cosine": 0.9999965156860846,
+      "worst_source_vertex_ids": [
+        1856,
+        1855,
+        1859,
+        1870,
+        1858,
+        1854,
+        2200,
+        2189,
+        2163,
+        3348
+      ]
+    },
+    "firstmc_r": {
+      "vertices": 279,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999995390346281,
+      "p01_cosine": 0.9999903086701714,
+      "worst_source_vertex_ids": [
+        1893,
+        1709,
+        1904,
+        1101,
+        2233,
+        1120,
+        1102,
+        1913,
+        1181,
+        1516
+      ]
+    },
+    "proximal_thumb_r": {
+      "vertices": 243,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999607885628,
+      "p01_cosine": 0.9999986991342567,
+      "worst_source_vertex_ids": [
+        845,
+        798,
+        833,
+        545,
+        832,
+        1167,
+        782,
+        1087,
+        780,
+        546
+      ]
+    },
+    "distal_thumb_r": {
+      "vertices": 546,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999990283939,
+      "p01_cosine": 0.9999999164043855,
+      "worst_source_vertex_ids": [
+        1052,
+        1050,
+        742,
+        1081,
+        745,
+        481,
+        1077,
+        521,
+        1076,
+        515
+      ]
+    },
+    "hamate_r": {
+      "vertices": 72,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999990274946381,
+      "p01_cosine": 0.999977327889059,
+      "worst_source_vertex_ids": [
+        4895,
+        4538,
+        4105,
+        4835,
+        4825,
+        4492,
+        4824,
+        4826,
+        4827,
+        4481
+      ]
+    },
+    "secondmc_r": {
+      "vertices": 107,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999997722841341,
+      "p01_cosine": 0.9999936166776967,
+      "worst_source_vertex_ids": [
+        2232,
+        2868,
+        2854,
+        2859,
+        3185,
+        2869,
+        2580,
+        2861,
+        1707,
+        1898
+      ]
+    },
+    "2proxph_r": {
+      "vertices": 369,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.999999995864056,
+      "p01_cosine": 0.9999997757078082,
+      "worst_source_vertex_ids": [
+        1486,
+        1507,
+        2561,
+        1887,
+        2560,
+        1702,
+        1688,
+        2199,
+        1508,
+        2196
+      ]
+    },
+    "midph2_r": {
+      "vertices": 103,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999994338109,
+      "p01_cosine": 0.9999999962399537,
+      "worst_source_vertex_ids": [
+        1091,
+        1320,
+        1404,
+        1111,
+        775,
+        1058,
+        1131,
+        1408,
+        1134,
+        1315
+      ]
+    },
+    "distph2_r": {
+      "vertices": 521,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999999757165,
+      "p01_cosine": 0.9999999992782174,
+      "worst_source_vertex_ids": [
+        721,
+        1016,
+        996,
+        999,
+        1014,
+        1308,
+        997,
+        1001,
+        1311,
+        1000
+      ]
+    },
+    "thirdmc_r": {
+      "vertices": 62,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999651423597,
+      "p01_cosine": 0.9999859214656855,
+      "worst_source_vertex_ids": [
+        3408,
+        3410,
+        3412,
+        3187,
+        3399,
+        3397,
+        3400,
+        3398,
+        3780,
+        3193
+      ]
+    },
+    "3proxph_r": {
+      "vertices": 249,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999995565569,
+      "p01_cosine": 0.9999999689794206,
+      "worst_source_vertex_ids": [
+        3318,
+        3114,
+        2804,
+        3678,
+        2801,
+        2802,
+        3298,
+        3113,
+        3677,
+        3360
+      ]
+    },
+    "midph3_r": {
+      "vertices": 129,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.999999999972785,
+      "p01_cosine": 0.9999999992383665,
+      "worst_source_vertex_ids": [
+        3097,
+        3098,
+        2768,
+        2775,
+        2771,
+        3081,
+        3083,
+        3078,
+        3095,
+        3077
+      ]
+    },
+    "distph3_r": {
+      "vertices": 487,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999999948885,
+      "p01_cosine": 0.9999999998681198,
+      "worst_source_vertex_ids": [
+        2292,
+        2016,
+        1932,
+        2273,
+        2283,
+        2255,
+        2298,
+        2644,
+        2285,
+        2641
+      ]
+    },
+    "fourthmc_r": {
+      "vertices": 29,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.999998465849477,
+      "p01_cosine": 0.9999746045446579,
+      "worst_source_vertex_ids": [
+        4896,
+        4537,
+        4892,
+        5297,
+        4893,
+        4890,
+        4888,
+        4891,
+        4536,
+        4894
+      ]
+    },
+    "4proxph_r": {
+      "vertices": 144,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999997346174,
+      "p01_cosine": 0.9999999268823211,
+      "worst_source_vertex_ids": [
+        4083,
+        4084,
+        4450,
+        4444,
+        3679,
+        4072,
+        4445,
+        4862,
+        4446,
+        4443
+      ]
+    },
+    "midph4_r": {
+      "vertices": 349,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999999393057,
+      "p01_cosine": 0.9999999964574293,
+      "worst_source_vertex_ids": [
+        4441,
+        4071,
+        4440,
+        4430,
+        4755,
+        4431,
+        4773,
+        4428,
+        4753,
+        4069
+      ]
+    },
+    "distph4_r": {
+      "vertices": 491,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999999924771,
+      "p01_cosine": 0.9999999997177166,
+      "worst_source_vertex_ids": [
+        3973,
+        3876,
+        3879,
+        3849,
+        3853,
+        3482,
+        4189,
+        4196,
+        3878,
+        3874
+      ]
+    },
+    "fifthmc_r": {
+      "vertices": 150,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999998733758779,
+      "p01_cosine": 0.9999752692414311,
+      "worst_source_vertex_ids": [
+        5298,
+        5751,
+        5750,
+        5748,
+        5752,
+        5742,
+        5743,
+        5294,
+        6289,
+        5749
+      ]
+    },
+    "5proxph_r": {
+      "vertices": 276,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999847004544,
+      "p01_cosine": 0.9999992766936063,
+      "worst_source_vertex_ids": [
+        5198,
+        5199,
+        5673,
+        5197,
+        4805,
+        5668,
+        5672,
+        5677,
+        4468,
+        5669
+      ]
+    },
+    "midph5_r": {
+      "vertices": 165,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999995724818,
+      "p01_cosine": 0.9999999808134512,
+      "worst_source_vertex_ids": [
+        5601,
+        6687,
+        5602,
+        6108,
+        5100,
+        5599,
+        5597,
+        5120,
+        5600,
+        6099
+      ]
+    },
+    "distph5_r": {
+      "vertices": 420,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999999624611,
+      "p01_cosine": 0.999999998574906,
+      "worst_source_vertex_ids": [
+        6075,
+        5548,
+        6076,
+        6077,
+        5569,
+        6071,
+        6072,
+        5545,
+        6078,
+        6073
+      ]
+    },
+    "clavicle_l": {
+      "vertices": 38,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9996170754529741,
+      "p01_cosine": 0.9937701259756014,
+      "worst_source_vertex_ids": [
+        44116,
+        44103,
+        44115,
+        43538,
+        43568,
+        42414,
+        29199,
+        29189,
+        35818,
+        42938
+      ]
+    },
+    "scapula_l": {
+      "vertices": 93,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9973772219136784,
+      "p01_cosine": 0.9373375138042677,
+      "worst_source_vertex_ids": [
+        45278,
+        46610,
+        46609,
+        45267,
+        44631,
+        46611,
+        46617,
+        46303,
+        46608,
+        45291
+      ]
+    },
+    "humerus_l": {
+      "vertices": 932,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9998517376976495,
+      "p01_cosine": 0.9005359034196594,
+      "worst_source_vertex_ids": [
+        46699,
+        46548,
+        47188,
+        47031,
+        46910,
+        46918,
+        47185,
+        47032,
+        47054,
+        55115
+      ]
+    },
+    "ulna_l": {
+      "vertices": 693,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.999814140317427,
+      "p01_cosine": 0.8198355590858403,
+      "worst_source_vertex_ids": [
+        46590,
+        46597,
+        48986,
+        49384,
+        49450,
+        48593,
+        46547,
+        48625,
+        49867,
+        49925
+      ]
+    },
+    "radius_l": {
+      "vertices": 600,
+      "negative": 0,
+      "below_05": 1,
+      "median_cosine": 0.9997941010362641,
+      "p01_cosine": 0.7981158786959935,
+      "worst_source_vertex_ids": [
+        52307,
+        52629,
+        52639,
+        49928,
+        51880,
+        50402,
+        51282,
+        52652,
+        52339,
+        50745
+      ]
+    },
+    "lunate_l": {
+      "vertices": 35,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999963029908454,
+      "p01_cosine": 0.6223394790733922,
+      "worst_source_vertex_ids": [
+        49385,
+        49862,
+        49021,
+        49418,
+        49905,
+        49425,
+        50390,
+        50393,
+        50772,
+        49907
+      ]
+    },
+    "scaphoid_l": {
+      "vertices": 3,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999841018092588,
+      "p01_cosine": 0.7544056862867846,
+      "worst_source_vertex_ids": [
+        51852,
+        51585,
+        51338
+      ]
+    },
+    "pisiform_l": {
+      "vertices": 24,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999995072970237,
+      "p01_cosine": 0.99999005339732,
+      "worst_source_vertex_ids": [
+        48977,
+        48976,
+        49380,
+        48979,
+        49342,
+        49367,
+        48968,
+        48538,
+        48959,
+        49366
+      ]
+    },
+    "triquetrum_l": {
+      "vertices": 40,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999942330240368,
+      "p01_cosine": 0.7915761013550492,
+      "worst_source_vertex_ids": [
+        48617,
+        49017,
+        48614,
+        49016,
+        49015,
+        48583,
+        48550,
+        48586,
+        48983,
+        48584
+      ]
+    },
+    "capitate_l": {
+      "vertices": 13,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999868849484674,
+      "p01_cosine": 0.9999763969825557,
+      "worst_source_vertex_ids": [
+        51583,
+        51332,
+        51336,
+        51124,
+        51333,
+        51334,
+        51123,
+        50388,
+        51584,
+        51335
+      ]
+    },
+    "trapezium_l": {
+      "vertices": 52,
+      "negative": 0,
+      "below_05": 2,
+      "median_cosine": 0.999999860495411,
+      "p01_cosine": 0.2536572445952705,
+      "worst_source_vertex_ids": [
+        52300,
+        52299,
+        52805,
+        52777,
+        52774,
+        52992,
+        52776,
+        51265,
+        51267,
+        51090
+      ]
+    },
+    "firstmc_l": {
+      "vertices": 357,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999997498937486,
+      "p01_cosine": 0.9999836385711109,
+      "worst_source_vertex_ids": [
+        52797,
+        52806,
+        52796,
+        52775,
+        52813,
+        53011,
+        52798,
+        52808,
+        52809,
+        53351
+      ]
+    },
+    "proximal_thumb_l": {
+      "vertices": 291,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999821738981,
+      "p01_cosine": 0.9999996883708787,
+      "worst_source_vertex_ids": [
+        53961,
+        53945,
+        53960,
+        53541,
+        53889,
+        53309,
+        53890,
+        53621,
+        53907,
+        53613
+      ]
+    },
+    "distal_thumb_l": {
+      "vertices": 537,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999996879311,
+      "p01_cosine": 0.9999999512507372,
+      "worst_source_vertex_ids": [
+        53872,
+        53527,
+        53529,
+        53528,
+        53855,
+        53526,
+        53856,
+        53523,
+        53142,
+        53140
+      ]
+    },
+    "hamate_l": {
+      "vertices": 8,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999979724174362,
+      "p01_cosine": 0.9999819930543798,
+      "worst_source_vertex_ids": [
+        49898,
+        49014,
+        50342,
+        49837,
+        50343,
+        50341,
+        49834,
+        49832
+      ]
+    },
+    "secondmc_l": {
+      "vertices": 108,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999998562470334,
+      "p01_cosine": 0.9999965479846192,
+      "worst_source_vertex_ids": [
+        52320,
+        52804,
+        53338,
+        52641,
+        52802,
+        53012,
+        53010,
+        51865,
+        52321,
+        52801
+      ]
+    },
+    "2proxph_l": {
+      "vertices": 282,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999980248766,
+      "p01_cosine": 0.9999999279346397,
+      "worst_source_vertex_ids": [
+        52613,
+        52766,
+        52782,
+        52612,
+        52770,
+        52771,
+        52767,
+        52977,
+        52994,
+        52756
+      ]
+    },
+    "midph2_l": {
+      "vertices": 83,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999998298595,
+      "p01_cosine": 0.9999999983971444,
+      "worst_source_vertex_ids": [
+        52930,
+        53227,
+        53229,
+        52837,
+        52929,
+        53232,
+        53203,
+        53199,
+        53574,
+        53202
+      ]
+    },
+    "distph2_l": {
+      "vertices": 492,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999999833786,
+      "p01_cosine": 0.9999999995301866,
+      "worst_source_vertex_ids": [
+        52840,
+        52836,
+        53503,
+        53462,
+        53105,
+        52830,
+        53501,
+        53861,
+        53116,
+        53500
+      ]
+    },
+    "thirdmc_l": {
+      "vertices": 55,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999595261552,
+      "p01_cosine": 0.9999900288316773,
+      "worst_source_vertex_ids": [
+        51575,
+        51122,
+        51582,
+        51331,
+        51872,
+        51327,
+        51326,
+        51574,
+        51325,
+        51572
+      ]
+    },
+    "3proxph_l": {
+      "vertices": 289,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999991140363,
+      "p01_cosine": 0.9999999218775116,
+      "worst_source_vertex_ids": [
+        51507,
+        51812,
+        51819,
+        51230,
+        51240,
+        51821,
+        51029,
+        51811,
+        51813,
+        51244
+      ]
+    },
+    "midph3_l": {
+      "vertices": 116,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999999731015,
+      "p01_cosine": 0.9999999989958184,
+      "worst_source_vertex_ids": [
+        51473,
+        51780,
+        51782,
+        51785,
+        51784,
+        51477,
+        51474,
+        51469,
+        52172,
+        52168
+      ]
+    },
+    "distph3_l": {
+      "vertices": 464,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.999999999993892,
+      "p01_cosine": 0.9999999998267336,
+      "worst_source_vertex_ids": [
+        52037,
+        52045,
+        52368,
+        52031,
+        52376,
+        51988,
+        52035,
+        52383,
+        52365,
+        52435
+      ]
+    },
+    "fourthmc_l": {
+      "vertices": 38,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999123292089,
+      "p01_cosine": 0.9999827876038389,
+      "worst_source_vertex_ids": [
+        49899,
+        49896,
+        50385,
+        49900,
+        49897,
+        49894,
+        49895,
+        49892,
+        50384,
+        49893
+      ]
+    },
+    "4proxph_l": {
+      "vertices": 154,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999998289778,
+      "p01_cosine": 0.9999999497152219,
+      "worst_source_vertex_ids": [
+        50321,
+        50721,
+        50720,
+        50316,
+        50323,
+        50320,
+        50315,
+        50330,
+        50319,
+        50705
+      ]
+    },
+    "midph4_l": {
+      "vertices": 295,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999999492124,
+      "p01_cosine": 0.9999999961340992,
+      "worst_source_vertex_ids": [
+        50694,
+        50692,
+        50296,
+        50303,
+        50701,
+        49770,
+        50300,
+        50297,
+        50299,
+        50983
+      ]
+    },
+    "distph4_l": {
+      "vertices": 512,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999999911923,
+      "p01_cosine": 0.9999999996085802,
+      "worst_source_vertex_ids": [
+        50082,
+        50469,
+        50819,
+        50818,
+        50493,
+        50475,
+        50492,
+        50824,
+        50237,
+        50080
+      ]
+    },
+    "fifthmc_l": {
+      "vertices": 216,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999998730920127,
+      "p01_cosine": 0.9999818514793813,
+      "worst_source_vertex_ids": [
+        49414,
+        49013,
+        49412,
+        49012,
+        49411,
+        49413,
+        49891,
+        49410,
+        49007,
+        48607
+      ]
+    },
+    "5proxph_l": {
+      "vertices": 265,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999885004386,
+      "p01_cosine": 0.9999997299102119,
+      "worst_source_vertex_ids": [
+        49318,
+        49320,
+        49314,
+        49811,
+        49317,
+        49813,
+        49265,
+        49316,
+        49311,
+        48921
+      ]
+    },
+    "midph5_l": {
+      "vertices": 180,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999990687223,
+      "p01_cosine": 0.9999999693043792,
+      "worst_source_vertex_ids": [
+        49250,
+        49299,
+        48883,
+        48881,
+        49249,
+        48421,
+        48859,
+        48412,
+        48411,
+        48861
+      ]
+    },
+    "distph5_l": {
+      "vertices": 367,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9999999999478679,
+      "p01_cosine": 0.9999999987736413,
+      "worst_source_vertex_ids": [
+        48384,
+        48382,
+        48812,
+        48808,
+        48820,
+        48353,
+        48378,
+        48814,
+        48817,
+        48355
+      ]
+    },
+    "pelvis": {
+      "vertices": 8297,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.999784874197938,
+      "p01_cosine": 0.9698070736231448,
+      "worst_source_vertex_ids": [
+        9054,
+        8651,
+        46127,
+        23711,
+        23745,
+        22998,
+        9076,
+        23752,
+        23744,
+        31612
+      ]
+    },
+    "femur_r": {
+      "vertices": 952,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9993834539217599,
+      "p01_cosine": 0.9860070788362297,
+      "worst_source_vertex_ids": [
+        9138,
+        9766,
+        11577,
+        11571,
+        9774,
+        10997,
+        21363,
+        8670,
+        9126,
+        11435
+      ]
+    },
+    "tibia_r": {
+      "vertices": 2582,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9996816280772247,
+      "p01_cosine": 0.9889157700977982,
+      "worst_source_vertex_ids": [
+        23119,
+        16856,
+        16848,
+        23131,
+        17398,
+        16857,
+        14710,
+        18637,
+        19338,
+        18638
+      ]
+    },
+    "talus_r": {
+      "vertices": 4,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9989096287287965,
+      "p01_cosine": 0.9972491735087036,
+      "worst_source_vertex_ids": [
+        21481,
+        21465,
+        20720,
+        21458
+      ]
+    },
+    "calcn_r": {
+      "vertices": 1716,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.99957540691115,
+      "p01_cosine": 0.9921189678343931,
+      "worst_source_vertex_ids": [
+        11882,
+        11284,
+        13511,
+        11824,
+        13540,
+        12446,
+        22339,
+        13512,
+        14100,
+        13500
+      ]
+    },
+    "toes_r": {
+      "vertices": 2031,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9990865401352258,
+      "p01_cosine": 0.9839552992476913,
+      "worst_source_vertex_ids": [
+        10074,
+        10078,
+        12908,
+        11775,
+        8929,
+        10073,
+        10067,
+        13466,
+        11790,
+        12904
+      ]
+    },
+    "patella_r": {
+      "vertices": 551,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9995499723542555,
+      "p01_cosine": 0.9914143482731442,
+      "worst_source_vertex_ids": [
+        20639,
+        16822,
+        20650,
+        16824,
+        19948,
+        19949,
+        21412,
+        21410,
+        18585,
+        19257
+      ]
+    },
+    "femur_l": {
+      "vertices": 830,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9994529808125102,
+      "p01_cosine": 0.9807750777111848,
+      "worst_source_vertex_ids": [
+        30204,
+        30928,
+        30206,
+        33768,
+        30905,
+        33015,
+        30926,
+        30203,
+        31825,
+        31055
+      ]
+    },
+    "tibia_l": {
+      "vertices": 2614,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9996585986350142,
+      "p01_cosine": 0.9902220453623366,
+      "worst_source_vertex_ids": [
+        40570,
+        38352,
+        36854,
+        34706,
+        31746,
+        35274,
+        35944,
+        36720,
+        34705,
+        34607
+      ]
+    },
+    "talus_l": {
+      "vertices": 2,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.998693256618965,
+      "p01_cosine": 0.9985406383685616,
+      "worst_source_vertex_ids": [
+        33109,
+        33110
+      ]
+    },
+    "calcn_l": {
+      "vertices": 1705,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9995880678335094,
+      "p01_cosine": 0.9924516747934615,
+      "worst_source_vertex_ids": [
+        34017,
+        42648,
+        41667,
+        40045,
+        43315,
+        42091,
+        44071,
+        41027,
+        42206,
+        42217
+      ]
+    },
+    "toes_l": {
+      "vertices": 2018,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9990932383923794,
+      "p01_cosine": 0.9810664609347823,
+      "worst_source_vertex_ids": [
+        42614,
+        42612,
+        44969,
+        43817,
+        40922,
+        43242,
+        42611,
+        40959,
+        42605,
+        44337
+      ]
+    },
+    "patella_l": {
+      "vertices": 658,
+      "negative": 0,
+      "below_05": 0,
+      "median_cosine": 0.9995216063424592,
+      "p01_cosine": 0.9950151279850863,
+      "worst_source_vertex_ids": [
+        42808,
+        36491,
+        41150,
+        39976,
+        41740,
+        36493,
+        34536,
+        33798,
+        35788,
+        42827
+      ]
+    }
+  }
+}
