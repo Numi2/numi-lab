@@ -2363,3 +2363,18 @@ target_compile_options(numi-matter-cardboard-source392-tet858-point-check PRIVAT
 target_compile_definitions(numi-matter-cardboard-source392-tet858-point-check PRIVATE
     NUMI_CARDBOARD_PAPER_METALLIB="${NUMI_CARDBOARD_PAPER_METALLIB}"
     NUMI_CARDBOARD_SOURCE118_BUILD_SHA256="da94e6051e767ea4bfba58705ccaf321e5dd97e5e9b40b32715f056676980c9f")
+
+add_executable(numi-matter-unpaired-skin-fat-volume-check
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp")
+target_include_directories(numi-matter-unpaired-skin-fat-volume-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apps"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_compile_options(numi-matter-unpaired-skin-fat-volume-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.unpaired_skin_fat_volume
+        COMMAND numi-matter-unpaired-skin-fat-volume-check)
+    set_tests_properties(matter.compiler.unpaired_skin_fat_volume PROPERTIES
+        TIMEOUT 30 LABELS "matter;compiler;human;cpu;synthetic")
+endif()

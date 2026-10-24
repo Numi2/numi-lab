@@ -4,6 +4,7 @@
 // Labels retain the original Human donor-body IDs. This is compiler input
 // provenance only; it does not enable reduced coordinates in the runtime.
 #include "NumiHumanCoarseTissuePreparation.hpp"
+#include "NumiHumanUnpairedSkinFatVolume.hpp"
 #include "NumiHumanOpticNerveTetGenAssets.hpp"
 #include "numi/matter/compiled_world_partitioned_reduction.hpp"
 #include "numi/matter/partitioned_reduction_mass_whitening.hpp"
@@ -60,6 +61,15 @@ struct RegisteredSkinFatReductionSourceLabels {
     std::vector<std::uint32_t> tetrahedronParentAncestryOffsets;
     std::vector<std::uint32_t> tetrahedronParentAncestryIndices;
     std::vector<double> tetrahedronParentAncestryVolumeFractions;
+    // Optional exact registered O/I/D boundary facet identities, 4 entries per tet.
+    std::vector<std::uint32_t> tetrahedronRegisteredLayerFacetSurfaceFaces;
+    std::vector<std::uint32_t> tetrahedronRegisteredLayerFacetSourceFaceIdentities;
+    std::vector<std::uint8_t> tetrahedronAuthoredHeadSidewallFacetFlags;
+    std::vector<std::uint32_t> tetrahedronAuthoredHeadSidewallStableFaceIdentities;
+    // SHA-256 of independent method-specific ancestry verification; closure alone is not proof.
+    VolumeAncestryVerificationKind ancestryVerificationKind=VolumeAncestryVerificationKind::unverified;
+    std::string ancestryVerificationReceiptSHA256;
+    bool explicitUnpairedVolumeTopology = false;
     // Complete original donor-body ancestry, body first and root last.
     std::map<std::uint32_t, std::vector<std::uint32_t>> donorBodyAncestry;
     std::size_t registeredVertexCount = 0u;
@@ -71,6 +81,8 @@ struct RegisteredSkinFatReductionSourceLabels {
     std::vector<std::uint32_t> sourceNodeParentTetrahedronIndices;
     std::vector<std::array<double,4>> sourceNodeParentBarycentric;
     std::vector<std::array<V3,4>> sourceNodeParentReferenceVertices;
+    // Optional world residual added to barycentric source-parent reconstruction.
+    std::vector<V3> sourceNodeParentResidualWorldM;
 };
 
 [[nodiscard]] inline bool collectExplicitRegisteredLayerFacetCoverage(
@@ -148,6 +160,54 @@ struct RegisteredSkinFatReductionSourceLabels {
         std::string& error) {
     const auto fail=[&](const char* why){error=why;return false;};
     const auto n=shell.femNodes.size(),old=labels.remeshedOriginalNodeCount;
+    if(labels.explicitUnpairedVolumeTopology) {
+        if(old>n||labels.sourceNodeParentTetrahedronIndices.size()!=n||
+           labels.sourceNodeParentBarycentric.size()!=n||
+           labels.sourceNodeParentReferenceVertices.size()!=n||
+           labels.sourceNodeParentResidualWorldM.size()!=n||
+           labels.sourceNodeLayerIndices.size()!=n||labels.sourceNodeDonorBodyIndices.size()!=n)
+            return fail("unpaired skin/fat node ancestry does not cover the exact volume node table");
+        std::size_t outer=0u;
+        for(std::size_t i=0;i<n;++i) {
+            const auto layer=labels.sourceNodeLayerIndices[i];
+            if(layer==0u)++outer;
+            if(layer>2u&&layer!=NM_INVALID_INDEX)
+                return fail("unpaired skin/fat node has an invalid O/I/D role");
+            const auto donor=labels.donorBodyAncestry.find(labels.sourceNodeDonorBodyIndices[i]);
+            if(donor==labels.donorBodyAncestry.end()||donor->second.empty()||
+               donor->second.front()!=labels.sourceNodeDonorBodyIndices[i])
+                return fail("unpaired skin/fat node lost its anatomical donor ancestry");
+            const auto parent=labels.sourceNodeParentTetrahedronIndices[i];
+            if(parent==NM_INVALID_INDEX) {
+                if(i>=old)return fail("new unpaired volume node has no source-parent tetrahedron");
+                continue;
+            }
+            const auto& w=labels.sourceNodeParentBarycentric[i];
+            const auto& vertices=labels.sourceNodeParentReferenceVertices[i];
+            V3 point{};double total=0.0;
+            for(std::size_t k=0;k<4u;++k) {
+                if(!std::isfinite(w[k])||w[k]<-1e-9||w[k]>1.0+1e-9)
+                    return fail("unpaired volume node has invalid source-parent barycentrics");
+                total+=w[k];
+                for(std::size_t axis=0;axis<3u;++axis) {
+                    if(!std::isfinite(vertices[k][axis]))
+                        return fail("unpaired volume node has a nonfinite source-parent vertex");
+                    point[axis]+=w[k]*vertices[k][axis];
+                }
+            }
+            const auto& residual=labels.sourceNodeParentResidualWorldM[i];
+            if(!std::all_of(residual.begin(),residual.end(),[](double value){return std::isfinite(value);})||
+               std::abs(total-1.0)>1e-8)
+                return fail("unpaired volume node has invalid source-parent residual or barycentric sum");
+            for(std::size_t axis=0;axis<3u;++axis)point[axis]+=residual[axis];
+            const auto& expected=shell.femReferenceNodes.empty()?shell.femNodes[i]:shell.femReferenceNodes[i];
+            if(norm(sub(point,expected))>1e-8)
+                return fail("unpaired volume node residual does not reconstruct its registered reference coordinate");
+        }
+        if(outer!=labels.registeredVertexCount)
+            return fail("unpaired skin/fat outer boundary rows differ from the registered surface");
+        return true;
+    }
     if(old==0u) {
         if(!labels.sourceNodeParentTetrahedronIndices.empty()||
            !labels.sourceNodeParentBarycentric.empty()||
@@ -161,7 +221,8 @@ struct RegisteredSkinFatReductionSourceLabels {
        labels.sourceNodeParentReferenceVertices.size()!=n||
        labels.sourceNodeLayerIndices.size()!=n||
        labels.sourceNodeDonorBodyIndices.size()!=n||
-       (!shell.femReferenceNodes.empty()&&shell.femReferenceNodes.size()!=n))
+       (!shell.femReferenceNodes.empty()&&shell.femReferenceNodes.size()!=n)||
+       (!labels.sourceNodeParentResidualWorldM.empty()&&labels.sourceNodeParentResidualWorldM.size()!=n))
         return fail("remeshed skin/fat node ancestry does not cover the exact object");
     std::size_t outer=0u;
     for(std::size_t i=0;i<n;++i) {
@@ -194,6 +255,8 @@ struct RegisteredSkinFatReductionSourceLabels {
             }
         }
         const auto& expected=shell.femReferenceNodes.empty()?shell.femNodes[i]:shell.femReferenceNodes[i];
+        if(!labels.sourceNodeParentResidualWorldM.empty())
+            point=add(point,labels.sourceNodeParentResidualWorldM[i]);
         if(!std::isfinite(expected[0])||!std::isfinite(expected[1])||
            !std::isfinite(expected[2])||std::abs(total-1.0)>1e-10||
            norm(sub(point,expected))>1e-8)
@@ -654,7 +717,7 @@ struct RegisteredSkinFatBasisRegionAncestry {
         tetEnd > world.fem.tetrahedra.size())
         return fail("shared compiled skin/fat object range escapes its FEM arena");
     if (labels.registeredVertexCount == 0u ||
-        (labels.remeshedOriginalNodeCount == 0u &&
+        (!labels.explicitUnpairedVolumeTopology && labels.remeshedOriginalNodeCount == 0u &&
          sourceShell.femNodes.size() != 3u * labels.registeredVertexCount) ||
         labels.sourceNodeVertexIndices.size() != sourceShell.femNodes.size() ||
         labels.sourceNodeLayerIndices.size() != sourceShell.femNodes.size() ||
@@ -665,7 +728,18 @@ struct RegisteredSkinFatBasisRegionAncestry {
         labels.tetrahedronSourceDonorBodyIndices.size() != sourceShell.tetrahedra.size() ||
         labels.tetrahedronSourceParentBodyIndices.size() != sourceShell.tetrahedra.size() ||
         (!labels.tetrahedronParentTetrahedronIndices.empty() &&
-         labels.tetrahedronParentTetrahedronIndices.size() != sourceShell.tetrahedra.size()))
+         labels.tetrahedronParentTetrahedronIndices.size() != sourceShell.tetrahedra.size()) ||
+        (!labels.tetrahedronParentAncestryOffsets.empty() &&
+         (labels.tetrahedronParentAncestryOffsets.size()!=sourceShell.tetrahedra.size()+1u ||
+          labels.tetrahedronParentAncestryOffsets.front()!=0u ||
+          labels.tetrahedronParentAncestryOffsets.back()!=labels.tetrahedronParentAncestryIndices.size() ||
+          labels.tetrahedronParentAncestryIndices.size()!=labels.tetrahedronParentAncestryVolumeFractions.size())) ||
+        (labels.explicitUnpairedVolumeTopology &&
+         (labels.tetrahedronRegisteredLayerFacetSurfaceFaces.size()!=4u*sourceShell.tetrahedra.size() ||
+          labels.tetrahedronRegisteredLayerFacetSourceFaceIdentities.size()!=4u*sourceShell.tetrahedra.size() ||
+          labels.tetrahedronAuthoredHeadSidewallFacetFlags.size()!=4u*sourceShell.tetrahedra.size() ||
+          labels.tetrahedronAuthoredHeadSidewallStableFaceIdentities.size()!=4u*sourceShell.tetrahedra.size() ||
+          labels.ancestryVerificationReceiptSHA256.size()!=64u)))
         return fail("retained skin/fat source labels no longer cover the exact source mesh");
 
     if (!validateRegisteredSkinFatRemeshNodeAncestry(sourceShell,labels,error))
@@ -2927,6 +3001,305 @@ template<class VerifyBoundBody, class ParentBodyAt>
     output = std::move(next);
     error.clear();
     return true;
+}
+
+
+template<class VerifyBoundBody, class ParentBodyAt>
+[[nodiscard]] inline bool buildRegisteredSkinFatUnpairedReductionSourceLabels(
+    const RegisteredSurface& surface,
+    const numi::matter::ObjectSource& shell,
+    const numi::human::SkinBoundaryNodeMap& boundaryMap,
+    const ExplicitUnpairedVolumeTopology& topology,
+    const std::size_t sourceBodyCount,
+    VerifyBoundBody&& verifyBoundBody,
+    ParentBodyAt&& parentBodyAt,
+    RegisteredSkinFatReductionSourceLabels& output,
+    std::string& error,
+    const std::uint32_t maximumFacesPerBasisRegion=36u,
+    const std::function<bool(std::uint32_t,std::uint32_t)>& verifyEmbeddedBody={}
+) {
+    const auto fail=[&](std::string message){error=std::move(message);output={};return false;};
+    const auto n=topology.currentWorldPoints.size(),nt=topology.childTetrahedra.size();
+    const auto surfaceRows=surface.worldPoints.size();
+    if(n==0u||nt==0u||surfaceRows==0u||sourceBodyCount==0u||
+       shell.representation!=numi::matter::Representation::fem||
+       shell.femNodes.size()!=n||shell.tetrahedra.size()!=nt||
+       topology.referenceWorldPoints.size()!=n||
+       topology.childMaterialIndices.size()!=nt||
+       topology.childDominantParentTetrahedra.size()!=nt||
+       topology.childParentSurfaceFaces.size()!=nt||
+       topology.childStableSourceFaceIdentities.size()!=nt||
+       topology.childDonorBodyIndices.size()!=nt||
+       topology.volumeNodeDonorBodyIndices.size()!=n||
+       topology.volumeNodeDonorLocalPoints.size()!=n||
+       topology.volumeNodeDonorLocalToWorldLinear.size()!=n||
+       topology.volumeNodeDonorOriginWorld.size()!=n||
+       topology.registeredBodyLocalToWorldLinear.size()!=sourceBodyCount||
+       topology.registeredBodyOriginWorld.size()!=sourceBodyCount||
+       topology.volumeNodeParentTetrahedra.size()!=n||
+       topology.volumeNodeParentBarycentric.size()!=n||
+       topology.volumeNodeParentResidualWorldM.size()!=n||
+       (maximumFacesPerBasisRegion==0u))
+        return fail("unpaired source-label arrays do not cover the exact shell, node, or tetrahedron domains");
+    if(!numi::human::validateSkinBoundaryNodeMap(boundaryMap,surfaceRows,error))return false;
+    if(boundaryMap.volumeNodeCount!=n||
+       (!topology.volumeNodeSourceVertexIndices.empty()&&topology.volumeNodeSourceVertexIndices.size()!=n)||
+       (!topology.volumeNodeSourceFaceIndices.empty()&&topology.volumeNodeSourceFaceIndices.size()!=n)||
+       (!topology.volumeNodeSourceBarycentric.empty()&&topology.volumeNodeSourceBarycentric.size()!=n)||
+       (topology.volumeNodeSourceFaceIndices.empty()!=topology.volumeNodeSourceBarycentric.empty()))
+        return fail("unpaired source-label surface map or detailed source ancestry has a mismatched row domain");
+    if(topology.childParentAncestryOffsets.size()!=nt+1u||
+       topology.childParentAncestryOffsets.empty()||topology.childParentAncestryOffsets.front()!=0u||
+       topology.childParentAncestryOffsets.back()!=topology.childParentAncestryTetrahedra.size()||
+       topology.childParentAncestryTetrahedra.size()!=topology.childParentAncestryVolumeFractions.size()||
+       topology.childRegisteredLayerFacetSurfaceFaces.size()!=4u*nt||
+       topology.childRegisteredLayerFacetSourceFaceIdentities.size()!=4u*nt||
+       topology.childAuthoredHeadSidewallFacetFlags.size()!=4u*nt||
+       topology.childAuthoredHeadSidewallStableFaceIdentities.size()!=4u*nt||
+       topology.parentTetrahedra.empty()||
+       topology.parentMaterialIndices.size()!=topology.parentTetrahedra.size()||
+       topology.parentDonorBodyIndices.size()!=topology.parentTetrahedra.size()||
+       topology.parentStableSourceFaceIdentities.size()!=topology.parentTetrahedra.size()||
+       topology.detailedSourceVertexCount==0u||topology.detailedSourceFaceCount==0u)
+        return fail("unpaired source-label parent/facet ancestry is incomplete");
+    const auto receipt=topology.ancestryVerificationReceiptSHA256;
+    if((topology.ancestryVerificationKind!=VolumeAncestryVerificationKind::exactGeometricOverlap&&
+        topology.ancestryVerificationKind!=VolumeAncestryVerificationKind::conservativeReferencePullback)||
+       receipt.size()!=64u||!std::all_of(receipt.begin(),receipt.end(),[](char c){
+        return (c>='0'&&c<='9')||(c>='a'&&c<='f');}))
+        return fail("unpaired source labels require a pinned ancestry verification receipt; CSR closure is not overlap proof");
+    for(const auto& parentTet:topology.parentTetrahedra)
+        for(auto node:parentTet)if(node>=topology.parentReferenceWorldPoints.size())
+            return fail("unpaired labels parent tetrahedron references an absent source point");
+    if(topology.volumeNodeSourceVertexIndices.size()!=n||topology.volumeNodeSourceFaceIndices.size()!=n||
+       topology.volumeNodeSourceBarycentric.size()!=n)
+        return fail("unpaired labels require explicit direct-or-embedded detailed source identity for every volume row");
+    if(!validateRegisteredSourceEmbedding(surface,0u,error))return false;
+    if(surface.donorBodyIndices.size()!=surfaceRows||surface.sourceVertexIndices.size()!=surfaceRows||
+       surface.donorLocalPoints.size()!=surfaceRows||surface.faces.empty()||
+       (!surface.sourceFaceIndices.empty()&&surface.sourceFaceIndices.size()!=surface.faces.size())||
+       shell.femMaterialIndices.size()!=nt||
+       (!shell.femReferenceNodes.empty()&&shell.femReferenceNodes.size()!=n))
+        return fail("unpaired source-label registered surface/material arrays are incomplete");
+    for(std::size_t i=0;i<n;++i){
+        const auto donor=topology.volumeNodeDonorBodyIndices[i];
+        if(donor>=sourceBodyCount||!std::all_of(topology.volumeNodeDonorLocalToWorldLinear[i].begin(),topology.volumeNodeDonorLocalToWorldLinear[i].end(),[](double v){return std::isfinite(v);})||
+           topology.volumeNodeDonorLocalToWorldLinear[i]!=topology.registeredBodyLocalToWorldLinear[donor]||
+           topology.volumeNodeDonorOriginWorld[i]!=topology.registeredBodyOriginWorld[donor])
+            return fail("unpaired labels volume row differs from the exact registered donor-frame table");
+        const auto& r=topology.registeredBodyLocalToWorldLinear[donor];
+        V3 reconstructed=topology.registeredBodyOriginWorld[donor];
+        for(unsigned a=0;a<3u;++a)for(unsigned b=0;b<3u;++b)
+            reconstructed[a]+=r[3u*a+b]*topology.volumeNodeDonorLocalPoints[i][b];
+        if(norm(sub(reconstructed,topology.currentWorldPoints[i]))>1.0e-7)
+            return fail("unpaired labels registered donor frame does not reproduce current node coordinates");
+        const auto src=topology.volumeNodeSourceVertexIndices[i],srcFace=topology.volumeNodeSourceFaceIndices[i];
+        if(src!=NM_INVALID_INDEX&&src>=topology.detailedSourceVertexCount)
+            return fail("unpaired labels direct detailed-source vertex is out of range");
+        if(srcFace!=NM_INVALID_INDEX&&(srcFace>=topology.detailedSourceFaceCount||
+           !validateBarycentricCoordinates(topology.volumeNodeSourceBarycentric[i],error)))
+            return fail("unpaired labels detailed-source face/barycentric identity is invalid");
+        if(shell.femNodes[i]!=topology.currentWorldPoints[i]||
+           (!shell.femReferenceNodes.empty()&&shell.femReferenceNodes[i]!=topology.referenceWorldPoints[i]))
+            return fail("unpaired source-label shell coordinates differ from the exact supplied volume row");
+    }
+    for(std::size_t ti=0;ti<nt;++ti){
+        for(const auto node:shell.tetrahedra[ti].nodes)
+            if(node>=n)return fail("unpaired source-label shell tetrahedron has an out-of-range node at tet "+std::to_string(ti));
+        if(shell.tetrahedra[ti].nodes!=topology.childTetrahedra[ti]||
+           shell.femMaterialIndices[ti]!=topology.childMaterialIndices[ti])
+            return fail("unpaired source-label compiled topology differs from exact child input order");
+    }
+    const auto invalid=NM_INVALID_INDEX;
+    std::array<const std::vector<std::uint32_t>*,3> roleMap{
+        &boundaryMap.outer,&boundaryMap.skinInner,&boundaryMap.fatDeep};
+    std::vector<std::uint32_t> nodeLayer(n,invalid),nodeSurfaceRow(n,invalid);
+    for(std::uint32_t role=0;role<3u;++role)for(std::uint32_t row=0;row<surfaceRows;++row){
+        const auto node=(*roleMap[role])[row];
+        if(nodeLayer[node]!=invalid)return fail("unpaired labels boundary roles alias a volume node");
+        nodeLayer[node]=role;nodeSurfaceRow[node]=row;
+    }
+    using FaceKey=std::array<std::uint32_t,3>;
+    std::map<FaceKey,std::uint32_t> faceByKey;
+    for(std::uint32_t face=0;face<surface.faces.size();++face){
+        auto key=surface.faces[face];std::sort(key.begin(),key.end());
+        if(key[0]>=surfaceRows||key[1]>=surfaceRows||key[2]>=surfaceRows||
+           key[0]==key[1]||key[1]==key[2]||!faceByKey.emplace(key,face).second)
+            return fail("unpaired labels RegisteredSurface contains an invalid or duplicate face");
+    }
+    std::vector<std::array<std::uint32_t,3>> faceCounts(surface.faces.size());
+    std::vector<std::vector<std::uint32_t>> interfaceMaterials(surface.faces.size());
+    std::uint32_t skinMaterial=invalid,fatMaterial=invalid;
+    for(std::size_t ti=0;ti<nt;++ti){
+        for(unsigned omitted=0;omitted<4u;++omitted){
+            std::array<std::uint32_t,3> nodes{};unsigned at=0;
+            for(unsigned corner=0;corner<4u;++corner)if(corner!=omitted)nodes[at++]=topology.childTetrahedra[ti][corner];
+            const auto role=nodeLayer[nodes[0]];
+            bool same=role!=invalid;for(auto node:nodes)if(nodeLayer[node]!=role)same=false;
+            auto declared=topology.childRegisteredLayerFacetSurfaceFaces[4u*ti+omitted];
+            auto stable=topology.childRegisteredLayerFacetSourceFaceIdentities[4u*ti+omitted];
+            std::uint32_t exact=invalid;
+            if(same){FaceKey key{};for(unsigned k=0;k<3u;++k)key[k]=nodeSurfaceRow[nodes[k]];
+                std::sort(key.begin(),key.end());auto found=faceByKey.find(key);if(found!=faceByKey.end())exact=found->second;}
+            if(exact==invalid){if(declared!=invalid||stable!=invalid)return fail("unpaired labels facet ancestry claims a non-boundary triangle");continue;}
+            const auto expected=surface.sourceFaceIndices.empty()?exact:surface.sourceFaceIndices[exact];
+            if(declared!=exact||stable!=expected)return fail("unpaired labels facet row/stable identity differs from the exact mapped triangle");
+            ++faceCounts[exact][role];
+            const auto material=topology.childMaterialIndices[ti];
+            if(role==0u){if(skinMaterial==invalid)skinMaterial=material;else if(skinMaterial!=material)return fail("unpaired outer boundary changes skin material owner");}
+            if(role==2u){if(fatMaterial==invalid)fatMaterial=material;else if(fatMaterial!=material)return fail("unpaired deep boundary changes fat material owner");}
+            if(role==1u)interfaceMaterials[exact].push_back(material);
+        }
+    }
+    // Check exact layer-face coverage and one skin/one fat owner on the bonded interface.
+    // Material IDs are identified by the parent material partition, not numeric ordering.
+    if(skinMaterial==invalid||fatMaterial==invalid||skinMaterial==fatMaterial)
+        return fail("unpaired labels cannot identify distinct skin and fat material owners from O/D facets");
+    std::set<std::uint32_t> materialIDs(shell.femMaterialIndices.begin(),shell.femMaterialIndices.end());
+    if(materialIDs.size()!=2u||!materialIDs.contains(skinMaterial)||!materialIDs.contains(fatMaterial))
+        return fail("unpaired labels require exactly the O/D skin and fat material IDs");
+    for(std::size_t face=0;face<surface.faces.size();++face){
+        const auto& mats=interfaceMaterials[face];
+        const auto skinCount=std::count(mats.begin(),mats.end(),skinMaterial);
+        const auto fatCount=std::count(mats.begin(),mats.end(),fatMaterial);
+        if(faceCounts[face][0]!=1u||faceCounts[face][1]!=2u||faceCounts[face][2]!=1u||
+           mats.size()!=2u||skinCount!=1||fatCount!=1)
+            return fail("unpaired labels do not cover each O/I/D face once and each interface face once per material");
+    }
+
+    RegisteredSkinFatReductionSourceLabels next;
+    next.explicitUnpairedVolumeTopology=true;
+    next.registeredVertexCount=surfaceRows;next.registeredFaceCount=surface.faces.size();
+    next.sourceTetrahedronCount=nt;next.remeshedOriginalNodeCount=topology.retainedOriginalNodeCount;
+    next.sourceNodeVertexIndices.assign(n,invalid);next.sourceNodeEmbeddingFaceIndices.assign(n,invalid);
+    next.sourceNodeEmbeddingBarycentric.assign(n,{});
+    next.sourceNodeDonorBodyIndices.assign(topology.volumeNodeDonorBodyIndices.begin(),topology.volumeNodeDonorBodyIndices.end());
+    next.sourceNodeLayerIndices=nodeLayer;
+    next.sourceNodeParentTetrahedronIndices.assign(topology.volumeNodeParentTetrahedra.begin(),topology.volumeNodeParentTetrahedra.end());
+    next.sourceNodeParentBarycentric.assign(topology.volumeNodeParentBarycentric.begin(),topology.volumeNodeParentBarycentric.end());
+    next.sourceNodeParentResidualWorldM.assign(topology.volumeNodeParentResidualWorldM.begin(),topology.volumeNodeParentResidualWorldM.end());
+    next.sourceNodeParentReferenceVertices.resize(n);
+    for(std::size_t i=topology.retainedOriginalNodeCount;i<n;++i){
+        const auto parent=topology.volumeNodeParentTetrahedra[i];
+        if(parent>=topology.parentTetrahedra.size())return fail("unpaired label node ancestry references an absent parent tet");
+        for(unsigned corner=0;corner<4u;++corner){
+            const auto node=topology.parentTetrahedra[parent][corner];
+            if(node>=topology.parentReferenceWorldPoints.size())return fail("unpaired label parent tet references an absent source point");
+            next.sourceNodeParentReferenceVertices[i][corner]=topology.parentReferenceWorldPoints[node];
+        }
+    }
+    for(std::size_t i=0;i<n;++i){
+        const auto donor=next.sourceNodeDonorBodyIndices[i];
+        if(donor==invalid||donor>=sourceBodyCount)return fail("unpaired label volume node has an invalid donor body");
+        const auto sourceVertex=topology.volumeNodeSourceVertexIndices.empty()?invalid:topology.volumeNodeSourceVertexIndices[i];
+        next.sourceNodeVertexIndices[i]=sourceVertex;
+        auto sourceFace=topology.volumeNodeSourceFaceIndices.empty()?invalid:topology.volumeNodeSourceFaceIndices[i];
+        auto sourceBary=topology.volumeNodeSourceBarycentric.empty()?std::array<double,3>{}:topology.volumeNodeSourceBarycentric[i];
+        if(nodeLayer[i]!=invalid){
+            const auto row=nodeSurfaceRow[i];
+            if(next.sourceNodeVertexIndices[i]==invalid)next.sourceNodeVertexIndices[i]=surface.sourceVertexIndices[row];
+            if(sourceFace==invalid&&!surface.sourceEmbeddingFaceIndices.empty()){
+                sourceFace=surface.sourceEmbeddingFaceIndices[row];
+                sourceBary=surface.sourceEmbeddingBarycentric[row];
+            }
+        }
+        if(next.sourceNodeVertexIndices[i]!=invalid){
+            if(!verifyBoundBody(next.sourceNodeVertexIndices[i],donor))return fail("unpaired label direct node source binding is not verified");
+        }else if(sourceFace!=invalid){
+            if(!verifyEmbeddedBody||!verifyEmbeddedBody(static_cast<std::uint32_t>(i),donor)||
+               !validateBarycentricCoordinates(sourceBary,error))
+                return fail("unpaired label projected node has no verified detailed-source face/barycentric binding");
+        }else if(nodeLayer[i]!=invalid){
+            return fail("unpaired registered boundary row has neither direct source ID nor detailed embedding");
+        }
+        if(!topology.volumeNodeSourceFaceIndices.empty()||!surface.sourceEmbeddingFaceIndices.empty()){
+            next.sourceNodeEmbeddingFaceIndices[i]=sourceFace;
+            next.sourceNodeEmbeddingBarycentric[i]=sourceBary;
+        }
+        if(!next.donorBodyAncestry.contains(donor)){
+            std::vector<std::uint32_t> chain;std::set<std::uint32_t> seen;auto cursor=donor;
+            while(cursor!=invalid){
+                if(cursor>=sourceBodyCount||!seen.insert(cursor).second)return fail("unpaired label donor ancestry has an invalid index or cycle");
+                chain.push_back(cursor);cursor=parentBodyAt(cursor);
+            }
+            next.donorBodyAncestry.emplace(donor,std::move(chain));
+        }
+    }
+    if(std::count(next.sourceNodeLayerIndices.begin(),next.sourceNodeLayerIndices.end(),0u)!=static_cast<std::ptrdiff_t>(surfaceRows))
+        return fail("unpaired labels outer-boundary row count differs from the registered surface");
+    next.ancestryVerificationKind=topology.ancestryVerificationKind;
+    next.ancestryVerificationReceiptSHA256=std::string(receipt);
+    next.tetrahedronRegionLabels.assign(topology.childDonorBodyIndices.begin(),topology.childDonorBodyIndices.end());
+    next.tetrahedronBasisRegionLabels.resize(nt);
+    next.tetrahedronSourceFaceIndices.resize(nt,invalid);
+    next.tetrahedronOriginalSourceFaceIndices.assign(topology.childStableSourceFaceIdentities.begin(),topology.childStableSourceFaceIdentities.end());
+    next.registeredMechanicalFaceIndices.resize(surface.faces.size());
+    for(std::size_t face=0;face<surface.faces.size();++face)
+        next.registeredMechanicalFaceIndices[face]=static_cast<std::uint32_t>(face);
+    next.tetrahedronSourceDonorBodyIndices.assign(topology.childDonorBodyIndices.begin(),topology.childDonorBodyIndices.end());
+    next.tetrahedronSourceParentBodyIndices.resize(nt,invalid);
+    next.tetrahedronParentTetrahedronIndices.assign(topology.childDominantParentTetrahedra.begin(),topology.childDominantParentTetrahedra.end());
+    next.tetrahedronParentAncestryOffsets.assign(topology.childParentAncestryOffsets.begin(),topology.childParentAncestryOffsets.end());
+    next.tetrahedronParentAncestryIndices.assign(topology.childParentAncestryTetrahedra.begin(),topology.childParentAncestryTetrahedra.end());
+    next.tetrahedronParentAncestryVolumeFractions.assign(topology.childParentAncestryVolumeFractions.begin(),topology.childParentAncestryVolumeFractions.end());
+    next.tetrahedronRegisteredLayerFacetSurfaceFaces.assign(topology.childRegisteredLayerFacetSurfaceFaces.begin(),topology.childRegisteredLayerFacetSurfaceFaces.end());
+    next.tetrahedronRegisteredLayerFacetSourceFaceIdentities.assign(topology.childRegisteredLayerFacetSourceFaceIdentities.begin(),topology.childRegisteredLayerFacetSourceFaceIdentities.end());
+    next.tetrahedronAuthoredHeadSidewallFacetFlags.assign(topology.childAuthoredHeadSidewallFacetFlags.begin(),topology.childAuthoredHeadSidewallFacetFlags.end());
+    next.tetrahedronAuthoredHeadSidewallStableFaceIdentities.assign(topology.childAuthoredHeadSidewallStableFaceIdentities.begin(),topology.childAuthoredHeadSidewallStableFaceIdentities.end());
+    std::map<std::uint32_t,std::uint32_t> donorByStableFace;
+    for(std::size_t ti=0;ti<nt;++ti){
+        const auto parent=topology.childDominantParentTetrahedra[ti],donor=topology.childDonorBodyIndices[ti];
+        const auto stable=topology.childStableSourceFaceIdentities[ti];
+        if(parent>=topology.parentTetrahedra.size()||donor>=sourceBodyCount||stable==invalid||
+           topology.parentMaterialIndices[parent]!=topology.childMaterialIndices[ti]||
+           topology.parentDonorBodyIndices[parent]!=donor||topology.parentStableSourceFaceIdentities[parent]==invalid)
+            return fail("unpaired label child has invalid dominant donor or parent provenance");
+        next.tetrahedronSourceFaceIndices[ti]=topology.childParentSurfaceFaces[ti];
+        const auto bodyParent=parentBodyAt(donor);
+        if((bodyParent!=invalid&&bodyParent>=sourceBodyCount)||bodyParent==donor)
+            return fail("unpaired label child donor has invalid parent-body ancestry");
+        next.tetrahedronSourceParentBodyIndices[ti]=bodyParent;
+        auto [entry,inserted]=donorByStableFace.emplace(stable,donor);
+        if(!inserted&&entry->second!=donor)return fail("one stable source face maps to multiple dominant donor bodies");
+    }
+    std::map<std::uint32_t,std::vector<std::uint32_t>> facesByDonor;
+    for(const auto& [face,donor]:donorByStableFace)facesByDonor[donor].push_back(face);
+    constexpr std::uint32_t refinementLabelBase=0x53460001u;
+    std::set<std::uint32_t> usedLabels;
+    for(auto donor:next.tetrahedronSourceDonorBodyIndices)usedLabels.insert(donor);
+    std::uint32_t fresh=refinementLabelBase;
+    std::map<std::uint32_t,std::uint32_t> basisByStableFace;
+    for(auto& [donor,faces]:facesByDonor){
+        const auto chunks=(faces.size()+maximumFacesPerBasisRegion-1u)/maximumFacesPerBasisRegion;
+        if(chunks==0u)return fail("unpaired labels emitted an empty basis region");
+        if(chunks==1u){for(auto face:faces)basisByStableFace[face]=donor;continue;}
+        for(std::size_t chunk=0;chunk<chunks;++chunk){
+            while(usedLabels.contains(fresh)||fresh==invalid){if(fresh>=invalid-1u)return fail("unpaired labels exhausted basis-region IDs");++fresh;}
+            const auto label=fresh++;usedLabels.insert(label);
+            const auto begin=chunk*maximumFacesPerBasisRegion,end=std::min(faces.size(),begin+maximumFacesPerBasisRegion);
+            for(auto at=begin;at<end;++at)basisByStableFace[faces[at]]=label;
+        }
+    }
+    if(basisByStableFace.size()>numi::matter::kHumanPartitionedBasisMaximumRegionCount)
+        return fail("unpaired labels exceed the existing Human regional basis limit");
+    for(std::size_t ti=0;ti<nt;++ti){
+        const auto stable=topology.childStableSourceFaceIdentities[ti];
+        auto found=basisByStableFace.find(stable);
+        if(found==basisByStableFace.end())return fail("unpaired child lost its stable source-face basis region");
+        next.tetrahedronBasisRegionLabels[ti]=found->second;
+    }
+    for(const auto& [stable,donor]:donorByStableFace){
+        (void)stable;
+        if(!next.donorBodyAncestry.contains(donor)){
+            std::vector<std::uint32_t> chain;std::set<std::uint32_t> seen;auto cursor=donor;
+            while(cursor!=invalid){
+                if(cursor>=sourceBodyCount||!seen.insert(cursor).second)return fail("unpaired tet donor ancestry has an invalid index or cycle");
+                chain.push_back(cursor);cursor=parentBodyAt(cursor);
+            }
+            next.donorBodyAncestry.emplace(donor,std::move(chain));
+        }
+    }
+    output=std::move(next);error.clear();return true;
 }
 
 template<class VerifyBoundBody, class ParentBodyAt>
