@@ -1,0 +1,82 @@
+{
+  "candidate_D_nearest_face_from_038_csv": {
+    "distance_m": 6.648531685993233e-05,
+    "triangle": 2599
+  },
+  "candidate_local_points_m": {
+    "0": [
+      0.054923087394617945,
+      -0.09550293768256579,
+      0.07015246250565502
+    ],
+    "1": [
+      0.052792189805052875,
+      -0.09449161228369025,
+      0.06948755232719812
+    ],
+    "2": [
+      0.042722309448313706,
+      -0.08911314539884133,
+      0.06321385570457594
+    ]
+  },
+  "coverage_limit": "One column and one per-bone bank only; no full route/contact/clearance certificate.",
+  "endpoint_classification": {
+    "0": "outside",
+    "1": "outside",
+    "2": "inside"
+  },
+  "identity": {
+    "body_index": 23,
+    "bone_stable_id": 32,
+    "bone_triangle_count": 14510,
+    "column_row": 946,
+    "global_nodes": {
+      "D": 7434,
+      "I": 5023,
+      "O": 2612
+    },
+    "member_id": "FJ3200"
+  },
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-candidate-query/run-002/candidate-node-override.csv": "058db5c144a48d84670963081e2b1a6cfab826d79ec098e19eefd07d14841681",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-candidate-query/run-002/source-preflight/all-bank-containment.csv": "a8d7e197db58019cb16f6f89d0ccb63f6e4f7e6f2fc3f6495fd4ee07c1d7a281",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-candidate-query/run-002/source-preflight/registered-skin-poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/source-preflight-003/all-bank-containment.csv": "11452398859d5dd435ec8fbbe4a02c0b1797e5f337b3749850671093ecb231aa",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.manifest.json": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0"
+  },
+  "interpretation": "O-I has no hit. I-D first hit is triangle 1381 at 3.911249 mm from I. The candidate D nearest face 2599 is not the first path boundary. O-D is diagnostic only; the physical material column route is piecewise O-I then I-D. Triangle hit is double-precision Moller-Trumbore over reconstructed F32 member triangles and needs exact-predicate follow-up.",
+  "raw_current_pose_transform": "Float32 position and quaternion promoted to float64; raw quaternion conjugate formula used to express candidate world points in body-local frame; common body COM offsets cancel on same-body path",
+  "route_hits": {
+    "I-D": [
+      {
+        "barycentric": [
+          0.1469344222660005,
+          0.510882629635743,
+          0.34218294809825645
+        ],
+        "det": 9.24915811969225e-07,
+        "distance_from_segment_start_m": 0.003911297773251445,
+        "t": 0.30025702943902755,
+        "triangle": 1381
+      }
+    ],
+    "O-D diagnostic only": [
+      {
+        "barycentric": [
+          0.1259396139149826,
+          0.4975483784058638,
+          0.37651200767915355
+        ],
+        "det": 1.1005848680945372e-06,
+        "distance_from_segment_start_m": 0.006352959147959451,
+        "t": 0.41194599658027786,
+        "triangle": 1381
+      }
+    ],
+    "O-I": []
+  },
+  "schema": "numi.human.d37_row946_material_path_entry_diagnostic.v1",
+  "status": "frozen_diagnostic_not_clearance_or_native_admission"
+}

@@ -1,0 +1,138 @@
+--- base/numilab_human_myosim_visual_probe.mm
++++ candidate/numilab_human_myosim_visual_probe.mm
+@@ -25534,7 +25534,11 @@
+         fasciaBodyContactNeighborhoodBVHNodes=std::move(asset.nodes);
+         const char* initialWitnessPath=std::getenv(
+             "NUMI_HUMAN_INITIAL_SKIN_BONE_WITNESS_CSV");
+-        if(initialWitnessPath&&initialWitnessPath[0]!='\0') {
++        const char* allBankContainmentPath=std::getenv(
++            "NUMI_HUMAN_INITIAL_SKIN_BONE_ALL_BANK_CSV");
++        const bool writeInitialWitness=initialWitnessPath&&initialWitnessPath[0]!='\0';
++        const bool writeAllBankContainment=allBankContainmentPath&&allBankContainmentPath[0]!='\0';
++        if(writeInitialWitness||writeAllBankContainment) {
+             namespace d37w=numi::human::d37_initial_skin_bone_witness;
+             namespace contactWitness=numi::human::initial_skin_bone_contact_witness;
+             require(enableWholeBodySkinFat&&wholeBodySkinObjectIndex<compiled.world.objects.size(),
+@@ -25580,6 +25584,7 @@
+             addRole(wholeBodySkinBoundaryNodeMap.outer,1u);
+             addRole(wholeBodySkinBoundaryNodeMap.skinInner,2u);
+             addRole(wholeBodySkinBoundaryNodeMap.fatDeep,4u);
++            if(writeInitialWitness) {
+             std::ostringstream witnessCSV;
+             witnessCSV<<"sample,node,layer,row,body,bone,triangle,feature,distance_m,signed_distance_m,closure_m,area_m2,stiffness_pa_per_m,force_n,force_x_n,force_y_n,force_z_n,actual_local_x,actual_local_y,actual_local_z,range_local_x,range_local_y,range_local_z,local_drift_m,envelope_m,inside_envelope,closest_x,closest_y,closest_z,normal_x,normal_y,normal_z,bary0,bary1,bary2,distance2_contract_error_m2,solid_inside_rays,solid_outside_rays,solid_ambiguous,solid_audited,role_mask,contact_force_evaluated\n";
+             witnessCSV<<std::setprecision(17);
+@@ -25626,10 +25631,20 @@
+                 // Exact closed-solid parity is evaluated only for candidate penetrations and the
+                 // immediate 1 mm boundary neighborhood; distant rows need no expensive ray audit.
+                 if(best.signedFaceDistance<0.0||best.signedPseudoDistance<0.0||distance<=0.001) {
+-                    const auto bank=std::span<const d37w::Triangle>(
+-                        fasciaBodyContactNeighborhoodTriangles.data()+selectedTree->firstTriangle,
+-                        selectedTree->triangleCount);
+-                    solid=contactWitness::classifyClosedSolid(best.query,bank);
++                    const auto bodyFirst=fasciaBodyContactNeighborhoodTriangles.begin()+
++                    selectedTree->firstTriangle;
++                const auto bodyLast=bodyFirst+selectedTree->triangleCount;
++                const auto boneFirst=std::find_if(bodyFirst,bodyLast,[&](const auto& triangle){
++                    return triangle.boneStableId==best.bone;
++                });
++                require(boneFirst!=bodyLast,
++                        "D37 initial witness selected bone bank is missing");
++                const auto boneLast=std::find_if(boneFirst,bodyLast,[&](const auto& triangle){
++                    return triangle.boneStableId!=best.bone;
++                });
++                const auto bank=std::span<const d37w::Triangle>(
++                    &*boneFirst,static_cast<std::size_t>(boneLast-boneFirst));
++                solid=contactWitness::classifyClosedSolid(best.query,bank);
+                     solidAudited=true;++solidAuditedRows;
+                     if(solid.ambiguous)++ambiguousRows;
+                     if(!solid.ambiguous&&solid.insideRays==3)++insideRows;
+@@ -25672,15 +25687,88 @@
+             output<<witnessCSV.str();output.flush();
+             require(output.good(),"failed while writing D37 initial skin/bone witness CSV");
+             std::cout<<"d37_initial_skin_bone_witness=written path="<<initialWitnessPath
+-                <<" volume_nodes="<<volumeCount<<" complete_bone_banks="<<trees.size()
++                <<" volume_nodes="<<volumeCount<<" complete_body_trees="<<trees.size()
+                 <<" closed_solid_audited_rows="<<solidAuditedRows
+                 <<" closed_solid_inside_rows="<<insideRows
+                 <<" closed_solid_ambiguous_rows="<<ambiguousRows
+                 <<" minimum_nearest_face_signed_distance_m="<<minimumSignedDistance
+                 <<" maximum_face_signed_closure_m="<<maximumClosure
++                <<" contact_forces=evaluated_false scope=initialization_CPU_asset_audit_only"
++                <<std::endl;
++            }
++        if(writeAllBankContainment) {
++            namespace d37w=numi::human::d37_initial_skin_bone_witness;
++            require(!trees.empty(),"D37 all-bank audit has no registered body trees");
++            std::ostringstream allBankCSV,allBankNodeSummaryCSV;
++            const auto allBankSummary=d37w::writeAllBankContainment(
++                allBankCSV,compiled.world.fem.nodes,bodies,trees,
++                fasciaBodyContactNeighborhoodTriangles,fasciaBodyContactNeighborhoodBVHNodes,
++                std::span<const std::uint8_t>(roleMask.data(),roleMask.size()),
++                std::span<const std::uint32_t>(roleRow.data(),roleRow.size()),
++                object.stateOffset,static_cast<std::uint32_t>(volumeCount),offset,
++                &allBankNodeSummaryCSV);
++            require(allBankSummary.valid,
++                    "D37 all-bank containment audit failed: "+allBankSummary.failure);
++            std::ostringstream bankInventoryCSV;
++            bankInventoryCSV<<"body,stable_bone_id,triangle_count,min_x,min_y,min_z,max_x,max_y,max_z\n";
++            bankInventoryCSV<<std::setprecision(17);
++            std::size_t bankTriangleCursor=0u,inventoryBanks=0u;
++            while(bankTriangleCursor<fasciaBodyContactNeighborhoodTriangles.size()) {
++                const auto body=fasciaBodyContactNeighborhoodTriangles[bankTriangleCursor].bodyIndex;
++                const auto bone=fasciaBodyContactNeighborhoodTriangles[bankTriangleCursor].boneStableId;
++                std::size_t bankEnd=bankTriangleCursor+1u;
++                while(bankEnd<fasciaBodyContactNeighborhoodTriangles.size()&&
++                      fasciaBodyContactNeighborhoodTriangles[bankEnd].bodyIndex==body&&
++                      fasciaBodyContactNeighborhoodTriangles[bankEnd].boneStableId==bone)++bankEnd;
++                const std::span<const d37w::Triangle> boneTriangles(
++                    fasciaBodyContactNeighborhoodTriangles.data()+bankTriangleCursor,
++                    bankEnd-bankTriangleCursor);
++                const auto bounds=d37w::exactTriangleBankAabb(boneTriangles);
++                require(bounds.valid,"D37 bank inventory has invalid exact triangle AABB");
++                bankInventoryCSV<<body<<","<<bone<<","<<(bankEnd-bankTriangleCursor)<<","
++                    <<bounds.minimum.x<<","<<bounds.minimum.y<<","<<bounds.minimum.z<<","
++                    <<bounds.maximum.x<<","<<bounds.maximum.y<<","<<bounds.maximum.z<<"\n";
++                ++inventoryBanks;bankTriangleCursor=bankEnd;
++            }
++            require(inventoryBanks==allBankSummary.banks,
++                    "D37 complete bone bank inventory count mismatch");
++            std::ofstream allBankOutput(allBankContainmentPath,
++                std::ios::out|std::ios::binary|std::ios::trunc);
++            require(allBankOutput.good(),"could not create D37 all-bank containment CSV");
++            allBankOutput<<allBankCSV.str();allBankOutput.flush();
++            require(allBankOutput.good(),"failed writing D37 all-bank containment CSV");
++            const std::string nodeSummaryPath=std::string(allBankContainmentPath)+".nodes.csv";
++            std::ofstream nodeSummaryOutput(nodeSummaryPath,
++                std::ios::out|std::ios::binary|std::ios::trunc);
++            require(nodeSummaryOutput.good(),"could not create D37 all-bank node summary CSV");
++            nodeSummaryOutput<<allBankNodeSummaryCSV.str();nodeSummaryOutput.flush();
++            require(nodeSummaryOutput.good(),"failed writing D37 all-bank node summary CSV");
++            const std::string bankInventoryPath=std::string(allBankContainmentPath)+".banks.csv";
++            std::ofstream bankInventoryOutput(bankInventoryPath,
++                std::ios::out|std::ios::binary|std::ios::trunc);
++            require(bankInventoryOutput.good(),"could not create D37 all-bank inventory CSV");
++            bankInventoryOutput<<bankInventoryCSV.str();bankInventoryOutput.flush();
++            require(bankInventoryOutput.good(),"failed writing D37 all-bank inventory CSV");
++            std::cout<<"d37_initial_skin_bone_all_bank=written path="<<allBankContainmentPath
++                <<" volume_nodes="<<allBankSummary.nodes
++                <<" complete_bone_banks="<<allBankSummary.banks
++                <<" aabb_proven_outside_pairs="<<allBankSummary.aabbProvenOutsidePairs
++                <<" parity_outside_pairs="<<allBankSummary.parityOutsidePairs
++                <<" inside_pairs="<<allBankSummary.insidePairs
++                <<" ambiguous_pairs="<<allBankSummary.ambiguousPairs
++                <<" deepest_inside_distance_m="<<allBankSummary.deepestInsideDistanceM
++                <<" deepest_inside_node="<<allBankSummary.deepestInsideNode
++                <<" deepest_inside_body="<<allBankSummary.deepestInsideBody
++                <<" deepest_inside_bone="<<allBankSummary.deepestInsideBone
++                <<" deepest_inside_triangle="<<allBankSummary.deepestInsideTriangle
++                <<" node_summary_path="<<nodeSummaryPath
++                <<" node_summary_rows="<<allBankSummary.nodes
++                <<" bone_inventory_path="<<bankInventoryPath
++                <<" bone_inventory_rows="<<inventoryBanks
+                 <<" contact_forces=evaluated_false scope=initialization_CPU_asset_audit_only"
+                 <<std::endl;
+         }
++        }
+         std::cout<<"whole_body_skin_bone_static_bvh=prepared triangles="
+             <<fasciaBodyContactNeighborhoodTriangles.size()<<" nodes="
+             <<fasciaBodyContactNeighborhoodBVHNodes.size()<<" samples="

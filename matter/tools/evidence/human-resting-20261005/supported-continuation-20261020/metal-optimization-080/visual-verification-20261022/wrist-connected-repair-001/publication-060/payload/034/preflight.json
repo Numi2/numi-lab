@@ -1,0 +1,32 @@
+{
+  "status": "pass",
+  "variables": 842,
+  "dofs": 2526,
+  "one_ring_columns": 415,
+  "witnesses": 138,
+  "witness_layers": {
+    "0": 12,
+    "1": 7,
+    "2": 119
+  },
+  "directly_touched_tets": 1306,
+  "all_affected_tets": 6959,
+  "affected_baseline_min_q": 8.133226506421961e-05,
+  "base_allcell_metrics": {
+    "nonpositive_tets": 0,
+    "below_q1e5": 0,
+    "min_det_m3": 2.827060995727424e-12,
+    "min_normalized_q": 2.6016244143911677e-05,
+    "q_p01": 0.0001195521284977892,
+    "material_volume_m3": {
+      "1": 0.003452570948304563,
+      "2": 0.011652342870565699
+    }
+  },
+  "input_sha256": {
+    "constraint_npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "physical_topology_npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+    "pose_json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "donor_frames": "4d531659aecd196cb2b4a99bf8d963aaf3721f9c4307eaf215304d0a3ca8805f"
+  }
+}

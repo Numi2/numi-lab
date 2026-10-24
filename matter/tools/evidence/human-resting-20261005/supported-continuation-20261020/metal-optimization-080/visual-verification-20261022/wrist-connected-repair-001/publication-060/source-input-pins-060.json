@@ -1,0 +1,498 @@
+{
+  "attempt_003": {
+    "builder_path": "payload/037/attempt-003-prepared-not-run/build_fit_037.py",
+    "builder_sha256": "51d2de3b4b8a9c0a40429beaf00dd2ec2315a75394412b4c03c6c95cbc561e8d",
+    "candidate_emitted": false,
+    "held_preflight_receipt_sha256": "fb8b25de3ed0e472f6767aad0f3517927cdf71048884da66c83d80818523884b",
+    "optimizer_ran": false,
+    "status": "PREPARED_NOT_RUN"
+  },
+  "base_origin_main": "d1d9b0935704794d0087e975d7ee378e7c5e1811",
+  "candidate": {
+    "id": "candidate020-d37-current-unpaired163-owner-integration-038",
+    "identity": "candidate020 source; no scene activation",
+    "registered_skin_poses_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "source_payload_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin",
+    "source_payload_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb"
+  },
+  "candidate_038": {
+    "candidate_override_csv_sha256": "058db5c144a48d84670963081e2b1a6cfab826d79ec098e19eefd07d14841681",
+    "frozen_inventory_sha256": "9c5de6bc0828a1882eeaaad53151dcf00eee11270ca5a1cdf9da26874c5bb117",
+    "physical_qualification": false,
+    "query_report_sha256": "5d97fb9f8c288dfe8cdcc59a95583aa1fe6395b69bb24a66a0bb5cca64a3290e",
+    "scope": "Per-node closed-solid containment only. Does not certify skin triangles, tetrahedra, or full physical clearance."
+  },
+  "candidate_038_counts": {
+    "baseline_inside_node_bank_pairs": 139,
+    "candidate_inside_node_bank_pairs": 1,
+    "candidate_invalid_pairs": 0,
+    "resolved_by_count": 138,
+    "scope": "source-only per-node closed-solid query; no triangle, tetrahedron, or physical qualification"
+  },
+  "fit_review": {
+    "037_attempt_001_root_review": {
+      "candidate_sha256": "f6ed92a8f1ed06631cee260b31bd707f6cf0d00ac1aa7c0829491638cc9ad1af",
+      "cells_below_q_1e_minus_5": 365,
+      "nonpositive_cells": 359,
+      "status": "REJECTED_GEOMETRY"
+    },
+    "037_attempt_002_layer_volume_review": {
+      "candidate_sha256": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b",
+      "cells": 28632,
+      "layer_checks": {
+        "fat": {
+          "min_floor_mm": 0.1,
+          "min_fraction_of_reference_projection": 0.1836738896396189,
+          "min_projection_mm": 0.10099768526857208,
+          "min_slack_mm": 0.0009976852685720794,
+          "strict_floor_violations": 0
+        },
+        "skin": {
+          "min_floor_mm": 0.1,
+          "min_fraction_of_reference_projection": 0.2323857384000505,
+          "min_projection_mm": 0.2406255053620536,
+          "min_slack_mm": 0.1406255053620536,
+          "strict_floor_violations": 0
+        }
+      },
+      "mass_mapping_regenerated": false,
+      "material_volume_mass_diagnostic": {
+        "1": {
+          "baseline_m3": 0.0034525709483045623,
+          "candidate_m3": 0.0034491508698820607,
+          "fixed_reference_density_mass_change_kg": -0.003420078422501638,
+          "relative_change": -0.0009905888897608905
+        },
+        "2": {
+          "baseline_m3": 0.011652342870565699,
+          "candidate_m3": 0.011576443048686274,
+          "fixed_reference_density_mass_change_kg": -0.06830983969148222,
+          "relative_change": -0.006513696234527244
+        }
+      },
+      "min_q": 1.2160859598096454e-05,
+      "nonpositive": 0,
+      "q_below_1e_minus_5": 0,
+      "q_below_construction_1_25e_minus_5_rows": [
+        1838,
+        2056,
+        11511,
+        11513,
+        13630,
+        13634,
+        13709,
+        14307,
+        16248,
+        18809,
+        19689,
+        25096,
+        25339,
+        25381,
+        25669,
+        26365,
+        26618,
+        26915,
+        27025,
+        27160,
+        27196,
+        27548,
+        27992,
+        28513
+      ],
+      "status": "POSITIVE_GEOMETRY_CANDIDATE_NOT_ADMITTED",
+      "thickness_physiology_qualified": false
+    },
+    "037_attempt_002_root_review": {
+      "below_construction_target_q_1_25e_minus_5": 24,
+      "below_q_1e_minus_5": 0,
+      "candidate_sha256": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b",
+      "invalid_tet_rows": [],
+      "max_movement_m": 0.009233570374108688,
+      "min_frozen_plane_gap_m": 9.997556667613105e-05,
+      "min_q": 1.2160859598096454e-05,
+      "no_native_admission": true,
+      "nonpositive_cells": 0,
+      "status": "PASS_EXISTING_POSITIVE_GEOMETRY_FLOOR_ONLY",
+      "unchanged_fixed_nodes": 6375,
+      "witnesses": 139
+    }
+  },
+  "inherited_references": [
+    {
+      "bytes": 905624,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-058/payload/030/prism-input/candidate.npz",
+      "kind": "published_input",
+      "sha256": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+      "used_as": "D37 physical topology input for 034/037",
+      "via_commit": "d1d9b0935704794d0087e975d7ee378e7c5e1811"
+    }
+  ],
+  "limitations": [
+    "038 is node-to-closed-solid only; no skin triangle, tetrahedron, full clearance, or native physical acceptance.",
+    "Row946 route entry is a one-column double-precision segment diagnostic over reconstructed Float32 member triangles; exact-predicate and complete-column follow-up remain pending.",
+    "037 attempt 003 was prepared but not run; it produced no candidate.",
+    "037 attempt 002 is a bounded partial fit; it is not a completed/admitted candidate.",
+    "Registered-skin CSV is pinned but not duplicated and no independent archive-recovery claim is made.",
+    "No physiological thickness, anatomy, clinical, biological, or scene activation claim."
+  ],
+  "omitted_artifacts": [
+    {
+      "bytes": 24135771,
+      "kind": "external_large_input_not_duplicated",
+      "note": "The file was present and hash-checked while preparing this package; it is not duplicated in the package and this manifest does not claim an independent archive copy.",
+      "recovery_claim": false,
+      "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-029/source-preflight-002/registered-skin.csv"
+    }
+  ],
+  "publication": "060",
+  "report_declared_input_hashes": {
+    "033_constraint_npz": "direct-projection-feasibility.json",
+    "034_fit_report": {
+      "constraint_npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+      "donor_frames": "4d531659aecd196cb2b4a99bf8d963aaf3721f9c4307eaf215304d0a3ca8805f",
+      "physical_topology_npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+      "pose_json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+    },
+    "034_preflight": {
+      "constraint_npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+      "donor_frames": "4d531659aecd196cb2b4a99bf8d963aaf3721f9c4307eaf215304d0a3ca8805f",
+      "physical_topology_npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+      "pose_json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+    },
+    "035_capture_launch_manifest_sha256": "2c14db9fdde9a9a85551612669bd55aeded664deed48edfad4226263ef5fb6e9",
+    "036_affine_report": {
+      "037_body_frames": "0abeef83c47ffcf304ef62be9321ed6d0169d942f3c20c05dd94e4df59c15db8",
+      "037_donor_frames": "4d531659aecd196cb2b4a99bf8d963aaf3721f9c4307eaf215304d0a3ca8805f",
+      "037_nodes": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+      "all_bank_csv": "11452398859d5dd435ec8fbbe4a02c0b1797e5f337b3749850671093ecb231aa",
+      "all_bank_node_summary": "44caaa9bc6246dee818fa92ade9ff867fa67f2bc72c677c4d31be8426f40567a",
+      "initial_fem_nodes": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+      "mass_reference": "71715ff82763c53b478ada4a292f63ac01dd2c5971cf390c2e11705e96f1caec",
+      "pose_snapshot": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+    },
+    "037_attempt_001": {
+      "E/native-candidate020-all-bank-affine-roundtrip-036/all-bank-local-to-world-rows.npz": "e13b0aea27be54051386252c2f140a3fa7146b74a782e094c808dab1d38109bb",
+      "E/native-candidate020-all-bank-affine-roundtrip-036/covector-plane-037/inside-row-covector-planes.npz": "1b801a7156c8e6a3af54f9fdb7e15478bebe4cff1bdd3bf96a1ea3884488bfd2",
+      "bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+      "bone-clearance-fit-037-preparation-035/per-bone-constraints-037.npz": "2d8177f47b8a30e07f81faf5c8ed84411f0ec9b6dd7499f9e338043c2253f49f",
+      "bone-clearance-fit-037-preparation-035/restart-state-037.npz": "e2a21b6939fafdb5ebcb96b43d4b8f7747be5c0abdec6d49b02d2e557b6815e8",
+      "native-candidate020-bone-witness-029/source-preflight-002/registered-skin-poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+      "native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+      "wholebody-attachment-source-rebind-037-candidate020-identity004-002/generated/donor-frames-fullweights.csv": "4d531659aecd196cb2b4a99bf8d963aaf3721f9c4307eaf215304d0a3ca8805f"
+    },
+    "037_attempt_002": {
+      "E/native-candidate020-all-bank-affine-roundtrip-036/all-bank-local-to-world-rows.npz": "e13b0aea27be54051386252c2f140a3fa7146b74a782e094c808dab1d38109bb",
+      "E/native-candidate020-all-bank-affine-roundtrip-036/covector-plane-037/inside-row-covector-planes.npz": "1b801a7156c8e6a3af54f9fdb7e15478bebe4cff1bdd3bf96a1ea3884488bfd2",
+      "bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+      "bone-clearance-fit-037-preparation-035/per-bone-constraints-037.npz": "2d8177f47b8a30e07f81faf5c8ed84411f0ec9b6dd7499f9e338043c2253f49f",
+      "bone-clearance-fit-037-preparation-035/restart-state-037.npz": "e2a21b6939fafdb5ebcb96b43d4b8f7747be5c0abdec6d49b02d2e557b6815e8",
+      "native-candidate020-bone-witness-029/source-preflight-002/registered-skin-poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+      "native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+      "wholebody-attachment-source-rebind-037-candidate020-identity004-002/generated/donor-frames-fullweights.csv": "4d531659aecd196cb2b4a99bf8d963aaf3721f9c4307eaf215304d0a3ca8805f"
+    },
+    "037_attempt_003_held_builder_sha256": "51d2de3b4b8a9c0a40429beaf00dd2ec2315a75394412b4c03c6c95cbc561e8d",
+    "037_attempt_003_held_receipt_sha256": "fb8b25de3ed0e472f6767aad0f3517927cdf71048884da66c83d80818523884b",
+    "037_preparation": {
+      "033_combined_constraint_npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+      "034_candidate_npz": "0c1c89e8464bdda06704724169767cb15e7088f66277c2380a09627dc8281d55",
+      "034_report_json": "5f368e159d2324283307d1567f3c10e90ad0213b4fb2d2a7fdf62c8bccb9e098",
+      "034_solver_checkpoint_npz": "f81732947df78920379492051289691d6c181bb03bf6effa0403972163b4e7bc",
+      "035_all_bank_capture_csv": "11452398859d5dd435ec8fbbe4a02c0b1797e5f337b3749850671093ecb231aa",
+      "D37_donor_frame_csv": "4d531659aecd196cb2b4a99bf8d963aaf3721f9c4307eaf215304d0a3ca8805f",
+      "D37_physical_topology_npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+      "registered_pose_json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+    }
+  },
+  "row946_route_entry_diagnostic": {
+    "coverage_limit": "One column and one per-bone bank only; no full route/contact/clearance certificate.",
+    "identity": {
+      "body_index": 23,
+      "bone_stable_id": 32,
+      "bone_triangle_count": 14510,
+      "column_row": 946,
+      "global_nodes": {
+        "D": 7434,
+        "I": 5023,
+        "O": 2612
+      },
+      "member_id": "FJ3200"
+    },
+    "interpretation_limit": "one-column double-precision segment diagnostic over reconstructed Float32 triangles; exact-predicate/full-route follow-up remains pending",
+    "path": "payload/038/row946-entry-proof/row946-route-entry-proof.json",
+    "route_hits": {
+      "I-D": [
+        {
+          "barycentric": [
+            0.1469344222660005,
+            0.510882629635743,
+            0.34218294809825645
+          ],
+          "det": 9.24915811969225e-07,
+          "distance_from_segment_start_m": 0.003911297773251445,
+          "t": 0.30025702943902755,
+          "triangle": 1381
+        }
+      ],
+      "O-D diagnostic only": [
+        {
+          "barycentric": [
+            0.1259396139149826,
+            0.4975483784058638,
+            0.37651200767915355
+          ],
+          "det": 1.1005848680945372e-06,
+          "distance_from_segment_start_m": 0.006352959147959451,
+          "t": 0.41194599658027786,
+          "triangle": 1381
+        }
+      ],
+      "O-I": []
+    },
+    "sha256": "a96b200b1b1b82ae9084be715d1177ddeed06e78f193945b9dc5b80769427f62",
+    "status": "frozen_diagnostic_not_clearance_or_native_admission"
+  },
+  "schema": "numi.human.publication.source-input-pins.v1",
+  "source_artifacts": [
+    {
+      "bytes": 26091000,
+      "declared_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+      "observed_matches_declared": true,
+      "observed_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin"
+    },
+    {
+      "bytes": 17154,
+      "declared_sha256": "7f1ca8a2f76cbaac640abf5e05b2646ae65854a3b4722250540d9deaa99e3241",
+      "observed_matches_declared": true,
+      "observed_sha256": "7f1ca8a2f76cbaac640abf5e05b2646ae65854a3b4722250540d9deaa99e3241",
+      "scope": "038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-candidate-query/apps/NumiHumanD37InitialSkinBoneWitness.hpp"
+    },
+    {
+      "bytes": 2391397,
+      "declared_sha256": "0134fb29b34a03530e308d7c4898d45199f97af37c7830421c26522ab2c181d9",
+      "observed_matches_declared": true,
+      "observed_sha256": "0134fb29b34a03530e308d7c4898d45199f97af37c7830421c26522ab2c181d9",
+      "scope": "038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-candidate-query/apps/numilab_human_myosim_visual_probe.mm"
+    },
+    {
+      "bytes": 8302144,
+      "declared_sha256": "8a6e02db5aeb4dac448f3a01b1ef7ae475bcb9574bf532599cca2ca9bd191f2f",
+      "observed_matches_declared": true,
+      "observed_sha256": "8a6e02db5aeb4dac448f3a01b1ef7ae475bcb9574bf532599cca2ca9bd191f2f",
+      "scope": "038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-candidate-query/build-001/numi-human-native"
+    },
+    {
+      "bytes": 521139,
+      "declared_sha256": "058db5c144a48d84670963081e2b1a6cfab826d79ec098e19eefd07d14841681",
+      "observed_matches_declared": true,
+      "observed_sha256": "058db5c144a48d84670963081e2b1a6cfab826d79ec098e19eefd07d14841681",
+      "scope": "038 run-002 source-preflight input; 038 row946 route-entry diagnostic input",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-candidate-query/run-002/candidate-node-override.csv"
+    },
+    {
+      "bytes": 459966,
+      "declared_sha256": "a8d7e197db58019cb16f6f89d0ccb63f6e4f7e6f2fc3f6495fd4ee07c1d7a281",
+      "observed_matches_declared": true,
+      "observed_sha256": "a8d7e197db58019cb16f6f89d0ccb63f6e4f7e6f2fc3f6495fd4ee07c1d7a281",
+      "scope": "038 row946 route-entry diagnostic input",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-candidate-query/run-002/source-preflight/all-bank-containment.csv"
+    },
+    {
+      "bytes": 73339,
+      "declared_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+      "observed_matches_declared": true,
+      "observed_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+      "scope": "038 row946 route-entry diagnostic input",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-candidate-query/run-002/source-preflight/registered-skin-poses.json"
+    },
+    {
+      "bytes": 10033040,
+      "declared_sha256": "b7cba8777b071eb1df0dbdadc24f9a4963eb92b2e85bf1121a97d29328d5c26b",
+      "observed_matches_declared": true,
+      "observed_sha256": "b7cba8777b071eb1df0dbdadc24f9a4963eb92b2e85bf1121a97d29328d5c26b",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/build-runtime-004/libmetalrobo.dylib"
+    },
+    {
+      "bytes": 38188,
+      "declared_sha256": "b2e3bc466341526d287e22d9995a33f79040fcb4d07f856eeb8b4a6b1ee83236",
+      "observed_matches_declared": true,
+      "observed_sha256": "b2e3bc466341526d287e22d9995a33f79040fcb4d07f856eeb8b4a6b1ee83236",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-005/matter/include/numi/matter/fem_body_contact_static_bvh.hpp"
+    },
+    {
+      "bytes": 17154,
+      "declared_sha256": "7f1ca8a2f76cbaac640abf5e05b2646ae65854a3b4722250540d9deaa99e3241",
+      "observed_matches_declared": true,
+      "observed_sha256": "7f1ca8a2f76cbaac640abf5e05b2646ae65854a3b4722250540d9deaa99e3241",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/apps/NumiHumanD37InitialSkinBoneWitness.hpp"
+    },
+    {
+      "bytes": 2385551,
+      "declared_sha256": "8935bbea7279366e674dc285cd5dfa64d92c0ae2927ffec3b83a4d3c7893d1fd",
+      "observed_matches_declared": true,
+      "observed_sha256": "8935bbea7279366e674dc285cd5dfa64d92c0ae2927ffec3b83a4d3c7893d1fd",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/apps/numilab_human_myosim_visual_probe.mm"
+    },
+    {
+      "bytes": 8284608,
+      "declared_sha256": "68240166fe16f6531e02d53289135e38c2b2d5ac675c2654d93f7fcdcce68e3f",
+      "observed_matches_declared": true,
+      "observed_sha256": "68240166fe16f6531e02d53289135e38c2b2d5ac675c2654d93f7fcdcce68e3f",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/build-005/numi-human-native"
+    },
+    {
+      "bytes": 460404,
+      "declared_sha256": "11452398859d5dd435ec8fbbe4a02c0b1797e5f337b3749850671093ecb231aa",
+      "observed_matches_declared": true,
+      "observed_sha256": "11452398859d5dd435ec8fbbe4a02c0b1797e5f337b3749850671093ecb231aa",
+      "scope": "038 row946 route-entry diagnostic input",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/source-preflight-003/all-bank-containment.csv"
+    },
+    {
+      "bytes": 24135771,
+      "declared_sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+      "observed_matches_declared": true,
+      "observed_sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+      "scope": "033 source pin",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-029/source-preflight-002/registered-skin.csv"
+    },
+    {
+      "bytes": 288678,
+      "declared_sha256": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847",
+      "observed_matches_declared": true,
+      "observed_sha256": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847",
+      "scope": "033 source pin",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-002/generated/embedding.csv"
+    },
+    {
+      "bytes": 4976,
+      "declared_sha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+      "observed_matches_declared": true,
+      "observed_sha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq"
+    },
+    {
+      "bytes": 149372,
+      "declared_sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+      "observed_matches_declared": true,
+      "observed_sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo"
+    },
+    {
+      "bytes": 5765,
+      "declared_sha256": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a",
+      "observed_matches_declared": true,
+      "observed_sha256": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json"
+    },
+    {
+      "bytes": 25901,
+      "declared_sha256": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+      "observed_matches_declared": true,
+      "observed_sha256": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json"
+    },
+    {
+      "bytes": 965303,
+      "declared_sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+      "observed_matches_declared": true,
+      "observed_sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+      "scope": "038 row946 route-entry diagnostic input",
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.manifest.json"
+    },
+    {
+      "bytes": 12078264,
+      "declared_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "observed_matches_declared": true,
+      "observed_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input; 038 row946 route-entry diagnostic input",
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones"
+    },
+    {
+      "bytes": 158800,
+      "declared_sha256": "d0f5da8c63d5e3335eef72e7e79e8e5780ae43f0cf254e840dd7ad604b72da48",
+      "observed_matches_declared": true,
+      "observed_sha256": "d0f5da8c63d5e3335eef72e7e79e8e5780ae43f0cf254e840dd7ad604b72da48",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/compiled-tendon/numi-human-tendon-attachments.nhtendon"
+    },
+    {
+      "bytes": 70053067,
+      "declared_sha256": "76c6651a86e9353af9007ba6433beb2a7605b607d9c261def9537ab447d43a51",
+      "observed_matches_declared": true,
+      "observed_sha256": "76c6651a86e9353af9007ba6433beb2a7605b607d9c261def9537ab447d43a51",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-anatomy-receipt.json"
+    },
+    {
+      "bytes": 95774088,
+      "declared_sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+      "observed_matches_declared": true,
+      "observed_sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy"
+    },
+    {
+      "bytes": 1620,
+      "declared_sha256": "4c31ce250a63bd730c066f6f92571295c761ddb51215a3eeb09275bc42d6992d",
+      "observed_matches_declared": true,
+      "observed_sha256": "4c31ce250a63bd730c066f6f92571295c761ddb51215a3eeb09275bc42d6992d",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt"
+    },
+    {
+      "bytes": 225956,
+      "declared_sha256": "5a89c6464564528d7f30ce03294793628a41b61bb1f3cdb98645344225d17de1",
+      "observed_matches_declared": true,
+      "observed_sha256": "5a89c6464564528d7f30ce03294793628a41b61bb1f3cdb98645344225d17de1",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-human-separation-20261018/passive-fascia-source-173/payload/bodyparts3d-pectoralis-fascia.nhfascia"
+    },
+    {
+      "bytes": 3617,
+      "declared_sha256": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+      "observed_matches_declared": true,
+      "observed_sha256": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/Users/n/numi-lab-native-replay-publish-20261017/matter/materials/blood_high_shear_newtonian_proxy.nmatter"
+    },
+    {
+      "bytes": 60324,
+      "declared_sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+      "observed_matches_declared": true,
+      "observed_sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-projection-envelope-001/myosim-fullbody-core-reference.nhrigid"
+    },
+    {
+      "bytes": 36357012,
+      "declared_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+      "observed_matches_declared": true,
+      "observed_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue"
+    },
+    {
+      "bytes": 29142504,
+      "declared_sha256": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125",
+      "observed_matches_declared": true,
+      "observed_sha256": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125",
+      "scope": "035 source-preflight-003 launch input; 038 run-002 base launch input; 038 run-002 source-preflight input",
+      "source_path": "/tmp/numi-human-joint-owner-build-033/matter/shaders/NumiMatter.metallib"
+    }
+  ]
+}

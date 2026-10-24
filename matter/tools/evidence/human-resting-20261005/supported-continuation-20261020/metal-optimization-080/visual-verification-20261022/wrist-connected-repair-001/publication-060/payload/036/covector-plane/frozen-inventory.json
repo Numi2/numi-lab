@@ -1,0 +1,41 @@
+{
+  "035_counts": {
+    "aabb_proven_outside": 1335993,
+    "ambiguous": 0,
+    "bone_banks_per_node": 185,
+    "inside": 139,
+    "invalid": 0,
+    "node_bank_pairs": 1338105,
+    "nodes": 7233,
+    "parity_outside": 1973
+  },
+  "035_source_preflight_003": {
+    "all-bank-containment.csv": "11452398859d5dd435ec8fbbe4a02c0b1797e5f337b3749850671093ecb231aa",
+    "all-bank-containment.csv.nodes.csv": "44caaa9bc6246dee818fa92ade9ff867fa67f2bc72c677c4d31be8426f40567a",
+    "initial-skin-fem-nodes.csv": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+    "registered-skin-poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "tissue-mass-reference.txt": "71715ff82763c53b478ada4a292f63ac01dd2c5971cf390c2e11705e96f1caec"
+  },
+  "036_affine_roundtrip_report_sha256": "8601b84d2094c6400df0bc94723535df8f715037af82cdd99a768161f48ad387",
+  "036_frozen_capture_manifest_sha256": "2c14db9fdde9a9a85551612669bd55aeded664deed48edfad4226263ef5fb6e9",
+  "036_frozen_execution_receipt_sha256": "191a8d73beeebfc1eb9e0f2c1b0497ddb7bb3147e04e176a00302b72ad35f6e9",
+  "036_frozen_files": {
+    "all-bank-local-to-world-rows.npz": "e13b0aea27be54051386252c2f140a3fa7146b74a782e094c808dab1d38109bb",
+    "audit_raw_f32_affine.py": "d0f3b05a929a4bb7b4534ef3995c8b37ecd268c3519ace2886d237a241a85710",
+    "report.json": "8601b84d2094c6400df0bc94723535df8f715037af82cdd99a768161f48ad387"
+  },
+  "037_covector_receipt": {
+    "build_covector_receipt.py": "e399cbdaa2d2e101b39ebc3c044875b616897ddae0b3cd275e3ca1e655ac917f",
+    "inside-row-covector-planes-initial-001.npz": "f50a8358662392200734d94b6e9aa8de50e07b35bc609ec358a79229ab58b9f8",
+    "inside-row-covector-planes.npz": "1b801a7156c8e6a3af54f9fdb7e15478bebe4cff1bdd3bf96a1ea3884488bfd2",
+    "report-initial-001.json": "31ee407e162d7d7f701b7cb7b669b6b817d81a4adc2876957e41fba18de9c05d",
+    "report.json": "1edfc38129abac49536576180517239a3277929447cec7b0cec4ed28b6a2a4bf",
+    "supersession.json": "0152d727a82ffb0a19b2536d4ac0edbea88458d08a0f04cff506ddd0736125d9"
+  },
+  "037_donor_inputs": {
+    "body_frames_json": "e2801d5cf76a9f2bc6f3501209628a634d10daef77e0656f0ca0ba85c86c1ecd",
+    "donor_frames_fullweights_csv": "4d531659aecd196cb2b4a99bf8d963aaf3721f9c4307eaf215304d0a3ca8805f",
+    "nodes_csv": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11"
+  },
+  "acceptance": "source-only affine/covector diagnostics; no physical/native admission"
+}

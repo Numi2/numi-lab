@@ -1,0 +1,10 @@
+{
+  "status": "PASS_AFFINE_CLOSEST_POINTS_ONLY",
+  "rows": 2112,
+  "max_closest_world_error_m": 1.1527756336890508e-16,
+  "max_inverse_delta_roundtrip_m": 1.1465178534719141e-16,
+  "max_effective_offset_spread_m": 5.018491599200975e-17,
+  "max_covector_vs_consistently_oriented_escape_direction_difference": 2.46152446096838e-07,
+  "plane_normals_require_covector_transport": true,
+  "physical_qualification": false
+}

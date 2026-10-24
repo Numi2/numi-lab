@@ -1,0 +1,66 @@
+{
+  "status": "POSITIVE_GEOMETRY_CANDIDATE_NOT_ADMITTED",
+  "candidate_sha256": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b",
+  "cells": 28632,
+  "nonpositive": 0,
+  "q_below_1e_minus_5": 0,
+  "q_below_construction_1_25e_minus_5_rows": [
+    1838,
+    2056,
+    11511,
+    11513,
+    13630,
+    13634,
+    13709,
+    14307,
+    16248,
+    18809,
+    19689,
+    25096,
+    25339,
+    25381,
+    25669,
+    26365,
+    26618,
+    26915,
+    27025,
+    27160,
+    27196,
+    27548,
+    27992,
+    28513
+  ],
+  "min_q": 1.2160859598096454e-05,
+  "layer_checks": {
+    "skin": {
+      "min_projection_mm": 0.2406255053620536,
+      "min_floor_mm": 0.1,
+      "strict_floor_violations": 0,
+      "min_slack_mm": 0.1406255053620536,
+      "min_fraction_of_reference_projection": 0.2323857384000505
+    },
+    "fat": {
+      "min_projection_mm": 0.10099768526857208,
+      "min_floor_mm": 0.1,
+      "strict_floor_violations": 0,
+      "min_slack_mm": 0.0009976852685720794,
+      "min_fraction_of_reference_projection": 0.1836738896396189
+    }
+  },
+  "material_volume_mass_diagnostic": {
+    "1": {
+      "baseline_m3": 0.0034525709483045623,
+      "candidate_m3": 0.0034491508698820607,
+      "relative_change": -0.0009905888897608905,
+      "fixed_reference_density_mass_change_kg": -0.003420078422501638
+    },
+    "2": {
+      "baseline_m3": 0.011652342870565699,
+      "candidate_m3": 0.011576443048686274,
+      "relative_change": -0.006513696234527244,
+      "fixed_reference_density_mass_change_kg": -0.06830983969148222
+    }
+  },
+  "mass_mapping_regenerated": false,
+  "thickness_physiology_qualified": false
+}

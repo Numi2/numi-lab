@@ -1,0 +1,222 @@
+{
+  "scope": "12 confirmed outer-node penetrations mapped to original detailed skin source vertices; no new solid query",
+  "rows": [
+    {
+      "global_fem_node": 1870,
+      "source_column": 204,
+      "exact_source_vertex": 1227,
+      "nearest_bone_body": 61,
+      "inside_depth_m": 0.00025545955198620786,
+      "detailed_vs_mechanical_distance_m": 0.0008476016315351679,
+      "detailed_skin_world_m": [
+        -0.31799545884132385,
+        -1.026318073272705,
+        0.1463599056005478
+      ],
+      "mechanical_outer_world_m": [
+        -0.31718364357948303,
+        -1.0262292623519897,
+        0.14613297581672668
+      ]
+    },
+    {
+      "global_fem_node": 1881,
+      "source_column": 215,
+      "exact_source_vertex": 1261,
+      "nearest_bone_body": 61,
+      "inside_depth_m": 0.0001726043838906719,
+      "detailed_vs_mechanical_distance_m": 0.0009037171916507883,
+      "detailed_skin_world_m": [
+        -0.3198946416378021,
+        -1.0210198163986206,
+        0.14722108840942383
+      ],
+      "mechanical_outer_world_m": [
+        -0.31939008831977844,
+        -1.0216604471206665,
+        0.14683157205581665
+      ]
+    },
+    {
+      "global_fem_node": 1883,
+      "source_column": 217,
+      "exact_source_vertex": 1265,
+      "nearest_bone_body": 61,
+      "inside_depth_m": 0.0013955496311065017,
+      "detailed_vs_mechanical_distance_m": 0.0005820097393249192,
+      "detailed_skin_world_m": [
+        -0.3184100091457367,
+        -1.0205812454223633,
+        0.1460709571838379
+      ],
+      "mechanical_outer_world_m": [
+        -0.31788185238838196,
+        -1.0206602811813354,
+        0.14583957195281982
+      ]
+    },
+    {
+      "global_fem_node": 1884,
+      "source_column": 218,
+      "exact_source_vertex": 1269,
+      "nearest_bone_body": 61,
+      "inside_depth_m": 0.0015664640191232493,
+      "detailed_vs_mechanical_distance_m": 0.0012234093836355723,
+      "detailed_skin_world_m": [
+        -0.317825585603714,
+        -1.0182400941848755,
+        0.14582784473896027
+      ],
+      "mechanical_outer_world_m": [
+        -0.31742051243782043,
+        -1.0170865058898926,
+        0.14587120711803436
+      ]
+    },
+    {
+      "global_fem_node": 1885,
+      "source_column": 219,
+      "exact_source_vertex": 1271,
+      "nearest_bone_body": 61,
+      "inside_depth_m": 0.00010372953235092251,
+      "detailed_vs_mechanical_distance_m": 0.00016084910035442572,
+      "detailed_skin_world_m": [
+        -0.31545746326446533,
+        -1.0199660062789917,
+        0.14504794776439667
+      ],
+      "mechanical_outer_world_m": [
+        -0.3154155910015106,
+        -1.019818663597107,
+        0.1450970321893692
+      ]
+    },
+    {
+      "global_fem_node": 1897,
+      "source_column": 231,
+      "exact_source_vertex": 1288,
+      "nearest_bone_body": 61,
+      "inside_depth_m": 0.00011296769893632686,
+      "detailed_vs_mechanical_distance_m": 1.0745380149674383e-07,
+      "detailed_skin_world_m": [
+        -0.31841805577278137,
+        -1.014288306236267,
+        0.14709089696407318
+      ],
+      "mechanical_outer_world_m": [
+        -0.3184179663658142,
+        -1.014288306236267,
+        0.1470908373594284
+      ]
+    },
+    {
+      "global_fem_node": 1899,
+      "source_column": 233,
+      "exact_source_vertex": 1291,
+      "nearest_bone_body": 61,
+      "inside_depth_m": 0.001430415056683012,
+      "detailed_vs_mechanical_distance_m": 6.664001874625056e-08,
+      "detailed_skin_world_m": [
+        -0.3169404864311218,
+        -1.0133161544799805,
+        0.14609739184379578
+      ],
+      "mechanical_outer_world_m": [
+        -0.31694042682647705,
+        -1.0133161544799805,
+        0.1460973620414734
+      ]
+    },
+    {
+      "global_fem_node": 1937,
+      "source_column": 271,
+      "exact_source_vertex": 1531,
+      "nearest_bone_body": 61,
+      "inside_depth_m": 0.00022829818922738714,
+      "detailed_vs_mechanical_distance_m": 0.0005000384748878582,
+      "detailed_skin_world_m": [
+        -0.31528982520103455,
+        -1.0142366886138916,
+        0.14509770274162292
+      ],
+      "mechanical_outer_world_m": [
+        -0.31480562686920166,
+        -1.0143152475357056,
+        0.14519475400447845
+      ]
+    },
+    {
+      "global_fem_node": 2003,
+      "source_column": 337,
+      "exact_source_vertex": 2562,
+      "nearest_bone_body": 59,
+      "inside_depth_m": 0.0009686717543659118,
+      "detailed_vs_mechanical_distance_m": 3.332000937312528e-08,
+      "detailed_skin_world_m": [
+        -0.3073202669620514,
+        -0.9493142366409302,
+        0.13722176849842072
+      ],
+      "mechanical_outer_world_m": [
+        -0.307320237159729,
+        -0.9493142366409302,
+        0.13722175359725952
+      ]
+    },
+    {
+      "global_fem_node": 3853,
+      "source_column": 2187,
+      "exact_source_vertex": 49300,
+      "nearest_bone_body": 124,
+      "inside_depth_m": 0.0004357400109619008,
+      "detailed_vs_mechanical_distance_m": 3.1994149913763833e-07,
+      "detailed_skin_world_m": [
+        0.2366362065076828,
+        -0.9562399387359619,
+        0.08703142404556274
+      ],
+      "mechanical_outer_world_m": [
+        0.23663629591464996,
+        -0.956240177154541,
+        0.08703161776065826
+      ]
+    },
+    {
+      "global_fem_node": 3927,
+      "source_column": 2261,
+      "exact_source_vertex": 52297,
+      "nearest_bone_body": 109,
+      "inside_depth_m": 0.0016652980440189102,
+      "detailed_vs_mechanical_distance_m": 3.2236140449023154e-07,
+      "detailed_skin_world_m": [
+        0.25828006863594055,
+        -0.9538173675537109,
+        0.13846367597579956
+      ],
+      "mechanical_outer_world_m": [
+        0.2582801282405853,
+        -0.95381760597229,
+        0.13846388459205627
+      ]
+    },
+    {
+      "global_fem_node": 3928,
+      "source_column": 2262,
+      "exact_source_vertex": 52310,
+      "nearest_bone_body": 107,
+      "inside_depth_m": 0.0009222954412511851,
+      "detailed_vs_mechanical_distance_m": 4.430433734452279e-07,
+      "detailed_skin_world_m": [
+        0.2558964788913727,
+        -0.9397499561309814,
+        0.13515563309192657
+      ],
+      "mechanical_outer_world_m": [
+        0.25589656829833984,
+        -0.9397503733634949,
+        0.13515575230121613
+      ]
+    }
+  ],
+  "max_detailed_to_coarse_position_error_m": 0.0012234093836355723
+}

@@ -1,0 +1,49 @@
+{
+  "files": {
+    "component_state": "initial-component-state.npz",
+    "preflight_bootstrap": "fit-progress.json",
+    "source": "build_fit_037.py"
+  },
+  "hold": {
+    "candidate_output_emitted": false,
+    "optimizer_started": false,
+    "reason": "Nearest-face clearance is not the route constraint for this D node. Functional inspection reports I-to-D intersects body23/stable32 first at triangle1381, 3.911249 mm from I; triangle2599 is not the entry face. Existing 002 plane uses triangle2080 and points opposite D-to-I. Do not optimize 003 until all-column first-entry constraints are classified."
+  },
+  "input_sha256": {
+    "002_candidate": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b",
+    "036_affine": "e13b0aea27be54051386252c2f140a3fa7146b74a782e094c808dab1d38109bb",
+    "036_covector": "1b801a7156c8e6a3af54f9fdb7e15478bebe4cff1bdd3bf96a1ea3884488bfd2",
+    "037_constraints": "2d8177f47b8a30e07f81faf5c8ed84411f0ec9b6dd7499f9e338043c2253f49f",
+    "037_restart": "e2a21b6939fafdb5ebcb96b43d4b8f7747be5c0abdec6d49b02d2e557b6815e8",
+    "038_node_query": "a8d7e197db58019cb16f6f89d0ccb63f6e4f7e6f2fc3f6495fd4ee07c1d7a281",
+    "AP": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "builder": "51d2de3b4b8a9c0a40429beaf00dd2ec2315a75394412b4c03c6c95cbc561e8d",
+    "pose_snapshot": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "tet_material_source": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc"
+  },
+  "preflight": {
+    "additional_face_specific_witnesses": 1,
+    "all_affected_tets_constrained": 7060,
+    "appended": {
+      "body": 23,
+      "bone_stable_id": 32,
+      "closest_triangle": 2599,
+      "current_plane_gap_m": -6.648531685993233e-05,
+      "global_node": 7434,
+      "layer": "D",
+      "local_node": 5768,
+      "raw_affine_query_transform_residual_m": 1.5515838457795457e-17,
+      "row": 946
+    },
+    "direct_seed_tets": 1321,
+    "distinct_node_body_bone_pairs": 139,
+    "inside_plane_rows": 140,
+    "min_preexisting_plane_gap_m": -0.00912914300290913,
+    "pass": true,
+    "variable_component": 0,
+    "variable_component_node_count": 364
+  },
+  "schema": "numi.human.d37-componentwise-fit-003-held-preflight.v1",
+  "source_sha256": "51d2de3b4b8a9c0a40429beaf00dd2ec2315a75394412b4c03c6c95cbc561e8d",
+  "status": "held_not_run"
+}

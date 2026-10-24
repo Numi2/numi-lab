@@ -1,0 +1,19 @@
+{
+  "authoritative_generator_sha256": "e399cbdaa2d2e101b39ebc3c044875b616897ddae0b3cd275e3ca1e655ac917f",
+  "authoritative_npz_sha256": "1b801a7156c8e6a3af54f9fdb7e15478bebe4cff1bdd3bf96a1ea3884488bfd2",
+  "authoritative_report_sha256": "1edfc38129abac49536576180517239a3277929447cec7b0cec4ed28b6a2a4bf",
+  "corrected_metrics": {
+    "det_M_max": 1.000000492342368,
+    "det_M_min": 0.9999998247735311,
+    "max_local_escape_inverse_residual_m": 1.734723475976807e-18,
+    "max_unnormalized_plane_dot_invariance_residual_m": 8.673617379884035e-19,
+    "max_vector_covector_unit_difference": 1.7826740762478464e-07,
+    "synthetic_shear_vector_covector_separation": 0.19707523593328433
+  },
+  "frozen_036_inputs_unchanged": true,
+  "initial_npz_sha256": "f50a8358662392200734d94b6e9aa8de50e07b35bc609ec358a79229ab58b9f8",
+  "initial_report_sha256": "31ee407e162d7d7f701b7cb7b669b6b817d81a4adc2876957e41fba18de9c05d",
+  "reason": "The first inline covector pass reported determinant and vector-vs-covector metrics inconsistent with a focused recomputation on the same pinned raw-F32 quaternions. Those initial files are preserved verbatim, are not authoritative, and must not be consumed.",
+  "scope": "receipt correction only; no source pose, capture, geometry, or native simulation was changed",
+  "status": "superseded-diagnostic-retained"
+}

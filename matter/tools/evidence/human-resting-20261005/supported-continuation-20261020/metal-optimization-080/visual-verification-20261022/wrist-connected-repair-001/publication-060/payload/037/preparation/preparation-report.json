@@ -1,0 +1,735 @@
+{
+  "fit_contract": {
+    "035_capture_summary": {
+      "csv_rows": 2112,
+      "distinct_pair_keys": 2112,
+      "inside_constraints": 139,
+      "unresolved_rows": 0
+    },
+    "035_distinct_bodies": 29,
+    "035_distinct_inside_nodes": 139,
+    "035_extra_node_vs_034": [
+      7038
+    ],
+    "035_inside_pair_count": 139,
+    "035_unresolved_rows": 0,
+    "all_7060_per_callback_restart_logic": "requires integrated 037 runner and remains pending; no optimizer was launched by preparation script",
+    "constraint_expansion": "scan every one of all 6959 affected cells at every accepted callback and final candidate; add all newly below qfloor*1.02 rows to monotone persisted active set before a solver restart",
+    "maximum_attempts": 4,
+    "per_bone_constraints": "035 frozen; all (node, body, bone) pairs preserved; ambiguous/on-boundary rows unresolved, never silently discarded",
+    "time_budget_s_per_attempt": 105
+  },
+  "inverted_cell_support": {
+    "bad_cells": [
+      {
+        "columns": [
+          308,
+          309,
+          311
+        ],
+        "donor_body_ids_by_column": [
+          59,
+          59,
+          59
+        ],
+        "fixed_node_count": 2,
+        "layers": [
+          1,
+          0,
+          1,
+          1
+        ],
+        "material_id": 1,
+        "node_rows": [
+          2719,
+          308,
+          2720,
+          2722
+        ],
+        "q_emitted_f32": -0.00016743004014316024,
+        "restart_free_node_count": 2,
+        "tet_row": 1838
+      },
+      {
+        "columns": [
+          308,
+          326,
+          330
+        ],
+        "donor_body_ids_by_column": [
+          59,
+          59,
+          59
+        ],
+        "fixed_node_count": 2,
+        "layers": [
+          0,
+          1,
+          1,
+          1
+        ],
+        "material_id": 1,
+        "node_rows": [
+          308,
+          2719,
+          2737,
+          2741
+        ],
+        "q_emitted_f32": -7.076000300127447e-05,
+        "restart_free_node_count": 2,
+        "tet_row": 1958
+      },
+      {
+        "columns": [
+          1218,
+          1219,
+          1248
+        ],
+        "donor_body_ids_by_column": [
+          23,
+          23,
+          23
+        ],
+        "fixed_node_count": 2,
+        "layers": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "material_id": 1,
+        "node_rows": [
+          1219,
+          1218,
+          3630,
+          3659
+        ],
+        "q_emitted_f32": -0.034934939581591995,
+        "restart_free_node_count": 2,
+        "tet_row": 13630
+      },
+      {
+        "columns": [
+          1219,
+          1248,
+          1286
+        ],
+        "donor_body_ids_by_column": [
+          23,
+          23,
+          23
+        ],
+        "fixed_node_count": 1,
+        "layers": [
+          1,
+          0,
+          1,
+          1
+        ],
+        "material_id": 1,
+        "node_rows": [
+          3630,
+          1219,
+          3659,
+          3697
+        ],
+        "q_emitted_f32": -0.005035078402658494,
+        "restart_free_node_count": 3,
+        "tet_row": 13634
+      },
+      {
+        "columns": [
+          1248,
+          1283,
+          1286
+        ],
+        "donor_body_ids_by_column": [
+          23,
+          23,
+          23
+        ],
+        "fixed_node_count": 3,
+        "layers": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "material_id": 1,
+        "node_rows": [
+          1283,
+          1248,
+          1286,
+          3697
+        ],
+        "q_emitted_f32": -3.484533722953304e-05,
+        "restart_free_node_count": 1,
+        "tet_row": 13707
+      },
+      {
+        "columns": [
+          1248,
+          1283,
+          1286
+        ],
+        "donor_body_ids_by_column": [
+          23,
+          23,
+          23
+        ],
+        "fixed_node_count": 1,
+        "layers": [
+          1,
+          0,
+          1,
+          1
+        ],
+        "material_id": 1,
+        "node_rows": [
+          3659,
+          1248,
+          3694,
+          3697
+        ],
+        "q_emitted_f32": -4.3358027846834993e-05,
+        "restart_free_node_count": 3,
+        "tet_row": 13709
+      },
+      {
+        "columns": [
+          308,
+          309,
+          311
+        ],
+        "donor_body_ids_by_column": [
+          59,
+          59,
+          59
+        ],
+        "fixed_node_count": 1,
+        "layers": [
+          2,
+          1,
+          2,
+          2
+        ],
+        "material_id": 2,
+        "node_rows": [
+          5130,
+          2719,
+          5131,
+          5133
+        ],
+        "q_emitted_f32": -1.428372841967923e-05,
+        "restart_free_node_count": 3,
+        "tet_row": 16154
+      },
+      {
+        "columns": [
+          813,
+          849,
+          967
+        ],
+        "donor_body_ids_by_column": [
+          138,
+          138,
+          136
+        ],
+        "fixed_node_count": 2,
+        "layers": [
+          2,
+          1,
+          2,
+          2
+        ],
+        "material_id": 2,
+        "node_rows": [
+          5635,
+          3224,
+          5671,
+          5789
+        ],
+        "q_emitted_f32": -0.00025247272467807504,
+        "restart_free_node_count": 2,
+        "tet_row": 19689
+      },
+      {
+        "columns": [
+          2092,
+          2096,
+          2101
+        ],
+        "donor_body_ids_by_column": [
+          99,
+          99,
+          99
+        ],
+        "fixed_node_count": 2,
+        "layers": [
+          1,
+          1,
+          2,
+          2
+        ],
+        "material_id": 2,
+        "node_rows": [
+          4503,
+          4507,
+          6918,
+          6923
+        ],
+        "q_emitted_f32": -0.00744398382167265,
+        "restart_free_node_count": 2,
+        "tet_row": 25096
+      },
+      {
+        "columns": [
+          2107,
+          2123,
+          2125
+        ],
+        "donor_body_ids_by_column": [
+          99,
+          99,
+          99
+        ],
+        "fixed_node_count": 2,
+        "layers": [
+          1,
+          2,
+          2,
+          2
+        ],
+        "material_id": 2,
+        "node_rows": [
+          4518,
+          6929,
+          6945,
+          6947
+        ],
+        "q_emitted_f32": -0.0006320641847059238,
+        "restart_free_node_count": 2,
+        "tet_row": 25196
+      },
+      {
+        "columns": [
+          2109,
+          2110,
+          2129
+        ],
+        "donor_body_ids_by_column": [
+          99,
+          99,
+          99
+        ],
+        "fixed_node_count": 0,
+        "layers": [
+          1,
+          1,
+          2,
+          2
+        ],
+        "material_id": 2,
+        "node_rows": [
+          4520,
+          4521,
+          6932,
+          6951
+        ],
+        "q_emitted_f32": -0.005158758142229758,
+        "restart_free_node_count": 4,
+        "tet_row": 25210
+      },
+      {
+        "columns": [
+          2126,
+          2130,
+          2148
+        ],
+        "donor_body_ids_by_column": [
+          99,
+          99,
+          99
+        ],
+        "fixed_node_count": 0,
+        "layers": [
+          1,
+          1,
+          2,
+          2
+        ],
+        "material_id": 2,
+        "node_rows": [
+          4537,
+          4541,
+          6952,
+          6970
+        ],
+        "q_emitted_f32": -0.0003038540232074511,
+        "restart_free_node_count": 4,
+        "tet_row": 25339
+      },
+      {
+        "columns": [
+          2131,
+          2136,
+          2138
+        ],
+        "donor_body_ids_by_column": [
+          99,
+          98,
+          98
+        ],
+        "fixed_node_count": 2,
+        "layers": [
+          1,
+          1,
+          2,
+          2
+        ],
+        "material_id": 2,
+        "node_rows": [
+          4542,
+          4547,
+          6958,
+          6960
+        ],
+        "q_emitted_f32": -3.117770028071411e-05,
+        "restart_free_node_count": 2,
+        "tet_row": 25378
+      },
+      {
+        "columns": [
+          2136,
+          2137,
+          2141
+        ],
+        "donor_body_ids_by_column": [
+          98,
+          98,
+          98
+        ],
+        "fixed_node_count": 1,
+        "layers": [
+          1,
+          1,
+          2,
+          2
+        ],
+        "material_id": 2,
+        "node_rows": [
+          4547,
+          4548,
+          6959,
+          6963
+        ],
+        "q_emitted_f32": -0.0006927791486892319,
+        "restart_free_node_count": 3,
+        "tet_row": 25381
+      },
+      {
+        "columns": [
+          2114,
+          2137,
+          2188
+        ],
+        "donor_body_ids_by_column": [
+          98,
+          98,
+          95
+        ],
+        "fixed_node_count": 0,
+        "layers": [
+          1,
+          2,
+          2,
+          2
+        ],
+        "material_id": 2,
+        "node_rows": [
+          4525,
+          6936,
+          6959,
+          7010
+        ],
+        "q_emitted_f32": -0.003020260247436668,
+        "restart_free_node_count": 4,
+        "tet_row": 25400
+      },
+      {
+        "columns": [
+          2201,
+          2202,
+          2204
+        ],
+        "donor_body_ids_by_column": [
+          120,
+          124,
+          119
+        ],
+        "fixed_node_count": 1,
+        "layers": [
+          1,
+          1,
+          2,
+          2
+        ],
+        "material_id": 2,
+        "node_rows": [
+          4612,
+          4613,
+          7024,
+          7026
+        ],
+        "q_emitted_f32": -0.0002898165848979508,
+        "restart_free_node_count": 3,
+        "tet_row": 25669
+      },
+      {
+        "columns": [
+          899,
+          901,
+          902
+        ],
+        "donor_body_ids_by_column": [
+          23,
+          23,
+          23
+        ],
+        "fixed_node_count": 0,
+        "layers": [
+          1,
+          2,
+          2,
+          2
+        ],
+        "material_id": 2,
+        "node_rows": [
+          3310,
+          5721,
+          5723,
+          5724
+        ],
+        "q_emitted_f32": -0.0019436401124266463,
+        "restart_free_node_count": 4,
+        "tet_row": 26618
+      }
+    ],
+    "count": 17,
+    "fixed_only_cells": 0,
+    "interpretation": "Every current negative cell has at least one variable node under the existing 12-O/415-column ring. This rules out a fixed-only support obstruction, not simultaneous optimization feasibility. Do not expand the ring unless the per-cell all-tet barrier/feasibility check shows a true boundary obstruction.",
+    "material_counts": {
+      "1": 6,
+      "2": 11
+    },
+    "minimum_free_nodes_per_bad_cell": 1
+  },
+  "layer_thickness": {
+    "basis": "reference O-I and I-D vector lengths; units corrected from metres to millimetres before SLSQP constraints",
+    "candidate_projection_units": "millimetres; baseline projections are converted from metres before comparing with corrected floors",
+    "candidate_rows_below_correct_floor": {
+      "fat": 1,
+      "skin": 0
+    },
+    "fat_candidate_reference-normal_projection_mm": {
+      "max": 12.931221016322633,
+      "median": 8.85042614857398,
+      "min": 0.030449349536860053,
+      "p01": 0.5039834808912588,
+      "p99": 12.11605687394857
+    },
+    "fat_correct_floor_mm": {
+      "max": 0.1,
+      "median": 0.1,
+      "min": 0.1,
+      "p01": 0.1,
+      "p99": 0.1
+    },
+    "fat_reference_thickness_m": {
+      "max": 0.009903954887004587,
+      "median": 0.009900475485772681,
+      "min": 0.000549875028327307,
+      "p01": 0.0005510417834514688,
+      "p99": 0.009902720340498189
+    },
+    "floor_definition": "min(0.2 * reference thickness_mm, 0.10 mm); construction feasibility bound only, not physiological-thickness qualification",
+    "owner_physiological_thickness_bounds": "pending; no physiological minimum claimed",
+    "skin_candidate_reference-normal_projection_mm": {
+      "max": 3.06714356868128,
+      "median": 2.4506524748194294,
+      "min": 0.24234472967608947,
+      "p01": 0.6683879278631321,
+      "p99": 2.4966274062105294
+    },
+    "skin_correct_floor_mm": {
+      "max": 0.1,
+      "median": 0.1,
+      "min": 0.1,
+      "p01": 0.1,
+      "p99": 0.1
+    },
+    "skin_reference_thickness_m": {
+      "max": 0.00248812006930612,
+      "median": 0.0024507888177375866,
+      "min": 0.0005301267701448565,
+      "p01": 0.0008387614670299953,
+      "p99": 0.0024575840069604865
+    }
+  },
+  "pins_sha256": {
+    "033_combined_constraint_npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "034_candidate_npz": "0c1c89e8464bdda06704724169767cb15e7088f66277c2380a09627dc8281d55",
+    "034_report_json": "5f368e159d2324283307d1567f3c10e90ad0213b4fb2d2a7fdf62c8bccb9e098",
+    "034_solver_checkpoint_npz": "f81732947df78920379492051289691d6c181bb03bf6effa0403972163b4e7bc",
+    "035_all_bank_capture_csv": "11452398859d5dd435ec8fbbe4a02c0b1797e5f337b3749850671093ecb231aa",
+    "D37_donor_frame_csv": "4d531659aecd196cb2b4a99bf8d963aaf3721f9c4307eaf215304d0a3ca8805f",
+    "D37_physical_topology_npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+    "registered_pose_json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+  },
+  "previous_margin_gate": {
+    "gate_tolerance_m": 2e-07,
+    "interpretation": "034 passed its explicit 0.2 micrometre tolerance but fell 36.66 nm short of the exact 0.1 mm plane target; 037 will use the 035 pair capture and report exact gap separately.",
+    "minimum_gap_mm": 0.09996333703536078,
+    "shortfall_mm": 3.666296463922518e-05,
+    "shortfall_nm": 36.66296463922518,
+    "strict_target_met": false,
+    "target_mm": 0.1,
+    "within_tolerance": true
+  },
+  "restart": {
+    "active_rows_required_from_full_restart_scan": 37,
+    "active_tet_rows_global": [
+      1838,
+      1958,
+      2010,
+      2056,
+      13630,
+      13634,
+      13707,
+      13709,
+      14307,
+      16154,
+      16248,
+      16250,
+      16326,
+      16372,
+      18809,
+      19689,
+      24680,
+      25096,
+      25196,
+      25210,
+      25262,
+      25339,
+      25378,
+      25381,
+      25400,
+      25669,
+      26365,
+      26618,
+      26915,
+      27025,
+      27160,
+      27196,
+      27226,
+      27374,
+      27950,
+      27992,
+      28513
+    ],
+    "affected_tets": 7060,
+    "below_q_target_double_rows": [
+      1838,
+      1958,
+      2010,
+      2056,
+      13630,
+      13634,
+      13707,
+      13709,
+      14307,
+      16154,
+      16248,
+      16250,
+      16326,
+      16372,
+      18809,
+      19689,
+      24680,
+      25096,
+      25196,
+      25210,
+      25262,
+      25339,
+      25378,
+      25381,
+      25400,
+      25669,
+      26365,
+      26618,
+      26915,
+      27025,
+      27160,
+      27196,
+      27226,
+      27374,
+      27950,
+      27992,
+      28513
+    ],
+    "below_q_target_emitted_f32_rows": [
+      1838,
+      1958,
+      2010,
+      2056,
+      13630,
+      13634,
+      13707,
+      13709,
+      14307,
+      16154,
+      16248,
+      16250,
+      16326,
+      16372,
+      19689,
+      24680,
+      25096,
+      25196,
+      25210,
+      25262,
+      25339,
+      25378,
+      25381,
+      25400,
+      25669,
+      26365,
+      26618,
+      26915,
+      27025,
+      27160,
+      27196,
+      27226,
+      27374,
+      27950,
+      27992,
+      28513
+    ],
+    "candidate_f32_rows_crossing_1_275e-5_due_to_rounding": [
+      18809
+    ],
+    "full_scan_checked_all_affected_rows": true,
+    "initially_active_seed_rows_in_034": 1306,
+    "new_035_ring_columns": 423,
+    "new_variable_rows": 858,
+    "nonpositive_emitted_f32": 17,
+    "nonpositive_restart_double": 17,
+    "old_034_ring_columns": 415,
+    "old_034_variable_rows": 842,
+    "quality_floor": 1.25e-05,
+    "restart_threshold": 1.2750000000000002e-05,
+    "source": "034 solver-checkpoint.npz x_mm, same 842 variable local rows"
+  },
+  "schema": "numi.human.d37-bone-clearance-fit-037-preparation.v1",
+  "status": "prepared_no_fit_launched_waiting_for_corrected_035_per_bone_capture"
+}

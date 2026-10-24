@@ -1,0 +1,17 @@
+{
+  "status": "ANATOMICAL_SIDE_CONCERN_REQUIRES_EDGE_ENTRY_AUDIT",
+  "candidate_sha256": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b",
+  "reference_sha256": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+  "D_witnesses": 120,
+  "D_escape_planes_opposing_baseline_D_to_I": 50,
+  "D_inward_max_mm": 2.7769103375778506,
+  "head_remaining_local_node": 5768,
+  "head_remaining_global_node": 7434,
+  "head_plane_alignment_to_reference_outward": -0.5845187391129829,
+  "head_displacement_outward_mm": -2.7769103375778506,
+  "limits": [
+    "Column direction is a construction reference, not independently measured anatomical normal.",
+    "Negative alignment alone does not prove intracranial or wrong-side placement.",
+    "Nearest-face escape is not an anatomical-side guarantee; audit actual O-I/I-D material edges and outer-connected entry."
+  ]
+}

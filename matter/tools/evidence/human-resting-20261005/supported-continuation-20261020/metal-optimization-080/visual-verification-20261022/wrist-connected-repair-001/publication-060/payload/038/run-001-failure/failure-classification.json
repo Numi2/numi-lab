@@ -1,0 +1,18 @@
+{
+  "attempt": "run-001",
+  "candidate_override_marker": "present; hash-verified; 7,233 candidate positions were selected for audit copy",
+  "complete_containment_csv_written": false,
+  "failure": "app could not create D37 all-bank containment CSV because the env path was a relative path under a nonexistent candidate-query-output directory",
+  "physical_qualification": false,
+  "preserved_logs": [
+    "checked-runner.stdout.txt",
+    "checked-runner.stderr.txt",
+    "source-preflight/execution-receipt.json",
+    "source-preflight/stdout.log",
+    "source-preflight/stderr.log"
+  ],
+  "registered_fem_node_csv_unchanged": true,
+  "schema": "numi.human.d37-candidate-node-query-attempt.v1",
+  "status": "failed-before-query-output",
+  "superseded_by": "run-002/source-preflight"
+}

@@ -1,0 +1,18 @@
+command: /Users/n/numi-human-prep-venv-20261005/bin/python -m unittest discover -s /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-037-preparation-035 -p test_fit_support_037.py -v
+Python 3.13.16
+test_active_quality_scans_full_domain_and_checkpoints_restart (test_fit_support_037.Fit037HelperTests.test_active_quality_scans_full_domain_and_checkpoints_restart) ... ok
+test_all_bank_reader_accepts_pathlike (test_fit_support_037.Fit037HelperTests.test_all_bank_reader_accepts_pathlike) ... ok
+test_duplicate_key_and_mismatched_nearest_bone_fail (test_fit_support_037.Fit037HelperTests.test_duplicate_key_and_mismatched_nearest_bone_fail) ... ok
+test_layer_projection_mm_converts_float32_emitted_meter_geometry (test_fit_support_037.Fit037HelperTests.test_layer_projection_mm_converts_float32_emitted_meter_geometry) ... ok
+test_normalized_quality_jacobian_on_nonzero_dofs (test_fit_support_037.Fit037HelperTests.test_normalized_quality_jacobian_on_nonzero_dofs) ... ok
+test_one_ring_does_not_recurse (test_fit_support_037.Fit037HelperTests.test_one_ring_does_not_recurse) ... ok
+test_per_bone_rows_preserve_same_node_and_unresolved (test_fit_support_037.Fit037HelperTests.test_per_bone_rows_preserve_same_node_and_unresolved) ... ok
+test_quality_restarts_keep_all_discovered_rows (test_fit_support_037.Fit037HelperTests.test_quality_restarts_keep_all_discovered_rows) ... ok
+test_thickness_floor_units_and_collapse (test_fit_support_037.Fit037HelperTests.test_thickness_floor_units_and_collapse) ... ok
+test_world_transform_rotates_pairwise_constraints (test_fit_support_037.Fit037HelperTests.test_world_transform_rotates_pairwise_constraints) ... ok
+test_zero_distance_is_unresolved_not_a_fabricated_normal (test_fit_support_037.Fit037HelperTests.test_zero_distance_is_unresolved_not_a_fabricated_normal) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.009s
+
+OK

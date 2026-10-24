@@ -1,0 +1,53 @@
+{
+  "scope": "naive fixed nearest-point feasibility only; no anatomy/physics acceptance or fresh containment requery",
+  "inferred_clearance_margin_m": 0.0001,
+  "confirmed_inside_constraints": 138,
+  "baseline_emitted_Float32": {
+    "nonpositive": 0,
+    "min_determinant_m3": 2.827060995727424e-12,
+    "min_det_over_max_edge_cubed": 2.6016244143911677e-05,
+    "material_signed_volume_m3": {
+      "1": 0.003452570948304563,
+      "2": 0.011652342870565699
+    },
+    "below_1e_minus_5_quality": 0
+  },
+  "trials": {
+    "independent_nodes": {
+      "nonpositive": 24,
+      "min_determinant_m3": -4.0066409593584945e-07,
+      "min_det_over_max_edge_cubed": -0.04545079885407712,
+      "material_signed_volume_m3": {
+        "1": 0.0034501554973262807,
+        "2": 0.011595844778806314
+      },
+      "moved_nodes": 138,
+      "maximum_displacement_m": 0.00922913277305619,
+      "minimum_original_witness_plane_gap_m": 9.996016308730829e-05,
+      "original_planes_below_margin": 0,
+      "below_1e_minus_5_quality": 24
+    },
+    "whole_column_translation": {
+      "nonpositive": 33,
+      "min_determinant_m3": -3.7168904336954807e-07,
+      "min_det_over_max_edge_cubed": -0.14193323380107,
+      "material_signed_volume_m3": {
+        "1": 0.003454939191807818,
+        "2": 0.01166097140545245
+      },
+      "moved_nodes": 384,
+      "maximum_displacement_m": 0.00922913277305619,
+      "minimum_original_witness_plane_gap_m": -0.00344976565184484,
+      "original_planes_below_margin": 2,
+      "below_1e_minus_5_quality": 34
+    }
+  },
+  "pins": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/source-preflight-006/initial-skin-fem-nodes.csv": "fc0bd3cbf3269050fc97e341fbb3805eff36ebd1eff0ce5f98bcd85260ec8880",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-029/source-preflight-002/registered-skin-poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-029/source-preflight-002/initial-skin-bone-contact.csv": "ee058644ebadc5849109dbed87c555eec091af0e8ca6cb874fb50539cf318d27",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf"
+  },
+  "status": "REJECTED_BOTH_NAIVE_TRANSFERS"
+}

@@ -1,0 +1,4 @@
+parent_commit: d1d9b0935704794d0087e975d7ee378e7c5e1811
+command: clang++ -std=c++20 -O0 -Wall -Wextra -UNDEBUG -I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-060/payload/035/source -I/tmp/numi-060-parent-d1d9b0935704794d0087e975d7ee378e7c5e1811/apps -I/tmp/numi-060-parent-d1d9b0935704794d0087e975d7ee378e7c5e1811/matter/include /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-060/payload/035/source/d37_all_bank_containment_test.cpp -o /tmp/numi-d37-all-bank-test-060-parent
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+PASS: exact per-bone AABB cull, closed-solid parity, and all-bank writer fixtures

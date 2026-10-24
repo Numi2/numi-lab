@@ -1,0 +1,37 @@
+{
+  "admission": {
+    "claim": "per-node closed-solid containment only; not triangle/tetrahedron intersection clearance",
+    "native": false,
+    "physical": false
+  },
+  "baseline_node_csv": {
+    "node_order": "exact global_node_ids equality",
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/source-preflight-003/initial-skin-fem-nodes.csv",
+    "rows": 7233,
+    "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b"
+  },
+  "candidate_npz": {
+    "node_id_field": "global_node_ids",
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-037-componentwise-035affine-002/candidate.npz",
+    "point_field": "points_world_f32",
+    "sha256": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b"
+  },
+  "candidate_report": {
+    "basic_gate": "Float32 all-cell quality >=1e-5, positive determinants, bone planes and layer order pass",
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-037-componentwise-035affine-002/fit-report.json",
+    "sha256": "fe5c45930ddd68a4ec0bf99acbda417689c17084a92ec41c698baba8f055d21d"
+  },
+  "output_csv": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-candidate-query/run-002/candidate-node-override.csv",
+    "schema": "existing initial-skin-fem-nodes.csv header; baseline global/layer/row/mass retained",
+    "sha256": "058db5c144a48d84670963081e2b1a6cfab826d79ec098e19eefd07d14841681"
+  },
+  "positions": {
+    "dtype": "Float32",
+    "max_abs_m": 1.7451446056365967,
+    "rows": 7233,
+    "sha256_f32_c_order": "4c7e126845c3b9423acc43d41c28bb448dd370a4f6400af38e5c1599d7a147fb"
+  },
+  "schema": "numi.human.d37-candidate-node-audit-override.v1",
+  "scope": "candidate positions only for source-only per-bone all-bank node containment; never changes FEM state"
+}

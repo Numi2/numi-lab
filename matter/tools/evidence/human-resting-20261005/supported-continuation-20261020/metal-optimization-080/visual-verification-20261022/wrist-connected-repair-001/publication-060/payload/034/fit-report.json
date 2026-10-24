@@ -1,0 +1,128 @@
+{
+  "checks": {
+    "allcell_positive_q1e5_pass": false,
+    "baseline_float32": {
+      "below_q1e5": 0,
+      "material_volume_m3": {
+        "1": 0.003452570948304563,
+        "2": 0.011652342870565699
+      },
+      "min_det_m3": 2.827060995727424e-12,
+      "min_normalized_q": 2.6016244143911677e-05,
+      "nonpositive_tets": 0,
+      "q_p01": 0.0001195521284977892
+    },
+    "bone_plane_min_gap_m": 9.996333703536078e-05,
+    "bone_plane_pass": true,
+    "bone_plane_violations": 0,
+    "candidate_float32_allcell": {
+      "below_q1e5": 17,
+      "material_volume_m3": {
+        "1": 0.0034484276047035967,
+        "2": 0.011556835349440742
+      },
+      "min_det_m3": -1.1894471900076079e-07,
+      "min_normalized_q": -0.03493493958159199,
+      "nonpositive_tets": 17,
+      "q_p01": 0.0001424620886513181
+    },
+    "layer_order_pass": true,
+    "minimum_fat_order_projection_m": 3.0449349536860054e-05,
+    "minimum_skin_order_projection_m": 0.00024234472967608946
+  },
+  "fit": {
+    "affected_tets": 6959,
+    "bone_margin_m": 0.0001,
+    "columns_in_one_ring": 415,
+    "coordinate_bounds_mm": 15.0,
+    "direct_projection_diagnostic": {
+      "incident_below1e5": 24,
+      "incident_nonpositive": 24,
+      "max_node_delta_mm": 9.229142771187224
+    },
+    "dofs": 2526,
+    "elapsed_s": 107.6276182080619,
+    "fixed": "all nodes outside 12 confirmed O witnesses and 415 connected I/D columns",
+    "method": "joint 3-D world-coordinate SLSQP; analytic normalized tetra quality Jacobian; active-set recheck over all touched cells",
+    "objective": "weighted squared displacement (O=4,I=2,D=1) plus weak one-ring edge displacement regularizer",
+    "q_barrier": 1.25e-05,
+    "seed_tets": 1306,
+    "solve_attempts": [
+      {
+        "active_quality_rows": 1306,
+        "added_rows": 17,
+        "attempt": 0,
+        "min_bone_or_layer_constraint": -2.198902171457462e-11,
+        "min_layer_order": 0.030371662215131486,
+        "patch_quality_below_margin": 37,
+        "solver": {
+          "iterations": 16,
+          "message": "bounded wall-clock stop; retained last callback iterate",
+          "objective": 1338.6974930616047,
+          "status": -2,
+          "success": false
+        }
+      }
+    ],
+    "variable_nodes": 842,
+    "witness_layers": {
+      "0": 12,
+      "1": 7,
+      "2": 119
+    },
+    "witnesses": 138
+  },
+  "geometry": {
+    "donor_local_vectors": "computed as current-pose rotation transpose times world displacement using D37 2411-row donor table",
+    "max_displacement_m": 0.009234836243594847,
+    "max_witness_displacement_m": 0.009234836243594847,
+    "moved_layer_counts": {
+      "0": 12,
+      "1": 330,
+      "2": 390
+    },
+    "moved_nodes": 732,
+    "plane_gap_median_m": 9.999945878039435e-05,
+    "plane_gap_p01_m": 9.996950474865842e-05,
+    "rms_moved_displacement_m": 0.0010459669355899837
+  },
+  "input_sha256": {
+    "constraint_npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "donor_frames": "4d531659aecd196cb2b4a99bf8d963aaf3721f9c4307eaf215304d0a3ca8805f",
+    "physical_topology_npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+    "pose_json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+  },
+  "limits": [
+    "Bone planes are necessary witness constraints only; they do not replace a fresh registered-solid BVH containment audit.",
+    "No external self/retained-surface audit was rerun.",
+    "Detailed-source embedding and physical O ancestry are not regenerated.",
+    "Donor-local displacement is provided for moved rows, but the native owner/topology and conservative material map are not updated.",
+    "This candidate is unadmitted and does not modify frozen 030 evidence."
+  ],
+  "mass": {
+    "conservative_mass_owner_updated": false,
+    "density_rescaled": false,
+    "fixed_density_mass_delta_diagnostic_kg": {
+      "1": -0.004143343394358696,
+      "2": -0.08595677213494281
+    },
+    "material_volume_baseline_m3": {
+      "1": 0.003452570948304563,
+      "2": 0.011652342870565699
+    },
+    "material_volume_candidate_m3": {
+      "1": 0.0034484276047035967,
+      "2": 0.011556835349440742
+    },
+    "reference_fixed_density_kg_m3": {
+      "1": 999.9999501349951,
+      "2": 900.0000326935638
+    },
+    "volume_delta_m3": {
+      "1": -4.143343600966545e-06,
+      "2": -9.55075211249573e-05
+    }
+  },
+  "schema": "numi.human.d37-bone-clearance-joint-layer-fit.v1",
+  "status": "candidate_only_not_admitted"
+}

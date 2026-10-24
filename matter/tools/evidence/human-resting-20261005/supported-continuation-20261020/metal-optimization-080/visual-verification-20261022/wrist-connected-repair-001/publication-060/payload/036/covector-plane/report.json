@@ -1,0 +1,25 @@
+{
+  "covector_rule": "unit_plane_normal_world=normalize(M.T @ unit_nearest_escape_local)",
+  "det_M_max": 1.000000492342368,
+  "det_M_min": 0.9999998247735311,
+  "input_sha256": {
+    "035_all_bank_csv": "11452398859d5dd435ec8fbbe4a02c0b1797e5f337b3749850671093ecb231aa",
+    "035_pose_snapshot": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "036_source_rows": "e13b0aea27be54051386252c2f140a3fa7146b74a782e094c808dab1d38109bb"
+  },
+  "inside_rows": 139,
+  "limitation": "Nearest-point query-to-closest direction supplies a construction plane covector; it is not the original triangle face normal or a force normal. Inside/outside classification is inherited from 035.",
+  "max_abs_raw_quaternion_norm_minus_one": 8.347984525869379e-08,
+  "max_local_escape_inverse_residual_m": 1.734723475976807e-18,
+  "max_unnormalized_plane_dot_invariance_residual_m": 8.673617379884035e-19,
+  "max_vector_covector_unit_difference": 1.7826740762478464e-07,
+  "output_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/native-candidate020-all-bank-affine-roundtrip-036/covector-plane-037/inside-row-covector-planes.npz",
+  "output_sha256": "1b801a7156c8e6a3af54f9fdb7e15478bebe4cff1bdd3bf96a1ea3884488bfd2",
+  "rows_total": 2112,
+  "schema": "numi.human.d37.affine-covector-plane-receipt.v1",
+  "scope": "source-only direction conversion for 035 captured inside rows; no geometry or physical/native admission",
+  "synthetic_shear_vector_covector_separation": 0.19707523593328433,
+  "transform": "x_local=M*x_world+c, where M is built from rotate(conjugate(raw Float32 xyzw), basis columns), matching NumiHumanInitialSkinBoneContactWitness.hpp",
+  "unique_inside_nodes": 139,
+  "vector_rule": "unit_escape_vector_world=normalize(solve(M, unit_nearest_escape_local)); this is not the covector rule"
+}

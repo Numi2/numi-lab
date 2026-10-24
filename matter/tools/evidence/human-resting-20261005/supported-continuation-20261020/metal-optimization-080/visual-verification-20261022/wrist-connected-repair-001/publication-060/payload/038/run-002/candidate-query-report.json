@@ -1,0 +1,24 @@
+{
+  "all_bank_csv_sha256": "a8d7e197db58019cb16f6f89d0ccb63f6e4f7e6f2fc3f6495fd4ee07c1d7a281",
+  "all_bank_nodes_csv_sha256": "f6464f287dbfbd9aa5872ead08e368f9fa7d6eb7a4166a95aa73d7cef7d01ca5",
+  "bank_inventory_csv_sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+  "base_manifest_sha256": "2c14db9fdde9a9a85551612669bd55aeded664deed48edfad4226263ef5fb6e9",
+  "baseline_node_csv_sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+  "candidate_npz_sha256": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b",
+  "candidate_override_csv_sha256": "058db5c144a48d84670963081e2b1a6cfab826d79ec098e19eefd07d14841681",
+  "candidate_report_sha256": "fe5c45930ddd68a4ec0bf99acbda417689c17084a92ec41c698baba8f055d21d",
+  "coverage": {
+    "aabb_proven_outside": 1335996,
+    "ambiguous": 0,
+    "inside": 1,
+    "invalid": 0,
+    "node_bank_pairs": 1338105,
+    "parity_outside": 2108
+  },
+  "limitation": "This is per-node closed-solid containment only; it does not certify triangle or tetrahedron intersection clearance.",
+  "native_simulation_steps": 0,
+  "physical_qualification": false,
+  "pose_snapshot_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "schema": "numi.human.d37-candidate-all-bank-node-query.v1",
+  "scope": "exact-hash-gated candidate node closed-solid containment against per-bone banks; source-only CPU audit"
+}
