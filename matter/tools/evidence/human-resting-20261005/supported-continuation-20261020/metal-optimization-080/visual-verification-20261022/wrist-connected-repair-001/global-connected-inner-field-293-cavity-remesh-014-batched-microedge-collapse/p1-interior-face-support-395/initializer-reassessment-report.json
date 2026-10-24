@@ -1,0 +1,81 @@
+{
+  "elapsed_s": 28.247807417064905,
+  "input_sha256": {
+    "banks689": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "candidate014": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba",
+    "closest_helper126": "16a8a1211057c0763db3fbd5c4b88023a66aab58bc24ac850d190253c571e092",
+    "initializer393": "887eb4fb47bf47144397ae41cf77394763a2d1e120a977ba2a8176e4d3ed9740",
+    "inventory689": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+    "pose157": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "support_checkpoint": "8d48aeae163c30826f16a78f0cf231244bb932103b0e4b74315515ec57ff4536",
+    "volume_guard390": "6e216c4f5aaa5785bd3d12866da5f99a9f729009d1682e53adb79d4ff92851d2",
+    "winding_helper224": "f872076a777d4ff4147f22cb8f8c275fe96ee1912bdf8e129c7dcf65d4730f8c"
+  },
+  "limitations": [
+    "The original 26 physical-O inside-union witnesses are preserved; this does not clear the source boundary.",
+    "No sparse obstacle LP, material extraction, conservative mass transfer, or physical/native admission was run.",
+    "Initializer values are not a solved field.",
+    "Distance nearest-face IDs are approximate centroid-candidate upper bounds.",
+    "All 689 static source banks are considered from the pinned cache; source pose is not deformed-state anatomy."
+  ],
+  "mesh": {
+    "new_support_nodes": 13989,
+    "nodes": 49951,
+    "original_nodes_bitwise_unchanged": true,
+    "physical_O_faces_bitwise_unchanged": true,
+    "tets": 211502
+  },
+  "native_admission": false,
+  "new_support_initializer": {
+    "closed_body_groups": 91,
+    "distance_method": "same 393 k=48 physical-O and k=64 bank-centroid candidates followed by exact point-triangle projection among those candidates; distances are candidate upper bounds, not globally nearest certificates",
+    "inside_closed_union": 288,
+    "near_bank_candidate": 51,
+    "open_body_groups_distance_only": 7,
+    "phi_exact_zero": 0,
+    "phi_positive": 13989,
+    "phi_quantiles": [
+      0.00020456343997380123,
+      0.0015623388608347823,
+      0.004246635290520828,
+      0.031174830282108133,
+      0.43692169957633537,
+      1.0,
+      1.0
+    ],
+    "winding_point_queries": 21899
+  },
+  "output": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/p1-interior-face-support-395/refined-background-unsolved-initializer.npz",
+  "output_sha256": "fd11505dbeaec0decf8b71fde1dc3f62c1e224bd9e039646b40dd3f9fcd0ef18",
+  "plateau": {
+    "all_old_O_rows_retained": true,
+    "allzero_P1_tets_after_new_support_values": 0,
+    "allzero_old_014_tets_before": 6041,
+    "physical_O_nodes_inside_closed_union_unchanged": 26
+  },
+  "schema": "numi.human.p1-support-reevaluated-unsolved-initializer.395.v1",
+  "status": "unsolved_initializer_only",
+  "volume_target_necessary_guard390": {
+    "constant_field_tetrahedra": 2110,
+    "constant_field_volume_m3": 0.0017519736840624414,
+    "failures": [],
+    "guaranteed_volume_gaps": [
+      {
+        "field_value": 1.0,
+        "flat_tetrahedra": 2110,
+        "flat_volume_m3": 0.0017519736840624395,
+        "unattainable_open_interval_m3": [
+          0.06784883067486537,
+          0.06960080435892801
+        ]
+      }
+    ],
+    "native_admission": false,
+    "necessary_conditions_pass": true,
+    "target_volumes_m3": {
+      "skin": 0.003452570642,
+      "skin_plus_fat": 0.015104913881
+    },
+    "total_volume_m3": 0.06960080435892788
+  }
+}

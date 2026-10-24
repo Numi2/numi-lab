@@ -1,0 +1,232 @@
+{
+  "boundary": {
+    "actual_boundary_faces": 38078,
+    "construction_closure_faces_count": 1685,
+    "extra_faces": 0,
+    "missing_faces": 0,
+    "original_coordinate_prefix_exact": true,
+    "physical_O_coordinates_unchanged": true,
+    "physical_O_faces_count": 36393,
+    "shell_exact": true,
+    "shell_faces": 38078
+  },
+  "counts": {
+    "added_nodes": 13989,
+    "added_tets": 47326,
+    "new_nodes": 49951,
+    "new_tets": 211502,
+    "old_nodes": 35962,
+    "old_tets": 164176
+  },
+  "elapsed_s_before_save": 2.4309249999932945,
+  "field_note": "Only topology-support refinement and P1 prolongation; no solved field, material extraction, or admission.",
+  "float32_cells": {
+    "below_quality_floor_1e_5": 25,
+    "helper_report": {
+      "added_cell_nodes": 8630,
+      "added_edge_nodes": 0,
+      "added_face_nodes": 5359,
+      "below_quality_floor_1e_5": 25,
+      "maximum_source_cell_relative_volume_change": 0.07196321544688221,
+      "minimum_float32_quality": 1.5806380544873621e-06,
+      "noncentroid_cell_nodes": 7,
+      "output_nodes": 49951,
+      "output_tetrahedra": 211502,
+      "physical_admission": false,
+      "source_nodes": 35962,
+      "source_tetrahedra": 164176
+    },
+    "minimum_det6_m3": 3.8664166930358094e-14,
+    "minimum_quality": 1.5806380544873621e-06,
+    "minimum_tet_volume_m3": 6.444027821726349e-15,
+    "nonpositive": 0
+  },
+  "input_sha256": {
+    "014_candidate": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba",
+    "initializer393": "887eb4fb47bf47144397ae41cf77394763a2d1e120a977ba2a8176e4d3ed9740",
+    "owner312": "37ed34ff7fee9454652b93e14d9cc3a858cac9d630fe293a665e1ceb390fdc51",
+    "selected_supports": "2ce92d0ddec698a6295dd2ba1789ed1d0bd05c00977954f7b656adb2e85194f4"
+  },
+  "native_admission": false,
+  "output": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/p1-interior-face-support-395/refined-background-checkpoint.npz",
+  "output_sha256": "8d48aeae163c30826f16a78f0cf231244bb932103b0e4b74315515ec57ff4536",
+  "parent_volume_partition": {
+    "by_region": {
+      "1": {
+        "child_count": 211502,
+        "delta_m3": 0.0,
+        "new_volume_m3": 0.06960080435892788,
+        "old_volume_m3": 0.06960080435892788,
+        "parent_count": 164176,
+        "relative_delta": 0.0
+      }
+    },
+    "mass_policy": "Geometric deltas are reported. Child fractions sum to one per parent for conservative allocation of an existing parent mass, but there is no absolute per-tet mass array in 014; no absolute mass ledger is asserted.",
+    "max_abs_delta_m3": 2.224933517191836e-11,
+    "max_abs_relative_delta": 0.07196321544688238,
+    "strict_existing_2e_5_parent_gate_pass": false,
+    "sum_absolute_parent_deltas_m3": 3.865805703670955e-09,
+    "sum_signed_delta_m3": 2.993117503606185e-20,
+    "worst_parent_rows": [
+      {
+        "delta_m3": 8.736030203215145e-14,
+        "new_children_sum_m3": 1.3013180371007574e-12,
+        "old_m3": 1.213957735068606e-12,
+        "relative_delta": 0.07196321544688238,
+        "row": 54910
+      },
+      {
+        "delta_m3": -3.820402382619868e-14,
+        "new_children_sum_m3": 2.2627599946607712e-11,
+        "old_m3": 2.266580397043391e-11,
+        "relative_delta": -0.001685535791098934,
+        "row": 164107
+      },
+      {
+        "delta_m3": 6.810730533180817e-15,
+        "new_children_sum_m3": 4.590713075425196e-12,
+        "old_m3": 4.583902344892015e-12,
+        "relative_delta": 0.0014857931126674691,
+        "row": 164118
+      },
+      {
+        "delta_m3": -2.407381297329685e-14,
+        "new_children_sum_m3": 3.2481659389243164e-11,
+        "old_m3": 3.250573320221646e-11,
+        "relative_delta": -0.0007406020600592186,
+        "row": 69786
+      },
+      {
+        "delta_m3": -3.765336929482614e-14,
+        "new_children_sum_m3": 5.0925715534454616e-11,
+        "old_m3": 5.096336890374944e-11,
+        "relative_delta": -0.0007388320298436144,
+        "row": 57792
+      },
+      {
+        "delta_m3": -4.4958918403550894e-14,
+        "new_children_sum_m3": 6.302592803203786e-11,
+        "old_m3": 6.307088695044141e-11,
+        "relative_delta": -0.0007128315547374151,
+        "row": 53270
+      },
+      {
+        "delta_m3": 6.450344541254473e-14,
+        "new_children_sum_m3": 1.0752728267150795e-10,
+        "old_m3": 1.074627792260954e-10,
+        "relative_delta": 0.0006002398772586483,
+        "row": 24100
+      },
+      {
+        "delta_m3": -1.3068066521374572e-13,
+        "new_children_sum_m3": 2.372751215153093e-10,
+        "old_m3": 2.37405802180523e-10,
+        "relative_delta": -0.00055045270171778,
+        "row": 71899
+      },
+      {
+        "delta_m3": 6.27125369267426e-13,
+        "new_children_sum_m3": 1.1746084140674999e-09,
+        "old_m3": 1.1739812886982324e-09,
+        "relative_delta": 0.0005341868522988243,
+        "row": 21022
+      },
+      {
+        "delta_m3": 6.786508210362897e-14,
+        "new_children_sum_m3": 1.2923659607686766e-10,
+        "old_m3": 1.2916873099476403e-10,
+        "relative_delta": 0.0005253986903872265,
+        "row": 66618
+      },
+      {
+        "delta_m3": 1.1605567769638962e-14,
+        "new_children_sum_m3": 2.306000835917955e-11,
+        "old_m3": 2.304840279140991e-11,
+        "relative_delta": 0.0005035302391523778,
+        "row": 70173
+      },
+      {
+        "delta_m3": -1.5148160922313794e-13,
+        "new_children_sum_m3": 3.105495342834976e-10,
+        "old_m3": 3.107010158927207e-10,
+        "relative_delta": -0.0004875478401249957,
+        "row": 75592
+      },
+      {
+        "delta_m3": -1.901225668860871e-14,
+        "new_children_sum_m3": 4.06216044075721e-11,
+        "old_m3": 4.064061666426071e-11,
+        "relative_delta": -0.00046781417825601194,
+        "row": 58131
+      },
+      {
+        "delta_m3": 4.012900833192937e-14,
+        "new_children_sum_m3": 8.60298423064679e-11,
+        "old_m3": 8.598971329813597e-11,
+        "relative_delta": 0.00046667219592647796,
+        "row": 79871
+      },
+      {
+        "delta_m3": 1.3566363598080882e-14,
+        "new_children_sum_m3": 2.9099798396760368e-11,
+        "old_m3": 2.9086232033162287e-11,
+        "relative_delta": 0.00046641873662471545,
+        "row": 59745
+      },
+      {
+        "delta_m3": 4.797938858466765e-14,
+        "new_children_sum_m3": 1.062257933491472e-10,
+        "old_m3": 1.0617781396056253e-10,
+        "relative_delta": 0.00045187772091906663,
+        "row": 18449
+      },
+      {
+        "delta_m3": 4.625907399939148e-14,
+        "new_children_sum_m3": 1.0247194853129728e-10,
+        "old_m3": 1.0242568945729788e-10,
+        "relative_delta": 0.00045163546610713583,
+        "row": 65291
+      },
+      {
+        "delta_m3": 2.3375926734428025e-15,
+        "new_children_sum_m3": 5.179453748634478e-12,
+        "old_m3": 5.177116155961035e-12,
+        "relative_delta": 0.000451524092375492,
+        "row": 92332
+      },
+      {
+        "delta_m3": 2.4405236927940762e-14,
+        "new_children_sum_m3": 5.488540895452397e-11,
+        "old_m3": 5.486100371759603e-11,
+        "relative_delta": 0.00044485582242661495,
+        "row": 66514
+      },
+      {
+        "delta_m3": 8.369751151613118e-14,
+        "new_children_sum_m3": 1.9742962997041536e-10,
+        "old_m3": 1.9734593245889923e-10,
+        "relative_delta": 0.00042411571636300464,
+        "row": 62483
+      }
+    ]
+  },
+  "row_71466_after": {
+    "child_count": 1,
+    "child_det6_m3": [
+      7.560340480670298e-13
+    ],
+    "child_rows": [
+      95223
+    ],
+    "child_volume_sum_m3": 1.260056746778383e-13,
+    "child_volumes_m3": [
+      1.260056746778383e-13
+    ],
+    "min_child_det6_m3": 7.560340480670298e-13,
+    "parent_delta_m3": 0.0,
+    "parent_relative_delta": 0.0,
+    "parent_volume_m3": 1.260056746778383e-13
+  },
+  "schema": "numi.human.p1-face-support-395-diagnostic.v1",
+  "status": "positive_background_refinement_unsolved_P1"
+}

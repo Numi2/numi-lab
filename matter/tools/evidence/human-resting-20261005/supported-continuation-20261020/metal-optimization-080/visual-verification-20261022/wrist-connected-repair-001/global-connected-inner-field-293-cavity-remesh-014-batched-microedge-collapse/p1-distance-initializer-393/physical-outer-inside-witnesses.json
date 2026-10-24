@@ -1,0 +1,1182 @@
+{
+  "group_contributors": [
+    {
+      "bank_indices": [
+        74
+      ],
+      "bank_keys": [
+        "bank_0074"
+      ],
+      "body_indices": [
+        29,
+        34,
+        41,
+        43
+      ],
+      "faces": 2634,
+      "inside_node_ids": [
+        402,
+        495,
+        496,
+        497,
+        508,
+        509,
+        510,
+        511,
+        516,
+        517,
+        518,
+        519,
+        520,
+        521,
+        522,
+        523,
+        529
+      ],
+      "kind": "soft_tissue",
+      "stable_ids": [
+        75
+      ],
+      "winding": [
+        1.0000000000000002,
+        1.0000000000000002,
+        1.0000000000000002,
+        1.0,
+        1.0000000000000007,
+        1.0,
+        1.0,
+        0.9999999999999997,
+        1.0000000000000002,
+        1.0,
+        0.9999999999999999,
+        1.0000000000000002,
+        1.0000000000000002,
+        0.9999999999999996,
+        1.0,
+        0.9999999999999999,
+        0.9999999999999999
+      ]
+    },
+    {
+      "bank_indices": [
+        78,
+        80,
+        82,
+        84,
+        88
+      ],
+      "bank_keys": [
+        "bank_0078",
+        "bank_0080",
+        "bank_0082",
+        "bank_0084",
+        "bank_0088"
+      ],
+      "body_indices": [
+        34,
+        41
+      ],
+      "faces": 6674,
+      "inside_node_ids": [
+        622,
+        649
+      ],
+      "kind": "soft_tissue",
+      "stable_ids": [
+        79,
+        81,
+        83,
+        85,
+        89
+      ],
+      "winding": [
+        0.9999999999999997,
+        1.0
+      ]
+    },
+    {
+      "bank_indices": [
+        92,
+        96
+      ],
+      "bank_keys": [
+        "bank_0092",
+        "bank_0096"
+      ],
+      "body_indices": [
+        34,
+        41,
+        42
+      ],
+      "faces": 2536,
+      "inside_node_ids": [
+        685
+      ],
+      "kind": "soft_tissue",
+      "stable_ids": [
+        93,
+        97
+      ],
+      "winding": [
+        1.0
+      ]
+    },
+    {
+      "bank_indices": [
+        102
+      ],
+      "bank_keys": [
+        "bank_0102"
+      ],
+      "body_indices": [
+        25,
+        29,
+        34,
+        41,
+        43
+      ],
+      "faces": 3992,
+      "inside_node_ids": [
+        376,
+        466
+      ],
+      "kind": "soft_tissue",
+      "stable_ids": [
+        103
+      ],
+      "winding": [
+        1.0000000000000002,
+        1.0
+      ]
+    },
+    {
+      "bank_indices": [
+        119,
+        121
+      ],
+      "bank_keys": [
+        "bank_0119",
+        "bank_0121"
+      ],
+      "body_indices": [
+        91,
+        93,
+        97,
+        122
+      ],
+      "faces": 4238,
+      "inside_node_ids": [
+        2028,
+        2029,
+        2224
+      ],
+      "kind": "soft_tissue",
+      "stable_ids": [
+        120,
+        122
+      ],
+      "winding": [
+        1.0000000000000002,
+        1.0000000000000002,
+        1.0000000000000002
+      ]
+    },
+    {
+      "bank_indices": [
+        131
+      ],
+      "bank_keys": [
+        "bank_0131"
+      ],
+      "body_indices": [
+        91,
+        92,
+        93,
+        95,
+        99,
+        107,
+        109,
+        110,
+        112,
+        114,
+        115
+      ],
+      "faces": 29412,
+      "inside_node_ids": [
+        2069
+      ],
+      "kind": "soft_tissue",
+      "stable_ids": [
+        132
+      ],
+      "winding": [
+        1.0
+      ]
+    }
+  ],
+  "limitations": [
+    "Inside labels are from the existing per-body closed-union solid-angle classifier, not a triangle-intersection certificate.",
+    "Bank distances are centroid-candidate upper bounds.",
+    "No geometry or field values changed."
+  ],
+  "physical_outer_inside_node_count": 26,
+  "schema": "numi.c014-initializer-fixed-outer-inside-witnesses.001.v1",
+  "source_initializer_report_sha256": "db6504503ab74086292869f99be6223c5dc256fa621d6e217d794bcf0f89ea0b",
+  "status": "diagnostic-only-unsolved",
+  "witnesses": [
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        758,
+        760,
+        785,
+        790,
+        791
+      ],
+      "inside_groups": [
+        [
+          "bank_0102"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          25,
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 1554,
+        "index": 102,
+        "key": "bank_0102",
+        "kind": "soft_tissue",
+        "stable_id": 103
+      },
+      "nearest_bank_candidate_upper_m": 0.003910429024553637,
+      "node_id": 376,
+      "xyz_m": [
+        -0.24172335863113403,
+        -0.5643146634101868,
+        0.1145726814866066
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        865,
+        866,
+        869,
+        870,
+        871,
+        872
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 58,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.0001403094384768135,
+      "node_id": 402,
+      "xyz_m": [
+        -0.25591665506362915,
+        -0.38508865237236023,
+        0.10717815160751343
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        785,
+        786,
+        791,
+        795,
+        833,
+        835,
+        838,
+        1009,
+        1010,
+        1011,
+        1012,
+        1013,
+        1014
+      ],
+      "inside_groups": [
+        [
+          "bank_0102"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          25,
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 1808,
+        "index": 102,
+        "key": "bank_0102",
+        "kind": "soft_tissue",
+        "stable_id": 103
+      },
+      "nearest_bank_candidate_upper_m": 0.009525468711269476,
+      "node_id": 466,
+      "xyz_m": [
+        -0.2413410246372223,
+        -0.5140714049339294,
+        0.1272958666086197
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1059,
+        1061,
+        1087,
+        1088,
+        1090,
+        1091
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 114,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.00023318658528854005,
+      "node_id": 495,
+      "xyz_m": [
+        -0.25349825620651245,
+        -0.37361598014831543,
+        0.1141531765460968
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1061,
+        1062,
+        1090,
+        1092,
+        1093,
+        1094
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 114,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.00046109366547482757,
+      "node_id": 496,
+      "xyz_m": [
+        -0.25301581621170044,
+        -0.36944714188575745,
+        0.1138053834438324
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1062,
+        1063,
+        1092,
+        1095
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 114,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.0005072119560469654,
+      "node_id": 497,
+      "xyz_m": [
+        -0.25190696120262146,
+        -0.3672039806842804,
+        0.11626959592103958
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1088,
+        1089,
+        1091,
+        1103,
+        1104,
+        1105,
+        1106
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 53,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.00016563182488354137,
+      "node_id": 508,
+      "xyz_m": [
+        -0.2551013231277466,
+        -0.37773048877716064,
+        0.10922010242938995
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1090,
+        1091,
+        1093,
+        1105,
+        1107,
+        1108
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 181,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.0006297677456307035,
+      "node_id": 509,
+      "xyz_m": [
+        -0.25440824031829834,
+        -0.3722703158855438,
+        0.10953084379434586
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1093,
+        1094,
+        1107,
+        1109,
+        1110
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 196,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.00018226214051705428,
+      "node_id": 510,
+      "xyz_m": [
+        -0.25388091802597046,
+        -0.36926835775375366,
+        0.1098046600818634
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1092,
+        1094,
+        1095,
+        1109,
+        1111,
+        1112
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 166,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.00024137348311111027,
+      "node_id": 511,
+      "xyz_m": [
+        -0.25235190987586975,
+        -0.3651423752307892,
+        0.11269775032997131
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        870,
+        872,
+        901,
+        1104,
+        1106,
+        1116
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 58,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 3.494928346141407e-05,
+      "node_id": 516,
+      "xyz_m": [
+        -0.2557964026927948,
+        -0.37932106852531433,
+        0.10617031902074814
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        900,
+        901,
+        934,
+        940,
+        1116,
+        1117,
+        1118
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 176,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.00033152270000229414,
+      "node_id": 517,
+      "xyz_m": [
+        -0.2560025155544281,
+        -0.37847283482551575,
+        0.10382144898176193
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1105,
+        1106,
+        1108,
+        1116,
+        1117,
+        1119
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 179,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.0002173778517434852,
+      "node_id": 518,
+      "xyz_m": [
+        -0.2553715407848358,
+        -0.37559521198272705,
+        0.10641257464885712
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1117,
+        1118,
+        1119,
+        1120,
+        1121,
+        1122
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 187,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.0004538728272811981,
+      "node_id": 519,
+      "xyz_m": [
+        -0.2554585933685303,
+        -0.37417536973953247,
+        0.10357076674699783
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1107,
+        1108,
+        1110,
+        1119,
+        1120,
+        1123
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 181,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.00038624005494355463,
+      "node_id": 520,
+      "xyz_m": [
+        -0.2547086179256439,
+        -0.37139105796813965,
+        0.1066514402627945
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1120,
+        1121,
+        1123,
+        1124,
+        1125,
+        1126,
+        1127
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 213,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.00026169837334373786,
+      "node_id": 521,
+      "xyz_m": [
+        -0.25460174679756165,
+        -0.3693554699420929,
+        0.1025288850069046
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1109,
+        1110,
+        1111,
+        1113,
+        1123,
+        1124
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 200,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 4.780934967066048e-05,
+      "node_id": 522,
+      "xyz_m": [
+        -0.2538340091705322,
+        -0.3673456609249115,
+        0.10706391930580139
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1113,
+        1114,
+        1124,
+        1125,
+        1128,
+        1129
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 200,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.0002549070890298141,
+      "node_id": 523,
+      "xyz_m": [
+        -0.2534223198890686,
+        -0.36498820781707764,
+        0.10429144650697708
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1128,
+        1129,
+        1133,
+        1136,
+        1137,
+        1138
+      ],
+      "inside_groups": [
+        [
+          "bank_0074"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          29,
+          34,
+          41,
+          43
+        ],
+        "face_local_row": 237,
+        "index": 74,
+        "key": "bank_0074",
+        "kind": "soft_tissue",
+        "stable_id": 75
+      },
+      "nearest_bank_candidate_upper_m": 0.0001742020116079825,
+      "node_id": 529,
+      "xyz_m": [
+        -0.25244688987731934,
+        -0.3616276681423187,
+        0.10169760882854462
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1196,
+        1198,
+        1209,
+        1210,
+        1299,
+        1308,
+        1309,
+        1310
+      ],
+      "inside_groups": [
+        [
+          "bank_0078",
+          "bank_0080",
+          "bank_0082",
+          "bank_0084",
+          "bank_0088"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          34,
+          41
+        ],
+        "face_local_row": 577,
+        "index": 78,
+        "key": "bank_0078",
+        "kind": "soft_tissue",
+        "stable_id": 79
+      },
+      "nearest_bank_candidate_upper_m": 0.0005443706462983767,
+      "node_id": 622,
+      "xyz_m": [
+        -0.2438264638185501,
+        -0.4092206060886383,
+        0.06519139558076859
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1300,
+        1301,
+        1309,
+        1310
+      ],
+      "inside_groups": [
+        [
+          "bank_0078",
+          "bank_0080",
+          "bank_0082",
+          "bank_0084",
+          "bank_0088"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          34,
+          41
+        ],
+        "face_local_row": 740,
+        "index": 78,
+        "key": "bank_0078",
+        "kind": "soft_tissue",
+        "stable_id": 79
+      },
+      "nearest_bank_candidate_upper_m": 0.0018914289148694403,
+      "node_id": 649,
+      "xyz_m": [
+        -0.24096675217151642,
+        -0.40031903982162476,
+        0.06288887560367584
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        1392,
+        1393,
+        1412,
+        1444
+      ],
+      "inside_groups": [
+        [
+          "bank_0092",
+          "bank_0096"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          34,
+          41,
+          42
+        ],
+        "face_local_row": 892,
+        "index": 92,
+        "key": "bank_0092",
+        "kind": "soft_tissue",
+        "stable_id": 93
+      },
+      "nearest_bank_candidate_upper_m": 0.0031447145242146416,
+      "node_id": 685,
+      "xyz_m": [
+        -0.19876126945018768,
+        -0.4960707128047943,
+        0.04773195460438728
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        3689,
+        3690,
+        3979,
+        4006,
+        4007
+      ],
+      "inside_groups": [
+        [
+          "bank_0119",
+          "bank_0121"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          91,
+          93,
+          97,
+          122
+        ],
+        "face_local_row": 1995,
+        "index": 119,
+        "key": "bank_0119",
+        "kind": "soft_tissue",
+        "stable_id": 120
+      },
+      "nearest_bank_candidate_upper_m": 0.0006408260961173072,
+      "node_id": 2028,
+      "xyz_m": [
+        0.21556441485881805,
+        -0.8548356890678406,
+        0.09322501718997955
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        3690,
+        3691,
+        4006
+      ],
+      "inside_groups": [
+        [
+          "bank_0119",
+          "bank_0121"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          91,
+          93,
+          97,
+          122
+        ],
+        "face_local_row": 1919,
+        "index": 119,
+        "key": "bank_0119",
+        "kind": "soft_tissue",
+        "stable_id": 120
+      },
+      "nearest_bank_candidate_upper_m": 0.00010666332423232922,
+      "node_id": 2029,
+      "xyz_m": [
+        0.21483908593654633,
+        -0.8538389205932617,
+        0.09227621555328369
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        3949,
+        3951,
+        3954,
+        3996,
+        4033,
+        4049,
+        4077,
+        4078
+      ],
+      "inside_groups": [
+        [
+          "bank_0131"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          91,
+          92,
+          93,
+          95,
+          99,
+          107,
+          109,
+          110,
+          112,
+          114,
+          115
+        ],
+        "face_local_row": 9365,
+        "index": 131,
+        "key": "bank_0131",
+        "kind": "soft_tissue",
+        "stable_id": 132
+      },
+      "nearest_bank_candidate_upper_m": 0.0004717341400802317,
+      "node_id": 2069,
+      "xyz_m": [
+        0.21611541509628296,
+        -0.8763637542724609,
+        0.11901482194662094
+      ]
+    },
+    {
+      "distance_outer_candidate_upper_m": 0.0,
+      "incident_outer_face_rows": [
+        3589,
+        3590,
+        3634,
+        3636,
+        3638,
+        3639
+      ],
+      "inside_groups": [
+        [
+          "bank_0119",
+          "bank_0121"
+        ]
+      ],
+      "nearest_bank": {
+        "body_indices": [
+          91,
+          93,
+          97,
+          122
+        ],
+        "face_local_row": 763,
+        "index": 119,
+        "key": "bank_0119",
+        "kind": "soft_tissue",
+        "stable_id": 120
+      },
+      "nearest_bank_candidate_upper_m": 0.0023895842966294217,
+      "node_id": 2224,
+      "xyz_m": [
+        0.15060319006443024,
+        -0.707936704158783,
+        0.08307071030139923
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "execution_command": "/Users/n/numi-human-prep-venv-20261005/bin/python /tmp/reevaluate_support_field_395.py",
+  "files_sha256": {
+    "executed_source": "316afa9b30bf4d21502f90632fa48677c3f6b46c0806644a24bd4feef7285c8a",
+    "initializer_output": "fd11505dbeaec0decf8b71fde1dc3f62c1e224bd9e039646b40dd3f9fcd0ef18",
+    "input_checkpoint": "8d48aeae163c30826f16a78f0cf231244bb932103b0e4b74315515ec57ff4536",
+    "report": "614c301b81809d52ac23eb7516ff585ddb6189409a265c9938f96781c73ed1db"
+  },
+  "note": "The source is copied byte-for-byte from the executed /tmp file; the initializer remains unsolved and unadmitted.",
+  "python_executable": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "python_version": "3.13.16",
+  "schema": "numi.p1-support-reevaluation-execution-pin.395.v1",
+  "status": "historical-execution-source-frozen"
+}

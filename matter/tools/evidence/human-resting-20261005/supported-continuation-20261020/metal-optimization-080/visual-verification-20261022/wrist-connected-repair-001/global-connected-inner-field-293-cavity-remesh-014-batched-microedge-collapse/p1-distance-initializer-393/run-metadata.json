@@ -1,0 +1,78 @@
+{
+  "created_utc": "2026-10-24T15:28:18Z",
+  "execution": {
+    "bounded_alarm_s": 115,
+    "geometry_slot_wrapper": "/tmp/numi-human-geometry-slot.py",
+    "original_script_path": "/tmp/build_p1_initializer_393.py",
+    "reported_elapsed_s": 49.30723975005094,
+    "script_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/p1-distance-initializer-393/build_p1_initializer_393.py",
+    "script_sha256": "cb64ea934c9e02af12718405f9631c554dfabc603b6aa862067e995b405ed7a1"
+  },
+  "gates": {
+    "native_admission": false,
+    "physical_O_inside_closed_group_nodes": 26,
+    "volume_attainability_390": {
+      "constant_field_tetrahedra": 8151,
+      "constant_field_volume_m3": 0.007170975090224364,
+      "failures": [
+        {
+          "field_value": 0.0,
+          "flat_tetrahedra": 6041,
+          "flat_volume_m3": 0.005419001406161927,
+          "target": "skin",
+          "target_m3": 0.003452570642,
+          "unattainable_open_interval_m3": [
+            0.0,
+            0.005419001406161927
+          ]
+        }
+      ],
+      "guaranteed_volume_gaps": [
+        {
+          "field_value": 0.0,
+          "flat_tetrahedra": 6041,
+          "flat_volume_m3": 0.005419001406161927,
+          "unattainable_open_interval_m3": [
+            0.0,
+            0.005419001406161927
+          ]
+        },
+        {
+          "field_value": 1.0,
+          "flat_tetrahedra": 2110,
+          "flat_volume_m3": 0.0017519736840624395,
+          "unattainable_open_interval_m3": [
+            0.06784883067486533,
+            0.06960080435892786
+          ]
+        }
+      ],
+      "native_admission": false,
+      "necessary_conditions_pass": false,
+      "target_volumes_m3": {
+        "skin": 0.003452570642,
+        "skin_plus_fat": 0.015104913881
+      },
+      "total_volume_m3": 0.06960080435892788
+    }
+  },
+  "inputs_sha256": {
+    "candidate014": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba",
+    "closest_helper126": "16a8a1211057c0763db3fbd5c4b88023a66aab58bc24ac850d190253c571e092",
+    "field_transfer_preflight014": "3dfab2cdb6b4d0ee0f170ce9bd3a2ee30fd7cd064e92542c58b600a61653336b",
+    "inventory689": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+    "pose157": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "registered_banks689": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "volume_guard390": "6e216c4f5aaa5785bd3d12866da5f99a9f729009d1682e53adb79d4ff92851d2",
+    "winding_helper224": "f872076a777d4ff4147f22cb8f8c275fe96ee1912bdf8e129c7dcf65d4730f8c"
+  },
+  "outputs_sha256": {
+    "distance_bank_checkpoint": "0a5c0a0921a706d45ab3846ee95885d9be3fe0d650203351102be3328ad6bead",
+    "distance_outer_checkpoint": "dc1aa95672557e630212328a449f42a0cadfef82c4bfcf77beaa7e19c76611da",
+    "initializer_npz": "887eb4fb47bf47144397ae41cf77394763a2d1e120a977ba2a8176e4d3ed9740",
+    "physical_outer_inside_witnesses": "e554b1466b58020c7a27d0ce591e3e2f35b4d597525e0e8b71bec7a155c48c82",
+    "run_report": "db6504503ab74086292869f99be6223c5dc256fa621d6e217d794bcf0f89ea0b"
+  },
+  "schema": "numi.human.p1-distance-initializer-run-metadata.001.v1",
+  "status": "unsolved diagnostic initializer; no field solve or admission"
+}

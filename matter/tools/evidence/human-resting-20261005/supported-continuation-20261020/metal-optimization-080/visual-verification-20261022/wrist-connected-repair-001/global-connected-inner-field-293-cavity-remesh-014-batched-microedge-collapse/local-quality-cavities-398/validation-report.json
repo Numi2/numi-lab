@@ -1,0 +1,26 @@
+{
+  "candidate_sha256": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+  "material_map_sha256": "e4ac929347673e55082c8bf2b4fa239617c18ac297195c18fae60ce8602bf38d",
+  "nodes": 49951,
+  "active_nodes": 49811,
+  "unreferenced_coordinate_rows": 140,
+  "tets": 211439,
+  "nonpositive": 0,
+  "minimum_quality": 1.0769711886750688e-05,
+  "boundary_faces": 38078,
+  "boundary_exact": true,
+  "oriented_boundary_mismatches": 0,
+  "physical_O_faces": 36393,
+  "construction_closure_faces": 1685,
+  "all_old_coordinates_bitwise_unchanged": true,
+  "total_volume_m3": 0.06960080435892788,
+  "max_conservative_parent_column_error": 4.440892098500626e-16,
+  "elapsed_s": 0.49638595804572105,
+  "native_admission": false,
+  "limitations": [
+    "Existing construction caps do not certify physical skin aperture closure.",
+    "Unreferenced coordinate rows need compaction in the consuming mechanical compiler.",
+    "No absolute physical kg ledger or solved layer field is certified."
+  ],
+  "gate_pass": true
+}

@@ -1,0 +1,44 @@
+Opening /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/cavities.poly.
+Delaunizing vertices...
+Delaunay seconds:  0.000247
+Creating surface mesh ...
+Surface mesh seconds:  7.3e-05
+Recovering boundaries...
+Boundary recovery seconds:  0.000439
+Removing exterior tetrahedra ...
+Spreading region attributes.
+Exterior tets removal seconds:  8.2e-05
+Recovering Delaunayness...
+Delaunay recovery seconds:  0.000157
+Refining mesh...
+  202 insertions, added 0 points, 81 tetrahedra in queue.
+  67 insertions, added 0 points, 7 tetrahedra in queue.
+  89 insertions, added 0 points, 0 tetrahedra in queue.
+  119 insertions, added 0 points, 0 tetrahedra in queue.
+Refinement seconds:  0.000788
+Improving mesh...
+Mesh improvement seconds:  0.000106
+
+Writing /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/cavities.1.node.
+Writing /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/cavities.1.ele.
+Writing /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/cavities.1.face.
+Writing /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/cavities.1.edge.
+
+Output seconds:  0.000441
+Total running seconds:  0.002369
+
+Statistics:
+
+  Input points: 152
+  Input facets: 292
+  Input segments: 438
+  Input holes: 0
+  Input regions: 4
+
+  Mesh points: 152
+  Mesh tetrahedra: 286
+  Mesh faces: 718
+  Mesh faces on exterior boundary: 292
+  Mesh faces on input facets: 292
+  Mesh edges on input segments: 438
+

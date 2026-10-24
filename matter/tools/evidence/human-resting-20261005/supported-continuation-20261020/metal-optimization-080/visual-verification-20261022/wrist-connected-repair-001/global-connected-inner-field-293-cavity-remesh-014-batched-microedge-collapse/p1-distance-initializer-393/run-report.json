@@ -1,0 +1,1568 @@
+{
+  "closed_group_count": 91,
+  "construction_cap_only_nodes": 822,
+  "distance_bank_quantiles_m": [
+    3.014648413089466e-07,
+    0.00010768715507462865,
+    0.0007497744212061869,
+    0.010456015819705618,
+    0.025791207436288956,
+    0.03186969719748446,
+    0.05759535868593817
+  ],
+  "distance_method": "277 semantics: k=48 physical O and k=64 concatenated registered-bank face-centroid candidate queries followed by exact point-to-triangle projection on those candidates; distances remain candidate upper bounds, not global nearest certificates.",
+  "distance_outer_quantiles_m": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.014757358723838961,
+    0.028999705812776215,
+    0.09076296353567542
+  ],
+  "elapsed_s": 49.30723975005094,
+  "field_definition": "phi=1 for closed-solid inside or estimated near-margin nodes; otherwise dO/(dO+dBank), clipped [0,1]; physical O nodes reset to 0. This is only an unsolved initializer.",
+  "inputs_sha256": {
+    "candidate014": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba",
+    "closest_helper126": "16a8a1211057c0763db3fbd5c4b88023a66aab58bc24ac850d190253c571e092",
+    "field_transfer_preflight014": "3dfab2cdb6b4d0ee0f170ce9bd3a2ee30fd7cd064e92542c58b600a61653336b",
+    "inventory689": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+    "pose157": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "registered_banks689": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "volume_guard390": "6e216c4f5aaa5785bd3d12866da5f99a9f729009d1682e53adb79d4ff92851d2",
+    "winding_helper224": "f872076a777d4ff4147f22cb8f8c275fe96ee1912bdf8e129c7dcf65d4730f8c"
+  },
+  "inside_classifier": "277 semantics: per-body-index groups exact-coordinate-welded, closed/oriented groups classified by 224 solid-angle winding abs(w)>0.5; open groups unsigned-distance only; inside is union across closed groups.",
+  "inside_physical_outer_nodes": 26,
+  "inside_point_count_union": 1280,
+  "limitations": [
+    "Static source-pose tissue bank cache; not accepted deformed state.",
+    "Centroid-candidate distances can overestimate true global nearest distances; near-margin labels and ratio are provisional.",
+    "No obstacle LP, field solve, level selection, interface extraction, material split, conservative ancestry, native compile, or admission was attempted."
+  ],
+  "margins_m": {
+    "anatomy": 0.00025,
+    "soft_tissue": 0.0001
+  },
+  "native_admission": false,
+  "near_candidate_count": 661,
+  "nearest_kind_counts": {
+    "anatomy": 3396,
+    "soft_tissue": 32566
+  },
+  "nodes": 35962,
+  "open_group_count": 7,
+  "paths": {
+    "candidate014": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/candidate.npz",
+    "distance_helper": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/build_common_volume_126.py",
+    "inventory": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/inventory.json",
+    "pose": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/registered-skin-poses.json",
+    "registered_banks": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/registered-tissue-banks.npz",
+    "volume_guard": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/p1-material-field-attainability-owner-390/tools/human_skin_p1_material_volume.py",
+    "winding_helper": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-224-commonfield-tetgen-volume-actual007/build_commonfield_224.py"
+  },
+  "phi_quantiles": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "physical_outer_faces": 36393,
+  "physical_outer_nodes": 18219,
+  "schema": "numi.human.p1-distance-initializer.393.v1",
+  "status": "unsolved_candidate_initializer",
+  "tets": 164176,
+  "volume_target_necessary_gate_390": {
+    "constant_field_tetrahedra": 8151,
+    "constant_field_volume_m3": 0.007170975090224364,
+    "failures": [
+      {
+        "field_value": 0.0,
+        "flat_tetrahedra": 6041,
+        "flat_volume_m3": 0.005419001406161927,
+        "target": "skin",
+        "target_m3": 0.003452570642,
+        "unattainable_open_interval_m3": [
+          0.0,
+          0.005419001406161927
+        ]
+      }
+    ],
+    "guaranteed_volume_gaps": [
+      {
+        "field_value": 0.0,
+        "flat_tetrahedra": 6041,
+        "flat_volume_m3": 0.005419001406161927,
+        "unattainable_open_interval_m3": [
+          0.0,
+          0.005419001406161927
+        ]
+      },
+      {
+        "field_value": 1.0,
+        "flat_tetrahedra": 2110,
+        "flat_volume_m3": 0.0017519736840624395,
+        "unattainable_open_interval_m3": [
+          0.06784883067486533,
+          0.06960080435892786
+        ]
+      }
+    ],
+    "native_admission": false,
+    "necessary_conditions_pass": false,
+    "target_volumes_m3": {
+      "skin": 0.003452570642,
+      "skin_plus_fat": 0.015104913881
+    },
+    "total_volume_m3": 0.06960080435892788
+  },
+  "winding_group_reports": [
+    {
+      "banks": 3,
+      "body_indices": [
+        131,
+        136,
+        138
+      ],
+      "closed": false,
+      "topology": {
+        "edges": 14818,
+        "incidence_histogram": {
+          "1": 32,
+          "2": 14786
+        },
+        "same_direction_edges": 32
+      }
+    },
+    {
+      "banks": 3,
+      "body_indices": [
+        145,
+        150,
+        152
+      ],
+      "closed": false,
+      "topology": {
+        "edges": 14818,
+        "incidence_histogram": {
+          "1": 32,
+          "2": 14786
+        },
+        "same_direction_edges": 32
+      }
+    },
+    {
+      "banks": 5,
+      "body_indices": [
+        136,
+        138
+      ],
+      "closed": true,
+      "faces": 17782,
+      "inside_points": 98,
+      "max_abs_winding": 1.9999999999999998,
+      "tested_points": 2746,
+      "vertices": 8918
+    },
+    {
+      "banks": 5,
+      "body_indices": [
+        150,
+        152
+      ],
+      "closed": true,
+      "faces": 17782,
+      "inside_points": 122,
+      "max_abs_winding": 1.9999999999999998,
+      "tested_points": 2944,
+      "vertices": 8918
+    },
+    {
+      "banks": 10,
+      "body_indices": [
+        128,
+        131
+      ],
+      "closed": true,
+      "faces": 30790,
+      "inside_points": 28,
+      "max_abs_winding": 1.0000000000000022,
+      "tested_points": 2454,
+      "vertices": 15444
+    },
+    {
+      "banks": 10,
+      "body_indices": [
+        128,
+        145
+      ],
+      "closed": true,
+      "faces": 30790,
+      "inside_points": 18,
+      "max_abs_winding": 1.0000000000000002,
+      "tested_points": 2459,
+      "vertices": 15444
+    },
+    {
+      "banks": 4,
+      "body_indices": [
+        128,
+        136
+      ],
+      "closed": true,
+      "faces": 15606,
+      "inside_points": 228,
+      "max_abs_winding": 1.0000000000000029,
+      "tested_points": 2397,
+      "vertices": 7807
+    },
+    {
+      "banks": 4,
+      "body_indices": [
+        128,
+        150
+      ],
+      "closed": true,
+      "faces": 15610,
+      "inside_points": 214,
+      "max_abs_winding": 1.0000000000000007,
+      "tested_points": 2403,
+      "vertices": 7809
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        131,
+        136
+      ],
+      "closed": true,
+      "faces": 1728,
+      "inside_points": 10,
+      "max_abs_winding": 1.0000000000000002,
+      "tested_points": 55,
+      "vertices": 866
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        145,
+        150
+      ],
+      "closed": true,
+      "faces": 1728,
+      "inside_points": 5,
+      "max_abs_winding": 1.0,
+      "tested_points": 49,
+      "vertices": 866
+    },
+    {
+      "banks": 4,
+      "body_indices": [
+        136,
+        138,
+        139
+      ],
+      "closed": true,
+      "faces": 13664,
+      "inside_points": 60,
+      "max_abs_winding": 1.000000000000002,
+      "tested_points": 5372,
+      "vertices": 6848
+    },
+    {
+      "banks": 4,
+      "body_indices": [
+        150,
+        152,
+        153
+      ],
+      "closed": true,
+      "faces": 13718,
+      "inside_points": 69,
+      "max_abs_winding": 2.0000000000000004,
+      "tested_points": 5346,
+      "vertices": 6875
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        128,
+        131,
+        136,
+        142
+      ],
+      "closed": true,
+      "faces": 5688,
+      "inside_points": 25,
+      "max_abs_winding": 1.0000000000000002,
+      "tested_points": 922,
+      "vertices": 2842
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        128,
+        145,
+        150,
+        156
+      ],
+      "closed": true,
+      "faces": 5688,
+      "inside_points": 22,
+      "max_abs_winding": 1.0000000000000004,
+      "tested_points": 880,
+      "vertices": 2842
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        128,
+        131,
+        136
+      ],
+      "closed": true,
+      "faces": 4732,
+      "inside_points": 23,
+      "max_abs_winding": 1.0000000000000009,
+      "tested_points": 1263,
+      "vertices": 2364
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        128,
+        145,
+        150
+      ],
+      "closed": true,
+      "faces": 4730,
+      "inside_points": 27,
+      "max_abs_winding": 1.0000000000000007,
+      "tested_points": 1321,
+      "vertices": 2363
+    },
+    {
+      "banks": 3,
+      "body_indices": [
+        131,
+        136,
+        142
+      ],
+      "closed": true,
+      "faces": 15500,
+      "inside_points": 131,
+      "max_abs_winding": 2.0000000000000004,
+      "tested_points": 1585,
+      "vertices": 7762
+    },
+    {
+      "banks": 3,
+      "body_indices": [
+        145,
+        150,
+        156
+      ],
+      "closed": true,
+      "faces": 15502,
+      "inside_points": 142,
+      "max_abs_winding": 2.0000000000000013,
+      "tested_points": 1763,
+      "vertices": 7763
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        7,
+        20
+      ],
+      "closed": true,
+      "faces": 223584,
+      "inside_points": 0,
+      "max_abs_winding": 1.2810567467005832e-16,
+      "tested_points": 101,
+      "vertices": 111880
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        25,
+        41
+      ],
+      "closed": true,
+      "faces": 2032,
+      "inside_points": 0,
+      "max_abs_winding": 8.834874115176436e-18,
+      "tested_points": 24,
+      "vertices": 1022
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        25,
+        91
+      ],
+      "closed": true,
+      "faces": 1532,
+      "inside_points": 0,
+      "max_abs_winding": 4.141347241488954e-18,
+      "tested_points": 23,
+      "vertices": 774
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        29,
+        34,
+        41
+      ],
+      "closed": false,
+      "topology": {
+        "edges": 9170,
+        "incidence_histogram": {
+          "2": 9169,
+          "4": 1
+        },
+        "same_direction_edges": 0
+      }
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        79,
+        91
+      ],
+      "closed": true,
+      "faces": 2462,
+      "inside_points": 0,
+      "max_abs_winding": 2.6504622345529306e-17,
+      "tested_points": 6,
+      "vertices": 1239
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        25,
+        29,
+        41
+      ],
+      "closed": true,
+      "faces": 8246,
+      "inside_points": 0,
+      "max_abs_winding": 1.236882376124701e-16,
+      "tested_points": 27,
+      "vertices": 4119
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        25,
+        79,
+        91
+      ],
+      "closed": true,
+      "faces": 7704,
+      "inside_points": 0,
+      "max_abs_winding": 1.095524390281878e-15,
+      "tested_points": 38,
+      "vertices": 3850
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        29,
+        34,
+        41,
+        43
+      ],
+      "closed": true,
+      "faces": 2634,
+      "inside_points": 32,
+      "max_abs_winding": 1.0000000000000038,
+      "tested_points": 184,
+      "vertices": 1902
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        79,
+        84,
+        91
+      ],
+      "closed": false,
+      "topology": {
+        "edges": 7649,
+        "incidence_histogram": {
+          "2": 7510,
+          "4": 139
+        },
+        "same_direction_edges": 0
+      }
+    },
+    {
+      "banks": 5,
+      "body_indices": [
+        34,
+        41
+      ],
+      "closed": true,
+      "faces": 6674,
+      "inside_points": 2,
+      "max_abs_winding": 1.0,
+      "tested_points": 55,
+      "vertices": 3350
+    },
+    {
+      "banks": 7,
+      "body_indices": [
+        84,
+        91
+      ],
+      "closed": true,
+      "faces": 7790,
+      "inside_points": 0,
+      "max_abs_winding": 1.2472357442284232e-16,
+      "tested_points": 74,
+      "vertices": 3951
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        25,
+        34,
+        41
+      ],
+      "closed": true,
+      "faces": 2704,
+      "inside_points": 0,
+      "max_abs_winding": 6.0739759541837995e-18,
+      "tested_points": 3,
+      "vertices": 1362
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        34,
+        41,
+        43
+      ],
+      "closed": false,
+      "topology": {
+        "edges": 5779,
+        "incidence_histogram": {
+          "2": 5501,
+          "4": 278
+        },
+        "same_direction_edges": 0
+      }
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        34,
+        41,
+        42
+      ],
+      "closed": true,
+      "faces": 2536,
+      "inside_points": 1,
+      "max_abs_winding": 1.0,
+      "tested_points": 16,
+      "vertices": 1272
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        84,
+        91,
+        92
+      ],
+      "closed": true,
+      "faces": 1586,
+      "inside_points": 13,
+      "max_abs_winding": 1.0000000000000002,
+      "tested_points": 108,
+      "vertices": 798
+    },
+    {
+      "banks": 3,
+      "body_indices": [
+        41,
+        42
+      ],
+      "closed": true,
+      "faces": 5636,
+      "inside_points": 3,
+      "max_abs_winding": 1.0000000000000002,
+      "tested_points": 24,
+      "vertices": 2830
+    },
+    {
+      "banks": 4,
+      "body_indices": [
+        91,
+        92
+      ],
+      "closed": true,
+      "faces": 6466,
+      "inside_points": 5,
+      "max_abs_winding": 1.0000000000000002,
+      "tested_points": 33,
+      "vertices": 3250
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        34,
+        41,
+        42,
+        43
+      ],
+      "closed": true,
+      "faces": 3438,
+      "inside_points": 0,
+      "max_abs_winding": 2.208718528794109e-18,
+      "tested_points": 2,
+      "vertices": 1720
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        92,
+        93
+      ],
+      "closed": true,
+      "faces": 5004,
+      "inside_points": 0,
+      "max_abs_winding": 4.969616689786745e-18,
+      "tested_points": 8,
+      "vertices": 2493
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        25,
+        29,
+        34,
+        41,
+        43
+      ],
+      "closed": true,
+      "faces": 3992,
+      "inside_points": 3,
+      "max_abs_winding": 1.0000000000000002,
+      "tested_points": 226,
+      "vertices": 1999
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        84,
+        91,
+        93
+      ],
+      "closed": true,
+      "faces": 3268,
+      "inside_points": 2,
+      "max_abs_winding": 1.0000000000000002,
+      "tested_points": 30,
+      "vertices": 1629
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        41,
+        43,
+        45,
+        49,
+        52
+      ],
+      "closed": true,
+      "faces": 5686,
+      "inside_points": 0,
+      "max_abs_winding": 4.638308910467629e-17,
+      "tested_points": 24,
+      "vertices": 3536
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        91,
+        93
+      ],
+      "closed": true,
+      "faces": 4874,
+      "inside_points": 0,
+      "max_abs_winding": 1.766974823035287e-17,
+      "tested_points": 39,
+      "vertices": 2439
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        41,
+        43,
+        45,
+        57
+      ],
+      "closed": true,
+      "faces": 2464,
+      "inside_points": 0,
+      "max_abs_winding": 1.766974823035287e-17,
+      "tested_points": 26,
+      "vertices": 1251
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        91,
+        93,
+        95,
+        107
+      ],
+      "closed": true,
+      "faces": 3602,
+      "inside_points": 0,
+      "max_abs_winding": 4.541677474832886e-17,
+      "tested_points": 99,
+      "vertices": 1837
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        41,
+        43,
+        45,
+        62
+      ],
+      "closed": true,
+      "faces": 2092,
+      "inside_points": 0,
+      "max_abs_winding": 3.009378995481973e-17,
+      "tested_points": 19,
+      "vertices": 1055
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        91,
+        93,
+        95,
+        112
+      ],
+      "closed": true,
+      "faces": 2092,
+      "inside_points": 0,
+      "max_abs_winding": 6.6261555863823264e-18,
+      "tested_points": 72,
+      "vertices": 1055
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        41,
+        42,
+        43,
+        72
+      ],
+      "closed": true,
+      "faces": 1206,
+      "inside_points": 0,
+      "max_abs_winding": 3.533949646070574e-17,
+      "tested_points": 4,
+      "vertices": 599
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        91,
+        92,
+        93,
+        122
+      ],
+      "closed": true,
+      "faces": 1206,
+      "inside_points": 0,
+      "max_abs_winding": 9.345640274960073e-17,
+      "tested_points": 25,
+      "vertices": 599
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        41,
+        42,
+        43,
+        45,
+        49,
+        57,
+        62
+      ],
+      "closed": true,
+      "faces": 4520,
+      "inside_points": 0,
+      "max_abs_winding": 1.5184939885459497e-17,
+      "tested_points": 24,
+      "vertices": 2404
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        41,
+        43,
+        47,
+        72
+      ],
+      "closed": true,
+      "faces": 4238,
+      "inside_points": 0,
+      "max_abs_winding": 7.178335218580854e-17,
+      "tested_points": 19,
+      "vertices": 2097
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        91,
+        93,
+        97,
+        122
+      ],
+      "closed": true,
+      "faces": 4238,
+      "inside_points": 4,
+      "max_abs_winding": 1.0000000000000002,
+      "tested_points": 67,
+      "vertices": 2097
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        41,
+        43,
+        49,
+        62
+      ],
+      "closed": true,
+      "faces": 4978,
+      "inside_points": 0,
+      "max_abs_winding": 1.1591458372792521e-17,
+      "tested_points": 22,
+      "vertices": 2463
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        91,
+        93,
+        99,
+        112
+      ],
+      "closed": true,
+      "faces": 4978,
+      "inside_points": 0,
+      "max_abs_winding": 1.832114764021207e-17,
+      "tested_points": 51,
+      "vertices": 2463
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        41,
+        42,
+        43
+      ],
+      "closed": true,
+      "faces": 2918,
+      "inside_points": 0,
+      "max_abs_winding": 3.920475388609543e-17,
+      "tested_points": 6,
+      "vertices": 1451
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        91,
+        92,
+        93
+      ],
+      "closed": true,
+      "faces": 2910,
+      "inside_points": 0,
+      "max_abs_winding": 9.93923337957349e-18,
+      "tested_points": 9,
+      "vertices": 1445
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        42,
+        43
+      ],
+      "closed": true,
+      "faces": 1902,
+      "inside_points": 0,
+      "max_abs_winding": 0.0,
+      "tested_points": 0,
+      "vertices": 929
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        41,
+        42,
+        43,
+        49,
+        57,
+        59,
+        60,
+        62,
+        67
+      ],
+      "closed": true,
+      "faces": 13466,
+      "inside_points": 0,
+      "max_abs_winding": 1.766974823035287e-17,
+      "tested_points": 62,
+      "vertices": 6729
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        91,
+        92,
+        93,
+        95,
+        99,
+        107,
+        109,
+        110,
+        112,
+        114,
+        115
+      ],
+      "closed": true,
+      "faces": 29412,
+      "inside_points": 2,
+      "max_abs_winding": 1.0000000000000002,
+      "tested_points": 165,
+      "vertices": 14710
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        41,
+        42,
+        43,
+        45,
+        49,
+        57,
+        59,
+        60,
+        62,
+        67
+      ],
+      "closed": true,
+      "faces": 13376,
+      "inside_points": 1,
+      "max_abs_winding": 0.9999999999999999,
+      "tested_points": 77,
+      "vertices": 6711
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        91,
+        92,
+        93,
+        95,
+        99,
+        107,
+        109,
+        110,
+        111,
+        112,
+        114,
+        115
+      ],
+      "closed": true,
+      "faces": 64686,
+      "inside_points": 4,
+      "max_abs_winding": 1.0000000000000002,
+      "tested_points": 148,
+      "vertices": 39167
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        41,
+        43,
+        45,
+        49,
+        52,
+        53,
+        54
+      ],
+      "closed": true,
+      "faces": 2330,
+      "inside_points": 0,
+      "max_abs_winding": 6.6261555863823264e-18,
+      "tested_points": 7,
+      "vertices": 1164
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        93,
+        95,
+        99,
+        102,
+        103,
+        104
+      ],
+      "closed": true,
+      "faces": 1496,
+      "inside_points": 0,
+      "max_abs_winding": 3.4787316828507216e-17,
+      "tested_points": 10,
+      "vertices": 726
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        41,
+        43,
+        45,
+        57,
+        59,
+        60,
+        61,
+        62,
+        64,
+        67,
+        72
+      ],
+      "closed": true,
+      "faces": 4320,
+      "inside_points": 0,
+      "max_abs_winding": 4.928203217371855e-16,
+      "tested_points": 76,
+      "vertices": 2147
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        91,
+        93,
+        95,
+        107,
+        109,
+        110,
+        111,
+        112,
+        114,
+        117,
+        122
+      ],
+      "closed": true,
+      "faces": 4320,
+      "inside_points": 0,
+      "max_abs_winding": 1.064050151246562e-15,
+      "tested_points": 167,
+      "vertices": 2147
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        41,
+        42,
+        43,
+        45,
+        72,
+        74,
+        75
+      ],
+      "closed": true,
+      "faces": 1430,
+      "inside_points": 0,
+      "max_abs_winding": 1.670343387400545e-17,
+      "tested_points": 13,
+      "vertices": 723
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        91,
+        92,
+        93,
+        95,
+        122,
+        124,
+        125
+      ],
+      "closed": true,
+      "faces": 1430,
+      "inside_points": 0,
+      "max_abs_winding": 4.693526873687481e-18,
+      "tested_points": 48,
+      "vertices": 723
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        42,
+        43,
+        45,
+        57,
+        59,
+        60,
+        61
+      ],
+      "closed": true,
+      "faces": 714,
+      "inside_points": 0,
+      "max_abs_winding": 9.171358578547413e-18,
+      "tested_points": 53,
+      "vertices": 361
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        92,
+        93,
+        95,
+        107,
+        109,
+        110,
+        111
+      ],
+      "closed": true,
+      "faces": 714,
+      "inside_points": 0,
+      "max_abs_winding": 1.254483101901029e-17,
+      "tested_points": 38,
+      "vertices": 370
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        42,
+        43,
+        49,
+        50,
+        52
+      ],
+      "closed": true,
+      "faces": 1324,
+      "inside_points": 0,
+      "max_abs_winding": 1.1043592643970545e-17,
+      "tested_points": 7,
+      "vertices": 660
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        92,
+        93,
+        99,
+        100,
+        102
+      ],
+      "closed": true,
+      "faces": 1346,
+      "inside_points": 0,
+      "max_abs_winding": 6.0739759541837995e-18,
+      "tested_points": 35,
+      "vertices": 669
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        43,
+        49,
+        52,
+        53
+      ],
+      "closed": true,
+      "faces": 998,
+      "inside_points": 0,
+      "max_abs_winding": 0.0,
+      "tested_points": 0,
+      "vertices": 501
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        93,
+        99,
+        102,
+        103
+      ],
+      "closed": true,
+      "faces": 998,
+      "inside_points": 0,
+      "max_abs_winding": 4.417437057588218e-18,
+      "tested_points": 4,
+      "vertices": 501
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        43,
+        52
+      ],
+      "closed": true,
+      "faces": 1870,
+      "inside_points": 0,
+      "max_abs_winding": 9.93923337957349e-18,
+      "tested_points": 9,
+      "vertices": 933
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        93,
+        102
+      ],
+      "closed": true,
+      "faces": 1870,
+      "inside_points": 0,
+      "max_abs_winding": 1.3666445896913548e-17,
+      "tested_points": 24,
+      "vertices": 933
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        50,
+        52
+      ],
+      "closed": true,
+      "faces": 932,
+      "inside_points": 0,
+      "max_abs_winding": 2.5400263081132252e-17,
+      "tested_points": 1,
+      "vertices": 454
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        100,
+        102
+      ],
+      "closed": true,
+      "faces": 932,
+      "inside_points": 0,
+      "max_abs_winding": 8.834874115176436e-18,
+      "tested_points": 2,
+      "vertices": 454
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        20,
+        23,
+        29
+      ],
+      "closed": true,
+      "faces": 10622,
+      "inside_points": 0,
+      "max_abs_winding": 1.3252311172764654e-16,
+      "tested_points": 49,
+      "vertices": 5309
+    },
+    {
+      "banks": 85,
+      "body_indices": [
+        23
+      ],
+      "closed": false,
+      "topology": {
+        "edges": 862822,
+        "incidence_histogram": {
+          "2": 843308,
+          "4": 19514
+        },
+        "same_direction_edges": 0
+      }
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        20,
+        23,
+        79
+      ],
+      "closed": true,
+      "faces": 10602,
+      "inside_points": 0,
+      "max_abs_winding": 2.2639364920139617e-17,
+      "tested_points": 14,
+      "vertices": 5303
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        20,
+        34
+      ],
+      "closed": true,
+      "faces": 10754,
+      "inside_points": 0,
+      "max_abs_winding": 8.834874115176436e-18,
+      "tested_points": 22,
+      "vertices": 5376
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        20,
+        84
+      ],
+      "closed": true,
+      "faces": 10750,
+      "inside_points": 0,
+      "max_abs_winding": 2.6504622345529306e-17,
+      "tested_points": 85,
+      "vertices": 5371
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        20,
+        26,
+        29,
+        34
+      ],
+      "closed": true,
+      "faces": 5506,
+      "inside_points": 0,
+      "max_abs_winding": 1.766974823035287e-17,
+      "tested_points": 7,
+      "vertices": 2769
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        20,
+        26,
+        79,
+        84
+      ],
+      "closed": true,
+      "faces": 5498,
+      "inside_points": 0,
+      "max_abs_winding": 8.834874115176436e-18,
+      "tested_points": 7,
+      "vertices": 2764
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        20,
+        23,
+        26,
+        29,
+        34
+      ],
+      "closed": true,
+      "faces": 9356,
+      "inside_points": 0,
+      "max_abs_winding": 1.766974823035287e-17,
+      "tested_points": 12,
+      "vertices": 4696
+    },
+    {
+      "banks": 1,
+      "body_indices": [
+        20,
+        23,
+        26,
+        79,
+        84
+      ],
+      "closed": true,
+      "faces": 8894,
+      "inside_points": 0,
+      "max_abs_winding": 2.760898160992636e-17,
+      "tested_points": 15,
+      "vertices": 4487
+    },
+    {
+      "banks": 390,
+      "body_indices": [
+        20
+      ],
+      "closed": false,
+      "topology": {
+        "edges": 3493358,
+        "incidence_histogram": {
+          "2": 2716937,
+          "3": 461,
+          "4": 700416,
+          "5": 70,
+          "6": 75474
+        },
+        "same_direction_edges": 531
+      }
+    },
+    {
+      "banks": 7,
+      "body_indices": [
+        7
+      ],
+      "closed": true,
+      "faces": 12690,
+      "inside_points": 0,
+      "max_abs_winding": 5.2111952788736e-18,
+      "tested_points": 2,
+      "vertices": 6359
+    },
+    {
+      "banks": 4,
+      "body_indices": [
+        22
+      ],
+      "closed": true,
+      "faces": 1560,
+      "inside_points": 0,
+      "max_abs_winding": 1.766974823035287e-17,
+      "tested_points": 1,
+      "vertices": 788
+    },
+    {
+      "banks": 4,
+      "body_indices": [
+        41
+      ],
+      "closed": true,
+      "faces": 9654,
+      "inside_points": 0,
+      "max_abs_winding": 7.067899292141149e-17,
+      "tested_points": 85,
+      "vertices": 4835
+    },
+    {
+      "banks": 4,
+      "body_indices": [
+        91
+      ],
+      "closed": true,
+      "faces": 10232,
+      "inside_points": 0,
+      "max_abs_winding": 9.456076201399779e-18,
+      "tested_points": 27,
+      "vertices": 5127
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        43
+      ],
+      "closed": true,
+      "faces": 12754,
+      "inside_points": 0,
+      "max_abs_winding": 5.349240186923232e-18,
+      "tested_points": 4,
+      "vertices": 6381
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        93
+      ],
+      "closed": true,
+      "faces": 12696,
+      "inside_points": 0,
+      "max_abs_winding": 2.0016511667196613e-18,
+      "tested_points": 2,
+      "vertices": 6352
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        42
+      ],
+      "closed": true,
+      "faces": 12952,
+      "inside_points": 0,
+      "max_abs_winding": 9.689026983733533e-18,
+      "tested_points": 5,
+      "vertices": 6480
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        92
+      ],
+      "closed": true,
+      "faces": 13032,
+      "inside_points": 0,
+      "max_abs_winding": 2.5883420259305962e-18,
+      "tested_points": 3,
+      "vertices": 6520
+    },
+    {
+      "banks": 11,
+      "body_indices": [
+        128
+      ],
+      "closed": true,
+      "faces": 3974,
+      "inside_points": 0,
+      "max_abs_winding": 2.208718528794109e-18,
+      "tested_points": 2,
+      "vertices": 2009
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        131
+      ],
+      "closed": true,
+      "faces": 1410,
+      "inside_points": 5,
+      "max_abs_winding": 1.0000000000000044,
+      "tested_points": 223,
+      "vertices": 709
+    },
+    {
+      "banks": 2,
+      "body_indices": [
+        145
+      ],
+      "closed": true,
+      "faces": 1398,
+      "inside_points": 1,
+      "max_abs_winding": 1.0000000000000002,
+      "tested_points": 189,
+      "vertices": 703
+    },
+    {
+      "banks": 7,
+      "body_indices": [
+        136
+      ],
+      "closed": true,
+      "faces": 93280,
+      "inside_points": 10,
+      "max_abs_winding": 1.0000000000000007,
+      "tested_points": 1350,
+      "vertices": 46654
+    },
+    {
+      "banks": 7,
+      "body_indices": [
+        150
+      ],
+      "closed": true,
+      "faces": 93414,
+      "inside_points": 9,
+      "max_abs_winding": 1.0000000000000002,
+      "tested_points": 1473,
+      "vertices": 46721
+    }
+  ]
+}

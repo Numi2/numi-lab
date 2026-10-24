@@ -1,0 +1,17 @@
+{
+  "input395_sha256": "8d48aeae163c30826f16a78f0cf231244bb932103b0e4b74315515ec57ff4536",
+  "input398_with_transfer_sha256": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+  "old014_tet_count": 164176,
+  "new398_tet_count": 211439,
+  "nonzeros": 211963,
+  "column_sum_max_abs_error": 4.440892098500626e-16,
+  "deterministic_synthetic_mass_relative_error": 1.7624146870396438e-16,
+  "map_sha256": "e4ac929347673e55082c8bf2b4fa239617c18ac297195c18fae60ce8602bf38d",
+  "method": "compose395 parent-conservative fractions with398 local overlap parent-conservative fractions, coalesced by actual014 parent identity",
+  "limitations": [
+    "No per-tet physical kg input exists in014/395; synthetic conservation checks transfer only.",
+    "Rows correspond to398 geometry; independent physical material partition and native compiler admission remain required."
+  ],
+  "pass": true,
+  "native_admission": false
+}

@@ -1,0 +1,1195 @@
+{
+  "counts": {
+    "nodes": 35962,
+    "physical_O_faces": 36393,
+    "physical_O_nodes": 18219,
+    "tets": 164176,
+    "unique_tet_edges": 219065
+  },
+  "face_only_trial": {
+    "below_1e_5": 25,
+    "checkpoint_sha256": "8d48aeae163c30826f16a78f0cf231244bb932103b0e4b74315515ec57ff4536",
+    "failed_parent_row": {
+      "delta_m3": 8.736030203215145e-14,
+      "new_children_sum_m3": 1.3013180371007574e-12,
+      "old_m3": 1.213957735068606e-12,
+      "relative_delta": 0.07196321544688238,
+      "row": 54910
+    },
+    "global_signed_volume_delta_m3": 2.993117503606185e-20,
+    "max_abs_parent_delta_m3": 2.224933517191836e-11,
+    "max_parent_relative_volume_delta": 0.07196321544688238,
+    "min_quality": 1.5806380544873621e-06,
+    "positive_float32_cells": true,
+    "sum_absolute_parent_deltas_m3": 3.865805703670955e-09
+  },
+  "input_candidate_sha256": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba",
+  "metric_definition": {
+    "coordinate_ulp": "maximum abs(np.spacing(Float32 coordinate)) over the four tet vertices and three axes",
+    "edge_ulp": "edge length divided by maximum coordinate ULP among its two endpoint vectors; conservative coordinatewise scale, not a directional rounding bound",
+    "min_face_altitude": "abs(det6)/face_double_area from emitted Float32 coordinates, accumulated in Float64"
+  },
+  "min_altitude_m_quantiles": [
+    3.510122896475392e-08,
+    1.5683505275190847e-05,
+    0.0001754705712025413,
+    0.0005289052011516743,
+    0.0029564725826864416
+  ],
+  "min_altitude_over_coordinate_ulp_counts": {
+    "0.5": 6,
+    "1": 33,
+    "128": 153,
+    "16": 144,
+    "2": 122,
+    "32": 144,
+    "4": 144,
+    "64": 144,
+    "8": 144
+  },
+  "min_altitude_over_ulp_quantiles": [
+    0.29445045010356646,
+    303.229460208632,
+    1903.4349621762556,
+    5852.468632074265,
+    29327.557275193103
+  ],
+  "note": "Representability is a diagnostic, not a geometry/field admission gate.",
+  "refinement_boundary_verification": {
+    "actual_faces": 38078,
+    "expected_faces": 38078,
+    "extra": 0,
+    "missing": 0,
+    "shell_exact": true
+  },
+  "row_71466": {
+    "altitude_over_ulp": 1.0441730364732935,
+    "coordinates_m": [
+      [
+        0.08533453196287155,
+        -1.7162392139434814,
+        0.2706000506877899
+      ],
+      [
+        0.08683152496814728,
+        -1.7168182134628296,
+        0.2686687111854553
+      ],
+      [
+        0.08533446490764618,
+        -1.716239333152771,
+        0.27059993147850037
+      ],
+      [
+        0.08311744779348373,
+        -1.715667963027954,
+        0.2695751488208771
+      ]
+    ],
+    "edges": [
+      {
+        "length_m": 0.002511234910263847,
+        "length_over_ulp": 21065.76525811859,
+        "max_endpoint_ulp_m": 1.1920928955078125e-07,
+        "node_ids": [
+          16951,
+          16954
+        ],
+        "physical_O_endpoints": [
+          1,
+          1
+        ]
+      },
+      {
+        "length_m": 1.8143349382111313e-07,
+        "length_over_ulp": 1.5219744577357401,
+        "max_endpoint_ulp_m": 1.1920928955078125e-07,
+        "node_ids": [
+          1733,
+          16954
+        ],
+        "physical_O_endpoints": [
+          0,
+          1
+        ]
+      },
+      {
+        "length_m": 0.0025084285238854876,
+        "length_over_ulp": 21042.223582893992,
+        "max_endpoint_ulp_m": 1.1920928955078125e-07,
+        "node_ids": [
+          16953,
+          16954
+        ],
+        "physical_O_endpoints": [
+          1,
+          1
+        ]
+      },
+      {
+        "length_m": 0.002511155721652895,
+        "length_over_ulp": 21065.10097590325,
+        "max_endpoint_ulp_m": 1.1920928955078125e-07,
+        "node_ids": [
+          1733,
+          16951
+        ],
+        "physical_O_endpoints": [
+          0,
+          1
+        ]
+      },
+      {
+        "length_m": 0.003992377049978742,
+        "length_over_ulp": 33490.48606046807,
+        "max_endpoint_ulp_m": 1.1920928955078125e-07,
+        "node_ids": [
+          16951,
+          16953
+        ],
+        "physical_O_endpoints": [
+          1,
+          1
+        ]
+      },
+      {
+        "length_m": 0.002508347703048344,
+        "length_over_ulp": 21041.545608572964,
+        "max_endpoint_ulp_m": 1.1920928955078125e-07,
+        "node_ids": [
+          1733,
+          16953
+        ],
+        "physical_O_endpoints": [
+          0,
+          1
+        ]
+      }
+    ],
+    "max_coordinate_ulp_m": 1.1920928955078125e-07,
+    "min_face_altitude_m": 1.2447512584606332e-07,
+    "node_ids": [
+      16954,
+      16951,
+      1733,
+      16953
+    ],
+    "physical_O_nodes": [
+      16954,
+      16951,
+      16953
+    ]
+  },
+  "schema": "numi.human.float32-representability-map.014.v1",
+  "short_edge_connected_components": [
+    {
+      "bbox_m": {
+        "max": [
+          0.07609681040048599,
+          -1.7331560850143433,
+          0.2904445230960846
+        ],
+        "min": [
+          0.07609673589468002,
+          -1.7331560850143433,
+          0.29044440388679504
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            120107,
+            149658,
+            72206,
+            42954,
+            73072,
+            73249,
+            73083
+          ],
+          "length_m": 1.4057727354849284e-07,
+          "length_over_ulp": 1.1792476415070754,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            1720,
+            16662
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 1.4057727354849284e-07,
+      "min_edge_m": 1.4057727354849284e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          0.10306268185377121,
+          -1.725856065750122,
+          0.27103322744369507
+        ],
+        "min": [
+          0.10306262224912643,
+          -1.7258561849594116,
+          0.2710331380367279
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            70816,
+            70813,
+            70137,
+            70794,
+            69925,
+            8921
+          ],
+          "length_m": 1.6049041769309353e-07,
+          "length_over_ulp": 1.346291201783626,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            1797,
+            17618
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 1.6049041769309353e-07,
+      "min_edge_m": 1.6049041769309353e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          0.05810946226119995,
+          -1.734512209892273,
+          0.2932374179363251
+        ],
+        "min": [
+          0.058109380304813385,
+          -1.734512209892273,
+          0.29323726892471313
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            74704,
+            74733,
+            74633,
+            74774,
+            1095,
+            73851
+          ],
+          "length_m": 1.700626643078525e-07,
+          "length_over_ulp": 1.4265890263141658,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            1694,
+            15560
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 1.700626643078525e-07,
+      "min_edge_m": 1.700626643078525e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          0.106208436191082,
+          -1.7275006771087646,
+          0.2689658999443054
+        ],
+        "min": [
+          0.10620837658643723,
+          -1.7275007963180542,
+          0.26896578073501587
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            700,
+            571,
+            8888,
+            70086,
+            70089
+          ],
+          "length_m": 1.7881393432617188e-07,
+          "length_over_ulp": 1.5,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            1798,
+            17654
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 1.7881393432617188e-07,
+      "min_edge_m": 1.7881393432617188e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          0.08533453196287155,
+          -1.7162392139434814,
+          0.2706000506877899
+        ],
+        "min": [
+          0.08533446490764618,
+          -1.716239333152771,
+          0.27059993147850037
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            71466,
+            70664,
+            71463,
+            53615,
+            3272,
+            47004,
+            71701,
+            8806
+          ],
+          "length_m": 1.8143349382111313e-07,
+          "length_over_ulp": 1.5219744577357401,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            1733,
+            16954
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 1.8143349382111313e-07,
+      "min_edge_m": 1.8143349382111313e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          0.09438997507095337,
+          -1.7264360189437866,
+          0.27684101462364197
+        ],
+        "min": [
+          0.094389908015728,
+          -1.7264361381530762,
+          0.2768408954143524
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            47411,
+            60882,
+            1832,
+            11177,
+            91133,
+            70609
+          ],
+          "length_m": 1.8143349382111313e-07,
+          "length_over_ulp": 1.5219744577357401,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            1752,
+            17244
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 1.8143349382111313e-07,
+      "min_edge_m": 1.8143349382111313e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          0.05115662142634392,
+          -1.7220326662063599,
+          0.28965702652931213
+        ],
+        "min": [
+          0.05115653946995735,
+          -1.7220327854156494,
+          0.2896569073200226
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            149832,
+            74319,
+            72358,
+            74140,
+            73945,
+            74162
+          ],
+          "length_m": 1.8745281734182126e-07,
+          "length_over_ulp": 1.5724682031761406,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            1686,
+            15264
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 1.8745281734182126e-07,
+      "min_edge_m": 1.8745281734182126e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.08141780644655228,
+          -1.737747073173523,
+          0.09828265756368637
+        ],
+        "min": [
+          -0.08141788095235825,
+          -1.737747073173523,
+          0.09828245639801025
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            23386,
+            156077,
+            61956,
+            157151,
+            153481,
+            20973
+          ],
+          "length_m": 2.1451979948413325e-07,
+          "length_over_ulp": 1.799522506110996,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            993,
+            8844
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 2.1451979948413325e-07,
+      "min_edge_m": 2.1451979948413325e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.149085134267807,
+          -1.7152665853500366,
+          0.23273782432079315
+        ],
+        "min": [
+          -0.14908525347709656,
+          -1.7152665853500366,
+          0.23273764550685883
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            38427,
+            40308,
+            120146,
+            139201,
+            6804,
+            43481
+          ],
+          "length_m": 2.1490760299348766e-07,
+          "length_over_ulp": 1.8027756377319946,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            711,
+            3140
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 2.1490760299348766e-07,
+      "min_edge_m": 2.1490760299348766e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.10284079611301422,
+          -1.7401281595230103,
+          0.2945980727672577
+        ],
+        "min": [
+          -0.10284095257520676,
+          -1.7401281595230103,
+          0.29459792375564575
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            7970,
+            63958,
+            119670,
+            75441,
+            63944,
+            63362
+          ],
+          "length_m": 2.1606683731079102e-07,
+          "length_over_ulp": 1.8125,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            750,
+            4612
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 2.1606683731079102e-07,
+      "min_edge_m": 2.1606683731079102e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.08975552022457123,
+          -1.7323788404464722,
+          0.28975045680999756
+        ],
+        "min": [
+          -0.08975565433502197,
+          -1.7323788404464722,
+          0.28975027799606323
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            9431,
+            63150,
+            62979,
+            17179,
+            63143,
+            63158,
+            62884
+          ],
+          "length_m": 2.2351741790771484e-07,
+          "length_over_ulp": 1.875,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            764,
+            5362
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 2.2351741790771484e-07,
+      "min_edge_m": 2.2351741790771484e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.11311734467744827,
+          -1.7275830507278442,
+          0.2903626263141632
+        ],
+        "min": [
+          -0.11311749368906021,
+          -1.7275830507278442,
+          0.2903624475002289
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            64497,
+            64413,
+            11588,
+            64462,
+            64443,
+            64461,
+            64460
+          ],
+          "length_m": 2.3276357876976293e-07,
+          "length_over_ulp": 1.9525624189766635,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            733,
+            3887
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 2.3276357876976293e-07,
+      "min_edge_m": 2.3276357876976293e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.13729716837406158,
+          -1.7284082174301147,
+          0.28610703349113464
+        ],
+        "min": [
+          -0.13729733228683472,
+          -1.7284082174301147,
+          0.2861068546772003
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            124388,
+            65281,
+            65810,
+            80129,
+            65776,
+            65415
+          ],
+          "length_m": 2.425733297482089e-07,
+          "length_over_ulp": 2.0348525745124633,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            710,
+            3033
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 2.425733297482089e-07,
+      "min_edge_m": 2.425733297482089e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.0745028704404831,
+          -1.7270801067352295,
+          0.22095361351966858
+        ],
+        "min": [
+          -0.07450298964977264,
+          -1.727080225944519,
+          0.22095343470573425
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            55967,
+            68636,
+            61770,
+            56010,
+            56011,
+            9991
+          ],
+          "length_m": 2.457562461863554e-07,
+          "length_over_ulp": 2.0615528128088303,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            795,
+            7207
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 2.457562461863554e-07,
+      "min_edge_m": 2.457562461863554e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.1080319806933403,
+          -1.7216030359268188,
+          0.2532305121421814
+        ],
+        "min": [
+          -0.10803211480379105,
+          -1.7216031551361084,
+          0.25323033332824707
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            60770,
+            96621,
+            60723,
+            99325,
+            52293,
+            59795,
+            134870
+          ],
+          "length_m": 2.5331974029541016e-07,
+          "length_over_ulp": 2.125,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            756,
+            5083
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 2.5331974029541016e-07,
+      "min_edge_m": 2.5331974029541016e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.08694510906934738,
+          -1.208783745765686,
+          0.19543001055717468
+        ],
+        "min": [
+          -0.08694519102573395,
+          -1.2087839841842651,
+          0.1954299509525299
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            3094,
+            35164,
+            11007,
+            82322
+          ],
+          "length_m": 2.590617336439149e-07,
+          "length_over_ulp": 2.1731673313392137,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            847,
+            8014
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 2.590617336439149e-07,
+      "min_edge_m": 2.590617336439149e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.10067123174667358,
+          -1.7276310920715332,
+          0.29480069875717163
+        ],
+        "min": [
+          -0.10067138075828552,
+          -1.7276312112808228,
+          0.2948005199432373
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            70554,
+            9577,
+            63262,
+            63625,
+            119835,
+            63083
+          ],
+          "length_m": 2.6151431761360534e-07,
+          "length_over_ulp": 2.1937410968480306,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            751,
+            4643
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 2.6151431761360534e-07,
+      "min_edge_m": 2.6151431761360534e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.13886721432209015,
+          -1.740561842918396,
+          0.23592135310173035
+        ],
+        "min": [
+          -0.1388673335313797,
+          -1.7405619621276855,
+          0.23592114448547363
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            56131,
+            61184,
+            61207,
+            56274,
+            61131,
+            117678,
+            8488
+          ],
+          "length_m": 2.682209014892578e-07,
+          "length_over_ulp": 2.25,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            727,
+            3684
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 2.682209014892578e-07,
+      "min_edge_m": 2.682209014892578e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.11181076616048813,
+          -1.245025634765625,
+          0.20317082107067108
+        ],
+        "min": [
+          -0.11181086301803589,
+          -1.245025873184204,
+          0.20317073166370392
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            124999,
+            36246,
+            34580,
+            43501,
+            49073,
+            114700,
+            6199,
+            48823
+          ],
+          "length_m": 2.724305584845278e-07,
+          "length_over_ulp": 2.285313162347778,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            788,
+            6720
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 2.724305584845278e-07,
+      "min_edge_m": 2.724305584845278e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          0.03956432268023491,
+          -1.7202277183532715,
+          0.2707575559616089
+        ],
+        "min": [
+          0.03956424817442894,
+          -1.7202279567718506,
+          0.27075743675231934
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            76170,
+            56948,
+            76165,
+            71905,
+            75933,
+            55523
+          ],
+          "length_m": 2.7677678497145637e-07,
+          "length_over_ulp": 2.3217719526258387,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            1661,
+            14139
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 2.7677678497145637e-07,
+      "min_edge_m": 2.7677678497145637e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.09045577049255371,
+          -1.6637637615203857,
+          0.16327804327011108
+        ],
+        "min": [
+          -0.09045588225126266,
+          -1.6637639999389648,
+          0.16327786445617676
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            54909,
+            147243,
+            7515,
+            54869,
+            54761,
+            54910,
+            54885
+          ],
+          "length_m": 3.1828894262453656e-07,
+          "length_over_ulp": 2.6700011704117284,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            798,
+            7284
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 3.1828894262453656e-07,
+      "min_edge_m": 3.1828894262453656e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.11568822711706161,
+          -1.7174513339996338,
+          0.2811208963394165
+        ],
+        "min": [
+          -0.11568836867809296,
+          -1.717451572418213,
+          0.2811207175254822
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            66309,
+            66324,
+            66299,
+            66296,
+            66291,
+            63568
+          ],
+          "length_m": 3.299353990776022e-07,
+          "length_over_ulp": 2.7676987281855663,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            734,
+            3922
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 3.299353990776022e-07,
+      "min_edge_m": 3.299353990776022e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    },
+    {
+      "bbox_m": {
+        "max": [
+          -0.15551051497459412,
+          -1.7302199602127075,
+          0.2721332013607025
+        ],
+        "min": [
+          -0.15551064908504486,
+          -1.7302201986312866,
+          0.2721329927444458
+        ]
+      },
+      "edge_count": 1,
+      "edge_samples": [
+        {
+          "incident_tet_rows": [
+            68074,
+            8518,
+            99972,
+            68099,
+            12103
+          ],
+          "length_m": 3.440200203840493e-07,
+          "length_over_ulp": 2.885849095153799,
+          "max_endpoint_ulp_m": 1.1920928955078125e-07,
+          "nodes": [
+            690,
+            2349
+          ],
+          "physical_O_endpoints": [
+            0,
+            1
+          ]
+        }
+      ],
+      "max_edge_m": 3.440200203840493e-07,
+      "min_edge_m": 3.440200203840493e-07,
+      "node_count": 2,
+      "physical_O_nodes": 1
+    }
+  ],
+  "short_edge_counts": {
+    "below_0_2um": {
+      "both_endpoints_physical_O": 0,
+      "count": 7,
+      "incident_tets": 44,
+      "neither_endpoint_physical_O": 0,
+      "one_endpoint_physical_O": 7
+    },
+    "below_1_ulp": {
+      "both_endpoints_physical_O": 0,
+      "count": 0,
+      "incident_tets": 0,
+      "neither_endpoint_physical_O": 0,
+      "one_endpoint_physical_O": 0
+    },
+    "below_1um": {
+      "both_endpoints_physical_O": 0,
+      "count": 23,
+      "incident_tets": 144,
+      "neither_endpoint_physical_O": 0,
+      "one_endpoint_physical_O": 23
+    },
+    "below_2_ulp": {
+      "both_endpoints_physical_O": 0,
+      "count": 12,
+      "incident_tets": 76,
+      "neither_endpoint_physical_O": 0,
+      "one_endpoint_physical_O": 12
+    },
+    "below_4_ulp": {
+      "both_endpoints_physical_O": 0,
+      "count": 23,
+      "incident_tets": 144,
+      "neither_endpoint_physical_O": 0,
+      "one_endpoint_physical_O": 23
+    }
+  }
+}
