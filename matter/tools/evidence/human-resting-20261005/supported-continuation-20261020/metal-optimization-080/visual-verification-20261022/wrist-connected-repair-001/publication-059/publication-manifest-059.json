@@ -1,0 +1,20 @@
+{
+  "schema": "numi.human.publication.manifest.v1",
+  "publication": "059",
+  "base_origin_main": "bdca90e4f2ad46ae1c5975234c64a8b4a3ac37cf",
+  "scope": "Fix region-capacity accounting through current unpaired owner API",
+  "canonical_files": {
+    "apps/NumiHumanSkinFatReductionLabels.hpp": {
+      "bytes": 192493,
+      "sha256": "4bcd7ca033a08ff3be041b5a47cd1fa9cbe1e460a1f1e5f356884e95cdd7efc0"
+    },
+    "apps/NumiHumanUnpairedBasisRegionCapacityCheck.cpp": {
+      "bytes": 18344,
+      "sha256": "d3774fa18d4a2b34b43d6f1b5d19f5ac0c1dd6c9a2653ef9eeb08ec181f04185"
+    }
+  },
+  "file_count": 19,
+  "payload_files_sha256": "3df4cd5d93076f6a0e809e4b37d9319068c77fd373e9d35f3626e435ccb880a0",
+  "source_input_pins_sha256": "db859873f0df8d126bd4b5bb44d2b5b2f1fec931f737bde459733bdf34b9d38e",
+  "status": "TESTED_READY_FOR_ROOT_PUSH"
+}

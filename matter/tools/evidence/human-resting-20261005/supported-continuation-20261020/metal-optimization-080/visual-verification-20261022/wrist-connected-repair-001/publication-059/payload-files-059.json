@@ -1,0 +1,102 @@
+{
+  "schema": "numi.human.publication.payload-files.v1",
+  "count": 19,
+  "total_bytes": 24191,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1278,
+      "sha256": "032c18b22b202baeb3927233ff57595daae782177b11ec6b45e6b460eabc0c38"
+    },
+    {
+      "path": "payload/036/README.md",
+      "bytes": 1801,
+      "sha256": "7601273169b172cfca0495f0ea14a13efbdd196d9b780cab48bfc71af2720594"
+    },
+    {
+      "path": "payload/036/build-logs/baseline-command.txt",
+      "bytes": 214,
+      "sha256": "8c3245cf880f1a8cc3dfdd89017119a06cc4c5626218fbf93b2bccbd80175e80"
+    },
+    {
+      "path": "payload/036/build-logs/baseline-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "payload/036/build-logs/baseline-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "payload/036/build-logs/baseline-run.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "payload/036/build-logs/baseline-run.stdout",
+      "bytes": 86,
+      "sha256": "82bcf40b2e4faa39b54224b8bbc437d7ce0d0cb32067abc1e0d8a78669332f8c"
+    },
+    {
+      "path": "payload/036/build-logs/compiler-version.txt",
+      "bytes": 158,
+      "sha256": "a856ec74c559401131ad608625ef252fb2db6c78bc0c480c1c4c782ee4896db1"
+    },
+    {
+      "path": "payload/036/build-logs/overall-status.txt",
+      "bytes": 53,
+      "sha256": "ab7cb44c49d553ed9e5c1201bb4c54c01d628ddc6d4af7b8b8bb96ff905d4ae0"
+    },
+    {
+      "path": "payload/036/build-logs/patched-command.txt",
+      "bytes": 212,
+      "sha256": "c5dd28724ace7c2a4cfca5d09019f624f5e465d72f28a9f29d137887800b0512"
+    },
+    {
+      "path": "payload/036/build-logs/patched-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "payload/036/build-logs/patched-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "payload/036/build-logs/patched-run.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "payload/036/build-logs/patched-run.stdout",
+      "bytes": 180,
+      "sha256": "1fb8096da2b07ec81ebcf743a648a6b84bbfca05a56881b509508c88fff97c2b"
+    },
+    {
+      "path": "payload/036/distinct-region-count-fix.diff",
+      "bytes": 767,
+      "sha256": "23f0ef6fa60abe78708ae75d65b1b4702b62263d3ea1f7a63cce4280f474a4c6"
+    },
+    {
+      "path": "payload/036/package-manifest.json",
+      "bytes": 8808,
+      "sha256": "0d53367a07aad7289dee4aca9f3eb35ba4a64ba1607e0f8cb99f13342e5a3e60"
+    },
+    {
+      "path": "payload/036/prepared-manifest.json",
+      "bytes": 5499,
+      "sha256": "a0f19daaa7332c7669977d4b8417ddd46b10c63febb6ad43d25df6cb3775c3ee"
+    },
+    {
+      "path": "payload/036/root-independent-review.json",
+      "bytes": 845,
+      "sha256": "6a2efdf09ca791da012f874dfccb35999ac5c8d8b3f3551b1a3f011a0c147ea8"
+    },
+    {
+      "path": "source-input-pins-059.json",
+      "bytes": 4290,
+      "sha256": "db859873f0df8d126bd4b5bb44d2b5b2f1fec931f737bde459733bdf34b9d38e"
+    }
+  ]
+}

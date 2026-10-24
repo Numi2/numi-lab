@@ -1,0 +1,9 @@
+# Capacity owner fix 036
+
+This evidence package tests one narrow source correction against live `origin/main` at `bdca90e4f2ad46ae1c5975234c64a8b4a3ac37cf`. It exports the header's 28-file quoted-include closure from that exact commit, then applies one candidate-only change in `apps/NumiHumanSkinFatReductionLabels.hpp`.
+
+The unpaired reduction-label owner compares the number of stable source-face entries in `basisByStableFace` with the regional basis limit. The capacity actually limits distinct emitted basis regions, so the candidate counts distinct label values. Donor/face assignments, chunking, labels, capacities, and all other source bytes remain unchanged.
+
+`tests/DistinctBasisRegionCapacityOwnerCheck.cpp` adapts the earlier full owner fixture into a synthetic closed 19-sided triangular prism with nested outer/inner/deep surfaces. It calls the actual `buildRegisteredSkinFatUnpairedReductionSourceLabels` owner API after constructing the explicit shell. The positive case has 435 stable child-face identities but emits one basis label under capacity 170; the candidate accepts it. The negative case sets `maximumFacesPerBasisRegion=1`, producing more than 170 distinct labels, and is rejected. This argument controls chunk size; it does not change the owner capacity. The same positive fixture compiled against the unmodified live header reproduces the false capacity rejection.
+
+The patched and baseline test binaries both compile with `clang++ -std=c++20 -O0 -Wall -Wextra -UNDEBUG`; outputs and commands are under `build-logs/`, and `run_owner_api_fixtures.sh` reruns both controls. This is a synthetic owner-level regression test. It is not an application build, native/GPU run, physical validation, or activation. The normal checkout and Git index were not modified by this task.

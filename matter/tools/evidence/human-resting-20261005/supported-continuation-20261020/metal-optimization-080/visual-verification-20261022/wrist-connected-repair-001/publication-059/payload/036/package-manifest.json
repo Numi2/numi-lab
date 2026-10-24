@@ -1,0 +1,217 @@
+{
+  "base_commit": "bdca90e4f2ad46ae1c5975234c64a8b4a3ac37cf",
+  "baseline_header_sha256": "0008724ec8ae5d10e93e4daf83625f71488280478f37d4d2ca047bd925223788",
+  "candidate_header_sha256": "4bcd7ca033a08ff3be041b5a47cd1fa9cbe1e460a1f1e5f356884e95cdd7efc0",
+  "files": {
+    "README.md": {
+      "bytes": 1801,
+      "sha256": "7601273169b172cfca0495f0ea14a13efbdd196d9b780cab48bfc71af2720594"
+    },
+    "build-logs/baseline-command.txt": {
+      "bytes": 214,
+      "sha256": "8c3245cf880f1a8cc3dfdd89017119a06cc4c5626218fbf93b2bccbd80175e80"
+    },
+    "build-logs/baseline-compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build-logs/baseline-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build-logs/baseline-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build-logs/baseline-run.stdout": {
+      "bytes": 86,
+      "sha256": "82bcf40b2e4faa39b54224b8bbc437d7ce0d0cb32067abc1e0d8a78669332f8c"
+    },
+    "build-logs/compiler-version.txt": {
+      "bytes": 158,
+      "sha256": "a856ec74c559401131ad608625ef252fb2db6c78bc0c480c1c4c782ee4896db1"
+    },
+    "build-logs/overall-status.txt": {
+      "bytes": 53,
+      "sha256": "ab7cb44c49d553ed9e5c1201bb4c54c01d628ddc6d4af7b8b8bb96ff905d4ae0"
+    },
+    "build-logs/patched-command.txt": {
+      "bytes": 212,
+      "sha256": "c5dd28724ace7c2a4cfca5d09019f624f5e465d72f28a9f29d137887800b0512"
+    },
+    "build-logs/patched-compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build-logs/patched-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build-logs/patched-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build-logs/patched-run.stdout": {
+      "bytes": 180,
+      "sha256": "1fb8096da2b07ec81ebcf743a648a6b84bbfca05a56881b509508c88fff97c2b"
+    },
+    "build/baseline-owner-check": {
+      "bytes": 1220200,
+      "sha256": "92b83109323a9ef52f7c8c8ca62cb3d5dafe51194b129c7edbb1a763a2cee044"
+    },
+    "build/patched-owner-check": {
+      "bytes": 1369200,
+      "sha256": "5eafe6ba632d5f93641ec1f08c82d8b1ef37e5ffa6d84620b80f7e46cbcc4fac"
+    },
+    "candidate/apps/NumiHumanSkinFatReductionLabels.hpp": {
+      "bytes": 192493,
+      "sha256": "4bcd7ca033a08ff3be041b5a47cd1fa9cbe1e460a1f1e5f356884e95cdd7efc0"
+    },
+    "candidate/apps/NumiHumanUnpairedBasisRegionCapacityCheck.cpp": {
+      "bytes": 18344,
+      "sha256": "d3774fa18d4a2b34b43d6f1b5d19f5ac0c1dd6c9a2653ef9eeb08ec181f04185"
+    },
+    "checkout-state.json": {
+      "bytes": 224,
+      "sha256": "2fd118c88b33305ce56e605e97295b1ccbd08ea2370e1845470e3bbfaca928de"
+    },
+    "distinct-region-count-fix.diff": {
+      "bytes": 767,
+      "sha256": "23f0ef6fa60abe78708ae75d65b1b4702b62263d3ea1f7a63cce4280f474a4c6"
+    },
+    "prepared-manifest.json": {
+      "bytes": 5499,
+      "sha256": "a0f19daaa7332c7669977d4b8417ddd46b10c63febb6ad43d25df6cb3775c3ee"
+    },
+    "run_owner_api_fixtures.sh": {
+      "bytes": 1683,
+      "sha256": "813954a837fae16e46cc567af53e40af5c3cc9dde6623bec954f1aa1c934fbba"
+    },
+    "source/apps/NumiHumanCoarseTissuePreparation.hpp": {
+      "bytes": 145545,
+      "sha256": "72f8c9325c31e0259a09abfbf61a01c0239995e3cafbd32fbc80beeabedcba7b"
+    },
+    "source/apps/NumiHumanOpticNerveTetGenAssets.hpp": {
+      "bytes": 946974,
+      "sha256": "99a238fa875621e911323412ab3dbc2d439d1d3c68a48820469234b7ef62fc09"
+    },
+    "source/apps/NumiHumanSkinBoundaryNodeMap.hpp": {
+      "bytes": 4913,
+      "sha256": "2faed73fdce51c442d7888928288e992163ffa4445f529a40fb499fccd975693"
+    },
+    "source/apps/NumiHumanSkinFatReductionLabels.hpp": {
+      "bytes": 192323,
+      "sha256": "0008724ec8ae5d10e93e4daf83625f71488280478f37d4d2ca047bd925223788"
+    },
+    "source/apps/NumiHumanUnpairedSkinFatVolume.hpp": {
+      "bytes": 47079,
+      "sha256": "88c0c8dff1d59aa17bf4ef248863c42a55b2abd5670f5f03a17f23ab0963eadc"
+    },
+    "source/include/metalrobo/Collision.hpp": {
+      "bytes": 3626,
+      "sha256": "dad1688d6d8a8871aa22c98757ddea2f0da8c6e993980c962f0cd1d5a27ba929"
+    },
+    "source/include/metalrobo/ConstraintIR.hpp": {
+      "bytes": 15428,
+      "sha256": "6610aaa7a447a50a6899a2be48e2a3e840fd41a8e82471ba2b4c7d13f813f582"
+    },
+    "source/include/metalrobo/EngineModel.hpp": {
+      "bytes": 4044,
+      "sha256": "04096227fc3ca3360c55fd199553e6c950f4a2620ef8f2c1d39af78a6f1d432e"
+    },
+    "source/include/metalrobo/NumiHumanTissueMass.hpp": {
+      "bytes": 2330,
+      "sha256": "d311f341c2bc94e76c5d552f43d55864cd334e24a5ffa8bc436b6922967aa4ee"
+    },
+    "source/include/metalrobo/OpenSimFunction.hpp": {
+      "bytes": 2937,
+      "sha256": "c76d2aea6040ae9476ff1ccb4b3dc2e70344d95a390a7debad9dc93fd0a68246"
+    },
+    "source/include/metalrobo/OpenSimSpatialTransform.hpp": {
+      "bytes": 5285,
+      "sha256": "8c1e2c43d6543e096fc26f4cdf68b96f0b6ed9eb3038233c87069f009c307046"
+    },
+    "source/include/metalrobo/compensated_translation_gpu.h": {
+      "bytes": 7828,
+      "sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097"
+    },
+    "source/include/metalrobo/constraint_ir_shared.h": {
+      "bytes": 10182,
+      "sha256": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f"
+    },
+    "source/include/metalrobo/engine_types.h": {
+      "bytes": 65630,
+      "sha256": "2f438bdc889275dd1133906ef73404df828fdf984e98c5b270f58e58fb669824"
+    },
+    "source/include/metalrobo/gpu_types.h": {
+      "bytes": 3809,
+      "sha256": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8"
+    },
+    "source/include/metalrobo/opensim_spatial_transform_gpu.h": {
+      "bytes": 4622,
+      "sha256": "8e4c21a87be3c2b93db02cc3953f81bf36c7eba7318c5db575afb7cd1c51caf0"
+    },
+    "source/matter/include/numi/matter/accepted_state_proof_gpu.h": {
+      "bytes": 5313,
+      "sha256": "d0b17b52cbdd54c5116a3e400435e60a833c92b5b6e309d1fbc74f3062e1c24e"
+    },
+    "source/matter/include/numi/matter/compiled_world_partitioned_reduction.hpp": {
+      "bytes": 49782,
+      "sha256": "7fe39418a3ea658d0282140772f2c0201c205e3b83b6c6deae8516f6e9da4d1d"
+    },
+    "source/matter/include/numi/matter/human_equality_gpu.h": {
+      "bytes": 1084,
+      "sha256": "7bf03f512c0fbdf9be0382a8bd655fb8f0d90b1703ddaf74302e60a38656f519"
+    },
+    "source/matter/include/numi/matter/human_limits_gpu.h": {
+      "bytes": 899,
+      "sha256": "adff1dd6bb8e7d67767bca38e959b03880376ec973f0d8a556564e4a87921dd9"
+    },
+    "source/matter/include/numi/matter/matter.hpp": {
+      "bytes": 124688,
+      "sha256": "5ccacdfa9bb33767e7dd70636b3a7fd8ce6fd6a8574d3d75aa72a7739f6862fc"
+    },
+    "source/matter/include/numi/matter/partitioned_reduction_basis.hpp": {
+      "bytes": 23616,
+      "sha256": "3329c4f3bb6a373b4d6437bfe8d9342085c7e82aa766c5aa5ebd22bd592ea863"
+    },
+    "source/matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp": {
+      "bytes": 14410,
+      "sha256": "f361c3ed40d56f32d9470bab89f712d5fa2c8853cbef9965283c320d60a0eb0d"
+    },
+    "source/matter/include/numi/matter/partitioned_reduction_projection.h": {
+      "bytes": 3645,
+      "sha256": "a34c7341fd1464880de173f8b58e7355bd2e2ee137babade02809e9c5fe2efca"
+    },
+    "source/matter/include/numi/matter/partitioned_reduction_sparse_support.hpp": {
+      "bytes": 19298,
+      "sha256": "ff34ee8ceca13de1b59d2e69912957baa03c97c22bf6ac1b65e02ef4234aa0c3"
+    },
+    "source/matter/include/numi/matter/physical_state_digest_gpu.h": {
+      "bytes": 12443,
+      "sha256": "28f2d77c4619b7c2b1e37dfc8c823358b3ba392e07627fc21f7a5985bfbde916"
+    },
+    "source/matter/include/numi/matter/sha256_gpu.h": {
+      "bytes": 2422,
+      "sha256": "53e3c5047b5dc2fe3449d2a4dc9770879c23297792b53495ecab73c855bb4681"
+    },
+    "source/matter/include/numi/matter/shared.h": {
+      "bytes": 66004,
+      "sha256": "e2dcede0637905078f08c38fed324de61f0c25e8a8e625646c06f74f21d51e7c"
+    }
+  },
+  "live_origin_main": "bdca90e4f2ad46ae1c5975234c64a8b4a3ac37cf\trefs/heads/main",
+  "owner_capacity": 170,
+  "schema": "numi-human-capacity-owner-fix-036-v1",
+  "source_dependency_count": 28,
+  "status": "PASS_SYNTHETIC_FULL_OWNER_API_REGRESSION",
+  "synthetic_fixture": {
+    "negative_case_rejected": true,
+    "negative_maximum_faces_per_basis_region": 1,
+    "owner_region_capacity": 170,
+    "positive_emitted_distinct_labels": 1,
+    "segments": 19,
+    "stable_child_face_identities": 435,
+    "surface_faces": 72
+  }
+}

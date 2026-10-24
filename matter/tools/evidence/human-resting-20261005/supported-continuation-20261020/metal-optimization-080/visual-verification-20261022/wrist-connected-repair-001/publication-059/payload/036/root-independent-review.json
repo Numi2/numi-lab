@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "base": "bdca90e4f2ad46ae1c5975234c64a8b4a3ac37cf",
+  "verified_manifest_files": 49,
+  "verified_main_dependency_files": 28,
+  "exact_header_patch": true,
+  "candidate_header_sha256": "4bcd7ca033a08ff3be041b5a47cd1fa9cbe1e460a1f1e5f356884e95cdd7efc0",
+  "test_sha256": "d3774fa18d4a2b34b43d6f1b5d19f5ac0c1dd6c9a2653ef9eeb08ec181f04185",
+  "runs": {
+    "baseline-owner-check": {
+      "returncode": 0,
+      "stdout": "baseline reproduced false rejection for 435 stable faces and one emitted basis region\n",
+      "stderr": ""
+    },
+    "patched-owner-check": {
+      "returncode": 0,
+      "stdout": "positive: stable faces=435, distinct emitted labels=1, capacity=170\nnegative: maximumFacesPerBasisRegion=1 rejected; owner capacity=170\nunpaired skin/fat volume owner tests passed\n",
+      "stderr": ""
+    }
+  }
+}

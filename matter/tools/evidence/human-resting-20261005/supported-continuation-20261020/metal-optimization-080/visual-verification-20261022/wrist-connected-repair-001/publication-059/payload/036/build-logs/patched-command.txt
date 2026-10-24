@@ -1,0 +1,1 @@
+clang++ -std=c++20 -O0 -Wall -Wextra -UNDEBUG -I candidate/apps -I source/apps -I source/include -I source/matter/include candidate/apps/NumiHumanUnpairedBasisRegionCapacityCheck.cpp -o build/patched-owner-check

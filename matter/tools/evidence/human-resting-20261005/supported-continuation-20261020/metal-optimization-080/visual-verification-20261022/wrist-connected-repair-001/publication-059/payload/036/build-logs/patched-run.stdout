@@ -1,0 +1,3 @@
+positive: stable faces=435, distinct emitted labels=1, capacity=170
+negative: maximumFacesPerBasisRegion=1 rejected; owner capacity=170
+unpaired skin/fat volume owner tests passed

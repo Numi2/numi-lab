@@ -3373,7 +3373,12 @@ template<class VerifyBoundBody, class ParentBodyAt>
             for(auto at=begin;at<end;++at)basisByStableFace[faces[at]]=label;
         }
     }
-    if(basisByStableFace.size()>numi::matter::kHumanPartitionedBasisMaximumRegionCount)
+    std::set<std::uint32_t> emittedBasisLabels;
+    for(const auto& [face,label]:basisByStableFace){
+        (void)face;
+        emittedBasisLabels.insert(label);
+    }
+    if(emittedBasisLabels.size()>numi::matter::kHumanPartitionedBasisMaximumRegionCount)
         return fail("unpaired labels exceed the existing Human regional basis limit");
     for(std::size_t ti=0;ti<nt;++ti){
         const auto stable=topology.childStableSourceFaceIdentities[ti];
