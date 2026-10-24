@@ -1,0 +1,19 @@
+{
+  "host": "ssh numi",
+  "construction_tests": {
+    "count": 60,
+    "result": "pass",
+    "duration_seconds": 0.646,
+    "command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m unittest discover -s tests -v",
+    "includes": "13 source identity tests;47 geometry and exact-cut tests"
+  },
+  "source_identity_tests": 13,
+  "physical_admission": false,
+  "legacy_loader_changed": false,
+  "scope": "Scoped source identity and embedding guard for declared replacement physical-O faces. Existing parent-only coarse faces remain permitted. Geometry, masses and mechanical cells require independent checks.",
+  "measured_candidates": {
+    "271": "reject870 replacement corner-source mismatches;75/75 required boundary nodes unmapped",
+    "317": "reject426/426 replacement faces lacking detailed source IDs;377/741 required boundary nodes unmapped"
+  },
+  "audit_sha256": "0fb5a2d60911da282bcd2b62ca7d56a055a31525ccab01e9b9dee83b00a8b472"
+}

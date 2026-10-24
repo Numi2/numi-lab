@@ -1,0 +1,842 @@
+{
+  "schema": "numi.human.registered-outer-source-admission-guard-330.v1",
+  "status": "diagnostic only; candidates not admitted",
+  "owner_path": {
+    "independent_volume_owner": "wholebody-tet-quality-batch-152/owner-unpaired-volume-164-independent-roles/source/apps/NumiHumanUnpairedSkinFatVolume.hpp",
+    "existing_guard_behavior": "checks exact role-face lookup and child-facet coverage/incidence when role tables are supplied; requires a pinned exact-overlap or conservative-reference-pullback volume ancestry receipt",
+    "gap": "sourceFaceIndices is optional for O/I/D and empty arrays fall back to the exact row in the pinned registered surface table; that row is not typed detailed-source ancestry. The API has no explicit ParentSurfaceIds versus DetailedSourceFaceIds domain and does not require source embeddings for O nodes in an explicitly declared replacement region"
+  },
+  "input_pins": {
+    "detailed_source_payload": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin",
+    "detailed_source_payload_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+    "registered_source_csv": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/registered-skin.csv",
+    "registered_source_csv_sha256": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e",
+    "detailed_source_vertex_count": 61950,
+    "detailed_source_face_count": 108987,
+    "unpaired_volume_owner_sha256": "27f10fc0977e40c15b92c07257a5a1bb2d6d91ebaee4dee2316c728347c2e312"
+  },
+  "candidates": {
+    "271": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-source-cut-plane-271/candidate-271-max-cut-distance-bilateral-collar.npz",
+      "sha256": "92f0079a8266bb1f5bdeb289bffa51c2624341e6e6f2e1e9e0eb0c6d969e3f1d",
+      "surface_replacement_faces_tested": 32165,
+      "replacement_patch_boundary_nodes_tested": 75,
+      "source_identity_audit": {
+        "passed": false,
+        "issues": [
+          "replacement_face_corner_source_identity_mismatch",
+          "required_physical_boundary_node_unmapped_or_not_reconstructed"
+        ],
+        "counts": {
+          "outer_nodes": 18533,
+          "outer_faces": 36397,
+          "face_domain_detailed": 31730,
+          "face_domain_parent_only": 4232,
+          "face_domain_mixed": 435,
+          "face_domain_unmapped": 0,
+          "face_domain_invalid": 0,
+          "replacement_faces_required": 32165,
+          "replacement_faces_missing_detailed_identity": 0,
+          "replacement_face_corner_mismatches": 870,
+          "nodes_direct": 15687,
+          "nodes_face_embedded": 0,
+          "nodes_edge_embedded": 360,
+          "nodes_unmapped_or_invalid": 2486,
+          "direct_ids_with_unrepresented_residual": 0,
+          "nodes_reconstruction_error_over_tolerance": 0,
+          "required_boundary_nodes": 75,
+          "required_boundary_nodes_unmapped_or_bad": 75,
+          "open_surface_boundary_edges": 45,
+          "open_surface_boundary_nodes": 45
+        },
+        "max_source_reconstruction_error_m": 2.237726045655905e-16,
+        "max_direct_projection_residual_m": 0.0,
+        "replacement_face_identity_witnesses": [
+          {
+            "surface_face_row": 4232,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16056
+          },
+          {
+            "surface_face_row": 4233,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16076
+          },
+          {
+            "surface_face_row": 4234,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16077
+          },
+          {
+            "surface_face_row": 4235,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16784
+          },
+          {
+            "surface_face_row": 4236,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16785
+          },
+          {
+            "surface_face_row": 4237,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16787
+          },
+          {
+            "surface_face_row": 4238,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16729
+          },
+          {
+            "surface_face_row": 4239,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16728
+          },
+          {
+            "surface_face_row": 4240,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16730
+          },
+          {
+            "surface_face_row": 4241,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16731
+          },
+          {
+            "surface_face_row": 4242,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16737
+          },
+          {
+            "surface_face_row": 4243,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16727
+          },
+          {
+            "surface_face_row": 4244,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16723
+          },
+          {
+            "surface_face_row": 4245,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16734
+          },
+          {
+            "surface_face_row": 4246,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16677
+          },
+          {
+            "surface_face_row": 4247,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16673
+          },
+          {
+            "surface_face_row": 4248,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16672
+          },
+          {
+            "surface_face_row": 4249,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16675
+          },
+          {
+            "surface_face_row": 4250,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16674
+          },
+          {
+            "surface_face_row": 4251,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16686
+          },
+          {
+            "surface_face_row": 4252,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16739
+          },
+          {
+            "surface_face_row": 4253,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16742
+          },
+          {
+            "surface_face_row": 4254,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16699
+          },
+          {
+            "surface_face_row": 4255,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16698
+          },
+          {
+            "surface_face_row": 4256,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16702
+          },
+          {
+            "surface_face_row": 4257,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 17597
+          },
+          {
+            "surface_face_row": 4258,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 17599
+          },
+          {
+            "surface_face_row": 4259,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 17600
+          },
+          {
+            "surface_face_row": 4260,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 17598
+          },
+          {
+            "surface_face_row": 4261,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16753
+          },
+          {
+            "surface_face_row": 4262,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 16750
+          },
+          {
+            "surface_face_row": 4263,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "detailed",
+            "parent_surface_id": -1,
+            "detailed_source_face_id": 17637
+          }
+        ],
+        "replacement_corner_mismatch_witnesses": [
+          {
+            "surface_face_row": 35962,
+            "outer_node_row": 18282,
+            "detailed_source_face_id": 48677,
+            "node_mapping_kind": "edge"
+          },
+          {
+            "surface_face_row": 35962,
+            "outer_node_row": 18495,
+            "detailed_source_face_id": 48677,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35963,
+            "outer_node_row": 18283,
+            "detailed_source_face_id": 48673,
+            "node_mapping_kind": "edge"
+          },
+          {
+            "surface_face_row": 35963,
+            "outer_node_row": 18495,
+            "detailed_source_face_id": 48673,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35964,
+            "outer_node_row": 18285,
+            "detailed_source_face_id": 48670,
+            "node_mapping_kind": "edge"
+          },
+          {
+            "surface_face_row": 35964,
+            "outer_node_row": 18495,
+            "detailed_source_face_id": 48670,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35965,
+            "outer_node_row": 18288,
+            "detailed_source_face_id": 48671,
+            "node_mapping_kind": "edge"
+          },
+          {
+            "surface_face_row": 35965,
+            "outer_node_row": 18495,
+            "detailed_source_face_id": 48671,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35966,
+            "outer_node_row": 18287,
+            "detailed_source_face_id": 48676,
+            "node_mapping_kind": "edge"
+          },
+          {
+            "surface_face_row": 35966,
+            "outer_node_row": 18495,
+            "detailed_source_face_id": 48676,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35967,
+            "outer_node_row": 18498,
+            "detailed_source_face_id": 48704,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35967,
+            "outer_node_row": 18495,
+            "detailed_source_face_id": 48704,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35968,
+            "outer_node_row": 18286,
+            "detailed_source_face_id": 48704,
+            "node_mapping_kind": "edge"
+          },
+          {
+            "surface_face_row": 35968,
+            "outer_node_row": 18498,
+            "detailed_source_face_id": 48704,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35969,
+            "outer_node_row": 18289,
+            "detailed_source_face_id": 48701,
+            "node_mapping_kind": "edge"
+          },
+          {
+            "surface_face_row": 35969,
+            "outer_node_row": 18498,
+            "detailed_source_face_id": 48701,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35970,
+            "outer_node_row": 18290,
+            "detailed_source_face_id": 48728,
+            "node_mapping_kind": "edge"
+          },
+          {
+            "surface_face_row": 35970,
+            "outer_node_row": 18498,
+            "detailed_source_face_id": 48728,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35971,
+            "outer_node_row": 18291,
+            "detailed_source_face_id": 48729,
+            "node_mapping_kind": "edge"
+          },
+          {
+            "surface_face_row": 35971,
+            "outer_node_row": 18498,
+            "detailed_source_face_id": 48729,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35972,
+            "outer_node_row": 18292,
+            "detailed_source_face_id": 48730,
+            "node_mapping_kind": "edge"
+          },
+          {
+            "surface_face_row": 35972,
+            "outer_node_row": 18498,
+            "detailed_source_face_id": 48730,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35973,
+            "outer_node_row": 18497,
+            "detailed_source_face_id": 48770,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35973,
+            "outer_node_row": 18498,
+            "detailed_source_face_id": 48770,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35974,
+            "outer_node_row": 18293,
+            "detailed_source_face_id": 48770,
+            "node_mapping_kind": "edge"
+          },
+          {
+            "surface_face_row": 35974,
+            "outer_node_row": 18497,
+            "detailed_source_face_id": 48770,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35975,
+            "outer_node_row": 18294,
+            "detailed_source_face_id": 48771,
+            "node_mapping_kind": "edge"
+          },
+          {
+            "surface_face_row": 35975,
+            "outer_node_row": 18497,
+            "detailed_source_face_id": 48771,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35976,
+            "outer_node_row": 18295,
+            "detailed_source_face_id": 48791,
+            "node_mapping_kind": "edge"
+          },
+          {
+            "surface_face_row": 35976,
+            "outer_node_row": 18497,
+            "detailed_source_face_id": 48791,
+            "node_mapping_kind": "unmapped"
+          },
+          {
+            "surface_face_row": 35977,
+            "outer_node_row": 18297,
+            "detailed_source_face_id": 48792,
+            "node_mapping_kind": "edge"
+          },
+          {
+            "surface_face_row": 35977,
+            "outer_node_row": 18497,
+            "detailed_source_face_id": 48792,
+            "node_mapping_kind": "unmapped"
+          }
+        ],
+        "unmapped_boundary_node_rows": [
+          1053,
+          1054,
+          1055,
+          1056,
+          1095,
+          1097,
+          1098,
+          1099,
+          1134,
+          1135,
+          1136,
+          1139,
+          1168,
+          1169,
+          1170,
+          1171,
+          1172,
+          1198,
+          1199,
+          1200,
+          1201,
+          1225,
+          1226,
+          1365,
+          1392,
+          1393,
+          1394,
+          1395,
+          1426,
+          1427,
+          1428,
+          1430,
+          1470,
+          1471,
+          1513,
+          1514,
+          1515,
+          1516,
+          1561,
+          1562,
+          2315,
+          2316,
+          2317,
+          2318,
+          2319
+        ]
+      },
+      "full_independent_volume_ready": false,
+      "volume_readiness_reason": "artifact contains outer-surface mapping only; no complete independent O/I/D volume, exact volume/facet ancestry, or conservative mass receipt"
+    },
+    "317": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/coarse-source-boundary-remesh-317/candidate.npz",
+      "sha256": "15c7f65076872569c2969c1539b440c5c87694c379686c62f73d87bf3dc7ae7e",
+      "surface_replacement_faces_tested": 426,
+      "replacement_patch_boundary_nodes_tested": 741,
+      "source_identity_audit": {
+        "passed": false,
+        "issues": [
+          "direct_source_identity_has_projection_residual_without_projected_embedding",
+          "replacement_face_lacks_typed_detailed_source_face_identity",
+          "required_physical_boundary_node_unmapped_or_not_reconstructed"
+        ],
+        "counts": {
+          "outer_nodes": 19387,
+          "outer_faces": 38105,
+          "face_domain_detailed": 31730,
+          "face_domain_parent_only": 5940,
+          "face_domain_mixed": 435,
+          "face_domain_unmapped": 0,
+          "face_domain_invalid": 0,
+          "replacement_faces_required": 426,
+          "replacement_faces_missing_detailed_identity": 426,
+          "replacement_face_corner_mismatches": 0,
+          "nodes_direct": 16310,
+          "nodes_face_embedded": 933,
+          "nodes_edge_embedded": 0,
+          "nodes_unmapped_or_invalid": 2144,
+          "direct_ids_with_unrepresented_residual": 1709,
+          "nodes_reconstruction_error_over_tolerance": 0,
+          "required_boundary_nodes": 741,
+          "required_boundary_nodes_unmapped_or_bad": 377,
+          "open_surface_boundary_edges": 45,
+          "open_surface_boundary_nodes": 45
+        },
+        "max_source_reconstruction_error_m": 0.0,
+        "max_direct_projection_residual_m": 0.0029461065361312275,
+        "replacement_face_identity_witnesses": [
+          {
+            "surface_face_row": 88,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 2,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 261,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 202,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 388,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 511,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 396,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 331,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 419,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 513,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 435,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 355,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 439,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 519,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 440,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 363,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 441,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 362,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 557,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 466,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 572,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 571,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 574,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 518,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 575,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 574,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 576,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 589,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 629,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 715,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 630,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 4603,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 633,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 4603,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 642,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 547,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 643,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 550,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 644,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 554,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 645,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 569,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 646,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 553,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 647,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 568,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 648,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 573,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 668,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 582,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 678,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 596,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 679,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 595,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 680,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 634,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 682,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 597,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 684,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 635,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 695,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 662,
+            "detailed_source_face_id": -1
+          },
+          {
+            "surface_face_row": 698,
+            "role_face_identity": "exact row in this pinned surface table",
+            "domain": "parent",
+            "parent_surface_id": 668,
+            "detailed_source_face_id": -1
+          }
+        ],
+        "replacement_corner_mismatch_witnesses": [],
+        "unmapped_boundary_node_rows": [
+          1053,
+          1054,
+          1055,
+          1056,
+          1095,
+          1097,
+          1098,
+          1099,
+          1134,
+          1135,
+          1136,
+          1139,
+          1168,
+          1169,
+          1170,
+          1171,
+          1172,
+          1198,
+          1199,
+          1200,
+          1201,
+          1225,
+          1226,
+          1365,
+          1392,
+          1393,
+          1394,
+          1395,
+          1426,
+          1427,
+          1428,
+          1430,
+          1470,
+          1471,
+          1513,
+          1514,
+          1515,
+          1516,
+          1561,
+          1562,
+          2315,
+          2316,
+          2317,
+          2318,
+          2319
+        ]
+      },
+      "full_independent_volume_ready": false,
+      "volume_readiness_reason": "artifact contains outer-surface mapping only; no complete independent O/I/D volume, exact volume/facet ancestry, or conservative mass receipt"
+    }
+  },
+  "elapsed_s": 0.49808192253112793,
+  "admission_decision": "REJECT: declared replacement regions do not have complete detailed-source face and corner-node embeddings, and neither candidate contains a complete conservative independent O/I/D volume candidate"
+}
