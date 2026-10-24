@@ -1,0 +1,12 @@
+test_bad_source_id_csr_or_binding_fails_closed (test_duplicate_source_compose.DuplicateSourceComposition.test_bad_source_id_csr_or_binding_fails_closed) ... ok
+test_disjoint_duplicate_regions_compose_and_keep_originals (test_duplicate_source_compose.DuplicateSourceComposition.test_disjoint_duplicate_regions_compose_and_keep_originals) ... ok
+test_duplicate_and_edge_refinements_compose_only_on_disjoint_parents (test_duplicate_source_compose.DuplicateSourceComposition.test_duplicate_and_edge_refinements_compose_only_on_disjoint_parents) ... ok
+test_duplicate_source_can_repeat_but_parent_rows_must_be_disjoint (test_duplicate_source_compose.DuplicateSourceComposition.test_duplicate_source_can_repeat_but_parent_rows_must_be_disjoint) ... ok
+test_parent_map_and_compact_source_binding_are_verified (test_duplicate_source_compose.DuplicateSourceComposition.test_parent_map_and_compact_source_binding_are_verified) ... ok
+test_candidate_hash_and_each_gate_are_required (test_native_admission_gate.NativeAdmissionGate.test_candidate_hash_and_each_gate_are_required) ... ok
+test_missing_receipts_are_blocked (test_native_admission_gate.NativeAdmissionGate.test_missing_receipts_are_blocked) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.009s
+
+OK

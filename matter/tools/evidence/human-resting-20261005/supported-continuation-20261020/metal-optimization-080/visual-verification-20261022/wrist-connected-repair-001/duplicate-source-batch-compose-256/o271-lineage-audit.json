@@ -1,0 +1,44 @@
+{
+  "anatomical_scope": "bilateral lower-leg/ankle collar, selected from tibia-minus-calcaneus landmarks; not shoulder/arm/hand",
+  "audit_script_sha256": "a582b3adafc23a8b9ee3c7422d08326e1f1eb7fbc648f43e0c981c0af7074a2b",
+  "descriptor_semantics": "separate physical O surface descriptor; not an NHSKIN candidate",
+  "feasibility": {
+    "can_reconstruct_fine_surface_on_detailed_kind2_region_from_existing_O_ancestry": true,
+    "limitation": "this O271 descriptor covers ankle/lower-leg patches, so it does not establish arm/hand reconstruction feasibility",
+    "qualification": "ancestry/binding feasibility only; no pose, collision, tissue, mechanical, or mass claim"
+  },
+  "input_pins": {
+    "candidate-271-max-cut-distance-bilateral-collar.npz": "92f0079a8266bb1f5bdeb289bffa51c2624341e6e6f2e1e9e0eb0c6d969e3f1d",
+    "candidate.nhskin": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+    "rebind_human_skin_reference.py": "de92664785da7ee350150a48d94a7e108fc0970a4170e085df69b8d262632cf9",
+    "registered-skin.csv": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e",
+    "report.json": "66049279070c337599780e02f6bc21416a917540676639120e893e952046f2e6"
+  },
+  "python_version": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "schema": "numi.human.outer271-source-lineage-binding-feasibility.v1",
+  "source_correspondence": {
+    "face_parent_sequence_exact": true,
+    "full_dense_binding_rows_replayable": true,
+    "kind2_face_count": 31730,
+    "max_binding_negative_weight": 0.0,
+    "max_binding_partition_error": 7.078502806123765e-08,
+    "node_ancestry_kinds": {
+      "source_cut": 360,
+      "source_vertex": 15687
+    },
+    "orientation_vs_source_payload": {
+      "nearzero": 0,
+      "reversed": 31730,
+      "same": 0
+    },
+    "parent_ids_in_original_nhskin_face_row_domain": true,
+    "parent_triangle_barycentric_max": 1.0,
+    "parent_triangle_barycentric_min": -2.0997598431864334e-14,
+    "parent_triangle_replay_max_error_m": 1.5788995281571396e-15,
+    "repeated_parent_faces": 185,
+    "source_nodes_used": 16047,
+    "unique_source_payload_face_rows": 31545,
+    "world_point_replay_max_error_m": 2.237726045655905e-16,
+    "world_point_replay_rms_error_m": 1.0792764740446637e-17
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "source_sha256": "92f0079a8266bb1f5bdeb289bffa51c2624341e6e6f2e1e9e0eb0c6d969e3f1d",
+  "shell_npz_sha256": "cb17fa93f6d646c77b34241b01efa7385efa904923bdde3a1d917be805d109fb",
+  "source_loops": [
+    {
+      "loop": [
+        1053,
+        1054,
+        1055,
+        1097,
+        1139,
+        1134,
+        2315,
+        1135,
+        1168,
+        1169,
+        1170,
+        1198,
+        1225,
+        1226,
+        1201,
+        1200,
+        1199,
+        1172,
+        1171,
+        1136,
+        1095,
+        1099,
+        1098,
+        1056
+      ],
+      "report": {
+        "triangles": 22,
+        "source_vertices_unchanged": true,
+        "oriented_boundary_exact": true,
+        "minimum_area_m2": 9.74546732156787e-07,
+        "projection_nonplanarity_m": 0.002847433663830533,
+        "physical_admission": false
+      },
+      "temporary_interior_nodes": 421
+    },
+    {
+      "loop": [
+        1365,
+        1392,
+        2316,
+        1426,
+        1427,
+        2318,
+        2319,
+        1513,
+        1514,
+        1561,
+        1562,
+        1516,
+        1515,
+        1471,
+        1470,
+        1430,
+        1428,
+        2317,
+        1395,
+        1394,
+        1393
+      ],
+      "report": {
+        "triangles": 19,
+        "source_vertices_unchanged": true,
+        "oriented_boundary_exact": true,
+        "minimum_area_m2": 9.202210812055937e-07,
+        "projection_nonplanarity_m": 0.002849261904436095,
+        "physical_admission": false
+      },
+      "temporary_interior_nodes": 401
+    }
+  ],
+  "physical_outer_faces": 36397,
+  "temporary_cap_faces": 1685,
+  "signed_source_volume_m3": -0.06960080440192769,
+  "plc_winding_parity": -1,
+  "cap_self": {
+    "triangle_pairs": [],
+    "count": 0,
+    "aabb_candidate_pairs": 12468,
+    "allowed_shared_vertex_or_edge_pairs": 10951
+  },
+  "cap_vs_physical_outer": {
+    "triangle_pairs": [],
+    "count": 0,
+    "aabb_candidate_pairs": 1560,
+    "allowed_shared_vertex_or_edge_pairs": 669
+  },
+  "construction_pass": true,
+  "physical_admission": false,
+  "anatomical_apertures_unchanged": true,
+  "scope": "temporary cap self and cap-vs-O only; retained O not newly globally audited",
+  "dome_trials": [
+    {
+      "amplitude_m": -0.0001,
+      "self": 0,
+      "outer": 23,
+      "bad_incidence_edges": 0
+    },
+    {
+      "amplitude_m": 0.0001,
+      "self": 0,
+      "outer": 36,
+      "bad_incidence_edges": 0
+    },
+    {
+      "amplitude_m": -0.00025,
+      "self": 0,
+      "outer": 17,
+      "bad_incidence_edges": 0
+    },
+    {
+      "amplitude_m": 0.00025,
+      "self": 0,
+      "outer": 36,
+      "bad_incidence_edges": 0
+    },
+    {
+      "amplitude_m": -0.0005,
+      "self": 0,
+      "outer": 17,
+      "bad_incidence_edges": 0
+    },
+    {
+      "amplitude_m": 0.0005,
+      "self": 0,
+      "outer": 43,
+      "bad_incidence_edges": 0
+    },
+    {
+      "amplitude_m": -0.001,
+      "self": 0,
+      "outer": 17,
+      "bad_incidence_edges": 0
+    },
+    {
+      "amplitude_m": 0.001,
+      "self": 0,
+      "outer": 54,
+      "bad_incidence_edges": 0
+    },
+    {
+      "amplitude_m": -0.002,
+      "self": 0,
+      "outer": 14,
+      "bad_incidence_edges": 0
+    },
+    {
+      "amplitude_m": 0.002,
+      "self": 0,
+      "outer": 124,
+      "bad_incidence_edges": 0
+    },
+    {
+      "amplitude_m": -0.004,
+      "self": 0,
+      "outer": 4,
+      "bad_incidence_edges": 0
+    },
+    {
+      "amplitude_m": 0.004,
+      "self": 0,
+      "outer": 189,
+      "bad_incidence_edges": 0
+    },
+    {
+      "amplitude_m": -0.008,
+      "self": 0,
+      "outer": 0,
+      "bad_incidence_edges": 0
+    }
+  ],
+  "temporary_interior_nodes": 822,
+  "physical_outer_vertices_bitwise_unchanged": true,
+  "selected_amplitude_m": -0.008
+}

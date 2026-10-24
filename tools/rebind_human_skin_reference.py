@@ -456,6 +456,210 @@ def merge_edge_refinement_repairs(payload, repairs):
                      physical_admission=False)
 
 
+def _validate_duplicate_source_repair(payload, repair):
+    """Validate a same-face-count patch that duplicates existing source rows.
+
+    This ancestry kind is intentionally distinct from edge interpolation: a
+    duplicated row may move in XYZ and normal space, but its source/binding
+    identity is one existing source row. No zero-length source edge is
+    fabricated and no geometric-overlap claim is made.
+    """
+    other = repair["payload"]
+    n, nf = payload["nv"], len(payload["inds"])
+    if (other["nv"] <= n or len(other["inds"]) != nf or
+            other["nb"] != payload["nb"] or
+            other["source_sha256"] != payload["source_sha256"] or
+            other["fingerprint"] != payload["fingerprint"] or
+            other["binds"].tobytes() != payload["binds"].tobytes()):
+        raise RebindError("duplicate-source patch registration or topology domain differs")
+    if (other["weights"][:n].tobytes() != payload["weights"].tobytes() or
+            other["raw"][other["vertoff"]+24:other["vertoff"]+n*56] !=
+            payload["raw"][payload["vertoff"]+24:payload["vertoff"]+n*56]):
+        raise RebindError("duplicate-source patch changed original binding records")
+
+    parent = np.asarray(repair["face_parent_source_rows"])
+    protected = np.asarray(repair["protected_source_face_ids"])
+    replaced = np.asarray(repair["replaced_source_face_ids"])
+    dup_out = np.asarray(repair["duplicated_output_vertex_ids"])
+    dup_src = np.asarray(repair["duplicated_source_vertex_ids"])
+    offsets = np.asarray(repair["ancestry_offsets"])
+    source_ids = np.asarray(repair["source_vertex_ids"])
+    source_weights = np.asarray(repair["source_weights"], dtype=float)
+    integer_arrays = (parent, protected, replaced, dup_out, dup_src,
+                      offsets, source_ids)
+    if any(a.ndim != 1 or a.dtype.kind not in "iu" for a in integer_arrays):
+        raise RebindError("duplicate-source identities must be integer vectors")
+    if (parent.shape != (nf,) or np.any(parent < 0) or np.any(parent >= nf) or
+            len(np.unique(parent)) != nf or not np.array_equal(np.sort(parent), np.arange(nf))):
+        raise RebindError("duplicate-source face parent map must cover each base face once")
+    if (len(np.unique(protected)) != len(protected) or
+            len(np.unique(replaced)) != len(replaced) or
+            np.any(protected < 0) or np.any(protected >= nf) or
+            np.any(replaced < 0) or np.any(replaced >= nf) or
+            np.intersect1d(protected, replaced).size or
+            not np.array_equal(np.sort(np.concatenate((protected, replaced))), np.arange(nf))):
+        raise RebindError("protected and replaced source faces must partition the base")
+    extra = other["nv"] - n
+    if (dup_out.shape != (extra,) or dup_src.shape != (extra,) or
+            not np.array_equal(np.sort(dup_out), np.arange(n, other["nv"])) or
+            np.any(dup_src < 0) or np.any(dup_src >= n)):
+        raise RebindError("duplicate source/output rows do not cover appended vertices")
+    if (offsets.shape != (other["nv"]+1,) or offsets[0] != 0 or
+            np.any(np.diff(offsets) <= 0) or offsets[-1] != len(source_ids) or
+            source_weights.shape != source_ids.shape or
+            not np.isfinite(source_weights).all() or np.any(source_weights < 0) or
+            np.any(source_ids < 0) or np.any(source_ids >= n)):
+        raise RebindError("invalid duplicate-source CSR partition")
+    if (not np.array_equal(offsets[:n+1], np.arange(n+1)) or
+            not np.array_equal(source_ids[:n], np.arange(n)) or
+            not np.array_equal(source_weights[:n], np.ones(n))):
+        raise RebindError("original source ancestry must remain identity")
+    for output_row, source_row in zip(dup_out, dup_src):
+        lo, hi = int(offsets[output_row]), int(offsets[output_row+1])
+        if (hi-lo != 1 or int(source_ids[lo]) != int(source_row) or
+                source_weights[lo] != 1.0):
+            raise RebindError("appended row is not a direct unit-weight source duplicate")
+        if other["weights"][output_row].tobytes() != payload["weights"][source_row].tobytes():
+            raise RebindError("duplicated row dense binding differs from its source row")
+        src0 = payload["vertoff"] + int(source_row)*56 + 24
+        dup0 = other["vertoff"] + int(output_row)*56 + 24
+        src_lanes = struct.unpack_from("<4I4f", payload["raw"], src0)
+        dup_lanes = struct.unpack_from("<4I4f", other["raw"], dup0)
+        src_index, src_weight = src_lanes[:4], src_lanes[4:]
+        dup_index, dup_weight = dup_lanes[:4], dup_lanes[4:]
+        if src_index != dup_index:
+            raise RebindError("duplicated row compact binding IDs differ from its source row")
+        src_weight = np.asarray(src_weight, dtype="<f4")
+        dup_weight = np.asarray(dup_weight, dtype="<f4")
+        # Compact ABI lanes are separately rounded from the dense influence
+        # table. Permit only a one-ULP representation change for nonnegative
+        # Float32 weights; donor identities and full dense rows remain exact.
+        if (not np.isfinite(dup_weight).all() or np.any(dup_weight < 0) or
+                np.any(np.abs(src_weight.view("<u4").astype(np.int64) -
+                              dup_weight.view("<u4").astype(np.int64)) > 1)):
+            raise RebindError("duplicated row compact binding weights differ from its source row")
+
+    # Every candidate triangle has one declared source-face identity. Mapping
+    # duplicated vertices back to their source rows must recover that parent's
+    # oriented source triangle exactly. This proves lineage, not overlap.
+    output_to_source = np.arange(other["nv"], dtype=np.int64)
+    output_to_source[dup_out] = dup_src
+    projected = output_to_source[other["inds"]]
+    if not np.array_equal(projected, payload["inds"][parent]):
+        raise RebindError("face parent identity disagrees with duplicated source rows")
+    raw_faces_by_parent = np.empty_like(payload["inds"])
+    raw_faces_by_parent[parent] = other["inds"]
+    touched = set(map(int, np.flatnonzero(np.any(raw_faces_by_parent != payload["inds"], axis=1))))
+    if set(map(int, other["inds"].ravel()[other["inds"].ravel() >= n])) != set(map(int, dup_out)):
+        raise RebindError("duplicate-source patch contains unused or undeclared appended rows")
+    return dict(other=other, parent=parent.astype(np.int64),
+                protected=set(map(int, protected)), replaced=set(map(int, replaced)),
+                touched=touched,
+                duplicate_output=dup_out.astype(np.int64),
+                duplicate_source=dup_src.astype(np.int64),
+                ancestry_source_ids=source_ids.astype(np.int64),
+                ancestry_weights=source_weights)
+
+
+def merge_source_topology_repairs(payload, *, edge_repairs=(), duplicate_repairs=()):
+    """Compose disjoint edge refinements and explicit source-row duplicates.
+
+    Edge repairs use the existing conforming-disk validator. Duplicate repairs
+    may relabel vertices in a full same-face-count candidate, with each appended
+    row carrying an explicit direct source-row CSR entry. All repairs are
+    compared to one original payload and overlapping parent faces fail.
+    The result is source-preparation output only; it does not certify pose,
+    mechanics, tissue mass, physical admission, or geometric overlap ancestry.
+    """
+    if edge_repairs:
+        edge_raw, edge_report = merge_edge_refinement_repairs(payload, edge_repairs)
+    else:
+        edge_raw = payload["raw"]
+        edge_report = dict(changed_original_rows=[],
+                           face_parent_source_rows=list(range(len(payload["inds"]))),
+                           regions=[], physical_admission=False)
+    current = decode(edge_raw)
+    n, nf = payload["nv"], len(payload["inds"])
+    parent_rows = np.asarray(edge_report["face_parent_source_rows"], dtype=np.int64)
+    edge_replaced = {int(p) for region in edge_report.get("regions", [])
+                     for p in region.get("replaced_source_faces", [])}
+    current_vertices = current["verts"].copy()
+    current_weights = current["weights"].copy()
+    current_faces = current["inds"].astype(np.int64).copy()
+    changed_original = set(map(int, edge_report["changed_original_rows"]))
+    duplicate_used = set(edge_replaced)
+    duplicate_regions = []
+    next_row = current["nv"]
+
+    for repair in duplicate_repairs:
+        validated = _validate_duplicate_source_repair(payload, repair)
+        other = validated["other"]
+        overlap = duplicate_used & validated["touched"]
+        if overlap:
+            raise RebindError("overlapping regional source-face patches: " + str(min(overlap)))
+
+        # Merge permitted original XYZ/normal edits by row. Binds, dense
+        # weights and the compact four-lane binding representation are pinned.
+        values = other["verts"][:n, :6]
+        baseline = payload["verts"][:, :6]
+        changed = np.any(values.view("<u4") != baseline.view("<u4"), axis=1)
+        for row in np.flatnonzero(changed):
+            row = int(row)
+            if row in changed_original and not np.array_equal(
+                    values[row].view("<u4"), current_vertices[row, :6].view("<u4")):
+                raise RebindError("conflicting original vertex repair at vertex " + str(row))
+            current_vertices[row, :6] = values[row]
+            changed_original.add(row)
+
+        remap = {}
+        for output_row, source_row in zip(validated["duplicate_output"],
+                                          validated["duplicate_source"]):
+            remap[int(output_row)] = next_row
+            current_vertices = np.concatenate((current_vertices,
+                                                other["verts"][int(output_row):int(output_row)+1]))
+            current_weights = np.concatenate((current_weights,
+                                               other["weights"][int(output_row):int(output_row)+1]))
+            next_row += 1
+        # Each source parent currently has exactly one unsplit face because
+        # duplicate patches are disjoint from edge-refined parent faces.
+        for parent in sorted(validated["touched"]):
+            rows = np.flatnonzero(parent_rows == parent)
+            if len(rows) != 1 or parent in edge_replaced:
+                raise RebindError("duplicate-source patch overlaps a refined/missing parent face")
+            candidate_row = int(np.flatnonzero(validated["parent"] == parent)[0])
+            tri = other["inds"][candidate_row].astype(np.int64).copy()
+            for i, vertex in enumerate(tri):
+                if int(vertex) >= n:
+                    tri[i] = remap[int(vertex)]
+            current_faces[int(rows[0])] = tri
+        duplicate_used |= validated["touched"]
+        duplicate_regions.append(dict(
+            added_vertices=len(remap),
+            replaced_source_faces=sorted(validated["replaced"]),
+            touched_source_faces=sorted(validated["touched"]),
+            duplicate_source_vertex_ids=validated["duplicate_source"].tolist(),
+            source_face_lineage="declared parent row and direct source-row projection; not geometric overlap"))
+
+    if not duplicate_regions:
+        return edge_raw, edge_report
+    header = bytearray(payload["raw"][:60])
+    struct.pack_into("<2I", header, 16, len(current_vertices), 3*len(current_faces))
+    raw = (bytes(header) + payload["raw"][60:payload["vertoff"]] +
+           current_vertices.astype("<f4").tobytes() +
+           current_faces.astype("<u4").tobytes() + current_weights.astype("<f4").tobytes())
+    result = decode(raw)
+    report = dict(
+        changed_original_rows=sorted(changed_original),
+        face_parent_source_rows=parent_rows.tolist(),
+        regions=list(edge_report.get("regions", [])) + duplicate_regions,
+        added_duplicate_vertices=sum(r["added_vertices"] for r in duplicate_regions),
+        ancestry_semantics="edge interpolation for edge regions; direct source-row identity for duplicate regions",
+        geometric_overlap_certified=False,
+        physical_admission=False,
+        native_admission=False)
+    return result["raw"], report
+
+
 def local_rigid_weights(payload, target_body, seeds, shell_gates):
     gates = np.asarray(shell_gates, dtype=float)
     if (not len(gates) or not np.isfinite(gates).all() or

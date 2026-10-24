@@ -1025,3 +1025,106 @@ def require_matching_surface_topology(reference_faces, candidate_faces):
     if a != b:
         raise ValueError('surface component/boundary/genus topology changed')
     return a
+
+
+def triangulate_boundary_disk(vertices, loop, *, relative_tolerance=1e-12):
+    """Triangulate a simple projected loop without adding a center vertex.
+
+    Uses a best-fit plane only for connectivity. Every emitted vertex retains
+    its original 3D coordinates and source ID. A simple projection guarantees
+    nonoverlap of triangle interiors in that projection, but this is a Float64
+    construction helper: exact neighboring-surface gates remain mandatory.
+    This may close a temporary construction PLC; it does not close anatomical
+    apertures or authorize emission of a physical skin cap.
+    """
+    x = np.asarray(vertices, dtype=np.float64)
+    ids = np.asarray(loop)
+    if x.ndim != 2 or x.shape[1] != 3 or not np.isfinite(x).all():
+        raise ValueError("finite Nx3 vertices required")
+    if ids.ndim != 1 or ids.dtype.kind not in "iu" or len(ids) < 3:
+        raise ValueError("integer boundary loop with at least three vertices required")
+    if len(np.unique(ids)) != len(ids) or np.any(ids < 0) or np.any(ids >= len(x)):
+        raise ValueError("invalid or repeated boundary identity")
+    if not np.isfinite(relative_tolerance) or not 0 < relative_tolerance < 1e-3:
+        raise ValueError("invalid construction tolerance")
+    p = x[ids]
+    centered = p-p.mean(axis=0)
+    _, singular, axes = np.linalg.svd(centered,full_matrices=False)
+    if len(singular) < 2 or singular[1] <= 0:
+        raise ValueError("collinear boundary")
+    uv = centered @ axes[:2].T
+    scale = float(np.max(np.ptp(uv,axis=0)))
+    if not scale > 0:
+        raise ValueError("zero boundary extent")
+    uv /= scale
+    tol = float(relative_tolerance)
+    def cross(a,b,c):
+        u,v=b-a,c-a
+        return float(u[0]*v[1]-u[1]*v[0])
+    def on_segment(a,b,c):
+        return abs(cross(a,b,c)) <= tol and np.all(c >= np.minimum(a,b)-tol) and np.all(c <= np.maximum(a,b)+tol)
+    n = len(ids)
+    if np.any(np.linalg.norm(np.roll(uv,-1,axis=0)-uv,axis=1) <= tol):
+        raise ValueError("zero projected boundary edge")
+    for i in range(n):
+        a,b=uv[i],uv[(i+1)%n]
+        for j in range(i+1,n):
+            if j == i+1 or (i==0 and j==n-1):
+                continue
+            c,d=uv[j],uv[(j+1)%n]
+            ab_c,ab_d=cross(a,b,c),cross(a,b,d)
+            cd_a,cd_b=cross(c,d,a),cross(c,d,b)
+            proper=(ab_c*ab_d < 0 and cd_a*cd_b < 0)
+            touch=on_segment(a,b,c) or on_segment(a,b,d) or on_segment(c,d,a) or on_segment(c,d,b)
+            if proper or touch:
+                raise ValueError("projected boundary is not simple")
+    twice_area = float(np.sum(uv[:,0]*np.roll(uv[:,1],-1)-uv[:,1]*np.roll(uv[:,0],-1)))
+    if abs(twice_area) <= tol:
+        raise ValueError("zero projected boundary area")
+    sign = 1 if twice_area > 0 else -1
+    remaining=list(range(n));out=[]
+    while len(remaining)>3:
+        ears=[]
+        for k,bid in enumerate(remaining):
+            aid,cid=remaining[k-1],remaining[(k+1)%len(remaining)]
+            a,b,c=uv[[aid,bid,cid]]
+            area=sign*cross(a,b,c)
+            if area <= tol:
+                continue
+            contains=False
+            for other in remaining:
+                if other in (aid,bid,cid):
+                    continue
+                q=uv[other]
+                if min(sign*cross(a,b,q),sign*cross(b,c,q),sign*cross(c,a,q)) >= -tol:
+                    contains=True
+                    break
+            if not contains:
+                lengths=np.sum((np.array([a,b,c])-np.array([b,c,a]))**2)
+                quality=area/max(float(lengths),1e-300)
+                ears.append((-quality,int(ids[bid]),k,aid,bid,cid))
+        if not ears:
+            raise ValueError("boundary cannot be triangulated without degeneracy")
+        _,_,k,a,b,c=min(ears)
+        out.append([int(ids[a]),int(ids[b]),int(ids[c])])
+        remaining.pop(k)
+    if sign*cross(*uv[remaining]) <= tol:
+        raise ValueError("degenerate terminal triangle")
+    out.append([int(ids[i]) for i in remaining])
+    faces=np.asarray(out,dtype=np.int64)
+    # Full oriented edge contract, not just a triangle count.
+    edges={}
+    for t in faces:
+        for a,b in zip(t,np.roll(t,-1)):
+            edges.setdefault(tuple(sorted((int(a),int(b)))),[]).append((int(a),int(b)))
+    boundary={v[0] for v in edges.values() if len(v)==1}
+    expected={(int(a),int(b)) for a,b in zip(ids,np.roll(ids,-1))}
+    if boundary != expected or any(len(v)>2 or (len(v)==2 and v[0] != v[1][::-1]) for v in edges.values()):
+        raise AssertionError("disk boundary contract failed")
+    areas=np.linalg.norm(np.cross(x[faces[:,1]]-x[faces[:,0]],x[faces[:,2]]-x[faces[:,0]]),axis=1)*.5
+    if np.any(areas <= 0) or not np.isfinite(areas).all():
+        raise ValueError("invalid 3D construction triangles")
+    return faces, {"triangles":len(faces),"source_vertices_unchanged":True,
+                   "oriented_boundary_exact":True,"minimum_area_m2":float(areas.min()),
+                   "projection_nonplanarity_m":float(np.max(np.abs(centered @ axes[2]))) if len(axes)>2 else 0.,
+                   "physical_admission":False}

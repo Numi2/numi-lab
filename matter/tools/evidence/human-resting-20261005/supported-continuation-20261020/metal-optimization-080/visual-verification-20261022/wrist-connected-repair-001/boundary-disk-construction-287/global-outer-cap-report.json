@@ -1,0 +1,124 @@
+{
+  "source_sha256": "92f0079a8266bb1f5bdeb289bffa51c2624341e6e6f2e1e9e0eb0c6d969e3f1d",
+  "shell_npz_sha256": "f254481cb5e455684309b7fdbcf97f36c62ea83eb9cdc9eac2e7874b0544e09e",
+  "source_loops": [
+    {
+      "loop": [
+        1053,
+        1054,
+        1055,
+        1097,
+        1139,
+        1134,
+        2315,
+        1135,
+        1168,
+        1169,
+        1170,
+        1198,
+        1225,
+        1226,
+        1201,
+        1200,
+        1199,
+        1172,
+        1171,
+        1136,
+        1095,
+        1099,
+        1098,
+        1056
+      ],
+      "report": {
+        "triangles": 22,
+        "source_vertices_unchanged": true,
+        "oriented_boundary_exact": true,
+        "minimum_area_m2": 9.74546732156787e-07,
+        "projection_nonplanarity_m": 0.002847433663830533,
+        "physical_admission": false
+      }
+    },
+    {
+      "loop": [
+        1365,
+        1392,
+        2316,
+        1426,
+        1427,
+        2318,
+        2319,
+        1513,
+        1514,
+        1561,
+        1562,
+        1516,
+        1515,
+        1471,
+        1470,
+        1430,
+        1428,
+        2317,
+        1395,
+        1394,
+        1393
+      ],
+      "report": {
+        "triangles": 19,
+        "source_vertices_unchanged": true,
+        "oriented_boundary_exact": true,
+        "minimum_area_m2": 9.202210812055937e-07,
+        "projection_nonplanarity_m": 0.002849261904436095,
+        "physical_admission": false
+      }
+    }
+  ],
+  "physical_outer_faces": 36397,
+  "temporary_cap_faces": 41,
+  "signed_source_volume_m3": -0.06960369304253798,
+  "plc_winding_parity": -1,
+  "cap_self": {
+    "triangle_pairs": [],
+    "count": 0,
+    "aabb_candidate_pairs": 160,
+    "allowed_shared_vertex_or_edge_pairs": 136
+  },
+  "cap_vs_physical_outer": {
+    "triangle_pairs": [
+      [
+        9,
+        2303
+      ],
+      [
+        10,
+        2302
+      ],
+      [
+        10,
+        2303
+      ],
+      [
+        18,
+        2212
+      ],
+      [
+        29,
+        2807
+      ],
+      [
+        30,
+        2807
+      ],
+      [
+        31,
+        2807
+      ]
+    ],
+    "count": 7,
+    "aabb_candidate_pairs": 459,
+    "allowed_shared_vertex_or_edge_pairs": 278
+  },
+  "construction_pass": false,
+  "physical_admission": false,
+  "anatomical_apertures_unchanged": true,
+  "scope": "temporary cap self and cap-vs-O only; retained O not newly globally audited"
+}
