@@ -1,0 +1,187 @@
+{
+  "admission": false,
+  "candidate_registration_metrics": {
+    "humerus_r": {
+      "held_out": {
+        "maximum_m": 0.02090506693753837,
+        "mean_m": 0.0050771327950995685,
+        "median_m": 0.004008721920947082,
+        "p90_m": 0.009775177824334786
+      },
+      "humeral_head_articular_gate": {
+        "candidate_center_to_mechanics_axis_m": 0.0030099380393254303,
+        "candidate_radius_m": 0.023916414720125474,
+        "candidate_surface_vertex_count": 493,
+        "center_residual_m": 0.0012642393294238876,
+        "maximum_center_residual_m": 0.003,
+        "maximum_center_to_mechanics_axis_m": 0.005,
+        "maximum_radius_residual_m": 0.004,
+        "method": "robust_proximal_articular_sphere_against_pinned_mobl_derived_mechanics_mesh",
+        "passed": true,
+        "radius_residual_m": 0.000285050519137537,
+        "source_center_to_mechanics_axis_m": 0.001756650515606855,
+        "source_radius_m": 0.02420146523926301,
+        "source_surface_vertex_count": 39
+      },
+      "rotation_angle_rad": 0.27976830086374466,
+      "scale": 1.047414520415501,
+      "scale_bounds": [
+        0.93,
+        1.07
+      ],
+      "training": {
+        "maximum_m": 0.02747928679553015,
+        "mean_m": 0.005330055209388538,
+        "median_m": 0.004098768087243879,
+        "p90_m": 0.009850939220780973
+      }
+    },
+    "scapula_r": {
+      "endpoint_translation_refinement": {
+        "accepted_coordinate_steps": 11,
+        "continuity_translation_world_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "endpoint_gate_passed": true,
+        "final_maximum_endpoint_distance_m": 0.007344644862296531,
+        "final_total_translation_delta_core_m": [
+          -0.0012500000000000011,
+          0.0021874999999999985,
+          0.0075
+        ],
+        "final_total_translation_delta_norm_m": 0.0079118680632326,
+        "held_out_surface_p90_m": 0.012553269141304318,
+        "initial_maximum_endpoint_distance_m": 0.013835383982896516,
+        "maximum_held_out_surface_p90_m": 0.015,
+        "maximum_translation_m": 0.01,
+        "method": "bounded_coordinate_descent_translation_of_complete_scapula",
+        "objective_evaluation_count": 125,
+        "source_surface_gate_passed": true,
+        "translation_delta_core_m": [
+          -0.0012500000000000011,
+          0.0021874999999999985,
+          0.0075
+        ],
+        "translation_delta_norm_m": 0.0079118680632326
+      },
+      "held_out": {
+        "maximum_m": 0.02386503066189097,
+        "mean_m": 0.007724036088993328,
+        "median_m": 0.0069934642558518514,
+        "p90_m": 0.012553269141304318
+      },
+      "rotation_angle_rad": 0.4162637484405384,
+      "scale": 1.0,
+      "training": {
+        "maximum_m": 0.024545126961522504,
+        "mean_m": 0.007395619384892823,
+        "median_m": 0.006627945602129346,
+        "p90_m": 0.012294645020402678
+      }
+    }
+  },
+  "candidate_status": {
+    "NHRIGID_unmodified": true,
+    "candidate_endpoint_count": 216,
+    "candidate_endpoints_passed": 216,
+    "compile_admission": false,
+    "compile_status": "passed_source_compile_and_out_of_scope_identity",
+    "fit_scope": "all",
+    "fit_status": "candidate_passed_source_mesh_endpoint_and_default_pose_continuity_gates",
+    "prior_admitted_endpoints": 20,
+    "prior_admitted_endpoints_preserved": 20
+  },
+  "corresponding_NHBONES_vertex_displacement_baseline_to_candidate": {
+    "clavicle_r": {
+      "max_displacement_m": 0.0,
+      "mean_displacement_m": 0.0,
+      "member_id": "FJ3362",
+      "p95_displacement_m": 0.0,
+      "vertices": 583
+    },
+    "humerus_r": {
+      "max_displacement_m": 0.0646589973111111,
+      "mean_displacement_m": 0.04674766407848316,
+      "member_id": "FJ3368",
+      "p95_displacement_m": 0.06262077647241855,
+      "vertices": 2233
+    },
+    "scapula_l": {
+      "max_displacement_m": 0.10120420019451667,
+      "mean_displacement_m": 0.04908826978156747,
+      "member_id": "FJ3279",
+      "p95_displacement_m": 0.09589873797223275,
+      "vertices": 14068
+    },
+    "scapula_r": {
+      "max_displacement_m": 0.09966855653532432,
+      "mean_displacement_m": 0.048728497683413086,
+      "member_id": "FJ3384",
+      "p95_displacement_m": 0.09394796437089299,
+      "vertices": 13118
+    }
+  },
+  "existing_interface_proxies": {
+    "proxy_definition": "Bidirectional p90 of lowest 2% point-to-point vertex distances; generic whole-surface interface proxy, not glenoid- or acromion-localized and not cartilage/contact certification.",
+    "right_clavicle_to_scapula": {
+      "interface_patch": {
+        "bidirectional_p90_m": 0.0021560116719517956,
+        "first_to_second_p90_m": 0.0013526562809825188,
+        "first_vertex_count": 12,
+        "fraction": 0.02,
+        "quantile": 0.9,
+        "second_to_first_p90_m": 0.0021560116719517956,
+        "second_vertex_count": 128
+      },
+      "maximum_allowed_gap_m": 0.012,
+      "maximum_allowed_interface_patch_p90_m": 0.015,
+      "minimum_vertex_gap_m": 0.0004343853438106513,
+      "name": "right_clavicle_to_scapula",
+      "passed": true,
+      "source_member_ids": [
+        "FJ3362",
+        "FJ3384"
+      ]
+    },
+    "right_scapula_to_humerus": {
+      "interface_patch": {
+        "bidirectional_p90_m": 0.003611563150969338,
+        "first_to_second_p90_m": 0.0016188329593015143,
+        "first_vertex_count": 128,
+        "fraction": 0.02,
+        "quantile": 0.9,
+        "second_to_first_p90_m": 0.003611563150969338,
+        "second_vertex_count": 45
+      },
+      "maximum_allowed_gap_m": 0.008,
+      "maximum_allowed_interface_patch_p90_m": 0.01,
+      "minimum_vertex_gap_m": 0.00029384371909410844,
+      "name": "right_scapula_to_humerus",
+      "passed": true,
+      "source_member_ids": [
+        "FJ3384",
+        "FJ3368"
+      ]
+    }
+  },
+  "input_hashes": {
+    "candidate_json": "b42e92c21f49b2fb7612447f0f0678295cae894ddffbe80cdf11f210ccee6a73",
+    "candidate_nhbones": "60999a135aeaa32da263d0fa0818ed2db291b374d9ef38d63441a9b0f51506cb",
+    "candidate_nhbones_manifest": "fc9e1271a7c0782c2100627db8c8b361aea4400d618f138f0948014eb5209041",
+    "compile_comparison": "31c24ef42775d776a3129977330b7882ec4f5af142bdf9eca9b72fb28b078d8b",
+    "run_result": "b57f00bd5495a2332d437299eb9161e8151ecf8daa1bb037cc1f2221a8b92855"
+  },
+  "interpretation": "The candidate passes the producer's source-mesh endpoint/default-pose gates and existing coarse interface proxies, and preserves NHRIGID. It changes the registered source geometry substantially. No explicit glenoid-fossa/acromion region correspondence or independent enthesis landmark gate was found; the three source route sites also participate in scapular endpoint refinement. Keep candidate unadmitted pending region-specific anatomy and coupled replay/force checks.",
+  "schema": "numi.human.scapular-registration-interface-review.v1",
+  "source_revision": {
+    "baseline_registration_sha256": "b1b410ad6d4ac8c0c95fd0c3e10f655b24c890d5767a5c377cf78e28ef598f8e",
+    "bodyparts3d_archive_sha256": "40665852c49f218326590e204db91064a1ecfc3c6f8cbd7bbbcaac62c7cd409e",
+    "candidate_registration_sha256": "b42e92c21f49b2fb7612447f0f0678295cae894ddffbe80cdf11f210ccee6a73",
+    "myosim_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+    "myosim_revision": "33c89c2bde282553dde3f526768eb3bdcfaa7649",
+    "source_archive_pinned_NHRIGID_sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "upper_limb_registration_source_sha256": "d169202d5a0e4356764dda0ab51f602524251449a57b5ab4ce890c022a074719"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "status": "failed_unit_tests_before_geometry_run",
+  "failures": [
+    "intersection point list must be deduplicated before dimensional classification",
+    "first three returned coplanar points may be collinear despite area overlap"
+  ],
+  "physical_state_changed": false
+}

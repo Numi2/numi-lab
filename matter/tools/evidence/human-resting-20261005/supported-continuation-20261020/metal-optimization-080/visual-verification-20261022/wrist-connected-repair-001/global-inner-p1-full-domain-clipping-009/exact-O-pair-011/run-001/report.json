@@ -1,0 +1,834 @@
+{
+  "scope": "exact final predicate on construction-suggested pairs only; no global solid containment/self certification",
+  "status": "PASS_CANONICAL_PAIR_CLASSIFICATION",
+  "pair_count": 11251,
+  "canonical_hit_count": 11251,
+  "classes": {
+    "transverse_both_interiors": 11251
+  },
+  "all_prior_rounded_hit_points_identical": true,
+  "prior_rounded_hit_point_mismatches": 0,
+  "per_bank": [
+    {
+      "bank_id": 54,
+      "key": "bank_0054",
+      "kind": "soft_tissue",
+      "stable_id": 55,
+      "layer": 1,
+      "pairs": 33,
+      "canonical_hits": 33,
+      "classes": {
+        "transverse_both_interiors": 33
+      }
+    },
+    {
+      "bank_id": 66,
+      "key": "bank_0066",
+      "kind": "soft_tissue",
+      "stable_id": 67,
+      "layer": 1,
+      "pairs": 722,
+      "canonical_hits": 722,
+      "classes": {
+        "transverse_both_interiors": 722
+      }
+    },
+    {
+      "bank_id": 67,
+      "key": "bank_0067",
+      "kind": "soft_tissue",
+      "stable_id": 68,
+      "layer": 1,
+      "pairs": 894,
+      "canonical_hits": 894,
+      "classes": {
+        "transverse_both_interiors": 894
+      }
+    },
+    {
+      "bank_id": 72,
+      "key": "bank_0072",
+      "kind": "soft_tissue",
+      "stable_id": 73,
+      "layer": 1,
+      "pairs": 488,
+      "canonical_hits": 488,
+      "classes": {
+        "transverse_both_interiors": 488
+      }
+    },
+    {
+      "bank_id": 73,
+      "key": "bank_0073",
+      "kind": "soft_tissue",
+      "stable_id": 74,
+      "layer": 1,
+      "pairs": 533,
+      "canonical_hits": 533,
+      "classes": {
+        "transverse_both_interiors": 533
+      }
+    },
+    {
+      "bank_id": 74,
+      "key": "bank_0074",
+      "kind": "soft_tissue",
+      "stable_id": 75,
+      "layer": 1,
+      "pairs": 122,
+      "canonical_hits": 122,
+      "classes": {
+        "transverse_both_interiors": 122
+      }
+    },
+    {
+      "bank_id": 75,
+      "key": "bank_0075",
+      "kind": "soft_tissue",
+      "stable_id": 76,
+      "layer": 1,
+      "pairs": 283,
+      "canonical_hits": 283,
+      "classes": {
+        "transverse_both_interiors": 283
+      }
+    },
+    {
+      "bank_id": 77,
+      "key": "bank_0077",
+      "kind": "soft_tissue",
+      "stable_id": 78,
+      "layer": 1,
+      "pairs": 151,
+      "canonical_hits": 151,
+      "classes": {
+        "transverse_both_interiors": 151
+      }
+    },
+    {
+      "bank_id": 78,
+      "key": "bank_0078",
+      "kind": "soft_tissue",
+      "stable_id": 79,
+      "layer": 1,
+      "pairs": 87,
+      "canonical_hits": 87,
+      "classes": {
+        "transverse_both_interiors": 87
+      }
+    },
+    {
+      "bank_id": 79,
+      "key": "bank_0079",
+      "kind": "soft_tissue",
+      "stable_id": 80,
+      "layer": 1,
+      "pairs": 70,
+      "canonical_hits": 70,
+      "classes": {
+        "transverse_both_interiors": 70
+      }
+    },
+    {
+      "bank_id": 80,
+      "key": "bank_0080",
+      "kind": "soft_tissue",
+      "stable_id": 81,
+      "layer": 1,
+      "pairs": 41,
+      "canonical_hits": 41,
+      "classes": {
+        "transverse_both_interiors": 41
+      }
+    },
+    {
+      "bank_id": 81,
+      "key": "bank_0081",
+      "kind": "soft_tissue",
+      "stable_id": 82,
+      "layer": 1,
+      "pairs": 74,
+      "canonical_hits": 74,
+      "classes": {
+        "transverse_both_interiors": 74
+      }
+    },
+    {
+      "bank_id": 82,
+      "key": "bank_0082",
+      "kind": "soft_tissue",
+      "stable_id": 83,
+      "layer": 1,
+      "pairs": 29,
+      "canonical_hits": 29,
+      "classes": {
+        "transverse_both_interiors": 29
+      }
+    },
+    {
+      "bank_id": 83,
+      "key": "bank_0083",
+      "kind": "soft_tissue",
+      "stable_id": 84,
+      "layer": 1,
+      "pairs": 19,
+      "canonical_hits": 19,
+      "classes": {
+        "transverse_both_interiors": 19
+      }
+    },
+    {
+      "bank_id": 92,
+      "key": "bank_0092",
+      "kind": "soft_tissue",
+      "stable_id": 93,
+      "layer": 1,
+      "pairs": 85,
+      "canonical_hits": 85,
+      "classes": {
+        "transverse_both_interiors": 85
+      }
+    },
+    {
+      "bank_id": 102,
+      "key": "bank_0102",
+      "kind": "soft_tissue",
+      "stable_id": 103,
+      "layer": 1,
+      "pairs": 211,
+      "canonical_hits": 211,
+      "classes": {
+        "transverse_both_interiors": 211
+      }
+    },
+    {
+      "bank_id": 103,
+      "key": "bank_0103",
+      "kind": "soft_tissue",
+      "stable_id": 104,
+      "layer": 1,
+      "pairs": 41,
+      "canonical_hits": 41,
+      "classes": {
+        "transverse_both_interiors": 41
+      }
+    },
+    {
+      "bank_id": 104,
+      "key": "bank_0104",
+      "kind": "soft_tissue",
+      "stable_id": 105,
+      "layer": 1,
+      "pairs": 74,
+      "canonical_hits": 74,
+      "classes": {
+        "transverse_both_interiors": 74
+      }
+    },
+    {
+      "bank_id": 108,
+      "key": "bank_0108",
+      "kind": "soft_tissue",
+      "stable_id": 109,
+      "layer": 1,
+      "pairs": 115,
+      "canonical_hits": 115,
+      "classes": {
+        "transverse_both_interiors": 115
+      }
+    },
+    {
+      "bank_id": 109,
+      "key": "bank_0109",
+      "kind": "soft_tissue",
+      "stable_id": 110,
+      "layer": 1,
+      "pairs": 107,
+      "canonical_hits": 107,
+      "classes": {
+        "transverse_both_interiors": 107
+      }
+    },
+    {
+      "bank_id": 110,
+      "key": "bank_0110",
+      "kind": "soft_tissue",
+      "stable_id": 111,
+      "layer": 1,
+      "pairs": 132,
+      "canonical_hits": 132,
+      "classes": {
+        "transverse_both_interiors": 132
+      }
+    },
+    {
+      "bank_id": 111,
+      "key": "bank_0111",
+      "kind": "soft_tissue",
+      "stable_id": 112,
+      "layer": 1,
+      "pairs": 147,
+      "canonical_hits": 147,
+      "classes": {
+        "transverse_both_interiors": 147
+      }
+    },
+    {
+      "bank_id": 112,
+      "key": "bank_0112",
+      "kind": "soft_tissue",
+      "stable_id": 113,
+      "layer": 1,
+      "pairs": 55,
+      "canonical_hits": 55,
+      "classes": {
+        "transverse_both_interiors": 55
+      }
+    },
+    {
+      "bank_id": 113,
+      "key": "bank_0113",
+      "kind": "soft_tissue",
+      "stable_id": 114,
+      "layer": 1,
+      "pairs": 47,
+      "canonical_hits": 47,
+      "classes": {
+        "transverse_both_interiors": 47
+      }
+    },
+    {
+      "bank_id": 114,
+      "key": "bank_0114",
+      "kind": "soft_tissue",
+      "stable_id": 115,
+      "layer": 1,
+      "pairs": 71,
+      "canonical_hits": 71,
+      "classes": {
+        "transverse_both_interiors": 71
+      }
+    },
+    {
+      "bank_id": 115,
+      "key": "bank_0115",
+      "kind": "soft_tissue",
+      "stable_id": 116,
+      "layer": 1,
+      "pairs": 61,
+      "canonical_hits": 61,
+      "classes": {
+        "transverse_both_interiors": 61
+      }
+    },
+    {
+      "bank_id": 116,
+      "key": "bank_0116",
+      "kind": "soft_tissue",
+      "stable_id": 117,
+      "layer": 1,
+      "pairs": 82,
+      "canonical_hits": 82,
+      "classes": {
+        "transverse_both_interiors": 82
+      }
+    },
+    {
+      "bank_id": 117,
+      "key": "bank_0117",
+      "kind": "soft_tissue",
+      "stable_id": 118,
+      "layer": 1,
+      "pairs": 57,
+      "canonical_hits": 57,
+      "classes": {
+        "transverse_both_interiors": 57
+      }
+    },
+    {
+      "bank_id": 118,
+      "key": "bank_0118",
+      "kind": "soft_tissue",
+      "stable_id": 119,
+      "layer": 1,
+      "pairs": 126,
+      "canonical_hits": 126,
+      "classes": {
+        "transverse_both_interiors": 126
+      }
+    },
+    {
+      "bank_id": 119,
+      "key": "bank_0119",
+      "kind": "soft_tissue",
+      "stable_id": 120,
+      "layer": 1,
+      "pairs": 329,
+      "canonical_hits": 329,
+      "classes": {
+        "transverse_both_interiors": 329
+      }
+    },
+    {
+      "bank_id": 120,
+      "key": "bank_0120",
+      "kind": "soft_tissue",
+      "stable_id": 121,
+      "layer": 1,
+      "pairs": 51,
+      "canonical_hits": 51,
+      "classes": {
+        "transverse_both_interiors": 51
+      }
+    },
+    {
+      "bank_id": 121,
+      "key": "bank_0121",
+      "kind": "soft_tissue",
+      "stable_id": 122,
+      "layer": 1,
+      "pairs": 226,
+      "canonical_hits": 226,
+      "classes": {
+        "transverse_both_interiors": 226
+      }
+    },
+    {
+      "bank_id": 122,
+      "key": "bank_0122",
+      "kind": "soft_tissue",
+      "stable_id": 123,
+      "layer": 1,
+      "pairs": 25,
+      "canonical_hits": 25,
+      "classes": {
+        "transverse_both_interiors": 25
+      }
+    },
+    {
+      "bank_id": 123,
+      "key": "bank_0123",
+      "kind": "soft_tissue",
+      "stable_id": 124,
+      "layer": 1,
+      "pairs": 25,
+      "canonical_hits": 25,
+      "classes": {
+        "transverse_both_interiors": 25
+      }
+    },
+    {
+      "bank_id": 130,
+      "key": "bank_0130",
+      "kind": "soft_tissue",
+      "stable_id": 131,
+      "layer": 1,
+      "pairs": 351,
+      "canonical_hits": 351,
+      "classes": {
+        "transverse_both_interiors": 351
+      }
+    },
+    {
+      "bank_id": 131,
+      "key": "bank_0131",
+      "kind": "soft_tissue",
+      "stable_id": 132,
+      "layer": 1,
+      "pairs": 155,
+      "canonical_hits": 155,
+      "classes": {
+        "transverse_both_interiors": 155
+      }
+    },
+    {
+      "bank_id": 132,
+      "key": "bank_0132",
+      "kind": "soft_tissue",
+      "stable_id": 133,
+      "layer": 1,
+      "pairs": 320,
+      "canonical_hits": 320,
+      "classes": {
+        "transverse_both_interiors": 320
+      }
+    },
+    {
+      "bank_id": 133,
+      "key": "bank_0133",
+      "kind": "soft_tissue",
+      "stable_id": 134,
+      "layer": 1,
+      "pairs": 246,
+      "canonical_hits": 246,
+      "classes": {
+        "transverse_both_interiors": 246
+      }
+    },
+    {
+      "bank_id": 134,
+      "key": "bank_0134",
+      "kind": "soft_tissue",
+      "stable_id": 135,
+      "layer": 1,
+      "pairs": 211,
+      "canonical_hits": 211,
+      "classes": {
+        "transverse_both_interiors": 211
+      }
+    },
+    {
+      "bank_id": 135,
+      "key": "bank_0135",
+      "kind": "soft_tissue",
+      "stable_id": 136,
+      "layer": 1,
+      "pairs": 73,
+      "canonical_hits": 73,
+      "classes": {
+        "transverse_both_interiors": 73
+      }
+    },
+    {
+      "bank_id": 136,
+      "key": "bank_0136",
+      "kind": "soft_tissue",
+      "stable_id": 137,
+      "layer": 1,
+      "pairs": 521,
+      "canonical_hits": 521,
+      "classes": {
+        "transverse_both_interiors": 521
+      }
+    },
+    {
+      "bank_id": 137,
+      "key": "bank_0137",
+      "kind": "soft_tissue",
+      "stable_id": 138,
+      "layer": 1,
+      "pairs": 462,
+      "canonical_hits": 462,
+      "classes": {
+        "transverse_both_interiors": 462
+      }
+    },
+    {
+      "bank_id": 138,
+      "key": "bank_0138",
+      "kind": "soft_tissue",
+      "stable_id": 139,
+      "layer": 1,
+      "pairs": 54,
+      "canonical_hits": 54,
+      "classes": {
+        "transverse_both_interiors": 54
+      }
+    },
+    {
+      "bank_id": 139,
+      "key": "bank_0139",
+      "kind": "soft_tissue",
+      "stable_id": 140,
+      "layer": 1,
+      "pairs": 53,
+      "canonical_hits": 53,
+      "classes": {
+        "transverse_both_interiors": 53
+      }
+    },
+    {
+      "bank_id": 140,
+      "key": "bank_0140",
+      "kind": "soft_tissue",
+      "stable_id": 141,
+      "layer": 1,
+      "pairs": 53,
+      "canonical_hits": 53,
+      "classes": {
+        "transverse_both_interiors": 53
+      }
+    },
+    {
+      "bank_id": 141,
+      "key": "bank_0141",
+      "kind": "soft_tissue",
+      "stable_id": 142,
+      "layer": 1,
+      "pairs": 75,
+      "canonical_hits": 75,
+      "classes": {
+        "transverse_both_interiors": 75
+      }
+    },
+    {
+      "bank_id": 142,
+      "key": "bank_0142",
+      "kind": "soft_tissue",
+      "stable_id": 143,
+      "layer": 1,
+      "pairs": 51,
+      "canonical_hits": 51,
+      "classes": {
+        "transverse_both_interiors": 51
+      }
+    },
+    {
+      "bank_id": 143,
+      "key": "bank_0143",
+      "kind": "soft_tissue",
+      "stable_id": 144,
+      "layer": 1,
+      "pairs": 25,
+      "canonical_hits": 25,
+      "classes": {
+        "transverse_both_interiors": 25
+      }
+    },
+    {
+      "bank_id": 144,
+      "key": "bank_0144",
+      "kind": "soft_tissue",
+      "stable_id": 145,
+      "layer": 1,
+      "pairs": 50,
+      "canonical_hits": 50,
+      "classes": {
+        "transverse_both_interiors": 50
+      }
+    },
+    {
+      "bank_id": 145,
+      "key": "bank_0145",
+      "kind": "soft_tissue",
+      "stable_id": 146,
+      "layer": 1,
+      "pairs": 50,
+      "canonical_hits": 50,
+      "classes": {
+        "transverse_both_interiors": 50
+      }
+    },
+    {
+      "bank_id": 146,
+      "key": "bank_0146",
+      "kind": "soft_tissue",
+      "stable_id": 147,
+      "layer": 1,
+      "pairs": 98,
+      "canonical_hits": 98,
+      "classes": {
+        "transverse_both_interiors": 98
+      }
+    },
+    {
+      "bank_id": 147,
+      "key": "bank_0147",
+      "kind": "soft_tissue",
+      "stable_id": 148,
+      "layer": 1,
+      "pairs": 99,
+      "canonical_hits": 99,
+      "classes": {
+        "transverse_both_interiors": 99
+      }
+    },
+    {
+      "bank_id": 148,
+      "key": "bank_0148",
+      "kind": "soft_tissue",
+      "stable_id": 149,
+      "layer": 1,
+      "pairs": 54,
+      "canonical_hits": 54,
+      "classes": {
+        "transverse_both_interiors": 54
+      }
+    },
+    {
+      "bank_id": 149,
+      "key": "bank_0149",
+      "kind": "soft_tissue",
+      "stable_id": 150,
+      "layer": 1,
+      "pairs": 158,
+      "canonical_hits": 158,
+      "classes": {
+        "transverse_both_interiors": 158
+      }
+    },
+    {
+      "bank_id": 152,
+      "key": "bank_0152",
+      "kind": "soft_tissue",
+      "stable_id": 160,
+      "layer": 1,
+      "pairs": 69,
+      "canonical_hits": 69,
+      "classes": {
+        "transverse_both_interiors": 69
+      }
+    },
+    {
+      "bank_id": 153,
+      "key": "bank_0153",
+      "kind": "soft_tissue",
+      "stable_id": 152,
+      "layer": 1,
+      "pairs": 68,
+      "canonical_hits": 68,
+      "classes": {
+        "transverse_both_interiors": 68
+      }
+    },
+    {
+      "bank_id": 156,
+      "key": "bank_0156",
+      "kind": "soft_tissue",
+      "stable_id": 163,
+      "layer": 1,
+      "pairs": 913,
+      "canonical_hits": 913,
+      "classes": {
+        "transverse_both_interiors": 913
+      }
+    },
+    {
+      "bank_id": 157,
+      "key": "bank_0157",
+      "kind": "soft_tissue",
+      "stable_id": 164,
+      "layer": 1,
+      "pairs": 761,
+      "canonical_hits": 761,
+      "classes": {
+        "transverse_both_interiors": 761
+      }
+    },
+    {
+      "bank_id": 548,
+      "key": "bank_0548",
+      "kind": "anatomy",
+      "stable_id": 386,
+      "layer": 1,
+      "pairs": 54,
+      "canonical_hits": 54,
+      "classes": {
+        "transverse_both_interiors": 54
+      }
+    },
+    {
+      "bank_id": 552,
+      "key": "bank_0552",
+      "kind": "anatomy",
+      "stable_id": 390,
+      "layer": 1,
+      "pairs": 20,
+      "canonical_hits": 20,
+      "classes": {
+        "transverse_both_interiors": 20
+      }
+    },
+    {
+      "bank_id": 553,
+      "key": "bank_0553",
+      "kind": "anatomy",
+      "stable_id": 391,
+      "layer": 1,
+      "pairs": 31,
+      "canonical_hits": 31,
+      "classes": {
+        "transverse_both_interiors": 31
+      }
+    },
+    {
+      "bank_id": 557,
+      "key": "bank_0557",
+      "kind": "anatomy",
+      "stable_id": 395,
+      "layer": 1,
+      "pairs": 204,
+      "canonical_hits": 204,
+      "classes": {
+        "transverse_both_interiors": 204
+      }
+    },
+    {
+      "bank_id": 640,
+      "key": "bank_0640",
+      "kind": "anatomy",
+      "stable_id": 478,
+      "layer": 2,
+      "pairs": 68,
+      "canonical_hits": 68,
+      "classes": {
+        "transverse_both_interiors": 68
+      }
+    },
+    {
+      "bank_id": 641,
+      "key": "bank_0641",
+      "kind": "anatomy",
+      "stable_id": 479,
+      "layer": 2,
+      "pairs": 58,
+      "canonical_hits": 58,
+      "classes": {
+        "transverse_both_interiors": 58
+      }
+    },
+    {
+      "bank_id": 642,
+      "key": "bank_0642",
+      "kind": "anatomy",
+      "stable_id": 480,
+      "layer": 2,
+      "pairs": 60,
+      "canonical_hits": 60,
+      "classes": {
+        "transverse_both_interiors": 60
+      }
+    },
+    {
+      "bank_id": 643,
+      "key": "bank_0643",
+      "kind": "anatomy",
+      "stable_id": 481,
+      "layer": 2,
+      "pairs": 58,
+      "canonical_hits": 58,
+      "classes": {
+        "transverse_both_interiors": 58
+      }
+    },
+    {
+      "bank_id": 648,
+      "key": "bank_0648",
+      "kind": "anatomy",
+      "stable_id": 486,
+      "layer": 2,
+      "pairs": 115,
+      "canonical_hits": 115,
+      "classes": {
+        "transverse_both_interiors": 115
+      }
+    }
+  ],
+  "input_sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/validation-001/zero-support-physical-O-face-pairs-010.npz": "4ac5c272ec0b006871d2a81d4b0133a53f2e5517d0d80a9a42458360500f89d2",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/candidate-with-transfer-partial-field.npz": "b76368d95c95e74c780999391eb5785a6311c43879ac3ceb6d5c134494a1850b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/registered-tissue-banks.npz": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/inventory.json": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/exact-O-pair-011/audit_exact_pairs_011.py": "baa5280affb42574cc7e209e963ca0843be92c2daab986c19bf2435547967d71"
+  },
+  "predicate_dependencies": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "/Users/n/numi-human-anatomy-finish-1378/src/numilab_human/cardiac_cavity_geometry.py": "f6e98744dad9e23cd3b505efc02e7faa618fccce81d2ee08b07f948ef182fb72",
+    "/Users/n/numi-human-anatomy-finish-1378/src/numilab_human/model.py": "52699cc4846175c77eccb1def32bd6a6d0196cd1ae480cb0ff9697e6b8f7f24e",
+    "/Users/n/numi-human-anatomy-finish-1378/src/numilab_human/physiology.py": "efb717aee62893268b266abe6a5c2901b0259333ccbae90110fda2070d84ecef"
+  },
+  "elapsed_s": 8.829781832988374,
+  "physical_admission": false,
+  "native_admission": false,
+  "anatomical_interface_exemptions_applied": false
+}

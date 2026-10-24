@@ -1,0 +1,23 @@
+{
+  "pass": true,
+  "comparison": "identical function/class AST, excluding imports and source line metadata",
+  "symbols": {
+    "TetBroadphase": true,
+    "free_capacity": true,
+    "CapacityBroadphase": true
+  },
+  "inputs": {
+    "canonical": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/tools/human_skin_p1_stream_clip.py",
+      "sha256": "bd5154f4deb778af203b080826afd3afe0dcc66287edb031ab67cae69d5de88a"
+    },
+    "full": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/stream_clip_009.py",
+      "sha256": "25a9cb32f3923f99458b43f1069bd07da40d3da20cd8da5c0374c1255a84d5a1"
+    },
+    "capacity": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/capacity_domain_010.py",
+      "sha256": "1439ba7a142ff9832e6efa6742965c933771c8f1605cafb864f9145d1b7d8634"
+    }
+  }
+}

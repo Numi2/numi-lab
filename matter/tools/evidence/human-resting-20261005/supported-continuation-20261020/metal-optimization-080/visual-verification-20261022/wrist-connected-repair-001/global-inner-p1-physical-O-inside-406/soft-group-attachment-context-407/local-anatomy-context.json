@@ -1,0 +1,4508 @@
+{
+  "elapsed_s": 1.7007675420027226,
+  "input_sha256": {
+    "anatomy_manifest": "ffe60f996e92325ce21123da86e259a02a9aaed1a874373a0e71721a2ceba07b",
+    "classification_report": "293991fb7ae0ce7308d8f2a0acf5212fe61ad133dcbc1e498ec788f8f08a8090",
+    "inventory": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+    "registered_banks": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792"
+  },
+  "method_limit": "nearest-triangle distances and Float64 winding are local diagnostics only; edge-incidence-2 is not self-intersection/solid certification; anatomical ownership requires attachment/reference-landmark evidence",
+  "rows": [
+    {
+      "candidate271_row": 376,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 2489,
+          "o_distance_m": 0.011891384041096614,
+          "o_face_barycentric": [
+            0.5267448974791741,
+            0.0,
+            0.4732551025208259
+          ],
+          "o_winding_diagnostic": 2.4848083448933724e-18,
+          "skin_closest_face_row": 2489,
+          "skin_distance_m": 0.01189134723532627,
+          "skin_face_barycentric": [
+            0.5267480845435992,
+            -1.8289487007452563e-14,
+            0.473251915456419
+          ],
+          "skin_winding_diagnostic": -2.7056801977727833e-17,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 2039,
+          "o_distance_m": 0.01802749800844972,
+          "o_face_barycentric": [
+            0.9402362709145475,
+            0.059763729085449364,
+            3.142211119691739e-15
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 2039,
+          "skin_distance_m": 0.018027464573607974,
+          "skin_face_barycentric": [
+            0.9402331698757063,
+            0.05976683012427243,
+            2.1311680599360032e-14
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 2581,
+          "o_distance_m": 0.0869718443783418,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 2581,
+          "skin_distance_m": 0.08697189194969297,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 6757,
+          "o_distance_m": 0.09041253173507462,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 6757,
+          "skin_distance_m": 0.09041258251216584,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 7133,
+          "o_distance_m": 0.09051567925760998,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 7133,
+          "skin_distance_m": 0.09051572872701688,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        }
+      ],
+      "o_node_014": 376,
+      "registered_skin_barycentric": [
+        0.9999915985824913,
+        6.605895709747009e-06,
+        1.7955217988723237e-06
+      ],
+      "registered_skin_face_row": 9839,
+      "registered_skin_vertices": [
+        4560,
+        4917,
+        4933
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "long head of right biceps brachii",
+          "member_id": "FJ1478",
+          "o_depth_mm": 3.910429024553637,
+          "skin_projection_depth_mm": 3.910409083629202,
+          "stable_id": 103
+        }
+      ]
+    },
+    {
+      "candidate271_row": 402,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 587,
+          "o_distance_m": 0.07489305001191678,
+          "o_face_barycentric": [
+            9.2148511043888e-15,
+            0.24361793832523312,
+            0.7563820616747576
+          ],
+          "o_winding_diagnostic": 1.1043592643970545e-18,
+          "skin_closest_face_row": 587,
+          "skin_distance_m": 0.0748930730217566,
+          "skin_face_barycentric": [
+            -1.8540724511240114e-14,
+            0.24361543898012922,
+            0.7563845610198893
+          ],
+          "skin_winding_diagnostic": 2.208718528794109e-18,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 529,
+          "o_distance_m": 0.08362836444224038,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 529,
+          "skin_distance_m": 0.08362838232789847,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 24560,
+          "o_distance_m": 0.11380101097244463,
+          "o_face_barycentric": [
+            0.8900068976726125,
+            3.44952760718991e-14,
+            0.1099931023273529
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 24560,
+          "skin_distance_m": 0.11380103550206971,
+          "skin_face_barycentric": [
+            0.8900092840536473,
+            -3.7631210260253565e-14,
+            0.10999071594639016
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 29469,
+          "o_distance_m": 0.11747935733512889,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 29469,
+          "skin_distance_m": 0.11747938206554256,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 27855,
+          "o_distance_m": 0.11804703205503103,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 27855,
+          "skin_distance_m": 0.11804705595562519,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 402,
+      "registered_skin_barycentric": [
+        3.3839335669250126e-05,
+        0.4999995520741641,
+        0.49996660859016673
+      ],
+      "registered_skin_face_row": 9940,
+      "registered_skin_vertices": [
+        4981,
+        4966,
+        4982
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.14030943847681213,
+          "skin_projection_depth_mm": 0.14028304488099472,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 466,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 396,
+          "o_distance_m": 0.010438591845835806,
+          "o_face_barycentric": [
+            -1.4488410471358293e-13,
+            0.48140257098995537,
+            0.5185974290101895
+          ],
+          "o_winding_diagnostic": -8.834874115176436e-18,
+          "skin_closest_face_row": 396,
+          "skin_distance_m": 0.010438595191703927,
+          "skin_face_barycentric": [
+            9.64783808399261e-14,
+            0.4814025134153598,
+            0.5185974865845437
+          ],
+          "skin_winding_diagnostic": -4.417437057588218e-18,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 347,
+          "o_distance_m": 0.01206407414130064,
+          "o_face_barycentric": [
+            -2.300937218535637e-14,
+            0.8973043055396975,
+            0.10269569446032548
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 347,
+          "skin_distance_m": 0.012064076225288848,
+          "skin_face_barycentric": [
+            -2.1885271372923398e-14,
+            0.8973044434637201,
+            0.10269555653630182
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 1190,
+          "o_distance_m": 0.08149746508107905,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 1190,
+          "skin_distance_m": 0.08149746763817382,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 678,
+          "o_distance_m": 0.08376176640318203,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 678,
+          "skin_distance_m": 0.0837617688518363,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 1735,
+          "o_distance_m": 0.08488747992035767,
+          "o_face_barycentric": [
+            0.9250128473150558,
+            -5.3474226031103076e-14,
+            0.0749871526849977
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 1735,
+          "skin_distance_m": 0.08488748240112566,
+          "skin_face_barycentric": [
+            0.9250139584839442,
+            -5.664126447485861e-14,
+            0.07498604151611246
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        }
+      ],
+      "o_node_014": 466,
+      "registered_skin_barycentric": [
+        3.263323668611928e-05,
+        4.642241807326372e-05,
+        0.9999209443452406
+      ],
+      "registered_skin_face_row": 10599,
+      "registered_skin_vertices": [
+        5317,
+        5778,
+        5311
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "long head of right biceps brachii",
+          "member_id": "FJ1478",
+          "o_depth_mm": 9.525468711269463,
+          "skin_projection_depth_mm": 9.525468196562446,
+          "stable_id": 103
+        }
+      ]
+    },
+    {
+      "candidate271_row": 495,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 207,
+          "o_distance_m": 0.07462297827799727,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": -1.6565388965955816e-18,
+          "skin_closest_face_row": 207,
+          "skin_distance_m": 0.07462293164599472,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": 3.865257425389691e-18,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 529,
+          "o_distance_m": 0.08687946025353165,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 529,
+          "skin_distance_m": 0.08687942556981118,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 24566,
+          "o_distance_m": 0.11434953666367731,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 24566,
+          "skin_distance_m": 0.11434948789358335,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 29417,
+          "o_distance_m": 0.11766849639687225,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 29417,
+          "skin_distance_m": 0.11766844748391805,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 37526,
+          "o_distance_m": 0.11803153921769295,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 37526,
+          "skin_distance_m": 0.11803149022915932,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 495,
+      "registered_skin_barycentric": [
+        2.8237162843575227e-05,
+        0.999961134185915,
+        1.0628651241389917e-05
+      ],
+      "registered_skin_face_row": 10743,
+      "registered_skin_vertices": [
+        5365,
+        5367,
+        5384
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.23318658528853548,
+          "skin_projection_depth_mm": 0.2332392213307336,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 496,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 207,
+          "o_distance_m": 0.07563664738414395,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": -1.1043592643970545e-18,
+          "skin_closest_face_row": 207,
+          "skin_distance_m": 0.0756366044987609,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": 1.8221927862551398e-17,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 530,
+          "o_distance_m": 0.08950165017944035,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 530,
+          "skin_distance_m": 0.08950161738883286,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 27045,
+          "o_distance_m": 0.11528668669561395,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 27045,
+          "skin_distance_m": 0.1152866408688757,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 34413,
+          "o_distance_m": 0.11849101234314682,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 34413,
+          "skin_distance_m": 0.1184909664446696,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 40421,
+          "o_distance_m": 0.11874156881226998,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 40421,
+          "skin_distance_m": 0.11874152369757086,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 496,
+      "registered_skin_barycentric": [
+        0.5001487813592664,
+        0.2500580323551325,
+        0.2497931862856011
+      ],
+      "registered_skin_face_row": 10714,
+      "registered_skin_vertices": [
+        5387,
+        5369,
+        5371
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.4610936654748321,
+          "skin_projection_depth_mm": 0.46114138135025845,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 497,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 207,
+          "o_distance_m": 0.07503666856598867,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": 0.0,
+          "skin_closest_face_row": 207,
+          "skin_distance_m": 0.07503671851582325,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": -1.1043592643970545e-17,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 527,
+          "o_distance_m": 0.08975166480838409,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 527,
+          "skin_distance_m": 0.08975170213874571,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 27045,
+          "o_distance_m": 0.11498479617795754,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 27045,
+          "skin_distance_m": 0.11498484967001646,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 34413,
+          "o_distance_m": 0.1180208451699944,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 34413,
+          "skin_distance_m": 0.1180208987597674,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 40421,
+          "o_distance_m": 0.11822709895917265,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 40421,
+          "skin_distance_m": 0.11822715155121857,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 497,
+      "registered_skin_barycentric": [
+        7.672509007930912e-05,
+        0.9998033052573899,
+        0.00011996965253077268
+      ],
+      "registered_skin_face_row": 10716,
+      "registered_skin_vertices": [
+        5370,
+        5372,
+        5369
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.5072119560469652,
+          "skin_projection_depth_mm": 0.5071556961830423,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 508,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 557,
+          "o_distance_m": 0.07580466262952017,
+          "o_face_barycentric": [
+            4.884981308350689e-15,
+            0.052601270243230906,
+            0.9473987297567642
+          ],
+          "o_winding_diagnostic": -5.521796321985272e-19,
+          "skin_closest_face_row": 557,
+          "skin_distance_m": 0.07580464684665365,
+          "skin_face_barycentric": [
+            2.6645352591003757e-15,
+            0.05260229069039591,
+            0.9473977093096014
+          ],
+          "skin_winding_diagnostic": -6.6261555863823264e-18,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 529,
+          "o_distance_m": 0.08674672315213384,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 529,
+          "skin_distance_m": 0.0867467106897354,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 24566,
+          "o_distance_m": 0.1148749117785308,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 24566,
+          "skin_distance_m": 0.11487489510496957,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 29417,
+          "o_distance_m": 0.11839811452830756,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 29417,
+          "skin_distance_m": 0.11839809783180169,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 40421,
+          "o_distance_m": 0.11901286384487117,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 40421,
+          "skin_distance_m": 0.11901284701275741,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 508,
+      "registered_skin_barycentric": [
+        0.9999617697603403,
+        2.8620636221387304e-05,
+        9.609603438339796e-06
+      ],
+      "registered_skin_face_row": 10745,
+      "registered_skin_vertices": [
+        5384,
+        5385,
+        5397
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.16563182488353836,
+          "skin_projection_depth_mm": 0.16564803596571134,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 509,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 213,
+          "o_distance_m": 0.07681538244214425,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": 5.521796321985272e-19,
+          "skin_closest_face_row": 213,
+          "skin_distance_m": 0.07681539247354273,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": -1.1043592643970545e-17,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 530,
+          "o_distance_m": 0.08971708443762039,
+          "o_face_barycentric": [
+            -1.3433698597964394e-14,
+            0.6053616709058899,
+            0.39463832909412355
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 530,
+          "skin_distance_m": 0.08971709201693653,
+          "skin_face_barycentric": [
+            3.9968028886505635e-15,
+            0.6053469469241889,
+            0.3946530530758071
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 27045,
+          "o_distance_m": 0.11585502116743276,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 27045,
+          "skin_distance_m": 0.115855032007618,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 34413,
+          "o_distance_m": 0.11928400907156986,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 34413,
+          "skin_distance_m": 0.11928401994786532,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 40421,
+          "o_distance_m": 0.11964169363281443,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 40421,
+          "skin_distance_m": 0.11964170431532394,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 509,
+      "registered_skin_barycentric": [
+        2.9899232304231305e-05,
+        1.0619065922187716e-05,
+        0.9999594817017736
+      ],
+      "registered_skin_face_row": 10744,
+      "registered_skin_vertices": [
+        5384,
+        5367,
+        5385
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.6297677456307035,
+          "skin_projection_depth_mm": 0.6297564964071458,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 510,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 207,
+          "o_distance_m": 0.0772655401713682,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": 1.1043592643970545e-18,
+          "skin_closest_face_row": 207,
+          "skin_distance_m": 0.07726552888535823,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": 6.0739759541837995e-18,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 530,
+          "o_distance_m": 0.09131119829827644,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 530,
+          "skin_distance_m": 0.09131118959865653,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 27045,
+          "o_distance_m": 0.11624563805058444,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 27045,
+          "skin_distance_m": 0.11624562600751322,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 34413,
+          "o_distance_m": 0.11951950530800223,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 34413,
+          "skin_distance_m": 0.11951949322649066,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 40421,
+          "o_distance_m": 0.11994450171479858,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 40421,
+          "skin_distance_m": 0.11994448981671636,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 510,
+      "registered_skin_barycentric": [
+        8.998711137742088e-05,
+        1.2398940415693397e-15,
+        0.9999100128886214
+      ],
+      "registered_skin_face_row": 10748,
+      "registered_skin_vertices": [
+        5385,
+        5387,
+        5386
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.18226214051710726,
+          "skin_projection_depth_mm": 0.18227440725067953,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 511,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 207,
+          "o_distance_m": 0.07679631589332937,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": 0.0,
+          "skin_closest_face_row": 207,
+          "skin_distance_m": 0.0767962582027484,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": -9.387053747374963e-18,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 530,
+          "o_distance_m": 0.09241833139586773,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 530,
+          "skin_distance_m": 0.09241828618079588,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 27045,
+          "o_distance_m": 0.11609849635872016,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 27045,
+          "skin_distance_m": 0.11609843504218179,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 34413,
+          "o_distance_m": 0.11910313601843585,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 34413,
+          "skin_distance_m": 0.11910307458488825,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 40421,
+          "o_distance_m": 0.11951674956112954,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 40421,
+          "skin_distance_m": 0.11951668899407712,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 511,
+      "registered_skin_barycentric": [
+        1.5213304641603642e-05,
+        1.4026493201435752e-05,
+        0.9999707602021569
+      ],
+      "registered_skin_face_row": 10751,
+      "registered_skin_vertices": [
+        5386,
+        5371,
+        5388
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.2413734831111103,
+          "skin_projection_depth_mm": 0.24143674494886758,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 516,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 565,
+          "o_distance_m": 0.07671994215689402,
+          "o_face_barycentric": [
+            -4.884981308350689e-15,
+            0.2911016756199384,
+            0.7088983243800665
+          ],
+          "o_winding_diagnostic": 1.1043592643970545e-18,
+          "skin_closest_face_row": 565,
+          "skin_distance_m": 0.07671993696651637,
+          "skin_face_barycentric": [
+            -1.1102230246251565e-16,
+            0.29110148089500115,
+            0.7088985191049989
+          ],
+          "skin_winding_diagnostic": 0.0,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 529,
+          "o_distance_m": 0.08728033185526676,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 529,
+          "skin_distance_m": 0.0872803277468497,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 24566,
+          "o_distance_m": 0.11537830462710819,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 24566,
+          "skin_distance_m": 0.11537829909852115,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 29417,
+          "o_distance_m": 0.11899239717922497,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 29417,
+          "skin_distance_m": 0.11899239164344133,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 40421,
+          "o_distance_m": 0.11970073622635255,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 40421,
+          "skin_distance_m": 0.1197007306454662,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 516,
+      "registered_skin_barycentric": [
+        0.9999183426505801,
+        3.210047195187821e-06,
+        7.844730222474648e-05
+      ],
+      "registered_skin_face_row": 10742,
+      "registered_skin_vertices": [
+        5395,
+        5384,
+        5397
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.03494928346141407,
+          "skin_projection_depth_mm": 0.03495513938166022,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 517,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 564,
+          "o_distance_m": 0.07781183515141565,
+          "o_face_barycentric": [
+            2.4369395390522186e-14,
+            0.6758768352210595,
+            0.3241231647789162
+          ],
+          "o_winding_diagnostic": -1.1043592643970545e-18,
+          "skin_closest_face_row": 564,
+          "skin_distance_m": 0.07781184839669153,
+          "skin_face_barycentric": [
+            6.217248937900877e-15,
+            0.6758773340441319,
+            0.3241226659558619
+          ],
+          "skin_winding_diagnostic": 6.0739759541837995e-18,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 529,
+          "o_distance_m": 0.08879197602800705,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 529,
+          "skin_distance_m": 0.08879198642269535,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 24566,
+          "o_distance_m": 0.11611686734718776,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 24566,
+          "skin_distance_m": 0.116116881375641,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 29417,
+          "o_distance_m": 0.11973832088159113,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 29417,
+          "skin_distance_m": 0.11973833495174156,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 40421,
+          "o_distance_m": 0.12040161003479087,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 40421,
+          "skin_distance_m": 0.12040162424461454,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 517,
+      "registered_skin_barycentric": [
+        4.008821059497958e-05,
+        2.5917273998307173e-05,
+        0.9999339945154068
+      ],
+      "registered_skin_face_row": 10758,
+      "registered_skin_vertices": [
+        4983,
+        5395,
+        5396
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.33152270000229417,
+          "skin_projection_depth_mm": 0.3315082836788929,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 518,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 557,
+          "o_distance_m": 0.07739896137295581,
+          "o_face_barycentric": [
+            -1.0880185641326534e-14,
+            0.5610070183442979,
+            0.438992981655713
+          ],
+          "o_winding_diagnostic": 0.0,
+          "skin_closest_face_row": 557,
+          "skin_distance_m": 0.07739898485778153,
+          "skin_face_barycentric": [
+            9.769962616701378e-15,
+            0.5610054113694236,
+            0.4389945886305666
+          ],
+          "skin_winding_diagnostic": 0.0,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 529,
+          "o_distance_m": 0.0892148137076238,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 529,
+          "skin_distance_m": 0.08921483185891645,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 27045,
+          "o_distance_m": 0.1160355151311261,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 27045,
+          "skin_distance_m": 0.11603554058463703,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 29417,
+          "o_distance_m": 0.1195837052973258,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 29417,
+          "skin_distance_m": 0.11958373017329357,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 40421,
+          "o_distance_m": 0.12008533337533431,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 40421,
+          "skin_distance_m": 0.12008535849788332,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 518,
+      "registered_skin_barycentric": [
+        6.229865446438776e-05,
+        1.6846834372737288e-06,
+        0.9999360166620983
+      ],
+      "registered_skin_face_row": 10742,
+      "registered_skin_vertices": [
+        5395,
+        5384,
+        5397
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.21737785174348387,
+          "skin_projection_depth_mm": 0.21735141051230256,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 519,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 564,
+          "o_distance_m": 0.07868337113289242,
+          "o_face_barycentric": [
+            4.218847493575595e-15,
+            0.05995744750995102,
+            0.9400425524900448
+          ],
+          "o_winding_diagnostic": 0.0,
+          "skin_closest_face_row": 564,
+          "skin_distance_m": 0.07868334894616881,
+          "skin_face_barycentric": [
+            2.2426505097428162e-14,
+            0.05995681079590906,
+            0.9400431892040685
+          ],
+          "skin_winding_diagnostic": 9.93923337957349e-18,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 529,
+          "o_distance_m": 0.09118376658605752,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 529,
+          "skin_distance_m": 0.09118374902212024,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 27045,
+          "o_distance_m": 0.11671931539595426,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 27045,
+          "skin_distance_m": 0.1167192917793982,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 34413,
+          "o_distance_m": 0.12034036742256954,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 34413,
+          "skin_distance_m": 0.12034034372448116,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 40421,
+          "o_distance_m": 0.12090278626007236,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 40421,
+          "skin_distance_m": 0.1209027628433258,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 519,
+      "registered_skin_barycentric": [
+        4.523122898121397e-05,
+        0.9999325135826937,
+        2.2255188325036636e-05
+      ],
+      "registered_skin_face_row": 10759,
+      "registered_skin_vertices": [
+        5396,
+        5398,
+        5405
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.4538728272811981,
+          "skin_projection_depth_mm": 0.45389680776266694,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 520,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 213,
+          "o_distance_m": 0.0780523919668944,
+          "o_face_barycentric": [
+            0.07012260175915692,
+            0.9298773982408606,
+            -1.7498910303138665e-14
+          ],
+          "o_winding_diagnostic": 0.0,
+          "skin_closest_face_row": 213,
+          "skin_distance_m": 0.07805233071457439,
+          "skin_face_barycentric": [
+            0.0701279782467992,
+            0.9298720217531694,
+            3.1395103779160543e-14
+          ],
+          "skin_winding_diagnostic": 1.766974823035287e-17,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 530,
+          "o_distance_m": 0.09142020525346016,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 530,
+          "skin_distance_m": 0.0914201573416107,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 27045,
+          "o_distance_m": 0.11654886470525241,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 27045,
+          "skin_distance_m": 0.11654879906280984,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 34413,
+          "o_distance_m": 0.1199840421843901,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 34413,
+          "skin_distance_m": 0.1199839763461055,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 40421,
+          "o_distance_m": 0.12048749144430715,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 40421,
+          "skin_distance_m": 0.1204874265477723,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 520,
+      "registered_skin_barycentric": [
+        4.164561874631101e-05,
+        1.5520714424818425e-05,
+        0.9999428336668289
+      ],
+      "registered_skin_face_row": 10746,
+      "registered_skin_vertices": [
+        5397,
+        5385,
+        5399
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.3862400549435649,
+          "skin_projection_depth_mm": 0.3863077128642654,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 521,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 213,
+          "o_distance_m": 0.07975309515893196,
+          "o_face_barycentric": [
+            0.8475019747326746,
+            0.15249802526731898,
+            6.390533419528581e-15
+          ],
+          "o_winding_diagnostic": 2.208718528794109e-18,
+          "skin_closest_face_row": 213,
+          "skin_distance_m": 0.07975310639232289,
+          "skin_face_barycentric": [
+            0.8475011777723747,
+            0.1524988222276538,
+            -2.843572924260033e-14
+          ],
+          "skin_winding_diagnostic": -1.4356670437161707e-17,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 530,
+          "o_distance_m": 0.09413696371755068,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 530,
+          "skin_distance_m": 0.09413697274579928,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 27045,
+          "o_distance_m": 0.11739986393697907,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 27045,
+          "skin_distance_m": 0.11739987578863934,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 34413,
+          "o_distance_m": 0.12079640840041293,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 34413,
+          "skin_distance_m": 0.12079642029243698,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 40497,
+          "o_distance_m": 0.12138272296636228,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 40497,
+          "skin_distance_m": 0.12138273484623853,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 521,
+      "registered_skin_barycentric": [
+        6.600244053327396e-05,
+        0.9999177894230424,
+        1.620813642429033e-05
+      ],
+      "registered_skin_face_row": 10778,
+      "registered_skin_vertices": [
+        5398,
+        5400,
+        5407
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.26169837334373786,
+          "skin_projection_depth_mm": 0.2616866627310765,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 522,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 212,
+          "o_distance_m": 0.07851881835761501,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": 0.0,
+          "skin_closest_face_row": 212,
+          "skin_distance_m": 0.07851887459277528,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": 2.7608981609926363e-18,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 530,
+          "o_distance_m": 0.09345035164414182,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 530,
+          "skin_distance_m": 0.0934503961856469,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 27045,
+          "o_distance_m": 0.11695277658049932,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 27045,
+          "skin_distance_m": 0.11695283621277817,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 34413,
+          "o_distance_m": 0.12017636244955342,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 34413,
+          "skin_distance_m": 0.1201764222359727,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 40497,
+          "o_distance_m": 0.12074194825052594,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 40497,
+          "skin_distance_m": 0.1207420079565918,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 522,
+      "registered_skin_barycentric": [
+        6.679910949669576e-05,
+        2.36542349439383e-05,
+        0.9999095466555593
+      ],
+      "registered_skin_face_row": 10749,
+      "registered_skin_vertices": [
+        5399,
+        5386,
+        5401
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.04780934967066048,
+          "skin_projection_depth_mm": 0.04774935300144376,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 523,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 212,
+          "o_distance_m": 0.07972991271211628,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": 5.521796321985272e-19,
+          "skin_closest_face_row": 212,
+          "skin_distance_m": 0.07973014694924534,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": -1.2147951908367599e-17,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 530,
+          "o_distance_m": 0.0957432974751392,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 530,
+          "skin_distance_m": 0.0957434874619003,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 27095,
+          "o_distance_m": 0.11755033263770594,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 27095,
+          "skin_distance_m": 0.11755058030515558,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 34413,
+          "o_distance_m": 0.12070772666296921,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 34413,
+          "skin_distance_m": 0.12070797455457531,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 40497,
+          "o_distance_m": 0.12129350087469332,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 40497,
+          "skin_distance_m": 0.12129374851137266,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 523,
+      "registered_skin_barycentric": [
+        0.00015160682825610117,
+        8.557698877042793e-05,
+        0.9997628161829735
+      ],
+      "registered_skin_face_row": 10767,
+      "registered_skin_vertices": [
+        5400,
+        5401,
+        5402
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.2549070890298645,
+          "skin_projection_depth_mm": 0.2546614898239233,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 529,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 212,
+          "o_distance_m": 0.08095684728128066,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": -5.521796321985272e-19,
+          "skin_closest_face_row": 212,
+          "skin_distance_m": 0.08095700243161809,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": 1.1043592643970545e-18,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 530,
+          "o_distance_m": 0.09842757135291239,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 530,
+          "skin_distance_m": 0.0984276994206172,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 27095,
+          "o_distance_m": 0.11806460113235101,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 27095,
+          "skin_distance_m": 0.1180647645224749,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 34413,
+          "o_distance_m": 0.12111771862585011,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 34413,
+          "skin_distance_m": 0.12111788221784714,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 43033,
+          "o_distance_m": 0.12170270031117801,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 43033,
+          "skin_distance_m": 0.12170286445926175,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 529,
+      "registered_skin_barycentric": [
+        3.983257425566045e-05,
+        5.851862885259367e-05,
+        0.9999016487968917
+      ],
+      "registered_skin_face_row": 10770,
+      "registered_skin_vertices": [
+        5408,
+        5402,
+        5409
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "acromial part of right deltoid",
+          "member_id": "FJ1467",
+          "o_depth_mm": 0.1742020116079825,
+          "skin_projection_depth_mm": 0.1740374540361057,
+          "stable_id": 75
+        }
+      ]
+    },
+    {
+      "candidate271_row": 622,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 608,
+          "o_distance_m": 0.0774439181805141,
+          "o_face_barycentric": [
+            1.0602629885170245e-14,
+            0.5935094124162933,
+            0.4064905875836961
+          ],
+          "o_winding_diagnostic": -2.7608981609926363e-18,
+          "skin_closest_face_row": 608,
+          "skin_distance_m": 0.07744391075396356,
+          "skin_face_barycentric": [
+            2.942091015256665e-15,
+            0.5935099311648904,
+            0.4064900688351067
+          ],
+          "skin_winding_diagnostic": 4.8591807633470396e-17,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 366,
+          "o_distance_m": 0.08827903057178287,
+          "o_face_barycentric": [
+            0.5775127854398913,
+            0.42248721456010874,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 366,
+          "skin_distance_m": 0.0882790231919571,
+          "skin_face_barycentric": [
+            0.5775131383570409,
+            0.4224868616429592,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 27698,
+          "o_distance_m": 0.10721257389778399,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 27698,
+          "skin_distance_m": 0.10721256644125025,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 30112,
+          "o_distance_m": 0.11033102111732859,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 30112,
+          "skin_distance_m": 0.11033101348786303,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 38979,
+          "o_distance_m": 0.11198368258269956,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 38979,
+          "skin_distance_m": 0.11198367502697755,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 622,
+      "registered_skin_barycentric": [
+        9.280052625454903e-06,
+        0.9999241033741114,
+        6.661657326312802e-05
+      ],
+      "registered_skin_face_row": 11802,
+      "registered_skin_vertices": [
+        5913,
+        5915,
+        5914
+      ],
+      "tested_soft_groups": []
+    },
+    {
+      "candidate271_row": 649,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 1396,
+          "o_distance_m": 0.08145036119777059,
+          "o_face_barycentric": [
+            -4.9404924595819466e-15,
+            0.5509907847742027,
+            0.4490092152258022
+          ],
+          "o_winding_diagnostic": 0.0,
+          "skin_closest_face_row": 1396,
+          "skin_distance_m": 0.08145035463356733,
+          "skin_face_barycentric": [
+            -1.3877787807814457e-14,
+            0.5509914854165029,
+            0.449008514583511
+          ],
+          "skin_winding_diagnostic": 5.521796321985272e-19,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 557,
+          "o_distance_m": 0.09256602125056494,
+          "o_face_barycentric": [
+            2.5229818234606682e-14,
+            0.8642365327121372,
+            0.13576346728783759
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 557,
+          "skin_distance_m": 0.09256601490615583,
+          "skin_face_barycentric": [
+            2.531308496145357e-14,
+            0.8642377409111098,
+            0.13576225908886486
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        },
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 31377,
+          "o_distance_m": 0.10727202311728425,
+          "o_face_barycentric": [
+            0.16991216316916968,
+            8.648329667455915e-15,
+            0.8300878368308217
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 31377,
+          "skin_distance_m": 0.10727201718100608,
+          "skin_face_barycentric": [
+            0.16991219450083994,
+            -4.3241648337279574e-15,
+            0.8300878054991643
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 34713,
+          "o_distance_m": 0.11005269007085766,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 34713,
+          "skin_distance_m": 0.11005268374501757,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 43560,
+          "o_distance_m": 0.11118774369164082,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 43560,
+          "skin_distance_m": 0.1111877374511472,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        }
+      ],
+      "o_node_014": 649,
+      "registered_skin_barycentric": [
+        3.1021830157634604e-05,
+        0.9999302136823675,
+        3.87644874749129e-05
+      ],
+      "registered_skin_face_row": 12822,
+      "registered_skin_vertices": [
+        5935,
+        6452,
+        6451
+      ],
+      "tested_soft_groups": []
+    },
+    {
+      "candidate271_row": 685,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.0364872155810678,
+          "bank_index": 474,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0474",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 29890,
+          "o_distance_m": 0.06710624804103432,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 29890,
+          "skin_distance_m": 0.06710623248783527,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 312,
+          "triangle_count": 98928
+        },
+        {
+          "aabb_gap_m": 0.03821136710206267,
+          "bank_index": 478,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0478",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 44399,
+          "o_distance_m": 0.06869078198877934,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 44399,
+          "skin_distance_m": 0.06869077132396727,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 316,
+          "triangle_count": 87218
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 37847,
+          "o_distance_m": 0.06906183145177243,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 37847,
+          "skin_distance_m": 0.06906181933627976,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 640,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0640",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 692,
+          "o_distance_m": 0.07262548183452715,
+          "o_face_barycentric": [
+            0.2060509387445687,
+            0.7939490612554313,
+            0.0
+          ],
+          "o_winding_diagnostic": 2.7608981609926363e-18,
+          "skin_closest_face_row": 692,
+          "skin_distance_m": 0.07262544051447775,
+          "skin_face_barycentric": [
+            0.20605049384816554,
+            0.7939495061518345,
+            0.0
+          ],
+          "skin_winding_diagnostic": 1.0215323195672753e-17,
+          "stable_id": 478,
+          "triangle_count": 3112
+        },
+        {
+          "aabb_gap_m": 0.0,
+          "bank_index": 642,
+          "body_indices": [
+            41
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0642",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 433,
+          "o_distance_m": 0.08157577118463415,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 433,
+          "skin_distance_m": 0.08157572948471248,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 480,
+          "triangle_count": 2570
+        }
+      ],
+      "o_node_014": 685,
+      "registered_skin_barycentric": [
+        9.54628002952588e-06,
+        0.9999454354178987,
+        4.50183020717649e-05
+      ],
+      "registered_skin_face_row": 16009,
+      "registered_skin_vertices": [
+        8071,
+        8072,
+        8070
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "long head of right triceps brachii",
+          "member_id": "FJ1479",
+          "o_depth_mm": 3.1447145242146464,
+          "skin_projection_depth_mm": 3.144754581628492,
+          "stable_id": 93
+        }
+      ]
+    },
+    {
+      "candidate271_row": 2195,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.03437077304436619,
+          "bank_index": 651,
+          "body_indices": [
+            92
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0651",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 423,
+          "o_distance_m": 0.089838100516839,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 423,
+          "skin_distance_m": 0.08983785222850499,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 489,
+          "triangle_count": 5918
+        },
+        {
+          "aabb_gap_m": 0.013540319991461682,
+          "bank_index": 649,
+          "body_indices": [
+            92
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0649",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 5348,
+          "o_distance_m": 0.09299736942881599,
+          "o_face_barycentric": [
+            -5.828670879282072e-14,
+            0.45141043438070894,
+            0.5485895656193494
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 5348,
+          "skin_distance_m": 0.09299710843165936,
+          "skin_face_barycentric": [
+            3.3861802251067274e-14,
+            0.45142209285047374,
+            0.5485779071494924
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 487,
+          "triangle_count": 7114
+        },
+        {
+          "aabb_gap_m": 0.04162185704212223,
+          "bank_index": 647,
+          "body_indices": [
+            93
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0647",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 228,
+          "o_distance_m": 0.11067692004477345,
+          "o_face_barycentric": [
+            0.9531626350314957,
+            0.046837364968554555,
+            -5.020281686924072e-14
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 228,
+          "skin_distance_m": 0.11067670010249833,
+          "skin_face_barycentric": [
+            0.9532343112359769,
+            0.04676568876403866,
+            -1.55038110919714e-14
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 485,
+          "triangle_count": 4932
+        },
+        {
+          "aabb_gap_m": 0.016287366432210383,
+          "bank_index": 645,
+          "body_indices": [
+            93
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0645",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 5592,
+          "o_distance_m": 0.1113207102509741,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": -1.067691085696371e-18,
+          "skin_closest_face_row": 5592,
+          "skin_distance_m": 0.11132049475903533,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": -9.395681554128064e-18,
+          "stable_id": 483,
+          "triangle_count": 7764
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 89313,
+          "o_distance_m": 0.3782983391398192,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 89313,
+          "skin_distance_m": 0.3782982672776603,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        }
+      ],
+      "o_node_014": 2028,
+      "registered_skin_barycentric": [
+        9.394738700563288e-05,
+        9.644891038047085e-05,
+        0.9998096037026138
+      ],
+      "registered_skin_face_row": 83236,
+      "registered_skin_vertices": [
+        49022,
+        49033,
+        49432
+      ],
+      "tested_soft_groups": []
+    },
+    {
+      "candidate271_row": 2196,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.03437077304436619,
+          "bank_index": 651,
+          "body_indices": [
+            92
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0651",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 456,
+          "o_distance_m": 0.09058779651444872,
+          "o_face_barycentric": [
+            6.035449917618507e-14,
+            0.9641129337855882,
+            0.03588706621435149
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 456,
+          "skin_distance_m": 0.09058768705279703,
+          "skin_face_barycentric": [
+            8.155975894652556e-14,
+            0.9640925791116869,
+            0.03590742088823155
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 489,
+          "triangle_count": 5918
+        },
+        {
+          "aabb_gap_m": 0.013540319991461682,
+          "bank_index": 649,
+          "body_indices": [
+            92
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0649",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 5348,
+          "o_distance_m": 0.09357361817592837,
+          "o_face_barycentric": [
+            2.3203661214665772e-14,
+            0.6380290226998762,
+            0.36197097730010064
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 5348,
+          "skin_distance_m": 0.09357350172206776,
+          "skin_face_barycentric": [
+            1.7819079545233762e-14,
+            0.6380350252592454,
+            0.3619649747407368
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 487,
+          "triangle_count": 7114
+        },
+        {
+          "aabb_gap_m": 0.04162185704212223,
+          "bank_index": 647,
+          "body_indices": [
+            93
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0647",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 241,
+          "o_distance_m": 0.11163141690575025,
+          "o_face_barycentric": [
+            0.015125530539298548,
+            0.0,
+            0.9848744694607015
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 241,
+          "skin_distance_m": 0.11163132191576486,
+          "skin_face_barycentric": [
+            0.015148142786739704,
+            0.0,
+            0.9848518572132603
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 485,
+          "triangle_count": 4932
+        },
+        {
+          "aabb_gap_m": 0.016287366432210383,
+          "bank_index": 645,
+          "body_indices": [
+            93
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0645",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 5592,
+          "o_distance_m": 0.1122798079693312,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": -1.4257450659501035e-18,
+          "skin_closest_face_row": 5592,
+          "skin_distance_m": 0.11227971528372509,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": -9.799031519835583e-18,
+          "stable_id": 483,
+          "triangle_count": 7764
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 89313,
+          "o_distance_m": 0.37709316538228155,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 89313,
+          "skin_distance_m": 0.37709312622314023,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        }
+      ],
+      "o_node_014": 2029,
+      "registered_skin_barycentric": [
+        0.00022674253387400256,
+        2.794281671339919e-05,
+        0.9997453146494126
+      ],
+      "registered_skin_face_row": 84020,
+      "registered_skin_vertices": [
+        49432,
+        49040,
+        49433
+      ],
+      "tested_soft_groups": []
+    },
+    {
+      "candidate271_row": 2236,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.013540319991461682,
+          "bank_index": 649,
+          "body_indices": [
+            92
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0649",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 6605,
+          "o_distance_m": 0.07888646244707294,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 6605,
+          "skin_distance_m": 0.07888650004590539,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 487,
+          "triangle_count": 7114
+        },
+        {
+          "aabb_gap_m": 0.03437077304436619,
+          "bank_index": 651,
+          "body_indices": [
+            92
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0651",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 65,
+          "o_distance_m": 0.07935429261166191,
+          "o_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 65,
+          "skin_distance_m": 0.07935431143295575,
+          "skin_face_barycentric": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 489,
+          "triangle_count": 5918
+        },
+        {
+          "aabb_gap_m": 0.04162185704212223,
+          "bank_index": 647,
+          "body_indices": [
+            93
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0647",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 67,
+          "o_distance_m": 0.10092562625981605,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 67,
+          "skin_distance_m": 0.10092566766914585,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 485,
+          "triangle_count": 4932
+        },
+        {
+          "aabb_gap_m": 0.016287366432210383,
+          "bank_index": 645,
+          "body_indices": [
+            93
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0645",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 5697,
+          "o_distance_m": 0.10313531809150164,
+          "o_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "o_winding_diagnostic": -1.0989668851763657e-18,
+          "skin_closest_face_row": 5697,
+          "skin_distance_m": 0.1031353629663768,
+          "skin_face_barycentric": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_winding_diagnostic": -2.3875298237521475e-17,
+          "stable_id": 483,
+          "triangle_count": 7764
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 89313,
+          "o_distance_m": 0.39461153857246173,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 89313,
+          "skin_distance_m": 0.3946114566405751,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        }
+      ],
+      "o_node_014": 2069,
+      "registered_skin_barycentric": [
+        0.9998945934021554,
+        3.984515442193614e-05,
+        6.55614434227237e-05
+      ],
+      "registered_skin_face_row": 87256,
+      "registered_skin_vertices": [
+        51065,
+        51063,
+        51258
+      ],
+      "tested_soft_groups": [
+        {
+          "label": "left flexor digitorum superficialis",
+          "member_id": "FJ1475M",
+          "o_depth_mm": 0.4717341400802692,
+          "skin_projection_depth_mm": 0.4716583801646955,
+          "stable_id": 132
+        }
+      ]
+    },
+    {
+      "candidate271_row": 2391,
+      "nearest_local_anatomy_banks": [
+        {
+          "aabb_gap_m": 0.013540319991461682,
+          "bank_index": 649,
+          "body_indices": [
+            92
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0649",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 2208,
+          "o_distance_m": 0.09116516955406662,
+          "o_face_barycentric": [
+            0.8095606442251435,
+            -3.9874364727513755e-15,
+            0.19043935577486054
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 2206,
+          "skin_distance_m": 0.09235936076914902,
+          "skin_face_barycentric": [
+            5.184741524999481e-14,
+            0.8022338345895332,
+            0.19776616541041492
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 487,
+          "triangle_count": 7114
+        },
+        {
+          "aabb_gap_m": 0.03437077304436619,
+          "bank_index": 651,
+          "body_indices": [
+            92
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0651",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 4311,
+          "o_distance_m": 0.09600382896158588,
+          "o_face_barycentric": [
+            0.6745199623654642,
+            4.112910144508327e-14,
+            0.32548003763449473
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 4311,
+          "skin_distance_m": 0.09716406860142696,
+          "skin_face_barycentric": [
+            0.6371314747831576,
+            2.7419400963388844e-14,
+            0.36286852521681506
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 489,
+          "triangle_count": 5918
+        },
+        {
+          "aabb_gap_m": 0.04162185704212223,
+          "bank_index": 647,
+          "body_indices": [
+            93
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0647",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 3212,
+          "o_distance_m": 0.10735678015948388,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 3212,
+          "skin_distance_m": 0.10854223574447949,
+          "skin_face_barycentric": [
+            0.06405384396589797,
+            -3.1877767876852254e-15,
+            0.9359461560341051
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 485,
+          "triangle_count": 4932
+        },
+        {
+          "aabb_gap_m": 0.016287366432210383,
+          "bank_index": 645,
+          "body_indices": [
+            93
+          ],
+          "closed_by_edge_incidence2": true,
+          "key": "bank_0645",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 318,
+          "o_distance_m": 0.10956738627288475,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": -3.4511227012407953e-19,
+          "skin_closest_face_row": 318,
+          "skin_distance_m": 0.11070467330966793,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": 6.041190288522011e-17,
+          "stable_id": 483,
+          "triangle_count": 7764
+        },
+        {
+          "aabb_gap_m": 0.03983247830913627,
+          "bank_index": 476,
+          "body_indices": [
+            20
+          ],
+          "closed_by_edge_incidence2": false,
+          "key": "bank_0476",
+          "label": null,
+          "member_id": null,
+          "o_closest_face_row": 89313,
+          "o_distance_m": 0.237425638260052,
+          "o_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "o_winding_diagnostic": null,
+          "skin_closest_face_row": 89313,
+          "skin_distance_m": 0.23681248617689157,
+          "skin_face_barycentric": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "skin_winding_diagnostic": null,
+          "stable_id": 314,
+          "triangle_count": 89838
+        }
+      ],
+      "o_node_014": 2224,
+      "registered_skin_barycentric": [
+        0.31326367310842196,
+        0.6637532840931076,
+        0.022983042798470407
+      ],
+      "registered_skin_face_row": 79065,
+      "registered_skin_vertices": [
+        46920,
+        46917,
+        46921
+      ],
+      "tested_soft_groups": []
+    }
+  ],
+  "schema": "numi.human.physical-O-inside-406.local-anatomy-context-407.v1",
+  "scope": "nonvisual local anatomy context for the same 26 flagged O rows; no candidate edits; anatomy-bank inventory AABB distance <=50mm from O or registered-skin projection; not a 689-bank collision audit",
+  "selection": {
+    "aabb_distance_cutoff_m": 0.05,
+    "inventory_anatomy_bank_count": 525,
+    "selected_banks": [
+      {
+        "aabb_gap_min_m": 0.0364872155810678,
+        "closed_by_edge_incidence2": false,
+        "key": "bank_0474",
+        "label": null,
+        "member_id": null,
+        "stable_id": 312,
+        "triangles": 98928
+      },
+      {
+        "aabb_gap_min_m": 0.03983247830913627,
+        "closed_by_edge_incidence2": false,
+        "key": "bank_0476",
+        "label": null,
+        "member_id": null,
+        "stable_id": 314,
+        "triangles": 89838
+      },
+      {
+        "aabb_gap_min_m": 0.03821136710206267,
+        "closed_by_edge_incidence2": false,
+        "key": "bank_0478",
+        "label": null,
+        "member_id": null,
+        "stable_id": 316,
+        "triangles": 87218
+      },
+      {
+        "aabb_gap_min_m": 0.0,
+        "closed_by_edge_incidence2": true,
+        "key": "bank_0640",
+        "label": null,
+        "member_id": null,
+        "stable_id": 478,
+        "triangles": 3112
+      },
+      {
+        "aabb_gap_min_m": 0.0,
+        "closed_by_edge_incidence2": false,
+        "key": "bank_0642",
+        "label": null,
+        "member_id": null,
+        "stable_id": 480,
+        "triangles": 2570
+      },
+      {
+        "aabb_gap_min_m": 0.016287366432210383,
+        "closed_by_edge_incidence2": true,
+        "key": "bank_0645",
+        "label": null,
+        "member_id": null,
+        "stable_id": 483,
+        "triangles": 7764
+      },
+      {
+        "aabb_gap_min_m": 0.04162185704212223,
+        "closed_by_edge_incidence2": false,
+        "key": "bank_0647",
+        "label": null,
+        "member_id": null,
+        "stable_id": 485,
+        "triangles": 4932
+      },
+      {
+        "aabb_gap_min_m": 0.013540319991461682,
+        "closed_by_edge_incidence2": false,
+        "key": "bank_0649",
+        "label": null,
+        "member_id": null,
+        "stable_id": 487,
+        "triangles": 7114
+      },
+      {
+        "aabb_gap_min_m": 0.03437077304436619,
+        "closed_by_edge_incidence2": false,
+        "key": "bank_0651",
+        "label": null,
+        "member_id": null,
+        "stable_id": 489,
+        "triangles": 5918
+      }
+    ],
+    "selected_local_bank_count": 9
+  }
+}

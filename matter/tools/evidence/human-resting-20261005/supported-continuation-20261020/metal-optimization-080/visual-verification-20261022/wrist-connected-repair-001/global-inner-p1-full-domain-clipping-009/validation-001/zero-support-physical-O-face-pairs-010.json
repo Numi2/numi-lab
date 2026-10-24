@@ -1,0 +1,6946 @@
+{
+  "bank_payload_sha256": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+  "bank_summaries": [
+    {
+      "aabb_candidates": 0,
+      "bank_id": 0,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0000",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 1
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 1,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0001",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 2
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 2,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0002",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 3
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 3,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0003",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 4
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 4,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0004",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 5
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 5,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0005",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 6
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 6,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0006",
+      "kind": "soft_tissue",
+      "layer": 2,
+      "stable_id": 7
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 7,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0007",
+      "kind": "soft_tissue",
+      "layer": 2,
+      "stable_id": 8
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 8,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0008",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 9
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 9,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0009",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 10
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 10,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0010",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 11
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 11,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0011",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 12
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 12,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0012",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 13
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 13,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0013",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 14
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 14,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0014",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 15
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 15,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0015",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 16
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 16,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0016",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 17
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 17,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0017",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 18
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 18,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0018",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 19
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 19,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0019",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 20
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 20,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0020",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 21
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 21,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0021",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 22
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 22,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0022",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 23
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 23,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0023",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 24
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 24,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0024",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 25
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 25,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0025",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 26
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 26,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0026",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 27
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 27,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0027",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 28
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 28,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0028",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 29
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 29,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0029",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 30
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 30,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0030",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 31
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 31,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0031",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 32
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 32,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0032",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 33
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 33,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0033",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 34
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 34,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0034",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 35
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 35,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0035",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 36
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 36,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0036",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 37
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 37,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0037",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 38
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 38,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0038",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 39
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 39,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0039",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 40
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 40,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0040",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 41
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 41,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0041",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 42
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 42,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0042",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 43
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 43,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0043",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 44
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 44,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0044",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 45
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 45,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0045",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 46
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 46,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0046",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 47
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 47,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0047",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 48
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 48,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0048",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 49
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 49,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0049",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 50
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 50,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0050",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 51
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 51,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0051",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 52
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 52,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0052",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 53
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 53,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0053",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 54
+    },
+    {
+      "aabb_candidates": 33,
+      "bank_id": 54,
+      "candidate_pairs": 33,
+      "exact_hit_pairs": 33,
+      "key": "bank_0054",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 55
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 55,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0055",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 56
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 56,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0056",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 57
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 57,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0057",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 58
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 58,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0058",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 59
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 59,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0059",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 60
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 60,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0060",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 61
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 61,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0061",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 62
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 62,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0062",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 63
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 63,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0063",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 64
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 64,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0064",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 65
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 65,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0065",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 66
+    },
+    {
+      "aabb_candidates": 722,
+      "bank_id": 66,
+      "candidate_pairs": 722,
+      "exact_hit_pairs": 722,
+      "key": "bank_0066",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 67
+    },
+    {
+      "aabb_candidates": 894,
+      "bank_id": 67,
+      "candidate_pairs": 894,
+      "exact_hit_pairs": 894,
+      "key": "bank_0067",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 68
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 68,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0068",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 69
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 69,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0069",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 70
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 70,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0070",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 71
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 71,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0071",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 72
+    },
+    {
+      "aabb_candidates": 488,
+      "bank_id": 72,
+      "candidate_pairs": 488,
+      "exact_hit_pairs": 488,
+      "key": "bank_0072",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 73
+    },
+    {
+      "aabb_candidates": 533,
+      "bank_id": 73,
+      "candidate_pairs": 533,
+      "exact_hit_pairs": 533,
+      "key": "bank_0073",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 74
+    },
+    {
+      "aabb_candidates": 122,
+      "bank_id": 74,
+      "candidate_pairs": 122,
+      "exact_hit_pairs": 122,
+      "key": "bank_0074",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 75
+    },
+    {
+      "aabb_candidates": 283,
+      "bank_id": 75,
+      "candidate_pairs": 283,
+      "exact_hit_pairs": 283,
+      "key": "bank_0075",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 76
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 76,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0076",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 77
+    },
+    {
+      "aabb_candidates": 151,
+      "bank_id": 77,
+      "candidate_pairs": 151,
+      "exact_hit_pairs": 151,
+      "key": "bank_0077",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 78
+    },
+    {
+      "aabb_candidates": 87,
+      "bank_id": 78,
+      "candidate_pairs": 87,
+      "exact_hit_pairs": 87,
+      "key": "bank_0078",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 79
+    },
+    {
+      "aabb_candidates": 70,
+      "bank_id": 79,
+      "candidate_pairs": 70,
+      "exact_hit_pairs": 70,
+      "key": "bank_0079",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 80
+    },
+    {
+      "aabb_candidates": 41,
+      "bank_id": 80,
+      "candidate_pairs": 41,
+      "exact_hit_pairs": 41,
+      "key": "bank_0080",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 81
+    },
+    {
+      "aabb_candidates": 74,
+      "bank_id": 81,
+      "candidate_pairs": 74,
+      "exact_hit_pairs": 74,
+      "key": "bank_0081",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 82
+    },
+    {
+      "aabb_candidates": 29,
+      "bank_id": 82,
+      "candidate_pairs": 29,
+      "exact_hit_pairs": 29,
+      "key": "bank_0082",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 83
+    },
+    {
+      "aabb_candidates": 19,
+      "bank_id": 83,
+      "candidate_pairs": 19,
+      "exact_hit_pairs": 19,
+      "key": "bank_0083",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 84
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 84,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0084",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 85
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 85,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0085",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 86
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 86,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0086",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 87
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 87,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0087",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 88
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 88,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0088",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 89
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 89,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0089",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 90
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 90,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0090",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 91
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 91,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0091",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 92
+    },
+    {
+      "aabb_candidates": 85,
+      "bank_id": 92,
+      "candidate_pairs": 85,
+      "exact_hit_pairs": 85,
+      "key": "bank_0092",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 93
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 93,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0093",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 94
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 94,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0094",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 95
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 95,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0095",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 96
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 96,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0096",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 97
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 97,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0097",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 98
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 98,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0098",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 99
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 99,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0099",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 100
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 100,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0100",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 101
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 101,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0101",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 102
+    },
+    {
+      "aabb_candidates": 211,
+      "bank_id": 102,
+      "candidate_pairs": 211,
+      "exact_hit_pairs": 211,
+      "key": "bank_0102",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 103
+    },
+    {
+      "aabb_candidates": 41,
+      "bank_id": 103,
+      "candidate_pairs": 41,
+      "exact_hit_pairs": 41,
+      "key": "bank_0103",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 104
+    },
+    {
+      "aabb_candidates": 74,
+      "bank_id": 104,
+      "candidate_pairs": 74,
+      "exact_hit_pairs": 74,
+      "key": "bank_0104",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 105
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 105,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0105",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 106
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 106,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0106",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 107
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 107,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0107",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 108
+    },
+    {
+      "aabb_candidates": 115,
+      "bank_id": 108,
+      "candidate_pairs": 115,
+      "exact_hit_pairs": 115,
+      "key": "bank_0108",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 109
+    },
+    {
+      "aabb_candidates": 107,
+      "bank_id": 109,
+      "candidate_pairs": 107,
+      "exact_hit_pairs": 107,
+      "key": "bank_0109",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 110
+    },
+    {
+      "aabb_candidates": 132,
+      "bank_id": 110,
+      "candidate_pairs": 132,
+      "exact_hit_pairs": 132,
+      "key": "bank_0110",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 111
+    },
+    {
+      "aabb_candidates": 147,
+      "bank_id": 111,
+      "candidate_pairs": 147,
+      "exact_hit_pairs": 147,
+      "key": "bank_0111",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 112
+    },
+    {
+      "aabb_candidates": 55,
+      "bank_id": 112,
+      "candidate_pairs": 55,
+      "exact_hit_pairs": 55,
+      "key": "bank_0112",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 113
+    },
+    {
+      "aabb_candidates": 47,
+      "bank_id": 113,
+      "candidate_pairs": 47,
+      "exact_hit_pairs": 47,
+      "key": "bank_0113",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 114
+    },
+    {
+      "aabb_candidates": 71,
+      "bank_id": 114,
+      "candidate_pairs": 71,
+      "exact_hit_pairs": 71,
+      "key": "bank_0114",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 115
+    },
+    {
+      "aabb_candidates": 61,
+      "bank_id": 115,
+      "candidate_pairs": 61,
+      "exact_hit_pairs": 61,
+      "key": "bank_0115",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 116
+    },
+    {
+      "aabb_candidates": 82,
+      "bank_id": 116,
+      "candidate_pairs": 82,
+      "exact_hit_pairs": 82,
+      "key": "bank_0116",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 117
+    },
+    {
+      "aabb_candidates": 57,
+      "bank_id": 117,
+      "candidate_pairs": 57,
+      "exact_hit_pairs": 57,
+      "key": "bank_0117",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 118
+    },
+    {
+      "aabb_candidates": 126,
+      "bank_id": 118,
+      "candidate_pairs": 126,
+      "exact_hit_pairs": 126,
+      "key": "bank_0118",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 119
+    },
+    {
+      "aabb_candidates": 329,
+      "bank_id": 119,
+      "candidate_pairs": 329,
+      "exact_hit_pairs": 329,
+      "key": "bank_0119",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 120
+    },
+    {
+      "aabb_candidates": 51,
+      "bank_id": 120,
+      "candidate_pairs": 51,
+      "exact_hit_pairs": 51,
+      "key": "bank_0120",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 121
+    },
+    {
+      "aabb_candidates": 226,
+      "bank_id": 121,
+      "candidate_pairs": 226,
+      "exact_hit_pairs": 226,
+      "key": "bank_0121",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 122
+    },
+    {
+      "aabb_candidates": 25,
+      "bank_id": 122,
+      "candidate_pairs": 25,
+      "exact_hit_pairs": 25,
+      "key": "bank_0122",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 123
+    },
+    {
+      "aabb_candidates": 25,
+      "bank_id": 123,
+      "candidate_pairs": 25,
+      "exact_hit_pairs": 25,
+      "key": "bank_0123",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 124
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 124,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0124",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 125
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 125,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0125",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 126
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 126,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0126",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 127
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 127,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0127",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 128
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 128,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0128",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 129
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 129,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0129",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 130
+    },
+    {
+      "aabb_candidates": 351,
+      "bank_id": 130,
+      "candidate_pairs": 351,
+      "exact_hit_pairs": 351,
+      "key": "bank_0130",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 131
+    },
+    {
+      "aabb_candidates": 155,
+      "bank_id": 131,
+      "candidate_pairs": 155,
+      "exact_hit_pairs": 155,
+      "key": "bank_0131",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 132
+    },
+    {
+      "aabb_candidates": 320,
+      "bank_id": 132,
+      "candidate_pairs": 320,
+      "exact_hit_pairs": 320,
+      "key": "bank_0132",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 133
+    },
+    {
+      "aabb_candidates": 246,
+      "bank_id": 133,
+      "candidate_pairs": 246,
+      "exact_hit_pairs": 246,
+      "key": "bank_0133",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 134
+    },
+    {
+      "aabb_candidates": 211,
+      "bank_id": 134,
+      "candidate_pairs": 211,
+      "exact_hit_pairs": 211,
+      "key": "bank_0134",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 135
+    },
+    {
+      "aabb_candidates": 73,
+      "bank_id": 135,
+      "candidate_pairs": 73,
+      "exact_hit_pairs": 73,
+      "key": "bank_0135",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 136
+    },
+    {
+      "aabb_candidates": 521,
+      "bank_id": 136,
+      "candidate_pairs": 521,
+      "exact_hit_pairs": 521,
+      "key": "bank_0136",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 137
+    },
+    {
+      "aabb_candidates": 462,
+      "bank_id": 137,
+      "candidate_pairs": 462,
+      "exact_hit_pairs": 462,
+      "key": "bank_0137",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 138
+    },
+    {
+      "aabb_candidates": 54,
+      "bank_id": 138,
+      "candidate_pairs": 54,
+      "exact_hit_pairs": 54,
+      "key": "bank_0138",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 139
+    },
+    {
+      "aabb_candidates": 53,
+      "bank_id": 139,
+      "candidate_pairs": 53,
+      "exact_hit_pairs": 53,
+      "key": "bank_0139",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 140
+    },
+    {
+      "aabb_candidates": 53,
+      "bank_id": 140,
+      "candidate_pairs": 53,
+      "exact_hit_pairs": 53,
+      "key": "bank_0140",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 141
+    },
+    {
+      "aabb_candidates": 75,
+      "bank_id": 141,
+      "candidate_pairs": 75,
+      "exact_hit_pairs": 75,
+      "key": "bank_0141",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 142
+    },
+    {
+      "aabb_candidates": 51,
+      "bank_id": 142,
+      "candidate_pairs": 51,
+      "exact_hit_pairs": 51,
+      "key": "bank_0142",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 143
+    },
+    {
+      "aabb_candidates": 25,
+      "bank_id": 143,
+      "candidate_pairs": 25,
+      "exact_hit_pairs": 25,
+      "key": "bank_0143",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 144
+    },
+    {
+      "aabb_candidates": 50,
+      "bank_id": 144,
+      "candidate_pairs": 50,
+      "exact_hit_pairs": 50,
+      "key": "bank_0144",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 145
+    },
+    {
+      "aabb_candidates": 50,
+      "bank_id": 145,
+      "candidate_pairs": 50,
+      "exact_hit_pairs": 50,
+      "key": "bank_0145",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 146
+    },
+    {
+      "aabb_candidates": 98,
+      "bank_id": 146,
+      "candidate_pairs": 98,
+      "exact_hit_pairs": 98,
+      "key": "bank_0146",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 147
+    },
+    {
+      "aabb_candidates": 99,
+      "bank_id": 147,
+      "candidate_pairs": 99,
+      "exact_hit_pairs": 99,
+      "key": "bank_0147",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 148
+    },
+    {
+      "aabb_candidates": 54,
+      "bank_id": 148,
+      "candidate_pairs": 54,
+      "exact_hit_pairs": 54,
+      "key": "bank_0148",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 149
+    },
+    {
+      "aabb_candidates": 158,
+      "bank_id": 149,
+      "candidate_pairs": 158,
+      "exact_hit_pairs": 158,
+      "key": "bank_0149",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 150
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 150,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0150",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 151
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 151,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0151",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 159
+    },
+    {
+      "aabb_candidates": 69,
+      "bank_id": 152,
+      "candidate_pairs": 69,
+      "exact_hit_pairs": 69,
+      "key": "bank_0152",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 160
+    },
+    {
+      "aabb_candidates": 68,
+      "bank_id": 153,
+      "candidate_pairs": 68,
+      "exact_hit_pairs": 68,
+      "key": "bank_0153",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 152
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 154,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0154",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 162
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 155,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0155",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 161
+    },
+    {
+      "aabb_candidates": 913,
+      "bank_id": 156,
+      "candidate_pairs": 913,
+      "exact_hit_pairs": 913,
+      "key": "bank_0156",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 163
+    },
+    {
+      "aabb_candidates": 761,
+      "bank_id": 157,
+      "candidate_pairs": 761,
+      "exact_hit_pairs": 761,
+      "key": "bank_0157",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 164
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 158,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0158",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 153
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 159,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0159",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 154
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 160,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0160",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 155
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 161,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0161",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 156
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 162,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0162",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 157
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 163,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0163",
+      "kind": "soft_tissue",
+      "layer": 1,
+      "stable_id": 158
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 164,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0164",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 1
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 165,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0165",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 2
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 166,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0166",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 3
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 167,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0167",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 4
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 168,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0168",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 5
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 169,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0169",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 6
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 170,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0170",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 7
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 171,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0171",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 8
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 172,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0172",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 9
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 173,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0173",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 10
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 174,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0174",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 11
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 175,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0175",
+      "kind": "anatomy",
+      "layer": 3,
+      "stable_id": 12
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 176,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0176",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 13
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 177,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0177",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 14
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 178,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0178",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 15
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 179,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0179",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 16
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 180,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0180",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 17
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 181,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0181",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 18
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 182,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0182",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 19
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 183,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0183",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 20
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 184,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0184",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 21
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 185,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0185",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 23
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 186,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0186",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 24
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 187,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0187",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 25
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 188,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0188",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 26
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 189,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0189",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 27
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 190,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0190",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 28
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 191,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0191",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 29
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 192,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0192",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 30
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 193,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0193",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 31
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 194,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0194",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 32
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 195,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0195",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 33
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 196,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0196",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 34
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 197,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0197",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 35
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 198,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0198",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 36
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 199,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0199",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 37
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 200,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0200",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 38
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 201,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0201",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 39
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 202,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0202",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 40
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 203,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0203",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 41
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 204,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0204",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 42
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 205,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0205",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 43
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 206,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0206",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 44
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 207,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0207",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 45
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 208,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0208",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 46
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 209,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0209",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 47
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 210,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0210",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 48
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 211,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0211",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 49
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 212,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0212",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 50
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 213,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0213",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 51
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 214,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0214",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 52
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 215,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0215",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 53
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 216,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0216",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 54
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 217,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0217",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 55
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 218,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0218",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 56
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 219,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0219",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 57
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 220,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0220",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 58
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 221,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0221",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 59
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 222,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0222",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 60
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 223,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0223",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 61
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 224,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0224",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 62
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 225,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0225",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 63
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 226,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0226",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 64
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 227,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0227",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 65
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 228,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0228",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 66
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 229,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0229",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 67
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 230,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0230",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 68
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 231,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0231",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 69
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 232,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0232",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 70
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 233,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0233",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 71
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 234,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0234",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 72
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 235,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0235",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 73
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 236,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0236",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 74
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 237,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0237",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 75
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 238,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0238",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 76
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 239,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0239",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 77
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 240,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0240",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 78
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 241,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0241",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 79
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 242,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0242",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 80
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 243,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0243",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 81
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 244,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0244",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 82
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 245,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0245",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 83
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 246,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0246",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 84
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 247,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0247",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 85
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 248,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0248",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 86
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 249,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0249",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 87
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 250,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0250",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 88
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 251,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0251",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 89
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 252,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0252",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 90
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 253,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0253",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 91
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 254,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0254",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 92
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 255,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0255",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 93
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 256,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0256",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 94
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 257,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0257",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 95
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 258,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0258",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 96
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 259,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0259",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 97
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 260,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0260",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 98
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 261,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0261",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 99
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 262,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0262",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 100
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 263,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0263",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 101
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 264,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0264",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 102
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 265,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0265",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 103
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 266,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0266",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 104
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 267,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0267",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 105
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 268,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0268",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 106
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 269,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0269",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 107
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 270,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0270",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 108
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 271,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0271",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 109
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 272,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0272",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 110
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 273,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0273",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 111
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 274,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0274",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 112
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 275,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0275",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 113
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 276,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0276",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 114
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 277,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0277",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 115
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 278,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0278",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 116
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 279,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0279",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 117
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 280,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0280",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 118
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 281,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0281",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 119
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 282,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0282",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 120
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 283,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0283",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 121
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 284,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0284",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 122
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 285,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0285",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 123
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 286,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0286",
+      "kind": "anatomy",
+      "layer": 4,
+      "stable_id": 124
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 287,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0287",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 125
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 288,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0288",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 126
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 289,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0289",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 127
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 290,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0290",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 128
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 291,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0291",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 129
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 292,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0292",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 130
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 293,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0293",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 131
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 294,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0294",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 132
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 295,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0295",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 133
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 296,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0296",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 134
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 297,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0297",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 135
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 298,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0298",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 136
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 299,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0299",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 137
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 300,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0300",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 138
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 301,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0301",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 139
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 302,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0302",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 140
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 303,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0303",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 141
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 304,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0304",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 142
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 305,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0305",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 143
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 306,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0306",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 144
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 307,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0307",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 145
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 308,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0308",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 146
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 309,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0309",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 147
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 310,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0310",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 148
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 311,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0311",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 149
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 312,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0312",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 150
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 313,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0313",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 151
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 314,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0314",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 152
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 315,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0315",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 153
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 316,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0316",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 154
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 317,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0317",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 155
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 318,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0318",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 156
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 319,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0319",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 157
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 320,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0320",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 158
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 321,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0321",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 159
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 322,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0322",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 160
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 323,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0323",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 161
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 324,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0324",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 162
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 325,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0325",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 163
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 326,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0326",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 164
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 327,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0327",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 165
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 328,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0328",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 166
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 329,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0329",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 167
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 330,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0330",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 168
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 331,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0331",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 169
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 332,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0332",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 170
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 333,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0333",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 171
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 334,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0334",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 172
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 335,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0335",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 173
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 336,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0336",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 174
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 337,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0337",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 175
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 338,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0338",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 176
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 339,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0339",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 177
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 340,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0340",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 178
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 341,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0341",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 179
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 342,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0342",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 180
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 343,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0343",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 181
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 344,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0344",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 182
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 345,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0345",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 183
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 346,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0346",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 184
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 347,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0347",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 185
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 348,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0348",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 186
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 349,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0349",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 187
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 350,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0350",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 188
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 351,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0351",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 189
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 352,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0352",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 190
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 353,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0353",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 191
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 354,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0354",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 192
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 355,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0355",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 193
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 356,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0356",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 194
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 357,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0357",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 195
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 358,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0358",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 196
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 359,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0359",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 197
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 360,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0360",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 198
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 361,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0361",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 199
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 362,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0362",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 200
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 363,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0363",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 201
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 364,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0364",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 202
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 365,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0365",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 203
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 366,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0366",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 204
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 367,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0367",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 205
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 368,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0368",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 206
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 369,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0369",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 207
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 370,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0370",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 208
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 371,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0371",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 209
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 372,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0372",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 210
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 373,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0373",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 211
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 374,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0374",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 212
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 375,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0375",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 213
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 376,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0376",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 214
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 377,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0377",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 215
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 378,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0378",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 216
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 379,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0379",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 217
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 380,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0380",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 218
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 381,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0381",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 219
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 382,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0382",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 220
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 383,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0383",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 221
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 384,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0384",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 222
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 385,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0385",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 223
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 386,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0386",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 224
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 387,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0387",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 225
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 388,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0388",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 226
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 389,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0389",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 227
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 390,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0390",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 228
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 391,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0391",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 229
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 392,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0392",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 230
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 393,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0393",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 231
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 394,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0394",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 232
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 395,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0395",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 233
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 396,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0396",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 234
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 397,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0397",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 235
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 398,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0398",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 236
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 399,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0399",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 237
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 400,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0400",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 238
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 401,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0401",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 239
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 402,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0402",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 240
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 403,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0403",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 241
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 404,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0404",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 242
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 405,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0405",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 243
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 406,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0406",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 244
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 407,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0407",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 245
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 408,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0408",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 246
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 409,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0409",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 247
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 410,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0410",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 248
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 411,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0411",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 249
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 412,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0412",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 250
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 413,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0413",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 251
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 414,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0414",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 252
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 415,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0415",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 253
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 416,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0416",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 254
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 417,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0417",
+      "kind": "anatomy",
+      "layer": 5,
+      "stable_id": 255
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 418,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0418",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 256
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 419,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0419",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 257
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 420,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0420",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 258
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 421,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0421",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 259
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 422,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0422",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 260
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 423,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0423",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 261
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 424,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0424",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 262
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 425,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0425",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 263
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 426,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0426",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 264
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 427,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0427",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 265
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 428,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0428",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 266
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 429,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0429",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 267
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 430,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0430",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 268
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 431,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0431",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 269
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 432,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0432",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 270
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 433,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0433",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 271
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 434,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0434",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 272
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 435,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0435",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 273
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 436,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0436",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 274
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 437,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0437",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 275
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 438,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0438",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 276
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 439,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0439",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 277
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 440,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0440",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 278
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 441,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0441",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 279
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 442,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0442",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 280
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 443,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0443",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 281
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 444,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0444",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 282
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 445,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0445",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 283
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 446,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0446",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 284
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 447,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0447",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 285
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 448,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0448",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 286
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 449,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0449",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 287
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 450,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0450",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 288
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 451,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0451",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 289
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 452,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0452",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 290
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 453,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0453",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 291
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 454,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0454",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 292
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 455,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0455",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 293
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 456,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0456",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 294
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 457,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0457",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 295
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 458,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0458",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 296
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 459,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0459",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 297
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 460,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0460",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 298
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 461,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0461",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 299
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 462,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0462",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 300
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 463,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0463",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 301
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 464,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0464",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 302
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 465,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0465",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 303
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 466,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0466",
+      "kind": "anatomy",
+      "layer": 6,
+      "stable_id": 304
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 467,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0467",
+      "kind": "anatomy",
+      "layer": 7,
+      "stable_id": 305
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 468,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0468",
+      "kind": "anatomy",
+      "layer": 7,
+      "stable_id": 306
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 469,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0469",
+      "kind": "anatomy",
+      "layer": 7,
+      "stable_id": 307
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 470,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0470",
+      "kind": "anatomy",
+      "layer": 7,
+      "stable_id": 308
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 471,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0471",
+      "kind": "anatomy",
+      "layer": 7,
+      "stable_id": 309
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 472,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0472",
+      "kind": "anatomy",
+      "layer": 8,
+      "stable_id": 310
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 473,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0473",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 311
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 474,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0474",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 312
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 475,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0475",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 313
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 476,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0476",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 314
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 477,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0477",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 315
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 478,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0478",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 316
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 479,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0479",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 317
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 480,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0480",
+      "kind": "anatomy",
+      "layer": 9,
+      "stable_id": 318
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 481,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0481",
+      "kind": "anatomy",
+      "layer": 9,
+      "stable_id": 319
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 482,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0482",
+      "kind": "anatomy",
+      "layer": 9,
+      "stable_id": 320
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 483,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0483",
+      "kind": "anatomy",
+      "layer": 9,
+      "stable_id": 321
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 484,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0484",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 322
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 485,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0485",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 323
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 486,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0486",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 324
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 487,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0487",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 325
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 488,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0488",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 326
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 489,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0489",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 327
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 490,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0490",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 328
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 491,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0491",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 329
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 492,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0492",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 330
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 493,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0493",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 331
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 494,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0494",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 332
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 495,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0495",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 333
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 496,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0496",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 334
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 497,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0497",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 335
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 498,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0498",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 336
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 499,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0499",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 337
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 500,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0500",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 338
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 501,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0501",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 339
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 502,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0502",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 340
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 503,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0503",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 341
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 504,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0504",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 342
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 505,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0505",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 343
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 506,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0506",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 344
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 507,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0507",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 345
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 508,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0508",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 346
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 509,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0509",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 347
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 510,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0510",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 348
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 511,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0511",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 349
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 512,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0512",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 350
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 513,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0513",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 351
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 514,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0514",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 352
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 515,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0515",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 353
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 516,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0516",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 354
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 517,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0517",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 355
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 518,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0518",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 356
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 519,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0519",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 357
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 520,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0520",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 358
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 521,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0521",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 359
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 522,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0522",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 360
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 523,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0523",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 361
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 524,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0524",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 362
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 525,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0525",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 363
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 526,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0526",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 364
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 527,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0527",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 365
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 528,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0528",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 366
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 529,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0529",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 367
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 530,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0530",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 368
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 531,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0531",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 369
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 532,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0532",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 370
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 533,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0533",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 371
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 534,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0534",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 372
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 535,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0535",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 373
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 536,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0536",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 374
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 537,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0537",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 375
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 538,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0538",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 376
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 539,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0539",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 377
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 540,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0540",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 378
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 541,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0541",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 379
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 542,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0542",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 380
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 543,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0543",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 381
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 544,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0544",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 382
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 545,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0545",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 383
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 546,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0546",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 384
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 547,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0547",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 385
+    },
+    {
+      "aabb_candidates": 54,
+      "bank_id": 548,
+      "candidate_pairs": 54,
+      "exact_hit_pairs": 54,
+      "key": "bank_0548",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 386
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 549,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0549",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 387
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 550,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0550",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 388
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 551,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0551",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 389
+    },
+    {
+      "aabb_candidates": 20,
+      "bank_id": 552,
+      "candidate_pairs": 20,
+      "exact_hit_pairs": 20,
+      "key": "bank_0552",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 390
+    },
+    {
+      "aabb_candidates": 31,
+      "bank_id": 553,
+      "candidate_pairs": 31,
+      "exact_hit_pairs": 31,
+      "key": "bank_0553",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 391
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 554,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0554",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 392
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 555,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0555",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 393
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 556,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0556",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 394
+    },
+    {
+      "aabb_candidates": 204,
+      "bank_id": 557,
+      "candidate_pairs": 204,
+      "exact_hit_pairs": 204,
+      "key": "bank_0557",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 395
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 558,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0558",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 396
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 559,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0559",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 397
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 560,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0560",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 398
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 561,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0561",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 399
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 562,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0562",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 400
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 563,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0563",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 401
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 564,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0564",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 402
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 565,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0565",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 403
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 566,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0566",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 404
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 567,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0567",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 405
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 568,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0568",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 406
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 569,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0569",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 407
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 570,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0570",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 408
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 571,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0571",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 409
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 572,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0572",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 410
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 573,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0573",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 411
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 574,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0574",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 412
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 575,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0575",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 413
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 576,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0576",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 414
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 577,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0577",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 415
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 578,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0578",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 416
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 579,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0579",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 417
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 580,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0580",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 418
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 581,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0581",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 419
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 582,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0582",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 420
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 583,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0583",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 421
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 584,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0584",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 422
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 585,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0585",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 423
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 586,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0586",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 424
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 587,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0587",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 425
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 588,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0588",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 426
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 589,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0589",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 427
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 590,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0590",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 428
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 591,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0591",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 429
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 592,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0592",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 430
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 593,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0593",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 431
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 594,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0594",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 432
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 595,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0595",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 433
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 596,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0596",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 434
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 597,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0597",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 435
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 598,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0598",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 436
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 599,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0599",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 437
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 600,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0600",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 438
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 601,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0601",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 439
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 602,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0602",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 440
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 603,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0603",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 441
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 604,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0604",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 442
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 605,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0605",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 443
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 606,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0606",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 444
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 607,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0607",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 445
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 608,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0608",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 446
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 609,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0609",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 447
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 610,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0610",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 448
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 611,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0611",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 449
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 612,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0612",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 450
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 613,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0613",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 451
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 614,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0614",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 452
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 615,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0615",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 453
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 616,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0616",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 454
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 617,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0617",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 455
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 618,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0618",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 456
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 619,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0619",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 457
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 620,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0620",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 458
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 621,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0621",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 459
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 622,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0622",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 460
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 623,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0623",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 461
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 624,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0624",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 462
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 625,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0625",
+      "kind": "anatomy",
+      "layer": 1,
+      "stable_id": 463
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 626,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0626",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 464
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 627,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0627",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 465
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 628,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0628",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 466
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 629,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0629",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 467
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 630,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0630",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 468
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 631,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0631",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 469
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 632,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0632",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 470
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 633,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0633",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 471
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 634,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0634",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 472
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 635,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0635",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 473
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 636,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0636",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 474
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 637,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0637",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 475
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 638,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0638",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 476
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 639,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0639",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 477
+    },
+    {
+      "aabb_candidates": 68,
+      "bank_id": 640,
+      "candidate_pairs": 68,
+      "exact_hit_pairs": 68,
+      "key": "bank_0640",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 478
+    },
+    {
+      "aabb_candidates": 58,
+      "bank_id": 641,
+      "candidate_pairs": 58,
+      "exact_hit_pairs": 58,
+      "key": "bank_0641",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 479
+    },
+    {
+      "aabb_candidates": 60,
+      "bank_id": 642,
+      "candidate_pairs": 60,
+      "exact_hit_pairs": 60,
+      "key": "bank_0642",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 480
+    },
+    {
+      "aabb_candidates": 58,
+      "bank_id": 643,
+      "candidate_pairs": 58,
+      "exact_hit_pairs": 58,
+      "key": "bank_0643",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 481
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 644,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0644",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 482
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 645,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0645",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 483
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 646,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0646",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 484
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 647,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0647",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 485
+    },
+    {
+      "aabb_candidates": 115,
+      "bank_id": 648,
+      "candidate_pairs": 115,
+      "exact_hit_pairs": 115,
+      "key": "bank_0648",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 486
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 649,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0649",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 487
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 650,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0650",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 488
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 651,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0651",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 489
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 652,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0652",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 490
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 653,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0653",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 491
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 654,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0654",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 492
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 655,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0655",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 493
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 656,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0656",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 494
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 657,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0657",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 495
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 658,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0658",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 496
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 659,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0659",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 497
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 660,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0660",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 498
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 661,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0661",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 499
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 662,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0662",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 500
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 663,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0663",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 501
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 664,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0664",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 502
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 665,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0665",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 503
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 666,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0666",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 504
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 667,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0667",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 505
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 668,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0668",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 506
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 669,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0669",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 507
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 670,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0670",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 508
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 671,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0671",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 509
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 672,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0672",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 510
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 673,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0673",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 511
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 674,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0674",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 512
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 675,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0675",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 513
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 676,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0676",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 514
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 677,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0677",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 515
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 678,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0678",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 516
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 679,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0679",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 517
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 680,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0680",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 518
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 681,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0681",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 519
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 682,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0682",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 520
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 683,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0683",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 521
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 684,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0684",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 522
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 685,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0685",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 523
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 686,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0686",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 524
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 687,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0687",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 525
+    },
+    {
+      "aabb_candidates": 0,
+      "bank_id": 688,
+      "candidate_pairs": 0,
+      "exact_hit_pairs": 0,
+      "key": "bank_0688",
+      "kind": "anatomy",
+      "layer": 2,
+      "stable_id": 526
+    }
+  ],
+  "elapsed_seconds": 1.2056721660774201,
+  "exact_float32_predicate": {
+    "aabb_candidates": 11251,
+    "class_meanings": {
+      "aabb_clear": "Float32 AABBs disjoint; exact predicate not called",
+      "clear": "AABB overlap but exact triangle predicate is empty",
+      "coplanar_area_overlap": "coplanar intersection not limited to a common boundary segment",
+      "coplanar_edge_contact": "two coplanar intersection points, each lying on the boundary of both triangles",
+      "degenerate_input": "one packed triangle has zero exact area",
+      "point_contact": "exact triangle intersection has one point",
+      "transverse_segment": "noncoplanar triangles intersect in a segment"
+    },
+    "classes": {
+      "aabb_clear": 0,
+      "clear": 0,
+      "coplanar_area_overlap": 0,
+      "coplanar_edge_contact": 0,
+      "degenerate_input": 0,
+      "point_contact": 0,
+      "transverse_segment": 11251
+    },
+    "coordinates": "registered 191 bank Float32 vertices and candidate P1 points rounded to Float32 before exact rational triangle test",
+    "degenerate_input_pairs": 0
+  },
+  "input_scope": {
+    "banks": 689,
+    "mesh_nodes": 55657,
+    "mesh_tets": 249227,
+    "physical_O_faces": 36393,
+    "zero_support_unique_bank_face_tet_keys": 13709
+  },
+  "inventory_sha256": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+  "limitations": [
+    "pair generation only follows zero-capacity tet supports onto physical O facets that are actual faces of those same tetrahedra",
+    "this screen is diagnostic; it does not establish solver feasibility or physical/native admission"
+  ],
+  "mapping": {
+    "candidate_tets_per_pair_max": 1,
+    "pairs_with_zero_support_tet": 11251,
+    "unique_bank_face_to_physical_O_face_pairs": 11251,
+    "zero_support_bank_tet_keys": 13709
+  },
+  "mesh_sha256": "b76368d95c95e74c780999391eb5785a6311c43879ac3ceb6d5c134494a1850b",
+  "pair_npz": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/validation-001/zero-support-physical-O-face-pairs-010.npz",
+  "pair_npz_bytes": 331847,
+  "pair_npz_sha256": "4ac5c272ec0b006871d2a81d4b0133a53f2e5517d0d80a9a42458360500f89d2",
+  "schema": "numi.human.zero-support-to-physical-O-face-pairs.v1",
+  "source_index_json_sha256": "3ce258998ba795131c3aa0df4f03064b9c8e5d5527d83a28e02aa8b9208ba496",
+  "source_index_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/validation-001/zero-capacity-witness-index-010.npz",
+  "source_index_sha256": "936df8b21d8f18349faa531544616e94dd2e6fa5801a73bf9e8eda3000c31851",
+  "status": "DIAGNOSTIC_EXACT_FLOAT32_PAIR_SCREEN"
+}

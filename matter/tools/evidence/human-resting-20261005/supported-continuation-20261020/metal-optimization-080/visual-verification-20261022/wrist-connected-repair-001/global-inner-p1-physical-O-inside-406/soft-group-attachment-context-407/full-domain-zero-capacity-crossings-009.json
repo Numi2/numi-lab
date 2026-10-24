@@ -1,0 +1,1028 @@
+{
+  "checkpoint": {
+    "complete": false,
+    "faces_processed": 510964,
+    "insufficient_capacity_rows": 685836,
+    "mesh_nodes": 55657,
+    "mesh_tets": 249227,
+    "next_bank": 93,
+    "next_local_face": 1024,
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/run-001/checkpoint.json",
+    "sha256": "f36db6ba08e6d27704379b7d646dcd984657b0cdf97aeb578c62a3a778701a71",
+    "zero_capacity_rows": 8017
+  },
+  "interpretation": "Each zero-capacity clipped polygon vertex is reconstructed from the recorded original tet row and barycentric coordinates. A point supported only by physical-O nodes and matching an emitted physical-O face/edge is an actual bank-surface/physical-O-boundary intersection witness in this mesh. This establishes geometric intersection, not which anatomy owner is wrong; source skin undersize versus tissue shape/registration requires attachment and landmark evidence.",
+  "pins": {
+    "classification_406_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-physical-O-inside-406/classification-report.json",
+    "classification_406_sha256": "293991fb7ae0ce7308d8f2a0acf5212fe61ad133dcbc1e498ec788f8f08a8090",
+    "clipper_sha256": "e1b5a246e531a16d8d2438b8569d31a27c9a10712f0de063084bed87db58c436",
+    "mesh_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/candidate-with-transfer-partial-field.npz",
+    "mesh_sha256": "b76368d95c95e74c780999391eb5785a6311c43879ac3ceb6d5c134494a1850b",
+    "tissue_banks_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/registered-tissue-banks.npz",
+    "tissue_banks_sha256": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792"
+  },
+  "schema": "numi.human.physical-O-fullmesh-zero-capacity-surface-crossings.407.v1",
+  "stable_id_results": [
+    {
+      "bank_ids": [
+        74
+      ],
+      "exact_physical_O_edge_count": 187,
+      "exact_physical_O_face_count": 128,
+      "faces_processed": 1024,
+      "nearest_12_witnesses_to_any_flagged_o": [
+        {
+          "distance_m": 0.00037050252655549705,
+          "witness": {
+            "bank_global_face_row": 479822,
+            "bank_index": 74,
+            "bank_local_face_row": 200,
+            "distance_to_nearest_flagged_o_m": 0.00037050252655549705,
+            "exact_physical_O_edge": true,
+            "exact_physical_O_face": false,
+            "nearest_flagged_o_node": 522,
+            "point_world_m": [
+              -0.2537270143505921,
+              -0.3670144577823175,
+              0.10719091816022869
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              512,
+              522
+            ],
+            "tet_row": 44175
+          }
+        },
+        {
+          "distance_m": 0.0003705025265556477,
+          "witness": {
+            "bank_global_face_row": 479822,
+            "bank_index": 74,
+            "bank_local_face_row": 200,
+            "distance_to_nearest_flagged_o_m": 0.0003705025265556477,
+            "exact_physical_O_edge": true,
+            "exact_physical_O_face": false,
+            "nearest_flagged_o_node": 522,
+            "point_world_m": [
+              -0.25372701435059203,
+              -0.36701445778231734,
+              0.10719091816022865
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              512,
+              522
+            ],
+            "tet_row": 45182
+          }
+        },
+        {
+          "distance_m": 0.0003993921471109849,
+          "witness": {
+            "bank_global_face_row": 479822,
+            "bank_index": 74,
+            "bank_local_face_row": 200,
+            "distance_to_nearest_flagged_o_m": 0.0003993921471109849,
+            "exact_physical_O_edge": true,
+            "exact_physical_O_face": false,
+            "nearest_flagged_o_node": 522,
+            "point_world_m": [
+              -0.2537389682660322,
+              -0.36720437331618283,
+              0.10742519361330952
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              522,
+              511
+            ],
+            "tet_row": 45182
+          }
+        },
+        {
+          "distance_m": 0.00039939214711102485,
+          "witness": {
+            "bank_global_face_row": 479822,
+            "bank_index": 74,
+            "bank_local_face_row": 200,
+            "distance_to_nearest_flagged_o_m": 0.00039939214711102485,
+            "exact_physical_O_edge": true,
+            "exact_physical_O_face": false,
+            "nearest_flagged_o_node": 522,
+            "point_world_m": [
+              -0.25373896826603215,
+              -0.3672043733161827,
+              0.1074251936133095
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              522,
+              511
+            ],
+            "tet_row": 171927
+          }
+        },
+        {
+          "distance_m": 0.000429970863461078,
+          "witness": {
+            "bank_global_face_row": 479675,
+            "bank_index": 74,
+            "bank_local_face_row": 53,
+            "distance_to_nearest_flagged_o_m": 0.000429970863461078,
+            "exact_physical_O_edge": true,
+            "exact_physical_O_face": false,
+            "nearest_flagged_o_node": 402,
+            "point_world_m": [
+              -0.2558257045572241,
+              -0.385106262508815,
+              0.10759802400706378
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              505,
+              402
+            ],
+            "tet_row": 105726
+          }
+        },
+        {
+          "distance_m": 0.0004299708634610948,
+          "witness": {
+            "bank_global_face_row": 479675,
+            "bank_index": 74,
+            "bank_local_face_row": 53,
+            "distance_to_nearest_flagged_o_m": 0.0004299708634610948,
+            "exact_physical_O_edge": true,
+            "exact_physical_O_face": false,
+            "nearest_flagged_o_node": 402,
+            "point_world_m": [
+              -0.25582570455722425,
+              -0.3851062625088153,
+              0.10759802400706382
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              402,
+              505
+            ],
+            "tet_row": 169984
+          }
+        },
+        {
+          "distance_m": 0.00042997086346110606,
+          "witness": {
+            "bank_global_face_row": 479675,
+            "bank_index": 74,
+            "bank_local_face_row": 53,
+            "distance_to_nearest_flagged_o_m": 0.00042997086346110606,
+            "exact_physical_O_edge": true,
+            "exact_physical_O_face": false,
+            "nearest_flagged_o_node": 402,
+            "point_world_m": [
+              -0.25582570455722425,
+              -0.38510626250881524,
+              0.10759802400706384
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              402,
+              505
+            ],
+            "tet_row": 173225
+          }
+        },
+        {
+          "distance_m": 0.0005074029282415263,
+          "witness": {
+            "bank_global_face_row": 479675,
+            "bank_index": 74,
+            "bank_local_face_row": 53,
+            "distance_to_nearest_flagged_o_m": 0.0005074029282415263,
+            "exact_physical_O_edge": true,
+            "exact_physical_O_face": false,
+            "nearest_flagged_o_node": 508,
+            "point_world_m": [
+              -0.2550048705836671,
+              -0.3779441017467293,
+              0.10967012924810271
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              508,
+              493
+            ],
+            "tet_row": 172237
+          }
+        },
+        {
+          "distance_m": 0.0005074029282415263,
+          "witness": {
+            "bank_global_face_row": 479675,
+            "bank_index": 74,
+            "bank_local_face_row": 53,
+            "distance_to_nearest_flagged_o_m": 0.0005074029282415263,
+            "exact_physical_O_edge": true,
+            "exact_physical_O_face": false,
+            "nearest_flagged_o_node": 508,
+            "point_world_m": [
+              -0.2550048705836671,
+              -0.3779441017467293,
+              0.10967012924810271
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              493,
+              508
+            ],
+            "tet_row": 172243
+          }
+        },
+        {
+          "distance_m": 0.0006488162468171451,
+          "witness": {
+            "bank_global_face_row": 479675,
+            "bank_index": 74,
+            "bank_local_face_row": 53,
+            "distance_to_nearest_flagged_o_m": 0.0006488162468171451,
+            "exact_physical_O_edge": true,
+            "exact_physical_O_face": false,
+            "nearest_flagged_o_node": 508,
+            "point_world_m": [
+              -0.25506640046317924,
+              -0.3782973388485088,
+              0.1095338283069423
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              507,
+              508
+            ],
+            "tet_row": 172231
+          }
+        },
+        {
+          "distance_m": 0.0006488162468171973,
+          "witness": {
+            "bank_global_face_row": 479675,
+            "bank_index": 74,
+            "bank_local_face_row": 53,
+            "distance_to_nearest_flagged_o_m": 0.0006488162468171973,
+            "exact_physical_O_edge": true,
+            "exact_physical_O_face": false,
+            "nearest_flagged_o_node": 508,
+            "point_world_m": [
+              -0.2550664004631793,
+              -0.37829733884850886,
+              0.10953382830694232
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              507,
+              508
+            ],
+            "tet_row": 172237
+          }
+        },
+        {
+          "distance_m": 0.0006600159186388194,
+          "witness": {
+            "bank_global_face_row": 479859,
+            "bank_index": 74,
+            "bank_local_face_row": 237,
+            "distance_to_nearest_flagged_o_m": 0.0006600159186388194,
+            "exact_physical_O_edge": true,
+            "exact_physical_O_face": false,
+            "nearest_flagged_o_node": 529,
+            "point_world_m": [
+              -0.25242116521284286,
+              -0.36107783481732864,
+              0.10133340755284043
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              529,
+              601
+            ],
+            "tet_row": 184204
+          }
+        }
+      ],
+      "nearest_intersection_for_flagged_o_node_by_id": {
+        "402": {
+          "bank_index": 74,
+          "bank_local_face_row": 53,
+          "distance_m": 0.000429970863461078,
+          "physical_O_edge": true,
+          "physical_O_face": false,
+          "point_world_m": [
+            -0.2558257045572241,
+            -0.385106262508815,
+            0.10759802400706378
+          ],
+          "support_nodes": [
+            505,
+            402
+          ],
+          "tet_row": 105726
+        },
+        "495": {
+          "bank_index": 74,
+          "bank_local_face_row": 41,
+          "distance_m": 0.0021013507562945475,
+          "physical_O_edge": true,
+          "physical_O_face": false,
+          "point_world_m": [
+            -0.2537576919648373,
+            -0.37567403401540994,
+            0.11381734568328128
+          ],
+          "support_nodes": [
+            493,
+            495
+          ],
+          "tet_row": 156976
+        },
+        "496": {
+          "bank_index": 74,
+          "bank_local_face_row": 112,
+          "distance_m": 0.00418389210069569,
+          "physical_O_edge": true,
+          "physical_O_face": false,
+          "point_world_m": [
+            -0.2518550442412129,
+            -0.370047452173946,
+            0.11777995123174208
+          ],
+          "support_nodes": [
+            496,
+            479
+          ],
+          "tet_row": 70332
+        },
+        "497": {
+          "bank_index": 74,
+          "bank_local_face_row": 106,
+          "distance_m": 0.0025004488669854563,
+          "physical_O_edge": false,
+          "physical_O_face": true,
+          "point_world_m": [
+            -0.25158307521499795,
+            -0.3688725324574234,
+            0.11810351996084366
+          ],
+          "support_nodes": [
+            479,
+            599,
+            497
+          ],
+          "tet_row": 172851
+        },
+        "508": {
+          "bank_index": 74,
+          "bank_local_face_row": 53,
+          "distance_m": 0.0005074029282415263,
+          "physical_O_edge": true,
+          "physical_O_face": false,
+          "point_world_m": [
+            -0.2550048705836671,
+            -0.3779441017467293,
+            0.10967012924810271
+          ],
+          "support_nodes": [
+            508,
+            493
+          ],
+          "tet_row": 172237
+        },
+        "509": {
+          "bank_index": 74,
+          "bank_local_face_row": 40,
+          "distance_m": 0.0037417217664998154,
+          "physical_O_edge": false,
+          "physical_O_face": true,
+          "point_world_m": [
+            -0.25458092337157195,
+            -0.3758639298247281,
+            0.11055875487858954
+          ],
+          "support_nodes": [
+            495,
+            508,
+            509
+          ],
+          "tet_row": 172247
+        },
+        "510": {
+          "bank_index": 74,
+          "bank_local_face_row": 200,
+          "distance_m": 0.0016137559507840658,
+          "physical_O_edge": false,
+          "physical_O_face": true,
+          "point_world_m": [
+            -0.25377957108640187,
+            -0.36814224039414684,
+            0.10865322760059357
+          ],
+          "support_nodes": [
+            510,
+            522,
+            511
+          ],
+          "tet_row": 171927
+        },
+        "511": {
+          "bank_index": 74,
+          "bank_local_face_row": 196,
+          "distance_m": 0.002525469776697862,
+          "physical_O_edge": true,
+          "physical_O_face": false,
+          "point_world_m": [
+            -0.25239377111625205,
+            -0.3639369917422875,
+            0.11047890020542132
+          ],
+          "support_nodes": [
+            512,
+            511
+          ],
+          "tet_row": 45182
+        },
+        "516": {
+          "bank_index": 74,
+          "bank_local_face_row": 128,
+          "distance_m": 0.0007742936519252332,
+          "physical_O_edge": false,
+          "physical_O_face": true,
+          "point_world_m": [
+            -0.2559017896495974,
+            -0.37984492793983726,
+            0.10560996595118995
+          ],
+          "support_nodes": [
+            516,
+            413,
+            517
+          ],
+          "tet_row": 172317
+        },
+        "517": {
+          "bank_index": 74,
+          "bank_local_face_row": 135,
+          "distance_m": 0.0016435208409988336,
+          "physical_O_edge": true,
+          "physical_O_face": false,
+          "point_world_m": [
+            -0.25619227676191764,
+            -0.37975555784104603,
+            0.10281161082425425
+          ],
+          "support_nodes": [
+            517,
+            428
+          ],
+          "tet_row": 172262
+        },
+        "518": {
+          "bank_index": 74,
+          "bank_local_face_row": 53,
+          "distance_m": 0.003941260907033461,
+          "physical_O_edge": true,
+          "physical_O_face": false,
+          "point_world_m": [
+            -0.2548360996330931,
+            -0.3770497534049379,
+            0.11003626745611927
+          ],
+          "support_nodes": [
+            495,
+            508
+          ],
+          "tet_row": 172247
+        },
+        "519": {
+          "bank_index": 74,
+          "bank_local_face_row": 211,
+          "distance_m": 0.0015296314184952027,
+          "physical_O_edge": true,
+          "physical_O_face": false,
+          "point_world_m": [
+            -0.2554767500499236,
+            -0.373979162381844,
+            0.10205388003924497
+          ],
+          "support_nodes": [
+            519,
+            527
+          ],
+          "tet_row": 171934
+        },
+        "520": {
+          "bank_index": 74,
+          "bank_local_face_row": 200,
+          "distance_m": 0.003927479624945608,
+          "physical_O_edge": false,
+          "physical_O_face": true,
+          "point_world_m": [
+            -0.25377957108640187,
+            -0.36814224039414684,
+            0.10865322760059357
+          ],
+          "support_nodes": [
+            510,
+            522,
+            511
+          ],
+          "tet_row": 171927
+        },
+        "521": {
+          "bank_index": 74,
+          "bank_local_face_row": 211,
+          "distance_m": 0.001142854187214007,
+          "physical_O_edge": true,
+          "physical_O_face": false,
+          "point_world_m": [
+            -0.2546335216823175,
+            -0.36958657245989146,
+            0.10141009205188634
+          ],
+          "support_nodes": [
+            521,
+            534
+          ],
+          "tet_row": 173899
+        },
+        "522": {
+          "bank_index": 74,
+          "bank_local_face_row": 200,
+          "distance_m": 0.00037050252655549705,
+          "physical_O_edge": true,
+          "physical_O_face": false,
+          "point_world_m": [
+            -0.2537270143505921,
+            -0.3670144577823175,
+            0.10719091816022869
+          ],
+          "support_nodes": [
+            512,
+            522
+          ],
+          "tet_row": 44175
+        },
+        "523": {
+          "bank_index": 74,
+          "bank_local_face_row": 200,
+          "distance_m": 0.0015163033848006999,
+          "physical_O_edge": true,
+          "physical_O_face": false,
+          "point_world_m": [
+            -0.2531187174551945,
+            -0.36437866740618075,
+            0.10564623874359029
+          ],
+          "support_nodes": [
+            512,
+            523
+          ],
+          "tet_row": 134509
+        },
+        "529": {
+          "bank_index": 74,
+          "bank_local_face_row": 237,
+          "distance_m": 0.0006600159186388194,
+          "physical_O_edge": true,
+          "physical_O_face": false,
+          "point_world_m": [
+            -0.25242116521284286,
+            -0.36107783481732864,
+            0.10133340755284043
+          ],
+          "support_nodes": [
+            529,
+            601
+          ],
+          "tet_row": 184204
+        }
+      },
+      "parts": [
+        {
+          "all_support_physical_O": 315,
+          "bank_flat_face_range": [
+            479622,
+            480646
+          ],
+          "bank_index": 74,
+          "bank_local_face_range": [
+            0,
+            1024
+          ],
+          "exact_physical_O_edges": 187,
+          "exact_physical_O_faces": 128,
+          "part_file": "part-00504.npz",
+          "part_sha256": "97f21d0d1329d7f24a446b1253d2546fc2553429e5a722e29d1e925fec7bc91b",
+          "zero_capacity_rows": 315
+        }
+      ],
+      "processed_parts": 1,
+      "stable_id": 75,
+      "support_all_physical_O_count": 315,
+      "zero_capacity_rows": 315
+    },
+    {
+      "bank_ids": [
+        92
+      ],
+      "exact_physical_O_edge_count": 65,
+      "exact_physical_O_face_count": 146,
+      "faces_processed": 1674,
+      "nearest_12_witnesses_to_any_flagged_o": [
+        {
+          "distance_m": 0.010003352739031185,
+          "witness": {
+            "bank_global_face_row": 509051,
+            "bank_index": 92,
+            "bank_local_face_row": 785,
+            "distance_to_nearest_flagged_o_m": 0.010003352739031185,
+            "exact_physical_O_edge": false,
+            "exact_physical_O_face": true,
+            "nearest_flagged_o_node": 685,
+            "point_world_m": [
+              -0.20875321801498425,
+              -0.4960078336829925,
+              0.0472585878163847
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              685,
+              671,
+              678
+            ],
+            "tet_row": 37291
+          }
+        },
+        {
+          "distance_m": 0.010003352739031185,
+          "witness": {
+            "bank_global_face_row": 509110,
+            "bank_index": 92,
+            "bank_local_face_row": 844,
+            "distance_to_nearest_flagged_o_m": 0.010003352739031185,
+            "exact_physical_O_edge": false,
+            "exact_physical_O_face": true,
+            "nearest_flagged_o_node": 685,
+            "point_world_m": [
+              -0.20875321801498425,
+              -0.4960078336829925,
+              0.0472585878163847
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              685,
+              671,
+              678
+            ],
+            "tet_row": 37291
+          }
+        },
+        {
+          "distance_m": 0.010365362548662074,
+          "witness": {
+            "bank_global_face_row": 509051,
+            "bank_index": 92,
+            "bank_local_face_row": 785,
+            "distance_to_nearest_flagged_o_m": 0.010365362548662074,
+            "exact_physical_O_edge": false,
+            "exact_physical_O_face": true,
+            "nearest_flagged_o_node": 685,
+            "point_world_m": [
+              -0.2088898413348275,
+              -0.4982281022413221,
+              0.047286485007165764
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              685,
+              671,
+              678
+            ],
+            "tet_row": 37291
+          }
+        },
+        {
+          "distance_m": 0.010365362548662074,
+          "witness": {
+            "bank_global_face_row": 509052,
+            "bank_index": 92,
+            "bank_local_face_row": 786,
+            "distance_to_nearest_flagged_o_m": 0.010365362548662074,
+            "exact_physical_O_edge": false,
+            "exact_physical_O_face": true,
+            "nearest_flagged_o_node": 685,
+            "point_world_m": [
+              -0.2088898413348275,
+              -0.4982281022413221,
+              0.047286485007165764
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              685,
+              671,
+              678
+            ],
+            "tet_row": 37291
+          }
+        },
+        {
+          "distance_m": 0.013760417245639079,
+          "witness": {
+            "bank_global_face_row": 509108,
+            "bank_index": 92,
+            "bank_local_face_row": 842,
+            "distance_to_nearest_flagged_o_m": 0.013760417245639079,
+            "exact_physical_O_edge": false,
+            "exact_physical_O_face": true,
+            "nearest_flagged_o_node": 685,
+            "point_world_m": [
+              -0.20686003202667796,
+              -0.4849611450815184,
+              0.0471517542030882
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              685,
+              678,
+              686
+            ],
+            "tet_row": 5595
+          }
+        },
+        {
+          "distance_m": 0.013760417245639079,
+          "witness": {
+            "bank_global_face_row": 509166,
+            "bank_index": 92,
+            "bank_local_face_row": 900,
+            "distance_to_nearest_flagged_o_m": 0.013760417245639079,
+            "exact_physical_O_edge": false,
+            "exact_physical_O_face": true,
+            "nearest_flagged_o_node": 685,
+            "point_world_m": [
+              -0.20686003202667796,
+              -0.4849611450815184,
+              0.0471517542030882
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              685,
+              678,
+              686
+            ],
+            "tet_row": 5595
+          }
+        },
+        {
+          "distance_m": 0.01383019761619432,
+          "witness": {
+            "bank_global_face_row": 509159,
+            "bank_index": 92,
+            "bank_local_face_row": 893,
+            "distance_to_nearest_flagged_o_m": 0.01383019761619432,
+            "exact_physical_O_edge": false,
+            "exact_physical_O_face": true,
+            "nearest_flagged_o_node": 685,
+            "point_world_m": [
+              -0.2065530349039689,
+              -0.4846614722691144,
+              0.047105865461176365
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              685,
+              678,
+              686
+            ],
+            "tet_row": 5595
+          }
+        },
+        {
+          "distance_m": 0.013830197616194336,
+          "witness": {
+            "bank_global_face_row": 509108,
+            "bank_index": 92,
+            "bank_local_face_row": 842,
+            "distance_to_nearest_flagged_o_m": 0.013830197616194336,
+            "exact_physical_O_edge": false,
+            "exact_physical_O_face": true,
+            "nearest_flagged_o_node": 685,
+            "point_world_m": [
+              -0.20655303490396892,
+              -0.4846614722691144,
+              0.047105865461176365
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              685,
+              678,
+              686
+            ],
+            "tet_row": 5595
+          }
+        },
+        {
+          "distance_m": 0.013925867884721043,
+          "witness": {
+            "bank_global_face_row": 509161,
+            "bank_index": 92,
+            "bank_local_face_row": 895,
+            "distance_to_nearest_flagged_o_m": 0.013925867884721043,
+            "exact_physical_O_edge": false,
+            "exact_physical_O_face": true,
+            "nearest_flagged_o_node": 685,
+            "point_world_m": [
+              -0.20635391571018472,
+              -0.4844154576479387,
+              0.04707123806770262
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              685,
+              678,
+              686
+            ],
+            "tet_row": 5595
+          }
+        },
+        {
+          "distance_m": 0.013925867884721088,
+          "witness": {
+            "bank_global_face_row": 509159,
+            "bank_index": 92,
+            "bank_local_face_row": 893,
+            "distance_to_nearest_flagged_o_m": 0.013925867884721088,
+            "exact_physical_O_edge": false,
+            "exact_physical_O_face": true,
+            "nearest_flagged_o_node": 685,
+            "point_world_m": [
+              -0.20635391571018472,
+              -0.48441545764793864,
+              0.04707123806770262
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              685,
+              678,
+              686
+            ],
+            "tet_row": 5595
+          }
+        },
+        {
+          "distance_m": 0.015251457855916898,
+          "witness": {
+            "bank_global_face_row": 509050,
+            "bank_index": 92,
+            "bank_local_face_row": 784,
+            "distance_to_nearest_flagged_o_m": 0.015251457855916898,
+            "exact_physical_O_edge": false,
+            "exact_physical_O_face": true,
+            "nearest_flagged_o_node": 685,
+            "point_world_m": [
+              -0.20832932550396444,
+              -0.5079445122931869,
+              0.04746333630262359
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              685,
+              671,
+              678
+            ],
+            "tet_row": 37291
+          }
+        },
+        {
+          "distance_m": 0.015251457855916898,
+          "witness": {
+            "bank_global_face_row": 509052,
+            "bank_index": 92,
+            "bank_local_face_row": 786,
+            "distance_to_nearest_flagged_o_m": 0.015251457855916898,
+            "exact_physical_O_edge": false,
+            "exact_physical_O_face": true,
+            "nearest_flagged_o_node": 685,
+            "point_world_m": [
+              -0.20832932550396444,
+              -0.5079445122931869,
+              0.04746333630262359
+            ],
+            "support_all_physical_O": true,
+            "support_nodes": [
+              685,
+              671,
+              678
+            ],
+            "tet_row": 37291
+          }
+        }
+      ],
+      "nearest_intersection_for_flagged_o_node_by_id": {
+        "685": {
+          "bank_index": 92,
+          "bank_local_face_row": 785,
+          "distance_m": 0.010003352739031185,
+          "physical_O_edge": false,
+          "physical_O_face": true,
+          "point_world_m": [
+            -0.20875321801498425,
+            -0.4960078336829925,
+            0.0472585878163847
+          ],
+          "support_nodes": [
+            685,
+            671,
+            678
+          ],
+          "tet_row": 37291
+        }
+      },
+      "parts": [
+        {
+          "all_support_physical_O": 102,
+          "bank_flat_face_range": [
+            508266,
+            509290
+          ],
+          "bank_index": 92,
+          "bank_local_face_range": [
+            0,
+            1024
+          ],
+          "exact_physical_O_edges": 26,
+          "exact_physical_O_faces": 76,
+          "part_file": "part-00539.npz",
+          "part_sha256": "dc2272b8a3f1c531cc7e99117d131f81ca51f250917c87dfe76e01820ed0946d",
+          "zero_capacity_rows": 102
+        },
+        {
+          "all_support_physical_O": 109,
+          "bank_flat_face_range": [
+            509290,
+            509940
+          ],
+          "bank_index": 92,
+          "bank_local_face_range": [
+            1024,
+            1674
+          ],
+          "exact_physical_O_edges": 39,
+          "exact_physical_O_faces": 70,
+          "part_file": "part-00540.npz",
+          "part_sha256": "a7fdd3bf8bbd6347d6d74798db89386fd584a99370dcd2a489f422dc102e8a8e",
+          "zero_capacity_rows": 109
+        }
+      ],
+      "processed_parts": 2,
+      "stable_id": 93,
+      "support_all_physical_O_count": 211,
+      "zero_capacity_rows": 211
+    },
+    {
+      "bank_ids": [],
+      "exact_physical_O_edge_count": 0,
+      "exact_physical_O_face_count": 0,
+      "faces_processed": 0,
+      "nearest_12_witnesses_to_any_flagged_o": [],
+      "nearest_intersection_for_flagged_o_node_by_id": {
+        "376": null,
+        "466": null
+      },
+      "parts": [],
+      "processed_parts": 0,
+      "stable_id": 103,
+      "support_all_physical_O_count": 0,
+      "zero_capacity_rows": 0
+    },
+    {
+      "bank_ids": [],
+      "exact_physical_O_edge_count": 0,
+      "exact_physical_O_face_count": 0,
+      "faces_processed": 0,
+      "nearest_12_witnesses_to_any_flagged_o": [],
+      "nearest_intersection_for_flagged_o_node_by_id": {
+        "2069": null
+      },
+      "parts": [],
+      "processed_parts": 0,
+      "stable_id": 132,
+      "support_all_physical_O_count": 0,
+      "zero_capacity_rows": 0
+    }
+  ],
+  "status": "partial-stream diagnostic; no geometry changed or admitted",
+  "target_stable_ids": [
+    75,
+    93,
+    103,
+    132
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "capacity_witness_index": {
+    "json_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/validation-001/zero-capacity-witness-index-009.json",
+    "json_sha256": "a8c77856269bdd15126cdc8c24ce8067a9f1a4fd22dd21ed39246fb99af8594f",
+    "npz_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/validation-001/zero-capacity-witness-index-009.npz",
+    "npz_sha256": "f2b7b820729dad25f90ac9ca3416dcc7dbee4816b6f42eb0023dfd78da38ddb8",
+    "stored_witness_rows": 8017,
+    "unique_key_count": 4386
+  },
+  "checkpoint_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/run-001/checkpoint.json",
+  "checkpoint_sha256": "f36db6ba08e6d27704379b7d646dcd984657b0cdf97aeb578c62a3a778701a71",
+  "complete": false,
+  "coverage_fraction": 0.11153421427559536,
+  "distinct_hit_faces_in_prefix": 504978,
+  "input_face_count": 4581231,
+  "input_sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/candidate-with-transfer-partial-field.npz": "b76368d95c95e74c780999391eb5785a6311c43879ac3ceb6d5c134494a1850b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/run_stream_clip_009.py": "88078cf4d5f7f1bd146aa67cf7d98787315ec176701bcde39a7263c636f38b1f",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/inventory.json": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/registered-tissue-banks.npz": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/robust-p1-construction-clip-owner-302/tools/human_skin_p1_obstacles.py": "e1b5a246e531a16d8d2438b8569d31a27c9a10712f0de063084bed87db58c436",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-full-domain-clipping-009/stream_clip_009.py": "25a9cb32f3923f99458b43f1069bd07da40d3da20cd8da5c0374c1255a84d5a1"
+  },
+  "insufficient_capacity_rows": 685836,
+  "inventory_banks": 689,
+  "mesh_nodes": 55657,
+  "mesh_tets": 249227,
+  "native_admission": false,
+  "next_bank": 93,
+  "next_local_face": 1024,
+  "parts": 542,
+  "physical_admission": false,
+  "polygon_barycentric_rows": 3732977,
+  "polygons": 1067949,
+  "processed_face_prefix": [
+    0,
+    510964
+  ],
+  "processed_faces": 510964,
+  "pruning": "all current tetrahedra; no initializer or old-domain pruning",
+  "status": "PASS_PARTIAL_PREFIX_INTEGRITY",
+  "target_free_capacity": 0.341,
+  "total_input_faces": 4581231,
+  "zero_capacity_rows": 8017,
+  "zero_hit_faces_in_processed_prefix": 5986
+}

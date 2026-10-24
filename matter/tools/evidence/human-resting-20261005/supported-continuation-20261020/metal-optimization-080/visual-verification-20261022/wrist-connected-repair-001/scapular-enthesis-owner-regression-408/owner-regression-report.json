@@ -1,0 +1,229 @@
+{
+  "admission": false,
+  "artifacts": {
+    "baseline": {
+      "manifest_sha256": "fd62422f5ed6935f1843f38f64436746313309bcbc94de13a5619d921c837353",
+      "path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/bilateral-all-upper-limb-bone-compile-001/baseline/bodyparts3d-myosim-major-bones.nhbones",
+      "payload_sha256": "7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49"
+    },
+    "candidate": {
+      "manifest_sha256": "fc9e1271a7c0782c2100627db8c8b361aea4400d618f138f0948014eb5209041",
+      "path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/bilateral-all-upper-limb-bone-compile-001/candidate/bodyparts3d-myosim-major-bones.nhbones",
+      "payload_sha256": "60999a135aeaa32da263d0fa0818ed2db291b374d9ef38d63441a9b0f51506cb"
+    }
+  },
+  "attachment_manifest_sha256": "153c2b74345f02ad658df12d655fdd63f76e8212833af9691bd5f07e199c8fd2",
+  "candidate_registration_sha256": "b42e92c21f49b2fb7612447f0f0678295cae894ddffbe80cdf11f210ccee6a73",
+  "checks": {
+    "BIClong scapular origin": {
+      "authored_endpoint_preserved": true,
+      "baseline_rejected_by_12mm_gate": true,
+      "candidate_connected_patch_admitted": true
+    },
+    "BICshort existing scapular control": {
+      "authored_endpoint_preserved": true,
+      "baseline_admitted": true,
+      "candidate_still_admitted": true
+    },
+    "CORB existing scapular control": {
+      "authored_endpoint_preserved": true,
+      "baseline_admitted": true,
+      "candidate_still_admitted": true
+    },
+    "DELT2 scapular insertion": {
+      "authored_endpoint_preserved": true,
+      "baseline_rejected_by_12mm_gate": true,
+      "candidate_connected_patch_admitted": true
+    },
+    "PECM1 existing humeral control": {
+      "authored_endpoint_preserved": true,
+      "baseline_admitted": true,
+      "candidate_still_admitted": true
+    },
+    "TRIlong scapular origin": {
+      "authored_endpoint_preserved": true,
+      "baseline_rejected_by_12mm_gate": true,
+      "candidate_connected_patch_admitted": true
+    }
+  },
+  "compile_comparison": {
+    "admission": false,
+    "sha256": "31c24ef42775d776a3129977330b7882ec4f5af142bdf9eca9b72fb28b078d8b",
+    "status": "passed_source_compile_and_out_of_scope_identity"
+  },
+  "elapsed_seconds": 1.6526329580228776,
+  "evidence_boundary": "Offline existing-owner regression on unchanged source-authored route points. Candidate rigid bone registration remains provisional; this is not an independent enthesis measurement, coupled tissue qualification, force run, or native admission.",
+  "owner_gates": {
+    "max_force_amplification": 4.0,
+    "max_patch_radius_m": 0.012,
+    "max_surface_distance_m": 0.012,
+    "migrate_endpoint_to_surface": false
+  },
+  "owner_module": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/validation/src/numilab_human/model.py",
+  "owner_module_sha256": "5bd314fa7ceaebc6c0e72a0115befdda7a19e11b081bc2009cd2a1e94ce01483",
+  "results": {
+    "baseline": {
+      "BIClong scapular origin": {
+        "accepted": false,
+        "distance_m": 0.01593018790245985,
+        "force_amplification": null,
+        "force_residual": null,
+        "member_id": "FJ3384",
+        "moment_residual_m": null,
+        "patch_radius_m": null,
+        "reason": "surface_distance_exceeds_gate",
+        "source_point_unchanged": false,
+        "stable_id": 10,
+        "surface_patch_method": null
+      },
+      "BICshort existing scapular control": {
+        "accepted": true,
+        "distance_m": 0.0042957399077841706,
+        "force_amplification": 1.3857610747209137,
+        "force_residual": 2.242025235105681e-16,
+        "member_id": "FJ3384",
+        "moment_residual_m": 2.7256419972543822e-18,
+        "patch_radius_m": 0.011139794706970803,
+        "reason": "admitted",
+        "source_point_unchanged": true,
+        "stable_id": 10,
+        "surface_patch_method": "connected_geodesic_compass_vertices"
+      },
+      "CORB existing scapular control": {
+        "accepted": true,
+        "distance_m": 0.002329122298817276,
+        "force_amplification": 1.2004540032947733,
+        "force_residual": 2.226468755882386e-16,
+        "member_id": "FJ3384",
+        "moment_residual_m": 1.3189888700125507e-18,
+        "patch_radius_m": 0.011242572298385824,
+        "reason": "admitted",
+        "source_point_unchanged": true,
+        "stable_id": 10,
+        "surface_patch_method": "connected_geodesic_compass_vertices"
+      },
+      "DELT2 scapular insertion": {
+        "accepted": false,
+        "distance_m": 0.028084608533555586,
+        "force_amplification": null,
+        "force_residual": null,
+        "member_id": "FJ3384",
+        "moment_residual_m": null,
+        "patch_radius_m": null,
+        "reason": "surface_distance_exceeds_gate",
+        "source_point_unchanged": false,
+        "stable_id": 10,
+        "surface_patch_method": null
+      },
+      "PECM1 existing humeral control": {
+        "accepted": true,
+        "distance_m": 0.0064860396481947235,
+        "force_amplification": 1.4228649667910123,
+        "force_residual": 2.3472033033298877e-16,
+        "member_id": "FJ3368",
+        "moment_residual_m": 1.6629342922405056e-18,
+        "patch_radius_m": 0.010500052602535958,
+        "reason": "admitted",
+        "source_point_unchanged": true,
+        "stable_id": 12,
+        "surface_patch_method": "connected_geodesic_compass_vertices"
+      },
+      "TRIlong scapular origin": {
+        "accepted": false,
+        "distance_m": 0.019655735019759032,
+        "force_amplification": null,
+        "force_residual": null,
+        "member_id": "FJ3384",
+        "moment_residual_m": null,
+        "patch_radius_m": null,
+        "reason": "surface_distance_exceeds_gate",
+        "source_point_unchanged": false,
+        "stable_id": 10,
+        "surface_patch_method": null
+      }
+    },
+    "candidate": {
+      "BIClong scapular origin": {
+        "accepted": true,
+        "distance_m": 0.00648010083483605,
+        "force_amplification": 1.7309229259273629,
+        "force_residual": 2.626717347901611e-16,
+        "member_id": "FJ3384",
+        "moment_residual_m": 2.195342077757218e-18,
+        "patch_radius_m": 0.01178332597548747,
+        "reason": "admitted",
+        "source_point_unchanged": true,
+        "stable_id": 10,
+        "surface_patch_method": "connected_geodesic_compass_vertices"
+      },
+      "BICshort existing scapular control": {
+        "accepted": true,
+        "distance_m": 0.0034310833178488706,
+        "force_amplification": 1.0318099438933839,
+        "force_residual": 2.223916172771382e-16,
+        "member_id": "FJ3384",
+        "moment_residual_m": 8.327914907016939e-19,
+        "patch_radius_m": 0.01123393497863729,
+        "reason": "admitted",
+        "source_point_unchanged": true,
+        "stable_id": 10,
+        "surface_patch_method": "connected_geodesic_compass_vertices"
+      },
+      "CORB existing scapular control": {
+        "accepted": true,
+        "distance_m": 0.003552378974652831,
+        "force_amplification": 1.046738893492985,
+        "force_residual": 1.8683543625880677e-17,
+        "member_id": "FJ3384",
+        "moment_residual_m": 6.964733237579955e-19,
+        "patch_radius_m": 0.010977440013987276,
+        "reason": "admitted",
+        "source_point_unchanged": true,
+        "stable_id": 10,
+        "surface_patch_method": "connected_geodesic_compass_vertices"
+      },
+      "DELT2 scapular insertion": {
+        "accepted": true,
+        "distance_m": 0.0073097254359794275,
+        "force_amplification": 1.7262470243554042,
+        "force_residual": 2.486410087150353e-16,
+        "member_id": "FJ3384",
+        "moment_residual_m": 2.147295180244305e-18,
+        "patch_radius_m": 0.011732890289941669,
+        "reason": "admitted",
+        "source_point_unchanged": true,
+        "stable_id": 10,
+        "surface_patch_method": "connected_geodesic_compass_vertices"
+      },
+      "PECM1 existing humeral control": {
+        "accepted": true,
+        "distance_m": 0.002666276969216302,
+        "force_amplification": 1.928969782669795,
+        "force_residual": 2.897767167584095e-16,
+        "member_id": "FJ3368",
+        "moment_residual_m": 3.012565529962348e-18,
+        "patch_radius_m": 0.009714255513891885,
+        "reason": "admitted_topology_aware_exact_surface_patch",
+        "source_point_unchanged": true,
+        "stable_id": 12,
+        "surface_patch_method": "connected_geodesic_topology_aware_exact_surface_points"
+      },
+      "TRIlong scapular origin": {
+        "accepted": true,
+        "distance_m": 0.007344629680727552,
+        "force_amplification": 1.8248040335814741,
+        "force_residual": 4.552252871008668e-16,
+        "member_id": "FJ3384",
+        "moment_residual_m": 4.677173277611465e-18,
+        "patch_radius_m": 0.011527029114980847,
+        "reason": "admitted",
+        "source_point_unchanged": true,
+        "stable_id": 10,
+        "surface_patch_method": "connected_geodesic_compass_vertices"
+      }
+    }
+  },
+  "schema": "numi.human.scapular-enthesis-owner-regression.v1",
+  "source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+  "status": "passed_offline_owner_regression"
+}

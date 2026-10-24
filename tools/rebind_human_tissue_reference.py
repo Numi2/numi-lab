@@ -86,6 +86,276 @@ def decode_nhtiss(raw: bytes) -> dict[str, Any]:
     return parsed
 
 
+def _integer_array(value: Any, name: str, ndim: int) -> np.ndarray:
+    array = np.asarray(value)
+    if array.ndim != ndim or not np.issubdtype(array.dtype, np.integer) or np.issubdtype(array.dtype, np.bool_):
+        raise ReferenceError(f"{name} must be a {ndim}D integer array")
+    return array.astype(np.int64, copy=False)
+
+
+def _oriented_patch_boundary(faces: np.ndarray, vertex_count: int, label: str) -> list[tuple[int, int]]:
+    """Validate an oriented triangular disk patch and return its directed boundary."""
+    faces = _integer_array(faces, f"{label} faces", 2)
+    if faces.shape[1:] != (3,) or len(faces) == 0:
+        raise ReferenceError(f"{label} faces must be a nonempty Nx3 array")
+    if np.any(faces < 0) or np.any(faces >= vertex_count):
+        raise ReferenceError(f"{label} face vertex escapes the surface vertex range")
+    edge_uses: dict[tuple[int, int], list[tuple[int, int]]] = {}
+    triangle_keys: set[tuple[int, int, int]] = set()
+    for face in faces:
+        a, b, c = map(int, face)
+        if len({a, b, c}) != 3:
+            raise ReferenceError(f"{label} contains a repeated-index triangle")
+        key = tuple(sorted((a, b, c)))
+        if key in triangle_keys:
+            raise ReferenceError(f"{label} contains duplicate triangles")
+        triangle_keys.add(key)
+        for u, v in ((a, b), (b, c), (c, a)):
+            edge_uses.setdefault((min(u, v), max(u, v)), []).append((u, v))
+    boundary: list[tuple[int, int]] = []
+    face_adjacency = [set() for _ in range(len(faces))]
+    edge_face_uses: dict[tuple[int, int], list[int]] = {}
+    for face_index, face in enumerate(faces):
+        a, b, c = map(int, face)
+        for u, v in ((a, b), (b, c), (c, a)):
+            edge_face_uses.setdefault((min(u, v), max(u, v)), []).append(face_index)
+    for edge, uses in edge_uses.items():
+        if len(uses) == 1:
+            boundary.append(uses[0])
+        elif len(uses) == 2:
+            if uses[0] != (uses[1][1], uses[1][0]):
+                raise ReferenceError(f"{label} has an inconsistently oriented internal edge {edge}")
+            left, right = edge_face_uses[edge]
+            face_adjacency[left].add(right)
+            face_adjacency[right].add(left)
+        else:
+            raise ReferenceError(f"{label} has a nonmanifold edge {edge}")
+    reached = {0}
+    stack = [0]
+    while stack:
+        current = stack.pop()
+        for neighbor in face_adjacency[current] - reached:
+            reached.add(neighbor)
+            stack.append(neighbor)
+    if len(reached) != len(faces):
+        raise ReferenceError(f"{label} faces are not one edge-connected patch")
+    used_vertices = set(map(int, faces.reshape(-1)))
+    if len(used_vertices) - len(edge_uses) + len(faces) != 1:
+        raise ReferenceError(f"{label} patch is not topologically a disk")
+    if len(boundary) < 3:
+        raise ReferenceError(f"{label} has no simple disk boundary")
+    outgoing: dict[int, int] = {}
+    incoming: dict[int, int] = {}
+    for u, v in boundary:
+        if u in outgoing or v in incoming:
+            raise ReferenceError(f"{label} boundary is not one directed simple loop")
+        outgoing[u] = v
+        incoming[v] = u
+    if set(outgoing) != set(incoming):
+        raise ReferenceError(f"{label} boundary has open or branched vertices")
+    start = min(outgoing)
+    loop = [start]
+    current = start
+    for _ in range(len(boundary)):
+        current = outgoing[current]
+        if current == start:
+            break
+        loop.append(current)
+    if current != start or len(loop) != len(boundary) or len(set(loop)) != len(loop):
+        raise ReferenceError(f"{label} boundary is not a single simple cycle")
+    return boundary
+
+
+def replace_surface_topology_patch(
+        payload_raw: bytes, *, stable_id: int,
+        removed_face_rows: Any, replacement_faces_local: Any,
+        boundary_cycle_local: Any, ancestry_offsets: Any, ancestry_face_rows: Any,
+        construction_ancestry_label: str) -> tuple[bytes, dict[str, Any]]:
+    """Replace one oriented disk patch in an existing NHTISS ABI-5 surface.
+
+    Face ancestry is construction lineage only. It is not a geometric overlap,
+    mass transfer, or FEM face-map certificate. The operation does not add
+    vertices and preserves all position, normal, binding, and route-weight
+    payload bytes.
+    """
+    label = str(construction_ancestry_label).strip()
+    if not label or "construction" not in label.lower():
+        raise ReferenceError("construction ancestry label must explicitly identify construction lineage")
+    source = decode_nhtiss(payload_raw)
+    matches = np.flatnonzero(source["records"][:, 6] == int(stable_id))
+    if len(matches) != 1:
+        raise ReferenceError(f"stable surface {stable_id} is absent or ambiguous")
+    record_index = int(matches[0])
+    record = source["records"][record_index].copy()
+    fb, bc, fv, vc, fi, ic, sid, layer = map(int, record)
+    source_faces_global = source["indices"][fi:fi + ic].reshape(-1, 3)
+    source_faces_local = source_faces_global.astype(np.int64) - fv
+    face_count = len(source_faces_local)
+    removed = _integer_array(removed_face_rows, "removed source face rows", 1)
+    if len(removed) == 0 or len(np.unique(removed)) != len(removed):
+        raise ReferenceError("removed source face rows must be nonempty and unique")
+    if np.any(removed < 0) or np.any(removed >= face_count):
+        raise ReferenceError("removed source face row is out of range")
+    removed_sorted = np.sort(removed)
+    replacement = _integer_array(replacement_faces_local, "replacement faces", 2)
+    if replacement.shape[1:] != (3,) or len(replacement) == 0:
+        raise ReferenceError("replacement faces must be a nonempty Nx3 array")
+    cycle = _integer_array(boundary_cycle_local, "boundary cycle", 1)
+    if len(cycle) < 3 or len(np.unique(cycle)) != len(cycle):
+        raise ReferenceError("boundary cycle must contain at least three unique local vertices")
+    if np.any(cycle < 0) or np.any(cycle >= vc):
+        raise ReferenceError("boundary cycle vertex is out of range")
+    cycle_edges = [(int(cycle[i]), int(cycle[(i + 1) % len(cycle)])) for i in range(len(cycle))]
+    removed_faces = source_faces_local[removed_sorted]
+    replacement_boundary = _oriented_patch_boundary(replacement, vc, "replacement")
+    removed_boundary = _oriented_patch_boundary(removed_faces, vc, "removed source")
+    if set(removed_boundary) != set(cycle_edges):
+        raise ReferenceError("declared boundary cycle does not match removed source patch orientation")
+    if set(replacement_boundary) != set(cycle_edges):
+        raise ReferenceError("replacement patch does not preserve the exact oriented boundary cycle")
+    # Geometry is deliberately not certified here, but zero-area Float32 faces
+    # are rejected as invalid topology output before serialization.
+    local_points = source["vertices"][fv:fv + vc]["p"].astype(np.float64)
+    replaced_points = local_points[replacement]
+    area_twice = np.linalg.norm(np.cross(replaced_points[:, 1] - replaced_points[:, 0],
+                                         replaced_points[:, 2] - replaced_points[:, 0]), axis=1)
+    if not np.isfinite(area_twice).all() or np.any(area_twice <= 0):
+        raise ReferenceError("replacement contains a zero-area or nonfinite Float32 face")
+
+    offsets = _integer_array(ancestry_offsets, "construction ancestry offsets", 1)
+    parents = _integer_array(ancestry_face_rows, "construction ancestry face rows", 1)
+    if len(offsets) != len(replacement) + 1 or offsets[0] != 0 or offsets[-1] != len(parents):
+        raise ReferenceError("construction ancestry CSR offsets do not match replacement face count")
+    if np.any(np.diff(offsets) < 0):
+        raise ReferenceError("construction ancestry CSR offsets are not monotone")
+    if np.any(parents < 0) or np.any(parents >= face_count) or not np.isin(parents, removed_sorted).all():
+        raise ReferenceError("construction ancestry parent must be a removed source face row")
+    for child in range(len(replacement)):
+        row_parents = parents[offsets[child]:offsets[child + 1]]
+        if len(row_parents) == 0 or len(np.unique(row_parents)) != len(row_parents):
+            raise ReferenceError(f"replacement face {child} needs unique removed-face construction ancestry")
+
+    old_to_new: list[int | None] = [None] * face_count
+    insert_at = int(removed_sorted[0])
+    removed_set = set(map(int, removed_sorted))
+    new_local_faces: list[np.ndarray] = []
+    insertion_written = False
+    for old_row, face in enumerate(source_faces_local):
+        if old_row == insert_at:
+            first_child = len(new_local_faces)
+            new_local_faces.extend(row.copy() for row in replacement)
+            insertion_written = True
+        if old_row in removed_set:
+            continue
+        new_row = len(new_local_faces)
+        new_local_faces.append(face.copy())
+        old_to_new[old_row] = new_row
+    if not insertion_written:
+        raise ReferenceError("failed to place replacement patch in source face sequence")
+    if len(new_local_faces) != face_count - len(removed_sorted) + len(replacement):
+        raise ReferenceError("replacement face accounting mismatch")
+
+    # Require original record index spans to partition the source index array;
+    # this prevents silently dropping unowned/reserved index bytes.
+    records = source["records"].copy()
+    by_old_start = sorted((int(row[4]), int(row[5]), i) for i, row in enumerate(records))
+    cursor = 0
+    for start, count, _row in by_old_start:
+        if start != cursor:
+            raise ReferenceError("surface index ranges do not exactly partition the source index array")
+        cursor += count
+    if cursor != source["ni"]:
+        raise ReferenceError("surface index ranges leave unowned source indices")
+
+    output_faces: list[np.ndarray] = []
+    candidate_record_rows: dict[int, list[np.ndarray]] = {}
+    new_index_cursor = 0
+    for _old_start, _old_count, row_index in by_old_start:
+        row = records[row_index]
+        rfb, rbc, rfv, rvc, rfi, ric, rsid, _rlayer = map(int, source["records"][row_index])
+        if rsid == int(stable_id):
+            rows = np.asarray(new_local_faces, dtype=np.int64) + rfv
+            records[row_index, 4] = new_index_cursor
+            records[row_index, 5] = len(rows) * 3
+            candidate_record_rows[rsid] = rows.copy()
+        else:
+            rows = source["indices"][rfi:rfi + ric].reshape(-1, 3).copy()
+            records[row_index, 4] = new_index_cursor
+            records[row_index, 5] = ric
+            candidate_record_rows[rsid] = rows.copy()
+        output_faces.append(rows.astype("<u4", copy=False).reshape(-1))
+        new_index_cursor += rows.size
+    new_indices = np.concatenate(output_faces).astype("<u4", copy=False)
+    if new_indices.size > 0xFFFFFFFF:
+        raise ReferenceError("replacement exceeds NHTISS uint32 index capacity")
+    rebuilt_header = HEADER.pack(source["magic"], source["abi"], source["nr"], source["nb"],
+                                source["nv"], int(new_indices.size), source["registration"], source["source_id"])
+    result_raw = (rebuilt_header + records.astype("<u4", copy=False).tobytes() +
+                  source["bindings"].tobytes() + source["vertices"].tobytes() + new_indices.tobytes())
+    readback = decode_nhtiss(result_raw)
+    if not np.array_equal(readback["bindings"], source["bindings"]):
+        raise ReferenceError("topology replacement changed binding bytes")
+    if not np.array_equal(readback["vertices"], source["vertices"]):
+        raise ReferenceError("topology replacement changed vertex payload bytes")
+    for row_index, source_record in enumerate(source["records"]):
+        rfb, rbc, rfv, rvc, rfi, ric, rsid, rlayer = map(int, source_record)
+        out_row = readback["records"][row_index]
+        if tuple(map(int, out_row[[0, 1, 2, 3, 6, 7]])) != (rfb, rbc, rfv, rvc, rsid, rlayer):
+            raise ReferenceError("topology replacement changed record identity or non-index ranges")
+        if rsid != int(stable_id):
+            if not np.array_equal(readback["indices"][int(out_row[4]):int(out_row[4] + out_row[5])],
+                                  source["indices"][rfi:rfi + ric]):
+                raise ReferenceError(f"topology replacement changed unrelated surface {rsid}")
+        elif not np.array_equal(readback["indices"][int(out_row[4]):int(out_row[4] + out_row[5])],
+                                candidate_record_rows[rsid].reshape(-1)):
+            raise ReferenceError("serialized replacement face sequence mismatch")
+
+    insertion_candidate_row = insert_at - int(np.count_nonzero(removed_sorted < insert_at))
+    # Since rows before insert_at are all retained, this is simply insert_at
+    # minus removed rows before the insertion point (zero for min(removed)).
+    source_to_candidate = [None if old in removed_set else old - int(np.count_nonzero(removed_sorted < old)) + len(replacement)
+                           if old > insert_at else old for old in range(face_count)]
+    for old in range(face_count):
+        if old not in removed_set and old < insert_at:
+            source_to_candidate[old] = old
+        elif old not in removed_set and old >= insert_at:
+            source_to_candidate[old] = old - len(removed_sorted) + len(replacement)
+    child_rows = list(range(insertion_candidate_row, insertion_candidate_row + len(replacement)))
+    ancestry = [[int(x) for x in parents[offsets[i]:offsets[i + 1]]] for i in range(len(replacement))]
+    report = {
+        "schema": "numi.human.nhtiss.surface-topology-patch-replacement.v1",
+        "source_payload_sha256": sha256_bytes(payload_raw),
+        "candidate_payload_sha256": sha256_bytes(result_raw),
+        "stable_id": int(stable_id),
+        "record_index": record_index,
+        "source_face_count": face_count,
+        "candidate_face_count": len(new_local_faces),
+        "source_index_count": source["ni"],
+        "candidate_index_count": int(new_indices.size),
+        "removed_source_face_rows": [int(x) for x in removed_sorted],
+        "new_candidate_face_rows": child_rows,
+        "source_face_row_to_candidate_face_row": source_to_candidate,
+        "construction_ancestry": {
+            "label": label,
+            "semantics": "construction lineage only; not geometric overlap, material transfer, or a mechanical face-map certificate",
+            "parent_face_rows_by_new_candidate_face": ancestry,
+        },
+        "preservation": {
+            "all_vertex_position_normal_and_route_weight_bytes_exact": True,
+            "all_binding_bytes_exact": True,
+            "all_unselected_surface_face_sequences_exact": True,
+            "target_nonpatch_face_sequence_exact": True,
+        },
+        "mechanical_face_map": {
+            "previous_map_valid": False,
+            "requires_regeneration": True,
+            "candidate_face_rows_must_not_be_joined_by_stale_flat_offsets": True,
+        },
+        "gate": {"geometry_gate": False, "physical_admission": False, "native_admission": False},
+    }
+    return result_raw, report
+
+
 def validate_nhtiss(payload: dict[str, Any]) -> None:
     records = payload["records"]
     bindings = payload["bindings"]

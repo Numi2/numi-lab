@@ -1,0 +1,17 @@
+{
+  "pass": true,
+  "tests": 5,
+  "scope": "preparation-only conservative broadphase and fixed-zero capacity; not simulation update",
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "test_human_skin_p1_stream_clip.py"
+  ],
+  "cwd": "/Users/n/numi-human-aortic-contact-opt-20261019/tools",
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/tools/human_skin_p1_stream_clip.py": "bd5154f4deb778af203b080826afd3afe0dcc66287edb031ab67cae69d5de88a",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/tools/test_human_skin_p1_stream_clip.py": "a48d8a06d5d721656272582c670b127976b2a48158070933ff4d12b4ee9e9c54"
+  }
+}
