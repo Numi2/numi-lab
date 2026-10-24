@@ -44,6 +44,16 @@ inline bool makePairedSkinBoundaryNodeMap(std::size_t surfaceRows,
     }
     map=std::move(next);error.clear();return true;
 }
+inline bool isPairedSkinBoundaryNodeMap(const SkinBoundaryNodeMap& map) {
+    const auto n=map.outer.size();
+    if(n==0 || n>std::numeric_limits<std::uint32_t>::max()/3u ||
+       map.volumeNodeCount!=3u*n || map.skinInner.size()!=n || map.fatDeep.size()!=n)
+        return false;
+    for(std::size_t row=0;row<n;++row)
+        if(map.outer[row]!=row || map.skinInner[row]!=n+row || map.fatDeep[row]!=2u*n+row)
+            return false;
+    return true;
+}
 inline bool skinBoundaryNodeRangeFits(const SkinBoundaryNodeMap& map,
         std::size_t firstGlobalNode,std::size_t snapshotNodeCount) {
     return firstGlobalNode<=snapshotNodeCount &&

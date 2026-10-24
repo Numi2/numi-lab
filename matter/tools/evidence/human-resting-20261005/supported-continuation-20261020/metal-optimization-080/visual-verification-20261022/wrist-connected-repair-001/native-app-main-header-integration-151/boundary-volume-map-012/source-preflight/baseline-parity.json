@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "physical_steps": 0,
+  "checks": [
+    {
+      "file": "initial-skin-fem-nodes.csv",
+      "baseline_sha256": "cb7cd7c5772532819bfcbc0931ac8cc5825237e64aed34821d6bf7ca3e66849b",
+      "candidate_sha256": "cb7cd7c5772532819bfcbc0931ac8cc5825237e64aed34821d6bf7ca3e66849b",
+      "identical": true
+    },
+    {
+      "file": "registered-skin.csv",
+      "baseline_sha256": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e",
+      "candidate_sha256": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e",
+      "identical": true
+    },
+    {
+      "file": "registered-skin-poses.json",
+      "baseline_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+      "candidate_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+      "identical": true
+    }
+  ],
+  "contact_binding_fingerprint_identical": true,
+  "contact_binding": "whole_body_skin_fat_material_column_self_contact=bound object_name=BodyParts3D whole-body skin-fat bonded shell object=15 nodes=7233 columns=2411 prior_physics_fingerprint=5314989552227204418 physics_fingerprint=10866933716458512246 compiled_fingerprint=12932691892300471593 scope=skin-fat-three-layer-only"
+}

@@ -42,9 +42,28 @@ struct MaterialColumnSelfContactAudit {
         left == materialColumnTag(rightFlags);
 }
 
+// Zero is reserved for unpaired interior nodes. Only the three explicitly
+// matched boundary roles may share a material-column contact exclusion.
+inline void validateExplicitMaterialColumns(std::span<const std::uint32_t> columns,
+        std::size_t nodeCount,std::uint32_t columnCount) {
+    if(nodeCount>std::numeric_limits<std::uint32_t>::max() ||
+       columns.size()!=nodeCount || columnCount==0u ||
+       columnCount>kMaterialColumnIdMask)
+        throw std::invalid_argument("explicit material-column range or count is invalid");
+    std::vector<unsigned> uses(columnCount,0u);
+    for(auto column:columns) {
+        if(column>columnCount)
+            throw std::invalid_argument("explicit material-column ID exceeds registered surface rows");
+        if(column)++uses[column-1u];
+    }
+    for(auto count:uses)if(count!=3u)
+        throw std::invalid_argument("explicit material column does not have exactly three boundary roles");
+}
+
 inline void validateMaterialColumnSource(
     const ObjectSource& source,
-    const std::uint32_t nodesPerLayer
+    const std::uint32_t nodesPerLayer,
+    const std::span<const std::uint32_t> explicitColumns = {}
 ) {
     const auto fail = [](const char* why) -> void {
         throw std::invalid_argument(why);
@@ -52,11 +71,14 @@ inline void validateMaterialColumnSource(
     if (nodesPerLayer == 0u || nodesPerLayer > kMaterialColumnIdMask)
         fail("three-layer shell column count is zero or exceeds 22-bit tag capacity");
     const std::uint64_t expectedNodes =
-        3ull * static_cast<std::uint64_t>(nodesPerLayer);
+        explicitColumns.empty()?3ull*static_cast<std::uint64_t>(nodesPerLayer)
+                               :static_cast<std::uint64_t>(explicitColumns.size());
     if (expectedNodes > std::numeric_limits<std::uint32_t>::max() ||
         source.femNodes.size() != expectedNodes ||
         source.tetrahedra.empty())
-        fail("material-column binding requires exactly three authored FEM layers and nonempty tetrahedra");
+        fail("material-column binding requires exact authored volume nodes and nonempty tetrahedra");
+    if(!explicitColumns.empty())
+        validateExplicitMaterialColumns(explicitColumns,source.femNodes.size(),nodesPerLayer);
     if (source.representation != Representation::fem ||
         source.automaticRepresentation || source.adaptive || source.mixedFEM ||
         source.deformableContact == false || source.deformableSelfContact ||
@@ -75,11 +97,14 @@ inline void validateMaterialColumnSource(
 inline void tagMaterialColumnNodes(
     const std::span<NMFEMTopologyNodeGPU> nodes,
     const std::uint32_t objectIndex,
-    const std::uint32_t nodesPerLayer
+    const std::uint32_t nodesPerLayer,
+    const std::span<const std::uint32_t> explicitColumns = {}
 ) {
     if (nodesPerLayer == 0u || nodesPerLayer > kMaterialColumnIdMask ||
-        std::uint64_t(nodesPerLayer) * 3u != nodes.size())
+        (explicitColumns.empty()&&std::uint64_t(nodesPerLayer)*3u!=nodes.size()))
         throw std::invalid_argument("material-column node range does not match three-layer bounds");
+    if(!explicitColumns.empty())
+        validateExplicitMaterialColumns(explicitColumns,nodes.size(),nodesPerLayer);
     for (std::uint32_t local = 0u; local < nodes.size(); ++local) {
         const auto& identity = nodes[local].identity;
         if (identity.x != local || identity.y != objectIndex || identity.z != 1u ||
@@ -87,7 +112,8 @@ inline void tagMaterialColumnNodes(
             throw std::invalid_argument("material-column topology identity is not the original active immutable source node");
     }
     for (std::uint32_t local = 0u; local < nodes.size(); ++local) {
-        const std::uint32_t encodedColumn = local % nodesPerLayer + 1u;
+        const std::uint32_t encodedColumn = explicitColumns.empty()
+            ? local%nodesPerLayer+1u : explicitColumns[local];
         nodes[local].identity.w =
             (nodes[local].identity.w & kTopologyLowFlagMask) |
             (encodedColumn << kMaterialColumnFlagShift);
@@ -97,7 +123,8 @@ inline void tagMaterialColumnNodes(
 [[nodiscard]] inline std::uint64_t materialColumnPhysicsFingerprint(
     const std::uint64_t sourceFingerprint,
     const std::uint32_t objectIndex,
-    const std::uint32_t nodesPerLayer
+    const std::uint32_t nodesPerLayer,
+    const std::span<const std::uint32_t> explicitColumns = {}
 ) noexcept {
     // Extend the canonical source identity with this postcompile contact
     // specialization. The package fingerprint separately hashes every tag.
@@ -114,6 +141,13 @@ inline void tagMaterialColumnNodes(
         add(static_cast<std::uint8_t>(objectIndex >> shift));
         add(static_cast<std::uint8_t>(nodesPerLayer >> shift));
     }
+    if(!explicitColumns.empty()) {
+        constexpr char explicitMarker[]="explicit-volume-column-rows-v1";
+        for(const char byte:explicitMarker)add(static_cast<std::uint8_t>(byte));
+        for(const auto column:explicitColumns)
+            for(unsigned shift=0u;shift<32u;shift+=8u)
+                add(static_cast<std::uint8_t>(column>>shift));
+    }
     return hash == 0u ? 1u : hash;
 }
 
@@ -122,9 +156,10 @@ bindHumanThreeLayerMaterialColumnSelfContact(
     CompiledWorld& world,
     const ObjectSource& source,
     const std::uint32_t objectIndex,
-    const std::uint32_t nodesPerLayer
+    const std::uint32_t nodesPerLayer,
+    const std::span<const std::uint32_t> explicitColumns = {}
 ) {
-    validateMaterialColumnSource(source, nodesPerLayer);
+    validateMaterialColumnSource(source, nodesPerLayer, explicitColumns);
     const auto fail = [](const char* why) -> void {
         throw std::invalid_argument(why);
     };
@@ -140,7 +175,8 @@ bindHumanThreeLayerMaterialColumnSelfContact(
         fail("material-column target object is outside compiled object bounds");
     const auto& descriptor = world.objects[objectIndex];
     const std::uint64_t expectedNodeCount =
-        3ull * static_cast<std::uint64_t>(nodesPerLayer);
+        explicitColumns.empty()?3ull*static_cast<std::uint64_t>(nodesPerLayer)
+                               :static_cast<std::uint64_t>(explicitColumns.size());
     if ((world.dispatch.flags & NM_MATTER_STATIC_FEM_SURFACE_MAP) == 0u ||
         (world.dispatch.flags & (NM_MATTER_ADAPTIVE | NM_MATTER_MUTATION)) != 0u ||
         world.dispatch.mutationCommandCount != 0u ||
@@ -188,10 +224,10 @@ bindHumanThreeLayerMaterialColumnSelfContact(
     for (const auto& node : targetNodes) previousFlags.push_back(node.identity.w);
     const std::uint32_t previousObjectFlags = descriptor.flags;
     const std::uint64_t previousPhysicsFingerprint = world.physicsFingerprint;
-    tagMaterialColumnNodes(targetNodes, objectIndex, nodesPerLayer);
+    tagMaterialColumnNodes(targetNodes, objectIndex, nodesPerLayer, explicitColumns);
     world.objects[objectIndex].flags &= ~NM_OBJECT_DISABLE_SELF_CONTACT;
     world.physicsFingerprint = materialColumnPhysicsFingerprint(
-        previousPhysicsFingerprint, objectIndex, nodesPerLayer);
+        previousPhysicsFingerprint, objectIndex, nodesPerLayer, explicitColumns);
     world.fingerprint = compiledWorldFingerprint(world);
     if (!validateCompiledWorldLayout(world, &layoutError)) {
         for (std::size_t local = 0u; local < targetNodes.size(); ++local)

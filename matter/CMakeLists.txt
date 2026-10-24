@@ -90,6 +90,21 @@ if(BUILD_TESTING)
         TIMEOUT 30 LABELS "matter;fem;solver;cpu;synthetic")
 endif()
 
+add_executable(numi-matter-explicit-material-column-check
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apps/NumiHumanExplicitMaterialColumnCheck.cpp")
+target_include_directories(numi-matter-explicit-material-column-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apps"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_compile_options(numi-matter-explicit-material-column-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.explicit_material_column
+        COMMAND numi-matter-explicit-material-column-check)
+    set_tests_properties(matter.compiler.explicit_material_column PROPERTIES
+        TIMEOUT 30 LABELS "matter;compiler;human;cpu;synthetic")
+endif()
+
 add_executable(numi-matter-skin-boundary-node-map-check
     "${CMAKE_CURRENT_SOURCE_DIR}/../apps/NumiHumanSkinBoundaryNodeMapCheck.cpp")
 target_include_directories(numi-matter-skin-boundary-node-map-check PRIVATE

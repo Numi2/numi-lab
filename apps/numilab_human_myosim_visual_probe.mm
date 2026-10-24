@@ -23274,15 +23274,10 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         for (auto& object : source.objects) object.rigidContactEnabled = false;
         auto& outerSkin = source.objects[wholeBodySkinObjectIndex];
         require(outerSkin.representation == numi::matter::Representation::fem &&
-                    outerSkin.femNodes.size() ==
-                        3u * static_cast<std::size_t>(wholeBodySkinNodesPerLayer),
+                    outerSkin.femNodes.size()==wholeBodySkinBoundaryNodeMap.volumeNodeCount,
                 "FEM skin support object is not the complete bonded three-layer shell");
         outerSkin.rigidContactEnabled = true;
-        outerSkin.femContactNodes.resize(wholeBodySkinNodesPerLayer);
-        for (std::uint32_t node = 0u;
-             node < wholeBodySkinNodesPerLayer;
-             ++node)
-            outerSkin.femContactNodes[node] = node;
+        outerSkin.femContactNodes=wholeBodySkinBoundaryNodeMap.outer;
 
         numi::matter::RigidProxySource bed;
         bed.shape = NM_RIGID_PLANE;
@@ -23355,7 +23350,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
              localNode < wholeBodySkinNodesPerLayer;
              ++localNode) {
             const auto& node = compiled.world.fem.nodes.at(
-                descriptor.stateOffset + localNode);
+                descriptor.stateOffset + wholeBodySkinBoundaryNodeMap.outer[localNode]);
             const double gap =
                 normal[0] * node.positionAndMass.x +
                 normal[1] * node.positionAndMass.y +
@@ -23385,9 +23380,22 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     if(enableWholeBodySkinFat) {
         require(wholeBodySkinObjectIndex<source.objects.size()&&wholeBodySkinNodesPerLayer>0u,
                 "whole-body skin/fat compiled object identity was not captured during source assembly");
+        std::vector<std::uint32_t> explicitMaterialColumns;
+        if(!numi::human::isPairedSkinBoundaryNodeMap(wholeBodySkinBoundaryNodeMap)) {
+            std::string boundaryError;
+            require(numi::human::validateSkinBoundaryNodeMap(
+                        wholeBodySkinBoundaryNodeMap,wholeBodySkinNodesPerLayer,boundaryError),
+                    "material-column boundary maps invalid: "+boundaryError);
+            explicitMaterialColumns.assign(wholeBodySkinBoundaryNodeMap.volumeNodeCount,0u);
+            for(std::uint32_t row=0;row<wholeBodySkinNodesPerLayer;++row)
+                for(const auto node:{wholeBodySkinBoundaryNodeMap.outer[row],
+                                    wholeBodySkinBoundaryNodeMap.skinInner[row],
+                                    wholeBodySkinBoundaryNodeMap.fatDeep[row]})
+                    explicitMaterialColumns[node]=row+1u;
+        }
         const auto selfContactAudit=numi::matter::human::bindHumanThreeLayerMaterialColumnSelfContact(
             compiled.world,source.objects[wholeBodySkinObjectIndex],wholeBodySkinObjectIndex,
-            wholeBodySkinNodesPerLayer);
+            wholeBodySkinNodesPerLayer,explicitMaterialColumns);
         wholeBodySkinSelfContactBound=(compiled.world.objects[wholeBodySkinObjectIndex].flags&NM_OBJECT_DISABLE_SELF_CONTACT)==0u;
         require(wholeBodySkinSelfContactBound,
                 "whole-body material-column self-contact binding did not clear the compiled disable flag");
@@ -23617,7 +23625,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 "skin-bone triangle contact source-node count is invalid");
         const auto& descriptor=compiled.world.objects[wholeBodySkinObjectIndex];
         require(descriptor.representation==NM_REPRESENTATION_FEM&&
-                    descriptor.stateCount==3u*nodeCount&&
+                    descriptor.stateCount==wholeBodySkinBoundaryNodeMap.volumeNodeCount&&
                     std::uint64_t(descriptor.stateOffset)+descriptor.stateCount<=
                         compiled.world.fem.nodes.size(),
                 "skin-bone triangle contact cannot resolve the three-layer FEM node range");
@@ -24130,9 +24138,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         ++layerRowsWithMissingInventory;
                         ++totalRowsWithMissingPositiveSupportInventory;
                     }
-                    const std::uint64_t layerOffset=layer==0u?0u:2u*nodeCount;
-                    const std::uint64_t slave64=std::uint64_t(descriptor.stateOffset)+
-                        layerOffset+row;
+                    const auto volumeRow=layer==0u?wholeBodySkinBoundaryNodeMap.outer[row]
+                                                  :wholeBodySkinBoundaryNodeMap.fatDeep[row];
+                    const std::uint64_t slave64=std::uint64_t(descriptor.stateOffset)+volumeRow;
                     require(slave64<=std::numeric_limits<std::uint32_t>::max()&&
                                 slave64<compiled.world.fem.nodes.size(),
                             "skin-bone FEM slave node exceeds the compiled solver range");
@@ -24324,9 +24332,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                                 fasciaBodyContactNeighborhoodTriangles.size(),
                         "skin-bone contact neighborhood emitted an invalid flattened range");
                 const auto& first=fasciaBodyContactNeighborhoodTriangles[range.firstTriangle];
-                const std::uint64_t layerOffset=layer==0u?0u:2u*nodeCount;
-                const std::uint64_t slave64=std::uint64_t(descriptor.stateOffset)+
-                    layerOffset+row;
+                const auto volumeRow=layer==0u?wholeBodySkinBoundaryNodeMap.outer[row]
+                                              :wholeBodySkinBoundaryNodeMap.fatDeep[row];
+                const std::uint64_t slave64=std::uint64_t(descriptor.stateOffset)+volumeRow;
                 require(slave64<=std::numeric_limits<std::uint32_t>::max()&&
                             slave64<compiled.world.fem.nodes.size(),
                         "skin-bone contact FEM slave node exceeds the compiled solver range");
@@ -24513,6 +24521,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         const char* fullBankComparisonPath=std::getenv(
             "NUMI_HUMAN_INITIAL_SKIN_BONE_FULLBANK_COMPARISON_CSV");
         if(fullBankComparisonPath&&fullBankComparisonPath[0]!='\0') {
+            require(numi::human::isPairedSkinBoundaryNodeMap(wholeBodySkinBoundaryNodeMap),
+                    "legacy full-bank comparison layer labels require paired row order; use the mapped initial node CSV for unpaired volumes");
             std::ofstream comparison(fullBankComparisonPath,
                 std::ios::out|std::ios::binary|std::ios::trunc);
             require(comparison.good(),"could not create full-bank closest-point comparison CSV");
