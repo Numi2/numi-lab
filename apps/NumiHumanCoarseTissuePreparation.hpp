@@ -183,6 +183,9 @@ struct PreparedOrganicFEM {
     // Each array is aligned with this material partition's tetrahedron order.
     std::vector<std::uint32_t> tetChildIndex, tetParentTetrahedron;
     std::vector<std::uint32_t> tetParentSurfaceFace, tetParentMaterialIndex, tetSourceFaceIdentity;
+    // Complete geometric ancestry; scalar tetParentTetrahedron remains only the dominant-overlap donor label.
+    std::vector<std::uint32_t> tetParentAncestryOffsets, tetParentAncestryTetrahedra;
+    std::vector<double> tetParentAncestryVolumeFractions;
     std::vector<NumiHumanTissueMassNode> donorMassNodes;
 };
 
@@ -201,7 +204,81 @@ struct ExplicitPairedLayerTopology {
     std::span<const std::uint32_t> parentMaterialIndices;
     std::span<const std::uint32_t> childParentSurfaceFaces;
     std::span<const std::uint32_t> childSourceFaceIdentities;
+    // Optional complete volume ancestry CSR; scalar childParentTetrahedra is donor-only.
+    std::span<const std::uint32_t> childParentAncestryOffsets{};
+    std::span<const std::uint32_t> childParentAncestryTetrahedra{};
+    std::span<const double> childParentAncestryVolumeFractions{};
+    // Stable source-face identity of each geometric parent cell; CSR contributors
+    // can cross a stable-face boundary, so this is not derived from child donor labels.
+    std::span<const std::uint32_t> parentSourceFaceIdentities{};
+    // Optional exact RegisteredSurface ancestry for each of a child's four faces,
+    // flattened as childIndex*4+omittedCorner. These identify layer boundary/interface
+    // facets and are deliberately independent of the child's dominant volume donor.
+    // An unmatched facet must use UINT32_MAX in both arrays.
+    std::span<const std::uint32_t> childRegisteredLayerFacetSurfaceFaces{};
+    std::span<const std::uint32_t> childRegisteredLayerFacetSourceFaceIdentities{};
 };
+
+inline bool validateExplicitRegisteredLayerFacetAncestry(
+        std::span<const std::array<std::uint32_t,4>> childTetrahedra,
+        std::size_t nodesPerLayer,
+        std::span<const Face> registeredSurfaceFaces,
+        std::span<const std::uint32_t> registeredSourceFaceIdentities,
+        std::span<const std::uint32_t> childFacetSurfaceFaces,
+        std::span<const std::uint32_t> childFacetSourceFaceIdentities,
+        std::string& error) {
+    if(childFacetSurfaceFaces.empty()&&childFacetSourceFaceIdentities.empty()) return true;
+    if(childFacetSurfaceFaces.size()!=childFacetSourceFaceIdentities.size()||
+       nodesPerLayer==0u||childTetrahedra.size()>std::numeric_limits<std::size_t>::max()/4u||
+       childFacetSurfaceFaces.size()!=4u*childTetrahedra.size()||
+       (!registeredSourceFaceIdentities.empty()&&registeredSourceFaceIdentities.size()!=registeredSurfaceFaces.size())) {
+        error="explicit registered layer-facet ancestry arrays are incomplete";return false;
+    }
+    const auto invalid=std::numeric_limits<std::uint32_t>::max();
+    std::map<Face,std::uint32_t> registeredFaceByCanonicalTriangle;
+    for(std::uint32_t row=0;row<registeredSurfaceFaces.size();++row){
+        auto key=registeredSurfaceFaces[row];std::sort(key.begin(),key.end());
+        if(!registeredFaceByCanonicalTriangle.emplace(key,row).second){
+            error="RegisteredSurface contains duplicate canonical triangles during layer-facet ancestry validation";return false;
+        }
+    }
+    for(std::size_t child=0;child<childTetrahedra.size();++child){
+        const auto& tet=childTetrahedra[child];
+        for(auto node:tet) if(node>=3u*nodesPerLayer){
+            error="explicit child node is outside O/I/D numbering during registered layer-facet ancestry validation";return false;
+        }
+        for(std::size_t omitted=0;omitted<4u;++omitted){
+            std::array<std::uint32_t,3> layerNodes{};std::size_t at=0;
+            for(std::size_t corner=0;corner<4u;++corner) if(corner!=omitted) layerNodes[at++]=tet[corner];
+            const auto row=childFacetSurfaceFaces[child*4u+omitted];
+            const auto suppliedStable=childFacetSourceFaceIdentities[child*4u+omitted];
+            std::uint32_t expectedRow=invalid;
+            const std::size_t layer=layerNodes[0]/nodesPerLayer;
+            if(layer<3u&&layerNodes[1]/nodesPerLayer==layer&&layerNodes[2]/nodesPerLayer==layer){
+                Face key{};for(std::size_t i=0;i<3u;++i)key[i]=static_cast<std::uint32_t>(layerNodes[i]%nodesPerLayer);
+                std::sort(key.begin(),key.end());
+                const auto found=registeredFaceByCanonicalTriangle.find(key);
+                if(found!=registeredFaceByCanonicalTriangle.end()) expectedRow=found->second;
+            }
+            if(expectedRow==invalid){
+                if(row!=invalid||suppliedStable!=invalid){
+                    error="registered layer-facet ancestry names a child face with no exact RegisteredSurface triangle: child="+
+                        std::to_string(child)+" facet="+std::to_string(omitted);return false;
+                }
+                continue;
+            }
+            const auto expectedStable=registeredSourceFaceIdentities.empty()?expectedRow:registeredSourceFaceIdentities[expectedRow];
+            if(row!=expectedRow||suppliedStable!=expectedStable){
+                error="registered layer-facet ancestry differs from exact RegisteredSurface triangle: child="+
+                    std::to_string(child)+" facet="+std::to_string(omitted)+
+                    " supplied_row="+std::to_string(row)+" exact_row="+std::to_string(expectedRow)+
+                    " supplied_stable_id="+std::to_string(suppliedStable)+
+                    " exact_stable_id="+std::to_string(expectedStable);return false;
+            }
+        }
+    }
+    return true;
+}
 
 struct ExplicitPairedLayerTetrahedra {
     std::span<const std::array<std::uint32_t,4>> tetrahedra;
@@ -210,27 +287,132 @@ struct ExplicitPairedLayerTetrahedra {
     std::span<const std::uint32_t> parentMaterialIndices;
     std::span<const std::uint32_t> parentSurfaceFaces;
     std::span<const std::uint32_t> sourceFaceIdentities;
+    std::span<const std::uint32_t> childParentAncestryOffsets{};
+    std::span<const std::uint32_t> childParentAncestryTetrahedra{};
+    std::span<const double> childParentAncestryVolumeFractions{};
+    // Optional per-facet mapping (four entries per local child row), retained
+    // through material partition so outer/inner boundary coverage uses exact
+    // facet identity rather than the dominant-volume donor row.
+    std::span<const std::uint32_t> childRegisteredLayerFacetSurfaceFaces{};
+    std::span<const std::uint32_t> childRegisteredLayerFacetSourceFaceIdentities{};
 };
+
+inline bool filterExplicitChildVolumeAncestry(
+        std::span<const std::uint32_t> sourceOffsets,
+        std::span<const std::uint32_t> sourceParents,
+        std::span<const double> sourceFractions,
+        std::span<const std::uint32_t> selectedChildRows,
+        std::vector<std::uint32_t>& outputOffsets,
+        std::vector<std::uint32_t>& outputParents,
+        std::vector<double>& outputFractions,
+        std::string& error) {
+    const auto fail=[&](const char* why){error=why;return false;};
+    outputOffsets.clear(); outputParents.clear(); outputFractions.clear();
+    if(sourceOffsets.empty()&&sourceParents.empty()&&sourceFractions.empty()){
+        error.clear(); return true;
+    }
+    if(sourceOffsets.size()<2u || sourceOffsets.front()!=0u ||
+       sourceOffsets.back()!=sourceParents.size() || sourceParents.size()!=sourceFractions.size())
+        return fail("explicit volume ancestry CSR arrays are incomplete");
+    for(std::size_t i=1u;i<sourceOffsets.size();++i)
+        if(sourceOffsets[i]<sourceOffsets[i-1u] || sourceOffsets[i]>sourceParents.size())
+            return fail("explicit volume ancestry CSR offsets are not monotone");
+    std::set<std::uint32_t> seen;
+    outputOffsets.reserve(selectedChildRows.size()+1u);
+    outputOffsets.push_back(0u);
+    for(const auto row:selectedChildRows){
+        if(sourceOffsets.size()<2u||row>=sourceOffsets.size()-1u)
+            return fail("selected child row is outside volume ancestry rows");
+        if(!seen.insert(row).second)
+            return fail("selected child rows repeat an ancestry row");
+        const auto begin=sourceOffsets[row],end=sourceOffsets[row+1u];
+        if(begin==end)
+            return fail("selected child has an empty volume ancestry row");
+        const std::size_t count=end-begin;
+        if(count>std::numeric_limits<std::uint32_t>::max()-outputParents.size())
+            return fail("filtered volume ancestry exceeds supported index range");
+        outputParents.insert(outputParents.end(),sourceParents.begin()+begin,sourceParents.begin()+end);
+        outputFractions.insert(outputFractions.end(),sourceFractions.begin()+begin,sourceFractions.begin()+end);
+        outputOffsets.push_back(static_cast<std::uint32_t>(outputParents.size()));
+    }
+    error.clear();return true;
+}
+
+inline std::uint32_t explicitBoundaryFacetOwnerFace(
+        std::uint32_t dominantVolumeDonorFace,
+        std::span<const std::uint32_t,4u> registeredLayerFacetSurfaceFaces,
+        std::size_t omittedCorner) noexcept {
+    const auto missing=std::numeric_limits<std::uint32_t>::max();
+    if(omittedCorner>=registeredLayerFacetSurfaceFaces.size())return dominantVolumeDonorFace;
+    const auto exact=registeredLayerFacetSurfaceFaces[omittedCorner];
+    return exact==missing?dominantVolumeDonorFace:exact;
+}
+
+inline bool filterExplicitChildLayerFacetAncestry(
+        std::span<const std::uint32_t> sourceFaceRows,
+        std::span<const std::uint32_t> sourceStableFaceIdentities,
+        std::span<const std::uint32_t> selectedChildRows,
+        std::vector<std::uint32_t>& outputFaceRows,
+        std::vector<std::uint32_t>& outputStableFaceIdentities,
+        std::string& error) {
+    outputFaceRows.clear();outputStableFaceIdentities.clear();
+    if(sourceFaceRows.empty()&&sourceStableFaceIdentities.empty()) { error.clear();return true; }
+    if(sourceFaceRows.size()!=sourceStableFaceIdentities.size()||sourceFaceRows.size()%4u!=0u) {
+        error="explicit registered layer-facet ancestry arrays are incomplete";return false;
+    }
+    const auto invalid=std::numeric_limits<std::uint32_t>::max();
+    std::set<std::uint32_t> seen;
+    if(selectedChildRows.size()>std::numeric_limits<std::size_t>::max()/4u) {
+        error="filtered registered layer-facet ancestry exceeds supported size";return false;
+    }
+    outputFaceRows.reserve(4u*selectedChildRows.size());outputStableFaceIdentities.reserve(4u*selectedChildRows.size());
+    const auto sourceChildCount=sourceFaceRows.size()/4u;
+    for(const auto child:selectedChildRows) {
+        if(child>=sourceChildCount) { error="selected child row is outside registered layer-facet ancestry rows";return false; }
+        if(!seen.insert(child).second) { error="selected child rows repeat a registered layer-facet ancestry row";return false; }
+        for(std::size_t facet=0u;facet<4u;++facet) {
+            const auto slot=4u*child+facet;const auto row=sourceFaceRows[slot],stable=sourceStableFaceIdentities[slot];
+            if((row==invalid)!=(stable==invalid)) { error="registered layer-facet row and stable identity use different missing sentinels";return false; }
+            outputFaceRows.push_back(row);outputStableFaceIdentities.push_back(stable);
+        }
+    }
+    error.clear();return true;
+}
+
 inline bool validateExplicitParentTetPartition(std::span<const V3> childWorldPoints,
         std::span<const std::array<std::uint32_t,4>> childTetrahedra,
         std::span<const std::uint32_t> childMaterialIndices,
         std::span<const std::uint32_t> childParentTetrahedra,
         std::span<const V3> parentWorldPoints,
         std::span<const std::array<std::uint32_t,4>> parentTetrahedra,
-        std::span<const std::uint32_t> parentMaterialIndices,std::string& error) {
-    auto fail=[&](const char* message){error=message;return false;};
+        std::span<const std::uint32_t> parentMaterialIndices,std::string& error,
+        std::span<const std::uint32_t> ancestryOffsets={},
+        std::span<const std::uint32_t> ancestryParents={},
+        std::span<const double> ancestryFractions={}) {
+    const auto fail=[&](const char* message){error=message;return false;};
     const auto childCount=childTetrahedra.size(),parentCount=parentTetrahedra.size();
-    if(childCount==0||parentCount==0||childMaterialIndices.size()!=childCount||
+    if(childCount==0u||parentCount==0u||childMaterialIndices.size()!=childCount||
        childParentTetrahedra.size()!=childCount||parentMaterialIndices.size()!=parentCount||
        childWorldPoints.empty()||parentWorldPoints.empty())
         return fail("explicit refinement parent/child geometry arrays are incomplete");
+    const bool hasCSR=!ancestryOffsets.empty()||!ancestryParents.empty()||!ancestryFractions.empty();
+    if(hasCSR&&(ancestryOffsets.size()!=childCount+1u||ancestryOffsets.front()!=0u||
+       ancestryOffsets.back()!=ancestryParents.size()||ancestryParents.size()!=ancestryFractions.size()))
+        return fail("explicit volume ancestry CSR arrays are incomplete");
+    if(hasCSR){
+        for(std::size_t i=1u;i<ancestryOffsets.size();++i)
+            if(ancestryOffsets[i]<ancestryOffsets[i-1u]||ancestryOffsets[i]>ancestryParents.size())
+                return fail("explicit volume ancestry CSR offsets are not monotone");
+    }
     constexpr double kBarycentricRoundoffTolerance=1.0e-8;
     constexpr double kParentVolumeClosureRelativeTolerance=1.0e-6;
-    std::vector<double> parentVolumes(parentCount,0.0),childVolumes(parentCount,0.0);
-    std::vector<std::uint32_t> childCounts(parentCount,0u);
+    constexpr double kFractionClosureTolerance=1.0e-6;
+    std::vector<double> parentVolumes(parentCount,0.0),childVolumes(childCount,0.0),
+                        parentCoveredVolumes(parentCount,0.0),rowFractionSums(childCount,0.0);
+    std::vector<std::uint32_t> childCounts(parentCount,0u),ancestryCounts(parentCount,0u);
     std::set<std::array<std::uint32_t,4>> uniqueParents,uniqueChildren;
-    auto finitePoint=[](const V3& point){return std::all_of(point.begin(),point.end(),[](double value){return std::isfinite(value);});};
-    for(std::size_t parent=0;parent<parentCount;parent++){
+    const auto finitePoint=[](const V3& point){return std::all_of(point.begin(),point.end(),[](double value){return std::isfinite(value);});};
+    for(std::size_t parent=0u;parent<parentCount;++parent){
         auto ids=parentTetrahedra[parent],canonical=ids;
         std::sort(canonical.begin(),canonical.end());
         if(canonical[0]==canonical[1]||canonical[1]==canonical[2]||canonical[2]==canonical[3]||
@@ -247,10 +429,10 @@ inline bool validateExplicitParentTetPartition(std::span<const V3> childWorldPoi
             return fail("explicit refinement parent tetrahedron is nonpositive or nonfinite");
         parentVolumes[parent]=volume;
     }
-    for(std::size_t child=0;child<childCount;child++){
-        const auto parent=childParentTetrahedra[child];
-        if(parent>=parentCount)return fail("explicit refinement child references an unknown parent tetrahedron");
-        if(childMaterialIndices[child]!=parentMaterialIndices[parent])
+    for(std::size_t child=0u;child<childCount;++child){
+        const auto donor=childParentTetrahedra[child];
+        if(donor>=parentCount)return fail("explicit refinement child references an unknown parent tetrahedron");
+        if(childMaterialIndices[child]!=parentMaterialIndices[donor])
             return fail("explicit refinement child material differs from geometric parent tetrahedron");
         auto ids=childTetrahedra[child],canonical=ids;
         std::sort(canonical.begin(),canonical.end());
@@ -266,32 +448,71 @@ inline bool validateExplicitParentTetPartition(std::span<const V3> childWorldPoi
         const double volume=tetVolume(a,b,c,d);
         if(!std::isfinite(volume)||volume<=0.0)
             return fail("explicit refinement child tetrahedron has negative orientation or is nonfinite");
-        const auto pids=parentTetrahedra[parent];
-        const auto p0=parentWorldPoints[pids[0]],p1=parentWorldPoints[pids[1]],
-                   p2=parentWorldPoints[pids[2]],p3=parentWorldPoints[pids[3]];
-        const auto e1=sub(p1,p0),e2=sub(p2,p0),e3=sub(p3,p0);
-        const double determinant=dot(e1,cross(e2,e3));
-        if(!std::isfinite(determinant)||determinant<=0.0)
-            return fail("explicit refinement parent barycentric frame is invalid");
-        for(const auto& point:{a,b,c,d}){
-            const auto relative=sub(point,p0);
-            const double w1=dot(relative,cross(e2,e3))/determinant;
-            const double w2=dot(e1,cross(relative,e3))/determinant;
-            const double w3=dot(e1,cross(e2,relative))/determinant;
-            const double w0=1.0-w1-w2-w3;
-            for(double weight:{w0,w1,w2,w3})
-                if(!std::isfinite(weight)||weight < -kBarycentricRoundoffTolerance||
-                   weight > 1.0+kBarycentricRoundoffTolerance)
-                    return fail("explicit refinement child vertex lies outside its mapped parent tetrahedron");
+        childVolumes[child]=volume;
+        if(!hasCSR){
+            const auto pids=parentTetrahedra[donor];
+            const auto p0=parentWorldPoints[pids[0]],p1=parentWorldPoints[pids[1]],
+                       p2=parentWorldPoints[pids[2]],p3=parentWorldPoints[pids[3]];
+            const auto e1=sub(p1,p0),e2=sub(p2,p0),e3=sub(p3,p0);
+            const double determinant=dot(e1,cross(e2,e3));
+            if(!std::isfinite(determinant)||determinant<=0.0)
+                return fail("explicit refinement parent barycentric frame is invalid");
+            for(const auto& point:{a,b,c,d}){
+                const auto relative=sub(point,p0);
+                const double w1=dot(relative,cross(e2,e3))/determinant;
+                const double w2=dot(e1,cross(relative,e3))/determinant;
+                const double w3=dot(e1,cross(e2,relative))/determinant;
+                const double w0=1.0-w1-w2-w3;
+                for(double weight:{w0,w1,w2,w3})
+                    if(!std::isfinite(weight)||weight < -kBarycentricRoundoffTolerance||
+                       weight > 1.0+kBarycentricRoundoffTolerance)
+                        return fail("explicit refinement child vertex lies outside its mapped parent tetrahedron");
+            }
+            parentCoveredVolumes[donor]+=volume;
+            ++childCounts[donor];
+            continue;
         }
-        childVolumes[parent]+=volume;
-        ++childCounts[parent];
+        const auto begin=ancestryOffsets[child],end=ancestryOffsets[child+1u];
+        if(begin>=end)return fail("explicit volume ancestry CSR child row is empty");
+        std::uint32_t previous=0u,dominant=NM_INVALID_INDEX;
+        double dominantFraction=-1.0,sum=0.0;
+        for(std::uint32_t entry=begin;entry<end;++entry){
+            const auto parent=ancestryParents[entry];
+            const double fraction=ancestryFractions[entry];
+            if(parent>=parentCount || (entry>begin&&parent<=previous))
+                return fail("explicit volume ancestry parent IDs are invalid or unsorted");
+            previous=parent;
+            if(parentMaterialIndices[parent]!=childMaterialIndices[child])
+                return fail("explicit volume ancestry crosses material identities");
+            if(!std::isfinite(fraction)||fraction<=0.0||fraction>1.0+kFractionClosureTolerance)
+                return fail("explicit volume ancestry has an invalid volume fraction");
+            sum+=fraction;
+            if(fraction>dominantFraction || (fraction==dominantFraction&&parent<dominant)){
+                dominant=parent;dominantFraction=fraction;
+            }
+            parentCoveredVolumes[parent]+=volume*fraction;
+            ++ancestryCounts[parent];
+        }
+        rowFractionSums[child]=sum;
+        if(!std::isfinite(sum)||std::abs(sum-1.0)>kFractionClosureTolerance)
+            return fail("explicit volume ancestry fractions do not cover each child volume");
+        if(donor!=dominant)
+            return fail("explicit scalar parent is not the deterministic dominant donor label");
+        ++childCounts[donor];
     }
-    for(std::size_t parent=0;parent<parentCount;parent++){
-        if(childCounts[parent]==0u)return fail("explicit refinement omits a parent tetrahedron");
-        const double delta=std::abs(childVolumes[parent]-parentVolumes[parent]);
-        if(!std::isfinite(delta)||delta>kParentVolumeClosureRelativeTolerance*parentVolumes[parent])
-            return fail("explicit refinement child volume does not close to its parent tetrahedron");
+    for(std::size_t parent=0u;parent<parentCount;++parent){
+        if(hasCSR){
+            if(ancestryCounts[parent]==0u)
+                return fail("explicit volume ancestry does not close: a parent has no geometric coverage");
+            const double delta=std::abs(parentCoveredVolumes[parent]-parentVolumes[parent]);
+            if(!std::isfinite(delta)||delta>kParentVolumeClosureRelativeTolerance*parentVolumes[parent])
+                return fail("explicit volume ancestry does not close to each parent tetrahedron");
+        }else{
+            if(childCounts[parent]==0u)return fail("explicit refinement omits a parent tetrahedron");
+            const double delta=std::abs(parentCoveredVolumes[parent]-parentVolumes[parent]);
+            if(!std::isfinite(delta)||delta>kParentVolumeClosureRelativeTolerance*parentVolumes[parent])
+                return fail("explicit refinement child volume does not close to its parent tetrahedron");
+        }
     }
     error.clear();
     return true;
@@ -860,6 +1081,42 @@ inline bool preparePairedBoundaryFEM(const numi::matter::WorldSource& world,cons
        explicitTetrahedra->parentTetrahedra.size()!=requestedTetCount||explicitTetrahedra->parentMaterialIndices.size()!=requestedTetCount||
        explicitTetrahedra->parentSurfaceFaces.size()!=requestedTetCount||explicitTetrahedra->sourceFaceIdentities.size()!=requestedTetCount))
         return fail("explicit parent-refined shell tetrahedron ancestry arrays differ from its child rows");
+    if(explicitTetrahedra){
+        const auto facetRows=explicitTetrahedra->childRegisteredLayerFacetSurfaceFaces;
+        const auto facetIdentities=explicitTetrahedra->childRegisteredLayerFacetSourceFaceIdentities;
+        const bool hasFacetRows=!facetRows.empty(),hasFacetIdentities=!facetIdentities.empty();
+        if(hasFacetRows!=hasFacetIdentities||
+           (hasFacetRows&&(requestedTetCount>std::numeric_limits<std::size_t>::max()/4u||
+             facetRows.size()!=4u*requestedTetCount||facetIdentities.size()!=4u*requestedTetCount)))
+            return fail("explicit registered layer-facet ancestry arrays differ from material child rows");
+        if(hasFacetRows&&!validateExplicitRegisteredLayerFacetAncestry(
+                explicitTetrahedra->tetrahedra,n,source.faces,source.sourceFaceIndices,facetRows,facetIdentities,error))
+            return false;
+        const auto offsets=explicitTetrahedra->childParentAncestryOffsets;
+        const auto parents=explicitTetrahedra->childParentAncestryTetrahedra;
+        const auto fractions=explicitTetrahedra->childParentAncestryVolumeFractions;
+        const bool any=!offsets.empty()||!parents.empty()||!fractions.empty();
+        if(any&&(offsets.size()!=requestedTetCount+1u||offsets.front()!=0u||
+           offsets.back()!=parents.size()||parents.size()!=fractions.size()))
+            return fail("explicit shell volume-ancestry CSR arrays differ from its child rows");
+        if(any){
+            for(std::size_t i=1u;i<offsets.size();++i)
+                if(offsets[i]<offsets[i-1u]||offsets[i]>parents.size())
+                    return fail("explicit shell volume-ancestry CSR offsets are not monotone");
+            for(std::size_t child=0u;child<requestedTetCount;++child){
+                const auto begin=offsets[child],end=offsets[child+1u];
+                if(begin>=end)return fail("explicit shell child has an empty volume-ancestry CSR row");
+                double sum=0.0;std::uint32_t previous=0u;
+                for(std::uint32_t entry=begin;entry<end;++entry){
+                    if((entry>begin&&parents[entry]<=previous)||!std::isfinite(fractions[entry])||fractions[entry]<=0.0)
+                        return fail("explicit shell volume-ancestry CSR row is unsorted or invalid");
+                    previous=parents[entry];sum+=fractions[entry];
+                }
+                if(!std::isfinite(sum)||std::abs(sum-1.0)>1.0e-6)
+                    return fail("explicit shell volume-ancestry fractions do not sum to one");
+            }
+        }
+    }
     if(materialIndex>=world.materials.size())return fail("shell material index is invalid");
     const auto& material=world.materials[materialIndex];
     if(material.name!=expectedMaterialName||expectedMaterialName.empty()||materialProvenance.empty())return fail("shell material identity/provenance must be explicitly selected by its caller");
@@ -881,9 +1138,17 @@ inline bool preparePairedBoundaryFEM(const numi::matter::WorldSource& world,cons
     out.report.tetSourceFace.clear();out.report.tetSourceFace.reserve(requestedTetCount);o.tetrahedra.reserve(requestedTetCount);
     out.report.tetChildIndex.clear();out.report.tetParentTetrahedron.clear();out.report.tetParentSurfaceFace.clear();
     out.report.tetParentMaterialIndex.clear();out.report.tetSourceFaceIdentity.clear();
+    out.report.tetParentAncestryOffsets.clear();out.report.tetParentAncestryTetrahedra.clear();
+    out.report.tetParentAncestryVolumeFractions.clear();
+    if(explicitTetrahedra){
+        out.report.tetParentAncestryOffsets.assign(explicitTetrahedra->childParentAncestryOffsets.begin(),explicitTetrahedra->childParentAncestryOffsets.end());
+        out.report.tetParentAncestryTetrahedra.assign(explicitTetrahedra->childParentAncestryTetrahedra.begin(),explicitTetrahedra->childParentAncestryTetrahedra.end());
+        out.report.tetParentAncestryVolumeFractions.assign(explicitTetrahedra->childParentAncestryVolumeFractions.begin(),explicitTetrahedra->childParentAncestryVolumeFractions.end());
+    }
     auto addTet=[&](std::array<std::uint32_t,4> ids,std::uint32_t face,bool explicitInput=false,
             std::uint32_t childIndex=NM_INVALID_INDEX,std::uint32_t parentTet=NM_INVALID_INDEX,
-            std::uint32_t parentMaterial=NM_INVALID_INDEX,std::uint32_t sourceFaceIdentity=NM_INVALID_INDEX){
+            std::uint32_t parentMaterial=NM_INVALID_INDEX,std::uint32_t sourceFaceIdentity=NM_INVALID_INDEX,
+            const std::uint32_t* registeredLayerFacetRows=nullptr){
         if(face>=nf)return false;
         std::array<std::uint32_t,4> sortedIds=ids;std::sort(sortedIds.begin(),sortedIds.end());
         if(sortedIds[0]==sortedIds[1]||sortedIds[1]==sortedIds[2]||sortedIds[2]==sortedIds[3]||sortedIds[3]>=2*n)return false;
@@ -911,11 +1176,17 @@ inline bool preparePairedBoundaryFEM(const numi::matter::WorldSource& world,cons
             out.report.tetSourceFaceIdentity.push_back(sourceFaceIdentity);}
         for(auto node:ids)nodalMass[node]+=rho*v/4.0;
         const unsigned faces[4][3]={{1,2,3},{0,3,2},{0,1,3},{0,2,1}};
-        for(auto f:faces){
+        for(unsigned faceOrdinal=0u;faceOrdinal<4u;++faceOrdinal){
+            const auto* f=faces[faceOrdinal];
             std::array<std::uint32_t,3> oriented{ids[f[0]],ids[f[1]],ids[f[2]]},k=oriented;
             unsigned inversions=0;for(unsigned i=0;i<3;i++)for(unsigned j=i+1;j<3;j++)if(oriented[i]>oriented[j])++inversions;
             std::sort(k.begin(),k.end());++faceUse[k];faceOrientationBalance[k]+=(inversions&1u)?-1:1;
-            boundaryParentFace.try_emplace(k,face);boundaryOrientedFace.try_emplace(k,oriented);
+            std::uint32_t boundaryOwnerFace=face;
+            if(registeredLayerFacetRows){
+                const std::span<const std::uint32_t,4u> registeredFacetOwners(registeredLayerFacetRows,4u);
+                boundaryOwnerFace=explicitBoundaryFacetOwnerFace(face,registeredFacetOwners,faceOrdinal);
+            }
+            boundaryParentFace.try_emplace(k,boundaryOwnerFace);boundaryOrientedFace.try_emplace(k,oriented);
         }
         return true;
     };
@@ -924,11 +1195,13 @@ inline bool preparePairedBoundaryFEM(const numi::matter::WorldSource& world,cons
             const auto face=explicitTetrahedra->parentSurfaceFaces[ti];
             if(face>=nf)return fail("explicit shell child parent-surface row is outside RegisteredSurface.faces");
             const auto expectedIdentity=source.sourceFaceIndices.empty()?face:source.sourceFaceIndices[face];
+            const auto* registeredLayerFacetRows=explicitTetrahedra->childRegisteredLayerFacetSurfaceFaces.empty()
+                ?nullptr:explicitTetrahedra->childRegisteredLayerFacetSurfaceFaces.data()+4u*ti;
             if(explicitTetrahedra->sourceFaceIdentities[ti]!=expectedIdentity||
                explicitTetrahedra->parentMaterialIndices[ti]!=materialIndex||
                !addTet(explicitTetrahedra->tetrahedra[ti],face,true,explicitTetrahedra->childIndices[ti],
                    explicitTetrahedra->parentTetrahedra[ti],explicitTetrahedra->parentMaterialIndices[ti],
-                   explicitTetrahedra->sourceFaceIdentities[ti])){
+                   explicitTetrahedra->sourceFaceIdentities[ti],registeredLayerFacetRows)){
                 if(error.empty())error="explicit shell child does not retain its registered surface/material parent";
                 return false;
             }
@@ -1015,6 +1288,11 @@ inline bool appendRegisteredSkinFatFEMFromLayers(numi::matter::WorldSource& worl
         for(auto parentMaterial:explicitTopology->parentMaterialIndices)
             if(parentMaterial!=skinMaterialIndex&&parentMaterial!=fatMaterialIndex)
                 return fail("explicit paired topology parent material is outside the selected skin/fat material pair");
+        if(!validateExplicitRegisteredLayerFacetAncestry(
+                explicitTopology->childTetrahedra,n,skin.faces,skin.sourceFaceIndices,
+                explicitTopology->childRegisteredLayerFacetSurfaceFaces,
+                explicitTopology->childRegisteredLayerFacetSourceFaceIdentities,error))
+            return false;
         std::set<std::array<std::uint32_t,4>> uniqueChildren;
         std::size_t skinChildren=0,fatChildren=0;
         for(std::size_t ti=0;ti<count;ti++){
@@ -1027,8 +1305,19 @@ inline bool appendRegisteredSkinFatFEMFromLayers(numi::matter::WorldSource& worl
                 return fail("explicit paired topology child material differs from its retained parent tetrahedron material");
             if(face>=skin.faces.size())return fail("explicit paired topology child parent-surface row is outside RegisteredSurface.faces");
             const auto stableFace=skin.sourceFaceIndices.empty()?face:skin.sourceFaceIndices[face];
-            if(explicitTopology->childSourceFaceIdentities[ti]!=stableFace)
-                return fail("explicit paired topology child stable source-face identity differs from its RegisteredSurface parent row");
+            const auto suppliedStableFace=explicitTopology->childSourceFaceIdentities[ti];
+            if(suppliedStableFace!=stableFace){
+                const auto parentStableFace=explicitTopology->parentSourceFaceIdentities.empty()
+                    ? std::numeric_limits<std::uint32_t>::max()
+                    : explicitTopology->parentSourceFaceIdentities[parent];
+                error="explicit paired topology child stable source-face identity mismatch: child="+
+                    std::to_string(ti)+" dominant_parent_row="+std::to_string(parent)+
+                    " supplied_stable_id="+std::to_string(suppliedStableFace)+
+                    " registered_surface_parent_face_index="+std::to_string(face)+
+                    " actual_registered_stable_id="+std::to_string(stableFace)+
+                    " dominant_parent_stable_id="+std::to_string(parentStableFace);
+                return false;
+            }
             auto tet=explicitTopology->childTetrahedra[ti];
             auto canonical=tet;std::sort(canonical.begin(),canonical.end());
             if(canonical[0]==canonical[1]||canonical[1]==canonical[2]||canonical[2]==canonical[3]||!uniqueChildren.insert(canonical).second)
@@ -1139,7 +1428,10 @@ inline bool appendRegisteredSkinFatFEMFromLayers(numi::matter::WorldSource& worl
         if(!validateExplicitParentTetPartition(childWorldPoints,explicitTopology->childTetrahedra,
                 explicitTopology->childMaterialIndices,explicitTopology->childParentTetrahedra,
                 explicitTopology->parentWorldPoints,explicitTopology->parentTetrahedra,
-                explicitTopology->parentMaterialIndices,error))return false;
+                explicitTopology->parentMaterialIndices,error,
+                explicitTopology->childParentAncestryOffsets,
+                explicitTopology->childParentAncestryTetrahedra,
+                explicitTopology->childParentAncestryVolumeFractions))return false;
     }
     if(!explicitTopology&&(!checkPrism("skin",skinLayer.outerWorld,skinLayer.innerWorld,skinThicknessByVertexM,skinLayer.volumeM3)||
        !checkPrism("fat",fatLayer.outerWorld,fatLayer.innerWorld,fatThicknessByVertexM,fatLayer.volumeM3))){
@@ -1150,6 +1442,10 @@ inline bool appendRegisteredSkinFatFEMFromLayers(numi::matter::WorldSource& worl
     std::vector<std::uint32_t> skinChildIndices,fatChildIndices,skinParentTets,fatParentTets;
     std::vector<std::uint32_t> skinParentMaterials,fatParentMaterials,skinParentFaces,fatParentFaces;
     std::vector<std::uint32_t> skinSourceFaces,fatSourceFaces;
+    std::vector<std::uint32_t> skinAncestryOffsets,skinAncestryParents,fatAncestryOffsets,fatAncestryParents;
+    std::vector<double> skinAncestryFractions,fatAncestryFractions;
+    std::vector<std::uint32_t> skinLayerFacetSurfaceFaces,fatLayerFacetSurfaceFaces;
+    std::vector<std::uint32_t> skinLayerFacetSourceFaceIdentities,fatLayerFacetSourceFaceIdentities;
     std::vector<std::uint32_t> childMaterialLayerIndex;childMaterialLayerIndex.reserve(explicitTopology?explicitTopology->childTetrahedra.size():0u);
     std::vector<std::uint32_t> childLayerTetIndex;childLayerTetIndex.reserve(explicitTopology?explicitTopology->childTetrahedra.size():0u);
     ExplicitPairedLayerTetrahedra skinExplicit,fatExplicit;
@@ -1174,8 +1470,24 @@ inline bool appendRegisteredSkinFatFEMFromLayers(numi::matter::WorldSource& worl
                 childMaterialLayerIndex.push_back(1u);childLayerTetIndex.push_back(local);
             }
         }
-        skinExplicit={skinChildren,skinChildIndices,skinParentTets,skinParentMaterials,skinParentFaces,skinSourceFaces};
-        fatExplicit={fatChildren,fatChildIndices,fatParentTets,fatParentMaterials,fatParentFaces,fatSourceFaces};
+        if(!filterExplicitChildVolumeAncestry(explicitTopology->childParentAncestryOffsets,
+                explicitTopology->childParentAncestryTetrahedra,explicitTopology->childParentAncestryVolumeFractions,
+                skinChildIndices,skinAncestryOffsets,skinAncestryParents,skinAncestryFractions,error)||
+           !filterExplicitChildVolumeAncestry(explicitTopology->childParentAncestryOffsets,
+                explicitTopology->childParentAncestryTetrahedra,explicitTopology->childParentAncestryVolumeFractions,
+                fatChildIndices,fatAncestryOffsets,fatAncestryParents,fatAncestryFractions,error)||
+           !filterExplicitChildLayerFacetAncestry(explicitTopology->childRegisteredLayerFacetSurfaceFaces,
+                explicitTopology->childRegisteredLayerFacetSourceFaceIdentities,skinChildIndices,
+                skinLayerFacetSurfaceFaces,skinLayerFacetSourceFaceIdentities,error)||
+           !filterExplicitChildLayerFacetAncestry(explicitTopology->childRegisteredLayerFacetSurfaceFaces,
+                explicitTopology->childRegisteredLayerFacetSourceFaceIdentities,fatChildIndices,
+                fatLayerFacetSurfaceFaces,fatLayerFacetSourceFaceIdentities,error))return false;
+        skinExplicit={skinChildren,skinChildIndices,skinParentTets,skinParentMaterials,skinParentFaces,skinSourceFaces,
+            skinAncestryOffsets,skinAncestryParents,skinAncestryFractions,
+            skinLayerFacetSurfaceFaces,skinLayerFacetSourceFaceIdentities};
+        fatExplicit={fatChildren,fatChildIndices,fatParentTets,fatParentMaterials,fatParentFaces,fatSourceFaces,
+            fatAncestryOffsets,fatAncestryParents,fatAncestryFractions,
+            fatLayerFacetSurfaceFaces,fatLayerFacetSourceFaceIdentities};
     }
     const auto* skinExplicitPtr=explicitTopology?&skinExplicit:nullptr;
     const auto* fatExplicitPtr=explicitTopology?&fatExplicit:nullptr;

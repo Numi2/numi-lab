@@ -1,0 +1,25 @@
+{
+  "schema": "numi.human.registered-layer-facet-owner-coverage-receipt.v2",
+  "status": "PASS",
+  "baseline_commit": "b6cf53d1b6ce8f99dbdc80f65aa70ba6e4b2b137",
+  "candidate_result": "d36_real_label_owner_facet_coverage=pass registered_faces=4777 child_tets=28677 exact_layer_facets=19108 facet_coverage_min=4 facet_coverage_max=4 exact_missing_faces=0 facet_array_source=exact_candidate_tetrahedron_face_identity",
+  "baseline_result": "d36_real_label_owner_facet_coverage=pass registered_faces=4777 child_tets=28632 exact_layer_facets=19108 facet_coverage_min=4 facet_coverage_max=4 scalar_donor_missing_faces=158 exact_missing_faces=0",
+  "candidate_tetrahedra_sha256": "be572779d0a05ca387ce9a7f7fbeb203afaa627183a02ae0ade959e11cfc3178",
+  "candidate_volume_ancestry_npz_sha256": "d1df73c5a54480ccf72d3e043959ae59afb80691da2710dba16fc929ac9a72de",
+  "registered_faces_csv_sha256": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+  "registered_donors_csv_sha256": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e",
+  "candidate_test_source_sha256": "d1f3c9fb6fff7674f780237a27592ee030e96b15b8120edcabfad5a851bfcdb8",
+  "candidate_test_runner_sha256": "9390d015db1ba601bc7ae7bf42f058aa51731220255a845d28728691b8842c92",
+  "production_label_owner_header_sha256": "6465c579cf6d5cced67be70c9ccad53d129218bc5b89aeda99793332b8b0a73f",
+  "candidate_test_binary_sha256": "9747df107ef74d8a10ab5e23ce8206536de76780e054611256c8fd56ae0c8c75",
+  "baseline_test_binary_sha256": "519fe36b90341c36347611ae3d92354be1783071e3800fa3b14e60727f6ccfb5",
+  "native_source_preflight_receipt_sha256": "8ee0644c00b64fbcfd00a393bf8a0b09f34fc09f06555d7ff9fb9377036873ac",
+  "source_map_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/app-integration-csr-161-consume-facet-ancestry/source/provenance/source-app-map-vs-b6cf53d1.json",
+  "source_map_sha256": "f796125307e48d208a931de424221787e1ea18fe45582cf8ec7341a0d92c6e70",
+  "activation_and_scope": {
+    "candidate_topology_activated_only_in_private_source_preflight": true,
+    "exact_unadmitted_diagnostic_opt_in": true,
+    "physical_qualification": false,
+    "candidate_promotion": false
+  }
+}

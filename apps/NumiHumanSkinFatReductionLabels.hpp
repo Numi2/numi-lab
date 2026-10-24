@@ -53,9 +53,13 @@ struct RegisteredSkinFatReductionSourceLabels {
     std::vector<std::uint32_t> tetrahedronSourceDonorBodyIndices;
     // Immediate parent for the dominant donor body; root bodies retain INVALID.
     std::vector<std::uint32_t> tetrahedronSourceParentBodyIndices;
-    // Explicit child topology retains the exact parent source tetrahedron.
+    // Scalar parent is a deterministic dominant-overlap donor label only.
     // Empty on the legacy identity-topology path.
     std::vector<std::uint32_t> tetrahedronParentTetrahedronIndices;
+    // Complete geometric parent coverage, row-aligned to child tetrahedra.
+    std::vector<std::uint32_t> tetrahedronParentAncestryOffsets;
+    std::vector<std::uint32_t> tetrahedronParentAncestryIndices;
+    std::vector<double> tetrahedronParentAncestryVolumeFractions;
     // Complete original donor-body ancestry, body first and root last.
     std::map<std::uint32_t, std::vector<std::uint32_t>> donorBodyAncestry;
     std::size_t registeredVertexCount = 0u;
@@ -68,6 +72,75 @@ struct RegisteredSkinFatReductionSourceLabels {
     std::vector<std::array<double,4>> sourceNodeParentBarycentric;
     std::vector<std::array<V3,4>> sourceNodeParentReferenceVertices;
 };
+
+[[nodiscard]] inline bool collectExplicitRegisteredLayerFacetCoverage(
+        const std::size_t registeredFaceCount,
+        const std::span<const std::uint32_t> registeredStableFaceIds,
+        const std::span<const std::uint32_t> registeredFaceDonors,
+        const std::span<const std::uint32_t> childFacetSurfaceRows,
+        const std::span<const std::uint32_t> childFacetStableFaceIds,
+        std::vector<std::uint32_t>& faceChildCount,
+        std::vector<std::uint32_t>& faceDonor,
+        std::string& error) {
+    const auto invalid=NM_INVALID_INDEX;
+    if(registeredFaceCount==0u||registeredFaceCount>std::numeric_limits<std::uint32_t>::max()||
+       registeredFaceDonors.size()!=registeredFaceCount||
+       (!registeredStableFaceIds.empty()&&registeredStableFaceIds.size()!=registeredFaceCount)||
+       childFacetSurfaceRows.size()!=childFacetStableFaceIds.size()||
+       childFacetSurfaceRows.size()%4u!=0u){
+        error="explicit registered layer-facet coverage arrays are incomplete";return false;
+    }
+    faceChildCount.assign(registeredFaceCount,0u);
+    faceDonor.assign(registeredFaceCount,invalid);
+    for(std::size_t child=0u;child<childFacetSurfaceRows.size()/4u;++child){
+        for(std::size_t facet=0u;facet<4u;++facet){
+            const auto at=child*4u+facet;
+            const auto row=childFacetSurfaceRows[at];
+            const auto stable=childFacetStableFaceIds[at];
+            if(row==invalid){
+                if(stable!=invalid){
+                    error="unmatched explicit registered layer facet has a stable face identity: child="+
+                        std::to_string(child)+" facet="+std::to_string(facet);return false;
+                }
+                continue;
+            }
+            if(row>=registeredFaceCount){
+                error="explicit registered layer facet row is out of range: child="+
+                    std::to_string(child)+" facet="+std::to_string(facet)+
+                    " row="+std::to_string(row);return false;
+            }
+            const auto expectedStable=registeredStableFaceIds.empty()?row:registeredStableFaceIds[row];
+            if(stable!=expectedStable){
+                error="explicit registered layer facet stable identity mismatch: child="+
+                    std::to_string(child)+" facet="+std::to_string(facet)+
+                    " row="+std::to_string(row)+" supplied="+std::to_string(stable)+
+                    " expected="+std::to_string(expectedStable);return false;
+            }
+            const auto donor=registeredFaceDonors[row];
+            if(donor==invalid){
+                error="explicit registered layer face has no source donor: row="+std::to_string(row);return false;
+            }
+            if(faceChildCount[row]==std::numeric_limits<std::uint32_t>::max()){
+                error="explicit registered layer face child count overflow: row="+std::to_string(row);return false;
+            }
+            ++faceChildCount[row];
+            if(faceDonor[row]==invalid)faceDonor[row]=donor;
+            else if(faceDonor[row]!=donor){
+                error="registered source-face donor changed during exact facet accumulation: row="+
+                    std::to_string(row);return false;
+            }
+        }
+    }
+    for(std::size_t row=0u;row<registeredFaceCount;++row){
+        if(faceChildCount[row]==0u||faceDonor[row]==invalid){
+            error="explicit child topology leaves a registered boundary face unlabeled: row="+
+                std::to_string(row)+" stable_id="+std::to_string(
+                    registeredStableFaceIds.empty()?static_cast<std::uint32_t>(row):registeredStableFaceIds[row]);
+            return false;
+        }
+    }
+    error.clear();return true;
+}
 
 [[nodiscard]] inline bool validateRegisteredSkinFatRemeshNodeAncestry(
         const numi::matter::ObjectSource& shell,
@@ -2354,6 +2427,32 @@ template<class VerifyBoundBody, class ParentBodyAt>
                              [](double value) { return std::isfinite(value); }))
                 return fail("explicit skin/fat source-label parent geometry is non-finite");
 
+        const bool hasParentCSR = !topology.childParentAncestryOffsets.empty() ||
+            !topology.childParentAncestryTetrahedra.empty() ||
+            !topology.childParentAncestryVolumeFractions.empty();
+        if (hasParentCSR && topology.parentSourceFaceIdentities.size() != parentCount)
+            return fail("explicit skin/fat complete ancestry is missing per-parent stable source-face identities");
+        if (!topology.parentSourceFaceIdentities.empty() &&
+            topology.parentSourceFaceIdentities.size() != parentCount)
+            return fail("explicit skin/fat parent stable source-face identity count is invalid");
+        if (!validateExplicitParentTetPartition(shell.femNodes, topology.childTetrahedra,
+                topology.childMaterialIndices, topology.childParentTetrahedra,
+                topology.parentWorldPoints, topology.parentTetrahedra,
+                topology.parentMaterialIndices, error,
+                topology.childParentAncestryOffsets,
+                topology.childParentAncestryTetrahedra,
+                topology.childParentAncestryVolumeFractions))
+            return false;
+        const bool hasLayerFacetAncestry =
+            !topology.childRegisteredLayerFacetSurfaceFaces.empty() ||
+            !topology.childRegisteredLayerFacetSourceFaceIdentities.empty();
+        if (hasLayerFacetAncestry &&
+            !validateExplicitRegisteredLayerFacetAncestry(topology.childTetrahedra,layerWidth,
+                surface.faces,surface.sourceFaceIndices,
+                topology.childRegisteredLayerFacetSurfaceFaces,
+                topology.childRegisteredLayerFacetSourceFaceIdentities,error))
+            return false;
+
         explicitParentDonor.assign(parentCount, NM_INVALID_INDEX);
         explicitParentStableFace.assign(parentCount, NM_INVALID_INDEX);
         auto& parentDonor = explicitParentDonor;
@@ -2361,6 +2460,7 @@ template<class VerifyBoundBody, class ParentBodyAt>
         std::vector<std::uint32_t> parentChildCount(parentCount, 0u);
         std::vector<std::uint32_t> parentSkinChildCount(parentCount, 0u);
         std::vector<std::uint32_t> parentFatChildCount(parentCount, 0u);
+        std::vector<double> parentCoveredVolume(parentCount,0.0);
         std::vector<std::uint32_t> faceChildCount(surface.faces.size(), 0u);
         std::vector<std::uint32_t> faceDonor(surface.faces.size(), NM_INVALID_INDEX);
         std::size_t totalSkinChildren = 0u;
@@ -2410,6 +2510,11 @@ template<class VerifyBoundBody, class ParentBodyAt>
             if (dominant == NM_INVALID_INDEX || dominant >= sourceBodyCount)
                 return fail("explicit parent tetrahedron has no valid original donor-body identity");
             parentDonor[parent] = dominant;
+            if(!topology.parentSourceFaceIdentities.empty()){
+                const auto stable=topology.parentSourceFaceIdentities[parent];
+                if(stable==NM_INVALID_INDEX)return fail("explicit parent has no stable source-face identity");
+                parentStableFace[parent]=stable;
+            }
         }
 
         std::set<std::uint32_t> usedMechanicalFaces;
@@ -2431,8 +2536,17 @@ template<class VerifyBoundBody, class ParentBodyAt>
                 return fail("explicit child skin/fat material, parent, or registered-face identity is inconsistent");
             const std::uint32_t registeredStableFace = surface.sourceFaceIndices.empty()
                 ? face : surface.sourceFaceIndices[face];
-            if (stableFace != registeredStableFace)
-                return fail("explicit child source-face identity does not match the exact registered surface ancestry");
+            if (stableFace != registeredStableFace) {
+                const std::uint32_t parentStable=topology.parentSourceFaceIdentities.empty()
+                    ? NM_INVALID_INDEX : topology.parentSourceFaceIdentities[parent];
+                error="explicit child source-face identity mismatch: child="+std::to_string(tet)+
+                    " dominant_parent_row="+std::to_string(parent)+
+                    " supplied_stable_id="+std::to_string(stableFace)+
+                    " registered_surface_face_index="+std::to_string(face)+
+                    " actual_registered_stable_id="+std::to_string(registeredStableFace)+
+                    " dominant_parent_stable_id="+std::to_string(parentStable);
+                return false;
+            }
 
             auto expectedNodes = topology.childTetrahedra[tet];
             auto actualNodes = shell.tetrahedra[tet].nodes;
@@ -2444,23 +2558,44 @@ template<class VerifyBoundBody, class ParentBodyAt>
                 if (node >= shell.femNodes.size())
                     return fail("explicit child skin/fat tetrahedron references an absent shell node");
 
-            if (parentStableFace[parent] == NM_INVALID_INDEX)
-                parentStableFace[parent] = stableFace;
-            else if (parentStableFace[parent] != stableFace)
+            const auto donorStableFace=topology.parentSourceFaceIdentities.empty()
+                ? stableFace : topology.parentSourceFaceIdentities[parent];
+            if(parentStableFace[parent]==NM_INVALID_INDEX)parentStableFace[parent]=donorStableFace;
+            else if(!hasParentCSR&&parentStableFace[parent]!=stableFace)
                 return fail("explicit children of one parent tetrahedron disagree on original source-face ancestry");
-            if (faceDonor[face] == NM_INVALID_INDEX)
-                faceDonor[face] = parentDonor[parent];
-            else if (faceDonor[face] != parentDonor[parent])
-                return fail("one refined registered face maps to multiple original parent donor bodies");
-            ++parentChildCount[parent];
-            if (material == skinMaterialIndex) {
-                ++parentSkinChildCount[parent];
-                ++totalSkinChildren;
-            } else {
-                ++parentFatChildCount[parent];
-                ++totalFatChildren;
+            if(hasParentCSR&&stableFace!=parentStableFace[parent])
+                return fail("explicit child stable source face differs from its dominant donor parent");
+            double childVolume=0.0;
+            if(hasParentCSR){
+                const auto& ids=topology.childTetrahedra[tet];
+                childVolume=std::abs(tetVolume(shell.femNodes[ids[0]],shell.femNodes[ids[1]],
+                                               shell.femNodes[ids[2]],shell.femNodes[ids[3]]));
+                for(std::uint32_t entry=topology.childParentAncestryOffsets[tet];
+                    entry<topology.childParentAncestryOffsets[tet+1u];++entry){
+                    const auto coveredParent=topology.childParentAncestryTetrahedra[entry];
+                    const double fraction=topology.childParentAncestryVolumeFractions[entry];
+                    if(coveredParent>=parentCount||!std::isfinite(fraction)||fraction<=0.0)
+                        return fail("explicit child volume ancestry contains an invalid parent or fraction");
+                    if(parentStableFace[coveredParent]==NM_INVALID_INDEX)
+                        return fail("explicit child volume ancestry reaches a parent without stable source-face identity");
+                    parentCoveredVolume[coveredParent]+=childVolume*fraction;
+                    ++parentChildCount[coveredParent];
+                    if(material==skinMaterialIndex)++parentSkinChildCount[coveredParent];
+                    else ++parentFatChildCount[coveredParent];
+                }
+            }else{
+                ++parentChildCount[parent];
+                if(material==skinMaterialIndex)++parentSkinChildCount[parent];
+                else ++parentFatChildCount[parent];
             }
-            ++faceChildCount[face];
+            if(!hasLayerFacetAncestry){
+                if(faceDonor[face]==NM_INVALID_INDEX)faceDonor[face]=parentDonor[parent];
+                else if(faceDonor[face]!=parentDonor[parent])
+                    return fail("one refined registered face maps to multiple original parent donor bodies");
+                ++faceChildCount[face];
+            }
+            if(material==skinMaterialIndex)++totalSkinChildren;
+            else ++totalFatChildren;
         }
         if (totalSkinChildren == 0u || totalFatChildren == 0u)
             return fail("explicit skin/fat label topology omits one tissue material");
@@ -2471,11 +2606,57 @@ template<class VerifyBoundBody, class ParentBodyAt>
                 (topology.parentMaterialIndices[parent] == fatMaterialIndex &&
                  parentFatChildCount[parent] == 0u))
                 return fail("explicit skin/fat child topology does not completely cover every material parent");
+            if(hasParentCSR){
+                const auto nodes=topology.parentTetrahedra[parent];
+                const double parentVolume=std::abs(tetVolume(
+                    topology.parentWorldPoints[nodes[0]],topology.parentWorldPoints[nodes[1]],
+                    topology.parentWorldPoints[nodes[2]],topology.parentWorldPoints[nodes[3]]));
+                if(!std::isfinite(parentVolume)||parentVolume<=0.0||
+                   std::abs(parentCoveredVolume[parent]-parentVolume)>1.0e-6*parentVolume)
+                    return fail("explicit skin/fat CSR parent coverage does not sum its child volume fractions");
+            }
         }
-        for (std::size_t face = 0u; face < surface.faces.size(); ++face)
-            if (faceChildCount[face] == 0u || faceDonor[face] == NM_INVALID_INDEX)
-                return fail("explicit skin/fat child topology leaves a registered boundary face unlabeled");
+        if(hasLayerFacetAncestry){
+            std::vector<std::uint32_t> registeredFaceDonors(surface.faces.size(),NM_INVALID_INDEX);
+            for(std::size_t row=0u;row<surface.faces.size();++row){
+                auto donors=std::array<std::uint32_t,3u>{
+                    surface.donorBodyIndices[surface.faces[row][0]],
+                    surface.donorBodyIndices[surface.faces[row][1]],
+                    surface.donorBodyIndices[surface.faces[row][2]]};
+                std::sort(donors.begin(),donors.end());
+                std::uint32_t dominant=donors[0];std::size_t bestCount=0u;
+                for(std::size_t begin=0u;begin<donors.size();){
+                    std::size_t end=begin+1u;while(end<donors.size()&&donors[end]==donors[begin])++end;
+                    if(end-begin>bestCount){dominant=donors[begin];bestCount=end-begin;}
+                    begin=end;
+                }
+                if(dominant==NM_INVALID_INDEX||dominant>=sourceBodyCount)
+                    return fail("registered layer facet has an invalid source donor");
+                registeredFaceDonors[row]=dominant;
+            }
+            if(!collectExplicitRegisteredLayerFacetCoverage(surface.faces.size(),
+                    surface.sourceFaceIndices,registeredFaceDonors,
+                    topology.childRegisteredLayerFacetSurfaceFaces,
+                    topology.childRegisteredLayerFacetSourceFaceIdentities,
+                    faceChildCount,faceDonor,error))return false;
+        }
+        for(std::size_t face=0u;face<surface.faces.size();++face)
+            if(faceChildCount[face]==0u||faceDonor[face]==NM_INVALID_INDEX){
+                error="explicit skin/fat child topology leaves a registered boundary face unlabeled: row="+
+                    std::to_string(face)+" stable_id="+std::to_string(surface.sourceFaceIndices.empty()?face:
+                        surface.sourceFaceIndices[face]);
+                return false;
+            }
 
+        if(hasParentCSR){
+            next.tetrahedronParentAncestryOffsets.assign(topology.childParentAncestryOffsets.begin(),
+                topology.childParentAncestryOffsets.end());
+            next.tetrahedronParentAncestryIndices.assign(topology.childParentAncestryTetrahedra.begin(),
+                topology.childParentAncestryTetrahedra.end());
+            next.tetrahedronParentAncestryVolumeFractions.assign(
+                topology.childParentAncestryVolumeFractions.begin(),
+                topology.childParentAncestryVolumeFractions.end());
+        }
         const auto ensureDonorAncestry = [&](const std::uint32_t donor) -> bool {
             const std::uint32_t parent = parentBodyAt(donor);
             if ((parent != NM_INVALID_INDEX && parent >= sourceBodyCount) || parent == donor)

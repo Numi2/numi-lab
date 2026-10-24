@@ -79,6 +79,23 @@ if(BUILD_TESTING)
         PROPERTIES TIMEOUT 60 LABELS "matter;compiler;human;preconditioner;cpu;synthetic")
 endif()
 
+add_executable(numi-matter-registered-layer-facet-ancestry-check
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apps/NumiHumanRegisteredLayerFacetAncestryCheck.cpp")
+target_include_directories(numi-matter-registered-layer-facet-ancestry-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apps"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_link_libraries(numi-matter-registered-layer-facet-ancestry-check PRIVATE
+    numi_matter_compiler)
+target_compile_options(numi-matter-registered-layer-facet-ancestry-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.registered_layer_facet_ancestry
+        COMMAND numi-matter-registered-layer-facet-ancestry-check)
+    set_tests_properties(matter.compiler.registered_layer_facet_ancestry PROPERTIES
+        TIMEOUT 60 LABELS "matter;compiler;human;cpu;synthetic")
+endif()
+
 add_executable(numi-matter-registered-skin-fat-local-remesh-labels-check
     "${CMAKE_CURRENT_SOURCE_DIR}/../apps/NumiHumanSkinFatLocalRemeshLabelsCheck.cpp")
 target_include_directories(numi-matter-registered-skin-fat-local-remesh-labels-check PRIVATE

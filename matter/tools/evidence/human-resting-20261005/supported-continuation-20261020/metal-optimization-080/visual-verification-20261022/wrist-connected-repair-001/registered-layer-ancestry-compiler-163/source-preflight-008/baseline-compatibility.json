@@ -1,0 +1,15 @@
+{
+  "baseline_rows": 7233,
+  "baseline_sha256": "cb7cd7c5772532819bfcbc0931ac8cc5825237e64aed34821d6bf7ca3e66849b",
+  "updated_owner_sha256": "cb7cd7c5772532819bfcbc0931ac8cc5825237e64aed34821d6bf7ca3e66849b",
+  "byte_identical": true,
+  "scope": "Initial compiled O/I/D positions and lumped masses; no accepted physical steps.",
+  "registered-skin.csv": {
+    "byte_identical": true,
+    "sha256": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e"
+  },
+  "registered-skin-poses.json": {
+    "byte_identical": true,
+    "sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6"
+  }
+}
