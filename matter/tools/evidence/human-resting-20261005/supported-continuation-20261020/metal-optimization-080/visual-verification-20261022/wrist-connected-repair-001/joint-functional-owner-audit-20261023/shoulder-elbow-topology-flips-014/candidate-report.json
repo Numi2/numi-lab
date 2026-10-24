@@ -1,0 +1,2044 @@
+{
+  "candidate": {
+    "ancestry_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/shoulder-elbow-topology-flips-014/topology-flip-ancestry.npz",
+    "ancestry_sha256": "815a3cd1b8fa599399ff897673c23c3c1a7f3ab9859c26ec29738b77071ce325",
+    "bindings_weights_and_positions_byte_identical": true,
+    "candidate_vs_base_face_rows_changed": 14,
+    "modified_face_rows": [
+      77729,
+      78276,
+      75641,
+      75642,
+      75804,
+      75805,
+      73820,
+      74852,
+      74816,
+      74817,
+      74625,
+      79225,
+      15487,
+      19438
+    ],
+    "newly_modified_face_rows": [
+      74625,
+      79225,
+      15487,
+      19438
+    ],
+    "orientation_metrics": {
+      "elbow_bilateral_q39q77_0p8": {
+        "inverted_or_degenerate": 0,
+        "min_area_ratio_vs_native_rest": 1.66388286888463,
+        "min_normal_cosine_vs_native_rest": 0.8996129829004842,
+        "min_oriented_ratio_vs_native_rest": 1.5553107430111,
+        "modified_faces": 4
+      },
+      "native_rest": {
+        "inverted_or_degenerate": 0,
+        "min_area_ratio_vs_native_rest": 1.0,
+        "min_normal_cosine_vs_native_rest": 0.9999999999999998,
+        "min_oriented_ratio_vs_native_rest": 0.9999999999999998,
+        "modified_faces": 4
+      },
+      "shoulder_elevation_bilateral_q36q74_0p5": {
+        "inverted_or_degenerate": 0,
+        "min_area_ratio_vs_native_rest": 2.9359153520351255,
+        "min_normal_cosine_vs_native_rest": 0.2694673960393743,
+        "min_oriented_ratio_vs_native_rest": 0.7936930056559751,
+        "modified_faces": 4
+      },
+      "shoulder_plane_bilateral_q35q73_m0p3_at_elevation0p5": {
+        "inverted_or_degenerate": 0,
+        "min_area_ratio_vs_native_rest": 3.2984667077877114,
+        "min_normal_cosine_vs_native_rest": 0.47614028215403087,
+        "min_oriented_ratio_vs_native_rest": 1.6187892869177434,
+        "modified_faces": 4
+      }
+    },
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/shoulder-elbow-topology-flips-014/candidate.nhskin",
+    "sha256": "860a7ed05b142c03c1c4854f9803ff40a10255e3df9cf841681d976d4efb6782",
+    "source_vertex_records_exact": 61950,
+    "unchanged_face_rows_exact": true
+  },
+  "exact_gate": {
+    "all_patch_collar_faces_checked_against_full_surface": true,
+    "all_poses_no_new_and_three_poses_strictly_fewer_crossings": false,
+    "baseline_is_candidate_013": true,
+    "poses": {
+      "elbow_bilateral_q39q77_0p8": {
+        "baseline_crossings": 87,
+        "candidate_crossings": 87,
+        "candidate_exact_report": {
+          "allowed_shared_feature_pairs": 5379,
+          "candidate_pairs": 8969,
+          "degenerate_faces_excluded_all": 0,
+          "degenerate_faces_excluded_roi": 0,
+          "face_count": 108987,
+          "pairs": [
+            {
+              "face_a": 14531,
+              "face_b": 21658,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 14531,
+              "face_b": 21659,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 14532,
+              "face_b": 21659,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 21765,
+              "face_b": 21788,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 21765,
+              "face_b": 21787,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 21766,
+              "face_b": 21788,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 69074,
+              "face_b": 78307,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 69075,
+              "face_b": 78308,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 69075,
+              "face_b": 78307,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 70204,
+              "face_b": 78343,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 70205,
+              "face_b": 78344,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 70205,
+              "face_b": 78343,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 71613,
+              "face_b": 73812,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72751,
+              "face_b": 74836,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 72751,
+              "face_b": 75844,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72752,
+              "face_b": 74836,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72752,
+              "face_b": 75844,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72753,
+              "face_b": 74836,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72753,
+              "face_b": 75844,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72754,
+              "face_b": 74836,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72754,
+              "face_b": 75844,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72755,
+              "face_b": 74836,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72755,
+              "face_b": 75844,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72756,
+              "face_b": 74836,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72756,
+              "face_b": 75844,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72757,
+              "face_b": 74833,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72757,
+              "face_b": 74834,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72757,
+              "face_b": 74832,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72757,
+              "face_b": 74836,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72757,
+              "face_b": 74842,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72757,
+              "face_b": 73813,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72757,
+              "face_b": 74843,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72757,
+              "face_b": 73814,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 72757,
+              "face_b": 75844,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72768,
+              "face_b": 74842,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72768,
+              "face_b": 74843,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72768,
+              "face_b": 75844,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72769,
+              "face_b": 74842,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72772,
+              "face_b": 74823,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72772,
+              "face_b": 74822,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72772,
+              "face_b": 74821,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72772,
+              "face_b": 74824,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72772,
+              "face_b": 74826,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72772,
+              "face_b": 74837,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72772,
+              "face_b": 74842,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72772,
+              "face_b": 73812,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72778,
+              "face_b": 74839,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72778,
+              "face_b": 74844,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72779,
+              "face_b": 73812,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72779,
+              "face_b": 73813,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72779,
+              "face_b": 73814,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72780,
+              "face_b": 73814,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72780,
+              "face_b": 74839,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72780,
+              "face_b": 74844,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72780,
+              "face_b": 73821,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 72780,
+              "face_b": 74849,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 72780,
+              "face_b": 74852,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 73813,
+              "face_b": 74824,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 73814,
+              "face_b": 74823,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73814,
+              "face_b": 74822,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73814,
+              "face_b": 74821,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73814,
+              "face_b": 74824,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73814,
+              "face_b": 74826,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73814,
+              "face_b": 74837,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73814,
+              "face_b": 74842,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73821,
+              "face_b": 74844,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 74647,
+              "face_b": 79872,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 74647,
+              "face_b": 79873,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 74648,
+              "face_b": 79873,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 74814,
+              "face_b": 74825,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 74814,
+              "face_b": 74828,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 74814,
+              "face_b": 74821,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 74814,
+              "face_b": 74826,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 74815,
+              "face_b": 74828,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 74818,
+              "face_b": 74825,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 74818,
+              "face_b": 74828,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 75653,
+              "face_b": 78590,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 75653,
+              "face_b": 78588,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 75653,
+              "face_b": 78589,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 75654,
+              "face_b": 78588,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 76674,
+              "face_b": 76751,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 76674,
+              "face_b": 76750,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 78588,
+              "face_b": 78591,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 78589,
+              "face_b": 78591,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 81649,
+              "face_b": 83579,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 81649,
+              "face_b": 81651,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 81650,
+              "face_b": 83579,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            }
+          ],
+          "roi_face_count": 357,
+          "true_crossing_pairs": 87
+        },
+        "new_crossings": 0,
+        "new_pair_ids": [],
+        "resolved_crossings": 0,
+        "resolved_pair_ids": [],
+        "retained_crossings": 87,
+        "retained_pair_ids": [
+          [
+            14531,
+            21658
+          ],
+          [
+            14531,
+            21659
+          ],
+          [
+            14532,
+            21659
+          ],
+          [
+            21765,
+            21787
+          ],
+          [
+            21765,
+            21788
+          ],
+          [
+            21766,
+            21788
+          ],
+          [
+            69074,
+            78307
+          ],
+          [
+            69075,
+            78307
+          ],
+          [
+            69075,
+            78308
+          ],
+          [
+            70204,
+            78343
+          ],
+          [
+            70205,
+            78343
+          ],
+          [
+            70205,
+            78344
+          ],
+          [
+            71613,
+            73812
+          ],
+          [
+            72751,
+            74836
+          ],
+          [
+            72751,
+            75844
+          ],
+          [
+            72752,
+            74836
+          ],
+          [
+            72752,
+            75844
+          ],
+          [
+            72753,
+            74836
+          ],
+          [
+            72753,
+            75844
+          ],
+          [
+            72754,
+            74836
+          ],
+          [
+            72754,
+            75844
+          ],
+          [
+            72755,
+            74836
+          ],
+          [
+            72755,
+            75844
+          ],
+          [
+            72756,
+            74836
+          ],
+          [
+            72756,
+            75844
+          ],
+          [
+            72757,
+            73813
+          ],
+          [
+            72757,
+            73814
+          ],
+          [
+            72757,
+            74832
+          ],
+          [
+            72757,
+            74833
+          ],
+          [
+            72757,
+            74834
+          ],
+          [
+            72757,
+            74836
+          ],
+          [
+            72757,
+            74842
+          ],
+          [
+            72757,
+            74843
+          ],
+          [
+            72757,
+            75844
+          ],
+          [
+            72768,
+            74842
+          ],
+          [
+            72768,
+            74843
+          ],
+          [
+            72768,
+            75844
+          ],
+          [
+            72769,
+            74842
+          ],
+          [
+            72772,
+            73812
+          ],
+          [
+            72772,
+            74821
+          ],
+          [
+            72772,
+            74822
+          ],
+          [
+            72772,
+            74823
+          ],
+          [
+            72772,
+            74824
+          ],
+          [
+            72772,
+            74826
+          ],
+          [
+            72772,
+            74837
+          ],
+          [
+            72772,
+            74842
+          ],
+          [
+            72778,
+            74839
+          ],
+          [
+            72778,
+            74844
+          ],
+          [
+            72779,
+            73812
+          ],
+          [
+            72779,
+            73813
+          ],
+          [
+            72779,
+            73814
+          ],
+          [
+            72780,
+            73814
+          ],
+          [
+            72780,
+            73821
+          ],
+          [
+            72780,
+            74839
+          ],
+          [
+            72780,
+            74844
+          ],
+          [
+            72780,
+            74849
+          ],
+          [
+            72780,
+            74852
+          ],
+          [
+            73813,
+            74824
+          ],
+          [
+            73814,
+            74821
+          ],
+          [
+            73814,
+            74822
+          ],
+          [
+            73814,
+            74823
+          ],
+          [
+            73814,
+            74824
+          ],
+          [
+            73814,
+            74826
+          ],
+          [
+            73814,
+            74837
+          ],
+          [
+            73814,
+            74842
+          ],
+          [
+            73821,
+            74844
+          ],
+          [
+            74647,
+            79872
+          ],
+          [
+            74647,
+            79873
+          ],
+          [
+            74648,
+            79873
+          ],
+          [
+            74814,
+            74821
+          ],
+          [
+            74814,
+            74825
+          ],
+          [
+            74814,
+            74826
+          ],
+          [
+            74814,
+            74828
+          ],
+          [
+            74815,
+            74828
+          ],
+          [
+            74818,
+            74825
+          ],
+          [
+            74818,
+            74828
+          ],
+          [
+            75653,
+            78588
+          ],
+          [
+            75653,
+            78589
+          ],
+          [
+            75653,
+            78590
+          ],
+          [
+            75654,
+            78588
+          ],
+          [
+            76674,
+            76750
+          ],
+          [
+            76674,
+            76751
+          ],
+          [
+            78588,
+            78591
+          ],
+          [
+            78589,
+            78591
+          ],
+          [
+            81649,
+            81651
+          ],
+          [
+            81649,
+            83579
+          ],
+          [
+            81650,
+            83579
+          ]
+        ]
+      },
+      "native_rest": {
+        "baseline_crossings": 2,
+        "candidate_crossings": 2,
+        "candidate_exact_report": {
+          "allowed_shared_feature_pairs": 5425,
+          "candidate_pairs": 8228,
+          "degenerate_faces_excluded_all": 0,
+          "degenerate_faces_excluded_roi": 0,
+          "face_count": 108987,
+          "pairs": [
+            {
+              "face_a": 66864,
+              "face_b": 77824,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 66863,
+              "face_b": 77824,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            }
+          ],
+          "roi_face_count": 357,
+          "true_crossing_pairs": 2
+        },
+        "new_crossings": 0,
+        "new_pair_ids": [],
+        "resolved_crossings": 0,
+        "resolved_pair_ids": [],
+        "retained_crossings": 2,
+        "retained_pair_ids": [
+          [
+            66863,
+            77824
+          ],
+          [
+            66864,
+            77824
+          ]
+        ]
+      },
+      "shoulder_elevation_bilateral_q36q74_0p5": {
+        "baseline_crossings": 29,
+        "candidate_crossings": 27,
+        "candidate_exact_report": {
+          "allowed_shared_feature_pairs": 5395,
+          "candidate_pairs": 7491,
+          "degenerate_faces_excluded_all": 0,
+          "degenerate_faces_excluded_roi": 0,
+          "face_count": 108987,
+          "pairs": [
+            {
+              "face_a": 15485,
+              "face_b": 19439,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 15485,
+              "face_b": 19438,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 15486,
+              "face_b": 19439,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 15487,
+              "face_b": 19439,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 70204,
+              "face_b": 78343,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 70205,
+              "face_b": 78344,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 70205,
+              "face_b": 78343,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 70395,
+              "face_b": 75806,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 70395,
+              "face_b": 75804,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 70396,
+              "face_b": 75804,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 72751,
+              "face_b": 74836,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 72752,
+              "face_b": 74835,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 72752,
+              "face_b": 74836,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73681,
+              "face_b": 79914,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73681,
+              "face_b": 79913,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73683,
+              "face_b": 79914,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 73683,
+              "face_b": 79913,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 73812,
+              "face_b": 74833,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73812,
+              "face_b": 74834,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73812,
+              "face_b": 74832,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 73813,
+              "face_b": 74833,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 73813,
+              "face_b": 74834,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 74817,
+              "face_b": 74822,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 74817,
+              "face_b": 74821,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 74818,
+              "face_b": 74822,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 75642,
+              "face_b": 79225,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 75642,
+              "face_b": 79224,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            }
+          ],
+          "roi_face_count": 357,
+          "true_crossing_pairs": 27
+        },
+        "new_crossings": 0,
+        "new_pair_ids": [],
+        "resolved_crossings": 2,
+        "resolved_pair_ids": [
+          [
+            15486,
+            19438
+          ],
+          [
+            75640,
+            79225
+          ]
+        ],
+        "retained_crossings": 27,
+        "retained_pair_ids": [
+          [
+            15485,
+            19438
+          ],
+          [
+            15485,
+            19439
+          ],
+          [
+            15486,
+            19439
+          ],
+          [
+            15487,
+            19439
+          ],
+          [
+            70204,
+            78343
+          ],
+          [
+            70205,
+            78343
+          ],
+          [
+            70205,
+            78344
+          ],
+          [
+            70395,
+            75804
+          ],
+          [
+            70395,
+            75806
+          ],
+          [
+            70396,
+            75804
+          ],
+          [
+            72751,
+            74836
+          ],
+          [
+            72752,
+            74835
+          ],
+          [
+            72752,
+            74836
+          ],
+          [
+            73681,
+            79913
+          ],
+          [
+            73681,
+            79914
+          ],
+          [
+            73683,
+            79913
+          ],
+          [
+            73683,
+            79914
+          ],
+          [
+            73812,
+            74832
+          ],
+          [
+            73812,
+            74833
+          ],
+          [
+            73812,
+            74834
+          ],
+          [
+            73813,
+            74833
+          ],
+          [
+            73813,
+            74834
+          ],
+          [
+            74817,
+            74821
+          ],
+          [
+            74817,
+            74822
+          ],
+          [
+            74818,
+            74822
+          ],
+          [
+            75642,
+            79224
+          ],
+          [
+            75642,
+            79225
+          ]
+        ]
+      },
+      "shoulder_plane_bilateral_q35q73_m0p3_at_elevation0p5": {
+        "baseline_crossings": 51,
+        "candidate_crossings": 49,
+        "candidate_exact_report": {
+          "allowed_shared_feature_pairs": 5379,
+          "candidate_pairs": 9472,
+          "degenerate_faces_excluded_all": 0,
+          "degenerate_faces_excluded_roi": 0,
+          "face_count": 108987,
+          "pairs": [
+            {
+              "face_a": 15485,
+              "face_b": 19438,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 15485,
+              "face_b": 19439,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 15486,
+              "face_b": 19439,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 15487,
+              "face_b": 19439,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 70204,
+              "face_b": 78343,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 70205,
+              "face_b": 78344,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 70205,
+              "face_b": 78343,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 70395,
+              "face_b": 75806,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 70395,
+              "face_b": 75804,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 70396,
+              "face_b": 75804,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 72751,
+              "face_b": 74836,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 72752,
+              "face_b": 74835,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 72752,
+              "face_b": 74836,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73812,
+              "face_b": 74833,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73812,
+              "face_b": 74834,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 73812,
+              "face_b": 74832,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 73813,
+              "face_b": 74833,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 73813,
+              "face_b": 74834,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 74816,
+              "face_b": 74822,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 74816,
+              "face_b": 74821,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 74817,
+              "face_b": 74822,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 74818,
+              "face_b": 74822,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 75642,
+              "face_b": 79225,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 75642,
+              "face_b": 79224,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 75644,
+              "face_b": 79286,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 75644,
+              "face_b": 78931,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 75645,
+              "face_b": 79286,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 75645,
+              "face_b": 78930,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 75645,
+              "face_b": 78931,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 75647,
+              "face_b": 78930,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 75649,
+              "face_b": 78590,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 75649,
+              "face_b": 78591,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 75650,
+              "face_b": 78591,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 75684,
+              "face_b": 78285,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 75685,
+              "face_b": 78284,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 75685,
+              "face_b": 78285,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 76898,
+              "face_b": 77826,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 76898,
+              "face_b": 77836,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 76900,
+              "face_b": 77826,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 76900,
+              "face_b": 77836,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 77826,
+              "face_b": 77837,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 77826,
+              "face_b": 77838,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 77836,
+              "face_b": 77837,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 77836,
+              "face_b": 77838,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 77840,
+              "face_b": 77843,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 77840,
+              "face_b": 78431,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 77840,
+              "face_b": 78423,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            },
+            {
+              "face_a": 77840,
+              "face_b": 78425,
+              "intersection_points": 2,
+              "shared_quotient_vertices": 0
+            },
+            {
+              "face_a": 77843,
+              "face_b": 78424,
+              "intersection_points": 5,
+              "shared_quotient_vertices": 1
+            }
+          ],
+          "roi_face_count": 357,
+          "true_crossing_pairs": 49
+        },
+        "new_crossings": 0,
+        "new_pair_ids": [],
+        "resolved_crossings": 2,
+        "resolved_pair_ids": [
+          [
+            15486,
+            19438
+          ],
+          [
+            75640,
+            79225
+          ]
+        ],
+        "retained_crossings": 49,
+        "retained_pair_ids": [
+          [
+            15485,
+            19438
+          ],
+          [
+            15485,
+            19439
+          ],
+          [
+            15486,
+            19439
+          ],
+          [
+            15487,
+            19439
+          ],
+          [
+            70204,
+            78343
+          ],
+          [
+            70205,
+            78343
+          ],
+          [
+            70205,
+            78344
+          ],
+          [
+            70395,
+            75804
+          ],
+          [
+            70395,
+            75806
+          ],
+          [
+            70396,
+            75804
+          ],
+          [
+            72751,
+            74836
+          ],
+          [
+            72752,
+            74835
+          ],
+          [
+            72752,
+            74836
+          ],
+          [
+            73812,
+            74832
+          ],
+          [
+            73812,
+            74833
+          ],
+          [
+            73812,
+            74834
+          ],
+          [
+            73813,
+            74833
+          ],
+          [
+            73813,
+            74834
+          ],
+          [
+            74816,
+            74821
+          ],
+          [
+            74816,
+            74822
+          ],
+          [
+            74817,
+            74822
+          ],
+          [
+            74818,
+            74822
+          ],
+          [
+            75642,
+            79224
+          ],
+          [
+            75642,
+            79225
+          ],
+          [
+            75644,
+            78931
+          ],
+          [
+            75644,
+            79286
+          ],
+          [
+            75645,
+            78930
+          ],
+          [
+            75645,
+            78931
+          ],
+          [
+            75645,
+            79286
+          ],
+          [
+            75647,
+            78930
+          ],
+          [
+            75649,
+            78590
+          ],
+          [
+            75649,
+            78591
+          ],
+          [
+            75650,
+            78591
+          ],
+          [
+            75684,
+            78285
+          ],
+          [
+            75685,
+            78284
+          ],
+          [
+            75685,
+            78285
+          ],
+          [
+            76898,
+            77826
+          ],
+          [
+            76898,
+            77836
+          ],
+          [
+            76900,
+            77826
+          ],
+          [
+            76900,
+            77836
+          ],
+          [
+            77826,
+            77837
+          ],
+          [
+            77826,
+            77838
+          ],
+          [
+            77836,
+            77837
+          ],
+          [
+            77836,
+            77838
+          ],
+          [
+            77840,
+            77843
+          ],
+          [
+            77840,
+            78423
+          ],
+          [
+            77840,
+            78425
+          ],
+          [
+            77840,
+            78431
+          ],
+          [
+            77843,
+            78424
+          ]
+        ]
+      }
+    }
+  },
+  "inputs": {
+    "base_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/shoulder-elbow-topology-flips-013/candidate.nhskin",
+    "base_sha256": "01a4b88fc74013c5f9c2f668cabd7d13ef58f25f52c4fac9571620d7e2fb3eba",
+    "face_count": 108987,
+    "fixed_outer_boundary_edge_count": 165,
+    "native_rest_snapshot": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/registered-skin-poses.json",
+    "native_rest_snapshot_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "original_source128_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+    "patch_and_collar_face_count": 357,
+    "patch_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/shoulder-elbow-witness-patch-input-001.npz",
+    "patch_sha256": "cf7f4a52951b4feaea869695b302b233deb217ceb193fd94467761ec0a27039a",
+    "pose_manifest": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/candidate-skin-registration-owner-081/080-all-joint-pose-audit.json",
+    "pose_manifest_sha256": "88f52618c9df9f6d334c42948c6bd677ce59b9219110893b72536a20f78fbe76",
+    "previous_flip_ancestry_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/shoulder-elbow-topology-flips-013/topology-flip-ancestry.npz",
+    "previous_flip_ancestry_sha256": "c77c8e54e0fc0f0d56fce53a79095ff70e1fb14f3eb2e7c71f6203dea9f01c01",
+    "shared_triangle_metric_helper": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/right-commonfield-layer-reconstruction-202/tools/human_skin_patch_geometry.py",
+    "shared_triangle_metric_helper_sha256": "5da1d85ba688b76835d0b9e9f0f1b3dfe3e8dae9549f0e90c012b24b5a274032",
+    "vertex_count": 61950
+  },
+  "interpretation": "A pass only establishes improved exact Float32 self-intersection counts for this local patch in the three pinned static LBS poses, with positive orientation and no changed vertex records. It does not establish bone clearance, accepted FEM state, general ROM, or physical qualification.",
+  "overall_pass": false,
+  "schema": "numi.human.shoulder-elbow-local-surface-edge-flip-candidate.v1",
+  "scope": "Topology-only same-vertex candidate on source128. Source XYZ, vertex records, donor weights, bindings, and vertex IDs are byte-identical; only selected local face rows change. No physical/native qualification.",
+  "search": {
+    "candidate_rejections": {
+      "diagonal_already_exists": 13,
+      "not_touching_crossing_or_worst_quality_face": 168,
+      "patch_edge_not_two_faces": 165,
+      "pose_area_orientation_or_quality": 190,
+      "touches_prior_topology_edit": 25
+    },
+    "cumulative_modified_face_count": 14,
+    "eligible_flip_candidates": 57,
+    "exact_candidates_evaluated": 57,
+    "selected": [
+      {
+        "edge": [
+          55487,
+          55488
+        ],
+        "faces": [
+          74625,
+          79225
+        ],
+        "minimum_normal_cosine": 0.5309957984197801,
+        "minimum_triangle_area_ratio": 1.0,
+        "new_diagonal": [
+          45162,
+          46849
+        ],
+        "new_faces": [
+          [
+            45162,
+            55488,
+            46849
+          ],
+          [
+            45162,
+            46849,
+            55487
+          ]
+        ],
+        "no_new_crossings": true,
+        "pose_crossings": {
+          "elbow_bilateral_q39q77_0p8": {
+            "candidate_local": 0,
+            "new": [],
+            "old_local": 0,
+            "resolved": []
+          },
+          "native_rest": {
+            "candidate_local": 0,
+            "new": [],
+            "old_local": 0,
+            "resolved": []
+          },
+          "shoulder_elevation_bilateral_q36q74_0p5": {
+            "candidate_local": 1,
+            "new": [],
+            "old_local": 2,
+            "resolved": [
+              [
+                75640,
+                79225
+              ]
+            ]
+          },
+          "shoulder_plane_bilateral_q35q73_m0p3_at_elevation0p5": {
+            "candidate_local": 1,
+            "new": [],
+            "old_local": 2,
+            "resolved": [
+              [
+                75640,
+                79225
+              ]
+            ]
+          }
+        },
+        "quality_delta": {
+          "elbow_bilateral_q39q77_0p8": {
+            "gain": 0.1372539652360738,
+            "new_min": 0.19697328481051532,
+            "old_min": 0.05971931957444153
+          },
+          "native_rest": {
+            "gain": 0.17769791488505648,
+            "new_min": 0.17886605413240897,
+            "old_min": 0.001168139247352487
+          },
+          "shoulder_elevation_bilateral_q36q74_0p5": {
+            "gain": 0.10135423214548409,
+            "new_min": 0.17412472259687795,
+            "old_min": 0.07277049045139386
+          },
+          "shoulder_plane_bilateral_q35q73_m0p3_at_elevation0p5": {
+            "gain": 0.12410631546252565,
+            "new_min": 0.18453702051432036,
+            "old_min": 0.060430705051794716
+          }
+        },
+        "resolved_total": 2,
+        "worst_quality_gain": 0.10135423214548409
+      },
+      {
+        "edge": [
+          55175,
+          55177
+        ],
+        "faces": [
+          15487,
+          19438
+        ],
+        "minimum_normal_cosine": 0.2694673960393743,
+        "minimum_triangle_area_ratio": 1.0,
+        "new_diagonal": [
+          7958,
+          9771
+        ],
+        "new_faces": [
+          [
+            7958,
+            55175,
+            9771
+          ],
+          [
+            7958,
+            9771,
+            55177
+          ]
+        ],
+        "no_new_crossings": true,
+        "pose_crossings": {
+          "elbow_bilateral_q39q77_0p8": {
+            "candidate_local": 0,
+            "new": [],
+            "old_local": 0,
+            "resolved": []
+          },
+          "native_rest": {
+            "candidate_local": 0,
+            "new": [],
+            "old_local": 0,
+            "resolved": []
+          },
+          "shoulder_elevation_bilateral_q36q74_0p5": {
+            "candidate_local": 2,
+            "new": [],
+            "old_local": 3,
+            "resolved": [
+              [
+                15486,
+                19438
+              ]
+            ]
+          },
+          "shoulder_plane_bilateral_q35q73_m0p3_at_elevation0p5": {
+            "candidate_local": 2,
+            "new": [],
+            "old_local": 3,
+            "resolved": [
+              [
+                15486,
+                19438
+              ]
+            ]
+          }
+        },
+        "quality_delta": {
+          "elbow_bilateral_q39q77_0p8": {
+            "gain": 0.17705440017585017,
+            "new_min": 0.313628974808144,
+            "old_min": 0.13657457463229383
+          },
+          "native_rest": {
+            "gain": 0.340042011554492,
+            "new_min": 0.4575014364456276,
+            "old_min": 0.11745942489113557
+          },
+          "shoulder_elevation_bilateral_q36q74_0p5": {
+            "gain": 0.06556121394869954,
+            "new_min": 0.19060020138200287,
+            "old_min": 0.12503898743330333
+          },
+          "shoulder_plane_bilateral_q35q73_m0p3_at_elevation0p5": {
+            "gain": 0.051756214418298446,
+            "new_min": 0.1923601344565911,
+            "old_min": 0.14060392003829264
+          }
+        },
+        "resolved_total": 2,
+        "worst_quality_gain": 0.051756214418298446
+      }
+    ],
+    "selected_flip_count": 2,
+    "selection": "second-round vertex-disjoint same-vertex flips on unmodified faces, prioritized at worst-quality faces then crossing witnesses; all candidate pairs rechecked against the full surface in native rest and three poses"
+  }
+}

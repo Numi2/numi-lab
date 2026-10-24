@@ -1,0 +1,96 @@
+{
+  "ancestry_sha256": "815a3cd1b8fa599399ff897673c23c3c1a7f3ab9859c26ec29738b77071ce325",
+  "base_sha256": "01a4b88fc74013c5f9c2f668cabd7d13ef58f25f52c4fac9571620d7e2fb3eba",
+  "candidate_report_sha256": "9257344be741938a9e604977b8e0a6cf0112910ef7fca9b37801eea7cf50017b",
+  "candidate_sha256": "860a7ed05b142c03c1c4854f9803ff40a10255e3df9cf841681d976d4efb6782",
+  "checks": {
+    "all_parent_rows_in_source128": true,
+    "all_pose_report_no_new_no_regression": true,
+    "ancestry_faces_match_candidate": true,
+    "ancestry_row_shape": true,
+    "bindings_exact": true,
+    "boundary_edge_set_exact": true,
+    "candidate_hash_matches_report": true,
+    "candidate_manifold_and_oriented": true,
+    "changed_rows_match_incremental_list": true,
+    "each_child_uses_only_parent_vertices": true,
+    "edge_count_unchanged": true,
+    "edge_incidence_histogram_unchanged": true,
+    "face_count_exact": true,
+    "no_degenerate_index_faces": true,
+    "no_duplicate_faces": true,
+    "only_declared_flip_diagonals_changed": true,
+    "vertex_records_exact": true,
+    "weights_exact": true
+  },
+  "edge_delta": {
+    "added_diagonals": [
+      [
+        7958,
+        9771
+      ],
+      [
+        45162,
+        46849
+      ]
+    ],
+    "expected_added": [
+      [
+        7958,
+        9771
+      ],
+      [
+        45162,
+        46849
+      ]
+    ],
+    "expected_removed": [
+      [
+        55175,
+        55177
+      ],
+      [
+        55487,
+        55488
+      ]
+    ],
+    "removed_diagonals": [
+      [
+        55175,
+        55177
+      ],
+      [
+        55487,
+        55488
+      ]
+    ]
+  },
+  "result": {
+    "baseline_edges": {
+      "boundary_edges": 115,
+      "edge_count": 163538,
+      "incidence_histogram": {
+        "1": 115,
+        "2": 163423
+      },
+      "inconsistent_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    "candidate_edges": {
+      "boundary_edges": 115,
+      "edge_count": 163538,
+      "incidence_histogram": {
+        "1": 115,
+        "2": 163423
+      },
+      "inconsistent_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    "changed_face_rows": 4,
+    "cumulative_ancestry_rows": 14,
+    "incremental_new_face_rows": 4,
+    "pass": true
+  },
+  "schema": "numi.human.shoulder-elbow-topology-flip-source-lineage-check.v1",
+  "scope": "Source-only structural and lineage check; exact Float32 crossings and four-state counts are recorded in candidate-report.json."
+}

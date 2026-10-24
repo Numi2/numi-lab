@@ -849,3 +849,46 @@ def collapse_zero_length_surface_edges(vertices, faces, protected_vertices=()):
     if np.any(areas <= 0) or not np.isfinite(areas).all():
         raise ValueError("unrepaired zero-area faces remain")
     return f, alias, retained
+
+
+def undirected_boundary_loops(edges):
+    """Extract deterministic simple cycles from exact vertex-ID boundary edges.
+
+    A nonempty boundary must be a disjoint union of degree-two cycles. Open,
+    duplicate, branched and self edges fail before traversal. Each successful
+    walk consumes an edge on every iteration, so invalid input cannot hang.
+    Coincident coordinates are irrelevant: this operates on source identities.
+    """
+    raw = np.asarray(edges)
+    if (raw.ndim != 2 or raw.shape[1] != 2 or raw.dtype.kind not in 'iu'
+            or np.any(raw < 0)):
+        raise ValueError('nonnegative integer Nx2 boundary edges required')
+    if np.any(raw[:, 0] == raw[:, 1]):
+        raise ValueError('boundary self edges are invalid')
+    canonical = np.sort(raw, axis=1)
+    if len(np.unique(canonical, axis=0)) != len(raw):
+        raise ValueError('duplicate boundary edges are invalid')
+    graph = {}
+    for a, b in canonical.tolist():
+        graph.setdefault(a, set()).add(b)
+        graph.setdefault(b, set()).add(a)
+    if any(len(neighbors) != 2 for neighbors in graph.values()):
+        raise ValueError('boundary must have degree two at every vertex')
+    remaining = set(graph)
+    loops = []
+    while remaining:
+        start = min(remaining)
+        previous, current = start, min(graph[start])
+        sequence = [start]
+        remaining.remove(start)
+        while current != start:
+            if current not in remaining:
+                raise ValueError('boundary revisits a vertex before closing')
+            sequence.append(current)
+            remaining.remove(current)
+            following = graph[current] - {previous}
+            if len(following) != 1:
+                raise ValueError('boundary continuation is not unique')
+            previous, current = current, next(iter(following))
+        loops.append(np.asarray(sequence, dtype=np.int64))
+    return loops

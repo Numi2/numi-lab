@@ -1,0 +1,42 @@
+{
+  "ancestry_sha256": "815a3cd1b8fa599399ff897673c23c3c1a7f3ab9859c26ec29738b77071ce325",
+  "base_candidate_013_sha256": "01a4b88fc74013c5f9c2f668cabd7d13ef58f25f52c4fac9571620d7e2fb3eba",
+  "builder_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/shoulder-elbow-topology-flips-014/build_shoulder_topology_flip_014.py",
+  "builder_sha256": "9ba8c27519ffa4064a00ebc4b69c240d03e6f514b41b74153d2496171813c784",
+  "candidate_report_sha256": "9257344be741938a9e604977b8e0a6cf0112910ef7fca9b37801eea7cf50017b",
+  "candidate_sha256": "860a7ed05b142c03c1c4854f9803ff40a10255e3df9cf841681d976d4efb6782",
+  "exact_counts": {
+    "elbow": {
+      "after": 87,
+      "before": 87
+    },
+    "native_rest": {
+      "after": 2,
+      "before": 2
+    },
+    "shoulder_elevation": {
+      "after": 27,
+      "before": 29
+    },
+    "shoulder_plane": {
+      "after": 49,
+      "before": 51
+    }
+  },
+  "limitations": [
+    "elbow crossing count unchanged",
+    "remaining crossings persist",
+    "does not establish bone clearance, arbitrary ROM, accepted FEM state, or physical qualification"
+  ],
+  "replay_command": "python3 /tmp/numi-human-geometry-slot.py /Users/n/numi-human-prep-venv-20261005/bin/python /tmp/build_shoulder_topology_flip_014.py",
+  "result": "local_no_new_crossing_increment; not full repair",
+  "schema": "numi.human.topology-flip-replay-receipt.v1",
+  "scope": {
+    "cumulative_modified_rows_vs_source128": 14,
+    "native_rest_and_all_three_pose_orientation_positive": true,
+    "new_face_rows": 4,
+    "no_new_exact_patch_vs_full_surface_pairs": true,
+    "selected_flips": 2,
+    "vertex_records_weights_bindings_positions_unchanged": true
+  }
+}

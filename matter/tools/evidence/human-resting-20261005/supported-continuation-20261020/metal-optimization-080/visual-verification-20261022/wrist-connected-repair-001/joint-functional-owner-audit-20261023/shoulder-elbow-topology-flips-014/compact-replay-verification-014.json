@@ -1,0 +1,13 @@
+{
+  "source128_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+  "replayed014_sha256": "860a7ed05b142c03c1c4854f9803ff40a10255e3df9cf841681d976d4efb6782",
+  "cumulative_face_rows": 14,
+  "vertices_bindings_weights_byte_identical": true,
+  "physical_admission": false,
+  "remaining_exact_crossings": {
+    "native_rest": 2,
+    "elbow": 87,
+    "shoulder_elevation": 27,
+    "shoulder_plane": 49
+  }
+}
