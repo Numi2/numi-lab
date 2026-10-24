@@ -1,0 +1,9 @@
+{
+  "verified_utc": "2026-10-24T17:03:45.774894+00:00",
+  "downloaded_from": "https://github.com/Numi2/numi-lab/releases/tag/plastic-bag-franka-approved-2026-10-24",
+  "archive_sha256": "2e7e4456002bc77c4b67855bc6a4d89003f51b89e88bf43f0850a85c99f022ad",
+  "archive_matches_uploaded": true,
+  "manifest_files_verified": 325,
+  "restored_source_binary_input_checkpoint_matches": true,
+  "local_retirement": false
+}

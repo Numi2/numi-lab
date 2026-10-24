@@ -421,8 +421,9 @@ Only current subsystem contracts remain under `docs`:
 
 - G1 mechanics and visual assets are pinned to official Unitree sources; the
   retained standing actor is a fingerprinted third-party artifact.
-- Franka imagery uses official FR3v2 visual assets.
-- The retained G1 and Franka images and animations are native numi-lab
+- The FR3v2 gallery above uses official Franka visual assets. The plastic-bag
+  experiment below uses pinned Panda meshes from MuJoCo Menagerie.
+- The G1 and FR3v2 gallery images and animations above are native numi-lab
   renderer outputs captured on Apple M4. They are not generated concept art.
 - The measured-dove image is a native `MeasuredDoveRobotLab` viewer capture on
   Apple M4. Its blue left-wing outline follows the source component; the

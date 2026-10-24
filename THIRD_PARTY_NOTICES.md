@@ -21,6 +21,22 @@ revision. The primitive collision spheres and displayed workcell are
 MetalRobo-authored. Upstream mesh files and the transient cooked pack are not
 redistributed here.
 
+## Plastic bag experiment assets and contact algorithm
+
+The plastic-bag Franka videos use Panda presentation meshes from
+`google-deepmind/mujoco_menagerie`, revision
+`cda5236f98383f6fbaa4820c6b18dba892cd087f`, directory
+`franka_emika_panda`. These meshes derive from the public Franka description
+and are distributed under Apache License 2.0. The preservation release retains
+the source identity, upstream README and complete license with the assets.
+Only mesh data are used; MuJoCo does not simulate the bag, coins or robot.
+The flat rubber contact patches and rigid pad backing are authored for this
+experiment; the original rubber visual component is omitted from its render.
+
+The preserved Metal MPR contact code adapts libccd's BSD-licensed `mpr.c`.
+Its attribution and complete license are retained in
+[the example's LIBCCD-BSD-LICENSE.txt](examples/plastic_bag_franka/approved_20261024/source/LIBCCD-BSD-LICENSE.txt).
+
 ## Unitree G1 model data
 
 Source: `unitreerobotics/unitree_ros`, commit
