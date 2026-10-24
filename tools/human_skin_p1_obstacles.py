@@ -134,3 +134,110 @@ def raise_exclusion_field(phi, tetrahedra, constraints, fixed_nodes, *, target=1
               "maximum_field_value": float(p.max()) if len(p) else None,
               "pass": len(failed) == 0}
     return p, report
+
+
+def solve_exclusion_field(phi, tetrahedra, constraints, fixed_nodes, *, target,
+                          maximum_value, costs=None, tolerance=1e-8,
+                          time_limit=60.0):
+    """Joint, bounded minimum-change P1 obstacle exclusion.
+
+    The sparse LP raises nodal field values together, avoiding order-dependent
+    greedy updates. Polygon vertices imply the whole convex polygon constraint.
+    This is construction only. Returned geometry still needs exact collision,
+    volume, material, and mechanical-transfer gates.
+    On infeasibility/timeout no partially solved field is returned.
+    """
+    from scipy.optimize import linprog
+    from scipy.sparse import coo_matrix
+    p = np.asarray(phi, dtype=np.float64)
+    T = np.asarray(tetrahedra)
+    fixed_ids = np.asarray(fixed_nodes)
+    if p.ndim != 1 or not np.all(np.isfinite(p)):
+        raise ValueError("invalid scalar field")
+    if T.ndim != 2 or T.shape[1] != 4 or not np.issubdtype(T.dtype, np.integer):
+        raise ValueError("invalid parent tetrahedra")
+    if np.any(T < 0) or np.any(T >= len(p)):
+        raise ValueError("parent node outside scalar field")
+    if fixed_ids.ndim != 1 or (len(fixed_ids) and not np.issubdtype(fixed_ids.dtype, np.integer)):
+        raise ValueError("invalid fixed node ids")
+    if np.any(fixed_ids < 0) or np.any(fixed_ids >= len(p)):
+        raise ValueError("fixed node outside scalar field")
+    if (not np.isfinite(target) or not np.isfinite(maximum_value) or maximum_value <= target
+        or not np.isfinite(tolerance) or tolerance < 1e-10
+        or not np.isfinite(time_limit) or time_limit <= 0 or np.any(p > maximum_value)):
+        raise ValueError("invalid construction limits")
+    c = np.ones(len(p)) if costs is None else np.asarray(costs, dtype=np.float64)
+    if c.shape != p.shape or not np.all(np.isfinite(c)) or np.any(c <= 0):
+        raise ValueError("costs must be finite and positive")
+    fixed = np.zeros(len(p), dtype=bool)
+    fixed[fixed_ids.astype(np.int64)] = True
+    free_ids = np.flatnonzero(~fixed)
+    free_index = np.full(len(p), -1, dtype=np.int64)
+    free_index[free_ids] = np.arange(len(free_ids))
+    rr, cc, vv, rhs, checks, conflicts = [], [], [], [], [], []
+    skipped = 0
+    for tet_id, B in constraints:
+        ti = int(tet_id)
+        B = np.asarray(B, dtype=np.float64)
+        if ti != tet_id or ti < 0 or ti >= len(T) or B.ndim != 2 or B.shape[1] != 4:
+            raise ValueError("invalid exclusion parent or barycentric shape")
+        if (not np.all(np.isfinite(B)) or np.any(B < 0) or
+            (len(B) and np.max(np.abs(B.sum(axis=1)-1)) > 2e-12)):
+            raise ValueError("invalid exclusion barycentrics")
+        for bary in B:
+            ids = T[ti]
+            base = float(bary @ p[ids])
+            check_id = len(checks)
+            checks.append((ti, bary.copy()))
+            if base >= target:
+                skipped += 1
+                continue
+            use = (bary > 0) & ~fixed[ids]
+            support = bary[use]
+            if not len(support) or base + float(support @ (maximum_value-p[ids[use]])) < target-tolerance:
+                conflicts.append({"row": check_id, "tet_id": ti, "reason": "fixed boundary or field cap", "value": base})
+                continue
+            # Scale by the maximum coefficient; avoids a tiny row norm while
+            # preserving the original constraint exactly in real arithmetic.
+            scale = float(support.max())
+            row = len(rhs)
+            rr.extend([row]*len(support))
+            cc.extend(free_index[ids[use]].tolist())
+            vv.extend((-support/scale).tolist())
+            rhs.append((base-target)/scale)
+    report = {"constraints": len(checks), "active_rows": len(rhs),
+              "monotonic_satisfied_rows": skipped, "conflicts": conflicts,
+              "free_nodes": len(free_ids), "pass": False}
+    if conflicts:
+        report["status"] = "infeasible_fixed_boundary_or_cap"
+        return None, report
+    if not rhs:
+        report.update(status="already_satisfied", pass_=True)
+        report["pass"] = True
+        report.pop("pass_")
+        report["changed_nodes"] = 0
+        return p.copy(), report
+    A = coo_matrix((vv,(rr,cc)),shape=(len(rhs),len(free_ids))).tocsr()
+    result = linprog(c[free_ids], A_ub=A, b_ub=rhs,
+                     bounds=list(zip(np.zeros(len(free_ids)), maximum_value-p[free_ids])),
+                     method="highs", options={"time_limit":time_limit,
+                       "primal_feasibility_tolerance":1e-9,
+                       "dual_feasibility_tolerance":1e-9})
+    report.update(status=str(result.message), solver_status=int(result.status),
+                  iterations=int(result.nit))
+    if not result.success or result.x is None:
+        return None, report
+    out = p.copy()
+    out[free_ids] += result.x
+    values = np.asarray([b @ out[T[ti]] for ti,b in checks])
+    failures = np.flatnonzero(values < target-tolerance)
+    if (not np.all(np.isfinite(out)) or np.any(out < p-tolerance) or
+        np.any(out > maximum_value+tolerance) or not np.array_equal(out[fixed],p[fixed])):
+        raise AssertionError("joint field invariant failed")
+    report.update(changed_nodes=int(np.count_nonzero(out != p)),
+                  failed_rows=failures.tolist(),
+                  minimum_obstacle_value=float(values.min()) if len(values) else None,
+                  maximum_field_value=float(out.max()) if len(out) else None,
+                  objective=float(c @ (out-p)))
+    report["pass"] = len(failures) == 0
+    return (out if report["pass"] else None), report

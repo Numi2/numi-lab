@@ -1,0 +1,15 @@
+test_already_satisfied_no_change (test_human_skin_p1_joint_exclusion.JointFieldTests.test_already_satisfied_no_change) ... ok
+test_cap_conflict (test_human_skin_p1_joint_exclusion.JointFieldTests.test_cap_conflict) ... ok
+test_fixed_boundary_conflict_no_partial_result (test_human_skin_p1_joint_exclusion.JointFieldTests.test_fixed_boundary_conflict_no_partial_result) ... ok
+test_fixed_nodes_and_all_polygon_vertices (test_human_skin_p1_joint_exclusion.JointFieldTests.test_fixed_nodes_and_all_polygon_vertices) ... ok
+test_invalid_limits_rejected (test_human_skin_p1_joint_exclusion.JointFieldTests.test_invalid_limits_rejected) ... ok
+test_joint_weighted_minimum_and_polygon (test_human_skin_p1_joint_exclusion.JointFieldTests.test_joint_weighted_minimum_and_polygon) ... ok
+test_negative_barycentric_rejected (test_human_skin_p1_joint_exclusion.JointFieldTests.test_negative_barycentric_rejected) ... ok
+test_nonfinite_costs_rejected (test_human_skin_p1_joint_exclusion.JointFieldTests.test_nonfinite_costs_rejected) ... ok
+test_order_invariant_objective (test_human_skin_p1_joint_exclusion.JointFieldTests.test_order_invariant_objective) ... ok
+test_uses_shared_high_weight_node_not_all_vertices (test_human_skin_p1_joint_exclusion.JointFieldTests.test_uses_shared_high_weight_node_not_all_vertices) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.122s
+
+OK

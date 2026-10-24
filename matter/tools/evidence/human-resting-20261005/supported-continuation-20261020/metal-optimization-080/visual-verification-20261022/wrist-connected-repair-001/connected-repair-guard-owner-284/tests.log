@@ -1,0 +1,9 @@
+test_empty_domains (test_human_skin_contact_history.ContactHistoryTests.test_empty_domains) ... ok
+test_missing_pose_fails (test_human_skin_contact_history.ContactHistoryTests.test_missing_pose_fails) ... ok
+test_recurrence_never_erases_guard (test_human_skin_contact_history.ContactHistoryTests.test_recurrence_never_erases_guard) ... ok
+test_two_updates_preserve_resolved_and_add_new (test_human_skin_contact_history.ContactHistoryTests.test_two_updates_preserve_resolved_and_add_new) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.000s
+
+OK

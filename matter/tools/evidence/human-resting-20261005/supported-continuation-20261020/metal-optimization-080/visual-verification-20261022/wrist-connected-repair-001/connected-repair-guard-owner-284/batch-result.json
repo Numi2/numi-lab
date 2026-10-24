@@ -1,0 +1,24 @@
+{
+  "schema": "numi.human.connected-arm-repair-result.v1",
+  "candidate": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/original128-finite-sat-fit-001l/relinearization-002g-root-guard-fixed/iteration-004/candidate.nhskin",
+  "candidate_sha256": "ca41903cfadb6ae8457704e07c69a1cc89a217ffac12f1fc91a840871ee21b5e",
+  "baseline_counts": {
+    "rest": 371,
+    "shoulder_elevation": 48,
+    "elbow_flexion": 125,
+    "shoulder_plane": 79
+  },
+  "candidate_counts": {
+    "elbow_flexion": 33,
+    "rest": 368,
+    "shoulder_elevation": 31,
+    "shoulder_plane": 35
+  },
+  "active_local_rest_pairs": 2,
+  "unrelated_unchanged_rest_pairs": 366,
+  "native_admission": false,
+  "reason": "remaining anatomical crossings; mechanical transfer not regenerated",
+  "witness_report": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/original128-finite-sat-fit-001l/relinearization-002g-root-guard-fixed/iteration-004/iteration-report.json",
+  "loop_history_fix": "persistent resolved sets; recovered missing historical exact receipt; no reset between iterations",
+  "focused_tests": "4 passed; combined42 passed"
+}
