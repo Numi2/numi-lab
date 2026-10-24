@@ -3,13 +3,69 @@ from __future__ import annotations
 import numpy as np
 
 
+def _exact_triangle_tet_polygon(X, P):
+    """Rare construction fallback using the exact binary input coordinates.
+
+    This is initialization only. It does not replace the owning exact collision
+    predicate or perform CPU simulation steps.
+    """
+    from fractions import Fraction as F
+    x=[[F(float(v)) for v in row] for row in X]
+    p=[[F(float(v)) for v in row] for row in P]
+    a=[[x[c+1][r]-x[0][r] for c in range(3)] for r in range(3)]
+    def det(m):
+        return (m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1])
+                -m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0])
+                +m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]))
+    denominator=det(a)
+    if not denominator:
+        raise ValueError("degenerate exact parent tetrahedron")
+    poly=[]
+    for i,point in enumerate(p):
+        rhs=[point[r]-x[0][r] for r in range(3)]
+        u=[]
+        for c in range(3):
+            replaced=[row.copy() for row in a]
+            for r in range(3):replaced[r][c]=rhs[r]
+            u.append(det(replaced)/denominator)
+        poly.append((tuple([F(1)-sum(u)]+u),
+                     tuple(F(int(j==i)) for j in range(3))))
+    for k in range(4):
+        out=[]
+        if not poly:break
+        prev=poly[-1];a0=prev[0][k]
+        for cur in poly:
+            b0=cur[0][k]
+            if (a0<0)!=(b0<0):
+                alpha=a0/(a0-b0)
+                lam=tuple((1-alpha)*v+alpha*w for v,w in zip(prev[0],cur[0]))
+                source=tuple((1-alpha)*v+alpha*w for v,w in zip(prev[1],cur[1]))
+                assert lam[k]==0
+                out.append((lam,source))
+            if b0>=0:out.append(cur)
+            prev,a0=cur,b0
+        poly=[]
+        for item in out:
+            if not poly or item!=poly[-1]:poly.append(item)
+        if len(poly)>1 and poly[0]==poly[-1]:poly.pop()
+    if not poly:return np.empty((0,4)),np.empty((0,3))
+    for b,c in poly:
+        if min(b)<0 or min(c)<0 or sum(b)!=1 or sum(c)!=1:
+            raise AssertionError("exact clipping barycentric invariant failed")
+        for axis in range(3):
+            if sum(b[i]*x[i][axis] for i in range(4))!=sum(c[i]*p[i][axis] for i in range(3)):
+                raise AssertionError("exact clipping reconstruction invariant failed")
+    return (np.asarray([[float(v) for v in b] for b,_ in poly]),
+            np.asarray([[float(v) for v in c] for _,c in poly]))
+
+
 def triangle_tet_barycentric_polygon(tetrahedron, triangle, *, condition_limit=1e12):
     """Clip a triangle against a tetrahedron, returning both parent barycentrics.
 
     Arrays use Float64 construction arithmetic. No physical source coordinates
     are changed. Empty intersection returns two (0, n) arrays. Boundary-only
     polygons are returned too, so touching obstacle cells are not silently missed.
-    This is a construction helper, not an exact collision predicate.
+    A failed floating-point barycentric certificate is recomputed from exact\n    binary input rationals. This remains a construction helper, not an exact\n    collision predicate.
     """
     X = np.asarray(tetrahedron, dtype=np.float64)
     P = np.asarray(triangle, dtype=np.float64)
@@ -55,10 +111,16 @@ def triangle_tet_barycentric_polygon(tetrahedron, triangle, *, condition_limit=1
         return np.empty((0, 4)), np.empty((0, 3))
     B = np.asarray([a for a, _ in poly])
     C = np.asarray([b for _, b in poly])
-    if (np.any(B < -2e-12) or np.any(C < -2e-12) or
-        np.max(np.abs(B.sum(axis=1) - 1)) > 2e-12 or
-        np.max(np.abs(C.sum(axis=1) - 1)) > 2e-12):
-        raise ValueError("clipping barycentric certificate failed")
+    scale=max(float(np.max(np.abs(X))),float(np.max(np.abs(P))),np.finfo(float).tiny)
+    reconstruction_error=float(np.max(np.abs(B @ X-C @ P)))
+    if (not np.isfinite(B).all() or not np.isfinite(C).all() or
+        np.any(B < 0) or np.any(C < 0) or
+        np.max(np.abs(B.sum(axis=1)-1)) > 2e-12 or
+        np.max(np.abs(C.sum(axis=1)-1)) > 2e-12 or
+        reconstruction_error > 64*np.finfo(float).eps*scale):
+        # Exact arithmetic recovers cancellation in thin-but-valid parents;
+        # no tolerance is increased and no source geometry is moved.
+        return _exact_triangle_tet_polygon(X,P)
     return B, C
 
 

@@ -1,0 +1,569 @@
+{
+  "all_body_source_capture": {
+    "execution_receipt_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/execution-receipt.json",
+    "execution_receipt_sha256": "f6260a16638883dbd63b29a262f0555ad3889299fa709e953359ca6f13862f6e",
+    "execution_status": "SOURCE_ONLY_INTENTIONAL_STOP",
+    "launch_manifest_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/launch-manifest.snapshot.json",
+    "launch_manifest_sha256": "d28948c443903036974853bd085c2b45afde527df3ded434de4a7f9870ab9408",
+    "native_binary_sha256": "178e2b47d8ff835fe5306fba5579e617ad9f67ef41820d88d2ffaea0cefcfdae",
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/registered-skin-poses.json",
+    "physical_qualification": false,
+    "returncode": 1,
+    "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "source_revision": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471"
+  },
+  "cache_append": {
+    "added_banks": [
+      {
+        "aabb_max_m": [
+          -0.004791567102074623,
+          -0.532113790512085,
+          0.176926851272583
+        ],
+        "aabb_min_m": [
+          -0.026034245267510414,
+          -0.720994770526886,
+          0.1276511549949646
+        ],
+        "body_indices": [
+          7
+        ],
+        "key": "bank_0172",
+        "kind": "anatomy",
+        "layer": 2,
+        "stable_id": 9,
+        "triangles": 2270,
+        "vertices": 1226
+      },
+      {
+        "aabb_max_m": [
+          -0.033768586814403534,
+          -0.29294857382774353,
+          0.16526775062084198
+        ],
+        "aabb_min_m": [
+          -0.04651954025030136,
+          -0.3372608423233032,
+          0.15288874506950378
+        ],
+        "body_indices": [
+          22
+        ],
+        "key": "bank_0626",
+        "kind": "anatomy",
+        "layer": 2,
+        "stable_id": 464,
+        "triangles": 884,
+        "vertices": 448
+      },
+      {
+        "aabb_max_m": [
+          0.0012356117367744446,
+          -0.292779803276062,
+          0.16063305735588074
+        ],
+        "aabb_min_m": [
+          -0.010549824684858322,
+          -0.35969117283821106,
+          0.14356917142868042
+        ],
+        "body_indices": [
+          22
+        ],
+        "key": "bank_0627",
+        "kind": "anatomy",
+        "layer": 2,
+        "stable_id": 465,
+        "triangles": 170,
+        "vertices": 126
+      },
+      {
+        "aabb_max_m": [
+          -0.04330887645483017,
+          -0.2846449613571167,
+          0.16940559446811676
+        ],
+        "aabb_min_m": [
+          -0.05375101789832115,
+          -0.3262162208557129,
+          0.16059249639511108
+        ],
+        "body_indices": [
+          22
+        ],
+        "key": "bank_0630",
+        "kind": "anatomy",
+        "layer": 2,
+        "stable_id": 468,
+        "triangles": 226,
+        "vertices": 153
+      },
+      {
+        "aabb_max_m": [
+          0.006212521344423294,
+          -0.28576385974884033,
+          0.16967979073524475
+        ],
+        "aabb_min_m": [
+          -0.004180483520030975,
+          -0.32922738790512085,
+          0.15924948453903198
+        ],
+        "body_indices": [
+          22
+        ],
+        "key": "bank_0631",
+        "kind": "anatomy",
+        "layer": 2,
+        "stable_id": 469,
+        "triangles": 280,
+        "vertices": 158
+      },
+      {
+        "aabb_max_m": [
+          -0.012293180450797081,
+          -0.6201349496841431,
+          0.16400931775569916
+        ],
+        "aabb_min_m": [
+          -0.0676979348063469,
+          -0.6436737775802612,
+          0.14117875695228577
+        ],
+        "body_indices": [
+          7
+        ],
+        "key": "bank_0681",
+        "kind": "anatomy",
+        "layer": 2,
+        "stable_id": 519,
+        "triangles": 206,
+        "vertices": 124
+      },
+      {
+        "aabb_max_m": [
+          0.014720594510436058,
+          -0.6191035509109497,
+          0.1647222340106964
+        ],
+        "aabb_min_m": [
+          -0.02142166718840599,
+          -0.6322575211524963,
+          0.1411186307668686
+        ],
+        "body_indices": [
+          7
+        ],
+        "key": "bank_0682",
+        "kind": "anatomy",
+        "layer": 2,
+        "stable_id": 520,
+        "triangles": 288,
+        "vertices": 166
+      },
+      {
+        "aabb_max_m": [
+          -0.03413501754403114,
+          -0.6357488036155701,
+          0.16137944161891937
+        ],
+        "aabb_min_m": [
+          -0.05659870803356171,
+          -0.6478406190872192,
+          0.13611379265785217
+        ],
+        "body_indices": [
+          7
+        ],
+        "key": "bank_0683",
+        "kind": "anatomy",
+        "layer": 2,
+        "stable_id": 521,
+        "triangles": 332,
+        "vertices": 172
+      },
+      {
+        "aabb_max_m": [
+          -0.048958003520965576,
+          -0.6102058291435242,
+          0.14543089270591736
+        ],
+        "aabb_min_m": [
+          -0.09887473285198212,
+          -0.6882424354553223,
+          0.12248304486274719
+        ],
+        "body_indices": [
+          7
+        ],
+        "key": "bank_0684",
+        "kind": "anatomy",
+        "layer": 2,
+        "stable_id": 522,
+        "triangles": 4682,
+        "vertices": 3865
+      },
+      {
+        "aabb_max_m": [
+          0.006941953673958778,
+          -0.6289165616035461,
+          0.1768212467432022
+        ],
+        "aabb_min_m": [
+          -0.04101436585187912,
+          -0.6458459496498108,
+          0.1338302195072174
+        ],
+        "body_indices": [
+          7
+        ],
+        "key": "bank_0685",
+        "kind": "anatomy",
+        "layer": 2,
+        "stable_id": 523,
+        "triangles": 652,
+        "vertices": 334
+      },
+      {
+        "aabb_max_m": [
+          0.05672593414783478,
+          -0.5935918092727661,
+          0.14166954159736633
+        ],
+        "aabb_min_m": [
+          -0.0002666842192411423,
+          -0.6713420152664185,
+          0.1120891124010086
+        ],
+        "body_indices": [
+          7
+        ],
+        "key": "bank_0686",
+        "kind": "anatomy",
+        "layer": 2,
+        "stable_id": 524,
+        "triangles": 4260,
+        "vertices": 3657
+      },
+      {
+        "aabb_max_m": [
+          -0.028697628527879715,
+          -0.45606639981269836,
+          0.2645224332809448
+        ],
+        "aabb_min_m": [
+          -0.1669878363609314,
+          -0.8773460388183594,
+          0.08037959039211273
+        ],
+        "body_indices": [
+          7,
+          20
+        ],
+        "key": "bank_0066",
+        "kind": "soft_tissue",
+        "layer": 1,
+        "stable_id": 67,
+        "triangles": 111792,
+        "vertices": 55940
+      },
+      {
+        "aabb_max_m": [
+          0.11679956316947937,
+          -0.45606327056884766,
+          0.26482176780700684
+        ],
+        "aabb_min_m": [
+          -0.02174803614616394,
+          -0.8773467540740967,
+          0.08094558119773865
+        ],
+        "body_indices": [
+          7,
+          20
+        ],
+        "key": "bank_0067",
+        "kind": "soft_tissue",
+        "layer": 1,
+        "stable_id": 68,
+        "triangles": 111792,
+        "vertices": 55940
+      },
+      {
+        "aabb_max_m": [
+          -0.07384956628084183,
+          -0.3640434443950653,
+          0.2594974637031555
+        ],
+        "aabb_min_m": [
+          -0.20700658857822418,
+          -0.5646193027496338,
+          0.09950850903987885
+        ],
+        "body_indices": [
+          25,
+          41
+        ],
+        "key": "bank_0068",
+        "kind": "soft_tissue",
+        "layer": 1,
+        "stable_id": 69,
+        "triangles": 2032,
+        "vertices": 1022
+      },
+      {
+        "aabb_max_m": [
+          0.15778541564941406,
+          -0.3649856746196747,
+          0.2600306272506714
+        ],
+        "aabb_min_m": [
+          0.022880397737026215,
+          -0.564617395401001,
+          0.10147029161453247
+        ],
+        "body_indices": [
+          25,
+          91
+        ],
+        "key": "bank_0069",
+        "kind": "soft_tissue",
+        "layer": 1,
+        "stable_id": 70,
+        "triangles": 1532,
+        "vertices": 1019
+      },
+      {
+        "aabb_max_m": [
+          -0.030274488031864166,
+          -0.3534989058971405,
+          0.29498493671417236
+        ],
+        "aabb_min_m": [
+          -0.20821473002433777,
+          -0.5287904143333435,
+          0.11014630645513535
+        ],
+        "body_indices": [
+          25,
+          29,
+          41
+        ],
+        "key": "bank_0072",
+        "kind": "soft_tissue",
+        "layer": 1,
+        "stable_id": 73,
+        "triangles": 8246,
+        "vertices": 4119
+      },
+      {
+        "aabb_max_m": [
+          0.16071029007434845,
+          -0.3535468578338623,
+          0.29464614391326904
+        ],
+        "aabb_min_m": [
+          -0.020570091903209686,
+          -0.5287725329399109,
+          0.10782983899116516
+        ],
+        "body_indices": [
+          25,
+          79,
+          91
+        ],
+        "key": "bank_0073",
+        "kind": "soft_tissue",
+        "layer": 1,
+        "stable_id": 74,
+        "triangles": 7704,
+        "vertices": 3850
+      },
+      {
+        "aabb_max_m": [
+          -0.11282725632190704,
+          -0.37278738617897034,
+          0.11837641149759293
+        ],
+        "aabb_min_m": [
+          -0.20331355929374695,
+          -0.4594776928424835,
+          0.00966212060302496
+        ],
+        "body_indices": [
+          25,
+          34,
+          41
+        ],
+        "key": "bank_0086",
+        "kind": "soft_tissue",
+        "layer": 1,
+        "stable_id": 87,
+        "triangles": 2704,
+        "vertices": 1362
+      },
+      {
+        "aabb_max_m": [
+          -0.16809166967868805,
+          -0.3025507628917694,
+          0.14364470541477203
+        ],
+        "aabb_min_m": [
+          -0.2600257694721222,
+          -0.6501600742340088,
+          0.09075863659381866
+        ],
+        "body_indices": [
+          25,
+          29,
+          34,
+          41,
+          43
+        ],
+        "key": "bank_0102",
+        "kind": "soft_tissue",
+        "layer": 1,
+        "stable_id": 103,
+        "triangles": 3992,
+        "vertices": 1999
+      }
+    ],
+    "all_670_baseline_bank_vertex_and_face_arrays_bitwise_unchanged": true,
+    "baseline_bank_count": 670,
+    "baseline_inventory_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native007-190/inventory.json",
+    "baseline_inventory_sha256": "863774f2d1255d5de649ccc574768864df198d648badeeadd3cbcb973aee3c85",
+    "baseline_npz_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native007-190/registered-tissue-banks.npz",
+    "baseline_npz_sha256": "533fdd2d109c9e97ad615c6865f5cbd6d3d3fb9357c06cb28ef9db8862338b7a",
+    "baseline_skipped_count": 19,
+    "complete_bank_count": 689,
+    "complete_inventory_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/inventory.json",
+    "complete_inventory_sha256": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+    "complete_npz_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/registered-tissue-banks.npz",
+    "complete_npz_sha256": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "complete_skipped_count": 0,
+    "new_bank_count": 19,
+    "same_anatomy_input_sha256": true,
+    "same_soft_tissue_input_sha256": true
+  },
+  "created_utc": "2026-10-24T10:03:19.207245+00:00",
+  "limitations": [
+    "The full 157-body source-only capture was emitted by a separately hashed native binary; its 86 shared body current/rest records match native007 exactly.",
+    "The cache is static source-pose geometry; it does not include accepted FEM tissue deformation or establish collision/physical qualification.",
+    "Only the 19 previously skipped banks were appended; all prior 670 bank arrays were independently verified bitwise identical."
+  ],
+  "match": {
+    "all_body_records": 157,
+    "body_pose_records": {
+      "22": {
+        "body_index": 22,
+        "current": {
+          "orientation_world_xyzw": [
+            -0.0237730872,
+            -0.758735657,
+            0.650666595,
+            -0.0196994357
+          ],
+          "position_world_m": [
+            -0.0250139274,
+            -0.240472212,
+            0.0680221021
+          ]
+        },
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.0287582632,
+            -0.997066855,
+            -0.0708694458,
+            0.0028801111
+          ],
+          "position_world_m": [
+            -0.0251433812,
+            0.226041302,
+            1.55921054
+          ]
+        }
+      },
+      "25": {
+        "body_index": 25,
+        "current": {
+          "orientation_world_xyzw": [
+            -0.00394247752,
+            0.708512187,
+            0.00391793251,
+            -0.705676675
+          ],
+          "position_world_m": [
+            -0.0248726383,
+            -0.445808411,
+            0.0691814274
+          ]
+        },
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.50000006,
+            0.5,
+            0.5,
+            -0.50000006
+          ],
+          "position_world_m": [
+            -0.0249999948,
+            0.222600073,
+            1.35389984
+          ]
+        }
+      },
+      "7": {
+        "body_index": 7,
+        "current": {
+          "orientation_world_xyzw": [
+            0.003942471,
+            -0.708512247,
+            -0.00391789665,
+            0.705676675
+          ],
+          "position_world_m": [
+            -0.0253521819,
+            -0.658958197,
+            0.189418525
+          ]
+        },
+        "rest": {
+          "orientation_world_xyzw": [
+            0.50000006,
+            -0.5,
+            -0.5,
+            0.5
+          ],
+          "position_world_m": [
+            -0.0249999929,
+            0.099999994,
+            1.14209998
+          ]
+        }
+      }
+    },
+    "current_rest_match": "exact JSON scalar equality for all 86 shared body records",
+    "float32_match": "exact for every shared position/quaternion scalar",
+    "matched_source_capture_added_body_records": [
+      7,
+      22,
+      25
+    ],
+    "missing_body_indices_in_native007_legacy_snapshot": [
+      7,
+      22,
+      25
+    ],
+    "shared_body_records": 86
+  },
+  "native007_retained_pose": {
+    "binding_count": 86,
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/source-preflight-007/registered-skin-poses.json",
+    "payload_abi": 5,
+    "registration_fingerprint32": 835155552,
+    "sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+    "vertex_count": 61950
+  },
+  "schema": "numi.human.registered-surrounding-tissue-19-bank-completion.v1",
+  "scope": "Verification of existing native source-pose cache append; source-only, not accepted FEM state or physical qualification."
+}
