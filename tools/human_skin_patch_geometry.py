@@ -6,6 +6,182 @@ closure, intersections, layer cells, source ancestry and mass before admission.
 import numpy as np
 
 
+def triangle_deformation_metrics(reference_triangles, candidate_triangles):
+    """Return per-face area ratio, normal cosine, and oriented-area ratio.
+
+    Inputs are already gathered Nx3x3 triangle coordinates: the second axis
+    always selects corners, the third coordinates. This explicit contract
+    avoids confusing a vertex-index array with a triangle/corner array.
+    Collapsed candidate faces return zero in all three metrics. Degenerate
+    reference faces cannot define a comparison and are rejected.
+    """
+    reference = np.asarray(reference_triangles, dtype=np.float64)
+    candidate = np.asarray(candidate_triangles, dtype=np.float64)
+    if (reference.ndim != 3 or reference.shape[1:] != (3, 3)
+            or reference.shape != candidate.shape
+            or not np.isfinite(reference).all() or not np.isfinite(candidate).all()):
+        raise ValueError("matching finite Nx3x3 triangle coordinates required")
+    nr = np.cross(reference[:, 1]-reference[:, 0], reference[:, 2]-reference[:, 0])
+    nc = np.cross(candidate[:, 1]-candidate[:, 0], candidate[:, 2]-candidate[:, 0])
+    ar = np.linalg.norm(nr, axis=1); ac = np.linalg.norm(nc, axis=1)
+    if np.any(ar == 0):
+        raise ValueError("nondegenerate reference triangles required")
+    dot = np.einsum("ij,ij->i", nr, nc)
+    cosine = np.divide(dot, ar*ac, out=np.zeros(len(ar)), where=ac != 0)
+    return ac/ar, np.clip(cosine, -1, 1), dot/(ar*ar)
+
+
+def p1_tetrahedral_sublevel_fractions(nodal_values, tetrahedra, level):
+    """Exact volume fractions of a linear nodal field <= level in each tet.
+
+    This is a scalar-field integration primitive, independent of orientation
+    and physical cell volume. Repeated nodal values are supported without a
+    divided-difference denominator across equal knots. A constant cell at the
+    threshold has fraction one; interface builders must separately reject a
+    positive-volume plateau rather than interpreting it as a unique surface.
+    No surface closure or anatomical/material admission is implied.
+    """
+    values = np.asarray(nodal_values, dtype=np.float64)
+    raw = np.asarray(tetrahedra)
+    threshold = np.asarray(level, dtype=np.float64)
+    if values.ndim != 1 or not np.isfinite(values).all():
+        raise ValueError("finite one-dimensional nodal values required")
+    if raw.ndim != 2 or raw.shape[1] != 4 or raw.dtype.kind not in "iu":
+        raise ValueError("Nx4 integer tetrahedral indices required")
+    if threshold.ndim != 0 or not np.isfinite(threshold):
+        raise ValueError("finite scalar level required")
+    if raw.size and (raw.min() < 0 or raw.max() >= len(values)):
+        raise ValueError("tetrahedral index outside nodal values")
+    if raw.size and np.any(np.diff(np.sort(raw, axis=1), axis=1) == 0):
+        raise ValueError("four distinct node indices per tetrahedron required")
+    knots = np.sort(values[raw], axis=1)
+    below = np.sum(knots <= threshold, axis=1)
+    result = (below == 4).astype(np.float64)
+    for count in (1, 2, 3):
+        rows = np.flatnonzero(below == count)
+        if not len(rows):
+            continue
+        a, b, c, d = knots[rows].T
+        if count == 1:
+            fraction = ((threshold-a)/(b-a) * (threshold-a)/(c-a)
+                        * (threshold-a)/(d-a))
+        elif count == 3:
+            fraction = 1 - ((d-threshold)/(d-a) * (d-threshold)/(d-b)
+                            * (d-threshold)/(d-c))
+        else:
+            ac = (threshold-a)/(c-a)
+            ad = (threshold-a)/(d-a)
+            bc = (threshold-b)/(c-b)
+            bd = (threshold-b)/(d-b)
+            # Three tetrahedra partition the clipped six-vertex polyhedron.
+            fraction = ac*ad + ad*bc*(1-ac) + bc*bd*(1-ad)
+        result[rows] = fraction
+    if not np.isfinite(result).all() or np.any((result < -1e-14) | (result > 1+1e-14)):
+        raise ValueError("invalid linear-field fraction; rescale extreme nodal values")
+    return np.clip(result, 0, 1)
+
+
+def extract_p1_tetrahedral_interface(vertices, tetrahedra, nodal_values, level):
+    """Extract the oriented boundary of a P1 sublevel inside tetrahedra.
+
+    Exact threshold vertices retain their coordinates and identity. Shared
+    edges share one interpolated vertex; no coordinate welding, perturbation,
+    or degenerate-face removal is performed. Returns Float32 positions,
+    triangles, source edge endpoints, and endpoint-one interpolation weights.
+    Construction-domain exterior faces are not automatically physical skin.
+    """
+    x = np.asarray(vertices, dtype=np.float64)
+    raw = np.asarray(tetrahedra)
+    phi = np.asarray(nodal_values, dtype=np.float64)
+    # Reuse strict field and index validation, including repeated-node rejection.
+    p1_tetrahedral_sublevel_fractions(phi, raw, level)
+    if x.shape != (len(phi), 3) or not np.isfinite(x).all():
+        raise ValueError("finite Nx3 vertices matching nodal values required")
+    t = raw.astype(np.int64)
+    threshold = float(level)
+    values = phi[t]
+    if np.any(np.all(values == threshold, axis=1)):
+        raise ValueError("constant threshold cell has no unique interface")
+    active = np.flatnonzero((np.min(values, axis=1) < threshold)
+                            & (np.max(values, axis=1) >= threshold))
+    keys, points, weights, index = [], [], [], {}
+    triangles = []
+    facet_owners = {}
+    facet_counts = {}
+    for row in active:
+        nodes = t[row]
+        local = values[row]
+        edges = []
+        for node in nodes[local == threshold]:
+            edges.append((int(node), int(node)))
+        for i, j in ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)):
+            if (local[i] < threshold < local[j]
+                    or local[j] < threshold < local[i]):
+                edges.append(tuple(sorted((int(nodes[i]), int(nodes[j])))))
+        if len(edges) < 3:
+            continue
+        if len(edges) > 4:
+            raise ValueError("nonregular tetrahedral interface")
+        ids = []
+        for key in edges:
+            if key not in index:
+                a, b = key
+                alpha = 0. if a == b else (threshold-phi[a])/(phi[b]-phi[a])
+                point = x[a] if a == b else (1-alpha)*x[a]+alpha*x[b]
+                index[key] = len(points)
+                keys.append(key); points.append(point); weights.append(alpha)
+            ids.append(index[key])
+        p = np.asarray([points[i] for i in ids])
+        try:
+            gradient = np.linalg.solve(x[nodes[1:]]-x[nodes[0]], local[1:]-local[0])
+        except np.linalg.LinAlgError as exc:
+            raise ValueError("singular tetrahedral geometry") from exc
+        normal = gradient/np.linalg.norm(gradient)
+        axis = np.eye(3)[np.argmin(np.abs(normal))]
+        u = np.cross(axis, normal); u /= np.linalg.norm(u)
+        v = np.cross(normal, u)
+        center = p.mean(axis=0)
+        order = np.argsort(np.arctan2((p-center)@v, (p-center)@u))
+        ids = [ids[i] for i in order]
+        if len(ids) == 3:
+            children = [ids]
+        else:
+            diagonal0 = tuple(sorted((keys[ids[0]], keys[ids[2]])))
+            diagonal1 = tuple(sorted((keys[ids[1]], keys[ids[3]])))
+            if diagonal0 <= diagonal1:
+                children = [[ids[0], ids[1], ids[2]], [ids[0], ids[2], ids[3]]]
+            else:
+                children = [[ids[1], ids[2], ids[3]], [ids[1], ids[3], ids[0]]]
+        for face in children:
+            key = tuple(sorted(face))
+            facet_counts[key] = facet_counts.get(key, 0)+1
+            if facet_counts[key] > 2:
+                raise ValueError("nonmanifold interface facet")
+            if key in facet_owners:
+                # Two sublevel cells sharing an all-threshold facet cancel.
+                previous = facet_owners.pop(key)
+                old = triangles[previous]
+                same_orientation = any(tuple(face) == tuple(old[k:]+old[:k])
+                                       for k in range(3))
+                if same_orientation:
+                    raise ValueError("overlapping oriented interface facet")
+                triangles[previous] = None
+            else:
+                facet_owners[key] = len(triangles)
+                triangles.append(face)
+    faces = np.asarray([f for f in triangles if f is not None], dtype=np.int64).reshape(-1, 3)
+    emitted = np.asarray(points, dtype=np.float32).reshape(-1, 3)
+    if len(faces):
+        p = emitted.astype(np.float64)[faces]
+        cross = np.cross(p[:, 1]-p[:, 0], p[:, 2]-p[:, 0])
+        before = np.asarray(points)[faces]
+        reference = np.cross(before[:, 1]-before[:, 0], before[:, 2]-before[:, 0])
+        if np.any(np.einsum("ij,ij->i", cross, reference) <= 0):
+            raise ValueError("interface face degenerates or reverses after Float32 emission")
+    return (emitted, faces, np.asarray(keys, dtype=np.int64).reshape(-1, 2),
+            np.asarray(weights, dtype=np.float64))
+
+
 def zipper_annulus(vertices, outer_loop, inner_loop, *, quality_floor=1e-5,
                    max_edge=None, phase_band=0.35):
     """Return (triangles, report) for disjoint, consistently ordered loops.

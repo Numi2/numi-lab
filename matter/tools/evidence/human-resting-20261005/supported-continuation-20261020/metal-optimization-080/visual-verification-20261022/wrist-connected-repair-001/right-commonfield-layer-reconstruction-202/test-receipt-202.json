@@ -1,0 +1,23 @@
+{
+  "host": "numi.local",
+  "device": "Apple M6 Mac18,5",
+  "source_base": "d38640968db5f57a3e32a6ff92fbb7843c044321",
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_human_skin_patch_geometry.py"
+  ],
+  "wall_seconds": 0.7028697079513222,
+  "exit_code": 0,
+  "tests": 40,
+  "source_sha256": "5da1d85ba688b76835d0b9e9f0f1b3dfe3e8dae9549f0e90c012b24b5a274032",
+  "tests_sha256": "ee8fa48bf82872ede210a1069ad4e09807a58cd84929dbe57a31d3238236ab7a",
+  "output_sha256": "cae3e8214c9c380c8173aee61e02d25de717bccbbdca7d49ef22692435126111",
+  "physical_admission": false,
+  "scope": "exact linear-tetrahedral sublevel fractions, tied-node interface extraction, oriented triangle metrics and existing geometry regressions; no native physical run"
+}

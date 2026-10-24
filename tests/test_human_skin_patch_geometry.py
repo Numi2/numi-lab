@@ -12,6 +12,142 @@ geom = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(geom)
 
 
+class TriangleDeformationMetricsTests(unittest.TestCase):
+    def test_corner_axis_area_and_signed_orientation(self):
+        points = np.array([[17., -3, 9], [18, -3, 9], [17, -1, 9], [50, 20, -10]])
+        faces = np.array([[0, 1, 2]])
+        tri = points[faces]
+        area, cosine, oriented = geom.triangle_deformation_metrics(tri, tri.copy())
+        np.testing.assert_allclose([area, cosine, oriented], [[1], [1], [1]])
+        area, cosine, oriented = geom.triangle_deformation_metrics(tri, tri[:, [0, 2, 1]])
+        np.testing.assert_allclose([area, cosine, oriented], [[1], [-1], [-1]])
+        candidate = tri[:, :1]+2*(tri-tri[:, :1])
+        area, cosine, oriented = geom.triangle_deformation_metrics(tri, candidate)
+        np.testing.assert_allclose([area, cosine, oriented], [[4], [1], [4]])
+
+    def test_collapse_empty_and_invalid_reference(self):
+        tri = np.array([[[0., 0, 0], [1, 0, 0], [0, 1, 0]]])
+        a, c, o = geom.triangle_deformation_metrics(tri, np.zeros_like(tri))
+        np.testing.assert_array_equal([a, c, o], [[0], [0], [0]])
+        self.assertEqual(geom.triangle_deformation_metrics(
+            np.empty((0, 3, 3)), np.empty((0, 3, 3)))[0].shape, (0,))
+        for ref, candidate in [(tri[0], tri[0]), (np.zeros_like(tri), tri),
+                               (tri, np.full_like(tri, np.nan))]:
+            with self.assertRaises(ValueError):
+                geom.triangle_deformation_metrics(ref, candidate)
+
+
+class LinearTetFractionTests(unittest.TestCase):
+    def fraction(self, values, level):
+        return geom.p1_tetrahedral_sublevel_fractions(
+            values, np.array([[0, 1, 2, 3]]), level)[0]
+
+    def test_repeated_knots_analytic(self):
+        for t in np.linspace(0, 1, 21):
+            self.assertAlmostEqual(self.fraction([0, 1, 1, 1], t), t**3)
+            self.assertAlmostEqual(self.fraction([0, 0, 0, 1], t), 1-(1-t)**3)
+            self.assertAlmostEqual(self.fraction([0, 0, 1, 1], t), 3*t*t-2*t**3)
+        self.assertEqual(self.fraction([1, 1, 1, 1], 1), 1)
+        self.assertEqual(self.fraction([1, 1, 1, 1], .5), 0)
+
+    def test_distinct_knots_divided_difference_reference(self):
+        values = np.array([-2., -.3, .7, 3.])
+        for t in np.linspace(-2, 3, 47):
+            expected = sum(max(t-a, 0)**3 / np.prod(np.delete(values, i)-a)
+                           for i, a in enumerate(values))
+            self.assertAlmostEqual(self.fraction(values, t), expected, places=12)
+
+    def test_permutation_affine_complement_and_monotonicity(self):
+        import itertools
+        values = np.array([-.8, -.1, -.1, 1.7])
+        expected = self.fraction(values, .3)
+        for order in itertools.permutations(range(4)):
+            self.assertAlmostEqual(self.fraction(values[list(order)], .3), expected)
+        self.assertAlmostEqual(self.fraction(values*7+13, .3*7+13), expected)
+        self.assertAlmostEqual(self.fraction(-values, -.3), 1-expected)
+        fractions = [self.fraction(values, t) for t in np.linspace(-1, 2, 100)]
+        self.assertTrue(np.all(np.diff(fractions) >= 0))
+
+    def test_batch_and_empty(self):
+        values = np.array([0, 1, 1, 1, 0, 0, 0, 1.])
+        actual = geom.p1_tetrahedral_sublevel_fractions(
+            values, np.arange(8).reshape(2, 4), .5)
+        np.testing.assert_allclose(actual, [.125, .875])
+        self.assertEqual(geom.p1_tetrahedral_sublevel_fractions(
+            [], np.empty((0, 4), dtype=np.int64), 0).shape, (0,))
+
+    def test_invalid_inputs(self):
+        good = np.array([[0, 1, 2, 3]])
+        for values, cells, level in [
+                ([0, 1, np.nan, 2], good, 0),
+                ([[0, 1, 2, 3]], good, 0),
+                ([0, 1, 2, 3], good.astype(float), 0),
+                ([0, 1, 2, 3], [[0, 1, 2, 4]], 0),
+                ([0, 1, 2, 3], [[0, 1, 2, -1]], 0),
+                ([0, 1, 2, 3], [[0, 1, 1, 3]], 0),
+                ([0, 1, 2, 3], good, np.inf),
+                ([0, 1, 2, 3], good, [0])]:
+            with self.subTest(values=values, cells=cells, level=level):
+                with self.assertRaises(ValueError):
+                    geom.p1_tetrahedral_sublevel_fractions(values, cells, level)
+
+
+class LinearTetInterfaceTests(unittest.TestCase):
+    def setUp(self):
+        self.x = np.array([[0., 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        self.t = np.array([[0, 1, 2, 3]])
+
+    def test_ordinary_cut_preserves_edge_ancestry_and_orientation(self):
+        phi = np.array([0., 1, 1, 1])
+        x, faces, edges, alpha = geom.extract_p1_tetrahedral_interface(self.x, self.t, phi, .5)
+        self.assertEqual(x.dtype, np.float32)
+        self.assertEqual(faces.shape, (1, 3))
+        np.testing.assert_allclose(x, (1-alpha[:, None])*self.x[edges[:, 0]]+alpha[:, None]*self.x[edges[:, 1]])
+        np.testing.assert_allclose((1-alpha)*phi[edges[:, 0]]+alpha*phi[edges[:, 1]], .5)
+        p = x[faces[0]].astype(float)
+        self.assertGreater(np.dot(np.cross(p[1]-p[0], p[2]-p[0]), [1, 1, 1]), 0)
+
+    def test_exact_threshold_vertices_and_quad(self):
+        x, f, edge, alpha = geom.extract_p1_tetrahedral_interface(self.x, self.t, [-1, 0, 0, 1], 0)
+        self.assertEqual(f.shape, (1, 3))
+        for node in (1, 2):
+            row = np.flatnonzero(np.all(edge == [node, node], axis=1))[0]
+            np.testing.assert_array_equal(x[row], self.x[node].astype(np.float32))
+            self.assertEqual(alpha[row], 0)
+        x, f, edge, alpha = geom.extract_p1_tetrahedral_interface(self.x, self.t, [-1, -1, 1, 1], 0)
+        self.assertEqual(f.shape, (2, 3))
+        self.assertEqual(len(x), 4)
+
+    def test_shared_level_face_has_one_owner_at_crossing(self):
+        x = np.vstack([self.x, [0, 0, -1.]])
+        t = np.array([[0, 1, 2, 3], [0, 2, 1, 4]])
+        points, faces, edges, alpha = geom.extract_p1_tetrahedral_interface(x, t, [0, 0, 0, 1, -1], 0)
+        self.assertEqual(len(faces), 1)
+        self.assertTrue(np.all(edges[:, 0] == edges[:, 1]))
+        # Both cells below: the internal shared face cancels exactly.
+        _, faces, _, _ = geom.extract_p1_tetrahedral_interface(x, t, [0, 0, 0, -1, -1], 0)
+        self.assertEqual(len(faces), 0)
+
+    def test_cell_order_and_orientation_do_not_change_surface(self):
+        a = geom.extract_p1_tetrahedral_interface(self.x, self.t, [-2, -.3, .7, 3], .1)
+        b = geom.extract_p1_tetrahedral_interface(self.x, self.t[:, [3, 1, 0, 2]], [-2, -.3, .7, 3], .1)
+        def coordinates(result):
+            x, faces, _, _ = result
+            return sorted(tuple(sorted(tuple(p) for p in x[f])) for f in faces)
+        self.assertEqual(coordinates(a), coordinates(b))
+
+    def test_plateau_and_float32_collapse_rejected(self):
+        with self.assertRaisesRegex(ValueError, "constant threshold"):
+            geom.extract_p1_tetrahedral_interface(self.x, self.t, [0, 0, 0, 0], 0)
+        with self.assertRaisesRegex(ValueError, "Float32"):
+            geom.extract_p1_tetrahedral_interface(self.x*1e-12+1, self.t, [0, 1, 1, 1], .5)
+
+    def test_empty(self):
+        x, faces, edges, alpha = geom.extract_p1_tetrahedral_interface(
+            np.empty((0, 3)), np.empty((0, 4), dtype=np.int64), [], 0)
+        self.assertEqual(x.shape, (0, 3)); self.assertEqual(faces.shape, (0, 3))
+
+
 class AnnularPatchTests(unittest.TestCase):
     def setUp(self):
         a = np.arange(25)*2*np.pi/25
