@@ -1,0 +1,2033 @@
+{
+  "admission": "No fraction is admitted without exact nearby tissue/muscle, source/material ancestry, native preparation and physical gates.",
+  "ancestry": {
+    "base_vertex_count": 61950,
+    "clone_source_ids": [
+      4626,
+      5078,
+      5079,
+      5080,
+      5499,
+      5500,
+      5501,
+      5502,
+      5503,
+      5895,
+      5896,
+      5897,
+      5898,
+      5899,
+      5922,
+      5923,
+      5924,
+      5925,
+      6432,
+      6433,
+      6435,
+      6436,
+      6437,
+      6438,
+      6439,
+      6455,
+      6456,
+      6457,
+      6879,
+      6881,
+      6884,
+      6889,
+      6890,
+      6891,
+      6892,
+      6909,
+      7067,
+      7074,
+      7075,
+      7076,
+      7077,
+      7241,
+      7244,
+      7245,
+      7246,
+      7247,
+      7248,
+      7250,
+      7252,
+      40718,
+      40719,
+      41251,
+      41252,
+      41259,
+      41801,
+      41802,
+      41816,
+      42333,
+      42354,
+      44056,
+      44066,
+      44067,
+      44074,
+      44555,
+      44556,
+      44557,
+      44575,
+      44586,
+      45149,
+      45150,
+      45162,
+      45163,
+      45175,
+      46534,
+      46544,
+      46545,
+      46546,
+      46547,
+      46548,
+      46561,
+      46562,
+      46563,
+      46573,
+      46581,
+      46582,
+      46713,
+      46714,
+      46716,
+      46984,
+      47137,
+      47139,
+      47186,
+      47188,
+      47295,
+      47296,
+      47297,
+      47321,
+      47322,
+      47336,
+      47456,
+      47485,
+      47486,
+      47487,
+      47488,
+      47502,
+      47503,
+      47504,
+      47655,
+      47656,
+      47657,
+      48106,
+      48627,
+      49023,
+      49024,
+      54949,
+      54950,
+      54955,
+      54957,
+      55000,
+      55002,
+      55329,
+      55330,
+      55331,
+      55333,
+      55335,
+      55336,
+      55337,
+      55338,
+      55339,
+      55340,
+      55341,
+      55344,
+      55345,
+      55347,
+      55349,
+      55355,
+      55358,
+      55359,
+      55360,
+      55363,
+      55367,
+      55433,
+      55436,
+      55437,
+      55438,
+      55439,
+      55447,
+      55448,
+      55450,
+      55455,
+      55459,
+      55460,
+      55462,
+      55464,
+      55465,
+      55466,
+      55467,
+      55468,
+      55472,
+      55473,
+      55474,
+      55475,
+      55476,
+      55477,
+      55478,
+      55479,
+      55480,
+      55481,
+      55482,
+      55483,
+      55484,
+      55485,
+      55486,
+      55487,
+      55488
+    ],
+    "face_input_candidate_rows_sha256": "9106a4a9ca68d9e33f9b460c46a0e5bd58f89eee3affe868aacc269e1bd30ae6",
+    "face_source_parent_offsets_sha256": "c0646d8a87900307ec90e4eb965c562484c169589eea44392cd8c4d8cdb7ba94",
+    "face_source_parent_rows_sha256": "97f528b5fa29cee5041558f0230ce7ba4b7cbb08c5f5b4a915633b69c36d9bec",
+    "fixed_boundary_edges": [
+      [
+        3829,
+        3830
+      ],
+      [
+        3829,
+        5077
+      ],
+      [
+        3830,
+        4186
+      ],
+      [
+        4186,
+        4187
+      ],
+      [
+        4187,
+        4622
+      ],
+      [
+        4622,
+        5060
+      ],
+      [
+        5060,
+        5061
+      ],
+      [
+        5061,
+        5476
+      ],
+      [
+        5076,
+        5077
+      ],
+      [
+        5076,
+        5475
+      ],
+      [
+        5475,
+        5498
+      ],
+      [
+        5476,
+        5504
+      ],
+      [
+        5498,
+        5921
+      ],
+      [
+        5504,
+        5926
+      ],
+      [
+        5921,
+        6426
+      ],
+      [
+        5926,
+        5928
+      ],
+      [
+        5928,
+        6440
+      ],
+      [
+        6426,
+        6431
+      ],
+      [
+        6428,
+        6431
+      ],
+      [
+        6428,
+        6434
+      ],
+      [
+        6434,
+        6880
+      ],
+      [
+        6440,
+        6458
+      ],
+      [
+        6458,
+        6893
+      ],
+      [
+        6880,
+        6882
+      ],
+      [
+        6882,
+        6883
+      ],
+      [
+        6883,
+        7056
+      ],
+      [
+        6893,
+        7078
+      ],
+      [
+        7056,
+        7061
+      ],
+      [
+        7061,
+        7062
+      ],
+      [
+        7062,
+        7240
+      ],
+      [
+        7078,
+        7079
+      ],
+      [
+        7079,
+        7255
+      ],
+      [
+        7240,
+        7426
+      ],
+      [
+        7249,
+        7251
+      ],
+      [
+        7249,
+        7431
+      ],
+      [
+        7251,
+        7254
+      ],
+      [
+        7253,
+        7254
+      ],
+      [
+        7253,
+        7255
+      ],
+      [
+        7426,
+        7428
+      ],
+      [
+        7428,
+        7429
+      ],
+      [
+        7429,
+        7431
+      ],
+      [
+        40159,
+        40169
+      ],
+      [
+        40159,
+        41242
+      ],
+      [
+        40169,
+        40170
+      ],
+      [
+        40170,
+        40728
+      ],
+      [
+        40720,
+        40728
+      ],
+      [
+        40720,
+        41275
+      ],
+      [
+        41242,
+        41800
+      ],
+      [
+        41275,
+        55321
+      ],
+      [
+        41800,
+        42332
+      ],
+      [
+        42332,
+        42870
+      ],
+      [
+        42844,
+        42870
+      ],
+      [
+        42844,
+        42871
+      ],
+      [
+        42871,
+        42872
+      ],
+      [
+        42872,
+        55389
+      ],
+      [
+        43464,
+        43471
+      ],
+      [
+        43464,
+        44054
+      ],
+      [
+        43471,
+        43491
+      ],
+      [
+        43491,
+        55432
+      ],
+      [
+        44039,
+        44040
+      ],
+      [
+        44039,
+        44055
+      ],
+      [
+        44040,
+        44535
+      ],
+      [
+        44054,
+        44055
+      ],
+      [
+        44535,
+        44536
+      ],
+      [
+        44536,
+        44537
+      ],
+      [
+        44537,
+        45118
+      ],
+      [
+        45118,
+        45133
+      ],
+      [
+        45133,
+        45134
+      ],
+      [
+        45134,
+        45164
+      ],
+      [
+        45164,
+        45184
+      ],
+      [
+        45184,
+        55449
+      ],
+      [
+        46541,
+        46542
+      ],
+      [
+        46541,
+        46711
+      ],
+      [
+        46542,
+        46560
+      ],
+      [
+        46559,
+        46560
+      ],
+      [
+        46559,
+        46572
+      ],
+      [
+        46572,
+        46588
+      ],
+      [
+        46588,
+        46589
+      ],
+      [
+        46589,
+        46596
+      ],
+      [
+        46590,
+        46596
+      ],
+      [
+        46590,
+        55322
+      ],
+      [
+        46682,
+        55457
+      ],
+      [
+        46682,
+        55470
+      ],
+      [
+        46695,
+        46697
+      ],
+      [
+        46695,
+        46712
+      ],
+      [
+        46697,
+        46715
+      ],
+      [
+        46711,
+        46712
+      ],
+      [
+        46715,
+        46717
+      ],
+      [
+        46717,
+        55374
+      ],
+      [
+        46847,
+        46849
+      ],
+      [
+        46847,
+        55470
+      ],
+      [
+        46849,
+        47000
+      ],
+      [
+        46985,
+        47001
+      ],
+      [
+        46985,
+        47138
+      ],
+      [
+        47000,
+        47168
+      ],
+      [
+        47001,
+        47168
+      ],
+      [
+        47138,
+        47140
+      ],
+      [
+        47140,
+        47141
+      ],
+      [
+        47141,
+        47142
+      ],
+      [
+        47142,
+        47143
+      ],
+      [
+        47143,
+        47298
+      ],
+      [
+        47184,
+        47185
+      ],
+      [
+        47184,
+        47335
+      ],
+      [
+        47185,
+        55428
+      ],
+      [
+        47298,
+        47465
+      ],
+      [
+        47335,
+        48638
+      ],
+      [
+        47457,
+        47458
+      ],
+      [
+        47457,
+        47460
+      ],
+      [
+        47458,
+        47658
+      ],
+      [
+        47460,
+        47462
+      ],
+      [
+        47462,
+        47465
+      ],
+      [
+        47658,
+        48087
+      ],
+      [
+        48087,
+        48088
+      ],
+      [
+        48088,
+        48628
+      ],
+      [
+        48628,
+        48639
+      ],
+      [
+        48638,
+        49420
+      ],
+      [
+        48639,
+        49025
+      ],
+      [
+        49025,
+        49421
+      ],
+      [
+        49420,
+        49902
+      ],
+      [
+        49421,
+        49902
+      ],
+      [
+        55321,
+        55323
+      ],
+      [
+        55322,
+        55324
+      ],
+      [
+        55323,
+        55328
+      ],
+      [
+        55324,
+        55327
+      ],
+      [
+        55327,
+        55328
+      ],
+      [
+        55374,
+        55376
+      ],
+      [
+        55376,
+        55378
+      ],
+      [
+        55378,
+        55381
+      ],
+      [
+        55381,
+        55389
+      ],
+      [
+        55428,
+        55430
+      ],
+      [
+        55430,
+        55431
+      ],
+      [
+        55431,
+        55432
+      ],
+      [
+        55449,
+        55463
+      ],
+      [
+        55457,
+        55463
+      ]
+    ],
+    "patch_source_face_rows": [
+      8400,
+      8401,
+      8402,
+      9221,
+      9230,
+      9231,
+      9232,
+      10104,
+      10105,
+      10126,
+      10127,
+      10128,
+      10129,
+      10130,
+      10131,
+      10132,
+      10133,
+      10134,
+      10925,
+      10926,
+      10927,
+      10928,
+      10972,
+      10973,
+      10974,
+      10975,
+      10976,
+      10977,
+      10978,
+      10979,
+      10980,
+      10981,
+      10982,
+      10983,
+      10984,
+      10985,
+      11771,
+      11772,
+      11773,
+      11774,
+      11775,
+      11776,
+      11818,
+      11820,
+      11821,
+      11822,
+      11823,
+      11824,
+      11825,
+      11826,
+      11827,
+      11828,
+      11829,
+      11832,
+      12786,
+      12787,
+      12788,
+      12789,
+      12790,
+      12791,
+      12792,
+      12793,
+      12794,
+      12795,
+      12796,
+      12797,
+      12798,
+      12799,
+      12800,
+      12801,
+      12829,
+      12830,
+      12831,
+      12832,
+      12833,
+      13661,
+      13662,
+      13663,
+      13664,
+      13665,
+      13666,
+      13668,
+      13670,
+      13671,
+      13672,
+      13673,
+      13674,
+      13675,
+      13679,
+      13680,
+      13681,
+      13682,
+      13683,
+      13684,
+      13685,
+      13686,
+      14017,
+      14027,
+      14032,
+      14040,
+      14041,
+      14042,
+      14052,
+      14053,
+      14054,
+      14055,
+      14056,
+      14057,
+      14058,
+      14059,
+      14060,
+      14061,
+      14062,
+      14064,
+      14377,
+      14379,
+      14380,
+      14381,
+      14382,
+      14383,
+      14384,
+      14385,
+      14386,
+      14387,
+      14388,
+      14389,
+      14390,
+      14391,
+      14392,
+      14393,
+      14395,
+      14396,
+      14397,
+      14399,
+      14760,
+      14763,
+      14767,
+      65766,
+      65767,
+      65789,
+      65791,
+      65792,
+      66830,
+      66831,
+      66832,
+      66833,
+      67925,
+      67926,
+      67947,
+      67948,
+      67949,
+      67959,
+      67960,
+      67977,
+      67979,
+      69036,
+      69062,
+      69063,
+      69064,
+      69065,
+      69066,
+      69067,
+      69068,
+      69069,
+      69070,
+      69071,
+      69072,
+      69073,
+      69074,
+      69075,
+      69076,
+      69077,
+      69078,
+      69079,
+      69080,
+      69081,
+      69082,
+      69083,
+      69088,
+      69112,
+      69113,
+      69141,
+      69142,
+      69143,
+      69144,
+      69145,
+      69146,
+      69147,
+      69148,
+      69149,
+      69150,
+      69151,
+      69152,
+      69154,
+      69155,
+      70176,
+      70177,
+      70178,
+      70202,
+      70203,
+      70204,
+      70205,
+      71191,
+      71192,
+      71250,
+      72456,
+      73574,
+      73576,
+      73577,
+      73608,
+      73609,
+      73611,
+      73612,
+      73635,
+      73636,
+      73637,
+      73638,
+      73639,
+      73649,
+      73650,
+      73654,
+      73655,
+      73656,
+      73657,
+      73658,
+      73659,
+      73660,
+      73661,
+      73662,
+      73663,
+      73679,
+      73680,
+      73681,
+      73682,
+      73683,
+      73684,
+      73685,
+      74537,
+      74538,
+      74578,
+      74579,
+      74580,
+      74581,
+      74582,
+      74600,
+      74601,
+      74602,
+      74615,
+      74616,
+      74617,
+      74618,
+      74619,
+      74620,
+      74621,
+      74622,
+      74623,
+      74624,
+      74625,
+      74645,
+      74646,
+      74647,
+      74648,
+      74649,
+      74672,
+      74673,
+      74674,
+      75561,
+      75562,
+      75587,
+      75588,
+      75589,
+      75590,
+      75616,
+      75617,
+      75639,
+      75640,
+      75641,
+      75642,
+      75643,
+      75644,
+      75645,
+      75646,
+      75647,
+      75648,
+      75649,
+      75650,
+      75651,
+      75656,
+      75657,
+      78278,
+      78279,
+      78280,
+      78281,
+      78282,
+      78283,
+      78293,
+      78295,
+      78298,
+      78300,
+      78301,
+      78302,
+      78303,
+      78304,
+      78305,
+      78306,
+      78307,
+      78308,
+      78309,
+      78310,
+      78311,
+      78312,
+      78331,
+      78332,
+      78333,
+      78335,
+      78336,
+      78337,
+      78338,
+      78339,
+      78340,
+      78341,
+      78342,
+      78343,
+      78344,
+      78352,
+      78353,
+      78354,
+      78355,
+      78356,
+      78357,
+      78358,
+      78359,
+      78360,
+      78373,
+      78374,
+      78375,
+      78376,
+      78377,
+      78378,
+      78379,
+      78384,
+      78385,
+      78387,
+      78396,
+      78397,
+      78400,
+      78588,
+      78612,
+      78647,
+      78648,
+      78649,
+      78651,
+      78652,
+      78653,
+      78654,
+      78655,
+      78656,
+      78658,
+      78660,
+      78930,
+      79193,
+      79194,
+      79222,
+      79223,
+      79224,
+      79225,
+      79226,
+      79227,
+      79228,
+      79286,
+      79287,
+      79288,
+      79289,
+      79482,
+      79483,
+      79484,
+      79485,
+      79486,
+      79487,
+      79488,
+      79492,
+      79493,
+      79494,
+      79495,
+      79536,
+      79537,
+      79538,
+      79539,
+      79540,
+      79541,
+      79542,
+      79543,
+      79544,
+      79545,
+      79546,
+      79547,
+      79548,
+      79549,
+      79550,
+      79584,
+      79586,
+      79587,
+      79589,
+      79590,
+      79591,
+      79592,
+      79593,
+      79817,
+      79818,
+      79819,
+      79820,
+      79821,
+      79822,
+      79825,
+      79826,
+      79868,
+      79869,
+      79870,
+      79871,
+      79872,
+      79873,
+      79874,
+      79875,
+      79876,
+      79877,
+      79878,
+      79879,
+      79880,
+      79881,
+      79882,
+      79883,
+      79884,
+      79905,
+      79906,
+      79907,
+      79908,
+      79909,
+      79910,
+      79911,
+      79912,
+      79913,
+      79914,
+      79915,
+      80151,
+      80152,
+      80153,
+      80160,
+      80161,
+      80206,
+      80207,
+      80238,
+      80542,
+      80543,
+      80544,
+      80545,
+      80546,
+      80587,
+      80588,
+      80589,
+      81428,
+      81429,
+      81430,
+      81469,
+      81470,
+      82466,
+      82467,
+      82468,
+      82469,
+      82483,
+      82484,
+      82485,
+      83211,
+      83212,
+      83213,
+      83214,
+      83216,
+      83999,
+      84000
+    ],
+    "volume_or_mass_mapping": "none; this is a surface-only geometry candidate; mass conservation was not evaluated."
+  },
+  "any_fraction_qualified": false,
+  "fractions": {
+    "0.25": {
+      "area_and_float32_orientation": {
+        "abduction": {
+          "bad_orientation_count": 0,
+          "below_floor_count": 0,
+          "canonical_float32_emission_orientation": "pass",
+          "min_area_ratio": 0.9149469917652137,
+          "min_cosine": 0.9506226996216913,
+          "min_oriented_ratio": 0.9149468124972384
+        },
+        "elbow": {
+          "bad_orientation_count": 0,
+          "below_floor_count": 0,
+          "canonical_float32_emission_orientation": "pass",
+          "min_area_ratio": 0.9000693010528095,
+          "min_cosine": 0.9939009334987426,
+          "min_oriented_ratio": 0.9000687248112197
+        },
+        "elevation": {
+          "bad_orientation_count": 0,
+          "below_floor_count": 0,
+          "canonical_float32_emission_orientation": "pass",
+          "min_area_ratio": 0.9053323625624753,
+          "min_cosine": 0.9954202598520594,
+          "min_oriented_ratio": 0.9044851944428003
+        },
+        "rest": {
+          "bad_orientation_count": 0,
+          "below_floor_count": 0,
+          "canonical_float32_emission_orientation": "pass",
+          "min_area_ratio": 0.8952439598949836,
+          "min_cosine": 0.1253257215012969,
+          "min_oriented_ratio": 0.8794465283668105
+        }
+      },
+      "area_gate_all_four_poses": true,
+      "bone_pairs": {
+        "abduction": {
+          "baseline_pairs": 118,
+          "candidate_pairs": 118,
+          "new_pair_witnesses": [],
+          "new_pairs": 0,
+          "overlapping_bone_bank_count": 32,
+          "resolved_pairs": 0
+        },
+        "elbow": {
+          "baseline_pairs": 0,
+          "candidate_pairs": 0,
+          "new_pair_witnesses": [],
+          "new_pairs": 0,
+          "overlapping_bone_bank_count": 31,
+          "resolved_pairs": 0
+        },
+        "elevation": {
+          "baseline_pairs": 0,
+          "candidate_pairs": 0,
+          "new_pair_witnesses": [],
+          "new_pairs": 0,
+          "overlapping_bone_bank_count": 32,
+          "resolved_pairs": 0
+        },
+        "rest": {
+          "baseline_pairs": 0,
+          "candidate_pairs": 0,
+          "new_pair_witnesses": [],
+          "new_pairs": 0,
+          "overlapping_bone_bank_count": 31,
+          "resolved_pairs": 0
+        }
+      },
+      "candidate_sha256": "946a473f804ce83ebf97a7b3dc6b5e68a7712346de7196288ac1dced68deb02a",
+      "fraction_of_expanded_ring_displacement": 0.25,
+      "line_search_qualification": false,
+      "requested_rest_world_displacement_max_mm": 0.3125169671831205,
+      "requested_rest_world_displacement_rms_mm": 0.07178268888971773,
+      "self_pairs": {
+        "abduction": {
+          "baseline_pairs": 55,
+          "candidate_pairs": 55,
+          "complete_full_surface_audit": true,
+          "new_pair_ids": [],
+          "new_pairs": 0,
+          "resolved_pair_ids": [],
+          "resolved_pairs": 0
+        },
+        "elbow": {
+          "baseline_pairs": 12,
+          "candidate_pairs": 12,
+          "complete_full_surface_audit": true,
+          "new_pair_ids": [],
+          "new_pairs": 0,
+          "resolved_pair_ids": [],
+          "resolved_pairs": 0
+        },
+        "elevation": {
+          "baseline_pairs": 32,
+          "candidate_pairs": 29,
+          "complete_full_surface_audit": true,
+          "new_pair_ids": [],
+          "new_pairs": 0,
+          "resolved_pair_ids": [
+            [
+              70204,
+              78343
+            ],
+            [
+              70205,
+              78343
+            ],
+            [
+              70205,
+              78344
+            ]
+          ],
+          "resolved_pairs": 3
+        },
+        "rest": {
+          "baseline_pairs": 371,
+          "candidate_pairs": 368,
+          "complete_full_surface_audit": true,
+          "new_pair_ids": [],
+          "new_pairs": 0,
+          "resolved_pair_ids": [
+            [
+              74618,
+              79875
+            ],
+            [
+              74618,
+              79876
+            ],
+            [
+              74618,
+              79879
+            ]
+          ],
+          "resolved_pairs": 3
+        }
+      },
+      "some_elbow_pairs_resolved": false,
+      "surface_metrics": {
+        "abduction": {
+          "candidate_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07344820605259957,
+            "surface_area_m2": 1.8761779194241914
+          },
+          "patch_baseline_surface_area_volume": {
+            "oriented_surface_integral_m3": -0.0018987299646735418,
+            "surface_area_m2": 0.027835600415323337
+          },
+          "patch_fraction_surface_area_volume": {
+            "oriented_surface_integral_m3": -0.0018987505971984567,
+            "surface_area_m2": 0.027790583899386278
+          },
+          "source128_flip_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.00011094058926898367,
+            "surface_area_m2": 0.000635979102898791
+          },
+          "two_flip_changed_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.00011099372440322858,
+            "surface_area_m2": 0.0006387409930417942
+          },
+          "two_flip_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.0734482267417165,
+            "surface_area_m2": 1.8762229413868179
+          }
+        },
+        "elbow": {
+          "candidate_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07118103904129436,
+            "surface_area_m2": 1.8171498343949328
+          },
+          "patch_baseline_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.0007877482016061429,
+            "surface_area_m2": 0.014748057475971868
+          },
+          "patch_fraction_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.0007877626597930437,
+            "surface_area_m2": 0.01472279290768547
+          },
+          "source128_flip_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 4.7252974275881096e-05,
+            "surface_area_m2": 0.0005008726565416577
+          },
+          "two_flip_changed_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 4.543786090036294e-05,
+            "surface_area_m2": 0.0007366296543471377
+          },
+          "two_flip_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07118102459408397,
+            "surface_area_m2": 1.817175100581012
+          }
+        },
+        "elevation": {
+          "candidate_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07357800963145654,
+            "surface_area_m2": 1.876687540683181
+          },
+          "patch_baseline_surface_area_volume": {
+            "oriented_surface_integral_m3": -0.0015326689964985502,
+            "surface_area_m2": 0.02714180055333552
+          },
+          "patch_fraction_surface_area_volume": {
+            "oriented_surface_integral_m3": -0.0015327012402249496,
+            "surface_area_m2": 0.027100773664803422
+          },
+          "source128_flip_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 6.462507171381735e-05,
+            "surface_area_m2": 0.0006586729296278065
+          },
+          "two_flip_changed_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 6.469322246736186e-05,
+            "surface_area_m2": 0.0006625543401935666
+          },
+          "two_flip_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.073578041873107,
+            "surface_area_m2": 1.876728578292028
+          }
+        },
+        "rest": {
+          "candidate_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07083207225525721,
+            "surface_area_m2": 1.801626006995023
+          },
+          "patch_baseline_surface_area_volume": {
+            "oriented_surface_integral_m3": 8.344714573835262e-07,
+            "surface_area_m2": 0.012732520684697948
+          },
+          "patch_fraction_surface_area_volume": {
+            "oriented_surface_integral_m3": 8.411792987539907e-07,
+            "surface_area_m2": 0.01272231118442452
+          },
+          "source128_flip_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 1.3282813271110787e-05,
+            "surface_area_m2": 0.0004483312439337105
+          },
+          "two_flip_changed_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 1.3401765367970588e-05,
+            "surface_area_m2": 0.0004549634223924181
+          },
+          "two_flip_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07083206555359318,
+            "surface_area_m2": 1.8016362162246473
+          }
+        }
+      },
+      "zero_new_bone_pairs_all_four_poses": true,
+      "zero_new_self_pairs_all_four_poses": true,
+      "zero_remaining_elbow_pairs": false
+    },
+    "0.5": {
+      "area_and_float32_orientation": {
+        "abduction": {
+          "bad_orientation_count": 0,
+          "below_floor_count": 0,
+          "canonical_float32_emission_orientation": "pass",
+          "min_area_ratio": 0.8300762109369405,
+          "min_cosine": 0.8490808330373874,
+          "min_oriented_ratio": 0.8300754851307899
+        },
+        "elbow": {
+          "bad_orientation_count": 0,
+          "below_floor_count": 0,
+          "canonical_float32_emission_orientation": "pass",
+          "min_area_ratio": 0.8003114632507076,
+          "min_cosine": 0.9785533531251988,
+          "min_oriented_ratio": 0.8003089542391928
+        },
+        "elevation": {
+          "bad_orientation_count": 0,
+          "below_floor_count": 0,
+          "canonical_float32_emission_orientation": "pass",
+          "min_area_ratio": 0.8129107448299792,
+          "min_cosine": 0.9794288985242972,
+          "min_oriented_ratio": 0.8091456889577511
+        },
+        "rest": {
+          "bad_orientation_count": 0,
+          "below_floor_count": 0,
+          "canonical_float32_emission_orientation": "pass",
+          "min_area_ratio": 0.799862182210836,
+          "min_cosine": 0.06552085515241979,
+          "min_oriented_ratio": 0.7239084524203858
+        }
+      },
+      "area_gate_all_four_poses": true,
+      "bone_pairs": {
+        "abduction": {
+          "baseline_pairs": 118,
+          "candidate_pairs": 118,
+          "new_pair_witnesses": [],
+          "new_pairs": 0,
+          "overlapping_bone_bank_count": 32,
+          "resolved_pairs": 0
+        },
+        "elbow": {
+          "baseline_pairs": 0,
+          "candidate_pairs": 0,
+          "new_pair_witnesses": [],
+          "new_pairs": 0,
+          "overlapping_bone_bank_count": 31,
+          "resolved_pairs": 0
+        },
+        "elevation": {
+          "baseline_pairs": 0,
+          "candidate_pairs": 0,
+          "new_pair_witnesses": [],
+          "new_pairs": 0,
+          "overlapping_bone_bank_count": 32,
+          "resolved_pairs": 0
+        },
+        "rest": {
+          "baseline_pairs": 0,
+          "candidate_pairs": 0,
+          "new_pair_witnesses": [],
+          "new_pairs": 0,
+          "overlapping_bone_bank_count": 31,
+          "resolved_pairs": 0
+        }
+      },
+      "candidate_sha256": "cc90a5cdd83425aef8ca1326cf46298c476a2f013b395ce60ff0782ab0663f0f",
+      "fraction_of_expanded_ring_displacement": 0.5,
+      "line_search_qualification": false,
+      "requested_rest_world_displacement_max_mm": 0.625033934366241,
+      "requested_rest_world_displacement_rms_mm": 0.14356537777943545,
+      "self_pairs": {
+        "abduction": {
+          "baseline_pairs": 55,
+          "candidate_pairs": 55,
+          "complete_full_surface_audit": true,
+          "new_pair_ids": [],
+          "new_pairs": 0,
+          "resolved_pair_ids": [],
+          "resolved_pairs": 0
+        },
+        "elbow": {
+          "baseline_pairs": 12,
+          "candidate_pairs": 12,
+          "complete_full_surface_audit": true,
+          "new_pair_ids": [],
+          "new_pairs": 0,
+          "resolved_pair_ids": [],
+          "resolved_pairs": 0
+        },
+        "elevation": {
+          "baseline_pairs": 32,
+          "candidate_pairs": 29,
+          "complete_full_surface_audit": true,
+          "new_pair_ids": [],
+          "new_pairs": 0,
+          "resolved_pair_ids": [
+            [
+              70204,
+              78343
+            ],
+            [
+              70205,
+              78343
+            ],
+            [
+              70205,
+              78344
+            ]
+          ],
+          "resolved_pairs": 3
+        },
+        "rest": {
+          "baseline_pairs": 371,
+          "candidate_pairs": 368,
+          "complete_full_surface_audit": true,
+          "new_pair_ids": [],
+          "new_pairs": 0,
+          "resolved_pair_ids": [
+            [
+              74618,
+              79875
+            ],
+            [
+              74618,
+              79876
+            ],
+            [
+              74618,
+              79879
+            ]
+          ],
+          "resolved_pairs": 3
+        }
+      },
+      "some_elbow_pairs_resolved": false,
+      "surface_metrics": {
+        "abduction": {
+          "candidate_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07344818209712285,
+            "surface_area_m2": 1.8761377064251872
+          },
+          "patch_baseline_surface_area_volume": {
+            "oriented_surface_integral_m3": -0.0018987299646735418,
+            "surface_area_m2": 0.027835600415323337
+          },
+          "patch_fraction_surface_area_volume": {
+            "oriented_surface_integral_m3": -0.0018987745526751788,
+            "surface_area_m2": 0.027750370900382078
+          },
+          "source128_flip_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.00011094058926898367,
+            "surface_area_m2": 0.000635979102898791
+          },
+          "two_flip_changed_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.00011099372440322858,
+            "surface_area_m2": 0.0006387409930417942
+          },
+          "two_flip_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.0734482267417165,
+            "surface_area_m2": 1.8762229413868179
+          }
+        },
+        "elbow": {
+          "candidate_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07118105434024723,
+            "surface_area_m2": 1.8171262898274203
+          },
+          "patch_baseline_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.0007877482016061429,
+            "surface_area_m2": 0.014748057475971868
+          },
+          "patch_fraction_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.0007877779587459106,
+            "surface_area_m2": 0.014699248340172996
+          },
+          "source128_flip_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 4.7252974275881096e-05,
+            "surface_area_m2": 0.0005008726565416577
+          },
+          "two_flip_changed_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 4.543786090036294e-05,
+            "surface_area_m2": 0.0007366296543471377
+          },
+          "two_flip_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07118102459408397,
+            "surface_area_m2": 1.817175100581012
+          }
+        },
+        "elevation": {
+          "candidate_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07357797462823698,
+            "surface_area_m2": 1.8766497410572285
+          },
+          "patch_baseline_surface_area_volume": {
+            "oriented_surface_integral_m3": -0.0015326689964985502,
+            "surface_area_m2": 0.02714180055333552
+          },
+          "patch_fraction_surface_area_volume": {
+            "oriented_surface_integral_m3": -0.0015327362434445011,
+            "surface_area_m2": 0.027062974038850524
+          },
+          "source128_flip_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 6.462507171381735e-05,
+            "surface_area_m2": 0.0006586729296278065
+          },
+          "two_flip_changed_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 6.469322246736186e-05,
+            "surface_area_m2": 0.0006625543401935666
+          },
+          "two_flip_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.073578041873107,
+            "surface_area_m2": 1.876728578292028
+          }
+        },
+        "rest": {
+          "candidate_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07083207989889402,
+            "surface_area_m2": 1.801618455877216
+          },
+          "patch_baseline_surface_area_volume": {
+            "oriented_surface_integral_m3": 8.344714573835262e-07,
+            "surface_area_m2": 0.012732520684697948
+          },
+          "patch_fraction_surface_area_volume": {
+            "oriented_surface_integral_m3": 8.488229355749886e-07,
+            "surface_area_m2": 0.012714760066617696
+          },
+          "source128_flip_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 1.3282813271110787e-05,
+            "surface_area_m2": 0.0004483312439337105
+          },
+          "two_flip_changed_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 1.3401765367970588e-05,
+            "surface_area_m2": 0.0004549634223924181
+          },
+          "two_flip_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07083206555359318,
+            "surface_area_m2": 1.8016362162246473
+          }
+        }
+      },
+      "zero_new_bone_pairs_all_four_poses": true,
+      "zero_new_self_pairs_all_four_poses": true,
+      "zero_remaining_elbow_pairs": false
+    },
+    "0.75": {
+      "area_and_float32_orientation": {
+        "abduction": {
+          "bad_orientation_count": 0,
+          "below_floor_count": 0,
+          "canonical_float32_emission_orientation": "pass",
+          "min_area_ratio": 0.7452596346165935,
+          "min_cosine": 0.7461831540626732,
+          "min_oriented_ratio": 0.7452579030152432
+        },
+        "elbow": {
+          "bad_orientation_count": 0,
+          "below_floor_count": 0,
+          "canonical_float32_emission_orientation": "pass",
+          "min_area_ratio": 0.7007048803874899,
+          "min_cosine": 0.9491122581070335,
+          "min_oriented_ratio": 0.7006986797771195
+        },
+        "elevation": {
+          "bad_orientation_count": 0,
+          "below_floor_count": 0,
+          "canonical_float32_emission_orientation": "pass",
+          "min_area_ratio": 0.7232401690694723,
+          "min_cosine": 0.9485751501965535,
+          "min_oriented_ratio": 0.7136728063694204
+        },
+        "rest": {
+          "bad_orientation_count": 0,
+          "below_floor_count": 0,
+          "canonical_float32_emission_orientation": "pass",
+          "min_area_ratio": 0.6996864411639759,
+          "min_cosine": 0.04527687062637338,
+          "min_oriented_ratio": 0.5310319531602173
+        }
+      },
+      "area_gate_all_four_poses": true,
+      "bone_pairs": {
+        "abduction": {
+          "baseline_pairs": 118,
+          "candidate_pairs": 118,
+          "new_pair_witnesses": [],
+          "new_pairs": 0,
+          "overlapping_bone_bank_count": 32,
+          "resolved_pairs": 0
+        },
+        "elbow": {
+          "baseline_pairs": 0,
+          "candidate_pairs": 0,
+          "new_pair_witnesses": [],
+          "new_pairs": 0,
+          "overlapping_bone_bank_count": 31,
+          "resolved_pairs": 0
+        },
+        "elevation": {
+          "baseline_pairs": 0,
+          "candidate_pairs": 0,
+          "new_pair_witnesses": [],
+          "new_pairs": 0,
+          "overlapping_bone_bank_count": 32,
+          "resolved_pairs": 0
+        },
+        "rest": {
+          "baseline_pairs": 0,
+          "candidate_pairs": 0,
+          "new_pair_witnesses": [],
+          "new_pairs": 0,
+          "overlapping_bone_bank_count": 31,
+          "resolved_pairs": 0
+        }
+      },
+      "candidate_sha256": "44381bd492e9f7eea7f895efa16f72963ec49c6152f7233c535273bd096318f8",
+      "fraction_of_expanded_ring_displacement": 0.75,
+      "line_search_qualification": false,
+      "requested_rest_world_displacement_max_mm": 0.9375509015493615,
+      "requested_rest_world_displacement_rms_mm": 0.21534806666915318,
+      "self_pairs": {
+        "abduction": {
+          "baseline_pairs": 55,
+          "candidate_pairs": 55,
+          "complete_full_surface_audit": true,
+          "new_pair_ids": [],
+          "new_pairs": 0,
+          "resolved_pair_ids": [],
+          "resolved_pairs": 0
+        },
+        "elbow": {
+          "baseline_pairs": 12,
+          "candidate_pairs": 9,
+          "complete_full_surface_audit": true,
+          "new_pair_ids": [
+            [
+              74647,
+              74672
+            ]
+          ],
+          "new_pairs": 1,
+          "resolved_pair_ids": [
+            [
+              69074,
+              78307
+            ],
+            [
+              69075,
+              78307
+            ],
+            [
+              69075,
+              78308
+            ],
+            [
+              74647,
+              79872
+            ]
+          ],
+          "resolved_pairs": 4
+        },
+        "elevation": {
+          "baseline_pairs": 32,
+          "candidate_pairs": 29,
+          "complete_full_surface_audit": true,
+          "new_pair_ids": [],
+          "new_pairs": 0,
+          "resolved_pair_ids": [
+            [
+              70204,
+              78343
+            ],
+            [
+              70205,
+              78343
+            ],
+            [
+              70205,
+              78344
+            ]
+          ],
+          "resolved_pairs": 3
+        },
+        "rest": {
+          "baseline_pairs": 371,
+          "candidate_pairs": 368,
+          "complete_full_surface_audit": true,
+          "new_pair_ids": [],
+          "new_pairs": 0,
+          "resolved_pair_ids": [
+            [
+              74618,
+              79875
+            ],
+            [
+              74618,
+              79876
+            ],
+            [
+              74618,
+              79879
+            ]
+          ],
+          "resolved_pairs": 3
+        }
+      },
+      "some_elbow_pairs_resolved": true,
+      "surface_metrics": {
+        "abduction": {
+          "candidate_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07344815486091537,
+            "surface_area_m2": 1.876102044336196
+          },
+          "patch_baseline_surface_area_volume": {
+            "oriented_surface_integral_m3": -0.0018987299646735418,
+            "surface_area_m2": 0.027835600415323337
+          },
+          "patch_fraction_surface_area_volume": {
+            "oriented_surface_integral_m3": -0.0018988017888826522,
+            "surface_area_m2": 0.02771470881139078
+          },
+          "source128_flip_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.00011094058926898367,
+            "surface_area_m2": 0.000635979102898791
+          },
+          "two_flip_changed_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.00011099372440322858,
+            "surface_area_m2": 0.0006387409930417942
+          },
+          "two_flip_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.0734482267417165,
+            "surface_area_m2": 1.8762229413868179
+          }
+        },
+        "elbow": {
+          "candidate_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07118107043288437,
+            "surface_area_m2": 1.8171045989693408
+          },
+          "patch_baseline_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.0007877482016061429,
+            "surface_area_m2": 0.014748057475971868
+          },
+          "patch_fraction_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.0007877940513830685,
+            "surface_area_m2": 0.014677557482093304
+          },
+          "source128_flip_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 4.7252974275881096e-05,
+            "surface_area_m2": 0.0005008726565416577
+          },
+          "two_flip_changed_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 4.543786090036294e-05,
+            "surface_area_m2": 0.0007366296543471377
+          },
+          "two_flip_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07118102459408397,
+            "surface_area_m2": 1.817175100581012
+          }
+        },
+        "elevation": {
+          "candidate_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07357793662373725,
+            "surface_area_m2": 1.876615480850543
+          },
+          "patch_baseline_surface_area_volume": {
+            "oriented_surface_integral_m3": -0.0015326689964985502,
+            "surface_area_m2": 0.02714180055333552
+          },
+          "patch_fraction_surface_area_volume": {
+            "oriented_surface_integral_m3": -0.0015327742479442207,
+            "surface_area_m2": 0.027028713832165447
+          },
+          "source128_flip_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 6.462507171381735e-05,
+            "surface_area_m2": 0.0006586729296278065
+          },
+          "two_flip_changed_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 6.469322246736186e-05,
+            "surface_area_m2": 0.0006625543401935666
+          },
+          "two_flip_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.073578041873107,
+            "surface_area_m2": 1.876728578292028
+          }
+        },
+        "rest": {
+          "candidate_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07083208851893158,
+            "surface_area_m2": 1.8016132828872906
+          },
+          "patch_baseline_surface_area_volume": {
+            "oriented_surface_integral_m3": 8.344714573835262e-07,
+            "surface_area_m2": 0.012732520684697948
+          },
+          "patch_fraction_surface_area_volume": {
+            "oriented_surface_integral_m3": 8.574429731250998e-07,
+            "surface_area_m2": 0.0127095870766924
+          },
+          "source128_flip_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 1.3282813271110787e-05,
+            "surface_area_m2": 0.0004483312439337105
+          },
+          "two_flip_changed_rows_surface_area_volume": {
+            "oriented_surface_integral_m3": 1.3401765367970588e-05,
+            "surface_area_m2": 0.0004549634223924181
+          },
+          "two_flip_surface_area_volume": {
+            "oriented_surface_integral_m3": 0.07083206555359318,
+            "surface_area_m2": 1.8016362162246473
+          }
+        }
+      },
+      "zero_new_bone_pairs_all_four_poses": true,
+      "zero_new_self_pairs_all_four_poses": false,
+      "zero_remaining_elbow_pairs": false
+    }
+  },
+  "inputs": {
+    "ancestry_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/joint-patch-reconstruction-owner-337/proximal-distal-binding-territory-004/displacement-patch-004-expanded-ring/displacement-patch-ancestry.npz",
+    "ancestry_sha256": "e60a2bd4c3b5de8abd809b7c606cb2a9f6c1c1cb9f207cdf32a4749e0c94e5fe",
+    "bone_audit_owner_sha256": "aef02f000fcf7ae4ea85835a4e8599963fc70c3551f8b2706752d6d68630a6f1",
+    "exact_pair_owner_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "expanded_candidate_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/joint-patch-reconstruction-owner-337/proximal-distal-binding-territory-004/displacement-patch-004-expanded-ring/candidate.nhskin",
+    "expanded_candidate_sha256": "0dd7a556c94f2f281516e55fd6dce67bd371a6f2d3cba5c7279a0d18a4b5a667",
+    "expanded_report_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/joint-patch-reconstruction-owner-337/proximal-distal-binding-territory-004/displacement-patch-004-expanded-ring/candidate-report.json",
+    "expanded_report_sha256": "534edcb215555f6e68851dd19f7463aba6ced87974fc927f31aa6749ba9e2584",
+    "float32_emission_owner_sha256": "0da2a0170d3c12cc9fb369946ad749d9e7d185dcf476ff16c85db0b70497cde1",
+    "metric_owner_sha256": "5da1d85ba688b76835d0b9e9f0f1b3dfe3e8dae9549f0e90c012b24b5a274032",
+    "rebind_owner_sha256": "4144e90e7e2f690b54876db055b35dad54802b3f1e527cf52266a42050672a25",
+    "registered_pose_sha256s": {
+      "abduction": "56d16a4ec3c7ea468920a7a964bc636213a0675f31c791aa624f3d88ce472fe8",
+      "elbow": "50a0fe79bf9732aee8b791fc81426504fc4ff1cf46e8712f89de8ffd8c46bbb7",
+      "elevation": "ded31930e5f0c92cf1bb827ac370308f17d0b7893f5a434eda2688d8d3c146b9",
+      "rest": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+    },
+    "seam_classification_sha256": "2014e3c67b82687f8693bfc2c90a9f65c22afada48ab513d30efb58ef95ad3a2",
+    "source128_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin",
+    "source128_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+    "two_flip_base_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/joint-patch-reconstruction-owner-337/proximal-distal-binding-territory-004/candidate.nhskin",
+    "two_flip_base_sha256": "08e57b17ab7252d86062019cde819517b0d6b7fa9d77487fa2ee1305383332eb",
+    "two_flip_report_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/joint-patch-reconstruction-owner-337/proximal-distal-binding-territory-004/candidate-report.json",
+    "two_flip_report_sha256": "e99e3225e9d068700b24722840e4e0e842f95c05fe1724928219e761f16adcf0"
+  },
+  "schema": "numi.human.elbow-displacement-scalar-line-search.v1",
+  "scope": "Bounded scalar line search over the emitted 3-ring connected displacement vector. Every fraction is re-emitted via the pinned ABI5 rebind owner, checked with canonical Float32 orientation and exact four-pose complete self-pair updates, then screened against every spatially overlapping registered bone bank. No nonlinear solve or physical admission.",
+  "two_flip_changed_face_rows": [
+    10979,
+    10980,
+    13680,
+    13681
+  ],
+  "two_flip_parent_source_face_rows": [
+    [
+      10979,
+      10980
+    ],
+    [
+      10979,
+      10980
+    ],
+    [
+      13680,
+      13681
+    ],
+    [
+      13680,
+      13681
+    ]
+  ],
+  "two_flip_surface_only_baseline": null
+}

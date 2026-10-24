@@ -1,0 +1,223 @@
+{
+  "all_cell_gate": {
+    "cell_count": 164176,
+    "count_below_1e-5": 0,
+    "full_tet_boundary_matches_remapped_shell": true,
+    "min_normalized_det_quality": 1.0769711886750688e-05,
+    "nonpositive_float32_cells": 0
+  },
+  "array_shapes": {
+    "added_node_cavity_id": [
+      77
+    ],
+    "added_node_parent_barycentric": [
+      77,
+      4
+    ],
+    "added_node_parent_tet_rows": [
+      77
+    ],
+    "cavity_child_material_attributes": [
+      129
+    ],
+    "cavity_child_node_parent_barycentric": [
+      56,
+      4
+    ],
+    "cavity_child_node_parent_barycentric_min": [
+      56
+    ],
+    "cavity_child_node_parent_collapsed_tet_row": [
+      56
+    ],
+    "cavity_child_node_parent_contains": [
+      56
+    ],
+    "cavity_child_node_parent_original_tet_row": [
+      56
+    ],
+    "cavity_child_tetrahedra_global": [
+      129,
+      4
+    ],
+    "cavity_replaced_input_collapsed_tet_rows": [
+      109
+    ],
+    "cavity_replaced_original_parent_tet_rows": [
+      109
+    ],
+    "collapsed_node_aliases": [
+      109,
+      3
+    ],
+    "construction_closure_faces": [
+      1685,
+      3
+    ],
+    "construction_closure_parent_input_face_row": [
+      1685
+    ],
+    "overlap_child_coverage_ratio": [
+      129
+    ],
+    "overlap_child_normalized_fraction": [
+      420
+    ],
+    "overlap_child_offsets": [
+      130
+    ],
+    "overlap_intersection_volume_m3": [
+      420
+    ],
+    "overlap_parent_conservative_fraction": [
+      420
+    ],
+    "overlap_parent_coverage_ratio": [
+      114
+    ],
+    "overlap_parent_input_tet_rows": [
+      114
+    ],
+    "overlap_parent_original_input_tet_row": [
+      420
+    ],
+    "physical_outer_faces": [
+      36393,
+      3
+    ],
+    "physical_outer_parent_input_face_row": [
+      36393
+    ],
+    "physical_shell_face_is_physical_O": [
+      38078
+    ],
+    "physical_shell_faces": [
+      38078,
+      3
+    ],
+    "physical_shell_parent_input_face_row": [
+      38078
+    ],
+    "points_world_m": [
+      35962,
+      3
+    ],
+    "prior_added_node_cavity_id": [
+      77
+    ],
+    "prior_added_node_parent_barycentric": [
+      77,
+      4
+    ],
+    "prior_added_node_parent_tet_rows": [
+      77
+    ],
+    "prior_replaced_parent_tet_rows": [
+      158
+    ],
+    "region_attributes": [
+      164176
+    ],
+    "replaced_parent_tet_rows": [
+      236
+    ],
+    "source_map_used_input_rows": [
+      19043
+    ],
+    "source_to_output_node_map": [
+      19043
+    ],
+    "surface_collapse_alias_pairs": [
+      2,
+      2
+    ],
+    "surface_collapse_edges_global": [
+      2,
+      2
+    ],
+    "surface_collapse_endpoint_parameters": [
+      2
+    ],
+    "surface_collapse_endpoint_residual_world_m": [
+      4,
+      3
+    ],
+    "surface_collapse_targets_world_m": [
+      2,
+      3
+    ],
+    "tetrahedra": [
+      164176,
+      4
+    ]
+  },
+  "inputs_and_artifacts": {
+    "candidate": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/candidate.npz",
+      "sha256": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba"
+    },
+    "corrected_replay_builder": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/build_014-replay.py",
+      "sha256": "82ea2fb8ea96ed2f4bdba0124bbd37a05e28ead7e3568da24fad7e9c7c071ef2"
+    },
+    "exact_local_O_gate_builder": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/exact-local-O-gate-001/build_exact_local_O_gate.py",
+      "sha256": "7fa654d87601cdb779d4740630b26a30a84851149fa33d00442e3dc5caaf73df"
+    },
+    "exact_local_O_gate_report": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/exact-local-O-gate-001/report.json",
+      "sha256": "9a7437fbc446b86e775fc2f6d5b0c5336db79d65ee1dd517d55d72aad3161678"
+    },
+    "exact_local_O_gate_witnesses": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/exact-local-O-gate-001/pair-witnesses.npz",
+      "sha256": "5838bf79f0aa1b6e91bc08629cdec2cf888da2053135dc9309b074237c12cec1"
+    },
+    "executed_builder": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/build_014-executed.py",
+      "sha256": "2dc2d5e9670c373fa40a94cf651e9c697ff5e0832d6e4560b911d21ae11e39d3"
+    },
+    "mass_probe": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/conservative-mass-mapping-probe.json",
+      "sha256": "4bd1aaef71a628afb762099fd7d47726dab542dd875fc3de242b64d71d7d2550"
+    },
+    "parent_candidate": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-010/candidate.npz",
+      "sha256": "a0b5b4eb1a6e8b138dba4d471aa1c8e1bde91027b724429d02da7ebfbb8ab8e8"
+    },
+    "report": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/report.json",
+      "sha256": "45314019dab9ae17260e711edd1d06b26334172cfe7d5d0eacec9f2462e1d422"
+    },
+    "tetgen": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-remesh-118/tetgen-v1.6.0/tetgen",
+      "sha256": "95b1df3923d7405b168ba5a3c4b39498ddfc0e7ba94000dedff7ebf93350de07"
+    }
+  },
+  "limitations": [
+    "Single generic material attribute code 1; no physical density or biological mass ledger is present.",
+    "Post-contraction full anatomical-bank/self-contact gate has not been rerun; not an admitted physical O/I/D mesh.",
+    "The executing builder saved NPZ and report, then returned nonzero only because its final console print referenced a stale report key. Exact executed builder is retained; corrected replay copy changes only the final print key."
+  ],
+  "local_exact_O_gate": {
+    "bank_AABB_relevant": 1,
+    "baseline_bank_pairs": 0,
+    "candidate_bank_pairs": 0,
+    "limitation": "local changed-O neighborhood only; no whole-scene or I/D claim",
+    "new_pairs": 0,
+    "registered_bank_inventory_count": 689,
+    "scope": "13 changed physical-O faces plus one-ring (40 physical-O faces)",
+    "screened_bank_triangles": 0,
+    "self_pairs_baseline": 0,
+    "self_pairs_candidate": 0
+  },
+  "schema": "numi.global-tetgen-293-candidate014-provenance.v1",
+  "source_and_row_domains": {
+    "output_volume": "points_world_m rows are output global volume-node rows; tetrahedra and all *_faces arrays index those rows.",
+    "overlap_mapping": "overlap_child_offsets indexes per-child CSR rows; overlap_parent_original_input_tet_row contains parent tet rows in candidate010; intersection volumes are raw; child fractions normalize per child, parent conservative fractions normalize per parent.",
+    "parent_candidate": "candidate010 SHA-pinned in inputs_and_artifacts; its physical_shell_faces and construction_closure_faces use shell-input row IDs, while tetrahedra use candidate010 volume-node IDs",
+    "shell_face_ancestry": "physical_shell_parent_input_face_row and construction_closure_parent_input_face_row map surviving output shell facets to original candidate010 physical_shell_faces row IDs; physical_shell_face_is_physical_O separates O from temporary closure. No detailed-source-face ID is claimed.",
+    "source_shell_to_output": "candidate014 source_map_used_input_rows[i] identifies an original shell-input row; source_to_output_node_map[i] gives the candidate014 output volume-node row. Builder validates this typed map reproduces the input tetrahedral boundary exactly before edits.",
+    "tetra_ancestry": "cavity_replaced_input_collapsed_tet_rows are candidate010-derived collapsed-table rows; cavity_replaced_original_parent_tet_rows and cavity_child_node_parent_original_tet_row identify original candidate010 parent tet rows; child barycentric coordinates are relative to the collapsed parent simplex as named."
+  },
+  "status": "diagnostic_background_geometry_not_physical_admission"
+}

@@ -1,0 +1,46 @@
+{
+  "bank_intersections": {
+    "baseline_pairs": 0,
+    "candidate_pairs": 0,
+    "new_pairs": 0,
+    "per_bank": [
+      {
+        "bank_key": "bank_0028",
+        "baseline_pairs": 0,
+        "candidate_pairs": 0,
+        "kind": "soft_tissue",
+        "new_pairs": 0,
+        "removed_pairs": 0,
+        "screened_faces": 0,
+        "stable_id": 29
+      }
+    ],
+    "removed_pairs": 0
+  },
+  "elapsed_seconds": 0.9520630836486816,
+  "inputs_sha256": {
+    "banks013": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "candidate010": "a0b5b4eb1a6e8b138dba4d471aa1c8e1bde91027b724429d02da7ebfbb8ab8e8",
+    "candidate014": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba",
+    "exact_predicate264": "207236eb886e921b21ff281f44637140ea4bf9438b27561954dfe9528be71d27",
+    "inventory013": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7"
+  },
+  "schema": "numi.candidate014-focused-exact-O-gate.v1",
+  "scope": {
+    "banks_screened": 1,
+    "baseline_physical_O_faces": 36397,
+    "candidate_physical_O_faces": 36393,
+    "changed_physical_O_faces": 13,
+    "one_ring_scope_faces": 40,
+    "registered_banks_available": 689,
+    "screened_bank_triangles": 0
+  },
+  "self_intersections": {
+    "baseline_pairs_touching_scope": 0,
+    "candidate_pair_ids_first_20": [],
+    "candidate_pairs_touching_scope": 0
+  },
+  "status": "candidate_geometry_only",
+  "witness_npz": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/exact-local-O-gate-001/pair-witnesses.npz",
+  "witness_sha256": "5838bf79f0aa1b6e91bc08629cdec2cf888da2053135dc9309b074237c12cec1"
+}

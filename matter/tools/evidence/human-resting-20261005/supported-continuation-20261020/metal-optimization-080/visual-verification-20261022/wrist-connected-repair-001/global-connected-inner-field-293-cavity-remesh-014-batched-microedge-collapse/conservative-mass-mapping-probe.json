@@ -1,0 +1,32 @@
+{
+  "geometry": {
+    "new_cavity_child_geometric_volume_m3": 6.86046528216905e-05,
+    "old_parent_geometric_volume_m3": 6.860469582148102e-05,
+    "overlap_geometric_volume_m3": 6.860465282169045e-05
+  },
+  "inputs_sha256": {
+    "candidate014": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba",
+    "parent_candidate010": "a0b5b4eb1a6e8b138dba4d471aa1c8e1bde91027b724429d02da7ebfbb8ab8e8"
+  },
+  "mapping": {
+    "all_new_children_have_overlap": true,
+    "all_old_parent_columns_sum_to_one": true,
+    "max_column_sum_abs_error": 2.220446049250313e-16,
+    "no_material_region_mixing": true,
+    "overlap_entries": 420,
+    "parent_rows": 114,
+    "single_material_code": 1
+  },
+  "schema": "numi.global-tetgen-293-candidate014-conservative-overlap-mass-probe.v1",
+  "status": "mapping_conservation_test_only_physical_density_unavailable",
+  "synthetic_nonuniform_mass_probe": {
+    "absolute_mass_closure_error": 1.3552527156068805e-20,
+    "density_measure": "deterministic synthetic per-cell rho in [0.9,1.1]; no physical density or kg interpretation",
+    "new_child_mass_total": 7.134255947817726e-05,
+    "old_parent_mass_total": 7.134255947817727e-05,
+    "relative_mass_closure_error": 1.8996412877805907e-16,
+    "swept_mass_treatment": "redistributed to intersecting children through each old parent column normalized overlap fractions",
+    "swept_old_geometric_volume_m3": 4.2999790596361474e-11,
+    "swept_old_synthetic_mass_measure": 4.325998975005679e-11
+  }
+}

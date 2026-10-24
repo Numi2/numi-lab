@@ -1,0 +1,151 @@
+{
+  "assembled": {
+    "below_1e-5": 0,
+    "boundary_matches_collapsed_shell": true,
+    "candidate": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/candidate.npz",
+    "candidate_sha256": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba",
+    "min_quality": 1.0769711886750688e-05,
+    "nodes": 35962,
+    "nonpositive_F32": 0,
+    "tets": 164176,
+    "unmodified_outside_tets_preserved": true,
+    "volume_after_m3": 0.06960080435892789,
+    "volume_before_m3": 0.06960080440192767,
+    "volume_delta_m3": -4.299978428878859e-11
+  },
+  "boundary": {
+    "ancestry": "surviving shell facets retain their original input-shell face-row identity; facets collapsed to zero area are omitted; closure facets remain tagged separately; no detailed-source face identity is fabricated",
+    "construction_closure_faces_after": 1685,
+    "construction_closure_faces_before": 1685,
+    "duplicate_faces": 0,
+    "exact_boundary_claim": false,
+    "full_shell_faces_after": 38078,
+    "full_shell_faces_before": 38082,
+    "min_parent_to_child_normal_dot": 5.081478763572801e-18,
+    "physical_O_faces_after": 36393,
+    "physical_O_faces_before": 36397,
+    "physical_surface_area_after_m2": 1.8018798828125,
+    "physical_surface_area_before_m2": 1.8018798828125,
+    "shell_edge_incidence_histogram": {
+      "2": 57117
+    }
+  },
+  "cavity": {
+    "below_1e-5": 0,
+    "child_node_parent_simplex_contained_count": 56,
+    "child_node_parent_simplex_outside_count": 0,
+    "child_node_worst_bary_min": -2.220446049250313e-16,
+    "local_boundary_matches_after_collapse": true,
+    "min_quality": 1.1803995329114549e-05,
+    "nodes": 56,
+    "nonpositive_F32": 0,
+    "regional_volume_after_m3": 6.86046528216905e-05,
+    "regional_volume_before_m3": 6.860465282169051e-05,
+    "regional_volume_delta_m3": -1.3552527156068805e-20,
+    "returncode": 0,
+    "tetgen_command": [
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-remesh-118/tetgen-v1.6.0/tetgen",
+      "-pYq1.2/10a1.3720930564338102e-07AS5000",
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/cavity.poly"
+    ],
+    "tets": 129
+  },
+  "collapse_preflight": {
+    "all_remaining_F32_positive": true,
+    "cavity_boundary_facets": 100,
+    "cavity_rings": [
+      {
+        "face_neighbors_added": 17,
+        "ring": 1,
+        "selected_after": 41
+      },
+      {
+        "face_neighbors_added": 27,
+        "ring": 2,
+        "selected_after": 68
+      },
+      {
+        "face_neighbors_added": 36,
+        "ring": 3,
+        "selected_after": 109
+      }
+    ],
+    "cavity_selected_tets": 109,
+    "global_volume_after_m3": 0.06960080435892788,
+    "global_volume_before_m3": 0.06960080440192767,
+    "global_volume_delta_m3": -4.29997981665764e-11,
+    "input_low_quality_rows": [
+      164002,
+      164034
+    ],
+    "remaining_low_quality_count": 0,
+    "remaining_low_quality_rows": [],
+    "remaining_min_quality": 1.0769711886750688e-05,
+    "removed_degenerate_volume_tets": [
+      164002,
+      164034,
+      164052,
+      164061,
+      164084
+    ]
+  },
+  "elapsed_s": 7.928629458067007,
+  "input_candidate": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-010/candidate.npz",
+  "input_candidate_sha256": "a0b5b4eb1a6e8b138dba4d471aa1c8e1bde91027b724429d02da7ebfbb8ab8e8",
+  "maximum_endpoint_displacement_m": 0.0002590933058866435,
+  "method": "Simultaneously contract two measured physical-O microedges to their midpoints, bounded by 0.3 mm maximum endpoint displacement from candidate010, then locally remesh the complete affected cavity with fixed remapped shell. This background mesh has no direct detailed-source face table; physical O and construction closure retain separate input-shell face ancestry.",
+  "overlap_mapping": {
+    "candidate_pair_count": 14706,
+    "child_ancestry_fractions_sum_to_one": true,
+    "conservative_parent_transfer_fractions_sum_to_one_for_covered_donors": true,
+    "mass_map": "geometric overlap-derived conservative parent transfer fractions only; material density/mass ledger is not represented by this one-region background mesh",
+    "maximum_child_coverage_ratio": 1.0000000000058675,
+    "maximum_old_parent_coverage_ratio": 1.0000000000003333,
+    "minimum_child_covered_fraction": 0.9999999999756787,
+    "minimum_old_parent_covered_fraction": 0.43771965579449845,
+    "new_child_geometric_volume_m3": 6.860465282169051e-05,
+    "old_parent_geometric_volume_m3": 6.860469582148102e-05,
+    "raw_intersection_entries": 420,
+    "raw_overlap_volume_before_normalization_m3": 6.860465282169045e-05,
+    "uncovered_child_cells": 0,
+    "uncovered_new_volume_m3": 7.647417887432574e-20,
+    "uncovered_old_parent_cells": 0,
+    "uncovered_old_volume_m3": 4.299979059635615e-11
+  },
+  "schema": "numi.global-tetgen-293-physical-O-batched-microedge-collapse-014.v1",
+  "status": "diagnostic_candidate_not_physical_admission",
+  "surface_microedge_contractions": [
+    {
+      "global_nodes": [
+        18028,
+        18029
+      ],
+      "incident_physical_O_faces": 2,
+      "length_before_m": 0.00013657859349067028,
+      "max_endpoint_displacement_m": 6.829380156429454e-05,
+      "midpoint_world_m": [
+        -0.09005774557590485,
+        -1.0704598426818848,
+        0.04745142161846161
+      ],
+      "within_0p3mm_from_010": true
+    },
+    {
+      "global_nodes": [
+        18023,
+        18024
+      ],
+      "incident_physical_O_faces": 2,
+      "length_before_m": 0.0005181800686091129,
+      "max_endpoint_displacement_m": 0.0002590933058866435,
+      "midpoint_world_m": [
+        -0.09698963165283203,
+        -1.0705556869506836,
+        0.046475015580654144
+      ],
+      "within_0p3mm_from_010": true
+    }
+  ],
+  "tetgen_binary": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-remesh-118/tetgen-v1.6.0/tetgen",
+  "tetgen_sha256": "95b1df3923d7405b168ba5a3c4b39498ddfc0e7ba94000dedff7ebf93350de07"
+}

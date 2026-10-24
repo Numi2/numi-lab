@@ -1,0 +1,17 @@
+{
+  "base_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/joint-patch-reconstruction-owner-337/proximal-distal-binding-territory-004/candidate.nhskin",
+  "base_sha256": "08e57b17ab7252d86062019cde819517b0d6b7fa9d77487fa2ee1305383332eb",
+  "displacement_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/joint-patch-reconstruction-owner-337/proximal-distal-binding-territory-004/displacement-patch-004-expanded-ring/candidate.nhskin",
+  "displacement_sha256": "0dd7a556c94f2f281516e55fd6dce67bd371a6f2d3cba5c7279a0d18a4b5a667",
+  "ancestry_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/joint-patch-reconstruction-owner-337/proximal-distal-binding-territory-004/displacement-patch-004-expanded-ring/displacement-patch-ancestry.npz",
+  "ancestry_sha256": "e60a2bd4c3b5de8abd809b7c606cb2a9f6c1c1cb9f207cdf32a4749e0c94e5fe",
+  "report_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-functional-owner-audit-20261023/joint-patch-reconstruction-owner-337/proximal-distal-binding-territory-004/displacement-patch-005-line-search/line-search-result.json",
+  "report_sha256": "89edd7fdb55464312d2493b9b876bb60f284e14b55492ee35644b62aef4742dd",
+  "rest_pose_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/registered-skin-poses.json",
+  "rest_pose_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "rebind_owner_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-patch-bindings-owner-308/tools/rebind_human_skin_reference.py",
+  "rebind_owner_sha256": "4144e90e7e2f690b54876db055b35dad54802b3f1e527cf52266a42050672a25",
+  "emission_owner_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/world-emission-owner-375/tools/human_skin_patch_geometry.py",
+  "emission_owner_sha256": "0da2a0170d3c12cc9fb369946ad749d9e7d185dcf476ff16c85db0b70497cde1",
+  "fraction": 0.25
+}
