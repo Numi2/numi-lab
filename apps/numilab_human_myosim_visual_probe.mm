@@ -18,6 +18,7 @@
 #include "metalrobo/NumiHumanSupport.hpp"
 #include "NumiHumanAcceptedQAuditWindow.hpp"
 #include "NumiHumanAcceptedFEMSkinTransfer.hpp"
+#include "NumiHumanSkinBoundaryNodeMap.hpp"
 #include "NumiHumanElbowBaselineProlongation065.hpp"
 #include "NumiHumanWholeBodySkinEmbeddingConsumer.hpp"
 #include "NumiHumanWholeBodySkinTransferAncestry.hpp"
@@ -20423,6 +20424,7 @@ struct PassiveFasciaRuntimeOwner {
     std::vector<std::array<float,4>> wholeBodySkinAcceptedBoundaries;
     std::uint32_t wholeBodySkinFirstGlobalFEMNode=NM_INVALID_INDEX;
     std::size_t wholeBodySkinCoarseNodeCount=0u;
+    numi::human::SkinBoundaryNodeMap wholeBodySkinBoundaryNodeMap;
     std::uint32_t wholeBodySkinObjectIndex=NM_INVALID_INDEX;
     std::string wholeBodySkinObjectName;
     bool wholeBodySkinSelfContactBound=false;
@@ -21675,6 +21677,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::vector<std::array<float,4>> wholeBodySkinAcceptedBoundaries;
     std::uint32_t wholeBodySkinFirstGlobalFEMNode=NM_INVALID_INDEX;
     std::size_t wholeBodySkinCoarseNodeCount=0u;
+    numi::human::SkinBoundaryNodeMap wholeBodySkinBoundaryNodeMap;
     std::vector<AcceptedSkinTransfer::Point> wholeBodySkinSourceCurrentByID;
     std::vector<AcceptedSkinTransfer::Pose> wholeBodySkinDonorCurrentPose;
     std::vector<AcceptedSkinTransfer::Point> wholeBodySkinCurrentBaseline;
@@ -22236,6 +22239,12 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             source.objects.back().name="BodyParts3D whole-body skin-fat bonded shell";
             wholeBodySkinObjectIndex=static_cast<std::uint32_t>(source.objects.size()-1u);
             wholeBodySkinNodesPerLayer=static_cast<std::uint32_t>(region.worldPoints.size());
+            require(numi::human::makePairedSkinBoundaryNodeMap(
+                        region.worldPoints.size(),wholeBodySkinBoundaryNodeMap,tissueError),
+                    "whole-body boundary row construction failed: "+tissueError);
+            require(wholeBodySkinBoundaryNodeMap.volumeNodeCount==
+                        source.objects.back().femNodes.size(),
+                    "whole-body boundary map does not cover its physical volume nodes");
             if(partitionedReductionDiagnostic||
                partitionedPreconditionerRequested||endpointCaptureRequested) {
                 RegisteredSkinFatReductionSourceLabels sourceLabels;
@@ -24451,33 +24460,46 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         const char* initialSkinFEMNodesPath=std::getenv(
             "NUMI_HUMAN_INITIAL_SKIN_FEM_NODES_CSV");
         if(initialSkinFEMNodesPath&&initialSkinFEMNodesPath[0]!='\0') {
-            const std::uint64_t count=std::uint64_t(wholeBodySkinNodesPerLayer)*3u;
+            const std::uint64_t count=wholeBodySkinBoundaryNodeMap.volumeNodeCount;
             const std::uint64_t begin=wholeBodySkinFirstGlobalFEMNode;
-            require(wholeBodySkinNodesPerLayer>0u&&
-                        begin<=compiled.world.fem.nodes.size()&&
-                        count<=compiled.world.fem.nodes.size()-begin,
-                    "initial skin FEM node dump exceeds compiled FEM node bounds");
+            std::string boundaryError;
+            require(numi::human::validateSkinBoundaryNodeMap(
+                        wholeBodySkinBoundaryNodeMap,wholeBodySkinNodesPerLayer,boundaryError)&&
+                        numi::human::skinBoundaryNodeRangeFits(
+                            wholeBodySkinBoundaryNodeMap,begin,compiled.world.fem.nodes.size()),
+                    "initial skin FEM node dump boundary map invalid: "+boundaryError);
             std::ofstream initialSkinFEM(initialSkinFEMNodesPath,
                 std::ios::out|std::ios::binary|std::ios::trunc);
             require(initialSkinFEM.good(),
                     "could not create initial skin FEM node/mass CSV");
             initialSkinFEM<<"global_node,layer,row,x_m,y_m,z_m,mass_kg\n"
                 <<std::setprecision(17);
+            std::vector<std::uint8_t> emittedSkinVolumeRows(count,0u);
+            const auto writeSkinVolumeRow=[&](std::uint32_t local,std::uint32_t layer,std::uint32_t row) {
+                const std::uint64_t global=begin+local;
+                const auto& point=compiled.world.fem.nodes[global].positionAndMass;
+                require(std::isfinite(point.x)&&std::isfinite(point.y)&&
+                            std::isfinite(point.z)&&std::isfinite(point.w)&&point.w>0.0f,
+                        "initial skin FEM node dump encountered nonfinite coordinates or nonpositive mass at node="+
+                            std::to_string(global));
+                initialSkinFEM<<global<<','<<layer<<','<<row<<','
+                    <<static_cast<double>(point.x)<<','
+                    <<static_cast<double>(point.y)<<','
+                    <<static_cast<double>(point.z)<<','
+                    <<static_cast<double>(point.w)<<'\n';
+                emittedSkinVolumeRows[local]=1u;
+            };
+            const std::array<const std::vector<std::uint32_t>*,3> boundaryRoles{{
+                &wholeBodySkinBoundaryNodeMap.outer,
+                &wholeBodySkinBoundaryNodeMap.skinInner,
+                &wholeBodySkinBoundaryNodeMap.fatDeep}};
             for(std::uint32_t layer=0u;layer<3u;++layer)
-                for(std::uint32_t row=0u;row<wholeBodySkinNodesPerLayer;++row) {
-                    const std::uint64_t global=begin+
-                        std::uint64_t(layer)*wholeBodySkinNodesPerLayer+row;
-                    const auto& point=compiled.world.fem.nodes[global].positionAndMass;
-                    require(std::isfinite(point.x)&&std::isfinite(point.y)&&
-                                std::isfinite(point.z)&&std::isfinite(point.w)&&point.w>0.0f,
-                            "initial skin FEM node dump encountered nonfinite coordinates or nonpositive mass at node="+
-                                std::to_string(global));
-                    initialSkinFEM<<global<<','<<layer<<','<<row<<','
-                        <<static_cast<double>(point.x)<<','
-                        <<static_cast<double>(point.y)<<','
-                        <<static_cast<double>(point.z)<<','
-                        <<static_cast<double>(point.w)<<'\n';
-                }
+                for(std::uint32_t row=0u;row<wholeBodySkinNodesPerLayer;++row)
+                    writeSkinVolumeRow((*boundaryRoles[layer])[row],layer,row);
+            // Layer 3 means an actual unpaired interior volume node; row is its
+            // local volume ID, never an invented registered-surface identity.
+            for(std::uint32_t row=0u;row<count;++row)
+                if(!emittedSkinVolumeRows[row])writeSkinVolumeRow(row,3u,row);
             initialSkinFEM.flush();
             require(initialSkinFEM.good(),
                     "failed while writing initial skin FEM node/mass CSV");
@@ -25334,6 +25356,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     owner->wholeBodySkinAcceptedBoundaries=std::move(wholeBodySkinAcceptedBoundaries);
     owner->wholeBodySkinFirstGlobalFEMNode=wholeBodySkinFirstGlobalFEMNode;
     owner->wholeBodySkinCoarseNodeCount=wholeBodySkinCoarseNodeCount;
+    owner->wholeBodySkinBoundaryNodeMap=std::move(wholeBodySkinBoundaryNodeMap);
     owner->wholeBodySkinSelfContactBound=wholeBodySkinSelfContactBound;
     owner->wholeBodySkinSourceCurrentByID=std::move(wholeBodySkinSourceCurrentByID);
     owner->wholeBodySkinDonorCurrentPose=std::move(wholeBodySkinDonorCurrentPose);
@@ -36132,8 +36155,10 @@ int main(int argc, char** argv) {
                                             "accepted skin transfer body and respiration presentation are not from the same accepted step");
                                     const auto firstBoundary=restingPassiveFasciaOwner->wholeBodySkinFirstGlobalFEMNode;
                                     const auto boundaryCount=restingPassiveFasciaOwner->wholeBodySkinCoarseNodeCount;
-                                    require(firstBoundary!=NM_INVALID_INDEX&&firstBoundary<=acceptedMatter.femNodes.size()&&
-                                            boundaryCount<=(acceptedMatter.femNodes.size()-firstBoundary)/3u,
+                                    const auto& boundaryRows=restingPassiveFasciaOwner->wholeBodySkinBoundaryNodeMap;
+                                    require(firstBoundary!=NM_INVALID_INDEX&&
+                                            numi::human::skinBoundaryNodeRangeFits(
+                                                boundaryRows,firstBoundary,acceptedMatter.femNodes.size()),
                                             "accepted whole-body skin/fat FEM boundary ranges are outside the Matter snapshot");
                                     require(coupled.presentationBodies.contents&&
                                             coupled.presentationBodies.length%sizeof(MRBodyStateGPU)==0u,
@@ -36174,7 +36199,7 @@ int main(int argc, char** argv) {
                                             "accepted outer FEM scratch count changed after preparation");
                                     for(std::size_t i=0;i<acceptedOuter.size();++i) {
                                         const auto& node=acceptedMatter.femNodes[
-                                            restingPassiveFasciaOwner->wholeBodySkinFirstGlobalFEMNode+i].positionAndMass;
+                                            firstBoundary+boundaryRows.outer[i]].positionAndMass;
                                         acceptedOuter[i]={node.x,node.y,node.z};
                                     }
                                     auto& deltas=restingPassiveFasciaOwner->wholeBodySkinAcceptedDeltas;
@@ -36186,8 +36211,8 @@ int main(int argc, char** argv) {
                                     require(acceptedBoundaries.size()==2u*boundaryCount,
                                             "accepted whole-body inner-skin/deep-fat scratch count changed");
                                     for(std::size_t i=0;i<boundaryCount;++i) {
-                                        const auto& inner=acceptedMatter.femNodes[firstBoundary+boundaryCount+i].positionAndMass;
-                                        const auto& fat=acceptedMatter.femNodes[firstBoundary+2u*boundaryCount+i].positionAndMass;
+                                        const auto& inner=acceptedMatter.femNodes[firstBoundary+boundaryRows.skinInner[i]].positionAndMass;
+                                        const auto& fat=acceptedMatter.femNodes[firstBoundary+boundaryRows.fatDeep[i]].positionAndMass;
                                         acceptedBoundaries[i]={inner.x,inner.y,inner.z,1.0f};
                                         acceptedBoundaries[boundaryCount+i]={fat.x,fat.y,fat.z,1.0f};
                                     }

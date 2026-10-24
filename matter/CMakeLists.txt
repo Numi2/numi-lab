@@ -90,6 +90,19 @@ if(BUILD_TESTING)
         TIMEOUT 30 LABELS "matter;fem;solver;cpu;synthetic")
 endif()
 
+add_executable(numi-matter-skin-boundary-node-map-check
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apps/NumiHumanSkinBoundaryNodeMapCheck.cpp")
+target_include_directories(numi-matter-skin-boundary-node-map-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apps")
+target_compile_options(numi-matter-skin-boundary-node-map-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.skin_boundary_node_map
+        COMMAND numi-matter-skin-boundary-node-map-check)
+    set_tests_properties(matter.compiler.skin_boundary_node_map PROPERTIES
+        TIMEOUT 30 LABELS "matter;compiler;human;cpu;synthetic")
+endif()
+
 add_executable(numi-matter-registered-layer-facet-ancestry-check
     "${CMAKE_CURRENT_SOURCE_DIR}/../apps/NumiHumanRegisteredLayerFacetAncestryCheck.cpp")
 target_include_directories(numi-matter-registered-layer-facet-ancestry-check PRIVATE
