@@ -1,0 +1,55 @@
+{
+  "artifact_type": "native_construction_not_dynamics",
+  "host": "macmini",
+  "native_executable": "/Users/n/numi-plastic-bag-bottom-seal-12x16-20261025/build/numi_bottom_seal_bag",
+  "command": "./build/numi_bottom_seal_bag --export-construction construction",
+  "units_confirmed_by_user": "inches",
+  "dimensions": {
+    "laid_flat_width_in": 12,
+    "height_in": 16,
+    "laid_flat_width_m": 0.30479999999999996,
+    "height_m": 0.4064
+  },
+  "material": {
+    "name": "same exploratory clear LDPE",
+    "gauge_m": 7.5e-05,
+    "density_kg_m3": 923,
+    "youngs_modulus_Pa": 100000000,
+    "poisson_ratio": 0.45,
+    "strain_viscosity_time_s": 0.0004,
+    "bending_viscosity_time_s": 0.01
+  },
+  "topology": {
+    "nodes": 2721,
+    "triangles": 5376,
+    "membrane_edges": 10782,
+    "bending_hinges": 8000,
+    "continuous_side_fold_edges": 84,
+    "bottom_heat_seal_edges": 32,
+    "side_heat_seals": 0,
+    "mouth_boundary_loops": 1,
+    "mouth_boundary_edges": 64,
+    "euler_characteristic": 1,
+    "fixed_nodes": 0,
+    "coins": 0
+  },
+  "film_mass_kg": 0.017175735548277157,
+  "nominal_flat_film_mass_kg": 0.017149901183999994,
+  "reference_area_difference_percent": 0.1506385605373861,
+  "metal_kernel_byte_identical_to_approved_handoff": true,
+  "metal_sha256": "a4224125ffe46dd68a206e130588a7db0360386207c26e0cee2a42c177445c54",
+  "host_source_sha256": "b8848cb8e21a63b10d191e4208af9b295720d131630bb88792d4964798b26e5d",
+  "construction_export_sha256": "b502ab2c6ffdf2a5b285125f6bb92b1432f3e03fbd2912a14a8d6091fb964f0b",
+  "executable_sha256": "2fe09e7ddf544e91f0c5b26f571f006fa15b9c19b877999676c452be0189e0fc",
+  "metal_library_sha256": "72c610246d38d3421ff805bbaa35176378cb1eb3d1fa7e2a37fb66b97b2554e4",
+  "dynamics_executed": false,
+  "limits": [
+    "Construction export only; no dynamics measured",
+    "Bottom heat seal is an ideal shared line; 5 mm displayed seal band is presentation only",
+    "Manufactured side folds use pi rest dihedral; no calibrated plastic crease law",
+    "Slightly opened geometric reference gives a small area difference from nominal flat film",
+    "Material constants remain uncalibrated; no air drag"
+  ],
+  "approved_film_shader_unchanged": true,
+  "film_shader_sha256": "b2f969bbcf5682309d2bac9f957aeae8dff750c944d6a1332a1e6427d0b9a7b0"
+}

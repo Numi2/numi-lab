@@ -477,6 +477,15 @@ Measured film-corner lift: **0.501 m**. Omitting empty coin-only dispatches redu
 Air drag remains absent for this material comparison. Robot joints are prescribed; saved-state housing clearance is not continuous whole-robot contact dynamics. Stable replay is not experimental material validation.
 
 
+### Bottom-seal bag — 12 × 16 inches
+
+[![New 12 × 16 inch bottom-seal plastic bag](examples/plastic_bag_franka/bottom_seal_12x16_20261025/construction_preview.png)](examples/plastic_bag_franka/bottom_seal_12x16_20261025)
+
+New empty **304.8 × 406.4 mm** lay-flat construction using the same **75 µm LDPE** material and film shader. A continuous tube carries the two side folds; **only the bottom is heat sealed**, and the top is open. Native construction mass is approximately **17.18 g**. The indexed mesh has 2,721 dynamic nodes and 5,376 triangles, with bending continuity through the side folds. The bottom weld is an ideal line joint with a 5 mm visual band. These are construction views; dynamics have not been run for this variant.
+
+[Native source, construction mesh, material settings and limits](examples/plastic_bag_franka/bottom_seal_12x16_20261025)
+
+
 ### Two Franka handoff — empty bag
 
 [![Empty pouch passed between two Franka grippers](docs/media/plastic-bag-franka-handoff.gif)](https://github.com/Numi2/numi-lab/blob/numisolver/docs/media/plastic-bag-franka-handoff-8s.mp4)

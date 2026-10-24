@@ -1,0 +1,87 @@
+source/PlasticBag.metal:292:16: warning: unused variable 'previousAngle' [-Wunused-variable]
+   const float previousAngle=pb_hinge_angle(
+               ^
+source/PlasticBag.metal:331:12: warning: unused variable 'next' [-Wunused-variable]
+    float3 next = position + velocity * config.scales.x;
+           ^
+source/PlasticBag.metal:333:17: warning: unused variable 'shellFloor' [-Wunused-variable]
+    const float shellFloor = config.geometry.y + config.geometry.x;
+                ^
+source/PlasticBag.metal:427:12: warning: unused variable 'next' [-Wunused-variable]
+    float3 next = position + velocity * config.scales.x;
+           ^
+source/PlasticBag.metal:1550:18: warning: unused variable 'incoming' [-Wunused-variable]
+     const float incoming=dot(coinA.predictedVelocity.xyz+cross(coinA.predictedAngularVelocity.xyz,ra)-coinB.predictedVelocity.xyz-cross(coinB.predictedAngularVelocity.xyz,rb),n);
+                 ^
+source/PlasticBag.metal:1563:18: warning: unused variable 'det' [-Wunused-variable]
+     const float det=max(kxx*kzz-kxz*kxz,1.e-20f);
+                 ^
+source/PlasticBag.metal:2208:16: warning: unused variable 'incoming' [-Wunused-variable]
+   const float incoming=(coin.predictedVelocity.xyz+cross(coin.predictedAngularVelocity.xyz,r)).y;
+               ^
+source/PlasticBag.metal:2219:17: warning: unused variable 'dt' [-Wunused-variable]
+   const float2 dt=-invDet*float2(kzz*v.x-kxz*v.z,kxx*v.z-kxz*v.x);
+                ^
+source/PlasticBag.metal:2253:18: warning: unused variable 'previousLength' [-Wunused-variable]
+     const float previousLength=length(nodes[b].previousAndFixed.xyz-nodes[a].previousAndFixed.xyz);
+                 ^
+source/PlasticBag.metal:2363:17: warning: unused variable 'delta' [-Wunused-variable]
+   const float2 delta=-float2(k22*vt.x-k12*vt.y,k11*vt.y-k12*vt.x)/det;
+                ^
+source/PlasticBag.metal:2474:17: warning: unused variable 'delta' [-Wunused-variable]
+   const float2 delta=-float2(k22*vt.x-k12*vt.y,k11*vt.y-k12*vt.x)/det;
+                ^
+source/PlasticBag.metal:2654:76: warning: unused variable 'center' [-Wunused-variable]
+ const float4 inv=pb_quat_conjugate(float4(coin.orientation));const float3 center=coin.positionAndInverseMass.xyz;
+                                                                           ^
+source/PlasticBag.metal:2884:15: warning: unused variable 'ownDepth' [-Wunused-variable]
+  const float ownDepth=max(0.0f,floor-node.previousAndFixed.y-node.contactPositionCorrection.w*dt);
+              ^
+source/PlasticBag.metal:2910:48: warning: unused variable 'floor' [-Wunused-variable]
+ const uint cap=uint(c.geometry.z);const float floor=c.geometry.y+c.geometry.x;
+                                               ^
+source/PlasticBag.metal:3096:15: warning: unused variable 'dc' [-Wunused-variable]
+ const float3 dc=runtime->current.centerAndHalfGap.xyz-runtime->previous.centerAndHalfGap.xyz;
+              ^
+source/PlasticBag.metal:3104:15: warning: unused variable 'dc' [-Wunused-variable]
+ const float3 dc=p.centerAndHalfGap.xyz-old.centerAndHalfGap.xyz;const float dh=p.centerAndHalfGap.w-old.centerAndHalfGap.w;
+              ^
+source/PlasticBag.metal:3104:78: warning: unused variable 'dh' [-Wunused-variable]
+ const float3 dc=p.centerAndHalfGap.xyz-old.centerAndHalfGap.xyz;const float dh=p.centerAndHalfGap.w-old.centerAndHalfGap.w;
+                                                                             ^
+17 warnings generated.
+source/plastic_bag_coins_scene.mm:290:13: warning: unused variable 'v3' [-Wunused-variable]
+  290 |  const auto v3=[](const mr_float4& v)->Vec3{return {v.x,v.y,v.z};};
+      |             ^~
+source/plastic_bag_coins_scene.mm:1358:37: warning: unused variable 'filmContactsInRounds' [-Wunused-variable]
+ 1358 |                 const std::uint32_t filmContactsInRounds=kContactIterations>0u
+      |                                     ^~~~~~~~~~~~~~~~~~~~
+source/plastic_bag_coins_scene.mm:1278:18: warning: unused variable 'filmPosition' [-Wunused-variable]
+ 1278 |             auto filmPosition=[&](){
+      |                  ^~~~~~~~~~~~
+source/plastic_bag_coins_scene.mm:1309:18: warning: unused variable 'filmVelocity' [-Wunused-variable]
+ 1309 |             auto filmVelocity=[&](){
+      |                  ^~~~~~~~~~~~
+source/plastic_bag_coins_scene.mm:1099:14: warning: unused variable 'pairBuffer' [-Wunused-variable]
+ 1099 |         auto pairBuffer=makeSharedBuffer(device,coinPairs,"coin collision pairs");
+      |              ^~~~~~~~~~
+source/plastic_bag_coins_scene.mm:1100:14: warning: unused variable 'pairScratchBuffer' [-Wunused-variable]
+ 1100 |         auto pairScratchBuffer=makeSharedBuffer(device,pairScratch,"coin pair corrections");
+      |              ^~~~~~~~~~~~~~~~~
+source/plastic_bag_coins_scene.mm:1107:14: warning: unused variable 'pairRefBuffer' [-Wunused-variable]
+ 1107 |         auto pairRefBuffer=makeSharedBuffer(device,packedCoinPairRefs,"coin pair adjacency");
+      |              ^~~~~~~~~~~~~
+source/plastic_bag_coins_scene.mm:1108:14: warning: unused variable 'pairSpanBuffer' [-Wunused-variable]
+ 1108 |         auto pairSpanBuffer=makeSharedBuffer(device,coinPairSpans,"coin pair spans");
+      |              ^~~~~~~~~~~~~~
+source/plastic_bag_coins_scene.mm:1209:27: warning: unused variable 'contactSampleCount' [-Wunused-variable]
+ 1209 |         const std::size_t contactSampleCount=contacts.size();
+      |                           ^~~~~~~~~~~~~~~~~~
+source/plastic_bag_coins_scene.mm:1215:29: warning: unused variable 'restoredSubsteps' [-Wunused-variable]
+ 1215 |         const std::uint32_t restoredSubsteps=resume.empty()?kSubsteps:std::clamp(std::uint32_t(std::lround(kFrameDt/restoredConfig->scales.x)),kSubsteps,256u);
+      |                             ^~~~~~~~~~~~~~~~
+source/plastic_bag_coins_scene.mm:123:25: warning: unused variable 'kCoinPairCleanupIterations' [-Wunused-const-variable]
+  123 | constexpr std::uint32_t kCoinPairCleanupIterations = 8u;
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+11 warnings generated.
+plastic bag scene failed: nonmanifold construction
