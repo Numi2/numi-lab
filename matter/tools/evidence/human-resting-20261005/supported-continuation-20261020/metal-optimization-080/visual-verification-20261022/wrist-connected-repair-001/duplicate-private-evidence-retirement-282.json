@@ -1,0 +1,1107 @@
+{
+  "policy": "Only byte-identical copies of retained active-root archives; no sole evidence, source or build executables retired. ps checked before manifest and again before unlink.",
+  "before_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 185192532  11962192    94% 1074401 119621920    1%   /System/Volumes/Data\n",
+  "files": [
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build47-52-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build47-52-native-metadata.tar.gz",
+      "sha256": "3aeeee634a7d79a0c492e322b58dea076512f9ed514c8de95a64ff416edcfcf3",
+      "bytes": 4382768
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build178-optic-and-three-root-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build178-optic-and-three-root-metadata.tar.gz",
+      "sha256": "99192784dd95fd6d903775ce5b7993e87dabe053674da1c568a6c178fa53a32c",
+      "bytes": 21664618
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-metadata.tar.gz",
+      "sha256": "4f45a408db9e3a51d7f3ffc500befeb7c519fa7ec1b5e9ddce1db33544089236",
+      "bytes": 27256673
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build66-67-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build66-67-native-metadata.tar.gz",
+      "sha256": "9e125b311ed0a70e886ba97779923e08666f699edda53693035ffcac4ed22a53",
+      "bytes": 1987037
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build197-198-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build197-198-results.tar.gz",
+      "sha256": "f5045e317d2e44ea884e450dd8bfe700eb275fc8b6dd6d01b0c3c2011ca92435",
+      "bytes": 22822039
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-sourceM-simd-sources.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-sourceM-simd-sources.tar.gz",
+      "sha256": "696d24f67f7898348e9fe8973d28672c0701ace5f5d328406482174391b23285",
+      "bytes": 4481
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build77-78-and-hybrid76-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build77-78-and-hybrid76-native-metadata.tar.gz",
+      "sha256": "6e56ba2628ce10e578edc77a6b33e8ed32a2b94f6e4374495a886ff286289b36",
+      "bytes": 636763
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build199-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build199-results.tar.gz",
+      "sha256": "310005948bb518b6e0f6fabd64c61879c8c52f861de78282eb156e3c0cca62ad",
+      "bytes": 30791355
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build181-182-optic-zero-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build181-182-optic-zero-metadata.tar.gz",
+      "sha256": "66a1759fc16b174d5f50aca9ebca22ca56dccf24f794a37d7e3be9667927d2e9",
+      "bytes": 25340634
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build196-dormant-armijo-trial.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build196-dormant-armijo-trial.tar.gz",
+      "sha256": "0f29983902272fa414add1a9d5c4b4f9cd171d2d5a920a9b8e56b58566443c00",
+      "bytes": 3825280
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build68-72-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build68-72-native-metadata.tar.gz",
+      "sha256": "1a7270c3a631f6debeaa66315008f8b2803c2a3efd1b91ad796a8ab7ad28b001",
+      "bytes": 6403385
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build173-177-api-validation-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build173-177-api-validation-metadata.tar.gz",
+      "sha256": "99e868af8bc65eeb450291796fa52be1a57a012234f01b00acb915804ca1aa10",
+      "bytes": 25122814
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build103-123-solver-contact-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build103-123-solver-contact-native-metadata.tar.gz",
+      "sha256": "d96ebc83580b926e6f84a0f21300f533234d7f4acaa20c5621e04f1a496e6c87",
+      "bytes": 7882307
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build180-coarse-deflation-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build180-coarse-deflation-metadata.tar.gz",
+      "sha256": "f2f91a432c5afce386d38ceb11ebe5eda5b37663c724f2476b6276a701ac90ac",
+      "bytes": 12150525
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build64-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build64-native-metadata.tar.gz",
+      "sha256": "bbcd807e595884fec2d029020249e278abc09018ac8869d2d0eb58ebbbb17a1f",
+      "bytes": 514709
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build171-172-integration-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build171-172-integration-metadata.tar.gz",
+      "sha256": "2a51f187eaa5eed6d44498932f0bf72352505c9ae9d811295fc4143b74ac66e4",
+      "bytes": 54856246
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build168-local-solve-and-budget-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build168-local-solve-and-budget-metadata.tar.gz",
+      "sha256": "4d4be2074385d06337e99e6249ef04256b04f0e64dc0611bfa0b0b07b212a35e",
+      "bytes": 24851881
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-195-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-195-metadata.tar.gz",
+      "sha256": "b3cc69e82f0e3d1a2c1f043b9062277b2254769770e174df26259f1970606b00",
+      "bytes": 32462179
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build165-166-indirect-dispatch-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build165-166-indirect-dispatch-metadata.tar.gz",
+      "sha256": "48fe58ed2f63e6adbbb1419893966c1167058d05ddfac87afa123d539b46ee36",
+      "bytes": 50168839
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build189-191-rhs-attribution-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build189-191-rhs-attribution-metadata.tar.gz",
+      "sha256": "64ea75173cb7845a9a97eb8566eac3a4d9fe725b6d9e7d9b86f0ed11599633d1",
+      "bytes": 88223433
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build164-constitutive-globalization-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build164-constitutive-globalization-metadata.tar.gz",
+      "sha256": "95b44e5a52d0d184875b5d318343402c093f600f4d6bf99dd282e8279116626d",
+      "bytes": 8673516
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build169-170-integration-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build169-170-integration-metadata.tar.gz",
+      "sha256": "0975a44b4d8bd947dc1d48f6a1df9920cebe56b953f04aab3d1ec0a0944858d8",
+      "bytes": 57560429
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build163-rank-safe-refinement-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build163-rank-safe-refinement-metadata.tar.gz",
+      "sha256": "de90bcaf0b979391c11696c2ffdf2ad7b41f0121c0ac39061145d3d1549aff77",
+      "bytes": 9282520
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build138-140-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build138-140-solver-native-metadata.tar.gz",
+      "sha256": "a22cc40c7d020b1254683af140e4c22b91184abe438152a7923e35a2e229b0f1",
+      "bytes": 2936915
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build155-159-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build155-159-solver-native-metadata.tar.gz",
+      "sha256": "46941ff4316f7268fdec8a43c9c36b6caf6a1a79710b2e9fd8ac361180dffece",
+      "bytes": 63277013
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/external-root-certificate-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/external-root-certificate-native-metadata.tar.gz",
+      "sha256": "8c984671d064dab87fa7c6081d001e219b2ee4b81ced95072fca83e0e4f9de61",
+      "bytes": 55805
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-profile-supplement.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-profile-supplement.tar.gz",
+      "sha256": "50f290f57d4b5e26506b391ac389a4917f23f640469650df34b0dbbfe3646cef",
+      "bytes": 3797228
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build82-94-schur-coarse-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build82-94-schur-coarse-native-metadata.tar.gz",
+      "sha256": "134c782d00942a3f21abf58ca378a636b637ff9f25aa260846f5d9a0747875f2",
+      "bytes": 19189312
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build73-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build73-native-metadata.tar.gz",
+      "sha256": "0436b5e6c5211756168762cf70c38d144b4476dcf43c555257bacd2e27e5184a",
+      "bytes": 1247538
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build56-63-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build56-63-native-metadata.tar.gz",
+      "sha256": "bb16864b97513747b29a7f7c7124fa6eff795a91b1132eb02e8522f07ca580bf",
+      "bytes": 17792734
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build152-154-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build152-154-solver-native-metadata.tar.gz",
+      "sha256": "436d8084139d75887c7f2bcba421dc03a2ab90e88b2ce81a0d7095f2245fbc6c",
+      "bytes": 25336372
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build167-embedded-contact-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build167-embedded-contact-metadata.tar.gz",
+      "sha256": "39dff26497325267d56dbdff6441827c1e7f71d3762f4ceb2f539b5437e6fae2",
+      "bytes": 12942348
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build183-187-solver-and-prelude-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build183-187-solver-and-prelude-metadata.tar.gz",
+      "sha256": "c02d95a0e0042ef021451af229780e03a4712e3d7b84bcc44f6ecdd7f9159bcc",
+      "bytes": 71464459
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build97-102-supported-prefix-static-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build97-102-supported-prefix-static-native-metadata.tar.gz",
+      "sha256": "21e6b942bb0b85bd6c2e2b10afd374c2faf58e5a1cccb8d043a09440723e5afb",
+      "bytes": 5874502
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build40-46-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build40-46-native-metadata.tar.gz",
+      "sha256": "257458639ce61c997be0de697437415f22c3f583bd7d2bc098965f2f1aefbba2",
+      "bytes": 12541306
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build52-completion-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build52-completion-metadata.tar.gz",
+      "sha256": "1c45c9bfbd66a3bb543589d70a9d7a54d4a7ad3d7d394c17732a0a832d5ca744",
+      "bytes": 337508
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build149-151-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build149-151-solver-native-metadata.tar.gz",
+      "sha256": "95da2f4d51dfce63903ad9afe3e8d1ebfc965df5ef68d0b45a1d93842c3fb885",
+      "bytes": 4207561
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-and-late64-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-and-late64-native-metadata.tar.gz",
+      "sha256": "1d6e3b396123649d3ba6a37d0fccdeebf729451c39962603089dee7aa113a96e",
+      "bytes": 7196163
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build179-three-root-owner-supplement.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build179-three-root-owner-supplement.tar.gz",
+      "sha256": "76ad53299588035735d4c1cfc15f5e93ccd89c4f408af19d1f0b8dc85d245c5e",
+      "bytes": 8061171
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-sourceM-simd-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-sourceM-simd-native-metadata.tar.gz",
+      "sha256": "368d0f7ca8cdb4e56ae51f33bf054b2e3639614d625c15777f098c5d51dc6a93",
+      "bytes": 27386
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build98-pso-guard-tested-source-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build98-pso-guard-tested-source-metadata.tar.gz",
+      "sha256": "df6e637eb70f69baa8d9a578bae19899d73c2d7b401646f110cdab4a1e0e6de9",
+      "bytes": 829246
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build134-137-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build134-137-solver-native-metadata.tar.gz",
+      "sha256": "6fe26f653c016fe5996184dc84964fde42166b01e0e6c91a91a08cd26bda2c8b",
+      "bytes": 3606690
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build160-162-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build160-162-solver-native-metadata.tar.gz",
+      "sha256": "00e9ce7f039efb3727cb55d9209f6811eb59b51c40cb09afe14c27427fdd94e5",
+      "bytes": 37358863
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build74-75-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build74-75-native-metadata.tar.gz",
+      "sha256": "c8bdf48af37d5c5006c192da2c3842172ac5a82c9bdac47cdcea4a736dfca29a",
+      "bytes": 9547048
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build76-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build76-native-metadata.tar.gz",
+      "sha256": "c1b735817c15f56dc285d26bf4daf49a793facf1cbc2044366ce08e7d20cb6cb",
+      "bytes": 697221
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build145-148-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build145-148-solver-native-metadata.tar.gz",
+      "sha256": "6dd199b0fa104a36c734998226a5ea29d9cbc497234ce0aee252e484dde78cdb",
+      "bytes": 4318343
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build124-133-solver-contact-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build124-133-solver-contact-native-metadata.tar.gz",
+      "sha256": "839d114bb60ff5337229e21f62ba5c8dfc8224cec40077adfaa7f0a6676f5e64",
+      "bytes": 4853874
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-timestep-continuation-failures.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-timestep-continuation-failures.tar.gz",
+      "sha256": "9e7bb891892088c621283873f72ba90f2cd5e3e5007b5f778499e0b1040a8e5d",
+      "bytes": 78718
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build188-completed-cycle-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build188-completed-cycle-metadata.tar.gz",
+      "sha256": "9c6f9b54c18e53c3a3f7d1eab43cf0afbd4c4574fff6fcaf2714e1997a4745e5",
+      "bytes": 12748516
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-144-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-144-solver-native-metadata.tar.gz",
+      "sha256": "3575db8dfe511acb38edc3072cb20ab983db77776731e540293c17d36b2a3e8a",
+      "bytes": 9392446
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build179-coarse-capture-and-contracts-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build179-coarse-capture-and-contracts-metadata.tar.gz",
+      "sha256": "120678922cc05b4da56419804924f45ea78a87d54c1093eae89e4630c4ca82b3",
+      "bytes": 5570979
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build79-81-hybrid-gs-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build79-81-hybrid-gs-native-metadata.tar.gz",
+      "sha256": "23801e606fe03fdc08e1dcce58f22bf5ef2dca5fec092ff4d32817ddce8ba9a2",
+      "bytes": 2540057
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build53-55-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build53-55-native-metadata.tar.gz",
+      "sha256": "63c1dd069242944858300cb4e20f6d9d5a2c4d553c68cb0324ae948712f204fd",
+      "bytes": 8808575
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build95-96-schur-coarse-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build95-96-schur-coarse-native-metadata.tar.gz",
+      "sha256": "c6541cce44cc008ba06f52f4aa0d760cb64ab559b6f5aee9c9be1b24d8efe8f5",
+      "bytes": 1712497
+    },
+    {
+      "retire": "/private/tmp/perf080-vascular-row27-private-20261021/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build195-combined-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build195-combined-results.tar.gz",
+      "sha256": "74231f1aed65c926c016ca12bf0d54c6246df990e7fc0a16c72ee02304f15922",
+      "bytes": 22805620
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build47-52-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build47-52-native-metadata.tar.gz",
+      "sha256": "3aeeee634a7d79a0c492e322b58dea076512f9ed514c8de95a64ff416edcfcf3",
+      "bytes": 4382768
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build178-optic-and-three-root-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build178-optic-and-three-root-metadata.tar.gz",
+      "sha256": "99192784dd95fd6d903775ce5b7993e87dabe053674da1c568a6c178fa53a32c",
+      "bytes": 21664618
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-metadata.tar.gz",
+      "sha256": "4f45a408db9e3a51d7f3ffc500befeb7c519fa7ec1b5e9ddce1db33544089236",
+      "bytes": 27256673
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build66-67-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build66-67-native-metadata.tar.gz",
+      "sha256": "9e125b311ed0a70e886ba97779923e08666f699edda53693035ffcac4ed22a53",
+      "bytes": 1987037
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build197-198-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build197-198-results.tar.gz",
+      "sha256": "f5045e317d2e44ea884e450dd8bfe700eb275fc8b6dd6d01b0c3c2011ca92435",
+      "bytes": 22822039
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-sourceM-simd-sources.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-sourceM-simd-sources.tar.gz",
+      "sha256": "696d24f67f7898348e9fe8973d28672c0701ace5f5d328406482174391b23285",
+      "bytes": 4481
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build77-78-and-hybrid76-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build77-78-and-hybrid76-native-metadata.tar.gz",
+      "sha256": "6e56ba2628ce10e578edc77a6b33e8ed32a2b94f6e4374495a886ff286289b36",
+      "bytes": 636763
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build199-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build199-results.tar.gz",
+      "sha256": "310005948bb518b6e0f6fabd64c61879c8c52f861de78282eb156e3c0cca62ad",
+      "bytes": 30791355
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build181-182-optic-zero-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build181-182-optic-zero-metadata.tar.gz",
+      "sha256": "66a1759fc16b174d5f50aca9ebca22ca56dccf24f794a37d7e3be9667927d2e9",
+      "bytes": 25340634
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build201-202-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build201-202-results.tar.gz",
+      "sha256": "0633ae8ed0a1e3ba8c001a9d274adb35d10149829ccab9d424a7fb3f7fc77afe",
+      "bytes": 13181841
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build196-dormant-armijo-trial.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build196-dormant-armijo-trial.tar.gz",
+      "sha256": "0f29983902272fa414add1a9d5c4b4f9cd171d2d5a920a9b8e56b58566443c00",
+      "bytes": 3825280
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build68-72-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build68-72-native-metadata.tar.gz",
+      "sha256": "1a7270c3a631f6debeaa66315008f8b2803c2a3efd1b91ad796a8ab7ad28b001",
+      "bytes": 6403385
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build173-177-api-validation-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build173-177-api-validation-metadata.tar.gz",
+      "sha256": "99e868af8bc65eeb450291796fa52be1a57a012234f01b00acb915804ca1aa10",
+      "bytes": 25122814
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build103-123-solver-contact-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build103-123-solver-contact-native-metadata.tar.gz",
+      "sha256": "d96ebc83580b926e6f84a0f21300f533234d7f4acaa20c5621e04f1a496e6c87",
+      "bytes": 7882307
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build180-coarse-deflation-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build180-coarse-deflation-metadata.tar.gz",
+      "sha256": "f2f91a432c5afce386d38ceb11ebe5eda5b37663c724f2476b6276a701ac90ac",
+      "bytes": 12150525
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build202-combined-pairs.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build202-combined-pairs.tar.gz",
+      "sha256": "9fea2bf9ba114ddd8e7a26c43cd60a1f0ee4cc8372255ed0234ae20e2da7f425",
+      "bytes": 22759216
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build64-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build64-native-metadata.tar.gz",
+      "sha256": "bbcd807e595884fec2d029020249e278abc09018ac8869d2d0eb58ebbbb17a1f",
+      "bytes": 514709
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build171-172-integration-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build171-172-integration-metadata.tar.gz",
+      "sha256": "2a51f187eaa5eed6d44498932f0bf72352505c9ae9d811295fc4143b74ac66e4",
+      "bytes": 54856246
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build168-local-solve-and-budget-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build168-local-solve-and-budget-metadata.tar.gz",
+      "sha256": "4d4be2074385d06337e99e6249ef04256b04f0e64dc0611bfa0b0b07b212a35e",
+      "bytes": 24851881
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-195-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-195-metadata.tar.gz",
+      "sha256": "b3cc69e82f0e3d1a2c1f043b9062277b2254769770e174df26259f1970606b00",
+      "bytes": 32462179
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build165-166-indirect-dispatch-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build165-166-indirect-dispatch-metadata.tar.gz",
+      "sha256": "48fe58ed2f63e6adbbb1419893966c1167058d05ddfac87afa123d539b46ee36",
+      "bytes": 50168839
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build189-191-rhs-attribution-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build189-191-rhs-attribution-metadata.tar.gz",
+      "sha256": "64ea75173cb7845a9a97eb8566eac3a4d9fe725b6d9e7d9b86f0ed11599633d1",
+      "bytes": 88223433
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build164-constitutive-globalization-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build164-constitutive-globalization-metadata.tar.gz",
+      "sha256": "95b44e5a52d0d184875b5d318343402c093f600f4d6bf99dd282e8279116626d",
+      "bytes": 8673516
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build169-170-integration-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build169-170-integration-metadata.tar.gz",
+      "sha256": "0975a44b4d8bd947dc1d48f6a1df9920cebe56b953f04aab3d1ec0a0944858d8",
+      "bytes": 57560429
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build163-rank-safe-refinement-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build163-rank-safe-refinement-metadata.tar.gz",
+      "sha256": "de90bcaf0b979391c11696c2ffdf2ad7b41f0121c0ac39061145d3d1549aff77",
+      "bytes": 9282520
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build138-140-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build138-140-solver-native-metadata.tar.gz",
+      "sha256": "a22cc40c7d020b1254683af140e4c22b91184abe438152a7923e35a2e229b0f1",
+      "bytes": 2936915
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build155-159-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build155-159-solver-native-metadata.tar.gz",
+      "sha256": "46941ff4316f7268fdec8a43c9c36b6caf6a1a79710b2e9fd8ac361180dffece",
+      "bytes": 63277013
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build200-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build200-results.tar.gz",
+      "sha256": "b8ae1e458b19b5b1f7e05d6578d6f39b89f40f8879b5110b2995a871d90cca34",
+      "bytes": 66251096
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/external-root-certificate-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/external-root-certificate-native-metadata.tar.gz",
+      "sha256": "8c984671d064dab87fa7c6081d001e219b2ee4b81ced95072fca83e0e4f9de61",
+      "bytes": 55805
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-profile-supplement.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-profile-supplement.tar.gz",
+      "sha256": "50f290f57d4b5e26506b391ac389a4917f23f640469650df34b0dbbfe3646cef",
+      "bytes": 3797228
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build82-94-schur-coarse-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build82-94-schur-coarse-native-metadata.tar.gz",
+      "sha256": "134c782d00942a3f21abf58ca378a636b637ff9f25aa260846f5d9a0747875f2",
+      "bytes": 19189312
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build73-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build73-native-metadata.tar.gz",
+      "sha256": "0436b5e6c5211756168762cf70c38d144b4476dcf43c555257bacd2e27e5184a",
+      "bytes": 1247538
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build56-63-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build56-63-native-metadata.tar.gz",
+      "sha256": "bb16864b97513747b29a7f7c7124fa6eff795a91b1132eb02e8522f07ca580bf",
+      "bytes": 17792734
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build207-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build207-results.tar.gz",
+      "sha256": "a6e0706570136296b3750d8a25b001653d336e1a242a2ece213c7dff8a04ef6c",
+      "bytes": 31220848
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build152-154-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build152-154-solver-native-metadata.tar.gz",
+      "sha256": "436d8084139d75887c7f2bcba421dc03a2ab90e88b2ce81a0d7095f2245fbc6c",
+      "bytes": 25336372
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build167-embedded-contact-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build167-embedded-contact-metadata.tar.gz",
+      "sha256": "39dff26497325267d56dbdff6441827c1e7f71d3762f4ceb2f539b5437e6fae2",
+      "bytes": 12942348
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build183-187-solver-and-prelude-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build183-187-solver-and-prelude-metadata.tar.gz",
+      "sha256": "c02d95a0e0042ef021451af229780e03a4712e3d7b84bcc44f6ecdd7f9159bcc",
+      "bytes": 71464459
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build97-102-supported-prefix-static-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build97-102-supported-prefix-static-native-metadata.tar.gz",
+      "sha256": "21e6b942bb0b85bd6c2e2b10afd374c2faf58e5a1cccb8d043a09440723e5afb",
+      "bytes": 5874502
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build40-46-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build40-46-native-metadata.tar.gz",
+      "sha256": "257458639ce61c997be0de697437415f22c3f583bd7d2bc098965f2f1aefbba2",
+      "bytes": 12541306
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build52-completion-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build52-completion-metadata.tar.gz",
+      "sha256": "1c45c9bfbd66a3bb543589d70a9d7a54d4a7ad3d7d394c17732a0a832d5ca744",
+      "bytes": 337508
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build149-151-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build149-151-solver-native-metadata.tar.gz",
+      "sha256": "95da2f4d51dfce63903ad9afe3e8d1ebfc965df5ef68d0b45a1d93842c3fb885",
+      "bytes": 4207561
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-and-late64-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-and-late64-native-metadata.tar.gz",
+      "sha256": "1d6e3b396123649d3ba6a37d0fccdeebf729451c39962603089dee7aa113a96e",
+      "bytes": 7196163
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build179-three-root-owner-supplement.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build179-three-root-owner-supplement.tar.gz",
+      "sha256": "76ad53299588035735d4c1cfc15f5e93ccd89c4f408af19d1f0b8dc85d245c5e",
+      "bytes": 8061171
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-sourceM-simd-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-sourceM-simd-native-metadata.tar.gz",
+      "sha256": "368d0f7ca8cdb4e56ae51f33bf054b2e3639614d625c15777f098c5d51dc6a93",
+      "bytes": 27386
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build98-pso-guard-tested-source-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build98-pso-guard-tested-source-metadata.tar.gz",
+      "sha256": "df6e637eb70f69baa8d9a578bae19899d73c2d7b401646f110cdab4a1e0e6de9",
+      "bytes": 829246
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build134-137-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build134-137-solver-native-metadata.tar.gz",
+      "sha256": "6fe26f653c016fe5996184dc84964fde42166b01e0e6c91a91a08cd26bda2c8b",
+      "bytes": 3606690
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build160-162-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build160-162-solver-native-metadata.tar.gz",
+      "sha256": "00e9ce7f039efb3727cb55d9209f6811eb59b51c40cb09afe14c27427fdd94e5",
+      "bytes": 37358863
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build74-75-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build74-75-native-metadata.tar.gz",
+      "sha256": "c8bdf48af37d5c5006c192da2c3842172ac5a82c9bdac47cdcea4a736dfca29a",
+      "bytes": 9547048
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build76-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build76-native-metadata.tar.gz",
+      "sha256": "c1b735817c15f56dc285d26bf4daf49a793facf1cbc2044366ce08e7d20cb6cb",
+      "bytes": 697221
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build145-148-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build145-148-solver-native-metadata.tar.gz",
+      "sha256": "6dd199b0fa104a36c734998226a5ea29d9cbc497234ce0aee252e484dde78cdb",
+      "bytes": 4318343
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build203-204-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build203-204-results.tar.gz",
+      "sha256": "c926706b62b45cf0cdf1d911873a2a4dc980bbac9748e906060e7f89d78b0557",
+      "bytes": 20271891
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build205-206-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build205-206-results.tar.gz",
+      "sha256": "bc22e7594196a349588cb1ee32798bec98b546cbc6f2e113857b4f9420315688",
+      "bytes": 35944530
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build124-133-solver-contact-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build124-133-solver-contact-native-metadata.tar.gz",
+      "sha256": "839d114bb60ff5337229e21f62ba5c8dfc8224cec40077adfaa7f0a6676f5e64",
+      "bytes": 4853874
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-timestep-continuation-failures.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-timestep-continuation-failures.tar.gz",
+      "sha256": "9e7bb891892088c621283873f72ba90f2cd5e3e5007b5f778499e0b1040a8e5d",
+      "bytes": 78718
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build188-completed-cycle-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build188-completed-cycle-metadata.tar.gz",
+      "sha256": "9c6f9b54c18e53c3a3f7d1eab43cf0afbd4c4574fff6fcaf2714e1997a4745e5",
+      "bytes": 12748516
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build202-combined-validation.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build202-combined-validation.tar.gz",
+      "sha256": "069fad83c2bb73fb8c70662b91bb6b1d35876110e2d8cd1af4dadcee9871d019",
+      "bytes": 3795926
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-144-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-144-solver-native-metadata.tar.gz",
+      "sha256": "3575db8dfe511acb38edc3072cb20ab983db77776731e540293c17d36b2a3e8a",
+      "bytes": 9392446
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build179-coarse-capture-and-contracts-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build179-coarse-capture-and-contracts-metadata.tar.gz",
+      "sha256": "120678922cc05b4da56419804924f45ea78a87d54c1093eae89e4630c4ca82b3",
+      "bytes": 5570979
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build79-81-hybrid-gs-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build79-81-hybrid-gs-native-metadata.tar.gz",
+      "sha256": "23801e606fe03fdc08e1dcce58f22bf5ef2dca5fec092ff4d32817ddce8ba9a2",
+      "bytes": 2540057
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build53-55-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build53-55-native-metadata.tar.gz",
+      "sha256": "63c1dd069242944858300cb4e20f6d9d5a2c4d553c68cb0324ae948712f204fd",
+      "bytes": 8808575
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build95-96-schur-coarse-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build95-96-schur-coarse-native-metadata.tar.gz",
+      "sha256": "c6541cce44cc008ba06f52f4aa0d760cb64ab559b6f5aee9c9be1b24d8efe8f5",
+      "bytes": 1712497
+    },
+    {
+      "retire": "/private/tmp/perf080-pressure-init-private/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build195-combined-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build195-combined-results.tar.gz",
+      "sha256": "74231f1aed65c926c016ca12bf0d54c6246df990e7fc0a16c72ee02304f15922",
+      "bytes": 22805620
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build47-52-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build47-52-native-metadata.tar.gz",
+      "sha256": "3aeeee634a7d79a0c492e322b58dea076512f9ed514c8de95a64ff416edcfcf3",
+      "bytes": 4382768
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build178-optic-and-three-root-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build178-optic-and-three-root-metadata.tar.gz",
+      "sha256": "99192784dd95fd6d903775ce5b7993e87dabe053674da1c568a6c178fa53a32c",
+      "bytes": 21664618
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-metadata.tar.gz",
+      "sha256": "4f45a408db9e3a51d7f3ffc500befeb7c519fa7ec1b5e9ddce1db33544089236",
+      "bytes": 27256673
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build66-67-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build66-67-native-metadata.tar.gz",
+      "sha256": "9e125b311ed0a70e886ba97779923e08666f699edda53693035ffcac4ed22a53",
+      "bytes": 1987037
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build197-198-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build197-198-results.tar.gz",
+      "sha256": "f5045e317d2e44ea884e450dd8bfe700eb275fc8b6dd6d01b0c3c2011ca92435",
+      "bytes": 22822039
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-sourceM-simd-sources.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-sourceM-simd-sources.tar.gz",
+      "sha256": "696d24f67f7898348e9fe8973d28672c0701ace5f5d328406482174391b23285",
+      "bytes": 4481
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build77-78-and-hybrid76-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build77-78-and-hybrid76-native-metadata.tar.gz",
+      "sha256": "6e56ba2628ce10e578edc77a6b33e8ed32a2b94f6e4374495a886ff286289b36",
+      "bytes": 636763
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build199-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build199-results.tar.gz",
+      "sha256": "310005948bb518b6e0f6fabd64c61879c8c52f861de78282eb156e3c0cca62ad",
+      "bytes": 30791355
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build181-182-optic-zero-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build181-182-optic-zero-metadata.tar.gz",
+      "sha256": "66a1759fc16b174d5f50aca9ebca22ca56dccf24f794a37d7e3be9667927d2e9",
+      "bytes": 25340634
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build201-202-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build201-202-results.tar.gz",
+      "sha256": "0633ae8ed0a1e3ba8c001a9d274adb35d10149829ccab9d424a7fb3f7fc77afe",
+      "bytes": 13181841
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build196-dormant-armijo-trial.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build196-dormant-armijo-trial.tar.gz",
+      "sha256": "0f29983902272fa414add1a9d5c4b4f9cd171d2d5a920a9b8e56b58566443c00",
+      "bytes": 3825280
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build68-72-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build68-72-native-metadata.tar.gz",
+      "sha256": "1a7270c3a631f6debeaa66315008f8b2803c2a3efd1b91ad796a8ab7ad28b001",
+      "bytes": 6403385
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build173-177-api-validation-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build173-177-api-validation-metadata.tar.gz",
+      "sha256": "99e868af8bc65eeb450291796fa52be1a57a012234f01b00acb915804ca1aa10",
+      "bytes": 25122814
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build103-123-solver-contact-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build103-123-solver-contact-native-metadata.tar.gz",
+      "sha256": "d96ebc83580b926e6f84a0f21300f533234d7f4acaa20c5621e04f1a496e6c87",
+      "bytes": 7882307
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build180-coarse-deflation-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build180-coarse-deflation-metadata.tar.gz",
+      "sha256": "f2f91a432c5afce386d38ceb11ebe5eda5b37663c724f2476b6276a701ac90ac",
+      "bytes": 12150525
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build202-combined-pairs.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build202-combined-pairs.tar.gz",
+      "sha256": "9fea2bf9ba114ddd8e7a26c43cd60a1f0ee4cc8372255ed0234ae20e2da7f425",
+      "bytes": 22759216
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build64-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build64-native-metadata.tar.gz",
+      "sha256": "bbcd807e595884fec2d029020249e278abc09018ac8869d2d0eb58ebbbb17a1f",
+      "bytes": 514709
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build171-172-integration-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build171-172-integration-metadata.tar.gz",
+      "sha256": "2a51f187eaa5eed6d44498932f0bf72352505c9ae9d811295fc4143b74ac66e4",
+      "bytes": 54856246
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build168-local-solve-and-budget-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build168-local-solve-and-budget-metadata.tar.gz",
+      "sha256": "4d4be2074385d06337e99e6249ef04256b04f0e64dc0611bfa0b0b07b212a35e",
+      "bytes": 24851881
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-195-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-195-metadata.tar.gz",
+      "sha256": "b3cc69e82f0e3d1a2c1f043b9062277b2254769770e174df26259f1970606b00",
+      "bytes": 32462179
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build214-219-coupled-initialization-solver-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build214-219-coupled-initialization-solver-metadata.tar.gz",
+      "sha256": "cca4c1a970e9c58eed0a920ed7d22b4815621507d75c5fea8df38414bb6bca30",
+      "bytes": 75570057
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build165-166-indirect-dispatch-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build165-166-indirect-dispatch-metadata.tar.gz",
+      "sha256": "48fe58ed2f63e6adbbb1419893966c1167058d05ddfac87afa123d539b46ee36",
+      "bytes": 50168839
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build189-191-rhs-attribution-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build189-191-rhs-attribution-metadata.tar.gz",
+      "sha256": "64ea75173cb7845a9a97eb8566eac3a4d9fe725b6d9e7d9b86f0ed11599633d1",
+      "bytes": 88223433
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build164-constitutive-globalization-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build164-constitutive-globalization-metadata.tar.gz",
+      "sha256": "95b44e5a52d0d184875b5d318343402c093f600f4d6bf99dd282e8279116626d",
+      "bytes": 8673516
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build169-170-integration-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build169-170-integration-metadata.tar.gz",
+      "sha256": "0975a44b4d8bd947dc1d48f6a1df9920cebe56b953f04aab3d1ec0a0944858d8",
+      "bytes": 57560429
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build163-rank-safe-refinement-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build163-rank-safe-refinement-metadata.tar.gz",
+      "sha256": "de90bcaf0b979391c11696c2ffdf2ad7b41f0121c0ac39061145d3d1549aff77",
+      "bytes": 9282520
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build138-140-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build138-140-solver-native-metadata.tar.gz",
+      "sha256": "a22cc40c7d020b1254683af140e4c22b91184abe438152a7923e35a2e229b0f1",
+      "bytes": 2936915
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build155-159-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build155-159-solver-native-metadata.tar.gz",
+      "sha256": "46941ff4316f7268fdec8a43c9c36b6caf6a1a79710b2e9fd8ac361180dffece",
+      "bytes": 63277013
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build200-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build200-results.tar.gz",
+      "sha256": "b8ae1e458b19b5b1f7e05d6578d6f39b89f40f8879b5110b2995a871d90cca34",
+      "bytes": 66251096
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/external-root-certificate-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/external-root-certificate-native-metadata.tar.gz",
+      "sha256": "8c984671d064dab87fa7c6081d001e219b2ee4b81ced95072fca83e0e4f9de61",
+      "bytes": 55805
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-profile-supplement.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-profile-supplement.tar.gz",
+      "sha256": "50f290f57d4b5e26506b391ac389a4917f23f640469650df34b0dbbfe3646cef",
+      "bytes": 3797228
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build82-94-schur-coarse-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build82-94-schur-coarse-native-metadata.tar.gz",
+      "sha256": "134c782d00942a3f21abf58ca378a636b637ff9f25aa260846f5d9a0747875f2",
+      "bytes": 19189312
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build73-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build73-native-metadata.tar.gz",
+      "sha256": "0436b5e6c5211756168762cf70c38d144b4476dcf43c555257bacd2e27e5184a",
+      "bytes": 1247538
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build56-63-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build56-63-native-metadata.tar.gz",
+      "sha256": "bb16864b97513747b29a7f7c7124fa6eff795a91b1132eb02e8522f07ca580bf",
+      "bytes": 17792734
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build207-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build207-results.tar.gz",
+      "sha256": "a6e0706570136296b3750d8a25b001653d336e1a242a2ece213c7dff8a04ef6c",
+      "bytes": 31220848
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build152-154-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build152-154-solver-native-metadata.tar.gz",
+      "sha256": "436d8084139d75887c7f2bcba421dc03a2ab90e88b2ce81a0d7095f2245fbc6c",
+      "bytes": 25336372
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build167-embedded-contact-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build167-embedded-contact-metadata.tar.gz",
+      "sha256": "39dff26497325267d56dbdff6441827c1e7f71d3762f4ceb2f539b5437e6fae2",
+      "bytes": 12942348
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build183-187-solver-and-prelude-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build183-187-solver-and-prelude-metadata.tar.gz",
+      "sha256": "c02d95a0e0042ef021451af229780e03a4712e3d7b84bcc44f6ecdd7f9159bcc",
+      "bytes": 71464459
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build212-contact-limit-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build212-contact-limit-results.tar.gz",
+      "sha256": "a06eeffd41f75cf4e07819a19343289eeb9b4f6f83d8310e7bb8fe85ed79632e",
+      "bytes": 34350882
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build97-102-supported-prefix-static-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build97-102-supported-prefix-static-native-metadata.tar.gz",
+      "sha256": "21e6b942bb0b85bd6c2e2b10afd374c2faf58e5a1cccb8d043a09440723e5afb",
+      "bytes": 5874502
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build40-46-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build40-46-native-metadata.tar.gz",
+      "sha256": "257458639ce61c997be0de697437415f22c3f583bd7d2bc098965f2f1aefbba2",
+      "bytes": 12541306
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build52-completion-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build52-completion-metadata.tar.gz",
+      "sha256": "1c45c9bfbd66a3bb543589d70a9d7a54d4a7ad3d7d394c17732a0a832d5ca744",
+      "bytes": 337508
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build149-151-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build149-151-solver-native-metadata.tar.gz",
+      "sha256": "95da2f4d51dfce63903ad9afe3e8d1ebfc965df5ef68d0b45a1d93842c3fb885",
+      "bytes": 4207561
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-and-late64-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-and-late64-native-metadata.tar.gz",
+      "sha256": "1d6e3b396123649d3ba6a37d0fccdeebf729451c39962603089dee7aa113a96e",
+      "bytes": 7196163
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build179-three-root-owner-supplement.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build179-three-root-owner-supplement.tar.gz",
+      "sha256": "76ad53299588035735d4c1cfc15f5e93ccd89c4f408af19d1f0b8dc85d245c5e",
+      "bytes": 8061171
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-sourceM-simd-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-sourceM-simd-native-metadata.tar.gz",
+      "sha256": "368d0f7ca8cdb4e56ae51f33bf054b2e3639614d625c15777f098c5d51dc6a93",
+      "bytes": 27386
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build98-pso-guard-tested-source-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build98-pso-guard-tested-source-metadata.tar.gz",
+      "sha256": "df6e637eb70f69baa8d9a578bae19899d73c2d7b401646f110cdab4a1e0e6de9",
+      "bytes": 829246
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build134-137-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build134-137-solver-native-metadata.tar.gz",
+      "sha256": "6fe26f653c016fe5996184dc84964fde42166b01e0e6c91a91a08cd26bda2c8b",
+      "bytes": 3606690
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build160-162-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build160-162-solver-native-metadata.tar.gz",
+      "sha256": "00e9ce7f039efb3727cb55d9209f6811eb59b51c40cb09afe14c27427fdd94e5",
+      "bytes": 37358863
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build74-75-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build74-75-native-metadata.tar.gz",
+      "sha256": "c8bdf48af37d5c5006c192da2c3842172ac5a82c9bdac47cdcea4a736dfca29a",
+      "bytes": 9547048
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build76-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build76-native-metadata.tar.gz",
+      "sha256": "c1b735817c15f56dc285d26bf4daf49a793facf1cbc2044366ce08e7d20cb6cb",
+      "bytes": 697221
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build145-148-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build145-148-solver-native-metadata.tar.gz",
+      "sha256": "6dd199b0fa104a36c734998226a5ea29d9cbc497234ce0aee252e484dde78cdb",
+      "bytes": 4318343
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build203-204-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build203-204-results.tar.gz",
+      "sha256": "c926706b62b45cf0cdf1d911873a2a4dc980bbac9748e906060e7f89d78b0557",
+      "bytes": 20271891
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build205-206-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build205-206-results.tar.gz",
+      "sha256": "bc22e7594196a349588cb1ee32798bec98b546cbc6f2e113857b4f9420315688",
+      "bytes": 35944530
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build124-133-solver-contact-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build124-133-solver-contact-native-metadata.tar.gz",
+      "sha256": "839d114bb60ff5337229e21f62ba5c8dfc8224cec40077adfaa7f0a6676f5e64",
+      "bytes": 4853874
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-timestep-continuation-failures.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-timestep-continuation-failures.tar.gz",
+      "sha256": "9e7bb891892088c621283873f72ba90f2cd5e3e5007b5f778499e0b1040a8e5d",
+      "bytes": 78718
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build188-completed-cycle-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build188-completed-cycle-metadata.tar.gz",
+      "sha256": "9c6f9b54c18e53c3a3f7d1eab43cf0afbd4c4574fff6fcaf2714e1997a4745e5",
+      "bytes": 12748516
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build220-224-session-consumer-payloads.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build220-224-session-consumer-payloads.tar.gz",
+      "sha256": "6de11d64f32aa2b39fa143da5150b00669056d43d958223a7a11143de601fec9",
+      "bytes": 74468649
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build202-combined-validation.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build202-combined-validation.tar.gz",
+      "sha256": "069fad83c2bb73fb8c70662b91bb6b1d35876110e2d8cd1af4dadcee9871d019",
+      "bytes": 3795926
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-144-solver-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build141-144-solver-native-metadata.tar.gz",
+      "sha256": "3575db8dfe511acb38edc3072cb20ab983db77776731e540293c17d36b2a3e8a",
+      "bytes": 9392446
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build179-coarse-capture-and-contracts-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build179-coarse-capture-and-contracts-metadata.tar.gz",
+      "sha256": "120678922cc05b4da56419804924f45ea78a87d54c1093eae89e4630c4ca82b3",
+      "bytes": 5570979
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build79-81-hybrid-gs-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build79-81-hybrid-gs-native-metadata.tar.gz",
+      "sha256": "23801e606fe03fdc08e1dcce58f22bf5ef2dca5fec092ff4d32817ddce8ba9a2",
+      "bytes": 2540057
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build53-55-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build53-55-native-metadata.tar.gz",
+      "sha256": "63c1dd069242944858300cb4e20f6d9d5a2c4d553c68cb0324ae948712f204fd",
+      "bytes": 8808575
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build220-224-session-sources.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build220-224-session-sources.tar.gz",
+      "sha256": "effc595b123af6b4e9fded711d016399d9575ad9949fc02ce42351a9b6b9d5d7",
+      "bytes": 42096437
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build95-96-schur-coarse-native-metadata.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build95-96-schur-coarse-native-metadata.tar.gz",
+      "sha256": "c6541cce44cc008ba06f52f4aa0d760cb64ab559b6f5aee9c9be1b24d8efe8f5",
+      "bytes": 1712497
+    },
+    {
+      "retire": "/private/tmp/numi-main-de561-d35-base/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build195-combined-results.tar.gz",
+      "retained": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build195-combined-results.tar.gz",
+      "sha256": "74231f1aed65c926c016ca12bf0d54c6246df990e7fc0a16c72ee02304f15922",
+      "bytes": 22805620
+    }
+  ],
+  "state": "retired-exact-duplicates",
+  "unlinked_bytes": 3307392056,
+  "after_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 182836348  14318376    93% 1074266 143183760    1%   /System/Volumes/Data\n"
+}

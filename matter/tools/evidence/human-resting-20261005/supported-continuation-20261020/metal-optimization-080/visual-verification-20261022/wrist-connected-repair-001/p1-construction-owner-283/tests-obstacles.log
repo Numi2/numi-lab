@@ -1,0 +1,20 @@
+test_affine_parity (test_human_skin_p1_obstacles.ExclusionTests.test_affine_parity) ... ok
+test_bad_bary_rejected (test_human_skin_p1_obstacles.ExclusionTests.test_bad_bary_rejected) ... ok
+test_cap_conflict_not_silenced (test_human_skin_p1_obstacles.ExclusionTests.test_cap_conflict_not_silenced) ... ok
+test_crossing_without_inside_triangle_vertices (test_human_skin_p1_obstacles.ExclusionTests.test_crossing_without_inside_triangle_vertices) ... ok
+test_degenerate_parent_rejected (test_human_skin_p1_obstacles.ExclusionTests.test_degenerate_parent_rejected) ... ok
+test_empty_constraints (test_human_skin_p1_obstacles.ExclusionTests.test_empty_constraints) ... ok
+test_fixed_conflict_explicit (test_human_skin_p1_obstacles.ExclusionTests.test_fixed_conflict_explicit) ... ok
+test_inside (test_human_skin_p1_obstacles.ExclusionTests.test_inside) ... ok
+test_monotonic_multiple_tets (test_human_skin_p1_obstacles.ExclusionTests.test_monotonic_multiple_tets) ... ok
+test_no_input_mutation (test_human_skin_p1_obstacles.ExclusionTests.test_no_input_mutation) ... ok
+test_nonfinite_rejected (test_human_skin_p1_obstacles.ExclusionTests.test_nonfinite_rejected) ... ok
+test_outside (test_human_skin_p1_obstacles.ExclusionTests.test_outside) ... ok
+test_raise_enforces_entire_polygon (test_human_skin_p1_obstacles.ExclusionTests.test_raise_enforces_entire_polygon) ... ok
+test_shared_face (test_human_skin_p1_obstacles.ExclusionTests.test_shared_face) ... ok
+test_shared_vertex (test_human_skin_p1_obstacles.ExclusionTests.test_shared_vertex) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.009s
+
+OK
