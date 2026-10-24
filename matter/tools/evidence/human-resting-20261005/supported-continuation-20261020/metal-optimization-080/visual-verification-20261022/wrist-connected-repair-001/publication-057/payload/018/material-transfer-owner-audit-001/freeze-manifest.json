@@ -1,0 +1,102 @@
+{
+  "audit_artifacts": {
+    "audit_material_transfer_018.py": {
+      "bytes": 9384,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/audit_material_transfer_018.py",
+      "sha256": "f44d639196f76bc5fbf73b3ebcd38a8584ca88374f84450a36bd528488c395a4"
+    },
+    "material-transfer-blocker-report.json": {
+      "bytes": 10629,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/material-transfer-blocker-report.json",
+      "sha256": "6fe068d9e6dd3326a98d4f6d0d98c5fa10cfc7408ae8b11b0c2dd8454e8dcaec"
+    },
+    "reference-map-tests.log": {
+      "bytes": 1139,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/reference-map-tests.log",
+      "sha256": "59f939597cd18862d3a643238aa17b9970396266a264d3677699cdfc6c17027b"
+    },
+    "reference_map_gate.py": {
+      "bytes": 4297,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/reference_map_gate.py",
+      "sha256": "2a81f80e11e62bed3402f9acbd44d8fddab37a4f4e1050303f4b1adf0ff03e9a"
+    },
+    "test_reference_map_gate.py": {
+      "bytes": 4664,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/test_reference_map_gate.py",
+      "sha256": "d2234ecab316167f2e2c92ce6613a5e7ce9832174e5a2018d58f79a9f2df9726"
+    }
+  },
+  "inputs": {
+    "017_proposal": {
+      "bytes": 2985799,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-safe-flow-017/run-002/connected-rest-proposal.npz",
+      "sha256": "64f40e915703e35950ba2d3ab95b01a5e75681616c316cace25518c3a0ccb054"
+    },
+    "018_builder": {
+      "bytes": 45627,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/prepare_local_cavity_018-holefix.py",
+      "sha256": "e39b9e7450b3ed4346462895d5778a181dbb82e7cb05573a8ba6ae0ea8b26816"
+    },
+    "018_edge_geometry": {
+      "bytes": 5544605,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/edge-split-geometry.npz",
+      "sha256": "c3ca2e5383a6424ec3feeb83ccfde2d269950eced21cf4d9e578c4a0385ac417"
+    },
+    "audit_script": {
+      "bytes": 9384,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/audit_material_transfer_018.py",
+      "sha256": "f44d639196f76bc5fbf73b3ebcd38a8584ca88374f84450a36bd528488c395a4"
+    },
+    "cavity_selection": {
+      "bytes": 376748,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/cavity-selection.npz",
+      "sha256": "646ab7648cf2f8d20c19904190fab8f40328b58f7da77f855b5e102185e19727"
+    },
+    "guard_test_log": {
+      "bytes": 1139,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/reference-map-tests.log",
+      "sha256": "59f939597cd18862d3a643238aa17b9970396266a264d3677699cdfc6c17027b"
+    },
+    "original_013": {
+      "bytes": 7234783,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013/boundary-refinement-002/candidate.npz",
+      "sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1"
+    },
+    "overlap_prefix_report": {
+      "bytes": 280204,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/overlap-first256-001/overlap-prefix-256-report.json",
+      "sha256": "7b5deb94af369a85980b8c9f9f4d5346a2535323833d76a80d22cd4a6c0bb95d"
+    },
+    "pullback_guard": {
+      "bytes": 4297,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/reference_map_gate.py",
+      "sha256": "2a81f80e11e62bed3402f9acbd44d8fddab37a4f4e1050303f4b1adf0ff03e9a"
+    },
+    "pullback_guard_tests": {
+      "bytes": 4664,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/test_reference_map_gate.py",
+      "sha256": "d2234ecab316167f2e2c92ce6613a5e7ce9832174e5a2018d58f79a9f2df9726"
+    },
+    "tetgen_element": {
+      "bytes": 5495014,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/cavity.1.ele",
+      "sha256": "488b29ddee6ababfb089849a847b2519ee2bdd2a45823c2c54af7b8d623f8588"
+    },
+    "tetgen_node": {
+      "bytes": 2034134,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/cavity.1.node",
+      "sha256": "00777aca8500ddac0e74fd74fe94db0d6ff45170546370a62166b5a04b200f7b"
+    }
+  },
+  "regression": {
+    "status": "PASS",
+    "tests": 7
+  },
+  "report": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/material-transfer-blocker-report.json",
+    "sha256": "6fe068d9e6dd3326a98d4f6d0d98c5fa10cfc7408ae8b11b0c2dd8454e8dcaec"
+  },
+  "schema": "numi.018-material-transfer-blocker-freeze.v1",
+  "scope": "No full overlap; no candidate integration; no material mass or native admission claim.",
+  "status": "diagnostic_blocker_frozen"
+}

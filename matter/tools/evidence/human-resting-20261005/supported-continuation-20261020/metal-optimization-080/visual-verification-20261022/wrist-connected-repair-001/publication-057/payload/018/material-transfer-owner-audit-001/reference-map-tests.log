@@ -1,0 +1,12 @@
+test_bad_barycentric_or_range_rejected (test_reference_map_gate.ReferenceMapGateTests.test_bad_barycentric_or_range_rejected) ... ok
+test_in_range_but_wrong_identity_row_rejected_by_reconstruction (test_reference_map_gate.ReferenceMapGateTests.test_in_range_but_wrong_identity_row_rejected_by_reconstruction) ... ok
+test_missing_ancestry_rejected (test_reference_map_gate.ReferenceMapGateTests.test_missing_ancestry_rejected) ... ok
+test_nonfinite_or_nonpositive_point_tolerance_rejected (test_reference_map_gate.ReferenceMapGateTests.test_nonfinite_or_nonpositive_point_tolerance_rejected) ... ok
+test_nonpositive_deformed_parent_rejected (test_reference_map_gate.ReferenceMapGateTests.test_nonpositive_deformed_parent_rejected) ... ok
+test_valid_typed_positive_pullback (test_reference_map_gate.ReferenceMapGateTests.test_valid_typed_positive_pullback) ... ok
+test_wrong_integer_row_domain_rejected_even_when_ids_in_range (test_reference_map_gate.ReferenceMapGateTests.test_wrong_integer_row_domain_rejected_even_when_ids_in_range) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+OK

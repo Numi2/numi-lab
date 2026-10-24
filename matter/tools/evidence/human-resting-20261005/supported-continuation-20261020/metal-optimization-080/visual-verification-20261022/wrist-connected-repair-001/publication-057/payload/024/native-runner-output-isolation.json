@@ -1,0 +1,6 @@
+{
+  "source_sha256": "d1dd0dffd1c5bcfa902ab749f68d942340a0fddaca250f96562e4029482a2761",
+  "fixed_sha256": "3c7ba5872b63eec2ef9635e0004a9763f8296891f1c881f3b17e6fa0cdd14554",
+  "only_change": "relocate existing compiled FEM node diagnostic into current run directory",
+  "no_physics_change": true
+}

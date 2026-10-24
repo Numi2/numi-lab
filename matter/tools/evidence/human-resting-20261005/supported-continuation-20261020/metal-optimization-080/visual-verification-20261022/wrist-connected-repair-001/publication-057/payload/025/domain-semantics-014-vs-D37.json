@@ -1,0 +1,62 @@
+{
+  "schema": "numi.human.mesh-domain-semantics-check.v1",
+  "status": "read_only_domain_clarification",
+  "conclusion": {
+    "014_is_physical_skin_fat_mesh": false,
+    "domain": "whole-body shell-bounded background/construction volume; not an admitted anatomical skin-fat band mesh",
+    "evidence": [
+      "014 provenance status is diagnostic_background_geometry_not_physical_admission.",
+      "All 164176 tetrahedra use one generic region attribute code 1; there is no internal skin/fat interface or distinct skin/fat material partition.",
+      "The closed shell consists of 36393 physical outer O faces plus 1685 separately tagged construction-closure faces.",
+      "014 report says its overlap map is geometric parent-transfer only and that material density/mass ledger is not represented by this one-region background mesh."
+    ]
+  },
+  "candidate_014": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/candidate.npz",
+    "sha256": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba",
+    "report_sha256": "45314019dab9ae17260e711edd1d06b26334172cfe7d5d0eacec9f2462e1d422",
+    "provenance_sha256": "d373df40f65b3fd8b763ea645faaa902c80dc6843c6ff109c86a6172dc4effd5",
+    "input_candidate_010_sha256": "a0b5b4eb1a6e8b138dba4d471aa1c8e1bde91027b724429d02da7ebfbb8ab8e8",
+    "nodes": 35962,
+    "tetrahedra": 164176,
+    "region_attribute_codes": [1],
+    "total_cell_volume_m3": 0.06960080435892789,
+    "physical_outer_faces": 36393,
+    "construction_closure_faces": 1685,
+    "construction_closure_is_physical_skin": false,
+    "transfer_semantics": "Geometric overlap-derived ancestry/transfer only; no skin-fat role map, material density, or physical mass ledger."
+  },
+  "d37_reference": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-002",
+    "manifest_sha256": "0979cf20b2814c702d2aa24aae86414473a378af82787726e09eb67334fb4ac5",
+    "report_sha256": "11494d57ee3ade627cb891a992be214003cfea88f397af21ea73ce86b80e74f5",
+    "status": "PRIVATE_UNADMITTED_DIAGNOSTIC",
+    "physical_qualification": false,
+    "skin": {
+      "tetrahedra": 14316,
+      "volume_m3": 0.003452570641581803,
+      "fixed_mass_debit_kg": 3.4525707761420956,
+      "implied_mass_per_volume_kg_m3": 1000.0000389739433
+    },
+    "fat": {
+      "tetrahedra": 14316,
+      "volume_m3": 0.011652343238944877,
+      "fixed_mass_debit_kg": 10.487108964465744,
+      "implied_mass_per_volume_kg_m3": 900.0000042408084
+    },
+    "combined_skin_fat_volume_m3": 0.01510491388052668,
+    "candidate_014_to_D37_volume_ratio": 4.6078253017157245
+  },
+  "field_preflight": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-independent-volume-001/transfer-preflight.json",
+    "sha256": "e5b46e79a22f736b4dafdafb99bff1fa0d14a7bf0bd224254368125ae0e7204b",
+    "status": "transfer_preflight_only",
+    "skin_target_volume_m3": 0.003452570641581807,
+    "skin_plus_fat_target_volume_m3": 0.015104913880526613,
+    "initializer_sublevel_volume_m3": 0.06518062899557786,
+    "initializer_fat_band_volume_m3": 0.0021758670215062947,
+    "zero_tet_plateau_volume_m3": 0.06410148192331147,
+    "interpretation": "Initializer-derived CDF volumes are diagnostic only; they do not match D37 skin/fat targets and do not define a valid skin/fat material mesh."
+  },
+  "scope": "Domain-semantics clarification only; no physical, anatomical, material, or native qualification is claimed."
+}

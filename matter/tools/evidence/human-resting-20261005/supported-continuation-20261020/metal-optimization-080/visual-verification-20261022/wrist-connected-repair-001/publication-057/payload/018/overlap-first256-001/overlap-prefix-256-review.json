@@ -1,0 +1,87 @@
+{
+  "capacity_children": 256,
+  "coverage_statistics_first256": {
+    "above_1_plus_1e-9": 0,
+    "below_1_minus_1e-9": 39,
+    "exact_zero_overlap": 0,
+    "full_within_1e-9": 217,
+    "max": 1.000000000000214,
+    "median": 1.0000000000000029,
+    "min": 0.13131039268793798
+  },
+  "interpretation": "Prefix statistics only. New child uncovered volume is explicit. This does not measure full old-parent column coverage, does not normalize incomplete coverage, and does not establish global or regional mass closure.",
+  "minimum_coverage_child": {
+    "cell_volume_m3": 7.389569750424989e-11,
+    "coverage_ratio": 0.13131039268793798,
+    "covered_volume_m3": 9.703273057232131e-12,
+    "is_local_tetgen_child": true,
+    "merged_input_tet_row": 233718,
+    "output_global_tet_row": 233718,
+    "positive_overlap_count": 5,
+    "tet_global_node_rows": [
+      18502,
+      18370,
+      56752,
+      57361
+    ],
+    "tet_points_world_m": [
+      [
+        -0.06550753861665726,
+        -0.1516972780227661,
+        0.20386885106563568
+      ],
+      [
+        -0.06488805264234543,
+        -0.15225955843925476,
+        0.20458318293094635
+      ],
+      [
+        -0.06571073830127716,
+        -0.15278103947639465,
+        0.2037261426448822
+      ],
+      [
+        -0.06534865498542786,
+        -0.15234635770320892,
+        0.2035241723060608
+      ]
+    ],
+    "top_old_013_parent_contributors": [
+      {
+        "fraction_of_new_child": 0.05768109161031763,
+        "intersection_volume_m3": 4.262384497350957e-12,
+        "old_013_parent_tet_row": 161969
+      },
+      {
+        "fraction_of_new_child": 0.05621881821167541,
+        "intersection_volume_m3": 4.15432878461638e-12,
+        "old_013_parent_tet_row": 161970
+      },
+      {
+        "fraction_of_new_child": 0.01741033811058105,
+        "intersection_volume_m3": 1.2865490784662106e-12,
+        "old_013_parent_tet_row": 111441
+      },
+      {
+        "fraction_of_new_child": 9.012736881027957e-08,
+        "intersection_volume_m3": 6.660024782458385e-18,
+        "old_013_parent_tet_row": 18235
+      },
+      {
+        "fraction_of_new_child": 5.462799508743572e-08,
+        "intersection_volume_m3": 4.036773800244798e-18,
+        "old_013_parent_tet_row": 168243
+      }
+    ],
+    "uncovered_new_volume_signed_m3": 6.419242444701775e-11
+  },
+  "old_new_cavity_volume_totals": {
+    "difference_m3": 1.3625635048247244e-05,
+    "new_edge_split_tetgen_cavity_volume_m3": 0.004045316477273557,
+    "old_013_selected_cavity_volume_m3": 0.0040316908422253096,
+    "relative_change": 0.0033796329087392163
+  },
+  "processed_child_count": 256,
+  "schema": "numi.edge-split-cavity-overlap-prefix-review-018.v1",
+  "total_changed_cavity_children": 147230
+}

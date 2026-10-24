@@ -1,0 +1,33 @@
+{
+  "additional_notes": [
+    "Package was replayed locally; D37 CSV has exact output verification but external source CSV dependency remains omitted.",
+    "025 omitted-large-artifact-pins.json names exact hashes for omitted inputs/candidates.",
+    "024 native launch initialization is dynamic release (support=0, balanced=false), not supported resting initialization.",
+    "Nine byte-identical payload files are inherited from publication-056 at the exact repository paths and hashes listed in payload-files-057.json; 5,675,553 duplicate bytes are not bundled again."
+  ],
+  "base_origin_main": "9226d20147fbb1cfed7fe5a4c1ce96a0ee13413f",
+  "file_count": 107,
+  "limitations": [
+    "D37 CSV replay has pinned but external inputs; not self-contained.",
+    "D37 candidate is private/unadmitted.",
+    "025 domain is background construction volume, not skin/fat.",
+    "024 native 1ms dynamic release failed before accepted steps; not supported rest.",
+    "018 material transfer and bounded overlap coverage remain blocked."
+  ],
+  "local_head_at_prepare": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "normal_index_tree_at_prepare": "b8d44c114ef552130634d80d7e94488ee5136201",
+  "payload_bytes": 27103083,
+  "payload_files_sha256": "a9aa7c15e016e7b648507a48e24c09fab295b71f0e24caa890708d7295539090",
+  "publication": "057",
+  "schema": "numi.human.publication.manifest.v1",
+  "scope_note_sha256": "5837284383e07da313e7877c4c882a8cd1f1f0e855fc8f0ccca9687dce433f3c",
+  "source_input_pins_sha256": "48814c58433efe373fde150ed39b1f728a61fd51f72caaddc625c86a0cec6c89",
+  "status": "DRAFT_REVIEW_ONLY_NOT_COMMITTED_OR_PUSHED",
+  "inherited_056": {
+    "commit": "9226d20147fbb1cfed7fe5a4c1ce96a0ee13413f",
+    "file_count": 9,
+    "manifest_sha256": "3a37df5a625b9c6045ac7ef6b791f8da46582fa755e1ef90b45b45a757f2f44c",
+    "payload_bytes": 5675553,
+    "payload_files_sha256": "047a0228dd1b9e2b3c07573fe5c368a53f56b57498cf59881242f7da329c65d9"
+  }
+}

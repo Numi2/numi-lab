@@ -1,0 +1,148 @@
+{
+  "017_inverse_geometry": {
+    "changed_node_count": 3054,
+    "first_nonpositive_selected_global_tet_row": 3620,
+    "input_node_count": 56514,
+    "inverse_map_admissible": false,
+    "nonpositive_all_tets": 78,
+    "nonpositive_selected_tets": 78,
+    "same_tet_topology_as_013": true,
+    "selected_cavity_parent_tets": 19713,
+    "selected_min_signed_det_013_m3x6": 2.9625676779203145e-12,
+    "selected_min_signed_det_017_m3x6": -4.0946968414832033e-07,
+    "selected_min_signed_det_ratio": -4.640601287307421,
+    "selected_positive_det_ratio_min": 0.01009658961101753,
+    "typed_guard_rejected_actual_folded_parent": true,
+    "typed_guard_rejection": "inverse material pullback crosses a nonpositive deformed parent tet"
+  },
+  "018_remesh": {
+    "available_node_lineage_keys": [
+      "parent_merged_global_tet_rows",
+      "physical_O_parent_face_rows",
+      "physical_O_parent_detailed_source_face_ids",
+      "physical_O_parent_surface_ids",
+      "physical_O_parent_source271_face_rows",
+      "physical_O_parent_barycentric",
+      "physical_shell_parent_face_rows"
+    ],
+    "input_region_attribute_histogram": {
+      "1": 19713
+    },
+    "material_interface_face_count_in_input_PLC": 0,
+    "node_count": 79446,
+    "node_reference_map_keys_missing": [
+      "node_parent_013_tet_rows",
+      "node_parent_013_barycentric",
+      "node_reference_points_world_m",
+      "child_parent_013_tet_offsets",
+      "child_parent_013_tet_rows",
+      "child_parent_013_intersection_volume_m3"
+    ],
+    "node_reference_map_keys_present": [],
+    "parent_merged_global_tet_rows_count": 380942,
+    "region_attribute_histogram": {
+      "1": 380942
+    },
+    "static_source_behavior": {
+      "candidate_payload_has_per_node_source_parent_attempt": true,
+      "mapping_is_explicit_Lagrangian_transport": false,
+      "new_node_mapping_method_is_point_containment_in_original_013_geometry": true,
+      "node_composition_uses_013_baseline_geometry": true,
+      "overlap_uses_current_domain": true
+    },
+    "tet_count": 380942,
+    "tetgen_element_header_fields": [
+      "147221",
+      "4",
+      "1"
+    ],
+    "tetgen_node_header_fields": [
+      "26328",
+      "3",
+      "0",
+      "1"
+    ]
+  },
+  "blocker": "017 has nonpositive selected-cavity parent determinants, so its same-topology piecewise-linear deformation has no valid local inverse on 78 cells. 018 carries child-to-merged-input tet rows and surface-face ancestry, but no per-node original-013 reference simplex/barycentrics in the emitted geometry. The later compose_node_sources routine attempts spatial containment against undeformed 013 coordinates; that is not a Lagrangian material pullback and cannot repair a folded deformation. The PLC has no material-interface faces and one region attribute (1), so it does not partition skin and fat. The 256-child overlap probe is incomplete and found 39 children with uncovered volume; it is raw current-space overlap and not a source-mass certificate.",
+  "existing_overlap_prefix": {
+    "all_new_cavity_children_complete": false,
+    "children_checked": 256,
+    "children_with_incomplete_coverage": 39,
+    "estimated_full_cavity_seconds": 3167.01363213107,
+    "full_parent_csr_available": false,
+    "min_child_coverage_ratio": 0.13131039268793798,
+    "status": "partial_checkpoint_complete_bounded_probe"
+  },
+  "guard_regression_tests": {
+    "log_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/reference-map-tests.log",
+    "log_sha256": "59f939597cd18862d3a643238aa17b9970396266a264d3677699cdfc6c17027b",
+    "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/test_reference_map_gate.py",
+    "status": "PASS",
+    "test_count": 7
+  },
+  "inputs": {
+    "017_proposal": {
+      "bytes": 2985799,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-safe-flow-017/run-002/connected-rest-proposal.npz",
+      "sha256": "64f40e915703e35950ba2d3ab95b01a5e75681616c316cace25518c3a0ccb054"
+    },
+    "018_builder": {
+      "bytes": 45627,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/prepare_local_cavity_018-holefix.py",
+      "sha256": "e39b9e7450b3ed4346462895d5778a181dbb82e7cb05573a8ba6ae0ea8b26816"
+    },
+    "018_edge_geometry": {
+      "bytes": 5544605,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/edge-split-geometry.npz",
+      "sha256": "c3ca2e5383a6424ec3feeb83ccfde2d269950eced21cf4d9e578c4a0385ac417"
+    },
+    "audit_script": {
+      "bytes": 9384,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/audit_material_transfer_018.py",
+      "sha256": "f44d639196f76bc5fbf73b3ebcd38a8584ca88374f84450a36bd528488c395a4"
+    },
+    "cavity_selection": {
+      "bytes": 376748,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/cavity-selection.npz",
+      "sha256": "646ab7648cf2f8d20c19904190fab8f40328b58f7da77f855b5e102185e19727"
+    },
+    "guard_test_log": {
+      "bytes": 1139,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/reference-map-tests.log",
+      "sha256": "59f939597cd18862d3a643238aa17b9970396266a264d3677699cdfc6c17027b"
+    },
+    "original_013": {
+      "bytes": 7234783,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013/boundary-refinement-002/candidate.npz",
+      "sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1"
+    },
+    "overlap_prefix_report": {
+      "bytes": 280204,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/overlap-first256-001/overlap-prefix-256-report.json",
+      "sha256": "7b5deb94af369a85980b8c9f9f4d5346a2535323833d76a80d22cd4a6c0bb95d"
+    },
+    "pullback_guard": {
+      "bytes": 4297,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/reference_map_gate.py",
+      "sha256": "2a81f80e11e62bed3402f9acbd44d8fddab37a4f4e1050303f4b1adf0ff03e9a"
+    },
+    "pullback_guard_tests": {
+      "bytes": 4664,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/material-transfer-owner-audit-001/test_reference_map_gate.py",
+      "sha256": "d2234ecab316167f2e2c92ce6613a5e7ce9832174e5a2018d58f79a9f2df9726"
+    },
+    "tetgen_element": {
+      "bytes": 5495014,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/cavity.1.ele",
+      "sha256": "488b29ddee6ababfb089849a847b2519ee2bdd2a45823c2c54af7b8d623f8588"
+    },
+    "tetgen_node": {
+      "bytes": 2034134,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/cavity.1.node",
+      "sha256": "00777aca8500ddac0e74fd74fe94db0d6ff45170546370a62166b5a04b200f7b"
+    }
+  },
+  "minimal_next_step": "The next producer increment should construct a material-aware cavity PLC with explicit skin/fat interface facets and region seeds, while transporting source-reference coordinates through a positive-Jacobian local ALE map. Each TetGen node must carry a typed original-013 parent tetrahedron and barycentric coordinate; boundary split nodes use their exact edge/face ancestry, and interior nodes are interpolated from a certified containing reference simplex. Gate positive signed Jacobian and candidate-point reconstruction before composing existing 013->014 conservative CSR. If the current 017 boundary deformation cannot admit a positive ALE map, repair that deformation first or rebuild the cavity in reference space with an orientation-preserving map; do not invert 017.",
+  "qualification": "diagnostic only; no full overlap, no mass conservation claim, no native admission; local signed determinants do not certify global injectivity or non-overlap",
+  "status": "BLOCKED_NO_VALIDATED_REFERENCE_PULLBACK"
+}

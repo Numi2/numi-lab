@@ -1,0 +1,10 @@
+--- /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-bone-static-bvh-147/run_native_contact.py
++++ /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/run_native_contact.py
+@@ -38,6 +38,7 @@
+  "NUMI_HUMAN_INITIAL_SKIN_BONE_WITNESS_CSV":"initial-skin-bone-contact.csv",
+  "NUMI_HUMAN_INITIAL_SKIN_BONE_FULLBANK_COMPARISON_CSV":"initial-skin-bone-fullbank-comparison.csv",
+  "NUMI_HUMAN_INITIAL_TET_WITNESS_JSON":"initial-tet.json",
++ "NUMI_HUMAN_INITIAL_SKIN_FEM_NODES_CSV":"initial-skin-fem-nodes.csv",
+ }.items():
+  if key in env or key=="NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT":env[key]=str(N/name)
+ if ns.mode=="source-preflight":

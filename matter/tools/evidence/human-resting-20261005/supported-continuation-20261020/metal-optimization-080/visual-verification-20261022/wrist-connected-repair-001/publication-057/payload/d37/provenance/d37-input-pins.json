@@ -1,0 +1,43 @@
+{
+  "candidate_id": "wholebody-attachment-source-rebind-037-candidate020-identity004-002",
+  "config": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-002/provenance/build_candidate_rebind_inputs.json",
+  "config_sha256": "e2801d5cf76a9f2bc6f3501209628a634d10daef77e0656f0ca0ba85c86c1ecd",
+  "input_paths": {
+    "D28_embedding": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-028-final080-omit-stale-inferred-hand-sites-001/generated/embedding.csv",
+    "D28_faces": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-028-final080-omit-stale-inferred-hand-sites-001/generated/faces.csv",
+    "D28_nodes": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-028-final080-omit-stale-inferred-hand-sites-001/generated/nodes.csv",
+    "D28_payload": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-singular-strain-repair-080/iteration-0/candidate.nhskin",
+    "D28_registered_csv": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-024-final080-candidate-source-frames-001/provenance/registered-skin-080-candidate.csv",
+    "D28_tets": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-028-final080-omit-stale-inferred-hand-sites-001/generated/tetrahedra.csv",
+    "D28_transfer_header": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-028-final080-omit-stale-inferred-hand-sites-001/source/apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+    "base_payload": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+    "body_frames": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/final074-neutral-reference-002/body-frames.json",
+    "capture_lineage": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-transfer-owner-015/candidate020-counterfactual/native-source-emission-identity004-001/native-source-emission-lineage.json",
+    "capture_manifest": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-transfer-owner-015/candidate020-counterfactual/native-source-emission-identity004-001/launch-manifest.snapshot.json",
+    "capture_receipt": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-transfer-owner-015/candidate020-counterfactual/native-source-emission-identity004-001/execution-receipt.json",
+    "native_candidate_capture": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-transfer-owner-015/candidate020-counterfactual/native-source-emission-identity004-001/registered-skin.csv",
+    "payload": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin",
+    "placement_diagnostic": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-024-final080-candidate-source-frames-001/native-source-only-024/common-rigid-transfer-row-diagnostic-005.json",
+    "registered_csv": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-001/provenance/registered-skin-020-candidate.csv"
+  },
+  "input_sha256": {
+    "D28_embedding": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847",
+    "D28_faces": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "D28_nodes": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "D28_payload": "6e2a95abba679c9e1a1e7be227d3a947899a1b31d73a31c0ce3a838e7641f592",
+    "D28_registered_csv": "0328df16ee3f90c6c065e18621025ad89c3f31a40daceaba961e8a1b8cb53d31",
+    "D28_tets": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4",
+    "D28_transfer_header": "bba172527e5c6fb8b914a44baf3758ce3d18824a6494c7362ffd347512f21a1b",
+    "base_payload": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "body_frames": "0abeef83c47ffcf304ef62be9321ed6d0169d942f3c20c05dd94e4df59c15db8",
+    "capture_lineage": "5412f45ac08224c8963d82c2a742759a04551b0f2132645e5ca4c088436b3710",
+    "capture_manifest": "2f06f2bad80df5c73cbb9159150d6ab138720f19aed6907c7b277a78b57772ce",
+    "capture_receipt": "df5b3ea9dc14816689846ebcd92aee7bd73c2d0eba2ec95f7d174a0407ff2cdc",
+    "native_candidate_capture": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+    "payload": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "placement_diagnostic": "caf9a865dc329dc8fbe9f45aee27872514e6768654ff6e1cd725d67cf51bedae",
+    "registered_csv": "b766fd63b13bf87384ec5a0893356dcc139b7f8d079110096972f9d98f3cc4ad"
+  },
+  "physical_qualification": false,
+  "schema": "numi.human.d37-candidate020-input-pins.v1"
+}

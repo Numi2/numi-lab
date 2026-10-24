@@ -1,0 +1,33 @@
+{
+  "schema": "apfs-cow-single-file-trial/v1",
+  "status": "NO_MATERIAL_SPACE_RECOVERY",
+  "scope": "One exact-duplicate MRVPACK target only; no deletion or other replacement performed.",
+  "operation": "APFS copy-on-write clone using cp -c -p, then atomic replacement of the target path.",
+  "canonical_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-main-app-integration-001/native-candidate-off-root-control-007/output/resting-human.mrvpack",
+  "target_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/fem-true-residual-row-witness-001/results/root0-activation0-abi15-owner-state-005/output/resting-human.mrvpack",
+  "sha256_before_after": "11d7738894f8268a0ab6b7b54302624ebc03a0e308887bdf90c5fcb5685b0c02",
+  "file_size_bytes": 297078784,
+  "target_inode_before": 4557237,
+  "target_inode_after": 4680699,
+  "target_path_retained": true,
+  "byte_hash_verified_after": true,
+  "metadata_preserved_on_target": [
+    "mode",
+    "mtime",
+    "atime",
+    "uid",
+    "gid",
+    "flags",
+    "ACL",
+    "xattrs"
+  ],
+  "target_mode_after": "0644",
+  "target_mtime_epoch_after": 1792745621,
+  "target_atime_epoch_after": 1792745621,
+  "df_data_volume_kib_before": 9459068,
+  "df_data_volume_kib_after": 9459128,
+  "df_net_available_kib": 60,
+  "further_cow_attempts": "stopped per parent instruction",
+  "deletions": 0,
+  "caveat": "The later 008 batch is separate and recovered 180838400 bytes; this receipt covers only the one-file trial described here. A subsequent host snapshot showed 8915848 KiB available while other work was active."
+}

@@ -1,0 +1,210 @@
+{
+  "attachment_policy": {
+    "all_pass": true,
+    "maximum_per_donor": 3,
+    "minimum_deep_fat_incident_altitude_mm": 0.05,
+    "minimum_max_source_weight": 0.85,
+    "minimum_same_donor_spacing_mm": 25.0,
+    "omitted_six_not_replaced": true,
+    "sites": [
+      {
+        "actual_donor": 20,
+        "expected_donor": 20,
+        "maximum_full86_weight": 0.8524638414382935,
+        "minimum_deep_fat_incident_altitude_mm": 9.304480776844786,
+        "passed_identity_weight_altitude": true,
+        "reduced_row": 790,
+        "source_vertex": 13555
+      },
+      {
+        "actual_donor": 23,
+        "expected_donor": 23,
+        "maximum_full86_weight": 0.9761167168617249,
+        "minimum_deep_fat_incident_altitude_mm": 8.06618109497347,
+        "passed_identity_weight_altitude": true,
+        "reduced_row": 1333,
+        "source_vertex": 29464
+      },
+      {
+        "actual_donor": 139,
+        "expected_donor": 139,
+        "maximum_full86_weight": 0.9453187584877014,
+        "minimum_deep_fat_incident_altitude_mm": 2.7679167818015844,
+        "passed_identity_weight_altitude": true,
+        "reduced_row": 804,
+        "source_vertex": 14506
+      },
+      {
+        "actual_donor": 152,
+        "expected_donor": 152,
+        "maximum_full86_weight": 0.8838863372802734,
+        "minimum_deep_fat_incident_altitude_mm": 4.272522971696347,
+        "passed_identity_weight_altitude": true,
+        "reduced_row": 1719,
+        "source_vertex": 37264
+      },
+      {
+        "actual_donor": 153,
+        "expected_donor": 153,
+        "maximum_full86_weight": 0.8984140157699585,
+        "minimum_deep_fat_incident_altitude_mm": 2.5880170706763237,
+        "passed_identity_weight_altitude": true,
+        "reduced_row": 1790,
+        "source_vertex": 39356
+      },
+      {
+        "actual_donor": 20,
+        "expected_donor": 20,
+        "maximum_full86_weight": 0.9156708717346191,
+        "minimum_deep_fat_incident_altitude_mm": 8.344074952324922,
+        "passed_identity_weight_altitude": true,
+        "reduced_row": 1557,
+        "source_vertex": 33621
+      },
+      {
+        "actual_donor": 23,
+        "expected_donor": 23,
+        "maximum_full86_weight": 0.9924902319908142,
+        "minimum_deep_fat_incident_altitude_mm": 7.974731477475882,
+        "passed_identity_weight_altitude": true,
+        "reduced_row": 1478,
+        "source_vertex": 32578
+      },
+      {
+        "actual_donor": 139,
+        "expected_donor": 139,
+        "maximum_full86_weight": 0.892234742641449,
+        "minimum_deep_fat_incident_altitude_mm": 0.6939210005139853,
+        "passed_identity_weight_altitude": true,
+        "reduced_row": 752,
+        "source_vertex": 11704
+      },
+      {
+        "actual_donor": 152,
+        "expected_donor": 152,
+        "maximum_full86_weight": 0.8713271617889404,
+        "minimum_deep_fat_incident_altitude_mm": 4.659245611060845,
+        "passed_identity_weight_altitude": true,
+        "reduced_row": 1842,
+        "source_vertex": 41702
+      },
+      {
+        "actual_donor": 153,
+        "expected_donor": 153,
+        "maximum_full86_weight": 0.9636620283126831,
+        "minimum_deep_fat_incident_altitude_mm": 2.621712949546894,
+        "passed_identity_weight_altitude": true,
+        "reduced_row": 1831,
+        "source_vertex": 40968
+      },
+      {
+        "actual_donor": 20,
+        "expected_donor": 20,
+        "maximum_full86_weight": 0.8801780939102173,
+        "minimum_deep_fat_incident_altitude_mm": 8.541804881999356,
+        "passed_identity_weight_altitude": true,
+        "reduced_row": 1591,
+        "source_vertex": 34352
+      },
+      {
+        "actual_donor": 23,
+        "expected_donor": 23,
+        "maximum_full86_weight": 0.9939041137695312,
+        "minimum_deep_fat_incident_altitude_mm": 8.189927844719485,
+        "passed_identity_weight_altitude": true,
+        "reduced_row": 1104,
+        "source_vertex": 21455
+      },
+      {
+        "actual_donor": 139,
+        "expected_donor": 139,
+        "maximum_full86_weight": 0.9169296622276306,
+        "minimum_deep_fat_incident_altitude_mm": 0.23549498561124785,
+        "passed_identity_weight_altitude": true,
+        "reduced_row": 692,
+        "source_vertex": 8467
+      },
+      {
+        "actual_donor": 153,
+        "expected_donor": 153,
+        "maximum_full86_weight": 0.92589271068573,
+        "minimum_deep_fat_incident_altitude_mm": 1.5413888062300747,
+        "passed_identity_weight_altitude": true,
+        "reduced_row": 1987,
+        "source_vertex": 46481
+      }
+    ]
+  },
+  "candidate_id": "wholebody-attachment-source-rebind-037-candidate020-identity004-002",
+  "counts": {
+    "candidate_source_C_changed_rows": 606,
+    "candidate_weight_changed_rows": 159,
+    "dominant_donor_changed_rows": 138,
+    "faces": 4777,
+    "omitted_stale_inferred_hand_sites": 6,
+    "reduced_rows": 2411,
+    "retained_deep_attachment_sites": 14,
+    "tets": 28632
+  },
+  "geometry_mass": {
+    "fat_tets": 14316,
+    "fat_volume_m3": 0.011652343238944877,
+    "fixed_fat_debit_kg": 10.487108964465744,
+    "fixed_skin_debit_kg": 3.4525707761420956,
+    "nodes_faces_tets_unchanged": true,
+    "per_dominant_donor_mass_delta_csv": "donor-mass-allocation-delta.csv",
+    "runtime_mass_and_capacity_owner_required": true,
+    "skin_tets": 14316,
+    "skin_volume_m3": 0.003452570641581803
+  },
+  "inputs": {
+    "D28_identity_sha256": "fa128f1a0097ae09235249e48f6b6342822c6ad6f7ef9e66229c08879bf5b9c4",
+    "body_frames_sha256": "0abeef83c47ffcf304ef62be9321ed6d0169d942f3c20c05dd94e4df59c15db8",
+    "candidate_export_csv_sha256": "b766fd63b13bf87384ec5a0893356dcc139b7f8d079110096972f9d98f3cc4ad",
+    "candidate_payload_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "native_candidate_capture_sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+    "normal_transform_diagnostic_sha256": "caf9a865dc329dc8fbe9f45aee27872514e6768654ff6e1cd725d67cf51bedae"
+  },
+  "limitations": [
+    "This D37 derivative regenerates both mechanical delta arrays from the candidate candidate donor-frame CSV; earlier candidates are retained as failed evidence. No physical qualification is claimed.",
+    "D35 preserves D28 O/I/D, topology, thickness, and total tissue mass. It changes candidate source weights, source points, dominant donor rows, and their local frames.",
+    "The 14 attachment sites are revalidated as inferred sites under the unchanged policy; six superseded hand sites remain omitted and no replacement entheses are asserted.",
+    "A successful source-only initialization and short physical diagnostic, if reached, would remain unadmitted evidence, not ROM or anatomical qualification."
+  ],
+  "native_preflight": {
+    "binary_sha256": "27ebf5eace0f4d7872b218c1b210871ad32c9b19dad520c31fae10188aba8aa0",
+    "capture_coordinates": "placed capture frame; transformed to reference by verified Q^T*(x-t)",
+    "capture_lineage_sha256": "5412f45ac08224c8963d82c2a742759a04551b0f2132645e5ca4c088436b3710",
+    "capture_manifest_sha256": "2f06f2bad80df5c73cbb9159150d6ab138720f19aed6907c7b277a78b57772ce",
+    "capture_receipt_sha256": "df5b3ea9dc14816689846ebcd92aee7bd73c2d0eba2ec95f7d174a0407ff2cdc",
+    "capture_rows": 61950,
+    "capture_sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+    "capture_written_before_rejection": true,
+    "max_export_vs_native_reference_xyz_component_error_m": 6.527254012844708e-07,
+    "returncode": 1,
+    "strict_rejection": "registered BodyParts3D mechanical skin surface rejected: candidate source payload hash does not match its declaration"
+  },
+  "physical_qualification": false,
+  "reference_checks": {
+    "max_deep_relative_frame_error_m": 2.6251129656189234e-17,
+    "max_dominant_lane_Float32_residual_adjustment": 3.8019410730782965e-08,
+    "max_emitted_Float32_weight_partition_error": 2.9732209139154975e-08,
+    "max_f32_donor_frame_world_to_local_delta_residual_m": 5.6352021493514754e-11,
+    "max_inner_relative_frame_error_m": 2.732727220440948e-17,
+    "max_native_source_normal_delta_vs_D28": 0.00030159326407666875,
+    "max_outer_local_reference_roundtrip_m": 1.1775693440128312e-16,
+    "max_raw_barycentric_weight_partition_error": 4.9950170666335225e-08,
+    "mechanical_local_delta_header_csv_max_abs_m": 0.0,
+    "mechanical_world_delta_header_csv_max_abs_m": 0.0,
+    "native_Float32_weight_partition_bound": 0.0001,
+    "native_normal_rows_changed_vs_D28": 159,
+    "old_D28_frame_calibration_max_m": 0.0,
+    "old_D28_rotation_calibration_max": 0.0,
+    "placement_rotation_orthogonality_error": 1.1102230246251565e-16,
+    "registered_C_max_movement_vs_D28": 1.809552298872293e-07,
+    "source_C_max_movement_vs_D28": 1.809552298872293e-07,
+    "source_C_tolerance_m": 2.5e-06
+  },
+  "schema": "numi.human.skin.source-rebind.d37.report.v1",
+  "status": "PRIVATE_UNADMITTED_DIAGNOSTIC"
+}

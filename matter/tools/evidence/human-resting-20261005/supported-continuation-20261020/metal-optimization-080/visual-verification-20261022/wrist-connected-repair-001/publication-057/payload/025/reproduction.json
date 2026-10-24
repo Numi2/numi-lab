@@ -1,0 +1,38 @@
+{
+  "commands": [
+    {
+      "command": "python3 connected-skin-safe-flow-025-generic-untangle/run-001/untangle_fixed_boundary_025.py",
+      "result": "run-001 report retained; no candidate emitted",
+      "run": "001"
+    },
+    {
+      "command": "python3 connected-skin-safe-flow-025-generic-untangle/run-002/phase1_untangle_025.py",
+      "result": "phase-I stagnated; 78 nonpositive Float32 tets and 79 below q floor",
+      "run": "002"
+    },
+    {
+      "command": "python3 connected-skin-safe-flow-025-generic-untangle/run-003/phase1_continuation_025.py",
+      "result": "phase-I stagnated; 78 nonpositive Float32 tets and 80 below q floor",
+      "run": "003"
+    }
+  ],
+  "dependencies": [
+    {
+      "note": "source volume required by every 025 run; omitted",
+      "path": "E/connected-skin-mechanical-transfer-013/boundary-refinement-002/candidate.npz",
+      "sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1"
+    },
+    {
+      "note": "proposal input required by every 025 run; omitted",
+      "path": "connected-skin-safe-flow-017/run-002/connected-rest-proposal.npz",
+      "sha256": "64f40e915703e35950ba2d3ab95b01a5e75681616c316cace25518c3a0ccb054"
+    },
+    {
+      "note": "prior output required by run-003 only; omitted",
+      "path": "connected-skin-safe-flow-025-generic-untangle/run-002/candidate.npz",
+      "sha256": "47e84b0ca65fdbfa81481e2fb7b44a147436936fdd0e2edfa967705075f40316"
+    }
+  ],
+  "execution_note": "The scripts hard-code W under the repository evidence tree. Restore the listed external inputs at their pinned paths before rerunning. Run-003 also requires run-002 candidate output. Reports/scripts are included; bulky NPZ inputs and failed outputs are omitted but hash-pinned in omitted-large-artifact-pins.json.",
+  "status": "REPRODUCTION_RECIPE_WITH_EXTERNAL_INPUTS"
+}

@@ -1,0 +1,26 @@
+{
+  "scope": "compiled Float32 initial skin/fat cells from successful source-only native preparation; no accepted physical step",
+  "status": "PASS_POSITIVE_NATIVE_EMITTED_CELLS",
+  "input_hashes": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/source-preflight-001/initial-skin-fem-nodes.csv": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-002/generated/nodes.csv": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-002/generated/tetrahedra.csv": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/source-preflight-001/execution-receipt.json": "2f0f64cecb412dff07d7ccc308c9672c932c5f2bb1890158a2a3c30b10afd40f"
+  },
+  "nodes": 7233,
+  "tetrahedra": 28632,
+  "positive_node_mass_count": 7233,
+  "node_mass_min_kg": 1.0108755610360731e-08,
+  "compiled_skin_plus_fat_mass_kg": 13.9396797269631,
+  "source_fixed_skin_plus_fat_debit_kg": 13.93967974060784,
+  "mass_difference_kg": -1.364474044862618e-08,
+  "minimum_det_float64_m3": 2.8270609957271546e-12,
+  "minimum_det_float32_m3": 2.8267943541493423e-12,
+  "nonpositive_float64": 0,
+  "nonpositive_float32": 0,
+  "minimum_normalized_float32_det": 2.6016007935428474e-05,
+  "det_ratio_to_registered_reference_min": 0.9890460461409286,
+  "det_ratio_to_registered_reference_max": 1.0413084071753822,
+  "physical_qualification": false,
+  "cross_structure_penetration_not_audited_by_this_check": true
+}

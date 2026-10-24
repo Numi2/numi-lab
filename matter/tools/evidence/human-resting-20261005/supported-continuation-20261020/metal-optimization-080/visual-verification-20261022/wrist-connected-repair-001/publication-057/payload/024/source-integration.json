@@ -1,0 +1,27 @@
+{
+  "status": "PRIVATE_UNADMITTED_DIAGNOSTIC",
+  "physical_qualification": false,
+  "base_native_source": "identity004 app-preflight013 build014",
+  "candidate_regeneration": "D37",
+  "input_hashes": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/apps/numilab_human_myosim_visual_probe.mm": "aea214228bdc91f868fc191c14dae69b08ad13146dc7a17b828e179e088c1684",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/apps/NumiHumanSkinFatReductionLabels.hpp": "573909b017d12153b25dd936c6e6545e05ef303248ad22ccb8c85bfb20a27407",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-002/D37-candidate-identity.json": "7ceca73081d974fbbdc6d35d91099b61f4bd930c67c297d58b14911e585f64ee",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-002/D37-manifest.json": "0979cf20b2814c702d2aa24aae86414473a378af82787726e09eb67334fb4ac5",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/D38-candidate-identity.json": "ad204691d202ee3455cb28653c297fca8a3094bcce6a838e069343d315f6f39b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinBoundaryNodeMap.hpp": "ce36fae5a378d65bdf63d0bf1408175abcf20baa3bb876be229f8c49e94e6241",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanWholeBodySkinReduction.hpp": "c0f3f3569dbf42f4be582a0eed35d805c938553bb637deeaba4cf0a43ba3e17d",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanUnpairedSkinFatVolume.hpp": "dd47c7e5033dabd2cb0b06300fc9ece9ef9977e8b57e17f98c2992ea0175dc16",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/numilab_human_myosim_visual_probe.mm": "823ca86b3e86ec1ae8239f2c1e7f51f80f8a6755ad52675fa4011a0163d5151a",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanWholeBodySkinTransferAncestry.hpp": "05f967096c494ddf8281268b777c5a4cc65556eb1bd7dc5e2a2a068a1874b0bb",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanMaterialColumnSelfContact.hpp": "835086de11c031870104165459f6fdfbf7e4d2ad04068ec4669acdc83cb16cc3",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFatReductionLabels.hpp": "573909b017d12153b25dd936c6e6545e05ef303248ad22ccb8c85bfb20a27407",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanFinal020CandidateRegistration.hpp": "d635f09d0ff7090a808aca274f737a864129f797822c20a81f8b414a7f99ec0e"
+  },
+  "changes": [
+    "registered candidate metadata and donor frames from D37",
+    "one registration include and exact private candidate guard identity",
+    "unchanged unpaired163 contact/source/ancestry owner"
+  ],
+  "native_execution": false
+}

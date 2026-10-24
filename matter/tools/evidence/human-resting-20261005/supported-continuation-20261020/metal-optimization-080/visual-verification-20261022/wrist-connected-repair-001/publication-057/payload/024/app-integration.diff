@@ -1,0 +1,22 @@
+--- /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/apps/numilab_human_myosim_visual_probe.mm
++++ /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/numilab_human_myosim_visual_probe.mm
+@@ -7,7 +7,7 @@
+ #include "NumiHumanRegisteredLigaments.hpp"
+ #include "NumiHumanReducedPassiveFascia.hpp"
+ #include "NumiHumanSkinFEMIntegration.wholebody.hpp"
+-#include "NumiHumanFinal128CandidateRegistration.hpp"
++#include "NumiHumanFinal020CandidateRegistration.hpp"
+ #include "NumiHumanImplicitSpringRows.hpp"
+ #include "NumiHumanSkinFatReductionLabels.hpp"
+ #include "NumiHumanOrganEventRollbackProbe.hpp"
+@@ -21988,8 +21988,8 @@
+                 }
+             }
+             constexpr std::string_view kUnadmittedDiagnosticCandidateID=
+-                "wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001";
+-            constexpr std::string_view kUnadmittedDiagnosticCandidateSHA256="68b4b407c269f992b4ca4e214e272090f14d1fd1e80b70b387c757ef6c3e91cd";
++                "candidate020-d37-current-unpaired163-owner-integration-038";
++            constexpr std::string_view kUnadmittedDiagnosticCandidateSHA256="ad204691d202ee3455cb28653c297fca8a3094bcce6a838e069343d315f6f39b";
+             const char* unadmittedDiagnostic=std::getenv("NUMI_HUMAN_EXPERIMENTAL_UNADMITTED_LAYER_DIAGNOSTIC");
+             const char* unadmittedCandidateID=std::getenv("NUMI_HUMAN_EXPERIMENTAL_UNADMITTED_LAYER_CANDIDATE_ID");
+             const char* unadmittedCandidateSHA=std::getenv("NUMI_HUMAN_EXPERIMENTAL_UNADMITTED_LAYER_CANDIDATE_SHA256");

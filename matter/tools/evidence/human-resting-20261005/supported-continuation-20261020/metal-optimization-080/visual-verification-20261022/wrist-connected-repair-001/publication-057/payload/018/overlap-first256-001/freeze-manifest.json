@@ -1,0 +1,86 @@
+{
+  "artifacts": {
+    "build_overlap_prefix_256.py": {
+      "bytes": 14573,
+      "sha256": "289180e6975c345694c44ae60244a9246f14a4b111b202ee0163cca83e81b8a1"
+    },
+    "overlap-prefix-256-report.json": {
+      "bytes": 280204,
+      "sha256": "7b5deb94af369a85980b8c9f9f4d5346a2535323833d76a80d22cd4a6c0bb95d"
+    },
+    "overlap-prefix-256-review.json": {
+      "bytes": 2732,
+      "sha256": "a8462ea9bd05495fdbac9cb3e5c1ee14b2ebeed451c709090622714eaa27c8a7"
+    },
+    "overlap-prefix-256.npz": {
+      "bytes": 237455,
+      "sha256": "da0a1170f7c54a295828a4784ee9aa4f01e8162c17319e09efeed29722568a25"
+    },
+    "review_overlap_prefix_256.py": {
+      "bytes": 3049,
+      "sha256": "85cf942db7727fa8947393d58e1593fad7ecf1d473fe78c2591acc795065502b"
+    }
+  },
+  "completion": {
+    "all_global_candidate_children_complete": false,
+    "all_new_cavity_children_complete": false,
+    "current_batch_complete": true,
+    "full_parent_CSR_available": false
+  },
+  "coverage_prefix_only": {
+    "child_coverage_ratio_max": 1.000000000000214,
+    "child_coverage_ratio_median": 1.0000000000000029,
+    "child_coverage_ratio_min": 0.13131039268793798,
+    "children_above_1_plus_1e-9": 0,
+    "children_below_1_minus_1e-9": 39,
+    "partial_old_parent_fraction_of_full_domain_max": 1.0,
+    "partial_old_parent_overlap_volume_m3": 2.091213343064791e-05,
+    "partial_old_parent_rows_touched": 1555
+  },
+  "execution": {
+    "capacity_children": 256,
+    "command": "python3 /tmp/numi-human-geometry-slot.py /Users/n/numi-human-prep-venv-20261005/bin/python <this>/build_overlap_prefix_256.py <E-root> <this>",
+    "elapsed_s": 5.5067275000037625,
+    "estimated_full_cavity_s_at_prefix_rate": 3167.01363213107,
+    "host": "numi.local",
+    "processed_children": 256,
+    "total_changed_cavity_children": 147230
+  },
+  "geometry_candidate_admission": "unadmitted; transfer and physical mass closure incomplete",
+  "important_limitations": [
+    "Only the first 256 of 147230 changed-cavity children were processed.",
+    "Fractions and overlap volumes remain raw; no normalization was applied.",
+    "Old 013 selected-cavity parents are the reference domain. The 017 deformation may extend beyond that domain; uncovered new volume is retained explicitly and not hidden by normalization.",
+    "This is a Float64 construction overlap using the retained overlap-234 method, not an exact rational predicate.",
+    "No complete parent CSR, global/regional mass closure, or native admission is claimed."
+  ],
+  "input_pins": {
+    "017_proposal": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-safe-flow-017/run-002/connected-rest-proposal.npz",
+      "sha256": "64f40e915703e35950ba2d3ab95b01a5e75681616c316cace25518c3a0ccb054"
+    },
+    "cavity_selection": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-holefix-001/cavity-selection.npz",
+      "sha256": "646ab7648cf2f8d20c19904190fab8f40328b58f7da77f855b5e102185e19727"
+    },
+    "edge_split_geometry": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-cavity-remesh-018/run-002-edge-splits-001/edge-split-geometry.npz",
+      "sha256": "c3ca2e5383a6424ec3feeb83ccfde2d269950eced21cf4d9e578c4a0385ac417"
+    },
+    "original_013_parent_domain": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-mechanical-transfer-013/boundary-refinement-002/candidate.npz",
+      "sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1"
+    },
+    "reference_overlap_csr": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-225-actual007-cut-stitch-domain-preflight/local-quality-star-remesh-232/overlap-234/local-tet-overlap-csr.npz",
+      "sha256": "7f46e9bf9791884c19a8a2037a0c5ae637574af397eea908ce9516150d54e378"
+    },
+    "reference_overlap_owner_source": {
+      "path": "/tmp/audit_overlap_234.py",
+      "sha256": "c75479baa803f2abdad530a731bd9c350f2debae29feba816c196ff8918dc310"
+    }
+  },
+  "method": "Overlap-234 contained-vertex + edge/face-intersection + normalized ConvexHull semantics, with radius-binned centroid cKDTree and AABB pruning against only the selected old cavity parents. F64 construction overlaps are not rational exact predicates. Fractions remain raw; no normalization.",
+  "schema": "numi.edge-split-cavity-overlap-prefix-freeze-018.v1",
+  "status": "partial_checkpoint_complete_bounded_probe"
+}

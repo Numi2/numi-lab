@@ -1,0 +1,17 @@
+{
+  "command": "payload/d37-replay/reproduce.sh /tmp/d37-registered-skin-057-script.csv",
+  "compiled_exporter_sha256": "0d0eda16216dc122e40d8d881d5b18fb1b8c30fce9abb0cbf08412e3cf628fdc",
+  "inputs_external_or_inherited": {
+    "body_frames_sha256": "0abeef83c47ffcf304ef62be9321ed6d0169d942f3c20c05dd94e4df59c15db8",
+    "candidate_nhskin_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "candidate_path": "publication-056/payload/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin",
+    "source_csv_path": "native-candidate020-mechanical-source-024/source-preflight-001/registered-skin.csv",
+    "source_csv_sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524"
+  },
+  "output_bytes": 24042820,
+  "output_sha256": "b766fd63b13bf87384ec5a0893356dcc139b7f8d079110096972f9d98f3cc4ad",
+  "rows": 61950,
+  "scope": "Local reproducibility verified; source CSV is external and candidate comes from publication-056, so not self-contained from 057 alone.",
+  "status": "PASS_BYTE_EXACT_D37_REGISTERED_CSV_REPRODUCTION",
+  "stderr": "wrote_rows=61950"
+}

@@ -1,0 +1,7 @@
+{
+  "status": "failed-preflight-retained",
+  "failure": "incorrectly asserted 013 O equals moved 017 O; 017 is expected to change active O rows",
+  "original_script_sha256": "ac6bf550ea18249a51281e15a78bc2eb276383a0e39fa8c77442b7e8cbb292a1",
+  "source_mesh_sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1",
+  "proposal_sha256": "64f40e915703e35950ba2d3ab95b01a5e75681616c316cace25518c3a0ccb054"
+}

@@ -1,0 +1,9 @@
+{
+  "status": "RELOCATED_NEW_OUTPUT_TO_OWNING_RUN",
+  "as_run_output_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-skin-transfer-owner-015/candidate020-counterfactual/native-source-emission-identity004-001/initial-skin-fem-nodes.csv",
+  "retained_output_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/source-preflight-001/initial-skin-fem-nodes.csv",
+  "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+  "prelaunch_not_a_file_evidence": "runner hashes every pre-existing environment file; as-run path absent from input_hashes",
+  "base_launch_manifest_unchanged": true,
+  "cause": "inherited runner output redirection list lacked NUMI_HUMAN_INITIAL_SKIN_FEM_NODES_CSV"
+}

@@ -1,0 +1,36 @@
+{
+  "omitted": [
+    {
+      "path": "global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/candidate.npz",
+      "role": "014 whole-body shell-bounded construction/background candidate",
+      "sha256": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba"
+    },
+    {
+      "path": "global-connected-inner-field-293-cavity-remesh-014-independent-volume-001/transfer-preflight.json",
+      "role": "014 transfer-preflight input candidate",
+      "sha256": "e5b46e79a22f736b4dafdafb99bff1fa0d14a7bf0bd224254368125ae0e7204b"
+    },
+    {
+      "path": "E/connected-skin-mechanical-transfer-013/boundary-refinement-002/candidate.npz",
+      "role": "025 source mesh input 013",
+      "sha256": "1849d24c14f8c0ddfedf3aa131877bdd38a852f9e48baebcf900a0efadf75db1"
+    },
+    {
+      "path": "connected-skin-safe-flow-017/run-002/connected-rest-proposal.npz",
+      "role": "025 prior proposal 017",
+      "sha256": "64f40e915703e35950ba2d3ab95b01a5e75681616c316cace25518c3a0ccb054"
+    },
+    {
+      "path": "connected-skin-safe-flow-025-generic-untangle/run-002/candidate.npz",
+      "role": "025 failed phase-I candidate run-002",
+      "sha256": "47e84b0ca65fdbfa81481e2fb7b44a147436936fdd0e2edfa967705075f40316"
+    },
+    {
+      "path": "connected-skin-safe-flow-025-generic-untangle/run-003/candidate.npz",
+      "role": "025 failed continuation candidate run-003",
+      "sha256": "b7dc4a3593c48cbf271ab1712ff3829d21f7717a6690dbd9df7793e655d6654e"
+    }
+  ],
+  "reason": "Large volume candidates and source arrays are not copied into this compact publication; exact hashes below are retained for future reproduction.",
+  "schema": "numi.human.025.omitted-artifacts.v1"
+}

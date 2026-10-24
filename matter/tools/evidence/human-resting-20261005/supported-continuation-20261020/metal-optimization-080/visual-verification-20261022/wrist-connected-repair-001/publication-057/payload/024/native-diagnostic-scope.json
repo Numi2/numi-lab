@@ -1,0 +1,12 @@
+{
+  "purpose": "bounded 1ms mechanics integration diagnostic after candidate source regeneration; not anatomy, joint ROM or coupled physiological qualification",
+  "expected_simulated_seconds": 0.001,
+  "physical_qualification": false,
+  "known_remaining_limits": [
+    "preexisting retained-pose torso skin witnesses",
+    "full skin versus inner-structure clearance remains unresolved",
+    "separate 018 remesh lacks qualified material transfer"
+  ],
+  "initialization": "unchanged identity004 reference and mechanics-only options",
+  "no_concealed_forces_or_tolerance_changes": true
+}
