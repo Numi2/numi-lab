@@ -1,0 +1,20 @@
+{
+  "release": "https://github.com/Numi2/numi-lab/releases/tag/plastic-bag-franka-handoff-2026-10-24",
+  "independently_downloaded": true,
+  "all_release_asset_hashes_verified": true,
+  "archive_sha256": "717825ec16ebb0bb270810ad932a8aa0d8eb12aa9f8191ac21cd9a313fbe6da2",
+  "all_manifest_files_verified": true,
+  "verified_payload_files": 689,
+  "restoration_hash_verified": [
+    "solver/source/PlasticBag.metal",
+    "solver/source/plastic_bag_coins_scene.mm",
+    "solver/native_runtime/numi_classic_bag_handoff",
+    "solver/native_runtime/PlasticBag.metallib",
+    "solver/grip.csv",
+    "solver/grip2.csv",
+    "evidence/capture/latest_checkpoint.bin",
+    "evidence/finish/latest_checkpoint.bin",
+    "evidence/trajectory.json"
+  ],
+  "local_evidence_retired": false
+}
