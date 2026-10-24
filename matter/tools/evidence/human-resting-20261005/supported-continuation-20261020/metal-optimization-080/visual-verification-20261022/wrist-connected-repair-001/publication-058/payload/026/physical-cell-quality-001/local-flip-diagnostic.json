@@ -1,0 +1,823 @@
+{
+  "all_trials": [
+    {
+      "all_new_nonzero_volume": true,
+      "canonical_boundary_facets_equal": true,
+      "geometric_flip_gate": false,
+      "kind": "2-to-3",
+      "neighbor_row": 26100,
+      "new_min_q": 0.0007295039392214864,
+      "new_patch_volume_m3": 1.6352666657974774e-06,
+      "new_q": [
+        0.02194616930621711,
+        0.015164013362014327,
+        0.0007295039392214864
+      ],
+      "new_tets": [
+        [
+          7084,
+          4670,
+          4672,
+          4656
+        ],
+        [
+          7084,
+          4670,
+          4656,
+          7083
+        ],
+        [
+          7084,
+          4670,
+          7083,
+          4672
+        ]
+      ],
+      "old_min_q": 0.0001051519306968795,
+      "old_patch_volume_m3": 3.246212670734037e-07,
+      "old_q": [
+        0.0001051519306968795,
+        0.014310764465384299
+      ],
+      "old_tet_rows": [
+        26100,
+        26104
+      ],
+      "old_tets": [
+        [
+          4672,
+          4656,
+          7083,
+          7084
+        ],
+        [
+          4656,
+          4670,
+          4672,
+          7083
+        ]
+      ],
+      "relative_volume_delta": 4.037460054728051,
+      "shared_face": [
+        4656,
+        4672,
+        7083
+      ],
+      "signed_det_negative_count": 2,
+      "signed_det_positive_count": 1,
+      "target_material": 2,
+      "target_parent_tet": 25186,
+      "target_q": 0.0001051519306968795,
+      "target_row": 26104,
+      "target_stable_source_face": 89542
+    },
+    {
+      "all_new_nonzero_volume": true,
+      "canonical_boundary_facets_equal": true,
+      "geometric_flip_gate": false,
+      "kind": "2-to-3",
+      "neighbor_row": 26103,
+      "new_min_q": 0.004160470423934404,
+      "new_patch_volume_m3": 2.2854481333634802e-07,
+      "new_q": [
+        0.024666534269237542,
+        0.025485282056558325,
+        0.004160470423934404
+      ],
+      "new_tets": [
+        [
+          7083,
+          4673,
+          4672,
+          4656
+        ],
+        [
+          7083,
+          4673,
+          4656,
+          7084
+        ],
+        [
+          7083,
+          4673,
+          7084,
+          4672
+        ]
+      ],
+      "old_min_q": 0.0001051519306968795,
+      "old_patch_volume_m3": 2.1466361145344581e-07,
+      "old_q": [
+        0.0001051519306968795,
+        0.03679136172065005
+      ],
+      "old_tet_rows": [
+        26103,
+        26104
+      ],
+      "old_tets": [
+        [
+          4672,
+          4656,
+          7083,
+          7084
+        ],
+        [
+          4656,
+          4672,
+          4673,
+          7084
+        ]
+      ],
+      "relative_volume_delta": 0.06466490426074205,
+      "shared_face": [
+        4656,
+        4672,
+        7084
+      ],
+      "signed_det_negative_count": 1,
+      "signed_det_positive_count": 2,
+      "target_material": 2,
+      "target_parent_tet": 25186,
+      "target_q": 0.0001051519306968795,
+      "target_row": 26104,
+      "target_stable_source_face": 89542
+    },
+    {
+      "all_new_nonzero_volume": true,
+      "canonical_boundary_facets_equal": true,
+      "geometric_flip_gate": false,
+      "kind": "2-to-3",
+      "neighbor_row": 26201,
+      "new_min_q": 0.00022280316187900612,
+      "new_patch_volume_m3": 6.029346077785789e-09,
+      "new_q": [
+        0.00022280316187900612,
+        0.0002449756934742343,
+        0.0005988879131790167
+      ],
+      "new_tets": [
+        [
+          4656,
+          7104,
+          4672,
+          7083
+        ],
+        [
+          4656,
+          7104,
+          7083,
+          7084
+        ],
+        [
+          4656,
+          7104,
+          7084,
+          4672
+        ]
+      ],
+      "old_min_q": 0.0001051519306968795,
+      "old_patch_volume_m3": 9.393037796856124e-10,
+      "old_q": [
+        0.0001051519306968795,
+        0.00019633485176113392
+      ],
+      "old_tet_rows": [
+        26104,
+        26201
+      ],
+      "old_tets": [
+        [
+          4672,
+          4656,
+          7083,
+          7084
+        ],
+        [
+          7083,
+          4672,
+          7084,
+          7104
+        ]
+      ],
+      "relative_volume_delta": 5.418952215654693,
+      "shared_face": [
+        4672,
+        7083,
+        7084
+      ],
+      "signed_det_negative_count": 1,
+      "signed_det_positive_count": 2,
+      "target_material": 2,
+      "target_parent_tet": 25186,
+      "target_q": 0.0001051519306968795,
+      "target_row": 26104,
+      "target_stable_source_face": 89542
+    },
+    {
+      "all_new_nonzero_volume": true,
+      "canonical_boundary_facets_equal": true,
+      "geometric_flip_gate": false,
+      "kind": "2-to-3",
+      "neighbor_row": 26105,
+      "new_min_q": 0.0006160793306167792,
+      "new_patch_volume_m3": 7.885363711294368e-08,
+      "new_q": [
+        0.010869961034570018,
+        0.0006160793306167792,
+        0.009811207698224154
+      ],
+      "new_tets": [
+        [
+          4672,
+          7067,
+          4656,
+          7083
+        ],
+        [
+          4672,
+          7067,
+          7083,
+          7084
+        ],
+        [
+          4672,
+          7067,
+          7084,
+          4656
+        ]
+      ],
+      "old_min_q": 0.0001051519306968795,
+      "old_patch_volume_m3": 4.014151816415269e-08,
+      "old_q": [
+        0.0001051519306968795,
+        0.006794396916456721
+      ],
+      "old_tet_rows": [
+        26104,
+        26105
+      ],
+      "old_tets": [
+        [
+          4672,
+          4656,
+          7083,
+          7084
+        ],
+        [
+          4656,
+          7067,
+          7083,
+          7084
+        ]
+      ],
+      "relative_volume_delta": 0.9643910026143908,
+      "shared_face": [
+        4656,
+        7083,
+        7084
+      ],
+      "signed_det_negative_count": 1,
+      "signed_det_positive_count": 2,
+      "target_material": 2,
+      "target_parent_tet": 25186,
+      "target_q": 0.0001051519306968795,
+      "target_row": 26104,
+      "target_stable_source_face": 89542
+    },
+    {
+      "all_new_nonzero_volume": true,
+      "canonical_boundary_facets_equal": true,
+      "geometric_flip_gate": false,
+      "kind": "2-to-3",
+      "neighbor_row": 10343,
+      "new_min_q": 0.0003486564887130869,
+      "new_patch_volume_m3": 1.7226372873697827e-06,
+      "new_q": [
+        0.00046341069890941004,
+        0.0003486564887130869,
+        0.0006904129524706168
+      ],
+      "new_tets": [
+        [
+          4632,
+          2394,
+          2040,
+          4451
+        ],
+        [
+          4632,
+          2394,
+          4451,
+          4817
+        ],
+        [
+          4632,
+          2394,
+          4817,
+          2040
+        ]
+      ],
+      "old_min_q": 3.292085199032157e-05,
+      "old_patch_volume_m3": 1.3948012758830354e-07,
+      "old_q": [
+        3.292085199032157e-05,
+        0.004686352490615553
+      ],
+      "old_tet_rows": [
+        10343,
+        11329
+      ],
+      "old_tets": [
+        [
+          2040,
+          4451,
+          4817,
+          4632
+        ],
+        [
+          2394,
+          2040,
+          4451,
+          4817
+        ]
+      ],
+      "relative_volume_delta": 11.350413762556945,
+      "shared_face": [
+        2040,
+        4451,
+        4817
+      ],
+      "signed_det_negative_count": 2,
+      "signed_det_positive_count": 1,
+      "target_material": 1,
+      "target_parent_tet": 10871,
+      "target_q": 3.292085199032157e-05,
+      "target_row": 11329,
+      "target_stable_source_face": 83429
+    },
+    {
+      "all_new_nonzero_volume": true,
+      "canonical_boundary_facets_equal": true,
+      "geometric_flip_gate": false,
+      "kind": "2-to-3",
+      "neighbor_row": 11474,
+      "new_min_q": 0.000862402918603608,
+      "new_patch_volume_m3": 3.779580585770048e-06,
+      "new_q": [
+        0.000862402918603608,
+        0.0014299546871840477,
+        0.002578530470901753
+      ],
+      "new_tets": [
+        [
+          4817,
+          4650,
+          2040,
+          4451
+        ],
+        [
+          4817,
+          4650,
+          4451,
+          4632
+        ],
+        [
+          4817,
+          4650,
+          4632,
+          2040
+        ]
+      ],
+      "old_min_q": 3.292085199032157e-05,
+      "old_patch_volume_m3": 1.2701336045792611e-06,
+      "old_q": [
+        3.292085199032157e-05,
+        0.0014145960828813144
+      ],
+      "old_tet_rows": [
+        11329,
+        11474
+      ],
+      "old_tets": [
+        [
+          2040,
+          4451,
+          4817,
+          4632
+        ],
+        [
+          2040,
+          4451,
+          4632,
+          4650
+        ]
+      ],
+      "relative_volume_delta": 1.9757346566875975,
+      "shared_face": [
+        2040,
+        4451,
+        4632
+      ],
+      "signed_det_negative_count": 1,
+      "signed_det_positive_count": 2,
+      "target_material": 1,
+      "target_parent_tet": 10871,
+      "target_q": 3.292085199032157e-05,
+      "target_row": 11329,
+      "target_stable_source_face": 83429
+    },
+    {
+      "all_new_nonzero_volume": true,
+      "canonical_boundary_facets_equal": true,
+      "geometric_flip_gate": false,
+      "kind": "2-to-3",
+      "neighbor_row": 11330,
+      "new_min_q": 9.080426228738354e-10,
+      "new_patch_volume_m3": 5.777343127013124e-08,
+      "new_q": [
+        2.738468567211547e-09,
+        9.080426228738354e-10,
+        6.584081877488636e-05
+      ],
+      "new_tets": [
+        [
+          4451,
+          4490,
+          2040,
+          4817
+        ],
+        [
+          4451,
+          4490,
+          4817,
+          4632
+        ],
+        [
+          4451,
+          4490,
+          4632,
+          2040
+        ]
+      ],
+      "old_min_q": 3.292085199032157e-05,
+      "old_patch_volume_m3": 5.777183773374906e-08,
+      "old_q": [
+        3.292085199032157e-05,
+        3.307516999861809e-05
+      ],
+      "old_tet_rows": [
+        11329,
+        11330
+      ],
+      "old_tets": [
+        [
+          2040,
+          4451,
+          4817,
+          4632
+        ],
+        [
+          2040,
+          4817,
+          4490,
+          4632
+        ]
+      ],
+      "relative_volume_delta": 2.7583273177555883e-05,
+      "shared_face": [
+        2040,
+        4632,
+        4817
+      ],
+      "signed_det_negative_count": 2,
+      "signed_det_positive_count": 1,
+      "target_material": 1,
+      "target_parent_tet": 10871,
+      "target_q": 3.292085199032157e-05,
+      "target_row": 11329,
+      "target_stable_source_face": 83429
+    },
+    {
+      "all_new_nonzero_volume": true,
+      "canonical_boundary_facets_equal": true,
+      "geometric_flip_gate": false,
+      "kind": "2-to-3",
+      "neighbor_row": 19106,
+      "new_min_q": 2.3638634376669778e-08,
+      "new_patch_volume_m3": 2.858326046826834e-10,
+      "new_q": [
+        5.1992631669787196e-05,
+        3.1058641632569143e-08,
+        2.3638634376669778e-08
+      ],
+      "new_tets": [
+        [
+          7144,
+          5595,
+          4769,
+          3118
+        ],
+        [
+          7144,
+          5595,
+          3118,
+          7199
+        ],
+        [
+          7144,
+          5595,
+          7199,
+          4769
+        ]
+      ],
+      "old_min_q": 2.6016244143916926e-05,
+      "old_patch_volume_m3": 2.856365174712837e-10,
+      "old_q": [
+        2.6016244143916926e-05,
+        4.395494205128175e-05
+      ],
+      "old_tet_rows": [
+        19106,
+        19107
+      ],
+      "old_tets": [
+        [
+          4769,
+          3118,
+          7199,
+          7144
+        ],
+        [
+          4769,
+          3118,
+          5595,
+          7199
+        ]
+      ],
+      "relative_volume_delta": 0.0006864920953932284,
+      "shared_face": [
+        3118,
+        4769,
+        7199
+      ],
+      "signed_det_negative_count": 2,
+      "signed_det_positive_count": 1,
+      "target_material": 2,
+      "target_parent_tet": 18412,
+      "target_q": 2.6016244143916926e-05,
+      "target_row": 19107,
+      "target_stable_source_face": 23949
+    },
+    {
+      "all_new_nonzero_volume": true,
+      "canonical_boundary_facets_equal": true,
+      "geometric_flip_gate": false,
+      "kind": "2-to-3",
+      "neighbor_row": 19102,
+      "new_min_q": 0.0028138625010079464,
+      "new_patch_volume_m3": 4.970881356016727e-08,
+      "new_q": [
+        0.005414909581820882,
+        0.0037238676493463025,
+        0.0028138625010079464
+      ],
+      "new_tets": [
+        [
+          7199,
+          4770,
+          4769,
+          3118
+        ],
+        [
+          7199,
+          4770,
+          3118,
+          7144
+        ],
+        [
+          7199,
+          4770,
+          7144,
+          4769
+        ]
+      ],
+      "old_min_q": 2.6016244143916926e-05,
+      "old_patch_volume_m3": 2.6367259966499596e-08,
+      "old_q": [
+        2.6016244143916926e-05,
+        0.004774670665019942
+      ],
+      "old_tet_rows": [
+        19102,
+        19107
+      ],
+      "old_tets": [
+        [
+          4769,
+          3118,
+          7199,
+          7144
+        ],
+        [
+          3118,
+          4769,
+          4770,
+          7144
+        ]
+      ],
+      "relative_volume_delta": 0.8852475996111778,
+      "shared_face": [
+        3118,
+        4769,
+        7144
+      ],
+      "signed_det_negative_count": 1,
+      "signed_det_positive_count": 2,
+      "target_material": 2,
+      "target_parent_tet": 18412,
+      "target_q": 2.6016244143916926e-05,
+      "target_row": 19107,
+      "target_stable_source_face": 23949
+    },
+    {
+      "all_new_nonzero_volume": true,
+      "canonical_boundary_facets_equal": true,
+      "geometric_flip_gate": false,
+      "kind": "2-to-3",
+      "neighbor_row": 19109,
+      "new_min_q": 5.397368826380086e-07,
+      "new_patch_volume_m3": 2.9303988213087525e-10,
+      "new_q": [
+        6.105119733990621e-07,
+        5.245305083174342e-05,
+        5.397368826380086e-07
+      ],
+      "new_tets": [
+        [
+          3118,
+          3184,
+          4769,
+          7199
+        ],
+        [
+          3118,
+          3184,
+          7199,
+          7144
+        ],
+        [
+          3118,
+          3184,
+          7144,
+          4769
+        ]
+      ],
+      "old_min_q": 2.6016244143916926e-05,
+      "old_patch_volume_m3": 2.871109878008309e-10,
+      "old_q": [
+        2.6016244143916926e-05,
+        2.8057905735020126e-05
+      ],
+      "old_tet_rows": [
+        19107,
+        19109
+      ],
+      "old_tets": [
+        [
+          4769,
+          3118,
+          7199,
+          7144
+        ],
+        [
+          3184,
+          4769,
+          7199,
+          7144
+        ]
+      ],
+      "relative_volume_delta": 0.020650182619124324,
+      "shared_face": [
+        4769,
+        7144,
+        7199
+      ],
+      "signed_det_negative_count": 2,
+      "signed_det_positive_count": 1,
+      "target_material": 2,
+      "target_parent_tet": 18412,
+      "target_q": 2.6016244143916926e-05,
+      "target_row": 19107,
+      "target_stable_source_face": 23949
+    },
+    {
+      "all_new_nonzero_volume": true,
+      "canonical_boundary_facets_equal": true,
+      "geometric_flip_gate": false,
+      "kind": "2-to-3",
+      "neighbor_row": 19113,
+      "new_min_q": 0.005138560695391851,
+      "new_patch_volume_m3": 1.0063921052955585e-07,
+      "new_q": [
+        0.009780138593726173,
+        0.005138560695391851,
+        0.008660196302551968
+      ],
+      "new_tets": [
+        [
+          4769,
+          7180,
+          3118,
+          7199
+        ],
+        [
+          4769,
+          7180,
+          7199,
+          7144
+        ],
+        [
+          4769,
+          7180,
+          7144,
+          3118
+        ]
+      ],
+      "old_min_q": 2.6016244143916926e-05,
+      "old_patch_volume_m3": 3.7116586619262136e-08,
+      "old_q": [
+        2.6016244143916926e-05,
+        0.006731800522646708
+      ],
+      "old_tet_rows": [
+        19107,
+        19113
+      ],
+      "old_tets": [
+        [
+          4769,
+          3118,
+          7199,
+          7144
+        ],
+        [
+          3118,
+          7180,
+          7199,
+          7144
+        ]
+      ],
+      "relative_volume_delta": 1.7114349593054397,
+      "shared_face": [
+        3118,
+        7144,
+        7199
+      ],
+      "signed_det_negative_count": 1,
+      "signed_det_positive_count": 2,
+      "target_material": 2,
+      "target_parent_tet": 18412,
+      "target_q": 2.6016244143916926e-05,
+      "target_row": 19107,
+      "target_stable_source_face": 23949
+    }
+  ],
+  "input_sha256": {
+    "D37_nodes.csv": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "D37_source_faces.csv": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "D37_tetrahedra.csv": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4",
+    "compiled_initial_skin_fem_nodes.csv": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b"
+  },
+  "limitation": "This local algebra does not certify non-overlap by exact tet intersection, ancestry/mass transfer, or global material interfaces; it is a candidate selector only.",
+  "schema": "numi.human.local-layer-tet-flip-diagnostic.026.v1",
+  "status": "READ_ONLY_LOCAL_ALGEBRA",
+  "target_results": {
+    "11329": {
+      "best_patch_min_q": null,
+      "best_patch_q_gain": null,
+      "best_trials": [],
+      "gate_passing_flip_count": 0,
+      "target_q": 3.292085199032157e-05
+    },
+    "19107": {
+      "best_patch_min_q": null,
+      "best_patch_q_gain": null,
+      "best_trials": [],
+      "gate_passing_flip_count": 0,
+      "target_q": 2.6016244143916926e-05
+    },
+    "26104": {
+      "best_patch_min_q": null,
+      "best_patch_q_gain": null,
+      "best_trials": [],
+      "gate_passing_flip_count": 0,
+      "target_q": 0.0001051519306968795
+    }
+  },
+  "targets": {
+    "11329": "minimum-quality skin tet; donor group 92",
+    "19107": "minimum-quality fat tet; donor group 20",
+    "26104": "native failure object-local tet 26104 / global 29419; fat; stable face 89542"
+  },
+  "tests_performed": "Enumerated 2-to-3 flips across every same-material internal face of each target and 3-to-2 flips across every same-material interior edge star of each target. Gate checks canonical cavity boundary equality, nonzero new F32 volumes, and patch absolute-volume parity <=1e-8 relative. No candidate is emitted or promoted."
+}

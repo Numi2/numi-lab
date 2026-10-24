@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "source_npz_sha256": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+  "input_semantics": "parent_csr_old_volume_fractions = overlap/old parent volume; column-normalized transport",
+  "native_semantics": "child ancestry = overlap/new child volume; denominator from exact signed child determinant; no normalization",
+  "maximum_child_fraction_sum_error": 2.360334150353083e-13,
+  "maximum_parent_volume_relative_error": 8.041789456569859e-12,
+  "dominant_parent_policy": "maximum absolute overlap volume; deterministic first parent on ties",
+  "native_header_sha256": "32ed4aaea7aa738f74ec4b3b353942b8170c11f8b5c5637db3b90bf8a4d13063"
+}

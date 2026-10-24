@@ -1,0 +1,9 @@
+{
+  "status": "SOURCE_ONLY_STOP_WITHOUT_REQUESTED_CAPTURE",
+  "source_preflight_pass_does_not_validate_capture": true,
+  "cause": "Current 024/163 app does not implement the older initial bone-contact witness environment hook. The native runner previously did not require requested diagnostic files.",
+  "source_run": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-028/source-preflight-001",
+  "capture_file_missing": true,
+  "checked_runner_sha256": "67f0a7d6d37164765a730d029b1278e5f5b845833fccef13fb6d24efe9eea56d",
+  "physical_qualification": false
+}

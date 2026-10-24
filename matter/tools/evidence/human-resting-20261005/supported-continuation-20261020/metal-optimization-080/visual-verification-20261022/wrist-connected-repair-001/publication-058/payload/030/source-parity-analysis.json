@@ -1,0 +1,15 @@
+{
+  "status": "PASS_SOURCE_PREPARATION_AND_EMITTED_GEOMETRY",
+  "base_node_csv_sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+  "candidate_node_csv_sha256": "fc0bd3cbf3269050fc97e341fbb3805eff36ebd1eff0ce5f98bcd85260ec8880",
+  "float32_positions_bitwise_identical": true,
+  "node_identity_rows_exact": true,
+  "physical_node_count": 7233,
+  "mass_baseline_kg": 13.9396797269631,
+  "mass_candidate_kg": 13.939679726970375,
+  "mass_delta_kg": 7.275957614183426e-12,
+  "topology_changed_node_count": 14,
+  "maximum_nodal_mass_relative_change_in_patch": 0.3075545116149973,
+  "maximum_nodal_mass_relative_change_outside_patch": 0.0,
+  "scope": "source preparation only; no native physical acceptance/clearance claim"
+}

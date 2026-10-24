@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "scope": "initial preparation replay guard only; no geometry or physics test",
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "refuse to overwrite an existing prepared or frozen candidate\n",
+  "elapsed_s": 0.049294207943603396,
+  "before": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/candidate-identity.json": "f0a5be79347709943b9f7a7bf74d4aac096c5de0c172996301002537e4418de7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/numilab_human_myosim_visual_probe.mm": "9a5cac841d817a4fdff22a124648f06484eb947b6d709b18d9f452def8b38713",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanConformingPrism030.hpp": "32ed4aaea7aa738f74ec4b3b353942b8170c11f8b5c5637db3b90bf8a4d13063"
+  },
+  "after": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/candidate-identity.json": "f0a5be79347709943b9f7a7bf74d4aac096c5de0c172996301002537e4418de7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/numilab_human_myosim_visual_probe.mm": "9a5cac841d817a4fdff22a124648f06484eb947b6d709b18d9f452def8b38713",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanConformingPrism030.hpp": "32ed4aaea7aa738f74ec4b3b353942b8170c11f8b5c5637db3b90bf8a4d13063"
+  }
+}

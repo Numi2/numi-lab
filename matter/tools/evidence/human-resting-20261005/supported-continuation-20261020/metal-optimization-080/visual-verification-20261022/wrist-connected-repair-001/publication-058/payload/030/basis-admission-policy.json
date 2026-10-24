@@ -1,0 +1,7 @@
+{
+  "scope": "Source labels only; no capacity or physical gate relaxation",
+  "capacity": "distinct actual emitted basis labels, not faces",
+  "baseline_policy": "split_skin_patch_count=0 keeps one existing donor region per group; no requested subdivision",
+  "unchanged_cell_basis_policy": "exact baseline IDs reused",
+  "full_human_native_validation": "pending005"
+}

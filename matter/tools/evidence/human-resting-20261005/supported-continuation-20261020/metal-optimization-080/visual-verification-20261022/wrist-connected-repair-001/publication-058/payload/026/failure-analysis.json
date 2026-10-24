@@ -1,0 +1,246 @@
+{
+  "status": "REJECTED_PHYSICAL_STEP",
+  "accepted_steps": 0,
+  "object": 15,
+  "global_tet": 29419,
+  "newton": 5,
+  "trial_J": 2.5066757202148438,
+  "current_J": 2.49646258354187,
+  "reason_bits": 4,
+  "reason": "finite trial determinant above fat upper validity J=2.5",
+  "trace": [
+    {
+      "newton": 0,
+      "alpha": 0.125,
+      "skin_fat_line_search": [
+        0.125,
+        0.983324945,
+        12,
+        0
+      ],
+      "fgmres": {
+        "diagnostics": [
+          9.81343419e-06,
+          0.00535065215,
+          1,
+          0
+        ],
+        "nonlinear": [
+          0.00535065215,
+          0.00535065215,
+          5.71808815,
+          0
+        ],
+        "cycle_accepted": true
+      },
+      "status": {
+        "code": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations_microstep_max": 44,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "newton": 1,
+      "alpha": 0.015625,
+      "skin_fat_line_search": [
+        0.015625,
+        0.981514215,
+        12,
+        1
+      ],
+      "fgmres": {
+        "diagnostics": [
+          9.60031775e-06,
+          0.00469376426,
+          1,
+          0
+        ],
+        "nonlinear": [
+          0.00535065215,
+          0.00469376426,
+          5.03612041,
+          0
+        ],
+        "cycle_accepted": true
+      },
+      "status": {
+        "code": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations_microstep_max": 44,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "newton": 2,
+      "alpha": 0.00390625,
+      "skin_fat_line_search": [
+        0.00390625,
+        0.981069148,
+        12,
+        2
+      ],
+      "fgmres": {
+        "diagnostics": [
+          9.31624982e-06,
+          0.00462058699,
+          1,
+          0
+        ],
+        "nonlinear": [
+          0.00535065215,
+          0.00462058699,
+          4.96067333,
+          0
+        ],
+        "cycle_accepted": true
+      },
+      "status": {
+        "code": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations_microstep_max": 44,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "newton": 3,
+      "alpha": 0.001953125,
+      "skin_fat_line_search": [
+        0.001953125,
+        0.980847359,
+        12,
+        3
+      ],
+      "fgmres": {
+        "diagnostics": [
+          9.26286793e-06,
+          0.00460255193,
+          1,
+          0
+        ],
+        "nonlinear": [
+          0.00535065215,
+          0.00460255193,
+          4.94204664,
+          0
+        ],
+        "cycle_accepted": true
+      },
+      "status": {
+        "code": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations_microstep_max": 44,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "newton": 4,
+      "alpha": 0.00048828125,
+      "skin_fat_line_search": [
+        0.00048828125,
+        0.980792165,
+        12,
+        4
+      ],
+      "fgmres": {
+        "diagnostics": [
+          9.22541312e-06,
+          0.00459356839,
+          1,
+          0
+        ],
+        "nonlinear": [
+          0.00535065215,
+          0.00459356839,
+          4.93276119,
+          0
+        ],
+        "cycle_accepted": true
+      },
+      "status": {
+        "code": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations_microstep_max": 44,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "newton": 5,
+      "alpha": 0,
+      "skin_fat_line_search": [
+        0,
+        null,
+        12,
+        5
+      ],
+      "fgmres": {
+        "diagnostics": [
+          9.21897936e-06,
+          0.00459132716,
+          1,
+          0
+        ],
+        "nonlinear": [
+          0.00535065215,
+          0.00459132716,
+          4.93044233,
+          0
+        ],
+        "cycle_accepted": true
+      },
+      "status": {
+        "code": 10,
+        "completed_microsteps": 0,
+        "fgmres_iterations_microstep_max": 44,
+        "diagnostics": [
+          2.50667572,
+          2.49646258,
+          29419,
+          4
+        ]
+      }
+    }
+  ],
+  "initialization": {
+    "mode": "dynamic_release",
+    "support_force_N": 0,
+    "active_support_rows": 0,
+    "balanced": false,
+    "maximum_acceleration_residual_m_s2": 65.1741793495
+  },
+  "interpretation": "Current iterate remains inside material bounds, but successive corrections approach the upper volume bound while nonlinear residual decreases only modestly. No NaN or inverted-cell cause established. More line-search trials alone do not establish convergence. Forces, bounds and acceptance unchanged.",
+  "physiology_qualification": false,
+  "visual_verification": false,
+  "input_hashes": {
+    "run-001/launch-manifest.snapshot.json": "0d864e538fd9265776da026646c8c0069b7111fc4a820f9fe6b8fb28dbfb1584",
+    "run-001/execution-receipt.json": "93358fe3d596eb2c848e54823d1d8ca904fbc2d6b10cfbcdc2e9e358bc306b26",
+    "run-001/common-field-failure.json": "cad6472bad31d36cf3a98fa1f1c62a96fc3f7caa0261072c85e46e57f53cb3fa",
+    "run-001/stderr.log": "46708ad77b2fdbc32dfea2df32237722ae79e0399599c9bfd49e8455e19f2d05",
+    "compatibility.json": "2b7e8b6753e5c9fc146f81ddebfb0dc144590aa9a1b6cbaf3ec2b82d01d2d3ea"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "status": "PASS_INDEPENDENT_CAPTURE_AND_JOIN_REVIEW",
+  "inside_count": 138,
+  "mass_join": "global FEM node ID; unique entries; not sample ordinal",
+  "donor_histogram": {
+    "20": 3,
+    "23": 71,
+    "46": 1,
+    "49": 1,
+    "54": 2,
+    "59": 3,
+    "61": 8,
+    "62": 2,
+    "66": 1,
+    "84": 2,
+    "91": 5,
+    "98": 3,
+    "99": 7,
+    "104": 1,
+    "107": 3,
+    "109": 3,
+    "114": 1,
+    "124": 3,
+    "128": 3,
+    "136": 2,
+    "139": 5,
+    "142": 2,
+    "150": 4,
+    "152": 1,
+    "153": 1
+  },
+  "source001_to002_changed_global_nodes": [
+    2998,
+    4394,
+    5409,
+    5631
+  ],
+  "limitations": "nearest-bank parity only; not wholebody all-bank or physical qualification",
+  "analysis_sha256": "b2191f06324d8fef52a2f70c844c6f5f1ce72c46e684527b9d84ecdf4f5f751e"
+}

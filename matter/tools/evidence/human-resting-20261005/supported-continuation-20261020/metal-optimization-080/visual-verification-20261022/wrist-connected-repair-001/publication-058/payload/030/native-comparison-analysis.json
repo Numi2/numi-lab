@@ -1,0 +1,288 @@
+{
+  "status": "NATIVE_REJECTED_STEP_OLD_FIRST_BLOCKER_CLEARED_NEW_BLOCKER_RETAINED",
+  "baseline": {
+    "accepted_physical_steps": 0,
+    "matter_microsteps": 0,
+    "failing_object": 15,
+    "failing_Newton_iteration": 5,
+    "trial_J": 2.5066757202148438,
+    "current_J": 2.49646258354187,
+    "global_tet": 29419,
+    "reason_bits": 4,
+    "trace": [
+      {
+        "iteration": 0,
+        "alpha": 0.125,
+        "skin_min_J": 0.983324945,
+        "nonlinear_residual": 0.00535065215,
+        "correction_ratio": 5.71808815,
+        "status": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "fgmres_iterations_microstep_max": 44
+      },
+      {
+        "iteration": 1,
+        "alpha": 0.015625,
+        "skin_min_J": 0.981514215,
+        "nonlinear_residual": 0.00469376426,
+        "correction_ratio": 5.03612041,
+        "status": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "fgmres_iterations_microstep_max": 44
+      },
+      {
+        "iteration": 2,
+        "alpha": 0.00390625,
+        "skin_min_J": 0.981069148,
+        "nonlinear_residual": 0.00462058699,
+        "correction_ratio": 4.96067333,
+        "status": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "fgmres_iterations_microstep_max": 44
+      },
+      {
+        "iteration": 3,
+        "alpha": 0.001953125,
+        "skin_min_J": 0.980847359,
+        "nonlinear_residual": 0.00460255193,
+        "correction_ratio": 4.94204664,
+        "status": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "fgmres_iterations_microstep_max": 44
+      },
+      {
+        "iteration": 4,
+        "alpha": 0.00048828125,
+        "skin_min_J": 0.980792165,
+        "nonlinear_residual": 0.00459356839,
+        "correction_ratio": 4.93276119,
+        "status": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "fgmres_iterations_microstep_max": 44
+      },
+      {
+        "iteration": 5,
+        "alpha": 0,
+        "skin_min_J": null,
+        "nonlinear_residual": 0.00459132716,
+        "correction_ratio": 4.93044233,
+        "status": 10,
+        "diagnostics": [
+          2.50667572,
+          2.49646258,
+          29419,
+          4
+        ],
+        "fgmres_iterations_microstep_max": 44
+      }
+    ],
+    "wall_seconds": 90.35720333305653,
+    "input_sha256": {
+      "execution-receipt.json": "93358fe3d596eb2c848e54823d1d8ca904fbc2d6b10cfbcdc2e9e358bc306b26",
+      "launch-manifest.snapshot.json": "0d864e538fd9265776da026646c8c0069b7111fc4a820f9fe6b8fb28dbfb1584",
+      "common-field-failure.json": "cad6472bad31d36cf3a98fa1f1c62a96fc3f7caa0261072c85e46e57f53cb3fa",
+      "stderr.log": "46708ad77b2fdbc32dfea2df32237722ae79e0399599c9bfd49e8455e19f2d05",
+      "stdout.log": "d92069dd867c3d3e8cf298777a143fd315d4936cb6245274ce6168b1bf3d713d"
+    }
+  },
+  "candidate": {
+    "accepted_physical_steps": 0,
+    "matter_microsteps": 0,
+    "failing_object": 15,
+    "failing_Newton_iteration": 8,
+    "trial_J": 2.500195264816284,
+    "current_J": 2.499962568283081,
+    "global_tet": 19641,
+    "reason_bits": 4,
+    "trace": [
+      {
+        "iteration": 0,
+        "alpha": 1,
+        "skin_min_J": 0.866413295,
+        "nonlinear_residual": 0.00535064796,
+        "correction_ratio": 5.7110405,
+        "status": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "fgmres_iterations_microstep_max": 41
+      },
+      {
+        "iteration": 1,
+        "alpha": 0.25,
+        "skin_min_J": 0.867478609,
+        "nonlinear_residual": 0.000966503227,
+        "correction_ratio": 0.133385211,
+        "status": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "fgmres_iterations_microstep_max": 41
+      },
+      {
+        "iteration": 2,
+        "alpha": 0.125,
+        "skin_min_J": 0.867871344,
+        "nonlinear_residual": 0.000727096165,
+        "correction_ratio": 0.103997946,
+        "status": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "fgmres_iterations_microstep_max": 41
+      },
+      {
+        "iteration": 3,
+        "alpha": 0.03125,
+        "skin_min_J": 0.867953539,
+        "nonlinear_residual": 0.000636549201,
+        "correction_ratio": 0.0933510065,
+        "status": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "fgmres_iterations_microstep_max": 41
+      },
+      {
+        "iteration": 4,
+        "alpha": 0.0078125,
+        "skin_min_J": 0.867973506,
+        "nonlinear_residual": 0.000616672449,
+        "correction_ratio": 0.0907649174,
+        "status": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "fgmres_iterations_microstep_max": 41
+      },
+      {
+        "iteration": 5,
+        "alpha": 0.00390625,
+        "skin_min_J": 0.867983162,
+        "nonlinear_residual": 0.000611852796,
+        "correction_ratio": 0.090134114,
+        "status": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "fgmres_iterations_microstep_max": 41
+      },
+      {
+        "iteration": 6,
+        "alpha": 0.0009765625,
+        "skin_min_J": 0.867985666,
+        "nonlinear_residual": 0.000609471987,
+        "correction_ratio": 0.0898205712,
+        "status": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "fgmres_iterations_microstep_max": 41
+      },
+      {
+        "iteration": 7,
+        "alpha": 0.00048828125,
+        "skin_min_J": 0.867986858,
+        "nonlinear_residual": 0.000608870643,
+        "correction_ratio": 0.0897437409,
+        "status": 0,
+        "diagnostics": [
+          null,
+          0,
+          0,
+          0
+        ],
+        "fgmres_iterations_microstep_max": 41
+      },
+      {
+        "iteration": 8,
+        "alpha": 0,
+        "skin_min_J": null,
+        "nonlinear_residual": 0.000608571456,
+        "correction_ratio": 0.0897044614,
+        "status": 10,
+        "diagnostics": [
+          2.50019526,
+          2.49996257,
+          19641,
+          4
+        ],
+        "fgmres_iterations_microstep_max": 41
+      }
+    ],
+    "wall_seconds": 90.05732633289881,
+    "input_sha256": {
+      "execution-receipt.json": "7e5c71618fe108ff13f33a1e3a17f3926b2138f0c75ec84090d25c710be36877",
+      "launch-manifest.snapshot.json": "f16ca17acbe6500dd3fbdb397a2596d39685c7e5068dac544277d8cdc79e9b81",
+      "common-field-failure.json": "fd84ea4eb765548b28fa4b17427a788d77df9d79ec4cd0f53ae83e74e255ec4e",
+      "stderr.log": "2acb0f04c7c7912ee2e2b5d3be3756b16ed2cd96f0b9dbd3db7f411d1d64ed90",
+      "stdout.log": "2184f02f83a0dd303c6d559183ca508f4fb082d9c8fa2c4cb2c81d7ea7ec7e4b"
+    }
+  },
+  "source_parity_report_sha256": "1c718d7702f86b575cd38ebebc610e3c38296e70a3f489345134f5dce4c55750",
+  "source_preflight_receipt_sha256": "d92bc893ac9454a7be874b82fabc252d706ee8c6692c3a3c398a2bccfb90d03e",
+  "observations": {
+    "initial_residual_relative_difference": -7.830821147081224e-07,
+    "baseline_first_alpha": 0.125,
+    "candidate_first_alpha": 1,
+    "baseline_failed_residual": 0.00459132716,
+    "candidate_failed_residual": 0.000608571456,
+    "baseline_failed_correction_ratio": 4.93044233,
+    "candidate_failed_correction_ratio": 0.0897044614
+  },
+  "limits": [
+    "zero accepted physical steps; no integrated throughput or 0.1x claim",
+    "no visual verification",
+    "unsupported release diagnostic, not supported periodic rest",
+    "138 nearest-bank closed-solid skin/fat penetration witnesses remain unresolved",
+    "material laws, validity limits, force ownership and acceptance gates unchanged",
+    "connectivity changed16cells; nodal lumped mass redistributed among14nodes, not an equivalent-discretization parity claim",
+    "native001 stopped before physical stepping on object-name binding; retained; native002 reached actualGPUsolver"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "existing_option": "NUMI_HUMAN_STATIC_WEIGHTED_SKIN_SUPPORT=1",
+  "remove_selected_tendon_increment": true,
+  "remove_selected_muscle_subset": true,
+  "muscle_activation_semantics": "Upper recruitment bound 1.0, not prescribed uniform activation; full source muscles recruit against registered skin-bed support witnesses",
+  "source_pose": "unchanged identity004",
+  "physical_limits": "unchanged",
+  "qualification": "Fresh weighted support release comparison; not certified settled rest",
+  "baseline": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/native-1ms-001/launch-manifest.snapshot.json"
+}

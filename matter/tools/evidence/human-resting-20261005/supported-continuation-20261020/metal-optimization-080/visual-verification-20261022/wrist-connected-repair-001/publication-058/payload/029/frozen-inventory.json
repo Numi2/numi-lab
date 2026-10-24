@@ -1,0 +1,239 @@
+{
+  "file_count": 46,
+  "files": [
+    {
+      "bytes": 146292,
+      "path": "029analysis.json",
+      "sha256": "b2191f06324d8fef52a2f70c844c6f5f1ce72c46e684527b9d84ecdf4f5f751e"
+    },
+    {
+      "bytes": 4114,
+      "path": "apps/NumiHumanD37InitialSkinBoneWitness.hpp",
+      "sha256": "68dc8e167c9a3c9500c27c5828f405efac1d9fd7ef75707c2fa7466335682e8c"
+    },
+    {
+      "bytes": 2379292,
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "9d39d6525c2624503bb2fe501d0131ed31a6dbf99adec7bc6a756daa942915c2"
+    },
+    {
+      "bytes": 30534,
+      "path": "build-001/candidate.d",
+      "sha256": "55f056c1836b05a3a7b244613df1918ea6e0a12312621039b8d9cfc10c34a6ca"
+    },
+    {
+      "bytes": 9911744,
+      "path": "build-001/candidate.o",
+      "sha256": "174247622d16f636d4c6a1c4ab3d92f4ed641fb4236db61eb3d33095c63a8c3d"
+    },
+    {
+      "bytes": 4600,
+      "path": "build-001/compile-command.json",
+      "sha256": "68965ce684a12759389db64228eba9678f5aeff2281893f736f39e15f4dee826"
+    },
+    {
+      "bytes": 109,
+      "path": "build-001/compile-result.json",
+      "sha256": "1f8def8aeaf14083a56f2e6196a41c968fe4e87f088cf5c2cd41d08a59f7fde2"
+    },
+    {
+      "bytes": 0,
+      "path": "build-001/compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1115,
+      "path": "build-001/link-command.json",
+      "sha256": "fffb9cb702f7a9f51c6784bc30cff5cca96514869d10b83602764876db6761ad"
+    },
+    {
+      "bytes": 22,
+      "path": "build-001/link-result.json",
+      "sha256": "1e3f6691f455051e8adb15d961e4bf3c7a17e83dd88b2afdd13315cc288250bb"
+    },
+    {
+      "bytes": 0,
+      "path": "build-001/link.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 8248144,
+      "path": "build-001/numi-human-native",
+      "sha256": "657582acc87a7337c4d4f936dd2b650cb8acddc66b5e1af6b0993e1521b13a01"
+    },
+    {
+      "bytes": 30534,
+      "path": "build-002/candidate.d",
+      "sha256": "2c81d7f1af19d5ef656327c8ac7a48884099576c7db69211c67fd6ac334180bf"
+    },
+    {
+      "bytes": 9911792,
+      "path": "build-002/candidate.o",
+      "sha256": "923aeba79405675b6d93fa60845ffd978ed3c815625eae5d0f5aa21767c6c648"
+    },
+    {
+      "bytes": 4599,
+      "path": "build-002/compile-command.json",
+      "sha256": "733bc54bf6a0778dde771945c88ef1eb20cb83987546084e05134317ddc346b4"
+    },
+    {
+      "bytes": 108,
+      "path": "build-002/compile-result.json",
+      "sha256": "9380fd92e041122a30652d84d7249eba09b7def8eaf8fbe2e7da1e902c01b700"
+    },
+    {
+      "bytes": 0,
+      "path": "build-002/compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1114,
+      "path": "build-002/link-command.json",
+      "sha256": "7a12116c5046a1ae1f93f918790a329090fa42d333736ee5d253938459f4f965"
+    },
+    {
+      "bytes": 21,
+      "path": "build-002/link-result.json",
+      "sha256": "a02d222e1be4a3d356cac5372aa177b9048c9baaa90b42f86d8cfae4569f1286"
+    },
+    {
+      "bytes": 0,
+      "path": "build-002/link.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 8248144,
+      "path": "build-002/numi-human-native",
+      "sha256": "bb34555b6549e3c946de5162c090159303b1387c013b12f18a241ba480449ef2"
+    },
+    {
+      "bytes": 540,
+      "path": "source-preflight-001/execution-receipt.json",
+      "sha256": "fcb4747e7bf037ab21d11af346952ddf18427386854be67c460b1789fc92b405"
+    },
+    {
+      "bytes": 2789208,
+      "path": "source-preflight-001/initial-skin-bone-contact.csv",
+      "sha256": "87da50c12a5b06fa9d31ada5e2941fcabf513f28025277a31a5028b8ac306099"
+    },
+    {
+      "bytes": 694725,
+      "path": "source-preflight-001/initial-skin-fem-nodes.csv",
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b"
+    },
+    {
+      "bytes": 23577,
+      "path": "source-preflight-001/launch-manifest.snapshot.json",
+      "sha256": "2ed018c6282c0503353d0f4248b81ba57b4fa7cb319a3538d6d2ec510ac064f6"
+    },
+    {
+      "bytes": 1769,
+      "path": "source-preflight-001/output/resting-coupled.csv",
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    {
+      "bytes": 2820099,
+      "path": "source-preflight-001/prepared-tangent.metal",
+      "sha256": "f36d8798b4f3b06cf0e5ccf08d9e08d6d791143900d115f0a1a0405d8b5e6b87"
+    },
+    {
+      "bytes": 73339,
+      "path": "source-preflight-001/registered-skin-poses.json",
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+    },
+    {
+      "bytes": 24135771,
+      "path": "source-preflight-001/registered-skin.csv",
+      "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524"
+    },
+    {
+      "bytes": 2379263,
+      "path": "source-preflight-001/source-snapshot/numilab_human_myosim_visual_probe.mm",
+      "sha256": "0dc6f97f7a928f1a193b6456c1ca3165f4305487f35459c8daae201c34269f42"
+    },
+    {
+      "bytes": 77097,
+      "path": "source-preflight-001/stderr.log",
+      "sha256": "ed718db8e203431a013184b2508bbbd1e10074ae405531badb13c83dbca6cc70"
+    },
+    {
+      "bytes": 211243,
+      "path": "source-preflight-001/stdout.log",
+      "sha256": "037b09f164f77880b6511b6b8feaad5bb2ffba9a1634dd07a955f8a2728aae89"
+    },
+    {
+      "bytes": 1460972,
+      "path": "source-preflight-001/tissue-mass-reference.txt",
+      "sha256": "71715ff82763c53b478ada4a292f63ac01dd2c5971cf390c2e11705e96f1caec"
+    },
+    {
+      "bytes": 534,
+      "path": "source-preflight-002/execution-receipt.json",
+      "sha256": "febe05827b0aaf772d0cfbb55ec367e77d1af26651268883aa42acb72695424d"
+    },
+    {
+      "bytes": 2789208,
+      "path": "source-preflight-002/initial-skin-bone-contact.csv",
+      "sha256": "ee058644ebadc5849109dbed87c555eec091af0e8ca6cb874fb50539cf318d27"
+    },
+    {
+      "bytes": 694725,
+      "path": "source-preflight-002/initial-skin-fem-nodes.csv",
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b"
+    },
+    {
+      "bytes": 23577,
+      "path": "source-preflight-002/launch-manifest.snapshot.json",
+      "sha256": "5dfab71eec346aaaaf2c29f6fbcd9cbc09d1998008c497fd362e086b11a1013c"
+    },
+    {
+      "bytes": 1769,
+      "path": "source-preflight-002/output/resting-coupled.csv",
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    {
+      "bytes": 2820099,
+      "path": "source-preflight-002/prepared-tangent.metal",
+      "sha256": "f36d8798b4f3b06cf0e5ccf08d9e08d6d791143900d115f0a1a0405d8b5e6b87"
+    },
+    {
+      "bytes": 73339,
+      "path": "source-preflight-002/registered-skin-poses.json",
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+    },
+    {
+      "bytes": 24135771,
+      "path": "source-preflight-002/registered-skin.csv",
+      "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524"
+    },
+    {
+      "bytes": 77097,
+      "path": "source-preflight-002/stderr.log",
+      "sha256": "4e86bdfd1eb9dea3c91bf27231e960bb76088803246b9e997a1bcd6dba547c8d"
+    },
+    {
+      "bytes": 211243,
+      "path": "source-preflight-002/stdout.log",
+      "sha256": "79961f3d2c786412614fdbb550937af369e6c195509b9e1d70a91d203df8f4cf"
+    },
+    {
+      "bytes": 1460972,
+      "path": "source-preflight-002/tissue-mass-reference.txt",
+      "sha256": "71715ff82763c53b478ada4a292f63ac01dd2c5971cf390c2e11705e96f1caec"
+    },
+    {
+      "bytes": 482016,
+      "path": "tests/d37_initial_skin_bone_witness_test",
+      "sha256": "bf38882a0896314d48c286e164871607971f4c3ce8c8ce5e0dcf23390c837011"
+    },
+    {
+      "bytes": 3842,
+      "path": "tests/d37_initial_skin_bone_witness_test.cpp",
+      "sha256": "75cea20e1cefac7490a50caf61ca9cc9366ad69846a361b450bfdbaeddd79594"
+    }
+  ],
+  "inventory_scope": "Every file under the 029 directory at freeze time, including 029analysis.json; excludes only frozen-inventory.json itself to avoid a self-referential digest.",
+  "root": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-029",
+  "schema": "numi.human.frozen-evidence-inventory.v1",
+  "total_bytes": 106364073
+}

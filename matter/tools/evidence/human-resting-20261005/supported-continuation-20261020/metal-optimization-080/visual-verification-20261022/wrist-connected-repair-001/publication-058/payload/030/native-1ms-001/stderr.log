@@ -1,0 +1,1544 @@
+dyld[52833]: <2515739D-BA83-3268-A630-E5130BF7727B> /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/build-005/numi-human-native
+dyld[52833]: <8FB38DAE-0F2A-3A7C-942E-FA84E7C166A8> /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/build-runtime-004/libmetalrobo.dylib
+dyld[52833]: <B42F81E3-AE34-34CC-AA40-F94DBFBA9FBE> /System/Library/Frameworks/Foundation.framework/Versions/C/Foundation
+dyld[52833]: <469331F5-0C68-350E-8168-A9EB0B825F6A> /usr/lib/libobjc.A.dylib
+dyld[52833]: <BF8A4F8B-F836-34DD-8E84-D47B3F9209EE> /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
+dyld[52833]: <75F116FB-478E-313B-9202-9966D319A07D> /System/Library/PrivateFrameworks/NSPredicateSecurityPolicy.framework/Versions/A/NSPredicateSecurityPolicy
+dyld[52833]: <5C88BAF2-2019-3A37-BED0-7F52B89E9EC4> /System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration
+dyld[52833]: <05FFBEA5-17E1-3DDE-BA0B-E1BB8E55E554> /usr/lib/libz.1.dylib
+dyld[52833]: <F968DE97-BB0A-3160-8727-A596A7BE0521> /System/Library/PrivateFrameworks/CoreAutoLayout.framework/Versions/A/CoreAutoLayout
+dyld[52833]: <D936E2C0-4586-3C61-A872-1037832AEA5E> /usr/lib/libcmark-gfm.dylib
+dyld[52833]: <6FB2A0E7-9505-3D12-BC5E-B0496EA1BE2A> /usr/lib/libfakelink.dylib
+dyld[52833]: <8B37DD66-F367-3A67-8971-BCBCF4A6BC3E> /usr/lib/libcompression.dylib
+dyld[52833]: <91498DBE-E3A2-3F3D-8FD1-A05A2D15C30C> /System/Library/Frameworks/CFNetwork.framework/Versions/A/CFNetwork
+dyld[52833]: <97CA5147-99B0-3C60-8A81-F364F0065639> /System/Library/Frameworks/DiskArbitration.framework/Versions/A/DiskArbitration
+dyld[52833]: <A65CA8AB-C5A0-39CC-A766-316FF45A9EAA> /usr/lib/libarchive.2.dylib
+dyld[52833]: <1CB6DFAB-B68C-37F0-B767-253F26A54DF2> /usr/lib/libDiagnosticMessagesClient.dylib
+dyld[52833]: <00835D03-F802-3FF3-BF40-7433365BAF4A> /usr/lib/libicucore.A.dylib
+dyld[52833]: <D6AFABA7-C73C-3568-BEE1-15F0F2E775DD> /usr/lib/libxml2.2.dylib
+dyld[52833]: <F8ADD6B7-62B5-3F0F-9FE7-2314D41E3251> /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices
+dyld[52833]: <020AD58C-FA7C-3085-AE78-1A96E84E1F29> /usr/lib/liblangid.dylib
+dyld[52833]: <ACFD1957-2E1E-3D2C-9897-21331C9DB7C2> /System/Library/Frameworks/IOKit.framework/Versions/A/IOKit
+dyld[52833]: <A5E56237-9450-36D9-AC1B-BBAEAE9EBCD1> /usr/lib/libSystem.B.dylib
+dyld[52833]: <56997D5B-F888-3188-AAD9-B8511715E909> /System/Library/Frameworks/Combine.framework/Versions/A/Combine
+dyld[52833]: <E4C78F7F-05E2-38AF-9458-25CE26A840BB> /System/Library/PrivateFrameworks/CollectionsInternal.framework/Versions/A/CollectionsInternal
+dyld[52833]: <3A8AE9DC-912A-38C1-A8CC-9EF2DDB9B6ED> /System/Library/PrivateFrameworks/ReflectionInternal.framework/Versions/A/ReflectionInternal
+dyld[52833]: <B9580241-B061-3406-AB31-8C1B7669BEFB> /System/Library/PrivateFrameworks/RuntimeInternal.framework/Versions/A/RuntimeInternal
+dyld[52833]: <9C6CAC56-4BC5-3233-AB1B-37800DCD210B> /System/Library/PrivateFrameworks/SoftLinking.framework/Versions/A/SoftLinking
+dyld[52833]: <1DF91E12-7DD8-3F2E-BE69-C4B62352F747> /usr/lib/swift/libswiftCore.dylib
+dyld[52833]: <C7532A29-9A67-3907-A800-5A7CB1239809> /usr/lib/swift/libswiftCoreFoundation.dylib
+dyld[52833]: <147598B5-3E9B-3497-8F66-2ADF9394FCEB> /usr/lib/swift/libswiftDarwin.dylib
+dyld[52833]: <6CA38B3C-63A5-39F8-8DF5-6AFED818A428> /usr/lib/swift/libswiftDispatch.dylib
+dyld[52833]: <CCACD706-8F07-37CE-B84E-AD7A3A1413B6> /usr/lib/swift/libswiftIOKit.dylib
+dyld[52833]: <32B4AD8F-0F8C-31D0-AAD2-8B8239ACA9E0> /usr/lib/swift/libswiftObjectiveC.dylib
+dyld[52833]: <462F474B-D640-3075-A89F-F501C2736E81> /usr/lib/swift/libswiftObservation.dylib
+dyld[52833]: <EECA5D34-4159-3936-B131-74D0FBCE552A> /usr/lib/swift/libswiftSynchronization.dylib
+dyld[52833]: <9160A18B-BD7D-376C-81A5-5DE8D25EA6A2> /usr/lib/swift/libswiftSystem.dylib
+dyld[52833]: <4371D5E4-18EB-3EEF-93F8-44E70B899ABA> /usr/lib/swift/libswiftXPC.dylib
+dyld[52833]: <2BB1B2A0-4DB3-33C0-8512-CCADFEDDF9AF> /usr/lib/swift/libswift_Builtin_float.dylib
+dyld[52833]: <F144943D-22F1-30BD-B9F9-CFA3C5670778> /usr/lib/swift/libswift_Concurrency.dylib
+dyld[52833]: <A05F2BB4-0003-3E0A-B3AF-F019E60E87E4> /usr/lib/swift/libswift_DarwinFoundation1.dylib
+dyld[52833]: <5DC89DEC-5FD0-3F69-A803-BD8E18627460> /usr/lib/swift/libswift_StringProcessing.dylib
+dyld[52833]: <580B482C-8D46-3858-83A5-3BD223940CC5> /usr/lib/swift/libswiftos.dylib
+dyld[52833]: <2768A56B-75D9-3A9E-A4F0-322975133E35> /usr/lib/objc/libobjcMsgSend.dylib
+dyld[52833]: <9ADF9E48-AC10-3D19-8AE4-73ADF3015E4E> /usr/lib/libc++abi.dylib
+dyld[52833]: <78496769-7478-387F-BAC2-0B372BA3EDA0> /usr/lib/libRosetta.dylib
+dyld[52833]: <BB934D80-43C0-373C-B5F7-A6ED45DDF13B> /usr/lib/libc++.1.dylib
+dyld[52833]: <3DF5EFB3-5FDF-3638-959D-1BEAF59CD9E1> /usr/lib/system/libcache.dylib
+dyld[52833]: <CAE1CA0A-9AEA-3D5D-8F01-A240856AF81F> /usr/lib/system/libcommonCrypto.dylib
+dyld[52833]: <65021260-0723-3C00-9D5C-AF09B9513362> /usr/lib/system/libcompiler_rt.dylib
+dyld[52833]: <D450F1FC-8B63-3360-8A26-B3F2A98E029B> /usr/lib/system/libcopyfile.dylib
+dyld[52833]: <5CE34ED6-6C95-3412-90E6-03D6A5A634C2> /usr/lib/system/libcorecrypto.dylib
+dyld[52833]: <3EFC0FCD-6B49-3299-B370-65ADA0802100> /usr/lib/system/libdispatch.dylib
+dyld[52833]: <3DAA2B5F-5B55-3C79-AFB2-56BF8C15B1BE> /usr/lib/system/libdyld.dylib
+dyld[52833]: <D2DE635F-9F9D-310C-BEDD-5D80D4F146E6> /usr/lib/system/libkeymgr.dylib
+dyld[52833]: <364CD398-68A6-3066-B32D-311927DA5332> /usr/lib/system/libmacho.dylib
+dyld[52833]: <8F493C99-2D0B-328A-B10D-9F22B60D5EFF> /usr/lib/system/libquarantine.dylib
+dyld[52833]: <75147E55-3374-3EAA-9076-3E95A33F889B> /usr/lib/system/libremovefile.dylib
+dyld[52833]: <E3BD6A0F-8D4E-3B51-B2CA-F730EAF8B288> /usr/lib/system/libsystem_asl.dylib
+dyld[52833]: <E63FE5C9-24D3-3097-8816-6742368DD02C> /usr/lib/system/libsystem_blocks.dylib
+dyld[52833]: <822187A9-92CD-3EA2-BB59-65C6A1BB0D77> /usr/lib/system/libsystem_c.dylib
+dyld[52833]: <49BE7DD7-691F-32F7-B97B-1EF19AD7C504> /usr/lib/system/libsystem_collections.dylib
+dyld[52833]: <7FAD4088-9795-377D-AF0F-5251CE9C1215> /usr/lib/system/libsystem_configuration.dylib
+dyld[52833]: <86EAA04B-F3F4-3B7B-8F81-E82CD7BE71AF> /usr/lib/system/libsystem_containermanager.dylib
+dyld[52833]: <EF5BF375-E9AC-3A47-BC34-B1E79DD6B85A> /usr/lib/system/libsystem_coreservices.dylib
+dyld[52833]: <5F81FA8E-F519-3892-BA8C-489DD2F1240C> /usr/lib/system/libsystem_darwin.dylib
+dyld[52833]: <FBA1E4E3-72B1-3D9D-8A5F-1EAC3894C1EF> /usr/lib/system/libsystem_darwindirectory.dylib
+dyld[52833]: <5B22EF34-7CFF-3DE0-9662-218EDA44EE1F> /usr/lib/system/libsystem_dnssd.dylib
+dyld[52833]: <D80EF6F0-E651-3E74-B908-66787D24736E> /usr/lib/system/libsystem_eligibility.dylib
+dyld[52833]: <32D49061-BAE0-3E12-929E-BF7FF707E478> /usr/lib/system/libsystem_featureflags.dylib
+dyld[52833]: <14556EEC-52F5-34AE-B476-8F8D17BC5A12> /usr/lib/system/libsystem_info.dylib
+dyld[52833]: <2A375CA6-658A-3233-A24E-F7B85DE26D49> /usr/lib/system/libsystem_m.dylib
+dyld[52833]: <5B02126A-A861-3F34-84F3-C0FB32A99093> /usr/lib/system/libsystem_malloc.dylib
+dyld[52833]: <65589133-B0EB-32F0-B2E5-35358D41EF24> /usr/lib/system/libsystem_networkextension.dylib
+dyld[52833]: <3E473D76-5DDF-3D0B-9526-7E628D02326F> /usr/lib/system/libsystem_notify.dylib
+dyld[52833]: <343E5445-22CA-31F9-B663-3A860C6511EC> /usr/lib/system/libsystem_sandbox.dylib
+dyld[52833]: <AE1A1EDB-0FD3-303F-B609-AA32BFC6525F> /usr/lib/system/libsystem_sanitizers.dylib
+dyld[52833]: <41613DD9-F4DF-3E5C-B782-A14219DE2E5E> /usr/lib/system/libsystem_secinit.dylib
+dyld[52833]: <215799FC-408F-314D-8085-F59EF059135E> /usr/lib/system/libsystem_kernel.dylib
+dyld[52833]: <015F8F2B-73ED-3B1E-B9B8-9A407A8C4D6A> /usr/lib/system/libsystem_platform.dylib
+dyld[52833]: <B70220C6-9BED-395B-A68D-74410436AE0F> /usr/lib/system/libsystem_pthread.dylib
+dyld[52833]: <4F430327-9E7F-3190-8386-AD90AA9C6C5B> /usr/lib/system/libsystem_symptoms.dylib
+dyld[52833]: <D5E4B788-A179-34F6-8FB5-2C53A1790186> /usr/lib/system/libsystem_trace.dylib
+dyld[52833]: <7E9E7F32-CABD-3244-89C6-0FE3B289E822> /usr/lib/system/libsystem_trial.dylib
+dyld[52833]: <BBA63515-6BCA-3D66-9242-1D86E06262FF> /usr/lib/system/libunwind.dylib
+dyld[52833]: <AF476F31-B2BA-3FD8-BBF3-600DD9C85FB7> /usr/lib/system/libxpc.dylib
+dyld[52833]: <421C5B30-DEC2-3422-BD85-A7416126B5B7> /System/Library/PrivateFrameworks/CoreServicesInternal.framework/Versions/A/CoreServicesInternal
+dyld[52833]: <78496769-7478-387F-BAC2-0B372BA3EDA0> /usr/lib/liboah.dylib
+dyld[52833]: <BE273638-BA7D-3819-A41F-93DA2FCE2962> /System/Library/Frameworks/Security.framework/Versions/A/Security
+dyld[52833]: <33AABFFC-0B2B-3F01-96E9-8B5D692F07C0> /System/Library/PrivateFrameworks/DiskImages.framework/Versions/A/DiskImages
+dyld[52833]: <628D2D5C-8A38-30A7-B8D3-2DB886C82B5A> /System/Library/Frameworks/NetFS.framework/Versions/A/NetFS
+dyld[52833]: <04ED03A9-9510-3CAA-86D4-1F27330D8D3D> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/FSEvents
+dyld[52833]: <FEC8B325-B186-3D4D-9FC0-AD74C9D7E24C> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/CarbonCore
+dyld[52833]: <9226662D-3CE7-3389-9883-8B3337322B67> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Metadata
+dyld[52833]: <5ABFFB3F-EBF5-3B4C-A76A-42CFC7855DDC> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/OSServices.framework/Versions/A/OSServices
+dyld[52833]: <AD63CB18-B9E1-3F4B-A1F4-24CD4FE70F08> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/SearchKit.framework/Versions/A/SearchKit
+dyld[52833]: <EAC2B953-BFCE-3801-B312-00E01E2EA9F5> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/AE.framework/Versions/A/AE
+dyld[52833]: <711DF208-5C37-36F1-B148-9B9A5F64BACA> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/LaunchServices
+dyld[52833]: <5ED28C7D-E595-30EC-BEDC-A4B75E6C1C0A> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/DictionaryServices.framework/Versions/A/DictionaryServices
+dyld[52833]: <7BD05377-6381-3ADC-A6B2-9A0F424A6C04> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/SharedFileList.framework/Versions/A/SharedFileList
+dyld[52833]: <8B12FDCF-77B6-3BCC-B10F-B3B6B1E74A69> /usr/lib/libapple_nghttp2.dylib
+dyld[52833]: <0CA7087F-3E80-3D21-B33B-DE92BBBFC64D> /usr/lib/libsqlite3.dylib
+dyld[52833]: <3AF73DF0-E2D7-322D-A459-7747E240D058> /System/Library/Frameworks/Network.framework/Versions/A/Network
+dyld[52833]: <13F7409D-A136-302C-9BB1-99467A54C7B6> /usr/lib/libenergytrace.dylib
+dyld[52833]: <334F39FB-B9A1-397D-AD82-182D3A129C0C> /usr/lib/libbsm.0.dylib
+dyld[52833]: <45983851-AAB6-3087-9598-8FA4AA76935E> /usr/lib/system/libkxld.dylib
+dyld[52833]: <49BD0707-2DDC-3D67-9D31-6CB468E62A2F> /System/Library/PrivateFrameworks/AppleKeyStore.framework/Versions/A/AppleKeyStore
+dyld[52833]: <C1EEDEB5-1FA7-358F-BE3E-4377A7951CCB> /usr/lib/libCoreEntitlements.dylib
+dyld[52833]: <4242C7D0-A666-33EE-B919-2351ECD18C3D> /usr/lib/libTLE.dylib
+dyld[52833]: <45317D8F-D43C-3C30-84E7-34C469EE6947> /System/Library/PrivateFrameworks/MessageSecurity.framework/Versions/A/MessageSecurity
+dyld[52833]: <96B4CCB3-0C02-3F50-8F54-02FB131345ED> /System/Library/PrivateFrameworks/ProtocolBuffer.framework/Versions/A/ProtocolBuffer
+dyld[52833]: <2E22720A-35AF-3CF4-A006-8483414789F8> /System/Library/PrivateFrameworks/SymptomDiagnosticReporter.framework/Versions/A/SymptomDiagnosticReporter
+dyld[52833]: <1E23FBB8-01CC-3444-BDC5-7F19B4F6EB53> /System/Library/PrivateFrameworks/CrashReporterSupport.framework/Versions/A/CrashReporterSupport
+dyld[52833]: <03F930C8-12EE-33DB-B2FC-042C9C15C403> /System/Library/PrivateFrameworks/CoreAnalytics.framework/Versions/A/CoreAnalytics
+dyld[52833]: <C5E66C81-8021-375D-81A3-045371E09FCF> /System/Library/PrivateFrameworks/CoreTime.framework/Versions/A/CoreTime
+dyld[52833]: <57589BF0-E84C-3F6F-AA5D-62A4307DD8C0> /usr/lib/libMobileGestalt.dylib
+dyld[52833]: <39CD819A-0C6A-3824-8E59-F5CE4439AF40> /System/Library/PrivateFrameworks/AppleFSCompression.framework/Versions/A/AppleFSCompression
+dyld[52833]: <9F5B538B-2115-3EA9-87DF-0601ED466A7E> /usr/lib/libcoretls.dylib
+dyld[52833]: <93A40E0C-3CF5-3CD9-A06E-8BD7B1ED6305> /usr/lib/libcoretls_cfhelpers.dylib
+dyld[52833]: <7EAB3777-A356-3DF2-9919-4826DD3D792A> /usr/lib/libpam.2.dylib
+dyld[52833]: <115C3C3B-EC3F-319A-A9FE-CC0F6DB7F84B> /usr/lib/libxar.1.dylib
+dyld[52833]: <ADC3534D-FE03-3D62-B0F9-2DA96E1CFDB2> /System/Library/PrivateFrameworks/APFS.framework/Versions/A/APFS
+dyld[52833]: <606D1A53-6E04-316E-989C-BDA33A74EFF1> /System/Library/PrivateFrameworks/SwiftASN1Internal.framework/Versions/A/SwiftASN1Internal
+dyld[52833]: <A4BD2559-FA09-3294-AF10-9B907B2F63A0> /usr/lib/libutil.dylib
+dyld[52833]: <8D6F3C57-A1A2-3B54-9AC3-E59216C4E880> /usr/lib/libswiftPrespecialized.dylib
+dyld[52833]: <FEEAB68A-F21F-38CE-AA26-C8CCE7997F31> /System/Library/PrivateFrameworks/AppleSystemInfo.framework/Versions/A/AppleSystemInfo
+dyld[52833]: <ACC6EEAD-92F1-345A-991F-E0DAB07E7EFA> /System/Library/PrivateFrameworks/IOMobileFramebuffer.framework/Versions/A/IOMobileFramebuffer
+dyld[52833]: <A07DC130-0E07-39D3-831A-3FFE13FEC9D4> /System/Library/Frameworks/IOSurface.framework/Versions/A/IOSurface
+dyld[52833]: <1EDA3010-BECF-379A-B485-727C83E3029F> /System/Library/PrivateFrameworks/ConnectedMode.framework/Versions/A/ConnectedMode
+dyld[52833]: <82C99A2E-1BF8-3184-9B4A-606666A0C855> /System/Library/Frameworks/SwiftData.framework/Versions/A/SwiftData
+dyld[52833]: <7007374E-3C12-3535-809A-17C614506BBD> /usr/lib/libboringssl.dylib
+dyld[52833]: <48FB0FAE-E38D-33A5-A731-2A4414A77E78> /usr/lib/libdns_services.dylib
+dyld[52833]: <7984FF38-2CF5-3058-85AA-47A30208217B> /usr/lib/libquic.dylib
+dyld[52833]: <05B04C74-007A-3BB1-8486-A901D0CE5F0E> /usr/lib/libusrtcp.dylib
+dyld[52833]: <64B04173-5ECC-3563-B250-17C86F232B90> /System/Library/PrivateFrameworks/AtomicsInternal.framework/Versions/A/AtomicsInternal
+dyld[52833]: <A78FD9CF-7405-360D-A248-6541174A0EB6> /System/Library/PrivateFrameworks/InternalSwiftProtobuf.framework/Versions/A/InternalSwiftProtobuf
+dyld[52833]: <36402F53-7FD5-3FA0-82D7-7E3DD4EB62D0> /usr/lib/swift/libswiftDistributed.dylib
+dyld[52833]: <8354F060-85EC-3118-8B47-2A0F92B542B8> /System/Library/Frameworks/CoreData.framework/Versions/A/CoreData
+dyld[52833]: <73BB2A95-9499-3EB9-85C9-295D407EE837> /System/Library/PrivateFrameworks/FeatureFlags.framework/Versions/A/FeatureFlags
+dyld[52833]: <97B3126F-9135-3E45-916B-D75DDE582891> /usr/lib/liblzma.5.dylib
+dyld[52833]: <100CB8DF-3790-34C4-BA41-3EF98686A71B> /usr/lib/swift/libswift_DarwinFoundation2.dylib
+dyld[52833]: <23B2F061-4435-3FB5-9640-FB00DF4BECC8> /usr/lib/swift/libswift_DarwinFoundation3.dylib
+dyld[52833]: <43D6678F-9248-35D0-A6FD-DF1F504CF90C> /usr/lib/swift/libswift_RegexParser.dylib
+dyld[52833]: <C9392B63-4E74-3305-978C-8920CECE52DC> /usr/lib/libheimdal-asn1.dylib
+dyld[52833]: <122A3791-5155-3E79-AD23-A9840EAD4528> /System/Library/PrivateFrameworks/AppleSauce.framework/Versions/A/AppleSauce
+dyld[52833]: <4D34A064-BCFF-3790-8F86-D5CEFD7B08C1> /System/Library/PrivateFrameworks/OSAnalytics.framework/Versions/A/OSAnalytics
+dyld[52833]: <930BE8B7-A44B-3525-B59A-C5E2CE080EE9> /System/Library/PrivateFrameworks/DeviceRecovery.framework/Versions/A/DeviceRecovery
+dyld[52833]: <3DA62E1E-DB91-33F6-9E77-8DB130C63EB9> /System/Library/PrivateFrameworks/CoreSymbolication.framework/Versions/A/CoreSymbolication
+dyld[52833]: <D05B97E5-A7BE-3A26-B48A-F2273C69A720> /System/Library/PrivateFrameworks/Symbolication.framework/Versions/A/Symbolication
+dyld[52833]: <39E52D4B-639C-35A3-9EFC-1E0A17F61975> /System/Library/PrivateFrameworks/DebugSymbols.framework/Versions/A/DebugSymbols
+dyld[52833]: <76553ACC-DEC0-3CD4-AF36-4628F3F91FA7> /usr/lib/libAppleArchive.dylib
+dyld[52833]: <D5771B35-E71C-30AD-9C27-284391A3691D> /usr/lib/libbz2.1.0.dylib
+dyld[52833]: <4A20DAEB-7D36-3159-B1B0-475693E7257B> /System/Library/PrivateFrameworks/MallocStackLogging.framework/Versions/A/MallocStackLogging
+dyld[52833]: <E1E4C171-4BB8-3575-8D73-662E6AEF3C18> /usr/lib/libCheckFix.dylib
+dyld[52833]: <CC461438-BE0F-3636-B7A5-38259928352A> /System/Library/PrivateFrameworks/TCC.framework/Versions/A/TCC
+dyld[52833]: <A32711F9-2744-344A-86E0-70690B9FF78A> /System/Library/PrivateFrameworks/CoreNLP.framework/Versions/A/CoreNLP
+dyld[52833]: <F6096A9B-4FAB-3657-BA88-B0D33D0AF9BD> /System/Library/PrivateFrameworks/MetadataUtilities.framework/Versions/A/MetadataUtilities
+dyld[52833]: <068E9BD5-96C4-3ECB-B949-F2B6A34762B3> /System/Library/Frameworks/Accelerate.framework/Versions/A/Accelerate
+dyld[52833]: <88DB8270-B3CB-3498-976D-80E2C92EB648> /usr/lib/libmecab.dylib
+dyld[52833]: <96BC7203-5898-3E75-9B8E-16B7511B3ABA> /usr/lib/libCRFSuite.dylib
+dyld[52833]: <E1EA695F-2A1E-3087-83F0-74BC0BB57C6F> /usr/lib/libgermantok.dylib
+dyld[52833]: <FB5783D8-57EC-35D8-8D14-6BAA83848274> /usr/lib/libThaiTokenizer.dylib
+dyld[52833]: <BEB2211B-91F8-3C08-AC14-5AD61AEB704D> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vImage.framework/Versions/A/vImage
+dyld[52833]: <22241C4B-DC1E-3EF7-B467-6FB7CE742298> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/vecLib
+dyld[52833]: <D300FEE8-A84F-3717-8325-ED8C55050F26> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvMisc.dylib
+dyld[52833]: <3B754651-9A5D-3D90-A297-16779741D260> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vImage.framework/Versions/A/Libraries/libCGInterfaces.dylib
+dyld[52833]: <E494CA04-497D-3172-A0B2-8E6BB5D77B83> /System/Library/PrivateFrameworks/AccelerateGPU.framework/Versions/A/AccelerateGPU
+dyld[52833]: <81C0E179-5227-3AA0-93CB-150782AAB18D> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+dyld[52833]: <9BD6F35F-61EC-3540-89CE-E4DFF365D3AB> /System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices
+dyld[52833]: <19280F4A-A7D7-3740-AB05-1457F8B0DDFB> /System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo
+dyld[52833]: <7E72557A-F12A-30A6-ABDF-C86C3489A191> /System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync
+dyld[52833]: <4F8B5B95-20C2-3CC2-8484-7C43E9B43E21> /System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics
+dyld[52833]: <68FBFFB9-C74D-3AA5-A184-0AB65649117C> /System/Library/Frameworks/CoreText.framework/Versions/A/CoreText
+dyld[52833]: <80F733A5-9723-368B-9B21-76233DDB91A2> /System/Library/Frameworks/ImageIO.framework/Versions/A/ImageIO
+dyld[52833]: <D4A6FE81-545E-38A2-B69A-71435EE34438> /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/ATS
+dyld[52833]: <2FA7E23D-C91A-39C4-8273-05F87C6A72F1> /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/HIServices
+dyld[52833]: <2AA26D61-0D2B-3C1A-9BED-CFD41B637717> /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/PrintCore
+dyld[52833]: <0F762385-ED4D-32CC-AF91-B3AE6C8B0F86> /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/QD.framework/Versions/A/QD
+dyld[52833]: <2B057A30-DDAB-3E5D-A506-BF455B5B95A1> /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ColorSyncLegacy.framework/Versions/A/ColorSyncLegacy
+dyld[52833]: <0E786D71-3E0F-3E80-B019-98CBD904C3F4> /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/SpeechSynthesis.framework/Versions/A/SpeechSynthesis
+dyld[52833]: <60FBB24F-16F4-3D26-8BD2-CADA77465B18> /System/Library/PrivateFrameworks/SkyLight.framework/Versions/A/SkyLight
+dyld[52833]: <7F164D0F-15C0-3006-BD15-BA2A997B083F> /System/Library/PrivateFrameworks/TextRecognition.framework/Versions/A/TextRecognition
+dyld[52833]: <DD7E152F-DC97-3CB3-BB16-EDA21A5FFD44> /System/Library/PrivateFrameworks/FontServices.framework/libFontParser.dylib
+dyld[52833]: <E439F70A-1296-3F25-949C-B41D36A389C4> /System/Library/PrivateFrameworks/BiomeLibrary.framework/Versions/A/BiomeLibrary
+dyld[52833]: <8E26F66B-B42B-3529-9E86-283FB292E778> /System/Library/PrivateFrameworks/BaseBoard.framework/Versions/A/BaseBoard
+dyld[52833]: <6D360785-AC41-39B7-AFD1-E746C3D6C3D1> /System/Library/PrivateFrameworks/BoardServices.framework/Versions/A/BoardServices
+dyld[52833]: <89D162BC-6C02-3B1E-8235-8726C547C905> /System/Library/PrivateFrameworks/BackBoardServices.framework/Versions/A/BackBoardServices
+dyld[52833]: <4E585105-B0B3-3188-B9C8-F10314BB6A32> /System/Library/PrivateFrameworks/BackBoardHIDEventFoundation.framework/Versions/A/BackBoardHIDEventFoundation
+dyld[52833]: <C61D31EA-AAF2-3E07-8C4F-502D69ED5D4B> /System/Library/Frameworks/CoreDisplay.framework/Versions/A/CoreDisplay
+dyld[52833]: <BE9A42D2-A8DE-3C80-9128-58C9A0E456D5> /System/Library/Frameworks/VideoToolbox.framework/Versions/A/VideoToolbox
+dyld[52833]: <7325132A-6CD6-3E36-818D-9DA6C4BC79C5> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/MetalPerformanceShaders
+dyld[52833]: <76006D23-0C1E-3032-973F-17C63B8DCDAC> /System/Library/PrivateFrameworks/ProDisplayLibrary.framework/Versions/A/ProDisplayLibrary
+dyld[52833]: <4B0DEAAC-E3BC-3CB2-A9DA-4FB488EF2CCE> /System/Library/PrivateFrameworks/IOSurfaceAccelerator.framework/Versions/A/IOSurfaceAccelerator
+dyld[52833]: <2A53D082-C2A4-3B34-A68D-19CDA0D46975> /System/Library/PrivateFrameworks/RunningBoardServices.framework/Versions/A/RunningBoardServices
+dyld[52833]: <91BC9ED7-D6B3-3F47-BEE2-8AE7E8CEA456> /System/Library/Frameworks/Metal.framework/Versions/A/Metal
+dyld[52833]: <17EA12B1-5DEF-3DE3-A93F-3B3C0044E232> /System/Library/PrivateFrameworks/IOAccelerator.framework/Versions/A/IOAccelerator
+dyld[52833]: <565F91A0-11ED-3136-B0B1-BEC6E0FD0A4E> /System/Library/Frameworks/CoreMedia.framework/Versions/A/CoreMedia
+dyld[52833]: <578E0CEB-6D41-3ACE-9F12-61D61036FAAD> /usr/lib/libSMC.dylib
+dyld[52833]: <7D2DD1B5-37C6-325F-BA7B-585DA968BAD8> /System/Library/PrivateFrameworks/WatchdogClient.framework/Versions/A/WatchdogClient
+dyld[52833]: <A700955F-C882-3D69-A5F9-50AAFDED35EC> /System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore
+dyld[52833]: <1DAEB7E5-62DE-35CA-9C63-C214DE18F488> /System/Library/PrivateFrameworks/MultitouchSupport.framework/Versions/A/MultitouchSupport
+dyld[52833]: <C7D38F0E-D5E0-3CED-9E14-AD2EF3B82C71> /System/Library/PrivateFrameworks/BackBoardHIDTouchEventProcessor.framework/Versions/A/BackBoardHIDTouchEventProcessor
+dyld[52833]: <25E3C1C5-9DE2-3494-94FA-49F7FAAC77E3> /System/Library/PrivateFrameworks/Gestures.framework/Versions/A/Gestures
+dyld[52833]: <D0585376-2EE3-3269-81E9-F78251A7861A> /usr/lib/swift/libswiftAccelerate.dylib
+dyld[52833]: <2DCB5741-09E6-31EF-BD41-4D8D84876F50> /usr/lib/swift/libswiftCoreAudio.dylib
+dyld[52833]: <4759C05C-A503-3E15-82E3-20EC3C326D19> /usr/lib/swift/libswiftMetal.dylib
+dyld[52833]: <23ADAEE8-2C09-3149-8E7E-C820C2995306> /usr/lib/swift/libswiftOSLog.dylib
+dyld[52833]: <60C4FFB3-CCAC-3BBE-AB68-9D6106B1A41B> /usr/lib/swift/libswiftQuartzCore.dylib
+dyld[52833]: <31607FB3-DDF1-317D-91AA-16D9AA7EBCC3> /usr/lib/swift/libswiftUniformTypeIdentifiers.dylib
+dyld[52833]: <894C6EAC-9ABC-340A-B216-353C0D9838DE> /usr/lib/swift/libswiftsimd.dylib
+dyld[52833]: <578036AC-E1AC-3838-BB48-1E6D72BEC76D> /System/Library/PrivateFrameworks/BiomeStreams.framework/Versions/A/BiomeStreams
+dyld[52833]: <2226F6CC-78F4-37AD-B6D2-F912AC3789B7> /System/Library/PrivateFrameworks/BiomeStorage.framework/Versions/A/BiomeStorage
+dyld[52833]: <A3B3335B-1A3F-3A11-9D89-411516219711> /System/Library/PrivateFrameworks/BiomeFoundation.framework/Versions/A/BiomeFoundation
+dyld[52833]: <23729E3F-7985-39CD-A2B5-1AE41D204477> /System/Library/PrivateFrameworks/IntelligencePlatformLibrary.framework/Versions/A/IntelligencePlatformLibrary
+dyld[52833]: <6673B51A-8CEE-3084-9CE1-BDD36A12ED1B> /System/Library/PrivateFrameworks/PoirotSchematizer.framework/Versions/A/PoirotSchematizer
+dyld[52833]: <D6CBC280-6000-30E2-876C-0782887014A7> /System/Library/PrivateFrameworks/BiomeSync.framework/Versions/A/BiomeSync
+dyld[52833]: <3237E308-006B-3000-8BCA-8B2B6D2F3174> /System/Library/PrivateFrameworks/BiomeDSL.framework/Versions/A/BiomeDSL
+dyld[52833]: <171202CF-F0A2-3766-921F-348F511D47B9> /System/Library/PrivateFrameworks/BiomePubSub.framework/Versions/A/BiomePubSub
+dyld[52833]: <11C6EA51-1186-3615-A32C-4329E1969901> /System/Library/PrivateFrameworks/LoggingSupport.framework/Versions/A/LoggingSupport
+dyld[52833]: <A2C0E95C-FBBE-3AE2-B4A5-C9701B410BC6> /System/Library/PrivateFrameworks/ProactiveSupport.framework/Versions/A/ProactiveSupport
+dyld[52833]: <FF8B2B4B-F86C-3487-B40D-6509814970FA> /System/Library/PrivateFrameworks/PoirotUDFs.framework/Versions/A/PoirotUDFs
+dyld[52833]: <54C32ACD-C749-38DB-A418-E4863A9D678F> /System/Library/PrivateFrameworks/MobileAsset.framework/Versions/A/MobileAsset
+dyld[52833]: <89D333F1-E8D5-32C2-892B-6BCCD2B23221> /System/Library/PrivateFrameworks/MobileKeyBag.framework/Versions/A/MobileKeyBag
+dyld[52833]: <E4EA601B-9112-3423-A8EA-417AE942766C> /System/Library/PrivateFrameworks/InternationalTextSearch.framework/Versions/A/InternationalTextSearch
+dyld[52833]: <2FEB5285-D304-3E6E-8CC0-7136A8BD5185> /System/Library/PrivateFrameworks/SoftwareUpdateCoreSupport.framework/Versions/A/SoftwareUpdateCoreSupport
+dyld[52833]: <F9802162-093A-3628-9921-D0AF23D9FBE4> /System/Library/PrivateFrameworks/SoftwareUpdateCoreConnect.framework/Versions/A/SoftwareUpdateCoreConnect
+dyld[52833]: <914064B1-F085-39ED-B8FE-ECE90054D126> /System/Library/PrivateFrameworks/StreamingZip.framework/Versions/A/StreamingZip
+dyld[52833]: <6FA530FD-D84B-37EF-975F-F938F4267B8E> /System/Library/PrivateFrameworks/RemoteServiceDiscovery.framework/Versions/A/RemoteServiceDiscovery
+dyld[52833]: <3118065A-D522-3136-A12A-63A816BCA585> /System/Library/PrivateFrameworks/MSUDataAccessor.framework/Versions/A/MSUDataAccessor
+dyld[52833]: <23090040-613C-3306-920E-4AB1EA690D6E> /usr/lib/libbootpolicy.dylib
+dyld[52833]: <25370C99-BAD1-3337-81FD-196E42A21796> /System/Library/PrivateFrameworks/UserManagement.framework/Versions/A/UserManagement
+dyld[52833]: <B5E4860C-89AE-3EF1-BF4D-A15FEB7BA9D1> /usr/lib/libpartition2_dynamic.dylib
+dyld[52833]: <468BB2D5-028D-36DC-B247-00B115CD083D> /System/Library/PrivateFrameworks/RemoteXPC.framework/Versions/A/RemoteXPC
+dyld[52833]: <5C091305-A23E-3AC7-B9D4-5FDE9C5353E4> /usr/lib/libFDR.dylib
+dyld[52833]: <9041F65F-B244-3786-A7A1-DDCDC3D05D12> /usr/lib/libamsupport.dylib
+dyld[52833]: <26015E4C-D24D-3FF4-91E8-67EA1302E4EC> /usr/lib/libReverseProxyDevice.dylib
+dyld[52833]: <E71EF840-744F-3BD1-93DC-860F91BE3E98> /System/Library/PrivateFrameworks/AppleDeviceQuerySupport.framework/Versions/A/AppleDeviceQuerySupport
+dyld[52833]: <E53E87E6-0448-349D-B9CB-47116C036FCA> /System/Library/PrivateFrameworks/AggregateDictionary.framework/Versions/A/AggregateDictionary
+dyld[52833]: <25C3E80C-3993-3611-9D60-1E28CEA2D168> /usr/lib/libiconv.2.dylib
+dyld[52833]: <2BC0DC19-C7C3-33C8-881C-E1E9565CBF6F> /usr/lib/libcharset.1.dylib
+dyld[52833]: <5EEA9300-903A-3C9D-AD6C-143F474D074F> /System/Library/PrivateFrameworks/PoirotSQLite.framework/Versions/A/PoirotSQLite
+dyld[52833]: <BF3D1C18-6C67-3953-8759-59A345A7368E> /System/Library/PrivateFrameworks/CascadeSets.framework/Versions/A/CascadeSets
+dyld[52833]: <C7908019-8938-3625-9B86-8516B9DAEA9A> /System/Library/PrivateFrameworks/AppSupport.framework/Versions/A/AppSupport
+dyld[52833]: <38EFCBF5-BA60-33A8-A13F-8BCA7679BA1D> /System/Library/PrivateFrameworks/CorePhoneNumbers.framework/Versions/A/CorePhoneNumbers
+dyld[52833]: <DB9DCC16-D2F1-352E-BC91-88611A54E436> /System/Library/PrivateFrameworks/AppleJPEG.framework/Versions/A/AppleJPEG
+dyld[52833]: <4D176250-D1E2-308C-9217-0B93A9461EB0> /usr/lib/libexpat.1.dylib
+dyld[52833]: <0D16CF3B-DA9A-3FB9-A9A1-9AB8BB7F40BE> /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libPng.dylib
+dyld[52833]: <B4F10836-0179-32F9-8D62-B3D7FA800C57> /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libTIFF.dylib
+dyld[52833]: <7F76C1C8-72D0-3F48-8C0D-2982EB3CCB87> /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libGIF.dylib
+dyld[52833]: <DB65F857-C412-32B9-AEAC-A43F2845AB1C> /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libJP2.dylib
+dyld[52833]: <72E38849-AD8F-384F-80B4-6C88CE1BDBA8> /usr/lib/libate.dylib
+dyld[52833]: <A79FA9B9-5836-30D3-9C24-9F91D2894364> /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libJPEG.dylib
+dyld[52833]: <814158E0-8A46-3E2B-BD07-AD2B86B51772> /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libRadiance.dylib
+dyld[52833]: <9E30B17C-0887-3751-BBFE-75217A1B7252> /usr/lib/swift/libswiftRegexBuilder.dylib
+dyld[52833]: <52E4E667-ED39-3A1E-8444-6A43308B327F> /System/Library/PrivateFrameworks/GPUCompiler.framework/Versions/32023/Libraries/libllvm-flatbuffers.dylib
+dyld[52833]: <B13D7625-28A1-3965-A29A-BE5DDAC7ABBD> /System/Library/PrivateFrameworks/FramePacing.framework/Versions/A/FramePacing
+dyld[52833]: <83549AE1-C0C0-3069-88DA-3B7B5F75A3E4> /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCoreFSCache.dylib
+dyld[52833]: <C150F7E0-2E5D-3100-8CBD-9193919CE9F5> /System/Library/PrivateFrameworks/GPUCompiler.framework/Versions/32023/Libraries/libGPUCompilerUtils.dylib
+dyld[52833]: <7EC6A90E-1F52-38A3-9F69-0A0E32544424> /System/Library/Frameworks/UniformTypeIdentifiers.framework/Versions/A/UniformTypeIdentifiers
+dyld[52833]: <787823C8-5B5B-3870-BD9F-F53030DE2F4F> /System/Library/Frameworks/ExtensionFoundation.framework/Versions/A/ExtensionFoundation
+dyld[52833]: <D38E40C3-AB76-3F32-B922-1ABFD2883612> /System/Library/PrivateFrameworks/AppServerSupport.framework/Versions/A/AppServerSupport
+dyld[52833]: <34165B82-A9AC-35B8-A379-E1C04C285EDD> /System/Library/PrivateFrameworks/OSEligibility.framework/Versions/A/OSEligibility
+dyld[52833]: <6BC6EE73-5C0C-3AB9-8959-9A8AE5E5A30F> /System/Library/Frameworks/LightweightCodeRequirements.framework/Versions/A/LightweightCodeRequirements
+dyld[52833]: <D8E5AF0F-F2E4-35BB-984D-5B613D1CE20A> /System/Library/PrivateFrameworks/PlugInKit.framework/Versions/A/PlugInKit
+dyld[52833]: <AF7C7306-4689-3CBD-9EC7-95C46E8CCADE> /System/Library/PrivateFrameworks/AssertionServices.framework/Versions/A/AssertionServices
+dyld[52833]: <13808B49-79C4-3D76-9D0B-F25B1DD13919> /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL
+dyld[52833]: <21381532-9057-3AA8-A7B0-4FC3E13BF229> /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLU.dylib
+dyld[52833]: <73F3494A-3487-3C05-AC67-48707970A652> /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGFXShared.dylib
+dyld[52833]: <09ACF00A-2154-3E3A-B659-E61FC55ED1EE> /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
+dyld[52833]: <7E719203-AB83-37FE-9C8C-D32556266876> /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLImage.dylib
+dyld[52833]: <3426296F-4D46-3C63-BAB5-F304A84B8C01> /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCVMSPluginSupport.dylib
+dyld[52833]: <E6079830-6328-33A5-95B2-15359869BB40> /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCoreVMClient.dylib
+dyld[52833]: <915BB326-EFAE-3AC5-A15D-E6C91816CA7B> /System/Library/Frameworks/OSLog.framework/Versions/A/OSLog
+dyld[52833]: <BE3C0564-66A3-378C-8959-FC053A35B18D> /System/Library/Frameworks/CoreImage.framework/Versions/A/CoreImage
+dyld[52833]: <4AA4937C-DC9D-3980-ABCC-177035422ACA> /System/Library/PrivateFrameworks/ASEProcessing.framework/Versions/A/ASEProcessing
+dyld[52833]: <C0A5D8BC-340B-36DB-A099-4FD72DE50C41> /System/Library/PrivateFrameworks/PhotosensitivityProcessing.framework/Versions/A/PhotosensitivityProcessing
+dyld[52833]: <B0493002-4889-3DB8-883A-EF4F60F8B2F4> /System/Library/PrivateFrameworks/TimeSync.framework/Versions/A/TimeSync
+dyld[52833]: <EA2C3460-B86F-3C88-810D-59C6B806D7D0> /System/Library/PrivateFrameworks/AppleMSG.framework/Versions/A/AppleMSG
+dyld[52833]: <7506DE06-1FEF-3338-A888-4854595AA212> /System/Library/PrivateFrameworks/SILManager.framework/Versions/A/SILManager
+dyld[52833]: <4DAADFAB-1272-3FDA-A0B9-FFDACCA3C602> /System/Library/PrivateFrameworks/GraphVisualizer.framework/Versions/A/GraphVisualizer
+dyld[52833]: <8591FBCA-62F7-3FE3-893C-2FE9C084D4EB> /System/Library/PrivateFrameworks/FontServices.framework/Versions/A/FontServices
+dyld[52833]: <B7B3D233-76F7-329C-A9AD-5E865B767E6D> /System/Library/PrivateFrameworks/OTSVG.framework/Versions/A/OTSVG
+dyld[52833]: <B02A16FB-C9B7-38A1-BFC6-12506A969239> /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Resources/libFontRegistry.dylib
+dyld[52833]: <38950451-5A48-3392-966F-1B98E87A7FBF> /usr/lib/libhvf.dylib
+dyld[52833]: <E55DEE77-5CCB-3CD2-A759-FFF4D0CE11C8> /System/Library/PrivateFrameworks/ParsingInternal.framework/Versions/A/ParsingInternal
+dyld[52833]: <9605762F-6829-3ECB-847B-EBCC8A3F975F> /System/Library/PrivateFrameworks/FontServices.framework/libXTFontStaticRegistryData.dylib
+dyld[52833]: <55496DC0-7484-37C1-822A-553AA608768C> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSCore.framework/Versions/A/MPSCore
+dyld[52833]: <2C9EC222-3962-3663-A09E-05033433540A> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSImage.framework/Versions/A/MPSImage
+dyld[52833]: <8C100B0C-8676-340F-AA80-CF6F108F8D2C> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSNeuralNetwork.framework/Versions/A/MPSNeuralNetwork
+dyld[52833]: <4EA8CE1D-C398-35D5-9F14-BEC8969C2E93> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSMatrix.framework/Versions/A/MPSMatrix
+dyld[52833]: <32E2C73A-6D3B-3422-85F2-5756BC9F239B> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSRayIntersector.framework/Versions/A/MPSRayIntersector
+dyld[52833]: <74640204-BFB0-311C-8ECA-50321057FAB9> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSNDArray.framework/Versions/A/MPSNDArray
+dyld[52833]: <04A678D4-47E9-33A6-924D-BC14E43F32C3> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSFunctions.framework/Versions/A/MPSFunctions
+dyld[52833]: <3033D376-1AFD-3106-A7A0-87CE64C67AD4> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSBenchmarkLoop.framework/Versions/A/MPSBenchmarkLoop
+dyld[52833]: <5A28C37F-95FA-326C-95E8-CCBBC530576A> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSHost.framework/Versions/A/MPSHost
+dyld[52833]: <4A8601FF-1168-3BEC-AD39-B37DFDECAB10> /System/Library/PrivateFrameworks/MetalTools.framework/Versions/A/MetalTools
+dyld[52833]: <3E43AD6C-EE45-3A65-B3F0-334E792529F1> /System/Library/PrivateFrameworks/MTL3On4.framework/Versions/A/MTL3On4
+dyld[52833]: <C96DC593-9622-3C88-A93F-99B5C712E8EF> /System/Library/PrivateFrameworks/IOAccelMemoryInfo.framework/Versions/A/IOAccelMemoryInfo
+dyld[52833]: <582F8EA9-1C88-3F70-8AB4-203127D1FB78> /System/Library/PrivateFrameworks/kperf.framework/Versions/A/kperf
+dyld[52833]: <6D9804F0-C345-3BD4-B60F-51997CFC3568> /System/Library/PrivateFrameworks/GPURawCounter.framework/Versions/A/GPURawCounter
+dyld[52833]: <B4B3ADFE-5532-35C8-88AD-E024018B3F74> /System/Library/PrivateFrameworks/IOKitten.framework/Versions/A/IOKitten
+dyld[52833]: <2D426990-05F5-3716-BA51-FC88CC48C521> /System/Library/PrivateFrameworks/Tightbeam.framework/Versions/A/Tightbeam
+dyld[52833]: <97A32A3E-084E-35F1-B6A7-2C90A6D9BC54> /usr/lib/swift/libswiftCompression.dylib
+dyld[52833]: <117E66D3-45D9-3BD4-BBCC-4CF5C34E91BA> /System/Library/PrivateFrameworks/AFKUser.framework/Versions/A/AFKUser
+dyld[52833]: <95E225B6-9AC7-3F70-A168-ABA296D2D004> /System/Library/PrivateFrameworks/GraphicsServices.framework/Versions/A/GraphicsServices
+dyld[52833]: <3FD338A8-68F0-3546-A332-240EC584354A> /System/Library/PrivateFrameworks/GPUWrangler.framework/Versions/A/GPUWrangler
+dyld[52833]: <5CF0CA69-D5BF-3514-94C9-2D65F75A9D5A> /System/Library/PrivateFrameworks/IOPresentment.framework/Versions/A/IOPresentment
+dyld[52833]: <9533DB28-45B0-3EC0-8706-FF84098B08C5> /System/Library/PrivateFrameworks/DSExternalDisplay.framework/Versions/A/DSExternalDisplay
+dyld[52833]: <BC7B0072-6143-32A9-9E4E-67D9AFD45BE4> /System/Library/PrivateFrameworks/VideoToolboxParavirtualizationSupport.framework/Versions/A/VideoToolboxParavirtualizationSupport
+dyld[52833]: <A75E1F7F-97CE-32F9-B2BE-E5F82AF8486E> /System/Library/PrivateFrameworks/AppleVA.framework/Versions/A/AppleVA
+dyld[52833]: <752C348D-AF57-33C5-B4DE-36539163216A> /System/Library/PrivateFrameworks/CMCaptureCore.framework/Versions/A/CMCaptureCore
+dyld[52833]: <3FB69307-6838-3CCF-BE3B-0090B2F9D708> /usr/lib/libspindump.dylib
+dyld[52833]: <FF651440-8421-3DF2-BB45-B0E617D28FCB> /System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio
+dyld[52833]: <8E69AFA7-EBBA-3928-B7A4-905B9405B6E4> /System/Library/PrivateFrameworks/PowerLog.framework/Versions/A/PowerLog
+dyld[52833]: <11ECF3B7-94E3-38ED-85AF-F7ACB3F42FEA> /System/Library/PrivateFrameworks/perfdata.framework/Versions/A/perfdata
+dyld[52833]: <8B2BF723-4B8D-33AB-AF4D-4BDA1969AB5D> /System/Library/PrivateFrameworks/AudioDSPGraph.framework/Versions/A/AudioDSPGraph
+dyld[52833]: <15B6B787-E27B-3CE6-BA1B-A208C386A9EA> /System/Library/PrivateFrameworks/AudioToolboxCore.framework/Versions/A/AudioToolboxCore
+dyld[52833]: <E4893068-A3AC-3C15-AB74-A9209603396D> /System/Library/PrivateFrameworks/caulk.framework/Versions/A/caulk
+dyld[52833]: <345E24F8-FB72-3FC6-88BC-84883BFD148D> /usr/lib/libAudioStatistics.dylib
+dyld[52833]: <31074AE5-C16E-3310-A80D-F9AC851A2202> /System/Library/PrivateFrameworks/SystemPolicy.framework/Versions/A/SystemPolicy
+dyld[52833]: <C97AB7A9-4C43-3CE1-9865-C55756C1F1F3> /usr/lib/swift/libswiftCoreMIDI.dylib
+dyld[52833]: <6DE359A8-AF32-37FC-966F-92234671D1E6> /System/Library/Frameworks/CoreMIDI.framework/Versions/A/CoreMIDI
+dyld[52833]: <9208364F-1015-35BC-A773-20C319FED4BF> /usr/lib/libperfcheck.dylib
+dyld[52833]: <F46848C6-9FF6-32DC-9F29-4BF551669389> /System/Library/PrivateFrameworks/AudioAnalytics.framework/Versions/A/AudioAnalytics
+dyld[52833]: <479F8045-FEEE-362B-95D9-8998DF7B1602> /usr/lib/libmis.dylib
+dyld[52833]: <BC153F25-93F8-31D2-A0D8-BF52F72108D7> /System/Library/PrivateFrameworks/HIDDisplay.framework/Versions/A/HIDDisplay
+dyld[52833]: <CF01F0A7-20E4-3F4E-9FB5-48E4D7599563> /System/Library/PrivateFrameworks/HID.framework/Versions/A/HID
+dyld[52833]: <D430125E-D54B-3DC5-A5E6-35FC1DFED8CD> /System/Library/PrivateFrameworks/TextInput.framework/Versions/A/TextInput
+dyld[52833]: <BC6F199C-36A0-38D2-B1AA-DC97020E5AD9> /System/Library/PrivateFrameworks/CVNLP.framework/Versions/A/CVNLP
+dyld[52833]: <52264811-D157-3D24-802D-4462D450855C> /System/Library/PrivateFrameworks/LanguageModeling.framework/Versions/A/LanguageModeling
+dyld[52833]: <5788FEDC-85F6-3238-A0AC-CE60C2FC45FD> /System/Library/PrivateFrameworks/DataDetectorsCore.framework/Versions/A/DataDetectorsCore
+dyld[52833]: <95A4E07E-1990-3099-A5B3-C607882CB1CC> /System/Library/PrivateFrameworks/Futhark.framework/Versions/A/Futhark
+dyld[52833]: <70188F13-1ADE-346E-B82E-753A960D893F> /System/Library/PrivateFrameworks/VisionCore.framework/Versions/A/VisionCore
+dyld[52833]: <4A9B423B-5606-32B9-A9FA-2C3E9640AC4B> /System/Library/PrivateFrameworks/LinguisticData.framework/Versions/A/LinguisticData
+dyld[52833]: <529B3F6C-7F3D-3577-991D-D4AFB0D4A1EE> /System/Library/Frameworks/CoreML.framework/Versions/A/CoreML
+dyld[52833]: <9B21CC15-9249-3DB5-B292-B0A0DDE05DB9> /System/Library/Frameworks/NaturalLanguage.framework/Versions/A/NaturalLanguage
+dyld[52833]: <BEB2D7C3-1386-3EB3-B20D-01084DCF7339> /System/Library/PrivateFrameworks/Espresso.framework/Versions/A/Espresso
+dyld[52833]: <F578FD37-67A3-3295-B825-6E35239B3A35> /System/Library/PrivateFrameworks/Lexicon.framework/Versions/A/Lexicon
+dyld[52833]: <FC18B77B-845F-32F3-9CA4-B20CE67D284D> /System/Library/Frameworks/DataDetection.framework/Versions/A/DataDetection
+dyld[52833]: <DE6E4B32-56E1-3C5D-B30D-2DF596209BCF> /System/Library/PrivateFrameworks/AppleNeuralEngine.framework/Versions/A/AppleNeuralEngine
+dyld[52833]: <0B085956-7818-3E57-9BCB-B1535A10EBCD> /usr/lib/swift/libswiftCoreImage.dylib
+dyld[52833]: <73F0A558-57B6-3925-9178-7DEFB8F4FB64> /usr/lib/swift/libswiftMLCompute.dylib
+dyld[52833]: <712F997D-8AB2-3A59-A0A3-711658235A96> /usr/lib/swift/libswiftNaturalLanguage.dylib
+dyld[52833]: <CE5F5572-22A1-3A99-88D0-0D189FB629F5> /System/Library/PrivateFrameworks/InternationalSupport.framework/Versions/A/InternationalSupport
+dyld[52833]: <7F2ADF7B-690F-3C63-B126-EE26FA581F74> /System/Library/PrivateFrameworks/CMPhoto.framework/Versions/A/CMPhoto
+dyld[52833]: <77F98D0E-52F0-338E-B421-5ADAF7EDFCA2> /System/Library/Frameworks/MediaToolbox.framework/Versions/A/MediaToolbox
+dyld[52833]: <B6B1267D-A314-336D-9C17-A80BE7085868> /System/Library/PrivateFrameworks/Montreal.framework/Versions/A/Montreal
+dyld[52833]: <92B481E6-FE30-3E18-B4F9-2652E707141F> /System/Library/PrivateFrameworks/ByteMatrixVerification.framework/Versions/A/ByteMatrixVerification
+dyld[52833]: <DC646F44-B4A1-3C07-BE74-EB3025601310> /usr/lib/libFDRDecode.dylib
+dyld[52833]: <AC18231D-960E-3209-A746-1D9ACAC5C53A> /System/Library/PrivateFrameworks/AppleJPEGXL.framework/Versions/A/AppleJPEGXL
+dyld[52833]: <56EE63F4-B9ED-341C-9AD4-D4F27C8F4C41> /System/Library/Frameworks/CryptoKit.framework/Versions/A/CryptoKit
+dyld[52833]: <04C8BA44-958E-3142-ACA7-BD9E2E610A2E> /System/Library/PrivateFrameworks/CryptoKitPrivate.framework/Versions/A/CryptoKitPrivate
+dyld[52833]: <143B1BCF-F553-34F6-A9E8-A5CAC3376FA5> /System/Library/PrivateFrameworks/CryptoKitCBridging.framework/Versions/A/CryptoKitCBridging
+dyld[52833]: <288C7F84-BC89-33CF-932D-6761AD81797C> /System/Library/Frameworks/CryptoTokenKit.framework/Versions/A/CryptoTokenKit
+dyld[52833]: <4B4CBD26-0179-33A3-B9E8-A3747731861E> /System/Library/Frameworks/LocalAuthentication.framework/Versions/A/LocalAuthentication
+dyld[52833]: <31FEF9F2-7C68-351F-8E5E-239E9685D545> /System/Library/Frameworks/OpenDirectory.framework/Versions/A/OpenDirectory
+dyld[52833]: <FE6FC150-1A49-34EF-8482-99C1F74C67DA> /System/Library/PrivateFrameworks/LocalAuthenticationCore.framework/Versions/A/LocalAuthenticationCore
+dyld[52833]: <ADACE80C-0071-308E-A80E-08E6217454EB> /System/Library/PrivateFrameworks/LocalAuthenticationCredentialServices.framework/Versions/A/LocalAuthenticationCredentialServices
+dyld[52833]: <D1170D27-20B5-3FAF-83B0-72315DA8351E> /System/Library/Frameworks/LocalAuthentication.framework/Support/SharedUtils.framework/Versions/A/SharedUtils
+dyld[52833]: <6E82B136-CCD8-3BC4-9281-046B89AC0214> /System/Library/PrivateFrameworks/DFRFoundation.framework/Versions/A/DFRFoundation
+dyld[52833]: <65114DD3-CC36-3C4D-905F-E8A269499DA8> /System/Library/PrivateFrameworks/DiskManagement.framework/Versions/A/DiskManagement
+dyld[52833]: <345A38A9-AAD2-3EBD-A024-904BC8C3F1F5> /usr/lib/libcsfde.dylib
+dyld[52833]: <E21E0C3D-97C8-3773-8A7C-6D62D364483C> /usr/lib/libCoreStorage.dylib
+dyld[52833]: <2447AEAC-9BCB-3080-8107-1CD16458EB17> /System/Library/PrivateFrameworks/MediaKit.framework/Versions/A/MediaKit
+dyld[52833]: <15E95AEF-9516-3660-BCED-6AA064B9E6BE> /System/Library/Frameworks/DiscRecording.framework/Versions/A/DiscRecording
+dyld[52833]: <1577AFC9-A6A4-31CE-9736-8E1AC8102ECD> /System/Library/PrivateFrameworks/ProtectedCloudStorage.framework/Versions/A/ProtectedCloudStorage
+dyld[52833]: <0B75A589-5D77-3FE7-8B01-BDE7B02842B7> /System/Library/PrivateFrameworks/EFILogin.framework/Versions/A/EFILogin
+dyld[52833]: <4DEE2F3F-63ED-39B0-B6E7-A2FA4ECF3EC4> /System/Library/PrivateFrameworks/AAAFoundation.framework/Versions/A/AAAFoundation
+dyld[52833]: <EDD39C4F-72EC-30C8-89BC-213F54A94481> /System/Library/Frameworks/Accounts.framework/Versions/A/Accounts
+dyld[52833]: <4A5E87AB-C455-3CFC-A32F-52D8643FA770> /System/Library/PrivateFrameworks/CloudServices.framework/Versions/A/CloudServices
+dyld[52833]: <F2EF74E5-E431-3108-9942-964F15646BFE> /System/Library/PrivateFrameworks/OctagonTrust.framework/Versions/A/OctagonTrust
+dyld[52833]: <A3048FC6-6599-36A6-B17D-2AF153FCB17B> /System/Library/PrivateFrameworks/AppleIDAuthSupport.framework/Versions/A/AppleIDAuthSupport
+dyld[52833]: <AFCD1DE8-39F2-3A99-8C82-2761F769041A> /System/Library/Frameworks/SecurityFoundation.framework/Versions/A/SecurityFoundation
+dyld[52833]: <EE4F76D3-B9ED-3A56-9A8D-D1616891E850> /System/Library/PrivateFrameworks/KeychainCircle.framework/Versions/A/KeychainCircle
+dyld[52833]: <1B9ACB33-0D8B-3B04-B7B1-8927CE0AE412> /System/Library/PrivateFrameworks/AuthKit.framework/Versions/A/AuthKit
+dyld[52833]: <8AB20474-2F88-35C8-8D1E-6725D3EA2493> /System/Library/PrivateFrameworks/MultiverseSupport.framework/Versions/A/MultiverseSupport
+dyld[52833]: <194A0866-16EB-3FA4-9377-F359EAD24964> /System/Library/PrivateFrameworks/URLFormatting.framework/Versions/A/URLFormatting
+dyld[52833]: <A345D6C4-179C-39B9-AA9E-F6DB7001829A> /System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox
+dyld[52833]: <173E4DEA-A0B4-3403-A32E-491D7280E1F2> /System/Library/PrivateFrameworks/AudioSession.framework/Versions/A/AudioSession
+dyld[52833]: <1382D61C-5EAC-331B-93BD-5DE9CA0CF2CB> /System/Library/PrivateFrameworks/MediaExperience.framework/Versions/A/MediaExperience
+dyld[52833]: <7074E8AC-9034-37C8-B116-CA070D9F824F> /System/Library/PrivateFrameworks/AudioSession.framework/libSessionUtility.dylib
+dyld[52833]: <6F16FB3C-7894-353B-A194-4B35D95B0DD9> /System/Library/PrivateFrameworks/AudioAccessoryServices.framework/Versions/A/AudioAccessoryServices
+dyld[52833]: <D9C9ADB8-3D82-37DF-ADBC-B1B78ABF20A7> /System/Library/Frameworks/CoreBluetooth.framework/Versions/A/CoreBluetooth
+dyld[52833]: <52AF6C4D-A545-37A1-BBD5-F2D2B269905B> /System/Library/PrivateFrameworks/CoreUtils.framework/Versions/A/CoreUtils
+dyld[52833]: <859C81FC-C436-3D5A-B729-90CFF54B682E> /System/Library/PrivateFrameworks/Sharing.framework/Versions/A/Sharing
+dyld[52833]: <E1A02B7F-7CDF-3548-A21C-81932B178682> /System/Library/PrivateFrameworks/CoreUtilsExtras.framework/Versions/A/CoreUtilsExtras
+dyld[52833]: <EFADD537-E95F-3884-AFB3-3B258F1AC84C> /System/Library/PrivateFrameworks/IO80211.framework/Versions/A/IO80211
+dyld[52833]: <D8CDDF56-0A32-37DF-A215-A023EDB2DCC3> /System/Library/PrivateFrameworks/AutoUnlock.framework/Versions/A/AutoUnlock
+dyld[52833]: <E64B5E5B-C529-3FBE-AA74-DC3EDF61F49D> /System/Library/PrivateFrameworks/IDSFoundation.framework/Versions/A/IDSFoundation
+dyld[52833]: <3E3FCB3B-E9AB-334E-BB6F-ED82190FEBAF> /System/Library/PrivateFrameworks/IconServices.framework/Versions/A/IconServices
+dyld[52833]: <6696D1C4-1DD7-3B91-8B13-5DAF20D03540> /System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Apple80211
+dyld[52833]: <49AB0F31-AF7F-34E2-9082-C1486DFFD85D> /System/Library/PrivateFrameworks/CoreWiFi.framework/Versions/A/CoreWiFi
+dyld[52833]: <DA0C6929-FF9F-3930-8E95-F8167F92E681> /System/Library/Frameworks/CoreWLAN.framework/Versions/A/CoreWLAN
+dyld[52833]: <C952806B-EC17-310F-8B49-BE33EA18A13D> /System/Library/Frameworks/IOBluetooth.framework/Versions/A/IOBluetooth
+dyld[52833]: <7E0BC6FD-1528-3122-8F62-084E46D8F706> /System/Library/PrivateFrameworks/SharingCore.framework/Versions/A/SharingCore
+dyld[52833]: <4A37E20C-DD74-39B8-B76D-F06E2BD25378> /usr/lib/swift/libswiftCoreLocation.dylib
+dyld[52833]: <59852F55-43E0-352D-8884-A0A07EE311B2> /System/Library/PrivateFrameworks/BiometricKit.framework/Versions/A/BiometricKit
+dyld[52833]: <1626A43F-D268-33E6-A56B-E2BB92A24DAB> /System/Library/PrivateFrameworks/IMFoundation.framework/Versions/A/IMFoundation
+dyld[52833]: <AF6F1FBC-C92E-341E-A5E3-BAFCF7E79399> /System/Library/PrivateFrameworks/Marco.framework/Versions/A/Marco
+dyld[52833]: <CAC5C1BE-0501-36EF-86DF-B9CDF73627E4> /System/Library/PrivateFrameworks/CommonUtilities.framework/Versions/A/CommonUtilities
+dyld[52833]: <022B33EF-C7AA-3106-9434-B72B478675F9> /System/Library/PrivateFrameworks/Engram.framework/Versions/A/Engram
+dyld[52833]: <E7269780-DB96-3E40-90D9-D255987DD0C1> /System/Library/PrivateFrameworks/XPCDistributed.framework/Versions/A/XPCDistributed
+dyld[52833]: <74C5DBCA-906E-37D5-A696-4F3E7CBB19F1> /usr/lib/libtidy.A.dylib
+dyld[52833]: <2AEAB91A-6FCA-3D0C-9B09-3D4F6402F2E9> /System/Library/PrivateFrameworks/Bom.framework/Versions/A/Bom
+dyld[52833]: <50B15164-CF3B-332F-9543-18B1A9CE4681> /usr/lib/libParallelCompression.dylib
+dyld[52833]: <8584883B-72DB-3274-84F3-448A9C635672> /System/Library/PrivateFrameworks/IconFoundation.framework/Versions/A/IconFoundation
+dyld[52833]: <09FA7B56-ECC3-3E8D-ADE1-821F0F70815E> /System/Library/PrivateFrameworks/SiriAvailability.framework/Versions/A/SiriAvailability
+dyld[52833]: <73DECD66-7BC3-3B5B-AC72-91DD090A4294> /System/Library/PrivateFrameworks/IconRendering.framework/Versions/A/IconRendering
+dyld[52833]: <F82AEE5E-33AB-3560-9CF8-DF040AA69BCA> /System/Library/PrivateFrameworks/CoreUI.framework/Versions/A/CoreUI
+dyld[52833]: <48669213-D846-3BE3-8D96-BA05C491C233> /System/Library/PrivateFrameworks/SFSymbols.framework/Versions/A/SFSymbols
+dyld[52833]: <3F4DC884-274D-3F54-96D5-EFCC74F86297> /System/Library/Frameworks/DeveloperToolsSupport.framework/Versions/A/DeveloperToolsSupport
+dyld[52833]: <C2E7413B-1106-34D9-9C19-EB2CF6D68192> /System/Library/PrivateFrameworks/RenderBox.framework/Versions/A/RenderBox
+dyld[52833]: <B03ECEAB-69D0-3205-92E1-1107C95196BD> /System/Library/PrivateFrameworks/CoreSVG.framework/Versions/A/CoreSVG
+dyld[52833]: <3AECD550-F63A-372E-922C-8B79DFD16DC5> /System/Library/PrivateFrameworks/TextureIO.framework/Versions/A/TextureIO
+dyld[52833]: <705B3BE9-820A-324F-B4C3-F74C75926008> /System/Library/PrivateFrameworks/WallpaperServices.framework/Versions/A/WallpaperServices
+dyld[52833]: <136AA9E1-8215-3708-BE78-AB8A1562BBFB> /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATSUI.framework/Versions/A/ATSUI
+dyld[52833]: <40CCAEE9-1450-30BE-AC34-24DB5C095E3C> /usr/lib/libIOReport.dylib
+dyld[52833]: <F4CA3073-1BFC-3F92-A94E-60401CF405C5> /System/Library/PrivateFrameworks/WiFiPeerToPeer.framework/Versions/A/WiFiPeerToPeer
+dyld[52833]: <2AACC1C5-AF20-3A09-8B9B-862FDBE97E1A> /System/Library/PrivateFrameworks/Centauri.framework/Versions/A/Centauri
+dyld[52833]: <1BA08B19-902B-378A-BE36-654839D1FBF5> /usr/lib/libmrc.dylib
+dyld[52833]: <BD74F653-CCC3-3762-8AE4-F77ADEACE409> /System/Library/PrivateFrameworks/IPConfiguration.framework/Versions/A/IPConfiguration
+dyld[52833]: <C809FDB3-9F32-3935-BFA3-DEF3E4ACBA33> /System/Library/PrivateFrameworks/Netrb.framework/Versions/A/Netrb
+dyld[52833]: <844C93CC-3C0F-3D2A-9D56-63DCDCE96AE0> /System/Library/PrivateFrameworks/FrontBoardServices.framework/Versions/A/FrontBoardServices
+dyld[52833]: <2BF2739E-42FB-31E2-B88B-CB2C8EB54A00> /System/Library/Frameworks/UserNotifications.framework/Versions/A/UserNotifications
+dyld[52833]: <295D29E7-9514-37BE-88C0-4B60DC38B84E> /System/Library/Frameworks/AudioUnit.framework/Versions/A/AudioUnit
+dyld[52833]: <C26E8AD3-576E-34A4-9F13-B39A6751B01C> /System/Library/Frameworks/OpenDirectory.framework/Versions/A/Frameworks/CFOpenDirectory.framework/Versions/A/CFOpenDirectory
+dyld[52833]: <C62D29EF-1D91-3B7A-80DB-0D9629A69A12> /System/Library/Frameworks/CoreLocation.framework/Versions/A/CoreLocation
+dyld[52833]: <74005EAD-D91D-36CA-B3BB-5F681FACA470> /System/Library/Frameworks/_LocationEssentials.framework/Versions/A/_LocationEssentials
+dyld[52833]: <070FA9AE-EBDB-388F-8C41-E6B9F2F3F2AB> /System/Library/PrivateFrameworks/GeoServices.framework/Versions/A/GeoServices
+dyld[52833]: <D4AE29F5-ED0A-300A-83C5-FFF3013E90C5> /System/Library/PrivateFrameworks/LocationSupport.framework/Versions/A/LocationSupport
+dyld[52833]: <A04E9D83-39B8-3191-9914-BAE246AFACDB> /System/Library/PrivateFrameworks/GeoServicesCore.framework/Versions/A/GeoServicesCore
+dyld[52833]: <435B54D0-DE2F-3CD9-9950-C6B420099C8E> /System/Library/PrivateFrameworks/PhoneNumbers.framework/Versions/A/PhoneNumbers
+dyld[52833]: <FF7FC951-8E94-3ED5-861E-C1293DE99EBE> /System/Library/PrivateFrameworks/LocationLogEncryption.framework/Versions/A/LocationLogEncryption
+dyld[52833]: <73E7A831-9CC3-3955-ADE9-F17243C8DEFD> /System/Library/PrivateFrameworks/CoreAVCHD.framework/Versions/A/CoreAVCHD
+dyld[52833]: <559D2E89-ED55-3520-9B43-F7B06B08747B> /System/Library/Frameworks/MediaAccessibility.framework/Versions/A/MediaAccessibility
+dyld[52833]: <E768D74D-B59E-30B2-8856-14F6D73380C1> /System/Library/PrivateFrameworks/Mangrove.framework/Versions/A/Mangrove
+dyld[52833]: <6E9588F8-3866-3CD9-B22C-3CF4E14D3EDF> /System/Library/Frameworks/CoreTelephony.framework/Versions/A/CoreTelephony
+dyld[52833]: <D7BA2140-5425-394F-B82E-C7519F08F1B7> /System/Library/PrivateFrameworks/CoreAUC.framework/Versions/A/CoreAUC
+dyld[52833]: <C01F1B74-531F-3A78-97E9-BF575EF7D191> /usr/lib/libTelephonyUtilDynamic.dylib
+dyld[52833]: <EE2BF654-E13F-3C34-9BD8-A12243AD4CC7> /System/Library/PrivateFrameworks/CoreEmoji.framework/Versions/A/CoreEmoji
+dyld[52833]: <1252F311-41FE-3137-955A-B9C1D81BBEC8> /System/Library/PrivateFrameworks/ANECompiler.framework/Versions/A/ANECompiler
+dyld[52833]: <924CF3A1-0152-321F-A759-2C352888A364> /System/Library/PrivateFrameworks/MIL.framework/Versions/A/MIL
+dyld[52833]: <68A32BC1-42CC-3562-BEA6-FF6A7501532B> /System/Library/Frameworks/MetalPerformanceShadersGraph.framework/Versions/A/MetalPerformanceShadersGraph
+dyld[52833]: <06BA1A36-3C87-3E2F-A10D-2B8FCCDE6C38> /System/Library/PrivateFrameworks/MLCompilerServices.framework/Versions/A/MLCompilerServices
+dyld[52833]: <C02E7EF6-D47F-3753-A00E-ECCA4C5E7509> /System/Library/PrivateFrameworks/ANEServices.framework/Versions/A/ANEServices
+dyld[52833]: <185CBF00-FDF9-30A8-8BF8-9DCECDAA503D> /usr/lib/libncurses.5.4.dylib
+dyld[52833]: <9712ABAC-44D1-3B64-9AD8-5644C327D2D8> /usr/lib/libsandbox.1.dylib
+dyld[52833]: <3A64D8B8-FB52-3F7D-B64F-770346DA9541> /usr/lib/libMatch.1.dylib
+dyld[52833]: <1BB5BF98-6A4F-32DC-A810-9086E1A43D26> /System/Library/SubFrameworks/CoreAIRuntime.framework/Versions/A/CoreAIRuntime
+dyld[52833]: <1E60D542-2512-3F34-94F6-9BBFD1BB470F> /System/Library/SubFrameworks/CoreAICompiler.framework/Versions/A/CoreAICompiler
+dyld[52833]: <3951BCD3-51A5-3290-B01B-197EE69F7257> /System/Library/SubFrameworks/CoreAICommon.framework/Versions/A/CoreAICommon
+dyld[52833]: <37D69FED-07A3-36D3-A785-1CA9634C941A> /System/Library/PrivateFrameworks/ODIE.framework/Versions/A/ODIE
+dyld[52833]: <F9E3D95F-E83F-3BD5-922E-ED9873193B98> /System/Library/PrivateFrameworks/ODIE.framework/Versions/A/Frameworks/libODIECompiler.dylib
+dyld[52833]: <A727BDC4-9F38-326F-9360-7262F14C87CF> /System/Library/PrivateFrameworks/MLCompilerRuntime.framework/Versions/A/MLCompilerRuntime
+dyld[52833]: <BC9DAD32-2233-3C76-A668-07FE61D7692A> /System/Library/Frameworks/MLCompute.framework/Versions/A/MLCompute
+dyld[52833]: <5A38C9D0-30CF-3B22-B6D7-8A3FF9CA5E20> /System/Library/PrivateFrameworks/MLAssetIO.framework/Versions/A/MLAssetIO
+dyld[52833]: <9A038A2F-8259-38E5-A7B7-DCE72F0730F4> /usr/lib/libcmph.dylib
+dyld[52833]: <E5275803-7898-3131-A601-0B0B234B4227> /System/Library/Frameworks/AVFoundation.framework/Versions/A/AVFoundation
+dyld[52833]: <E879FABC-F4BC-30FF-908D-AEE20DA0BC36> /System/Library/Frameworks/AVFAudio.framework/Versions/A/AVFAudio
+dyld[52833]: <B000FD7A-3776-31A5-A70A-DA4F1DA9A9C9> /System/Library/PrivateFrameworks/AVFCore.framework/Versions/A/AVFCore
+dyld[52833]: <E90CDAC8-8640-3A18-9859-08BEE4701B38> /System/Library/PrivateFrameworks/AVFCapture.framework/Versions/A/AVFCapture
+dyld[52833]: <05D0B7FC-A24E-3A95-B3DD-3988FECB51BA> /System/Library/Frameworks/AVRouting.framework/Versions/A/AVRouting
+dyld[52833]: <6748C702-5620-3C5B-B964-53C564C26B9C> /System/Library/PrivateFrameworks/IsolatedCoreAudioClient.framework/Versions/A/IsolatedCoreAudioClient
+dyld[52833]: <0E5C5CFD-3447-3DB2-BC07-E26794DFCBFB> /System/Library/PrivateFrameworks/CoreAudioOrchestration.framework/Versions/A/CoreAudioOrchestration
+dyld[52833]: <4344C540-F0C6-3EF9-8E11-C79F01AC7156> /usr/lib/libAccessibility.dylib
+dyld[52833]: <F2AE0D90-DA57-3725-9765-FC37755AACDE> /System/Library/PrivateFrameworks/CMCapture.framework/Versions/A/CMCapture
+dyld[52833]: <82CB5429-5CCB-3795-B013-6089DFA06CC5> /System/Library/PrivateFrameworks/CMImaging.framework/Versions/A/CMImaging
+dyld[52833]: <81C6703A-74D7-3452-82C7-41183F135829> /System/Library/PrivateFrameworks/Quagga.framework/Versions/A/Quagga
+dyld[52833]: <3ADEDCDC-AD5E-3ABC-8875-77BBE283E594> /System/Library/Frameworks/CoreMediaIO.framework/Versions/A/CoreMediaIO
+dyld[52833]: <FB2A983E-FEBF-3C34-AABB-75F81562E5A4> /System/Library/PrivateFrameworks/CMCaptureDevice.framework/Versions/A/CMCaptureDevice
+dyld[52833]: <64A34CEF-61A1-3D48-B3EB-51B4A76112A6> /System/Library/PrivateFrameworks/CinematicFraming.framework/Versions/A/CinematicFraming
+dyld[52833]: <AD283274-2AD4-33D1-B3E4-EECB9743C6B5> /System/Library/PrivateFrameworks/ModelManagerServices.framework/Versions/A/ModelManagerServices
+dyld[52833]: <FAF7CAAC-529D-314E-B7AE-B6A4B8CB0E85> /System/Library/Frameworks/CoreMotion.framework/Versions/A/CoreMotion
+dyld[52833]: <34FA2048-B945-3AD0-ACFB-772822C6595E> /System/Library/PrivateFrameworks/DistributedSensing.framework/Versions/A/DistributedSensing
+dyld[52833]: <251F4C0A-6A77-386F-855D-C1FC0848DB39> /System/Library/PrivateFrameworks/MobileBluetooth.framework/Versions/A/MobileBluetooth
+dyld[52833]: <10BB6798-8BEF-312E-9ADE-A7386A08F864> /System/Library/PrivateFrameworks/Rapport.framework/Versions/A/Rapport
+dyld[52833]: <88E8CF73-D882-37AC-988D-7C18729A058D> /System/Library/PrivateFrameworks/AppleIntelligenceReporting.framework/Versions/A/AppleIntelligenceReporting
+dyld[52833]: <D5727017-F673-3EA1-919E-CA7457702A95> /usr/lib/libcups.2.dylib
+dyld[52833]: <3BA28FEB-4309-3F6B-A0E2-24EECB996570> /System/Library/Frameworks/Kerberos.framework/Versions/A/Kerberos
+dyld[52833]: <854658C8-45F9-354A-89A8-3C509ABA665B> /System/Library/Frameworks/GSS.framework/Versions/A/GSS
+dyld[52833]: <B476F664-0486-3C2A-B3A4-871BCC5A950A> /usr/lib/libresolv.9.dylib
+dyld[52833]: <38745894-1AD6-3AF0-8C3B-DD3DE1F53B9A> /System/Library/PrivateFrameworks/Heimdal.framework/Versions/A/Heimdal
+dyld[52833]: <66304C90-F352-3DEF-BB35-68BF8E358A6D> /System/Library/Frameworks/Kerberos.framework/Versions/A/Libraries/libHeimdalProxy.dylib
+dyld[52833]: <A79239B3-D5C6-3286-8AA2-4E2FCCED018A> /System/Library/PrivateFrameworks/CommonAuth.framework/Versions/A/CommonAuth
+dyld[52833]: <4E1B116A-FCE1-3311-A703-62DC384BF78B> /System/Library/PrivateFrameworks/AXCoreUtilities.framework/Versions/A/AXCoreUtilities
+dyld[52833]: <717ACF5C-157C-3E83-8287-7838C7E1957F> /usr/lib/libedit.3.dylib
+dyld[52833]: <2EED1D49-2203-347D-BF1E-496F105475A5> /System/Library/PrivateFrameworks/AttributeGraph.framework/Versions/A/AttributeGraph
+dyld[52833]: <7636DFFA-9F15-3947-828B-087AC4AB3802> /usr/lib/libAXSafeCategoryBundle.dylib
+dyld[52833]: <20A5F414-C723-3CD4-B43E-8237236E9F89> /System/Library/Frameworks/TabularData.framework/Versions/A/TabularData
+dyld[52833]: <79B1FAA9-12C1-3687-AA64-37A9009595EC> /System/Library/PrivateFrameworks/ArgumentParserInternal.framework/Versions/A/ArgumentParserInternal
+dyld[52833]: <B7FFF140-31B3-300C-A855-F9A3F91F7653> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvDSP.dylib
+dyld[52833]: <C2D7E8C4-F61B-3D56-B0AE-B0537D2B105D> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLAPACK.dylib
+dyld[52833]: <D8A7A557-4EEA-3CF8-AFEF-F97DB51611BE> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLinearAlgebra.dylib
+dyld[52833]: <980149F9-0FC2-35F2-8165-82187024D367> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libSparseBLAS.dylib
+dyld[52833]: <6CE2E934-655C-374E-9A11-717AF297FA0E> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libQuadrature.dylib
+dyld[52833]: <C1CDDC89-6EF8-3D0A-B5E5-E9A76ACCE07C> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBNNS.dylib
+dyld[52833]: <C3E9BA5B-2FC4-38FB-9928-FDDDCB701993> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libSparse.dylib
+dyld[52833]: <8060541C-C8B1-38B9-B951-BC86107E36B8> /usr/lib/libapp_launch_measurement.dylib
+dyld[52833]: <893E43A7-CE14-394D-8C39-80E222636868> /System/Library/PrivateFrameworks/InstalledContentLibrary.framework/Versions/A/InstalledContentLibrary
+dyld[52833]: <F3929C25-E826-3E51-A8A2-CBE68A2F8D9A> /System/Library/PrivateFrameworks/CoreServicesStore.framework/Versions/A/CoreServicesStore
+dyld[52833]: <491383AB-B389-32ED-9BE5-6A7C50CB26F3> /System/Library/PrivateFrameworks/AppleMobileFileIntegrity.framework/Versions/A/AppleMobileFileIntegrity
+dyld[52833]: <2E52EE4D-04D3-3D30-A9EA-DB3432F23AE1> /System/Library/PrivateFrameworks/MobileSystemServices.framework/Versions/A/MobileSystemServices
+dyld[52833]: <3DCD72AA-59A2-3430-87AD-2394623D7D7F> /System/Library/PrivateFrameworks/ConfigProfileHelper.framework/Versions/A/ConfigProfileHelper
+dyld[52833]: <BFFA33FC-B1F4-377D-AE22-D540FE90E9E2> /usr/lib/libxslt.1.dylib
+dyld[52833]: <F5389EB0-1D7D-36AB-8E4E-793844C9EB6C> /System/Library/PrivateFrameworks/BackgroundTaskManagement.framework/Versions/A/BackgroundTaskManagement
+dyld[52833]: <4A170240-0D81-3F07-9BE8-74A041D9F43B> /usr/lib/libcurl.4.dylib
+dyld[52833]: <00F8412E-1F21-3AD0-8BE9-5854EF1F8DF8> /usr/lib/libcrypto.46.dylib
+dyld[52833]: <B45AFA08-F1CE-36B6-8124-9D65E64AD401> /usr/lib/libssl.48.dylib
+dyld[52833]: <98C7B484-02C6-3592-A6F1-A4C216683D6C> /System/Library/Frameworks/LDAP.framework/Versions/A/LDAP
+dyld[52833]: <496287F2-ADDB-384F-90EE-6331A2F59FBA> /System/Library/PrivateFrameworks/TrustEvaluationAgent.framework/Versions/A/TrustEvaluationAgent
+dyld[52833]: <9CE377C0-9953-3E8D-A091-29552578D702> /usr/lib/libsasl2.2.dylib
+dyld[52833]: <C399CD37-4CC8-3E7B-97D6-A70E09E1728B> /System/Library/PrivateFrameworks/NetAuth.framework/Versions/A/NetAuth
+dyld[52833]: <AB448110-A45F-369B-94C1-AC38C724711C> /System/Library/PrivateFrameworks/login.framework/Versions/A/Frameworks/loginsupport.framework/Versions/A/loginsupport
+dyld[52833]: <B58DD464-1248-32ED-96B2-47691860DC2A> /System/Library/Frameworks/MetalKit.framework/Versions/A/MetalKit
+dyld[52833]: <8EBCD481-1508-3E2D-A388-E335093E2C03> /System/Library/Frameworks/AppKit.framework/Versions/C/AppKit
+dyld[52833]: <4D3123F3-D93D-3BA4-BBA7-B94D57FAEE92> /System/Library/PrivateFrameworks/UIFoundation.framework/Versions/A/UIFoundation
+dyld[52833]: <1C48B055-F430-3DF8-9995-5265BD3EAF45> /System/Library/PrivateFrameworks/CollectionViewCore.framework/Versions/A/CollectionViewCore
+dyld[52833]: <1828B2FC-DC40-383B-94C0-A2E55BFFBF73> /System/Library/PrivateFrameworks/UserActivity.framework/Versions/A/UserActivity
+dyld[52833]: <C5521E46-F329-323A-A337-74A97061F86C> /System/Library/PrivateFrameworks/XCTTargetBootstrap.framework/Versions/A/XCTTargetBootstrap
+dyld[52833]: <F7ADECAF-754D-3C70-93F3-1C567198292B> /System/Library/PrivateFrameworks/UIIntelligenceSupport.framework/Versions/A/UIIntelligenceSupport
+dyld[52833]: <057F0BFB-7B42-3272-AD47-29CDED588169> /System/Library/PrivateFrameworks/CampoServices.framework/Versions/A/CampoServices
+dyld[52833]: <98D0B05A-DFC3-3BEA-B279-53735239DD7C> /System/Library/PrivateFrameworks/FrontBoard.framework/Versions/A/FrontBoard
+dyld[52833]: <ECA1F96C-19C3-31D8-B838-B73700E4EAA1> /System/Library/Frameworks/SwiftUICore.framework/Versions/A/SwiftUICore
+dyld[52833]: <464B2DD8-5CF0-3996-9AF1-DA63BB051038> /System/Library/PrivateFrameworks/WritingTools.framework/Versions/A/WritingTools
+dyld[52833]: <A6F5E21D-2866-3CB3-9334-4129A6C8671D> /System/Library/PrivateFrameworks/WindowManagement.framework/Versions/A/WindowManagement
+dyld[52833]: <F9937537-EAA6-34AA-A09E-9A8F60219349> /System/Library/SubFrameworks/FocusEngine.framework/Versions/A/FocusEngine
+dyld[52833]: <2A460573-A718-3651-B757-2DB98E2356D0> /System/Library/PrivateFrameworks/DesignLibrary.framework/Versions/A/DesignLibrary
+dyld[52833]: <C92DB86F-E843-33BA-B454-07B1DC010764> /System/Library/PrivateFrameworks/AnimationKit.framework/Versions/A/AnimationKit
+dyld[52833]: <B25BADAF-11F1-35C8-B54D-62146C7FF29C> /System/Library/SubFrameworks/UIUtilities.framework/Versions/A/UIUtilities
+dyld[52833]: <2CA91CAE-1880-38F8-9C76-8A86CC9EFFCB> /System/Library/PrivateFrameworks/UpdateCycle.framework/Versions/A/UpdateCycle
+dyld[52833]: <E720EFC1-F800-3180-A8EE-E3F6F8BCDA6A> /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/HIToolbox.framework/Versions/A/HIToolbox
+dyld[52833]: <7F1273E0-7C78-3220-9C3D-93D17DAB9927> /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/SpeechRecognition.framework/Versions/A/SpeechRecognition
+dyld[52833]: <EF041AAB-F06A-3BAE-8E22-848D31C45005> /System/Library/PrivateFrameworks/PerformanceAnalysis.framework/Versions/A/PerformanceAnalysis
+dyld[52833]: <6043B728-7772-3455-B6CF-40142B9FAAB3> /System/Library/Frameworks/Accessibility.framework/Versions/A/Accessibility
+dyld[52833]: <AEC98EDD-9149-322E-9869-182B3DC36777> /System/Library/Frameworks/CoreTransferable.framework/Versions/A/CoreTransferable
+dyld[52833]: <A165E5DF-CC9E-3848-83A9-66D8A94F2493> /System/Library/Frameworks/Symbols.framework/Versions/A/Symbols
+dyld[52833]: <D5AD628E-39CB-30C5-AFE1-6287FFDBBC74> /System/Library/PrivateFrameworks/SceneHosting.framework/Versions/A/SceneHosting
+dyld[52833]: <B1832AA4-A9EA-394E-AEC5-A3278E23932E> /usr/lib/swift/libswiftSpatial.dylib
+dyld[52833]: <D6C6DF43-4B32-39FA-98D8-F1B73C6E3617> /usr/lib/swift/libswiftCoreGraphics.dylib
+dyld[52833]: <AFA73E5C-9B67-3F5B-9E65-8953247501EF> /usr/lib/swift/libswiftFoundation.dylib
+dyld[52833]: <1550F9CF-A645-3E0B-B7DA-F042E574019F> /usr/lib/swift/libswiftSwiftOnoneSupport.dylib
+dyld[52833]: <EB85C704-6706-3268-97DB-21B9B3536292> /usr/lib/swift/libswiftsys_time.dylib
+dyld[52833]: <74742A8D-7035-3FA2-8E9B-897EC46A9E7C> /System/Library/PrivateFrameworks/CoreMaterial.framework/Versions/A/CoreMaterial
+dyld[52833]: <3F0CD875-A998-314B-BD43-204E856E87AA> /usr/lib/libSpatial.dylib
+dyld[52833]: <A0E0A39B-68E9-3FB0-A17A-827C8EC3B320> /System/Library/PrivateFrameworks/PrototypeTools.framework/Versions/A/PrototypeTools
+dyld[52833]: <7CC443EC-1DF0-379E-8772-C09ECA3A87D1> /System/Library/Frameworks/ModelIO.framework/Versions/A/ModelIO
+dyld[52833]: <5C53746F-7BB6-3733-8C01-306321830DFE> /usr/lib/usd/libusd_ms.dylib
+dyld[52833]: <9980488A-DC51-3293-ADA4-D2962AD476B3> /System/Library/PrivateFrameworks/USDLib_FormatLoaderProxy.framework/Versions/A/USDLib_FormatLoaderProxy
+dyld[52833]: <CA914937-7BE8-3732-A951-99763FDC3582> /usr/lib/swift/libswift_errno.dylib
+dyld[52833]: <E795CB42-FC83-3E43-B536-CB2D5111A679> /usr/lib/libsharedcache.dylib
+dyld[52833]: <53B68083-F7C1-39F5-A693-61FB1DF3410C> /usr/lib/objc/libobjcMsgSend1.dylib
+dyld[52833]: <6833B098-BED8-3D2F-A54C-0E6DBF0CFD95> /usr/lib/objc/libobjcMsgSend2.dylib
+dyld[52833]: <5F1ECBD9-D831-3DE5-87DC-F36DED32D6C1> /usr/lib/objc/libobjcMsgSend3.dylib
+dyld[52833]: <96A17F93-C25C-3E06-B192-C812E6D9472D> /usr/lib/objc/libobjcMsgSend4.dylib
+dyld[52833]: <683C576D-082D-3DE5-8B52-7932CCE5CD6D> /usr/lib/objc/libobjcMsgSend5.dylib
+dyld[52833]: <6AE3BA2E-7FFD-361B-BC16-F91997987A0C> /usr/lib/objc/libobjcMsgSend6.dylib
+dyld[52833]: <9D1C66E1-1F10-3F79-BB94-595ED33DEF04> /usr/lib/objc/libobjcMsgSend7.dylib
+dyld[52833]: <E867E236-F699-3A76-8C53-003C7E6EE699> /usr/lib/objc/libobjcMsgSend8.dylib
+dyld[52833]: <26ED0D98-1DC9-3B98-AF3D-18D22DD5CE15> /usr/lib/objc/libobjcMsgSend9.dylib
+dyld[52833]: <D04824BC-E185-3419-B5CB-564147416880> /usr/lib/objc/libobjcMsgSend10.dylib
+dyld[52833]: <0BA47514-28DB-37CD-9E9E-8977FA26FFDC> /usr/lib/objc/libobjcMsgSend11.dylib
+dyld[52833]: <59623E8F-FA22-333C-A1ED-DEFE264C794B> /usr/lib/objc/libobjcMsgSend12.dylib
+dyld[52833]: <A26671D8-39E4-3382-9232-E90519B502C5> /usr/lib/objc/libobjcMsgSend13.dylib
+dyld[52833]: <2A79FE90-2183-34F8-993F-13D7AA4D9D4E> /usr/lib/objc/libobjcMsgSend14.dylib
+dyld[52833]: <4591A67E-4419-3EF1-AE42-3C245D00F86D> /usr/lib/objc/libobjcMsgSend15.dylib
+dyld[52833]: <13D076B0-D9D0-36F4-B6DB-93AB6B8360C2> /usr/lib/objc/libobjcMsgSend16.dylib
+dyld[52833]: <785F2943-9319-3E83-B267-5A6A479E63D1> /usr/lib/objc/libobjcMsgSend17.dylib
+dyld[52833]: <22D9A5CE-1C77-33BA-8734-B3D5CF70D8CE> /usr/lib/objc/libobjcMsgSend18.dylib
+dyld[52833]: <4D26851D-B809-3C58-BD8F-AFA4773C63A8> /usr/lib/objc/libobjcMsgSend19.dylib
+dyld[52833]: <17FE20AF-0257-3C2B-832D-9A6CEBC681E6> /usr/lib/objc/libobjcMsgSend20.dylib
+dyld[52833]: <0D6C12E6-E426-3118-A1A9-F908FECBF8F7> /usr/lib/objc/libobjcMsgSend21.dylib
+dyld[52833]: <A07859E9-6FF7-368C-9BF5-BEDC9DFD8A30> /usr/lib/objc/libobjcMsgSend22.dylib
+dyld[52833]: <FF9110D3-01E4-3B19-A05D-EC34385C6BD3> /usr/lib/objc/libobjcMsgSend23.dylib
+dyld[52833]: <51037ABB-A8E1-3C4A-80A4-3AC98CABD44F> /usr/lib/objc/libobjcMsgSend24.dylib
+dyld[52833]: <AB7F4015-400D-39C8-A6B8-5072A827E716> /usr/lib/objc/libobjcMsgSend25.dylib
+dyld[52833]: <E1D58842-6113-3877-8D37-0550885E0511> /usr/lib/objc/libobjcMsgSend26.dylib
+dyld[52833]: <229F502C-7D46-3A9A-A363-626362611F1B> /usr/lib/objc/libobjcMsgSend27.dylib
+dyld[52833]: <457FC903-43E7-3618-83CA-1B605CC07858> /usr/lib/objc/libobjcMsgSend28.dylib
+dyld[52833]: <37B5286E-91DA-3BE8-A077-AF62BB0C83E7> /usr/lib/objc/libobjcMsgSend29.dylib
+dyld[52833]: <972EFE79-D4B9-3B1F-BA2C-DB27B524F779> /usr/lib/objc/libobjcMsgSend30.dylib
+dyld[52833]: <4DF1DC37-6AD3-3E31-9EC5-8B47938EB945> /usr/lib/objc/libobjcMsgSend31.dylib
+dyld[52833]: <BCEAA43C-8057-346E-B9F1-053DFEE11200> /usr/lib/objc/libobjcMsgSend32.dylib
+dyld[52833]: <F4291D9F-2C70-305D-BBB8-948034E9ED5D> /usr/lib/objc/libobjcMsgSend33.dylib
+dyld[52833]: <596382C5-C6CC-3337-8699-059817538D6F> /usr/lib/objc/libobjcMsgSend34.dylib
+dyld[52833]: move loaded to delayed: libcmark-gfm.dylib
+dyld[52833]: move loaded to delayed: libCGInterfaces.dylib
+dyld[52833]: move loaded to delayed: AccelerateGPU
+dyld[52833]: move loaded to delayed: TextRecognition
+dyld[52833]: move loaded to delayed: AudioDSPGraph
+dyld[52833]: move loaded to delayed: CVNLP
+dyld[52833]: move loaded to delayed: LanguageModeling
+dyld[52833]: move loaded to delayed: Futhark
+dyld[52833]: move loaded to delayed: VisionCore
+dyld[52833]: move loaded to delayed: CoreML
+dyld[52833]: move loaded to delayed: NaturalLanguage
+dyld[52833]: move loaded to delayed: libswiftMLCompute.dylib
+dyld[52833]: move loaded to delayed: libswiftNaturalLanguage.dylib
+dyld[52833]: move loaded to delayed: Montreal
+dyld[52833]: move loaded to delayed: LocalAuthentication
+dyld[52833]: move loaded to delayed: LocalAuthenticationCore
+dyld[52833]: move loaded to delayed: LocalAuthenticationCredentialServices
+dyld[52833]: move loaded to delayed: SharedUtils
+dyld[52833]: move loaded to delayed: DiskManagement
+dyld[52833]: move loaded to delayed: libcsfde.dylib
+dyld[52833]: move loaded to delayed: libCoreStorage.dylib
+dyld[52833]: move loaded to delayed: ProtectedCloudStorage
+dyld[52833]: move loaded to delayed: EFILogin
+dyld[52833]: move loaded to delayed: AAAFoundation
+dyld[52833]: move loaded to delayed: Accounts
+dyld[52833]: move loaded to delayed: CloudServices
+dyld[52833]: move loaded to delayed: OctagonTrust
+dyld[52833]: move loaded to delayed: AppleIDAuthSupport
+dyld[52833]: move loaded to delayed: KeychainCircle
+dyld[52833]: move loaded to delayed: AuthKit
+dyld[52833]: move loaded to delayed: MultiverseSupport
+dyld[52833]: move loaded to delayed: URLFormatting
+dyld[52833]: move loaded to delayed: AudioAccessoryServices
+dyld[52833]: move loaded to delayed: Sharing
+dyld[52833]: move loaded to delayed: AutoUnlock
+dyld[52833]: move loaded to delayed: IDSFoundation
+dyld[52833]: move loaded to delayed: Apple80211
+dyld[52833]: move loaded to delayed: CoreWLAN
+dyld[52833]: move loaded to delayed: SharingCore
+dyld[52833]: move loaded to delayed: libswiftCoreLocation.dylib
+dyld[52833]: move loaded to delayed: BiometricKit
+dyld[52833]: move loaded to delayed: IMFoundation
+dyld[52833]: move loaded to delayed: Marco
+dyld[52833]: move loaded to delayed: CommonUtilities
+dyld[52833]: move loaded to delayed: Engram
+dyld[52833]: move loaded to delayed: XPCDistributed
+dyld[52833]: move loaded to delayed: libtidy.A.dylib
+dyld[52833]: move loaded to delayed: Bom
+dyld[52833]: move loaded to delayed: libParallelCompression.dylib
+dyld[52833]: move loaded to delayed: SiriAvailability
+dyld[52833]: move loaded to delayed: CoreLocation
+dyld[52833]: move loaded to delayed: libODIECompiler.dylib
+dyld[52833]: move loaded to delayed: MLCompute
+dyld[52833]: move loaded to delayed: MLAssetIO
+dyld[52833]: move loaded to delayed: libcmph.dylib
+dyld[52833]: <BBEDB1AD-A084-3E3A-9CD2-B8C50061B8C2> /System/Library/Extensions/AGXMetalG18G.bundle/Contents/MacOS/AGXMetalG18G
+dyld[52833]: <F24466B9-159D-392B-BCF5-6BB8D4246A64> /System/Library/PrivateFrameworks/IOGPU.framework/Versions/A/IOGPU
+registered_ligament_source_geometry=admitted rows=34 retained_source_bone_meshes=185 source_bone_records=185 bone_payload_sha256=43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0 path_guard=all_current_pose_registered_meshes endpoint_projection=bounded_current_registered_surface
+passive_fem_clock_selection maximum_rate_exponent=3 physical_frame_s=0.000125 blood_enabled=0 contact_connected_clock_lock=disabled
+human_material_expression_cache=enabled materials=20 equations=unchanged
+matter_runtime_initialize_begin
+matter_left_row_equilibration_scope={"human_only":true,"registered_attachments":0,"rigid_rows":0,"effective_request":false}
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_metallib_image={"path":"/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-material-jacobian-witness-154-zero-trial/build-004/candidate.metallib","sha256":"76819990f8b17e27621b2e463ff953baa04f05f1bd0aaa94d27f51fbbac0979b"}
+matter_stateless_material_specialization requested=1 eligible=1 material_count=20
+matter_all_native_float requested=1 eligible=1 enabled=1 materials=20 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_pipeline_compile_begin=nm_prepare_status
+matter_pipeline_compile_begin=nm_merge_source_mass_status_into_matter
+matter_pipeline_compile_end=nm_prepare_status async=1
+matter_pipeline_compile_begin=nm_prepare_events
+matter_pipeline_compile_end=nm_merge_source_mass_status_into_matter async=1
+matter_pipeline_compile_begin=nm_prepare_reactions
+matter_pipeline_compile_end=nm_prepare_events async=1
+matter_pipeline_compile_begin=nm_rollback_rigid_reactions_frame
+matter_pipeline_compile_end=nm_prepare_reactions async=1
+matter_pipeline_compile_begin=nm_checkpoint_scheduler
+matter_pipeline_compile_end=nm_rollback_rigid_reactions_frame async=1
+matter_pipeline_compile_begin=nm_prepare_scheduler
+matter_pipeline_compile_end=nm_checkpoint_scheduler async=1
+matter_pipeline_compile_begin=nm_apply_episode_resets
+matter_pipeline_compile_end=nm_prepare_scheduler async=1
+matter_pipeline_compile_begin=nm_reset_paired_cohesive_faces
+matter_pipeline_compile_begin=nm_identification_update
+matter_pipeline_compile_end=nm_apply_episode_resets async=1
+matter_pipeline_compile_end=nm_reset_paired_cohesive_faces async=1
+matter_pipeline_compile_begin=nm_publish_identification_means
+matter_pipeline_compile_begin=nm_identification_sample
+matter_pipeline_compile_end=nm_identification_update async=1
+matter_pipeline_compile_end=nm_publish_identification_means async=1
+matter_pipeline_compile_begin=nm_fem_checkpoint
+matter_pipeline_compile_end=nm_identification_sample async=1
+matter_pipeline_compile_begin=nm_fem_prepare_candidate
+matter_pipeline_compile_end=nm_fem_checkpoint async=1
+matter_pipeline_compile_begin=nm_fem_apply_kinematic_targets
+matter_pipeline_compile_end=nm_fem_prepare_candidate async=1
+matter_pipeline_compile_begin=nm_fem_human_attachment_drive_candidate
+matter_pipeline_compile_end=nm_fem_apply_kinematic_targets async=1
+matter_pipeline_compile_begin=nm_topology_checkpoint
+matter_pipeline_compile_end=nm_fem_human_attachment_drive_candidate async=1
+matter_pipeline_compile_begin=nm_topology_detect_puncture
+matter_pipeline_compile_end=nm_topology_checkpoint async=1
+matter_pipeline_compile_begin=nm_topology_execute_transaction
+matter_pipeline_compile_end=nm_topology_detect_puncture async=1
+matter_pipeline_compile_begin=nm_topology_rebuild_clear
+matter_pipeline_compile_begin=nm_topology_rebuild_count_mass
+matter_pipeline_compile_begin=nm_topology_rebuild_prefix
+matter_pipeline_compile_begin=nm_topology_rebuild_scatter
+matter_pipeline_compile_end=nm_topology_rebuild_clear async=1
+matter_pipeline_compile_end=nm_topology_rebuild_count_mass async=1
+matter_pipeline_compile_end=nm_topology_rebuild_prefix async=1
+matter_pipeline_compile_end=nm_topology_execute_transaction async=1
+matter_pipeline_compile_begin=nm_topology_rebuild_finalize
+matter_pipeline_compile_end=nm_topology_rebuild_scatter async=1
+matter_pipeline_compile_begin=nm_topology_conserve_transaction
+matter_pipeline_compile_begin=nm_topology_certify_transaction
+matter_pipeline_compile_end=nm_topology_rebuild_finalize async=1
+matter_pipeline_compile_end=nm_topology_conserve_transaction async=1
+matter_pipeline_compile_begin=nm_topology_validate_growth_references
+matter_pipeline_compile_begin=nm_topology_mark_growth_generation
+matter_pipeline_compile_begin=nm_topology_publish_growth_request
+matter_pipeline_compile_begin=nm_topology_commit
+matter_pipeline_compile_end=nm_topology_certify_transaction async=1
+matter_pipeline_compile_end=nm_topology_validate_growth_references async=1
+matter_pipeline_compile_begin=nm_topology_rollback
+matter_pipeline_compile_end=nm_topology_publish_growth_request async=1
+matter_pipeline_compile_begin=nm_mixed_checkpoint
+matter_pipeline_compile_end=nm_topology_commit async=1
+matter_pipeline_compile_end=nm_topology_mark_growth_generation async=1
+matter_pipeline_compile_end=nm_topology_rollback async=1
+matter_pipeline_compile_begin=nm_mixed_prepare_microstep
+matter_pipeline_compile_begin=nm_mixed_prepare_residual
+matter_pipeline_compile_end=nm_mixed_checkpoint async=1
+matter_pipeline_compile_end=nm_mixed_prepare_microstep async=1
+matter_pipeline_compile_begin=nm_mixed_apply_operator_elements
+matter_pipeline_compile_end=nm_mixed_prepare_residual async=1
+matter_pipeline_compile_begin=nm_mixed_apply_operator_nodes
+matter_pipeline_compile_end=nm_mixed_apply_operator_elements async=1
+matter_pipeline_compile_begin=nm_mixed_build_residual_diagonal
+matter_pipeline_compile_end=nm_mixed_apply_operator_nodes async=1
+matter_pipeline_compile_begin=nm_mixed_apply_kkt_solution
+matter_pipeline_compile_end=nm_mixed_build_residual_diagonal async=1
+matter_pipeline_compile_begin=nm_mixed_certify
+matter_pipeline_compile_end=nm_mixed_apply_kkt_solution async=1
+matter_pipeline_compile_begin=nm_mixed_commit
+matter_pipeline_compile_end=nm_mixed_certify async=1
+matter_pipeline_compile_begin=nm_mixed_rollback
+matter_pipeline_compile_begin=nm_learned_stage_weights
+matter_pipeline_compile_end=nm_mixed_commit async=1
+matter_pipeline_compile_begin=nm_learned_checkpoint
+matter_pipeline_compile_end=nm_mixed_rollback async=1
+matter_pipeline_compile_end=nm_learned_stage_weights async=1
+matter_pipeline_compile_begin=nm_learned_commit
+matter_pipeline_compile_end=nm_learned_checkpoint async=1
+matter_pipeline_compile_begin=nm_learned_rollback
+matter_pipeline_compile_end=nm_learned_commit async=1
+matter_pipeline_compile_begin=nm_project_rigid_states
+matter_pipeline_compile_end=nm_learned_rollback async=1
+matter_pipeline_compile_begin=nm_contact_initialize_prescribed_fem_candidate
+matter_pipeline_compile_end=nm_project_rigid_states async=1
+matter_pipeline_compile_begin=nm_contact_capture_prescribed_endpoint
+matter_pipeline_compile_end=nm_contact_initialize_prescribed_fem_candidate async=1
+matter_pipeline_compile_begin=nm_contact_validate_fem_rigid_armijo_path
+matter_pipeline_compile_end=nm_contact_capture_prescribed_endpoint async=1
+matter_pipeline_compile_begin=nm_contact_validate_prescribed_motion
+matter_pipeline_compile_begin=nm_contact_validate_stationary_box_endpoint
+matter_pipeline_compile_end=nm_contact_validate_fem_rigid_armijo_path async=1
+matter_pipeline_compile_end=nm_contact_validate_prescribed_motion async=1
+matter_pipeline_compile_begin=nm_contact_rollback_prescribed_motion
+matter_pipeline_compile_begin=nm_contact_rollback_stationary_box_projection
+matter_pipeline_compile_begin=nm_project_primal_free_rigid_candidate
+matter_pipeline_compile_end=nm_contact_validate_stationary_box_endpoint async=1
+matter_pipeline_compile_begin=nm_mask_primal_rigid_candidate
+matter_pipeline_compile_end=nm_contact_rollback_prescribed_motion async=1
+matter_pipeline_compile_end=nm_contact_rollback_stationary_box_projection async=1
+matter_pipeline_compile_end=nm_project_primal_free_rigid_candidate async=1
+matter_pipeline_compile_begin=nm_publish_primal_free_rigid_candidate
+matter_pipeline_compile_end=nm_mask_primal_rigid_candidate async=1
+matter_pipeline_compile_begin=nm_publish_adaptive_rigid_ownership
+matter_pipeline_compile_end=nm_publish_primal_free_rigid_candidate async=1
+matter_pipeline_compile_end=nm_publish_adaptive_rigid_ownership async=1
+matter_pipeline_compile_begin=nm_fem_internal_forces
+matter_pipeline_compile_begin=nm_fem_frozen_static_load_reset_status
+matter_pipeline_compile_end=nm_fem_internal_forces async=1
+matter_pipeline_compile_begin=nm_fem_frozen_static_load
+matter_pipeline_compile_end=nm_fem_frozen_static_load_reset_status async=1
+matter_pipeline_compile_begin=nm_fem_status5_capture
+matter_pipeline_compile_end=nm_fem_frozen_static_load async=1
+matter_pipeline_compile_begin=nm_matter_capture_first_failure
+matter_pipeline_compile_end=nm_fem_status5_capture async=1
+matter_pipeline_compile_begin=nm_fem_prepare_algorithmic_tangent_columns
+matter_pipeline_compile_end=nm_matter_capture_first_failure async=1
+matter_pipeline_compile_end=nm_fem_prepare_algorithmic_tangent_columns async=1
+matter_pipeline_compile_begin=nm_fem_build_algorithmic_tangent_cache_columns
+matter_pipeline_compile_begin=nm_fem_finalize_algorithmic_tangent_columns
+matter_pipeline_compile_end=nm_fem_build_algorithmic_tangent_cache_columns async=1
+matter_pipeline_compile_end=nm_fem_finalize_algorithmic_tangent_columns async=1
+matter_pipeline_compile_begin=nm_fem_cohesive_face_forces
+matter_pipeline_compile_begin=nm_fem_accumulate_cohesive_page_forces
+matter_pipeline_compile_end=nm_fem_cohesive_face_forces async=1
+matter_pipeline_compile_begin=nm_fem_clear_cohesive_force_accumulator
+matter_pipeline_compile_end=nm_fem_accumulate_cohesive_page_forces async=1
+matter_pipeline_compile_begin=nm_fem_apply_cohesive_force_accumulator
+matter_pipeline_compile_end=nm_fem_clear_cohesive_force_accumulator async=1
+matter_pipeline_compile_begin=nm_fem_apply_cohesive_operator_accumulator
+matter_pipeline_compile_begin=nm_fem_add_cohesive_residual
+matter_pipeline_compile_end=nm_fem_apply_cohesive_force_accumulator async=1
+matter_pipeline_compile_end=nm_fem_apply_cohesive_operator_accumulator async=1
+matter_pipeline_compile_end=nm_fem_add_cohesive_residual async=1
+matter_pipeline_compile_begin=nm_fem_cohesive_face_operator
+matter_pipeline_compile_begin=nm_fem_prepare_cohesive_activation
+matter_pipeline_compile_end=nm_fem_cohesive_face_operator async=1
+matter_pipeline_compile_begin=nm_fem_validate_cohesive_activation_commands
+matter_pipeline_compile_end=nm_fem_prepare_cohesive_activation async=1
+matter_pipeline_compile_begin=nm_fem_armijo_copy_cohesive_faces
+matter_pipeline_compile_end=nm_fem_validate_cohesive_activation_commands async=1
+matter_pipeline_compile_begin=nm_invalidate_solver_certificate_after_late_failure
+matter_pipeline_compile_begin=nm_fem_commit_cohesive_faces
+matter_pipeline_compile_end=nm_fem_armijo_copy_cohesive_faces async=1
+matter_pipeline_compile_begin=nm_fem_build_mechanical_residual
+matter_pipeline_compile_end=nm_invalidate_solver_certificate_after_late_failure async=1
+matter_pipeline_compile_end=nm_fem_commit_cohesive_faces async=1
+matter_pipeline_compile_begin=nm_fem_apply_solution
+matter_pipeline_compile_end=nm_fem_build_mechanical_residual async=1
+matter_pipeline_compile_end=nm_fem_apply_solution async=1
+matter_pipeline_compile_begin=nm_fem_select_backtracking
+matter_pipeline_compile_begin=nm_fem_parallel_backtracking_initialize
+matter_pipeline_compile_end=nm_fem_select_backtracking async=1
+matter_pipeline_compile_end=nm_fem_parallel_backtracking_initialize async=1
+matter_pipeline_compile_begin=nm_fem_parallel_backtracking_tiles
+matter_pipeline_compile_begin=nm_fem_parallel_backtracking_finalize
+matter_pipeline_compile_end=nm_fem_parallel_backtracking_tiles async=1
+matter_pipeline_compile_begin=nm_fem_parallel_backtracking_prepare_remaining
+matter_pipeline_compile_end=nm_fem_parallel_backtracking_finalize async=1
+matter_pipeline_compile_begin=nm_fem_armijo_measure_base
+matter_pipeline_compile_end=nm_fem_parallel_backtracking_prepare_remaining async=1
+matter_pipeline_compile_begin=nm_fem_armijo_measure_base_partial
+matter_pipeline_compile_begin=nm_fem_armijo_measure_base_finish
+matter_pipeline_compile_end=nm_fem_armijo_measure_base async=1
+matter_pipeline_compile_begin=nm_fem_armijo_measure_trial_partial
+matter_pipeline_compile_end=nm_fem_armijo_measure_base_partial async=1
+matter_pipeline_compile_end=nm_fem_armijo_measure_base_finish async=1
+matter_pipeline_compile_begin=nm_fem_armijo_measure_trial_finish
+matter_pipeline_compile_end=nm_fem_armijo_measure_trial_partial async=1
+matter_pipeline_compile_begin=nm_fem_armijo_begin_trial
+matter_pipeline_compile_begin=nm_fem_armijo_begin_bounded_trial
+matter_pipeline_compile_end=nm_fem_armijo_measure_trial_finish async=1
+matter_pipeline_compile_begin=nm_fem_armijo_prepare_candidate
+matter_pipeline_compile_end=nm_fem_armijo_begin_trial async=1
+matter_pipeline_compile_end=nm_fem_armijo_begin_bounded_trial async=1
+matter_pipeline_compile_begin=nm_fem_armijo_validate_geometry
+matter_pipeline_compile_end=nm_fem_armijo_prepare_candidate async=1
+matter_pipeline_compile_begin=nm_fem_armijo_validate_geometry_tiles
+matter_pipeline_compile_end=nm_fem_armijo_validate_geometry async=1
+matter_pipeline_compile_begin=nm_fem_armijo_validate_geometry_finish
+matter_pipeline_compile_end=nm_fem_armijo_validate_geometry_tiles async=1
+matter_pipeline_compile_begin=nm_fem_armijo_measure_trial
+matter_pipeline_compile_end=nm_fem_armijo_validate_geometry_finish async=1
+matter_pipeline_compile_begin=nm_fem_armijo_capture_base_status
+matter_pipeline_compile_begin=nm_fem_operator_fd_initialize
+matter_pipeline_compile_end=nm_fem_armijo_measure_trial async=1
+matter_pipeline_compile_end=nm_fem_armijo_capture_base_status async=1
+matter_pipeline_compile_begin=nm_fem_operator_fd_begin_pair
+matter_pipeline_compile_begin=nm_fem_operator_fd_negate_direction
+matter_pipeline_compile_end=nm_fem_operator_fd_initialize async=1
+matter_pipeline_compile_end=nm_fem_operator_fd_begin_pair async=1
+matter_pipeline_compile_begin=nm_fem_operator_fd_snapshot_inputs
+matter_pipeline_compile_end=nm_fem_operator_fd_negate_direction async=1
+matter_pipeline_compile_begin=nm_fem_operator_fd_capture_side
+matter_pipeline_compile_begin=nm_fem_operator_fd_save_positive_residual
+matter_pipeline_compile_end=nm_fem_operator_fd_snapshot_inputs async=1
+matter_pipeline_compile_end=nm_fem_operator_fd_capture_side async=1
+matter_pipeline_compile_begin=nm_fem_operator_fd_record_operator_status
+matter_pipeline_compile_end=nm_fem_operator_fd_save_positive_residual async=1
+matter_pipeline_compile_begin=nm_fem_operator_fd_measure_pair
+matter_pipeline_compile_end=nm_fem_operator_fd_record_operator_status async=1
+matter_pipeline_compile_begin=nm_fem_operator_fd_compare_inputs
+matter_pipeline_compile_begin=nm_fem_operator_fd_publish_integrity
+matter_pipeline_compile_end=nm_fem_operator_fd_measure_pair async=1
+matter_pipeline_compile_end=nm_fem_operator_fd_compare_inputs async=1
+matter_pipeline_compile_begin=nm_fem_operator_fd_capture_initialize
+matter_pipeline_compile_begin=nm_fem_operator_fd_capture_cached_tangent
+matter_pipeline_compile_end=nm_fem_operator_fd_publish_integrity async=1
+matter_pipeline_compile_end=nm_fem_operator_fd_capture_initialize async=1
+matter_pipeline_compile_begin=nm_fem_operator_fd_capture_nodes
+matter_pipeline_compile_end=nm_fem_operator_fd_capture_cached_tangent async=1
+matter_pipeline_compile_end=nm_fem_operator_fd_capture_nodes async=1
+matter_pipeline_compile_begin=nm_fem_operator_fd_capture_tetrahedra
+matter_pipeline_compile_begin=nm_fem_operator_fd_capture_parameters
+matter_pipeline_compile_begin=nm_fem_armijo_decide
+matter_pipeline_compile_begin=nm_fem_reset_fresh_direction_common_alpha
+matter_pipeline_compile_end=nm_fem_operator_fd_capture_parameters async=1
+matter_pipeline_compile_end=nm_fem_armijo_decide async=1
+matter_pipeline_compile_end=nm_fem_operator_fd_capture_tetrahedra async=1
+matter_pipeline_compile_begin=nm_fem_synchronize_environment_line_search
+matter_pipeline_compile_end=nm_fem_reset_fresh_direction_common_alpha async=1
+matter_pipeline_compile_begin=nm_fgmres_capture_base_cauchy_rhs
+matter_pipeline_compile_end=nm_fem_synchronize_environment_line_search async=1
+matter_pipeline_compile_begin=nm_fgmres_prepare_base_cauchy_action
+matter_pipeline_compile_end=nm_fgmres_capture_base_cauchy_rhs async=1
+matter_pipeline_compile_begin=nm_fgmres_build_base_cauchy_direction
+matter_pipeline_compile_end=nm_fgmres_prepare_base_cauchy_action async=1
+matter_pipeline_compile_begin=nm_fgmres_select_base_cgls_primary_policy
+matter_pipeline_compile_end=nm_fgmres_build_base_cauchy_direction async=1
+matter_pipeline_compile_begin=nm_fgmres_prepare_base_cgls_layout
+matter_pipeline_compile_end=nm_fgmres_select_base_cgls_primary_policy async=1
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_seed_residual
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_add_initial_solution
+matter_pipeline_compile_end=nm_fgmres_prepare_base_cgls_layout async=1
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_initialize_state
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_initialize_vectors
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_measure_initial
+matter_pipeline_compile_end=nm_fgmres_base_cgls_add_initial_solution async=1
+matter_pipeline_compile_end=nm_fgmres_base_cgls_seed_residual async=1
+matter_pipeline_compile_end=nm_fgmres_base_cgls_initialize_state async=1
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_form_alpha
+matter_pipeline_compile_end=nm_fgmres_base_cgls_initialize_vectors async=1
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_update_xr
+matter_pipeline_compile_end=nm_fgmres_base_cgls_measure_initial async=1
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_complete_iteration
+matter_pipeline_compile_end=nm_fgmres_base_cgls_form_alpha async=1
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_form_beta
+matter_pipeline_compile_end=nm_fgmres_base_cgls_complete_iteration async=1
+matter_pipeline_compile_end=nm_fgmres_base_cgls_update_xr async=1
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_update_p
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_finalize
+matter_pipeline_compile_end=nm_fgmres_base_cgls_form_beta async=1
+matter_pipeline_compile_end=nm_fgmres_base_cgls_update_p async=1
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_validate_warm_breakdown_rows
+matter_pipeline_compile_end=nm_fgmres_base_cgls_finalize async=1
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_mark_warm_breakdown_decline
+matter_pipeline_compile_end=nm_fgmres_base_cgls_validate_warm_breakdown_rows async=1
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_validate_right_scale
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_apply_right_scale
+matter_pipeline_compile_end=nm_fgmres_base_cgls_mark_warm_breakdown_decline async=1
+matter_pipeline_compile_begin=nm_fgmres_install_base_cgls_direction
+matter_pipeline_compile_end=nm_fgmres_base_cgls_validate_right_scale async=1
+matter_pipeline_compile_end=nm_fgmres_base_cgls_apply_right_scale async=1
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_best_of_save
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_best_of_save_direction
+matter_pipeline_compile_end=nm_fgmres_install_base_cgls_direction async=1
+matter_pipeline_compile_end=nm_fgmres_base_cgls_best_of_save async=1
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_best_of_resolve
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_best_of_restore_direction
+matter_pipeline_compile_end=nm_fgmres_base_cgls_best_of_save_direction async=1
+matter_pipeline_compile_begin=nm_fgmres_base_cgls_best_of_measure_committed
+matter_pipeline_compile_end=nm_fgmres_base_cgls_best_of_resolve async=1
+matter_pipeline_compile_end=nm_fgmres_base_cgls_best_of_restore_direction async=1
+matter_pipeline_compile_begin=nm_fgmres_preserve_true_rhs
+matter_pipeline_compile_begin=nm_fgmres_hybrid_preserve_physical_rhs
+matter_pipeline_compile_end=nm_fgmres_base_cgls_best_of_measure_committed async=1
+matter_pipeline_compile_end=nm_fgmres_preserve_true_rhs async=1
+matter_pipeline_compile_begin=nm_fgmres_hybrid_physical_residual_partial
+matter_pipeline_compile_end=nm_fgmres_hybrid_preserve_physical_rhs async=1
+matter_pipeline_compile_begin=nm_fgmres_hybrid_physical_residual_finish
+matter_pipeline_compile_end=nm_fgmres_hybrid_physical_residual_partial async=1
+matter_pipeline_compile_begin=nm_fgmres_clear_true_operator
+matter_pipeline_compile_begin=nm_fgmres_clear_true_auxiliary
+matter_pipeline_compile_end=nm_fgmres_hybrid_physical_residual_finish async=1
+matter_pipeline_compile_end=nm_fgmres_clear_true_operator async=1
+matter_pipeline_compile_begin=nm_fgmres_scan_completed_zero_operator_tiles
+matter_pipeline_compile_end=nm_fgmres_clear_true_auxiliary async=1
+matter_pipeline_compile_begin=nm_fgmres_reduce_completed_zero_operator_tiles
+matter_pipeline_compile_begin=nm_fgmres_prepare_completed_zero_operator_action
+matter_pipeline_compile_end=nm_fgmres_scan_completed_zero_operator_tiles async=1
+matter_pipeline_compile_begin=nm_fgmres_prepare_certification_operator_states
+matter_pipeline_compile_end=nm_fgmres_reduce_completed_zero_operator_tiles async=1
+matter_pipeline_compile_end=nm_fgmres_prepare_completed_zero_operator_action async=1
+matter_pipeline_compile_begin=nm_fgmres_prepare_certified_empty_restart_operator
+matter_pipeline_compile_end=nm_fgmres_prepare_certification_operator_states async=1
+matter_pipeline_compile_begin=nm_fgmres_clear_true_operator_unless_certified_empty_restart
+matter_pipeline_compile_begin=nm_fgmres_measure_true_residual
+matter_pipeline_compile_end=nm_fgmres_prepare_certified_empty_restart_operator async=1
+matter_pipeline_compile_end=nm_fgmres_clear_true_operator_unless_certified_empty_restart async=1
+matter_pipeline_compile_begin=nm_fgmres_begin
+matter_pipeline_compile_end=nm_fgmres_measure_true_residual async=1
+matter_pipeline_compile_begin=nm_fgmres_begin_distributed_partial
+matter_pipeline_compile_end=nm_fgmres_begin async=1
+matter_pipeline_compile_begin=nm_fgmres_prepare_distributed_work_dispatch
+matter_pipeline_compile_end=nm_fgmres_begin_distributed_partial async=1
+matter_pipeline_compile_begin=nm_fgmres_accepted_subspace_reset
+matter_pipeline_compile_end=nm_fgmres_prepare_distributed_work_dispatch async=1
+matter_pipeline_compile_begin=nm_fgmres_accepted_subspace_project_partial
+matter_pipeline_compile_end=nm_fgmres_accepted_subspace_reset async=1
+matter_pipeline_compile_begin=nm_fgmres_accepted_subspace_project_finish
+matter_pipeline_compile_end=nm_fgmres_accepted_subspace_project_partial async=1
+matter_pipeline_compile_begin=nm_fgmres_accepted_subspace_build_guess
+matter_pipeline_compile_end=nm_fgmres_accepted_subspace_project_finish async=1
+matter_pipeline_compile_begin=nm_fgmres_accepted_subspace_copy_operator_status
+matter_pipeline_compile_begin=nm_fgmres_accepted_subspace_form_residual
+matter_pipeline_compile_begin=nm_fgmres_accepted_subspace_add_guess
+matter_pipeline_compile_begin=nm_fgmres_accepted_subspace_commit_vectors
+matter_pipeline_compile_end=nm_fgmres_accepted_subspace_build_guess async=1
+matter_pipeline_compile_end=nm_fgmres_accepted_subspace_copy_operator_status async=1
+matter_pipeline_compile_end=nm_fgmres_accepted_subspace_form_residual async=1
+matter_pipeline_compile_end=nm_fgmres_accepted_subspace_add_guess async=1
+matter_pipeline_compile_begin=nm_fgmres_accepted_subspace_commit_count
+matter_pipeline_compile_begin=nm_fgmres_begin_distributed_finish
+matter_pipeline_compile_end=nm_fgmres_accepted_subspace_commit_vectors async=1
+matter_pipeline_compile_end=nm_fgmres_accepted_subspace_commit_count async=1
+matter_pipeline_compile_begin=nm_fgmres_copy_preconditioner_preflight_state
+matter_pipeline_compile_end=nm_fgmres_begin_distributed_finish async=1
+matter_pipeline_compile_begin=nm_fgmres_prepare_fresh_preconditioner_ranges
+matter_pipeline_compile_end=nm_fgmres_copy_preconditioner_preflight_state async=1
+matter_pipeline_compile_begin=nm_fgmres_clear_skipped_preconditioner_cache_words
+matter_pipeline_compile_end=nm_fgmres_prepare_fresh_preconditioner_ranges async=1
+matter_pipeline_compile_begin=nm_fgmres_verify_fresh_preconditioner_begin
+matter_pipeline_compile_end=nm_fgmres_clear_skipped_preconditioner_cache_words async=1
+matter_pipeline_compile_begin=nm_fgmres_begin_distributed_basis0
+matter_pipeline_compile_end=nm_fgmres_verify_fresh_preconditioner_begin async=1
+matter_pipeline_compile_begin=nm_fgmres_correction_distributed_partial
+matter_pipeline_compile_begin=nm_fgmres_correction_distributed_finish
+matter_pipeline_compile_begin=nm_fgmres_true_residual_distributed_partial
+matter_pipeline_compile_end=nm_fgmres_begin_distributed_basis0 async=1
+matter_pipeline_compile_end=nm_fgmres_correction_distributed_partial async=1
+matter_pipeline_compile_end=nm_fgmres_correction_distributed_finish async=1
+matter_pipeline_compile_begin=nm_fgmres_true_residual_distributed_finish
+matter_pipeline_compile_end=nm_fgmres_true_residual_distributed_partial async=1
+matter_pipeline_compile_begin=nm_fgmres_true_residual_distributed_replace
+matter_pipeline_compile_begin=nm_fgmres_prepare_newton_tail_dispatch
+matter_pipeline_compile_begin=nm_fgmres_prepare_newton_tail_icb
+matter_pipeline_compile_begin=nm_matter_gpu_timing_marker
+matter_pipeline_compile_end=nm_fgmres_true_residual_distributed_finish async=1
+matter_pipeline_compile_end=nm_fgmres_true_residual_distributed_replace async=1
+matter_pipeline_compile_end=nm_fgmres_prepare_newton_tail_dispatch async=1
+matter_pipeline_compile_end=nm_fgmres_prepare_newton_tail_icb async=1
+matter_pipeline_compile_begin=nm_fgmres_retain_newton_tail_node_rhs
+matter_pipeline_compile_end=nm_matter_gpu_timing_marker async=1
+matter_pipeline_compile_begin=nm_fgmres_telemetry_domains_partial
+matter_pipeline_compile_end=nm_fgmres_retain_newton_tail_node_rhs async=1
+matter_pipeline_compile_begin=nm_fgmres_telemetry_domains_finish
+matter_pipeline_compile_end=nm_fgmres_telemetry_domains_partial async=1
+matter_pipeline_compile_begin=nm_fgmres_telemetry_begin
+matter_pipeline_compile_begin=nm_fgmres_telemetry_finalize
+matter_pipeline_compile_end=nm_fgmres_telemetry_domains_finish async=1
+matter_pipeline_compile_end=nm_fgmres_telemetry_begin async=1
+matter_pipeline_compile_begin=nm_fgmres_telemetry_exhaustion
+matter_pipeline_compile_end=nm_fgmres_telemetry_finalize async=1
+matter_pipeline_compile_begin=nm_fgmres_telemetry_microtick_finish
+matter_pipeline_compile_begin=nm_fem_human_attachment_map_direction
+matter_pipeline_compile_end=nm_fgmres_telemetry_exhaustion async=1
+matter_pipeline_compile_end=nm_fgmres_telemetry_microtick_finish async=1
+matter_pipeline_compile_begin=nm_fem_human_attachment_eliminate_direction
+matter_pipeline_compile_end=nm_fem_human_attachment_map_direction async=1
+matter_pipeline_compile_begin=nm_fem_human_attachment_capture_residual
+matter_pipeline_compile_begin=nm_fem_human_attachment_scatter_residual
+matter_pipeline_compile_begin=nm_fem_human_attachment_capture_operator
+matter_pipeline_compile_begin=nm_fem_human_attachment_scatter_operator
+matter_pipeline_compile_end=nm_fem_human_attachment_eliminate_direction async=1
+matter_pipeline_compile_end=nm_fem_human_attachment_capture_residual async=1
+matter_pipeline_compile_end=nm_fem_human_attachment_scatter_residual async=1
+matter_pipeline_compile_begin=nm_fem_human_attachment_mask_reactions
+matter_pipeline_compile_end=nm_fem_human_attachment_capture_operator async=1
+matter_pipeline_compile_end=nm_fem_human_attachment_scatter_operator async=1
+matter_pipeline_compile_begin=nm_fem_human_implicit_spring_add_residual_nodes
+matter_pipeline_compile_end=nm_fem_human_attachment_mask_reactions async=1
+matter_pipeline_compile_begin=nm_fem_human_implicit_spring_add_residual_rigid
+matter_pipeline_compile_end=nm_fem_human_implicit_spring_add_residual_nodes async=1
+matter_pipeline_compile_begin=nm_fem_human_implicit_spring_gather_staged_rigid_force
+matter_pipeline_compile_end=nm_fem_human_implicit_spring_add_residual_rigid async=1
+matter_pipeline_compile_begin=nm_fem_human_implicit_spring_finalize_staged_rigid_force
+matter_pipeline_compile_end=nm_fem_human_implicit_spring_gather_staged_rigid_force async=1
+matter_pipeline_compile_begin=nm_fem_human_implicit_spring_apply_operator_nodes
+matter_pipeline_compile_end=nm_fem_human_implicit_spring_finalize_staged_rigid_force async=1
+matter_pipeline_compile_begin=nm_fem_human_implicit_spring_apply_operator_rigid
+matter_pipeline_compile_end=nm_fem_human_implicit_spring_apply_operator_nodes async=1
+matter_pipeline_compile_begin=nm_fgmres_measure_correction
+matter_pipeline_compile_begin=nm_fgmres_build_preconditioner
+matter_pipeline_compile_end=nm_fem_human_implicit_spring_apply_operator_rigid async=1
+matter_pipeline_compile_end=nm_fgmres_measure_correction async=1
+matter_pipeline_compile_end=nm_fgmres_build_preconditioner async=1
+matter_pipeline_compile_begin=nm_fgmres_build_tangent_fem_block_preconditioner
+matter_pipeline_compile_begin=nm_fgmres_build_tangent_fem_block_preconditioner_cached
+matter_pipeline_compile_end=nm_fgmres_build_tangent_fem_block_preconditioner async=1
+matter_pipeline_compile_begin=nm_fgmres_precondition
+matter_pipeline_compile_end=nm_fgmres_build_tangent_fem_block_preconditioner_cached async=1
+matter_pipeline_compile_begin=nm_fgmres_precondition_empty_fields
+matter_pipeline_compile_begin=nm_fgmres_apply_coupled_tangent_block
+matter_pipeline_compile_end=nm_fgmres_precondition async=1
+matter_pipeline_compile_end=nm_fgmres_precondition_empty_fields async=1
+matter_pipeline_compile_begin=nm_fgmres_precondition_patches
+matter_pipeline_compile_end=nm_fgmres_apply_coupled_tangent_block async=1
+matter_pipeline_compile_begin=nm_fgmres_precondition_coarse
+matter_pipeline_compile_begin=nm_fgmres_regional_load_mode
+matter_pipeline_compile_end=nm_fgmres_precondition_patches async=1
+matter_pipeline_compile_end=nm_fgmres_precondition_coarse async=1
+matter_pipeline_compile_begin=nm_fgmres_regional_project_basis
+matter_pipeline_compile_end=nm_fgmres_regional_load_mode async=1
+matter_pipeline_compile_begin=nm_fgmres_reset_regional_recycle
+matter_pipeline_compile_begin=nm_fgmres_capture_regional_recycle
+matter_pipeline_compile_begin=nm_fgmres_accepted_z0_reset_candidate
+matter_pipeline_compile_end=nm_fgmres_regional_project_basis async=1
+matter_pipeline_compile_end=nm_fgmres_reset_regional_recycle async=1
+matter_pipeline_compile_end=nm_fgmres_capture_regional_recycle async=1
+matter_pipeline_compile_begin=nm_fgmres_accepted_z0_reset_candidate_for_capture
+matter_pipeline_compile_end=nm_fgmres_accepted_z0_reset_candidate async=1
+matter_pipeline_compile_begin=nm_fgmres_accepted_z0_capture_candidate
+matter_pipeline_compile_end=nm_fgmres_accepted_z0_reset_candidate_for_capture async=1
+matter_pipeline_compile_begin=nm_fgmres_accepted_z0_validate_contact_keys
+matter_pipeline_compile_end=nm_fgmres_accepted_z0_capture_candidate async=1
+matter_pipeline_compile_begin=nm_fgmres_accepted_z0_validate_constraint_mask
+matter_pipeline_compile_end=nm_fgmres_accepted_z0_validate_contact_keys async=1
+matter_pipeline_compile_begin=nm_fgmres_accepted_z0_add_to_preconditioned_basis
+matter_pipeline_compile_end=nm_fgmres_accepted_z0_validate_constraint_mask async=1
+matter_pipeline_compile_begin=nm_fgmres_accepted_z0_promote_owner_candidate
+matter_pipeline_compile_end=nm_fgmres_accepted_z0_add_to_preconditioned_basis async=1
+matter_pipeline_compile_begin=nm_fgmres_accepted_z0_snapshot_owner_contact_keys
+matter_pipeline_compile_end=nm_fgmres_accepted_z0_promote_owner_candidate async=1
+matter_pipeline_compile_begin=nm_fgmres_regional_select_recycle_mode
+matter_pipeline_compile_begin=nm_fgmres_regional_capture_linearization
+matter_pipeline_compile_begin=nm_fgmres_regional_capture_constitutive_linearization
+matter_pipeline_compile_end=nm_fgmres_accepted_z0_snapshot_owner_contact_keys async=1
+matter_pipeline_compile_end=nm_fgmres_regional_select_recycle_mode async=1
+matter_pipeline_compile_end=nm_fgmres_regional_capture_linearization async=1
+matter_pipeline_compile_begin=nm_fgmres_regional_store_ap
+matter_pipeline_compile_begin=nm_fgmres_regional_restart_form_mode
+matter_pipeline_compile_end=nm_fgmres_regional_capture_constitutive_linearization async=1
+matter_pipeline_compile_end=nm_fgmres_regional_store_ap async=1
+matter_pipeline_compile_begin=nm_fgmres_regional_restart_reset_metadata
+matter_pipeline_compile_begin=nm_fgmres_regional_restart_cross_rhs
+matter_pipeline_compile_begin=nm_fgmres_regional_restart_project_mode
+matter_pipeline_compile_begin=nm_fgmres_regional_restart_measure_raw
+matter_pipeline_compile_end=nm_fgmres_regional_restart_form_mode async=1
+matter_pipeline_compile_end=nm_fgmres_regional_restart_reset_metadata async=1
+matter_pipeline_compile_end=nm_fgmres_regional_restart_cross_rhs async=1
+matter_pipeline_compile_end=nm_fgmres_regional_restart_project_mode async=1
+matter_pipeline_compile_begin=nm_fgmres_regional_restart_measure
+matter_pipeline_compile_begin=nm_fgmres_regional_restart_scale_mode
+matter_pipeline_compile_end=nm_fgmres_regional_restart_measure_raw async=1
+matter_pipeline_compile_begin=nm_fgmres_regional_restart_clear_if_invalid
+matter_pipeline_compile_end=nm_fgmres_regional_restart_measure async=1
+matter_pipeline_compile_end=nm_fgmres_regional_restart_scale_mode async=1
+matter_pipeline_compile_begin=nm_fgmres_regional_restart_identity_if_invalid
+matter_pipeline_compile_begin=nm_fgmres_regional_restart_fallback_if_factor_invalid
+matter_pipeline_compile_end=nm_fgmres_regional_restart_clear_if_invalid async=1
+matter_pipeline_compile_end=nm_fgmres_regional_restart_identity_if_invalid async=1
+matter_pipeline_compile_begin=nm_fgmres_regional_capture_restart_scale
+matter_pipeline_compile_end=nm_fgmres_regional_restart_fallback_if_factor_invalid async=1
+matter_pipeline_compile_begin=nm_fgmres_regional_build_rap
+matter_pipeline_compile_end=nm_fgmres_regional_capture_restart_scale async=1
+matter_pipeline_compile_begin=nm_fgmres_regional_factor_rap
+matter_pipeline_compile_end=nm_fgmres_regional_build_rap async=1
+matter_pipeline_compile_begin=nm_fgmres_regional_restart_build_rap
+matter_pipeline_compile_begin=nm_fgmres_regional_restart_factor_rap
+matter_pipeline_compile_begin=nm_fgmres_graph_add_psd_contact_blocks
+matter_pipeline_compile_end=nm_fgmres_regional_factor_rap async=1
+matter_pipeline_compile_end=nm_fgmres_regional_restart_build_rap async=1
+matter_pipeline_compile_end=nm_fgmres_regional_restart_factor_rap async=1
+matter_pipeline_compile_begin=nm_fgmres_graph_matrix_copy
+matter_pipeline_compile_end=nm_fgmres_graph_add_psd_contact_blocks async=1
+matter_pipeline_compile_begin=nm_fgmres_graph_matrix_parity_rows
+matter_pipeline_compile_end=nm_fgmres_graph_matrix_copy async=1
+matter_pipeline_compile_begin=nm_fgmres_graph_matrix_parity_finish
+matter_pipeline_compile_end=nm_fgmres_graph_matrix_parity_rows async=1
+matter_pipeline_compile_begin=nm_fgmres_graph_matrix_parity_reset_status
+matter_pipeline_compile_begin=nm_fgmres_schur_audit_seed
+matter_pipeline_compile_begin=nm_fgmres_schur_audit_compare
+matter_pipeline_compile_begin=nm_fgmres_schur_raw_audit_seed
+matter_pipeline_compile_end=nm_fgmres_graph_matrix_parity_finish async=1
+matter_pipeline_compile_end=nm_fgmres_graph_matrix_parity_reset_status async=1
+matter_pipeline_compile_end=nm_fgmres_schur_audit_seed async=1
+matter_pipeline_compile_begin=nm_fgmres_schur_raw_audit_compare
+matter_pipeline_compile_end=nm_fgmres_schur_audit_compare async=1
+matter_pipeline_compile_end=nm_fgmres_schur_raw_audit_seed async=1
+matter_pipeline_compile_begin=nm_fgmres_prepare_graph_schwarz_indirect_dispatch
+matter_pipeline_compile_end=nm_fgmres_schur_raw_audit_compare async=1
+matter_pipeline_compile_begin=nm_fgmres_schur_graph_interface_action
+matter_pipeline_compile_end=nm_fgmres_prepare_graph_schwarz_indirect_dispatch async=1
+matter_pipeline_compile_begin=nm_fgmres_regional_project_rhs
+matter_pipeline_compile_begin=nm_fgmres_regional_solve_rap
+matter_pipeline_compile_begin=nm_fgmres_regional_apply_rap
+matter_pipeline_compile_end=nm_fgmres_schur_graph_interface_action async=1
+matter_pipeline_compile_end=nm_fgmres_regional_project_rhs async=1
+matter_pipeline_compile_end=nm_fgmres_regional_solve_rap async=1
+matter_pipeline_compile_begin=nm_fgmres_regional_apply_block_rap
+matter_pipeline_compile_end=nm_fgmres_regional_apply_rap async=1
+matter_pipeline_compile_begin=nm_fgmres_import_field_residual
+matter_pipeline_compile_end=nm_fgmres_regional_apply_block_rap async=1
+matter_pipeline_compile_begin=nm_fgmres_clear_rigid_residual
+matter_pipeline_compile_end=nm_fgmres_import_field_residual async=1
+matter_pipeline_compile_begin=nm_fgmres_clear_coupled_mass_action
+matter_pipeline_compile_end=nm_fgmres_clear_rigid_residual async=1
+matter_pipeline_compile_begin=nm_rigid_initialize_feasible_candidate
+matter_pipeline_compile_end=nm_fgmres_clear_coupled_mass_action async=1
+matter_pipeline_compile_begin=nm_rigid_apply_candidate_solution
+matter_pipeline_compile_begin=nm_fem_armijo_prepare_free_rigid_candidate
+matter_pipeline_compile_begin=nm_fem_armijo_copy_rigid_states
+matter_pipeline_compile_end=nm_rigid_initialize_feasible_candidate async=1
+matter_pipeline_compile_begin=nm_fgmres_field_smoother_initialize
+matter_pipeline_compile_begin=nm_fgmres_field_smoother_export
+matter_pipeline_compile_end=nm_fem_armijo_prepare_free_rigid_candidate async=1
+matter_pipeline_compile_end=nm_rigid_apply_candidate_solution async=1
+matter_pipeline_compile_end=nm_fem_armijo_copy_rigid_states async=1
+matter_pipeline_compile_begin=nm_fgmres_field_smooth
+matter_pipeline_compile_end=nm_fgmres_field_smoother_initialize async=1
+matter_pipeline_compile_end=nm_fgmres_field_smoother_export async=1
+matter_pipeline_compile_begin=nm_fgmres_precondition_cross
+matter_pipeline_compile_begin=nm_fgmres_export_rigid
+matter_pipeline_compile_end=nm_fgmres_field_smooth async=1
+matter_pipeline_compile_end=nm_fgmres_precondition_cross async=1
+matter_pipeline_compile_begin=nm_fgmres_import_rigid
+matter_pipeline_compile_end=nm_fgmres_export_rigid async=1
+matter_pipeline_compile_begin=nm_fgmres_precondition_free_rigid
+matter_pipeline_compile_end=nm_fgmres_import_rigid async=1
+matter_pipeline_compile_begin=nm_fgmres_apply_free_rigid
+matter_pipeline_compile_begin=nm_fgmres_apply_primal_rigid_contacts
+matter_pipeline_compile_end=nm_fgmres_precondition_free_rigid async=1
+matter_pipeline_compile_end=nm_fgmres_apply_free_rigid async=1
+matter_pipeline_compile_begin=nm_contact_accumulate_rigid_residual
+matter_pipeline_compile_end=nm_fgmres_apply_primal_rigid_contacts async=1
+matter_pipeline_compile_begin=nm_contact_accumulate_rigid_residual_sparse
+matter_pipeline_compile_end=nm_contact_accumulate_rigid_residual async=1
+matter_pipeline_compile_begin=nm_fgmres_add_external_free_body_wrenches
+matter_pipeline_compile_end=nm_contact_accumulate_rigid_residual_sparse async=1
+matter_pipeline_compile_begin=nm_contact_subtract_rigid_inertia_residual
+matter_pipeline_compile_end=nm_fgmres_add_external_free_body_wrenches async=1
+matter_pipeline_compile_begin=nm_human_equality_factor
+matter_pipeline_compile_begin=nm_human_equality_precondition
+matter_pipeline_compile_begin=nm_human_equality_prepare
+matter_pipeline_compile_end=nm_contact_subtract_rigid_inertia_residual async=1
+matter_pipeline_compile_end=nm_human_equality_factor async=1
+matter_pipeline_compile_end=nm_human_equality_precondition async=1
+matter_pipeline_compile_begin=nm_human_equality_residual
+matter_pipeline_compile_end=nm_human_equality_prepare async=1
+matter_pipeline_compile_begin=nm_human_equality_operator
+matter_pipeline_compile_begin=nm_human_limit_prepare
+matter_pipeline_compile_begin=nm_human_limit_residual
+matter_pipeline_compile_begin=nm_human_limit_operator
+matter_pipeline_compile_end=nm_human_equality_residual async=1
+matter_pipeline_compile_end=nm_human_equality_operator async=1
+matter_pipeline_compile_end=nm_human_limit_residual async=1
+matter_pipeline_compile_end=nm_human_limit_prepare async=1
+matter_pipeline_compile_begin=nm_human_limit_factor
+matter_pipeline_compile_begin=nm_human_support_evaluate
+matter_pipeline_compile_end=nm_human_limit_operator async=1
+matter_pipeline_compile_end=nm_human_limit_factor async=1
+matter_pipeline_compile_begin=nm_human_support_accumulate_rigid_residual
+matter_pipeline_compile_begin=nm_fgmres_apply_human_support
+matter_pipeline_compile_begin=nm_fgmres_apply_support_dual
+matter_pipeline_compile_begin=nm_fgmres_precondition_support
+matter_pipeline_compile_end=nm_human_support_evaluate async=1
+matter_pipeline_compile_end=nm_human_support_accumulate_rigid_residual async=1
+matter_pipeline_compile_end=nm_fgmres_apply_human_support async=1
+matter_pipeline_compile_end=nm_fgmres_apply_support_dual async=1
+matter_pipeline_compile_begin=nm_fgmres_accumulate_support
+matter_pipeline_compile_begin=nm_fgmres_restart_residual_support
+matter_pipeline_compile_begin=nm_human_support_select_working_set
+matter_pipeline_compile_end=nm_fgmres_precondition_support async=1
+matter_pipeline_compile_end=nm_fgmres_accumulate_support async=1
+matter_pipeline_compile_end=nm_fgmres_restart_residual_support async=1
+matter_pipeline_compile_begin=nm_human_support_resolve_working_set
+matter_pipeline_compile_end=nm_human_support_select_working_set async=1
+matter_pipeline_compile_begin=nm_human_support_limit_line_search
+matter_pipeline_compile_end=nm_human_support_resolve_working_set async=1
+matter_pipeline_compile_begin=nm_human_support_validate_final_line_search
+matter_pipeline_compile_end=nm_human_support_limit_line_search async=1
+matter_pipeline_compile_begin=nm_human_support_apply_solution
+matter_pipeline_compile_end=nm_human_support_validate_final_line_search async=1
+matter_pipeline_compile_begin=nm_human_support_certify
+matter_pipeline_compile_begin=nm_vascular_checkpoint
+matter_pipeline_compile_end=nm_human_support_apply_solution async=1
+matter_pipeline_compile_end=nm_human_support_certify async=1
+matter_pipeline_compile_begin=nm_vascular_episode_reset
+matter_pipeline_compile_end=nm_vascular_checkpoint async=1
+matter_pipeline_compile_begin=nm_vascular_prepare_candidate
+matter_pipeline_compile_begin=nm_vascular_prepare_clock
+matter_pipeline_compile_end=nm_vascular_episode_reset async=1
+matter_pipeline_compile_end=nm_vascular_prepare_candidate async=1
+matter_pipeline_compile_begin=nm_vascular_prepare_elastance
+matter_pipeline_compile_end=nm_vascular_prepare_clock async=1
+matter_pipeline_compile_begin=nm_vascular_commit
+matter_pipeline_compile_begin=nm_vascular_rollback
+matter_pipeline_compile_begin=nm_vascular_residual
+matter_pipeline_compile_end=nm_vascular_prepare_elastance async=1
+matter_pipeline_compile_end=nm_vascular_commit async=1
+matter_pipeline_compile_end=nm_vascular_rollback async=1
+matter_pipeline_compile_begin=nm_vascular_dense_solve
+matter_pipeline_compile_end=nm_vascular_residual async=1
+matter_pipeline_compile_begin=nm_vascular_operator
+matter_pipeline_compile_end=nm_vascular_dense_solve async=1
+matter_pipeline_compile_begin=nm_vascular_cavity_forces
+matter_pipeline_compile_end=nm_vascular_operator async=1
+matter_pipeline_compile_begin=nm_vascular_cavity_operator
+matter_pipeline_compile_end=nm_vascular_cavity_forces async=1
+matter_pipeline_compile_begin=nm_vascular_cavity_schur_preconditioner
+matter_pipeline_compile_end=nm_vascular_cavity_operator async=1
+matter_pipeline_compile_begin=nm_vascular_cavity_schur_preconditioner_coupled_fem_block
+matter_pipeline_compile_end=nm_vascular_cavity_schur_preconditioner async=1
+matter_pipeline_compile_begin=nm_vascular_precondition
+matter_pipeline_compile_end=nm_vascular_cavity_schur_preconditioner_coupled_fem_block async=1
+matter_pipeline_compile_begin=nm_vascular_factor_principal_block
+matter_pipeline_compile_end=nm_vascular_precondition async=1
+matter_pipeline_compile_begin=nm_vascular_apply_principal_block
+matter_pipeline_compile_end=nm_vascular_factor_principal_block async=1
+matter_pipeline_compile_begin=nm_vascular_begin_working_set
+matter_pipeline_compile_end=nm_vascular_apply_principal_block async=1
+matter_pipeline_compile_begin=nm_vascular_resolve_working_set
+matter_pipeline_compile_end=nm_vascular_begin_working_set async=1
+matter_pipeline_compile_begin=nm_vascular_limit_line_search
+matter_pipeline_compile_end=nm_vascular_resolve_working_set async=1
+matter_pipeline_compile_begin=nm_vascular_apply_solution
+matter_pipeline_compile_end=nm_vascular_limit_line_search async=1
+matter_pipeline_compile_begin=nm_vascular_certify
+matter_pipeline_compile_end=nm_vascular_apply_solution async=1
+matter_pipeline_compile_begin=nm_fgmres_accumulate_vascular
+matter_pipeline_compile_end=nm_vascular_certify async=1
+matter_pipeline_compile_begin=nm_fgmres_restart_residual_vascular
+matter_pipeline_compile_begin=nm_human_support_checkpoint
+matter_pipeline_compile_end=nm_fgmres_accumulate_vascular async=1
+matter_pipeline_compile_end=nm_fgmres_restart_residual_vascular async=1
+matter_pipeline_compile_begin=nm_human_support_commit
+matter_pipeline_compile_end=nm_human_support_checkpoint async=1
+matter_pipeline_compile_begin=nm_human_support_rollback
+matter_pipeline_compile_end=nm_human_support_commit async=1
+matter_pipeline_compile_end=nm_human_support_rollback async=1
+matter_pipeline_compile_begin=nm_fem_apply_operator_elements
+matter_pipeline_compile_begin=nm_fgmres_add_cohesive_operator
+matter_pipeline_compile_begin=nm_fgmres_gather_nodes
+matter_pipeline_compile_end=nm_fem_apply_operator_elements async=1
+matter_pipeline_compile_end=nm_fgmres_add_cohesive_operator async=1
+matter_pipeline_compile_end=nm_fgmres_gather_nodes async=1
+matter_pipeline_compile_begin=nm_fgmres_orthogonalize_and_finish_column
+matter_pipeline_compile_begin=nm_fgmres_cgs2_partial
+matter_pipeline_compile_end=nm_fgmres_orthogonalize_and_finish_column async=1
+matter_pipeline_compile_begin=nm_fgmres_cgs2_reduce_row
+matter_pipeline_compile_begin=nm_fgmres_cgs2_update
+matter_pipeline_compile_begin=nm_fgmres_cgs2_measure_norm
+matter_pipeline_compile_end=nm_fgmres_cgs2_partial async=1
+matter_pipeline_compile_end=nm_fgmres_cgs2_reduce_row async=1
+matter_pipeline_compile_end=nm_fgmres_cgs2_update async=1
+matter_pipeline_compile_begin=nm_fgmres_cgs2_finish_column
+matter_pipeline_compile_begin=nm_fgmres_cgs2_normalize
+matter_pipeline_compile_begin=nm_fgmres_prepare_operator_icb_ranges
+matter_pipeline_compile_end=nm_fgmres_cgs2_measure_norm async=1
+matter_pipeline_compile_end=nm_fgmres_cgs2_finish_column async=1
+matter_pipeline_compile_end=nm_fgmres_cgs2_normalize async=1
+matter_pipeline_compile_begin=nm_fgmres_prepare_flat_cycle_icb_range
+matter_pipeline_compile_end=nm_fgmres_prepare_operator_icb_ranges async=1
+matter_pipeline_compile_begin=nm_fgmres_cgs2_prepare_range
+matter_pipeline_compile_end=nm_fgmres_prepare_flat_cycle_icb_range async=1
+matter_pipeline_compile_begin=nm_fgmres_finalize_cycle
+matter_pipeline_compile_begin=nm_fgmres_accumulate
+matter_pipeline_compile_begin=nm_fgmres_capture_exact_deformable_actions
+matter_pipeline_compile_end=nm_fgmres_cgs2_prepare_range async=1
+matter_pipeline_compile_end=nm_fgmres_finalize_cycle async=1
+matter_pipeline_compile_end=nm_fgmres_accumulate async=1
+matter_pipeline_compile_begin=nm_fgmres_accumulate_fields
+matter_pipeline_compile_begin=nm_fgmres_accumulate_rigid
+matter_pipeline_compile_begin=nm_fgmres_restart_residual_nodes
+matter_pipeline_compile_begin=nm_fgmres_restart_residual_rigid
+matter_pipeline_compile_end=nm_fgmres_capture_exact_deformable_actions async=1
+matter_pipeline_compile_end=nm_fgmres_accumulate_fields async=1
+matter_pipeline_compile_end=nm_fgmres_accumulate_rigid async=1
+matter_pipeline_compile_end=nm_fgmres_restart_residual_nodes async=1
+matter_pipeline_compile_begin=nm_contact_clear_samples
+matter_pipeline_compile_begin=nm_contact_begin_compact_samples
+matter_pipeline_compile_end=nm_fgmres_restart_residual_rigid async=1
+matter_pipeline_compile_end=nm_contact_clear_samples async=1
+matter_pipeline_compile_begin=nm_contact_finish_compact_samples
+matter_pipeline_compile_end=nm_contact_begin_compact_samples async=1
+matter_pipeline_compile_begin=nm_contact_clear_trial_samples
+matter_pipeline_compile_begin=nm_contact_clear_armijo_surface_cache
+matter_pipeline_compile_begin=nm_contact_reset_zero_step_geometry_reuse
+matter_pipeline_compile_end=nm_contact_finish_compact_samples async=1
+matter_pipeline_compile_end=nm_contact_clear_trial_samples async=1
+matter_pipeline_compile_end=nm_contact_clear_armijo_surface_cache async=1
+matter_pipeline_compile_begin=nm_contact_mark_zero_step_geometry_reuse
+matter_pipeline_compile_end=nm_contact_reset_zero_step_geometry_reuse async=1
+matter_pipeline_compile_begin=nm_contact_validate_armijo_surface_cache
+matter_pipeline_compile_begin=nm_contact_mark_armijo_surface_cache
+matter_pipeline_compile_end=nm_contact_mark_zero_step_geometry_reuse async=1
+matter_pipeline_compile_end=nm_contact_validate_armijo_surface_cache async=1
+matter_pipeline_compile_begin=nm_contact_build_surface_primitives
+matter_pipeline_compile_end=nm_contact_mark_armijo_surface_cache async=1
+matter_pipeline_compile_begin=nm_contact_sort_surface_primitives
+matter_pipeline_compile_begin=nm_contact_validate_surface_morton_order_cache
+matter_pipeline_compile_end=nm_contact_build_surface_primitives async=1
+matter_pipeline_compile_end=nm_contact_sort_surface_primitives async=1
+matter_pipeline_compile_begin=nm_contact_snapshot_surface_morton_order_cache
+matter_pipeline_compile_end=nm_contact_validate_surface_morton_order_cache async=1
+matter_pipeline_compile_begin=nm_contact_surface_morton_tile_bounds
+matter_pipeline_compile_end=nm_contact_snapshot_surface_morton_order_cache async=1
+matter_pipeline_compile_begin=nm_contact_surface_morton_bounds_reduce
+matter_pipeline_compile_begin=nm_contact_surface_morton_scan_tile_counts
+matter_pipeline_compile_end=nm_contact_surface_morton_tile_bounds async=1
+matter_pipeline_compile_end=nm_contact_surface_morton_bounds_reduce async=1
+matter_pipeline_compile_begin=nm_contact_surface_morton_scan_block_offsets
+matter_pipeline_compile_begin=nm_contact_surface_morton_scan_add_block_offsets
+matter_pipeline_compile_begin=nm_contact_emit_surface_morton_records_parallel
+matter_pipeline_compile_begin=nm_contact_surface_morton_radix_histogram
+matter_pipeline_compile_end=nm_contact_surface_morton_scan_tile_counts async=1
+matter_pipeline_compile_end=nm_contact_surface_morton_scan_block_offsets async=1
+matter_pipeline_compile_end=nm_contact_surface_morton_scan_add_block_offsets async=1
+matter_pipeline_compile_end=nm_contact_emit_surface_morton_records_parallel async=1
+matter_pipeline_compile_begin=nm_contact_surface_morton_radix_prefix
+matter_pipeline_compile_begin=nm_contact_surface_morton_radix_scatter
+matter_pipeline_compile_end=nm_contact_surface_morton_radix_histogram async=1
+matter_pipeline_compile_begin=nm_contact_build_surface_bvh_leaves
+matter_pipeline_compile_end=nm_contact_surface_morton_radix_prefix async=1
+matter_pipeline_compile_end=nm_contact_surface_morton_radix_scatter async=1
+matter_pipeline_compile_begin=nm_contact_build_surface_bvh_level
+matter_pipeline_compile_begin=nm_contact_count_deformable_candidates
+matter_pipeline_compile_end=nm_contact_build_surface_bvh_leaves async=1
+matter_pipeline_compile_end=nm_contact_build_surface_bvh_level async=1
+matter_pipeline_compile_begin=nm_contact_scan_deformable_candidate_counts
+matter_pipeline_compile_begin=nm_contact_scatter_deformable_candidates
+matter_pipeline_compile_begin=nm_contact_validate_armijo_deformable_sweep
+matter_pipeline_compile_end=nm_contact_count_deformable_candidates async=1
+matter_pipeline_compile_end=nm_contact_scan_deformable_candidate_counts async=1
+matter_pipeline_compile_end=nm_contact_scatter_deformable_candidates async=1
+matter_pipeline_compile_begin=nm_contact_narrowphase_deformable
+matter_pipeline_compile_end=nm_contact_validate_armijo_deformable_sweep async=1
+matter_pipeline_compile_begin=nm_contact_reduce_deformable_narrowphase_failures
+matter_pipeline_compile_begin=nm_contact_capture_deformable_failure
+matter_pipeline_compile_end=nm_contact_narrowphase_deformable async=1
+matter_pipeline_compile_end=nm_contact_reduce_deformable_narrowphase_failures async=1
+matter_pipeline_compile_begin=nm_contact_compact_deformable
+matter_pipeline_compile_end=nm_contact_capture_deformable_failure async=1
+matter_pipeline_compile_begin=nm_contact_compact_deformable_active_prefix
+matter_pipeline_compile_end=nm_contact_compact_deformable async=1
+matter_pipeline_compile_begin=nm_contact_clear_deformable_tail
+matter_pipeline_compile_end=nm_contact_compact_deformable_active_prefix async=1
+matter_pipeline_compile_begin=nm_contact_scan_deformable_active_counts
+matter_pipeline_compile_begin=nm_contact_scatter_deformable_active_work
+matter_pipeline_compile_end=nm_contact_clear_deformable_tail async=1
+matter_pipeline_compile_end=nm_contact_scan_deformable_active_counts async=1
+matter_pipeline_compile_begin=nm_contact_count_deformable_node_incidence
+matter_pipeline_compile_end=nm_contact_scatter_deformable_active_work async=1
+matter_pipeline_compile_begin=nm_contact_scan_deformable_node_incidence
+matter_pipeline_compile_end=nm_contact_count_deformable_node_incidence async=1
+matter_pipeline_compile_begin=nm_contact_scatter_deformable_node_incidence
+matter_pipeline_compile_begin=nm_contact_emit_deformable_node_corners
+matter_pipeline_compile_end=nm_contact_scan_deformable_node_incidence async=1
+matter_pipeline_compile_end=nm_contact_scatter_deformable_node_incidence async=1
+matter_pipeline_compile_begin=nm_contact_prepare_radix_tile_dispatch
+matter_pipeline_compile_begin=nm_contact_prepare_radix_prefix_dispatch
+matter_pipeline_compile_end=nm_contact_emit_deformable_node_corners async=1
+matter_pipeline_compile_end=nm_contact_prepare_radix_tile_dispatch async=1
+matter_pipeline_compile_begin=nm_contact_deformable_node_radix_histogram
+matter_pipeline_compile_end=nm_contact_prepare_radix_prefix_dispatch async=1
+matter_pipeline_compile_begin=nm_contact_deformable_node_radix_prefix
+matter_pipeline_compile_begin=nm_contact_deformable_node_radix_prefix_blocks
+matter_pipeline_compile_end=nm_contact_deformable_node_radix_histogram async=1
+matter_pipeline_compile_end=nm_contact_deformable_node_radix_prefix async=1
+matter_pipeline_compile_begin=nm_contact_deformable_node_radix_prefix_chunk_offsets
+matter_pipeline_compile_end=nm_contact_deformable_node_radix_prefix_blocks async=1
+matter_pipeline_compile_begin=nm_contact_deformable_node_radix_scatter
+matter_pipeline_compile_end=nm_contact_deformable_node_radix_prefix_chunk_offsets async=1
+matter_pipeline_compile_begin=nm_contact_count_deformable_node_incidence_radix
+matter_pipeline_compile_begin=nm_contact_copy_deformable_node_radix_result
+matter_pipeline_compile_begin=nm_contact_scan_deformable_node_incidence_tiles
+matter_pipeline_compile_begin=nm_contact_scan_deformable_node_incidence_tile_offsets
+matter_pipeline_compile_end=nm_contact_deformable_node_radix_scatter async=1
+matter_pipeline_compile_end=nm_contact_count_deformable_node_incidence_radix async=1
+matter_pipeline_compile_end=nm_contact_copy_deformable_node_radix_result async=1
+matter_pipeline_compile_end=nm_contact_scan_deformable_node_incidence_tiles async=1
+matter_pipeline_compile_begin=nm_contact_scan_deformable_node_incidence_add_tile_offsets
+matter_pipeline_compile_begin=nm_contact_bitonic_sort_deformable_node_corners
+matter_pipeline_compile_end=nm_contact_scan_deformable_node_incidence_tile_offsets async=1
+matter_pipeline_compile_begin=nm_contact_count_deformable_node_incidence_sorted
+matter_pipeline_compile_end=nm_contact_bitonic_sort_deformable_node_corners async=1
+matter_pipeline_compile_begin=nm_contact_scatter_deformable_node_incidence_sorted
+matter_pipeline_compile_begin=nm_contact_evaluate
+matter_pipeline_compile_end=nm_contact_scan_deformable_node_incidence_add_tile_offsets async=1
+matter_pipeline_compile_end=nm_contact_count_deformable_node_incidence_sorted async=1
+matter_pipeline_compile_end=nm_contact_scatter_deformable_node_incidence_sorted async=1
+matter_pipeline_compile_begin=nm_contact_clear_sparse_trial_samples
+matter_pipeline_compile_begin=nm_contact_build_armijo_sparse_pair_flags
+matter_pipeline_compile_end=nm_contact_clear_sparse_trial_samples async=1
+matter_pipeline_compile_end=nm_contact_evaluate async=1
+matter_pipeline_compile_begin=nm_contact_scan_armijo_sparse_pair_flags
+matter_pipeline_compile_begin=nm_contact_compare_armijo_sparse_samples
+matter_pipeline_compile_end=nm_contact_build_armijo_sparse_pair_flags async=1
+matter_pipeline_compile_end=nm_contact_scan_armijo_sparse_pair_flags async=1
+matter_pipeline_compile_begin=nm_contact_certify_post_commit_rigid
+matter_pipeline_compile_end=nm_contact_compare_armijo_sparse_samples async=1
+matter_pipeline_compile_begin=nm_contact_compact_active
+matter_pipeline_compile_begin=nm_contact_compact_active_sparse
+matter_pipeline_compile_begin=nm_contact_checkpoint_histories
+matter_pipeline_compile_begin=nm_contact_rollback_histories_v2
+matter_pipeline_compile_end=nm_contact_certify_post_commit_rigid async=1
+matter_pipeline_compile_end=nm_contact_compact_active async=1
+matter_pipeline_compile_end=nm_contact_compact_active_sparse async=1
+matter_pipeline_compile_end=nm_contact_checkpoint_histories async=1
+matter_pipeline_compile_begin=nm_contact_commit_histories
+matter_pipeline_compile_begin=nm_contact_rollback_histories
+matter_pipeline_compile_end=nm_contact_rollback_histories_v2 async=1
+matter_pipeline_compile_end=nm_contact_commit_histories async=1
+matter_pipeline_compile_begin=nm_contact_clear_remapped_suture_histories
+matter_pipeline_compile_end=nm_contact_rollback_histories async=1
+matter_pipeline_compile_begin=nm_contact_checkpoint_deformable_contact_histories
+matter_pipeline_compile_begin=nm_contact_commit_deformable_contact_histories
+matter_pipeline_compile_end=nm_contact_clear_remapped_suture_histories async=1
+matter_pipeline_compile_end=nm_contact_checkpoint_deformable_contact_histories async=1
+matter_pipeline_compile_begin=nm_contact_rollback_deformable_contact_histories
+matter_pipeline_compile_end=nm_contact_commit_deformable_contact_histories async=1
+matter_pipeline_compile_begin=nm_contact_prepare_articulated_queries
+matter_pipeline_compile_end=nm_contact_rollback_deformable_contact_histories async=1
+matter_pipeline_compile_begin=nm_contact_accumulate_fem_residual
+matter_pipeline_compile_begin=nm_contact_accumulate_fem_residual_sparse
+matter_pipeline_compile_end=nm_contact_prepare_articulated_queries async=1
+matter_pipeline_compile_end=nm_contact_accumulate_fem_residual async=1
+matter_pipeline_compile_begin=nm_contact_accumulate_deformable_fem_residual
+matter_pipeline_compile_begin=nm_contact_publish_fem_constraint_contact_force
+matter_pipeline_compile_begin=nm_contact_publish_primal_history
+matter_pipeline_compile_end=nm_contact_accumulate_fem_residual_sparse async=1
+matter_pipeline_compile_end=nm_contact_accumulate_deformable_fem_residual async=1
+matter_pipeline_compile_end=nm_contact_publish_fem_constraint_contact_force async=1
+matter_pipeline_compile_begin=nm_contact_limit_deformable_line_search
+matter_pipeline_compile_end=nm_contact_publish_primal_history async=1
+matter_pipeline_compile_begin=nm_contact_limit_rigid_line_search
+matter_pipeline_compile_end=nm_contact_limit_deformable_line_search async=1
+matter_pipeline_compile_begin=nm_contact_publish_deformable_history
+matter_pipeline_compile_begin=nm_contact_reduce_rigid
+matter_pipeline_compile_begin=nm_accumulate_rigid_reactions
+matter_pipeline_compile_begin=nm_apply_suture_strand_reactions
+matter_pipeline_compile_end=nm_contact_limit_rigid_line_search async=1
+matter_pipeline_compile_end=nm_contact_publish_deformable_history async=1
+matter_pipeline_compile_end=nm_accumulate_rigid_reactions async=1
+matter_pipeline_compile_end=nm_contact_reduce_rigid async=1
+matter_pipeline_compile_begin=nm_fem_integrate
+matter_pipeline_compile_end=nm_apply_suture_strand_reactions async=1
+matter_pipeline_compile_begin=nm_fem_validate
+matter_pipeline_compile_end=nm_fem_integrate async=1
+matter_pipeline_compile_begin=nm_fem_commit_microstep
+matter_pipeline_compile_end=nm_fem_validate async=1
+matter_pipeline_compile_begin=nm_scheduler_observe
+matter_pipeline_compile_end=nm_fem_commit_microstep async=1
+matter_pipeline_compile_begin=nm_complete_microstep
+matter_pipeline_compile_end=nm_scheduler_observe async=1
+matter_pipeline_compile_begin=nm_publish_accepted_control_cursor
+matter_pipeline_compile_end=nm_complete_microstep async=1
+matter_pipeline_compile_begin=nm_merge_accepted_step_gate_into_status
+matter_pipeline_compile_end=nm_publish_accepted_control_cursor async=1
+matter_pipeline_compile_begin=nm_fem_rollback_frame
+matter_pipeline_compile_end=nm_merge_accepted_step_gate_into_status async=1
+matter_pipeline_compile_begin=nm_latch_matter_status_into_rigid_world
+matter_pipeline_compile_begin=nm_reconcile_rigid_world_status
+matter_pipeline_compile_begin=nm_scheduler_reconcile
+matter_pipeline_compile_begin=nm_adaptive_measure
+matter_pipeline_compile_end=nm_fem_rollback_frame async=1
+matter_pipeline_compile_end=nm_reconcile_rigid_world_status async=1
+matter_pipeline_compile_end=nm_latch_matter_status_into_rigid_world async=1
+matter_pipeline_compile_end=nm_scheduler_reconcile async=1
+matter_pipeline_compile_begin=nm_adaptive_observe_rigid_contacts
+matter_pipeline_compile_begin=nm_adaptive_decide
+matter_pipeline_compile_begin=nm_adaptive_demote_to_rigid
+matter_pipeline_compile_end=nm_adaptive_measure async=1
+matter_pipeline_compile_end=nm_adaptive_observe_rigid_contacts async=1
+matter_pipeline_compile_end=nm_adaptive_decide async=1
+matter_pipeline_compile_end=nm_adaptive_demote_to_rigid async=1
+matter_fem_backtracking_constitutive_validity=enabled stateless=1 mixed=0 learned=0
+[NumiMatter] vascular principal block enabled: 46 unknowns, 16644 scratch bytes/environment; physical operator unchanged
+matter_stateless_tangent_bundle mode=1 eligible_materials=5 total_materials=20
+contact_node_incidence_builder={"schema":1,"mode":"active_corner_radix","hierarchical_prefix":true,"environments":1,"capacity":436352,"logical_corners_per_environment":2618112,"padded_corners_per_environment":4194304,"sort_workspace_bytes":50331648}
+[NumiMatter] empty-field FGMRES precondition skip enabled: layout_bit0=1 mixed_fields=0 mpm_capacity=0 hybrid=0
+matter_runtime_initialize_complete
+respiration_runtime_initialize_begin
+resting_gas_transport_subcycling=1 respiratory_mechanics_subcycling=1 parallel_respiratory_muscles=1 parallel_respiratory_gas=0 maximum_internal_mechanics_dt_s=0.002 maximum_substeps=32 donor_fraction_bound=0.1 external_blood=operator_split_orifice_ballistic_packets source_anatomy_id=9 donor_compartment_id=7 area_fraction=0.25 discharge_coefficient=0.6 density_kg_m3=1050.6 cut_step=4294967295 bleeding_enabled=0 blood_mpm_enabled=0 blood_mpm_object=4294967295 free_surface_solver=existing_mpm_high_shear_newtonian_reduced_scope
+respiration_runtime_initialize_complete
+myosim_articulated_visual=failed error="accepted FEM boundary renderer is not matched to the bound whole-body skin/fat object and layer configuration"

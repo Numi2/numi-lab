@@ -1,0 +1,283 @@
+{
+  "changed_connectivity": [
+    {
+      "legacy_parent_tet_id": 11328,
+      "material": 1,
+      "new_nodes": [
+        2262,
+        2245,
+        2261,
+        4672
+      ],
+      "stable_source_face_id": 89542,
+      "tet_row": 11787
+    },
+    {
+      "legacy_parent_tet_id": 11329,
+      "material": 1,
+      "new_nodes": [
+        2245,
+        2262,
+        4656,
+        4672
+      ],
+      "stable_source_face_id": 89542,
+      "tet_row": 11788
+    },
+    {
+      "legacy_parent_tet_id": 11330,
+      "material": 1,
+      "new_nodes": [
+        2262,
+        4673,
+        4656,
+        4672
+      ],
+      "stable_source_face_id": 89542,
+      "tet_row": 11789
+    },
+    {
+      "legacy_parent_tet_id": 11425,
+      "material": 1,
+      "new_nodes": [
+        2261,
+        2262,
+        4672,
+        4693
+      ],
+      "stable_source_face_id": 90874,
+      "tet_row": 11884
+    },
+    {
+      "legacy_parent_tet_id": 11426,
+      "material": 1,
+      "new_nodes": [
+        2262,
+        4673,
+        4672,
+        4693
+      ],
+      "stable_source_face_id": 90874,
+      "tet_row": 11885
+    },
+    {
+      "legacy_parent_tet_id": 13851,
+      "material": 1,
+      "new_nodes": [
+        2262,
+        2238,
+        2245,
+        4656
+      ],
+      "stable_source_face_id": 108823,
+      "tet_row": 14310
+    },
+    {
+      "legacy_parent_tet_id": 13852,
+      "material": 1,
+      "new_nodes": [
+        2238,
+        2262,
+        4673,
+        4656
+      ],
+      "stable_source_face_id": 108823,
+      "tet_row": 14311
+    },
+    {
+      "legacy_parent_tet_id": 13853,
+      "material": 1,
+      "new_nodes": [
+        4649,
+        2238,
+        4673,
+        4656
+      ],
+      "stable_source_face_id": 108823,
+      "tet_row": 14312
+    },
+    {
+      "legacy_parent_tet_id": 25185,
+      "material": 2,
+      "new_nodes": [
+        4673,
+        4656,
+        4672,
+        7083
+      ],
+      "stable_source_face_id": 89542,
+      "tet_row": 26103
+    },
+    {
+      "legacy_parent_tet_id": 25186,
+      "material": 2,
+      "new_nodes": [
+        4656,
+        4673,
+        7067,
+        7083
+      ],
+      "stable_source_face_id": 89542,
+      "tet_row": 26104
+    },
+    {
+      "legacy_parent_tet_id": 25187,
+      "material": 2,
+      "new_nodes": [
+        4673,
+        7084,
+        7067,
+        7083
+      ],
+      "stable_source_face_id": 89542,
+      "tet_row": 26105
+    },
+    {
+      "legacy_parent_tet_id": 25282,
+      "material": 2,
+      "new_nodes": [
+        4672,
+        4673,
+        7083,
+        7104
+      ],
+      "stable_source_face_id": 90874,
+      "tet_row": 26200
+    },
+    {
+      "legacy_parent_tet_id": 25283,
+      "material": 2,
+      "new_nodes": [
+        4673,
+        7084,
+        7083,
+        7104
+      ],
+      "stable_source_face_id": 90874,
+      "tet_row": 26201
+    },
+    {
+      "legacy_parent_tet_id": 27708,
+      "material": 2,
+      "new_nodes": [
+        4673,
+        4649,
+        4656,
+        7067
+      ],
+      "stable_source_face_id": 108823,
+      "tet_row": 28626
+    },
+    {
+      "legacy_parent_tet_id": 27709,
+      "material": 2,
+      "new_nodes": [
+        4649,
+        4673,
+        7084,
+        7067
+      ],
+      "stable_source_face_id": 108823,
+      "tet_row": 28627
+    },
+    {
+      "legacy_parent_tet_id": 27710,
+      "material": 2,
+      "new_nodes": [
+        7060,
+        4649,
+        7084,
+        7067
+      ],
+      "stable_source_face_id": 108823,
+      "tet_row": 28628
+    }
+  ],
+  "counts": {
+    "affected_prism_faces": 7,
+    "changed_tetrahedron_rows": 16,
+    "csr_entries": 28674,
+    "node_rows_per_layer": 2411,
+    "surface_faces": 4777,
+    "tetrahedra": 28632
+  },
+  "elapsed_seconds": 1.142228364944458,
+  "gates": {
+    "O_I_D_face_tables_exact": true,
+    "O_I_D_positions_exact": true,
+    "all_float32_signed_volumes_positive": true,
+    "all_tets_meet_quality_floor": true,
+    "global_exterior_and_material_interface_facets_exact": true,
+    "local_old_new_overlap_child_coverage_max_relative_error": 2.3603914395840704e-13,
+    "local_old_new_overlap_parent_coverage_max_relative_error": 8.041919315637476e-12,
+    "min_normalized_det_over_longest_edge_cubed": 2.5664783488227465e-05,
+    "old_parent_column_fraction_closure_max_abs_error": 8.041789456569859e-12,
+    "oriented_local_cavity_boundary_exact": true,
+    "quality_floor": 1e-05,
+    "synthetic_nonuniform_mass_relative_residual": 6.093914411023044e-16
+  },
+  "inputs": {
+    "faces_csv_sha256": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "nodes_csv_sha256": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "tetrahedra_csv_sha256": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4"
+  },
+  "limitations": [
+    "No bone-clearance retest was run; existing known D-row bone penetration remains unresolved.",
+    "No native header/build/runtime qualification is claimed.",
+    "For changed cells, legacy single-parent IDs are set to -1; use the conservative CSR mapping."
+  ],
+  "material_volume_m3": {
+    "1": {
+      "delta_m3": 0.0,
+      "new_m3": 0.0034525706448618036,
+      "old_m3": 0.0034525706448618036
+    },
+    "2": {
+      "delta_m3": 0.0,
+      "new_m3": 0.011652343207875726,
+      "old_m3": 0.011652343207875726
+    }
+  },
+  "quality": {
+    "new_global_min_q": 2.5664783488227465e-05,
+    "new_patch_min_q": 0.0006911285474737913,
+    "old_global_min_q": 2.5664783488227465e-05,
+    "old_patch_min_q": 0.00010504961239574454
+  },
+  "schema": "numi.human.d37.conforming-prism-rank-retriangulation.v1",
+  "status": "bounded local candidate; not native/physical admission",
+  "target": {
+    "affected_stable_source_face_ids": [
+      108766,
+      108817,
+      108911,
+      108823,
+      89542,
+      90874,
+      90900
+    ],
+    "affected_surface_face_rows": [
+      4544,
+      4545,
+      4581,
+      4627,
+      4643,
+      4673,
+      4677
+    ],
+    "column_node_id": 2262,
+    "rank_insertion_index": 3,
+    "rank_order_over_local_neighbor_rows": [
+      2189,
+      2206,
+      2238,
+      2262,
+      2245,
+      2261,
+      2263,
+      2282
+    ],
+    "stable_source_face_id": 89542,
+    "surface_face_row": 4643
+  }
+}

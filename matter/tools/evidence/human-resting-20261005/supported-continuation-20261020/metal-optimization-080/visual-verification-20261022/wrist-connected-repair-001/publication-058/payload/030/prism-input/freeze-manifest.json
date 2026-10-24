@@ -1,0 +1,24 @@
+{
+  "builder_source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/build_prism_rank_retriangulation_003.py",
+  "files": {
+    "build_prism_rank_retriangulation_003.py": {
+      "bytes": 16439,
+      "sha256": "07ab8d570eaffb5e226e2e63aeb167d6eea066408f41c87145842d982d185fc0"
+    },
+    "candidate.npz": {
+      "bytes": 905624,
+      "sha256": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc"
+    },
+    "changed-connectivity.csv": {
+      "bytes": 801,
+      "sha256": "a068645be6ea2fdd089a960f9b9799af07669f642d8f1e69d629a496910b28cb"
+    },
+    "report.json": {
+      "bytes": 6228,
+      "sha256": "cba3dabe05563ce5b6c7e659c395b577236e734395ce6edd5b21620536d1fb26"
+    }
+  },
+  "input_dir": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-002/generated",
+  "schema": "numi.human.d37.conforming-prism-rank-retriangulation.freeze.v1",
+  "status": "candidate frozen by deterministic input/output hashing"
+}

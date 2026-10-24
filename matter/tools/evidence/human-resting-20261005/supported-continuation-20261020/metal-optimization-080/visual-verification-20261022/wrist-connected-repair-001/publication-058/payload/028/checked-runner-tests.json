@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "scope": "Synthetic process/receipt tests only; no Metal or human simulation",
+  "source_sha256": "67f0a7d6d37164765a730d029b1278e5f5b845833fccef13fb6d24efe9eea56d",
+  "cases": [
+    {
+      "case": "requested-missing",
+      "returncode": 1,
+      "receipt": {
+        "returncode": 1,
+        "error": null,
+        "wall_seconds": 0.3152880830457434,
+        "launch_manifest_sha256": "3f129e541ef6463a35cebece722e7a7f50372d289f9e7c956aaad7fd3a2b932b",
+        "stdout_sha256": "5664e77fe23b79be79ddc95ea2dd975681798b73829565b3def3e0a1d6b8fc92",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "FAILED",
+        "physical_qualification": false,
+        "source_only_marker_present": true,
+        "requested_diagnostics_complete": false,
+        "missing_requested_outputs": [
+          {
+            "environment_key": "NUMI_HUMAN_INITIAL_SKIN_BONE_WITNESS_CSV",
+            "path": "/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/numi-capture-receipt-test-fuzhksa1/requested-missing/initial-skin-bone-contact.csv"
+          }
+        ]
+      }
+    },
+    {
+      "case": "requested-present",
+      "returncode": 0,
+      "receipt": {
+        "returncode": 1,
+        "error": null,
+        "wall_seconds": 0.015139166032895446,
+        "launch_manifest_sha256": "f295d8146e6f10d38abb721a04c45421754a1ef1f52badbccd4982ea5e1d25a6",
+        "stdout_sha256": "5664e77fe23b79be79ddc95ea2dd975681798b73829565b3def3e0a1d6b8fc92",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "SOURCE_ONLY_INTENTIONAL_STOP",
+        "physical_qualification": false,
+        "source_only_marker_present": true,
+        "requested_diagnostics_complete": true,
+        "missing_requested_outputs": []
+      }
+    },
+    {
+      "case": "not-requested",
+      "returncode": 0,
+      "receipt": {
+        "returncode": 1,
+        "error": null,
+        "wall_seconds": 0.014937459025532007,
+        "launch_manifest_sha256": "7182c4bcade7fa9479971fca86babf2210b3ea94d133ac782f791c32543869d3",
+        "stdout_sha256": "5664e77fe23b79be79ddc95ea2dd975681798b73829565b3def3e0a1d6b8fc92",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "SOURCE_ONLY_INTENTIONAL_STOP",
+        "physical_qualification": false,
+        "source_only_marker_present": true,
+        "requested_diagnostics_complete": true,
+        "missing_requested_outputs": []
+      }
+    }
+  ]
+}

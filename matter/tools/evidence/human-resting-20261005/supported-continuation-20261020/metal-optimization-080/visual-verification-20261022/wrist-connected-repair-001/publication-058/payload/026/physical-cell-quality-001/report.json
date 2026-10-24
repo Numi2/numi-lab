@@ -1,0 +1,918 @@
+{
+  "affected_layer_columns": {
+    "failed_cell_node_ids": [
+      4672,
+      4656,
+      7083,
+      7084
+    ],
+    "metric_note": "O/I/D thicknesses are measured from D37 generated column coordinates; compiled quality uses pinned native compiled F32 node coordinates.",
+    "rows": [
+      {
+        "OI_ID_angle_deg": 0.1937305464669438,
+        "declared_fat_thickness_mm": 4.248225169499829,
+        "declared_skin_thickness_mm": 0.9409083998245069,
+        "donor_body_id": 114,
+        "fat_ID_length_mm": 4.248225169499829,
+        "reduced_row": 2245,
+        "skin_OI_length_mm": 0.9409083998245069,
+        "source_vertex_id": 51541
+      },
+      {
+        "OI_ID_angle_deg": 13.102679960452582,
+        "declared_fat_thickness_mm": 7.58597457070231,
+        "declared_skin_thickness_mm": 1.2394666478598484,
+        "donor_body_id": 109,
+        "fat_ID_length_mm": 7.58597457070231,
+        "reduced_row": 2261,
+        "skin_OI_length_mm": 1.2394666478598484,
+        "source_vertex_id": 52297
+      },
+      {
+        "OI_ID_angle_deg": 1.7499125054872515,
+        "declared_fat_thickness_mm": 8.788291159684679,
+        "declared_skin_thickness_mm": 0.8799332640532649,
+        "donor_body_id": 107,
+        "fat_ID_length_mm": 8.788291159684679,
+        "reduced_row": 2262,
+        "skin_OI_length_mm": 0.8799332640532649,
+        "source_vertex_id": 52310
+      }
+    ]
+  },
+  "candidate": "wholebody-attachment-source-rebind-037-candidate020-identity004-002",
+  "conclusion": {
+    "failure_is_initial_geometry_gate": false,
+    "failure_is_newton_trial_upper_J_gate": true,
+    "initial_cell_is_inverted_or_below_quality_floor": false,
+    "interpretation": "The cell begins with J=1 and positive F32 geometry, above the recorded q floor. It is highly slender and has a source vertex inside the left metacarpal region according to the existing source/bone witness, so geometry/contact conditioning may contribute; this audit does not assign the rejected static Newton trial to mesh shape versus contact/muscle loading.",
+    "no_mesh_or_native_changes": true
+  },
+  "fat_prism_alternate_split_diagnostic": {
+    "adjacent_registered_faces": [
+      {
+        "neighbor_fat_tet_count": 3,
+        "neighbor_side_diagonals": {
+          "2245-2259": {
+            "diagonal": [
+              4656,
+              7081
+            ],
+            "triangles": 2
+          },
+          "2259-2261": {
+            "diagonal": [
+              4670,
+              7083
+            ],
+            "triangles": 2
+          },
+          "2261-2245": {
+            "diagonal": [
+              4656,
+              7083
+            ],
+            "triangles": 2
+          }
+        },
+        "neighbor_stable_source_face": 89445,
+        "shared_source_edge": [
+          2245,
+          2261
+        ]
+      },
+      {
+        "neighbor_fat_tet_count": 3,
+        "neighbor_side_diagonals": {
+          "2261-2282": {
+            "diagonal": [
+              4672,
+              7104
+            ],
+            "triangles": 2
+          },
+          "2262-2261": {
+            "diagonal": [
+              4672,
+              7084
+            ],
+            "triangles": 2
+          },
+          "2282-2262": {
+            "diagonal": [
+              4673,
+              7104
+            ],
+            "triangles": 2
+          }
+        },
+        "neighbor_stable_source_face": 90874,
+        "shared_source_edge": [
+          2261,
+          2262
+        ]
+      },
+      {
+        "neighbor_fat_tet_count": 3,
+        "neighbor_side_diagonals": {
+          "2238-2245": {
+            "diagonal": [
+              4649,
+              7067
+            ],
+            "triangles": 2
+          },
+          "2245-2262": {
+            "diagonal": [
+              4656,
+              7084
+            ],
+            "triangles": 2
+          },
+          "2262-2238": {
+            "diagonal": [
+              4649,
+              7084
+            ],
+            "triangles": 2
+          }
+        },
+        "neighbor_stable_source_face": 108823,
+        "shared_source_edge": [
+          2262,
+          2245
+        ]
+      }
+    ],
+    "current_fat_tet_ids": [
+      [
+        4656,
+        4672,
+        4673,
+        7084
+      ],
+      [
+        4672,
+        4656,
+        7083,
+        7084
+      ],
+      [
+        4656,
+        7067,
+        7083,
+        7084
+      ]
+    ],
+    "current_fat_tet_rows": [
+      26103,
+      26104,
+      26105
+    ],
+    "current_q_each": [
+      0.03679136172065005,
+      0.0001051519306968795,
+      0.006794396916456721
+    ],
+    "current_q_min": 0.0001051519306968795,
+    "interpretation": "A local prism diagonal change preserves the I/D end triangles but can alter shared internal side-face triangulations; any quality-gaining variant needs propagation to adjacent prisms and the owner must rebuild/check same-material topology, exact boundary/interface facets, positive F32 cells, and conservative mass.",
+    "number_of_local_variants": 6,
+    "stable_source_face": 89542,
+    "surface_face_row": 4643,
+    "unique_staircase_variants": [
+      {
+        "boundary_facet_count": 8,
+        "changed_side_boundary_facets_vs_current": 0,
+        "fixed_I_and_D_end_triangles_preserved": true,
+        "permutation": [
+          2245,
+          2261,
+          2262
+        ],
+        "q_each": [
+          0.03679136172065005,
+          0.00010515193069688159,
+          0.006794396916456721
+        ],
+        "q_min": 0.00010515193069688159,
+        "side_diagonals": {
+          "2245-2261": {
+            "diagonal": [
+              4656,
+              7083
+            ],
+            "triangles": 2
+          },
+          "2261-2262": {
+            "diagonal": [
+              4672,
+              7084
+            ],
+            "triangles": 2
+          },
+          "2262-2245": {
+            "diagonal": [
+              4656,
+              7084
+            ],
+            "triangles": 2
+          }
+        },
+        "signed_det_each_m3": [
+          1.2843110303387413e-06,
+          -3.670638381933579e-09,
+          2.371784706029826e-07
+        ],
+        "tetrahedra": [
+          [
+            4656,
+            4672,
+            4673,
+            7084
+          ],
+          [
+            4656,
+            4672,
+            7083,
+            7084
+          ],
+          [
+            4656,
+            7067,
+            7083,
+            7084
+          ]
+        ],
+        "total_abs_det_over_6_m3": 2.541933565539429e-07,
+        "total_volume_delta_vs_current_m3": 0.0
+      },
+      {
+        "boundary_facet_count": 8,
+        "changed_side_boundary_facets_vs_current": 4,
+        "fixed_I_and_D_end_triangles_preserved": true,
+        "permutation": [
+          2245,
+          2262,
+          2261
+        ],
+        "q_each": [
+          0.024666534269237546,
+          0.02548528205655832,
+          0.006794396916456721
+        ],
+        "q_min": 0.006794396916456721,
+        "side_diagonals": {
+          "2245-2261": {
+            "diagonal": [
+              4656,
+              7083
+            ],
+            "triangles": 2
+          },
+          "2261-2262": {
+            "diagonal": [
+              4673,
+              7083
+            ],
+            "triangles": 2
+          },
+          "2262-2245": {
+            "diagonal": [
+              4656,
+              7084
+            ],
+            "triangles": 2
+          }
+        },
+        "signed_det_each_m3": [
+          -4.399863122387473e-07,
+          8.896389621306341e-07,
+          -2.371784706029826e-07
+        ],
+        "tetrahedra": [
+          [
+            4656,
+            4673,
+            4672,
+            7083
+          ],
+          [
+            4656,
+            4673,
+            7084,
+            7083
+          ],
+          [
+            4656,
+            7067,
+            7084,
+            7083
+          ]
+        ],
+        "total_abs_det_over_6_m3": 2.6113395749539396e-07,
+        "total_volume_delta_vs_current_m3": 6.940600941451062e-09
+      },
+      {
+        "boundary_facet_count": 8,
+        "changed_side_boundary_facets_vs_current": 4,
+        "fixed_I_and_D_end_triangles_preserved": true,
+        "permutation": [
+          2261,
+          2245,
+          2262
+        ],
+        "q_each": [
+          0.03679136172065005,
+          0.009811207698224154,
+          0.0006160793306167821
+        ],
+        "q_min": 0.0006160793306167821,
+        "side_diagonals": {
+          "2245-2261": {
+            "diagonal": [
+              4672,
+              7067
+            ],
+            "triangles": 2
+          },
+          "2261-2262": {
+            "diagonal": [
+              4672,
+              7084
+            ],
+            "triangles": 2
+          },
+          "2262-2245": {
+            "diagonal": [
+              4656,
+              7084
+            ],
+            "triangles": 2
+          }
+        },
+        "signed_det_each_m3": [
+          -1.2843110303387413e-06,
+          3.42489151759263e-07,
+          -1.4496314072026177e-08
+        ],
+        "tetrahedra": [
+          [
+            4672,
+            4656,
+            4673,
+            7084
+          ],
+          [
+            4672,
+            4656,
+            7067,
+            7084
+          ],
+          [
+            4672,
+            7083,
+            7067,
+            7084
+          ]
+        ],
+        "total_abs_det_over_6_m3": 2.735494160283384e-07,
+        "total_volume_delta_vs_current_m3": 1.93560594743955e-08
+      },
+      {
+        "boundary_facet_count": 8,
+        "changed_side_boundary_facets_vs_current": 8,
+        "fixed_I_and_D_end_triangles_preserved": true,
+        "permutation": [
+          2261,
+          2262,
+          2245
+        ],
+        "q_each": [
+          0.023449330307955485,
+          0.0504260341181168,
+          0.0006160793306167821
+        ],
+        "q_min": 0.0006160793306167821,
+        "side_diagonals": {
+          "2245-2261": {
+            "diagonal": [
+              4672,
+              7067
+            ],
+            "triangles": 2
+          },
+          "2261-2262": {
+            "diagonal": [
+              4672,
+              7084
+            ],
+            "triangles": 2
+          },
+          "2262-2245": {
+            "diagonal": [
+              4673,
+              7067
+            ],
+            "triangles": 2
+          }
+        },
+        "signed_det_each_m3": [
+          4.1827458426264507e-07,
+          -1.1865219163433112e-06,
+          1.4496314072026177e-08
+        ],
+        "tetrahedra": [
+          [
+            4672,
+            4673,
+            4656,
+            7067
+          ],
+          [
+            4672,
+            4673,
+            7084,
+            7067
+          ],
+          [
+            4672,
+            7083,
+            7084,
+            7067
+          ]
+        ],
+        "total_abs_det_over_6_m3": 2.6988213577966375e-07,
+        "total_volume_delta_vs_current_m3": 1.5688779225720855e-08
+      },
+      {
+        "boundary_facet_count": 8,
+        "changed_side_boundary_facets_vs_current": 8,
+        "fixed_I_and_D_end_triangles_preserved": true,
+        "permutation": [
+          2262,
+          2245,
+          2261
+        ],
+        "q_each": [
+          0.024666534269237542,
+          0.01582068738356613,
+          0.03496030634129319
+        ],
+        "q_min": 0.01582068738356613,
+        "side_diagonals": {
+          "2245-2261": {
+            "diagonal": [
+              4656,
+              7083
+            ],
+            "triangles": 2
+          },
+          "2261-2262": {
+            "diagonal": [
+              4673,
+              7083
+            ],
+            "triangles": 2
+          },
+          "2262-2245": {
+            "diagonal": [
+              4673,
+              7067
+            ],
+            "triangles": 2
+          }
+        },
+        "signed_det_each_m3": [
+          4.399863122387472e-07,
+          -2.821995916815314e-07,
+          8.226141595600372e-07
+        ],
+        "tetrahedra": [
+          [
+            4673,
+            4656,
+            4672,
+            7083
+          ],
+          [
+            4673,
+            4656,
+            7067,
+            7083
+          ],
+          [
+            4673,
+            7084,
+            7067,
+            7083
+          ]
+        ],
+        "total_abs_det_over_6_m3": 2.574666772467193e-07,
+        "total_volume_delta_vs_current_m3": 3.2733206927764172e-09
+      },
+      {
+        "boundary_facet_count": 8,
+        "changed_side_boundary_facets_vs_current": 12,
+        "fixed_I_and_D_end_triangles_preserved": true,
+        "permutation": [
+          2262,
+          2261,
+          2245
+        ],
+        "q_each": [
+          0.02344933030795548,
+          0.036876857878906724,
+          0.03496030634129319
+        ],
+        "q_min": 0.02344933030795548,
+        "side_diagonals": {
+          "2245-2261": {
+            "diagonal": [
+              4672,
+              7067
+            ],
+            "triangles": 2
+          },
+          "2261-2262": {
+            "diagonal": [
+              4673,
+              7083
+            ],
+            "triangles": 2
+          },
+          "2262-2245": {
+            "diagonal": [
+              4673,
+              7067
+            ],
+            "triangles": 2
+          }
+        },
+        "signed_det_each_m3": [
+          -4.18274584262645e-07,
+          4.2004767650400667e-07,
+          -8.226141595600372e-07
+        ],
+        "tetrahedra": [
+          [
+            4673,
+            4672,
+            4656,
+            7067
+          ],
+          [
+            4673,
+            4672,
+            7083,
+            7067
+          ],
+          [
+            4673,
+            7084,
+            7083,
+            7067
+          ]
+        ],
+        "total_abs_det_over_6_m3": 2.768227367211148e-07,
+        "total_volume_delta_vs_current_m3": 2.2629380167171917e-08
+      }
+    ],
+    "variants_conforming_to_all_three_unchanged_neighbor_side_diagonals": [
+      {
+        "key": [
+          [
+            4656,
+            4672,
+            4673,
+            7084
+          ],
+          [
+            4656,
+            4672,
+            7083,
+            7084
+          ],
+          [
+            4656,
+            7067,
+            7083,
+            7084
+          ]
+        ],
+        "permutation": [
+          2245,
+          2261,
+          2262
+        ],
+        "q_min": 0.00010515193069688159
+      }
+    ]
+  },
+  "input_sha256": {
+    "D37_donor_frames_fullweights.csv": "4d531659aecd196cb2b4a99bf8d963aaf3721f9c4307eaf215304d0a3ca8805f",
+    "D37_embedding.csv": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847",
+    "D37_faces.csv": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "D37_nodes.csv": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "D37_tetrahedra.csv": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4",
+    "compiled_initial_skin_fem_nodes.csv": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+    "failure_analysis.json": "7faa02f3d5d91676d774289e77bb468207a543d977154d594f84d747d394071d",
+    "initial_tet_witness.json": "514f61cf3d5e1896f28e7ab5fb5d21c9e2190181c2a0863f76f23b3c060b3aa8",
+    "registered_skin_poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+  },
+  "native_failure_mapping": {
+    "D37_material_code": 2,
+    "D37_parent_tet": 25186,
+    "D37_table_row": 26104,
+    "accepted_physical_steps": 0,
+    "compiled_csv_longest_edge_mm": 32.681961704421475,
+    "compiled_csv_longest_edge_over_min_altitude": 3086.5213122530035,
+    "compiled_csv_min_altitude_um": 10.588607172313774,
+    "compiled_csv_positive_orientation": true,
+    "compiled_csv_q_abs_det_over_longest_edge_cubed": 0.0001051519306968795,
+    "compiled_csv_signed_determinant_m3": 3.670638381933506e-09,
+    "compiled_csv_tetra_volume_m3": 6.117730636555843e-10,
+    "failure_reason": "finite determinant above material upper validity limit",
+    "failure_reason_mask": 4,
+    "global_tet": 29419,
+    "historical_parent_surface_face": 3776,
+    "initial_tet_witness_current_det_m3_field": 6.128359815424792e-10,
+    "initial_tet_witness_reference_det_m3_field": 6.128359815424792e-10,
+    "json_field_semantics": "current_det_m3/reference_det_m3 equal abs(det)/6 from listed xyz; the key is named determinant but stores tetra volume.",
+    "last_current_J_before_rejected_trial": 2.4964625835,
+    "mapping_identity": "global_tet = object_element_offset + object_local_tet",
+    "material_name": "fat (D37 report: 14,316 skin and 14,316 fat cells)",
+    "newton_diagnostic_trial_J": 2.5066757202,
+    "node_lineage": [
+      {
+        "donor_body_id": 109,
+        "fat_thickness_mm": 7.58597457070231,
+        "layer": "I",
+        "max_weight": 0.33491840958595276,
+        "max_weight_lane": 58,
+        "reduced_row": 2261,
+        "skin_thickness_mm": 1.2394666478598484,
+        "source_vertex_id": 52297,
+        "volume_node": 4672
+      },
+      {
+        "donor_body_id": 114,
+        "fat_thickness_mm": 4.248225169499829,
+        "layer": "I",
+        "max_weight": 0.37110239267349243,
+        "max_weight_lane": 62,
+        "reduced_row": 2245,
+        "skin_thickness_mm": 0.9409083998245069,
+        "source_vertex_id": 51541,
+        "volume_node": 4656
+      },
+      {
+        "donor_body_id": 109,
+        "fat_thickness_mm": 7.58597457070231,
+        "layer": "D",
+        "max_weight": 0.33491840958595276,
+        "max_weight_lane": 58,
+        "reduced_row": 2261,
+        "skin_thickness_mm": 1.2394666478598484,
+        "source_vertex_id": 52297,
+        "volume_node": 7083
+      },
+      {
+        "donor_body_id": 107,
+        "fat_thickness_mm": 8.788291159684679,
+        "layer": "D",
+        "max_weight": 0.345204621553421,
+        "max_weight_lane": 57,
+        "reduced_row": 2262,
+        "skin_thickness_mm": 0.8799332640532649,
+        "source_vertex_id": 52310,
+        "volume_node": 7084
+      }
+    ],
+    "object_element_offset": 3315,
+    "object_index": 15,
+    "object_local_tet": 26104,
+    "object_name": "BodyParts3D whole-body skin-fat bonded shell",
+    "stable_source_face": 89542,
+    "surface_face_reduced_vertices": [
+      2245,
+      2261,
+      2262
+    ],
+    "surface_face_row": 4643,
+    "volume_node_ids": [
+      4672,
+      4656,
+      7083,
+      7084
+    ],
+    "witness_current_J": 1.0,
+    "witness_explicit_signed_determinant_m3": 3.6770158892548748e-09,
+    "witness_explicit_tetra_volume_m3": 6.128359815424792e-10,
+    "witness_validity_max_J": 2.5,
+    "witness_validity_min_J": 0.3499999940395355
+  },
+  "schema": "numi.human.physical-cell-quality-audit.026.v1",
+  "status": "READ_ONLY_DIAGNOSTIC",
+  "wholemesh_quality_from_compiled_F32_positions": {
+    "cells": 28632,
+    "donor_grouping_note": "modal donor across four tet vertex columns, deterministic lowest-ID tie break; donor ID is not a verified anatomical-region label.",
+    "modal_donor_groups_top15_by_q_min": [
+      {
+        "cell_count": 6364,
+        "fat_cell_count": 3182,
+        "min_local_tet_row": 19107,
+        "modal_donor_id": 20,
+        "q_below_1e-4_count": 11,
+        "q_median": 0.03980158626180627,
+        "q_min": 2.6016244143916926e-05,
+        "q_p01": 0.0001920488055010071,
+        "skin_cell_count": 3182
+      },
+      {
+        "cell_count": 464,
+        "fat_cell_count": 232,
+        "min_local_tet_row": 11329,
+        "modal_donor_id": 92,
+        "q_below_1e-4_count": 8,
+        "q_median": 0.004073706971669606,
+        "q_min": 3.292085199032157e-05,
+        "q_p01": 5.062173381452475e-05,
+        "skin_cell_count": 232
+      },
+      {
+        "cell_count": 336,
+        "fat_cell_count": 168,
+        "min_local_tet_row": 4291,
+        "modal_donor_id": 42,
+        "q_below_1e-4_count": 4,
+        "q_median": 0.00463129209371105,
+        "q_min": 5.1282169874945214e-05,
+        "q_p01": 7.042035418287672e-05,
+        "skin_cell_count": 168
+      },
+      {
+        "cell_count": 748,
+        "fat_cell_count": 374,
+        "min_local_tet_row": 5103,
+        "modal_donor_id": 136,
+        "q_below_1e-4_count": 2,
+        "q_median": 0.009800341525017756,
+        "q_min": 8.133226506421969e-05,
+        "q_p01": 0.00026290577596520454,
+        "skin_cell_count": 374
+      },
+      {
+        "cell_count": 3534,
+        "fat_cell_count": 1767,
+        "min_local_tet_row": 20294,
+        "modal_donor_id": 128,
+        "q_below_1e-4_count": 1,
+        "q_median": 0.0402986329289282,
+        "q_min": 8.43182529046508e-05,
+        "q_p01": 0.00043953099302523587,
+        "skin_cell_count": 1767
+      },
+      {
+        "cell_count": 60,
+        "fat_cell_count": 30,
+        "min_local_tet_row": 11756,
+        "modal_donor_id": 115,
+        "q_below_1e-4_count": 1,
+        "q_median": 0.006483213841130372,
+        "q_min": 9.318730188981293e-05,
+        "q_p01": 9.857562799004186e-05,
+        "skin_cell_count": 30
+      },
+      {
+        "cell_count": 748,
+        "fat_cell_count": 374,
+        "min_local_tet_row": 7965,
+        "modal_donor_id": 150,
+        "q_below_1e-4_count": 2,
+        "q_median": 0.014939118594717225,
+        "q_min": 9.34461577863415e-05,
+        "q_p01": 0.00017072427830860237,
+        "skin_cell_count": 374
+      },
+      {
+        "cell_count": 1476,
+        "fat_cell_count": 738,
+        "min_local_tet_row": 26285,
+        "modal_donor_id": 99,
+        "q_below_1e-4_count": 2,
+        "q_median": 0.04094212287486433,
+        "q_min": 9.467379310413581e-05,
+        "q_p01": 0.00010502597422790315,
+        "skin_cell_count": 738
+      },
+      {
+        "cell_count": 602,
+        "fat_cell_count": 301,
+        "min_local_tet_row": 1557,
+        "modal_donor_id": 59,
+        "q_below_1e-4_count": 1,
+        "q_median": 0.023512942528333212,
+        "q_min": 9.703670605326045e-05,
+        "q_p01": 0.00010511980878636849,
+        "skin_cell_count": 301
+      },
+      {
+        "cell_count": 714,
+        "fat_cell_count": 357,
+        "min_local_tet_row": 15382,
+        "modal_donor_id": 60,
+        "q_below_1e-4_count": 1,
+        "q_median": 0.060374717357921756,
+        "q_min": 9.929566525967407e-05,
+        "q_p01": 0.00026000537791709015,
+        "skin_cell_count": 357
+      },
+      {
+        "cell_count": 3998,
+        "fat_cell_count": 1999,
+        "min_local_tet_row": 12599,
+        "modal_donor_id": 23,
+        "q_below_1e-4_count": 1,
+        "q_median": 0.03954456179061981,
+        "q_min": 9.940348986272834e-05,
+        "q_p01": 0.00010566314587692331,
+        "skin_cell_count": 1999
+      },
+      {
+        "cell_count": 60,
+        "fat_cell_count": 30,
+        "min_local_tet_row": 25661,
+        "modal_donor_id": 126,
+        "q_below_1e-4_count": 0,
+        "q_median": 0.00441705382071798,
+        "q_min": 0.00010047673553411554,
+        "q_p01": 0.00010132297774863015,
+        "skin_cell_count": 30
+      },
+      {
+        "cell_count": 70,
+        "fat_cell_count": 35,
+        "min_local_tet_row": 25659,
+        "modal_donor_id": 124,
+        "q_below_1e-4_count": 0,
+        "q_median": 0.003684125977008792,
+        "q_min": 0.00010084953652867333,
+        "q_p01": 0.00010252392970596204,
+        "skin_cell_count": 35
+      },
+      {
+        "cell_count": 852,
+        "fat_cell_count": 426,
+        "min_local_tet_row": 17888,
+        "modal_donor_id": 41,
+        "q_below_1e-4_count": 0,
+        "q_median": 0.0841111275760233,
+        "q_min": 0.00010234135461829995,
+        "q_p01": 0.00022065950894184196,
+        "skin_cell_count": 426
+      },
+      {
+        "cell_count": 164,
+        "fat_cell_count": 82,
+        "min_local_tet_row": 26145,
+        "modal_donor_id": 93,
+        "q_below_1e-4_count": 0,
+        "q_median": 0.005124326506961358,
+        "q_min": 0.00010266737902786211,
+        "q_p01": 0.00010398233513075486,
+        "skin_cell_count": 82
+      }
+    ],
+    "nonpositive_signed_determinants": 0,
+    "per_material_code": {
+      "1": {
+        "count": 14316,
+        "min_aspect_L_over_min_altitude": 596.6752887254675,
+        "min_local_tet_row": 11329,
+        "min_longest_edge_mm": 173.96384627537117,
+        "min_signed_det_m3": 1.7331975632324668e-07,
+        "min_tet_volume_m3": 2.8886626053874448e-08,
+        "q_median": 0.02059640516917127,
+        "q_min": 3.292085199032157e-05,
+        "q_p01": 0.00022018715965398813
+      },
+      "2": {
+        "count": 14316,
+        "min_aspect_L_over_min_altitude": 13510.427445397054,
+        "min_local_tet_row": 19107,
+        "min_longest_edge_mm": 32.060549092660345,
+        "min_signed_det_m3": 8.573486490674615e-10,
+        "min_tet_volume_m3": 1.428914415112436e-10,
+        "q_median": 0.04312256931274309,
+        "q_min": 2.6016244143916926e-05,
+        "q_p01": 0.00010507104655885727
+      }
+    },
+    "positive_signed_determinants": 28632,
+    "q_definition": "abs(det)/longest_edge^3",
+    "q_median": 0.03179061337187908,
+    "q_min": 2.6016244143916926e-05,
+    "q_min_local_tet_row": 19107,
+    "q_p01": 0.00011896653488656788
+  }
+}

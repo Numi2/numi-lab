@@ -1,0 +1,7 @@
+{
+  "reason": "native001 stopped before physical stepping because diagnostic name did not match accepted boundary object owner",
+  "prior_run": "native-1ms-001",
+  "source_snapshot": "apps-attempt-005",
+  "change": "retain paired ObjectSource descriptor and install only validated FEM payload; unique reference/material source identity includes child topology and CSR; use unpaired-owner material density parameters",
+  "physics_gates_relaxed": false
+}

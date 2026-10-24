@@ -1,0 +1,23 @@
+{
+  "base_origin_main": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653",
+  "file_count": 156,
+  "inherited_references_count": 26,
+  "limitations": [
+    "029 is a source-only initial capture with nearest-bank parity sampling, not all-bank clearance or physical qualification",
+    "030 is connectivity-only; native 1ms run 002 accepted zero physical steps and failed at fat global tet 19641 on Newton 8",
+    "026/027 physical candidates remain rejected; 028 covers runner completeness only",
+    "large native MRV packs and registered-skin CSVs are omitted and exact path/hash pinned; unchanged app inputs are inherited Git blobs",
+    "no scene activation, supported-rest qualification, anatomical fidelity, clinical validity, or biological qualification is claimed"
+  ],
+  "local_head_at_prepare": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "normal_index_tree_at_prepare": "b8d44c114ef552130634d80d7e94488ee5136201",
+  "omitted_artifact_count": 7,
+  "payload_bytes": 29178312,
+  "payload_files_sha256": "1e055a9868884ab94aafd5c6e02afa4a3ce20ed9de9803ce613a06f50476d61a",
+  "pending": [],
+  "publication": "058",
+  "schema": "numi.human.publication.manifest.v1",
+  "scope_note_sha256": "c64b057891b878b126ce9c5a5404aa021166e3a64dd5b9c808c7ac4faa511365",
+  "source_input_pins_sha256": "ab01bd0830470aed5a12fcd4c67122a405b05cdf04b80ffa2dcf5c92723e7334",
+  "status": "READY_FOR_ROOT_REVIEW_NOT_PUSHED"
+}

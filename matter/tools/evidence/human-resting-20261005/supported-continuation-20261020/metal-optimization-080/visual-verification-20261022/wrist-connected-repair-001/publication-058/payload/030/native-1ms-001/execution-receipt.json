@@ -1,0 +1,13 @@
+{
+  "returncode": 1,
+  "error": null,
+  "wall_seconds": 12.930058834026568,
+  "launch_manifest_sha256": "87164493e757934415f27b5b823e1dcff022fe07e8f37ad4262a054801ec1d53",
+  "stdout_sha256": "11d830f40d1a14fa89c3aa3f9dbc77dab3def1fc2c7388741cd0722b84f30122",
+  "stderr_sha256": "3572d0309803cb85231743d78ae7cbd85b6587533dffa5e58202250a1f60070a",
+  "status": "FAILED",
+  "physical_qualification": false,
+  "source_only_marker_present": false,
+  "requested_diagnostics_complete": true,
+  "missing_requested_outputs": []
+}

@@ -1,0 +1,11 @@
+{
+  "returncode": 1,
+  "error": null,
+  "wall_seconds": 90.35720333305653,
+  "launch_manifest_sha256": "0d864e538fd9265776da026646c8c0069b7111fc4a820f9fe6b8fb28dbfb1584",
+  "stdout_sha256": "d92069dd867c3d3e8cf298777a143fd315d4936cb6245274ce6168b1bf3d713d",
+  "stderr_sha256": "46708ad77b2fdbc32dfea2df32237722ae79e0399599c9bfd49e8455e19f2d05",
+  "status": "FAILED",
+  "physical_qualification": false,
+  "source_only_marker_present": false
+}

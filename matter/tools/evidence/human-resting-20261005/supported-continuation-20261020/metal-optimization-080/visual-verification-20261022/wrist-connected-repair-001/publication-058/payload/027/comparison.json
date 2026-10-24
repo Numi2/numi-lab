@@ -1,0 +1,32 @@
+{
+  "status": "REJECTED_PHYSICAL_STEP",
+  "accepted_steps": 0,
+  "physical_failure": {
+    "object": 15,
+    "newton": 5,
+    "trial_J": 2.5066757202148438,
+    "current_J": 2.49646258354187,
+    "global_tet": 29419,
+    "reason_bits": 4
+  },
+  "first_six_newton_trace_equal_to_026": true,
+  "initialization": {
+    "registered_skin_bed_rows": 32,
+    "minimum_gap_m": 5.8691777669e-06,
+    "closed_rows": 0,
+    "active_support_rows": 0,
+    "support_force_N": 0,
+    "maximum_acceleration_residual_m_s2": 9.75447409036,
+    "baseline_maximum_acceleration_residual_m_s2": 65.1741793495
+  },
+  "conclusion": "Existing weighted support capture and changed source recruitment improve initial articulated residual but leave the first skin-fat Matter failure and recorded Newton path identical. This does not isolate the forcing source; it rules out promoting this initialization change as a fix for the observed rejection.",
+  "supported_rest_qualification": false,
+  "physics_qualification": false,
+  "visual_verification": false,
+  "hashes": {
+    "run-001/launch-manifest.snapshot.json": "51bdbd4ca37246b622246490915e3908f360c6ca737695c996f0e780e7696e0b",
+    "run-001/execution-receipt.json": "19074d474a8b9dafbdf4b020f729ebf21b80bebc2a2277b1ff21618a70f18969",
+    "run-001/common-field-failure.json": "77985d885c6a87c50cd24b7e3e33b8141f1ac38e257c738896ae4de514e2687b",
+    "initialization-policy.json": "b7579eb1a571b0668646df891d5432c32f699d1b95d9bd3a53ed7feed86ad249"
+  }
+}

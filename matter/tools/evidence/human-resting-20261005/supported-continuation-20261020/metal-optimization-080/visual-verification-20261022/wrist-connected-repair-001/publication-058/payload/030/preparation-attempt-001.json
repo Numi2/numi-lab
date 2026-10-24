@@ -1,0 +1,5 @@
+{
+  "status": "STOPPED_BEFORE_MODIFICATION",
+  "reason": "owner message report SHA had transcription b6b instead of frozen manifest b6c; independent hash gate caught it",
+  "actual_report_sha256": "cba3dabe05563ce5b6c7e659c395b577236e734395ce6edd5b21620536d1fb26"
+}

@@ -1,0 +1,186 @@
+{
+  "failing_cell": {
+    "accepted_steps": 0,
+    "current_min_jacobian": 2.499962568283081,
+    "fem_global_node_ids": [
+      4412,
+      4413,
+      4414,
+      6825
+    ],
+    "global_tet_row": 19641,
+    "layer_source_columns": [
+      335,
+      336,
+      337
+    ],
+    "local_fat_tet_row": 16326,
+    "local_node_ids": [
+      2746,
+      2747,
+      2748,
+      5159
+    ],
+    "native_result_status": "FAILED",
+    "native_returncode": 1,
+    "newton_iteration": 8,
+    "source_face_row": 670,
+    "stable_source_face_id": 5079,
+    "trial_min_jacobian": 2.500195264816284
+  },
+  "node_classification": [
+    {
+      "closed_solid_result": "not_classified_by_frozen_029_solid_audit",
+      "contact_force_evaluated": false,
+      "global_fem_node": 4412,
+      "layer_code": 1,
+      "layer_name": "I / skin-fat interface",
+      "layer_row": 335,
+      "mass_donor_body_index": 59,
+      "mass_donor_model_name": "2proxph_r",
+      "nearest_body_index": 59,
+      "nearest_body_model_name": "2proxph_r",
+      "nearest_bone_body_index": 59,
+      "nearest_bone_distance_mm": 14.057283923214987,
+      "nearest_bone_model_name": "2proxph_r",
+      "nearest_bone_stable_id": 95,
+      "nearest_face_signed_distance_mm": 14.057283923214987,
+      "nearest_triangle_ordinal": 149,
+      "position_m": [
+        -0.2938646674156189,
+        -0.9679161310195923,
+        0.1326846480369568
+      ],
+      "position_matches_030_native_failure_csv": true,
+      "role_mask": 2,
+      "solid_audited": false,
+      "solid_inside_rays": 0,
+      "solid_outside_rays": 0
+    },
+    {
+      "closed_solid_result": "not_classified_by_frozen_029_solid_audit",
+      "contact_force_evaluated": false,
+      "global_fem_node": 4413,
+      "layer_code": 1,
+      "layer_name": "I / skin-fat interface",
+      "layer_row": 336,
+      "mass_donor_body_index": 64,
+      "mass_donor_model_name": "3proxph_r",
+      "nearest_body_index": 59,
+      "nearest_body_model_name": "2proxph_r",
+      "nearest_bone_body_index": 59,
+      "nearest_bone_distance_mm": 7.381618191293777,
+      "nearest_bone_model_name": "2proxph_r",
+      "nearest_bone_stable_id": 95,
+      "nearest_face_signed_distance_mm": 7.381618191293777,
+      "nearest_triangle_ordinal": 213,
+      "position_m": [
+        -0.3046112358570099,
+        -0.974326491355896,
+        0.1317502111196518
+      ],
+      "position_matches_030_native_failure_csv": true,
+      "role_mask": 2,
+      "solid_audited": false,
+      "solid_inside_rays": 0,
+      "solid_outside_rays": 0
+    },
+    {
+      "closed_solid_result": "inside_nearest_closed_bone_solid",
+      "contact_force_evaluated": false,
+      "global_fem_node": 4414,
+      "layer_code": 1,
+      "layer_name": "I / skin-fat interface",
+      "layer_row": 337,
+      "mass_donor_body_index": 59,
+      "mass_donor_model_name": "2proxph_r",
+      "nearest_body_index": 59,
+      "nearest_body_model_name": "2proxph_r",
+      "nearest_bone_body_index": 59,
+      "nearest_bone_distance_mm": 1.340868517255997,
+      "nearest_bone_model_name": "2proxph_r",
+      "nearest_bone_stable_id": 95,
+      "nearest_face_signed_distance_mm": -1.340868517255997,
+      "nearest_triangle_ordinal": 295,
+      "position_m": [
+        -0.30666226148605347,
+        -0.9488133192062378,
+        0.1372402310371399
+      ],
+      "position_matches_030_native_failure_csv": true,
+      "role_mask": 2,
+      "solid_audited": true,
+      "solid_inside_rays": 3,
+      "solid_outside_rays": 0
+    },
+    {
+      "closed_solid_result": "inside_nearest_closed_bone_solid",
+      "contact_force_evaluated": false,
+      "global_fem_node": 6825,
+      "layer_code": 2,
+      "layer_name": "D / deep fat",
+      "layer_row": 337,
+      "mass_donor_body_index": 59,
+      "mass_donor_model_name": "2proxph_r",
+      "nearest_body_index": 59,
+      "nearest_body_model_name": "2proxph_r",
+      "nearest_bone_body_index": 59,
+      "nearest_bone_distance_mm": 1.587921688208917,
+      "nearest_bone_model_name": "2proxph_r",
+      "nearest_bone_stable_id": 95,
+      "nearest_face_signed_distance_mm": -1.587921688208917,
+      "nearest_triangle_ordinal": 295,
+      "position_m": [
+        -0.30622485280036926,
+        -0.9484803676605225,
+        0.13725362718105316
+      ],
+      "position_matches_030_native_failure_csv": true,
+      "role_mask": 4,
+      "solid_audited": true,
+      "solid_inside_rays": 3,
+      "solid_outside_rays": 0
+    }
+  ],
+  "pins": {
+    "029_contact_csv_sha256": "ee058644ebadc5849109dbed87c555eec091af0e8ca6cb874fb50539cf318d27",
+    "029_directory": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-029",
+    "029_fem_node_csv_sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+    "029_mass_reference_sha256": "71715ff82763c53b478ada4a292f63ac01dd2c5971cf390c2e11705e96f1caec",
+    "029_model_manifest_path": "/Users/n/numi-human-separation-20261018/C/publication-source-001/docs/media/numi-human-passive-fit-v4/source-manifest.json",
+    "029_model_manifest_sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+    "029_source_preflight_launch_manifest_sha256": "5dfab71eec346aaaaf2c29f6fbcd9cbc09d1998008c497fd362e086b11a1013c",
+    "030_execution_receipt_sha256": "7e5c71618fe108ff13f33a1e3a17f3926b2138f0c75ec84090d25c710be36877",
+    "030_failure_json_sha256": "fd84ea4eb765548b28fa4b17427a788d77df9d79ec4cd0f53ae83e74e255ec4e",
+    "030_fem_node_csv_sha256": "fc0bd3cbf3269050fc97e341fbb3805eff36ebd1eff0ce5f98bcd85260ec8880",
+    "030_launch_manifest_sha256": "f16ca17acbe6500dd3fbdb397a2596d39685c7e5068dac544277d8cdc79e9b81"
+  },
+  "schema": "numi.human.native-common-failure-bone-region-classification.v1",
+  "scope": {
+    "containment_limit": "029 reports exact closed-solid classification only for rows selected by its audit predicate. It audited the two negative-face-signed nodes here; it did not classify the two positive-distance nodes (both beyond 1 mm). Those two are explicitly unknown, not outside.",
+    "not_claimed": "This is not an all-bone-bank containment certificate, contact-force measurement, or physical qualification.",
+    "source": "The 4 global FEM nodes of native-1ms-002 first failed fat tet, classified through the frozen 029 source-only nearest-bone and closed-solid witness capture plus its mass-reference table and model manifest."
+  },
+  "status": "FROZEN_CLASSIFICATION_FROM_029_SOURCE_CAPTURE; NO_NEW_GEOMETRY_OR_GPU_RUN",
+  "summary": {
+    "all_four_nearest_bone_model": "2proxph_r",
+    "closed_solid": {
+      "inside_2proxph_r": 2,
+      "not_classified": 2,
+      "outside_2proxph_r": 0
+    },
+    "inside_nodes": [
+      4414,
+      6825
+    ],
+    "interpretation": "The inner-interface node 4414 and deep-fat node 6825 are inside the nearest 2proxph_r closed bone solid under the 029 three-ray test. Nodes 4412 and 4413 are not solid-classified in 029; their nearest 2proxph_r distances are 14.057 mm and 7.382 mm. Their mass donors differ for node 4413 (3proxph_r) versus the nearest bone (2proxph_r). This is a local mixed donor/geometry cluster, not enough evidence to assign one anatomical cause to the tet failure.",
+    "mass_donors": {
+      "2proxph_r": 3,
+      "3proxph_r": 1
+    },
+    "unclassified_nodes": [
+      4412,
+      4413
+    ]
+  }
+}

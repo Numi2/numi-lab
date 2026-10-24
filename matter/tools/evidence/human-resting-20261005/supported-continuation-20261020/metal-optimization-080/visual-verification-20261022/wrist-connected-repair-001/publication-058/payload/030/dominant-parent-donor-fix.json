@@ -1,0 +1,7 @@
+{
+  "reason": "source gate correctly rejected new-node-majority region inconsistent with dominant parent at11789",
+  "old_run": "source-preflight-001",
+  "new_policy": "largest exact-overlap parent; node donors/mass remain existing source mapping",
+  "old_source_snapshot": "apps-attempt-001",
+  "physical_nodal_donors_unchanged": true
+}

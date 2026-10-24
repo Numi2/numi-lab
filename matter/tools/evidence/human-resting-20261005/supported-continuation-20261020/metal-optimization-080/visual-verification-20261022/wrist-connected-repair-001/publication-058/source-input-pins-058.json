@@ -1,0 +1,365 @@
+{
+  "base_origin_main": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653",
+  "candidate_029_source_preflight": {
+    "analysis_sha256": "b2191f06324d8fef52a2f70c844c6f5f1ce72c46e684527b9d84ecdf4f5f751e",
+    "capture_sha256": "ee058644ebadc5849109dbed87c555eec091af0e8ca6cb874fb50539cf318d27",
+    "directory": "native-candidate020-bone-witness-029/source-preflight-002",
+    "execution_receipt_sha256": "febe05827b0aaf772d0cfbb55ec367e77d1af26651268883aa42acb72695424d",
+    "frozen_inventory_sha256": "6547535dee5a24f4d5ee204056c3e28d4084052d20523bd59c5ac6fcc8a6ae82",
+    "independent_review_sha256": "d0bb0f0b0d8cb3e74a4f97151e991c835642cbc4a0b008a46a9981ab48f558d6",
+    "launch_manifest_sha256": "5dfab71eec346aaaaf2c29f6fbcd9cbc09d1998008c497fd362e086b11a1013c",
+    "scope": "source-only initial capture; nearest-bank parity sample only, not all-bank clearance or physical qualification"
+  },
+  "candidate_030_connectivity_only": {
+    "base_candidate_id": "candidate020-d37-current-unpaired163-owner-integration-038",
+    "base_candidate_sha256": "ad204691d202ee3455cb28653c297fca8a3094bcce6a838e069343d315f6f39b",
+    "build_report_sha256": "cba3dabe05563ce5b6c7e659c395b577236e734395ce6edd5b21620536d1fb26",
+    "builder_sha256": "07ab8d570eaffb5e226e2e63aeb167d6eea066408f41c87145842d982d185fc0",
+    "builder_source_path": "native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/build_prism_rank_retriangulation_003.py",
+    "candidate_id": "candidate020-d37-conforming-prism-030",
+    "candidate_identity_sha256": "f0a5be79347709943b9f7a7bf74d4aac096c5de0c172996301002537e4418de7",
+    "candidate_npz_sha256": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+    "changed_connectivity_sha256": "a068645be6ea2fdd089a960f9b9799af07669f642d8f1e69d629a496910b28cb",
+    "directory": "native-candidate020-conforming-prism-030",
+    "freeze_manifest_sha256": "f11fdcb593a62ea859ab8e527b5e6b22d597d68eb64fa123b327829e981dea2c",
+    "native_1ms_002_comparison_sha256": "86b657468bd8c81aabc6d1382c29939b490963c8262bf6c1a6e259985ed123fa",
+    "native_1ms_002_failure_cell_sha256": "22683f4bf0ae8b83d5b83f8bd10efaa70ec4ee81428072b6c1f8c6deb88e5d9e",
+    "native_1ms_002_mrvpack_sha256": "a936e661d819a7ad2f36c6dbdafbe95f9354b4d36ba08137fe65bdfcee5e3f1d",
+    "native_1ms_002_mrvpack_source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/native-1ms-002/output/resting-human.mrvpack",
+    "native_1ms_002_registered_skin_csv_bytes": 24135771,
+    "native_1ms_002_registered_skin_csv_source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/native-1ms-002/registered-skin.csv",
+    "prepare_script_sha256": "4ca0d2e23c5c326d905e5172773407858bdc7d0bfb59743dfceb3c2b36fab90f",
+    "registered_skin_csv_sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+    "registered_skin_poses_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "replay_guard_test_sha256": "23ae142fcbaddaf7a3caece1e145f71a33141f4b20eda7a2404327e59ed57079",
+    "source_parity_sha256": "1c718d7702f86b575cd38ebebc610e3c38296e70a3f489345134f5dce4c55750",
+    "source_preflight_node_csv_sha256": "fc0bd3cbf3269050fc97e341fbb3805eff36ebd1eff0ce5f98bcd85260ec8880",
+    "status": "source candidate only; native 1ms run accepted 0 physical steps; no physical or anatomy admission",
+    "tissue_mass_reference_sha256": "581ceb78968488a89f21997b984c76f33a6fd18a905b7c4c940764a1ce7ce7bd"
+  },
+  "inherited_030_source_apps": [
+    {
+      "bytes": 165085,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanFinal020CandidateRegistration.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "d635f09d0ff7090a808aca274f737a864129f797822c20a81f8b414a7f99ec0e",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanFinal020CandidateRegistration.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 12474,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanMaterialColumnSelfContact.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "835086de11c031870104165459f6fdfbf7e4d2ad04068ec4669acdc83cb16cc3",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanMaterialColumnSelfContact.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 2841,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanSkinBoundaryNodeMap.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "ce36fae5a378d65bdf63d0bf1408175abcf20baa3bb876be229f8c49e94e6241",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanSkinBoundaryNodeMap.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 33608,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "e0ea26214cd7cf9e3ed9dc0bcf83766e44830b3004b794892bc2ff90a6afc2e0",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanSkinFEMIntegration.wholebody.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 42840,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "dd47c7e5033dabd2cb0b06300fc9ece9ef9977e8b57e17f98c2992ea0175dc16",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 5642121,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanWholeBodySkinReduction.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "c0f3f3569dbf42f4be582a0eed35d805c938553bb637deeaba4cf0a43ba3e17d",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanWholeBodySkinReduction.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 870695,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "05f967096c494ddf8281268b777c5a4cc65556eb1bd7dc5e2a2a068a1874b0bb",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    }
+  ],
+  "native_candidate": {
+    "candidate_id": "candidate020-d37-current-unpaired163-owner-integration-038",
+    "candidate_sha256": "ad204691d202ee3455cb28653c297fca8a3094bcce6a838e069343d315f6f39b",
+    "initial_skin_fem_nodes_sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+    "native_output_mrvpack_sha256": "efa474c04296d1c9255bec37d7cf87367bae09432e835a53252fcbc42467316a",
+    "native_source_payload_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "registered_skin_csv_sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+    "registered_skin_poses_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "tissue_mass_reference_sha256": "71715ff82763c53b478ada4a292f63ac01dd2c5971cf390c2e11705e96f1caec"
+  },
+  "normal_index_tree_at_prepare": "b8d44c114ef552130634d80d7e94488ee5136201",
+  "normal_worktree_head_at_prepare": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "omitted_or_inherited_source_artifacts": [
+    {
+      "bytes": 694725,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/initial-skin-fem-nodes.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/initial-skin-fem-nodes.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 82547,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/native-1ms-001/output/resting-airway-anchor-map.json",
+      "kind": "inherited_publication_asset",
+      "sha256": "113e09603b38a1e0fa114495ebe4c98098e50cf5e0338b841415c3a8daa37a1e",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/output/resting-airway-anchor-map.json",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 1769,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/output/resting-coupled.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/output/resting-coupled.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 297095168,
+      "kind": "omitted_external_run_artifact",
+      "reason": "large source/output artifact omitted; exact hash/path retained",
+      "sha256": "efa474c04296d1c9255bec37d7cf87367bae09432e835a53252fcbc42467316a",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/output/resting-human.mrvpack"
+    },
+    {
+      "bytes": 1210039,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/native-1ms-001/output/resting-ocular-sclera-window.json",
+      "kind": "inherited_publication_asset",
+      "sha256": "10ee789bbd8ac76a1bc2e784f49d5210024ac2f5049bf991e4d11e98f1db9caf",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/output/resting-ocular-sclera-window.json",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 894,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/native-1ms-001/output/resting-surface-audit.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/output/resting-surface-audit.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 73339,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-056/payload/bilateral-hand-functional-rebind-020/native-source-emission-identity004-001/registered-skin-poses.json",
+      "kind": "inherited_publication_asset",
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/registered-skin-poses.json",
+      "via_commit": "9226d20147fbb1cfed7fe5a4c1ce96a0ee13413f"
+    },
+    {
+      "bytes": 24135771,
+      "kind": "omitted_external_run_artifact",
+      "reason": "large source/output artifact omitted; exact hash/path retained",
+      "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/registered-skin.csv"
+    },
+    {
+      "bytes": 1460972,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/tissue-mass-reference.txt",
+      "kind": "inherited_publication_asset",
+      "sha256": "71715ff82763c53b478ada4a292f63ac01dd2c5971cf390c2e11705e96f1caec",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/tissue-mass-reference.txt",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 694725,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/initial-skin-fem-nodes.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/initial-skin-fem-nodes.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 82547,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/native-1ms-001/output/resting-airway-anchor-map.json",
+      "kind": "inherited_publication_asset",
+      "sha256": "113e09603b38a1e0fa114495ebe4c98098e50cf5e0338b841415c3a8daa37a1e",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/output/resting-airway-anchor-map.json",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 1769,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/output/resting-coupled.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/output/resting-coupled.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 297095168,
+      "kind": "omitted_external_run_artifact",
+      "reason": "large source/output artifact omitted; exact hash/path retained",
+      "sha256": "efa474c04296d1c9255bec37d7cf87367bae09432e835a53252fcbc42467316a",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/output/resting-human.mrvpack"
+    },
+    {
+      "bytes": 1210039,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/native-1ms-001/output/resting-ocular-sclera-window.json",
+      "kind": "inherited_publication_asset",
+      "sha256": "10ee789bbd8ac76a1bc2e784f49d5210024ac2f5049bf991e4d11e98f1db9caf",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/output/resting-ocular-sclera-window.json",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 894,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/native-1ms-001/output/resting-surface-audit.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/output/resting-surface-audit.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 73339,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-056/payload/bilateral-hand-functional-rebind-020/native-source-emission-identity004-001/registered-skin-poses.json",
+      "kind": "inherited_publication_asset",
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/registered-skin-poses.json",
+      "via_commit": "9226d20147fbb1cfed7fe5a4c1ce96a0ee13413f"
+    },
+    {
+      "bytes": 24135771,
+      "kind": "omitted_external_run_artifact",
+      "reason": "large source/output artifact omitted; exact hash/path retained",
+      "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/registered-skin.csv"
+    },
+    {
+      "bytes": 1460972,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/tissue-mass-reference.txt",
+      "kind": "inherited_publication_asset",
+      "sha256": "71715ff82763c53b478ada4a292f63ac01dd2c5971cf390c2e11705e96f1caec",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/tissue-mass-reference.txt",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 694725,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/initial-skin-fem-nodes.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-028/source-preflight-001/initial-skin-fem-nodes.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 1769,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/output/resting-coupled.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-028/source-preflight-001/output/resting-coupled.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 2820099,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/prepared-tangent.metal",
+      "kind": "inherited_publication_asset",
+      "sha256": "f36d8798b4f3b06cf0e5ccf08d9e08d6d791143900d115f0a1a0405d8b5e6b87",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-028/source-preflight-001/prepared-tangent.metal",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 73339,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-056/payload/bilateral-hand-functional-rebind-020/native-source-emission-identity004-001/registered-skin-poses.json",
+      "kind": "inherited_publication_asset",
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-028/source-preflight-001/registered-skin-poses.json",
+      "via_commit": "9226d20147fbb1cfed7fe5a4c1ce96a0ee13413f"
+    },
+    {
+      "bytes": 24135771,
+      "kind": "omitted_external_run_artifact",
+      "reason": "large source/output artifact omitted; exact hash/path retained",
+      "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-028/source-preflight-001/registered-skin.csv"
+    },
+    {
+      "bytes": 1460972,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/tissue-mass-reference.txt",
+      "kind": "inherited_publication_asset",
+      "sha256": "71715ff82763c53b478ada4a292f63ac01dd2c5971cf390c2e11705e96f1caec",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-028/source-preflight-001/tissue-mass-reference.txt",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 165085,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanFinal020CandidateRegistration.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "d635f09d0ff7090a808aca274f737a864129f797822c20a81f8b414a7f99ec0e",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanFinal020CandidateRegistration.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 12474,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanMaterialColumnSelfContact.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "835086de11c031870104165459f6fdfbf7e4d2ad04068ec4669acdc83cb16cc3",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanMaterialColumnSelfContact.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 2841,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanSkinBoundaryNodeMap.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "ce36fae5a378d65bdf63d0bf1408175abcf20baa3bb876be229f8c49e94e6241",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanSkinBoundaryNodeMap.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 33608,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "e0ea26214cd7cf9e3ed9dc0bcf83766e44830b3004b794892bc2ff90a6afc2e0",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanSkinFEMIntegration.wholebody.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 42840,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "dd47c7e5033dabd2cb0b06300fc9ece9ef9977e8b57e17f98c2992ea0175dc16",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 5642121,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanWholeBodySkinReduction.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "c0f3f3569dbf42f4be582a0eed35d805c938553bb637deeaba4cf0a43ba3e17d",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanWholeBodySkinReduction.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 870695,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "05f967096c494ddf8281268b777c5a4cc65556eb1bd7dc5e2a2a068a1874b0bb",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    }
+  ],
+  "publication_057": {
+    "commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653",
+    "manifest_git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/publication-manifest-057.json",
+    "manifest_sha256": "8f4fc87c9430233e1c7bb62efb82b7f8732d93e87ee0d69e9b9534775e30a8e0",
+    "payload_filelist_git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload-files-057.json",
+    "payload_filelist_sha256": "a9aa7c15e016e7b648507a48e24c09fab295b71f0e24caa890708d7295539090",
+    "source_input_pins_git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/source-input-pins-057.json",
+    "source_input_pins_sha256": "48814c58433efe373fde150ed39b1f728a61fd51f72caaddc625c86a0cec6c89"
+  },
+  "schema": "numi.human.publication.source-input-pins.v1"
+}

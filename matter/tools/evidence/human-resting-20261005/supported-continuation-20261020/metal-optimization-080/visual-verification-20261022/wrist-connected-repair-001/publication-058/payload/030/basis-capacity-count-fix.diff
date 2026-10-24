@@ -1,0 +1,15 @@
+--- 024/NumiHumanSkinFatReductionLabels.hpp
++++ 030/NumiHumanSkinFatReductionLabels.hpp
+@@ -3280,7 +3280,11 @@
+             for(auto at=begin;at<end;++at)basisByStableFace[faces[at]]=label;
+         }
+     }
+-    if(basisByStableFace.size()>numi::matter::kHumanPartitionedBasisMaximumRegionCount)
++    std::set<std::uint32_t> emittedBasisLabels;
++    for(const auto& [face,label]:basisByStableFace) {
++        (void)face;emittedBasisLabels.insert(label);
++    }
++    if(emittedBasisLabels.size()>numi::matter::kHumanPartitionedBasisMaximumRegionCount)
+         return fail("unpaired labels exceed the existing Human regional basis limit");
+     for(std::size_t ti=0;ti<nt;++ti){
+         const auto stable=topology.childStableSourceFaceIdentities[ti];

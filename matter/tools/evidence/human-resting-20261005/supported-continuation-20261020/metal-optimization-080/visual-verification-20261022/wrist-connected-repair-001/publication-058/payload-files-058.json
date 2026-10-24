@@ -1,0 +1,1050 @@
+{
+  "count": 156,
+  "files": [
+    {
+      "bytes": 2051,
+      "path": "payload/026/analyze.py",
+      "sha256": "fde2d0cbf063f37f3e3adae07719a363d1f2b587a71dbfe4b4f1ef5dc9ba8b6b"
+    },
+    {
+      "bytes": 3590,
+      "path": "payload/026/command.json",
+      "sha256": "5fea5b9a0bd6f7e482928134403da63a6907f49f9e82ae56ff997fc90e5adab1"
+    },
+    {
+      "bytes": 4679,
+      "path": "payload/026/compatibility.json",
+      "sha256": "2b7e8b6753e5c9fc146f81ddebfb0dc144590aa9a1b6cbaf3ec2b82d01d2d3ea"
+    },
+    {
+      "bytes": 5409,
+      "path": "payload/026/failure-analysis.json",
+      "sha256": "4c9f3f5a9140a03ffc19dba3da587b13f8c5928e83b18d1e476eb578d5988c1b"
+    },
+    {
+      "bytes": 12667,
+      "path": "payload/026/fem-diagnostic-only.diff",
+      "sha256": "d881bbb843d6dc4cd91ecc8415cd027cc70910c36ce2cf2e33ab5af3156e124c"
+    },
+    {
+      "bytes": 6983,
+      "path": "payload/026/physical-cell-quality-001/analyze_local_flips_002.py",
+      "sha256": "599775cfdd7e7e2f31c73e953ca5370ac2cf1254c82e6e7b1f2d6ab0a51d23be"
+    },
+    {
+      "bytes": 17613,
+      "path": "payload/026/physical-cell-quality-001/audit_physical_cell_quality_001.py",
+      "sha256": "1059093c644e6e9fd57f8a226e474320232057d246b3606ddc2cc63ec8e57d59"
+    },
+    {
+      "bytes": 18278,
+      "path": "payload/026/physical-cell-quality-001/local-flip-diagnostic.json",
+      "sha256": "57ac069fa95e225958e0983c5f132e4faf9f7aba65e847b193fe8fe32c4b7a0a"
+    },
+    {
+      "bytes": 25109,
+      "path": "payload/026/physical-cell-quality-001/report.json",
+      "sha256": "f7606eb3709c4def2690c93d3299d6037f9f3294e96e866cce95c6f97a1af849"
+    },
+    {
+      "bytes": 4069,
+      "path": "payload/026/run-001/common-field-failure.json",
+      "sha256": "cad6472bad31d36cf3a98fa1f1c62a96fc3f7caa0261072c85e46e57f53cb3fa"
+    },
+    {
+      "bytes": 441,
+      "path": "payload/026/run-001/execution-receipt.json",
+      "sha256": "93358fe3d596eb2c848e54823d1d8ca904fbc2d6b10cfbcdc2e9e358bc306b26"
+    },
+    {
+      "bytes": 33884,
+      "path": "payload/026/run-001/launch-manifest.snapshot.json",
+      "sha256": "0d864e538fd9265776da026646c8c0069b7111fc4a820f9fe6b8fb28dbfb1584"
+    },
+    {
+      "bytes": 1652540,
+      "path": "payload/026/run-001/stderr.log",
+      "sha256": "46708ad77b2fdbc32dfea2df32237722ae79e0399599c9bfd49e8455e19f2d05"
+    },
+    {
+      "bytes": 289790,
+      "path": "payload/026/run-001/stdout.log",
+      "sha256": "d92069dd867c3d3e8cf298777a143fd315d4936cb6245274ce6168b1bf3d713d"
+    },
+    {
+      "bytes": 2462,
+      "path": "payload/026/run_diagnostic.py",
+      "sha256": "97412989dc176bffeb0876036eb2fc9047d0058dbe3c959b10361276b918efe5"
+    },
+    {
+      "bytes": 17,
+      "path": "payload/026/runner-exit.json",
+      "sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05"
+    },
+    {
+      "bytes": 2149,
+      "path": "payload/027/analyze.py",
+      "sha256": "8881f04657dbc1ca4e4c10e9221cd668ae251bc6d92f279d2aab420e3a984dd9"
+    },
+    {
+      "bytes": 22000,
+      "path": "payload/027/base-manifest.json",
+      "sha256": "985b8f517c81063133f7be5aa07384d936b54be4f2ceb75b84874aa1541336c6"
+    },
+    {
+      "bytes": 3341,
+      "path": "payload/027/command.json",
+      "sha256": "a810dc21b13426bd26e216e3c4ca69d78ba8880d26883cee7ec7ae886f1c5379"
+    },
+    {
+      "bytes": 1478,
+      "path": "payload/027/comparison.json",
+      "sha256": "8c66cda18dc876986f608573c4d0cd351978f0a4d4ea6e652d64f263c82db64a"
+    },
+    {
+      "bytes": 803,
+      "path": "payload/027/initialization-policy.json",
+      "sha256": "b7579eb1a571b0668646df891d5432c32f699d1b95d9bd3a53ed7feed86ad249"
+    },
+    {
+      "bytes": 4070,
+      "path": "payload/027/run-001/common-field-failure.json",
+      "sha256": "77985d885c6a87c50cd24b7e3e33b8141f1ac38e257c738896ae4de514e2687b"
+    },
+    {
+      "bytes": 441,
+      "path": "payload/027/run-001/execution-receipt.json",
+      "sha256": "19074d474a8b9dafbdf4b020f729ebf21b80bebc2a2277b1ff21618a70f18969"
+    },
+    {
+      "bytes": 22328,
+      "path": "payload/027/run-001/launch-manifest.snapshot.json",
+      "sha256": "51bdbd4ca37246b622246490915e3908f360c6ca737695c996f0e780e7696e0b"
+    },
+    {
+      "bytes": 1652180,
+      "path": "payload/027/run-001/stderr.log",
+      "sha256": "4798bad8f313e6467f0af63358ca682d46036c8ef5fbcd3199b365d7c5357689"
+    },
+    {
+      "bytes": 290455,
+      "path": "payload/027/run-001/stdout.log",
+      "sha256": "ac828709cc6f73618541e3a77ce0fd8b50ec50bbd8191fbe2968f75108f3bee7"
+    },
+    {
+      "bytes": 2186,
+      "path": "payload/027/run_comparison.py",
+      "sha256": "8cac9d767f2abe25a6cf45104303f9c804edf72b06dda938fff0146e1ea46c08"
+    },
+    {
+      "bytes": 17,
+      "path": "payload/027/runner-exit.json",
+      "sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05"
+    },
+    {
+      "bytes": 746,
+      "path": "payload/028/028-missing-capture-analysis.json",
+      "sha256": "e78446996020d8c03cbbe8613a69d1885fa51c7d336a21789df142b2e94fff04"
+    },
+    {
+      "bytes": 2552,
+      "path": "payload/028/checked-runner-tests.json",
+      "sha256": "dfa5596c7bac6a9492f70d0b85acad51f9a8e386fb010eb8575174002164e642"
+    },
+    {
+      "bytes": 3307,
+      "path": "payload/028/command.json",
+      "sha256": "0dcb24d8f6503f37efbb5cb87d82a813b4c7dd6281b71b9710be9a337b092c3f"
+    },
+    {
+      "bytes": 2126,
+      "path": "payload/028/diagnostic-output-completeness.diff",
+      "sha256": "21d415decb3c5582f21bf92f0473e04ec7cffa9b90c69d0075dc0e2bda43200f"
+    },
+    {
+      "bytes": 4755,
+      "path": "payload/028/prepare_and_test_checked_runner.py",
+      "sha256": "f76bdceb9136ef9152f2a7d20fe2ebfbe9a25a46d7c686c6c607821a9e06b8bf"
+    },
+    {
+      "bytes": 5870,
+      "path": "payload/028/run_native_contact_checked.py",
+      "sha256": "67f0a7d6d37164765a730d029b1278e5f5b845833fccef13fb6d24efe9eea56d"
+    },
+    {
+      "bytes": 971,
+      "path": "payload/028/run_source_preflight.py",
+      "sha256": "d42657e9e758986fb7ed7f8186075dd063ecb706ec23fa26fa5284abc02a215d"
+    },
+    {
+      "bytes": 17,
+      "path": "payload/028/runner-exit.json",
+      "sha256": "c365161d39236fe0f1d32937fbc549796b8487d8faf65ed3879b96897c78ea5d"
+    },
+    {
+      "bytes": 462,
+      "path": "payload/028/source-preflight-001/execution-receipt.json",
+      "sha256": "3151c8362652dc8da25d5cff722c4cea6c275146db3481a09f1aedafd3f896e3"
+    },
+    {
+      "bytes": 22868,
+      "path": "payload/028/source-preflight-001/launch-manifest.snapshot.json",
+      "sha256": "a97c913ae13463979cad6fee7aac931b9b0db5cab68b4eb987c2be7949b15dd3"
+    },
+    {
+      "bytes": 77102,
+      "path": "payload/028/source-preflight-001/stderr.log",
+      "sha256": "2304942b7ee8d7f5fd45b72970ad4d4c3792d81a82f6c6a32f25c0cf5631454b"
+    },
+    {
+      "bytes": 210594,
+      "path": "payload/028/source-preflight-001/stdout.log",
+      "sha256": "d6d94c4285f0cba040bebcf2552f43e3ed18d16870e9bb6745fcadea613f3b50"
+    },
+    {
+      "bytes": 146292,
+      "path": "payload/029/029analysis.json",
+      "sha256": "b2191f06324d8fef52a2f70c844c6f5f1ce72c46e684527b9d84ecdf4f5f751e"
+    },
+    {
+      "bytes": 4114,
+      "path": "payload/029/apps/NumiHumanD37InitialSkinBoneWitness.hpp",
+      "sha256": "68dc8e167c9a3c9500c27c5828f405efac1d9fd7ef75707c2fa7466335682e8c"
+    },
+    {
+      "bytes": 2379292,
+      "path": "payload/029/apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "9d39d6525c2624503bb2fe501d0131ed31a6dbf99adec7bc6a756daa942915c2"
+    },
+    {
+      "bytes": 4599,
+      "path": "payload/029/build-002/compile-command.json",
+      "sha256": "733bc54bf6a0778dde771945c88ef1eb20cb83987546084e05134317ddc346b4"
+    },
+    {
+      "bytes": 108,
+      "path": "payload/029/build-002/compile-result.json",
+      "sha256": "9380fd92e041122a30652d84d7249eba09b7def8eaf8fbe2e7da1e902c01b700"
+    },
+    {
+      "bytes": 1114,
+      "path": "payload/029/build-002/link-command.json",
+      "sha256": "7a12116c5046a1ae1f93f918790a329090fa42d333736ee5d253938459f4f965"
+    },
+    {
+      "bytes": 21,
+      "path": "payload/029/build-002/link-result.json",
+      "sha256": "a02d222e1be4a3d356cac5372aa177b9048c9baaa90b42f86d8cfae4569f1286"
+    },
+    {
+      "bytes": 8460,
+      "path": "payload/029/frozen-inventory.json",
+      "sha256": "6547535dee5a24f4d5ee204056c3e28d4084052d20523bd59c5ac6fcc8a6ae82"
+    },
+    {
+      "bytes": 792,
+      "path": "payload/029/root-independent-review.json",
+      "sha256": "d0bb0f0b0d8cb3e74a4f97151e991c835642cbc4a0b008a46a9981ab48f558d6"
+    },
+    {
+      "bytes": 540,
+      "path": "payload/029/source-preflight-001/execution-receipt.json",
+      "sha256": "fcb4747e7bf037ab21d11af346952ddf18427386854be67c460b1789fc92b405"
+    },
+    {
+      "bytes": 2789208,
+      "path": "payload/029/source-preflight-001/initial-skin-bone-contact.csv",
+      "sha256": "87da50c12a5b06fa9d31ada5e2941fcabf513f28025277a31a5028b8ac306099"
+    },
+    {
+      "bytes": 23577,
+      "path": "payload/029/source-preflight-001/launch-manifest.snapshot.json",
+      "sha256": "2ed018c6282c0503353d0f4248b81ba57b4fa7cb319a3538d6d2ec510ac064f6"
+    },
+    {
+      "bytes": 2379263,
+      "path": "payload/029/source-preflight-001/numilab_human_myosim_visual_probe.mm",
+      "sha256": "0dc6f97f7a928f1a193b6456c1ca3165f4305487f35459c8daae201c34269f42"
+    },
+    {
+      "bytes": 534,
+      "path": "payload/029/source-preflight-002/execution-receipt.json",
+      "sha256": "febe05827b0aaf772d0cfbb55ec367e77d1af26651268883aa42acb72695424d"
+    },
+    {
+      "bytes": 2789208,
+      "path": "payload/029/source-preflight-002/initial-skin-bone-contact.csv",
+      "sha256": "ee058644ebadc5849109dbed87c555eec091af0e8ca6cb874fb50539cf318d27"
+    },
+    {
+      "bytes": 23577,
+      "path": "payload/029/source-preflight-002/launch-manifest.snapshot.json",
+      "sha256": "5dfab71eec346aaaaf2c29f6fbcd9cbc09d1998008c497fd362e086b11a1013c"
+    },
+    {
+      "bytes": 77097,
+      "path": "payload/029/source-preflight-002/stderr.log",
+      "sha256": "4e86bdfd1eb9dea3c91bf27231e960bb76088803246b9e997a1bcd6dba547c8d"
+    },
+    {
+      "bytes": 211243,
+      "path": "payload/029/source-preflight-002/stdout.log",
+      "sha256": "79961f3d2c786412614fdbb550937af369e6c195509b9e1d70a91d203df8f4cf"
+    },
+    {
+      "bytes": 3842,
+      "path": "payload/029/tests/d37_initial_skin_bone_witness_test.cpp",
+      "sha256": "75cea20e1cefac7490a50caf61ca9cc9366ad69846a361b450bfdbaeddd79594"
+    },
+    {
+      "bytes": 1862,
+      "path": "payload/030/README.md",
+      "sha256": "8c5c385bff39f28aad1c5c036678d619159bf46a14815c6e42f88d2a1277dd26"
+    },
+    {
+      "bytes": 5510,
+      "path": "payload/030/analyze_native_comparison.py",
+      "sha256": "0f0d89e463b8c876398707aaf6e9dfd593d79ddf1718a16a606c3012112bb29e"
+    },
+    {
+      "bytes": 16769,
+      "path": "payload/030/app-integration-attempt-001.diff",
+      "sha256": "2c6c1be2aef1900cf42e3a417dbcf3439e1be47ddd84088f65baa7a40db6f1ec"
+    },
+    {
+      "bytes": 17091,
+      "path": "payload/030/app-integration-attempt-002.diff",
+      "sha256": "640959cecb617b66c7432ecf078a6ca67f5eb7f28bb6b41cf681a7a468aeee39"
+    },
+    {
+      "bytes": 17091,
+      "path": "payload/030/app-integration-attempt-003.diff",
+      "sha256": "6e13af70bb657ce7f22070e115e3bb7c4e2e0945a588684d74892656c9dba617"
+    },
+    {
+      "bytes": 19107,
+      "path": "payload/030/app-integration-attempt-004.diff",
+      "sha256": "07252e1c4b7c4e5451a7ec6f0513bc5ef8a732b3c46479dfdb6dcc1970d165b3"
+    },
+    {
+      "bytes": 19213,
+      "path": "payload/030/app-integration-attempt-005.diff",
+      "sha256": "478ea54aa9d2677f2fb68634bf963e89bee81d1fcfeddde5a7ba9f6897c0d3c8"
+    },
+    {
+      "bytes": 22741,
+      "path": "payload/030/app-integration.diff",
+      "sha256": "6f12bcab9779ce2924f9914f371b34b6cb5aa328a4b67fe41c066db32939a37f"
+    },
+    {
+      "bytes": 4493944,
+      "path": "payload/030/apps/NumiHumanConformingPrism030.hpp",
+      "sha256": "32ed4aaea7aa738f74ec4b3b353942b8170c11f8b5c5637db3b90bf8a4d13063"
+    },
+    {
+      "bytes": 185792,
+      "path": "payload/030/apps/NumiHumanSkinFatReductionLabels.hpp",
+      "sha256": "13332fbac3522146ba86012fffc205027fff15bb0579bb6c1cbfde2c625b1215"
+    },
+    {
+      "bytes": 9284,
+      "path": "payload/030/apps/NumiHumanWholeBodySkinEmbeddingConsumer.hpp",
+      "sha256": "fdcec56d0c7af908995d3b4e4719bd2a59fa5aa835cd0efb081d29b448621efb"
+    },
+    {
+      "bytes": 2375428,
+      "path": "payload/030/apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "9a5cac841d817a4fdff22a124648f06484eb947b6d709b18d9f452def8b38713"
+    },
+    {
+      "bytes": 3777,
+      "path": "payload/030/audit_and_run_native.py",
+      "sha256": "35050ca41cc9cab78d05657cd895b662559d28ce26419a9ff529536ada402259"
+    },
+    {
+      "bytes": 3793,
+      "path": "payload/030/audit_and_run_native_002.py",
+      "sha256": "d119067e4dda10a3761da12215fb6dc9393ec0dc131ebd77ee21b8e6018b61c7"
+    },
+    {
+      "bytes": 284,
+      "path": "payload/030/baseline-region-policy-fix.json",
+      "sha256": "cd11af7ba9a0d39f36d33efb509690fec49a72845256e4430bd7599881bf1f14"
+    },
+    {
+      "bytes": 368,
+      "path": "payload/030/basis-admission-policy.json",
+      "sha256": "42afe3b3231c735ee4ff770a2529e0be9698437ed56531d22ffe4abee0edbae4"
+    },
+    {
+      "bytes": 752,
+      "path": "payload/030/basis-capacity-count-fix.diff",
+      "sha256": "5fd230b3d2350f57f04e66df78f7ba2cf9ece73493ad3709d1376686b3e2f7a4"
+    },
+    {
+      "bytes": 4614,
+      "path": "payload/030/build-006/compile-command.json",
+      "sha256": "2f55af80ce2ef5abd02b574851613a88ca87210e49201fae373cae3dfe3aa5bd"
+    },
+    {
+      "bytes": 52,
+      "path": "payload/030/build-006/compile-result.json",
+      "sha256": "97029f4ce3b629e22ad79ae8158a17c54670e97b1d98d2ce9b55f7eecfacf189"
+    },
+    {
+      "bytes": 26908,
+      "path": "payload/030/build-006/dependency-certification.json",
+      "sha256": "d71cc6d930376b8487fba5dfdb378e30e3de37b2df334fbaaf1ddf9864ae56c6"
+    },
+    {
+      "bytes": 1122,
+      "path": "payload/030/build-006/link-command.json",
+      "sha256": "2c77f435bf6915d1a9c2a49c4fde19f939842c236e2558619093b30000da19e5"
+    },
+    {
+      "bytes": 55,
+      "path": "payload/030/build-006/link-result.json",
+      "sha256": "1e0f04b0747ead0060e7a787b71afd4e49fb83fd41438b8cbf11d79fd3838d8f"
+    },
+    {
+      "bytes": 799,
+      "path": "payload/030/candidate-identity-attempt-001.json",
+      "sha256": "4d31dc3f01701667bba3a6425b795656cbbbfe4be52e76bea906816ba5b9a144"
+    },
+    {
+      "bytes": 913,
+      "path": "payload/030/candidate-identity-attempt-002.json",
+      "sha256": "84c4bdec69179de74ea2f2b526f6e0505051cfe8e96da2a75e7b0d1132e4d3bf"
+    },
+    {
+      "bytes": 1035,
+      "path": "payload/030/candidate-identity-attempt-003.json",
+      "sha256": "cd29ad96655e3b56abeaf6c8b4c822410f82cb992c405c7152c17bfe9fc1ed76"
+    },
+    {
+      "bytes": 1267,
+      "path": "payload/030/candidate-identity-attempt-004.json",
+      "sha256": "7d4626aa899c0a8e7744dbf48f4f5c5f6a621e4559bf11b7a904550b0258fa6f"
+    },
+    {
+      "bytes": 1267,
+      "path": "payload/030/candidate-identity-attempt-005.json",
+      "sha256": "f0a5be79347709943b9f7a7bf74d4aac096c5de0c172996301002537e4418de7"
+    },
+    {
+      "bytes": 1267,
+      "path": "payload/030/candidate-identity.json",
+      "sha256": "f0a5be79347709943b9f7a7bf74d4aac096c5de0c172996301002537e4418de7"
+    },
+    {
+      "bytes": 337,
+      "path": "payload/030/dominant-parent-donor-fix.json",
+      "sha256": "ff9c3ee7f02e431721a0ac41a5c2bb405695dd615ed6124b6b2a8aa7395a6fc1"
+    },
+    {
+      "bytes": 1998,
+      "path": "payload/030/fix_basis_capacity_and_policy_005.py",
+      "sha256": "334e1e25985ce2b0554e0dd82b5d27ea4ccfc5c270cfd3bce44285f6a248fa97"
+    },
+    {
+      "bytes": 3440,
+      "path": "payload/030/fix_dominant_parent_and_build_002.py",
+      "sha256": "6b5958cd76ae064cc909c7b0bf4d2040069c64cea7bd1b5d9330fd7651eb77a4"
+    },
+    {
+      "bytes": 4713,
+      "path": "payload/030/fix_native_csr_semantics_and_build_003.py",
+      "sha256": "b2c6eafada826f86d368fc95eee08834dc9bab669d06c317e33238bc5497168b"
+    },
+    {
+      "bytes": 4014,
+      "path": "payload/030/fix_object_descriptor_006.py",
+      "sha256": "49ed689738927c21778cf36e6c7a2dcc763f85a9513f6b9355052cb3f4c0f056"
+    },
+    {
+      "bytes": 2415,
+      "path": "payload/030/initial-preparation-replay-guard-test.json",
+      "sha256": "23ae142fcbaddaf7a3caece1e145f71a33141f4b20eda7a2404327e59ed57079"
+    },
+    {
+      "bytes": 519,
+      "path": "payload/030/native-1ms-001/execution-receipt.json",
+      "sha256": "a51437432bb6049927a1352f8dc73dc6b47edde212088407d9b56ced11d1b868"
+    },
+    {
+      "bytes": 34953,
+      "path": "payload/030/native-1ms-001/launch-manifest.snapshot.json",
+      "sha256": "87164493e757934415f27b5b823e1dcff022fe07e8f37ad4262a054801ec1d53"
+    },
+    {
+      "bytes": 137030,
+      "path": "payload/030/native-1ms-001/stderr.log",
+      "sha256": "3572d0309803cb85231743d78ae7cbd85b6587533dffa5e58202250a1f60070a"
+    },
+    {
+      "bytes": 285103,
+      "path": "payload/030/native-1ms-001/stdout.log",
+      "sha256": "11d830f40d1a14fa89c3aa3f9dbc77dab3def1fc2c7388741cd0722b84f30122"
+    },
+    {
+      "bytes": 4067,
+      "path": "payload/030/native-1ms-002/common-field-failure.json",
+      "sha256": "fd84ea4eb765548b28fa4b17427a788d77df9d79ec4cd0f53ae83e74e255ec4e"
+    },
+    {
+      "bytes": 518,
+      "path": "payload/030/native-1ms-002/execution-receipt.json",
+      "sha256": "7e5c71618fe108ff13f33a1e3a17f3926b2138f0c75ec84090d25c710be36877"
+    },
+    {
+      "bytes": 7473,
+      "path": "payload/030/native-1ms-002/failure-cell-19641-bone-classification-029.json",
+      "sha256": "22683f4bf0ae8b83d5b83f8bd10efaa70ec4ee81428072b6c1f8c6deb88e5d9e"
+    },
+    {
+      "bytes": 34957,
+      "path": "payload/030/native-1ms-002/launch-manifest.snapshot.json",
+      "sha256": "f16ca17acbe6500dd3fbdb397a2596d39685c7e5068dac544277d8cdc79e9b81"
+    },
+    {
+      "bytes": 1658005,
+      "path": "payload/030/native-1ms-002/stderr.log",
+      "sha256": "2acb0f04c7c7912ee2e2b5d3be3756b16ed2cd96f0b9dbd3db7f411d1d64ed90"
+    },
+    {
+      "bytes": 289489,
+      "path": "payload/030/native-1ms-002/stdout.log",
+      "sha256": "2184f02f83a0dd303c6d559183ca508f4fb082d9c8fa2c4cb2c81d7ea7ec7e4b"
+    },
+    {
+      "bytes": 4178,
+      "path": "payload/030/native-1ms-command-002.json",
+      "sha256": "97b5705709456507f12534f61d1cc2c3c2f45f3ef6a89032081b073d5a8398b1"
+    },
+    {
+      "bytes": 4174,
+      "path": "payload/030/native-1ms-command.json",
+      "sha256": "8a01c8987381eb169458d35cd5627acd103d57b982546db6937490581f3a22bb"
+    },
+    {
+      "bytes": 8143,
+      "path": "payload/030/native-comparison-analysis.json",
+      "sha256": "86b657468bd8c81aabc6d1382c29939b490963c8262bf6c1a6e259985ed123fa"
+    },
+    {
+      "bytes": 680,
+      "path": "payload/030/native-csr-semantics-conversion.json",
+      "sha256": "66e770bf404d0099d251e8e4007787a1207ac09a56883100dab1ad0122a80cb1"
+    },
+    {
+      "bytes": 17,
+      "path": "payload/030/native-runner-exit-002.json",
+      "sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05"
+    },
+    {
+      "bytes": 17,
+      "path": "payload/030/native-runner-exit.json",
+      "sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05"
+    },
+    {
+      "bytes": 453,
+      "path": "payload/030/object-binding-fix.json",
+      "sha256": "d6ab5c4ade17a1d3611117c6394e1221557699c57febffd82a351b56fe045cec"
+    },
+    {
+      "bytes": 265,
+      "path": "payload/030/preparation-attempt-001.json",
+      "sha256": "f62a6d16b458003196fe20cb4590d31a92df1d9dcf636f039ec78da125d70b8e"
+    },
+    {
+      "bytes": 14142,
+      "path": "payload/030/prepare_and_build_initial.py",
+      "sha256": "4ca0d2e23c5c326d905e5172773407858bdc7d0bfb59743dfceb3c2b36fab90f"
+    },
+    {
+      "bytes": 4112,
+      "path": "payload/030/prepare_baseline_region_policy_004.py",
+      "sha256": "46aa38d7c2f6d657ecc5b7eb429850d3fb4a0386ce056bc1886ef43236274728"
+    },
+    {
+      "bytes": 16439,
+      "path": "payload/030/prism-input/build_prism_rank_retriangulation_003.py",
+      "sha256": "07ab8d570eaffb5e226e2e63aeb167d6eea066408f41c87145842d982d185fc0"
+    },
+    {
+      "bytes": 905624,
+      "path": "payload/030/prism-input/candidate.npz",
+      "sha256": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc"
+    },
+    {
+      "bytes": 801,
+      "path": "payload/030/prism-input/changed-connectivity.csv",
+      "sha256": "a068645be6ea2fdd089a960f9b9799af07669f642d8f1e69d629a496910b28cb"
+    },
+    {
+      "bytes": 1410,
+      "path": "payload/030/prism-input/freeze-manifest.json",
+      "sha256": "f11fdcb593a62ea859ab8e527b5e6b22d597d68eb64fa123b327829e981dea2c"
+    },
+    {
+      "bytes": 6228,
+      "path": "payload/030/prism-input/report.json",
+      "sha256": "cba3dabe05563ce5b6c7e659c395b577236e734395ce6edd5b21620536d1fb26"
+    },
+    {
+      "bytes": 2820,
+      "path": "payload/030/rebuild_region_candidate.py",
+      "sha256": "268266db445da52bf90cf429825a1d386bcaae44f5c1d955c3de301901e34583"
+    },
+    {
+      "bytes": 1847,
+      "path": "payload/030/run_source_preflight.py",
+      "sha256": "631fcee0d1cde2ea3106a23cbee648d51d5ac84c12ad9d3f661969a9121f9275"
+    },
+    {
+      "bytes": 1847,
+      "path": "payload/030/run_source_preflight_002.py",
+      "sha256": "218b3e8ac0e0d57be818ee95c366dce5276bc6ab0bedc65768c0129c2a37a39a"
+    },
+    {
+      "bytes": 1847,
+      "path": "payload/030/run_source_preflight_003.py",
+      "sha256": "7ec850e5702d9cdfd2672ce8399e0eead0bf62c082f07590b631e09b6a323a31"
+    },
+    {
+      "bytes": 1847,
+      "path": "payload/030/run_source_preflight_004.py",
+      "sha256": "c8caabf94ba3c0d7fe94a9bbefa65e27f98fdc8512e058f65672a5d3057d549c"
+    },
+    {
+      "bytes": 1847,
+      "path": "payload/030/run_source_preflight_005.py",
+      "sha256": "3ecc3f254f36e1384841f4027e8d4a7c1f4b5eb696a7789088fbbd9b830fda77"
+    },
+    {
+      "bytes": 1847,
+      "path": "payload/030/run_source_preflight_006.py",
+      "sha256": "d7040179b58f92e4587fbdd9c6c4ce72165fb76a0626b0c5a7d3aaeb4143962d"
+    },
+    {
+      "bytes": 745,
+      "path": "payload/030/source-parity-analysis-006.json",
+      "sha256": "1c718d7702f86b575cd38ebebc610e3c38296e70a3f489345134f5dce4c55750"
+    },
+    {
+      "bytes": 745,
+      "path": "payload/030/source-parity-analysis.json",
+      "sha256": "1c718d7702f86b575cd38ebebc610e3c38296e70a3f489345134f5dce4c55750"
+    },
+    {
+      "bytes": 1294,
+      "path": "payload/030/source-preflight-001/execution-receipt.json",
+      "sha256": "727f59335b08c32dbea91e73e1e3a43de4698dbb45822f2f4428b68cc15003b6"
+    },
+    {
+      "bytes": 23258,
+      "path": "payload/030/source-preflight-001/launch-manifest.snapshot.json",
+      "sha256": "ec5499ced31de3c70a4e71b68384b73822e73041531f6eda6dad66a8bf1bb9cd"
+    },
+    {
+      "bytes": 74259,
+      "path": "payload/030/source-preflight-001/stderr.log",
+      "sha256": "41693d0c50960bff71013362d18041a03a9aaaaef9ccee55c58afc07ac5962b5"
+    },
+    {
+      "bytes": 15148,
+      "path": "payload/030/source-preflight-001/stdout.log",
+      "sha256": "b216367669f4c60670b01310dc18e5ff8980dc1127fac4f422f7d619ce629b73"
+    },
+    {
+      "bytes": 1296,
+      "path": "payload/030/source-preflight-002/execution-receipt.json",
+      "sha256": "40a7768e8ab22c2af320348d8ec5fe8579ff031bc612277d8c33cf0ba3be0056"
+    },
+    {
+      "bytes": 23258,
+      "path": "payload/030/source-preflight-002/launch-manifest.snapshot.json",
+      "sha256": "bc883f661939a01ee909ab51159ec373a973db34a08843da669ebf0b1bec0e96"
+    },
+    {
+      "bytes": 74213,
+      "path": "payload/030/source-preflight-002/stderr.log",
+      "sha256": "f3f8244a0abfa32d254a86e2bc390121811547b6d090fd5e91152199f23a6be9"
+    },
+    {
+      "bytes": 15148,
+      "path": "payload/030/source-preflight-002/stdout.log",
+      "sha256": "c6583d642410e3f3caf3e2bc9dcf12005e5cd2bedb9d8e1531c4093e8e429e83"
+    },
+    {
+      "bytes": 1296,
+      "path": "payload/030/source-preflight-003/execution-receipt.json",
+      "sha256": "9433a561d7c6fafb69df429d360f7c129a789df3ccf0ae1539d4e7a7067426ca"
+    },
+    {
+      "bytes": 23258,
+      "path": "payload/030/source-preflight-003/launch-manifest.snapshot.json",
+      "sha256": "6f290a3b9c1ba9485bf9de2dba19494e037b8201d9dbb2dfc44ccc3dbe1ecb35"
+    },
+    {
+      "bytes": 74198,
+      "path": "payload/030/source-preflight-003/stderr.log",
+      "sha256": "5665bc190f69a157355cbd15b56c8c7b1bafdb5d971ff41d7d7e7c6f789fe7ae"
+    },
+    {
+      "bytes": 15148,
+      "path": "payload/030/source-preflight-003/stdout.log",
+      "sha256": "baa24bcc8b93440a9d8be32ac3a60a18ace8cb9645e43d4c11b9554ae76f88ab"
+    },
+    {
+      "bytes": 1296,
+      "path": "payload/030/source-preflight-004/execution-receipt.json",
+      "sha256": "705f9fad4ac8ad5d167ad701b48585c2ddec1838d1015ee1b4dd95a153e81ffd"
+    },
+    {
+      "bytes": 23258,
+      "path": "payload/030/source-preflight-004/launch-manifest.snapshot.json",
+      "sha256": "1e40e2c87bbd27d19ae7860522a6358b90c40268bb3b735e1d2c5ee48b565dd0"
+    },
+    {
+      "bytes": 74199,
+      "path": "payload/030/source-preflight-004/stderr.log",
+      "sha256": "cb77ac8dae095ac262338ed3cd25ad33f2aea8b37a294dac3da9edf16603fbc1"
+    },
+    {
+      "bytes": 15148,
+      "path": "payload/030/source-preflight-004/stdout.log",
+      "sha256": "6fce6c350a58c38cfb5fb56303afadd94dbd1567da6ee5105a07aea1bd789f3e"
+    },
+    {
+      "bytes": 539,
+      "path": "payload/030/source-preflight-005/execution-receipt.json",
+      "sha256": "a53f01e17428856a52a2c47f9582b5f13a44888e76f3515b9205034acda8dd2e"
+    },
+    {
+      "bytes": 23258,
+      "path": "payload/030/source-preflight-005/launch-manifest.snapshot.json",
+      "sha256": "39c18f60169db2d3fca178932143311b94d689a491de496944a194558c7b15d9"
+    },
+    {
+      "bytes": 77105,
+      "path": "payload/030/source-preflight-005/stderr.log",
+      "sha256": "47fc0ac38e125059b42637ff240355ad6497728df99dfa1bb747a2c83600feb4"
+    },
+    {
+      "bytes": 210276,
+      "path": "payload/030/source-preflight-005/stdout.log",
+      "sha256": "f83ef3b5d1e11acee6f3a9f6cb64ff52654548c3b9f20f9e6bab2e1cfd9457db"
+    },
+    {
+      "bytes": 538,
+      "path": "payload/030/source-preflight-006/execution-receipt.json",
+      "sha256": "d92bc893ac9454a7be874b82fabc252d706ee8c6692c3a3c398a2bccfb90d03e"
+    },
+    {
+      "bytes": 694725,
+      "path": "payload/030/source-preflight-006/initial-skin-fem-nodes.csv",
+      "sha256": "fc0bd3cbf3269050fc97e341fbb3805eff36ebd1eff0ce5f98bcd85260ec8880"
+    },
+    {
+      "bytes": 23258,
+      "path": "payload/030/source-preflight-006/launch-manifest.snapshot.json",
+      "sha256": "e963064704d34d98417d3e39208158166aa53ca2b4fdcf7efbf18c8edda139db"
+    },
+    {
+      "bytes": 77105,
+      "path": "payload/030/source-preflight-006/stderr.log",
+      "sha256": "9b5f839608c472e0e2a183c667bf8f8804e2b3564ff51b199e84e0db086fc310"
+    },
+    {
+      "bytes": 210268,
+      "path": "payload/030/source-preflight-006/stdout.log",
+      "sha256": "63cd399a6d3ba6fa3607e9bf155c1562db045edf894158fc143e0c6b92e2ee7d"
+    },
+    {
+      "bytes": 1460982,
+      "path": "payload/030/source-preflight-006/tissue-mass-reference.txt",
+      "sha256": "581ceb78968488a89f21997b984c76f33a6fd18a905b7c4c940764a1ce7ce7bd"
+    },
+    {
+      "bytes": 3301,
+      "path": "payload/030/source-preflight-command.json",
+      "sha256": "33523f95c92e1f8b6ab94069cdf5e1de31e669441f23bcd4a9ff5ea7f94860b9"
+    },
+    {
+      "bytes": 17,
+      "path": "payload/030/source-preflight-runner-exit.json",
+      "sha256": "c365161d39236fe0f1d32937fbc549796b8487d8faf65ed3879b96897c78ea5d"
+    },
+    {
+      "bytes": 2773,
+      "path": "payload/verify_publication_058.py",
+      "sha256": "92508c5d17abe13496c80ee4fe216a91606e7f254940f823cc5b9657749e252d"
+    }
+  ],
+  "inherited_reference_count": 26,
+  "inherited_references": [
+    {
+      "bytes": 694725,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/initial-skin-fem-nodes.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/initial-skin-fem-nodes.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 82547,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/native-1ms-001/output/resting-airway-anchor-map.json",
+      "kind": "inherited_publication_asset",
+      "sha256": "113e09603b38a1e0fa114495ebe4c98098e50cf5e0338b841415c3a8daa37a1e",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/output/resting-airway-anchor-map.json",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 1769,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/output/resting-coupled.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/output/resting-coupled.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 1210039,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/native-1ms-001/output/resting-ocular-sclera-window.json",
+      "kind": "inherited_publication_asset",
+      "sha256": "10ee789bbd8ac76a1bc2e784f49d5210024ac2f5049bf991e4d11e98f1db9caf",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/output/resting-ocular-sclera-window.json",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 894,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/native-1ms-001/output/resting-surface-audit.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/output/resting-surface-audit.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 73339,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-056/payload/bilateral-hand-functional-rebind-020/native-source-emission-identity004-001/registered-skin-poses.json",
+      "kind": "inherited_publication_asset",
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/registered-skin-poses.json",
+      "via_commit": "9226d20147fbb1cfed7fe5a4c1ce96a0ee13413f"
+    },
+    {
+      "bytes": 1460972,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/tissue-mass-reference.txt",
+      "kind": "inherited_publication_asset",
+      "sha256": "71715ff82763c53b478ada4a292f63ac01dd2c5971cf390c2e11705e96f1caec",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/tissue-mass-reference.txt",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 694725,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/initial-skin-fem-nodes.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/initial-skin-fem-nodes.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 82547,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/native-1ms-001/output/resting-airway-anchor-map.json",
+      "kind": "inherited_publication_asset",
+      "sha256": "113e09603b38a1e0fa114495ebe4c98098e50cf5e0338b841415c3a8daa37a1e",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/output/resting-airway-anchor-map.json",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 1769,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/output/resting-coupled.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/output/resting-coupled.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 1210039,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/native-1ms-001/output/resting-ocular-sclera-window.json",
+      "kind": "inherited_publication_asset",
+      "sha256": "10ee789bbd8ac76a1bc2e784f49d5210024ac2f5049bf991e4d11e98f1db9caf",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/output/resting-ocular-sclera-window.json",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 894,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/native-1ms-001/output/resting-surface-audit.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/output/resting-surface-audit.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 73339,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-056/payload/bilateral-hand-functional-rebind-020/native-source-emission-identity004-001/registered-skin-poses.json",
+      "kind": "inherited_publication_asset",
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/registered-skin-poses.json",
+      "via_commit": "9226d20147fbb1cfed7fe5a4c1ce96a0ee13413f"
+    },
+    {
+      "bytes": 1460972,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/tissue-mass-reference.txt",
+      "kind": "inherited_publication_asset",
+      "sha256": "71715ff82763c53b478ada4a292f63ac01dd2c5971cf390c2e11705e96f1caec",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/tissue-mass-reference.txt",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 694725,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/initial-skin-fem-nodes.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-028/source-preflight-001/initial-skin-fem-nodes.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 1769,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/output/resting-coupled.csv",
+      "kind": "inherited_publication_asset",
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-028/source-preflight-001/output/resting-coupled.csv",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 2820099,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/prepared-tangent.metal",
+      "kind": "inherited_publication_asset",
+      "sha256": "f36d8798b4f3b06cf0e5ccf08d9e08d6d791143900d115f0a1a0405d8b5e6b87",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-028/source-preflight-001/prepared-tangent.metal",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 73339,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-056/payload/bilateral-hand-functional-rebind-020/native-source-emission-identity004-001/registered-skin-poses.json",
+      "kind": "inherited_publication_asset",
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-028/source-preflight-001/registered-skin-poses.json",
+      "via_commit": "9226d20147fbb1cfed7fe5a4c1ce96a0ee13413f"
+    },
+    {
+      "bytes": 1460972,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/source-preflight-001/tissue-mass-reference.txt",
+      "kind": "inherited_publication_asset",
+      "sha256": "71715ff82763c53b478ada4a292f63ac01dd2c5971cf390c2e11705e96f1caec",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-028/source-preflight-001/tissue-mass-reference.txt",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 165085,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanFinal020CandidateRegistration.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "d635f09d0ff7090a808aca274f737a864129f797822c20a81f8b414a7f99ec0e",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanFinal020CandidateRegistration.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 12474,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanMaterialColumnSelfContact.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "835086de11c031870104165459f6fdfbf7e4d2ad04068ec4669acdc83cb16cc3",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanMaterialColumnSelfContact.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 2841,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanSkinBoundaryNodeMap.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "ce36fae5a378d65bdf63d0bf1408175abcf20baa3bb876be229f8c49e94e6241",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanSkinBoundaryNodeMap.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 33608,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "e0ea26214cd7cf9e3ed9dc0bcf83766e44830b3004b794892bc2ff90a6afc2e0",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanSkinFEMIntegration.wholebody.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 42840,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "dd47c7e5033dabd2cb0b06300fc9ece9ef9977e8b57e17f98c2992ea0175dc16",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 5642121,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanWholeBodySkinReduction.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "c0f3f3569dbf42f4be582a0eed35d805c938553bb637deeaba4cf0a43ba3e17d",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanWholeBodySkinReduction.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    },
+    {
+      "bytes": 870695,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-057/payload/024/apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+      "kind": "inherited_unchanged_source_app",
+      "sha256": "05f967096c494ddf8281268b777c5a4cc65556eb1bd7dc5e2a2a068a1874b0bb",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+      "via_commit": "e43e1a1095ea57ecc2a2e90aadeb1ae33d52a653"
+    }
+  ],
+  "omitted_artifact_count": 7,
+  "omitted_artifacts": [
+    {
+      "bytes": 297095168,
+      "kind": "omitted_external_run_artifact",
+      "reason": "large source/output artifact omitted; exact hash/path retained",
+      "sha256": "efa474c04296d1c9255bec37d7cf87367bae09432e835a53252fcbc42467316a",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/output/resting-human.mrvpack"
+    },
+    {
+      "bytes": 24135771,
+      "kind": "omitted_external_run_artifact",
+      "reason": "large source/output artifact omitted; exact hash/path retained",
+      "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/run-001/registered-skin.csv"
+    },
+    {
+      "bytes": 297095168,
+      "kind": "omitted_external_run_artifact",
+      "reason": "large source/output artifact omitted; exact hash/path retained",
+      "sha256": "efa474c04296d1c9255bec37d7cf87367bae09432e835a53252fcbc42467316a",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/output/resting-human.mrvpack"
+    },
+    {
+      "bytes": 24135771,
+      "kind": "omitted_external_run_artifact",
+      "reason": "large source/output artifact omitted; exact hash/path retained",
+      "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-weighted-support-027/run-001/registered-skin.csv"
+    },
+    {
+      "bytes": 24135771,
+      "kind": "omitted_external_run_artifact",
+      "reason": "large source/output artifact omitted; exact hash/path retained",
+      "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-028/source-preflight-001/registered-skin.csv"
+    },
+    {
+      "bytes": 24135771,
+      "kind": "omitted_external_run_artifact",
+      "reason": "duplicate registered-skin CSV omitted; exact source path and SHA-256 pinned",
+      "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/native-1ms-002/registered-skin.csv"
+    },
+    {
+      "bytes": 297095168,
+      "kind": "omitted_external_run_artifact",
+      "reason": "large native MRV pack omitted; exact source path and SHA-256 pinned",
+      "sha256": "a936e661d819a7ad2f36c6dbdafbe95f9354b4d36ba08137fe65bdfcee5e3f1d",
+      "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-conforming-prism-030/native-1ms-002/output/resting-human.mrvpack"
+    }
+  ],
+  "schema": "numi.human.publication.payload-files.v1",
+  "total_bytes": 29178312
+}

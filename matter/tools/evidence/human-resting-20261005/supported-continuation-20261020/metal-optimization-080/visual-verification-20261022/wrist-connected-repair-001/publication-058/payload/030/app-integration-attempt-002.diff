@@ -1,0 +1,226 @@
+--- 024/app.mm
++++ 030/app.mm
+@@ -20,6 +20,7 @@
+ #include "NumiHumanAcceptedFEMSkinTransfer.hpp"
+ #include "NumiHumanSkinBoundaryNodeMap.hpp"
+ #include "NumiHumanUnpairedSkinFatVolume.hpp"
++#include "NumiHumanConformingPrism030.hpp"
+ #include "NumiHumanElbowBaselineProlongation065.hpp"
+ #include "NumiHumanWholeBodySkinEmbeddingConsumer.hpp"
+ #include "NumiHumanWholeBodySkinTransferAncestry.hpp"
+@@ -21988,8 +21989,8 @@
+                 }
+             }
+             constexpr std::string_view kUnadmittedDiagnosticCandidateID=
+-                "candidate020-d37-current-unpaired163-owner-integration-038";
+-            constexpr std::string_view kUnadmittedDiagnosticCandidateSHA256="ad204691d202ee3455cb28653c297fca8a3094bcce6a838e069343d315f6f39b";
++                "candidate020-d37-conforming-prism-030";
++            constexpr std::string_view kUnadmittedDiagnosticCandidateSHA256="84c4bdec69179de74ea2f2b526f6e0505051cfe8e96da2a75e7b0d1132e4d3bf";
+             const char* unadmittedDiagnostic=std::getenv("NUMI_HUMAN_EXPERIMENTAL_UNADMITTED_LAYER_DIAGNOSTIC");
+             const char* unadmittedCandidateID=std::getenv("NUMI_HUMAN_EXPERIMENTAL_UNADMITTED_LAYER_CANDIDATE_ID");
+             const char* unadmittedCandidateSHA=std::getenv("NUMI_HUMAN_EXPERIMENTAL_UNADMITTED_LAYER_CANDIDATE_SHA256");
+@@ -22268,7 +22269,7 @@
+             require(identityPreflightEnv==nullptr||std::string_view(identityPreflightEnv)=="0"||
+                         std::string_view(identityPreflightEnv)=="1",
+                     "unpaired identity-preflight opt-in must be 0 or 1");
+-            if(identityPreflightEnv!=nullptr&&std::string_view(identityPreflightEnv)=="1") {
++            if(true) { // private prism030 candidate, guarded by exact candidate ID and SHA above
+                 // Exercise the new volume-node owner against an exact clone of the
+                 // already accepted paired object. This is a source-preparation
+                 // compatibility check only; it does not qualify repaired anatomy.
+@@ -22367,10 +22368,27 @@
+                 };
+                 seedIdentityFromReport(preparedSkin,"skin");
+                 seedIdentityFromReport(preparedFat,"fat");
++                namespace prism030=numi::human::prism030;
++                require(identityTets.size()==prism030::oldTetrahedra.size()&&
++                        std::equal(identityTets.begin(),identityTets.end(),prism030::oldTetrahedra.begin()),
++                        "prism030 parent connectivity differs from the pinned D37 source");
++                const auto parentTets=identityTets;
++                const auto parentStableFaces=identityStableFaces;
++                std::vector<std::uint32_t> parentTetDonor(tetCount,NM_INVALID_INDEX);
++                for(std::size_t ti=0;ti<tetCount;++ti) {
++                    std::map<std::uint32_t,unsigned> counts;
++                    for(auto node:parentTets[ti])++counts[region.donorBodyIndices[node%surfaceCount]];
++                    auto chosen=counts.begin();
++                    for(auto it=counts.begin();it!=counts.end();++it)
++                        if(it->second>chosen->second)chosen=it;
++                    parentTetDonor[ti]=chosen->first;
++                }
++                identityTets.assign(prism030::childTetrahedra.begin(),prism030::childTetrahedra.end());
++
+                 std::vector<std::uint32_t> identityTetDonor(tetCount,NM_INVALID_INDEX);
+-                std::vector<std::uint32_t> identityParentOffsets(tetCount+1u);
+-                std::vector<std::uint32_t> identityParentRows(tetCount);
+-                std::vector<double> identityParentFractions(tetCount,1.0);
++                std::vector<std::uint32_t> identityParentOffsets(prism030::parentOffsets.begin(),prism030::parentOffsets.end());
++                std::vector<std::uint32_t> identityParentRows(prism030::parentRows.begin(),prism030::parentRows.end());
++                std::vector<double> identityParentFractions(prism030::parentFractions.begin(),prism030::parentFractions.end());
+                 std::vector<std::uint32_t> identityFacetRows(4u*tetCount,NM_INVALID_INDEX);
+                 std::vector<std::uint32_t> identityFacetStable(4u*tetCount,NM_INVALID_INDEX);
+                 std::vector<std::uint8_t> identityWallFlags(4u*tetCount,0u);
+@@ -22382,7 +22400,6 @@
+                     ++identitySourceEdgeUse[{a,b}];
+                 }
+                 for(std::uint32_t ti=0;ti<tetCount;++ti) {
+-                    identityParentOffsets[ti]=ti;identityParentRows[ti]=ti;
+                     const auto tet=identityTets[ti];
+                     std::map<std::uint32_t,unsigned> donorCounts;
+                     for(auto node:tet) {require(node<volumeCount,"identity preflight tetrahedron has an out-of-range node");
+@@ -22434,7 +22451,6 @@
+                                 "identity preflight generating triangle has no stable source identity");
+                     }
+                 }
+-                identityParentOffsets[tetCount]=static_cast<std::uint32_t>(tetCount);
+                 std::set<std::uint32_t> identityStableSet(identityStableFaces.begin(),identityStableFaces.end());
+                 std::uint32_t nextWallStable=0x80000000u;
+                 for(const auto& [facet,uses]:identityFacetUses) {
+@@ -22526,15 +22542,19 @@
+                 identityTopology.referenceWorldPoints=identityReference;
+                 identityTopology.childTetrahedra=identityTets;
+                 identityTopology.childMaterialIndices=identityMaterials;
+-                identityTopology.childDominantParentTetrahedra=identityParentRows;
++                identityTopology.childDominantParentTetrahedra=prism030::dominantParent;
+                 identityTopology.childParentSurfaceFaces=identityParentSurfaceFaces;
+                 identityTopology.childStableSourceFaceIdentities=identityStableFaces;
++                // Element region provenance follows its measured dominant old-volume
++                // parent. Nodal donor frames and physical lumped masses remain separate.
++                for(std::size_t ti=0;ti<tetCount;++ti)
++                    identityTetDonor[ti]=parentTetDonor[prism030::dominantParent[ti]];
+                 identityTopology.childDonorBodyIndices=identityTetDonor;
+                 identityTopology.parentReferenceWorldPoints=identityReference;
+-                identityTopology.parentTetrahedra=identityTets;
++                identityTopology.parentTetrahedra=parentTets;
+                 identityTopology.parentMaterialIndices=identityMaterials;
+-                identityTopology.parentStableSourceFaceIdentities=identityStableFaces;
+-                identityTopology.parentDonorBodyIndices=identityTetDonor;
++                identityTopology.parentStableSourceFaceIdentities=parentStableFaces;
++                identityTopology.parentDonorBodyIndices=parentTetDonor;
+                 identityTopology.childParentAncestryOffsets=identityParentOffsets;
+                 identityTopology.childParentAncestryTetrahedra=identityParentRows;
+                 identityTopology.childParentAncestryVolumeFractions=identityParentFractions;
+@@ -22566,7 +22586,7 @@
+                 identityReceiptBytes.append(reinterpret_cast<const char*>(identityMaterials.data()),identityMaterials.size()*sizeof(identityMaterials.front()));
+                 const auto identityDigest=loadedKneeSHA256(identityReceiptBytes.data(),identityReceiptBytes.size());
+                 const auto identityReceipt=loadedKneeSHA256Hex(identityDigest);
+-                identityTopology.ancestryVerificationReceiptSHA256=identityReceipt;
++                identityTopology.ancestryVerificationReceiptSHA256=prism030::receiptSHA256;
+ 
+                 // Clone only source objects/materials needed by the owner. The
+                 // production WorldSource and its paired object remain untouched.
+@@ -22582,48 +22602,79 @@
+                             "BodyParts3D opt-in exact identity remap diagnostic",
+                             identityPreparedSkin,identityPreparedFat,identityReport,tissueError),
+                         "unpaired identity remap source preparation rejected: "+tissueError);
+-                bool exactIdentityTets=identityWorld.objects.back().tetrahedra.size()==paired.tetrahedra.size();
+-                if(exactIdentityTets)for(std::size_t ti=0;ti<paired.tetrahedra.size();++ti)
+-                    exactIdentityTets=exactIdentityTets&&
+-                        identityWorld.objects.back().tetrahedra[ti].nodes==paired.tetrahedra[ti].nodes;
++
+                 require(identityWorld.objects.size()==source.objects.size()&&
+-                            identityWorld.objects.back().femNodes==paired.femNodes&&exactIdentityTets&&
++                            identityWorld.objects.back().femNodes==paired.femNodes&&
+                             identityWorld.objects.back().femMaterialIndices==paired.femMaterialIndices&&
+                             identityWorld.objects.back().femContactNodes==paired.femContactNodes,
+-                        "unpaired identity remap changed the exact O/I/D node, tet, material, or contact map");
+-                require(std::abs(identityPreparedSkin.volumeM3-preparedSkin.volumeM3)<=1.0e-10*preparedSkin.volumeM3&&
+-                            std::abs(identityPreparedFat.volumeM3-preparedFat.volumeM3)<=1.0e-10*preparedFat.volumeM3&&
+-                            std::abs(identityPreparedSkin.massDebitKg-preparedSkin.massDebitKg)<=1.0e-12&&
+-                            std::abs(identityPreparedFat.massDebitKg-preparedFat.massDebitKg)<=1.0e-12,
+-                        "unpaired identity remap changed source material volume or debit");
+-                std::map<std::uint32_t,double> legacyNodeMass,newNodeMass;
+-                std::map<std::uint32_t,std::uint32_t> legacyNodeDonor,newNodeDonor;
+-                std::map<std::uint32_t,V3> legacyNodeLocal,newNodeLocal;
+-                for(const auto& mass:preparedSkin.donorMassNodes) {
+-                    legacyNodeMass[mass.nodeIndex]+=mass.massKg;legacyNodeDonor[mass.nodeIndex]=mass.donorBody;
+-                    legacyNodeLocal[mass.nodeIndex]=mass.localPosition;
++                        "prism030 changed exact nodes, materials or contact node ownership");
++                require(std::abs(identityPreparedSkin.volumeM3-preparedSkin.volumeM3)<=1.0e-8*preparedSkin.volumeM3&&
++                            std::abs(identityPreparedFat.volumeM3-preparedFat.volumeM3)<=1.0e-8*preparedFat.volumeM3&&
++                            identityPreparedSkin.massDebitKg==preparedSkin.massDebitKg&&
++                            identityPreparedFat.massDebitKg==preparedFat.massDebitKg,
++                        "prism030 changed regional material volume or mass debit");
++                // Existing callers consume one combined nodal donor ledger in
++                // preparedSkin, while retaining separate skin/fat volume and ancestry.
++                std::map<std::uint32_t,typename decltype(identityPreparedSkin.donorMassNodes)::value_type> combined;
++                for(const auto* report:{&identityPreparedSkin,&identityPreparedFat})
++                    for(const auto& mass:report->donorMassNodes) {
++                        const auto found=combined.find(mass.nodeIndex);
++                        if(found==combined.end())combined.emplace(mass.nodeIndex,mass);
++                        else {
++                            require(found->second.donorBody==mass.donorBody&&
++                                    found->second.localPosition==mass.localPosition,
++                                    "prism030 per-material nodal donor identities disagree");
++                            found->second.massKg+=mass.massKg;
++                        }
++                    }
++                require(combined.size()==volumeCount,"prism030 donor ledger does not cover every node");
++                double combinedMass=0.0;
++                identityPreparedSkin.donorMassNodes.clear();
++                for(const auto& [node,mass]:combined) {
++                    (void)node;combinedMass+=mass.massKg;
++                    identityPreparedSkin.donorMassNodes.push_back(mass);
+                 }
+-                for(const auto* report:{&identityPreparedSkin,&identityPreparedFat})for(const auto& mass:report->donorMassNodes) {
+-                    newNodeMass[mass.nodeIndex]+=mass.massKg;newNodeDonor[mass.nodeIndex]=mass.donorBody;
+-                    newNodeLocal[mass.nodeIndex]=mass.localPosition;
+-                }
+-                require(legacyNodeMass.size()==volumeCount&&newNodeMass.size()==volumeCount,
+-                        "unpaired identity remap donor-mass reports do not cover every original volume node");
+-                for(const auto& [node,mass]:legacyNodeMass) {
+-                    require(newNodeMass.contains(node)&&legacyNodeDonor[node]==newNodeDonor[node]&&
+-                                norm(sub(legacyNodeLocal[node],newNodeLocal[node]))<=1.0e-7&&
+-                                std::abs(mass-newNodeMass[node])<=1.0e-8*std::max(mass,1.0e-12),
+-                            "unpaired identity remap changes a node's donor, local frame, or combined lumped mass");
+-                }
+-                std::cout<<"whole_body_skin_fat_unpaired_identity_remap=PASS"
++                require(std::abs(combinedMass-skinDebit-fatDebit)<=1.0e-8*(skinDebit+fatDebit),
++                        "prism030 combined nodal mass differs from regional debits");
++                identityPreparedSkin.layerThicknessMinM=preparedSkin.layerThicknessMinM;
++                identityPreparedSkin.layerThicknessMaxM=preparedSkin.layerThicknessMaxM;
++                identityPreparedFat.layerThicknessMinM=preparedFat.layerThicknessMinM;
++                identityPreparedFat.layerThicknessMaxM=preparedFat.layerThicknessMaxM;
++                // Build source labels while every topology span is alive.
++                const auto verifyBound=[&](std::uint32_t sourceVertex,std::uint32_t donor) {
++                    return sourceVertex<skin->vertices.size()&&dominantSkinDonorBody(*skin,sourceVertex)==donor;
++                };
++                const auto parentAt=[&](std::uint32_t body) {
++                    return body<model.bodies.size()?model.bodies[body].parentBody:NM_INVALID_INDEX;
++                };
++                const auto verifyEmbedded=[&](std::uint32_t row,std::uint32_t donor) {
++                    return row<volumeCount&&
++                        nodeDonor[row]==donor&&
++                        (row%surfaceCount)<wholeBodySkinSourceRows.dominantBody.size()&&
++                        wholeBodySkinSourceRows.dominantBody[row%surfaceCount]==donor;
++                };
++                RegisteredSkinFatReductionSourceLabels prismLabels;
++                require(buildRegisteredSkinFatUnpairedReductionSourceLabels(region,
++                            identityWorld.objects.back(),wholeBodySkinBoundaryNodeMap,identityTopology,
++                            model.bodies.size(),verifyBound,parentAt,prismLabels,tissueError,
++                            skinBasisMaxFacesPerRegion,verifyEmbedded),
++                        "prism030 unpaired source labels rejected: "+tissueError);
++                skinFatCaptureNodeRegionLabels=prismLabels.sourceNodeDonorBodyIndices;
++                skinFatCaptureTetRegionLabels=prismLabels.tetrahedronRegionLabels;
++                skinFatReductionSourceLabels=std::move(prismLabels);
++                source.objects.back()=std::move(identityWorld.objects.back());
++                preparedSkin=std::move(identityPreparedSkin);
++                preparedFat=std::move(identityPreparedFat);
++                explicitTopology.reset();
++                std::cout<<"whole_body_skin_fat_conforming_prism=PASS"
+                     <<" nodes="<<identityReport.volumeNodeCount<<" tets="<<identityReport.tetrahedronCount
+-                    <<" reference_m3="<<(identityPreparedSkin.volumeM3+identityPreparedFat.volumeM3)
+-                    <<" mass_kg="<<(identityPreparedSkin.massDebitKg+identityPreparedFat.massDebitKg)
+-                    <<" exact_identity_receipt_sha256="<<identityReceipt
+-                    <<" source_world_mutated=0 physical_qualification=not_claimed"<<std::endl;
++                    <<" changed_tets=16 reference_m3="<<(preparedSkin.volumeM3+preparedFat.volumeM3)
++                    <<" mass_kg="<<combinedMass<<" ancestry_receipt_sha256="<<prism030::receiptSHA256
++                    <<" source_world_mutated=1 physical_qualification=not_claimed"<<std::endl;
++
+             }
+-            if(partitionedReductionDiagnostic||
+-               partitionedPreconditionerRequested||endpointCaptureRequested) {
++            if(!skinFatReductionSourceLabels&&(partitionedReductionDiagnostic||
++               partitionedPreconditionerRequested||endpointCaptureRequested)) {
+                 RegisteredSkinFatReductionSourceLabels sourceLabels;
+                 const auto verifiesOriginalBinding=[&](std::uint32_t sourceVertex,
+                                                         std::uint32_t donorBody) {

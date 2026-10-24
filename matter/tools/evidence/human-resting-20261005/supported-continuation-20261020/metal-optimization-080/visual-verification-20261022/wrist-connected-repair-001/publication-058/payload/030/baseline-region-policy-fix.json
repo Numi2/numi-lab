@@ -1,0 +1,6 @@
+{
+  "status": "IMPLEMENTED_PENDING_BUILD",
+  "policy": "baseline existing paired source compiler supplies parent donor IDs and basis IDs; largest actual overlap supplies changed-cell representative",
+  "old_preflight": "source-preflight-003",
+  "source_snapshot": "apps-attempt-003"
+}

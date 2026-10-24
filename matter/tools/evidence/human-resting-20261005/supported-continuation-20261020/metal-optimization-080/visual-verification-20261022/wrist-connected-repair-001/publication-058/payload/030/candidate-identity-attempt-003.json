@@ -1,0 +1,13 @@
+{
+  "base_candidate_id": "candidate020-d37-current-unpaired163-owner-integration-038",
+  "base_identity_sha256": "ad204691d202ee3455cb28653c297fca8a3094bcce6a838e069343d315f6f39b",
+  "candidate_id": "candidate020-d37-conforming-prism-030",
+  "candidate_npz_sha256": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+  "dominant_cell_region_policy": "largest absolute exact-overlap parent; node donor frames and mass remain registered source",
+  "native_csr_semantics_receipt_sha256": "66e770bf404d0099d251e8e4007787a1207ac09a56883100dab1ad0122a80cb1",
+  "overlap_verification_report_sha256": "cba3dabe05563ce5b6c7e659c395b577236e734395ce6edd5b21620536d1fb26",
+  "physical_qualification": false,
+  "schema": "numi.human.skin.attachment-candidate-identity.d38.v1",
+  "scope": "16-cell conforming topology replacement through existing unpaired source owner; exact unchanged nodes/boundary; conservative CSR; not admitted",
+  "topology_header_sha256": "32ed4aaea7aa738f74ec4b3b353942b8170c11f8b5c5637db3b90bf8a4d13063"
+}

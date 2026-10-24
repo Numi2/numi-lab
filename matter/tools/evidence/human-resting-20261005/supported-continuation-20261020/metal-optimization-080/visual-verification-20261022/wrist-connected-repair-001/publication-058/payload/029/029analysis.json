@@ -1,0 +1,4601 @@
+{
+  "authoritative_mass_donor_join": {
+    "complete_unique_inside_mapping": true,
+    "forbidden_key": "CSV sample is a zero-based capture-row ordinal, not a FEM node ID.",
+    "inside_mapping": [
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.001822890802295859,
+          -0.019296669793328322,
+          -0.0009093907134328568
+        ],
+        "face_signed_distance_m": -0.00025545955198620786,
+        "global_fem_node": 1870,
+        "inside_rays": 3,
+        "layer_code": 0,
+        "layer_row": 204,
+        "mass_donor_body_index": 61,
+        "mass_donor_model_name": "distph2_r",
+        "nearest_body_index": 61,
+        "nearest_body_model_name": "distph2_r",
+        "nearest_bone_body_index": 61,
+        "nearest_bone_model_name": "distph2_r",
+        "nearest_bone_stable_id": 97,
+        "nearest_distance_m": 0.00025545955198620786,
+        "nearest_triangle": 115,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.002390039062643257,
+          -0.014744102416808487,
+          0.0020180992803135473
+        ],
+        "face_signed_distance_m": -0.0001726043838906719,
+        "global_fem_node": 1881,
+        "inside_rays": 3,
+        "layer_code": 0,
+        "layer_row": 215,
+        "mass_donor_body_index": 61,
+        "mass_donor_model_name": "distph2_r",
+        "nearest_body_index": 61,
+        "nearest_body_model_name": "distph2_r",
+        "nearest_bone_body_index": 61,
+        "nearest_bone_model_name": "distph2_r",
+        "nearest_bone_stable_id": 97,
+        "nearest_distance_m": 0.0001726043838906719,
+        "nearest_triangle": 105,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.001305171679243686,
+          -0.013497918107049676,
+          0.001835488948821547
+        ],
+        "face_signed_distance_m": -0.0013955496311065017,
+        "global_fem_node": 1883,
+        "inside_rays": 3,
+        "layer_code": 0,
+        "layer_row": 217,
+        "mass_donor_body_index": 61,
+        "mass_donor_model_name": "distph2_r",
+        "nearest_body_index": 61,
+        "nearest_body_model_name": "distph2_r",
+        "nearest_bone_body_index": 61,
+        "nearest_bone_model_name": "distph2_r",
+        "nearest_bone_stable_id": 97,
+        "nearest_distance_m": 0.0013955496311065017,
+        "nearest_triangle": 37,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0028393850251738043,
+          -0.009818640372225263,
+          -0.00026503878894233886
+        ],
+        "face_signed_distance_m": -0.0015664640191232493,
+        "global_fem_node": 1884,
+        "inside_rays": 3,
+        "layer_code": 0,
+        "layer_row": 218,
+        "mass_donor_body_index": 61,
+        "mass_donor_model_name": "distph2_r",
+        "nearest_body_index": 61,
+        "nearest_body_model_name": "distph2_r",
+        "nearest_bone_body_index": 61,
+        "nearest_bone_model_name": "distph2_r",
+        "nearest_bone_stable_id": 97,
+        "nearest_distance_m": 0.0015664640191232493,
+        "nearest_triangle": 176,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0005952760325475242,
+          -0.01254963505284589,
+          -0.0020107974784531963
+        ],
+        "face_signed_distance_m": -0.00010372953235092251,
+        "global_fem_node": 1885,
+        "inside_rays": 3,
+        "layer_code": 0,
+        "layer_row": 219,
+        "mass_donor_body_index": 61,
+        "mass_donor_model_name": "distph2_r",
+        "nearest_body_index": 61,
+        "nearest_body_model_name": "distph2_r",
+        "nearest_bone_body_index": 61,
+        "nearest_bone_model_name": "distph2_r",
+        "nearest_bone_stable_id": 97,
+        "nearest_distance_m": 0.00010372953235092251,
+        "nearest_triangle": 100,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0026707855714379653,
+          -0.007324930017943627,
+          0.00171341113528616
+        ],
+        "face_signed_distance_m": -0.00011296769893632686,
+        "global_fem_node": 1897,
+        "inside_rays": 3,
+        "layer_code": 0,
+        "layer_row": 231,
+        "mass_donor_body_index": 61,
+        "mass_donor_model_name": "distph2_r",
+        "nearest_body_index": 61,
+        "nearest_body_model_name": "distph2_r",
+        "nearest_bone_body_index": 61,
+        "nearest_bone_model_name": "distph2_r",
+        "nearest_bone_stable_id": 97,
+        "nearest_distance_m": 0.00011296769893632686,
+        "nearest_triangle": 88,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0026077328118119638,
+          -0.00672242478309441,
+          -0.0006544911692488967
+        ],
+        "face_signed_distance_m": -0.001430415056683012,
+        "global_fem_node": 1899,
+        "inside_rays": 3,
+        "layer_code": 0,
+        "layer_row": 233,
+        "mass_donor_body_index": 61,
+        "mass_donor_model_name": "distph2_r",
+        "nearest_body_index": 61,
+        "nearest_body_model_name": "distph2_r",
+        "nearest_bone_body_index": 61,
+        "nearest_bone_model_name": "distph2_r",
+        "nearest_bone_stable_id": 97,
+        "nearest_distance_m": 0.001430415056683012,
+        "nearest_triangle": 158,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0007342467808320085,
+          -0.006952031270262281,
+          -0.002199616858909376
+        ],
+        "face_signed_distance_m": -0.00022829818922738714,
+        "global_fem_node": 1937,
+        "inside_rays": 3,
+        "layer_code": 0,
+        "layer_row": 271,
+        "mass_donor_body_index": 61,
+        "mass_donor_model_name": "distph2_r",
+        "nearest_body_index": 61,
+        "nearest_body_model_name": "distph2_r",
+        "nearest_bone_body_index": 61,
+        "nearest_bone_model_name": "distph2_r",
+        "nearest_bone_stable_id": 97,
+        "nearest_distance_m": 0.00022829818922738714,
+        "nearest_triangle": 98,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.003556812704696503,
+          -0.007508804596701045,
+          0.0064821775659148415
+        ],
+        "face_signed_distance_m": -0.0009686717543659118,
+        "global_fem_node": 2003,
+        "inside_rays": 3,
+        "layer_code": 0,
+        "layer_row": 337,
+        "mass_donor_body_index": 59,
+        "mass_donor_model_name": "2proxph_r",
+        "nearest_body_index": 59,
+        "nearest_body_model_name": "2proxph_r",
+        "nearest_bone_body_index": 59,
+        "nearest_bone_model_name": "2proxph_r",
+        "nearest_bone_stable_id": 95,
+        "nearest_distance_m": 0.0009686717543659118,
+        "nearest_triangle": 295,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.00781310886946505,
+          -0.02264197475274446,
+          0.0010545401732503371
+        ],
+        "face_signed_distance_m": -0.0004357400109619008,
+        "global_fem_node": 3853,
+        "inside_rays": 3,
+        "layer_code": 0,
+        "layer_row": 2187,
+        "mass_donor_body_index": 124,
+        "mass_donor_model_name": "5proxph_l",
+        "nearest_body_index": 124,
+        "nearest_body_model_name": "5proxph_l",
+        "nearest_bone_body_index": 124,
+        "nearest_bone_model_name": "5proxph_l",
+        "nearest_bone_stable_id": 123,
+        "nearest_distance_m": 0.0004357400109619008,
+        "nearest_triangle": 50,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.002049181060556941,
+          -0.012054861172075208,
+          -0.008027079940074587
+        ],
+        "face_signed_distance_m": -0.0016652980440189102,
+        "global_fem_node": 3927,
+        "inside_rays": 3,
+        "layer_code": 0,
+        "layer_row": 2261,
+        "mass_donor_body_index": 109,
+        "mass_donor_model_name": "2proxph_l",
+        "nearest_body_index": 109,
+        "nearest_body_model_name": "2proxph_l",
+        "nearest_bone_body_index": 109,
+        "nearest_bone_model_name": "2proxph_l",
+        "nearest_bone_stable_id": 114,
+        "nearest_distance_m": 0.0016652980440189102,
+        "nearest_triangle": 87,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0026289485315632403,
+          -0.026402605799165146,
+          -0.009915901284867672
+        ],
+        "face_signed_distance_m": -0.0009222954412511851,
+        "global_fem_node": 3928,
+        "inside_rays": 3,
+        "layer_code": 0,
+        "layer_row": 2262,
+        "mass_donor_body_index": 107,
+        "mass_donor_model_name": "secondmc_l",
+        "nearest_body_index": 107,
+        "nearest_body_model_name": "secondmc_l",
+        "nearest_bone_body_index": 107,
+        "nearest_bone_model_name": "secondmc_l",
+        "nearest_bone_stable_id": 108,
+        "nearest_distance_m": 0.0009222954412511851,
+        "nearest_triangle": 627,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0037023520910295137,
+          -0.006838235594052351,
+          0.006208651047326594
+        ],
+        "face_signed_distance_m": -0.001340868517255997,
+        "global_fem_node": 4414,
+        "inside_rays": 3,
+        "layer_code": 1,
+        "layer_row": 337,
+        "mass_donor_body_index": 59,
+        "mass_donor_model_name": "2proxph_r",
+        "nearest_body_index": 59,
+        "nearest_body_model_name": "2proxph_r",
+        "nearest_bone_body_index": 59,
+        "nearest_bone_model_name": "2proxph_r",
+        "nearest_bone_stable_id": 95,
+        "nearest_distance_m": 0.001340868517255997,
+        "nearest_triangle": 295,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.031417123882008846,
+          -0.120827306993231,
+          0.05832567179230846
+        ],
+        "face_signed_distance_m": -0.0010845537068528547,
+        "global_fem_node": 5544,
+        "inside_rays": 3,
+        "layer_code": 1,
+        "layer_row": 1467,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0010845537068528547,
+        "nearest_triangle": 10731,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.04354069817017786,
+          0.009634301027306955,
+          0.15863318980939536
+        ],
+        "face_signed_distance_m": -0.00022776794852871402,
+        "global_fem_node": 6067,
+        "inside_rays": 3,
+        "layer_code": 1,
+        "layer_row": 1990,
+        "mass_donor_body_index": 84,
+        "mass_donor_model_name": "scapula_l",
+        "nearest_body_index": 91,
+        "nearest_body_model_name": "humerus_l",
+        "nearest_bone_body_index": 91,
+        "nearest_bone_model_name": "humerus_l",
+        "nearest_bone_stable_id": 13,
+        "nearest_distance_m": 0.00022776794852871402,
+        "nearest_triangle": 978,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.06034646379160705,
+          0.00022484827419885518,
+          0.14476525053881853
+        ],
+        "face_signed_distance_m": -0.0011604809446295974,
+        "global_fem_node": 6101,
+        "inside_rays": 3,
+        "layer_code": 1,
+        "layer_row": 2024,
+        "mass_donor_body_index": 91,
+        "mass_donor_model_name": "humerus_l",
+        "nearest_body_index": 91,
+        "nearest_body_model_name": "humerus_l",
+        "nearest_bone_body_index": 91,
+        "nearest_bone_model_name": "humerus_l",
+        "nearest_bone_stable_id": 13,
+        "nearest_distance_m": 0.0011604809446295974,
+        "nearest_triangle": 2222,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.007222587321376622,
+          -0.02194098915554401,
+          2.451021334387918e-06
+        ],
+        "face_signed_distance_m": -0.0008707655652864544,
+        "global_fem_node": 6264,
+        "inside_rays": 3,
+        "layer_code": 1,
+        "layer_row": 2187,
+        "mass_donor_body_index": 124,
+        "mass_donor_model_name": "5proxph_l",
+        "nearest_body_index": 124,
+        "nearest_body_model_name": "5proxph_l",
+        "nearest_bone_body_index": 124,
+        "nearest_bone_model_name": "5proxph_l",
+        "nearest_bone_stable_id": 123,
+        "nearest_distance_m": 0.0008707655652864544,
+        "nearest_triangle": 50,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0018615526760825034,
+          -0.010843604552561191,
+          -0.007737623717116246
+        ],
+        "face_signed_distance_m": -0.0015567465522128212,
+        "global_fem_node": 6338,
+        "inside_rays": 3,
+        "layer_code": 1,
+        "layer_row": 2261,
+        "mass_donor_body_index": 109,
+        "mass_donor_model_name": "2proxph_l",
+        "nearest_body_index": 109,
+        "nearest_body_model_name": "2proxph_l",
+        "nearest_bone_body_index": 109,
+        "nearest_bone_model_name": "2proxph_l",
+        "nearest_bone_stable_id": 114,
+        "nearest_distance_m": 0.0015567465522128212,
+        "nearest_triangle": 80,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0027069324319576975,
+          -0.02576875120529218,
+          -0.009872318764900277
+        ],
+        "face_signed_distance_m": -0.0015260074535150602,
+        "global_fem_node": 6339,
+        "inside_rays": 3,
+        "layer_code": 1,
+        "layer_row": 2262,
+        "mass_donor_body_index": 107,
+        "mass_donor_model_name": "secondmc_l",
+        "nearest_body_index": 107,
+        "nearest_body_model_name": "secondmc_l",
+        "nearest_bone_body_index": 107,
+        "nearest_bone_model_name": "secondmc_l",
+        "nearest_bone_stable_id": 108,
+        "nearest_distance_m": 0.0015260074535150602,
+        "nearest_triangle": 627,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.0028058669764835435,
+          0.00215250986111691,
+          -0.011020282933912509
+        ],
+        "face_signed_distance_m": -0.0002398688830725354,
+        "global_fem_node": 6582,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 94,
+        "mass_donor_body_index": 54,
+        "mass_donor_model_name": "distal_thumb_r",
+        "nearest_body_index": 54,
+        "nearest_body_model_name": "distal_thumb_r",
+        "nearest_bone_body_index": 54,
+        "nearest_bone_model_name": "distal_thumb_r",
+        "nearest_bone_stable_id": 94,
+        "nearest_distance_m": 0.0002398688830725354,
+        "nearest_triangle": 188,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.004594414457259232,
+          -0.0022904242647577037,
+          -0.01259613220140015
+        ],
+        "face_signed_distance_m": -0.0010184555145223216,
+        "global_fem_node": 6745,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 257,
+        "mass_donor_body_index": 54,
+        "mass_donor_model_name": "distal_thumb_r",
+        "nearest_body_index": 53,
+        "nearest_body_model_name": "proximal_thumb_r",
+        "nearest_bone_body_index": 53,
+        "nearest_bone_model_name": "proximal_thumb_r",
+        "nearest_bone_stable_id": 93,
+        "nearest_distance_m": 0.0010184555145223216,
+        "nearest_triangle": 358,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.004855129860642463,
+          -0.024816009841688087,
+          0.0018832593555134574
+        ],
+        "face_signed_distance_m": -0.000789743194261965,
+        "global_fem_node": 6822,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 334,
+        "mass_donor_body_index": 66,
+        "mass_donor_model_name": "distph3_r",
+        "nearest_body_index": 65,
+        "nearest_body_model_name": "midph3_r",
+        "nearest_bone_body_index": 65,
+        "nearest_bone_model_name": "midph3_r",
+        "nearest_bone_stable_id": 99,
+        "nearest_distance_m": 0.000789743194261965,
+        "nearest_triangle": 101,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.003800083447951329,
+          -0.006392604205504068,
+          0.006026473858040006
+        ],
+        "face_signed_distance_m": -0.001587921688208917,
+        "global_fem_node": 6825,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 337,
+        "mass_donor_body_index": 59,
+        "mass_donor_model_name": "2proxph_r",
+        "nearest_body_index": 59,
+        "nearest_body_model_name": "2proxph_r",
+        "nearest_bone_body_index": 59,
+        "nearest_bone_model_name": "2proxph_r",
+        "nearest_bone_stable_id": 95,
+        "nearest_distance_m": 0.001587921688208917,
+        "nearest_triangle": 295,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.005017455701613529,
+          0.008682027348809324,
+          0.05160493789237379
+        ],
+        "face_signed_distance_m": -0.0011349706845681555,
+        "global_fem_node": 6844,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 356,
+        "mass_donor_body_index": 46,
+        "mass_donor_model_name": "scaphoid_r",
+        "nearest_body_index": 43,
+        "nearest_body_model_name": "radius_r",
+        "nearest_bone_body_index": 43,
+        "nearest_bone_model_name": "radius_r",
+        "nearest_bone_stable_id": 16,
+        "nearest_distance_m": 0.0011349706845681555,
+        "nearest_triangle": 45,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.0018271887120222957,
+          -0.017162119637361643,
+          -0.004892150557633966
+        ],
+        "face_signed_distance_m": -0.0004980298495138052,
+        "global_fem_node": 6850,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 362,
+        "mass_donor_body_index": 62,
+        "mass_donor_model_name": "thirdmc_r",
+        "nearest_body_index": 67,
+        "nearest_body_model_name": "fourthmc_r",
+        "nearest_bone_body_index": 67,
+        "nearest_bone_model_name": "fourthmc_r",
+        "nearest_bone_stable_id": 91,
+        "nearest_distance_m": 0.0004980298495138052,
+        "nearest_triangle": 417,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.005394290416671738,
+          -0.012282721570506706,
+          0.0016750267339448281
+        ],
+        "face_signed_distance_m": -0.003294734638784054,
+        "global_fem_node": 6851,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 363,
+        "mass_donor_body_index": 62,
+        "mass_donor_model_name": "thirdmc_r",
+        "nearest_body_index": 62,
+        "nearest_body_model_name": "thirdmc_r",
+        "nearest_bone_body_index": 62,
+        "nearest_bone_model_name": "thirdmc_r",
+        "nearest_bone_stable_id": 90,
+        "nearest_distance_m": 0.003294734638784054,
+        "nearest_triangle": 531,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0010584638616659495,
+          0.0017028643814188133,
+          -0.0026973297822478056
+        ],
+        "face_signed_distance_m": -0.0009381859030271742,
+        "global_fem_node": 6952,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 464,
+        "mass_donor_body_index": 49,
+        "mass_donor_model_name": "capitate_r",
+        "nearest_body_index": 47,
+        "nearest_body_model_name": "pisiform_r",
+        "nearest_bone_body_index": 47,
+        "nearest_bone_model_name": "pisiform_r",
+        "nearest_bone_stable_id": 76,
+        "nearest_distance_m": 0.0009381859030271742,
+        "nearest_triangle": 164,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.0005422132266579548,
+          0.009930655254840253,
+          -0.00866971353389877
+        ],
+        "face_signed_distance_m": -0.0010733586532246653,
+        "global_fem_node": 7216,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 728,
+        "mass_donor_body_index": 139,
+        "mass_donor_model_name": "toes_r",
+        "nearest_body_index": 139,
+        "nearest_body_model_name": "toes_r",
+        "nearest_bone_body_index": 139,
+        "nearest_bone_model_name": "toes_r",
+        "nearest_bone_stable_id": 137,
+        "nearest_distance_m": 0.0010733586532246653,
+        "nearest_triangle": 120,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.00539554781070206,
+          0.10230703841037384,
+          0.12195026448868714
+        ],
+        "face_signed_distance_m": -0.0005299579241159368,
+        "global_fem_node": 7249,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 761,
+        "mass_donor_body_index": 128,
+        "mass_donor_model_name": "pelvis",
+        "nearest_body_index": 128,
+        "nearest_body_model_name": "pelvis",
+        "nearest_bone_body_index": 128,
+        "nearest_bone_model_name": "pelvis",
+        "nearest_bone_stable_id": 18,
+        "nearest_distance_m": 0.0005299579241159368,
+        "nearest_triangle": 2143,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.004166249481632073,
+          0.005507257952660698,
+          0.027309090923349915
+        ],
+        "face_signed_distance_m": -0.001155070477948052,
+        "global_fem_node": 7265,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 777,
+        "mass_donor_body_index": 139,
+        "mass_donor_model_name": "toes_r",
+        "nearest_body_index": 139,
+        "nearest_body_model_name": "toes_r",
+        "nearest_bone_body_index": 139,
+        "nearest_bone_model_name": "toes_r",
+        "nearest_bone_stable_id": 132,
+        "nearest_distance_m": 0.001155070477948052,
+        "nearest_triangle": 5,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.001657966788762033,
+          -0.012180809708429724,
+          -0.001970415067250744
+        ],
+        "face_signed_distance_m": -0.0002323464499780614,
+        "global_fem_node": 7274,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 786,
+        "mass_donor_body_index": 139,
+        "mass_donor_model_name": "toes_r",
+        "nearest_body_index": 139,
+        "nearest_body_model_name": "toes_r",
+        "nearest_bone_body_index": 139,
+        "nearest_bone_model_name": "toes_r",
+        "nearest_bone_stable_id": 133,
+        "nearest_distance_m": 0.0002323464499780614,
+        "nearest_triangle": 324,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0021533031139156036,
+          -0.020271111992214926,
+          -0.00476768010362578
+        ],
+        "face_signed_distance_m": -0.0023340915062129105,
+        "global_fem_node": 7275,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 787,
+        "mass_donor_body_index": 139,
+        "mass_donor_model_name": "toes_r",
+        "nearest_body_index": 139,
+        "nearest_body_model_name": "toes_r",
+        "nearest_bone_body_index": 139,
+        "nearest_bone_model_name": "toes_r",
+        "nearest_bone_stable_id": 133,
+        "nearest_distance_m": 0.0023340915062129105,
+        "nearest_triangle": 327,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.009429309745553928,
+          -0.012529574612683104,
+          0.017820491756109082
+        ],
+        "face_signed_distance_m": -0.00135450058774197,
+        "global_fem_node": 7292,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 804,
+        "mass_donor_body_index": 139,
+        "mass_donor_model_name": "toes_r",
+        "nearest_body_index": 139,
+        "nearest_body_model_name": "toes_r",
+        "nearest_bone_body_index": 139,
+        "nearest_bone_model_name": "toes_r",
+        "nearest_bone_stable_id": 132,
+        "nearest_distance_m": 0.00135450058774197,
+        "nearest_triangle": 182,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.001225441095964415,
+          -0.021523419352486202,
+          -0.2029649903200864
+        ],
+        "face_signed_distance_m": -0.001969159585845135,
+        "global_fem_node": 7295,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 807,
+        "mass_donor_body_index": 136,
+        "mass_donor_model_name": "tibia_r",
+        "nearest_body_index": 136,
+        "nearest_body_model_name": "tibia_r",
+        "nearest_bone_body_index": 136,
+        "nearest_bone_model_name": "tibia_r",
+        "nearest_bone_stable_id": 20,
+        "nearest_distance_m": 0.001969159585845135,
+        "nearest_triangle": 932,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.020745728739572398,
+          -0.006978909900110701,
+          -0.1880765688400301
+        ],
+        "face_signed_distance_m": -0.00023782478380683024,
+        "global_fem_node": 7303,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 815,
+        "mass_donor_body_index": 136,
+        "mass_donor_model_name": "tibia_r",
+        "nearest_body_index": 136,
+        "nearest_body_model_name": "tibia_r",
+        "nearest_bone_body_index": 136,
+        "nearest_bone_model_name": "tibia_r",
+        "nearest_bone_stable_id": 4,
+        "nearest_distance_m": 0.00023782478380683024,
+        "nearest_triangle": 1079,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.012498215675745755,
+          0.0047154815796928975,
+          0.000298103854272533
+        ],
+        "face_signed_distance_m": -0.0014057901732815606,
+        "global_fem_node": 7323,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 835,
+        "mass_donor_body_index": 142,
+        "mass_donor_model_name": "patella_r",
+        "nearest_body_index": 142,
+        "nearest_body_model_name": "patella_r",
+        "nearest_bone_body_index": 142,
+        "nearest_bone_model_name": "patella_r",
+        "nearest_bone_stable_id": 24,
+        "nearest_distance_m": 0.0014057901732815606,
+        "nearest_triangle": 154,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.002539128481878015,
+          -0.006332354821285672,
+          0.020890277073619266
+        ],
+        "face_signed_distance_m": -7.663668113003417e-05,
+        "global_fem_node": 7336,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 848,
+        "mass_donor_body_index": 142,
+        "mass_donor_model_name": "patella_r",
+        "nearest_body_index": 142,
+        "nearest_body_model_name": "patella_r",
+        "nearest_bone_body_index": 142,
+        "nearest_bone_model_name": "patella_r",
+        "nearest_bone_stable_id": 24,
+        "nearest_distance_m": 7.663668113003417e-05,
+        "nearest_triangle": 207,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.06491351938034409,
+          -0.009018079960885392,
+          0.015426354171032306
+        ],
+        "face_signed_distance_m": -0.0008251966976880058,
+        "global_fem_node": 7340,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 852,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 28,
+        "nearest_distance_m": 0.0008251966976880058,
+        "nearest_triangle": 1257,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.05993020003583474,
+          -0.015575167591865273,
+          0.03363699139957595
+        ],
+        "face_signed_distance_m": -0.001068396636979381,
+        "global_fem_node": 7352,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 864,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 30,
+        "nearest_distance_m": 0.001068396636979381,
+        "nearest_triangle": 1465,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.05850087713380507,
+          0.01326054937254633,
+          -0.009184803243389949
+        ],
+        "face_signed_distance_m": -0.001724499670549128,
+        "global_fem_node": 7386,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 898,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 28,
+        "nearest_distance_m": 0.001724499670549128,
+        "nearest_triangle": 2526,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.052046543717743095,
+          0.007447558284086292,
+          0.052033129923945716
+        ],
+        "face_signed_distance_m": -0.001824086161777968,
+        "global_fem_node": 7421,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 933,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 30,
+        "nearest_distance_m": 0.001824086161777968,
+        "nearest_triangle": 2336,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.04384672572789814,
+          -0.08578142084604214,
+          0.07207297646144563
+        ],
+        "face_signed_distance_m": -0.0007685272021095468,
+        "global_fem_node": 7432,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 944,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0007685272021095468,
+        "nearest_triangle": 2393,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.04286270928325743,
+          -0.08640848880166928,
+          0.0716695597879959
+        ],
+        "face_signed_distance_m": -0.0025741099406198812,
+        "global_fem_node": 7433,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 945,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0025741099406198812,
+        "nearest_triangle": 2394,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.043126379091129846,
+          -0.08946183454918961,
+          0.06311546984637036
+        ],
+        "face_signed_distance_m": -0.0039494264895599315,
+        "global_fem_node": 7434,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 946,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0039494264895599315,
+        "nearest_triangle": 2080,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.048978721745512134,
+          -0.07538076245456506,
+          0.0692794760638227
+        ],
+        "face_signed_distance_m": -0.001933086948496861,
+        "global_fem_node": 7439,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 951,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.001933086948496861,
+        "nearest_triangle": 1801,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.044306946980905405,
+          -0.08270812091302876,
+          0.07070462457397052
+        ],
+        "face_signed_distance_m": -0.0026690242891304573,
+        "global_fem_node": 7440,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 952,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0026690242891304573,
+        "nearest_triangle": 2075,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0445533307254549,
+          -0.08659496541000514,
+          0.06306358031747351
+        ],
+        "face_signed_distance_m": -0.003661518829757115,
+        "global_fem_node": 7441,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 953,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.003661518829757115,
+        "nearest_triangle": 2100,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.04906430125776447,
+          -0.0774259322503568,
+          0.06716242224430963
+        ],
+        "face_signed_distance_m": -0.001238617149942827,
+        "global_fem_node": 7451,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 963,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.001238617149942827,
+        "nearest_triangle": 1443,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.046087685753525835,
+          -0.08347310817964196,
+          0.06167193060557002
+        ],
+        "face_signed_distance_m": -0.0033256734664486418,
+        "global_fem_node": 7452,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 964,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0033256734664486418,
+        "nearest_triangle": 1813,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.039251902412278925,
+          -0.09101412437402356,
+          0.07562568074907683
+        ],
+        "face_signed_distance_m": -0.0016990006932842952,
+        "global_fem_node": 7465,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 977,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0016990006932842952,
+        "nearest_triangle": 2836,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.038433099645691304,
+          -0.09134387202012709,
+          0.07550797434060115
+        ],
+        "face_signed_distance_m": -0.0031330612932145207,
+        "global_fem_node": 7466,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 978,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0031330612932145207,
+        "nearest_triangle": 2847,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.04219954213979136,
+          -0.08798658843785376,
+          0.07275179027805058
+        ],
+        "face_signed_distance_m": -0.0017715123826917002,
+        "global_fem_node": 7473,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 985,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0017715123826917002,
+        "nearest_triangle": 2587,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0417065473507132,
+          -0.08905668077992693,
+          0.0739439673399735
+        ],
+        "face_signed_distance_m": -0.0009191100952036171,
+        "global_fem_node": 7476,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 988,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0009191100952036171,
+        "nearest_triangle": 2568,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.04090957846223418,
+          -0.08920818241071884,
+          0.07325090835440502
+        ],
+        "face_signed_distance_m": -0.0027521312059955254,
+        "global_fem_node": 7477,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 989,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0027521312059955254,
+        "nearest_triangle": 2570,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0409614459120762,
+          -0.0898621909984892,
+          0.07477220688087839
+        ],
+        "face_signed_distance_m": -0.0007588909552831598,
+        "global_fem_node": 7478,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 990,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0007588909552831598,
+        "nearest_triangle": 2557,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.040409431995454895,
+          -0.09017496876610763,
+          0.07456338840588046
+        ],
+        "face_signed_distance_m": -0.0019047184576744382,
+        "global_fem_node": 7479,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 991,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0019047184576744382,
+        "nearest_triangle": 2836,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.040555921459529,
+          -0.09028856658442644,
+          0.07577626365622613
+        ],
+        "face_signed_distance_m": -0.00024563545149642116,
+        "global_fem_node": 7480,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 992,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.00024563545149642116,
+        "nearest_triangle": 2557,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.04118284494780714,
+          -0.08850489862014885,
+          0.07246917819740535
+        ],
+        "face_signed_distance_m": -0.004651351965572241,
+        "global_fem_node": 7481,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 993,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.004651351965572241,
+        "nearest_triangle": 2588,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.042047101733862925,
+          -0.09398844231343864,
+          0.06274569628918858
+        ],
+        "face_signed_distance_m": -0.0014455678328894011,
+        "global_fem_node": 7487,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 999,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0014455678328894011,
+        "nearest_triangle": 2598,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.04545779327307912,
+          0.024828370008917407,
+          -0.032546591136504176
+        ],
+        "face_signed_distance_m": -0.00033884546184557323,
+        "global_fem_node": 7505,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1017,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 33,
+        "nearest_distance_m": 0.00033884546184557323,
+        "nearest_triangle": 1403,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.036782603088003844,
+          -0.09270737783403225,
+          0.07768064212400601
+        ],
+        "face_signed_distance_m": -0.0017100855821256752,
+        "global_fem_node": 7509,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1021,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0017100855821256752,
+        "nearest_triangle": 2832,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03753684723537912,
+          -0.09778622733924516,
+          0.0784973592164643
+        ],
+        "face_signed_distance_m": -0.0027030871267275077,
+        "global_fem_node": 7510,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1022,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0027030871267275077,
+        "nearest_triangle": 3386,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03725759229720834,
+          -0.09867635861685439,
+          0.0779799613110643
+        ],
+        "face_signed_distance_m": -0.0028958486424326747,
+        "global_fem_node": 7511,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1023,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0028958486424326747,
+        "nearest_triangle": 3386,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03878563702502848,
+          -0.09154346446765568,
+          0.07692119177689054
+        ],
+        "face_signed_distance_m": -0.0008434838214306448,
+        "global_fem_node": 7513,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1025,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0008434838214306448,
+        "nearest_triangle": 2836,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.037659824813985054,
+          -0.09227702416098411,
+          0.07758295871877657
+        ],
+        "face_signed_distance_m": -0.0008688290220285947,
+        "global_fem_node": 7515,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1027,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0008688290220285947,
+        "nearest_triangle": 2832,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03857321498391786,
+          -0.09140520575221785,
+          0.07579079752597619
+        ],
+        "face_signed_distance_m": -0.002270307567775807,
+        "global_fem_node": 7519,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1031,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.002270307567775807,
+        "nearest_triangle": 2836,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03769755850758759,
+          -0.09198985463854374,
+          0.07636693124161384
+        ],
+        "face_signed_distance_m": -0.0023232763787869766,
+        "global_fem_node": 7520,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1032,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0023232763787869766,
+        "nearest_triangle": 2836,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03747910342095576,
+          -0.09175145758547636,
+          0.0756288431770957
+        ],
+        "face_signed_distance_m": -0.003781610663910589,
+        "global_fem_node": 7521,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1033,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.003781610663910589,
+        "nearest_triangle": 2848,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0367173074599944,
+          -0.09715179084670089,
+          0.06933248000422304
+        ],
+        "face_signed_distance_m": -0.0038040082702893753,
+        "global_fem_node": 7522,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1034,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0038040082702893753,
+        "nearest_triangle": 2996,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.038457151500054965,
+          -0.09790402555001017,
+          0.07775871717676612
+        ],
+        "face_signed_distance_m": -0.00307688657396857,
+        "global_fem_node": 7523,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1035,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.00307688657396857,
+        "nearest_triangle": 3162,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.037892679628099155,
+          -0.0990969631847718,
+          0.07719468954594186
+        ],
+        "face_signed_distance_m": -0.0033550757678225914,
+        "global_fem_node": 7524,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1036,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0033550757678225914,
+        "nearest_triangle": 3162,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03417993591353545,
+          -0.09870045878404667,
+          0.06989018849677424
+        ],
+        "face_signed_distance_m": -0.0027392492609400244,
+        "global_fem_node": 7525,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1037,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0027392492609400244,
+        "nearest_triangle": 2987,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.036348054891673295,
+          -0.09304391695857633,
+          0.0783832674813686
+        ],
+        "face_signed_distance_m": -0.00016126365208572166,
+        "global_fem_node": 7562,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1074,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.00016126365208572166,
+        "nearest_triangle": 2984,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03563726402894722,
+          -0.09336671718421603,
+          0.07861408866174455
+        ],
+        "face_signed_distance_m": -0.0004472589376170624,
+        "global_fem_node": 7563,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1075,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0004472589376170624,
+        "nearest_triangle": 2984,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03565445328432241,
+          -0.09326589992627603,
+          0.07823329489798003
+        ],
+        "face_signed_distance_m": -0.0018960256315025555,
+        "global_fem_node": 7564,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1076,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0018960256315025555,
+        "nearest_triangle": 2984,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.036134764541193146,
+          -0.0930716070054432,
+          0.07817347829732527
+        ],
+        "face_signed_distance_m": -0.0013963837941989013,
+        "global_fem_node": 7565,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1077,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0013963837941989013,
+        "nearest_triangle": 2984,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.034965065101308666,
+          -0.09810762162780383,
+          0.07960816417211267
+        ],
+        "face_signed_distance_m": -0.002148220143100357,
+        "global_fem_node": 7566,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1078,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.002148220143100357,
+        "nearest_triangle": 2974,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03480638072552038,
+          -0.09713207622603431,
+          0.08016904632701655
+        ],
+        "face_signed_distance_m": -0.001746836096181533,
+        "global_fem_node": 7567,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1079,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.001746836096181533,
+        "nearest_triangle": 2974,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.034045046684904844,
+          -0.09414748405940408,
+          0.07935051591641452
+        ],
+        "face_signed_distance_m": -0.0007507353539555898,
+        "global_fem_node": 7568,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1080,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0007507353539555898,
+        "nearest_triangle": 3173,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03603580168437571,
+          -0.09981755051840382,
+          0.07789508091341034
+        ],
+        "face_signed_distance_m": -0.0029277977262423672,
+        "global_fem_node": 7569,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1081,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0029277977262423672,
+        "nearest_triangle": 3386,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0360084946998558,
+          -0.10099870277402456,
+          0.07697865848585715
+        ],
+        "face_signed_distance_m": -0.003534575316299597,
+        "global_fem_node": 7570,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1082,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.003534575316299597,
+        "nearest_triangle": 3386,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03509193945502254,
+          -0.09938854461525434,
+          0.0787781432699247
+        ],
+        "face_signed_distance_m": -0.002482482657514037,
+        "global_fem_node": 7571,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1083,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.002482482657514037,
+        "nearest_triangle": 3387,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03499423047035989,
+          -0.10101214693992966,
+          0.0776472497034236
+        ],
+        "face_signed_distance_m": -0.0031525995851425562,
+        "global_fem_node": 7572,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1084,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0031525995851425562,
+        "nearest_triangle": 3386,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.034000071682261324,
+          -0.09881675329895159,
+          0.07962514682210252
+        ],
+        "face_signed_distance_m": -0.001995008087025448,
+        "global_fem_node": 7573,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1085,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.001995008087025448,
+        "nearest_triangle": 2974,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03357279414537753,
+          -0.10128734881242181,
+          0.07828775780073306
+        ],
+        "face_signed_distance_m": -0.0029592756811616066,
+        "global_fem_node": 7574,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1086,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0029592756811616066,
+        "nearest_triangle": 3387,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.030532117939428557,
+          -0.10026980788398925,
+          0.07123176400122054
+        ],
+        "face_signed_distance_m": -0.0030401905340231355,
+        "global_fem_node": 7575,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1087,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0030401905340231355,
+        "nearest_triangle": 3403,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.034446147248173443,
+          -0.09597818334297337,
+          0.08077519552774463
+        ],
+        "face_signed_distance_m": -0.001127843036266997,
+        "global_fem_node": 7611,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1123,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.001127843036266997,
+        "nearest_triangle": 2978,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03235547992343049,
+          -0.09984023183026178,
+          0.07974865504865684
+        ],
+        "face_signed_distance_m": -0.0020074367988188197,
+        "global_fem_node": 7614,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1126,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0020074367988188197,
+        "nearest_triangle": 2974,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.030463607223163557,
+          -0.10137269776758458,
+          0.07959772783662658
+        ],
+        "face_signed_distance_m": -0.0026086419214013364,
+        "global_fem_node": 7615,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1127,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0026086419214013364,
+        "nearest_triangle": 3390,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.028953038730990484,
+          -0.10075051066066344,
+          0.07169959715357421
+        ],
+        "face_signed_distance_m": -0.0034948968317209273,
+        "global_fem_node": 7616,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1128,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0034948968317209273,
+        "nearest_triangle": 3779,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.031311513359307985,
+          0.04115255458449965,
+          -0.022553901039003312
+        ],
+        "face_signed_distance_m": -0.0017094043933731469,
+        "global_fem_node": 7640,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1152,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 33,
+        "nearest_distance_m": 0.0017094043933731469,
+        "nearest_triangle": 3501,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.026942744983304963,
+          0.02666736850256978,
+          -0.05069222164573662
+        ],
+        "face_signed_distance_m": -0.00011642640805673596,
+        "global_fem_node": 7641,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1153,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 33,
+        "nearest_distance_m": 0.00011642640805673596,
+        "nearest_triangle": 3512,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0208984073022605,
+          -0.12707679201937314,
+          0.010019557923278216
+        ],
+        "face_signed_distance_m": -0.002320838731945492,
+        "global_fem_node": 7691,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1203,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.002320838731945492,
+        "nearest_triangle": 3985,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0053178554949375855,
+          -0.12967951841877043,
+          0.04406764531425813
+        ],
+        "face_signed_distance_m": -0.00030929412496711256,
+        "global_fem_node": 7707,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1219,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.00030929412496711256,
+        "nearest_triangle": 7391,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0015134221131263164,
+          -0.12531325684842876,
+          0.044475385872745576
+        ],
+        "face_signed_distance_m": -0.0017599227297944709,
+        "global_fem_node": 7736,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1248,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0017599227297944709,
+        "nearest_triangle": 6839,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.011023022693567749,
+          0.03340084816669408,
+          -0.04548827756954192
+        ],
+        "face_signed_distance_m": -0.0023595440471600756,
+        "global_fem_node": 7742,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1254,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 33,
+        "nearest_distance_m": 0.0023595440471600756,
+        "nearest_triangle": 5269,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.14753470683733855,
+          0.026721787703891078,
+          0.0014251955896087704
+        ],
+        "face_signed_distance_m": -0.005537528396639059,
+        "global_fem_node": 7746,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1258,
+        "mass_donor_body_index": 20,
+        "mass_donor_model_name": "torso",
+        "nearest_body_index": 20,
+        "nearest_body_model_name": "torso",
+        "nearest_bone_body_index": 20,
+        "nearest_bone_model_name": "torso",
+        "nearest_bone_stable_id": 26,
+        "nearest_distance_m": 0.005537528396639059,
+        "nearest_triangle": 1941,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.004449937956638562,
+          -0.1127678007089992,
+          0.06801419596876561
+        ],
+        "face_signed_distance_m": -0.0014869192837058689,
+        "global_fem_node": 7771,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1283,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0014869192837058689,
+        "nearest_triangle": 8427,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.0011435498670040014,
+          -0.020433935986841463,
+          -0.07511662424887852
+        ],
+        "face_signed_distance_m": -0.00034924885955147457,
+        "global_fem_node": 7778,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1290,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 29,
+        "nearest_distance_m": 0.00034924885955147457,
+        "nearest_triangle": 5219,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.003153709821488317,
+          -0.11950903014033293,
+          -0.016378235111996025
+        ],
+        "face_signed_distance_m": -0.002293883636212365,
+        "global_fem_node": 7797,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1309,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.002293883636212365,
+        "nearest_triangle": 8332,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.0035107058012510683,
+          0.05341378487539103,
+          -0.020430481149958653
+        ],
+        "face_signed_distance_m": -0.004268753080235951,
+        "global_fem_node": 7804,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1316,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 33,
+        "nearest_distance_m": 0.004268753080235951,
+        "nearest_triangle": 5611,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.1639763726035709,
+          -0.02223522126037376,
+          -0.00799233815808931
+        ],
+        "face_signed_distance_m": -0.00451273680431189,
+        "global_fem_node": 7809,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1321,
+        "mass_donor_body_index": 20,
+        "mass_donor_model_name": "torso",
+        "nearest_body_index": 20,
+        "nearest_body_model_name": "torso",
+        "nearest_bone_body_index": 20,
+        "nearest_bone_model_name": "torso",
+        "nearest_bone_stable_id": 26,
+        "nearest_distance_m": 0.00451273680431189,
+        "nearest_triangle": 2231,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.011802730053091511,
+          -0.04280047549130224,
+          -0.07268965351417069
+        ],
+        "face_signed_distance_m": -0.0002578771087158988,
+        "global_fem_node": 7819,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1331,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 29,
+        "nearest_distance_m": 0.0002578771087158988,
+        "nearest_triangle": 6708,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.006837392452443973,
+          0.015729655684023795,
+          -0.059784013374841516
+        ],
+        "face_signed_distance_m": -0.001537124145776429,
+        "global_fem_node": 7821,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1333,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 33,
+        "nearest_distance_m": 0.001537124145776429,
+        "nearest_triangle": 6411,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.017516897626841568,
+          -0.11905604935030172,
+          6.078357132526663e-05
+        ],
+        "face_signed_distance_m": -0.0012265239617183946,
+        "global_fem_node": 7888,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1400,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 32,
+        "nearest_distance_m": 0.0012265239617183946,
+        "nearest_triangle": 9617,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.028180153009562413,
+          0.040170814794628334,
+          -0.03698646704605503
+        ],
+        "face_signed_distance_m": -0.0004209776723688624,
+        "global_fem_node": 7972,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1484,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 33,
+        "nearest_distance_m": 0.0004209776723688624,
+        "nearest_triangle": 10010,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.036304491956115265,
+          0.02588028983056734,
+          -0.042850225500431716
+        ],
+        "face_signed_distance_m": -0.0017385417932210062,
+        "global_fem_node": 8059,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1571,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 33,
+        "nearest_distance_m": 0.0017385417932210062,
+        "nearest_triangle": 10012,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.07906199895266527,
+          0.041569695029313236,
+          0.006725808868091539
+        ],
+        "face_signed_distance_m": -0.0017965112779094166,
+        "global_fem_node": 8085,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1597,
+        "mass_donor_body_index": 20,
+        "mass_donor_model_name": "torso",
+        "nearest_body_index": 79,
+        "nearest_body_model_name": "clavicle_l",
+        "nearest_bone_body_index": 79,
+        "nearest_bone_model_name": "clavicle_l",
+        "nearest_bone_stable_id": 9,
+        "nearest_distance_m": 0.0017965112779094166,
+        "nearest_triangle": 602,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.07319117926698245,
+          0.07153313293525854,
+          -0.05127871422110142
+        ],
+        "face_signed_distance_m": -0.0032757977815878457,
+        "global_fem_node": 8096,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1608,
+        "mass_donor_body_index": 128,
+        "mass_donor_model_name": "pelvis",
+        "nearest_body_index": 128,
+        "nearest_body_model_name": "pelvis",
+        "nearest_bone_body_index": 128,
+        "nearest_bone_model_name": "pelvis",
+        "nearest_bone_stable_id": 19,
+        "nearest_distance_m": 0.0032757977815878457,
+        "nearest_triangle": 1968,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.008407241875758085,
+          -0.02360264042761809,
+          -0.17809876151595555
+        ],
+        "face_signed_distance_m": -0.0005812646064925483,
+        "global_fem_node": 8120,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1632,
+        "mass_donor_body_index": 150,
+        "mass_donor_model_name": "tibia_l",
+        "nearest_body_index": 150,
+        "nearest_body_model_name": "tibia_l",
+        "nearest_bone_body_index": 150,
+        "nearest_bone_model_name": "tibia_l",
+        "nearest_bone_stable_id": 5,
+        "nearest_distance_m": 0.0005812646064925483,
+        "nearest_triangle": 1268,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.06646694318151777,
+          -0.07623895377497812,
+          0.012926960439395535
+        ],
+        "face_signed_distance_m": -0.0015517601392910374,
+        "global_fem_node": 8181,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1693,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 29,
+        "nearest_distance_m": 0.0015517601392910374,
+        "nearest_triangle": 12374,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.05717688090734593,
+          0.02454205132409218,
+          0.0005422720278130044
+        ],
+        "face_signed_distance_m": -0.0013992853050993012,
+        "global_fem_node": 8184,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1696,
+        "mass_donor_body_index": 23,
+        "mass_donor_model_name": "head",
+        "nearest_body_index": 23,
+        "nearest_body_model_name": "head",
+        "nearest_bone_body_index": 23,
+        "nearest_bone_model_name": "head",
+        "nearest_bone_stable_id": 33,
+        "nearest_distance_m": 0.0013992853050993012,
+        "nearest_triangle": 12113,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.023861190026231206,
+          -0.0019780552219624127,
+          -0.05768002642886119
+        ],
+        "face_signed_distance_m": -0.0003602582740422107,
+        "global_fem_node": 8210,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1722,
+        "mass_donor_body_index": 152,
+        "mass_donor_model_name": "calcn_l",
+        "nearest_body_index": 152,
+        "nearest_body_model_name": "calcn_l",
+        "nearest_bone_body_index": 152,
+        "nearest_bone_model_name": "calcn_l",
+        "nearest_bone_stable_id": 7,
+        "nearest_distance_m": 0.0003602582740422107,
+        "nearest_triangle": 208,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.021982725900462054,
+          -0.011390140733352623,
+          -0.1636909981628829
+        ],
+        "face_signed_distance_m": -0.0018775823648078391,
+        "global_fem_node": 8247,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1759,
+        "mass_donor_body_index": 150,
+        "mass_donor_model_name": "tibia_l",
+        "nearest_body_index": 150,
+        "nearest_body_model_name": "tibia_l",
+        "nearest_bone_body_index": 150,
+        "nearest_bone_model_name": "tibia_l",
+        "nearest_bone_stable_id": 5,
+        "nearest_distance_m": 0.0018775823648078391,
+        "nearest_triangle": 780,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.004628302550697313,
+          0.04248306948925089,
+          0.00893698616244154
+        ],
+        "face_signed_distance_m": -0.0010476019939858437,
+        "global_fem_node": 8253,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1765,
+        "mass_donor_body_index": 153,
+        "mass_donor_model_name": "toes_l",
+        "nearest_body_index": 153,
+        "nearest_body_model_name": "toes_l",
+        "nearest_bone_body_index": 153,
+        "nearest_bone_model_name": "toes_l",
+        "nearest_bone_stable_id": 150,
+        "nearest_distance_m": 0.0010476019939858437,
+        "nearest_triangle": 87,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.019400648138496925,
+          0.004666021799316069,
+          -0.13584471994733474
+        ],
+        "face_signed_distance_m": -0.005381941171622199,
+        "global_fem_node": 8261,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1773,
+        "mass_donor_body_index": 150,
+        "mass_donor_model_name": "tibia_l",
+        "nearest_body_index": 150,
+        "nearest_body_model_name": "tibia_l",
+        "nearest_bone_body_index": 150,
+        "nearest_bone_model_name": "tibia_l",
+        "nearest_bone_stable_id": 5,
+        "nearest_distance_m": 0.005381941171622199,
+        "nearest_triangle": 451,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.004523387945958352,
+          0.011383564104395212,
+          -0.18730675002506364
+        ],
+        "face_signed_distance_m": -0.00032839445521603373,
+        "global_fem_node": 8285,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1797,
+        "mass_donor_body_index": 150,
+        "mass_donor_model_name": "tibia_l",
+        "nearest_body_index": 150,
+        "nearest_body_model_name": "tibia_l",
+        "nearest_bone_body_index": 150,
+        "nearest_bone_model_name": "tibia_l",
+        "nearest_bone_stable_id": 5,
+        "nearest_distance_m": 0.00032839445521603373,
+        "nearest_triangle": 266,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0053552122966963964,
+          0.10783091907212598,
+          -0.1329081422377929
+        ],
+        "face_signed_distance_m": -0.0052353373417928,
+        "global_fem_node": 8350,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1862,
+        "mass_donor_body_index": 128,
+        "mass_donor_model_name": "pelvis",
+        "nearest_body_index": 128,
+        "nearest_body_model_name": "pelvis",
+        "nearest_bone_body_index": 128,
+        "nearest_bone_model_name": "pelvis",
+        "nearest_bone_stable_id": 19,
+        "nearest_distance_m": 0.0052353373417928,
+        "nearest_triangle": 2269,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.03421375974016431,
+          0.013499507621240716,
+          0.15893136437094954
+        ],
+        "face_signed_distance_m": -0.004519509991305572,
+        "global_fem_node": 8478,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 1990,
+        "mass_donor_body_index": 84,
+        "mass_donor_model_name": "scapula_l",
+        "nearest_body_index": 91,
+        "nearest_body_model_name": "humerus_l",
+        "nearest_bone_body_index": 91,
+        "nearest_bone_model_name": "humerus_l",
+        "nearest_bone_stable_id": 13,
+        "nearest_distance_m": 0.004519509991305572,
+        "nearest_triangle": 673,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.042369692484634604,
+          -0.015432632120324296,
+          0.1393992444219913
+        ],
+        "face_signed_distance_m": -0.0016980651128587138,
+        "global_fem_node": 8511,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2023,
+        "mass_donor_body_index": 91,
+        "mass_donor_model_name": "humerus_l",
+        "nearest_body_index": 91,
+        "nearest_body_model_name": "humerus_l",
+        "nearest_bone_body_index": 91,
+        "nearest_bone_model_name": "humerus_l",
+        "nearest_bone_stable_id": 13,
+        "nearest_distance_m": 0.0016980651128587138,
+        "nearest_triangle": 1388,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0571830566956413,
+          0.004023380499900829,
+          0.14621801684674487
+        ],
+        "face_signed_distance_m": -0.00912914277118725,
+        "global_fem_node": 8512,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2024,
+        "mass_donor_body_index": 91,
+        "mass_donor_model_name": "humerus_l",
+        "nearest_body_index": 91,
+        "nearest_body_model_name": "humerus_l",
+        "nearest_bone_body_index": 91,
+        "nearest_bone_model_name": "humerus_l",
+        "nearest_bone_stable_id": 13,
+        "nearest_distance_m": 0.00912914277118725,
+        "nearest_triangle": 1939,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.05474319630178836,
+          -0.008334215432504746,
+          0.1207209669020911
+        ],
+        "face_signed_distance_m": -0.004627393976859045,
+        "global_fem_node": 8526,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2038,
+        "mass_donor_body_index": 91,
+        "mass_donor_model_name": "humerus_l",
+        "nearest_body_index": 91,
+        "nearest_body_model_name": "humerus_l",
+        "nearest_bone_body_index": 91,
+        "nearest_bone_model_name": "humerus_l",
+        "nearest_bone_stable_id": 13,
+        "nearest_distance_m": 0.004627393976859045,
+        "nearest_triangle": 2468,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.056528538512639746,
+          -0.0017678892496717498,
+          0.11962831633877972
+        ],
+        "face_signed_distance_m": -0.004261313580390969,
+        "global_fem_node": 8527,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2039,
+        "mass_donor_body_index": 91,
+        "mass_donor_model_name": "humerus_l",
+        "nearest_body_index": 91,
+        "nearest_body_model_name": "humerus_l",
+        "nearest_bone_body_index": 91,
+        "nearest_bone_model_name": "humerus_l",
+        "nearest_bone_stable_id": 13,
+        "nearest_distance_m": 0.004261313580390969,
+        "nearest_triangle": 2496,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.0020648124143227667,
+          0.0018604242496881459,
+          -0.0024284028813333336
+        ],
+        "face_signed_distance_m": -0.0013507735556061364,
+        "global_fem_node": 8591,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2103,
+        "mass_donor_body_index": 99,
+        "mass_donor_model_name": "capitate_l",
+        "nearest_body_index": 97,
+        "nearest_body_model_name": "pisiform_l",
+        "nearest_bone_body_index": 97,
+        "nearest_bone_model_name": "pisiform_l",
+        "nearest_bone_stable_id": 83,
+        "nearest_distance_m": 0.0013507735556061364,
+        "nearest_triangle": 209,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.02289155477686651,
+          -0.010046309099066605,
+          -0.04651726149891107
+        ],
+        "face_signed_distance_m": -0.00035469409395101387,
+        "global_fem_node": 8600,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2112,
+        "mass_donor_body_index": 98,
+        "mass_donor_model_name": "triquetrum_l",
+        "nearest_body_index": 93,
+        "nearest_body_model_name": "radius_l",
+        "nearest_bone_body_index": 93,
+        "nearest_bone_model_name": "radius_l",
+        "nearest_bone_stable_id": 17,
+        "nearest_distance_m": 0.00035469409395101387,
+        "nearest_triangle": 283,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.0213084470156942,
+          -0.011524801080109903,
+          -0.044153372258818484
+        ],
+        "face_signed_distance_m": -0.0006611971829977122,
+        "global_fem_node": 8604,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2116,
+        "mass_donor_body_index": 98,
+        "mass_donor_model_name": "triquetrum_l",
+        "nearest_body_index": 93,
+        "nearest_body_model_name": "radius_l",
+        "nearest_bone_body_index": 93,
+        "nearest_bone_model_name": "radius_l",
+        "nearest_bone_stable_id": 17,
+        "nearest_distance_m": 0.0006611971829977122,
+        "nearest_triangle": 277,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.005021349840799381,
+          -0.0021691753257933656,
+          0.00284217816606173
+        ],
+        "face_signed_distance_m": -0.0009347783420126895,
+        "global_fem_node": 8616,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2128,
+        "mass_donor_body_index": 99,
+        "mass_donor_model_name": "capitate_l",
+        "nearest_body_index": 98,
+        "nearest_body_model_name": "triquetrum_l",
+        "nearest_bone_body_index": 98,
+        "nearest_bone_model_name": "triquetrum_l",
+        "nearest_bone_stable_id": 73,
+        "nearest_distance_m": 0.0009347783420126895,
+        "nearest_triangle": 15,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.002250339056643648,
+          0.003923481848425465,
+          0.004294736121309999
+        ],
+        "face_signed_distance_m": -5.81199663793107e-05,
+        "global_fem_node": 8637,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2149,
+        "mass_donor_body_index": 99,
+        "mass_donor_model_name": "capitate_l",
+        "nearest_body_index": 98,
+        "nearest_body_model_name": "triquetrum_l",
+        "nearest_bone_body_index": 98,
+        "nearest_bone_model_name": "triquetrum_l",
+        "nearest_bone_stable_id": 73,
+        "nearest_distance_m": 5.81199663793107e-05,
+        "nearest_triangle": 47,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0020654384946904468,
+          0.004994546430642592,
+          -0.0014909780240978212
+        ],
+        "face_signed_distance_m": -0.001014829658850398,
+        "global_fem_node": 8648,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2160,
+        "mass_donor_body_index": 99,
+        "mass_donor_model_name": "capitate_l",
+        "nearest_body_index": 97,
+        "nearest_body_model_name": "pisiform_l",
+        "nearest_bone_body_index": 97,
+        "nearest_bone_model_name": "pisiform_l",
+        "nearest_bone_stable_id": 83,
+        "nearest_distance_m": 0.001014829658850398,
+        "nearest_triangle": 188,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.020831971129633278,
+          -0.00986594243890189,
+          -0.04764657691350306
+        ],
+        "face_signed_distance_m": -0.0009600024124979386,
+        "global_fem_node": 8651,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2163,
+        "mass_donor_body_index": 98,
+        "mass_donor_model_name": "triquetrum_l",
+        "nearest_body_index": 93,
+        "nearest_body_model_name": "radius_l",
+        "nearest_bone_body_index": 93,
+        "nearest_bone_model_name": "radius_l",
+        "nearest_bone_stable_id": 17,
+        "nearest_distance_m": 0.0009600024124979386,
+        "nearest_triangle": 280,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.00450598900979837,
+          0.000614880797099636,
+          0.00039366348601224416
+        ],
+        "face_signed_distance_m": -0.00021800872836087287,
+        "global_fem_node": 8659,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2171,
+        "mass_donor_body_index": 99,
+        "mass_donor_model_name": "capitate_l",
+        "nearest_body_index": 98,
+        "nearest_body_model_name": "triquetrum_l",
+        "nearest_bone_body_index": 98,
+        "nearest_bone_model_name": "triquetrum_l",
+        "nearest_bone_stable_id": 73,
+        "nearest_distance_m": 0.00021800872836087287,
+        "nearest_triangle": 10,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.004730801655358294,
+          -0.0004840997861856723,
+          -0.0008754248929946676
+        ],
+        "face_signed_distance_m": -0.00030548631450558905,
+        "global_fem_node": 8662,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2174,
+        "mass_donor_body_index": 99,
+        "mass_donor_model_name": "capitate_l",
+        "nearest_body_index": 98,
+        "nearest_body_model_name": "triquetrum_l",
+        "nearest_bone_body_index": 98,
+        "nearest_bone_model_name": "triquetrum_l",
+        "nearest_bone_stable_id": 73,
+        "nearest_distance_m": 0.00030548631450558905,
+        "nearest_triangle": 54,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.0026823102588612014,
+          0.005659673827292385,
+          0.0028237990022623827
+        ],
+        "face_signed_distance_m": -0.0006434665133700753,
+        "global_fem_node": 8663,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2175,
+        "mass_donor_body_index": 99,
+        "mass_donor_model_name": "capitate_l",
+        "nearest_body_index": 98,
+        "nearest_body_model_name": "triquetrum_l",
+        "nearest_bone_body_index": 98,
+        "nearest_bone_model_name": "triquetrum_l",
+        "nearest_bone_stable_id": 73,
+        "nearest_distance_m": 0.0006434665133700753,
+        "nearest_triangle": 1,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          -0.007000492981189485,
+          -0.021676520895712308,
+          -0.00039320554965367976
+        ],
+        "face_signed_distance_m": -0.0010338023584191315,
+        "global_fem_node": 8675,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2187,
+        "mass_donor_body_index": 124,
+        "mass_donor_model_name": "5proxph_l",
+        "nearest_body_index": 124,
+        "nearest_body_model_name": "5proxph_l",
+        "nearest_bone_body_index": 124,
+        "nearest_bone_model_name": "5proxph_l",
+        "nearest_bone_stable_id": 123,
+        "nearest_distance_m": 0.0010338023584191315,
+        "nearest_triangle": 50,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.006216664129764666,
+          -0.017690334763289673,
+          -0.006653090495593065
+        ],
+        "face_signed_distance_m": -0.0006233464725883781,
+        "global_fem_node": 8733,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2245,
+        "mass_donor_body_index": 114,
+        "mass_donor_model_name": "3proxph_l",
+        "nearest_body_index": 114,
+        "nearest_body_model_name": "3proxph_l",
+        "nearest_bone_body_index": 114,
+        "nearest_bone_model_name": "3proxph_l",
+        "nearest_bone_stable_id": 117,
+        "nearest_distance_m": 0.0006233464725883781,
+        "nearest_triangle": 250,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.005187911516170669,
+          -0.03237634417508405,
+          -0.009088702555875674
+        ],
+        "face_signed_distance_m": -0.0021329022304394903,
+        "global_fem_node": 8749,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2261,
+        "mass_donor_body_index": 109,
+        "mass_donor_model_name": "2proxph_l",
+        "nearest_body_index": 107,
+        "nearest_body_model_name": "secondmc_l",
+        "nearest_bone_body_index": 107,
+        "nearest_bone_model_name": "secondmc_l",
+        "nearest_bone_stable_id": 108,
+        "nearest_distance_m": 0.0021329022304394903,
+        "nearest_triangle": 602,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0006421926211996282,
+          -0.01961095937728987,
+          -0.00029551534735347985
+        ],
+        "face_signed_distance_m": -0.0018545242445548362,
+        "global_fem_node": 8750,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2262,
+        "mass_donor_body_index": 107,
+        "mass_donor_model_name": "secondmc_l",
+        "nearest_body_index": 107,
+        "nearest_body_model_name": "secondmc_l",
+        "nearest_bone_body_index": 107,
+        "nearest_bone_model_name": "secondmc_l",
+        "nearest_bone_stable_id": 108,
+        "nearest_distance_m": 0.0018545242445548362,
+        "nearest_triangle": 500,
+        "outside_rays": 0
+      },
+      {
+        "audited": true,
+        "closest_point_m": [
+          0.0023155668898043103,
+          -0.0008408609921073257,
+          -0.003251171969253835
+        ],
+        "face_signed_distance_m": -0.002244748380223876,
+        "global_fem_node": 8795,
+        "inside_rays": 3,
+        "layer_code": 2,
+        "layer_row": 2307,
+        "mass_donor_body_index": 104,
+        "mass_donor_model_name": "distal_thumb_l",
+        "nearest_body_index": 104,
+        "nearest_body_model_name": "distal_thumb_l",
+        "nearest_bone_body_index": 104,
+        "nearest_bone_model_name": "distal_thumb_l",
+        "nearest_bone_stable_id": 113,
+        "nearest_distance_m": 0.002244748380223876,
+        "nearest_triangle": 190,
+        "outside_rays": 0
+      }
+    ],
+    "inside_mapping_count": 138,
+    "join_key": "Global FEM node ID from CSV column node; tissue-mass-reference lines are 'node <globalNode> <donorBodyIndex> ...'.",
+    "mass_donor_by_layer": {
+      "0": {
+        "count": 12,
+        "histogram": [
+          {
+            "body_index": 61,
+            "count": 8,
+            "model_name": "distph2_r"
+          },
+          {
+            "body_index": 59,
+            "count": 1,
+            "model_name": "2proxph_r"
+          },
+          {
+            "body_index": 107,
+            "count": 1,
+            "model_name": "secondmc_l"
+          },
+          {
+            "body_index": 109,
+            "count": 1,
+            "model_name": "2proxph_l"
+          },
+          {
+            "body_index": 124,
+            "count": 1,
+            "model_name": "5proxph_l"
+          }
+        ]
+      },
+      "1": {
+        "count": 7,
+        "histogram": [
+          {
+            "body_index": 23,
+            "count": 1,
+            "model_name": "head"
+          },
+          {
+            "body_index": 59,
+            "count": 1,
+            "model_name": "2proxph_r"
+          },
+          {
+            "body_index": 84,
+            "count": 1,
+            "model_name": "scapula_l"
+          },
+          {
+            "body_index": 91,
+            "count": 1,
+            "model_name": "humerus_l"
+          },
+          {
+            "body_index": 107,
+            "count": 1,
+            "model_name": "secondmc_l"
+          },
+          {
+            "body_index": 109,
+            "count": 1,
+            "model_name": "2proxph_l"
+          },
+          {
+            "body_index": 124,
+            "count": 1,
+            "model_name": "5proxph_l"
+          }
+        ]
+      },
+      "2": {
+        "count": 119,
+        "histogram": [
+          {
+            "body_index": 23,
+            "count": 70,
+            "model_name": "head"
+          },
+          {
+            "body_index": 99,
+            "count": 7,
+            "model_name": "capitate_l"
+          },
+          {
+            "body_index": 139,
+            "count": 5,
+            "model_name": "toes_r"
+          },
+          {
+            "body_index": 91,
+            "count": 4,
+            "model_name": "humerus_l"
+          },
+          {
+            "body_index": 150,
+            "count": 4,
+            "model_name": "tibia_l"
+          },
+          {
+            "body_index": 20,
+            "count": 3,
+            "model_name": "torso"
+          },
+          {
+            "body_index": 98,
+            "count": 3,
+            "model_name": "triquetrum_l"
+          },
+          {
+            "body_index": 128,
+            "count": 3,
+            "model_name": "pelvis"
+          },
+          {
+            "body_index": 54,
+            "count": 2,
+            "model_name": "distal_thumb_r"
+          },
+          {
+            "body_index": 62,
+            "count": 2,
+            "model_name": "thirdmc_r"
+          },
+          {
+            "body_index": 136,
+            "count": 2,
+            "model_name": "tibia_r"
+          },
+          {
+            "body_index": 142,
+            "count": 2,
+            "model_name": "patella_r"
+          },
+          {
+            "body_index": 46,
+            "count": 1,
+            "model_name": "scaphoid_r"
+          },
+          {
+            "body_index": 49,
+            "count": 1,
+            "model_name": "capitate_r"
+          },
+          {
+            "body_index": 59,
+            "count": 1,
+            "model_name": "2proxph_r"
+          },
+          {
+            "body_index": 66,
+            "count": 1,
+            "model_name": "distph3_r"
+          },
+          {
+            "body_index": 84,
+            "count": 1,
+            "model_name": "scapula_l"
+          },
+          {
+            "body_index": 104,
+            "count": 1,
+            "model_name": "distal_thumb_l"
+          },
+          {
+            "body_index": 107,
+            "count": 1,
+            "model_name": "secondmc_l"
+          },
+          {
+            "body_index": 109,
+            "count": 1,
+            "model_name": "2proxph_l"
+          },
+          {
+            "body_index": 114,
+            "count": 1,
+            "model_name": "3proxph_l"
+          },
+          {
+            "body_index": 124,
+            "count": 1,
+            "model_name": "5proxph_l"
+          },
+          {
+            "body_index": 152,
+            "count": 1,
+            "model_name": "calcn_l"
+          },
+          {
+            "body_index": 153,
+            "count": 1,
+            "model_name": "toes_l"
+          }
+        ]
+      }
+    },
+    "mass_donor_histogram": [
+      {
+        "body_index": 23,
+        "count": 71,
+        "model_name": "head"
+      },
+      {
+        "body_index": 61,
+        "count": 8,
+        "model_name": "distph2_r"
+      },
+      {
+        "body_index": 99,
+        "count": 7,
+        "model_name": "capitate_l"
+      },
+      {
+        "body_index": 91,
+        "count": 5,
+        "model_name": "humerus_l"
+      },
+      {
+        "body_index": 139,
+        "count": 5,
+        "model_name": "toes_r"
+      },
+      {
+        "body_index": 150,
+        "count": 4,
+        "model_name": "tibia_l"
+      },
+      {
+        "body_index": 20,
+        "count": 3,
+        "model_name": "torso"
+      },
+      {
+        "body_index": 59,
+        "count": 3,
+        "model_name": "2proxph_r"
+      },
+      {
+        "body_index": 98,
+        "count": 3,
+        "model_name": "triquetrum_l"
+      },
+      {
+        "body_index": 107,
+        "count": 3,
+        "model_name": "secondmc_l"
+      },
+      {
+        "body_index": 109,
+        "count": 3,
+        "model_name": "2proxph_l"
+      },
+      {
+        "body_index": 124,
+        "count": 3,
+        "model_name": "5proxph_l"
+      },
+      {
+        "body_index": 128,
+        "count": 3,
+        "model_name": "pelvis"
+      },
+      {
+        "body_index": 54,
+        "count": 2,
+        "model_name": "distal_thumb_r"
+      },
+      {
+        "body_index": 62,
+        "count": 2,
+        "model_name": "thirdmc_r"
+      },
+      {
+        "body_index": 84,
+        "count": 2,
+        "model_name": "scapula_l"
+      },
+      {
+        "body_index": 136,
+        "count": 2,
+        "model_name": "tibia_r"
+      },
+      {
+        "body_index": 142,
+        "count": 2,
+        "model_name": "patella_r"
+      },
+      {
+        "body_index": 46,
+        "count": 1,
+        "model_name": "scaphoid_r"
+      },
+      {
+        "body_index": 49,
+        "count": 1,
+        "model_name": "capitate_r"
+      },
+      {
+        "body_index": 66,
+        "count": 1,
+        "model_name": "distph3_r"
+      },
+      {
+        "body_index": 104,
+        "count": 1,
+        "model_name": "distal_thumb_l"
+      },
+      {
+        "body_index": 114,
+        "count": 1,
+        "model_name": "3proxph_l"
+      },
+      {
+        "body_index": 152,
+        "count": 1,
+        "model_name": "calcn_l"
+      },
+      {
+        "body_index": 153,
+        "count": 1,
+        "model_name": "toes_l"
+      }
+    ],
+    "mass_reference_node_count": 14439,
+    "nearest_body_by_layer": {
+      "0": {
+        "count": 12,
+        "histogram": [
+          {
+            "body_index": 61,
+            "count": 8,
+            "model_name": "distph2_r"
+          },
+          {
+            "body_index": 59,
+            "count": 1,
+            "model_name": "2proxph_r"
+          },
+          {
+            "body_index": 107,
+            "count": 1,
+            "model_name": "secondmc_l"
+          },
+          {
+            "body_index": 109,
+            "count": 1,
+            "model_name": "2proxph_l"
+          },
+          {
+            "body_index": 124,
+            "count": 1,
+            "model_name": "5proxph_l"
+          }
+        ]
+      },
+      "1": {
+        "count": 7,
+        "histogram": [
+          {
+            "body_index": 91,
+            "count": 2,
+            "model_name": "humerus_l"
+          },
+          {
+            "body_index": 23,
+            "count": 1,
+            "model_name": "head"
+          },
+          {
+            "body_index": 59,
+            "count": 1,
+            "model_name": "2proxph_r"
+          },
+          {
+            "body_index": 107,
+            "count": 1,
+            "model_name": "secondmc_l"
+          },
+          {
+            "body_index": 109,
+            "count": 1,
+            "model_name": "2proxph_l"
+          },
+          {
+            "body_index": 124,
+            "count": 1,
+            "model_name": "5proxph_l"
+          }
+        ]
+      },
+      "2": {
+        "count": 119,
+        "histogram": [
+          {
+            "body_index": 23,
+            "count": 70,
+            "model_name": "head"
+          },
+          {
+            "body_index": 91,
+            "count": 5,
+            "model_name": "humerus_l"
+          },
+          {
+            "body_index": 98,
+            "count": 5,
+            "model_name": "triquetrum_l"
+          },
+          {
+            "body_index": 139,
+            "count": 5,
+            "model_name": "toes_r"
+          },
+          {
+            "body_index": 150,
+            "count": 4,
+            "model_name": "tibia_l"
+          },
+          {
+            "body_index": 93,
+            "count": 3,
+            "model_name": "radius_l"
+          },
+          {
+            "body_index": 128,
+            "count": 3,
+            "model_name": "pelvis"
+          },
+          {
+            "body_index": 20,
+            "count": 2,
+            "model_name": "torso"
+          },
+          {
+            "body_index": 97,
+            "count": 2,
+            "model_name": "pisiform_l"
+          },
+          {
+            "body_index": 107,
+            "count": 2,
+            "model_name": "secondmc_l"
+          },
+          {
+            "body_index": 136,
+            "count": 2,
+            "model_name": "tibia_r"
+          },
+          {
+            "body_index": 142,
+            "count": 2,
+            "model_name": "patella_r"
+          },
+          {
+            "body_index": 43,
+            "count": 1,
+            "model_name": "radius_r"
+          },
+          {
+            "body_index": 47,
+            "count": 1,
+            "model_name": "pisiform_r"
+          },
+          {
+            "body_index": 53,
+            "count": 1,
+            "model_name": "proximal_thumb_r"
+          },
+          {
+            "body_index": 54,
+            "count": 1,
+            "model_name": "distal_thumb_r"
+          },
+          {
+            "body_index": 59,
+            "count": 1,
+            "model_name": "2proxph_r"
+          },
+          {
+            "body_index": 62,
+            "count": 1,
+            "model_name": "thirdmc_r"
+          },
+          {
+            "body_index": 65,
+            "count": 1,
+            "model_name": "midph3_r"
+          },
+          {
+            "body_index": 67,
+            "count": 1,
+            "model_name": "fourthmc_r"
+          },
+          {
+            "body_index": 79,
+            "count": 1,
+            "model_name": "clavicle_l"
+          },
+          {
+            "body_index": 104,
+            "count": 1,
+            "model_name": "distal_thumb_l"
+          },
+          {
+            "body_index": 114,
+            "count": 1,
+            "model_name": "3proxph_l"
+          },
+          {
+            "body_index": 124,
+            "count": 1,
+            "model_name": "5proxph_l"
+          },
+          {
+            "body_index": 152,
+            "count": 1,
+            "model_name": "calcn_l"
+          },
+          {
+            "body_index": 153,
+            "count": 1,
+            "model_name": "toes_l"
+          }
+        ]
+      }
+    },
+    "nearest_body_equals_nearest_bone_model_count": 138,
+    "nearest_body_histogram": [
+      {
+        "body_index": 23,
+        "count": 71,
+        "model_name": "head"
+      },
+      {
+        "body_index": 61,
+        "count": 8,
+        "model_name": "distph2_r"
+      },
+      {
+        "body_index": 91,
+        "count": 7,
+        "model_name": "humerus_l"
+      },
+      {
+        "body_index": 98,
+        "count": 5,
+        "model_name": "triquetrum_l"
+      },
+      {
+        "body_index": 139,
+        "count": 5,
+        "model_name": "toes_r"
+      },
+      {
+        "body_index": 107,
+        "count": 4,
+        "model_name": "secondmc_l"
+      },
+      {
+        "body_index": 150,
+        "count": 4,
+        "model_name": "tibia_l"
+      },
+      {
+        "body_index": 59,
+        "count": 3,
+        "model_name": "2proxph_r"
+      },
+      {
+        "body_index": 93,
+        "count": 3,
+        "model_name": "radius_l"
+      },
+      {
+        "body_index": 124,
+        "count": 3,
+        "model_name": "5proxph_l"
+      },
+      {
+        "body_index": 128,
+        "count": 3,
+        "model_name": "pelvis"
+      },
+      {
+        "body_index": 20,
+        "count": 2,
+        "model_name": "torso"
+      },
+      {
+        "body_index": 97,
+        "count": 2,
+        "model_name": "pisiform_l"
+      },
+      {
+        "body_index": 109,
+        "count": 2,
+        "model_name": "2proxph_l"
+      },
+      {
+        "body_index": 136,
+        "count": 2,
+        "model_name": "tibia_r"
+      },
+      {
+        "body_index": 142,
+        "count": 2,
+        "model_name": "patella_r"
+      },
+      {
+        "body_index": 43,
+        "count": 1,
+        "model_name": "radius_r"
+      },
+      {
+        "body_index": 47,
+        "count": 1,
+        "model_name": "pisiform_r"
+      },
+      {
+        "body_index": 53,
+        "count": 1,
+        "model_name": "proximal_thumb_r"
+      },
+      {
+        "body_index": 54,
+        "count": 1,
+        "model_name": "distal_thumb_r"
+      },
+      {
+        "body_index": 62,
+        "count": 1,
+        "model_name": "thirdmc_r"
+      },
+      {
+        "body_index": 65,
+        "count": 1,
+        "model_name": "midph3_r"
+      },
+      {
+        "body_index": 67,
+        "count": 1,
+        "model_name": "fourthmc_r"
+      },
+      {
+        "body_index": 79,
+        "count": 1,
+        "model_name": "clavicle_l"
+      },
+      {
+        "body_index": 104,
+        "count": 1,
+        "model_name": "distal_thumb_l"
+      },
+      {
+        "body_index": 114,
+        "count": 1,
+        "model_name": "3proxph_l"
+      },
+      {
+        "body_index": 152,
+        "count": 1,
+        "model_name": "calcn_l"
+      },
+      {
+        "body_index": 153,
+        "count": 1,
+        "model_name": "toes_l"
+      }
+    ],
+    "nearest_bone_model_by_layer": {
+      "0": {
+        "count": 12,
+        "histogram": [
+          {
+            "body_index": 61,
+            "count": 8,
+            "model_name": "distph2_r"
+          },
+          {
+            "body_index": 59,
+            "count": 1,
+            "model_name": "2proxph_r"
+          },
+          {
+            "body_index": 107,
+            "count": 1,
+            "model_name": "secondmc_l"
+          },
+          {
+            "body_index": 109,
+            "count": 1,
+            "model_name": "2proxph_l"
+          },
+          {
+            "body_index": 124,
+            "count": 1,
+            "model_name": "5proxph_l"
+          }
+        ]
+      },
+      "1": {
+        "count": 7,
+        "histogram": [
+          {
+            "body_index": 91,
+            "count": 2,
+            "model_name": "humerus_l"
+          },
+          {
+            "body_index": 23,
+            "count": 1,
+            "model_name": "head"
+          },
+          {
+            "body_index": 59,
+            "count": 1,
+            "model_name": "2proxph_r"
+          },
+          {
+            "body_index": 107,
+            "count": 1,
+            "model_name": "secondmc_l"
+          },
+          {
+            "body_index": 109,
+            "count": 1,
+            "model_name": "2proxph_l"
+          },
+          {
+            "body_index": 124,
+            "count": 1,
+            "model_name": "5proxph_l"
+          }
+        ]
+      },
+      "2": {
+        "count": 119,
+        "histogram": [
+          {
+            "body_index": 23,
+            "count": 70,
+            "model_name": "head"
+          },
+          {
+            "body_index": 91,
+            "count": 5,
+            "model_name": "humerus_l"
+          },
+          {
+            "body_index": 98,
+            "count": 5,
+            "model_name": "triquetrum_l"
+          },
+          {
+            "body_index": 139,
+            "count": 5,
+            "model_name": "toes_r"
+          },
+          {
+            "body_index": 150,
+            "count": 4,
+            "model_name": "tibia_l"
+          },
+          {
+            "body_index": 93,
+            "count": 3,
+            "model_name": "radius_l"
+          },
+          {
+            "body_index": 128,
+            "count": 3,
+            "model_name": "pelvis"
+          },
+          {
+            "body_index": 20,
+            "count": 2,
+            "model_name": "torso"
+          },
+          {
+            "body_index": 97,
+            "count": 2,
+            "model_name": "pisiform_l"
+          },
+          {
+            "body_index": 107,
+            "count": 2,
+            "model_name": "secondmc_l"
+          },
+          {
+            "body_index": 136,
+            "count": 2,
+            "model_name": "tibia_r"
+          },
+          {
+            "body_index": 142,
+            "count": 2,
+            "model_name": "patella_r"
+          },
+          {
+            "body_index": 43,
+            "count": 1,
+            "model_name": "radius_r"
+          },
+          {
+            "body_index": 47,
+            "count": 1,
+            "model_name": "pisiform_r"
+          },
+          {
+            "body_index": 53,
+            "count": 1,
+            "model_name": "proximal_thumb_r"
+          },
+          {
+            "body_index": 54,
+            "count": 1,
+            "model_name": "distal_thumb_r"
+          },
+          {
+            "body_index": 59,
+            "count": 1,
+            "model_name": "2proxph_r"
+          },
+          {
+            "body_index": 62,
+            "count": 1,
+            "model_name": "thirdmc_r"
+          },
+          {
+            "body_index": 65,
+            "count": 1,
+            "model_name": "midph3_r"
+          },
+          {
+            "body_index": 67,
+            "count": 1,
+            "model_name": "fourthmc_r"
+          },
+          {
+            "body_index": 79,
+            "count": 1,
+            "model_name": "clavicle_l"
+          },
+          {
+            "body_index": 104,
+            "count": 1,
+            "model_name": "distal_thumb_l"
+          },
+          {
+            "body_index": 114,
+            "count": 1,
+            "model_name": "3proxph_l"
+          },
+          {
+            "body_index": 124,
+            "count": 1,
+            "model_name": "5proxph_l"
+          },
+          {
+            "body_index": 152,
+            "count": 1,
+            "model_name": "calcn_l"
+          },
+          {
+            "body_index": 153,
+            "count": 1,
+            "model_name": "toes_l"
+          }
+        ]
+      }
+    },
+    "nearest_bone_model_histogram": [
+      {
+        "body_index": 23,
+        "count": 71,
+        "model_name": "head"
+      },
+      {
+        "body_index": 61,
+        "count": 8,
+        "model_name": "distph2_r"
+      },
+      {
+        "body_index": 91,
+        "count": 7,
+        "model_name": "humerus_l"
+      },
+      {
+        "body_index": 98,
+        "count": 5,
+        "model_name": "triquetrum_l"
+      },
+      {
+        "body_index": 139,
+        "count": 5,
+        "model_name": "toes_r"
+      },
+      {
+        "body_index": 107,
+        "count": 4,
+        "model_name": "secondmc_l"
+      },
+      {
+        "body_index": 150,
+        "count": 4,
+        "model_name": "tibia_l"
+      },
+      {
+        "body_index": 59,
+        "count": 3,
+        "model_name": "2proxph_r"
+      },
+      {
+        "body_index": 93,
+        "count": 3,
+        "model_name": "radius_l"
+      },
+      {
+        "body_index": 124,
+        "count": 3,
+        "model_name": "5proxph_l"
+      },
+      {
+        "body_index": 128,
+        "count": 3,
+        "model_name": "pelvis"
+      },
+      {
+        "body_index": 20,
+        "count": 2,
+        "model_name": "torso"
+      },
+      {
+        "body_index": 97,
+        "count": 2,
+        "model_name": "pisiform_l"
+      },
+      {
+        "body_index": 109,
+        "count": 2,
+        "model_name": "2proxph_l"
+      },
+      {
+        "body_index": 136,
+        "count": 2,
+        "model_name": "tibia_r"
+      },
+      {
+        "body_index": 142,
+        "count": 2,
+        "model_name": "patella_r"
+      },
+      {
+        "body_index": 43,
+        "count": 1,
+        "model_name": "radius_r"
+      },
+      {
+        "body_index": 47,
+        "count": 1,
+        "model_name": "pisiform_r"
+      },
+      {
+        "body_index": 53,
+        "count": 1,
+        "model_name": "proximal_thumb_r"
+      },
+      {
+        "body_index": 54,
+        "count": 1,
+        "model_name": "distal_thumb_r"
+      },
+      {
+        "body_index": 62,
+        "count": 1,
+        "model_name": "thirdmc_r"
+      },
+      {
+        "body_index": 65,
+        "count": 1,
+        "model_name": "midph3_r"
+      },
+      {
+        "body_index": 67,
+        "count": 1,
+        "model_name": "fourthmc_r"
+      },
+      {
+        "body_index": 79,
+        "count": 1,
+        "model_name": "clavicle_l"
+      },
+      {
+        "body_index": 104,
+        "count": 1,
+        "model_name": "distal_thumb_l"
+      },
+      {
+        "body_index": 114,
+        "count": 1,
+        "model_name": "3proxph_l"
+      },
+      {
+        "body_index": 152,
+        "count": 1,
+        "model_name": "calcn_l"
+      },
+      {
+        "body_index": 153,
+        "count": 1,
+        "model_name": "toes_l"
+      }
+    ],
+    "requested_global_node_join_assertions": [
+      {
+        "global_fem_node": 8749,
+        "inside_rays": 3,
+        "layer": 2,
+        "mass_donor_body_index": 109,
+        "mass_donor_model_name": "2proxph_l",
+        "nearest_body_index": 107,
+        "nearest_body_model_name": "secondmc_l",
+        "nearest_bone_body_index": 107,
+        "nearest_bone_model_name": "secondmc_l",
+        "nearest_bone_stable_id": 108,
+        "note": "",
+        "outside_rays": 0
+      },
+      {
+        "global_fem_node": 8750,
+        "inside_rays": 3,
+        "layer": 2,
+        "mass_donor_body_index": 107,
+        "mass_donor_model_name": "secondmc_l",
+        "nearest_body_index": 107,
+        "nearest_body_model_name": "secondmc_l",
+        "nearest_bone_body_index": 107,
+        "nearest_bone_model_name": "secondmc_l",
+        "nearest_bone_stable_id": 108,
+        "note": "",
+        "outside_rays": 0
+      },
+      {
+        "global_fem_node": 6338,
+        "inside_rays": 3,
+        "layer": 1,
+        "mass_donor_body_index": 109,
+        "mass_donor_model_name": "2proxph_l",
+        "nearest_body_index": 109,
+        "nearest_body_model_name": "2proxph_l",
+        "nearest_bone_body_index": 109,
+        "nearest_bone_model_name": "2proxph_l",
+        "nearest_bone_stable_id": 114,
+        "note": "",
+        "outside_rays": 0
+      },
+      {
+        "global_fem_node": 6322,
+        "inside_rays": 0,
+        "layer": 1,
+        "mass_donor_body_index": 114,
+        "mass_donor_model_name": "3proxph_l",
+        "nearest_body_index": 114,
+        "nearest_body_model_name": "3proxph_l",
+        "nearest_bone_body_index": 114,
+        "nearest_bone_model_name": "3proxph_l",
+        "nearest_bone_stable_id": 117,
+        "note": "Audited outside-solid row; donor join still verified by global FEM node.",
+        "outside_rays": 3
+      }
+    ]
+  },
+  "pins": {
+    "029_directory": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-029",
+    "app_overlay_sha256": "9d39d6525c2624503bb2fe501d0131ed31a6dbf99adec7bc6a756daa942915c2",
+    "build002_binary_sha256": "bb34555b6549e3c946de5162c090159303b1387c013b12f18a241ba480449ef2",
+    "core_source_manifest_path": "/Users/n/numi-human-separation-20261018/C/publication-source-001/docs/media/numi-human-passive-fit-v4/source-manifest.json",
+    "core_source_manifest_sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+    "run001_contact_csv_sha256": "87da50c12a5b06fa9d31ada5e2941fcabf513f28025277a31a5028b8ac306099",
+    "run001_execution_receipt_sha256": "fcb4747e7bf037ab21d11af346952ddf18427386854be67c460b1789fc92b405",
+    "run001_launch_manifest_sha256": "2ed018c6282c0503353d0f4248b81ba57b4fa7cb319a3538d6d2ec510ac064f6",
+    "run002_contact_csv_sha256": "ee058644ebadc5849109dbed87c555eec091af0e8ca6cb874fb50539cf318d27",
+    "run002_execution_receipt_sha256": "febe05827b0aaf772d0cfbb55ec367e77d1af26651268883aa42acb72695424d",
+    "run002_fem_node_csv_sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+    "run002_input_hashes": {
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/build-runtime-004/candidate.metallib": "544c8e8a8a5019ca728d1026b4a8a52ed88ec54b782610e5fae5dd81c5bf3845",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/build-runtime-004/libmetalrobo.dylib": "b7cba8777b071eb1df0dbdadc24f9a4963eb92b2e85bf1121a97d29328d5c26b",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-029/apps/NumiHumanD37InitialSkinBoneWitness.hpp": "68dc8e167c9a3c9500c27c5828f405efac1d9fd7ef75707c2fa7466335682e8c",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-029/apps/numilab_human_myosim_visual_probe.mm": "9d39d6525c2624503bb2fe501d0131ed31a6dbf99adec7bc6a756daa942915c2",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-bone-witness-029/build-002/numi-human-native": "bb34555b6549e3c946de5162c090159303b1387c013b12f18a241ba480449ef2",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/D38-candidate-identity.json": "ad204691d202ee3455cb28653c297fca8a3094bcce6a838e069343d315f6f39b",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanFinal020CandidateRegistration.hpp": "d635f09d0ff7090a808aca274f737a864129f797822c20a81f8b414a7f99ec0e",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanMaterialColumnSelfContact.hpp": "835086de11c031870104165459f6fdfbf7e4d2ad04068ec4669acdc83cb16cc3",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinBoundaryNodeMap.hpp": "ce36fae5a378d65bdf63d0bf1408175abcf20baa3bb876be229f8c49e94e6241",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp": "e0ea26214cd7cf9e3ed9dc0bcf83766e44830b3004b794892bc2ff90a6afc2e0",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFatReductionLabels.hpp": "573909b017d12153b25dd936c6e6545e05ef303248ad22ccb8c85bfb20a27407",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanUnpairedSkinFatVolume.hpp": "dd47c7e5033dabd2cb0b06300fc9ece9ef9977e8b57e17f98c2992ea0175dc16",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanWholeBodySkinEmbeddingConsumer.hpp": "fdcec56d0c7af908995d3b4e4719bd2a59fa5aa835cd0efb081d29b448621efb",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanWholeBodySkinReduction.hpp": "c0f3f3569dbf42f4be582a0eed35d805c938553bb637deeaba4cf0a43ba3e17d",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanWholeBodySkinTransferAncestry.hpp": "05f967096c494ddf8281268b777c5a4cc65556eb1bd7dc5e2a2a068a1874b0bb",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/numilab_human_myosim_visual_probe.mm": "823ca86b3e86ec1ae8239f2c1e7f51f80f8a6755ad52675fa4011a0163d5151a",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/build-003/dependency-certification.json": "a9da3a04afd38cb56bb2c49d25a47613b542b2f6899e43a9037a07cb7247e35d",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+      "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a",
+      "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/compiled-tendon/numi-human-tendon-attachments.nhtendon": "d0f5da8c63d5e3335eef72e7e79e8e5780ae43f0cf254e840dd7ad604b72da48",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-anatomy-receipt.json": "76c6651a86e9353af9007ba6433beb2a7605b607d9c261def9537ab447d43a51",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt": "4c31ce250a63bd730c066f6f92571295c761ddb51215a3eeb09275bc42d6992d",
+      "/Users/n/numi-human-separation-20261018/passive-fascia-source-173/payload/bodyparts3d-pectoralis-fascia.nhfascia": "5a89c6464564528d7f30ce03294793628a41b61bb1f3cdb98645344225d17de1",
+      "/Users/n/numi-lab-native-replay-publish-20261017/matter/materials/blood_high_shear_newtonian_proxy.nmatter": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-projection-envelope-001/myosim-fullbody-core-reference.nhrigid": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+      "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042"
+    },
+    "run002_launch_manifest_sha256": "5dfab71eec346aaaaf2c29f6fbcd9cbc09d1998008c497fd362e086b11a1013c",
+    "run002_mass_reference_sha256": "71715ff82763c53b478ada4a292f63ac01dd2c5971cf390c2e11705e96f1caec",
+    "run002_registered_skin_csv_sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+    "run002_registered_skin_poses_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "run002_stderr_sha256": "4e86bdfd1eb9dea3c91bf27231e960bb76088803246b9e997a1bcd6dba547c8d",
+    "run002_stdout_sha256": "79961f3d2c786412614fdbb550937af369e6c195509b9e1d70a91d203df8f4cf",
+    "source_revision": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "strict_test_binary_sha256": "bf38882a0896314d48c286e164871607971f4c3ce8c8ce5e0dcf23390c837011",
+    "strict_test_source_sha256": "75cea20e1cefac7490a50caf61ca9cc9366ad69846a361b450bfdbaeddd79594",
+    "witness_header_sha256": "68dc8e167c9a3c9500c27c5828f405efac1d9fd7ef75707c2fa7466335682e8c"
+  },
+  "regional_issue_map": {
+    "interpretation": "Keep surface layer and ownership axes separate. D is dominated by head donor/nearest-bank rows; O is concentrated on right distal phalanx 2; I is a small mixed set. These are follow-up regions, not a single causal joint diagnosis.",
+    "layer_model_names": {
+      "0": "O / physical outer skin boundary",
+      "1": "I / skin-fat interface",
+      "2": "D / deep fat boundary"
+    },
+    "nearest_vs_donor_distinction": "Nearest body/bone name comes from geometric witness CSV body/bone columns. Mass donor comes from FEM node mass reference keyed by global FEM node; different names are not interchangeable.",
+    "next_patch_priorities": [
+      {
+        "inside_rows": 70,
+        "model_name": "head",
+        "rank": 1,
+        "reason": "Largest named-body group; inspect local geometry and neighboring source ownership before editing.",
+        "surface_layer": "D"
+      },
+      {
+        "inside_rows": 8,
+        "model_name": "distph2_r",
+        "rank": 2,
+        "reason": "Right distal-phalanx cluster; check digit surface and weight ownership separately.",
+        "surface_layer": "O"
+      },
+      {
+        "inside_rows": 7,
+        "model_names": [
+          "humerus_l",
+          "2proxph_r",
+          "head",
+          "5proxph_l",
+          "2proxph_l",
+          "secondmc_l",
+          "scapula_l"
+        ],
+        "rank": 3,
+        "reason": "Sparse mixed interface rows; map exact source face/node clusters before selecting a patch.",
+        "surface_layer": "I"
+      }
+    ]
+  },
+  "run001_vs_002": {
+    "parity": {
+      "all_other_csv_cells_text_equal": true,
+      "changed_fields_sorted": [
+        "solid_audited",
+        "solid_outside_rays"
+      ],
+      "changed_global_nodes": [
+        2998,
+        4394,
+        5409,
+        5631
+      ],
+      "changed_row_count": 4,
+      "interpretation": "Only solid-audit capture changed. 002 additionally audits four negative face-signed rows; closed-solid classification marks them outside. Nearest geometry, body/bone IDs, and distances did not change.",
+      "per_row_changes": [
+        {
+          "differences": {
+            "solid_audited": {
+              "001": "0",
+              "002": "1"
+            },
+            "solid_outside_rays": {
+              "001": "0",
+              "002": "3"
+            }
+          },
+          "global_fem_node": 2998
+        },
+        {
+          "differences": {
+            "solid_audited": {
+              "001": "0",
+              "002": "1"
+            },
+            "solid_outside_rays": {
+              "001": "0",
+              "002": "3"
+            }
+          },
+          "global_fem_node": 4394
+        },
+        {
+          "differences": {
+            "solid_audited": {
+              "001": "0",
+              "002": "1"
+            },
+            "solid_outside_rays": {
+              "001": "0",
+              "002": "3"
+            }
+          },
+          "global_fem_node": 5409
+        },
+        {
+          "differences": {
+            "solid_audited": {
+              "001": "0",
+              "002": "1"
+            },
+            "solid_outside_rays": {
+              "001": "0",
+              "002": "3"
+            }
+          },
+          "global_fem_node": 5631
+        }
+      ],
+      "same_global_node_set": true
+    },
+    "run001": {
+      "ambiguous": 0,
+      "audited": 226,
+      "inside": 138,
+      "negative_face_signed": 142,
+      "negative_face_signed_audited": 138,
+      "outside": 88,
+      "rows": 7233
+    },
+    "run002": {
+      "ambiguous": 0,
+      "audited": 230,
+      "inside": 138,
+      "negative_face_signed": 142,
+      "negative_face_signed_audited": 142,
+      "outside": 92,
+      "rows": 7233
+    }
+  },
+  "schema": "numi.human.initial-skin-bone-witness-analysis.v1",
+  "scope": {
+    "claims": "Source-preflight diagnostic only; no material response, accepted state, physical anatomy, or whole-body clearance qualification.",
+    "closed_solid_inside_rows": 138,
+    "inside_rows_unique_global_nodes": true,
+    "physical_qualification": false,
+    "preflight": "029 source-only native preflight 002; CPU initial registered-skin-to-bone witness capture with closed-solid classification",
+    "rows_in_capture": 7233,
+    "simulation_steps": 0
+  },
+  "status": "FROZEN_ANALYSIS_SOURCE_ONLY_NOT_PHYSICAL_QUALIFICATION",
+  "superseded_failed_join": {
+    "failure": "Earlier analysis joined donor by CSV sample ordinal. This is wrong: sample is capture row ordinal; mass reference is keyed by global FEM node.",
+    "status": "INVALID_JOIN_RETAINED_FOR_AUDIT_DO_NOT_USE_AS_EVIDENCE",
+    "supersedes": "All prior sample-key donor statements and histograms. The corrected node-key join above replaces them; source artifacts were not modified.",
+    "wrong_join_row_count": 138,
+    "wrong_sample_ordinal_histogram_only_for_incident_reproduction": [
+      {
+        "body_index": 20,
+        "count": 27,
+        "model_name": "torso"
+      },
+      {
+        "body_index": 128,
+        "count": 23,
+        "model_name": "pelvis"
+      },
+      {
+        "body_index": 41,
+        "count": 15,
+        "model_name": "humerus_r"
+      },
+      {
+        "body_index": 23,
+        "count": 11,
+        "model_name": "head"
+      },
+      {
+        "body_index": 25,
+        "count": 9,
+        "model_name": "chest_r"
+      },
+      {
+        "body_index": 150,
+        "count": 7,
+        "model_name": "tibia_l"
+      },
+      {
+        "body_index": 153,
+        "count": 6,
+        "model_name": "toes_l"
+      },
+      {
+        "body_index": 60,
+        "count": 5,
+        "model_name": "midph2_r"
+      },
+      {
+        "body_index": 152,
+        "count": 5,
+        "model_name": "calcn_l"
+      },
+      {
+        "body_index": 99,
+        "count": 4,
+        "model_name": "capitate_l"
+      },
+      {
+        "body_index": 61,
+        "count": 3,
+        "model_name": "distph2_r"
+      },
+      {
+        "body_index": 91,
+        "count": 3,
+        "model_name": "humerus_l"
+      },
+      {
+        "body_index": 145,
+        "count": 3,
+        "model_name": "femur_l"
+      },
+      {
+        "body_index": 1,
+        "count": 2,
+        "model_name": "sacrum"
+      },
+      {
+        "body_index": 43,
+        "count": 2,
+        "model_name": "radius_r"
+      },
+      {
+        "body_index": 136,
+        "count": 2,
+        "model_name": "tibia_r"
+      },
+      {
+        "body_index": 156,
+        "count": 2,
+        "model_name": "patella_l"
+      },
+      {
+        "body_index": 42,
+        "count": 1,
+        "model_name": "ulna_r"
+      },
+      {
+        "body_index": 49,
+        "count": 1,
+        "model_name": "capitate_r"
+      },
+      {
+        "body_index": 53,
+        "count": 1,
+        "model_name": "proximal_thumb_r"
+      },
+      {
+        "body_index": 59,
+        "count": 1,
+        "model_name": "2proxph_r"
+      },
+      {
+        "body_index": 62,
+        "count": 1,
+        "model_name": "thirdmc_r"
+      },
+      {
+        "body_index": 70,
+        "count": 1,
+        "model_name": "midph4_r"
+      },
+      {
+        "body_index": 79,
+        "count": 1,
+        "model_name": "clavicle_l"
+      },
+      {
+        "body_index": 84,
+        "count": 1,
+        "model_name": "scapula_l"
+      },
+      {
+        "body_index": 121,
+        "count": 1,
+        "model_name": "distph4_l"
+      }
+    ]
+  },
+  "test_and_build": {
+    "build002_compile_returncode": 0,
+    "build002_link_returncode": 0,
+    "native_source_only_not_simulation": true,
+    "requested_diagnostics_complete": true,
+    "source_preflight_002_receipt_status": "SOURCE_ONLY_INTENTIONAL_STOP",
+    "source_preflight_002_returncode": 1,
+    "test_binary_returncode": 0,
+    "test_binary_stdout": "PASS: D37 stackless nearest query matches brute-force distance/point, stable tie and truncated-range failure"
+  }
+}
