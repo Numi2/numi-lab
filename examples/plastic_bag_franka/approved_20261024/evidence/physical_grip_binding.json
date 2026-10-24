@@ -1,0 +1,25 @@
+{
+  "trajectory_sha256": "e492e1d54813ef6200ffcdde65bcb53333d439b68ece47182b2d021ec45e4199",
+  "checkpoint_sha256": "68ce8f0f6b6ec9ce9be35162c00e88a8372303182e565c9b8b8f0dd1f30d12bf",
+  "native_checkpoint_step": 1920,
+  "native_checkpoint_buffer_count": 34,
+  "gpu_input_path_poses": 1921,
+  "gpu_input_center_gap_normal_tangent_matches_csv_bitwise": true,
+  "final_actual_gpu_runtime_center_gap_matches_path_bitwise": true,
+  "final_gpu_pad_center_to_visible_stock_faces_m": 1.4735946941421744e-08,
+  "actual_opening_corner_lift_m": 0.323202720866,
+  "hold_all_frames_have_contact": true,
+  "held_coin_centers_min_y_m": 0.166437985987,
+  "held_inside_coins": 10,
+  "final_inside_coins": 10,
+  "final_grip_contact_nodes": 0,
+  "minimum_coin_table_clearance_m": 7.692218891131031e-05,
+  "minimum_film_outer_surface_table_clearance_m": -2.1469999944567775e-09,
+  "final_max_coin_linear_speed_m_s": 0.0020732071385641394,
+  "final_max_coin_angular_speed_rad_s": 0.12519497154143489,
+  "limits": [
+    "Pad center/gap binding is exact at saved output times; intermediate axis interpolation follows the native solver.",
+    "Robot joint motion is prescribed; motor dynamics are not simulated.",
+    "Material and pad properties are assumptions."
+  ]
+}

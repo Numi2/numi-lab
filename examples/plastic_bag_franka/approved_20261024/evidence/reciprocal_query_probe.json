@@ -1,0 +1,305 @@
+{
+  "source": "Actual failed native pair queries at step1512, each also supplied in reverse order.",
+  "checks": {
+    "all_eighteen_resolved": true,
+    "nine_forward_failures_repaired": true,
+    "shared_points_within_original_50_nm_tolerance": true,
+    "support_bracket_within_original_250_nm_tolerance": true,
+    "midpoints_inside_both_cylinders_within_original_tolerance": true
+  },
+  "records": [
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_12_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 3.3300875657005236e-07,
+      "support_plane_upper_bound_m": 5.606973747713552e-07,
+      "upper_minus_depth_m": 2.2768861820130284e-07,
+      "reciprocal_point_error_m": 1.719397663964779e-10,
+      "midpoint_inside_margins_m": [
+        1.662769240949949e-07,
+        0.014486269980456906,
+        1.6633472799056255e-07,
+        0.01448626881861009
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_12_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 3.3300875657005236e-07,
+      "support_plane_upper_bound_m": 5.606973747713552e-07,
+      "upper_minus_depth_m": 2.2768861820130284e-07,
+      "reciprocal_point_error_m": 1.719397663964779e-10,
+      "midpoint_inside_margins_m": [
+        1.6633472799056255e-07,
+        0.01448626881861009,
+        1.662769240949949e-07,
+        0.014486269980456906
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_16_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 7.800812795721868e-07,
+      "support_plane_upper_bound_m": 7.949796331685639e-07,
+      "upper_minus_depth_m": 1.4898353596377173e-08,
+      "reciprocal_point_error_m": 2.2250412631134315e-10,
+      "midpoint_inside_margins_m": [
+        3.8937686170107885e-07,
+        0.0014982884665936235,
+        3.8815971853964695e-07,
+        0.0002869937277188428
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_16_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 7.800812795721868e-07,
+      "support_plane_upper_bound_m": 7.949796331685639e-07,
+      "upper_minus_depth_m": 1.4898353596377173e-08,
+      "reciprocal_point_error_m": 2.2250412631134315e-10,
+      "midpoint_inside_margins_m": [
+        3.8815971853964695e-07,
+        0.0002869937277188428,
+        3.8937686170107885e-07,
+        0.0014982884665936235
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_20_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 6.346099326037802e-07,
+      "support_plane_upper_bound_m": 6.591895172149316e-07,
+      "upper_minus_depth_m": 2.4579584611151423e-08,
+      "reciprocal_point_error_m": 3.7232010084151844e-10,
+      "midpoint_inside_margins_m": [
+        3.176072361989364e-07,
+        0.0014092593339215809,
+        3.2000883799570765e-07,
+        0.000237067591163459
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_20_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 6.346099326037802e-07,
+      "support_plane_upper_bound_m": 6.591895172149316e-07,
+      "upper_minus_depth_m": 2.4579584611151423e-08,
+      "reciprocal_point_error_m": 3.7232010084151844e-10,
+      "midpoint_inside_margins_m": [
+        3.2000883799570765e-07,
+        0.000237067591163459,
+        3.176072361989364e-07,
+        0.0014092593339215809
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_24_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 4.4172287516630604e-07,
+      "support_plane_upper_bound_m": 5.649901932882478e-07,
+      "upper_minus_depth_m": 1.232673181219418e-07,
+      "reciprocal_point_error_m": 1.4051366143088885e-10,
+      "midpoint_inside_margins_m": [
+        2.2089934527641346e-07,
+        0.002569658982239072,
+        2.2105708035943805e-07,
+        0.0046140606329337155
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_24_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 4.4172287516630604e-07,
+      "support_plane_upper_bound_m": 5.649901932882478e-07,
+      "upper_minus_depth_m": 1.232673181219418e-07,
+      "reciprocal_point_error_m": 1.4051366143088885e-10,
+      "midpoint_inside_margins_m": [
+        2.2105708035943805e-07,
+        0.0046140606329337155,
+        2.2089934527641346e-07,
+        0.002569658982239072
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_28_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 5.309262292030326e-07,
+      "support_plane_upper_bound_m": 5.510415818704359e-07,
+      "upper_minus_depth_m": 2.011535266740333e-08,
+      "reciprocal_point_error_m": 3.0947861987027596e-10,
+      "midpoint_inside_margins_m": [
+        2.666127137027595e-07,
+        0.0015180106705659016,
+        2.6630247981556873e-07,
+        0.0001222301205335806
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_28_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 5.309262292030326e-07,
+      "support_plane_upper_bound_m": 5.510415818704359e-07,
+      "upper_minus_depth_m": 2.011535266740333e-08,
+      "reciprocal_point_error_m": 3.0947861987027596e-10,
+      "midpoint_inside_margins_m": [
+        2.6630247981556873e-07,
+        0.0001222301205335806,
+        2.666127137027595e-07,
+        0.0015180106705659016
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_32_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 7.982208103385346e-07,
+      "support_plane_upper_bound_m": 1.0003789388708662e-06,
+      "upper_minus_depth_m": 2.021581285323315e-07,
+      "reciprocal_point_error_m": 3.266542767058589e-11,
+      "midpoint_inside_margins_m": [
+        3.9910115748635275e-07,
+        0.01449819705612463,
+        3.9931950584701226e-07,
+        0.014498197500826118
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_32_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 7.982208103385346e-07,
+      "support_plane_upper_bound_m": 1.0003789388708662e-06,
+      "upper_minus_depth_m": 2.021581285323315e-07,
+      "reciprocal_point_error_m": 3.266542767058589e-11,
+      "midpoint_inside_margins_m": [
+        3.9931950584701226e-07,
+        0.014498197500826118,
+        3.9910115748635275e-07,
+        0.01449819705612463
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_48_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 4.92333185775351e-07,
+      "support_plane_upper_bound_m": 7.066698507972834e-07,
+      "upper_minus_depth_m": 2.1433666502193235e-07,
+      "reciprocal_point_error_m": 9.025567921437775e-11,
+      "midpoint_inside_margins_m": [
+        2.4656751884287106e-07,
+        0.014503879318947173,
+        2.46659963106053e-07,
+        0.014503879031936548
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_48_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 4.92333185775351e-07,
+      "support_plane_upper_bound_m": 7.066698507972834e-07,
+      "upper_minus_depth_m": 2.1433666502193235e-07,
+      "reciprocal_point_error_m": 9.025567921437775e-11,
+      "midpoint_inside_margins_m": [
+        2.46659963106053e-07,
+        0.014503879031936548,
+        2.4656751884287106e-07,
+        0.014503879318947173
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_64_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 5.368449933484953e-07,
+      "support_plane_upper_bound_m": 5.583318843540956e-07,
+      "upper_minus_depth_m": 2.1486891005600278e-08,
+      "reciprocal_point_error_m": 2.448079948379284e-10,
+      "midpoint_inside_margins_m": [
+        2.693494451041535e-07,
+        0.001456081618342854,
+        2.6772728476754173e-07,
+        0.00011616781419945127
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_64_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 5.368449933484953e-07,
+      "support_plane_upper_bound_m": 5.583318843540956e-07,
+      "upper_minus_depth_m": 2.1486891005600278e-08,
+      "reciprocal_point_error_m": 2.448079948379284e-10,
+      "midpoint_inside_margins_m": [
+        2.6772728476754173e-07,
+        0.00011616781419945127,
+        2.693494451041535e-07,
+        0.001456081618342854
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_8_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 5.011982011637883e-07,
+      "support_plane_upper_bound_m": 6.98820597918974e-07,
+      "upper_minus_depth_m": 1.9762239675518573e-07,
+      "reciprocal_point_error_m": 3.8965831046688534e-10,
+      "midpoint_inside_margins_m": [
+        2.5071460132411114e-07,
+        0.0014335727012652708,
+        2.496057607231754e-07,
+        0.006435365030050901
+      ]
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_8_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 5.011982011637883e-07,
+      "support_plane_upper_bound_m": 6.98820597918974e-07,
+      "upper_minus_depth_m": 1.9762239675518573e-07,
+      "reciprocal_point_error_m": 3.8965831046688534e-10,
+      "midpoint_inside_margins_m": [
+        2.496057607231754e-07,
+        0.006435365030050901,
+        2.5071460132411114e-07,
+        0.0014335727012652708
+      ]
+    }
+  ],
+  "geometry_change": "On unresolved query, use identical MPR/EPA/GJK with A/B exchanged and reverse its normal/witness assignment. Unresolved is retained if both fail.",
+  "tolerances_unchanged": true,
+  "input_sha256": "d9bc66d555be329e359077249689fa1a7623a47b43187eb8f5b15704b7c6242d",
+  "source_sha256": "7a0144ef7d4f225417727fd7842250d312a666d782c67e76d1c178c7c5108a10",
+  "scope": "Isolated native Metal geometry queries, not a completed simulation."
+}

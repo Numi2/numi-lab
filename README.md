@@ -449,3 +449,13 @@ remain subject to their respective copyrights and licenses.
 ## dVRK PSM in Numi Lab
 
 ![dVRK PSM in a Numi Lab surgical scene](docs/media/numi-lab-dvrk-psm-high-quality.png)
+
+## Thin plastic bag, coins and Franka pickup
+
+[![Eight-second native Metal bag simulation](docs/media/plastic-bag-franka-approved.gif)](https://github.com/Numi2/numi-lab/blob/numisolver/docs/media/plastic-bag-franka-approved-8s.mp4)
+
+**[Watch the full normal-speed video](docs/media/plastic-bag-franka-approved-8s.mp4)** · [Side view](docs/media/plastic-bag-franka-approved-side-8s.mp4)
+
+A 75 µm flexible pouch with ten thin metal coins is dropped, picked up at its opening corner by finite Franka fingertip contacts, then released onto the table. The eight-second run contains 1,921 native Metal states at 240 Hz; videos sample those states at 30 fps. Blender provides the presentation render and does not simulate the motion.
+
+[Preserved solver, measurements and limitations](examples/plastic_bag_franka/approved_20261024) · [Complete source, checkpoint and replay archive](https://github.com/Numi2/numi-lab/releases/tag/plastic-bag-franka-approved-2026-10-24)

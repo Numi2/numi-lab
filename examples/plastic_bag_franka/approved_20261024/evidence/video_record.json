@@ -1,0 +1,23 @@
+{
+  "normal_speed": true,
+  "native_hz": 240,
+  "duration_s": 8,
+  "video_fps": 30,
+  "end_native_state_included": true,
+  "video_sha256": "ac63d5478b7985b2af9ff0fd3d2846dc7f4705c43d54c9bbe1eda236e3b09b41",
+  "trajectory_sha256": "e492e1d54813ef6200ffcdde65bcb53333d439b68ece47182b2d021ec45e4199",
+  "decode_pass": true,
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "r_frame_rate": "30/1",
+        "nb_frames": "241"
+      }
+    ],
+    "format": {
+      "duration": "8.033333"
+    }
+  }
+}

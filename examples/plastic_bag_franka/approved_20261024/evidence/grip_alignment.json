@@ -1,0 +1,32 @@
+{
+  "states": 1921,
+  "through_s": 8,
+  "contact_point_samples": 787,
+  "first_contact_s": 2.94166666667,
+  "last_contact_s": 6.21666666667,
+  "max_physical_to_rendered_inner_face_center_error_m": 1.6553290908438716e-08,
+  "max_inner_half_gap_error_m": 9.263150801963604e-10,
+  "max_contact_point_outside_actual_fingertip_box_m": 0,
+  "max_point_distance_to_its_active_inner_face_m": 3.74912848051345e-05,
+  "max_unsaturated_pad_spring_equilibrium_residual_m": 1.9913198519201793e-08,
+  "saturated_pad_node_samples": 0,
+  "maximum_per_jaw_normal_force_N": 4.54034838025,
+  "no_grip_force_during_first_drop": true,
+  "no_extensions": true,
+  "all_forces_at_visible_stock_jaws": true,
+  "limits": [
+    "Fingertips use authored planar compliant rubber boxes.",
+    "Arm follows prescribed joint positions; no motor dynamics or full robot mesh contact.",
+    "This checks pose/contact placement, not force calibration."
+  ],
+  "authored_fk_center_consistency_error_m": 1.1443916996305594e-16,
+  "max_physical_input_normal_error": 9.579956362384255e-08,
+  "physical_input": "/Users/home/Documents/Codex/2026-10-21/i-wa/work/plastic_bag_franka_contact_finish_20261024/grip.csv",
+  "physical_input_sha256": "6f0f4041beab9803d5a71f2f85a28aa9f71e146bab10a0dae04300e337df764e",
+  "physical_input_precision": "Native path reader casts CSV pose fields to FP32; the exported forces and contact points come from the GPU contact buffer.",
+  "force_channel_to_articulated_body": {
+    "left_normal_N": 10,
+    "right_normal_N": 9
+  },
+  "normal_force_definition": "Legacy channel names denote negative-normal and positive-normal planes respectively. Values are position contact multipliers divided by dt squared; velocity impulses act at the same recorded nodes."
+}
