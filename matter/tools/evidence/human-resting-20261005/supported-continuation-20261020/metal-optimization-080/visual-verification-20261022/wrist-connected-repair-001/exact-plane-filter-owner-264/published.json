@@ -1,0 +1,12 @@
+{
+  "commit": "fe5197162ce783f4134cf75ab21233de9e4ae5dc",
+  "parent": "845b93be91e3de84807b2be2c246a7e140a5851c",
+  "normal_head": "2d6aedd424035372058b1be79dc57a7e27348b78",
+  "normal_index_sha256": "2eca6d498c86ab958cd115a928502f7b2b857955fcab3f0f7a02cc851cd4becb",
+  "files": {
+    "src/numilab_human/cardiac_cavity_intersections.py": "207236eb886e921b21ff281f44637140ea4bf9438b27561954dfe9528be71d27",
+    "tests/test_cardiac_cavity_exact_plane_filter.py": "d1a33e14c3f378f7771419443bbb46fca5a613917338b8447c3b932e437c1134"
+  },
+  "pushed": true,
+  "validation": "40 existing predicate tests,9 cache tests,7 exact filter parity tests; one real full-report matched replay; source fixture unavailable and not claimed"
+}

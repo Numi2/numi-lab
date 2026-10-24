@@ -1,0 +1,12 @@
+test_degenerate_remains_rejected (test_exact_plane_filter264.ExactPlaneFilterTests.test_degenerate_remains_rejected) ... ok
+test_duplicates_disjoint_ids_and_inconsistent_shared_positions (test_exact_plane_filter264.ExactPlaneFilterTests.test_duplicates_disjoint_ids_and_inconsistent_shared_positions) ... ok
+test_exact_nearly_coplanar_huge_translation_and_rational (test_exact_plane_filter264.ExactPlaneFilterTests.test_exact_nearly_coplanar_huge_translation_and_rational) ... ok
+test_float_inputs_retain_exact_original_path (test_exact_plane_filter264.ExactPlaneFilterTests.test_float_inputs_retain_exact_original_path) ... ok
+test_random_indexed_records_match_full_predicate (test_exact_plane_filter264.ExactPlaneFilterTests.test_random_indexed_records_match_full_predicate) ... ok
+test_shared_edge_planes_and_coplanar_overlap (test_exact_plane_filter264.ExactPlaneFilterTests.test_shared_edge_planes_and_coplanar_overlap) ... ok
+test_shared_vertex_separation_and_nonlocal_crossings (test_exact_plane_filter264.ExactPlaneFilterTests.test_shared_vertex_separation_and_nonlocal_crossings) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.073s
+
+OK

@@ -1,0 +1,145 @@
+{
+  "schema": "numi.human.exact-self-audit-parity-replay.v1",
+  "inputs": {
+    "candidate": "0de586c667f5ba6155364d95efa3ab20250c31d41ef807f62d6d8d868cb2c305",
+    "pose": "8d1ea7d2767fd359ec8dd0c8dc750a438c7438a3e7f094a3addbbadc770ec899",
+    "before_predicates": "6f04ec7b129f47e810e75262f9f3ad3be0159bbe13dc2611a96e27141132b0fc",
+    "after_predicates": "207236eb886e921b21ff281f44637140ea4bf9438b27561954dfe9528be71d27",
+    "runner": "6b19ce626fb18912ac97eac66b5cb53fca6064ff1c86062730e5b32225db21bb"
+  },
+  "world_float32_sha256": "77cc7062f8aa41d10df2f8ddba864008ba5196c821202afeb3691557c783bfb3",
+  "face_count": 108987,
+  "timing_seconds": {
+    "before": 34.52981091698166,
+    "after": 8.661248999997042
+  },
+  "whole_report_exactly_equal": true,
+  "report": {
+    "triangle_pairs": [
+      [
+        15485,
+        19438
+      ],
+      [
+        15485,
+        19439
+      ],
+      [
+        15486,
+        19438
+      ],
+      [
+        15486,
+        19439
+      ],
+      [
+        15487,
+        19439
+      ],
+      [
+        21765,
+        21787
+      ],
+      [
+        21765,
+        21788
+      ],
+      [
+        21766,
+        21788
+      ],
+      [
+        72751,
+        74836
+      ],
+      [
+        72752,
+        74835
+      ],
+      [
+        72752,
+        74836
+      ],
+      [
+        73681,
+        79913
+      ],
+      [
+        73681,
+        79914
+      ],
+      [
+        73683,
+        79913
+      ],
+      [
+        73683,
+        79914
+      ],
+      [
+        73812,
+        74832
+      ],
+      [
+        73812,
+        74833
+      ],
+      [
+        73812,
+        74834
+      ],
+      [
+        73813,
+        74833
+      ],
+      [
+        73813,
+        74834
+      ],
+      [
+        74815,
+        74825
+      ],
+      [
+        74815,
+        74828
+      ],
+      [
+        74817,
+        74828
+      ],
+      [
+        74818,
+        74825
+      ],
+      [
+        74818,
+        74828
+      ],
+      [
+        75640,
+        79225
+      ],
+      [
+        75641,
+        79224
+      ],
+      [
+        75641,
+        79225
+      ],
+      [
+        75642,
+        79224
+      ],
+      [
+        75642,
+        79225
+      ]
+    ],
+    "count": 30,
+    "aabb_candidate_pairs": 724619,
+    "allowed_shared_vertex_or_edge_pairs": 681865
+  },
+  "scope": "One matched static source-audit comparison, not simulation throughput or anatomy admission."
+}

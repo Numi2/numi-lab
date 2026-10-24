@@ -1,0 +1,15 @@
+test_jacobian_matches_finite_difference_in_mm_variables (test_human_skin_contact_plane_orientation.ContactPlaneRowTests.test_jacobian_matches_finite_difference_in_mm_variables) ... ok
+test_pair_reversal_preserves_gap_and_jacobian (test_human_skin_contact_plane_orientation.ContactPlaneRowTests.test_pair_reversal_preserves_gap_and_jacobian) ... ok
+test_unsorted_face_ids_are_canonicalized (test_human_skin_contact_plane_orientation.ContactPlaneRowTests.test_unsorted_face_ids_are_canonicalized) ... ok
+test_coplanar_disjoint_requires_in_plane_axis (test_human_skin_finite_triangle_planes.FiniteTrianglePlaneTests.test_coplanar_disjoint_requires_in_plane_axis) ... ok
+test_crossing_support_constraints_cover_all_corners (test_human_skin_finite_triangle_planes.FiniteTrianglePlaneTests.test_crossing_support_constraints_cover_all_corners) ... ok
+test_invalid_input_rejected (test_human_skin_finite_triangle_planes.FiniteTrianglePlaneTests.test_invalid_input_rejected) ... ok
+test_permutation_and_rigid_transform_invariance (test_human_skin_finite_triangle_planes.FiniteTrianglePlaneTests.test_permutation_and_rigid_transform_invariance) ... ok
+test_preferred_solid_outward_hemisphere (test_human_skin_finite_triangle_planes.FiniteTrianglePlaneTests.test_preferred_solid_outward_hemisphere) ... ok
+test_random_support_bounds_and_reversal (test_human_skin_finite_triangle_planes.FiniteTrianglePlaneTests.test_random_support_bounds_and_reversal) ... ok
+test_tiny_valid_triangle_is_not_rejected_by_absolute_tolerance (test_human_skin_finite_triangle_planes.FiniteTrianglePlaneTests.test_tiny_valid_triangle_is_not_rejected_by_absolute_tolerance) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.070s
+
+OK

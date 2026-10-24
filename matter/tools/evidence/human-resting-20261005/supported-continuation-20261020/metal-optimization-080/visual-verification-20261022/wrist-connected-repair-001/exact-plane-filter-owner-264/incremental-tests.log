@@ -1,0 +1,14 @@
+test_added_removed_faces (test_incremental_exact_253.IncrementalExactTests.test_added_removed_faces) ... ok
+test_adjacency_identity_change_requires_recheck (test_incremental_exact_253.IncrementalExactTests.test_adjacency_identity_change_requires_recheck) ... ok
+test_empty_surfaces (test_incremental_exact_253.IncrementalExactTests.test_empty_surfaces) ... ok
+test_identical_geometry_skips_narrow_phase (test_incremental_exact_253.IncrementalExactTests.test_identical_geometry_skips_narrow_phase) ... ok
+test_new_and_resolved_crossings_match_full (test_incremental_exact_253.IncrementalExactTests.test_new_and_resolved_crossings_match_full) ... ok
+test_rejects_stale_bounds_duplicate_ids_and_inconsistent_shared_coordinates (test_incremental_exact_253.IncrementalExactTests.test_rejects_stale_bounds_duplicate_ids_and_inconsistent_shared_coordinates) ... ok
+test_repeated_local_updates_match_full_on_dense_pair_set (test_incremental_exact_253.IncrementalExactTests.test_repeated_local_updates_match_full_on_dense_pair_set) ... ok
+test_snapshot_is_deeply_immutable (test_incremental_exact_253.IncrementalExactTests.test_snapshot_is_deeply_immutable) ... ok
+test_untouched_crossing_is_retained (test_incremental_exact_253.IncrementalExactTests.test_untouched_crossing_is_retained) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.011s
+
+OK
