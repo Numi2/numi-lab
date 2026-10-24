@@ -1,0 +1,4 @@
+{
+  "status": "INVALID_CONSTRUCTION_PLANE_ADMISSION_RETAINED_AS_RUN",
+  "error": "Global textual replacement accidentally admitted not_queried endpoints into construction-plane generator. Segment hit witnesses remain unchanged, all 74 generated planes are UNVERIFIED and must not be used. Corrected rerun in depth009-exact-material-routes-012."
+}

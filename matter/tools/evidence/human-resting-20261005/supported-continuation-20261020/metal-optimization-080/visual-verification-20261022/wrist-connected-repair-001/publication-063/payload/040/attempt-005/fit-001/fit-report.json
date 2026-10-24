@@ -1,0 +1,331 @@
+{
+  "budget_s": 60.0,
+  "candidate_sha256": "e3d27eef70be890df6fd3511a96a456a4659b4a9ea6771a4645d5db1ce258acd",
+  "elapsed_s": 61.56488050008193,
+  "final_global_F32": {
+    "J_above_2.5": 18,
+    "J_below_.35": 13,
+    "Piola_above_5MPa": 0,
+    "W_above_5MPa": 1,
+    "baseline_fat_volume_m3": 0.011652342870565699,
+    "baseline_skin_volume_m3": 0.0034525709483045623,
+    "fat_fixed_density_mass_kg": 10.54756832856167,
+    "fat_volume_m3": 0.011719520365068523,
+    "fat_volume_relative_change": 0.005765149142025194,
+    "float32_nonpositive": 2,
+    "invalid_NH_cells": 2,
+    "layer_fat_floor_violations": 0,
+    "layer_skin_floor_violations": 0,
+    "max_J": 863.8298366918862,
+    "max_W_Jm3": 403498414.5299563,
+    "max_abs_P_Pa": 4991326.539589512,
+    "max_displacement_from_baseline_m": 0.009663533268209054,
+    "min_J": -0.662918747611813,
+    "min_fat_mm": 0.5050744682764339,
+    "min_q": -0.020328183532173017,
+    "min_route_or_O12_gap_m": -0.00021912854618141853,
+    "min_skin_mm": 0.5002264353692146,
+    "moved_nodes": 747,
+    "q_below_1.25e-5": 2,
+    "q_below_1e-5": 2,
+    "route_or_O12_violations": 7,
+    "skin_fixed_density_mass_kg": 3.4709907367965487,
+    "skin_volume_m3": 0.003470990736796549,
+    "skin_volume_relative_change": 0.005335093403665336
+  },
+  "helper_reference_sha256": "be542474fff9f758db6bb1c37370135080cfed43ab7e0d3e0b9c9a6c2ba1e801",
+  "inputs_sha256": {
+    "bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "bone-clearance-fit-040-shared-columns/attempt-005/retry-input.npz": "0087f9df72efdd3c475700b8e71d9f0b20a7f6dc50b92f1f98f28d3f664cb0f7",
+    "bone-clearance-fit-040-shared-columns/column_fit_support.py": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16",
+    "bone-clearance-fit-040-shared-columns/neo_hookean_fit_support.py": "815c256524045d3dbe7cbb23ef8c0fe7d9a02beb327fb929c67bb4bccb9096f5",
+    "native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+    "root-reference-relative-j-062/source-preflight/identity-reference-points.csv": "b536764105cd9e9cb0c7936f5a4409896e8370ac150214a63a362158af5783ed"
+  },
+  "limitations": [
+    "Offline analytic Neo-Hookean energy/first-Piola are conservative descriptor prefilters; native mixed First-Piola semantics must still be checked by the owning solver.",
+    "Construction-plane and O12 checks are necessary conditions only; fresh exact all-bank solid containment, self/retained surface, detailed-source transfer, ancestry/mass ownership, and native J/stress/energy gates remain mandatory.",
+    "Fixed-density mass values are geometric diagnostics, not a conserved material ledger.",
+    "No candidate admission or physical qualification is claimed."
+  ],
+  "regions": [
+    {
+      "class_gates": {
+        "J_max_fat": {
+          "minimum": -1615493257.5712957,
+          "violations": 66
+        },
+        "J_max_skin": {
+          "minimum": -1977311343.4616408,
+          "violations": 66
+        },
+        "J_min_fat": {
+          "minimum": 871045992.2879245,
+          "violations": 0
+        },
+        "J_min_skin": {
+          "minimum": 859556684.034687,
+          "violations": 0
+        },
+        "P_slack_MPa": {
+          "minimum": 2.1450643295305283,
+          "violations": 0
+        },
+        "W_slack_MPa": {
+          "minimum": -5.825376138091088e-10,
+          "violations": 0
+        },
+        "q_slack": {
+          "minimum": 0.00012205477773734823,
+          "violations": 0
+        },
+        "route_slack_mm": {
+          "minimum": 2.944866572818228e-14,
+          "violations": 0
+        }
+      },
+      "columns": 4,
+      "elapsed_s": 0.06575558299664408,
+      "endpoint_rows": 1,
+      "iterations": 11,
+      "jacobian_fd_max_abs_error": 0.1703048951313871,
+      "max_correction_mm": 0.6750326074639241,
+      "region": 4,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 132
+    },
+    {
+      "class_gates": {
+        "J_max_fat": {
+          "minimum": -2494999997.500049,
+          "violations": 126
+        },
+        "J_max_skin": {
+          "minimum": -2494999997.5154767,
+          "violations": 126
+        },
+        "J_min_fat": {
+          "minimum": 354999999.63751286,
+          "violations": 0
+        },
+        "J_min_skin": {
+          "minimum": 359008610.8945851,
+          "violations": 0
+        },
+        "P_slack_MPa": {
+          "minimum": 2.268236130475998e-11,
+          "violations": 0
+        },
+        "W_slack_MPa": {
+          "minimum": 3.1074422181930097,
+          "violations": 0
+        },
+        "q_slack": {
+          "minimum": 2.4429866898442956e-05,
+          "violations": 0
+        },
+        "route_slack_mm": {
+          "minimum": 2.235711615838909e-13,
+          "violations": 0
+        }
+      },
+      "columns": 12,
+      "elapsed_s": 0.22674633306451142,
+      "endpoint_rows": 1,
+      "iterations": 26,
+      "jacobian_fd_max_abs_error": 1.4213820035413605e-06,
+      "max_correction_mm": 3.923176397538682,
+      "region": 5,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 252
+    },
+    {
+      "class_gates": {
+        "J_max_fat": {
+          "minimum": -2494999997.5049534,
+          "violations": 159
+        },
+        "J_max_skin": {
+          "minimum": -2050597799.4729562,
+          "violations": 159
+        },
+        "J_min_fat": {
+          "minimum": 354999999.617964,
+          "violations": 0
+        },
+        "J_min_skin": {
+          "minimum": 429010760.6612205,
+          "violations": 0
+        },
+        "P_slack_MPa": {
+          "minimum": 3.650683739756135,
+          "violations": 0
+        },
+        "W_slack_MPa": {
+          "minimum": 3.0629996917898543,
+          "violations": 0
+        },
+        "q_slack": {
+          "minimum": 2.3856275018677133e-05,
+          "violations": 0
+        },
+        "route_slack_mm": {
+          "minimum": -1.3877787807814457e-14,
+          "violations": 0
+        }
+      },
+      "columns": 14,
+      "elapsed_s": 0.11180879094172269,
+      "endpoint_rows": 1,
+      "iterations": 13,
+      "jacobian_fd_max_abs_error": 2.4032911824178882e-05,
+      "max_correction_mm": 2.187044423727834,
+      "region": 3,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 318
+    },
+    {
+      "class_gates": {
+        "J_max_fat": {
+          "minimum": -2494999997.510185,
+          "violations": 177
+        },
+        "J_max_skin": {
+          "minimum": -2494999997.5163293,
+          "violations": 177
+        },
+        "J_min_fat": {
+          "minimum": 354999999.62885433,
+          "violations": 0
+        },
+        "J_min_skin": {
+          "minimum": 354999999.6285575,
+          "violations": 0
+        },
+        "P_slack_MPa": {
+          "minimum": 1.6050240290975473,
+          "violations": 0
+        },
+        "W_slack_MPa": {
+          "minimum": 3.108624975614229,
+          "violations": 0
+        },
+        "q_slack": {
+          "minimum": 2.3998167412922748e-05,
+          "violations": 0
+        },
+        "route_slack_mm": {
+          "minimum": -5.244416012573083e-13,
+          "violations": 0
+        }
+      },
+      "columns": 17,
+      "elapsed_s": 0.1792089999653399,
+      "endpoint_rows": 4,
+      "iterations": 19,
+      "jacobian_fd_max_abs_error": 4.715868442417559e-06,
+      "max_correction_mm": 8.263754405053428,
+      "region": 2,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 354
+    },
+    {
+      "class_gates": {
+        "J_max_fat": {
+          "minimum": -863848646106.9409,
+          "violations": 215
+        },
+        "J_max_skin": {
+          "minimum": -2699617089.8438625,
+          "violations": 216
+        },
+        "J_min_fat": {
+          "minimum": -391970163.37617207,
+          "violations": 1
+        },
+        "J_min_skin": {
+          "minimum": 376778008.86745113,
+          "violations": 0
+        },
+        "P_slack_MPa": {
+          "minimum": 2.7119024752101,
+          "violations": 0
+        },
+        "W_slack_MPa": {
+          "minimum": -398.51778327910506,
+          "violations": 1
+        },
+        "q_slack": {
+          "minimum": -0.02033958204776632,
+          "violations": 1
+        },
+        "route_slack_mm": {
+          "minimum": -0.21913924008243893,
+          "violations": 7
+        }
+      },
+      "columns": 25,
+      "elapsed_s": 3.2934317500330508,
+      "endpoint_rows": 16,
+      "iterations": 35,
+      "jacobian_fd_max_abs_error": 5.2322375267976895e-05,
+      "max_correction_mm": 5.204545186374728,
+      "region": 1,
+      "solver_message": "Iteration limit reached",
+      "solver_success": false,
+      "tets": 432
+    },
+    {
+      "class_gates": {
+        "J_max_fat": {
+          "minimum": -20699872043.19825,
+          "violations": 1136
+        },
+        "J_max_skin": {
+          "minimum": -2742744091.176329,
+          "violations": 1137
+        },
+        "J_min_fat": {
+          "minimum": -662928982.8256832,
+          "violations": 1
+        },
+        "J_min_skin": {
+          "minimum": 374735279.89686996,
+          "violations": 0
+        },
+        "P_slack_MPa": {
+          "minimum": 0.12444221613506042,
+          "violations": 0
+        },
+        "W_slack_MPa": {
+          "minimum": 0.6327113164502922,
+          "violations": 0
+        },
+        "q_slack": {
+          "minimum": -0.009071887288296217,
+          "violations": 1
+        },
+        "route_slack_mm": {
+          "minimum": -3.0384425531160275e-10,
+          "violations": 0
+        }
+      },
+      "columns": 167,
+      "elapsed_s": 57.45401020802092,
+      "endpoint_rows": 106,
+      "iterations": 6,
+      "jacobian_fd_max_abs_error": 7.326984670069536e-05,
+      "max_correction_mm": 9.663533153917212,
+      "region": 0,
+      "solver_message": "bounded total budget",
+      "solver_success": false,
+      "tets": 2274
+    }
+  ],
+  "schema": "numi.human.shared-column-attempt-005.neo-hookean-prefilter.v1",
+  "status": "candidate_rejected_or_incomplete"
+}

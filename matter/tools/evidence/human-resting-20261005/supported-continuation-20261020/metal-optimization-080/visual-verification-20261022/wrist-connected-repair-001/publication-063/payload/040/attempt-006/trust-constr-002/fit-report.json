@@ -1,0 +1,213 @@
+{
+  "budget_s": 48.0,
+  "budget_stop": false,
+  "candidate_sha256": "b8cda6874827946bd9fe8f6f673a894255f151d9b5763ea0b3a704d67dee13be",
+  "column_fit_helper_sha256": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16",
+  "constraints": "same q/J/W/max-active-|P|/route constraints and scales as attempt-005",
+  "elapsed_s": 9.404538958100602,
+  "global_emitted_F32": {
+    "J_above_2.5": 16,
+    "J_below_.35": 10,
+    "Piola_above_5MPa": 3,
+    "W_above_5MPa": 1,
+    "baseline_fat_volume_m3": 0.011652342870565699,
+    "baseline_skin_volume_m3": 0.0034525709483045623,
+    "fat_fixed_density_mass_kg": 10.540483315241978,
+    "fat_floor_violations": 0,
+    "fat_volume_m3": 0.011711648128046643,
+    "fat_volume_relative_change": 0.005089556507194004,
+    "float32_nonpositive": 4,
+    "invalid_NH_cells": 4,
+    "max_J": 9.845442358831612,
+    "max_W_Jm3": 6562412.175612562,
+    "max_abs_P_Pa": 39051753.86954777,
+    "max_displacement_from_baseline_m": 0.01226484307822999,
+    "min_J": -3.884219291662556,
+    "min_fat_mm": 0.5050744682764339,
+    "min_q": -0.004365721614603986,
+    "min_route_or_O12_gap_m": -0.0037104745009078634,
+    "min_skin_mm": 0.5002264353692146,
+    "moved_nodes": 747,
+    "q_below_1.25e-5": 6,
+    "q_below_1e-5": 6,
+    "route_or_O12_violations": 103,
+    "skin_fixed_density_mass_kg": 3.4686003879650134,
+    "skin_floor_violations": 0,
+    "skin_volume_m3": 0.0034686003879650135,
+    "skin_volume_relative_change": 0.004642754602428356
+  },
+  "input_pins": {
+    "neo_hookean_helper": {
+      "actual_sha256": "815c256524045d3dbe7cbb23ef8c0fe7d9a02beb327fb929c67bb4bccb9096f5",
+      "expected_sha256": "815c256524045d3dbe7cbb23ef8c0fe7d9a02beb327fb929c67bb4bccb9096f5",
+      "pass": true,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/neo_hookean_fit_support.py"
+    },
+    "partial_candidate": {
+      "actual_sha256": "e8590f311129b2156d8dd131744c8b94ebf7356d7cdbd6010bf94faa9e372102",
+      "expected_sha256": "e8590f311129b2156d8dd131744c8b94ebf7356d7cdbd6010bf94faa9e372102",
+      "pass": true,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-005/fit-001/partial-regions-002-005.npz"
+    },
+    "runner_005": {
+      "actual_sha256": "bb2235ac0356158560645951ce638a393a978b48881789ef8c06946fbb9fba0b",
+      "expected_sha256": "bb2235ac0356158560645951ce638a393a978b48881789ef8c06946fbb9fba0b",
+      "pass": true,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/run_attempt_005.py"
+    },
+    "trust_input": {
+      "actual_sha256": "462f125a7945515b7879d8ab7a7bf1a7183de2e098d2ab323ef70ceb46753e00",
+      "expected_sha256": "462f125a7945515b7879d8ab7a7bf1a7183de2e098d2ab323ef70ceb46753e00",
+      "pass": true,
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-005/trust-constr-input-001.npz"
+    }
+  },
+  "limitations": [
+    "Offline candidate fit only; no physical or native admission.",
+    "Regions 0 and 1 only were retried; other regions remain the pinned pass-only partial candidate.",
+    "All-bank containment, exact surface, topology, transfer/mass ownership, and native solver gates remain outstanding."
+  ],
+  "max_displacement_mm": 15.0,
+  "maxiter_per_region": 40,
+  "neo_hookean_helper_sha256": "815c256524045d3dbe7cbb23ef8c0fe7d9a02beb327fb929c67bb4bccb9096f5",
+  "objective": "sum regional Neo-Hookean element joules / start-energy scale + 1e-5 squared translation anchor from pass-only partial; energy Jacobian is analytic",
+  "partial_candidate_sha256": "e8590f311129b2156d8dd131744c8b94ebf7356d7cdbd6010bf94faa9e372102",
+  "reference_csv_sha256": "b536764105cd9e9cb0c7936f5a4409896e8370ac150214a63a362158af5783ed",
+  "regions": [
+    {
+      "accepted_checkpoint": "solver_terminal",
+      "anchor_weight": 1e-05,
+      "best_constraint_violation": 9.63212886147116,
+      "best_feasible_objective": null,
+      "class_gates": {
+        "J_max_fat": {
+          "minimum": -4.224223504878437,
+          "violations": 12
+        },
+        "J_max_skin": {
+          "minimum": -0.5965648431805493,
+          "violations": 2
+        },
+        "J_min_fat": {
+          "minimum": -4.239273790440557,
+          "violations": 8
+        },
+        "J_min_skin": {
+          "minimum": 0.07094744007242898,
+          "violations": 0
+        },
+        "P_slack_MPa": {
+          "minimum": -35.291282556079516,
+          "violations": 3
+        },
+        "W_slack_MPa": {
+          "minimum": -1.5722621056968233,
+          "violations": 1
+        },
+        "q_slack": {
+          "minimum": -0.004378282869253949,
+          "violations": 4
+        },
+        "route_slack_mm": {
+          "minimum": -1.5272047067688628,
+          "violations": 89
+        }
+      },
+      "columns": 167,
+      "constraint_jacobian_fd_abs_error": 7.326984670069536e-05,
+      "constraint_min_scaled": -437.82828692538163,
+      "energy_scale_j": 0.048618327416673476,
+      "iterations": 40,
+      "jacobian_nnz": 90948,
+      "jacobian_shape": [
+        11476,
+        501
+      ],
+      "max_translation_change_mm": 12.264844359686025,
+      "objective_final": 20.807466097763367,
+      "objective_jacobian_fd_abs_error": 8.172892240025111e-11,
+      "objective_start_energy_j": 0.048618327416673476,
+      "region": 0,
+      "region_elapsed_s": 8.414752540993504,
+      "regional_J_recomputed_from_metre_coordinates": true,
+      "route_endpoint_rows": 106,
+      "solver_error": null,
+      "solver_message": "The maximum number of function evaluations is exceeded.",
+      "solver_status": 0,
+      "solver_success": false,
+      "terminal_solver_objective": 20.807466097763367,
+      "tets": 2274,
+      "total_elapsed_s": 8.453373916097917
+    },
+    {
+      "accepted_checkpoint": "solver_terminal",
+      "anchor_weight": 1e-05,
+      "best_constraint_violation": 5.406305602815012,
+      "best_feasible_objective": null,
+      "class_gates": {
+        "J_max_fat": {
+          "minimum": -7.3381518419283,
+          "violations": 2
+        },
+        "J_max_skin": {
+          "minimum": 1.0890037446543792,
+          "violations": 0
+        },
+        "J_min_fat": {
+          "minimum": -2.0501377276513644,
+          "violations": 2
+        },
+        "J_min_skin": {
+          "minimum": 0.46323779539921617,
+          "violations": 0
+        },
+        "P_slack_MPa": {
+          "minimum": 4.6646820123545565,
+          "violations": 0
+        },
+        "W_slack_MPa": {
+          "minimum": 2.0025180835097984,
+          "violations": 0
+        },
+        "q_slack": {
+          "minimum": -0.0003065346314434842,
+          "violations": 2
+        },
+        "route_slack_mm": {
+          "minimum": -3.710465730910706,
+          "violations": 14
+        }
+      },
+      "columns": 25,
+      "constraint_jacobian_fd_abs_error": 5.2322375267976895e-05,
+      "constraint_min_scaled": -733.81518419283,
+      "energy_scale_j": 1e-09,
+      "iterations": 40,
+      "jacobian_nnz": 13728,
+      "jacobian_shape": [
+        2176,
+        75
+      ],
+      "max_translation_change_mm": 1.7935578797989193,
+      "objective_final": 1464482.5993357701,
+      "objective_jacobian_fd_abs_error": 1.8221196995682476e-08,
+      "objective_start_energy_j": 1.6126014634076136e-10,
+      "region": 1,
+      "region_elapsed_s": 0.8388290420407429,
+      "regional_J_recomputed_from_metre_coordinates": true,
+      "route_endpoint_rows": 16,
+      "solver_error": null,
+      "solver_message": "The maximum number of function evaluations is exceeded.",
+      "solver_status": 0,
+      "solver_success": false,
+      "terminal_solver_objective": 1464482.5993357701,
+      "tets": 432,
+      "total_elapsed_s": 9.301955791073851
+    }
+  ],
+  "runner_005_sha256": "bb2235ac0356158560645951ce638a393a978b48881789ef8c06946fbb9fba0b",
+  "schema": "numi.human.shared-column-attempt-006.sparse-trust-constr.v1",
+  "source_retry_input_sha256": "0087f9df72efdd3c475700b8e71d9f0b20a7f6dc50b92f1f98f28d3f664cb0f7",
+  "status": "candidate_rejected_or_incomplete",
+  "trust_input_metadata_sha256": "265337b3c648a80ee083a4541a387647b5760706bb2bb2fa175b08de5e5fda11"
+}

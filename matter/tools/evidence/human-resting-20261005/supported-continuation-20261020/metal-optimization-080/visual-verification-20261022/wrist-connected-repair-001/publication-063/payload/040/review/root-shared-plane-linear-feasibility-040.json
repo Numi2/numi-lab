@@ -1,0 +1,10 @@
+{
+  "status": "LINEAR_SHARED_COLUMN_PLANE_FEASIBILITY_ONLY",
+  "columns": 127,
+  "infeasible": 0,
+  "over_15mm_axis_bound": 0,
+  "maximum_required_inf_translation_mm": 7.294177568463966,
+  "witnesses": [],
+  "input_sha256": "b248bf0ee823ca1ab3b6d787fe3d427d8e080dcd528a57421235c7d6e1ed375e",
+  "limitation": "Necessary plane/bound feasibility only; ignores cell/material and solid geometry constraints."
+}

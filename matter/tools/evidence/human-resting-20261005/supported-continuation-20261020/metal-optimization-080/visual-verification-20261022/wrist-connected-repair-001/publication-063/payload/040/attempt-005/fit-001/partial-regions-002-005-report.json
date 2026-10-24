@@ -1,0 +1,23 @@
+{
+  "candidate_sha256": "e8590f311129b2156d8dd131744c8b94ebf7356d7cdbd6010bf94faa9e372102",
+  "checkpoint_sha256": "890fee0286f6d3f37b511838cd4c5367ce1055c7ff831bc5320c25a524ac652b",
+  "global_F32": {
+    "J_above_2.5": 0,
+    "J_below_.35": 0,
+    "P_above_5e6": 0,
+    "W_above_5e6": 0,
+    "maxJ": 2.4998927942767795,
+    "maxW": 4989933.319850964,
+    "maxabsP": 4991326.539589512,
+    "minJ": 0.35336343476965226,
+    "min_gap_m": -0.009632128861471159,
+    "minq": 2.6016244143916926e-05,
+    "nonpositive": 0,
+    "q_below_1e-5": 0,
+    "route_O12_violations": 121
+  },
+  "limitation": "Partial region fit only; no all-bank, surface self/retained, detailed-source, mass, or native verification.",
+  "retry_input_sha256": "0087f9df72efdd3c475700b8e71d9f0b20a7f6dc50b92f1f98f28d3f664cb0f7",
+  "schema": "attempt-005-partial-component-candidate.v1",
+  "status": "partial construction candidate; regions 2-5 only; regions 0-1 restored to pass-only start; not admitted"
+}

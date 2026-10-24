@@ -1,0 +1,136 @@
+{
+  "elapsed_s": 9.303760791081004,
+  "regions": [
+    {
+      "accepted_checkpoint": "solver_terminal",
+      "anchor_weight": 1e-05,
+      "best_constraint_violation": 9.63212886147116,
+      "best_feasible_objective": null,
+      "class_gates": {
+        "J_max_fat": {
+          "minimum": -4.224223504878437,
+          "violations": 12
+        },
+        "J_max_skin": {
+          "minimum": -0.5965648431805493,
+          "violations": 2
+        },
+        "J_min_fat": {
+          "minimum": -4.239273790440557,
+          "violations": 8
+        },
+        "J_min_skin": {
+          "minimum": 0.07094744007242898,
+          "violations": 0
+        },
+        "P_slack_MPa": {
+          "minimum": -35.291282556079516,
+          "violations": 3
+        },
+        "W_slack_MPa": {
+          "minimum": -1.5722621056968233,
+          "violations": 1
+        },
+        "q_slack": {
+          "minimum": -0.004378282869253949,
+          "violations": 4
+        },
+        "route_slack_mm": {
+          "minimum": -1.5272047067688628,
+          "violations": 89
+        }
+      },
+      "columns": 167,
+      "constraint_jacobian_fd_abs_error": 7.326984670069536e-05,
+      "constraint_min_scaled": -437.82828692538163,
+      "energy_scale_j": 0.048618327416673476,
+      "iterations": 40,
+      "jacobian_nnz": 90948,
+      "jacobian_shape": [
+        11476,
+        501
+      ],
+      "max_translation_change_mm": 12.264844359686025,
+      "objective_final": 20.807466097763367,
+      "objective_jacobian_fd_abs_error": 8.172892240025111e-11,
+      "objective_start_energy_j": 0.048618327416673476,
+      "region": 0,
+      "region_elapsed_s": 8.414752540993504,
+      "regional_J_recomputed_from_metre_coordinates": true,
+      "route_endpoint_rows": 106,
+      "solver_error": null,
+      "solver_message": "The maximum number of function evaluations is exceeded.",
+      "solver_status": 0,
+      "solver_success": false,
+      "terminal_solver_objective": 20.807466097763367,
+      "tets": 2274,
+      "total_elapsed_s": 8.453373916097917
+    },
+    {
+      "accepted_checkpoint": "solver_terminal",
+      "anchor_weight": 1e-05,
+      "best_constraint_violation": 5.406305602815012,
+      "best_feasible_objective": null,
+      "class_gates": {
+        "J_max_fat": {
+          "minimum": -7.3381518419283,
+          "violations": 2
+        },
+        "J_max_skin": {
+          "minimum": 1.0890037446543792,
+          "violations": 0
+        },
+        "J_min_fat": {
+          "minimum": -2.0501377276513644,
+          "violations": 2
+        },
+        "J_min_skin": {
+          "minimum": 0.46323779539921617,
+          "violations": 0
+        },
+        "P_slack_MPa": {
+          "minimum": 4.6646820123545565,
+          "violations": 0
+        },
+        "W_slack_MPa": {
+          "minimum": 2.0025180835097984,
+          "violations": 0
+        },
+        "q_slack": {
+          "minimum": -0.0003065346314434842,
+          "violations": 2
+        },
+        "route_slack_mm": {
+          "minimum": -3.710465730910706,
+          "violations": 14
+        }
+      },
+      "columns": 25,
+      "constraint_jacobian_fd_abs_error": 5.2322375267976895e-05,
+      "constraint_min_scaled": -733.81518419283,
+      "energy_scale_j": 1e-09,
+      "iterations": 40,
+      "jacobian_nnz": 13728,
+      "jacobian_shape": [
+        2176,
+        75
+      ],
+      "max_translation_change_mm": 1.7935578797989193,
+      "objective_final": 1464482.5993357701,
+      "objective_jacobian_fd_abs_error": 1.8221196995682476e-08,
+      "objective_start_energy_j": 1.6126014634076136e-10,
+      "region": 1,
+      "region_elapsed_s": 0.8388290420407429,
+      "regional_J_recomputed_from_metre_coordinates": true,
+      "route_endpoint_rows": 16,
+      "solver_error": null,
+      "solver_message": "The maximum number of function evaluations is exceeded.",
+      "solver_status": 0,
+      "solver_success": false,
+      "terminal_solver_objective": 1464482.5993357701,
+      "tets": 432,
+      "total_elapsed_s": 9.301955791073851
+    }
+  ],
+  "status": "running"
+}

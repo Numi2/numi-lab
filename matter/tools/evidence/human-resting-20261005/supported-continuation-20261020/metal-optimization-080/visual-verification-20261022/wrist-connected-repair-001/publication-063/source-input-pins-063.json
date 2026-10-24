@@ -1,0 +1,236 @@
+{
+  "attempt_005": {
+    "candidate_sha256": "e3d27eef70be890df6fd3511a96a456a4659b4a9ea6771a4645d5db1ce258acd",
+    "corrected_si_audit_status": "derived_SI_regional_recomputation",
+    "corrected_si_regional_audit_sha256": "1d4de572a1e588cabd8f93149249b00cc129ffa94bd772831ec39b0641e7185e",
+    "elapsed_s": 61.56488050008193,
+    "fit_report_sha256": "6eb449cb6f260832a1d30ec543326d791b85012992f5e1fe723dd31e6374dafc",
+    "input_hashes_from_as_run_report": {
+      "bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+      "bone-clearance-fit-040-shared-columns/attempt-005/retry-input.npz": "0087f9df72efdd3c475700b8e71d9f0b20a7f6dc50b92f1f98f28d3f664cb0f7",
+      "bone-clearance-fit-040-shared-columns/column_fit_support.py": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16",
+      "bone-clearance-fit-040-shared-columns/neo_hookean_fit_support.py": "815c256524045d3dbe7cbb23ef8c0fe7d9a02beb327fb929c67bb4bccb9096f5",
+      "native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+      "root-reference-relative-j-062/source-preflight/identity-reference-points.csv": "b536764105cd9e9cb0c7936f5a4409896e8370ac150214a63a362158af5783ed"
+    },
+    "partial_regions_candidate_sha256": "e8590f311129b2156d8dd131744c8b94ebf7356d7cdbd6010bf94faa9e372102",
+    "partial_regions_report_sha256": "a6b575c6aea9aa5ad48613501d0b1f09f43a07ffb5638fbd6228f5c2d07f61da",
+    "regional_j_correction": "The as-run regional J summary used millimetres against metre reference coordinates; corrected-regional-audit.json is the derived post-solve SI recomputation and leaves the as-run report unchanged.",
+    "regional_report_values": {
+      "max_W_Jm3": 403498414.5299563,
+      "max_abs_P_Pa": 4991326.539589512,
+      "max_displacement_m": 0.009663533268209054,
+      "maximum_J": 863.8298366918862,
+      "minimum_J": -0.662918747611813,
+      "minimum_fat_mm": 0.5050744682764339,
+      "minimum_gap_m": -0.00021912854618141853,
+      "minimum_q": -0.020328183532173017,
+      "minimum_skin_mm": 0.5002264353692146,
+      "nonpositive_tets": 2,
+      "route_or_O12_violations": 7
+    },
+    "status": "candidate_rejected_or_incomplete"
+  },
+  "attempt_005_independent_partial_geometry": {
+    "candidate_sha256": "e8590f311129b2156d8dd131744c8b94ebf7356d7cdbd6010bf94faa9e372102",
+    "report_sha256": "562b68a3281c88e4e449f17ed2a723dd7187df7aeadaced68a15e3165f34bd04",
+    "status": "INDEPENDENT_GEOMETRY_DIAGNOSTICS_NOT_NATIVE_ADMISSION"
+  },
+  "attempt_005_partial": {
+    "candidate_sha256": "e8590f311129b2156d8dd131744c8b94ebf7356d7cdbd6010bf94faa9e372102",
+    "report_sha256": "a6b575c6aea9aa5ad48613501d0b1f09f43a07ffb5638fbd6228f5c2d07f61da",
+    "status": "partial construction candidate; regions 2-5 only; regions 0-1 restored to pass-only start; not admitted"
+  },
+  "attempt_006": {
+    "candidate_sha256": "b8cda6874827946bd9fe8f6f673a894255f151d9b5763ea0b3a704d67dee13be",
+    "elapsed_s": 9.404538958100602,
+    "fit_report_sha256": "902c39f7780c89242a13d709f3372492c456a59c064cf5343c190db93fe41022",
+    "independent_audit_status": "INDEPENDENT_GEOMETRY_DIAGNOSTICS_NOT_NATIVE_ADMISSION",
+    "independent_geometry_report_sha256": "274d0feb27f032a9ccc2120b242bf9560072990951b5e8b200b0bd9a7864df29",
+    "independent_metrics": {
+      "maximum_fat_stretch": 231.59295028671661,
+      "nonpositive_cells": 4,
+      "normalized_quality_minimum": -0.00436572161460398,
+      "note": "Independent geometry diagnostics; zero outer-face flips does not imply valid volume elements.",
+      "outer_faces_flipped_vs_baseline": 0,
+      "quality_below_1e_5": 6
+    },
+    "inputs_sha256_from_as_run_report": {
+      "neo_hookean_helper": {
+        "actual_sha256": "815c256524045d3dbe7cbb23ef8c0fe7d9a02beb327fb929c67bb4bccb9096f5",
+        "expected_sha256": "815c256524045d3dbe7cbb23ef8c0fe7d9a02beb327fb929c67bb4bccb9096f5",
+        "pass": true,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/neo_hookean_fit_support.py"
+      },
+      "partial_candidate": {
+        "actual_sha256": "e8590f311129b2156d8dd131744c8b94ebf7356d7cdbd6010bf94faa9e372102",
+        "expected_sha256": "e8590f311129b2156d8dd131744c8b94ebf7356d7cdbd6010bf94faa9e372102",
+        "pass": true,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-005/fit-001/partial-regions-002-005.npz"
+      },
+      "runner_005": {
+        "actual_sha256": "bb2235ac0356158560645951ce638a393a978b48881789ef8c06946fbb9fba0b",
+        "expected_sha256": "bb2235ac0356158560645951ce638a393a978b48881789ef8c06946fbb9fba0b",
+        "pass": true,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/run_attempt_005.py"
+      },
+      "trust_input": {
+        "actual_sha256": "462f125a7945515b7879d8ab7a7bf1a7183de2e098d2ab323ef70ceb46753e00",
+        "expected_sha256": "462f125a7945515b7879d8ab7a7bf1a7183de2e098d2ab323ef70ceb46753e00",
+        "pass": true,
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-005/trust-constr-input-001.npz"
+      }
+    },
+    "preflight_failure_sha256": "14521b0b7ab5f630a65fa37d947486a531881a924fc5ccd6b5d59520b91ba8a3",
+    "status": "candidate_rejected_or_incomplete"
+  },
+  "base_origin_main": "f29a1f2d25d351423d03ef0954120eaae11f5517",
+  "baseline_route_audit_010": {
+    "bank_query_frames_residual_m": 6.216025217875883e-17,
+    "columns_with_hits": 189,
+    "hit_segment_bank_pairs": 192,
+    "limits": [
+      "This audit concerns O-I and I-D route segments against the listed registered bank triangles only.",
+      "No whole skin-surface, skin/fat layer, FEM solid, mass, material, retained-motion, or native accepted-step qualification is implied.",
+      "The 005/006/008/009 fitted candidates were not rerun through the 010 exact route audit in this package."
+    ],
+    "proper_hits": 256,
+    "report_sha256": "643fce684ea584ae8b1304f4b56c3c2db29200a8e5fa8b8a07582c319e4a9147",
+    "source_sha256": "9296539b83f67f1285125f93526bb7e45b889f01b844aa28e1cdd294b506f47c",
+    "status": "EXACT_NATIVE_GEOMETRY_ROUTE_WITNESSES_NOT_FULL_TISSUE_CLEARANCE"
+  },
+  "candidate_009_exact_route_audit": {
+    "column_bank_groups_with_hits": 74,
+    "columns_with_hits": 73,
+    "construction_planes": 0,
+    "hit_segment_bank_pairs": 74,
+    "not_full_skin_or_FEM_clearance": true,
+    "proper_hits": 76,
+    "report_sha256": "33b7b9f51a0bdb4d5258f45383393842078823b6744e046c92e6ea50174cca4f",
+    "source_sha256": "42716f751c6da98ab99aed87eae64e95494f3b0c71e01732b31ae1e0435dbe10",
+    "uncertainties": 0,
+    "versus_baseline_010_hit_segment_bank_pairs": 192,
+    "versus_baseline_010_proper_hits": 256
+  },
+  "candidate_009_route_audit_011_failed_as_run": {
+    "correction_sha256": "7206369eae66b6464ebc3ce7df143b16b556f03f36b9affe0d6d8c84e0357c25",
+    "report_sha256": "16b9482c6dfe8cc2c9f7e6dbe6df12a97e66a4c95383e4fd4d7a85392f38e8a9",
+    "source_sha256": "33cac2d0bed9da18a8cda26a4a38fdf97fa70604b64388a2aea2fb8172feb826",
+    "status": "INVALID_ENDPOINT_DERIVED_PLAN_REPORT_SUPERSEDED_BY_012"
+  },
+  "candidate_014_baseline_depth_transition": {
+    "O12_residuals": 12,
+    "admitted": false,
+    "candidate_sha256": "f5b0e33933ddf0867715a877ade75279659034362ae8f586435ccbf00609f42c",
+    "minimum_q": 1.2325646074736365e-05,
+    "nonpositive_tets": 0,
+    "outer_nodes_moved": 0,
+    "q_below_1e_5": 0,
+    "report_sha256": "876410148b781aaa69f17f9350a6292f8007d108c748e8d53a652ca85da392ae",
+    "route_plane_residuals": 0,
+    "source_sha256": "dd6498e207f9c701c72a6752ae80bae31a357a552fb6ff72b8d63889b6eebe6e"
+  },
+  "candidate_015_exact_route_requery": {
+    "O12_residuals_remain": 12,
+    "columns_with_hits": 8,
+    "exact_route_improvement_scope_only": true,
+    "hit_segment_bank_pairs": 8,
+    "not_full_skin_or_FEM_clearance": true,
+    "proper_hits": 8,
+    "report_sha256": "1d0b631edbc042c61d79858e07f8fc6e02cd8b2bc6f7b5501a2b1e7ba7c18c71",
+    "source_sha256": "a88be51378772d37c25ca872ce948b2b9bdb427a18bd70f1e24a446acda7b452",
+    "versus_baseline_010_hit_segment_bank_pairs": 192,
+    "versus_baseline_010_proper_hits": 256
+  },
+  "external_inputs": {
+    "attempt004_fit_input": {
+      "inherited_path": "../publication-062/payload/040/attempt-004/fit-input.npz",
+      "sha256": "b248bf0ee823ca1ab3b6d787fe3d427d8e080dcd528a57421235c7d6e1ed375e"
+    },
+    "baseline_fem_nodes": {
+      "copied": false,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/source-preflight-003/initial-skin-fem-nodes.csv",
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b"
+    },
+    "identity_reference_points": {
+      "copied": false,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root-reference-relative-j-062/source-preflight/identity-reference-points.csv",
+      "sha256": "b536764105cd9e9cb0c7936f5a4409896e8370ac150214a63a362158af5783ed"
+    },
+    "physical_cell_candidate_026": {
+      "inherited_path": "../publication-062/payload/040/inputs/physical-cell-quality-candidate-026.npz",
+      "sha256": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc"
+    },
+    "world_bone_constraints_033": {
+      "inherited_path": "../publication-062/payload/040/inputs/world-bone-clearance-constraints-033.npz",
+      "sha256": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf"
+    }
+  },
+  "inherited_from_publication_062": {
+    "existing_support_tests": "16 and 5 tests passed on numi.local under Python 3.13.16 / pytest 9.1.1; see publication-062/test-environment-062.json",
+    "neo_hookean_helper_sha256": "815c256524045d3dbe7cbb23ef8c0fe7d9a02beb327fb929c67bb4bccb9096f5",
+    "publication_manifest_path": "../publication-062/publication-manifest-062.json",
+    "publication_manifest_sha256": "47be5754b19d519487572f6ab3523c404c9058730ec558b88b30c92d9b03eece",
+    "shared_column_helper_sha256": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16"
+  },
+  "large_registered_csv_duplicated": false,
+  "layer_depth_008": {
+    "O12_violations": 12,
+    "candidate_sha256": "f458224e2ca1b5c761706c01b739a5f4bd388b081364ea6f365501a6231b5b1a",
+    "elapsed_s": 0.059831749997101724,
+    "infeasible_columns": [
+      215,
+      217,
+      219,
+      231,
+      2261,
+      2262
+    ],
+    "minimum_gap_m": -0.007848067844414167,
+    "minimum_q": -0.015545607387693209,
+    "nonpositive_tets": 1,
+    "q_below_1e_5": 1,
+    "report_sha256": "896b13402d1c7c26d0cf656b617b4e2ad8cdcf713363cec64cbf9a95c250c0f3",
+    "route_violations": 10,
+    "source_sha256": "ae6411af9793fca908ae600c99513814b146514a9048a246da07b9857fa27315",
+    "status": "DIAGNOSTIC_NOT_ADMITTED",
+    "witnesses_sha256": "3eda04737a21e827433cb6dfe67a4ccdb3bc01b554d99c43c5627f2d181363ba"
+  },
+  "layer_depth_009": {
+    "O12_violations": 12,
+    "candidate_sha256": "c2e9576a62688249a31f40771032fec6610e5e2ea32848c16f093ddd8d5c8914",
+    "elapsed_s": 0.025791209074668586,
+    "iterations": 5,
+    "limitations": [
+      "Old reference J/material/mass/ancestry not qualified.",
+      "Remaining O12 and route planes fail; no full solid clearance or native admission."
+    ],
+    "minimum_q": 1.2471470901520404e-05,
+    "nonpositive_tets": 0,
+    "outer_nodes_moved": 0,
+    "q_below_1e_5": 0,
+    "report_sha256": "3df8c3d4d151b4bf65b9dd2188199e15f3acdf8eebd4b0ba5f9c25bd7dded940",
+    "route_violations": 10,
+    "solver_success": true,
+    "source_sha256": "4aded3fd9d0a701cf71d4f849463427486e342541cbe68266600c66d19c92480",
+    "status": "LOCAL_DEPTH_TRANSITION_DIAGNOSTIC_NOT_ADMITTED"
+  },
+  "layer_escape_side_diagnostic_sha256": "df13cb53fd51d7a9aeb63261d12ddcbbc0de9e018841f2420cb688b84957a22e",
+  "native_or_physical_admission": false,
+  "publication": "063",
+  "route_plane_interpretation_correction": {
+    "037002_candidate_sha256": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b",
+    "041_report_sha256": "c631c390dc8c0acb5f5673d2d7c3efddcbe8d312d41427167eaf272d42fb8124",
+    "041_script_sha256": "f077e764f4062481d2a376abd0c718ef398f4ea33fde854768c42d72f76c7476",
+    "baseline_035_route_report_sha256": "643fce684ea584ae8b1304f4b56c3c2db29200a8e5fa8b8a07582c319e4a9147",
+    "baseline_035_route_script_sha256": "9296539b83f67f1285125f93526bb7e45b889f01b844aa28e1cdd294b506f47c",
+    "baseline_columns_with_hits": 189,
+    "baseline_exact_proper_hits": 256,
+    "baseline_exact_route_requery_included": true,
+    "baseline_exact_segment_hits": 192,
+    "candidate_005_006_008_009_postfit_exact_route_gate_included": false,
+    "sidecar_sha256": "37f7f38462ad69e8dd482f3891b56d6d9a8e6397186ba400fb6af53ca06aca12"
+  },
+  "schema": "numi.human.publication-source-pins.v1",
+  "test_suite_reuse": "The shared-column and Neo-Hookean support suites are unchanged from publication-062; hashes and actual Python 3.13.16 execution receipt are inherited rather than duplicated."
+}

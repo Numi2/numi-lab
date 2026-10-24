@@ -1,0 +1,44 @@
+{
+  "status": "LOCAL_DEPTH_TRANSITION_DIAGNOSTIC_NOT_ADMITTED",
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-004/fit-input.npz": "b248bf0ee823ca1ab3b6d787fe3d427d8e080dcd528a57421235c7d6e1ed375e",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/layer-depth-feasibility-008/candidate.npz": "f458224e2ca1b5c761706c01b739a5f4bd388b081364ea6f365501a6231b5b1a"
+  },
+  "candidate_sha256": "c2e9576a62688249a31f40771032fec6610e5e2ea32848c16f093ddd8d5c8914",
+  "elapsed_s": 0.025791209074668586,
+  "solver_success": true,
+  "message": "Optimization terminated successfully",
+  "iterations": 5,
+  "columns": [
+    1218,
+    1219,
+    1248,
+    1283,
+    1286
+  ],
+  "touched_cells": 39,
+  "fractions_before": [
+    0.9999999999999998,
+    1.0,
+    0.6006557896707346,
+    0.2973460369116241,
+    0.9999999999999999
+  ],
+  "fractions_after": [
+    1.0,
+    0.735941310532804,
+    0.6006557940775857,
+    0.29734559491372037,
+    1.0
+  ],
+  "nonpositive_tets": 0,
+  "q_below_1e_5": 0,
+  "minimum_q": 1.2471470901520404e-05,
+  "route_constraint_violations_F32": 10,
+  "O12_violations_F32": 12,
+  "outer_nodes_moved": 0,
+  "limitations": [
+    "Old reference J/material/mass/ancestry not qualified.",
+    "Remaining O12 and route planes fail; no full solid clearance or native admission."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "host": "numi.local",
+  "inherited_test_receipt": "../publication-062/test-environment-062.json",
+  "inherited_test_receipt_sha256": "c975bc20ce8b9faa34dd181d8fdfdee6754070faeda3bfe508f14a545a52edcb",
+  "note": "16 shared-column and 5 Neo-Hookean support tests were run on numi.local under this environment in publication 062; not rerun for 063.",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "publication_verifier": {
+    "command": [
+      "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-063/verify_publication_063.py"
+    ],
+    "returncode": 0,
+    "stdout": "{\"payload_bytes\": 6100762, \"payload_files\": 60, \"python\": \"3.13.16\", \"status\": \"PASS_CONTENT_AND_REJECTION_SEMANTICS\"}",
+    "tests_run_for_fits": false
+  },
+  "pytest_version": "pytest 9.1.1",
+  "python_executable": "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+  "python_executable_sha256": "c2d16fe8332897836229aff307d1d9cb32432d405fa889f342ffe1830b1608c5",
+  "python_version": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "schema": "numi.human.publication-063-test-environment.v1",
+  "tests_run_for_063": false
+}

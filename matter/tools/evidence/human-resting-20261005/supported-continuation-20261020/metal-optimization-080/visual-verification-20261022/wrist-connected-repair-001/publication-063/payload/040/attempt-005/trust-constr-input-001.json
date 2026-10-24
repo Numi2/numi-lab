@@ -1,0 +1,43 @@
+{
+  "builder": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/run_attempt_005.py",
+    "sha256": "bb2235ac0356158560645951ce638a393a978b48881789ef8c06946fbb9fba0b"
+  },
+  "limitations": [
+    "Regions 0 and 1 only are included for sparse trust-constr retry. The starting geometry uses successful expanded-region 2-5 translations and restores regions 0-1 to pass-only start. This is not a clearance-qualified candidate.",
+    "All 28632 physical tetrahedra and all 137 route/O12 endpoint constraints remain required for final global checks."
+  ],
+  "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-005/trust-constr-input-001.npz",
+  "region_lengths": {
+    "columns": [
+      167,
+      25
+    ],
+    "outer_faces": [
+      379,
+      72
+    ],
+    "route_endpoint_rows": [
+      106,
+      16
+    ],
+    "tetrahedra": [
+      2274,
+      432
+    ]
+  },
+  "regions": [
+    "region0",
+    "region1"
+  ],
+  "schema": "attempt-005-trust-constr-retry-input.v1",
+  "sha256": "462f125a7945515b7879d8ab7a7bf1a7183de2e098d2ab323ef70ceb46753e00",
+  "source_retry_input": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-005/retry-input.npz",
+    "sha256": "0087f9df72efdd3c475700b8e71d9f0b20a7f6dc50b92f1f98f28d3f664cb0f7"
+  },
+  "starting_candidate": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-005/fit-001/partial-regions-002-005.npz",
+    "sha256": "e8590f311129b2156d8dd131744c8b94ebf7356d7cdbd6010bf94faa9e372102"
+  }
+}

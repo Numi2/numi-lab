@@ -1,0 +1,258 @@
+{
+  "candidate_sha256": "e3d27eef70be890df6fd3511a96a456a4659b4a9ea6771a4645d5db1ce258acd",
+  "fit_report_sha256": "6eb449cb6f260832a1d30ec543326d791b85012992f5e1fe723dd31e6374dafc",
+  "global": {
+    "J_above_2.5": 18,
+    "J_below_.35": 13,
+    "P_above_5MPa": 0,
+    "W_above_5MPa": 1,
+    "endpoint_violations": 7,
+    "max_J": 863.8298366918862,
+    "max_W_Jm3": 403498414.5299563,
+    "max_abs_P_Pa": 4991326.539589512,
+    "min_J": -0.662918747611813,
+    "min_endpoint_gap_m": -0.00021912854618141853,
+    "min_q": -0.020328183532173017,
+    "q_below_1.25e-5": 2,
+    "q_below_1e-5": 2
+  },
+  "note": "Corrected regional post-solve audit: fit-001s as-run per-region J summary mistakenly used millimetres against metre reference coordinates. The solvers constraint callback used metres. These values recompute J from saved F32 points in metres; the as-run report is preserved unchanged.",
+  "regions": [
+    {
+      "J_above_2.5": 11,
+      "J_below_.35": 8,
+      "J_max": 20.699938070016522,
+      "J_min": -0.662918747611813,
+      "P_above_5MPa": 0,
+      "W_above_5MPa": 0,
+      "W_max_Jm3": 4357471.263565056,
+      "max_abs_P_Pa": 4865604.2288177805,
+      "q_below_1.25e-5": 1,
+      "q_below_1e-5": 1,
+      "q_min": -0.009059261015560708,
+      "region": 0,
+      "route_gap_min_m": -6.628823189970133e-09,
+      "route_or_O12_endpoint_rows": 106,
+      "route_violations": 0,
+      "tet_count": 2274,
+      "worst_J_high_global_tet_rows": [
+        28513,
+        27580,
+        27158,
+        13630,
+        26447
+      ],
+      "worst_W_global_tet_rows": [
+        13630,
+        28513,
+        26618,
+        27892,
+        27947
+      ],
+      "worst_q_global_tet_rows": [
+        27191,
+        27374,
+        28419,
+        28023,
+        13707
+      ]
+    },
+    {
+      "J_above_2.5": 7,
+      "J_below_.35": 5,
+      "J_max": 863.8298366918862,
+      "J_min": -0.3919897632229771,
+      "P_above_5MPa": 0,
+      "W_above_5MPa": 1,
+      "W_max_Jm3": 403498414.5299563,
+      "max_abs_P_Pa": 2278112.1976756114,
+      "q_below_1.25e-5": 1,
+      "q_below_1e-5": 1,
+      "q_min": -0.020328183532173017,
+      "region": 1,
+      "route_gap_min_m": -0.00021912854618141853,
+      "route_or_O12_endpoint_rows": 16,
+      "route_violations": 7,
+      "tet_count": 432,
+      "worst_J_high_global_tet_rows": [
+        15530,
+        15529,
+        15602,
+        15675,
+        1286
+      ],
+      "worst_W_global_tet_rows": [
+        15530,
+        15595,
+        1361,
+        1359,
+        1286
+      ],
+      "worst_q_global_tet_rows": [
+        15581,
+        15950,
+        15941,
+        15945,
+        15521
+      ]
+    },
+    {
+      "J_above_2.5": 0,
+      "J_below_.35": 0,
+      "J_max": 2.4950424891912184,
+      "J_min": 0.35484609922359434,
+      "P_above_5MPa": 0,
+      "W_above_5MPa": 0,
+      "W_max_Jm3": 1881384.056065301,
+      "max_abs_P_Pa": 3384983.344174206,
+      "q_below_1.25e-5": 0,
+      "q_below_1e-5": 0,
+      "q_min": 3.648228483529917e-05,
+      "region": 2,
+      "route_gap_min_m": -8.88447181136029e-09,
+      "route_or_O12_endpoint_rows": 4,
+      "route_violations": 0,
+      "tet_count": 354,
+      "worst_J_high_global_tet_rows": [
+        11828,
+        26063,
+        11787,
+        26195,
+        11884
+      ],
+      "worst_W_global_tet_rows": [
+        11828,
+        11787,
+        11754,
+        11884,
+        11827
+      ],
+      "worst_q_global_tet_rows": [
+        26151,
+        11754,
+        11756,
+        25669,
+        11755
+      ]
+    },
+    {
+      "J_above_2.5": 0,
+      "J_below_.35": 0,
+      "J_max": 2.4950169522619214,
+      "J_min": 0.35453757635956934,
+      "P_above_5MPa": 0,
+      "W_above_5MPa": 0,
+      "W_max_Jm3": 1926996.6356293228,
+      "max_abs_P_Pa": 1339360.5719537574,
+      "q_below_1.25e-5": 0,
+      "q_below_1e-5": 0,
+      "q_min": 3.659997504429634e-05,
+      "region": 3,
+      "route_gap_min_m": 1.0452533064062605e-08,
+      "route_or_O12_endpoint_rows": 1,
+      "route_violations": 0,
+      "tet_count": 318,
+      "worst_J_high_global_tet_rows": [
+        25252,
+        25512,
+        25400,
+        11196,
+        25214
+      ],
+      "worst_W_global_tet_rows": [
+        25222,
+        25210,
+        11208,
+        25252,
+        11196
+      ],
+      "worst_q_global_tet_rows": [
+        25210,
+        25222,
+        25536,
+        11220,
+        25459
+      ]
+    },
+    {
+      "J_above_2.5": 0,
+      "J_below_.35": 0,
+      "J_max": 1.9773360370507445,
+      "J_min": 0.8595575423244872,
+      "P_above_5MPa": 0,
+      "W_above_5MPa": 0,
+      "W_max_Jm3": 4989933.319850964,
+      "max_abs_P_Pa": 2844971.1736622774,
+      "q_below_1.25e-5": 0,
+      "q_below_1e-5": 0,
+      "q_min": 0.00013455773997754681,
+      "region": 4,
+      "route_gap_min_m": 4.232644519068713e-09,
+      "route_or_O12_endpoint_rows": 1,
+      "route_violations": 0,
+      "tet_count": 132,
+      "worst_J_high_global_tet_rows": [
+        2133,
+        2135,
+        16449,
+        16445,
+        16423
+      ],
+      "worst_W_global_tet_rows": [
+        2107,
+        2133,
+        16423,
+        2135,
+        2128
+      ],
+      "worst_q_global_tet_rows": [
+        16444,
+        2128,
+        16445,
+        2107,
+        16423
+      ]
+    },
+    {
+      "J_above_2.5": 0,
+      "J_below_.35": 0,
+      "J_max": 2.495734580610781,
+      "J_min": 0.35336343476965226,
+      "P_above_5MPa": 0,
+      "W_above_5MPa": 0,
+      "W_max_Jm3": 1882385.6286211251,
+      "max_abs_P_Pa": 4991326.539589512,
+      "q_below_1.25e-5": 0,
+      "q_below_1e-5": 0,
+      "q_min": 3.675962473649685e-05,
+      "region": 5,
+      "route_gap_min_m": -5.246479319375244e-08,
+      "route_or_O12_endpoint_rows": 1,
+      "route_violations": 0,
+      "tet_count": 252,
+      "worst_J_high_global_tet_rows": [
+        18815,
+        18809,
+        4255,
+        18582,
+        18583
+      ],
+      "worst_W_global_tet_rows": [
+        4255,
+        18571,
+        4493,
+        4299,
+        4297
+      ],
+      "worst_q_global_tet_rows": [
+        18636,
+        18997,
+        4493,
+        18635,
+        18571
+      ]
+    }
+  ],
+  "retry_input_sha256": "0087f9df72efdd3c475700b8e71d9f0b20a7f6dc50b92f1f98f28d3f664cb0f7",
+  "schema": "attempt-005-fit-001-corrected-units-audit.v1"
+}

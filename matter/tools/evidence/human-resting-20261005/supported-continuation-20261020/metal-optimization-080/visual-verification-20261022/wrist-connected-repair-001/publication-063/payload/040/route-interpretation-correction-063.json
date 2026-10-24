@@ -1,0 +1,159 @@
+{
+  "baseline_derived_depth_candidates": {
+    "013": {
+      "O12_residuals": 12,
+      "candidate_sha256": "49d547b86102dffb2c7d24ce6975a45f5c7e381f84b39fa1735ceb4f6c506512",
+      "construction": "Uses true baseline 010 exact route planes; fixed outer layer; local depth changes.",
+      "minimum_q": -0.010863665876258768,
+      "nonpositive_tets": 2,
+      "q_below_1e_5": 2,
+      "report_sha256": "f7e1dcac086f3776c1a78506cf4cfb67efe8f3eb5c34ad955439cc41193b1898",
+      "route_plane_residuals": 0,
+      "source": "040/baseline-depth/root_probe_baseline_layer_depth_013.py",
+      "source_sha256": "3fba1f4b70e3a9e0a9d3c926114453dd39270c086ba013c28fa22aca07758f61",
+      "status": "DIAGNOSTIC_NOT_ADMITTED"
+    },
+    "014": {
+      "O12_residuals": 12,
+      "baseline_route_plane_residuals": 0,
+      "candidate_sha256": "f5b0e33933ddf0867715a877ade75279659034362ae8f586435ccbf00609f42c",
+      "iterations": 4,
+      "limits": [
+        "Old reference J/material/mass/ancestry not qualified.",
+        "O12 planes remain uncorrected; no full solid clearance or native admission."
+      ],
+      "minimum_q": 1.2325646074736365e-05,
+      "nonpositive_tets": 0,
+      "outer_nodes_moved": 0,
+      "q_below_1e_5": 0,
+      "report_sha256": "876410148b781aaa69f17f9350a6292f8007d108c748e8d53a652ca85da392ae",
+      "source": "040/baseline-depth/root_repair_baseline_depth_transition_014.py",
+      "source_sha256": "dd6498e207f9c701c72a6752ae80bae31a357a552fb6ff72b8d63889b6eebe6e",
+      "status": "LOCAL_DEPTH_TRANSITION_DIAGNOSTIC_NOT_ADMITTED",
+      "touched_cells": 167
+    },
+    "015_exact_route_requery": {
+      "column_bank_groups_with_hits": 8,
+      "columns_with_hits": 8,
+      "construction_planes": 0,
+      "counts": {
+        "AABB_candidate_segment_bank_pairs": 1607,
+        "boundary_hits": 0,
+        "coplanar_candidates": 0,
+        "exact_candidates": 8,
+        "hit_segment_bank_pairs": 8,
+        "proper_hits": 8,
+        "total_column_bank_pairs": 446035,
+        "total_segment_bank_pairs": 892070,
+        "triangle_AABB_candidates": 1285
+      },
+      "elapsed_seconds": 1.3484484170330688,
+      "limits": [
+        "Exact rational signs certify narrowphase candidates; this is not a layer-triangle/tet clearance test.",
+        "Coplanar and first-boundary feature hits remain explicit unresolved witnesses.",
+        "Construction planes are local exterior-side choices, not a physical force/state owner.",
+        "No endpoint parity or containment query for 014. All segment hits are exact narrowphase witnesses; no construction planes inferred from unqueried endpoints. No native physical step or anatomy acceptance."
+      ],
+      "report_sha256": "1d0b631edbc042c61d79858e07f8fc6e02cd8b2bc6f7b5501a2b1e7ba7c18c71",
+      "source": "040/baseline-depth/root_run_depth014_material_routes_015.py",
+      "source_sha256": "a88be51378772d37c25ca872ce948b2b9bdb427a18bd70f1e24a446acda7b452",
+      "status": "EXACT_NATIVE_GEOMETRY_ROUTE_WITNESSES_NOT_FULL_TISSUE_CLEARANCE",
+      "uncertainties": 0
+    }
+  },
+  "baseline_route_audit": {
+    "candidate": "registered baseline 035 O/I/D node set in the pinned native query frame",
+    "column_bank_groups_with_hits": 191,
+    "columns_with_hits": 189,
+    "construction_planes": 182,
+    "counts": {
+      "AABB_candidate_segment_bank_pairs": 1625,
+      "boundary_hits": 0,
+      "coplanar_candidates": 0,
+      "exact_candidates": 256,
+      "hit_segment_bank_pairs": 192,
+      "proper_hits": 256,
+      "total_column_bank_pairs": 446035,
+      "total_segment_bank_pairs": 892070,
+      "triangle_AABB_candidates": 2695
+    },
+    "native_query_frame_max_error_m": 6.216025217875883e-17,
+    "report": "040/review/baseline-route-report-010.json",
+    "report_sha256": "643fce684ea584ae8b1304f4b56c3c2db29200a8e5fa8b8a07582c319e4a9147",
+    "source": "040/review/root_run_baseline_material_routes_010.py",
+    "source_sha256": "9296539b83f67f1285125f93526bb7e45b889f01b844aa28e1cdd294b506f47c",
+    "status": "EXACT_NATIVE_GEOMETRY_ROUTE_WITNESSES_NOT_FULL_TISSUE_CLEARANCE",
+    "uncertainties": 0
+  },
+  "candidate_005_006_008_postfit_exact_route_gate_included": false,
+  "candidate_009_exact_route_audit": {
+    "column_bank_groups_with_hits": 74,
+    "columns_with_hits": 73,
+    "construction_planes": 0,
+    "counts": {
+      "AABB_candidate_segment_bank_pairs": 1610,
+      "boundary_hits": 0,
+      "coplanar_candidates": 0,
+      "exact_candidates": 76,
+      "hit_segment_bank_pairs": 74,
+      "proper_hits": 76,
+      "total_column_bank_pairs": 446035,
+      "total_segment_bank_pairs": 892070,
+      "triangle_AABB_candidates": 1607
+    },
+    "elapsed_seconds": 1.353071041055955,
+    "limits": [
+      "Exact route-segment versus registered bank triangles only; no endpoint parity/containment queried.",
+      "This does not establish skin-surface or FEM-layer clearance, or native physical admission."
+    ],
+    "report": "040/review/depth009-route-report-012.json",
+    "report_sha256": "33b7b9f51a0bdb4d5258f45383393842078823b6744e046c92e6ea50174cca4f",
+    "source": "040/review/root_run_depth009_material_routes_012.py",
+    "source_sha256": "42716f751c6da98ab99aed87eae64e95494f3b0c71e01732b31ae1e0435dbe10",
+    "status": "EXACT_NATIVE_GEOMETRY_ROUTE_WITNESSES_NOT_FULL_TISSUE_CLEARANCE",
+    "uncertainties": 0
+  },
+  "candidate_009_exact_route_audit_included": true,
+  "candidate_009_route_audit_011_failure": {
+    "as_run_report": "040/review/depth009-route-report-011-as-run.json",
+    "as_run_sha256": "16b9482c6dfe8cc2c9f7e6dbe6df12a97e66a4c95383e4fd4d7a85392f38e8a9",
+    "correction": "040/review/depth009-route-report-011-correction.json",
+    "correction_sha256": "7206369eae66b6464ebc3ce7df143b16b556f03f36b9affe0d6d8c84e0357c25",
+    "meaning": "Preserved failed as-run attempt; it generated planes for unqueried endpoints. Treat those endpoint-derived planes as invalid. The corrected 012 audit has zero inferred planes and zero uncertainty. The local 009 result is superseded in measurement scope by baseline-derived 013/014 and exact 015, but its original route audit remains preserved.",
+    "source": "040/review/root_run_depth009_material_routes_011.py",
+    "source_sha256": "33cac2d0bed9da18a8cda26a4a38fdf97fa70604b64388a2aea2fb8172feb826"
+  },
+  "construction_plane_origin": {
+    "audit_report": "040/review/route-report-041.json",
+    "audit_report_sha256": "c631c390dc8c0acb5f5673d2d7c3efddcbe8d312d41427167eaf272d42fb8124",
+    "audit_source": "040/review/root_run_material_routes_041.py",
+    "audit_source_sha256": "f077e764f4062481d2a376abd0c718ef398f4ea33fde854768c42d72f76c7476",
+    "column_bank_groups_with_hits": 121,
+    "columns_with_hits": 121,
+    "counts": {
+      "AABB_candidate_segment_bank_pairs": 1621,
+      "boundary_hits": 0,
+      "coplanar_candidates": 0,
+      "exact_candidates": 241,
+      "hit_segment_bank_pairs": 121,
+      "proper_hits": 241,
+      "total_column_bank_pairs": 446035,
+      "total_segment_bank_pairs": 892070,
+      "triangle_AABB_candidates": 2859
+    },
+    "proposal": "bone-clearance-fit-037-componentwise-035affine-002/candidate.npz",
+    "sha256": "6f5e6a0c4db952362498f2f3c18d254bc0f349e63c68e4029cb7e2c2d947665b"
+  },
+  "interpretation": "The 005/006 fit family and 008/009 depth trials report residuals to planes derived from 037002. Those values are not exact baseline or post-candidate route-clearance measurements. The separate 010 audit reports exact segment-versus-registered-bank triangle hits for baseline 035; it is not a layer-triangle/tet clearance test and does not audit the fitted candidates.",
+  "limits": [
+    "This audit concerns O-I and I-D route segments against the listed registered bank triangles only.",
+    "No whole skin-surface, skin/fat layer, FEM solid, mass, material, retained-motion, or native accepted-step qualification is implied.",
+    "The 005/006/008/009 fitted candidates were not rerun through the 010 exact route audit in this package."
+  ],
+  "schema": "numi.human.route-constraint-interpretation-correction.v2",
+  "source_helper": {
+    "inherited_from": "../publication-061/payload/039/verification/root_exact_segment_witness.py",
+    "sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2"
+  },
+  "status": "PROVENANCE_CORRECTION_WITH_SEPARATE_BASELINE_ROUTE_AUDIT"
+}

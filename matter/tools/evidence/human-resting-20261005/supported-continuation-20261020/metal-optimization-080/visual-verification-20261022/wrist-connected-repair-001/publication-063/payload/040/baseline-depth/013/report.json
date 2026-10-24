@@ -1,0 +1,3654 @@
+{
+  "schema": "numi.human.local-depth-feasibility.v1",
+  "status": "DIAGNOSTIC_NOT_ADMITTED",
+  "elapsed_s": 0.07218675001058728,
+  "construction": "true baseline010 route planes; fixed outer skin; shorten original O-I and I-D directions independently; maximize retained fractional depths; no old-reference strain constraints",
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-004/fit-input.npz": "b248bf0ee823ca1ab3b6d787fe3d427d8e080dcd528a57421235c7d6e1ed375e",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/baseline-exact-material-routes-010/route-report.json": "643fce684ea584ae8b1304f4b56c3c2db29200a8e5fa8b8a07582c319e4a9147"
+  },
+  "candidate_sha256": "49d547b86102dffb2c7d24ce6975a45f5c7e381f84b39fa1735ceb4f6c506512",
+  "columns": [
+    {
+      "column": 94,
+      "constraints": [
+        0
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507573907605515,
+      "baseline_fat_depth_m": 0.009900631227628708,
+      "fraction_floors": [
+        0.04080371250822452,
+        0.010100366097965547
+      ],
+      "fractions": [
+        1.0,
+        0.7716851364351267
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 257,
+      "constraints": [
+        1
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508009703743034,
+      "baseline_fat_depth_m": 0.009900678944155836,
+      "fraction_floors": [
+        0.04080298694541781,
+        0.010100317419042045
+      ],
+      "fractions": [
+        1.0,
+        0.8156987111868245
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 334,
+      "constraints": [
+        2
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0009386998149818946,
+      "baseline_fat_depth_m": 0.005175808469852362,
+      "fraction_floors": [
+        0.10653032886975565,
+        0.019320653108103217
+      ],
+      "fractions": [
+        1.0,
+        0.6950140945368795
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 348,
+      "constraints": [
+        3
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0018223758115022697,
+      "baseline_fat_depth_m": 0.006481092610787891,
+      "fraction_floors": [
+        0.054873423675199755,
+        0.0154294971550859
+      ],
+      "fractions": [
+        1.0,
+        0.5267027994499273
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 356,
+      "constraints": [
+        4
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024502206756044816,
+      "baseline_fat_depth_m": 0.0037710607941673926,
+      "fraction_floors": [
+        0.040812650466811325,
+        0.026517737437345895
+      ],
+      "fractions": [
+        1.0,
+        0.11411585040388635
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 362,
+      "constraints": [
+        5
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450092996540621,
+      "baseline_fat_depth_m": 0.008148437948113697,
+      "fraction_floors": [
+        0.04081477729261452,
+        0.012272290792022201
+      ],
+      "fractions": [
+        1.0,
+        0.4321554849172656
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 363,
+      "constraints": [
+        6
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024502365576528,
+      "baseline_fat_depth_m": 0.00814980956135562,
+      "fraction_floors": [
+        0.040812385925624604,
+        0.012270225365041076
+      ],
+      "fractions": [
+        0.9860244210243173,
+        0.012270225365041076
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 464,
+      "constraints": [
+        7
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024502624224110514,
+      "baseline_fat_depth_m": 0.007338074904454266,
+      "fraction_floors": [
+        0.040811955113607905,
+        0.013627552362445805
+      ],
+      "fractions": [
+        1.0,
+        0.6523533612449576
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 690,
+      "constraints": [
+        8
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0018530456023477329,
+      "baseline_fat_depth_m": 0.008931770375211276,
+      "fraction_floors": [
+        0.053965212660338255,
+        0.011195988678519354
+      ],
+      "fractions": [
+        1.0,
+        0.4183975821566504
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 728,
+      "constraints": [
+        9
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002317735640573425,
+      "baseline_fat_depth_m": 0.008969954138761659,
+      "fraction_floors": [
+        0.04314555907474386,
+        0.011148329016295888
+      ],
+      "fractions": [
+        1.0,
+        0.8431943032964596
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 761,
+      "constraints": [
+        10
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024517049509031738,
+      "baseline_fat_depth_m": 0.009902265476509709,
+      "fraction_floors": [
+        0.04078794226979123,
+        0.010098699154978363
+      ],
+      "fractions": [
+        1.0,
+        0.9090714757962697
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 777,
+      "constraints": [
+        11
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450864621841173,
+      "baseline_fat_depth_m": 0.00990054154020119,
+      "fraction_floors": [
+        0.040801927250015385,
+        0.010100457595571878
+      ],
+      "fractions": [
+        1.0,
+        0.8313844854030717
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 786,
+      "constraints": [
+        12
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024509602773357775,
+      "baseline_fat_depth_m": 0.009900770731213527,
+      "fraction_floors": [
+        0.04080033484210571,
+        0.01010022378204723
+      ],
+      "fractions": [
+        1.0,
+        0.9108536424386988
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 787,
+      "constraints": [
+        13
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450589065076538,
+      "baseline_fat_depth_m": 0.009037959883360043,
+      "fraction_floors": [
+        0.04080651522734056,
+        0.011064443888947978
+      ],
+      "fractions": [
+        1.0,
+        0.6191100405776959
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 804,
+      "constraints": [
+        14
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450913590599505,
+      "baseline_fat_depth_m": 0.009900716567657713,
+      "fraction_floors": [
+        0.04080111203575298,
+        0.010100279037041231
+      ],
+      "fractions": [
+        1.0,
+        0.6612410297744172
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 807,
+      "constraints": [
+        15
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450483873146372,
+      "baseline_fat_depth_m": 0.007247710109351513,
+      "fraction_floors": [
+        0.040808266928768655,
+        0.013797461334852903
+      ],
+      "fractions": [
+        1.0,
+        0.6479958724146497
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 815,
+      "constraints": [
+        16
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450245904232619,
+      "baseline_fat_depth_m": 0.007178236068465119,
+      "fraction_floors": [
+        0.04081223024483272,
+        0.013930999070831956
+      ],
+      "fractions": [
+        1.0,
+        0.9439304499486377
+      ],
+      "minimum_constraint_slack_mm": -8.881784197001252e-16
+    },
+    {
+      "column": 835,
+      "constraints": [
+        17
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451017668933494,
+      "baseline_fat_depth_m": 0.009900919207553899,
+      "fraction_floors": [
+        0.04079937948530285,
+        0.01010007231689206
+      ],
+      "fractions": [
+        1.0,
+        0.8383364159058472
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 848,
+      "constraints": [
+        18
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450995664699135,
+      "baseline_fat_depth_m": 0.009900904955610659,
+      "fraction_floors": [
+        0.04079974576873649,
+        0.01010008685552848
+      ],
+      "fractions": [
+        1.0,
+        0.9716439802255077
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 852,
+      "constraints": [
+        19
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002473013339722446,
+      "baseline_fat_depth_m": 0.009861674691483458,
+      "fraction_floors": [
+        0.04043649841825088,
+        0.010140265535868873
+      ],
+      "fractions": [
+        1.0,
+        0.19682218758736503
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 853,
+      "constraints": [
+        20
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024510699893642257,
+      "baseline_fat_depth_m": 0.009901012368709869,
+      "fraction_floors": [
+        0.04079850858356707,
+        0.01009997728273016
+      ],
+      "fractions": [
+        1.0,
+        0.16234770365323106
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 861,
+      "constraints": [
+        21
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450794128937442,
+      "baseline_fat_depth_m": 0.009900594903408784,
+      "fraction_floors": [
+        0.04080310084770591,
+        0.010100403155124539
+      ],
+      "fractions": [
+        1.0,
+        0.07403062869100234
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 862,
+      "constraints": [
+        22
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450902016666644,
+      "baseline_fat_depth_m": 0.009900487252633807,
+      "fraction_floors": [
+        0.040801304711481405,
+        0.010100512979641199
+      ],
+      "fractions": [
+        1.0,
+        0.10425212673439094
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 863,
+      "constraints": [
+        23
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024510230623711574,
+      "baseline_fat_depth_m": 0.009901086392928997,
+      "fraction_floors": [
+        0.04079928970691058,
+        0.010099901771528471
+      ],
+      "fractions": [
+        1.0,
+        0.297742416783672
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 864,
+      "constraints": [
+        24
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450970404923454,
+      "baseline_fat_depth_m": 0.009900446568442097,
+      "fraction_floors": [
+        0.04080016625215966,
+        0.010100554485971604
+      ],
+      "fractions": [
+        1.0,
+        0.24406422165498792
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 865,
+      "constraints": [
+        25
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024511600065170035,
+      "baseline_fat_depth_m": 0.009901148766230066,
+      "fraction_floors": [
+        0.0407970102866095,
+        0.010099838146162481
+      ],
+      "fractions": [
+        1.0,
+        0.034927910799528075
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 866,
+      "constraints": [
+        26
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450873989989031,
+      "baseline_fat_depth_m": 0.009900621252888977,
+      "fraction_floors": [
+        0.04080177128994199,
+        0.010100376273945461
+      ],
+      "fractions": [
+        1.0,
+        0.22905189427889888
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 889,
+      "constraints": [
+        27
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450825197505714,
+      "baseline_fat_depth_m": 0.009900694802302717,
+      "fraction_floors": [
+        0.04080258359583267,
+        0.010100301241155506
+      ],
+      "fractions": [
+        1.0,
+        0.22965025175358914
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 894,
+      "constraints": [
+        28
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451130362784402,
+      "baseline_fat_depth_m": 0.009901125339091557,
+      "fraction_floors": [
+        0.040797503681690495,
+        0.010099862043477086
+      ],
+      "fractions": [
+        1.0,
+        0.31046127970847814
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 897,
+      "constraints": [
+        29
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.00245107130781232,
+      "baseline_fat_depth_m": 0.009901042928396327,
+      "fraction_floors": [
+        0.040798486637769034,
+        0.010099946109030457
+      ],
+      "fractions": [
+        1.0,
+        0.16790496593848495
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 898,
+      "constraints": [
+        30
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024509875636784012,
+      "baseline_fat_depth_m": 0.009900968799490274,
+      "fraction_floors": [
+        0.040799880620333163,
+        0.010100021727686714
+      ],
+      "fractions": [
+        1.0,
+        0.4959357966467314
+      ],
+      "minimum_constraint_slack_mm": -8.881784197001252e-16
+    },
+    {
+      "column": 899,
+      "constraints": [
+        31
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508150565206977,
+      "baseline_fat_depth_m": 0.009900597385179734,
+      "fraction_floors": [
+        0.04080275242880428,
+        0.010100400623268514
+      ],
+      "fractions": [
+        1.0,
+        0.37121716034003494
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 901,
+      "constraints": [
+        32
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024509024440584064,
+      "baseline_fat_depth_m": 0.009900883769111662,
+      "fraction_floors": [
+        0.040801297596493376,
+        0.010100108468294068
+      ],
+      "fractions": [
+        1.0,
+        0.456260472177054
+      ],
+      "minimum_constraint_slack_mm": -8.881784197001252e-16
+    },
+    {
+      "column": 902,
+      "constraints": [
+        33
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450755138688586,
+      "baseline_fat_depth_m": 0.009900630912286594,
+      "fraction_floors": [
+        0.040803750003972496,
+        0.010100366419669366
+      ],
+      "fractions": [
+        1.0,
+        0.4646208769531706
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 903,
+      "constraints": [
+        34
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450945408466547,
+      "baseline_fat_depth_m": 0.009900898501830029,
+      "fraction_floors": [
+        0.04080058236081471,
+        0.010100093439147624
+      ],
+      "fractions": [
+        1.0,
+        0.39186840575317017
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 919,
+      "constraints": [
+        35
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024512193635123523,
+      "baseline_fat_depth_m": 0.009901236637696681,
+      "fraction_floors": [
+        0.04079602237504766,
+        0.010099748512147766
+      ],
+      "fractions": [
+        1.0,
+        0.14077669958070835
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 932,
+      "constraints": [
+        36
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451071757188133,
+      "baseline_fat_depth_m": 0.00990102527027079,
+      "fraction_floors": [
+        0.0407984791578358,
+        0.010099964121924218
+      ],
+      "fractions": [
+        1.0,
+        0.23954889351291372
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 933,
+      "constraints": [
+        37
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024203619914802024,
+      "baseline_fat_depth_m": 0.009902046721218812,
+      "fraction_floors": [
+        0.04131613384774885,
+        0.010098922254700422
+      ],
+      "fractions": [
+        1.0,
+        0.11785054255872304
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 934,
+      "constraints": [
+        38
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451038484697305,
+      "baseline_fat_depth_m": 0.009901004217265625,
+      "fraction_floors": [
+        0.04079903299125459,
+        0.010099985597987873
+      ],
+      "fractions": [
+        1.0,
+        0.1389769164994676
+      ],
+      "minimum_constraint_slack_mm": -4.440892098500626e-16
+    },
+    {
+      "column": 936,
+      "constraints": [
+        39
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024509308393516806,
+      "baseline_fat_depth_m": 0.009900880807185652,
+      "fraction_floors": [
+        0.04080082489249349,
+        0.010100111489820594
+      ],
+      "fractions": [
+        1.0,
+        0.23955475161082504
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 943,
+      "constraints": [
+        40
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.00245081364753824,
+      "baseline_fat_depth_m": 0.009900618809637371,
+      "fraction_floors": [
+        0.04080277588646801,
+        0.010100378766492748
+      ],
+      "fractions": [
+        1.0,
+        0.2890733216680212
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 944,
+      "constraints": [
+        41
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450785422327674,
+      "baseline_fat_depth_m": 0.009900603289980183,
+      "fraction_floors": [
+        0.040803245803960816,
+        0.010100394599307307
+      ],
+      "fractions": [
+        1.0,
+        0.34708228817005343
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 945,
+      "constraints": [
+        42
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507940536366147,
+      "baseline_fat_depth_m": 0.009900586754832855,
+      "fraction_floors": [
+        0.04080310210138418,
+        0.010100411468157296
+      ],
+      "fractions": [
+        1.0,
+        0.36705802875326676
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 946,
+      "constraints": [
+        43
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450804507903853,
+      "baseline_fat_depth_m": 0.009900602466191597,
+      "fraction_floors": [
+        0.04080292804974842,
+        0.01010039543971978
+      ],
+      "fractions": [
+        1.0,
+        0.3811639290807275
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 951,
+      "constraints": [
+        44
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508121536737076,
+      "baseline_fat_depth_m": 0.00990062132873544,
+      "fraction_floors": [
+        0.04080280075733363,
+        0.010100376196568719
+      ],
+      "fractions": [
+        1.0,
+        0.3048370647022476
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 952,
+      "constraints": [
+        45
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450802653873069,
+      "baseline_fat_depth_m": 0.009900611722946689,
+      "fraction_floors": [
+        0.04080295891713979,
+        0.010100385996173307
+      ],
+      "fractions": [
+        1.0,
+        0.31596895221951865
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 953,
+      "constraints": [
+        46
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508130144115,
+      "baseline_fat_depth_m": 0.009900606533124764,
+      "fraction_floors": [
+        0.04080278642718586,
+        0.010100391290718092
+      ],
+      "fractions": [
+        1.0,
+        0.32351934750485295
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 963,
+      "constraints": [
+        47
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508270116894767,
+      "baseline_fat_depth_m": 0.00990064937878343,
+      "fraction_floors": [
+        0.04080255339240163,
+        0.010100347580664228
+      ],
+      "fractions": [
+        1.0,
+        0.7143768270552634
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 964,
+      "constraints": [
+        48
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508126445806967,
+      "baseline_fat_depth_m": 0.009900610034480157,
+      "fraction_floors": [
+        0.04080279258437919,
+        0.010100387718709964
+      ],
+      "fractions": [
+        1.0,
+        0.41189027936945255
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 976,
+      "constraints": [
+        49
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507912647523723,
+      "baseline_fat_depth_m": 0.00990062575564475,
+      "fraction_floors": [
+        0.040803148533379484,
+        0.010100371680344137
+      ],
+      "fractions": [
+        1.0,
+        0.56862348739149
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 977,
+      "constraints": [
+        50
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507880883292196,
+      "baseline_fat_depth_m": 0.009900613085891036,
+      "fraction_floors": [
+        0.04080320141761958,
+        0.010100384605727696
+      ],
+      "fractions": [
+        1.0,
+        0.5773678249500925
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 978,
+      "constraints": [
+        51
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450790957523718,
+      "baseline_fat_depth_m": 0.009900597121831655,
+      "fraction_floors": [
+        0.04080315364842056,
+        0.010100400891931208
+      ],
+      "fractions": [
+        1.0,
+        0.5816036413446505
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 981,
+      "constraints": [
+        52
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508265260741336,
+      "baseline_fat_depth_m": 0.00990062754637721,
+      "fraction_floors": [
+        0.040802561477162325,
+        0.010100369853483835
+      ],
+      "fractions": [
+        1.0,
+        0.39227039905594413
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 982,
+      "constraints": [
+        53
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024501816590569467,
+      "baseline_fat_depth_m": 0.007331945173304029,
+      "fraction_floors": [
+        0.0408133003650387,
+        0.013638945414390835
+      ],
+      "fractions": [
+        1.0,
+        0.5623109553791084
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 983,
+      "constraints": [
+        54
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450792831019943,
+      "baseline_fat_depth_m": 0.009900636191572285,
+      "fraction_floors": [
+        0.04080312245665544,
+        0.010100361033882142
+      ],
+      "fractions": [
+        1.0,
+        0.5167332625841157
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 985,
+      "constraints": [
+        55
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507963731592425,
+      "baseline_fat_depth_m": 0.009900603495336497,
+      "fraction_floors": [
+        0.040803063483847594,
+        0.010100394389806968
+      ],
+      "fractions": [
+        1.0,
+        0.40996122474946944
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 986,
+      "constraints": [
+        56
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450796256646352,
+      "baseline_fat_depth_m": 0.009900599945914095,
+      "fraction_floors": [
+        0.040803065423659135,
+        0.010100398010856835
+      ],
+      "fractions": [
+        1.0,
+        0.38947642901737584
+      ],
+      "minimum_constraint_slack_mm": 8.881784197001252e-16
+    },
+    {
+      "column": 987,
+      "constraints": [
+        57
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507808131580154,
+      "baseline_fat_depth_m": 0.009900592927809735,
+      "fraction_floors": [
+        0.040803322542395166,
+        0.01010040517059442
+      ],
+      "fractions": [
+        1.0,
+        0.4292277651418764
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 988,
+      "constraints": [
+        58
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507973098375135,
+      "baseline_fat_depth_m": 0.009900587657827975,
+      "fraction_floors": [
+        0.040803047889190786,
+        0.010100410546937003
+      ],
+      "fractions": [
+        1.0,
+        0.4532586776051421
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 989,
+      "constraints": [
+        59
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507888177375866,
+      "baseline_fat_depth_m": 0.009900589626127955,
+      "fraction_floors": [
+        0.04080318927369421,
+        0.010100408538911358
+      ],
+      "fractions": [
+        1.0,
+        0.46605233426428166
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 990,
+      "constraints": [
+        60
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507908491646787,
+      "baseline_fat_depth_m": 0.009900597303586068,
+      "fraction_floors": [
+        0.04080315545248741,
+        0.010100400706508816
+      ],
+      "fractions": [
+        1.0,
+        0.48842233415341274
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 991,
+      "constraints": [
+        61
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507911148979994,
+      "baseline_fat_depth_m": 0.009900600605335373,
+      "fraction_floors": [
+        0.04080315102830049,
+        0.010100397338128217
+      ],
+      "fractions": [
+        1.0,
+        0.5111745720849382
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 992,
+      "constraints": [
+        62
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507986659637296,
+      "baseline_fat_depth_m": 0.009900587682161724,
+      "fraction_floors": [
+        0.04080302531121092,
+        0.010100410522112128
+      ],
+      "fractions": [
+        1.0,
+        0.5231243982454465
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 993,
+      "constraints": [
+        63
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450812928680883,
+      "baseline_fat_depth_m": 0.009900614949736163,
+      "fraction_floors": [
+        0.04080278785448698,
+        0.010100382704274834
+      ],
+      "fractions": [
+        1.0,
+        0.42384910254124414
+      ],
+      "minimum_constraint_slack_mm": -8.881784197001252e-16
+    },
+    {
+      "column": 997,
+      "constraints": [
+        64
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508304646292316,
+      "baseline_fat_depth_m": 0.009900604454894742,
+      "fraction_floors": [
+        0.04080249590627163,
+        0.01010039341088525
+      ],
+      "fractions": [
+        1.0,
+        0.32894511245379565
+      ],
+      "minimum_constraint_slack_mm": 8.881784197001252e-16
+    },
+    {
+      "column": 998,
+      "constraints": [
+        65
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450212636136919,
+      "baseline_fat_depth_m": 0.0073343294600206384,
+      "fraction_floors": [
+        0.040812784378446064,
+        0.013634511586246442
+      ],
+      "fractions": [
+        1.0,
+        0.45072043336833806
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 999,
+      "constraints": [
+        66
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450824153816884,
+      "baseline_fat_depth_m": 0.009900614733892494,
+      "fraction_floors": [
+        0.0408026009717022,
+        0.010100382924473654
+      ],
+      "fractions": [
+        1.0,
+        0.3473866766113516
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1000,
+      "constraints": [
+        67
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450943875791353,
+      "baseline_fat_depth_m": 0.009900787449520183,
+      "fraction_floors": [
+        0.040800607875083356,
+        0.010100206726975668
+      ],
+      "fractions": [
+        1.0,
+        0.08996569627226804
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1012,
+      "constraints": [
+        68
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508341541112067,
+      "baseline_fat_depth_m": 0.009899546759303131,
+      "fraction_floors": [
+        0.04080243448225689,
+        0.010101472565501514
+      ],
+      "fractions": [
+        1.0,
+        0.48262782168510476
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1013,
+      "constraints": [
+        69
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451166987764786,
+      "baseline_fat_depth_m": 0.009901002216448377,
+      "fraction_floors": [
+        0.04079689409132822,
+        0.010099987639016138
+      ],
+      "fractions": [
+        1.0,
+        0.301011863053805
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1017,
+      "constraints": [
+        70
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024509176437551863,
+      "baseline_fat_depth_m": 0.009900478749528098,
+      "fraction_floors": [
+        0.04080104456173586,
+        0.010100521654547914
+      ],
+      "fractions": [
+        1.0,
+        0.3939535892501643
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1021,
+      "constraints": [
+        71
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450792032597337,
+      "baseline_fat_depth_m": 0.009900597957246486,
+      "fraction_floors": [
+        0.04080313574955624,
+        0.010100400039656959
+      ],
+      "fractions": [
+        1.0,
+        0.7015592102680424
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1022,
+      "constraints": [
+        72
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507985773560316,
+      "baseline_fat_depth_m": 0.00990058769890379,
+      "fraction_floors": [
+        0.0408030267864289,
+        0.010100410505032159
+      ],
+      "fractions": [
+        1.0,
+        0.7126585114665931
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1023,
+      "constraints": [
+        73
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450808797877237,
+      "baseline_fat_depth_m": 0.009900567484494688,
+      "fraction_floors": [
+        0.04080285662701015,
+        0.010100431127469242
+      ],
+      "fractions": [
+        1.0,
+        0.6869631255199419
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1025,
+      "constraints": [
+        74
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450793485511109,
+      "baseline_fat_depth_m": 0.009900593256416063,
+      "fraction_floors": [
+        0.04080311156006895,
+        0.010100404835356222
+      ],
+      "fractions": [
+        1.0,
+        0.6332001210390895
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1026,
+      "constraints": [
+        75
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508222669244713,
+      "baseline_fat_depth_m": 0.009900630562725988,
+      "fraction_floors": [
+        0.0408026323856971,
+        0.010100366776282028
+      ],
+      "fractions": [
+        1.0,
+        0.6720006023732992
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1027,
+      "constraints": [
+        76
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507837907656875,
+      "baseline_fat_depth_m": 0.009900618469750936,
+      "fraction_floors": [
+        0.04080327296793384,
+        0.010100379113236918
+      ],
+      "fractions": [
+        1.0,
+        0.6822376692600817
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1028,
+      "constraints": [
+        77
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507837193377554,
+      "baseline_fat_depth_m": 0.00990057831733156,
+      "fraction_floors": [
+        0.04080327415714258,
+        0.010100420075961014
+      ],
+      "fractions": [
+        1.0,
+        0.7033134986707654
+      ],
+      "minimum_constraint_slack_mm": 8.881784197001252e-16
+    },
+    {
+      "column": 1029,
+      "constraints": [
+        78
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450787614065305,
+      "baseline_fat_depth_m": 0.009900564066546026,
+      "fraction_floors": [
+        0.040803209313646935,
+        0.010100434614417545
+      ],
+      "fractions": [
+        1.0,
+        0.7048664314222123
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1031,
+      "constraints": [
+        79
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.00245080922178581,
+      "baseline_fat_depth_m": 0.009900561053594374,
+      "fraction_floors": [
+        0.040802849569471535,
+        0.010100437688194979
+      ],
+      "fractions": [
+        1.0,
+        0.6199090838930224
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1032,
+      "constraints": [
+        80
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450786384571042,
+      "baseline_fat_depth_m": 0.009900594667500566,
+      "fraction_floors": [
+        0.04080322978353043,
+        0.01010040339579373
+      ],
+      "fractions": [
+        1.0,
+        0.6470815220059751
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1033,
+      "constraints": [
+        81
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508209920116476,
+      "baseline_fat_depth_m": 0.009900595673540449,
+      "fraction_floors": [
+        0.0408026536111556,
+        0.010100402369450569
+      ],
+      "fractions": [
+        1.0,
+        0.5743403400942475
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1034,
+      "constraints": [
+        82
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508002625325573,
+      "baseline_fat_depth_m": 0.00990060953888021,
+      "fraction_floors": [
+        0.040802998730163374,
+        0.01010038822431031
+      ],
+      "fractions": [
+        1.0,
+        0.5273591928951246
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1035,
+      "constraints": [
+        83
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450783163622258,
+      "baseline_fat_depth_m": 0.009900608721144729,
+      "fraction_floors": [
+        0.04080328340929191,
+        0.010100389058546473
+      ],
+      "fractions": [
+        1.0,
+        0.6688414490297746
+      ],
+      "minimum_constraint_slack_mm": 1.7763568394002505e-15
+    },
+    {
+      "column": 1036,
+      "constraints": [
+        84
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450785763906276,
+      "baseline_fat_depth_m": 0.0099005981347572,
+      "fraction_floors": [
+        0.040803240117002836,
+        0.010100399858563936
+      ],
+      "fractions": [
+        1.0,
+        0.6327466136476695
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1037,
+      "constraints": [
+        85
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450821219055465,
+      "baseline_fat_depth_m": 0.009900570381746744,
+      "fraction_floors": [
+        0.040802649831202104,
+        0.010100428171730964
+      ],
+      "fractions": [
+        1.0,
+        0.4943380828125286
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1057,
+      "constraints": [
+        86
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451478453170929,
+      "baseline_fat_depth_m": 0.009901523828280981,
+      "fraction_floors": [
+        0.04079171076158242,
+        0.01009945557211886
+      ],
+      "fractions": [
+        1.0,
+        0.3867750931664753
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1074,
+      "constraints": [
+        87
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507531432351017,
+      "baseline_fat_depth_m": 0.00990062588595875,
+      "fraction_floors": [
+        0.0408037832272228,
+        0.010100371547401043
+      ],
+      "fractions": [
+        1.0,
+        0.7248632737854401
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1075,
+      "constraints": [
+        88
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508011972047988,
+      "baseline_fat_depth_m": 0.009900577501485817,
+      "fraction_floors": [
+        0.040802983168954116,
+        0.010100420908274555
+      ],
+      "fractions": [
+        1.0,
+        0.7367154730278894
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1076,
+      "constraints": [
+        89
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450794941844209,
+      "baseline_fat_depth_m": 0.009900612579444811,
+      "fraction_floors": [
+        0.04080308731368222,
+        0.010100385122392863
+      ],
+      "fractions": [
+        1.0,
+        0.7387828200976997
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1077,
+      "constraints": [
+        90
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450792452159955,
+      "baseline_fat_depth_m": 0.00990058375037689,
+      "fraction_floors": [
+        0.040803128764276664,
+        0.010100414533253482
+      ],
+      "fractions": [
+        1.0,
+        0.7279584824209148
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1078,
+      "constraints": [
+        91
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507847632816333,
+      "baseline_fat_depth_m": 0.009900595899336692,
+      "fraction_floors": [
+        0.040803256776453384,
+        0.010100402139097475
+      ],
+      "fractions": [
+        1.0,
+        0.7598251467909715
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1079,
+      "constraints": [
+        92
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450806165443106,
+      "baseline_fat_depth_m": 0.009900606190597783,
+      "fraction_floors": [
+        0.04080290045374518,
+        0.01010039164015695
+      ],
+      "fractions": [
+        1.0,
+        0.802968038366935
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1080,
+      "constraints": [
+        93
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507720078128224,
+      "baseline_fat_depth_m": 0.009900603890579828,
+      "fraction_floors": [
+        0.040803469144094086,
+        0.010100393986587772
+      ],
+      "fractions": [
+        1.0,
+        0.7856030806066442
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1081,
+      "constraints": [
+        94
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508085413417896,
+      "baseline_fat_depth_m": 0.009900579078306413,
+      "fraction_floors": [
+        0.040802860898000275,
+        0.010100419299626053
+      ],
+      "fractions": [
+        1.0,
+        0.6789246129766874
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1082,
+      "constraints": [
+        95
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450801252335399,
+      "baseline_fat_depth_m": 0.00990057670911593,
+      "fraction_floors": [
+        0.04080298225109391,
+        0.010100421716638512
+      ],
+      "fractions": [
+        1.0,
+        0.6093727197734244
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1083,
+      "constraints": [
+        96
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507763600864927,
+      "baseline_fat_depth_m": 0.009900608569120808,
+      "fraction_floors": [
+        0.040803396682213305,
+        0.010100389213638025
+      ],
+      "fractions": [
+        1.0,
+        0.7269916063184588
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1084,
+      "constraints": [
+        97
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507992636012763,
+      "baseline_fat_depth_m": 0.009900582846299992,
+      "fraction_floors": [
+        0.04080301536122427,
+        0.010100415455578115
+      ],
+      "fractions": [
+        1.0,
+        0.6538187914474078
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1085,
+      "constraints": [
+        98
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507858553117546,
+      "baseline_fat_depth_m": 0.009900606611312895,
+      "fraction_floors": [
+        0.040803238595189056,
+        0.010100391210952199
+      ],
+      "fractions": [
+        1.0,
+        0.7686110152507847
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1086,
+      "constraints": [
+        99
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450797317210167,
+      "baseline_fat_depth_m": 0.009900603425004931,
+      "fraction_floors": [
+        0.040803047766444306,
+        0.010100394461557801
+      ],
+      "fractions": [
+        1.0,
+        0.6698166753541422
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1087,
+      "constraints": [
+        100
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508623020433923,
+      "baseline_fat_depth_m": 0.009900619997737175,
+      "fraction_floors": [
+        0.040801965869982,
+        0.01010037755442138
+      ],
+      "fractions": [
+        1.0,
+        0.5438437372727282
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1104,
+      "constraints": [
+        101
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.00245175979126587,
+      "baseline_fat_depth_m": 0.009901835656099638,
+      "fraction_floors": [
+        0.04078702993508549,
+        0.010099137520869569
+      ],
+      "fractions": [
+        1.0,
+        0.36317490247651574
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1107,
+      "constraints": [
+        102
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507668588447046,
+      "baseline_fat_depth_m": 0.0099006738414975,
+      "fraction_floors": [
+        0.040803554870633495,
+        0.010100322624593677
+      ],
+      "fractions": [
+        1.0,
+        0.26775511395602236
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1123,
+      "constraints": [
+        103
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507136633327912,
+      "baseline_fat_depth_m": 0.009900471559206087,
+      "fraction_floors": [
+        0.04080444055794234,
+        0.01010052899015842
+      ],
+      "fractions": [
+        1.0,
+        0.8598614866846067
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1126,
+      "constraints": [
+        104
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450809633364147,
+      "baseline_fat_depth_m": 0.009900590127750658,
+      "fraction_floors": [
+        0.040802842717218,
+        0.010100408027164668
+      ],
+      "fractions": [
+        1.0,
+        0.7584769653515421
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1127,
+      "constraints": [
+        105
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450863466056296,
+      "baseline_fat_depth_m": 0.00990057929953905,
+      "fraction_floors": [
+        0.040801946491499506,
+        0.010100419073927907
+      ],
+      "fractions": [
+        1.0,
+        0.6788566742698914
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1128,
+      "constraints": [
+        106
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508280318324585,
+      "baseline_fat_depth_m": 0.009900612171535974,
+      "fraction_floors": [
+        0.040802536408574966,
+        0.01010038553853242
+      ],
+      "fractions": [
+        1.0,
+        0.5646274272382815
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1152,
+      "constraints": [
+        107
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451230174750119,
+      "baseline_fat_depth_m": 0.009901221373913527,
+      "fraction_floors": [
+        0.04079584244274168,
+        0.010099764081981565
+      ],
+      "fractions": [
+        1.0,
+        0.7404063525286178
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1153,
+      "constraints": [
+        108
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451108843804853,
+      "baseline_fat_depth_m": 0.009901141926024795,
+      "fraction_floors": [
+        0.040797861854543406,
+        0.010099845123637062
+      ],
+      "fractions": [
+        1.0,
+        0.2542126351873369
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1182,
+      "constraints": [
+        109
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508925040352225,
+      "baseline_fat_depth_m": 0.009900475485772681,
+      "fraction_floors": [
+        0.04080146307329147,
+        0.010100524984249836
+      ],
+      "fractions": [
+        1.0,
+        0.3683994439236331
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1183,
+      "constraints": [
+        110
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450779521544434,
+      "baseline_fat_depth_m": 0.009900947962893161,
+      "fraction_floors": [
+        0.04080334404662478,
+        0.010100042983235613
+      ],
+      "fractions": [
+        1.0,
+        0.4414411125033743
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1184,
+      "constraints": [
+        111
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024512563559700696,
+      "baseline_fat_depth_m": 0.009900871208350048,
+      "fraction_floors": [
+        0.04079540671315286,
+        0.010100121281818464
+      ],
+      "fractions": [
+        1.0,
+        0.3355510348445278
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1191,
+      "constraints": [
+        112
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024504802212339813,
+      "baseline_fat_depth_m": 0.00904561977185532,
+      "fraction_floors": [
+        0.04080832774469132,
+        0.011055074447318859
+      ],
+      "fractions": [
+        1.0,
+        0.2504432001794747
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1203,
+      "constraints": [
+        113
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451144471892976,
+      "baseline_fat_depth_m": 0.009900946938328957,
+      "fraction_floors": [
+        0.040797268845916605,
+        0.01010004402840256
+      ],
+      "fractions": [
+        1.0,
+        0.6659839928983777
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1210,
+      "constraints": [
+        114
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024507082987908395,
+      "baseline_fat_depth_m": 0.009900982549946962,
+      "fraction_floors": [
+        0.040804529877888455,
+        0.010100007700804976
+      ],
+      "fractions": [
+        1.0,
+        0.3723970734011288
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1219,
+      "constraints": [
+        115
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002468092939382751,
+      "baseline_fat_depth_m": 0.009884806869057568,
+      "fraction_floors": [
+        0.04051711278952451,
+        0.010116535540317962
+      ],
+      "fractions": [
+        1.0,
+        0.9205381762554148
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1233,
+      "constraints": [
+        116
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450809203897869,
+      "baseline_fat_depth_m": 0.009900677298826197,
+      "fraction_floors": [
+        0.040802849867282956,
+        0.010100319097548589
+      ],
+      "fractions": [
+        1.0,
+        0.18963140851670432
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1248,
+      "constraints": [
+        117
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002449725160634863,
+      "baseline_fat_depth_m": 0.009720252055564716,
+      "fraction_floors": [
+        0.040820905792584634,
+        0.010287799064094364
+      ],
+      "fractions": [
+        1.0,
+        0.6006557940775835
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1254,
+      "constraints": [
+        118
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024511402380263865,
+      "baseline_fat_depth_m": 0.00990101343719932,
+      "fraction_floors": [
+        0.040797339315239746,
+        0.01009997619276909
+      ],
+      "fractions": [
+        1.0,
+        0.5700267544338596
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1258,
+      "constraints": [
+        119
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024510128270602122,
+      "baseline_fat_depth_m": 0.009900971726023295,
+      "fraction_floors": [
+        0.04079946008276985,
+        0.010100018742318417
+      ],
+      "fractions": [
+        1.0,
+        0.41876703928218795
+      ],
+      "minimum_constraint_slack_mm": -8.881784197001252e-16
+    },
+    {
+      "column": 1283,
+      "constraints": [
+        120
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024090128461136625,
+      "baseline_fat_depth_m": 0.008722680398679804,
+      "fraction_floors": [
+        0.04151077905679287,
+        0.011464365932189285
+      ],
+      "fractions": [
+        1.0,
+        0.297345594913723
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1288,
+      "constraints": [
+        121
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451129950473639,
+      "baseline_fat_depth_m": 0.00990022350704131,
+      "fraction_floors": [
+        0.04079751054434169,
+        0.010100782061018852
+      ],
+      "fractions": [
+        1.0,
+        0.20577156894770265
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1290,
+      "constraints": [
+        122,
+        123
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024513005619057836,
+      "baseline_fat_depth_m": 0.00990147343365862,
+      "fraction_floors": [
+        0.04079467102241195,
+        0.010099506974392774
+      ],
+      "fractions": [
+        1.0,
+        0.4604143661046933
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1309,
+      "constraints": [
+        124
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451266462207926,
+      "baseline_fat_depth_m": 0.009901182251902209,
+      "fraction_floors": [
+        0.040795238519245734,
+        0.010099803988638637
+      ],
+      "fractions": [
+        1.0,
+        0.7174108311979632
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1316,
+      "constraints": [
+        125
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024510564588227164,
+      "baseline_fat_depth_m": 0.009901154052990845,
+      "fraction_floors": [
+        0.04079873380315021,
+        0.010099832753313536
+      ],
+      "fractions": [
+        1.0,
+        0.33465704653423217
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1321,
+      "constraints": [
+        126
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451090683095489,
+      "baseline_fat_depth_m": 0.009901196105768,
+      "fraction_floors": [
+        0.04079816413553077,
+        0.010099789856878445
+      ],
+      "fractions": [
+        1.0,
+        0.512986301490544
+      ],
+      "minimum_constraint_slack_mm": -8.881784197001252e-16
+    },
+    {
+      "column": 1331,
+      "constraints": [
+        127
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024511326067217067,
+      "baseline_fat_depth_m": 0.009901528222045344,
+      "fraction_floors": [
+        0.04079746633281749,
+        0.01009945109052501
+      ],
+      "fractions": [
+        1.0,
+        0.40129601629307193
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1333,
+      "constraints": [
+        128
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451053926820444,
+      "baseline_fat_depth_m": 0.009900971516108189,
+      "fraction_floors": [
+        0.04079877594930031,
+        0.010100018956453616
+      ],
+      "fractions": [
+        1.0,
+        0.48874241139733193
+      ],
+      "minimum_constraint_slack_mm": 8.881784197001252e-16
+    },
+    {
+      "column": 1396,
+      "constraints": [
+        129
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450785311425722,
+      "baseline_fat_depth_m": 0.00990064748493797,
+      "fraction_floors": [
+        0.040803247650372895,
+        0.010100349512709323
+      ],
+      "fractions": [
+        1.0,
+        0.44128225505772023
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1400,
+      "constraints": [
+        130
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024511250128199553,
+      "baseline_fat_depth_m": 0.009901054350989574,
+      "fraction_floors": [
+        0.0407975927286355,
+        0.010099934456980875
+      ],
+      "fractions": [
+        1.0,
+        0.5265111944662436
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1438,
+      "constraints": [
+        131
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024509555151188893,
+      "baseline_fat_depth_m": 0.00990086666992928,
+      "fraction_floors": [
+        0.04080041411732815,
+        0.010100125911574798
+      ],
+      "fractions": [
+        1.0,
+        0.17149966092115132
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1467,
+      "constraints": [
+        132,
+        133
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024506453431437816,
+      "baseline_fat_depth_m": 0.003908048103496614,
+      "fraction_floors": [
+        0.04080557812242067,
+        0.025588221370798345
+      ],
+      "fractions": [
+        0.46715848366318674,
+        0.025588221370798345
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1478,
+      "constraints": [
+        134
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451060097943455,
+      "baseline_fat_depth_m": 0.00990093975438182,
+      "fraction_floors": [
+        0.04079867322874062,
+        0.010100051356816245
+      ],
+      "fractions": [
+        1.0,
+        0.27080341596915675
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1484,
+      "constraints": [
+        135
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451312306328134,
+      "baseline_fat_depth_m": 0.009901266797210638,
+      "fraction_floors": [
+        0.040794475572062804,
+        0.010099717748053388
+      ],
+      "fractions": [
+        1.0,
+        0.9172190388894522
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1518,
+      "constraints": [
+        136
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024512755876852266,
+      "baseline_fat_depth_m": 0.009901228476708683,
+      "fraction_floors": [
+        0.040795086648919544,
+        0.010099756836763908
+      ],
+      "fractions": [
+        1.0,
+        0.36794040786253035
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1520,
+      "constraints": [
+        137
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024512591554733494,
+      "baseline_fat_depth_m": 0.009901480091069035,
+      "fraction_floors": [
+        0.040795360122046966,
+        0.010099500183835979
+      ],
+      "fractions": [
+        1.0,
+        0.2554877563785031
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1526,
+      "constraints": [
+        138
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024513194373732908,
+      "baseline_fat_depth_m": 0.009901119058185925,
+      "fraction_floors": [
+        0.04079435689832204,
+        0.010099868450457955
+      ],
+      "fractions": [
+        1.0,
+        0.2891069188636024
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1571,
+      "constraints": [
+        139
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024510724892779336,
+      "baseline_fat_depth_m": 0.009900832517931252,
+      "fraction_floors": [
+        0.04079846697208829,
+        0.010100160751016794
+      ],
+      "fractions": [
+        1.0,
+        0.3892684143456536
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1596,
+      "constraints": [
+        140
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024509659413476746,
+      "baseline_fat_depth_m": 0.009900689697203785,
+      "fraction_floors": [
+        0.04080024055536837,
+        0.010100306449180266
+      ],
+      "fractions": [
+        1.0,
+        0.12736715805624796
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1597,
+      "constraints": [
+        141
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002452023394792655,
+      "baseline_fat_depth_m": 0.009902626425324227,
+      "fraction_floors": [
+        0.040782645146196124,
+        0.010098331059350839
+      ],
+      "fractions": [
+        1.0,
+        0.6900019842110006
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1600,
+      "constraints": [
+        142
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024511928895185504,
+      "baseline_fat_depth_m": 0.00990106148952988,
+      "fraction_floors": [
+        0.040796462990573316,
+        0.010099927175055671
+      ],
+      "fractions": [
+        1.0,
+        0.4205525185126967
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1607,
+      "constraints": [
+        143
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451080955106851,
+      "baseline_fat_depth_m": 0.009901108691549558,
+      "fraction_floors": [
+        0.04079832605759065,
+        0.010099879025199314
+      ],
+      "fractions": [
+        1.0,
+        0.24434292683372374
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1608,
+      "constraints": [
+        144
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024511608688035607,
+      "baseline_fat_depth_m": 0.009901259494740388,
+      "fraction_floors": [
+        0.04079699593475117,
+        0.01009972519689244
+      ],
+      "fractions": [
+        1.0,
+        0.6289664527087093
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1632,
+      "constraints": [
+        145
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024506439938641275,
+      "baseline_fat_depth_m": 0.008150561011755961,
+      "fraction_floors": [
+        0.04080560058922388,
+        0.012269094097420412
+      ],
+      "fractions": [
+        1.0,
+        0.9062768519703316
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1662,
+      "constraints": [
+        146
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024509406184375646,
+      "baseline_fat_depth_m": 0.009901166010726907,
+      "fraction_floors": [
+        0.04080066209998527,
+        0.010099820555645686
+      ],
+      "fractions": [
+        1.0,
+        0.41141599178947175
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1665,
+      "constraints": [
+        147
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024511699998133836,
+      "baseline_fat_depth_m": 0.009901250470666891,
+      "fraction_floors": [
+        0.04079684395925757,
+        0.010099734401857283
+      ],
+      "fractions": [
+        1.0,
+        0.1319285045099077
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1666,
+      "constraints": [
+        148
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024511459180075568,
+      "baseline_fat_depth_m": 0.009901174507659004,
+      "fraction_floors": [
+        0.04079724477655178,
+        0.010099811888240684
+      ],
+      "fractions": [
+        1.0,
+        0.19959102095845607
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1669,
+      "constraints": [
+        149
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451035676449674,
+      "baseline_fat_depth_m": 0.009901150776634483,
+      "fraction_floors": [
+        0.04079907973630561,
+        0.01009983609541508
+      ],
+      "fractions": [
+        1.0,
+        0.4198387455868333
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1693,
+      "constraints": [
+        150
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024501593528556136,
+      "baseline_fat_depth_m": 0.0035250243223188715,
+      "fraction_floors": [
+        0.04081367192850209,
+        0.028368598584368594
+      ],
+      "fractions": [
+        1.0,
+        0.4990120187718713
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1695,
+      "constraints": [
+        151
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024508638721075083,
+      "baseline_fat_depth_m": 0.009899905204405477,
+      "fraction_floors": [
+        0.04080193973156476,
+        0.010101106822265308
+      ],
+      "fractions": [
+        1.0,
+        0.4046743485364414
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1696,
+      "constraints": [
+        152
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451646388437689,
+      "baseline_fat_depth_m": 0.009901854633414395,
+      "fraction_floors": [
+        0.040788916571171986,
+        0.010099118165453983
+      ],
+      "fractions": [
+        1.0,
+        0.7610021963418091
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1718,
+      "constraints": [
+        153
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450919554245324,
+      "baseline_fat_depth_m": 0.009900765860877672,
+      "fraction_floors": [
+        0.040801012757349174,
+        0.01010022875049944
+      ],
+      "fractions": [
+        1.0,
+        0.30117695098985553
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1720,
+      "constraints": [
+        154
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450986183267103,
+      "baseline_fat_depth_m": 0.009900855805581053,
+      "fraction_floors": [
+        0.040799903599090276,
+        0.010100136994584914
+      ],
+      "fractions": [
+        1.0,
+        0.011471053215106296
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1721,
+      "constraints": [
+        155
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024511897622692736,
+      "baseline_fat_depth_m": 0.009901275027955635,
+      "fraction_floors": [
+        0.040796515039056604,
+        0.010099709352346664
+      ],
+      "fractions": [
+        1.0,
+        0.04444167812173053
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1722,
+      "constraints": [
+        156
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0022460440012460046,
+      "baseline_fat_depth_m": 0.00899461142801363,
+      "fraction_floors": [
+        0.044522725264743025,
+        0.011117767654592724
+      ],
+      "fractions": [
+        1.0,
+        0.8322060331812431
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1743,
+      "constraints": [
+        157
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450907453361193,
+      "baseline_fat_depth_m": 0.005946296931348598,
+      "fraction_floors": [
+        0.04080121420450178,
+        0.01681718911021828
+      ],
+      "fractions": [
+        1.0,
+        0.11243188712612621
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1744,
+      "constraints": [
+        158
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024512010425194984,
+      "baseline_fat_depth_m": 0.009901229208115817,
+      "fraction_floors": [
+        0.04079632729643984,
+        0.01009975609069147
+      ],
+      "fractions": [
+        1.0,
+        0.27986368284850943
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1759,
+      "constraints": [
+        159
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450506483720351,
+      "baseline_fat_depth_m": 0.008144506142630839,
+      "fraction_floors": [
+        0.04080789039504206,
+        0.0122782153084236
+      ],
+      "fractions": [
+        1.0,
+        0.7118875734710624
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1765,
+      "constraints": [
+        160
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450336307698433,
+      "baseline_fat_depth_m": 0.008147282383298204,
+      "fraction_floors": [
+        0.040810724505783706,
+        0.012274031424883267
+      ],
+      "fractions": [
+        1.0,
+        0.8183631710713545
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1773,
+      "constraints": [
+        161
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451418461734212,
+      "baseline_fat_depth_m": 0.009901311481320448,
+      "fraction_floors": [
+        0.04079270902172157,
+        0.010099672168546294
+      ],
+      "fractions": [
+        1.0,
+        0.3262960988779292
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1797,
+      "constraints": [
+        162
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451568507744471,
+      "baseline_fat_depth_m": 0.009047463674925907,
+      "fraction_floors": [
+        0.04079021234124251,
+        0.01105282138652178
+      ],
+      "fractions": [
+        1.0,
+        0.728764517475094
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1862,
+      "constraints": [
+        163
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451547009494255,
+      "baseline_fat_depth_m": 0.00903940954461145,
+      "fraction_floors": [
+        0.04079057004117153,
+        0.011062669470442541
+      ],
+      "fractions": [
+        1.0,
+        0.036895620498041584
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 1990,
+      "constraints": [
+        164,
+        165
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002451116946995219,
+      "baseline_fat_depth_m": 0.009901252685806054,
+      "fraction_floors": [
+        0.04079772698017867,
+        0.01009973214231317
+      ],
+      "fractions": [
+        0.7598914398880866,
+        0.01009973214231317
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 2023,
+      "constraints": [
+        166
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024509096958116785,
+      "baseline_fat_depth_m": 0.009900864670182044,
+      "fraction_floors": [
+        0.040801176873586344,
+        0.010100127951568227
+      ],
+      "fractions": [
+        1.0,
+        0.19243310439949982
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 2024,
+      "constraints": [
+        167,
+        168
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024509737326521897,
+      "baseline_fat_depth_m": 0.009900818568153927,
+      "fraction_floors": [
+        0.0408001108570798,
+        0.01010017498165767
+      ],
+      "fractions": [
+        0.35256441894925367,
+        0.01010017498165767
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 2038,
+      "constraints": [
+        169
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450831182088474,
+      "baseline_fat_depth_m": 0.00990072744884689,
+      "fraction_floors": [
+        0.04080248396170032,
+        0.01010026793653902
+      ],
+      "fractions": [
+        1.0,
+        0.29605960259832764
+      ],
+      "minimum_constraint_slack_mm": -4.440892098500626e-16
+    },
+    {
+      "column": 2039,
+      "constraints": [
+        170
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450964793455518,
+      "baseline_fat_depth_m": 0.009900710886114092,
+      "fraction_floors": [
+        0.04080025966387464,
+        0.010100284833107452
+      ],
+      "fractions": [
+        1.0,
+        0.33498692896657967
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 2103,
+      "constraints": [
+        171
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024502134376822317,
+      "baseline_fat_depth_m": 0.004716416799371182,
+      "fraction_floors": [
+        0.04081277102724347,
+        0.021202536640386096
+      ],
+      "fractions": [
+        1.0,
+        0.4063570826414186
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 2112,
+      "constraints": [
+        172
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0022431507723425534,
+      "baseline_fat_depth_m": 0.009006736541194535,
+      "fraction_floors": [
+        0.04458015093455739,
+        0.011102800614032097
+      ],
+      "fractions": [
+        1.0,
+        0.9141573971687427
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 2116,
+      "constraints": [
+        173
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024502802274989108,
+      "baseline_fat_depth_m": 0.009050408658698387,
+      "fraction_floors": [
+        0.04081165855142765,
+        0.011049224821896807
+      ],
+      "fractions": [
+        1.0,
+        0.8779949623990152
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 2128,
+      "constraints": [
+        174
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0022542957780330598,
+      "baseline_fat_depth_m": 0.005821233915531055,
+      "fraction_floors": [
+        0.04435975126886543,
+        0.017178488521686092
+      ],
+      "fractions": [
+        1.0,
+        0.7738155026331107
+      ],
+      "minimum_constraint_slack_mm": -8.881784197001252e-16
+    },
+    {
+      "column": 2149,
+      "constraints": [
+        175
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.001886694778738802,
+      "baseline_fat_depth_m": 0.003171777744353864,
+      "fraction_floors": [
+        0.05300274380726647,
+        0.031528060305616216
+      ],
+      "fractions": [
+        1.0,
+        0.9380275355247601
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 2160,
+      "constraints": [
+        176
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024502336220516563,
+      "baseline_fat_depth_m": 0.004715043961518922,
+      "fraction_floors": [
+        0.04081243482254844,
+        0.021208709996372043
+      ],
+      "fractions": [
+        1.0,
+        0.24408114765240116
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 2163,
+      "constraints": [
+        177
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0024501933429089107,
+      "baseline_fat_depth_m": 0.009045728524378578,
+      "fraction_floors": [
+        0.04081310574506677,
+        0.01105494153737825
+      ],
+      "fractions": [
+        1.0,
+        0.7524439615358534
+      ],
+      "minimum_constraint_slack_mm": -8.881784197001252e-16
+    },
+    {
+      "column": 2171,
+      "constraints": [
+        178
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0018023005275676375,
+      "baseline_fat_depth_m": 0.003670774431567966,
+      "fraction_floors": [
+        0.055484642250512334,
+        0.02724220784039981
+      ],
+      "fractions": [
+        1.0,
+        0.9056159515751909
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 2174,
+      "constraints": [
+        179
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0022489406102027126,
+      "baseline_fat_depth_m": 0.0037021566122810014,
+      "fraction_floors": [
+        0.04446538052020249,
+        0.02701128300955027
+      ],
+      "fractions": [
+        1.0,
+        0.8889476660597697
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 2175,
+      "constraints": [
+        180
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.00225255687814563,
+      "baseline_fat_depth_m": 0.003659955775783657,
+      "fraction_floors": [
+        0.044393995539115036,
+        0.027322734515443252
+      ],
+      "fractions": [
+        1.0,
+        0.7875595882129469
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 2216,
+      "constraints": [
+        181
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.002450143928787904,
+      "baseline_fat_depth_m": 0.0052337586318375665,
+      "fraction_floors": [
+        0.04081392885742447,
+        0.01910672750395639
+      ],
+      "fractions": [
+        1.0,
+        0.6288139670270421
+      ],
+      "minimum_constraint_slack_mm": 8.881784197001252e-16
+    },
+    {
+      "column": 2245,
+      "constraints": [
+        182
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0009409068507874415,
+      "baseline_fat_depth_m": 0.0042482236864908795,
+      "fraction_floors": [
+        0.10628044626979852,
+        0.02353925013835655
+      ],
+      "fractions": [
+        1.0,
+        0.32236640193382016
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 2261,
+      "constraints": [
+        183
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.001239450513213954,
+      "baseline_fat_depth_m": 0.0075859413562192664,
+      "fraction_floors": [
+        0.08068091378710657,
+        0.013182279601728781
+      ],
+      "fractions": [
+        1.0,
+        0.44505034436117596
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    },
+    {
+      "column": 2307,
+      "constraints": [
+        184
+      ],
+      "success": true,
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "baseline_skin_depth_m": 0.0020221581241723512,
+      "baseline_fat_depth_m": 0.0037345252068672007,
+      "fraction_floors": [
+        0.04945211692628092,
+        0.02677716562633339
+      ],
+      "fractions": [
+        0.865890835974624,
+        0.02677716562633339
+      ],
+      "minimum_constraint_slack_mm": 0.0
+    }
+  ],
+  "solved_columns": 181,
+  "infeasible_columns": [],
+  "outer_nodes_moved": 0,
+  "inner_nodes_moved": 5,
+  "deep_nodes_moved": 181,
+  "nonpositive_tets": 2,
+  "q_below_1e_5": 2,
+  "minimum_q": -0.010863665876258768,
+  "route_constraint_violations_F32": 0,
+  "O12_violations_F32": 12,
+  "minimum_gap_m": -0.0017652981800866834,
+  "limits": [
+    "O12 baseline outer penetrations deliberately retained and reported, not concealed.",
+    "Plane feasibility is not solid containment or topology validation.",
+    "Reference, conservative mass, ancestry, detailed transfer and native material admission remain unchanged and unqualified.",
+    "If tet inversion results, this proves depth clipping alone is inadequate and does not justify emitting this candidate."
+  ]
+}

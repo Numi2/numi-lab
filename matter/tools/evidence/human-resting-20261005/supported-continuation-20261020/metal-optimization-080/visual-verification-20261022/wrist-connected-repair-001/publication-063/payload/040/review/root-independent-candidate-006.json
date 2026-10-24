@@ -1,0 +1,92 @@
+{
+  "status": "INDEPENDENT_GEOMETRY_DIAGNOSTICS_NOT_NATIVE_ADMISSION",
+  "candidate_sha256": "b8cda6874827946bd9fe8f6f673a894255f151d9b5763ea0b3a704d67dee13be",
+  "moved_nodes": 747,
+  "affected_cells": 4038,
+  "layers": {
+    "O": {
+      "moved": 249,
+      "max_displacement_m": 0.01226484307822999
+    },
+    "I": {
+      "moved": 249,
+      "max_displacement_m": 0.01226484307822999
+    },
+    "D": {
+      "moved": 249,
+      "max_displacement_m": 0.01226484307822999
+    }
+  },
+  "materials": {
+    "skin": {
+      "minimum_J": 0.35504055007964447,
+      "maximum_J": 3.090137810473215,
+      "below_.35": 0,
+      "above_2.5": 2,
+      "singular_values_all": {
+        "min": 0.04838213068804105,
+        "p01": 0.8071397881788636,
+        "median": 1.000000015367736,
+        "p99": 1.4179454755009524,
+        "max": 27.413959305229067
+      },
+      "baseline_singular_values_all": {
+        "min": 0.9889044207367211,
+        "p01": 0.9999377727027566,
+        "median": 1.0000000034206535,
+        "p99": 1.0000613335701787,
+        "max": 1.0244216264847004
+      },
+      "worst_cell_local_volume_row": 2107
+    },
+    "fat": {
+      "minimum_J": -3.8842192916625593,
+      "maximum_J": 9.84544235883141,
+      "below_.35": 10,
+      "above_2.5": 14,
+      "singular_values_all": {
+        "min": 0.0003728568395701172,
+        "p01": 0.7606225559259367,
+        "median": 1.0000000059922667,
+        "p99": 1.5530842572940105,
+        "max": 231.59295028671661
+      },
+      "baseline_singular_values_all": {
+        "min": 0.9805391723044303,
+        "p01": 0.9999111753752958,
+        "median": 0.9999999947170608,
+        "p99": 1.0000944976734916,
+        "max": 1.058747823826295
+      },
+      "worst_cell_local_volume_row": 15530
+    }
+  },
+  "normalized_quality_minimum": -0.00436572161460398,
+  "nonpositive_cells": 4,
+  "quality_below_1e_5": 6,
+  "affected_outer_face_area_ratio": {
+    "min": 0.2849238506435913,
+    "p01": 0.7898839551000885,
+    "median": 1.0496582260862326,
+    "p99": 1.9682366116969332,
+    "max": 2.7210670334484526
+  },
+  "affected_outer_face_normal_cosine": {
+    "min": 0.4797711634812019,
+    "p01": 0.6022055752374925,
+    "median": 0.9958032839313239,
+    "p99": 0.9999999877707754,
+    "max": 0.9999999985299521
+  },
+  "outer_faces_flipped_vs_baseline": 0,
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-006/trust-constr-002/candidate.npz": "b8cda6874827946bd9fe8f6f673a894255f151d9b5763ea0b3a704d67dee13be",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/source-preflight-003/initial-skin-fem-nodes.csv": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root-reference-relative-j-062/source-preflight/identity-reference-points.csv": "b536764105cd9e9cb0c7936f5a4409896e8370ac150214a63a362158af5783ed",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc"
+  },
+  "limitations": [
+    "Singular values and area changes are diagnostic, not constitutive stress/energy admission.",
+    "No self-intersection, solid contact, detailed-skin mapping, mass reconstruction, retained motion, or accepted native step is implied."
+  ]
+}

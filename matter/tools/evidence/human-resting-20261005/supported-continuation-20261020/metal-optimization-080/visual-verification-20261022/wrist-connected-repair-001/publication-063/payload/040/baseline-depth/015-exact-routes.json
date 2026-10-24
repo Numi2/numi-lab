@@ -1,0 +1,672 @@
+{
+  "status": "EXACT_NATIVE_GEOMETRY_ROUTE_WITNESSES_NOT_FULL_TISSUE_CLEARANCE",
+  "counts": {
+    "total_column_bank_pairs": 446035,
+    "total_segment_bank_pairs": 892070,
+    "AABB_candidate_segment_bank_pairs": 1607,
+    "triangle_AABB_candidates": 1285,
+    "exact_candidates": 8,
+    "proper_hits": 8,
+    "boundary_hits": 0,
+    "coplanar_candidates": 0,
+    "hit_segment_bank_pairs": 8
+  },
+  "columns_with_hits": 8,
+  "column_bank_groups_with_hits": 8,
+  "construction_planes": 0,
+  "uncertainties": 0,
+  "native_query_frame_max_error_m": 6.216025217875883e-17,
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/baseline-depth-transition-014/candidate.npz": "f5b0e33933ddf0867715a877ade75279659034362ae8f586435ccbf00609f42c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/source-preflight-003/initial-skin-fem-nodes.csv": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/source-preflight-003/all-bank-containment.csv": "11452398859d5dd435ec8fbbe4a02c0b1797e5f337b3749850671093ecb231aa",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root_exact_segment_witness.py": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2"
+  },
+  "elapsed_seconds": 1.3484484170330688,
+  "limitations": [
+    "Exact rational signs certify narrowphase candidates; this is not a layer-triangle/tet clearance test.",
+    "Coplanar and first-boundary feature hits remain explicit unresolved witnesses.",
+    "Construction planes are local exterior-side choices, not a physical force/state owner.",
+    "No endpoint parity or containment query for 014. All segment hits are exact narrowphase witnesses; no construction planes inferred from unqueried endpoints. No native physical step or anatomy acceptance."
+  ],
+  "route_witnesses": [
+    {
+      "row": 204,
+      "segment": 0,
+      "segment_name": "O-I",
+      "body": 61,
+      "bone_stable_id": 97,
+      "source_record_index": 39,
+      "triangle_stable_id": 125,
+      "t": 0.5438752526463105,
+      "start_classification": "not_queried",
+      "end_classification": "not_queried",
+      "hit_triangle_count": 1,
+      "first_hit_ambiguous": false,
+      "exact_first_hit": {
+        "classification": "proper_interior_hit",
+        "t": 0.5438752526463105,
+        "barycentric": [
+          0.15369150398966086,
+          0.17731350532317697,
+          0.6689949906871622
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      },
+      "plane_point_world_m": [
+        -0.31674866568207694,
+        -1.0259327071421618,
+        0.14735715753827588
+      ],
+      "unit_exterior_normal_world": [
+        -0.6565030473169768,
+        0.5041735974090839,
+        -0.5610817520995547
+      ],
+      "segment_start_world_f32_m": [
+        -0.31718364357948303,
+        -1.0262292623519897,
+        0.14613297581672668
+      ],
+      "segment_end_world_f32_m": [
+        -0.31638386845588684,
+        -1.0256839990615845,
+        0.14838382601737976
+      ],
+      "segment_start_query_local_m": [
+        0.0017193848911430413,
+        -0.01908922177495963,
+        -0.000802099386978561
+      ],
+      "segment_end_query_local_m": [
+        0.003964540138856037,
+        -0.018454466501340555,
+        -0.0015501920893286375
+      ],
+      "triangle_body_local_f32_m": [
+        [
+          0.004457651171833277,
+          -0.01820315234363079,
+          -0.00033318839268758893
+        ],
+        [
+          0.003963409457355738,
+          -0.01979823224246502,
+          0.00025308289332315326
+        ],
+        [
+          0.002320794854313135,
+          -0.018588824197649956,
+          -0.0017976745730265975
+        ]
+      ],
+      "all_hits": [
+        {
+          "t": 0.5438752526463105,
+          "triangle_stable_id": 125,
+          "classification": "proper_interior_hit"
+        }
+      ],
+      "is_first_route_hit": true
+    },
+    {
+      "row": 215,
+      "segment": 0,
+      "segment_name": "O-I",
+      "body": 61,
+      "bone_stable_id": 97,
+      "source_record_index": 39,
+      "triangle_stable_id": 174,
+      "t": 0.7872738826146232,
+      "start_classification": "not_queried",
+      "end_classification": "not_queried",
+      "hit_triangle_count": 1,
+      "first_hit_ambiguous": false,
+      "exact_first_hit": {
+        "classification": "proper_interior_hit",
+        "t": 0.7872738826146232,
+        "barycentric": [
+          0.1348235600286704,
+          0.5172185553814113,
+          0.3479578845899183
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      },
+      "plane_point_world_m": [
+        -0.31812144261280134,
+        -1.0217974686466,
+        0.14827820497096686
+      ],
+      "unit_exterior_normal_world": [
+        -0.23744431317913703,
+        -0.29381075910846177,
+        -0.9259024980909152
+      ],
+      "segment_start_world_f32_m": [
+        -0.31939008831977844,
+        -1.0216604471206665,
+        0.14683157205581665
+      ],
+      "segment_end_world_f32_m": [
+        -0.31777864694595337,
+        -1.0218344926834106,
+        0.14866909384727478
+      ],
+      "segment_start_query_local_m": [
+        0.0024016848771640713,
+        -0.014759134648057462,
+        0.0018465455558826778
+      ],
+      "segment_end_query_local_m": [
+        0.004234464412262237,
+        -0.014761537858833485,
+        0.00022037366829966647
+      ],
+      "triangle_body_local_f32_m": [
+        [
+          0.0037231133319437504,
+          -0.013980550691485405,
+          0.0012266054982319474
+        ],
+        [
+          0.0044588432647287846,
+          -0.015913082286715508,
+          0.0015070453519001603
+        ],
+        [
+          0.002978591714054346,
+          -0.013350976631045341,
+          -0.001087902463041246
+        ]
+      ],
+      "all_hits": [
+        {
+          "t": 0.7872738826146232,
+          "triangle_stable_id": 174,
+          "classification": "proper_interior_hit"
+        }
+      ],
+      "is_first_route_hit": true
+    },
+    {
+      "row": 217,
+      "segment": 0,
+      "segment_name": "O-I",
+      "body": 61,
+      "bone_stable_id": 97,
+      "source_record_index": 39,
+      "triangle_stable_id": 172,
+      "t": 0.8089698228865722,
+      "start_classification": "not_queried",
+      "end_classification": "not_queried",
+      "hit_triangle_count": 1,
+      "first_hit_ambiguous": false,
+      "exact_first_hit": {
+        "classification": "proper_interior_hit",
+        "t": 0.8089698228865722,
+        "barycentric": [
+          0.332287758310046,
+          0.6674311713923271,
+          0.0002810702976269104
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      },
+      "plane_point_world_m": [
+        -0.317119182605231,
+        -1.0206865119685917,
+        0.14766892827215752
+      ],
+      "unit_exterior_normal_world": [
+        -0.28697675599665406,
+        -0.05614861315515761,
+        -0.9562905807119452
+      ],
+      "segment_start_world_f32_m": [
+        -0.31788185238838196,
+        -1.0206602811813354,
+        0.14583957195281982
+      ],
+      "segment_end_world_f32_m": [
+        -0.3169390857219696,
+        -1.0206927061080933,
+        0.14810091257095337
+      ],
+      "segment_start_query_local_m": [
+        0.0013991964784615047,
+        -0.013619226222514744,
+        0.00044840479451227917
+      ],
+      "segment_end_query_local_m": [
+        0.0036573749263531566,
+        -0.013544972178500897,
+        -0.000499560554478295
+      ],
+      "triangle_body_local_f32_m": [
+        [
+          0.0037231133319437504,
+          -0.013980550691485405,
+          0.0012266054982319474
+        ],
+        [
+          0.002978591714054346,
+          -0.013350976631045341,
+          -0.001087902463041246
+        ],
+        [
+          0.003005503211170435,
+          -0.009723974391818047,
+          0.00015461600560229272
+        ]
+      ],
+      "all_hits": [
+        {
+          "t": 0.8089698228865722,
+          "triangle_stable_id": 172,
+          "classification": "proper_interior_hit"
+        }
+      ],
+      "is_first_route_hit": true
+    },
+    {
+      "row": 218,
+      "segment": 0,
+      "segment_name": "O-I",
+      "body": 61,
+      "bone_stable_id": 97,
+      "source_record_index": 39,
+      "triangle_stable_id": 176,
+      "t": 0.8326629043715338,
+      "start_classification": "not_queried",
+      "end_classification": "not_queried",
+      "hit_triangle_count": 1,
+      "first_hit_ambiguous": false,
+      "exact_first_hit": {
+        "classification": "proper_interior_hit",
+        "t": 0.8326629043715338,
+        "barycentric": [
+          0.5633430311307455,
+          0.22495220612462977,
+          0.21170476274462477
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      },
+      "plane_point_world_m": [
+        -0.3165299661860114,
+        -1.0175070753962783,
+        0.1472359859372131
+      ],
+      "unit_exterior_normal_world": [
+        -0.39717633762418897,
+        -0.08247630200055309,
+        -0.9140287831571551
+      ],
+      "segment_start_world_f32_m": [
+        -0.31742051243782043,
+        -1.0170865058898926,
+        0.14587120711803436
+      ],
+      "segment_end_world_f32_m": [
+        -0.3163509964942932,
+        -1.0175915956497192,
+        0.14751026034355164
+      ],
+      "segment_start_query_local_m": [
+        0.0014104677492391836,
+        -0.010017148761009322,
+        0.00034537038638655763
+      ],
+      "segment_end_query_local_m": [
+        0.0030484096345261887,
+        -0.010404038860136501,
+        -0.0007739767456105114
+      ],
+      "triangle_body_local_f32_m": [
+        [
+          0.003005503211170435,
+          -0.009723974391818047,
+          0.00015461600560229272
+        ],
+        [
+          0.002978591714054346,
+          -0.013350976631045341,
+          -0.001087902463041246
+        ],
+        [
+          0.0019420967437326908,
+          -0.008776528760790825,
+          -0.002026615897193551
+        ]
+      ],
+      "all_hits": [
+        {
+          "t": 0.8326629043715338,
+          "triangle_stable_id": 176,
+          "classification": "proper_interior_hit"
+        }
+      ],
+      "is_first_route_hit": true
+    },
+    {
+      "row": 219,
+      "segment": 0,
+      "segment_name": "O-I",
+      "body": 61,
+      "bone_stable_id": 97,
+      "source_record_index": 39,
+      "triangle_stable_id": 103,
+      "t": 0.563280463255568,
+      "start_classification": "not_queried",
+      "end_classification": "not_queried",
+      "hit_triangle_count": 1,
+      "first_hit_ambiguous": false,
+      "exact_first_hit": {
+        "classification": "proper_interior_hit",
+        "t": 0.563280463255568,
+        "barycentric": [
+          0.0774534739133124,
+          0.42192917476282543,
+          0.5006173513238622
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      },
+      "plane_point_world_m": [
+        -0.3151519333435329,
+        -1.019808859950586,
+        0.14620510444576568
+      ],
+      "unit_exterior_normal_world": [
+        -0.9570517430975019,
+        0.2181249942689344,
+        -0.19098022910555632
+      ],
+      "segment_start_world_f32_m": [
+        -0.3154155910015106,
+        -1.019818663597107,
+        0.1450970321893692
+      ],
+      "segment_end_world_f32_m": [
+        -0.3149475157260895,
+        -1.0198012590408325,
+        0.147064208984375
+      ],
+      "segment_start_query_local_m": [
+        0.0006436548312695115,
+        -0.012540242045700818,
+        -0.001919522733135934
+      ],
+      "segment_end_query_local_m": [
+        0.002609069063660008,
+        -0.012465336712339861,
+        -0.0023893291704364114
+      ],
+      "triangle_body_local_f32_m": [
+        [
+          0.0017479346133768559,
+          -0.011107368394732475,
+          -0.002356825629249215
+        ],
+        [
+          0.0024444148875772953,
+          -0.013979686424136162,
+          -0.0018663987284526229
+        ],
+        [
+          0.001166521105915308,
+          -0.01146445982158184,
+          -0.0024252517614513636
+        ]
+      ],
+      "all_hits": [
+        {
+          "t": 0.563280463255568,
+          "triangle_stable_id": 103,
+          "classification": "proper_interior_hit"
+        }
+      ],
+      "is_first_route_hit": true
+    },
+    {
+      "row": 231,
+      "segment": 0,
+      "segment_name": "O-I",
+      "body": 61,
+      "bone_stable_id": 97,
+      "source_record_index": 39,
+      "triangle_stable_id": 167,
+      "t": 0.527776003422146,
+      "start_classification": "not_queried",
+      "end_classification": "not_queried",
+      "hit_triangle_count": 1,
+      "first_hit_ambiguous": false,
+      "exact_first_hit": {
+        "classification": "proper_interior_hit",
+        "t": 0.527776003422146,
+        "barycentric": [
+          0.025299695630376786,
+          0.9355273727507644,
+          0.03917293161885888
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      },
+      "plane_point_world_m": [
+        -0.3174868439480488,
+        -1.0148759398307756,
+        0.14776906184493188
+      ],
+      "unit_exterior_normal_world": [
+        -0.4392464641916187,
+        0.07515017964676726,
+        -0.89521784733897
+      ],
+      "segment_start_world_f32_m": [
+        -0.3184179663658142,
+        -1.014288306236267,
+        0.1470908373594284
+      ],
+      "segment_end_world_f32_m": [
+        -0.3166537284851074,
+        -1.0154017210006714,
+        0.14837589859962463
+      ],
+      "segment_start_query_local_m": [
+        0.0026188674857548803,
+        -0.007325493051129093,
+        0.0016130821944186093
+      ],
+      "segment_end_query_local_m": [
+        0.0039035942704653166,
+        -0.008250431817766007,
+        -0.00025709843637944325
+      ],
+      "triangle_body_local_f32_m": [
+        [
+          0.0019420967437326908,
+          -0.008776528760790825,
+          -0.002026615897193551
+        ],
+        [
+          0.0033457563258707523,
+          -0.007707624230533838,
+          0.000717522285412997
+        ],
+        [
+          0.003005503211170435,
+          -0.009723974391818047,
+          0.00015461600560229272
+        ]
+      ],
+      "all_hits": [
+        {
+          "t": 0.527776003422146,
+          "triangle_stable_id": 167,
+          "classification": "proper_interior_hit"
+        }
+      ],
+      "is_first_route_hit": true
+    },
+    {
+      "row": 233,
+      "segment": 0,
+      "segment_name": "O-I",
+      "body": 61,
+      "bone_stable_id": 97,
+      "source_record_index": 39,
+      "triangle_stable_id": 158,
+      "t": 0.5925002969167233,
+      "start_classification": "not_queried",
+      "end_classification": "not_queried",
+      "hit_triangle_count": 1,
+      "first_hit_ambiguous": false,
+      "exact_first_hit": {
+        "classification": "proper_interior_hit",
+        "t": 0.5925002969167233,
+        "barycentric": [
+          0.4404055452428719,
+          0.49755938012447026,
+          0.06203507463265782
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      },
+      "plane_point_world_m": [
+        -0.31594898956504514,
+        -1.0139952767318314,
+        0.1469118761255153
+      ],
+      "unit_exterior_normal_world": [
+        -0.586444135794319,
+        0.4180478534079188,
+        -0.693771769282583
+      ],
+      "segment_start_world_f32_m": [
+        -0.31694042682647705,
+        -1.0133161544799805,
+        0.1460973620414734
+      ],
+      "segment_end_world_f32_m": [
+        -0.3152671158313751,
+        -1.0144623517990112,
+        0.1474720686674118
+      ],
+      "segment_start_query_local_m": [
+        0.0016151579545072476,
+        -0.006216525355304697,
+        0.00024269786099725412
+      ],
+      "segment_end_query_local_m": [
+        0.0029900174492475803,
+        -0.007182642443990571,
+        -0.0015405395107999618
+      ],
+      "triangle_body_local_f32_m": [
+        [
+          0.0033457563258707523,
+          -0.007707624230533838,
+          0.000717522285412997
+        ],
+        [
+          0.0015834257937967777,
+          -0.006385712418705225,
+          -0.0019775612745434046
+        ],
+        [
+          0.002714990172535181,
+          -0.003501220140606165,
+          -0.0023521764669567347
+        ]
+      ],
+      "all_hits": [
+        {
+          "t": 0.5925002969167233,
+          "triangle_stable_id": 158,
+          "classification": "proper_interior_hit"
+        }
+      ],
+      "is_first_route_hit": true
+    },
+    {
+      "row": 271,
+      "segment": 0,
+      "segment_name": "O-I",
+      "body": 61,
+      "bone_stable_id": 97,
+      "source_record_index": 39,
+      "triangle_stable_id": 98,
+      "t": 0.19552188097915535,
+      "start_classification": "not_queried",
+      "end_classification": "not_queried",
+      "hit_triangle_count": 1,
+      "first_hit_ambiguous": false,
+      "exact_first_hit": {
+        "classification": "proper_interior_hit",
+        "t": 0.19552188097915535,
+        "barycentric": [
+          0.4783912553684315,
+          0.27579685071955806,
+          0.24581189391201042
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      },
+      "plane_point_world_m": [
+        -0.3145962042688611,
+        -1.014419038168907,
+        0.1455143011936848
+      ],
+      "unit_exterior_normal_world": [
+        -0.9861932441095079,
+        -0.12493154343379013,
+        -0.10869680182974852
+      ],
+      "segment_start_world_f32_m": [
+        -0.31480562686920166,
+        -1.0143152475357056,
+        0.14519475400447845
+      ],
+      "segment_end_world_f32_m": [
+        -0.3137345314025879,
+        -1.0148460865020752,
+        0.14682908356189728
+      ],
+      "segment_start_query_local_m": [
+        0.000710366760577591,
+        -0.00700297902910755,
+        -0.0019783610483511066
+      ],
+      "segment_end_query_local_m": [
+        0.0023437146910166274,
+        -0.007415358778100267,
+        -0.0031018316376390793
+      ],
+      "triangle_body_local_f32_m": [
+        [
+          0.0015834257937967777,
+          -0.006385712418705225,
+          -0.0019775612745434046
+        ],
+        [
+          0.0011172578670084476,
+          -0.008637426421046257,
+          -0.0025463683996349573
+        ],
+        [
+          -0.00014609233767259866,
+          -0.0066984728910028934,
+          -0.0022362454328686
+        ]
+      ],
+      "all_hits": [
+        {
+          "t": 0.19552188097915535,
+          "triangle_stable_id": 98,
+          "classification": "proper_interior_hit"
+        }
+      ],
+      "is_first_route_hit": true
+    }
+  ],
+  "construction_planes_world": [],
+  "uncertain_candidates": []
+}

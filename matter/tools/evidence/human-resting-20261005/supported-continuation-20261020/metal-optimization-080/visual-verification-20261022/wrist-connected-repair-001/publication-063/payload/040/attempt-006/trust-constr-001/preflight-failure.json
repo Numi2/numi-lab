@@ -1,0 +1,8 @@
+{
+  "status": "preflight_failed_no_solver_run",
+  "error": "region 0 tet support includes fixed boundary columns; first preflight incorrectly required all tet corners movable",
+  "source_sha256_before_correction": "553f286c01de2b64abab96c7cc88b649b8daee581e8a019fc578ee24c7be3aad",
+  "corrected_source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-006/run_trust_constr_006.py",
+  "corrected_source_sha256": "56304615613cb5d847985edb609fcb2467f08190c36d7d7ff9d05a4d5b2f55cc",
+  "input_sha256": "462f125a7945515b7879d8ab7a7bf1a7183de2e098d2ab323ef70ceb46753e00"
+}

@@ -1,0 +1,54 @@
+{
+  "base_origin_main": "f29a1f2d25d351423d03ef0954120eaae11f5517",
+  "baseline_route_audit": {
+    "hit_segment_bank_pairs": 192,
+    "not_full_skin_or_FEM_clearance": true,
+    "proper_hits": 256,
+    "segments_vs_registered_bone_banks_only": true
+  },
+  "candidate_009_exact_route": {
+    "columns_with_hits": 73,
+    "hit_segment_bank_pairs": 74,
+    "not_full_skin_or_FEM_clearance": true,
+    "proper_hits": 76
+  },
+  "candidate_014_baseline_depth": {
+    "O12_residuals": 12,
+    "admitted": false,
+    "baseline_route_plane_residuals": 0,
+    "minimum_q": 1.2325646074736365e-05,
+    "nonpositive_tets": 0,
+    "outer_nodes_moved": 0
+  },
+  "candidate_015_exact_route": {
+    "hit_segment_bank_pairs": 8,
+    "proper_hits": 8,
+    "scope": "exact O-I/I-D segment vs registered bone-bank triangles only",
+    "versus_baseline_010_hit_segment_bank_pairs": 192
+  },
+  "candidate_statuses": {
+    "005": "rejected_or_incomplete",
+    "006": "rejected_or_incomplete",
+    "008": "diagnostic_not_admitted",
+    "009": "local_depth_transition_diagnostic_not_admitted",
+    "013": "diagnostic_rejected_for_tet_quality",
+    "014": "partial_depth_transition_improvement_not_admitted",
+    "015": "exact_route_audit_with_remaining_hits"
+  },
+  "native_or_physical_admission": false,
+  "note": "Preserves as-run failures and separately labeled SI correction. Residuals for 005/006/008/009 use 037-derived construction planes; 013/014 use baseline-010 route planes; exact 012/015 route audits report actual-candidate hits. No native activation or physical qualification.",
+  "payload_bytes": 6100762,
+  "payload_file_count": 60,
+  "payload_file_list_sha256": "c8225a9ef5bce4581e49705d97a7b658f6e2e7ea4bf1be0b4e1994264213d331",
+  "publication": "063",
+  "schema": "numi.human.publication-manifest.v1",
+  "source_input_pins_sha256": "ebfd52de7ce95065188b0b05a570aa0c5101dc5caa28ffe9cfc9837700cf0ba4",
+  "status": "READY_FOR_ROOT_REVIEW_NOT_PUSHED",
+  "test_environment_sha256": "aadc0132d3f1a21cbb9c87cecdca90fb9003b7292bf7cf76c5ede8b5f71b66a4",
+  "test_runs": {
+    "for_this_publication": false,
+    "inherited_from": "../publication-062/test-environment-062.json",
+    "passed_tests": 21
+  },
+  "verifier_sha256": "19419c4adf5cfb656ab3f51e71aa6789462c8f9f4464ba9dd9e2ac94935c2466"
+}
