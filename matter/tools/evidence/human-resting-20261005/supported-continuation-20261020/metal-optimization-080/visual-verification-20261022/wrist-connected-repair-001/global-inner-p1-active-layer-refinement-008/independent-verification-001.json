@@ -1,0 +1,79 @@
+{
+  "admission": {
+    "all_689_banks": false,
+    "native": false,
+    "physical": false
+  },
+  "domain": {
+    "added_nodes": 104,
+    "added_tets": 565,
+    "input_005_nodes": 55553,
+    "input_005_tets": 248662,
+    "output_nodes": 55657,
+    "output_tets": 249227
+  },
+  "geometry": {
+    "all_positive": true,
+    "below_1e_5_count": 0,
+    "child005_fraction_column_error": 6.661338147750939e-16,
+    "global_volume_delta_m3": 0.0,
+    "max_raw_parent_volume_ratio_error": 9.579763513878348e-05,
+    "normalized_determinant_min": 1.0305495205375531e-05
+  },
+  "limitations": [
+    "One typed face only; no all-bank or full tissue qualification.",
+    "Child-volume fractions are conservative transfer weights, not a fresh exact geometric overlap certificate.",
+    "No native or physical admission."
+  ],
+  "material_transfer": {
+    "005_to_014_matches_independent_005x006_CSR": true,
+    "014_column_closure_max_error": 4.440892098500626e-16,
+    "CSR_entry_count": 249845
+  },
+  "one_face_field": {
+    "AABB_candidate_tets": 448,
+    "bank": "bank_0004",
+    "face_row": 2562,
+    "intersected_tets": 120,
+    "minimum_free_capacity": 0.35226669591999393,
+    "minimum_replayed_constraint": 0.34099999999999625,
+    "nonzero_nodes": 51,
+    "physical_O_exact_zero": true,
+    "reclipped_rows": 440,
+    "target": 0.341
+  },
+  "pins": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/candidate-with-transfer.npz": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/candidate-with-transfer-partial-field.npz": "b76368d95c95e74c780999391eb5785a6311c43879ac3ceb6d5c134494a1850b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/exploration-report.json": "ae146e93cfdc01f17e18ff458c9dcdb77d822941f211191de47c1ad3b27cf058",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/round-004.npz": "20a3d1a2d7c6454548fe9b47dc545c121d02746b625d3e9087c0be0103c16255",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/solver-and-transfer-report.json": "444cc595cf4ed0f3312f16a535c4f8c68b904425f63a82f6954d3845a06c7a01",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/build-002/candidate.npz": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-bistellar-003/candidate-geometry-only.npz": "176900d57eedb40255298ad77860317ab97e31a6792bc4dc76c4d48ec7d060e8",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-coordinate-005/candidate.npz": "5b54ffd34d74d717579fcb14677cbf2bfba01f4d4562652605b9207e65f8f698",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-transfer-006/local-overlap-005-to-002.npz": "875bb77bfa65486c6856b04d3b3ad4c4ffd8d471a2fc4297d6d2809a70f5ae41",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/field_owner_integration_007.py": "cffb33579f9164d173d4ca5e1aeb76a0ff4572d2e0ce4d60ec659c55a534ae1e",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/registered-tissue-banks.npz": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/robust-p1-construction-clip-owner-302/tools/human_skin_p1_obstacles.py": "e1b5a246e531a16d8d2438b8569d31a27c9a10712f0de063084bed87db58c436",
+    "/tmp/finalize_active_layer_008.py": "872d93fcddfb0ccb934e333217432506a5699db1d6766117a76ff9a2b0c8291a",
+    "/tmp/refine_active_layer_008.py": "7b6fc3621034849eea6576c04f9e00dabe5970f71746dc7baae2c97391e2d797"
+  },
+  "schema": "numi.human.active-layer-refinement-008.independent-verification.v1",
+  "source_ancestry": {
+    "all_rows_normalized_nonnegative": true,
+    "composed_child_to_398_entries": 249267,
+    "max_398_parents_per_child": 5,
+    "new_source_ids_within_original_domain": true,
+    "original_coordinate_prefix_exact": true,
+    "original_node_source_csr_prefix_exact": true
+  },
+  "status": "pass_one_face_preparation_only",
+  "typed_boundary": {
+    "construction_closure_count": 1685,
+    "construction_closure_exact": true,
+    "physical_outer_count": 36393,
+    "physical_outer_exact": true,
+    "shell_count": 38078,
+    "shell_exact_oriented_tet_boundary": true
+  }
+}

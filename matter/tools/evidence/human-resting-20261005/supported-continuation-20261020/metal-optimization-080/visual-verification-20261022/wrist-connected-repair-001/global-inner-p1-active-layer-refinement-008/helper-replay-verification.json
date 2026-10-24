@@ -1,0 +1,36 @@
+{
+  "pass": true,
+  "all_four_rounds_exact": true,
+  "rounds": [
+    {
+      "round": 1,
+      "edges": 27,
+      "candidate_arrays_exact": true
+    },
+    {
+      "round": 2,
+      "edges": 26,
+      "candidate_arrays_exact": true
+    },
+    {
+      "round": 3,
+      "edges": 28,
+      "candidate_arrays_exact": true
+    },
+    {
+      "round": 4,
+      "edges": 23,
+      "candidate_arrays_exact": true
+    }
+  ],
+  "sources": {
+    "/tmp/refine_active_layer_008.py": "7b6fc3621034849eea6576c04f9e00dabe5970f71746dc7baae2c97391e2d797",
+    "/tmp/finalize_active_layer_008.py": "872d93fcddfb0ccb934e333217432506a5699db1d6766117a76ff9a2b0c8291a",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/active_layer_refinement_008.py": "dbf00d3389e46adbdc9cc396a9cd534c954c49f35b9effc30da5661ec38186f9",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/refine_internal_o_edges_403.py": "231219282f03a830e9857c327e44d2835ce5c831d9eab09ebc598e37a6775826",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/field_owner_integration_007.py": "cffb33579f9164d173d4ca5e1aeb76a0ff4572d2e0ce4d60ec659c55a534ae1e",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/robust-p1-construction-clip-owner-302/tools/human_skin_p1_obstacles.py": "e1b5a246e531a16d8d2438b8569d31a27c9a10712f0de063084bed87db58c436",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-402-absolute-variable-integration/absolute_field_402.py": "3a3ccbb93efa463f15575c4e9d96aef50576be9784ca1928ec741e3fefd8f446"
+  },
+  "native_admission": false
+}

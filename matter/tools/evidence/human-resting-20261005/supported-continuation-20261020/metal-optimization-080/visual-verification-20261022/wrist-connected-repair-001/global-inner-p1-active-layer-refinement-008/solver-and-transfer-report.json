@@ -1,0 +1,54 @@
+{
+  "geometry": {
+    "nodes": 55657,
+    "tets": 249227,
+    "min_quality": 1.0305495205375531e-05,
+    "bad_quality": 0,
+    "nonpositive": 0,
+    "physical_outer_nodes": 18219,
+    "max_raw_parent_volume_relative_error": 9.579763513878348e-05,
+    "child_005_column_sum_error": 6.661338147750939e-16,
+    "composed_014_column_sum_error": 4.440892098500626e-16,
+    "global_volume_difference_m3": 0.0,
+    "all_old_coordinates_exact": true
+  },
+  "solver": {
+    "pass": true,
+    "status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "solver_status": 0,
+    "iterations": 62,
+    "constraints": 440,
+    "active_rows": 440,
+    "sparse_shape": [
+      440,
+      37298
+    ],
+    "sparse_nnz": 970,
+    "initializer_role": "diagnostic_only_not_bound_or_objective",
+    "absolute_bounds": [
+      0.0,
+      1.0
+    ],
+    "fixed_node_count": 18219,
+    "target": 0.341,
+    "objective_policy": "preserved 311 weighted minimum c^T phi",
+    "changed_nodes": 51,
+    "objective": 0.5510800119871917,
+    "minimum_constraint_value": 0.34099999999999625,
+    "maximum_field_value": 1.0,
+    "fixed_values_exact": true
+  },
+  "solver_elapsed_s": 0.7314815829740837,
+  "minimum_constraint_value": 0.34099999999999625,
+  "constraints": 440,
+  "minimum_free_capacity": 0.35226669591999393,
+  "target": 0.341,
+  "cost_policy": "existing311 volume-weighted minimum; positive referenced-node volume costs divided by one global constant; inherited unused nodes excluded from LP then assigned zero",
+  "lp_node_count": 55517,
+  "inherited_unused_node_count": 140,
+  "unscaled_volume_objective_m3": 6.908804888671248e-07,
+  "candidate_sha256": "b76368d95c95e74c780999391eb5785a6311c43879ac3ceb6d5c134494a1850b",
+  "physical_admission": false,
+  "native_admission": false,
+  "scope": "one typed bank0004 face2562 only; neither global field nor full tissue qualification"
+}

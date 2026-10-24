@@ -1,0 +1,20 @@
+{
+  "artifact_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/replay-005-bank0004-face2562-001/field-and-material-map-005.npz",
+  "artifact_sha256": "78eb50d2c141028ef8a45ff63b2b16e0a05fb731b3bfef5273b530c6a6e90ef1",
+  "execution_source_snapshot": "unavailable; the current runner file is not asserted to be the exact run-001 executed source",
+  "handling": "Preserve run-001 report and artifact unchanged; use run-002 valid report for interpretation.",
+  "observed_trailing_bytes": "b'locked_by_fixed_physical_O_capacity\"\\n}\\\\n'",
+  "report_parse_error": "JSONDecodeError: Extra data: line 282 column 2 (char 16310)",
+  "report_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/replay-005-bank0004-face2562-001/integration-report.json",
+  "report_sha256": "6a4c013f29bf14fd773c2af257ac5e30f2c14221f959684a521b66d7f9fdd758",
+  "run": "007 replay 001",
+  "same_artifact_as_run_002": true,
+  "schema": "numi.human.run-retention-note.v1",
+  "status": "failed_receipt_serialization_retained_and_superseded",
+  "superseding_receipt": {
+    "artifact_sha256": "78eb50d2c141028ef8a45ff63b2b16e0a05fb731b3bfef5273b530c6a6e90ef1",
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/replay-005-bank0004-face2562-002/integration-report.json",
+    "sha256": "5f9cd68802d4517a8467a88b4023d92a28d036f9b808fa32a1a04ffe92ca85da",
+    "valid_json": true
+  }
+}

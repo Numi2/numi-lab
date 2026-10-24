@@ -1,0 +1,227 @@
+{
+  "admission": {
+    "all_689_banks": false,
+    "full_skin_fat_field": false,
+    "native": false,
+    "physical": false
+  },
+  "files": [
+    {
+      "bytes": 11966,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/field_owner_integration_007.py",
+      "role": "007 owner implementation",
+      "sha256": "cffb33579f9164d173d4ca5e1aeb76a0ff4572d2e0ce4d60ec659c55a534ae1e",
+      "status": "retained"
+    },
+    {
+      "bytes": 5348,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/test_field_owner_integration_007.py",
+      "role": "007 unit tests",
+      "sha256": "1171fd971277f34afeb05b777689917b452e98b2c0242480badb206a6eb45be2",
+      "status": "retained"
+    },
+    {
+      "bytes": 15643,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/run_field_owner_integration_007.py",
+      "role": "007 bounded single-face runner",
+      "sha256": "68aec04ab0f668dcf7092de249214f3616a75601f7bdf9ecb0c68eb985556d54",
+      "status": "retained"
+    },
+    {
+      "bytes": 16312,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/replay-005-bank0004-face2562-001/integration-report.json",
+      "role": "007 failed run-001 receipt; malformed JSON retained",
+      "sha256": "6a4c013f29bf14fd773c2af257ac5e30f2c14221f959684a521b66d7f9fdd758",
+      "status": "failed_retained"
+    },
+    {
+      "bytes": 2287271,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/replay-005-bank0004-face2562-001/field-and-material-map-005.npz",
+      "role": "007 run-001 artifact; same content as run-002",
+      "sha256": "78eb50d2c141028ef8a45ff63b2b16e0a05fb731b3bfef5273b530c6a6e90ef1",
+      "status": "retained_duplicate_content"
+    },
+    {
+      "bytes": 16312,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/replay-005-bank0004-face2562-002/integration-report.json",
+      "role": "007 run-002 valid single-face receipt; capacity gate blocked",
+      "sha256": "5f9cd68802d4517a8467a88b4023d92a28d036f9b808fa32a1a04ffe92ca85da",
+      "status": "valid_blocked_diagnostic"
+    },
+    {
+      "bytes": 2287271,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/replay-005-bank0004-face2562-002/field-and-material-map-005.npz",
+      "role": "007 run-002 one-face field/material artifact; no field solution",
+      "sha256": "78eb50d2c141028ef8a45ff63b2b16e0a05fb731b3bfef5273b530c6a6e90ef1",
+      "status": "valid_blocked_diagnostic"
+    },
+    {
+      "bytes": 1971,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/run-001-retention-note.json",
+      "role": "run-001 incident/retention note",
+      "sha256": "018d76ab1c8cd7713cc7196e2538adec232fb195e1bd9d67c27e83ff9a4f3628",
+      "status": "retained"
+    },
+    {
+      "bytes": 5296,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-007-capacity-diagnostic/diagnose_fixedO_capacity_007.py",
+      "role": "independent fixed-O capacity diagnostic tool",
+      "sha256": "abf27090fdd1adeef567753755a09b3c662ebc6e8a66d59f41dea81917504754",
+      "status": "retained"
+    },
+    {
+      "bytes": 6719,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-007-capacity-diagnostic/capacity-witness-report.json",
+      "role": "independent fixed-O capacity diagnostic receipt",
+      "sha256": "f307f4f6620e8b9509c9269d6dc346cbf5b121c0ccea22c0c8515a77ec16a0f3",
+      "status": "retained"
+    },
+    {
+      "bytes": 1934,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/active_layer_refinement_008.py",
+      "role": "008 active-layer refinement owner",
+      "sha256": "dbf00d3389e46adbdc9cc396a9cd534c954c49f35b9effc30da5661ec38186f9",
+      "status": "retained"
+    },
+    {
+      "bytes": 3721,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/executed_refine_active_layer_008.py",
+      "role": "008 executed refinement source snapshot",
+      "sha256": "7b6fc3621034849eea6576c04f9e00dabe5970f71746dc7baae2c97391e2d797",
+      "status": "retained"
+    },
+    {
+      "bytes": 5369,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/executed_finalize_active_layer_008.py",
+      "role": "008 executed finalizer source snapshot",
+      "sha256": "872d93fcddfb0ccb934e333217432506a5699db1d6766117a76ff9a2b0c8291a",
+      "status": "retained"
+    },
+    {
+      "bytes": 2370,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/executed_helper_replay_008.py",
+      "role": "008 helper replay source snapshot",
+      "sha256": "3f86b39fd9696ee3946244622f18af5aefac844a1174b19710996afe155da053",
+      "status": "retained"
+    },
+    {
+      "bytes": 3486256,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/round-004.npz",
+      "role": "008 frozen round-004 geometry",
+      "sha256": "20a3d1a2d7c6454548fe9b47dc545c121d02746b625d3e9087c0be0103c16255",
+      "status": "retained"
+    },
+    {
+      "bytes": 6266179,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/candidate-with-transfer-partial-field.npz",
+      "role": "008 final partial one-face field candidate; no native or physical admission",
+      "sha256": "b76368d95c95e74c780999391eb5785a6311c43879ac3ceb6d5c134494a1850b",
+      "status": "retained"
+    },
+    {
+      "bytes": 2855,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/exploration-report.json",
+      "role": "008 four-round exploration receipt",
+      "sha256": "ae146e93cfdc01f17e18ff458c9dcdb77d822941f211191de47c1ad3b27cf058",
+      "status": "retained"
+    },
+    {
+      "bytes": 1888,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/solver-and-transfer-report.json",
+      "role": "008 one-face solve and material-transfer receipt",
+      "sha256": "444cc595cf4ed0f3312f16a535c4f8c68b904425f63a82f6954d3845a06c7a01",
+      "status": "retained"
+    },
+    {
+      "bytes": 2440,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/helper-replay-verification.json",
+      "role": "008 helper replay parity receipt",
+      "sha256": "a82c55caad5f53239dc2387538626514be2ce036a2cf48e426c66684940f0318",
+      "status": "retained"
+    },
+    {
+      "bytes": 2554,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/test_active_layer_refinement_008.py",
+      "role": "008 passing regression tests",
+      "sha256": "bebea9cb6bbb773e045a2b96e9d574584ccd0bd19cc9f29031d0b9424c69c323",
+      "status": "retained"
+    },
+    {
+      "bytes": 2535,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/test_active_layer_refinement_008.failed-numpy2-batch.py",
+      "role": "008 failed NumPy-2 test source retained",
+      "sha256": "9005f8e5752d6e2d604eda9b6b10c2f49e2228b70858c2e4a2b4718d6e09ef6e",
+      "status": "failed_retained"
+    },
+    {
+      "bytes": 257,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/tests-008.json",
+      "role": "008 test result receipt",
+      "sha256": "d465636bcdfb3afc9fe1e531057d588712e860f1a2872e1d2d87369813edb9c9",
+      "status": "retained"
+    },
+    {
+      "bytes": 6709,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/root-tests-and-inputs-051.json",
+      "role": "root combined 007/008 test/input receipt",
+      "sha256": "c562aa5eab8fd6caee2fc9717d03a0a87f0070fdf8808948c8de8d81d3f10ed8",
+      "status": "retained"
+    },
+    {
+      "bytes": 12040,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/verify_active_layer_008.py",
+      "role": "008 independent verifier used for final receipt",
+      "sha256": "45cd8edd734878d57d6dc19eca8de6edacaa9884217400c44cb261ad01a10f10",
+      "status": "retained"
+    },
+    {
+      "bytes": 12013,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/verify_active_layer_008.failed-encoding.py",
+      "role": "008 initial verifier source with encoding error retained",
+      "sha256": "aaff9a63201f41fc434039cd1ff795e9c6fe5f26872adc55481d5ffc8960ce34",
+      "status": "failed_retained"
+    },
+    {
+      "bytes": 6525,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/independent-verification-001.json",
+      "role": "008 independent ancestry/boundary/transfer/reclip verification",
+      "sha256": "bb2656dfb24d81f910e09576d57b55bf4ac93b6080fe5b6ffd10f9ac3328e2ef",
+      "status": "retained"
+    }
+  ],
+  "limitations": [
+    "The 006 transfer fractions are conservative material attribution, not a fresh exact geometric-overlap certificate or an absolute mass ledger.",
+    "Only bank_0004 face row 2562 was clipped/replayed; this does not establish all-bank coverage.",
+    "No complete tissue field, native integration, full FEM run, or physical admission.",
+    "Run-001 exact execution-source snapshot is unavailable; the manifest does not assert that the current runner source is the source executed for run-001.",
+    "The initial independent verifier source was not snapshotted before repair. A byte-level reconstruction of the observed invalid 0xD7 source is retained separately; its pre-repair SHA was not recorded. The corrected verifier is pinned here."
+  ],
+  "pinned_input_sha256": {
+    "005_mesh": "5b54ffd34d74d717579fcb14677cbf2bfba01f4d4562652605b9207e65f8f698",
+    "006_transfer": "875bb77bfa65486c6856b04d3b3ad4c4ffd8d471a2fc4297d6d2809a70f5ae41",
+    "008_output_candidate": "b76368d95c95e74c780999391eb5785a6311c43879ac3ceb6d5c134494a1850b",
+    "bank_cache": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "clipper": "e1b5a246e531a16d8d2438b8569d31a27c9a10712f0de063084bed87db58c436"
+  },
+  "results": {
+    "007": "Run-002 valid receipt remains blocked by 41 fixed-physical-O capacity rows for bank_0004 face 2562; solver was not run. Run-001 malformed report is retained and superseded, not treated as a valid receipt.",
+    "008": "Independent verification passed for 4-round refined mesh, exact physical-O zeros and shell boundary, ancestry/transfer closure, and reclip of bank_0004 face 2562. The stored partial field meets all 440 rows at target 0.341, min 0.34099999999999625. This is one-face only."
+  },
+  "schema": "numi.human.field-owner-publication-051.v1",
+  "scope": "007 single typed-face field-owner replay, independent fixed-O capacity diagnosis, and 008 conforming internal-support refinement with one-face field replay",
+  "status": "verified_bounded_preparation_only",
+  "test_runs": [
+    {
+      "command": "/Users/n/numi-human-prep-venv-20261005/bin/python /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/test_field_owner_integration_007.py",
+      "result": "PASS: 6 tests"
+    },
+    {
+      "command": "/Users/n/numi-human-prep-venv-20261005/bin/python /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/test_active_layer_refinement_008.py",
+      "result": "PASS: 4 tests"
+    },
+    {
+      "command": "python3 /tmp/numi-human-geometry-slot.py /Users/n/numi-human-prep-venv-20261005/bin/python /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-active-layer-refinement-008/verify_active_layer_008.py",
+      "result": "PASS: independent-verification-001.json"
+    }
+  ]
+}

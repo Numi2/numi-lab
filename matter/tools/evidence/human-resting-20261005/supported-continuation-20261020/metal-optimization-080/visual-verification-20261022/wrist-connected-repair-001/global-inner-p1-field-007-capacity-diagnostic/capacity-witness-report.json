@@ -1,0 +1,188 @@
+waiting_for_human_geometry_slot pid=25453
+acquired_human_geometry_slot pid=25453
+{
+  "field_candidate": {
+    "node_count": 55553,
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-coordinate-005/candidate.npz",
+    "physical_O_face_count": 36393,
+    "physical_O_node_count": 18219,
+    "tet_count": 248662
+  },
+  "minimum_capacity_witness": {
+    "barycentric_in_tet": [
+      0.0,
+      0.6477546953117622,
+      0.33009094903667857,
+      0.022154355651559453
+    ],
+    "capacity": 0.022154355651559453,
+    "constraint_row": 6,
+    "free_capacity_definition": "sum of this point barycentric weights on non-physical-O tet nodes, with phi<=1; necessary P1 support bound only",
+    "polygon_vertex_index_within_tet_constraint": 1,
+    "target": 0.341,
+    "tet_node_is_physical_O": [
+      true,
+      true,
+      true,
+      false
+    ],
+    "tet_node_rows": [
+      9451,
+      9464,
+      9450,
+      29641
+    ],
+    "tet_row_005": 80789,
+    "world_point_m": [
+      -0.04794931379490582,
+      -1.504541311530659,
+      0.10114429846139009
+    ]
+  },
+  "nearest_physical_O": {
+    "closest_world_m": [
+      -0.047657652727985195,
+      -1.5045886256381134,
+      0.10113711690506556
+    ],
+    "distance_m": 0.00029556112307393777,
+    "face_row": 16552,
+    "face_vertex_ids": [
+      9450,
+      9464,
+      9451
+    ],
+    "oriented_normal": [
+      0.986804569854291,
+      -0.1600823104280762,
+      -0.024298041128796913
+    ],
+    "signed_plane_offset_m": -0.0002955611230739378,
+    "triangle_vertices_world_m": [
+      [
+        -0.04765956848859787,
+        -1.5056555271148682,
+        0.10808835923671722
+      ],
+      [
+        -0.04766944795846939,
+        -1.504097580909729,
+        0.09742294251918793
+      ],
+      [
+        -0.04625063017010689,
+        -1.4964911937713623,
+        0.10493168979883194
+      ]
+    ]
+  },
+  "pins": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-coordinate-005/candidate.npz": "5b54ffd34d74d717579fcb14677cbf2bfba01f4d4562652605b9207e65f8f698",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/replay-005-bank0004-face2562-002/field-and-material-map-005.npz": "78eb50d2c141028ef8a45ff63b2b16e0a05fb731b3bfef5273b530c6a6e90ef1",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/registered-skin-poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+  },
+  "registered_detail_assets": [
+    {
+      "asset_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin",
+      "asset_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+      "closest_world_m": [
+        -0.04765764772095629,
+        -1.5045886266403548,
+        0.10113711665716742
+      ],
+      "distance_m": 0.00029556623049758416,
+      "face_count": 108987,
+      "face_row": 40537,
+      "face_vertex_ids": [
+        22321,
+        22336,
+        22322
+      ],
+      "generalized_winding_at_point": 0.9999979969782494,
+      "generalized_winding_offsets_m": {
+        "-0.0001": 0.9999979969618839,
+        "-0.001": 0.9999979968163745,
+        "0.0001": 0.9999979969946541,
+        "0.001": -2.0028559197508348e-06
+      },
+      "oriented_normal": [
+        0.9868044582039286,
+        -0.16008293510407717,
+        -0.024298459978253736
+      ],
+      "registered_current_xyz_sha256": "e0858a2982c114396375ba0dfa93b2351a5f37f8e0ed32a58463b0c31b4054d1",
+      "signed_plane_offset_m": -0.00029556623049758416,
+      "triangle_vertices_world_m": [
+        [
+          -0.04765956103801727,
+          -1.5056555271148682,
+          0.10808835923671722
+        ],
+        [
+          -0.04766944423317909,
+          -1.504097580909729,
+          0.09742293506860733
+        ],
+        [
+          -0.046250637620687485,
+          -1.4964913129806519,
+          0.10493168234825134
+        ]
+      ],
+      "vertex_count": 61950,
+      "winding_caveat": "diagnostic; not a certified solid predicate"
+    },
+    {
+      "asset_path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "asset_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+      "closest_world_m": [
+        -0.04765764772095629,
+        -1.5045886266403548,
+        0.10113711665716742
+      ],
+      "distance_m": 0.00029556623049758416,
+      "face_count": 108987,
+      "face_row": 40537,
+      "face_vertex_ids": [
+        22321,
+        22336,
+        22322
+      ],
+      "generalized_winding_at_point": 0.9999979969782493,
+      "generalized_winding_offsets_m": {
+        "-0.0001": 0.9999979969618837,
+        "-0.001": 0.9999979968163746,
+        "0.0001": 0.9999979969946541,
+        "0.001": -2.0028559196448163e-06
+      },
+      "oriented_normal": [
+        0.9868044582039286,
+        -0.16008293510407717,
+        -0.024298459978253736
+      ],
+      "registered_current_xyz_sha256": "ecb83d7fb712e6d1f8b878e60cce25f28cfe8b624f7deab6cc8f53875ce707ea",
+      "signed_plane_offset_m": -0.00029556623049758416,
+      "triangle_vertices_world_m": [
+        [
+          -0.04765956103801727,
+          -1.5056555271148682,
+          0.10808835923671722
+        ],
+        [
+          -0.04766944423317909,
+          -1.504097580909729,
+          0.09742293506860733
+        ],
+        [
+          -0.046250637620687485,
+          -1.4964913129806519,
+          0.10493168234825134
+        ]
+      ],
+      "vertex_count": 61950,
+      "winding_caveat": "diagnostic; not a certified solid predicate"
+    }
+  ],
+  "schema": "numi.human.fixed-O-capacity-witness-007.v1",
+  "status": "bounded diagnostic; no candidate mutation/admission"
+}

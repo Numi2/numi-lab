@@ -1,0 +1,282 @@
+{
+  "ancestry": {
+    "all_new_points_contained": true,
+    "appended_points": 5602,
+    "composed_path": "005->003->002->398",
+    "coordinate_fit_nodes": [
+      55529,
+      55530
+    ],
+    "coordinate_fit_parent_rows": [
+      211238,
+      211241
+    ],
+    "entry_count": 248702,
+    "explicit_parent_matches": true,
+    "max_base_parents_per_005_tet": 5
+  },
+  "artifact": {
+    "partial_one_face_solution": false,
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-owner-integration-007/replay-005-bank0004-face2562-001/field-and-material-map-005.npz",
+    "sha256": "78eb50d2c141028ef8a45ff63b2b16e0a05fb731b3bfef5273b530c6a6e90ef1"
+  },
+  "coverage": {
+    "all_689_bank_clip_run": false,
+    "constraint_domain": "all current 005 tets after AABB pruning",
+    "old_399_parts_reused": false,
+    "typed_faces_rebuilt": 1
+  },
+  "current_mesh": {
+    "base_398_prefix_exact": true,
+    "nodes": 55553,
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-coordinate-005/candidate.npz",
+    "physical_O_faces": 36393,
+    "physical_O_nodes": 18219,
+    "sha256": "5b54ffd34d74d717579fcb14677cbf2bfba01f4d4562652605b9207e65f8f698",
+    "tets": 248662
+  },
+  "elapsed_seconds": 1.504448083927855,
+  "full_scene_solve_run": false,
+  "initializer": {
+    "appended_rows_mapped_by": "strict containing-parent 398 tetrahedron ancestry with barycentric coordinates in [0,1]",
+    "fixed_O_exact_zero": true,
+    "nearest_or_extrapolated_mapping_used": false,
+    "optional_395_pullback_diagnostic": {
+      "error": "mapped current-mesh initializer out of bounds [-3.0645133595935715e-08,1.0], low=178, high=0, witnesses=[{'node': 49955, 'parent_398_tet': 6209, 'barycentric': [-2.220446049250313e-16, 0.5000000000000001, 0.5000000000000001, 2.3754645602842638e-17], 'phi': -6.159990606454127e-19}, {'node': 49956, 'parent_398_tet': 18042, 'barycentric': [0.0, 0.5, 0.49999999999999994, -7.971672934710332e-18], 'phi': -1.1149851425420619e-18}, {'node': 49964, 'parent_398_tet': 61510, 'barycentric': [-4.440892098500626e-16, 0.5, 0.5000000000000002, 1.7239020925270767e-16], 'phi': -1.937687750784195e-17}, {'node': 49983, 'parent_398_tet': 6869, 'barycentric': [8.881784197001252e-16, -9.186196570327873e-16, 0.49999999999999994, 0.5000000000000001], 'phi': -8.00210704262795e-18}, {'node': 49999, 'parent_398_tet': 67903, 'barycentric': [0.5000000000000006, 0.5000000000000003, -3.6429277652484475e-16, -4.862707878659023e-16], 'phi': -8.039782705778014e-17}, {'node': 50000, 'parent_398_tet': 7448, 'barycentric': [-6.661338147750939e-16, 3.513597457110018e-16, 0.5000000000000002, 0.5000000000000001], 'phi': -1.783701952470134e-18}, {'node': 50038, 'parent_398_tet': 47626, 'barycentric': [-4.440892098500626e-16, 3.4447294830903446e-16, 0.5, 0.5000000000000001], 'phi': -1.5782985035089913e-17}, {'node': 50063, 'parent_398_tet': 38270, 'barycentric': [-4.440892098500626e-16, 0.5000000000000001, 6.938446121127623e-17, 0.5000000000000001], 'phi': -1.891617697882865e-17}, {'node': 50124, 'parent_398_tet': 37650, 'barycentric': [6.661338147750939e-16, -7.20011638822743e-16, 0.49999999999999994, 0.5000000000000001], 'phi': -8.341788874267106e-18}, {'node': 50136, 'parent_398_tet': 7762, 'barycentric': [-2.220446049250313e-16, 0.5000000000000001, 0.5000000000000001, -6.716913870999795e-18], 'phi': -3.164963483922124e-18}, {'node': 50142, 'parent_398_tet': 45371, 'barycentric': [-4.440892098500626e-16, -4.111453830174623e-17, 0.5000000000000002, 0.5000000000000001], 'phi': -3.377462707696542e-17}, {'node': 50157, 'parent_398_tet': 50876, 'barycentric': [5.551115123125783e-16, -6.556171892532062e-16, 0.5, 0.5000000000000001], 'phi': -2.549342237762817e-17}]",
+      "source": "395 unsolved initializer",
+      "status": "failed_optional_bounds_diagnostic"
+    },
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/p1-interior-face-support-395/refined-background-unsolved-initializer.npz",
+    "sha256": "fd11505dbeaec0decf8b71fde1dc3f62c1e224bd9e039646b40dd3f9fcd0ef18",
+    "solver_p0": "all-zero bounded diagnostic initializer; 402 does not use p0 as bound, objective, or warm start"
+  },
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/candidate-with-transfer.npz": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/material-parent-014-conservative-map.npz": "e4ac929347673e55082c8bf2b4fa239617c18ac297195c18fae60ce8602bf38d",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/p1-interior-face-support-395/refined-background-unsolved-initializer.npz": "fd11505dbeaec0decf8b71fde1dc3f62c1e224bd9e039646b40dd3f9fcd0ef18",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/build-002/candidate.npz": "9c8c23c8229c46494d19f6fc12d6131667b901864dfab21cd1ef7de6a2fc6744",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-bistellar-003/candidate-geometry-only.npz": "176900d57eedb40255298ad77860317ab97e31a6792bc4dc76c4d48ec7d060e8",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-coordinate-005/candidate.npz": "5b54ffd34d74d717579fcb14677cbf2bfba01f4d4562652605b9207e65f8f698",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-coordinate-005/final-manifest-001.json": "0571398a611e5361e2d8aa73df8abf84822e5aed67050e98fd2e97f5892c72c4",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-coordinate-005/optimization-report-002.json": "be50a48f1622008ec5a598cf51ab2e7ba37e64cf297dcf4419a45213ce7ecc70",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-transfer-006/local-overlap-005-to-002.npz": "875bb77bfa65486c6856b04d3b3ad4c4ffd8d471a2fc4297d6d2809a70f5ae41",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-transfer-006/transfer-report.json": "a8de7a0585ec612c004ad70f3e39be200e08dbcc24749f86e840bae3ae08be50",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-402-absolute-variable-integration/absolute_field_402.py": "3a3ccbb93efa463f15575c4e9d96aef50576be9784ca1928ec741e3fefd8f446",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-402-absolute-variable-integration/retained-399-fixed-O-witness-398.json": "79f4902f4ff31bd274dfb3cb2fa64f927edd4d998f27bb6352606b58fe331535",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/registered-tissue-banks.npz": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/robust-p1-construction-clip-owner-302/tools/human_skin_p1_obstacles.py": "e1b5a246e531a16d8d2438b8569d31a27c9a10712f0de063084bed87db58c436"
+  },
+  "limitations": [
+    "One retained typed bank face only; not complete tissue coverage.",
+    "No 689-bank clipping, skin/fat extraction, native switch, or physical field admission.",
+    "006 transfer is conservative attribution with numerical overlap provenance; no absolute kg ledger.",
+    "One-face solution does not certify a valid closed-solid material field."
+  ],
+  "material_transfer_006": {
+    "005_to_002_entries": 248726,
+    "005_to_014_entries": 249280,
+    "meaning": "conservative parent-material attribution; not an exact geometric overlap certificate or absolute mass ledger",
+    "overall_transfer_ready": true,
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-edge-support-403/quality-transfer-006/local-overlap-005-to-002.npz",
+    "report_sha256": "a8de7a0585ec612c004ad70f3e39be200e08dbcc24749f86e840bae3ae08be50",
+    "sha256": "875bb77bfa65486c6856b04d3b3ad4c4ffd8d471a2fc4297d6d2809a70f5ae41"
+  },
+  "native_admission": false,
+  "physical_admission": false,
+  "rebuilt_005_constraint": {
+    "aabb_candidate_tets": 97,
+    "bank_key": "bank_0004",
+    "face_row": 2562,
+    "fixed_O_conflict_count": 41,
+    "fixed_O_conflicts_first32": [
+      {
+        "max_free_capacity": 0.04253326362309354,
+        "polygon_vertex": 0,
+        "tet_row": 12646
+      },
+      {
+        "max_free_capacity": 0.024294280077659297,
+        "polygon_vertex": 1,
+        "tet_row": 12646
+      },
+      {
+        "max_free_capacity": 0.03383080424413218,
+        "polygon_vertex": 2,
+        "tet_row": 12646
+      },
+      {
+        "max_free_capacity": 0.05963016830879386,
+        "polygon_vertex": 3,
+        "tet_row": 12646
+      },
+      {
+        "max_free_capacity": 0.24643981409618365,
+        "polygon_vertex": 0,
+        "tet_row": 44637
+      },
+      {
+        "max_free_capacity": 0.06760782008441524,
+        "polygon_vertex": 1,
+        "tet_row": 44637
+      },
+      {
+        "max_free_capacity": 0.0670845128023968,
+        "polygon_vertex": 2,
+        "tet_row": 44637
+      },
+      {
+        "max_free_capacity": 0.24343985211293834,
+        "polygon_vertex": 3,
+        "tet_row": 44637
+      },
+      {
+        "max_free_capacity": 0.24643981409618296,
+        "polygon_vertex": 1,
+        "tet_row": 44639
+      },
+      {
+        "max_free_capacity": 0.2434398521129384,
+        "polygon_vertex": 2,
+        "tet_row": 44639
+      },
+      {
+        "max_free_capacity": 0.17848128200130023,
+        "polygon_vertex": 0,
+        "tet_row": 51468
+      },
+      {
+        "max_free_capacity": 0.2216226619601309,
+        "polygon_vertex": 1,
+        "tet_row": 51468
+      },
+      {
+        "max_free_capacity": 0.17832546000945756,
+        "polygon_vertex": 2,
+        "tet_row": 51468
+      },
+      {
+        "max_free_capacity": 0.04526089937370381,
+        "polygon_vertex": 0,
+        "tet_row": 51469
+      },
+      {
+        "max_free_capacity": 0.17848128200130028,
+        "polygon_vertex": 1,
+        "tet_row": 51469
+      },
+      {
+        "max_free_capacity": 0.1783254600094576,
+        "polygon_vertex": 2,
+        "tet_row": 51469
+      },
+      {
+        "max_free_capacity": 0.045099796898450215,
+        "polygon_vertex": 3,
+        "tet_row": 51469
+      },
+      {
+        "max_free_capacity": 0.044282551087634126,
+        "polygon_vertex": 0,
+        "tet_row": 78260
+      },
+      {
+        "max_free_capacity": 0.04526089937370381,
+        "polygon_vertex": 1,
+        "tet_row": 78260
+      },
+      {
+        "max_free_capacity": 0.04509979689845009,
+        "polygon_vertex": 2,
+        "tet_row": 78260
+      },
+      {
+        "max_free_capacity": 0.04403352187810369,
+        "polygon_vertex": 3,
+        "tet_row": 78260
+      },
+      {
+        "max_free_capacity": 0.02429428007765934,
+        "polygon_vertex": 0,
+        "tet_row": 80789
+      },
+      {
+        "max_free_capacity": 0.022154355651559453,
+        "polygon_vertex": 1,
+        "tet_row": 80789
+      },
+      {
+        "max_free_capacity": 0.03259976746271938,
+        "polygon_vertex": 2,
+        "tet_row": 80789
+      },
+      {
+        "max_free_capacity": 0.03383080424413237,
+        "polygon_vertex": 3,
+        "tet_row": 80789
+      },
+      {
+        "max_free_capacity": 0.022154355651559487,
+        "polygon_vertex": 0,
+        "tet_row": 80964
+      },
+      {
+        "max_free_capacity": 0.02602773822612908,
+        "polygon_vertex": 1,
+        "tet_row": 80964
+      },
+      {
+        "max_free_capacity": 0.03807566164113474,
+        "polygon_vertex": 2,
+        "tet_row": 80964
+      },
+      {
+        "max_free_capacity": 0.03259976746271942,
+        "polygon_vertex": 3,
+        "tet_row": 80964
+      },
+      {
+        "max_free_capacity": 0.06760782008441513,
+        "polygon_vertex": 0,
+        "tet_row": 109265
+      },
+      {
+        "max_free_capacity": 0.04428255108763404,
+        "polygon_vertex": 1,
+        "tet_row": 109265
+      },
+      {
+        "max_free_capacity": 0.04403352187810375,
+        "polygon_vertex": 2,
+        "tet_row": 109265
+      }
+    ],
+    "fixed_O_relaxed": false,
+    "intersected_tets": 25,
+    "minimum_free_capacity_at_phi_max_1": 0.022154355651559453,
+    "polygon_vertex_rows": 97,
+    "solver": {
+      "pass": false,
+      "status": "not_run_fixed_O_capacity_gate",
+      "target": 0.341
+    },
+    "stable_bank_id": 5,
+    "target": 0.341,
+    "triangle_source_vertex_ids": [
+      1414,
+      946,
+      1328
+    ]
+  },
+  "retained_398_witness": {
+    "bank_key": "bank_0004",
+    "face_row": 2562,
+    "old_free_capacity": 0.0,
+    "old_tet_row": 88190,
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-402-absolute-variable-integration/retained-399-fixed-O-witness-398.json",
+    "sha256": "79f4902f4ff31bd274dfb3cb2fa64f927edd4d998f27bb6352606b58fe331535",
+    "stable_bank_id": 5,
+    "used_as_005_constraint": false
+  },
+  "schema": "numi.human.global-p1-field-owner-integration-007.single-typed-face.v1",
+  "status": "blocked_by_fixed_physical_O_capacity"
+}\n

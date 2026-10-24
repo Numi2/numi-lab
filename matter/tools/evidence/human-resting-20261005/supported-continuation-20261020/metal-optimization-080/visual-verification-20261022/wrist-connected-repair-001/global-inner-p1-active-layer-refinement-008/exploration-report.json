@@ -1,0 +1,108 @@
+{
+  "input_sha256": "5b54ffd34d74d717579fcb14677cbf2bfba01f4d4562652605b9207e65f8f698",
+  "records": [
+    {
+      "round": 0,
+      "nodes": 55553,
+      "tets": 248662,
+      "constraints": 97,
+      "bad_capacity": 41,
+      "min_capacity": 0.022154355651559453,
+      "min_q": 1.0305495205375531e-05,
+      "bad_q": 0,
+      "nonpositive": 0,
+      "boundary": {
+        "face_count_expected": 38078,
+        "face_count_actual": 38078,
+        "exact_unoriented_set": true,
+        "oriented_mismatch_count": 0,
+        "missing_count": 0,
+        "extra_count": 0
+      },
+      "selected_edges": 27
+    },
+    {
+      "round": 1,
+      "nodes": 55580,
+      "tets": 248808,
+      "constraints": 177,
+      "bad_capacity": 36,
+      "min_capacity": 0.044308711882114604,
+      "min_q": 1.0305495205375531e-05,
+      "bad_q": 0,
+      "nonpositive": 0,
+      "boundary": {
+        "face_count_expected": 38078,
+        "face_count_actual": 38078,
+        "exact_unoriented_set": true,
+        "oriented_mismatch_count": 0,
+        "missing_count": 0,
+        "extra_count": 0
+      },
+      "selected_edges": 26
+    },
+    {
+      "round": 2,
+      "nodes": 55606,
+      "tets": 248948,
+      "constraints": 251,
+      "bad_capacity": 42,
+      "min_capacity": 0.08861742376422921,
+      "min_q": 1.0305495205375531e-05,
+      "bad_q": 0,
+      "nonpositive": 0,
+      "boundary": {
+        "face_count_expected": 38078,
+        "face_count_actual": 38078,
+        "exact_unoriented_set": true,
+        "oriented_mismatch_count": 0,
+        "missing_count": 0,
+        "extra_count": 0
+      },
+      "selected_edges": 28
+    },
+    {
+      "round": 3,
+      "nodes": 55634,
+      "tets": 249099,
+      "constraints": 365,
+      "bad_capacity": 57,
+      "min_capacity": 0.1772350433088894,
+      "min_q": 1.0305495205375531e-05,
+      "bad_q": 0,
+      "nonpositive": 0,
+      "boundary": {
+        "face_count_expected": 38078,
+        "face_count_actual": 38078,
+        "exact_unoriented_set": true,
+        "oriented_mismatch_count": 0,
+        "missing_count": 0,
+        "extra_count": 0
+      },
+      "selected_edges": 23
+    },
+    {
+      "round": 4,
+      "nodes": 55657,
+      "tets": 249227,
+      "constraints": 440,
+      "bad_capacity": 0,
+      "min_capacity": 0.35226669591999393,
+      "min_q": 1.0305495205375531e-05,
+      "bad_q": 0,
+      "nonpositive": 0,
+      "boundary": {
+        "face_count_expected": 38078,
+        "face_count_actual": 38078,
+        "exact_unoriented_set": true,
+        "oriented_mismatch_count": 0,
+        "missing_count": 0,
+        "extra_count": 0
+      }
+    }
+  ],
+  "final_support_pass": true,
+  "candidate_admission": false,
+  "scope": "one typed face only; adaptive internal O/free midpoint subdivision; no outer-boundary movement or target relaxation",
+  "elapsed_s": 5.092042959062383
+}

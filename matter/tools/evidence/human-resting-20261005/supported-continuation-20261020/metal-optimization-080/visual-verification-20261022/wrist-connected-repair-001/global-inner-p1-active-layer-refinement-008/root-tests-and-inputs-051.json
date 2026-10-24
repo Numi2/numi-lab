@@ -1,0 +1,125 @@
+{
+  "tests": [
+    {
+      "name": "owner007",
+      "pass": true,
+      "stdout": "",
+      "stderr": "test_402_solution_is_independent_of_bounded_initializer (__main__.FieldOwnerIntegration007Tests.test_402_solution_is_independent_of_bounded_initializer) ... ok\ntest_fixed_o_capacity_does_not_relax_zero_values (__main__.FieldOwnerIntegration007Tests.test_fixed_o_capacity_does_not_relax_zero_values) ... ok\ntest_mesh_domain_mismatch_rejected (__main__.FieldOwnerIntegration007Tests.test_mesh_domain_mismatch_rejected) ... ok\ntest_multilevel_parent_ancestry_composes_and_rejects_domain_mismatch (__main__.FieldOwnerIntegration007Tests.test_multilevel_parent_ancestry_composes_and_rejects_domain_mismatch) ... ok\ntest_newpoint_initializer_is_containing_parent_p1_value (__main__.FieldOwnerIntegration007Tests.test_newpoint_initializer_is_containing_parent_p1_value) ... ok\ntest_tet_domain_mismatch_rejected (__main__.FieldOwnerIntegration007Tests.test_tet_domain_mismatch_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.114s\n\nOK\n",
+      "source_sha256": "1171fd971277f34afeb05b777689917b452e98b2c0242480badb206a6eb45be2"
+    },
+    {
+      "name": "active008",
+      "pass": true,
+      "stdout": "",
+      "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.004s\n\nOK\n",
+      "source_sha256": "bebea9cb6bbb773e045a2b96e9d574584ccd0bd19cc9f29031d0b9424c69c323"
+    }
+  ],
+  "test_count": 10,
+  "pass": true,
+  "files": {
+    "global-inner-p1-field-owner-integration-007/field_owner_integration_007.py": {
+      "sha256": "cffb33579f9164d173d4ca5e1aeb76a0ff4572d2e0ce4d60ec659c55a534ae1e",
+      "bytes": 11966
+    },
+    "global-inner-p1-field-owner-integration-007/test_field_owner_integration_007.py": {
+      "sha256": "1171fd971277f34afeb05b777689917b452e98b2c0242480badb206a6eb45be2",
+      "bytes": 5348
+    },
+    "global-inner-p1-field-owner-integration-007/run_field_owner_integration_007.py": {
+      "sha256": "68aec04ab0f668dcf7092de249214f3616a75601f7bdf9ecb0c68eb985556d54",
+      "bytes": 15643
+    },
+    "global-inner-p1-field-owner-integration-007/replay-005-bank0004-face2562-002/field-and-material-map-005.npz": {
+      "sha256": "78eb50d2c141028ef8a45ff63b2b16e0a05fb731b3bfef5273b530c6a6e90ef1",
+      "bytes": 2287271
+    },
+    "global-inner-p1-field-owner-integration-007/replay-005-bank0004-face2562-002/integration-report.json": {
+      "sha256": "5f9cd68802d4517a8467a88b4023d92a28d036f9b808fa32a1a04ffe92ca85da",
+      "bytes": 16312
+    },
+    "global-inner-p1-field-owner-integration-007/replay-005-bank0004-face2562-001/field-and-material-map-005.npz": {
+      "sha256": "78eb50d2c141028ef8a45ff63b2b16e0a05fb731b3bfef5273b530c6a6e90ef1",
+      "bytes": 2287271
+    },
+    "global-inner-p1-field-owner-integration-007/replay-005-bank0004-face2562-001/integration-report.json": {
+      "sha256": "6a4c013f29bf14fd773c2af257ac5e30f2c14221f959684a521b66d7f9fdd758",
+      "bytes": 16312
+    },
+    "global-inner-p1-active-layer-refinement-008/solver-and-transfer-report.json": {
+      "sha256": "444cc595cf4ed0f3312f16a535c4f8c68b904425f63a82f6954d3845a06c7a01",
+      "bytes": 1888
+    },
+    "global-inner-p1-active-layer-refinement-008/test_active_layer_refinement_008.failed-numpy2-batch.py": {
+      "sha256": "9005f8e5752d6e2d604eda9b6b10c2f49e2228b70858c2e4a2b4718d6e09ef6e",
+      "bytes": 2535
+    },
+    "global-inner-p1-active-layer-refinement-008/exploration-report.json": {
+      "sha256": "ae146e93cfdc01f17e18ff458c9dcdb77d822941f211191de47c1ad3b27cf058",
+      "bytes": 2855
+    },
+    "global-inner-p1-active-layer-refinement-008/round-000.npz": {
+      "sha256": "c704531856c47263cd1bd866d48d8b3d8065ad60f3f95f3c5f27800aad84702c",
+      "bytes": 3481378
+    },
+    "global-inner-p1-active-layer-refinement-008/round-001.npz": {
+      "sha256": "a1cc91f642cc2850c53ac27a36f88d64509ac32454c44d247f7e0a993c881591",
+      "bytes": 3482733
+    },
+    "global-inner-p1-active-layer-refinement-008/helper-replay-verification.json": {
+      "sha256": "a82c55caad5f53239dc2387538626514be2ce036a2cf48e426c66684940f0318",
+      "bytes": 2440
+    },
+    "global-inner-p1-active-layer-refinement-008/round-003.npz": {
+      "sha256": "9ce2b9e205396eedf330f41ed34d3908075bdc5b74b67ff88894a52e9cb5bd02",
+      "bytes": 3485288
+    },
+    "global-inner-p1-active-layer-refinement-008/round-002.npz": {
+      "sha256": "dc63994c45d588fcd2f40bdca5c01a787ebd14d36180ecebc671f64b08ccb2c9",
+      "bytes": 3484041
+    },
+    "global-inner-p1-active-layer-refinement-008/tests-008.json": {
+      "sha256": "d465636bcdfb3afc9fe1e531057d588712e860f1a2872e1d2d87369813edb9c9",
+      "bytes": 257
+    },
+    "global-inner-p1-active-layer-refinement-008/round-004.npz": {
+      "sha256": "20a3d1a2d7c6454548fe9b47dc545c121d02746b625d3e9087c0be0103c16255",
+      "bytes": 3486256
+    },
+    "global-inner-p1-active-layer-refinement-008/test_active_layer_refinement_008.py": {
+      "sha256": "bebea9cb6bbb773e045a2b96e9d574584ccd0bd19cc9f29031d0b9424c69c323",
+      "bytes": 2554
+    },
+    "global-inner-p1-active-layer-refinement-008/executed_finalize_active_layer_008.py": {
+      "sha256": "872d93fcddfb0ccb934e333217432506a5699db1d6766117a76ff9a2b0c8291a",
+      "bytes": 5369
+    },
+    "global-inner-p1-active-layer-refinement-008/executed_helper_replay_008.py": {
+      "sha256": "3f86b39fd9696ee3946244622f18af5aefac844a1174b19710996afe155da053",
+      "bytes": 2370
+    },
+    "global-inner-p1-active-layer-refinement-008/executed_refine_active_layer_008.py": {
+      "sha256": "7b6fc3621034849eea6576c04f9e00dabe5970f71746dc7baae2c97391e2d797",
+      "bytes": 3721
+    },
+    "global-inner-p1-active-layer-refinement-008/active_layer_refinement_008.py": {
+      "sha256": "dbf00d3389e46adbdc9cc396a9cd534c954c49f35b9effc30da5661ec38186f9",
+      "bytes": 1934
+    },
+    "global-inner-p1-active-layer-refinement-008/candidate-with-transfer-partial-field.npz": {
+      "sha256": "b76368d95c95e74c780999391eb5785a6311c43879ac3ceb6d5c134494a1850b",
+      "bytes": 6266179
+    },
+    "global-inner-p1-field-007-capacity-diagnostic/capacity-witness-report.json": {
+      "sha256": "f307f4f6620e8b9509c9269d6dc346cbf5b121c0ccea22c0c8515a77ec16a0f3",
+      "bytes": 6719
+    },
+    "global-inner-p1-field-007-capacity-diagnostic/diagnose_fixedO_capacity_007.py": {
+      "sha256": "abf27090fdd1adeef567753755a09b3c662ebc6e8a66d59f41dea81917504754",
+      "bytes": 5296
+    }
+  },
+  "physical_admission": false,
+  "native_admission": false,
+  "claim": "bounded one-typed-face field solve and conforming local support; no full field or native qualification"
+}

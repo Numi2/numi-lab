@@ -1,0 +1,7 @@
+{
+  "pass": true,
+  "tests": 4,
+  "stdout": "",
+  "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.004s\n\nOK\n",
+  "test_sha256": "bebea9cb6bbb773e045a2b96e9d574584ccd0bd19cc9f29031d0b9424c69c323"
+}
