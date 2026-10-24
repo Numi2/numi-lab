@@ -39,3 +39,5 @@ Presentation helpers retain absolute asset/output paths from this task. Restore 
 240 Hz describes the simulation step, not real-time throughput. The completed 720–1920 continuation simulated five seconds in 1,757.28 wall-clock seconds on Apple M4 Pro; raw GPU and wall timing records are preserved. The paired optimization result is scoped to the measured eight-interval windows.
 
 The repository example lists the active empty-scene helpers only. The release archive conservatively retains inherited historical helpers and snapshots; the entry points described here govern this delivery.
+
+[Independent GitHub archive download and restoration verification](evidence/github_download_verification.json) confirms all 531 payload hashes. The approved ten-coin example and video files remain unchanged.
