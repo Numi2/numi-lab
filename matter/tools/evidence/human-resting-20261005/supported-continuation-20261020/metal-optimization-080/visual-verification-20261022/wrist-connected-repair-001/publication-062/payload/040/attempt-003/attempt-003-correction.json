@@ -1,0 +1,17 @@
+{
+  "as_run_progress_path": "payload/040/attempt-003/fit-progress.json",
+  "as_run_progress_preserved_unchanged": true,
+  "as_run_progress_sha256": "9c114a201103e6a02d9080e15c390902db06169f2c0ce54207ace294ec13b25f",
+  "as_run_progress_status": "running",
+  "attempt": "003",
+  "classification": "FAILED_POST_SOLVE_REPORT_ASSEMBLY",
+  "executed_source_path": "payload/040/attempt-003/build_fit_040-as-run.py",
+  "executed_source_sha256": "0a746ec82a54a8751772704b7a783ba35604c819808c6f38674411d514f81510",
+  "failure_summary": "The run ended after solving while assembling the report: a zero-width Jacobian reshape raised an error. No final candidate or final fit report was emitted.",
+  "helper_path": "payload/040/attempt-003/column_fit_support-as-run.py",
+  "helper_sha256": "755af20f485c7331fed5c74a30ddebb737251528a04d5aab88483efca4852c07",
+  "repair_evidence": "The 004 helper uses reshape(len(jac), 3*len(C)); the 004 report binds the corrected helper hash, and its test suite passes 16 tests.",
+  "schema": "numi.human.publication.040-attempt-correction.v1",
+  "stdout_stderr_trace": "No separate stdout/stderr log file is present in the frozen attempt-003 directory; this sidecar does not synthesize one.",
+  "superseded_by_attempt": "004"
+}

@@ -1,0 +1,1670 @@
+{
+  "baseline_O12_sha256": "8c223d3a34103a57c034c3e9abae8b4bf5c7f554a3b94ddf2cf4d9b50c397e2d",
+  "candidate_sha256": "ef5ba12f790d6fc8ff9d95112c4acdc5909ade5208e6f1c61b23ee572d0af3ea",
+  "components": [
+    {
+      "columns": 1,
+      "component": 12,
+      "dofs": 3,
+      "elapsed_s": 0.0018695410108193755,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 55.67468668343676,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 42,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 13,
+      "dofs": 3,
+      "elapsed_s": 0.003531583002768457,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.98579276087793,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 30,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 14,
+      "dofs": 3,
+      "elapsed_s": 0.0065565831027925014,
+      "iterations": 3,
+      "max_translation_mm": 1.0686717462599098,
+      "minimum_constraint_slack": -7.591149930874508e-15,
+      "route_endpoint_rows": 1,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 42,
+      "translation_mm_by_column": [
+        [
+          -0.9174046162435106,
+          0.3970553524855268,
+          0.3778559492874181
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 15,
+      "dofs": 3,
+      "elapsed_s": 0.008247375022619963,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 9.051564097960824,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 60,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 16,
+      "dofs": 3,
+      "elapsed_s": 0.010732750059105456,
+      "iterations": 2,
+      "max_translation_mm": 3.598629885261119,
+      "minimum_constraint_slack": -3.8191672047105385e-11,
+      "route_endpoint_rows": 1,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 18,
+      "translation_mm_by_column": [
+        [
+          0.6829280995163991,
+          -2.192827175646475,
+          2.770425100906299
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 17,
+      "dofs": 3,
+      "elapsed_s": 0.012380333035252988,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.98689973624059,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 24,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 18,
+      "dofs": 3,
+      "elapsed_s": 0.013941750046797097,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.98450675773162,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 42,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 19,
+      "dofs": 3,
+      "elapsed_s": 0.016761416103690863,
+      "iterations": 3,
+      "max_translation_mm": 5.080746756505751,
+      "minimum_constraint_slack": -3.0359048608374906e-11,
+      "route_endpoint_rows": 1,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 36,
+      "translation_mm_by_column": [
+        [
+          -3.5565994619418353,
+          -0.6492534080850978,
+          3.569741991117656
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 20,
+      "dofs": 3,
+      "elapsed_s": 0.018320291070267558,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.98935141619438,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 36,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 21,
+      "dofs": 3,
+      "elapsed_s": 0.01992150000296533,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.98115847664762,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 48,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 22,
+      "dofs": 3,
+      "elapsed_s": 0.022517000092193484,
+      "iterations": 3,
+      "max_translation_mm": 6.840654965699158,
+      "minimum_constraint_slack": -1.2798095916366492e-13,
+      "route_endpoint_rows": 1,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 18,
+      "translation_mm_by_column": [
+        [
+          -6.628643752809331,
+          -1.4853270423373568,
+          -0.8058820852877551
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 23,
+      "dofs": 3,
+      "elapsed_s": 0.02407737507019192,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.98915627797042,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 36,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 24,
+      "dofs": 3,
+      "elapsed_s": 0.025675375014543533,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.9885273979897,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 48,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 25,
+      "dofs": 3,
+      "elapsed_s": 0.02729525009635836,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.98920032655437,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 54,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 26,
+      "dofs": 3,
+      "elapsed_s": 0.02890033309813589,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.98900157589912,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 54,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 27,
+      "dofs": 3,
+      "elapsed_s": 0.030445250100456178,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.98918958361024,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 24,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 28,
+      "dofs": 3,
+      "elapsed_s": 0.03203250002115965,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.98798354866446,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 36,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 29,
+      "dofs": 3,
+      "elapsed_s": 0.033632666105404496,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.98812373471652,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 36,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 30,
+      "dofs": 3,
+      "elapsed_s": 0.03665575000923127,
+      "iterations": 3,
+      "max_translation_mm": 6.8573634548803835,
+      "minimum_constraint_slack": -1.8809953594711715e-13,
+      "route_endpoint_rows": 1,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 48,
+      "translation_mm_by_column": [
+        [
+          5.108683662691073,
+          2.6232156492193415,
+          -3.7474690718634482
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 31,
+      "dofs": 3,
+      "elapsed_s": 0.03825870808213949,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.98248562556577,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 36,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 32,
+      "dofs": 3,
+      "elapsed_s": 0.04116116603836417,
+      "iterations": 3,
+      "max_translation_mm": 0.5357400488471812,
+      "minimum_constraint_slack": 4.371503159461554e-15,
+      "route_endpoint_rows": 1,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 30,
+      "translation_mm_by_column": [
+        [
+          0.2568533762609174,
+          0.038178227578223,
+          -0.46860021978348776
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 33,
+      "dofs": 3,
+      "elapsed_s": 0.04278041608631611,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 34.941631175377836,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 42,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 1,
+      "component": 34,
+      "dofs": 3,
+      "elapsed_s": 0.04437300004065037,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.9842316696984,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 36,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 2,
+      "component": 8,
+      "dofs": 6,
+      "elapsed_s": 0.04894650005735457,
+      "iterations": 5,
+      "max_translation_mm": 1.427706558403855,
+      "minimum_constraint_slack": -8.615330671091215e-12,
+      "route_endpoint_rows": 2,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 48,
+      "translation_mm_by_column": [
+        [
+          -0.9656954691115721,
+          0.0594696177988889,
+          0.7012103196563528
+        ],
+        [
+          -0.002423329505283214,
+          -0.39034990582961754,
+          -1.3733051719855633
+        ]
+      ]
+    },
+    {
+      "columns": 2,
+      "component": 9,
+      "dofs": 6,
+      "elapsed_s": 0.05061733303591609,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 9.105608181083937,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 42,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 2,
+      "component": 10,
+      "dofs": 6,
+      "elapsed_s": 0.05231462500523776,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 64.98829072764268,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 54,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 2,
+      "component": 11,
+      "dofs": 6,
+      "elapsed_s": 0.05683729110751301,
+      "iterations": 5,
+      "max_translation_mm": 2.2171712306627307,
+      "minimum_constraint_slack": -5.5250248820470915e-11,
+      "route_endpoint_rows": 1,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 60,
+      "translation_mm_by_column": [
+        [
+          0.028381322710802646,
+          0.20260119279423544,
+          -0.030049617122252684
+        ],
+        [
+          -1.1803716102120243,
+          1.7878217964878504,
+          0.571195546102134
+        ]
+      ]
+    },
+    {
+      "columns": 3,
+      "component": 5,
+      "dofs": 9,
+      "elapsed_s": 0.05867087503429502,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 54.90917851995707,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 84,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 3,
+      "component": 6,
+      "dofs": 9,
+      "elapsed_s": 0.060473083052784204,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 9.483945940557186,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 66,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 3,
+      "component": 7,
+      "dofs": 9,
+      "elapsed_s": 0.09604241605848074,
+      "iterations": 19,
+      "max_translation_mm": 12.331781525221874,
+      "minimum_constraint_slack": -78.49285602895955,
+      "route_endpoint_rows": 4,
+      "solver_message": "Positive directional derivative for linesearch",
+      "solver_success": false,
+      "tets": 108,
+      "translation_mm_by_column": [
+        [
+          1.1652224985500172,
+          11.645189331748794,
+          -3.886471091157174
+        ],
+        [
+          1.5722194280547113,
+          3.634998623038895,
+          0.14840575095302522
+        ],
+        [
+          5.031680436747067,
+          -4.1548659761140385,
+          4.445806259701178
+        ]
+      ]
+    },
+    {
+      "columns": 4,
+      "component": 4,
+      "dofs": 12,
+      "elapsed_s": 0.09791425010189414,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 9.140025170705467,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 90,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 5,
+      "component": 2,
+      "dofs": 15,
+      "elapsed_s": 0.09979650005698204,
+      "iterations": 1,
+      "max_translation_mm": 0.0,
+      "minimum_constraint_slack": 9.191184238137351,
+      "route_endpoint_rows": 0,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 96,
+      "translation_mm_by_column": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "columns": 5,
+      "component": 3,
+      "dofs": 15,
+      "elapsed_s": 0.10723929107189178,
+      "iterations": 7,
+      "max_translation_mm": 9.659904443043189,
+      "minimum_constraint_slack": -1.537936444861998e-13,
+      "route_endpoint_rows": 3,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 108,
+      "translation_mm_by_column": [
+        [
+          0.6677583954910163,
+          6.378531305560499,
+          -0.18900821269260068
+        ],
+        [
+          3.4493866530403428,
+          1.7403614202352222,
+          3.0358274466137574
+        ],
+        [
+          3.908904372814867,
+          7.558675213638181,
+          -4.571722811768683
+        ],
+        [
+          0.23262320096270434,
+          0.13480985048000624,
+          0.1797553524000945
+        ],
+        [
+          0.3892715924713536,
+          0.4837778279095125,
+          -0.0695447337432025
+        ]
+      ]
+    },
+    {
+      "columns": 8,
+      "component": 1,
+      "dofs": 24,
+      "elapsed_s": 0.38861275010276586,
+      "iterations": 37,
+      "max_translation_mm": 5.590080620934398,
+      "minimum_constraint_slack": -57.17575983404689,
+      "route_endpoint_rows": 16,
+      "solver_message": "Positive directional derivative for linesearch",
+      "solver_success": false,
+      "tets": 186,
+      "translation_mm_by_column": [
+        [
+          0.24562838860659245,
+          0.15291589515787687,
+          0.6661830898484599
+        ],
+        [
+          -2.348670500850956,
+          0.436966302320364,
+          -3.7243710179177807
+        ],
+        [
+          -1.3518019306658065,
+          -3.2035069946886083,
+          -4.377119580703234
+        ],
+        [
+          -0.11742767008385456,
+          -1.6360706091123598,
+          1.3237223808879504
+        ],
+        [
+          0.2775663262151012,
+          -0.8122239395439785,
+          0.10414480988546077
+        ],
+        [
+          -0.8488140546036343,
+          -0.023812864950312252,
+          0.5573738749711487
+        ],
+        [
+          0.4537049674846716,
+          -0.4548775741811548,
+          0.7036250321199061
+        ],
+        [
+          0.20261348588387942,
+          -0.09624885639325793,
+          0.1360583795851339
+        ]
+      ]
+    },
+    {
+      "columns": 131,
+      "component": 0,
+      "dofs": 393,
+      "elapsed_s": 40.38259537506383,
+      "iterations": 24,
+      "max_translation_mm": 9.63218631561118,
+      "minimum_constraint_slack": -6.255485018868967e-09,
+      "route_endpoint_rows": 105,
+      "solver_message": "Optimization terminated successfully",
+      "solver_success": true,
+      "tets": 1770,
+      "translation_mm_by_column": [
+        [
+          -6.870267707309206,
+          -1.3612999621531612,
+          0.4691346337439389
+        ],
+        [
+          -8.081620706053165,
+          0.13792548818485156,
+          -0.48379006622219795
+        ],
+        [
+          -8.397999495027754,
+          0.5024075212421423,
+          2.819378907866749
+        ],
+        [
+          -7.7452058923409695,
+          -1.9266821880584792,
+          1.8890458863914703
+        ],
+        [
+          -6.005853173279836,
+          1.9546970797129473,
+          1.5132150717150248
+        ],
+        [
+          -6.320822616532531,
+          -1.7297715576043566,
+          1.6076327667765928
+        ],
+        [
+          -8.359815483878238,
+          3.799882886295984,
+          -1.3727694560588923
+        ],
+        [
+          -6.693991485884056,
+          1.3097625898665641,
+          -3.178683718144095
+        ],
+        [
+          -5.193777795441991,
+          3.6425745207724103,
+          1.1372767359735028
+        ],
+        [
+          -6.639927423833643,
+          2.732306695687445,
+          -3.430335631441961
+        ],
+        [
+          -4.400171297726412,
+          -0.45366453838789855,
+          -1.6400575173865954
+        ],
+        [
+          -5.419311644333927,
+          -0.09668775611583694,
+          -2.21065792718127
+        ],
+        [
+          -4.389909675540445,
+          -0.3832895953704042,
+          -2.3394157191626923
+        ],
+        [
+          -4.36682201891525,
+          -0.32930555762034724,
+          -2.108501252553006
+        ],
+        [
+          -4.872933086009642,
+          -0.0702544632154868,
+          -2.469192540189888
+        ],
+        [
+          -7.671337390690807,
+          1.1531033465210403,
+          3.4673266003921004
+        ],
+        [
+          -6.328487954156648,
+          2.5993911343065563,
+          2.48069362862039
+        ],
+        [
+          -4.043960081853282,
+          -3.5933769566621487,
+          1.4671592453184084
+        ],
+        [
+          -5.638158745289503,
+          5.892966501574777,
+          -1.444620093035719
+        ],
+        [
+          -5.154084330494902,
+          3.1955757974068977,
+          -3.490021563072774
+        ],
+        [
+          -5.964204097996193,
+          -0.348612303780682,
+          3.720470703299152
+        ],
+        [
+          -5.315346847317676,
+          0.23879821143554578,
+          3.6325374689381036
+        ],
+        [
+          -5.069769952783186,
+          0.49437520641419647,
+          3.54237450814212
+        ],
+        [
+          -4.985740241468835,
+          0.5371187559018284,
+          3.449573681641036
+        ],
+        [
+          -0.7458531943202819,
+          0.007453617505134221,
+          0.4101299430345554
+        ],
+        [
+          -6.025483519213313,
+          0.4388197063770882,
+          3.027546966805596
+        ],
+        [
+          -6.045790433601031,
+          -0.02738051367814772,
+          2.800831543476154
+        ],
+        [
+          -1.062775449978367,
+          0.0402277840776518,
+          0.42927280937585166
+        ],
+        [
+          -5.2186720590832945,
+          -0.855159369949911,
+          1.0365162607285818
+        ],
+        [
+          -1.784814325184801,
+          -1.0965007732417342,
+          3.4077804537963043
+        ],
+        [
+          -2.039959411558529,
+          -0.46256858553510644,
+          3.408240179886466
+        ],
+        [
+          -2.3133832600675133,
+          -0.2547786310607204,
+          3.296460130309544
+        ],
+        [
+          -3.8934506510709888,
+          -0.9128741807591654,
+          4.353925520736033
+        ],
+        [
+          -1.5234684579799345,
+          -1.1352942013532377,
+          1.9167977436676318
+        ],
+        [
+          -2.789312529113168,
+          -0.6503379379020972,
+          3.5764490428446662
+        ],
+        [
+          -4.262514729302727,
+          0.3848426579903951,
+          3.8083555917359577
+        ],
+        [
+          -4.30082110578297,
+          0.15604467950718146,
+          4.032845562809437
+        ],
+        [
+          -3.4976858218059452,
+          -0.3994354186286109,
+          4.192212540317635
+        ],
+        [
+          -3.7446987708737347,
+          0.21158386246628588,
+          3.774753238498333
+        ],
+        [
+          -3.7144371289196285,
+          0.27873193878363967,
+          3.6463485046556503
+        ],
+        [
+          -2.809477153647132,
+          -0.29130765341604814,
+          3.918504487639718
+        ],
+        [
+          -2.799675617194607,
+          -0.20837737057731437,
+          3.7602683423021612
+        ],
+        [
+          -2.609654815021903,
+          -0.39571765185547214,
+          3.6898230632638205
+        ],
+        [
+          -4.1384059204012535,
+          0.34616391932892954,
+          3.8507986971840586
+        ],
+        [
+          -4.826192345299229,
+          -0.7375783261418118,
+          4.397377285720877
+        ],
+        [
+          -2.2550703190789747,
+          -1.5401370726087842,
+          2.535396647006271
+        ],
+        [
+          -5.288406673721788,
+          0.29775844625725756,
+          3.6053003956555556
+        ],
+        [
+          -7.031006609101307,
+          1.0554383754197523,
+          5.431658304234901
+        ],
+        [
+          -3.4140222979552464,
+          -1.6901968071980142,
+          -2.412093702430247
+        ],
+        [
+          -3.3020616596258137,
+          4.030605235120046,
+          -4.06372572584171
+        ],
+        [
+          -4.259176086720167,
+          -0.3630851599364821,
+          -3.8882801828663274
+        ],
+        [
+          -1.064432891765857,
+          -0.9562169682666674,
+          2.525985234691587
+        ],
+        [
+          -0.20588450416758633,
+          -0.12471124851092505,
+          0.4312675736463981
+        ],
+        [
+          -0.061139517183472256,
+          -0.010534983791494206,
+          0.09188887261177217
+        ],
+        [
+          -1.402099074992483,
+          -1.1134837722572475,
+          3.028444683551589
+        ],
+        [
+          -1.136676951686499,
+          -1.0696633911037046,
+          2.6320843678307675
+        ],
+        [
+          -0.9390857880539866,
+          -1.6267356607410273,
+          1.466171936734578
+        ],
+        [
+          -1.7647780921617604,
+          -0.5622775254488744,
+          3.1721428378009557
+        ],
+        [
+          -1.6824460860068031,
+          -0.42486069813775773,
+          2.930836685566709
+        ],
+        [
+          -2.2711382153224586,
+          -0.2684658285179991,
+          3.3103291002227544
+        ],
+        [
+          -3.130049843702098,
+          0.21617359418722804,
+          3.434991187456208
+        ],
+        [
+          -0.2691439135714368,
+          -0.04704414757993406,
+          0.4204537527312747
+        ],
+        [
+          -0.48941790309663097,
+          0.005355697118394275,
+          0.5936240891044153
+        ],
+        [
+          -3.3908012317087817,
+          0.22652612037890504,
+          3.760453187907525
+        ],
+        [
+          -3.7717024235066448,
+          2.8011120397858185,
+          2.9429616566845795
+        ],
+        [
+          -0.8041446209638471,
+          -1.2445960187624516,
+          1.9453305724330339
+        ],
+        [
+          -0.5286210072342753,
+          -1.4717349906559047,
+          1.670520208275517
+        ],
+        [
+          -0.8286241940704155,
+          -0.911264690072965,
+          2.193811981330616
+        ],
+        [
+          -0.8805012985260667,
+          -0.9656159704957467,
+          2.2934158865673933
+        ],
+        [
+          -0.06712771797175587,
+          -0.06701275207712608,
+          0.16967347862260077
+        ],
+        [
+          -0.07449211940618031,
+          -0.10860520952368662,
+          0.21657103687379492
+        ],
+        [
+          -0.4703501331235324,
+          -0.9777498013682355,
+          1.4975940548982878
+        ],
+        [
+          -0.06360314826219302,
+          -0.003094106351712656,
+          0.08558271723838208
+        ],
+        [
+          -0.3578526019023211,
+          -0.00907242764201145,
+          0.4719783735554799
+        ],
+        [
+          -0.04178982916047599,
+          -0.014941884676015194,
+          0.07712707147067295
+        ],
+        [
+          -0.16282362664775493,
+          -0.025003851143595202,
+          0.26306017009106786
+        ],
+        [
+          -0.02394607333159085,
+          -0.013189227081995278,
+          0.05050318448260925
+        ],
+        [
+          -0.2304119319805508,
+          -0.04785584687823219,
+          0.4119692925589867
+        ],
+        [
+          -2.1557655228161017,
+          -0.36254706656661356,
+          3.5569049117195
+        ],
+        [
+          -2.9786922892061103,
+          5.049833150284577,
+          0.45113577757610324
+        ],
+        [
+          -3.074035313695206,
+          6.01746155902148,
+          -2.5842373604951163
+        ],
+        [
+          0.011926431957127732,
+          -0.03999226638962547,
+          0.09499274317741105
+        ],
+        [
+          -0.029162098303688353,
+          -0.005606023657414942,
+          0.05895771529989769
+        ],
+        [
+          -0.22682875547004203,
+          -0.031456124413263876,
+          0.5103324079139716
+        ],
+        [
+          -1.85272274602728,
+          -0.48047169272397444,
+          3.516513401163493
+        ],
+        [
+          -1.0731792275686016,
+          -0.2527718825133066,
+          -1.8235902142188622
+        ],
+        [
+          -2.4844076267798614,
+          0.9161215026435626,
+          -6.140625479705308
+        ],
+        [
+          -1.6867245556155994,
+          4.90799083247923,
+          -3.430122350350483
+        ],
+        [
+          -1.3994792156458002,
+          4.216285439145585,
+          -3.1228183448959954
+        ],
+        [
+          -1.9676629304635411,
+          2.8723195991017696,
+          -5.358673019574497
+        ],
+        [
+          -2.0840155898832706,
+          -0.047942126847393456,
+          5.453698973328833
+        ],
+        [
+          -0.38582262840676335,
+          0.6255589641705217,
+          0.36629313844565836
+        ],
+        [
+          -1.1141686051533655,
+          4.751999107849643,
+          -3.6299790517951203
+        ],
+        [
+          0.6877538749025538,
+          0.7421777954124053,
+          2.360260516408792
+        ],
+        [
+          0.1544007877112006,
+          1.1739813241507984,
+          2.493386693010077
+        ],
+        [
+          -1.0661168700220909,
+          7.494415061047184,
+          -2.453829253928368
+        ],
+        [
+          0.1517176450689657,
+          1.367832203923629,
+          2.4206891943402224
+        ],
+        [
+          -0.3492941416719389,
+          0.3356226003137951,
+          -3.6500369206510364
+        ],
+        [
+          -1.2229656873729695,
+          -1.107186802947751,
+          4.786587118503634
+        ],
+        [
+          0.30947799873886406,
+          1.4820747907313774,
+          2.359570964697704
+        ],
+        [
+          0.3511734901314122,
+          7.499399104059732,
+          -1.8897550042455873
+        ],
+        [
+          0.2598314805298568,
+          3.6276425238242274,
+          -3.7658538755635744
+        ],
+        [
+          0.07488850645000163,
+          0.9886037036027489,
+          0.29015142881829775
+        ],
+        [
+          -0.04456941807676117,
+          -0.001828188735568338,
+          -0.16835067631818842
+        ],
+        [
+          0.7840758332166895,
+          4.706873942586396,
+          -3.4329182496491066
+        ],
+        [
+          0.3385291808064166,
+          1.6098762422029058,
+          -4.6057230308195525
+        ],
+        [
+          1.4890474369738707,
+          3.7916116923992798,
+          3.408997056997751
+        ],
+        [
+          1.614732768873153,
+          3.7325974443351133,
+          1.6353785629371642
+        ],
+        [
+          2.5016894302519503,
+          7.520656188508455,
+          -1.1651826216125427
+        ],
+        [
+          2.2119005511210093,
+          1.816870992085327,
+          4.133825972906671
+        ],
+        [
+          3.0705961065996608,
+          6.053647990506307,
+          -2.4420943201818233
+        ],
+        [
+          0.3377820429569781,
+          0.22260094568600003,
+          -0.9541944428218999
+        ],
+        [
+          3.555357096952216,
+          3.7138944535803016,
+          3.2836674882394754
+        ],
+        [
+          2.750884292113649,
+          6.410451628122401,
+          0.2652793751022107
+        ],
+        [
+          3.189797829008192,
+          2.743324489777079,
+          -5.286812502495406
+        ],
+        [
+          3.7807331093916905,
+          0.07326716822852995,
+          -3.5660484034133706
+        ],
+        [
+          6.371397956458903,
+          3.350102727681198,
+          4.441832800416686
+        ],
+        [
+          3.6125120640731434,
+          4.1725282967725725,
+          1.0331229429658928
+        ],
+        [
+          4.552623411738549,
+          4.158878672003347,
+          -3.7473707250863106
+        ],
+        [
+          4.792430635964161,
+          2.8710698236899908,
+          0.9793625798283093
+        ],
+        [
+          6.102209615744645,
+          5.651514657126895,
+          0.16634035502861902
+        ],
+        [
+          6.2570878553784235,
+          2.6962689135241664,
+          -3.499908574897065
+        ],
+        [
+          4.236695092359191,
+          0.05319988986766772,
+          -2.6881912721181376
+        ],
+        [
+          1.7318270471112878,
+          0.6412355471889958,
+          0.5025534026416157
+        ],
+        [
+          4.858091029488622,
+          2.7601351804386094,
+          1.7240835424944623
+        ],
+        [
+          1.082635218358198,
+          0.055868736399887486,
+          -0.46042922619425497
+        ],
+        [
+          6.420615753159403,
+          1.2950890795854602,
+          0.9806176362628454
+        ],
+        [
+          9.105411250709071,
+          3.0800509955141377,
+          0.6195038653150773
+        ],
+        [
+          8.751423805393681,
+          1.3170777394952347,
+          -1.2564463248026636
+        ],
+        [
+          4.686059730976853,
+          -0.15605173565178568,
+          0.28103650312603734
+        ],
+        [
+          6.16999079492876,
+          -0.46498507126448274,
+          -1.4344070488520404
+        ]
+      ]
+    }
+  ],
+  "elapsed_s": 40.434951875009574,
+  "final": {
+    "baseline_O12_violation_count": 5,
+    "baseline_material_volume_m3": {
+      "1": 0.0034525709483045623,
+      "2": 0.011652342870565699
+    },
+    "basic_gate_pass": false,
+    "constraint_violation_count": 11,
+    "float32_J_above_2.5": 13,
+    "float32_J_below_.35": 9,
+    "float32_nonpositive_tets": 1,
+    "float32_q_below_1.25e-5": 1,
+    "float32_q_below_1e-5": 1,
+    "layer_projection": {
+      "fat_floor_violations": 0,
+      "min_fat_floor_mm": 0.1,
+      "min_fat_mm": 0.5498750283273071,
+      "min_skin_floor_mm": 0.1,
+      "min_skin_mm": 0.5301267701448565,
+      "skin_floor_violations": 0
+    },
+    "material_volume_m3": {
+      "1": 0.0034690360975484433,
+      "2": 0.011712850228834351
+    },
+    "material_volume_relative_change": {
+      "1": 0.004768953191813807,
+      "2": 0.005192720377418469
+    },
+    "max_J_f32": 3.2848234430604974,
+    "max_node_displacement_m": 0.012331787768101371,
+    "min_J_f32": -0.20711278897106306,
+    "min_q_f32": -0.000560360706057517,
+    "minimum_constraint_gap_m": -0.0021990904658063214,
+    "moved_node_count": 471,
+    "route_endpoint_violation_count": 6
+  },
+  "inputs_sha256": {
+    "bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "bone-clearance-fit-037-preparation-035/per-bone-constraints-037.npz": "2d8177f47b8a30e07f81faf5c8ed84411f0ec9b6dd7499f9e338043c2253f49f",
+    "bone-clearance-fit-037-preparation-035/restart-state-037.npz": "e2a21b6939fafdb5ebcb96b43d4b8f7747be5c0abdec6d49b02d2e557b6815e8",
+    "bone-clearance-fit-040-shared-columns/column_fit_support.py": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16",
+    "bone-clearance-fit-041-exact-material-routes/baseline-outer-inside-local-planes.npz": "8c223d3a34103a57c034c3e9abae8b4bf5c7f554a3b94ddf2cf4d9b50c397e2d",
+    "bone-clearance-fit-041-exact-material-routes/construction-plane-constraints.npz": "a096082f597b7a0bcc9c37af5f2f82b889064a2382d8f7b45535e096b934159c",
+    "bone-clearance-fit-041-exact-material-routes/route-report.json": "c631c390dc8c0acb5f5673d2d7c3efddcbe8d312d41427167eaf272d42fb8124",
+    "native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+    "root-reference-relative-j-062/source-preflight/identity-reference-points.csv": "b536764105cd9e9cb0c7936f5a4409896e8370ac150214a63a362158af5783ed"
+  },
+  "limitations": [
+    "Only certified 041 construction planes were used. Exact all-bank solid containment must be rerun on this candidate.",
+    "No exact self/retained surface audit, detailed-source skin transfer, conservative source-mass map, or native compile/run is included.",
+    "The volume changes are geometric diagnostics, not a regenerated density/mass ledger.",
+    "Construction layer floors preserve mechanical feasibility only; physiological thickness is not qualified."
+  ],
+  "preflight": {
+    "budget_s": 60.0,
+    "constraints": {
+      "J_bounds": [
+        0.35,
+        2.5
+      ],
+      "J_material_counts": {
+        "1": 3333,
+        "2": 3832
+      },
+      "baseline_O12_rows": 12,
+      "baseline_touched_J_max": 1.0208892265441056,
+      "baseline_touched_J_min": 0.9890460461048652,
+      "baseline_touched_q_min": 8.133226506421968e-05,
+      "components": {
+        "column_counts": [
+          131,
+          8,
+          5,
+          5,
+          4,
+          3,
+          3,
+          3,
+          2,
+          2,
+          2,
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "expanded_endpoint_rows": 137,
+      "fixed_violating_endpoints": 0,
+      "old_7060_tet_rows": 7060,
+      "plane_margin_m_max": 0.0001,
+      "plane_margin_m_min": 0.0001,
+      "q_target": 1.25e-05,
+      "route_endpoint_rows": 125,
+      "touched_tets": 7165
+    },
+    "inputs_sha256": {
+      "bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+      "bone-clearance-fit-037-preparation-035/per-bone-constraints-037.npz": "2d8177f47b8a30e07f81faf5c8ed84411f0ec9b6dd7499f9e338043c2253f49f",
+      "bone-clearance-fit-037-preparation-035/restart-state-037.npz": "e2a21b6939fafdb5ebcb96b43d4b8f7747be5c0abdec6d49b02d2e557b6815e8",
+      "bone-clearance-fit-040-shared-columns/column_fit_support.py": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16",
+      "bone-clearance-fit-041-exact-material-routes/baseline-outer-inside-local-planes.npz": "8c223d3a34103a57c034c3e9abae8b4bf5c7f554a3b94ddf2cf4d9b50c397e2d",
+      "bone-clearance-fit-041-exact-material-routes/construction-plane-constraints.npz": "a096082f597b7a0bcc9c37af5f2f82b889064a2382d8f7b45535e096b934159c",
+      "bone-clearance-fit-041-exact-material-routes/route-report.json": "c631c390dc8c0acb5f5673d2d7c3efddcbe8d312d41427167eaf272d42fb8124",
+      "native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+      "root-reference-relative-j-062/source-preflight/identity-reference-points.csv": "b536764105cd9e9cb0c7936f5a4409896e8370ac150214a63a362158af5783ed"
+    },
+    "limitations": [
+      "Construction fit only. Route planes are necessary constraints; exact solid containment and self/retained-surface audits remain mandatory.",
+      "No detailed-source mapping, physical mass transfer, physiological thickness, or native admission is claimed."
+    ],
+    "max_displacement_mm": 15.0,
+    "patch": {
+      "boundary_count": 261,
+      "column_count": 454,
+      "face_count": 598,
+      "locked_seed_count": 0,
+      "movable_count": 193,
+      "old_inside_seed_count": 129,
+      "ring_trace": [
+        {
+          "boundary_column_count": 261,
+          "column_count": 454,
+          "face_count": 598,
+          "ring": 0,
+          "seed_columns_still_on_boundary": 0
+        }
+      ],
+      "route_seed_count": 121,
+      "seed_count": 190
+    },
+    "point_source": "AP current-world F32 rows (verified against 035 identity baseline); PP 026 supplies only matching topology/material and O-face connectivity",
+    "route": {
+      "construction_plane_count": 121,
+      "plane_segment_counts": {
+        "0": 4,
+        "1": 117
+      },
+      "plane_target_masks": {
+        "4": 117,
+        "6": 4
+      },
+      "report_sha256": "c631c390dc8c0acb5f5673d2d7c3efddcbe8d312d41427167eaf272d42fb8124",
+      "status": "EXACT_NATIVE_GEOMETRY_ROUTE_WITNESSES_NOT_FULL_TISSUE_CLEARANCE"
+    },
+    "schema": "numi.human.shared-column-bone-entry-fit.v1",
+    "status": "preflight_pass"
+  },
+  "route_report_sha256": "c631c390dc8c0acb5f5673d2d7c3efddcbe8d312d41427167eaf272d42fb8124",
+  "route_status": "EXACT_NATIVE_GEOMETRY_ROUTE_WITNESSES_NOT_FULL_TISSUE_CLEARANCE",
+  "schema": "numi.human.shared-column-bone-entry-fit.v1",
+  "status": "candidate_rejected_basic_gate"
+}

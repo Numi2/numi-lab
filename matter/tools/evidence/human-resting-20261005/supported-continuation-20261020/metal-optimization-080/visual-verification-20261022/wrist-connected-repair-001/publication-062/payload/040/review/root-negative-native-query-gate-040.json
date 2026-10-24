@@ -1,0 +1,11 @@
+{
+  "status": "PASS_REJECTED_CANDIDATE_BLOCKED_BEFORE_NATIVE_LAUNCH",
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/native-source-route-requery-001/run_candidate_query_040.py\", line 131, in <module>\n    if __name__==\"__main__\": raise SystemExit(main())\n                                              ~~~~^^\n  File \"/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/native-source-route-requery-001/run_candidate_query_040.py\", line 54, in main\n    require(fr.get(\"status\") in (\"candidate_basic_geometry_pass_not_admitted\",\"bounded_fit_passed_basic_gates\"),\"candidate basic geometry status is not passing\")\n    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/native-source-route-requery-001/run_candidate_query_040.py\", line 32, in require\n    if not ok: raise RuntimeError(msg)\n               ^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: candidate basic geometry status is not passing\n",
+  "output_directory_created": false,
+  "native_launch": false,
+  "script_sha256": "920b1a1d3f4c90f8972e3c1467fba9e06899edca2bc3cf22dd8e5c2adf2c1ae6",
+  "candidate_sha256": "ef5ba12f790d6fc8ff9d95112c4acdc5909ade5208e6f1c61b23ee572d0af3ea",
+  "report_sha256": "e4107828974b51f51cc7cab53de04a173d522c39a3c02a132e7f3b129cb66197"
+}

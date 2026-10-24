@@ -1,0 +1,115 @@
+{
+  "budget_s": 60.0,
+  "constraints": {
+    "J_bounds": [
+      0.35,
+      2.5
+    ],
+    "J_material_counts": {
+      "1": 3333,
+      "2": 3832
+    },
+    "baseline_O12_rows": 12,
+    "baseline_touched_J_max": 1.0208892265441056,
+    "baseline_touched_J_min": 0.9890460461048652,
+    "baseline_touched_q_min": 8.133226506421968e-05,
+    "components": {
+      "column_counts": [
+        131,
+        8,
+        5,
+        5,
+        4,
+        3,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "expanded_endpoint_rows": 137,
+    "fixed_violating_endpoints": 0,
+    "old_7060_tet_rows": 7060,
+    "plane_margin_m_max": 0.0001,
+    "plane_margin_m_min": 0.0001,
+    "q_target": 1.25e-05,
+    "route_endpoint_rows": 125,
+    "touched_tets": 7165
+  },
+  "inputs_sha256": {
+    "bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "bone-clearance-fit-037-preparation-035/per-bone-constraints-037.npz": "2d8177f47b8a30e07f81faf5c8ed84411f0ec9b6dd7499f9e338043c2253f49f",
+    "bone-clearance-fit-037-preparation-035/restart-state-037.npz": "e2a21b6939fafdb5ebcb96b43d4b8f7747be5c0abdec6d49b02d2e557b6815e8",
+    "bone-clearance-fit-040-shared-columns/column_fit_support.py": "755af20f485c7331fed5c74a30ddebb737251528a04d5aab88483efca4852c07",
+    "bone-clearance-fit-041-exact-material-routes/baseline-outer-inside-local-planes.npz": "8c223d3a34103a57c034c3e9abae8b4bf5c7f554a3b94ddf2cf4d9b50c397e2d",
+    "bone-clearance-fit-041-exact-material-routes/construction-plane-constraints.npz": "a096082f597b7a0bcc9c37af5f2f82b889064a2382d8f7b45535e096b934159c",
+    "bone-clearance-fit-041-exact-material-routes/route-report.json": "c631c390dc8c0acb5f5673d2d7c3efddcbe8d312d41427167eaf272d42fb8124",
+    "native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+    "root-reference-relative-j-062/source-preflight/identity-reference-points.csv": "b536764105cd9e9cb0c7936f5a4409896e8370ac150214a63a362158af5783ed"
+  },
+  "limitations": [
+    "Construction fit only. Route planes are necessary constraints; exact solid containment and self/retained-surface audits remain mandatory.",
+    "No detailed-source mapping, physical mass transfer, physiological thickness, or native admission is claimed."
+  ],
+  "max_displacement_mm": 15.0,
+  "patch": {
+    "boundary_count": 261,
+    "column_count": 454,
+    "face_count": 598,
+    "locked_seed_count": 0,
+    "movable_count": 193,
+    "old_inside_seed_count": 129,
+    "ring_trace": [
+      {
+        "boundary_column_count": 261,
+        "column_count": 454,
+        "face_count": 598,
+        "ring": 0,
+        "seed_columns_still_on_boundary": 0
+      }
+    ],
+    "route_seed_count": 121,
+    "seed_count": 190
+  },
+  "point_source": "AP current-world F32 rows (verified against 035 identity baseline); PP 026 supplies only matching topology/material and O-face connectivity",
+  "route": {
+    "construction_plane_count": 121,
+    "plane_segment_counts": {
+      "0": 4,
+      "1": 117
+    },
+    "plane_target_masks": {
+      "4": 117,
+      "6": 4
+    },
+    "report_sha256": "c631c390dc8c0acb5f5673d2d7c3efddcbe8d312d41427167eaf272d42fb8124",
+    "status": "EXACT_NATIVE_GEOMETRY_ROUTE_WITNESSES_NOT_FULL_TISSUE_CLEARANCE"
+  },
+  "schema": "numi.human.shared-column-bone-entry-fit.v1",
+  "status": "preflight_pass"
+}

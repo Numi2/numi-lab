@@ -1,0 +1,36 @@
+{
+  "attempt_003": "preserved as-run; no final candidate/report; derived correction note is separate",
+  "base_origin_main": "1bc21067491212a07203f6149f32f29ea704e852",
+  "candidate_sha256": "ef5ba12f790d6fc8ff9d95112c4acdc5909ade5208e6f1c61b23ee572d0af3ea",
+  "candidate_status": "candidate_rejected_basic_gate",
+  "excluded": [
+    "unrun 042 volume-edge audit",
+    "positive native-query route path",
+    "large registered node/bank CSV",
+    "native/physical/anatomical qualification"
+  ],
+  "native_query_negative_gate": "PASS_REJECTED_CANDIDATE_BLOCKED_BEFORE_NATIVE_LAUNCH",
+  "native_query_positive_path": "not run; candidate failed precondition",
+  "native_simulation_run": false,
+  "no_scene_activation": true,
+  "payload_bytes": 3286914,
+  "payload_file_count": 41,
+  "payload_file_list": "payload-files-062.json",
+  "payload_file_list_sha256": "81cc4698603a5819691c658209b37a07785b0baff56ca16be66344abe54dc10f",
+  "publication": "062",
+  "schema": "numi.human.publication-manifest.v1",
+  "scope": "Frozen 040 shared-column construction attempt-003 failure and attempt-004 rejected candidate, compact helper/tests/reviews, and fail-closed native-query rejection check.",
+  "source_input_pins_sha256": "e586a3b1434b0cab62ee3e01894fa027a5f1cb34e75dc7f38354e884c56d2e83",
+  "status": "READY_FOR_ROOT_REVIEW_NOT_PUSHED",
+  "test_environment": "test-environment-062.json",
+  "test_environment_sha256": "c975bc20ce8b9faa34dd181d8fdfdee6754070faeda3bfe508f14a545a52edcb",
+  "tests": {
+    "host": "numi.local",
+    "neo_hookean_support": "5 passed",
+    "pytest": "9.1.1",
+    "python": "3.13.16",
+    "shared_column_support": "16 passed"
+  },
+  "verifier": "verify_publication_062.py",
+  "verifier_sha256": "17f9693cd22b304946d405d95105841b2929d1b4265884398287d3496d1d094f"
+}

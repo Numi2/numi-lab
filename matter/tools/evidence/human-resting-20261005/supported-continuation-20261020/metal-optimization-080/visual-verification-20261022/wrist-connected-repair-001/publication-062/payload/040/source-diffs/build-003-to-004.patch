@@ -1,0 +1,20 @@
+--- build_fit_040-as-run.py
++++ build_fit_040.py
+@@ -232,15 +232,14 @@
+             accepted=last['x'];budget_stop=True
+         Xacc=assemble(accepted)
+         vals=cfun(accepted,False)
+-        comp={'component':int(ci),'columns':int(len(gcols)),'dofs':int(len(x0)),'tets':int(len(trows)),'route_endpoint_rows':int(len(en)),'iterations':int(getattr(result,'nit',last['iter']) if result is not None else last['iter']),'solver_success':bool(result.success) if result is not None else False,'solver_message':str(result.message) if result is not None else 'budget stop','minimum_constraint_slack':float(vals.min()) if len(vals) else float('inf'),'max_translation_mm':float(np.linalg.norm(accepted.reshape(-1,3),axis=1).max()),'elapsed_s':time.monotonic()-start}
++        comp={'component':int(ci),'columns':int(len(gcols)),'dofs':int(len(x0)),'tets':int(len(trows)),'route_endpoint_rows':int(len(en)),'iterations':int(getattr(result,'nit',last['iter']) if result is not None else last['iter']),'translation_mm_by_column':accepted.reshape(-1,3).tolist(),'solver_success':bool(result.success) if result is not None else False,'solver_message':str(result.message) if result is not None else 'budget stop','minimum_constraint_slack':float(vals.min()) if len(vals) else float('inf'),'max_translation_mm':float(np.linalg.norm(accepted.reshape(-1,3),axis=1).max()),'elapsed_s':time.monotonic()-start}
+         component_reports.append(comp);current_mm=Xacc
+         (out/'fit-progress.json').write_text(json.dumps({'status':'running','components':component_reports,'elapsed_s':time.monotonic()-start},indent=2,sort_keys=True)+'\n')
+         if budget_stop:break
+     Xcand=current_mm/1000.;Xf32=Xcand.astype(np.float32).astype(np.float64)
+     qf,detf=quality(Xf32,T);Jf=Jvalues(Xf32,Ref,T)
+     q64,det64=quality(Xcand,T);J64=Jvalues(Xcand,Ref,T)
+-    route_eval=plane_constraint_slack_and_jacobian(Xf32*1000.,np.asarray([],np.int64),full_hit*1000.,full_norm,full_endpoints[:,None],full_margin*1000.)
+-    gaps=route_eval['slack']/1000.
++    gaps=np.einsum('ij,ij->i',full_norm,Xf32[full_endpoints]-full_hit)-full_margin
+     base_layer=layer_measure(X0,patch['patch_columns'],X0)
+     final_layer=layer_measure(Xf32,patch['patch_columns'],X0)
+     vols={str(k):float(np.sum(detf[mat==k])/6.) for k in (1,2)}

@@ -1,0 +1,131 @@
+{
+  "attempt_003": {
+    "as_run_progress_sha256": "9c114a201103e6a02d9080e15c390902db06169f2c0ce54207ace294ec13b25f",
+    "builder_sha256": "0a746ec82a54a8751772704b7a783ba35604c819808c6f38674411d514f81510",
+    "final_candidate_emitted": false,
+    "report_correction": "payload/040/attempt-003/attempt-003-correction.json",
+    "support_helper_sha256": "755af20f485c7331fed5c74a30ddebb737251528a04d5aab88483efca4852c07"
+  },
+  "attempt_004": {
+    "builder_sha256": "2d3d764019b60673eb4494110ea08d066bafbdd9c7e4a181a3d9a1ac6f53db81",
+    "candidate_sha256": "ef5ba12f790d6fc8ff9d95112c4acdc5909ade5208e6f1c61b23ee572d0af3ea",
+    "descriptor_stress_sha256": "86b1f7c66145b90680f871f49245a4c54d4d471181589d2957a2a8f5b5842925",
+    "fit_report_sha256": "e4107828974b51f51cc7cab53de04a173d522c39a3c02a132e7f3b129cb66197",
+    "helper_sha256": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16",
+    "independent_geometry_sha256": "6572aa1dba0f98afc9653757e66ec39d1bdc06de1b3ac54e8d47075a00c9225c",
+    "material_helper_check_sha256": "f44b839d84036c935f16e25e51d95605a0f09c1d2f86260befb9996986f31c10",
+    "material_helper_sha256": "815c256524045d3dbe7cbb23ef8c0fe7d9a02beb327fb929c67bb4bccb9096f5",
+    "native_query_rejection_sha256": "6cb4b49b65db7878984733bbc172ad900bb7078cff361e05d76bd78641420a86",
+    "status": "candidate_rejected_basic_gate"
+  },
+  "attempt_004_inputs_sha256": {
+    "bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "bone-clearance-fit-037-preparation-035/per-bone-constraints-037.npz": "2d8177f47b8a30e07f81faf5c8ed84411f0ec9b6dd7499f9e338043c2253f49f",
+    "bone-clearance-fit-037-preparation-035/restart-state-037.npz": "e2a21b6939fafdb5ebcb96b43d4b8f7747be5c0abdec6d49b02d2e557b6815e8",
+    "bone-clearance-fit-040-shared-columns/column_fit_support.py": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16",
+    "bone-clearance-fit-041-exact-material-routes/baseline-outer-inside-local-planes.npz": "8c223d3a34103a57c034c3e9abae8b4bf5c7f554a3b94ddf2cf4d9b50c397e2d",
+    "bone-clearance-fit-041-exact-material-routes/construction-plane-constraints.npz": "a096082f597b7a0bcc9c37af5f2f82b889064a2382d8f7b45535e096b934159c",
+    "bone-clearance-fit-041-exact-material-routes/route-report.json": "c631c390dc8c0acb5f5673d2d7c3efddcbe8d312d41427167eaf272d42fb8124",
+    "native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+    "root-reference-relative-j-062/source-preflight/identity-reference-points.csv": "b536764105cd9e9cb0c7936f5a4409896e8370ac150214a63a362158af5783ed"
+  },
+  "base_origin_main": "1bc21067491212a07203f6149f32f29ea704e852",
+  "inherited_publication_inputs": [
+    {
+      "inherited_from_publication": "061",
+      "note": "Exact 041 route/plane artifact is in publication-061; not duplicated.",
+      "path": "bone-clearance-fit-041-exact-material-routes/baseline-outer-inside-local-planes.npz",
+      "sha256": "8c223d3a34103a57c034c3e9abae8b4bf5c7f554a3b94ddf2cf4d9b50c397e2d"
+    },
+    {
+      "inherited_from_publication": "061",
+      "note": "Exact 041 route/plane artifact is in publication-061; not duplicated.",
+      "path": "bone-clearance-fit-041-exact-material-routes/construction-plane-constraints.npz",
+      "sha256": "a096082f597b7a0bcc9c37af5f2f82b889064a2382d8f7b45535e096b934159c"
+    },
+    {
+      "inherited_from_publication": "061",
+      "note": "Exact 041 route/plane artifact is in publication-061; not duplicated.",
+      "path": "bone-clearance-fit-041-exact-material-routes/route-report.json",
+      "sha256": "c631c390dc8c0acb5f5673d2d7c3efddcbe8d312d41427167eaf272d42fb8124"
+    },
+    {
+      "inherited_from_publication": "061",
+      "note": "Reference points are already in publication-061; no duplicate CSV.",
+      "path": "root-reference-relative-j-062/source-preflight/identity-reference-points.csv",
+      "sha256": "b536764105cd9e9cb0c7936f5a4409896e8370ac150214a63a362158af5783ed"
+    }
+  ],
+  "native_or_physical_admission": false,
+  "native_query_gate": {
+    "negative_gate_report_sha256": "6cb4b49b65db7878984733bbc172ad900bb7078cff361e05d76bd78641420a86",
+    "negative_gate_test_path": "payload/040/review/root_test_native_query_rejection_040.py",
+    "negative_gate_test_sha256": "c1ae4406fa589742e6b7bca3fba04e3c3738f2b048570ab875a01ce3b339fd69",
+    "positive_parameterized_query_path": "not run; the candidate failed its basic gate",
+    "result": "rejected before output-directory creation or native launch",
+    "runner_path": "payload/040/review/run_candidate_query_040.py",
+    "runner_sha256": "920b1a1d3f4c90f8972e3c1467fba9e06899edca2bc3cf22dd8e5c2adf2c1ae6"
+  },
+  "no_large_csv_duplicated": true,
+  "other_source_inputs": [
+    {
+      "copied_to": "payload/040/inputs/world-bone-clearance-constraints-033.npz",
+      "sha256": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz"
+    },
+    {
+      "copied_to": "payload/040/inputs/per-bone-constraints-037.npz",
+      "sha256": "2d8177f47b8a30e07f81faf5c8ed84411f0ec9b6dd7499f9e338043c2253f49f",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-037-preparation-035/per-bone-constraints-037.npz"
+    },
+    {
+      "copied_to": "payload/040/inputs/restart-state-037.npz",
+      "sha256": "e2a21b6939fafdb5ebcb96b43d4b8f7747be5c0abdec6d49b02d2e557b6815e8",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-037-preparation-035/restart-state-037.npz"
+    },
+    {
+      "copied_to": "payload/040/attempt-004/source/column_fit_support.py",
+      "sha256": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/column_fit_support.py"
+    },
+    {
+      "copied_to": "payload/040/inputs/physical-cell-quality-candidate-026.npz",
+      "sha256": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz"
+    }
+  ],
+  "prepared_tools_not_included": [
+    "root_audit_volume_edges_042.py was intentionally omitted: it is unrun and was not part of this frozen attempt."
+  ],
+  "publication": "062",
+  "schema": "numi.human.publication.source-input-pins.v1",
+  "test_runs": {
+    "host": "numi.local",
+    "neo_hookean_support": {
+      "command": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "test_neo_hookean_fit_support.py"
+      ],
+      "result": "5 passed",
+      "returncode": 0
+    },
+    "pytest_version": "9.1.1",
+    "python_executable": "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "python_version": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "shared_column_support": {
+      "command": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "test_column_fit_support.py"
+      ],
+      "result": "16 passed",
+      "returncode": 0
+    },
+    "venv_python_sha256": "c2d16fe8332897836229aff307d1d9cb32432d405fa889f342ffe1830b1608c5"
+  }
+}

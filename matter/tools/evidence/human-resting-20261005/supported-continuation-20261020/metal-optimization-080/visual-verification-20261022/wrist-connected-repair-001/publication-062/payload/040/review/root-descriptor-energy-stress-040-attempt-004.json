@@ -1,0 +1,43 @@
+{
+  "status": "DESCRIPTOR_EQUATION_OFFLINE_DIAGNOSTIC_NOT_NATIVE_ADMISSION",
+  "candidate_sha256": "ef5ba12f790d6fc8ff9d95112c4acdc5909ade5208e6f1c61b23ee572d0af3ea",
+  "materials": {
+    "skin": {
+      "descriptor_sha256": "c575b204d975bfb77ae16973708e833796e3a4ad71794d69ac7e433f58dbd7ad",
+      "mu_Pa": 13255.0336,
+      "bulk_Pa": 658333.333,
+      "energy_max_J_per_m3": 10349461.832689993,
+      "energy_above_5e6_count": 2,
+      "energy_violation_local_volume_rows": [
+        2107,
+        13630
+      ],
+      "first_Piola_max_abs_Pa": 22262459.69791942,
+      "first_Piola_above_5e6_count": 5,
+      "first_Piola_violation_local_volume_rows": [
+        2107,
+        4299,
+        11828,
+        13057,
+        13630
+      ],
+      "nonpositive_J_count": 0
+    },
+    "fat": {
+      "descriptor_sha256": "3d3a83e9d1803a60b103a45064c4b4020ebc6bfc8ae518acb6e4d3ec0cc8e29f",
+      "mu_Pa": 551.7241379999999,
+      "bulk_Pa": 5333.33333,
+      "energy_max_J_per_m3": 671397649.443401,
+      "energy_above_5e6_count": 1,
+      "energy_violation_local_volume_rows": [
+        15530
+      ],
+      "first_Piola_max_abs_Pa": 2395660.8529399093,
+      "first_Piola_above_5e6_count": 0,
+      "first_Piola_violation_local_volume_rows": [],
+      "nonpositive_J_count": 1
+    }
+  },
+  "limits_Pa_or_J_per_m3": 5000000.0,
+  "limitation": "Evaluates stated isotropic Neo-Hookean expressions in Float64 from F32 world points and owner F64 reference; not bitwise Metal or mixed-pressure stress parity."
+}

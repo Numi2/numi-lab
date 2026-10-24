@@ -1,0 +1,37 @@
+{
+  "host": "numi.local",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "pytest_version": "9.1.1",
+  "python_executable": "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+  "python_version": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "runs": [
+    {
+      "command": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "test_column_fit_support.py"
+      ],
+      "cwd": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-062/payload/040/shared-support",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "................                                                         [100%]\n16 passed in 0.04s\n"
+    },
+    {
+      "command": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "test_neo_hookean_fit_support.py"
+      ],
+      "cwd": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-062/payload/040/material-support",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ".....                                                                    [100%]\n5 passed in 0.05s\n"
+    }
+  ],
+  "schema": "numi.human.publication-062-test-environment.v1",
+  "venv_python_sha256": "c2d16fe8332897836229aff307d1d9cb32432d405fa889f342ffe1830b1608c5"
+}

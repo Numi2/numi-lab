@@ -1,0 +1,207 @@
+[
+  {
+    "bytes": 3367,
+    "path": "README.md",
+    "sha256": "890f2bd86988d3c109ee5cbb4cb21683f638aa4aeec8814efb3aab1199eeba6d"
+  },
+  {
+    "bytes": 1250,
+    "path": "payload/040/attempt-003/attempt-003-correction.json",
+    "sha256": "a32bc525c3d2381d808f40ddad3c512ea3802cdc24e840605660c70256e8dcff"
+  },
+  {
+    "bytes": 25221,
+    "path": "payload/040/attempt-003/build_fit_040-as-run.py",
+    "sha256": "0a746ec82a54a8751772704b7a783ba35604c819808c6f38674411d514f81510"
+  },
+  {
+    "bytes": 20013,
+    "path": "payload/040/attempt-003/column_fit_support-as-run.py",
+    "sha256": "755af20f485c7331fed5c74a30ddebb737251528a04d5aab88483efca4852c07"
+  },
+  {
+    "bytes": 403539,
+    "path": "payload/040/attempt-003/fit-input.npz",
+    "sha256": "b248bf0ee823ca1ab3b6d787fe3d427d8e080dcd528a57421235c7d6e1ed375e"
+  },
+  {
+    "bytes": 13129,
+    "path": "payload/040/attempt-003/fit-progress.json",
+    "sha256": "9c114a201103e6a02d9080e15c390902db06169f2c0ce54207ace294ec13b25f"
+  },
+  {
+    "bytes": 3769,
+    "path": "payload/040/attempt-003/preflight-report.json",
+    "sha256": "1ebffa1c5a9b1e9b9bbf1d4448116b894da9235c22454740bc3d5e0dea9da2b5"
+  },
+  {
+    "bytes": 4161,
+    "path": "payload/040/attempt-003/solver-checkpoint.npz",
+    "sha256": "4aeb4b17bfeb42746d06c6d8795180d532fcb500137f111e71d97aa8c1bd6e53"
+  },
+  {
+    "bytes": 225086,
+    "path": "payload/040/attempt-004/best-valid-components.npz",
+    "sha256": "36e80e67b96ff930e706798ff7df21ce3590256f72a1e5423a18acd51fa6cba1"
+  },
+  {
+    "bytes": 640690,
+    "path": "payload/040/attempt-004/candidate.npz",
+    "sha256": "ef5ba12f790d6fc8ff9d95112c4acdc5909ade5208e6f1c61b23ee572d0af3ea"
+  },
+  {
+    "bytes": 26478,
+    "path": "payload/040/attempt-004/component-audit.json",
+    "sha256": "c7344e515583ad88dfb3a7d36324ef9322df7d4f9155a66205adceef16ed54de"
+  },
+  {
+    "bytes": 403539,
+    "path": "payload/040/attempt-004/fit-input.npz",
+    "sha256": "b248bf0ee823ca1ab3b6d787fe3d427d8e080dcd528a57421235c7d6e1ed375e"
+  },
+  {
+    "bytes": 34456,
+    "path": "payload/040/attempt-004/fit-progress.json",
+    "sha256": "b2330f56f41c990e09c42428cfbbb77d7ce0e4fb8b8c3911603b714c20fae901"
+  },
+  {
+    "bytes": 41927,
+    "path": "payload/040/attempt-004/fit-report.json",
+    "sha256": "e4107828974b51f51cc7cab53de04a173d522c39a3c02a132e7f3b129cb66197"
+  },
+  {
+    "bytes": 3769,
+    "path": "payload/040/attempt-004/preflight-report.json",
+    "sha256": "75421c7fef3f4f44ea42b612e4182b6ab627a56894d6e1a4b149e4bfab8f68c2"
+  },
+  {
+    "bytes": 4161,
+    "path": "payload/040/attempt-004/solver-checkpoint.npz",
+    "sha256": "846d49fac16381d79d0674d51f36cecfb9eb376a62cebe8b6a0e7c868b97a4f5"
+  },
+  {
+    "bytes": 25175,
+    "path": "payload/040/attempt-004/source/build_fit_040.py",
+    "sha256": "2d3d764019b60673eb4494110ea08d066bafbdd9c7e4a181a3d9a1ac6f53db81"
+  },
+  {
+    "bytes": 20019,
+    "path": "payload/040/attempt-004/source/column_fit_support.py",
+    "sha256": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16"
+  },
+  {
+    "bytes": 10009,
+    "path": "payload/040/inputs/per-bone-constraints-037.npz",
+    "sha256": "2d8177f47b8a30e07f81faf5c8ed84411f0ec9b6dd7499f9e338043c2253f49f"
+  },
+  {
+    "bytes": 905624,
+    "path": "payload/040/inputs/physical-cell-quality-candidate-026.npz",
+    "sha256": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc"
+  },
+  {
+    "bytes": 140039,
+    "path": "payload/040/inputs/restart-state-037.npz",
+    "sha256": "e2a21b6939fafdb5ebcb96b43d4b8f7747be5c0abdec6d49b02d2e557b6815e8"
+  },
+  {
+    "bytes": 244136,
+    "path": "payload/040/inputs/world-bone-clearance-constraints-033.npz",
+    "sha256": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf"
+  },
+  {
+    "bytes": 10282,
+    "path": "payload/040/material-support/neo_hookean_fit_support.py",
+    "sha256": "815c256524045d3dbe7cbb23ef8c0fe7d9a02beb327fb929c67bb4bccb9096f5"
+  },
+  {
+    "bytes": 5439,
+    "path": "payload/040/material-support/test_neo_hookean_fit_support.py",
+    "sha256": "80a29cb5723b47f0d8b061f9a0f16c54e369e9a1f05c52a57595fbb333cf339e"
+  },
+  {
+    "bytes": 98,
+    "path": "payload/040/material-support/tests.log",
+    "sha256": "bd5201fad773316bbfda2cfee7833ff2d8db356db81550c537f47ba44de0ed2d"
+  },
+  {
+    "bytes": 1504,
+    "path": "payload/040/review/root-descriptor-energy-stress-040-attempt-004.json",
+    "sha256": "86b1f7c66145b90680f871f49245a4c54d4d471181589d2957a2a8f5b5842925"
+  },
+  {
+    "bytes": 4068,
+    "path": "payload/040/review/root-independent-candidate-040-attempt-004.json",
+    "sha256": "6572aa1dba0f98afc9653757e66ec39d1bdc06de1b3ac54e8d47075a00c9225c"
+  },
+  {
+    "bytes": 601,
+    "path": "payload/040/review/root-independent-material-helper-040.json",
+    "sha256": "f44b839d84036c935f16e25e51d95605a0f09c1d2f86260befb9996986f31c10"
+  },
+  {
+    "bytes": 2073,
+    "path": "payload/040/review/root-negative-native-query-gate-040.json",
+    "sha256": "6cb4b49b65db7878984733bbc172ad900bb7078cff361e05d76bd78641420a86"
+  },
+  {
+    "bytes": 3834,
+    "path": "payload/040/review/root_audit_shared_candidate_040.py",
+    "sha256": "fec5a2687602629b0e1d7e06fdd2932c674922da2914de41126cdd3fcd3609d8"
+  },
+  {
+    "bytes": 2440,
+    "path": "payload/040/review/root_descriptor_energy_stress_040.py",
+    "sha256": "7739502b5fea10b44c75e7ed6a98522876fbd6d4035f4ea5671d4318f00bc9d0"
+  },
+  {
+    "bytes": 1395,
+    "path": "payload/040/review/root_test_native_query_rejection_040.py",
+    "sha256": "c1ae4406fa589742e6b7bca3fba04e3c3738f2b048570ab875a01ce3b339fd69"
+  },
+  {
+    "bytes": 3306,
+    "path": "payload/040/review/root_verify_material_helper_040.py",
+    "sha256": "7cac2468830cebf14ad7726304359ba62135af38d341285eae8160a94ef47fcc"
+  },
+  {
+    "bytes": 10371,
+    "path": "payload/040/review/run_candidate_query_040.py",
+    "sha256": "920b1a1d3f4c90f8972e3c1467fba9e06899edca2bc3cf22dd8e5c2adf2c1ae6"
+  },
+  {
+    "bytes": 20019,
+    "path": "payload/040/shared-support/column_fit_support.py",
+    "sha256": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16"
+  },
+  {
+    "bytes": 8871,
+    "path": "payload/040/shared-support/test_column_fit_support.py",
+    "sha256": "46a75999ef293d2d96d0364f3f3bafa85a7eb395d9697691a02b2e7cd7b2a933"
+  },
+  {
+    "bytes": 99,
+    "path": "payload/040/shared-support/tests.log",
+    "sha256": "d7bdabb3e3edbfb67ad5bec5f31715a2491c085d687c3885395e58b8c2dc44be"
+  },
+  {
+    "bytes": 2302,
+    "path": "payload/040/source-diffs/build-003-to-004.patch",
+    "sha256": "26e18a45fbbf8dcd4ed871c52989a7e4a4932aa9dd1655dbb24482be67207ddb"
+  },
+  {
+    "bytes": 600,
+    "path": "payload/040/source-diffs/helper-003-to-004.patch",
+    "sha256": "d5c1cd522ec60c76cb9f7f68f9e31d1856894c14d5023761fa19b62439f45b1d"
+  },
+  {
+    "bytes": 8375,
+    "path": "source-input-pins-062.json",
+    "sha256": "e586a3b1434b0cab62ee3e01894fa027a5f1cb34e75dc7f38354e884c56d2e83"
+  },
+  {
+    "bytes": 1680,
+    "path": "test-environment-062.json",
+    "sha256": "c975bc20ce8b9faa34dd181d8fdfdee6754070faeda3bfe508f14a545a52edcb"
+  }
+]
