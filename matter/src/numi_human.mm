@@ -672,6 +672,8 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLDevice> device = nil;
     __strong id<MTLLibrary> library = nil;
     __strong id<MTLComputePipelineState> provisionalStatusPipeline = nil;
+    __strong id<MTLComputePipelineState> femBodyContactSampleValidationPipeline = nil;
+    __strong id<MTLComputePipelineState> femBodyContactSampleValidationReducePipeline = nil;
     __strong id<MTLComputePipelineState> statusPipeline = nil;
     __strong id<MTLComputePipelineState> forcePipeline = nil;
     __strong id<MTLComputePipelineState> forceAuditPipeline = nil;
@@ -719,6 +721,8 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLBuffer> femBodyContactSolverNeighborhoodRangeBuffer = nil;
     __strong id<MTLBuffer> femBodyContactNeighborhoodTriangleBuffer = nil;
     __strong id<MTLBuffer> femBodyContactNeighborhoodBVHNodeBuffer = nil;
+    __strong id<MTLBuffer> femBodyContactSampleValidationBuffer = nil;
+    __strong id<MTLBuffer> femBodyContactSampleValidationBlockBuffer = nil;
     __strong id<MTLBuffer> femSurfaceAttachmentBuffer = nil;
     __strong id<MTLBuffer> implicitSpringSampleBuffer = nil;
     __strong id<MTLBuffer> implicitSpringPointQueryBuffer = nil;
@@ -1626,13 +1630,13 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->message = "Numi Matter metallib did not load for Human tendon/FEM assembly";
                 return false;
             }
-            // Versioned function presence prevents a new 176-byte triangle host
-            // from binding its buffers to an older 80-byte-triangle metallib.
-            id<MTLFunction> contactTriangleABI16Marker = [state_->library
-                newFunctionWithName:@"numi_matter_metal::nm_numi_human_contact_triangle_abi16_marker"];
-            if (contactTriangleABI16Marker == nil) {
+            // ABI 17 marker rejects old hosts before incompatible status scratch
+            // or 176-byte triangle bindings can be created.
+            id<MTLFunction> contactTriangleABI17Marker = [state_->library
+                newFunctionWithName:@"numi_matter_metal::nm_numi_human_contact_triangle_abi17_marker"];
+            if (contactTriangleABI17Marker == nil) {
                 state_->message =
-                    "Numi Matter metallib lacks Human contact triangle ABI 16";
+                    "Numi Matter metallib lacks Human contact triangle ABI 17";
                 state_->library = nil;
                 return false;
             }
@@ -1690,6 +1694,12 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     "nm_numi_human_assemble_fem_body_contact_wrenches");
                 state_->femBodyContactAuditPipeline = pipeline(
                     "nm_numi_human_audit_fem_body_contact");
+                if (!state_->femBodyContactSamples.empty()) {
+                    state_->femBodyContactSampleValidationPipeline = pipeline(
+                        "nm_numi_human_validate_fem_body_contact_samples");
+                    state_->femBodyContactSampleValidationReducePipeline = pipeline(
+                        "nm_numi_human_reduce_fem_body_contact_sample_validation");
+                }
                 if (!state_->femSurfaceAttachments.empty()) {
                     state_->femSurfaceAttachmentForcePipeline = pipeline(
                         "nm_numi_human_assemble_fem_surface_attachment_loads");
@@ -2086,6 +2096,39 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             state_->worldStatusBuffer = [device
                 newBufferWithLength:statusBytes
                 options:MTLResourceStorageModeShared];
+            if (!state_->femBodyContactSamples.empty()) {
+                constexpr std::uint64_t blockSize =
+                    NM_NUMI_HUMAN_FEM_BODY_CONTACT_VALIDATION_BLOCK_SIZE;
+                const std::uint64_t sampleCount =
+                    state_->femBodyContactSamples.size();
+                const std::uint64_t blockCount =
+                    sampleCount / blockSize +
+                    (sampleCount % blockSize != 0u ? 1u : 0u);
+                const std::uint64_t sampleFlags =
+                    static_cast<std::uint64_t>(state_->environmentCount) *
+                    sampleCount;
+                const std::uint64_t blockFlags =
+                    static_cast<std::uint64_t>(state_->environmentCount) *
+                    blockCount;
+                const std::uint64_t maxByteLength =
+                    std::numeric_limits<NSUInteger>::max();
+                if (sampleFlags > maxByteLength / sizeof(std::uint32_t) ||
+                    blockFlags > maxByteLength / sizeof(std::uint32_t) ||
+                    sampleFlags > std::numeric_limits<std::uint32_t>::max() ||
+                    blockFlags > std::numeric_limits<std::uint32_t>::max()) {
+                    state_->message =
+                        "Human FEM contact validation scratch size overflows";
+                    return false;
+                }
+                state_->femBodyContactSampleValidationBuffer = [device
+                    newBufferWithLength:static_cast<NSUInteger>(
+                        sampleFlags * sizeof(std::uint32_t))
+                    options:MTLResourceStorageModeShared];
+                state_->femBodyContactSampleValidationBlockBuffer = [device
+                    newBufferWithLength:static_cast<NSUInteger>(
+                        blockFlags * sizeof(std::uint32_t))
+                    options:MTLResourceStorageModeShared];
+            }
             if (state_->provisionalStatusPipeline == nil ||
                 state_->forcePipeline == nil ||
                 state_->forceAuditPipeline == nil ||
@@ -2097,6 +2140,9 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                    state_->femBodyContactGroupedForcePipeline == nil) ||
                   state_->femBodyContactWrenchPipeline == nil ||
                   state_->femBodyContactAuditPipeline == nil ||
+                  (!state_->femBodyContactSamples.empty() &&
+                   (state_->femBodyContactSampleValidationPipeline == nil ||
+                    state_->femBodyContactSampleValidationReducePipeline == nil)) ||
                   state_->articularContactAuditCommitPipeline == nil ||
                   (!state_->femSurfaceAttachments.empty() &&
                    (state_->femSurfaceAttachmentForcePipeline == nil ||
@@ -2155,6 +2201,9 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                    state_->femBodyContactGroupedSolverRangeBuffer == nil ||
                    state_->femBodyContactSolverGroupCountBuffer == nil)) ||
                  state_->femBodyContactNeighborhoodTriangleBuffer == nil ||
+                 (!state_->femBodyContactSamples.empty() &&
+                  (state_->femBodyContactSampleValidationBuffer == nil ||
+                   state_->femBodyContactSampleValidationBlockBuffer == nil)) ||
                  state_->femBodyContactWrenchBuffer == nil ||
                  state_->femBodyContactAuditBuffer == nil ||
                  state_->femBodyContactAuditHistoryBuffer == nil ||
@@ -2305,6 +2354,47 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 return false;
             }
         }
+        if (!state_->femBodyContactSamples.empty()) {
+            const NSUInteger sampleCount = state_->femBodyContactSamples.size();
+            constexpr NSUInteger blockSize =
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_VALIDATION_BLOCK_SIZE;
+            const NSUInteger blockCount = sampleCount / blockSize +
+                (sampleCount % blockSize != 0u ? 1u : 0u);
+            const NSUInteger sampleWork =
+                static_cast<NSUInteger>(state_->environmentCount) * sampleCount;
+            const NSUInteger blockWork =
+                static_cast<NSUInteger>(state_->environmentCount) * blockCount;
+            if (!encodeKernel(
+                    state_->femBodyContactSampleValidationPipeline,
+                    sampleWork,
+                    [&](id<MTLComputeCommandEncoder> encoder) {
+                        [encoder setBuffer:state_->femBodyContactSampleBuffer
+                                    offset:0u atIndex:1u];
+                        [encoder setBuffer:state_->femBodyContactNeighborhoodRangeBuffer
+                                    offset:0u atIndex:2u];
+                        [encoder setBuffer:state_->femBodyContactNeighborhoodTriangleBuffer
+                                    offset:0u atIndex:3u];
+                        [encoder setBuffer:state_->femBodyContactNeighborhoodBVHNodeBuffer
+                                    offset:0u atIndex:4u];
+                        [encoder setBuffer:acceptedNodes offset:0u atIndex:5u];
+                        [encoder setBuffer:bodyPoses offset:0u atIndex:6u];
+                        [encoder setBuffer:state_->femBodyContactSampleValidationBuffer
+                                    offset:0u atIndex:7u];
+                    }) ||
+                !encodeKernel(
+                    state_->femBodyContactSampleValidationReducePipeline,
+                    blockWork,
+                    [&](id<MTLComputeCommandEncoder> encoder) {
+                        [encoder setBuffer:state_->femBodyContactSampleValidationBuffer
+                                    offset:0u atIndex:1u];
+                        [encoder setBuffer:state_->femBodyContactSampleValidationBlockBuffer
+                                    offset:0u atIndex:2u];
+                    })) {
+                state_->message =
+                    "Human FEM/body contact validation kernel encoding failed";
+                return false;
+            }
+        }
         if (!encodeKernel(
                 state_->provisionalStatusPipeline, state_->environmentCount,
                 [&](id<MTLComputeCommandEncoder> encoder) {
@@ -2361,6 +2451,14 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                                 offset:0u atIndex:15u];
                     [encoder setBuffer:state_->femBodyContactNeighborhoodBVHNodeBuffer
                                 offset:0u atIndex:16u];
+                    if (state_->femBodyContactSampleValidationBlockBuffer != nil) {
+                        [encoder setBuffer:state_->femBodyContactSampleValidationBlockBuffer
+                                    offset:0u atIndex:17u];
+                    } else {
+                        const std::uint32_t emptyValidation = MR_INVALID_INDEX;
+                        [encoder setBytes:&emptyValidation
+                                   length:sizeof(emptyValidation) atIndex:17u];
+                    }
                     if (acceptedNodes != nil) {
                         [encoder setBuffer:acceptedNodes offset:0u atIndex:13u];
                     } else {

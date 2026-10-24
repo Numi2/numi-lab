@@ -1,0 +1,1 @@
+PASS samples=413488 nodes=7233 bodies=86 triangles=86 initial_nonfinite=0 initial_nonzero=0 moved_nonfinite=0 contact_rows=4808 other_body_nonzero=0 force_l2=0.138678783 max_reaction_error=0 max_tangent_asymmetry=0 witness_force=(0,0,0.00199998985) witness_tangent_zz=0.099999994

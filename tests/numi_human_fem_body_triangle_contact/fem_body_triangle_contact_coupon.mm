@@ -45,8 +45,11 @@ int main(int argc, const char* argv[]) {
             return 1;
         }
         require([library newFunctionWithName:
-            @"numi_matter_metal::nm_numi_human_contact_triangle_abi16_marker"] != nil,
-            "ABI 16 marker is exported by the matched metallib");
+            @"numi_matter_metal::nm_numi_human_contact_triangle_abi17_marker"] != nil,
+            "ABI 17 marker is exported by the matched metallib");
+        require([library newFunctionWithName:
+            @"numi_matter_metal::nm_numi_human_contact_triangle_abi16_marker"] == nil,
+            "stale ABI 16 host rejects the ABI 17 metallib marker");
         id<MTLFunction> function=[library
             newFunctionWithName:@"nm_numi_human_fem_body_triangle_contact_coupon"];
         require(function!=nil,"triangle coupon kernel");
@@ -455,11 +458,10 @@ int main(int argc, const char* argv[]) {
                 std::abs(staticResult[2].z+0.01f)<2.0e-5f &&
                 std::abs(staticResult[3].z-1.0f)<2.0e-5f,
                 "BVH finds nearest triangle in a distant branch");
-        // ABI 15 must be rejected before the 176-byte triangle table is read.
-        // Null contact-table arguments make any accidental range/triangle access
-        // a GPU fault instead of silently testing a compatible layout.
+        // ABI 16 must be rejected before the ABI 17 contact/status bindings are read.
+        // Null contact-table arguments make any accidental table access fail.
         NMNumiHumanTendonFEMLoadDispatchGPU oldABIDispatch{};
-        oldABIDispatch.abiVersion = 15u;
+        oldABIDispatch.abiVersion = 16u;
         oldABIDispatch.environmentCount = 1u;
         oldABIDispatch.femNodeCount = 1u;
         oldABIDispatch.bodyPoseStride = static_cast<nm_u32>(count);
@@ -492,11 +494,11 @@ int main(int argc, const char* argv[]) {
         [oldABICommand commit];
         [oldABICommand waitUntilCompleted];
         require(oldABICommand.status == MTLCommandBufferStatusCompleted,
-                "old ABI is rejected before unbound contact tables are read");
+                "stale ABI 16 dispatch is rejected before unbound contact tables are read");
         const auto* oldABIResult = static_cast<const nm_float4*>(
             oldABIOutputBuffer.contents);
         require(oldABIResult[0].x == 0.0f &&
-                oldABIResult[0].y == 15.0f &&
+                oldABIResult[0].y == 16.0f &&
                 oldABIResult[0].z == 1.0f,
                 "ABI 15 dispatch returns invalid before triangle access");
 
@@ -823,6 +825,60 @@ int main(int argc, const char* argv[]) {
         auto provisionalStatusBuffer=dispatchBuffer(
             &provisionalStatus,sizeof(provisionalStatus));
         const nm_float4 typedEmpty{};
+        const NMNumiHumanFEMBodyContactBVHNodeGPU emptyStatusBVHNode{};
+        auto statusBVHBuffer=dispatchBuffer(
+            &emptyStatusBVHNode,sizeof(emptyStatusBVHNode));
+        std::array<std::uint32_t,1> sampleValidity{};
+        std::array<std::uint32_t,1> blockFirstInvalid{};
+        auto sampleValidityBuffer=dispatchBuffer(
+            sampleValidity.data(),sizeof(sampleValidity));
+        auto blockFirstInvalidBuffer=dispatchBuffer(
+            blockFirstInvalid.data(),sizeof(blockFirstInvalid));
+        require(statusBVHBuffer && sampleValidityBuffer &&
+                blockFirstInvalidBuffer,
+                "parallel provisional-status validation scratch buffers");
+        auto statusKernel=[&](NSString* name) {
+            id<MTLFunction> function=[library newFunctionWithName:
+                [NSString stringWithFormat:@"numi_matter_metal::%@",name]];
+            require(function!=nil,"parallel status validation kernel exists");
+            NSError* error=nil;
+            id<MTLComputePipelineState> pipeline=
+                [device newComputePipelineStateWithFunction:function error:&error];
+            if (pipeline==nil) {
+                std::fprintf(stderr,"parallel status pipeline %s: %s\n",
+                    name.UTF8String,error.localizedDescription.UTF8String);
+                std::exit(1);
+            }
+            return pipeline;
+        };
+        id<MTLComputePipelineState> sampleValidationPipeline=statusKernel(
+            @"nm_numi_human_validate_fem_body_contact_samples");
+        id<MTLComputePipelineState> validationReducePipeline=statusKernel(
+            @"nm_numi_human_reduce_fem_body_contact_sample_validation");
+        auto encodeStatusValidation=[&](id<MTLCommandBuffer> command,
+                                        id<MTLBuffer> nodeStates) {
+            id<MTLComputeCommandEncoder> validate=[command computeCommandEncoder];
+            [validate setComputePipelineState:sampleValidationPipeline];
+            [validate setBuffer:statusDispatchBuffer offset:0 atIndex:0];
+            [validate setBuffer:ownerSampleBuffer offset:0 atIndex:1];
+            [validate setBuffer:ownerRangeBuffer offset:0 atIndex:2];
+            [validate setBuffer:ownerCandidateBuffer offset:0 atIndex:3];
+            [validate setBuffer:statusBVHBuffer offset:0 atIndex:4];
+            [validate setBuffer:nodeStates offset:0 atIndex:5];
+            [validate setBuffer:poseBuffer offset:0 atIndex:6];
+            [validate setBuffer:sampleValidityBuffer offset:0 atIndex:7];
+            [validate dispatchThreads:MTLSizeMake(1,1,1)
+                threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+            [validate endEncoding];
+            id<MTLComputeCommandEncoder> reduce=[command computeCommandEncoder];
+            [reduce setComputePipelineState:validationReducePipeline];
+            [reduce setBuffer:statusDispatchBuffer offset:0 atIndex:0];
+            [reduce setBuffer:sampleValidityBuffer offset:0 atIndex:1];
+            [reduce setBuffer:blockFirstInvalidBuffer offset:0 atIndex:2];
+            [reduce dispatchThreads:MTLSizeMake(1,1,1)
+                threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+            [reduce endEncoding];
+        };
         id<MTLFunction> statusFunction=[library newFunctionWithName:
             @"numi_matter_metal::nm_numi_human_prepare_provisional_status"];
         require(statusFunction!=nil,"production provisional-status kernel");
@@ -836,6 +892,7 @@ int main(int argc, const char* argv[]) {
             return 1;
         }
         id<MTLCommandBuffer> statusCommand=[queue commandBuffer];
+        encodeStatusValidation(statusCommand,nodeBuffer);
         id<MTLComputeCommandEncoder> statusEncoder=
             [statusCommand computeCommandEncoder];
         [statusEncoder setComputePipelineState:statusPipeline];
@@ -855,6 +912,8 @@ int main(int argc, const char* argv[]) {
         [statusEncoder setBuffer:nodeBuffer offset:0 atIndex:13];
         [statusEncoder setBuffer:ownerRangeBuffer offset:0 atIndex:14];
         [statusEncoder setBuffer:ownerCandidateBuffer offset:0 atIndex:15];
+        [statusEncoder setBuffer:statusBVHBuffer offset:0 atIndex:16];
+        [statusEncoder setBuffer:blockFirstInvalidBuffer offset:0 atIndex:17];
         [statusEncoder dispatchThreads:MTLSizeMake(1,1,1)
             threadsPerThreadgroup:MTLSizeMake(1,1,1)];
         [statusEncoder endEncoding];
@@ -876,6 +935,7 @@ int main(int argc, const char* argv[]) {
         auto rejectedStatusBuffer=dispatchBuffer(
             &rejectedProvisionalStatus,sizeof(rejectedProvisionalStatus));
         id<MTLCommandBuffer> rejectedStatusCommand=[queue commandBuffer];
+        encodeStatusValidation(rejectedStatusCommand,outsideAcceptedNodeBuffer);
         id<MTLComputeCommandEncoder> rejectedStatusEncoder=
             [rejectedStatusCommand computeCommandEncoder];
         [rejectedStatusEncoder setComputePipelineState:statusPipeline];
@@ -895,6 +955,8 @@ int main(int argc, const char* argv[]) {
         [rejectedStatusEncoder setBuffer:outsideAcceptedNodeBuffer offset:0 atIndex:13];
         [rejectedStatusEncoder setBuffer:ownerRangeBuffer offset:0 atIndex:14];
         [rejectedStatusEncoder setBuffer:ownerCandidateBuffer offset:0 atIndex:15];
+        [rejectedStatusEncoder setBuffer:statusBVHBuffer offset:0 atIndex:16];
+        [rejectedStatusEncoder setBuffer:blockFirstInvalidBuffer offset:0 atIndex:17];
         [rejectedStatusEncoder dispatchThreads:MTLSizeMake(1,1,1)
             threadsPerThreadgroup:MTLSizeMake(1,1,1)];
         [rejectedStatusEncoder endEncoding];
@@ -904,6 +966,228 @@ int main(int argc, const char* argv[]) {
                 static_cast<const MRMetalWorldStatusGPU*>(
                     rejectedStatusBuffer.contents)[0].code!=MR_STEP_SUCCESS,
                 "provisional status rejects tangentially out-of-envelope nodes still near a prepared face");
+
+        auto runValidationBatch=[&](
+            const std::uint32_t sampleCount,
+            const std::uint32_t environmentCount,
+            const std::vector<std::uint32_t>& invalidSamples,
+            const std::uint32_t nanEnvironment,
+            const std::uint32_t nanSample,
+            const bool staleABI,
+            const bool failEarlierGate,
+            const bool badInputPointers) {
+            const std::uint32_t nodeCount=std::max(1u,sampleCount);
+            NMNumiHumanTendonFEMLoadDispatchGPU batchDispatch=statusDispatch;
+            batchDispatch.abiVersion=staleABI
+                ? NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION-1u
+                : NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
+            batchDispatch.environmentCount=environmentCount;
+            batchDispatch.femNodeCount=nodeCount;
+            batchDispatch.bodyPoseStride=nodeCount;
+            batchDispatch.femBodyContactSampleCount=sampleCount;
+            batchDispatch.endpointCount=failEarlierGate ? 0u : 1u;
+            batchDispatch.transferStride=1u;
+            batchDispatch.generalizedForceStride=1u;
+            batchDispatch.dofCount=1u;
+            batchDispatch.muscleCount=1u;
+            batchDispatch.pointJacobianStride=1u;
+            batchDispatch.bodyJacobianPointOffset=0u;
+            auto batchSamples=std::vector<NMNumiHumanFEMBodyContactSampleGPU>(
+                std::max(1u,sampleCount),ownerSample);
+            for (std::uint32_t i=0u;i<sampleCount;++i) {
+                batchSamples[i].slaveNode=i;
+            }
+            for (const std::uint32_t invalid:invalidSamples) {
+                require(invalid<sampleCount,"validation fixture bad sample is in range");
+                batchSamples[invalid].slaveNode=nodeCount;
+            }
+            auto batchRanges=std::vector<
+                NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>(
+                    std::max(1u,sampleCount),ownerRanges[0]);
+            auto batchNodes=std::vector<NMFEMNodeStateGPU>(
+                static_cast<std::size_t>(environmentCount)*nodeCount,nodes[1]);
+            if (nanEnvironment<environmentCount && nanSample<sampleCount) {
+                batchNodes[static_cast<std::size_t>(nanEnvironment)*nodeCount+
+                    nanSample].positionAndMass.x=
+                        std::numeric_limits<float>::quiet_NaN();
+            }
+            auto batchPoses=std::vector<MRArticulatedBodyPoseGPU>(
+                static_cast<std::size_t>(environmentCount)*nodeCount,poses[1]);
+            const std::uint32_t blockSize=
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_VALIDATION_BLOCK_SIZE;
+            const std::uint32_t blockCount=sampleCount/blockSize+
+                (sampleCount%blockSize!=0u ? 1u : 0u);
+            auto sampleValidity=std::vector<std::uint32_t>(
+                std::max<std::size_t>(1u,
+                    static_cast<std::size_t>(environmentCount)*sampleCount),
+                0xdeadbeefu);
+            auto blockFirstInvalid=std::vector<std::uint32_t>(
+                std::max<std::size_t>(1u,
+                    static_cast<std::size_t>(environmentCount)*blockCount),
+                0xdeadbeefu);
+            std::array<NMNumiHumanFEMBodyContactBVHNodeGPU,1>
+                batchBVH{{{}}};
+            std::vector<NMNumiHumanTendonFEMNodeLoadGPU> batchLoads(nodeCount);
+            for (auto& load:batchLoads) {
+                for (auto& endpoint:load.endpointIndex)
+                    endpoint=NM_INVALID_INDEX;
+            }
+            std::vector<NMNumiHumanTendonFEMNodeAnchorGPU> batchAnchors(nodeCount);
+            for (auto& anchor:batchAnchors) anchor.bodyIndex=MR_INVALID_INDEX;
+            auto batchStatus=std::vector<MRMetalWorldStatusGPU>(environmentCount);
+
+            const auto batchDispatchBuffer=dispatchBuffer(
+                &batchDispatch,sizeof(batchDispatch));
+            const auto batchSamplesBuffer=badInputPointers
+                ? dispatchBuffer(&ownerSample,sizeof(ownerSample))
+                : dispatchBuffer(batchSamples.data(),
+                    batchSamples.size()*sizeof(batchSamples[0]));
+            const auto batchRangesBuffer=badInputPointers
+                ? dispatchBuffer(&ownerRanges[0],sizeof(ownerRanges[0]))
+                : dispatchBuffer(batchRanges.data(),
+                    batchRanges.size()*sizeof(batchRanges[0]));
+            const auto batchNodesBuffer=badInputPointers
+                ? dispatchBuffer(&nodes[1],sizeof(nodes[1]))
+                : dispatchBuffer(batchNodes.data(),
+                    batchNodes.size()*sizeof(batchNodes[0]));
+            const auto batchPosesBuffer=badInputPointers
+                ? dispatchBuffer(&poses[1],sizeof(poses[1]))
+                : dispatchBuffer(batchPoses.data(),
+                    batchPoses.size()*sizeof(batchPoses[0]));
+            const auto batchValidityBuffer=dispatchBuffer(sampleValidity.data(),
+                sampleValidity.size()*sizeof(sampleValidity[0]));
+            const auto batchBlockBuffer=dispatchBuffer(blockFirstInvalid.data(),
+                blockFirstInvalid.size()*sizeof(blockFirstInvalid[0]));
+            const auto batchTriangleBuffer=dispatchBuffer(
+                ownerCandidates.data(),sizeof(ownerCandidates));
+            const auto batchBVHBuffer=dispatchBuffer(
+                batchBVH.data(),sizeof(batchBVH));
+            const auto batchLoadsBuffer=dispatchBuffer(batchLoads.data(),
+                batchLoads.size()*sizeof(batchLoads[0]));
+            const auto batchAnchorsBuffer=dispatchBuffer(batchAnchors.data(),
+                batchAnchors.size()*sizeof(batchAnchors[0]));
+            const auto batchStatusBuffer=dispatchBuffer(batchStatus.data(),
+                batchStatus.size()*sizeof(batchStatus[0]));
+            require(batchDispatchBuffer && batchSamplesBuffer &&
+                    batchRangesBuffer && batchNodesBuffer && batchPosesBuffer &&
+                    batchValidityBuffer && batchBlockBuffer &&
+                    batchTriangleBuffer && batchBVHBuffer && batchLoadsBuffer &&
+                    batchAnchorsBuffer && batchStatusBuffer,
+                    "parallel batch validation buffers");
+            id<MTLCommandBuffer> batchCommand=[queue commandBuffer];
+            if (sampleCount!=0u) {
+                id<MTLComputeCommandEncoder> validate=
+                    [batchCommand computeCommandEncoder];
+                [validate setComputePipelineState:sampleValidationPipeline];
+                [validate setBuffer:batchDispatchBuffer offset:0 atIndex:0];
+                [validate setBuffer:batchSamplesBuffer offset:0 atIndex:1];
+                [validate setBuffer:batchRangesBuffer offset:0 atIndex:2];
+                [validate setBuffer:batchTriangleBuffer offset:0 atIndex:3];
+                [validate setBuffer:batchBVHBuffer offset:0 atIndex:4];
+                [validate setBuffer:batchNodesBuffer offset:0 atIndex:5];
+                [validate setBuffer:batchPosesBuffer offset:0 atIndex:6];
+                [validate setBuffer:batchValidityBuffer offset:0 atIndex:7];
+                [validate dispatchThreads:MTLSizeMake(
+                    static_cast<NSUInteger>(sampleCount)*environmentCount,1,1)
+                    threadsPerThreadgroup:MTLSizeMake(64,1,1)];
+                [validate endEncoding];
+                id<MTLComputeCommandEncoder> reduce=
+                    [batchCommand computeCommandEncoder];
+                [reduce setComputePipelineState:validationReducePipeline];
+                [reduce setBuffer:batchDispatchBuffer offset:0 atIndex:0];
+                [reduce setBuffer:batchValidityBuffer offset:0 atIndex:1];
+                [reduce setBuffer:batchBlockBuffer offset:0 atIndex:2];
+                [reduce dispatchThreads:MTLSizeMake(
+                    static_cast<NSUInteger>(blockCount)*environmentCount,1,1)
+                    threadsPerThreadgroup:MTLSizeMake(64,1,1)];
+                [reduce endEncoding];
+            }
+            id<MTLComputeCommandEncoder> statusEncoder=
+                [batchCommand computeCommandEncoder];
+            [statusEncoder setComputePipelineState:statusPipeline];
+            [statusEncoder setBuffer:batchDispatchBuffer offset:0 atIndex:0];
+            [statusEncoder setBuffer:batchLoadsBuffer offset:0 atIndex:1];
+            [statusEncoder setBuffer:batchAnchorsBuffer offset:0 atIndex:2];
+            [statusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:3];
+            [statusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:4];
+            [statusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:5];
+            [statusEncoder setBuffer:batchPosesBuffer offset:0 atIndex:6];
+            [statusEncoder setBuffer:batchStatusBuffer offset:0 atIndex:7];
+            [statusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:8];
+            [statusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:9];
+            [statusEncoder setBuffer:batchSamplesBuffer offset:0 atIndex:10];
+            [statusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:11];
+            [statusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:12];
+            [statusEncoder setBuffer:batchNodesBuffer offset:0 atIndex:13];
+            [statusEncoder setBuffer:batchRangesBuffer offset:0 atIndex:14];
+            [statusEncoder setBuffer:batchTriangleBuffer offset:0 atIndex:15];
+            [statusEncoder setBuffer:batchBVHBuffer offset:0 atIndex:16];
+            if (sampleCount!=0u) {
+                [statusEncoder setBuffer:batchBlockBuffer offset:0 atIndex:17];
+            } else {
+                const std::uint32_t emptyFirstInvalid=MR_INVALID_INDEX;
+                [statusEncoder setBytes:&emptyFirstInvalid
+                    length:sizeof(emptyFirstInvalid) atIndex:17];
+            }
+            [statusEncoder dispatchThreads:MTLSizeMake(environmentCount,1,1)
+                threadsPerThreadgroup:MTLSizeMake(64,1,1)];
+            [statusEncoder endEncoding];
+            [batchCommand commit];
+            [batchCommand waitUntilCompleted];
+            require(batchCommand.status==MTLCommandBufferStatusCompleted,
+                    "parallel validation batch command completed");
+            const auto* validOut=static_cast<const std::uint32_t*>(
+                batchValidityBuffer.contents);
+            const auto* firstInvalidOut=static_cast<const std::uint32_t*>(
+                batchBlockBuffer.contents);
+            const auto* statusOut=static_cast<const MRMetalWorldStatusGPU*>(
+                batchStatusBuffer.contents);
+            for (std::uint32_t environment=0u;
+                 environment<environmentCount;++environment) {
+                for (std::uint32_t sample=0u;sample<sampleCount;++sample) {
+                    const bool expectedValid=!staleABI &&
+                        std::find(invalidSamples.begin(),invalidSamples.end(),sample)==
+                            invalidSamples.end() &&
+                        !(environment==nanEnvironment && sample==nanSample);
+                    require(validOut[environment*sampleCount+sample]==
+                                (expectedValid ? 1u : 0u),
+                            "parallel validator writes every environment/sample result");
+                }
+                for (std::uint32_t block=0u;block<blockCount;++block) {
+                    std::uint32_t expectedFirst=MR_INVALID_INDEX;
+                    const std::uint32_t first=block*blockSize;
+                    const std::uint32_t end=std::min(first+blockSize,sampleCount);
+                    for (std::uint32_t sample=first;sample<end;++sample) {
+                        const bool expectedValid=!staleABI &&
+                            std::find(invalidSamples.begin(),invalidSamples.end(),sample)==
+                                invalidSamples.end() &&
+                            !(environment==nanEnvironment && sample==nanSample);
+                        if (!expectedValid) { expectedFirst=sample; break; }
+                    }
+                    require(firstInvalidOut[environment*blockCount+block]==
+                                expectedFirst,
+                            "block reduction preserves first invalid sample at boundaries");
+                }
+                const bool statusExpected=!staleABI && !failEarlierGate &&
+                    std::none_of(invalidSamples.begin(),invalidSamples.end(),
+                        [&](const std::uint32_t sample) {
+                            return sample<sampleCount;
+                        }) && !(environment==nanEnvironment && nanSample<sampleCount);
+                require((statusOut[environment].code==MR_STEP_SUCCESS)==statusExpected,
+                        "single provisional-status owner consumes reduced validation");
+            }
+        };
+        runValidationBatch(0u,1u,{},NM_INVALID_INDEX,NM_INVALID_INDEX,
+                           false,false,false);
+        runValidationBatch(255u,1u,{0u,127u,254u},
+                           NM_INVALID_INDEX,NM_INVALID_INDEX,false,false,false);
+        runValidationBatch(256u,1u,{0u,127u,255u},
+                           NM_INVALID_INDEX,NM_INVALID_INDEX,false,false,false);
+        runValidationBatch(257u,2u,{0u,127u,255u,256u},
+                           1u,128u,false,false,false);
+        runValidationBatch(257u,2u,{},1u,128u,false,true,false);
+        runValidationBatch(257u,2u,{},NM_INVALID_INDEX,NM_INVALID_INDEX,
+                           true,false,true);
 
         id<MTLCommandBuffer> ownerCommand=[queue commandBuffer];
         auto encodeOwner=[&](NSString* name, NSUInteger threadCount,

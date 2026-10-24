@@ -1,0 +1,14 @@
+{
+  "baseline": "16dca622 ABI16 native-1ms-006",
+  "candidate": "ABI17 native-1ms-007",
+  "baseline_wall_seconds": 133.92749899998307,
+  "candidate_wall_seconds": 89.83659237495158,
+  "ratio_baseline_over_candidate": 1.4907900607027589,
+  "wall_reduction_fraction": 0.32921473897632525,
+  "measurement_pairs": 1,
+  "common_field_failure_byte_identical": true,
+  "failure_sha256": "45c011ac27c3d6c0b7c24b2f34b96f80f7cf91b558cfc09aed6630ab5ecd114e",
+  "accepted_physical_steps": 0,
+  "timing_scope": "complete-process failure latency including initialization; not accepted throughput, not a replicated speedup qualification",
+  "control": "No competing heavy CPU or GPU work during candidate run; source-only preflight and owner suite were separate."
+}

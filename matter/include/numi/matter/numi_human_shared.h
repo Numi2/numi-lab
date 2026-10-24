@@ -2,7 +2,8 @@
 
 #include "numi/matter/shared.h"
 
-#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 16u
+#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 17u
+#define NM_NUMI_HUMAN_FEM_BODY_CONTACT_VALIDATION_BLOCK_SIZE 256u
 #define NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS 4096u
 #define NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_LEGACY 0u
 #define NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_MOTION_ENVELOPE 1u
@@ -427,7 +428,7 @@ static_assert(__builtin_offsetof(
     NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU, bodyIndex) == 160u);
 static_assert(__builtin_offsetof(
     NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU, featureNormalFlags) == 172u);
-static_assert(NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION == 16u);
+static_assert(NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION == 17u);
 static_assert(sizeof(NMNumiHumanFEMBodyContactBVHNodeGPU) == 48u);
 static_assert(sizeof(NMNumiHumanFEMSurfaceAttachmentGPU) == 80u);
 static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 144u);

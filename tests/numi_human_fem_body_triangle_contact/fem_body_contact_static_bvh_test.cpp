@@ -4,6 +4,7 @@
 
 #include <array>
 #include <cmath>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -14,6 +15,29 @@ namespace {
 void require(bool ok,std::string_view message) {
     if (!ok) { std::fprintf(stderr,"FAIL: %.*s\n",int(message.size()),message.data()); std::exit(1); }
 }
+constexpr std::uint32_t kValidationBlockSize =
+    NM_NUMI_HUMAN_FEM_BODY_CONTACT_VALIDATION_BLOCK_SIZE;
+constexpr std::uint32_t validationBlockCount(std::uint32_t sampleCount) {
+    return sampleCount / kValidationBlockSize +
+        (sampleCount % kValidationBlockSize != 0u ? 1u : 0u);
+}
+constexpr std::uint32_t validationBlockLimit(
+    std::uint32_t first, std::uint32_t sampleCount) {
+    const std::uint32_t remaining = sampleCount - first;
+    return first + (kValidationBlockSize < remaining
+        ? kValidationBlockSize : remaining);
+}
+constexpr std::uint32_t kMaxSampleCount = 0xffffffffu;
+constexpr std::uint32_t kMaxBlockCount = validationBlockCount(kMaxSampleCount);
+constexpr std::uint32_t kLastMaxBlock = kMaxBlockCount - 1u;
+constexpr std::uint32_t kLastMaxBlockFirst = kLastMaxBlock * kValidationBlockSize;
+static_assert(validationBlockCount(0u) == 0u);
+static_assert(validationBlockLimit(0u, 256u) == 256u);
+static_assert(validationBlockLimit(256u, 257u) == 257u);
+static_assert(kLastMaxBlockFirst == 0xffffff00u);
+static_assert(kMaxSampleCount - kLastMaxBlockFirst == 255u);
+static_assert(validationBlockLimit(kLastMaxBlockFirst, kMaxSampleCount) ==
+              kMaxSampleCount);
 NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU tri(
     std::uint32_t body,std::uint32_t bone,std::uint32_t id,
     float x,float y,float z,float dx,float dy
@@ -56,6 +80,13 @@ std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> closedBox(
 }
 }
 int main() {
+    require(validationBlockCount(kMaxSampleCount) == 16777216u &&
+            validationBlockLimit(kLastMaxBlockFirst, kMaxSampleCount) ==
+                kMaxSampleCount,
+            "UINT32_MAX sample count ends at the last partial block without wrap");
+    require(validationBlockLimit(0u,256u)==256u &&
+            validationBlockLimit(256u,257u)==257u,
+            "full and last partial validation blocks retain exclusive limits");
     // Includes a tied duplicate face at the same site to exercise stable-ID tie-breaking.
     const std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,7> input{{
         tri(9,4,8, 0,0,0, 1,0.2f), tri(9,4,2, 0,0,0, 1,0.2f),
@@ -158,10 +189,10 @@ int main() {
                 pairTemplates,input,input.size(),0.02f,strictPairOptions).failure==
                 BuildFailure::invalidClosedOrientedBank,
             "strict option rejects open/inconsistently oriented complete banks");
-    static_assert(NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION == 16u,
-                  "feature-normal triangle records require ABI 16");
+    static_assert(NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION == 17u,
+                  "status scratch binding and feature-normal records require ABI 17");
     static_assert(sizeof(NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU) == 176u,
-                  "host triangle stride must match Metal ABI 16");
+                  "host triangle stride must match Metal ABI 17");
     static_assert(__builtin_offsetof(
         NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU, edgePseudoNormal01) == 64u);
     static_assert(__builtin_offsetof(
@@ -505,5 +536,5 @@ int main() {
     }
     require(testedReflexEdge&&testedReflexVertex,
             "L prism exposes its concave edge and corner feature normals");
-    std::puts("static complete body BVH CPU regression PASS");
+    std::puts("static complete body BVH CPU regression PASS; validation block UINT32_MAX boundary PASS");
 }

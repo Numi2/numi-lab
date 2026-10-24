@@ -1,0 +1,9 @@
+sparse_dense_gpu_parity=PASS environments=3 nodes=17 contacts=5 changed=15
+multi_master_grouped_gpu=PASS envs=3 samples=3 node_wrenches=2 oracle=bitwise
+multi_master_coupled_tangent_gpu=PASS masters=2 shared_slave=3
+feature_normal_cpu_contract=PASS legacy_edge_vertex_fallback strict_face_bitless strict_missing_edge_reject
+feature_tangent_cpu_max_abs=0.000124471107 label=fd-plus query=26 feature=1 row=1 col=1 got=1249.99573 expected=1249.9956
+feature_tangent_fd_max_abs=0.200019836 group=2 axis=0 row=0 fd=1250.1955 tangent=1249.99548
+closed_pseudonormal_gpu=PASS convex_face_edge_vertex=3 concave_face_edge_vertex=3 active_fd=face+reflex_edge
+closed_aabb_gpu=PASS outside_face_edge_corner=3 rotated=1 boundary_ulp_full_query=1 band_boundary_full_query=1 concave_inside_aabb_full_query=1
+{"status":"PASS","device":"Apple M6","triangle_cases":5,"legacy_cases":3,"outside_force":[0,0,0],"face_force":[0,0,12.499975],"edge_force":[-7.4999633,0,9.9999819],"vertex_force":[7.4999857,9.9999723,4.9999909]}

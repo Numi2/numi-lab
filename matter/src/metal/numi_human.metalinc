@@ -1407,14 +1407,90 @@ inline bool passiveRoutedBandState(
 
 } // namespace
 
-// Presence of this entry point is the host-side ABI 16 handshake. New hosts
-// refuse to create buffers against metallibs that predate the 176-byte triangle
-// record; old hosts are rejected by the version guard in the query path.
-kernel void nm_numi_human_contact_triangle_abi16_marker(
+// Presence of this entry point is the host-side ABI 17 handshake. It covers the
+// 176-byte triangle record and the parallel provisional-status buffer binding.
+// ABI 16 hosts refuse this metallib before creating incompatible pipelines.
+kernel void nm_numi_human_contact_triangle_abi17_marker(
     device uint* output [[buffer(0)]],
     uint global [[thread_position_in_grid]]
 ) {
     if (global == 0u) output[0] = NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
+}
+
+kernel void nm_numi_human_validate_fem_body_contact_samples(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges
+        [[buffer(2)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles
+        [[buffer(3)]],
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvhNodes [[buffer(4)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(5)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(6)]],
+    device uint* sampleValid [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint sampleCount = dispatch.femBodyContactSampleCount;
+    if (sampleCount == 0u || dispatch.environmentCount == 0u) return;
+    const uint totalCount = dispatch.environmentCount * sampleCount;
+    if (global >= totalCount) return;
+    const uint environment = global / sampleCount;
+    const uint sampleIndex = global - environment * sampleCount;
+    if (dispatch.abiVersion != NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION) {
+        sampleValid[global] = 0u;
+        return;
+    }
+    const NMNumiHumanFEMBodyContactSampleGPU sample = samples[sampleIndex];
+    bool valid = dispatch.femNodeCount > 0u &&
+        dispatch.bodyPoseStride > 0u &&
+        sample.slaveNode < dispatch.femNodeCount &&
+        validBody(sample.bodyIndex, dispatch);
+    if (valid) {
+        const MRArticulatedBodyPoseGPU pose = bodyPoses[
+            environment * dispatch.bodyPoseStride +
+            sample.bodyIndex - dispatch.articulationFirstBody];
+        float3 slavePoint;
+        float3 bodyPoint;
+        float3 normal;
+        float closure;
+        float contactArea;
+        float3x3 contactTangent;
+        float tangentialSlip;
+        valid = humanFEMBodyContactStateForSample(
+            sampleIndex, dispatch, sample, ranges, triangles, bvhNodes,
+            acceptedNodes[environment * dispatch.femNodeCount + sample.slaveNode],
+            pose, slavePoint, bodyPoint, normal, closure, contactArea,
+            contactTangent, tangentialSlip);
+    }
+    sampleValid[global] = valid ? 1u : 0u;
+}
+
+kernel void nm_numi_human_reduce_fem_body_contact_sample_validation(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* sampleValid [[buffer(1)]],
+    device uint* blockFirstInvalid [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    constexpr uint blockSize =
+        NM_NUMI_HUMAN_FEM_BODY_CONTACT_VALIDATION_BLOCK_SIZE;
+    const uint sampleCount = dispatch.femBodyContactSampleCount;
+    const uint blockCount = sampleCount / blockSize +
+        (sampleCount % blockSize != 0u ? 1u : 0u);
+    if (sampleCount == 0u || blockCount == 0u) return;
+    const uint totalBlocks = dispatch.environmentCount * blockCount;
+    if (global >= totalBlocks) return;
+    const uint environment = global / blockCount;
+    const uint block = global - environment * blockCount;
+    const uint first = block * blockSize;
+    const uint limit = first + min(blockSize, sampleCount - first);
+    uint firstInvalid = MR_INVALID_INDEX;
+    for (uint sample = first; sample < limit; ++sample) {
+        if (sampleValid[environment * sampleCount + sample] == 0u) {
+            firstInvalid = sample;
+            break;
+        }
+    }
+    blockFirstInvalid[global] = firstInvalid;
 }
 
 kernel void nm_numi_human_prepare_provisional_status(
@@ -1442,6 +1518,8 @@ kernel void nm_numi_human_prepare_provisional_status(
         femBodyContactNeighborhoodTriangles [[buffer(15)]],
     device const NMNumiHumanFEMBodyContactBVHNodeGPU* femBodyContactBVHNodes
         [[buffer(16)]],
+    device const uint* femBodyContactValidationBlockFirstInvalid
+        [[buffer(17)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) return;
@@ -1608,29 +1686,16 @@ kernel void nm_numi_human_prepare_provisional_status(
                 finite4(masterPose.orientation);
         }
     }
-    for (uint index = 0u;
-         accepted && index < dispatch.femBodyContactSampleCount; ++index) {
-        const NMNumiHumanFEMBodyContactSampleGPU sample =
-            femBodyContactSamples[index];
-        accepted = sample.slaveNode < dispatch.femNodeCount &&
-            validBody(sample.bodyIndex, dispatch);
-        if (!accepted) break;
-        const MRArticulatedBodyPoseGPU pose = bodyPoses[
-            environment * dispatch.bodyPoseStride +
-            sample.bodyIndex - dispatch.articulationFirstBody];
-        float3 slavePoint;
-        float3 bodyPoint;
-        float3 normal;
-        float closure;
-        float contactArea;
-        float3x3 contactTangent;
-        float tangentialSlip;
-        accepted = humanFEMBodyContactStateForSample(
-            index, dispatch, sample, femBodyContactNeighborhoodRanges,
-            femBodyContactNeighborhoodTriangles, femBodyContactBVHNodes,
-            acceptedNodes[environment*dispatch.femNodeCount+sample.slaveNode],
-            pose, slavePoint, bodyPoint, normal, closure, contactArea,
-            contactTangent, tangentialSlip);
+    constexpr uint contactValidationBlockSize =
+        NM_NUMI_HUMAN_FEM_BODY_CONTACT_VALIDATION_BLOCK_SIZE;
+    const uint contactValidationBlockCount =
+        dispatch.femBodyContactSampleCount / contactValidationBlockSize +
+        (dispatch.femBodyContactSampleCount % contactValidationBlockSize != 0u
+            ? 1u : 0u);
+    for (uint block = 0u;
+         accepted && block < contactValidationBlockCount; ++block) {
+        accepted = femBodyContactValidationBlockFirstInvalid[
+            environment * contactValidationBlockCount + block] == MR_INVALID_INDEX;
     }
     for (uint index = 0u;
          accepted && index < dispatch.femSurfaceAttachmentSampleCount; ++index) {
