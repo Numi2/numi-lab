@@ -79,6 +79,17 @@ if(BUILD_TESTING)
         PROPERTIES TIMEOUT 60 LABELS "matter;compiler;human;preconditioner;cpu;synthetic")
 endif()
 
+add_executable(numi-matter-fem-backtracking-failure-witness-check
+    tests/backtracking_failure_witness_test.cpp)
+target_compile_options(numi-matter-fem-backtracking-failure-witness-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME matter.fem.backtracking_failure_witness
+        COMMAND numi-matter-fem-backtracking-failure-witness-check)
+    set_tests_properties(matter.fem.backtracking_failure_witness PROPERTIES
+        TIMEOUT 30 LABELS "matter;fem;solver;cpu;synthetic")
+endif()
+
 add_executable(numi-matter-registered-layer-facet-ancestry-check
     "${CMAKE_CURRENT_SOURCE_DIR}/../apps/NumiHumanRegisteredLayerFacetAncestryCheck.cpp")
 target_include_directories(numi-matter-registered-layer-facet-ancestry-check PRIVATE

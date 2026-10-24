@@ -1,0 +1,18 @@
+{
+  "compile_command": [
+    "/usr/bin/clang++",
+    "-std=c++23",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-UNDEBUG",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/publication/source-010/matter/tests/backtracking_failure_witness_test.cpp",
+    "-o",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/publication/source-010/backtracking-failure-witness-test"
+  ],
+  "returncode": 0,
+  "output": "PASS: zero-trial tuple, legacy bound predicate parity, exact uint selection, nonfinite witness, minimum-J and material join\n",
+  "scope": "portable CPU witness/predicate regression; Metal coupon and full native diagnostic receipts retained separately"
+}

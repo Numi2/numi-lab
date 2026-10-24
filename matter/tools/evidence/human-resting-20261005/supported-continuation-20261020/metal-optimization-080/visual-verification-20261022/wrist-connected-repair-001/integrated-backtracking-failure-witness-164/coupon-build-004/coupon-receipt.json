@@ -1,0 +1,101 @@
+{
+  "coverage": [
+    "zero-trial empty witness tuple [0,0,+infinity,0]",
+    "legacy determinant predicate parity for NaN lower/upper bounds",
+    "finite J with negative/positive infinite bounds",
+    "positive-infinite lower and negative-infinite upper rejection",
+    "finite exact-boundary acceptance",
+    "constitutive rejection",
+    "nonfinite trial J rejection",
+    "deterministic first-bad reason/J association",
+    "adjacent uint IDs above 2^24 and near UINT_MAX",
+    "accepted minimum-J path"
+  ],
+  "schema": "numi.human.fem_backtracking_failure_witness.coupon-receipt.v3",
+  "stages": [
+    {
+      "binary_sha256": "764d1c934ac445cbf9aa80bae9af05ba520d470ec6d7cbc106c50b7a2f72d3e2",
+      "build_argv": [
+        "clang++",
+        "-std=c++17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-material-jacobian-witness-154-zero-trial/tests/backtracking_failure_witness_test.cpp",
+        "-o",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-material-jacobian-witness-154-zero-trial/coupon-build-004/cpu-test"
+      ],
+      "build_returncode": 0,
+      "name": "cpu-build-run",
+      "run_argv": [
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-material-jacobian-witness-154-zero-trial/coupon-build-004/cpu-test"
+      ],
+      "run_returncode": 0,
+      "stdout": "PASS: zero-trial tuple, legacy bound predicate parity, exact uint selection, nonfinite witness, minimum-J and material join\n"
+    },
+    {
+      "air_sha256": "4593f402fefee8c87aa7de1dd201507cbf24c049e5a31ae46b7f3c750a8eeec6",
+      "binary_sha256": "cfde47ecb042681084784803ceb1d17501dd25d5e19af3f1f2d2b75b2b24750a",
+      "gpu_argv": [
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-material-jacobian-witness-154-zero-trial/coupon-build-004/coupon",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-material-jacobian-witness-154-zero-trial/coupon-build-004/coupon.metallib"
+      ],
+      "gpu_log_sha256": "1e9a4407995b65c41ef2a168a022522e2c640469efea29d8f67fa8ae23adb632",
+      "host_argv": [
+        "clang++",
+        "-std=c++17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fobjc-arc",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-material-jacobian-witness-154-zero-trial/tests/backtracking_failure_witness_coupon.mm",
+        "-o",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-material-jacobian-witness-154-zero-trial/coupon-build-004/coupon"
+      ],
+      "metal_argv": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metal",
+        "-std=metal4.0",
+        "-O3",
+        "-fno-fast-math",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-material-jacobian-witness-154-zero-trial/source-overlay/matter/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-material-jacobian-witness-154-zero-trial/source-overlay/matter/src",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src",
+        "-c",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-material-jacobian-witness-154-zero-trial/tests/backtracking_failure_witness_coupon.metal",
+        "-o",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-material-jacobian-witness-154-zero-trial/coupon-build-004/coupon.air"
+      ],
+      "metallib_argv": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metallib",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-material-jacobian-witness-154-zero-trial/coupon-build-004/coupon.air",
+        "-o",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-material-jacobian-witness-154-zero-trial/coupon-build-004/coupon.metallib"
+      ],
+      "metallib_sha256": "1652c624e5f5fa7e7f1284a6d118afa6dea1d38c887a2934e792e1bc537f4eb7",
+      "name": "metal-coupon-build-run",
+      "returncode": 0,
+      "stdout": "PASS: Metal zero-trial initialization, legacy predicate parity, deterministic uint witness and minimum-J path\n"
+    }
+  ],
+  "status": "PASS"
+}

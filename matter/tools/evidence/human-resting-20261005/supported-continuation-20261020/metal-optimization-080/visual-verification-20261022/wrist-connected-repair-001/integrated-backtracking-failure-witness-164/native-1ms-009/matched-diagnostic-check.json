@@ -1,0 +1,36 @@
+{
+  "baseline": "native-1ms-007",
+  "diagnostic": "native-1ms-009",
+  "equivalent_algorithm": true,
+  "physical_step_accepted": false,
+  "failure": [
+    2.5055325031280518,
+    2.495335102081299,
+    29419,
+    4
+  ],
+  "notes": "New witness identifies the limiting tetrahedron; timing is failed initialization, not sustained throughput.",
+  "trace_comparison": {
+    "true_residual": {
+      "baseline_records": 776,
+      "diagnostic_records": 776,
+      "identical": false,
+      "note": "Raw match includes nondeterministically interleaved async compile records; canonical numerical records compared separately."
+    },
+    "fgmres_trace": {
+      "baseline_records": 0,
+      "diagnostic_records": 0,
+      "identical": true
+    },
+    "newton_begin": {
+      "baseline_records": 9,
+      "diagnostic_records": 9,
+      "identical": false,
+      "note": "Matches include status fields, intentionally changed by failure witness; not a numerical divergence assertion."
+    }
+  },
+  "true_residual_records_excluding_async_compilation": {
+    "records": 768,
+    "byte_identical": true
+  }
+}

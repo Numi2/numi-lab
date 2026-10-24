@@ -1,4 +1,5 @@
 #include "metalrobo/compensated_translation_gpu.h"
+#include "fem_backtracking_failure_witness.metalinc"
 
 namespace numi_matter_metal {
 
@@ -4910,11 +4911,25 @@ kernel void nm_fem_select_backtracking(
     threadgroup uint collapseTrialLoop;
     threadgroup float chosenAlpha;
     threadgroup float chosenMinimumJ;
+    threadgroup float failureTrialJ;
+    threadgroup float failureCurrentJ;
+    threadgroup float simdBadTrialJ[simdgroupCount];
+    threadgroup float simdBadCurrentJ[simdgroupCount];
+    threadgroup float failureFirstBad;
+    threadgroup uint failureReason;
+    threadgroup uint simdFirstBad[simdgroupCount];
+    threadgroup uint simdReason[simdgroupCount];
 
     if (lane == 0u) {
         lineSearch[group] = float4(1.0f, INFINITY, 0.0f, 0.0f);
         chosenAlpha = 0.0f;
         chosenMinimumJ = -INFINITY;
+        const NMFEMBacktrackingFailureWitnessTuple emptyFailureWitness =
+            nmFEMBacktrackingEmptyFailureWitness();
+        failureTrialJ = emptyFailureWitness.trialJ;
+        failureCurrentJ = emptyFailureWitness.currentJ;
+        failureFirstBad = emptyFailureWitness.firstBad;
+        failureReason = emptyFailureWitness.reason;
         collapseTrialLoop = 0u;
         // Observational counts are cleared once on the borrowed root timeline.
         // Keep every Newton/microtick contribution until the ordered readback.
@@ -4945,6 +4960,9 @@ kernel void nm_fem_select_backtracking(
         uint activeTetCount = 0u;
         bool zeroCorrection = true;
         bool valid = true;
+        uint firstBad = 0xffffffffu;
+        float firstBadTrialJ=0.0f,firstBadCurrentJ=0.0f;
+        uint badReason = 0u;
 
         // Tetrahedra are stored in contiguous per-object ranges. Cooperatively
         // evaluate that exact range instead of having one thread rescan every
@@ -5018,15 +5036,28 @@ kernel void nm_fem_select_backtracking(
                 tetrahedronDeformation(tetrahedron, candidate, nodeBase));
             minimumJ = min(minimumJ, determinantValue);
             const NMMaterialGPU material = materials[tetrahedron.identity.x];
-            valid = valid && isfinite(determinantValue) &&
-                determinantValue >= max(
-                    dispatch.numericalLimits.z, material.validity.x
-                ) && determinantValue <= material.validity.y;
+            const bool previouslyValid = valid;
+            const float lowerJ = max(dispatch.numericalLimits.z,
+                                     material.validity.x);
+            uint tetrahedronReason = nmFEMBacktrackingFailureReason(
+                determinantValue, lowerJ, material.validity.y, true);
+            valid = valid && tetrahedronReason == 0u;
             if (validateConstitutiveStress != 0u && valid) {
-                valid = femBacktrackingConstitutiveValid(
+                const bool constitutiveValid = femBacktrackingConstitutiveValid(
                     dispatch, object, tetrahedron, material, deformation,
                     inverseRest, u, uLow, trialVelocity, programs, instructions,
                     environmentParameters, environment, dt);
+                valid = constitutiveValid;
+                if (!constitutiveValid) {
+                    tetrahedronReason = nmFEMBacktrackingFailureReason(
+                        determinantValue, lowerJ, material.validity.y, false);
+                }
+            }
+            if (previouslyValid && !valid) {
+                firstBad = object.elementOffset + local;
+                firstBadTrialJ = determinantValue;
+                firstBadCurrentJ = currentDeterminant;
+                badReason = tetrahedronReason;
             }
             if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
                 object.materialIndex < dispatch.mixedMaterialCount &&
@@ -5079,9 +5110,18 @@ kernel void nm_fem_select_backtracking(
             groupZeroCorrection = simd_all(zeroCorrection);
         }
         const bool groupValid = simd_all(valid);
+        const uint groupFirstBad = simd_min(firstBad);
+        const float groupBadTrialJ=simd_sum(firstBad==groupFirstBad?firstBadTrialJ:0.0f);
+        const float groupBadCurrentJ=simd_sum(firstBad==groupFirstBad?firstBadCurrentJ:0.0f);
+        const uint groupReason = simd_sum(
+            firstBad == groupFirstBad ? badReason : 0u);
         const uint simdgroup = lane / 32u;
         if ((lane & 31u) == 0u) {
             simdMinimumJ[simdgroup] = groupMinimumJ;
+            simdFirstBad[simdgroup] = groupFirstBad;
+            simdBadTrialJ[simdgroup]=groupBadTrialJ;
+            simdBadCurrentJ[simdgroup]=groupBadCurrentJ;
+            simdReason[simdgroup] = groupReason;
             simdCurrentVolumeMerit2[simdgroup] = groupCurrentVolumeMerit2;
             simdTrialVolumeMerit2[simdgroup] = groupTrialVolumeMerit2;
             simdVolumeElementCount[simdgroup] = groupVolumeElementCount;
@@ -5112,7 +5152,23 @@ kernel void nm_fem_select_backtracking(
             }
             const bool allValid = simd_all(
                 lane < simdgroupCount ? simdValidity[lane] != 0u : true);
+            const uint reducedFirstBad = simd_min(
+                lane < simdgroupCount ? simdFirstBad[lane] : 0xffffffffu);
+            const bool ownsBad = lane < simdgroupCount &&
+                reducedFirstBad != 0xffffffffu &&
+                simdFirstBad[lane] == reducedFirstBad;
+            const uint reducedReason = simd_sum(
+                ownsBad ? simdReason[lane] : 0u);
+            const float reducedBadTrialJ = simd_sum(
+                ownsBad ? simdBadTrialJ[lane] : 0.0f);
+            const float reducedBadCurrentJ = simd_sum(
+                ownsBad ? simdBadCurrentJ[lane] : 0.0f);
             if (lane == 0u) {
+                failureTrialJ=reducedBadTrialJ;
+                failureCurrentJ=reducedBadCurrentJ;
+                failureFirstBad = reducedFirstBad != 0xffffffffu
+                    ? float(reducedFirstBad) : INFINITY;
+                failureReason = reducedReason;
                 const float inverseVolumeCount =
                     reducedVolumeElementCount > 0.0f
                         ? 1.0f / reducedVolumeElementCount : 0.0f;
@@ -5166,7 +5222,7 @@ kernel void nm_fem_select_backtracking(
             recordFailure(
                 statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
                 objectIndex, microstep.solverIteration,
-                float4(chosenMinimumJ, float(candidateCount), 0.0f, 0.0f)
+                float4(failureTrialJ, failureCurrentJ, failureFirstBad, float(failureReason))
             );
         }
     }
@@ -5255,6 +5311,10 @@ kernel void nm_fem_parallel_backtracking_tiles(
     const uint localElement = tile * tileItems + lane;
     float laneMinimumJ = INFINITY;
     bool laneValid = true;
+    uint firstBad = 0xffffffffu;
+    float firstBadTrialJ = 0.0f;
+    float firstBadCurrentJ = 0.0f;
+    uint badReason = 0u;
     if (localElement < object.elementCount) {
         const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
             dispatch, tetrahedra, environment,
@@ -5301,29 +5361,54 @@ kernel void nm_fem_parallel_backtracking_tiles(
             const float determinantValue = determinant(deformation);
             const NMMaterialGPU material = materials[tetrahedron.identity.x];
             laneMinimumJ = determinantValue;
-            laneValid = isfinite(determinantValue) &&
-                determinantValue >= max(dispatch.numericalLimits.z,
-                                         material.validity.x) &&
-                determinantValue <= material.validity.y;
+            const float lowerJ = max(dispatch.numericalLimits.z,
+                                     material.validity.x);
+            uint tetrahedronReason = nmFEMBacktrackingFailureReason(
+                determinantValue, lowerJ, material.validity.y, true);
+            laneValid = tetrahedronReason == 0u;
             if (validateConstitutiveStress != 0u && laneValid) {
-                laneValid = femBacktrackingConstitutiveValid(
+                const bool constitutiveValid = femBacktrackingConstitutiveValid(
                     dispatch, object, tetrahedron, material, deformation,
                     inverseRest, u, uLow, trialVelocity, programs, instructions,
                     environmentParameters, environment, dt);
+                laneValid = constitutiveValid;
+                if (!constitutiveValid) {
+                    tetrahedronReason = nmFEMBacktrackingFailureReason(
+                        determinantValue, lowerJ, material.validity.y, false);
+                }
+            }
+            if (!laneValid) {
+                firstBad = object.elementOffset + localElement;
+                firstBadTrialJ = determinantValue;
+                firstBadCurrentJ = determinant(
+                    tetrahedronDeformation(tetrahedron, candidate, nodeBase));
+                badReason = tetrahedronReason;
             }
         }
     }
 
     const float simdMinimum = simd_min(laneMinimumJ);
-    const bool simdValid = simd_all(laneValid);
+    const uint simdFirstBad = simd_min(firstBad);
+    const uint simdReason = simd_sum(
+        firstBad == simdFirstBad ? badReason : 0u);
+    const float simdTrialJ = simd_sum(
+        firstBad == simdFirstBad ? firstBadTrialJ : 0.0f);
+    const float simdCurrentJ = simd_sum(
+        firstBad == simdFirstBad ? firstBadCurrentJ : 0.0f);
     if ((lane & 31u) == 0u) {
         const uint simdgroup = lane / 32u;
         const uint partialIndex =
             ((((environment * dispatch.objectCount + objectIndex) *
                 NM_MIXED_LINE_SEARCH_MAX_STEPS + trial) *
                 maximumTiles + tile) * 8u + simdgroup);
-        partials[partialIndex] = float4(
-            simdMinimum, simdValid ? 1.0f : 0.0f, 0.0f, 0.0f);
+        // Valid SIMD groups store minimum J in x and zero reason in w.
+        // Invalid groups bit-cast the first bad global tet into x and store
+        // that tet's trial/current J plus reason in y/z/w.
+        const bool hasBad = simdFirstBad != 0xffffffffu;
+        partials[partialIndex] = hasBad
+            ? float4(as_type<float>(simdFirstBad), simdTrialJ, simdCurrentJ,
+                     float(simdReason))
+            : float4(simdMinimum, 0.0f, 0.0f, 0.0f);
     }
 }
 
@@ -5364,9 +5449,13 @@ kernel void nm_fem_parallel_backtracking_finalize(
         (object.elementCount % 256u != 0u ? 1u : 0u);
     float chosenAlpha = 0.0f;
     float chosenMinimumJ = -INFINITY;
+    float4 lastWitness = float4(0.0f, 0.0f, INFINITY, 0.0f);
     for (uint trial = trialStart; trial < endTrial; ++trial) {
         float laneMinimumJ = INFINITY;
-        bool laneValid = true;
+        uint laneFirstBad = 0xffffffffu;
+        float laneBadTrialJ = 0.0f;
+        float laneBadCurrentJ = 0.0f;
+        float laneBadReason = 0.0f;
         const uint partialCount = tileCount * 8u;
         for (uint slot = lane; slot < partialCount; slot += 32u) {
             const uint tile = slot / 8u;
@@ -5375,11 +5464,31 @@ kernel void nm_fem_parallel_backtracking_finalize(
                 ((((group * NM_MIXED_LINE_SEARCH_MAX_STEPS + trial) *
                     maximumTiles + tile) * 8u) + simdgroup);
             const float4 partial = partials[partialIndex];
-            laneMinimumJ = min(laneMinimumJ, partial.x);
-            laneValid = laneValid && partial.y > 0.5f;
+            if (partial.w != 0.0f) {
+                const uint partialFirstBad = as_type<uint>(partial.x);
+                if (partialFirstBad < laneFirstBad) {
+                    laneFirstBad = partialFirstBad;
+                    laneBadTrialJ = partial.y;
+                    laneBadCurrentJ = partial.z;
+                    laneBadReason = partial.w;
+                }
+            } else {
+                laneMinimumJ = min(laneMinimumJ, partial.x);
+            }
         }
         const float minimumJ = simd_min(laneMinimumJ);
-        const bool allValid = simd_all(laneValid);
+        const uint firstBad = simd_min(laneFirstBad);
+        const float badTrialJ = simd_sum(
+            laneFirstBad == firstBad ? laneBadTrialJ : 0.0f);
+        const float badCurrentJ = simd_sum(
+            laneFirstBad == firstBad ? laneBadCurrentJ : 0.0f);
+        const float badReason = simd_sum(
+            laneFirstBad == firstBad ? laneBadReason : 0.0f);
+        const bool allValid = firstBad == 0xffffffffu;
+        if (!allValid) {
+            lastWitness = float4(
+                badTrialJ, badCurrentJ, float(firstBad), badReason);
+        }
         if (allValid) {
             chosenAlpha = exp2(-float(trial));
             chosenMinimumJ = minimumJ;
@@ -5399,7 +5508,7 @@ kernel void nm_fem_parallel_backtracking_finalize(
         recordFailure(statuses[environment],
             NM_STATUS_NONLINEAR_SOLVER_FAILURE, objectIndex,
             microstep.solverIteration,
-            float4(-INFINITY, float(candidateCount), 0.0f, 0.0f));
+            lastWitness);
     }
 }
 

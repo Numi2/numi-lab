@@ -1,0 +1,75 @@
+{
+  "base": {
+    "base_commit": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "file_count": 30,
+    "snapshot_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/snapshot-005",
+    "tree_sha256": "9e664ac8b26bb5deec2f01675c4ef8436515c4ce864cef371b1fce0ea1ddc662"
+  },
+  "bound_predicate": "After finite-J validation, use !(J >= lowerJ) and !(J <= upperJ), preserving the previous conjunction for NaN and infinite bounds.",
+  "coupon": {
+    "metallib_sha256": "1652c624e5f5fa7e7f1284a6d118afa6dea1d38c887a2934e792e1bc537f4eb7",
+    "receipt": "coupon-build-004/coupon-receipt.json",
+    "receipt_sha256": "13951ffcff92e060006c794b1af30521388db698d89daa2368ccdb9cb3d5523f"
+  },
+  "earlier_failed_coupon": "failed-coupon-build-001/failure-receipt.json",
+  "preserved_review": {
+    "path": "review-002-before-zero-trial-init/manifest.json",
+    "sha256": "05b38c743c4bfff1ecdc6e7a0aeac452d2e6a81b7b2ef29de8772a2b19269b22"
+  },
+  "previous_frozen_map": {
+    "path": "parent-freeze-map-153.json",
+    "sha256": "276f42228f6e51e994a116d0220057e4a788eda40ca9bb25a7555342daa35aa0"
+  },
+  "production_build": {
+    "metallib": "build-004/candidate.metallib",
+    "metallib_sha256": "76819990f8b17e27621b2e463ff953baa04f05f1bd0aaa94d27f51fbbac0979b",
+    "receipt": "build-004/build-receipt.json",
+    "receipt_sha256": "04827a1089cd5d4d901ad5afa75dbc211d6217ebc120406d11b0942695717828"
+  },
+  "reason_bits": {
+    "1": "nonfinite trial determinant",
+    "2": "determinant fails lower predicate",
+    "4": "determinant fails upper predicate",
+    "8": "constitutive rejection for determinant-valid trial"
+  },
+  "reduction": "Legacy and parallel paths select the lowest bad global tet as uint and retain that tet's trialJ/currentJ/reason only. Parallel partials reuse existing float4 with raw uint bitcast; no 20-bit packed-ID limit or new ABI/buffer. External status remains float and has its existing exact-integer display limit above 2^24.",
+  "schema": "numi.human.fem_backtracking_failure_witness.154.v1",
+  "scope": "No-alpha failure witness only; no force, validity bound, alpha selection, convergence gate, or ABI change.",
+  "source_files": {
+    "matter/src/matter_kernels.metal": {
+      "role": "unchanged frozen base",
+      "sha256": "5ded9e541d0303112905ea6187ad1d9e01fee37a6a8e9d2474a60ecbccf9333f"
+    },
+    "matter/src/metal/fem.metalinc": {
+      "role": "witness reduction, invalid-lane-only current-J evaluation, deterministic empty tuple init",
+      "sha256": "f9f0fdfd732e77e259ca5cc9b968338b25e02c202094e5a697c4ff191d8680d0"
+    },
+    "matter/src/metal/fem_backtracking_failure_witness.metalinc": {
+      "role": "shared reason and empty-witness helpers; no packing helpers",
+      "sha256": "9074eea5dc8a29ab0d13276663db78bb48137c83a61404e698d246a6aa84df90"
+    },
+    "matter/src/numi_human.mm": {
+      "role": "unchanged frozen base",
+      "sha256": "61612f2004fd2ee98385a63027b4d69bfe29e458f35dab4a931cae10172dcd49"
+    }
+  },
+  "status": "private diagnostic source and tests pass; full native diagnostic not launched by this task",
+  "successful_path_work": "Parallel current-state determinant is computed only for invalid lanes. Legacy current determinant is unchanged because existing mixed-material volume merit uses it.",
+  "tests": {
+    "coupon_host": {
+      "path": "tests/backtracking_failure_witness_coupon.mm",
+      "sha256": "21a88e840044b6f37fe54b80020f007be03bd965247fbf2d76e99d7a87141e6b",
+      "status": "GPU PASS"
+    },
+    "coupon_metal": {
+      "path": "tests/backtracking_failure_witness_coupon.metal",
+      "sha256": "f5721e6c6b4312091f4b84266a5e8aef2dabfc8d55d2f6eb2aba14aa4a5a11d4"
+    },
+    "cpu": {
+      "path": "tests/backtracking_failure_witness_test.cpp",
+      "sha256": "ea08bab81ba52810e426d677f354a2dc9b8b3744fc42efcbdc26ca1a9eef2942",
+      "status": "PASS"
+    }
+  },
+  "zero_trial_initialization": "The legacy line-search lane-zero block initializes the shared witness to [trialJ=0,currentJ=0,firstBad=+infinity,reason=0] before candidateCount is read. If candidateCount is zero, no trial overwrites the tuple. The CPU and Metal coupons exercise the shared initializer."
+}

@@ -1,0 +1,12 @@
+{
+  "stage": "standalone test-kernel compile",
+  "status": "failed_setup_corrected",
+  "reason": "The first coupon source omitted <metal_stdlib> and using namespace metal; the compiler therefore could not resolve isfinite/simd_min/simd_sum. Production full-application Metal build already passed. The exact initial coupon source is retained beside this receipt.",
+  "compiler_diagnostics": [
+    "use of undeclared identifier isfinite",
+    "use of undeclared identifier simd_min",
+    "use of undeclared identifier simd_sum"
+  ],
+  "initial_coupon_source_sha256": "7912535503cf3acea2bbfdc3333338ef92063edcbd78ae29f1a71a719ac6dcfd",
+  "corrected_coupon_source_sha256": "2de9ea090b96ec814840db0d5d13e04f5576b96beee48a2cf817098ff8d3b75a"
+}

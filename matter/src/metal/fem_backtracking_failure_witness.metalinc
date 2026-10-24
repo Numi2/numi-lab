@@ -1,0 +1,50 @@
+#ifndef NM_FEM_BACKTRACKING_FAILURE_WITNESS_METALINC
+#define NM_FEM_BACKTRACKING_FAILURE_WITNESS_METALINC
+
+#if !defined(__METAL_VERSION__)
+#include <cmath>
+#include <limits>
+#endif
+
+// Reason bits used by the no-alpha line-search witness. Keep this helper
+// usable by the CPU reference tests and Metal kernels.
+inline bool nmFEMBacktrackingWitnessFinite(const float value) {
+#if defined(__METAL_VERSION__)
+    return isfinite(value);
+#else
+    return std::isfinite(value);
+#endif
+}
+
+struct NMFEMBacktrackingFailureWitnessTuple {
+    float trialJ;
+    float currentJ;
+    float firstBad;
+    unsigned int reason;
+};
+
+inline NMFEMBacktrackingFailureWitnessTuple
+nmFEMBacktrackingEmptyFailureWitness() {
+#if defined(__METAL_VERSION__)
+    return {0.0f, 0.0f, INFINITY, 0u};
+#else
+    return {0.0f, 0.0f, std::numeric_limits<float>::infinity(), 0u};
+#endif
+}
+
+inline unsigned int nmFEMBacktrackingFailureReason(
+    const float determinantValue,
+    const float lowerJ,
+    const float upperJ,
+    const bool constitutiveValid
+) {
+    if (!nmFEMBacktrackingWitnessFinite(determinantValue)) return 1u;
+    unsigned int reason = 0u;
+    // Preserve the prior acceptance predicate exactly: NaN bounds reject.
+    if (!(determinantValue >= lowerJ)) reason |= 2u;
+    if (!(determinantValue <= upperJ)) reason |= 4u;
+    if (reason == 0u && !constitutiveValid) reason = 8u;
+    return reason;
+}
+
+#endif
