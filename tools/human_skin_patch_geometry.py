@@ -1197,3 +1197,64 @@ def remove_exact_planar_cap(vertices, faces, *, axis, coordinate,
             topology[0]["genus"] != expected_genus):
         raise ValueError("opened cap has unexpected component, boundary or genus")
     return opened, mask, topology[0]
+
+
+def connected_positive_plane_face_component(vertices, faces, *, axis, coordinate, seed_face):
+    """Select original face rows connected above an anatomical cut plane.
+
+    Adjacency requires a surviving positive-length shared edge after clipping.
+    An edge lying on/below the plane cannot join otherwise separate clipped
+    regions. Original indices are kept; coordinate seams are never welded.
+    This selects construction scope only, not an admitted physical surface.
+    """
+    x = np.asarray(vertices)
+    f = np.asarray(faces)
+    if (x.ndim != 2 or x.shape[1] != 3 or x.dtype.kind not in "fiu"
+            or not np.isfinite(x).all()):
+        raise ValueError("finite Nx3 vertices required")
+    if f.ndim != 2 or f.shape[1] != 3 or f.dtype.kind not in "iu":
+        raise ValueError("Nx3 integer face indices required")
+    if f.size and (f.min() < 0 or f.max() >= len(x)):
+        raise ValueError("face index outside vertices")
+    if np.any(np.diff(np.sort(f, axis=1), axis=1) == 0):
+        raise ValueError("distinct face corners required")
+    if isinstance(axis, (bool, np.bool_)) or not isinstance(axis, (int, np.integer)) or not 0 <= axis < 3:
+        raise ValueError("axis must be 0,1,2")
+    c = np.asarray(coordinate)
+    if c.ndim != 0 or c.dtype.kind not in "fiu" or not np.isfinite(c):
+        raise ValueError("finite scalar plane required")
+    if (isinstance(seed_face, (bool, np.bool_))
+            or not isinstance(seed_face, (int, np.integer))
+            or not 0 <= seed_face < len(f)):
+        raise ValueError("valid integer seed face required")
+    active_vertex = x[:, axis] > c
+    active = np.any(active_vertex[f], axis=1)
+    if not active[seed_face]:
+        raise ValueError("seed face has no positive clipped area")
+    parents = np.arange(len(f), dtype=np.int64)
+
+    def root(a):
+        while parents[a] != a:
+            parents[a] = parents[parents[a]]
+            a = int(parents[a])
+        return a
+
+    e = np.sort(np.concatenate((f[:, [0, 1]], f[:, [1, 2]], f[:, [2, 0]])), axis=1)
+    rows = np.tile(np.arange(len(f), dtype=np.int64), 3)
+    order = np.lexsort((e[:, 1], e[:, 0]))
+    edges = e[order]
+    rows = rows[order]
+    ends = np.r_[0, np.flatnonzero(np.any(edges[1:] != edges[:-1], axis=1)) + 1, len(edges)]
+    for lo, hi in zip(ends[:-1], ends[1:]):
+        if not np.any(active_vertex[edges[lo]]):
+            continue
+        if hi-lo > 2:
+            raise ValueError("nonmanifold edge in positive clipped domain")
+        if hi-lo == 2:
+            a, b = rows[lo:hi]
+            if active[a] and active[b]:
+                ra, rb = root(int(a)), root(int(b))
+                if ra != rb:
+                    parents[max(ra, rb)] = min(ra, rb)
+    seed_root = root(int(seed_face))
+    return np.asarray([i for i in np.flatnonzero(active) if root(int(i)) == seed_root], dtype=np.int64)

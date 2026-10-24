@@ -1,0 +1,18 @@
+{
+  "source_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+  "old_patch_sha256": "a05aa4b5a6c0c614a0d3c743f17c2272e63377cc9afa461de546091b52d9f310",
+  "plane_z_local_m": -0.287,
+  "source_faces": 12411,
+  "source_vertices": 6242,
+  "old_source_faces": 12090,
+  "new_face_rows": 321,
+  "cut_ring_points": 141,
+  "seed_face": 92307,
+  "retained_distal_source_faces": 12090,
+  "nonmanifold_active_edges": [],
+  "physical_admission": false,
+  "method": "whole source face connectivity across edges with a positive surviving plane segment; seed in original left distal hand; no coordinate weld",
+  "canonical_selector_matches_original_rows": true,
+  "canonical_source_sha256": "80e929dee76eae79d1f0b5ba5c7a6417af5ab3b5919360714d50c4bee8b9db3a",
+  "proof_scope": "source region connectivity and original face identity; not physical admission"
+}

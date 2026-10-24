@@ -1,0 +1,8 @@
+from pathlib import Path
+import numpy as np,json,sys,importlib.util
+E=Path("/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001");D=E/"connected-plane-scope-owner-371"
+def load(n,p):
+ s=importlib.util.spec_from_file_location(n,p);m=importlib.util.module_from_spec(s);sys.modules[n]=m;s.loader.exec_module(m);return m
+b=load("b371","/tmp/build_bilateral_hand_envelope_054.py");r=load("r371",E/"connected-patch-bindings-owner-308/tools/rebind_human_skin_reference.py");g=load("g371",D/"tools/human_skin_patch_geometry.py");src=E/"left-ankle-rest-preserving-weight-repair-128/candidate.nhskin";p=r.decode(src.read_bytes());x=r.registered_positions_float32(p,json.loads(b.IDENT.read_text()),frame="current");f=p["inds"];c=np.load(E/"bilateral-healthy-forearm-boundaries-323/left/conditioned-field.npz");local=(x.astype(float)-c["origin_world_m"])@c["basis_world_rows"].T;region=np.load(E/"left-connected-expanded-source-region-368/expanded-patch.npz");proof=json.loads((E/"left-connected-expanded-source-region-368/report.json").read_text());rows=g.connected_positive_plane_face_component(local,f,axis=2,coordinate=-.287,seed_face=proof["seed_face"]);np.testing.assert_array_equal(rows,region["left_face_rows"])
+proof["canonical_selector_matches_original_rows"]=True;proof["canonical_source_sha256"]=b.sha(D/"tools/human_skin_patch_geometry.py");proof["proof_scope"]="source region connectivity and original face identity; not physical admission";(D/"retained-source-region-regression.json").write_text(json.dumps(proof,indent=2)+"\n");print(json.dumps(proof))
+
