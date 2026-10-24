@@ -303,6 +303,159 @@ def merge_geometry_repairs(payload, repairs):
     return bytes(blob), dict(changed_rows=list(map(int, rows)), regional_row_counts=counts)
 
 
+def merge_edge_refinement_repairs(payload, repairs):
+    """Compose disjoint conforming edge refinements of one pinned NHSKIN.
+
+    Each repair is (decoded_payload, parent_face_rows, new_vertex_edges,
+    new_vertex_weights). Ancestry refers only to original source rows; no
+    pose, interpolation, normal or physical admission is inferred. Conflicting
+    old-row edits and overlapping refined parents fail. Combined geometry,
+    mechanics and motion still require their normal acceptance checks.
+    """
+    n, nf = payload['nv'], len(payload['inds'])
+    source_edge_parents = {}
+    for parent, tri in enumerate(payload['inds']):
+        for a,b in zip(tri,np.roll(tri,-1)):
+            source_edge_parents.setdefault(tuple(sorted((int(a),int(b)))),[]).append(parent)
+    merged = payload['verts'].copy()
+    occupied = np.zeros(n, dtype=bool)
+    replaced = set()
+    by_parent = {}
+    extra_v, extra_w, provenance = [], [], []
+    next_row = n
+    for other, parent_rows, edge_rows, edge_weights in repairs:
+        if (other['nb'] != payload['nb'] or other['nv'] < n or
+                other['source_sha256'] != payload['source_sha256'] or
+                other['fingerprint'] != payload['fingerprint'] or
+                other['binds'].tobytes() != payload['binds'].tobytes()):
+            raise RebindError('refinement registration or source differs')
+        if (other['verts'][:n, 6:].tobytes() != payload['verts'][:, 6:].tobytes() or
+                other['weights'][:n].tobytes() != payload['weights'].tobytes()):
+            raise RebindError('refinement changed original binding weights')
+        values = other['verts'][:n, :6]
+        changed = np.any(values.view('<u4') != payload['verts'][:, :6].view('<u4'), axis=1)
+        conflict = occupied & changed & np.any(values.view('<u4') != merged[:, :6].view('<u4'), axis=1)
+        if np.any(conflict):
+            raise RebindError('conflicting regional geometry repairs at vertex ' + str(int(np.flatnonzero(conflict)[0])))
+        merged[changed, :6] = values[changed]
+        occupied |= changed
+        parents, edges, weights = map(np.asarray, (parent_rows, edge_rows, edge_weights))
+        extra = other['nv']-n
+        if (parents.shape != (len(other['inds']),) or parents.dtype.kind not in 'iu' or
+                np.any(parents < 0) or np.any(parents >= nf) or
+                edges.shape != (extra, 2) or edges.dtype.kind not in 'iu' or
+                np.any(edges < 0) or np.any(edges >= n) or
+                np.any(edges[:, 0] == edges[:, 1]) or
+                weights.shape != (extra, 2) or not np.isfinite(weights).all() or
+                np.any(weights <= 0) or np.max(np.abs(weights.sum(axis=1)-1), initial=0) > 1e-12):
+            raise RebindError('invalid original-edge refinement ancestry')
+        expected = np.sum(payload['weights'][edges].astype(float)*weights[:, :, None], axis=1)
+        if np.max(np.abs(expected-other['weights'][n:]), initial=0) > 5e-7:
+            raise RebindError('new binding weights disagree with edge ancestry')
+        new_ids = set(map(int, other['inds'][other['inds'] >= n]))
+        if new_ids != set(range(n, other['nv'])):
+            raise RebindError('unreferenced appended refinement vertex')
+        groups = [[] for _ in range(nf)]
+        for fi, parent in enumerate(parents):
+            groups[int(parent)].append(fi)
+        seen_edges = set()
+        for k, edge in enumerate(edges):
+            key = tuple(sorted(map(int,edge)))
+            if key in seen_edges or key not in source_edge_parents:
+                raise RebindError('duplicate or absent original split edge')
+            seen_edges.add(key)
+            for parent in source_edge_parents[key]:
+                if not np.any(other['inds'][groups[parent]] == n+k):
+                    raise RebindError('refinement leaves a source-edge T junction')
+        local_replaced = set()
+        for parent, rows in enumerate(groups):
+            if not rows:
+                raise RebindError('source face ancestry is missing')
+            triangles = other['inds'][rows]
+            original = payload['inds'][parent]
+            if len(rows) == 1 and np.array_equal(triangles[0], original):
+                continue
+            local_replaced.add(parent)
+            # Expected oriented boundary is the original three edges, split at
+            # every declared new row used by these children. Interior edges
+            # must occur exactly twice with opposite orientation.
+            vertices = set(map(int, triangles.ravel()))
+            if not set(map(int, original)).issubset(vertices):
+                raise RebindError('refined parent lost an original corner')
+            expected_boundary = set()
+            for a, b in zip(original, np.roll(original, -1)):
+                a,b = int(a),int(b)
+                points = [(0.,a),(1.,b)]
+                for row in vertices:
+                    if row < n:
+                        if row not in original:
+                            raise RebindError('refined parent uses unrelated source corner')
+                        continue
+                    edge, weight = edges[row-n], weights[row-n]
+                    if set(map(int, edge)) == {a,b}:
+                        points.append((float(weight[1] if int(edge[0]) == a else weight[0]),row))
+                    elif not set(map(int, edge)).issubset(set(map(int, original))):
+                        raise RebindError('refined child has unrelated edge ancestry')
+                points.sort()
+                if any(points[i][0] == points[i+1][0] for i in range(len(points)-1)):
+                    raise RebindError('duplicate refinement point on source edge')
+                expected_boundary.update((points[i][1],points[i+1][1]) for i in range(len(points)-1))
+            incidence = {}
+            for tri in triangles:
+                if len(set(map(int,tri))) != 3:
+                    raise RebindError('refined face repeats a corner')
+                for a,b in zip(tri,np.roll(tri,-1)):
+                    a,b=int(a),int(b)
+                    incidence.setdefault(tuple(sorted((a,b))),[]).append((a,b))
+            boundary = set()
+            for pair in incidence.values():
+                if len(pair) == 1: boundary.add(pair[0])
+                elif len(pair) != 2 or pair[0] != pair[1][::-1]:
+                    raise RebindError('refined parent is nonmanifold or inconsistently oriented')
+            adjacency = [set() for _ in triangles]
+            edge_faces = {}
+            for k,tri in enumerate(triangles):
+                for a,b in zip(tri,np.roll(tri,-1)):
+                    key = tuple(sorted((int(a),int(b))))
+                    for j in edge_faces.get(key,[]):
+                        adjacency[k].add(j); adjacency[j].add(k)
+                    edge_faces.setdefault(key,[]).append(k)
+            reached, pending = set(), [0]
+            while pending:
+                k = pending.pop()
+                if k not in reached:
+                    reached.add(k); pending.extend(adjacency[k]-reached)
+            if len(reached) != len(triangles):
+                raise RebindError('disconnected refined parent')
+            if boundary != expected_boundary or len(vertices)-len(incidence)+len(triangles) != 1:
+                raise RebindError('refined parent is not its original oriented disk')
+            mapped = triangles.astype(np.int64).copy()
+            mapped[mapped >= n] += next_row-n
+            by_parent[parent] = mapped
+        if replaced & local_replaced:
+            raise RebindError('overlapping regional refined source faces')
+        replaced |= local_replaced
+        provenance.append(dict(added_vertex_offset=next_row, added_vertices=extra,
+                               replaced_source_faces=sorted(local_replaced)))
+        extra_v.append(other['verts'][n:].copy()); extra_w.append(other['weights'][n:].copy())
+        next_row += extra
+    out_faces, parent_ids = [], []
+    for parent, original in enumerate(payload['inds']):
+        children = by_parent.get(parent, original[None,:])
+        out_faces.extend(children); parent_ids.extend([parent]*len(children))
+    verts = np.concatenate([merged]+extra_v)
+    weights = np.concatenate([payload['weights']]+extra_w)
+    faces = np.asarray(out_faces,dtype='<u4').reshape(-1,3)
+    if len(verts) > np.iinfo(np.uint32).max or faces.size > np.iinfo(np.uint32).max:
+        raise RebindError('merged refinement exceeds NHSKIN capacity')
+    header = bytearray(payload['raw'][:60]); struct.pack_into('<2I',header,16,len(verts),faces.size)
+    raw = bytes(header)+payload['binds'].tobytes()+verts.astype('<f4').tobytes()+faces.tobytes()+weights.astype('<f4').tobytes()
+    decode(raw)
+    return raw, dict(changed_original_rows=list(map(int,np.flatnonzero(occupied))),
+                     face_parent_source_rows=parent_ids, regions=provenance,
+                     physical_admission=False)
+
+
 def local_rigid_weights(payload, target_body, seeds, shell_gates):
     gates = np.asarray(shell_gates, dtype=float)
     if (not len(gates) or not np.isfinite(gates).all() or

@@ -384,60 +384,42 @@ def split_surface_edges(vertices, faces, edge_parameters):
     used = set()
     result_f, parents = [], []
     for fi, face in enumerate(f):
-        polygon = []
-        touched = False
-        for i, j in zip(face, np.roll(face, -1)):
-            polygon.append(int(i))
-            key = tuple(sorted((int(i), int(j))))
-            if key in ids:
-                polygon.append(ids[key])
-                used.add(key)
-                touched = True
-        if not touched:
-            result_f.append(face.tolist())
-            parents.append(fi)
+        ring = list(map(int, face))
+        mids = [ids.get(tuple(sorted((ring[k], ring[(k+1) % 3]))))
+                for k in range(3)]
+        for k, m in enumerate(mids):
+            if m is not None:
+                used.add(tuple(sorted((ring[k], ring[(k+1) % 3]))))
+        count = sum(m is not None for m in mids)
+        if not count:
+            result_f.append(ring); parents.append(fi)
             continue
+        # Explicit edge-mask templates avoid tolerance-based ear clipping of
+        # collinear edge points. Every source edge segment remains represented.
+        if count == 1:
+            k = next(k for k, m in enumerate(mids) if m is not None)
+            a,b,c = ring[k],ring[(k+1)%3],ring[(k+2)%3]
+            m = mids[k]
+            children = [(a,m,c),(m,b,c)]
+        elif count == 2:
+            k = next(k for k in range(3)
+                     if mids[k] is not None and mids[(k+1)%3] is not None)
+            a,b,c = ring[k],ring[(k+1)%3],ring[(k+2)%3]
+            m,n = mids[k],mids[(k+1)%3]
+            children = [(b,n,m),(a,m,c),(m,n,c)]
+        else:
+            a,b,c = ring; m,n,o = mids
+            children = [(a,m,o),(m,b,n),(o,n,c),(m,n,o)]
         p = x[face]
-        normal = np.cross(p[1]-p[0], p[2]-p[0])
+        normal = np.cross(p[1]-p[0],p[2]-p[0])
         norm = np.linalg.norm(normal)
-        if norm <= 0:
+        if not np.isfinite(norm) or norm <= 0:
             raise ValueError("cannot split a degenerate source triangle")
-        normal /= norm
-        floor = norm*1e-14
-        # The polygon is a convex source triangle with collinear edge points.
-        # Remove positive-area ears, never a collinear edge-point triple.
-        while len(polygon) > 3:
-            candidates = []
-            for k in range(len(polygon)):
-                a, b, c = polygon[k-1], polygon[k], polygon[(k+1) % len(polygon)]
-                u, v = result_x[b]-result_x[a], result_x[c]-result_x[a]
-                area2 = float(np.dot(np.cross(u, v), normal))
-                if area2 > floor:
-                    # A source-edge point on the candidate diagonal must not
-                    # be skipped: doing so leaves a degenerate remainder.
-                    other = [j for j in polygon if j not in (a,b,c)]
-                    contains = False
-                    for j in other:
-                        point = result_x[j]
-                        h = [np.dot(np.cross(result_x[t]-result_x[s],
-                                             point-result_x[s]),normal)
-                             for s,t in ((a,b),(b,c),(c,a))]
-                        if min(h) >= -floor:
-                            contains = True
-                            break
-                    if contains:
-                        continue
-                    lengths2 = np.dot(u,u)+np.dot(v,v)+np.sum((result_x[c]-result_x[b])**2)
-                    candidates.append((area2/max(lengths2, 1e-300), -k, (a,b,c)))
-            if not candidates:
-                raise ValueError("source edge split has no nondegenerate triangulation")
-            _, negative_k, tri = max(candidates)
-            result_f.append(tri); parents.append(fi)
-            polygon.pop(-negative_k)
-        a,b,c = polygon
-        if np.dot(np.cross(result_x[b]-result_x[a], result_x[c]-result_x[a]), normal) <= floor:
-            raise ValueError("degenerate final source-edge triangle")
-        result_f.append(polygon); parents.append(fi)
+        child = result_x[np.asarray(children)]
+        oriented = np.cross(child[:,1]-child[:,0],child[:,2]-child[:,0]) @ (normal/norm)
+        if not np.isfinite(oriented).all() or np.any(oriented <= norm*1e-14):
+            raise ValueError("source edge split collapsed a child triangle")
+        result_f.extend(children); parents.extend([fi]*len(children))
     if used != set(cuts):
         raise ValueError("selected split edge is absent from source faces")
     return (result_x, np.asarray(result_f, dtype=np.int64).reshape(-1,3),
