@@ -1,0 +1,80 @@
+{
+  "schema": "numi.human.bilateral-source-oriented-cap-actual007-surface.v1",
+  "status": "surface-construction-only; not a volumetric or clearance-qualified candidate",
+  "inputs": {
+    "candidate112_sha256": "8daa8fbe2db4e4764ac5cdfa317f787336440d45637d61f7fbfa2815baa39772",
+    "candidate113_sha256": "96cb14048faa1edcb9a482bfe796df96689aad0e305a24196c20ee8ec91b930a",
+    "native007_node_dump_sha256": "cb7cd7c5772532819bfcbc0931ac8cc5825237e64aed34821d6bf7ca3e66849b",
+    "native007_registered_skin_sha256": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e",
+    "d36_nodes_sha256": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "d36_faces_sha256": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "placement_json_sha256": "caf9a865dc329dc8fbe9f45aee27872514e6768654ff6e1cd725d67cf51bedae",
+    "placement_rotation": [
+      [
+        0.9999919579254425,
+        0.004010091058458769,
+        -5.704509512336146e-05
+      ],
+      [
+        1.2464988393676784e-05,
+        0.011116127222207376,
+        0.999938213871339
+      ],
+      [
+        0.004010477410991484,
+        -0.9999301730047366,
+        0.011115987839744962
+      ]
+    ],
+    "placement_translation_m": [
+      -0.0006683030606407792,
+      -2.152077192044122,
+      0.27292564606876923
+    ]
+  },
+  "frame_rebase": {
+    "old_coarse_rows_per_candidate": 2411,
+    "left_max_transformed_candidate_vs_native007_um": 0.08960257815924771,
+    "right_max_transformed_candidate_vs_native007_um": 0.08960257815924771,
+    "left_max_rebased_node_delta_vs_transformed_reference_um": 0.33038752404769695,
+    "left_p95_rebased_node_delta_um": 0.2091469741236115,
+    "right_max_rebased_node_delta_vs_transformed_reference_um": 0.5366056464957173,
+    "right_p95_rebased_node_delta_um": 0.29641297554421847,
+    "direct_source_vertices_and_cut_edges_reconstructed_from_registered_skin_csv": true,
+    "coarse_cut_nodes_reconstructed_from_actual007_outer_and_edge_barycentrics": true
+  },
+  "topology": {
+    "d36_original_surface_faces": 4777,
+    "left_retained_d36_faces": 4498,
+    "right_retained_d36_faces": 4508,
+    "unchanged_faces_after_bilateral_replacement": 4229,
+    "left_authored_cap_source_bridge_faces": 14401,
+    "right_authored_cap_source_bridge_faces": 14441,
+    "merged_surface_faces": 33071,
+    "merged_outer_surface_nodes": 16821,
+    "left_added_nodes": 7195,
+    "right_added_nodes": 7215,
+    "oriented_edge_incidence_histogram": {
+      "2": 49584,
+      "1": 45
+    },
+    "same_direction_two_face_edges": 0,
+    "triangle_min_area2_f64_m2": 3.157030683802596e-10,
+    "triangle_min_area2_actual007_f32_m2": 3.1581690040916044e-10,
+    "f32_zero_area_faces": 0,
+    "duplicate_triangles": 0
+  },
+  "preservation": {
+    "old_node_rows_exact_from_native007": true,
+    "unmodified_d36_faces_bitwise_connectivity_preserved": true,
+    "unmodified_d36_face_rows": 4229
+  },
+  "not_yet_checked": [
+    "nearby-bone clearance and full-triangle intersections in actual007 frame",
+    "skin/fat nested common-field construction",
+    "cavity-volume closure, positive child tetrahedra, conditioning",
+    "mass and material-volume transfer",
+    "FEM node-count suitability; the detailed source surface is an envelope, not a decision to promote every fine point to an independent FEM coordinate"
+  ],
+  "candidate_sha256": "a2f9804d1a17d28d3122defb8b6e4ae95a6d9c4885e36e14391639453ad81638"
+}

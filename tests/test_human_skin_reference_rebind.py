@@ -37,6 +37,68 @@ def fixture(nb=4):
 
 class RebindTests(unittest.TestCase):
 
+    def _registered_snapshot(self, payload):
+        rows = [dict(body_index=int(binding["body"]),
+                     current=dict(position_world_m=[1,2,3],
+                                  orientation_world_xyzw=[0,0,1,0]),
+                     rest=dict(position_world_m=[0,0,0],
+                               orientation_world_xyzw=[0,0,0,1]))
+                for binding in payload["binds"]]
+        return dict(registration_fingerprint32=payload["fingerprint"],
+                    binding_count=payload["nb"], vertex_count=payload["nv"],
+                    payload_abi=5, all_bodies=rows)
+
+    def test_registered_frames_are_explicit_and_distinct(self):
+        payload = fixture()
+        snapshot = self._registered_snapshot(payload)
+        rest = m.registered_positions_float32(payload, snapshot, frame="rest")
+        posed = m.registered_positions_float32(payload, snapshot, frame="current")
+        np.testing.assert_array_equal(rest, payload["verts"][:, :3])
+        expected = rest * np.array([-1,-1,1], dtype=np.float32) + [1,2,3]
+        np.testing.assert_array_equal(posed, expected)
+        self.assertEqual(posed.dtype, np.float32)
+        for frame in ("neutral", "", None):
+            with self.subTest(frame=frame), self.assertRaises(m.RebindError):
+                m.registered_positions_float32(payload, snapshot, frame=frame)
+        with self.assertRaises(TypeError):
+            m.registered_positions_float32(payload, snapshot)
+
+    def test_registered_binding_and_weight_order(self):
+        payload = fixture()
+        payload = dict(payload, binds=payload["binds"].copy(),
+                       weights=payload["weights"].copy())
+        payload["binds"]["v"][:, :3] = [0.25,-0.5,0.125]
+        payload["binds"]["v"][:, 7] = 2
+        payload["weights"][:] = [0.25,0.75,0,0]
+        snapshot = self._registered_snapshot(payload)
+        snapshot["all_bodies"][1]["current"]["position_world_m"] = [5,2,3]
+        out = m.registered_positions_float32(payload, snapshot, frame="current")
+        local = payload["verts"][:,:3]*2 + [0.25,-0.5,0.125]
+        expected = local*[-1,-1,1] + [4,2,3]
+        np.testing.assert_array_equal(out, expected)
+        # Snapshot order may differ; binding order is authoritative.
+        snapshot["all_bodies"].reverse()
+        np.testing.assert_array_equal(out,
+            m.registered_positions_float32(payload, snapshot, frame="current"))
+
+    def test_registered_snapshot_rejects_stale_and_missing_frames(self):
+        payload = fixture()
+        for key in ("registration_fingerprint32", "binding_count",
+                    "vertex_count", "payload_abi"):
+            snap = self._registered_snapshot(payload)
+            snap[key] += 1
+            with self.subTest(key=key), self.assertRaises(m.RebindError):
+                m.registered_positions_float32(payload, snap, frame="rest")
+        for mode in ("duplicate", "missing", "wrong_frame", "nonrigid"):
+            snap = self._registered_snapshot(payload)
+            if mode == "duplicate": snap["all_bodies"].append(snap["all_bodies"][0])
+            elif mode == "missing": snap["all_bodies"].pop(0)
+            elif mode == "wrong_frame": del snap["all_bodies"][0]["rest"]
+            else: snap["all_bodies"][0]["rest"]["orientation_world_xyzw"] = [0,0,0,2]
+            with self.subTest(mode=mode), self.assertRaises(m.RebindError):
+                m.registered_positions_float32(payload, snap, frame="rest")
+
+
     def test_retained_faces_remap_by_oriented_vertices_not_ordinal(self):
         source = fixture()
         target = dict(source)

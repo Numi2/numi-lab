@@ -123,6 +123,66 @@ def reference_transforms(payload, pose, root_lift_m):
     return np.asarray(matrices), np.asarray(offsets)
 
 
+def registered_positions_float32(payload, snapshot, *, frame):
+    """Replay the native ABI5 binding order in an explicitly named body frame.
+
+    This is source geometry only, before accepted FEM deformation. No root lift
+    or placement transform is inferred. Snapshot coordinates already use metres.
+    """
+    if frame not in ("rest", "current"):
+        raise RebindError("registered frame must explicitly be rest or current")
+    for key, expected in (("registration_fingerprint32", payload["fingerprint"]),
+                          ("binding_count", payload["nb"]),
+                          ("vertex_count", payload["nv"]), ("payload_abi", 5)):
+        if snapshot.get(key) != expected:
+            raise RebindError("registered snapshot identity mismatch: " + key)
+    rows = snapshot.get("all_bodies", snapshot.get("bodies"))
+    if not isinstance(rows, list):
+        raise RebindError("registered snapshot lacks body poses")
+    by_body = {}
+    for row in rows:
+        body = row.get("body_index")
+        if isinstance(body, bool) or not isinstance(body, int) or body < 0 or body in by_body:
+            raise RebindError("invalid or duplicate registered body identity")
+        by_body[body] = row
+    xyz = np.asarray(payload["verts"][:, :3], dtype=np.float32)
+    weights = np.asarray(payload["weights"], dtype=np.float32)
+    validate_weights(weights)
+    if xyz.shape != (payload["nv"], 3) or weights.shape != (payload["nv"], payload["nb"]):
+        raise RebindError("registered source dimensions differ")
+    def rotate(q, points):
+        # Keep the native cross-product order and Float32 intermediate rounding.
+        x, y, z = points.T
+        a, b, c, w = q
+        u = np.float32(2) * (b*z - c*y)
+        v = np.float32(2) * (c*x - a*z)
+        t = np.float32(2) * (a*y - b*x)
+        return np.stack((x + ((w*u + b*t) - c*v),
+                         y + ((w*v + c*u) - a*t),
+                         z + ((w*t + a*v) - b*u)), axis=1)
+    out = np.zeros_like(xyz)
+    for lane, binding in enumerate(payload["binds"]):
+        body = int(binding["body"])
+        row = by_body.get(body, {}).get(frame)
+        if not isinstance(row, dict):
+            raise RebindError("missing registered " + frame + " body " + str(body))
+        p = np.asarray(row.get("position_world_m"), dtype=np.float32)
+        q = np.asarray(row.get("orientation_world_xyzw"), dtype=np.float32)
+        vals = binding["v"]
+        if (p.shape != (3,) or q.shape != (4,) or
+                not np.isfinite(p).all() or not np.isfinite(q).all() or
+                not np.isfinite(vals).all() or vals[7] <= 0 or
+                abs(float(q.astype(float) @ q.astype(float)) - 1) > 1e-5 or
+                abs(float(vals[3:7].astype(float) @ vals[3:7].astype(float)) - 1) > 1e-5):
+            raise RebindError("invalid registered rigid pose or binding")
+        local = vals[:3] + rotate(vals[3:7], xyz) * vals[7]
+        world = p + rotate(q, local)
+        out = out + weights[:, lane, None] * world
+    if not np.isfinite(out).all():
+        raise RebindError("nonfinite registered emitted coordinates")
+    return out
+
+
 def positions(payload, a, b):
     w = payload["weights"].astype(float)
     return np.einsum("nk,kij,nj->ni", w, a, payload["verts"][:, :3].astype(float)) + w @ b
