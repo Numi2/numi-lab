@@ -1,0 +1,41 @@
+waiting_for_human_geometry_slot pid=57499
+acquired_human_geometry_slot pid=57499
+{
+  "face_count": 14403,
+  "nearby_nonbone_bank_count": 24,
+  "physical_admission": false,
+  "roles": {
+    "O": {
+      "aabb_candidate_pairs": 8650,
+      "authored_star_faces_intersecting": 0,
+      "bank_metadata": {
+        "bank_0017": {
+          "body_indices": [
+            128,
+            150
+          ],
+          "kind": "soft_tissue",
+          "layer": 1,
+          "stable_id": 18
+        }
+      },
+      "by_bank": {
+        "bank_0017": 12
+      },
+      "exact_intersection_pairs": 12,
+      "source_kind_face_counts": {
+        "-1": 4,
+        "1": 71,
+        "2": 14115,
+        "3": 213
+      },
+      "witness_count": 12
+    }
+  },
+  "source_row_side_counts": {
+    "authored_unmapped": 4,
+    "left_side1": 14399
+  },
+  "wall_seconds": 304.75384062493686,
+  "zero_nonbone_intersections": false
+}

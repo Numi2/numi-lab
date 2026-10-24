@@ -1,0 +1,256 @@
+{
+  "alias_rows": 30,
+  "aliases_have_identical_guide_face_and_bary": true,
+  "all_collapses_link_legal": true,
+  "all_remaining_face_areas_positive": true,
+  "boundary_edge_ids_exact": true,
+  "boundary_edges": 45,
+  "collapse_steps": [
+    {
+      "alias": 19097,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 18062,
+      "removed_faces": 2
+    },
+    {
+      "alias": 19342,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 18330,
+      "removed_faces": 2
+    },
+    {
+      "alias": 19506,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 18557,
+      "removed_faces": 2
+    },
+    {
+      "alias": 20066,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 18717,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23323,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 20940,
+      "removed_faces": 2
+    },
+    {
+      "alias": 20940,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 18893,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23340,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 21020,
+      "removed_faces": 2
+    },
+    {
+      "alias": 21020,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 19088,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23341,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 21153,
+      "removed_faces": 2
+    },
+    {
+      "alias": 21153,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 19333,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23342,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 21154,
+      "removed_faces": 2
+    },
+    {
+      "alias": 21154,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 19335,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23352,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 21354,
+      "removed_faces": 2
+    },
+    {
+      "alias": 21354,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 19788,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23355,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 21589,
+      "removed_faces": 2
+    },
+    {
+      "alias": 21589,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 20333,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23423,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 21943,
+      "removed_faces": 2
+    },
+    {
+      "alias": 21943,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 20621,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23440,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 22587,
+      "removed_faces": 2
+    },
+    {
+      "alias": 22587,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 20806,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23441,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 22588,
+      "removed_faces": 2
+    },
+    {
+      "alias": 22588,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 20807,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23449,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 22789,
+      "removed_faces": 2
+    },
+    {
+      "alias": 22789,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 20843,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23339,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 21019,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23439,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 22169,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23442,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 22589,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23443,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 22652,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23647,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 23027,
+      "removed_faces": 2
+    },
+    {
+      "alias": 23648,
+      "incidence": 2,
+      "link_legal": true,
+      "master": 23028,
+      "removed_faces": 2
+    }
+  ],
+  "components": 20,
+  "edge_incidence_histogram": {
+    "1": 45,
+    "2": 70779
+  },
+  "geometry_change_m": 0.0,
+  "input": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-source-skin-cap-reconstruction-211/candidate-surface-unadmitted.npz",
+  "input_faces": 47261,
+  "input_sha256": "9c33d81c4d16985051db78234e4e36d233f3130a02c60ffd8ca7f1d04cc76884",
+  "input_vertices": 23916,
+  "minimum_double_area_m2": 2.2341179026361777e-11,
+  "output": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-source-skin-cap-reconstruction-212/candidate-surface-welded-unadmitted.npz",
+  "output_faces": 47201,
+  "output_sha256": "f4fb83741399fcb214e6b23491399869cd9907c9768d7a5902cb130be5314ea9",
+  "physical_admission": false,
+  "protected_cut_ids_exact": true,
+  "remaining_gates": [
+    "exact source self and all-nearby tissue crossings",
+    "bone crossings",
+    "surface-to-volume transfer",
+    "independent inner/deep layers",
+    "conservative material mass",
+    "native mechanics"
+  ],
+  "removed_face_groups": {
+    "1:1": 36,
+    "2:1": 24
+  },
+  "removed_faces": 60,
+  "retained_vertex_rows": 23916,
+  "scope": "exact zero-length projection-edge topology cleanup only; no coordinate motion or physical qualification",
+  "script": "/tmp/clean_211_duplicate_projection_212.py",
+  "script_sha256": "9955ad4087626763b2e19122e8e49aa770af532d6fdbe0295e6f10ddafb1f6cd",
+  "sequential_link_checks": 30,
+  "vertex_links_manifold": true,
+  "zero_edges": 30
+}

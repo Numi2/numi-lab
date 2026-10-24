@@ -737,3 +737,115 @@ def boundary_tetrahedron_quality_ceiling(vertices, faces):
     result = np.zeros(len(f),dtype=np.float64)
     np.divide(area2,longest2,out=result,where=longest2>0)
     return result
+
+
+def collapse_zero_length_surface_edges(vertices, faces, protected_vertices=()):
+    """Collapse only explicit interior edges with exactly equal endpoint coordinates.
+
+    Returns (faces, vertex_alias, retained_source_face_rows). Vertex rows remain
+    present for source identity; callers must retain the alias ancestry. This
+    is a topology repair, not arbitrary coordinate welding or mass transfer.
+    All boundary vertex IDs and supplied protected IDs stay fixed. Every kept
+    triangle has exactly the same coordinates as its source triangle.
+    """
+    v = np.asarray(vertices)
+    raw = np.asarray(faces)
+    if (v.ndim != 2 or v.shape[1] != 3 or v.dtype.kind not in "fiu" or
+            not np.isfinite(v).all()):
+        raise ValueError("finite Nx3 surface coordinates required")
+    if (raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in "iu" or
+            np.any(raw < 0) or np.any(raw >= len(v))):
+        raise ValueError("integer surface faces within vertex bounds required")
+    f = raw.astype(np.int64, copy=True)
+    protected = np.asarray(protected_vertices)
+    if protected.size == 0:
+        protected = np.empty(0, np.int64)
+    if (protected.ndim != 1 or protected.dtype.kind not in "iu" or
+            np.any(protected < 0) or np.any(protected >= len(v))):
+        raise ValueError("protected vertex identities are invalid")
+
+    def topology(triangles):
+        if np.any(np.diff(np.sort(triangles, axis=1), axis=1) == 0):
+            raise ValueError("source topology has repeated triangle corners")
+        if len(np.unique(np.sort(triangles, axis=1), axis=0)) != len(triangles):
+            raise ValueError("duplicate surface triangles")
+        directed = np.concatenate((triangles[:, [0, 1]], triangles[:, [1, 2]],
+                                   triangles[:, [2, 0]]))
+        edges = np.sort(directed, axis=1)
+        unique, inverse, counts = np.unique(edges, axis=0, return_inverse=True,
+                                           return_counts=True)
+        direction = np.where(directed[:, 0] < directed[:, 1], 1, -1)
+        signed = np.bincount(inverse, weights=direction, minlength=len(unique))
+        if np.any(counts > 2) or np.any((counts == 2) & (signed != 0)):
+            raise ValueError("nonmanifold or inconsistently oriented surface edges")
+        # Edge-manifold surfaces can still pinch at a vertex. The link of
+        # every used vertex must be one cycle or one boundary path.
+        links = {}
+        for a, b, c in triangles.tolist():
+            for center, left, right in ((a, b, c), (b, c, a), (c, a, b)):
+                graph = links.setdefault(center, {})
+                graph.setdefault(left, set()).add(right)
+                graph.setdefault(right, set()).add(left)
+        for graph in links.values():
+            degrees = [len(x) for x in graph.values()]
+            if any(d not in (1, 2) for d in degrees) or degrees.count(1) not in (0, 2):
+                raise ValueError("nonmanifold vertex link")
+            reached = set()
+            pending = [next(iter(graph))]
+            while pending:
+                node = pending.pop()
+                if node not in reached:
+                    reached.add(node)
+                    pending.extend(graph[node] - reached)
+            if len(reached) != len(graph):
+                raise ValueError("disconnected vertex link")
+        return unique, counts, unique[counts == 1]
+
+    edges, counts, boundary = topology(f)
+    exact_zero = np.all(v[edges[:, 0]] == v[edges[:, 1]], axis=1)
+    if np.any(exact_zero & (counts != 2)):
+        raise ValueError("zero-length boundary edges require a separate boundary repair")
+    p = v.astype(np.float64)[f]
+    areas = np.linalg.norm(np.cross(p[:, 1]-p[:, 0], p[:, 2]-p[:, 0]), axis=1)
+    zero_corner = (np.all(p[:, 0] == p[:, 1], axis=1) |
+                   np.all(p[:, 1] == p[:, 2], axis=1) |
+                   np.all(p[:, 2] == p[:, 0], axis=1))
+    if not np.isfinite(areas).all() or np.any((areas == 0) & ~zero_corner):
+        raise ValueError("collinear distinct-coordinate faces are not zero-edge repairs")
+    protected_set = set(map(int, protected)) | set(map(int, boundary.ravel()))
+    alias = np.arange(len(v), dtype=np.int64)
+    retained = np.arange(len(f), dtype=np.int64)
+    for source_u, source_w in edges[exact_zero]:
+        u, w = int(alias[source_u]), int(alias[source_w])
+        if u == w:
+            continue
+        if u in protected_set and w in protected_set:
+            raise ValueError("cannot merge two protected vertex identities")
+        if w in protected_set or (u not in protected_set and w < u):
+            u, w = w, u
+        at_u, at_w = np.any(f == u, axis=1), np.any(f == w, axis=1)
+        incident_edge = at_u & at_w
+        if int(incident_edge.sum()) != 2:
+            raise ValueError("zero-edge incidence changed during collapse")
+        link_u = set(map(int, f[at_u].ravel())) - {u, w}
+        link_w = set(map(int, f[at_w].ravel())) - {u, w}
+        opposite = set(map(int, f[incident_edge].ravel())) - {u, w}
+        if (link_u & link_w) != opposite:
+            raise ValueError("zero edge fails the surface link condition")
+        # These are the only removed faces, and each is geometrically zero.
+        if not np.all(v[u] == v[w]):
+            raise ValueError("collapse would change coordinate geometry")
+        alias[alias == w] = u
+        f = f[~incident_edge]
+        retained = retained[~incident_edge]
+        f[f == w] = u
+    _, _, after_boundary = topology(f)
+    if not np.array_equal(boundary, after_boundary):
+        raise ValueError("collapse changed boundary edge identities")
+    if not np.array_equal(v[f], v[raw[retained]]):
+        raise ValueError("collapse changed retained triangle coordinates")
+    p = v.astype(np.float64)[f]
+    areas = np.linalg.norm(np.cross(p[:, 1]-p[:, 0], p[:, 2]-p[:, 0]), axis=1)
+    if np.any(areas <= 0) or not np.isfinite(areas).all():
+        raise ValueError("unrepaired zero-area faces remain")
+    return f, alias, retained

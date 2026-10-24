@@ -1,0 +1,348 @@
+{
+  "all_witnesses": [
+    {
+      "authored_face_ancestry": [],
+      "bank": "bank_0017",
+      "bank_face": 1337,
+      "bank_kind": "soft_tissue",
+      "bank_layer": 1,
+      "bank_stable_id": 18,
+      "candidate_surface_face_row": 63,
+      "detailed_source_face_id": -1,
+      "parent_surface_id": 3741,
+      "points_world_m": [
+        [
+          0.09031434296242333,
+          -1.195562262918696,
+          0.08279491044445832
+        ],
+        [
+          0.0890958041849331,
+          -1.18881691856569,
+          0.08036571803379093
+        ]
+      ],
+      "source_kind_223": 1,
+      "source_surface_row_223": 4282
+    },
+    {
+      "authored_face_ancestry": [],
+      "bank": "bank_0017",
+      "bank_face": 1102,
+      "bank_kind": "soft_tissue",
+      "bank_layer": 1,
+      "bank_stable_id": 18,
+      "candidate_surface_face_row": 63,
+      "detailed_source_face_id": -1,
+      "parent_surface_id": 3741,
+      "points_world_m": [
+        [
+          0.09031434296242333,
+          -1.195562262918696,
+          0.08279491044445832
+        ],
+        [
+          0.09008040387516833,
+          -1.1989429815002846,
+          0.08337657018193186
+        ]
+      ],
+      "source_kind_223": 1,
+      "source_surface_row_223": 4282
+    },
+    {
+      "authored_face_ancestry": [],
+      "bank": "bank_0017",
+      "bank_face": 1763,
+      "bank_kind": "soft_tissue",
+      "bank_layer": 1,
+      "bank_stable_id": 18,
+      "candidate_surface_face_row": 63,
+      "detailed_source_face_id": -1,
+      "parent_surface_id": 3741,
+      "points_world_m": [
+        [
+          0.08548752307328243,
+          -1.1899214783093444,
+          0.07789709936818906
+        ],
+        [
+          0.08571749324391101,
+          -1.1887846691724602,
+          0.0778154066245763
+        ]
+      ],
+      "source_kind_223": 1,
+      "source_surface_row_223": 4282
+    },
+    {
+      "authored_face_ancestry": [],
+      "bank": "bank_0017",
+      "bank_face": 1764,
+      "bank_kind": "soft_tissue",
+      "bank_layer": 1,
+      "bank_stable_id": 18,
+      "candidate_surface_face_row": 63,
+      "detailed_source_face_id": -1,
+      "parent_surface_id": 3741,
+      "points_world_m": [
+        [
+          0.08571749324391101,
+          -1.1887846691724602,
+          0.0778154066245763
+        ],
+        [
+          0.0869637420427492,
+          -1.187364516135824,
+          0.07843522617928486
+        ]
+      ],
+      "source_kind_223": 1,
+      "source_surface_row_223": 4282
+    },
+    {
+      "authored_face_ancestry": [],
+      "bank": "bank_0017",
+      "bank_face": 1338,
+      "bank_kind": "soft_tissue",
+      "bank_layer": 1,
+      "bank_stable_id": 18,
+      "candidate_surface_face_row": 63,
+      "detailed_source_face_id": -1,
+      "parent_surface_id": 3741,
+      "points_world_m": [
+        [
+          0.08740527955463305,
+          -1.1910423374371404,
+          0.07959195604306128
+        ],
+        [
+          0.0890958041849331,
+          -1.18881691856569,
+          0.08036571803379093
+        ]
+      ],
+      "source_kind_223": 1,
+      "source_surface_row_223": 4282
+    },
+    {
+      "authored_face_ancestry": [],
+      "bank": "bank_0017",
+      "bank_face": 1339,
+      "bank_kind": "soft_tissue",
+      "bank_layer": 1,
+      "bank_stable_id": 18,
+      "candidate_surface_face_row": 63,
+      "detailed_source_face_id": -1,
+      "parent_surface_id": 3741,
+      "points_world_m": [
+        [
+          0.08740527955463305,
+          -1.1910423374371404,
+          0.07959195604306128
+        ],
+        [
+          0.0869637420427492,
+          -1.187364516135824,
+          0.07843522617928486
+        ]
+      ],
+      "source_kind_223": 1,
+      "source_surface_row_223": 4282
+    },
+    {
+      "authored_face_ancestry": [],
+      "bank": "bank_0017",
+      "bank_face": 1337,
+      "bank_kind": "soft_tissue",
+      "bank_layer": 1,
+      "bank_stable_id": 18,
+      "candidate_surface_face_row": 68,
+      "detailed_source_face_id": -1,
+      "parent_surface_id": 3739,
+      "points_world_m": [
+        [
+          0.08987248924132271,
+          -1.1989424046501702,
+          0.08312089207010555
+        ],
+        [
+          0.08671690570687007,
+          -1.1935923347360426,
+          0.07934030119762903
+        ]
+      ],
+      "source_kind_223": 1,
+      "source_surface_row_223": 4281
+    },
+    {
+      "authored_face_ancestry": [],
+      "bank": "bank_0017",
+      "bank_face": 1102,
+      "bank_kind": "soft_tissue",
+      "bank_layer": 1,
+      "bank_stable_id": 18,
+      "candidate_surface_face_row": 68,
+      "detailed_source_face_id": -1,
+      "parent_surface_id": 3739,
+      "points_world_m": [
+        [
+          0.08987248924132271,
+          -1.1989424046501702,
+          0.08312089207010555
+        ],
+        [
+          0.09008040387516833,
+          -1.1989429815002846,
+          0.08337657018193186
+        ]
+      ],
+      "source_kind_223": 1,
+      "source_surface_row_223": 4281
+    },
+    {
+      "authored_face_ancestry": [],
+      "bank": "bank_0017",
+      "bank_face": 1763,
+      "bank_kind": "soft_tissue",
+      "bank_layer": 1,
+      "bank_stable_id": 18,
+      "candidate_surface_face_row": 68,
+      "detailed_source_face_id": -1,
+      "parent_surface_id": 3739,
+      "points_world_m": [
+        [
+          0.08548752307328243,
+          -1.1899214783093444,
+          0.07789709936818906
+        ],
+        [
+          0.08569946624264368,
+          -1.190888598820013,
+          0.07813965173058575
+        ]
+      ],
+      "source_kind_223": 1,
+      "source_surface_row_223": 4281
+    },
+    {
+      "authored_face_ancestry": [],
+      "bank": "bank_0017",
+      "bank_face": 1764,
+      "bank_kind": "soft_tissue",
+      "bank_layer": 1,
+      "bank_stable_id": 18,
+      "candidate_surface_face_row": 68,
+      "detailed_source_face_id": -1,
+      "parent_surface_id": 3739,
+      "points_world_m": [
+        [
+          0.08569946624264368,
+          -1.190888598820013,
+          0.07813965173058575
+        ],
+        [
+          0.08618107720459561,
+          -1.1923718397077414,
+          0.07870418125380096
+        ]
+      ],
+      "source_kind_223": 1,
+      "source_surface_row_223": 4281
+    },
+    {
+      "authored_face_ancestry": [],
+      "bank": "bank_0017",
+      "bank_face": 1338,
+      "bank_kind": "soft_tissue",
+      "bank_layer": 1,
+      "bank_stable_id": 18,
+      "candidate_surface_face_row": 68,
+      "detailed_source_face_id": -1,
+      "parent_surface_id": 3739,
+      "points_world_m": [
+        [
+          0.08667053735998188,
+          -1.1930085035216773,
+          0.07929419943079744
+        ],
+        [
+          0.08671690570687007,
+          -1.1935923347360426,
+          0.07934030119762903
+        ]
+      ],
+      "source_kind_223": 1,
+      "source_surface_row_223": 4281
+    },
+    {
+      "authored_face_ancestry": [],
+      "bank": "bank_0017",
+      "bank_face": 1339,
+      "bank_kind": "soft_tissue",
+      "bank_layer": 1,
+      "bank_stable_id": 18,
+      "candidate_surface_face_row": 68,
+      "detailed_source_face_id": -1,
+      "parent_surface_id": 3739,
+      "points_world_m": [
+        [
+          0.08667053735998188,
+          -1.1930085035216773,
+          0.07929419943079744
+        ],
+        [
+          0.08618107720459561,
+          -1.1923718397077414,
+          0.07870418125380096
+        ]
+      ],
+      "source_kind_223": 1,
+      "source_surface_row_223": 4281
+    }
+  ],
+  "bank_sha256": "533fdd2d109c9e97ad615c6865f5cbd6d3d3fb9357c06cb28ef9db8862338b7a",
+  "base_223_sha256": "a2f9804d1a17d28d3122defb8b6e4ae95a6d9c4885e36e14391639453ad81638",
+  "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-225-actual007-cut-stitch-domain-preflight/local-quality-star-remesh-232/retet-233/candidate-local-retet-unadmitted.npz",
+  "candidate_sha256": "7bef41ddad0c60a8bdf73fef5964564385f7b444d06de4872c92496127779636",
+  "face_count": 14403,
+  "inventory_sha256": "863774f2d1255d5de649ccc574768864df198d648badeeadd3cbcb973aee3c85",
+  "nearby_nonbone_bank_count": 24,
+  "physical_admission": false,
+  "roles": {
+    "O": {
+      "aabb_candidate_pairs": 8650,
+      "authored_star_faces_intersecting": 0,
+      "bank_metadata": {
+        "bank_0017": {
+          "body_indices": [
+            128,
+            150
+          ],
+          "kind": "soft_tissue",
+          "layer": 1,
+          "stable_id": 18
+        }
+      },
+      "by_bank": {
+        "bank_0017": 12
+      },
+      "exact_intersection_pairs": 12,
+      "source_kind_face_counts": {
+        "-1": 4,
+        "1": 71,
+        "2": 14115,
+        "3": 213
+      },
+      "witness_count": 12
+    }
+  },
+  "scope": "all marker-1 left outer boundary faces of candidate 233, actual007 registered source pose; exact triangle intersections against AABB-near nonbone banks only",
+  "script_sha256": "e0aadcec60951bf9d08eed2bbea3b479ef458e574341e984d19f499928b21f36",
+  "source_row_side_counts": {
+    "authored_unmapped": 4,
+    "left_side1": 14399
+  },
+  "wall_seconds": 304.75384062493686,
+  "zero_nonbone_intersections": false
+}

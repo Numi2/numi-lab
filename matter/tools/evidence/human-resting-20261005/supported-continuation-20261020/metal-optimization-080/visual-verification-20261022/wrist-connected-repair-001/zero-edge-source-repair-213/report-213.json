@@ -1,0 +1,12 @@
+{
+  "source_sha256": "9c33d81c4d16985051db78234e4e36d233f3130a02c60ffd8ca7f1d04cc76884",
+  "geometry_helper_sha256": "ae03a042d7a74db578869a523726426250f4ee3424c386b22203e685594ffba1",
+  "tests": 49,
+  "removed_zero_area_faces": 60,
+  "explicit_vertex_aliases": 30,
+  "retained_triangles_coordinate_exact": true,
+  "independent_212_geometry_parity": true,
+  "wall_seconds": 0.30545912496745586,
+  "physical_admission": false,
+  "known_source_failure": "candidate212 exact changed-patch self audit has548 pairs; cleanup never establishes crossing clearance"
+}

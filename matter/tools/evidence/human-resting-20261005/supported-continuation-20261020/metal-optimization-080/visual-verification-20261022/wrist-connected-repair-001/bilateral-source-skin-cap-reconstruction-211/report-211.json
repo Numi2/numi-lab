@@ -1,0 +1,70 @@
+{
+  "physical_admission": false,
+  "method": "bilateral conforming refinement of every authored cap and transition strip; sample exact registered detailed source skin, preserve both13-node cutrings; no skin-volume or mechanical-admission claim",
+  "source_sha256": "a2f9804d1a17d28d3122defb8b6e4ae95a6d9c4885e36e14391639453ad81638",
+  "guide_csv_sha256": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e",
+  "guide_nhskin_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+  "script_sha256": "3b5eabd14a41292451b6d7a8a91cccd7eb45ef08fcdeec1760bb76d359faf361",
+  "source_fine_frame_parity_max_m": 1.578470544162584e-08,
+  "old_vertices": 16821,
+  "vertices": 23916,
+  "faces": 47261,
+  "changed_faces": 14735,
+  "original_patch_vertices_refit": 116,
+  "original_vertex_max_move_m": 0.010413245831002239,
+  "rounds": [
+    {
+      "round": 0,
+      "split_edges": 290,
+      "max_unprojected_guide_error_m": 0.011235887793368616,
+      "vertices": 17111,
+      "faces": 33651
+    },
+    {
+      "round": 1,
+      "split_edges": 530,
+      "max_unprojected_guide_error_m": 0.005027074074323847,
+      "vertices": 17641,
+      "faces": 34711
+    },
+    {
+      "round": 2,
+      "split_edges": 1149,
+      "max_unprojected_guide_error_m": 0.006991384105673652,
+      "vertices": 18790,
+      "faces": 37009
+    },
+    {
+      "round": 3,
+      "split_edges": 2069,
+      "max_unprojected_guide_error_m": 0.005365832456007176,
+      "vertices": 20859,
+      "faces": 41147
+    },
+    {
+      "round": 4,
+      "split_edges": 2399,
+      "max_unprojected_guide_error_m": 0.0060897217554189455,
+      "vertices": 23258,
+      "faces": 45945
+    },
+    {
+      "round": 5,
+      "split_edges": 658,
+      "max_unprojected_guide_error_m": 0.006015687738930131,
+      "vertices": 23916,
+      "faces": 47261
+    }
+  ],
+  "nonpositive_area_faces": 60,
+  "minimum_face_double_area_m2": 0.0,
+  "cut_vertices_exact": true,
+  "wall_seconds": 3.107282957993448,
+  "remaining": [
+    "exact source self and all-nearby tissue crossings",
+    "retained motion and sourcerest embedding",
+    "independent inner/deep layers",
+    "conservative physical mass and transfer",
+    "native mechanics"
+  ]
+}

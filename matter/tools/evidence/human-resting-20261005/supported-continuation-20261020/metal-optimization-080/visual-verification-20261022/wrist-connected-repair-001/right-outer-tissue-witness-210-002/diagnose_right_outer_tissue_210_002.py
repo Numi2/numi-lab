@@ -1,0 +1,14 @@
+from pathlib import Path
+import numpy as np,json,ast,time,sys
+sys.path.insert(0,"/Users/n/numi-human-anatomy-finish-1378/src")
+E=Path('/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001');A=E/'ankle-parent-tet-refinement-026';B=E/'right-commonfield-layer-reconstruction-202/attempt-004';O=E/'right-outer-tissue-witness-210-002';O.mkdir(exist_ok=False);ns={'__name__':'frozen','MAX_TET_VOL':1.5e-7}
+for p in [A/'build_common_volume_126.py',A/'generated-224-commonfield-tetgen-volume-actual007/build_commonfield_224.py']:
+ tr=ast.parse(p.read_text());exec(compile(ast.Module(body=[n for n in tr.body if isinstance(n,(ast.Import,ast.ImportFrom,ast.FunctionDef))],type_ignores=[]),str(p),'exec'),ns)
+z=np.load(B/'right-commonfield-calibrated-202.npz');X=z['points_world_f32_m'];F=z['outer_faces'];P=E/'registered-surrounding-tissue-native007-190';bank=np.load(P/'registered-tissue-banks.npz');inv=json.loads((P/'inventory.json').read_text());audit=json.loads((E/'right-all-tissue-clearance-209/report-209.json').read_text());hits=audit['roles']['O']['witnesses'];report={'physical_admission':False,'banks':{},'scope':'only vertices incident to125exact O/tissue witnesses; distances complete per implicated bank, not whole-body geometry'};start=time.monotonic()
+for key in sorted(set(h['bank'] for h in hits)):
+ m=next(b for b in inv['banks'] if b['key']==key);V=bank[key+'_vertices'];G=bank[key+'_faces'];V,iv=np.unique(V,axis=0,return_inverse=True);G=iv[G];closed,top=ns['consistent_closed'](G);ids=np.unique(F[sorted(set(h['surface_face'] for h in hits if h['bank']==key))]);points=X[ids].astype(float);w=ns['solid_angle_winding'](points,V,G) if closed else None
+ nearest=[];q=[]
+ for p in points:
+  tri=V[G].astype(float);b,d=ns['closest_bary'](p[None],tri[None]);j=int(np.argmin(d[0]));nearest.append(float(np.sqrt(d[0,j])));q.append(np.einsum('i,ij->j',b[0,j],tri[j]))
+ nearest=np.array(nearest);q=np.array(q);inside=np.abs(w)>.5 if closed else np.zeros(len(ids),bool);report['banks'][key]={'stable_id':m['stable_id'],'body_indices':m['body_indices'],'closed':closed,'witness_vertices':len(ids),'inside_vertices':int(inside.sum()),'maximum_inside_depth_m':float(nearest[inside].max()) if np.any(inside) else 0.,'minimum_unsigned_vertex_distance_m':float(nearest.min()),'source_vertex_ids':ids.tolist(),'inside_mask':inside.tolist(),'nearest_points':q.tolist(),'distances_m':nearest.tolist()}
+(O/'report-210.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({k:{a:v for a,v in r.items() if a not in ('source_vertex_ids','inside_mask','nearest_points','distances_m')} for k,r in report['banks'].items()}));print('seconds',time.monotonic()-start)
