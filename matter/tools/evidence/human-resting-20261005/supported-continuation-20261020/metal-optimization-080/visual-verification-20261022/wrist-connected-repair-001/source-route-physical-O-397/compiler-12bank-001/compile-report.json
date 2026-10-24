@@ -1,0 +1,1167 @@
+{
+  "elapsed_s": 0.7171179580036551,
+  "manifest": {
+    "coverage": {
+      "authored_myosim_muscle_count": 416,
+      "cancelled_opposite_face_pair_count": 24,
+      "configured_surface_count": 158,
+      "emitted_surface_count": 12,
+      "muscle_surface_count": 12,
+      "opposite_face_pair_cancellation_surface_count": 6,
+      "passive_registered_support_surface_count": 0,
+      "passive_rows_require_explicit_stable_id_subset": true,
+      "route_bound_muscle_surface_count": 12,
+      "selected_stable_ids": [
+        75,
+        79,
+        81,
+        83,
+        85,
+        89,
+        93,
+        97,
+        103,
+        120,
+        122,
+        132
+      ],
+      "tendon_surface_count": 0
+    },
+    "evidence_boundary": "Source-authored routed rows retain their existing kinematic visual role. Passive SCM/trapezius rows use inferred registered-support proximity, not supplied source attachment masks or force-transmitting MyoSim routes. This package does not add a continuum/tendon law, collision/contact, clinical registration, or anatomical qualification.",
+    "payload": {
+      "binding_count": 45,
+      "bytes": 1402716,
+      "file": "bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+      "index_count": 72696,
+      "magic": "NHTISS4",
+      "payload_abi": 5,
+      "registration_fingerprint32": "31c77660",
+      "sha256": "3124bb7b711b7e64bc769834946485bb6c0e27a94ab57f4227fc06e6c7a7d414",
+      "surface_count": 12,
+      "vertex_count": 19819
+    },
+    "rigid_source_program_checks": {
+      "actual_bytes": 60324,
+      "actual_sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+      "boundary": "source_program_agreement_not_native_execution_loaded_or_clinical_anatomy",
+      "checked_field_count": 2250,
+      "declared_identity_matches": true,
+      "engine_body_count": 157,
+      "expected_bytes": 60324,
+      "expected_source_sha256": "f157d2fee0a56c2ea7144c70363cd0bfbd466acb01afc5e4ee53f4e016e4fe62",
+      "failures": [],
+      "file": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/recovered-artifact/myosim-fullbody-core-reference.nhrigid",
+      "joint_count": 156,
+      "passed": true,
+      "roundoff_portability_admissions": [
+        {
+          "actual": [
+            0.7061997056007385,
+            -2.0074732135124896e-17,
+            -2.2026379756276795e-16,
+            0.7080127000808716
+          ],
+          "allowed_norm_error": 1e-05,
+          "allowed_point_displacement_m": 1e-06,
+          "angular_error_rad": 3.5591927260510666e-20,
+          "byte_offset": 44192,
+          "changed_components_are_roundoff": true,
+          "child_body_name": "femur_r",
+          "conservative_lever_arm_m": 3.0,
+          "core_joint_index": 130,
+          "core_q_index": 103,
+          "expected": [
+            0.7061997056007385,
+            -2.005693617142643e-17,
+            -2.2026379756276795e-16,
+            0.7080127000808716
+          ],
+          "field": "child_orientation",
+          "max_absolute_component_delta": 1.779596363025094e-20,
+          "maximum_point_displacement_m": 1.06775781781532e-19,
+          "norm_basis": "existing_Core_squared_norm_admission",
+          "norm_error": 7.66637597848785e-09,
+          "reason": "quaternion_roundoff_within_1um_geometric_bound",
+          "source_body_id": 92,
+          "source_body_name": "femur_r",
+          "source_joint_id": 97,
+          "source_joint_name": "hip_rotation_r"
+        },
+        {
+          "actual": [
+            0.7061997056007385,
+            -2.0074732135124896e-17,
+            -2.2026379756276795e-16,
+            0.7080127000808716
+          ],
+          "allowed_norm_error": 1e-05,
+          "allowed_point_displacement_m": 1e-06,
+          "angular_error_rad": 3.5591927260510666e-20,
+          "byte_offset": 44320,
+          "changed_components_are_roundoff": true,
+          "child_body_name": "__myosim_serial_tibia_r_0",
+          "conservative_lever_arm_m": 3.0,
+          "core_joint_index": 131,
+          "core_q_index": 104,
+          "expected": [
+            0.7061997056007385,
+            -2.005693617142643e-17,
+            -2.2026379756276795e-16,
+            0.7080127000808716
+          ],
+          "field": "parent_orientation",
+          "max_absolute_component_delta": 1.779596363025094e-20,
+          "maximum_point_displacement_m": 1.06775781781532e-19,
+          "norm_basis": "existing_Core_squared_norm_admission",
+          "norm_error": 7.66637597848785e-09,
+          "reason": "quaternion_roundoff_within_1um_geometric_bound",
+          "source_body_id": 93,
+          "source_body_name": "tibia_r",
+          "source_joint_id": 98,
+          "source_joint_name": "knee_angle_translation2_r"
+        },
+        {
+          "actual": [
+            0.7061997056007385,
+            -2.0074732135124896e-17,
+            -2.2026379756276795e-16,
+            0.7080127000808716
+          ],
+          "allowed_norm_error": 1e-05,
+          "allowed_point_displacement_m": 1e-06,
+          "angular_error_rad": 3.5591927260510666e-20,
+          "byte_offset": 45472,
+          "changed_components_are_roundoff": true,
+          "child_body_name": "__myosim_serial_patella_r_0",
+          "conservative_lever_arm_m": 3.0,
+          "core_joint_index": 139,
+          "core_q_index": 112,
+          "expected": [
+            0.7061997056007385,
+            -2.005693617142643e-17,
+            -2.2026379756276795e-16,
+            0.7080127000808716
+          ],
+          "field": "parent_orientation",
+          "max_absolute_component_delta": 1.779596363025094e-20,
+          "maximum_point_displacement_m": 1.06775781781532e-19,
+          "norm_basis": "existing_Core_squared_norm_admission",
+          "norm_error": 7.66637597848785e-09,
+          "reason": "quaternion_roundoff_within_1um_geometric_bound",
+          "source_body_id": 97,
+          "source_body_name": "patella_r",
+          "source_joint_id": 106,
+          "source_joint_name": "knee_angle_beta_translation2_r"
+        },
+        {
+          "actual": [
+            0.7080127000808716,
+            -9.796409844050854e-17,
+            -2.802682203511934e-16,
+            0.7061997056007385
+          ],
+          "allowed_norm_error": 1e-05,
+          "allowed_point_displacement_m": 1e-06,
+          "angular_error_rad": 3.004319973264214e-21,
+          "byte_offset": 46208,
+          "changed_components_are_roundoff": true,
+          "child_body_name": "femur_l",
+          "conservative_lever_arm_m": 3.0,
+          "core_joint_index": 144,
+          "core_q_index": 117,
+          "expected": [
+            0.7080127000808716,
+            -9.796259628051614e-17,
+            -2.802682203511934e-16,
+            0.7061997056007385
+          ],
+          "field": "child_orientation",
+          "max_absolute_component_delta": 1.5021599866400788e-21,
+          "maximum_point_displacement_m": 9.012959919792641e-21,
+          "norm_basis": "existing_Core_squared_norm_admission",
+          "norm_error": 7.66637597848785e-09,
+          "reason": "quaternion_roundoff_within_1um_geometric_bound",
+          "source_body_id": 98,
+          "source_body_name": "femur_l",
+          "source_joint_id": 111,
+          "source_joint_name": "hip_rotation_l"
+        },
+        {
+          "actual": [
+            0.7080127000808716,
+            -9.796409844050854e-17,
+            -2.802682203511934e-16,
+            0.7061997056007385
+          ],
+          "allowed_norm_error": 1e-05,
+          "allowed_point_displacement_m": 1e-06,
+          "angular_error_rad": 3.004319973264214e-21,
+          "byte_offset": 46336,
+          "changed_components_are_roundoff": true,
+          "child_body_name": "__myosim_serial_tibia_l_0",
+          "conservative_lever_arm_m": 3.0,
+          "core_joint_index": 145,
+          "core_q_index": 118,
+          "expected": [
+            0.7080127000808716,
+            -9.796259628051614e-17,
+            -2.802682203511934e-16,
+            0.7061997056007385
+          ],
+          "field": "parent_orientation",
+          "max_absolute_component_delta": 1.5021599866400788e-21,
+          "maximum_point_displacement_m": 9.012959919792641e-21,
+          "norm_basis": "existing_Core_squared_norm_admission",
+          "norm_error": 7.66637597848785e-09,
+          "reason": "quaternion_roundoff_within_1um_geometric_bound",
+          "source_body_id": 99,
+          "source_body_name": "tibia_l",
+          "source_joint_id": 112,
+          "source_joint_name": "knee_angle_translation2_l"
+        },
+        {
+          "actual": [
+            0.7080127000808716,
+            -9.796409844050854e-17,
+            -2.802682203511934e-16,
+            0.7061997056007385
+          ],
+          "allowed_norm_error": 1e-05,
+          "allowed_point_displacement_m": 1e-06,
+          "angular_error_rad": 3.004319973264214e-21,
+          "byte_offset": 47488,
+          "changed_components_are_roundoff": true,
+          "child_body_name": "__myosim_serial_patella_l_0",
+          "conservative_lever_arm_m": 3.0,
+          "core_joint_index": 153,
+          "core_q_index": 126,
+          "expected": [
+            0.7080127000808716,
+            -9.796259628051614e-17,
+            -2.802682203511934e-16,
+            0.7061997056007385
+          ],
+          "field": "parent_orientation",
+          "max_absolute_component_delta": 1.5021599866400788e-21,
+          "maximum_point_displacement_m": 9.012959919792641e-21,
+          "norm_basis": "existing_Core_squared_norm_admission",
+          "norm_error": 7.66637597848785e-09,
+          "reason": "quaternion_roundoff_within_1um_geometric_bound",
+          "source_body_id": 103,
+          "source_body_name": "patella_l",
+          "source_joint_id": 120,
+          "source_joint_name": "knee_angle_beta_translation2_l"
+        }
+      ],
+      "source_body_count": 103,
+      "source_metadata_matches": true,
+      "tolerance_basis": "exact_source_FP32_scalar_or_integer_fields; direction fields use their existing norm/common-scale-bin admission; only nonzero quaternion components below 1e-12 with component delta below 1e-12 may use a sign-invariant 1um geometric bound"
+    },
+    "runtime_binding": "Non-passive muscle rows retain the existing authored MyoSim route-body table and four sparse influences per vertex; shared digital rows include every authored digit route, and the two calcaneal tendons inherit their existing named route weights. Rows with passive_visual_binding use nearest Euclidean registered support-vertex proximity across the explicitly listed support bodies, serialize at most four of those dense inferred weights per vertex, and add no MyoSim muscle/force route.",
+    "schema": "numi.human.bodyparts3d-myosim-fullbody-muscle-surface-visual-payload.v1",
+    "source": {
+      "bodyparts": {
+        "archives": [
+          {
+            "file": "isa_BP3D_4.0_obj_99.zip",
+            "hierarchy": "is_a",
+            "sha256": "40665852c49f218326590e204db91064a1ecfc3c6f8cbd7bbbcaac62c7cd409e"
+          },
+          {
+            "file": "partof_BP3D_4.0_obj_99.zip",
+            "hierarchy": "part_of",
+            "sha256": "9fbc713fffeee924a5a657d9813d84d7eb957bded63adb854931dd5e3eb61c97"
+          }
+        ],
+        "id": "bodyparts3d_4",
+        "version": "4.0"
+      },
+      "myosim_manifest": {
+        "file": "myosim-fullbody-reference.manifest.json",
+        "sha256": "99401961daa509af80bc089fd750ff9c83e0a2ae3a734d242efa920e12e067db"
+      },
+      "myosim_source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+      "registration": {
+        "file": "candidate-current-source.json",
+        "sha256": "31c77660a16e8688fe68489eadff9d3861ceb27ed3b73d0288bda330d2a13b8c"
+      },
+      "surface_map": {
+        "file": "bodyparts3d-myosim-surface-map.v1.json",
+        "sha256": "1d4bbbf216e1a67ac7e27f87d61cbda513f5661b703c5c450c05a51c3c31caa2"
+      },
+      "surfaces": [
+        {
+          "body_bindings": [
+            {
+              "core_body_index": 41,
+              "myosim_body": "humerus_r"
+            },
+            {
+              "core_body_index": 34,
+              "myosim_body": "scapula_r"
+            }
+          ],
+          "body_weight_count": 2,
+          "endpoint_source": "all_named_authored_myosim_route_endpoints",
+          "label": "acromial part of right deltoid",
+          "layer": "muscle",
+          "matched_muscles": [
+            {
+              "binding_bodies": [
+                "humerus_r",
+                "scapula_r"
+              ],
+              "name": "DELT2",
+              "primary_body": "humerus_r",
+              "secondary_body": "scapula_r",
+              "source_actuator_index": 211,
+              "source_route_node_count": 6
+            }
+          ],
+          "member": "isa_BP3D_4.0_obj_99/FJ1467.obj",
+          "member_id": "FJ1467",
+          "member_sha256": "2f69f1a13c836539abca85d9b77f55f96319ad3fdd75c62f498eabe49b266bfe",
+          "route_binding": {
+            "binding_body_count": 2,
+            "maximum_vertex_influences": 2,
+            "method": "two_authored_route_endpoint_body_axis_linear_blend"
+          },
+          "source_topology_cancellation": {
+            "cancelled_opposite_face_pairs": [
+              [
+                391,
+                447
+              ],
+              [
+                400,
+                403
+              ],
+              [
+                464,
+                465
+              ]
+            ],
+            "emitted_triangle_count": 1294,
+            "emitted_vertex_count": 916,
+            "emitted_vertices_compacted": false,
+            "new_faces_added": false,
+            "oriented_source_chain_preserved": true,
+            "removed_unique_visual_support_triangle_count": 3,
+            "removed_visual_support_area_mm2": 0.019099297639632137,
+            "retained_triangle_count": 1294,
+            "retained_vertex_count": 898,
+            "source_coordinate_support_preserved": false,
+            "source_triangle_count": 1300,
+            "source_vertex_count": 916,
+            "vertices_moved": false
+          },
+          "stable_id": 75,
+          "triangle_count": 1294,
+          "vertex_count": 916
+        },
+        {
+          "body_bindings": [
+            {
+              "core_body_index": 34,
+              "myosim_body": "scapula_r"
+            },
+            {
+              "core_body_index": 41,
+              "myosim_body": "humerus_r"
+            }
+          ],
+          "body_weight_count": 2,
+          "endpoint_source": "all_named_authored_myosim_route_endpoints",
+          "label": "spinal part of right deltoid",
+          "layer": "muscle",
+          "matched_muscles": [
+            {
+              "binding_bodies": [
+                "scapula_r",
+                "humerus_r"
+              ],
+              "name": "DELT3",
+              "primary_body": "scapula_r",
+              "secondary_body": "humerus_r",
+              "source_actuator_index": 212,
+              "source_route_node_count": 5
+            }
+          ],
+          "member": "isa_BP3D_4.0_obj_99/FJ1513.obj",
+          "member_id": "FJ1513",
+          "member_sha256": "ef8308c92fd0d01d8c0d7ffd9238305eefc2f28710d7bb58f451512abdc08e99",
+          "route_binding": {
+            "binding_body_count": 2,
+            "maximum_vertex_influences": 2,
+            "method": "two_authored_route_endpoint_body_axis_linear_blend"
+          },
+          "source_topology_cancellation": {
+            "cancelled_opposite_face_pairs": [
+              [
+                271,
+                280
+              ],
+              [
+                1498,
+                1500
+              ],
+              [
+                1645,
+                1647
+              ],
+              [
+                1650,
+                1652
+              ],
+              [
+                1655,
+                1656
+              ],
+              [
+                1673,
+                1674
+              ],
+              [
+                1739,
+                1771
+              ],
+              [
+                1764,
+                1768
+              ],
+              [
+                1769,
+                1770
+              ],
+              [
+                1796,
+                1798
+              ],
+              [
+                1799,
+                1800
+              ],
+              [
+                1806,
+                1837
+              ],
+              [
+                1850,
+                1884
+              ],
+              [
+                1854,
+                1866
+              ],
+              [
+                1880,
+                1883
+              ],
+              [
+                1887,
+                1892
+              ],
+              [
+                1895,
+                1896
+              ]
+            ],
+            "emitted_triangle_count": 1866,
+            "emitted_vertex_count": 1665,
+            "emitted_vertices_compacted": false,
+            "new_faces_added": false,
+            "oriented_source_chain_preserved": true,
+            "removed_unique_visual_support_triangle_count": 17,
+            "removed_visual_support_area_mm2": 0.07325536543826551,
+            "retained_triangle_count": 1866,
+            "retained_vertex_count": 1563,
+            "source_coordinate_support_preserved": false,
+            "source_triangle_count": 1900,
+            "source_vertex_count": 1665,
+            "vertices_moved": false
+          },
+          "stable_id": 79,
+          "triangle_count": 1866,
+          "vertex_count": 1665
+        },
+        {
+          "body_bindings": [
+            {
+              "core_body_index": 41,
+              "myosim_body": "humerus_r"
+            },
+            {
+              "core_body_index": 34,
+              "myosim_body": "scapula_r"
+            }
+          ],
+          "body_weight_count": 2,
+          "endpoint_source": "all_named_authored_myosim_route_endpoints",
+          "label": "right supraspinatus",
+          "layer": "muscle",
+          "matched_muscles": [
+            {
+              "binding_bodies": [
+                "humerus_r",
+                "scapula_r"
+              ],
+              "name": "SUPSP",
+              "primary_body": "humerus_r",
+              "secondary_body": "scapula_r",
+              "source_actuator_index": 213,
+              "source_route_node_count": 4
+            }
+          ],
+          "member": "isa_BP3D_4.0_obj_99/FJ1506.obj",
+          "member_id": "FJ1506",
+          "member_sha256": "793771eceb64385269ddeeb09245e8c53b67499194f6fa98049b5e17aafa8e0c",
+          "route_binding": {
+            "binding_body_count": 2,
+            "maximum_vertex_influences": 2,
+            "method": "two_authored_route_endpoint_body_axis_linear_blend"
+          },
+          "source_topology_cancellation": {
+            "cancelled_opposite_face_pairs": [
+              [
+                7,
+                123
+              ]
+            ],
+            "emitted_triangle_count": 876,
+            "emitted_vertex_count": 843,
+            "emitted_vertices_compacted": false,
+            "new_faces_added": false,
+            "oriented_source_chain_preserved": true,
+            "removed_unique_visual_support_triangle_count": 1,
+            "removed_visual_support_area_mm2": 0.0038283136613894864,
+            "retained_triangle_count": 876,
+            "retained_vertex_count": 837,
+            "source_coordinate_support_preserved": false,
+            "source_triangle_count": 878,
+            "source_vertex_count": 843,
+            "vertices_moved": false
+          },
+          "stable_id": 81,
+          "triangle_count": 876,
+          "vertex_count": 843
+        },
+        {
+          "body_bindings": [
+            {
+              "core_body_index": 41,
+              "myosim_body": "humerus_r"
+            },
+            {
+              "core_body_index": 34,
+              "myosim_body": "scapula_r"
+            }
+          ],
+          "body_weight_count": 2,
+          "endpoint_source": "all_named_authored_myosim_route_endpoints",
+          "label": "right infraspinatus muscle",
+          "layer": "muscle",
+          "matched_muscles": [
+            {
+              "binding_bodies": [
+                "humerus_r",
+                "scapula_r"
+              ],
+              "name": "INFSP",
+              "primary_body": "humerus_r",
+              "secondary_body": "scapula_r",
+              "source_actuator_index": 214,
+              "source_route_node_count": 4
+            }
+          ],
+          "member": "isa_BP3D_4.0_obj_99/FJ1500.obj",
+          "member_id": "FJ1500",
+          "member_sha256": "28f61376a3a88a28d14c44e1c20e9b7a34129772c130afa003daceac801455b1",
+          "route_binding": {
+            "binding_body_count": 2,
+            "maximum_vertex_influences": 2,
+            "method": "two_authored_route_endpoint_body_axis_linear_blend"
+          },
+          "stable_id": 83,
+          "triangle_count": 866,
+          "vertex_count": 743
+        },
+        {
+          "body_bindings": [
+            {
+              "core_body_index": 41,
+              "myosim_body": "humerus_r"
+            },
+            {
+              "core_body_index": 34,
+              "myosim_body": "scapula_r"
+            }
+          ],
+          "body_weight_count": 2,
+          "endpoint_source": "all_named_authored_myosim_route_endpoints",
+          "label": "right subscapularis",
+          "layer": "muscle",
+          "matched_muscles": [
+            {
+              "binding_bodies": [
+                "humerus_r",
+                "scapula_r"
+              ],
+              "name": "SUBSC",
+              "primary_body": "humerus_r",
+              "secondary_body": "scapula_r",
+              "source_actuator_index": 215,
+              "source_route_node_count": 4
+            }
+          ],
+          "member": "isa_BP3D_4.0_obj_99/FJ1504.obj",
+          "member_id": "FJ1504",
+          "member_sha256": "fdcbfd01f93e2d24bd73f5cb259a311c9f9e90de08c41573439844eef5f605dd",
+          "route_binding": {
+            "binding_body_count": 2,
+            "maximum_vertex_influences": 2,
+            "method": "two_authored_route_endpoint_body_axis_linear_blend"
+          },
+          "stable_id": 85,
+          "triangle_count": 2092,
+          "vertex_count": 2775
+        },
+        {
+          "body_bindings": [
+            {
+              "core_body_index": 41,
+              "myosim_body": "humerus_r"
+            },
+            {
+              "core_body_index": 34,
+              "myosim_body": "scapula_r"
+            }
+          ],
+          "body_weight_count": 2,
+          "endpoint_source": "all_named_authored_myosim_route_endpoints",
+          "label": "right teres minor",
+          "layer": "muscle",
+          "matched_muscles": [
+            {
+              "binding_bodies": [
+                "humerus_r",
+                "scapula_r"
+              ],
+              "name": "TMIN",
+              "primary_body": "humerus_r",
+              "secondary_body": "scapula_r",
+              "source_actuator_index": 216,
+              "source_route_node_count": 3
+            }
+          ],
+          "member": "isa_BP3D_4.0_obj_99/FJ1508.obj",
+          "member_id": "FJ1508",
+          "member_sha256": "f56e595b86cea659891664706cd4443acddd8dc69e4e5bb3855445eef302641a",
+          "route_binding": {
+            "binding_body_count": 2,
+            "maximum_vertex_influences": 2,
+            "method": "two_authored_route_endpoint_body_axis_linear_blend"
+          },
+          "stable_id": 89,
+          "triangle_count": 506,
+          "vertex_count": 392
+        },
+        {
+          "body_bindings": [
+            {
+              "core_body_index": 34,
+              "myosim_body": "scapula_r"
+            },
+            {
+              "core_body_index": 41,
+              "myosim_body": "humerus_r"
+            },
+            {
+              "core_body_index": 42,
+              "myosim_body": "ulna_r"
+            }
+          ],
+          "body_weight_count": 3,
+          "endpoint_source": "all_named_authored_myosim_route_nodes_with_sparse_four_influence_binding",
+          "label": "long head of right triceps brachii",
+          "layer": "muscle",
+          "matched_muscles": [
+            {
+              "binding_bodies": [
+                "scapula_r",
+                "humerus_r",
+                "ulna_r"
+              ],
+              "name": "TRIlong",
+              "primary_body": "scapula_r",
+              "secondary_body": "ulna_r",
+              "source_actuator_index": 225,
+              "source_route_node_count": 8
+            }
+          ],
+          "member": "isa_BP3D_4.0_obj_99/FJ1479.obj",
+          "member_id": "FJ1479",
+          "member_sha256": "acc48f746bd07a117357a9c49a1a9850c96b85d7c63cf90a662a45717875a315",
+          "route_binding": {
+            "authored_world_route_nodes_changed": false,
+            "binding_body_count": 3,
+            "matched_route_count": 1,
+            "maximum_nearest_route_distance_m": 0.058328904632050343,
+            "maximum_vertex_influences": 3,
+            "method": "nearest_exact_myosim_route_nodes_inverse_squared_four_influence",
+            "query_frame": "global_source_atlas_after_named_bone_route_pullback"
+          },
+          "source_topology_cancellation": {
+            "cancelled_opposite_face_pairs": [
+              [
+                1544,
+                1545
+              ]
+            ],
+            "emitted_triangle_count": 1586,
+            "emitted_vertex_count": 1105,
+            "emitted_vertices_compacted": false,
+            "new_faces_added": false,
+            "oriented_source_chain_preserved": true,
+            "removed_unique_visual_support_triangle_count": 1,
+            "removed_visual_support_area_mm2": 0.0003393268925386127,
+            "retained_triangle_count": 1586,
+            "retained_vertex_count": 1099,
+            "source_coordinate_support_preserved": false,
+            "source_triangle_count": 1588,
+            "source_vertex_count": 1105,
+            "vertices_moved": false
+          },
+          "stable_id": 93,
+          "triangle_count": 1586,
+          "vertex_count": 1105
+        },
+        {
+          "body_bindings": [
+            {
+              "core_body_index": 41,
+              "myosim_body": "humerus_r"
+            },
+            {
+              "core_body_index": 42,
+              "myosim_body": "ulna_r"
+            }
+          ],
+          "body_weight_count": 2,
+          "endpoint_source": "all_named_authored_myosim_route_endpoints",
+          "label": "medial head of right triceps brachii",
+          "layer": "muscle",
+          "matched_muscles": [
+            {
+              "binding_bodies": [
+                "humerus_r",
+                "ulna_r"
+              ],
+              "name": "TRImed",
+              "primary_body": "humerus_r",
+              "secondary_body": "ulna_r",
+              "source_actuator_index": 227,
+              "source_route_node_count": 6
+            }
+          ],
+          "member": "isa_BP3D_4.0_obj_99/FJ1480.obj",
+          "member_id": "FJ1480",
+          "member_sha256": "1ea653667afa5ff0bf0e01d71ac648819655241c130e8dd1778ed2f9561c34c5",
+          "route_binding": {
+            "binding_body_count": 2,
+            "maximum_vertex_influences": 2,
+            "method": "two_authored_route_endpoint_body_axis_linear_blend"
+          },
+          "source_topology_cancellation": {
+            "cancelled_opposite_face_pairs": [
+              [
+                728,
+                729
+              ]
+            ],
+            "emitted_triangle_count": 830,
+            "emitted_vertex_count": 620,
+            "emitted_vertices_compacted": false,
+            "new_faces_added": false,
+            "oriented_source_chain_preserved": true,
+            "removed_unique_visual_support_triangle_count": 1,
+            "removed_visual_support_area_mm2": 0.00139243548234655,
+            "retained_triangle_count": 830,
+            "retained_vertex_count": 614,
+            "source_coordinate_support_preserved": false,
+            "source_triangle_count": 832,
+            "source_vertex_count": 620,
+            "vertices_moved": false
+          },
+          "stable_id": 97,
+          "triangle_count": 830,
+          "vertex_count": 620
+        },
+        {
+          "body_bindings": [
+            {
+              "core_body_index": 34,
+              "myosim_body": "scapula_r"
+            },
+            {
+              "core_body_index": 41,
+              "myosim_body": "humerus_r"
+            },
+            {
+              "core_body_index": 43,
+              "myosim_body": "radius_r"
+            }
+          ],
+          "body_weight_count": 3,
+          "endpoint_source": "all_named_authored_myosim_route_nodes_with_sparse_four_influence_binding",
+          "label": "long head of right biceps brachii",
+          "layer": "muscle",
+          "matched_muscles": [
+            {
+              "binding_bodies": [
+                "scapula_r",
+                "humerus_r",
+                "radius_r"
+              ],
+              "name": "BIClong",
+              "primary_body": "scapula_r",
+              "secondary_body": "radius_r",
+              "source_actuator_index": 230,
+              "source_route_node_count": 12
+            }
+          ],
+          "member": "isa_BP3D_4.0_obj_99/FJ1478.obj",
+          "member_id": "FJ1478",
+          "member_sha256": "2442d2b5ac30c5da42e72eeff83d143df51c7617001cbc6552096a504f29bc07",
+          "route_binding": {
+            "authored_world_route_nodes_changed": false,
+            "binding_body_count": 3,
+            "matched_route_count": 1,
+            "maximum_nearest_route_distance_m": 0.059572995275983955,
+            "maximum_vertex_influences": 3,
+            "method": "nearest_exact_myosim_route_nodes_inverse_squared_four_influence",
+            "query_frame": "global_source_atlas_after_named_bone_route_pullback"
+          },
+          "source_topology_cancellation": {
+            "cancelled_opposite_face_pairs": [
+              [
+                378,
+                379
+              ]
+            ],
+            "emitted_triangle_count": 1424,
+            "emitted_vertex_count": 1053,
+            "emitted_vertices_compacted": false,
+            "new_faces_added": false,
+            "oriented_source_chain_preserved": true,
+            "removed_unique_visual_support_triangle_count": 1,
+            "removed_visual_support_area_mm2": 0.028983683068920556,
+            "retained_triangle_count": 1424,
+            "retained_vertex_count": 1047,
+            "source_coordinate_support_preserved": false,
+            "source_triangle_count": 1426,
+            "source_vertex_count": 1053,
+            "vertices_moved": false
+          },
+          "stable_id": 103,
+          "triangle_count": 1424,
+          "vertex_count": 1053
+        },
+        {
+          "body_bindings": [
+            {
+              "core_body_index": 91,
+              "myosim_body": "humerus_l"
+            },
+            {
+              "core_body_index": 93,
+              "myosim_body": "radius_l"
+            },
+            {
+              "core_body_index": 97,
+              "myosim_body": "pisiform_l"
+            },
+            {
+              "core_body_index": 122,
+              "myosim_body": "fifthmc_l"
+            }
+          ],
+          "body_weight_count": 4,
+          "endpoint_source": "all_named_authored_myosim_route_nodes_with_sparse_four_influence_binding",
+          "label": "humeral head of left flexor carpi ulnaris",
+          "layer": "muscle",
+          "matched_muscles": [
+            {
+              "binding_bodies": [
+                "humerus_l",
+                "radius_l",
+                "pisiform_l",
+                "fifthmc_l"
+              ],
+              "name": "FCU_l",
+              "primary_body": "humerus_l",
+              "secondary_body": "fifthmc_l",
+              "source_actuator_index": 301,
+              "source_route_node_count": 6
+            }
+          ],
+          "member": "isa_BP3D_4.0_obj_99/FJ1473M.obj",
+          "member_id": "FJ1473M",
+          "member_sha256": "d5f425f4b708deeed63146f31f6e399d7acb180c685df4bee45204154c8fb00f",
+          "route_binding": {
+            "authored_world_route_nodes_changed": false,
+            "binding_body_count": 4,
+            "matched_route_count": 1,
+            "maximum_nearest_route_distance_m": 0.10110721699682723,
+            "maximum_vertex_influences": 4,
+            "method": "nearest_exact_myosim_route_nodes_inverse_squared_four_influence",
+            "query_frame": "global_source_atlas_after_named_bone_route_pullback"
+          },
+          "stable_id": 120,
+          "triangle_count": 2656,
+          "vertex_count": 1884
+        },
+        {
+          "body_bindings": [
+            {
+              "core_body_index": 91,
+              "myosim_body": "humerus_l"
+            },
+            {
+              "core_body_index": 93,
+              "myosim_body": "radius_l"
+            },
+            {
+              "core_body_index": 97,
+              "myosim_body": "pisiform_l"
+            },
+            {
+              "core_body_index": 122,
+              "myosim_body": "fifthmc_l"
+            }
+          ],
+          "body_weight_count": 4,
+          "endpoint_source": "all_named_authored_myosim_route_nodes_with_sparse_four_influence_binding",
+          "label": "ulnar head of left flexor carpi ulnaris",
+          "layer": "muscle",
+          "matched_muscles": [
+            {
+              "binding_bodies": [
+                "humerus_l",
+                "radius_l",
+                "pisiform_l",
+                "fifthmc_l"
+              ],
+              "name": "FCU_l",
+              "primary_body": "humerus_l",
+              "secondary_body": "fifthmc_l",
+              "source_actuator_index": 301,
+              "source_route_node_count": 6
+            }
+          ],
+          "member": "isa_BP3D_4.0_obj_99/FJ1518M.obj",
+          "member_id": "FJ1518M",
+          "member_sha256": "d3e731fc29ac9b42f06eb0a7c49979c7568813587c2b982e6c948163c02dccb8",
+          "route_binding": {
+            "authored_world_route_nodes_changed": false,
+            "binding_body_count": 4,
+            "matched_route_count": 1,
+            "maximum_nearest_route_distance_m": 0.10182163984901088,
+            "maximum_vertex_influences": 4,
+            "method": "nearest_exact_myosim_route_nodes_inverse_squared_four_influence",
+            "query_frame": "global_source_atlas_after_named_bone_route_pullback"
+          },
+          "stable_id": 122,
+          "triangle_count": 1538,
+          "vertex_count": 1717
+        },
+        {
+          "body_bindings": [
+            {
+              "core_body_index": 92,
+              "myosim_body": "ulna_l"
+            },
+            {
+              "core_body_index": 93,
+              "myosim_body": "radius_l"
+            },
+            {
+              "core_body_index": 95,
+              "myosim_body": "lunate_l"
+            },
+            {
+              "core_body_index": 99,
+              "myosim_body": "capitate_l"
+            },
+            {
+              "core_body_index": 107,
+              "myosim_body": "secondmc_l"
+            },
+            {
+              "core_body_index": 109,
+              "myosim_body": "2proxph_l"
+            },
+            {
+              "core_body_index": 110,
+              "myosim_body": "midph2_l"
+            },
+            {
+              "core_body_index": 112,
+              "myosim_body": "thirdmc_l"
+            },
+            {
+              "core_body_index": 114,
+              "myosim_body": "3proxph_l"
+            },
+            {
+              "core_body_index": 115,
+              "myosim_body": "midph3_l"
+            },
+            {
+              "core_body_index": 91,
+              "myosim_body": "humerus_l"
+            },
+            {
+              "core_body_index": 117,
+              "myosim_body": "fourthmc_l"
+            },
+            {
+              "core_body_index": 119,
+              "myosim_body": "4proxph_l"
+            },
+            {
+              "core_body_index": 120,
+              "myosim_body": "midph4_l"
+            },
+            {
+              "core_body_index": 122,
+              "myosim_body": "fifthmc_l"
+            },
+            {
+              "core_body_index": 124,
+              "myosim_body": "5proxph_l"
+            },
+            {
+              "core_body_index": 125,
+              "myosim_body": "midph5_l"
+            }
+          ],
+          "body_weight_count": 17,
+          "endpoint_source": "all_named_authored_myosim_route_nodes_with_sparse_four_influence_binding",
+          "label": "left flexor digitorum superficialis",
+          "layer": "muscle",
+          "matched_muscles": [
+            {
+              "binding_bodies": [
+                "ulna_l",
+                "radius_l",
+                "lunate_l",
+                "capitate_l",
+                "secondmc_l",
+                "2proxph_l",
+                "midph2_l"
+              ],
+              "name": "FDS2_l",
+              "primary_body": "ulna_l",
+              "secondary_body": "midph2_l",
+              "source_actuator_index": 308,
+              "source_route_node_count": 9
+            },
+            {
+              "binding_bodies": [
+                "ulna_l",
+                "radius_l",
+                "lunate_l",
+                "capitate_l",
+                "thirdmc_l",
+                "3proxph_l",
+                "midph3_l"
+              ],
+              "name": "FDS3_l",
+              "primary_body": "ulna_l",
+              "secondary_body": "midph3_l",
+              "source_actuator_index": 307,
+              "source_route_node_count": 8
+            },
+            {
+              "binding_bodies": [
+                "humerus_l",
+                "radius_l",
+                "lunate_l",
+                "capitate_l",
+                "thirdmc_l",
+                "fourthmc_l",
+                "4proxph_l",
+                "midph4_l"
+              ],
+              "name": "FDS4_l",
+              "primary_body": "humerus_l",
+              "secondary_body": "midph4_l",
+              "source_actuator_index": 306,
+              "source_route_node_count": 10
+            },
+            {
+              "binding_bodies": [
+                "humerus_l",
+                "radius_l",
+                "lunate_l",
+                "capitate_l",
+                "fourthmc_l",
+                "fifthmc_l",
+                "5proxph_l",
+                "midph5_l"
+              ],
+              "name": "FDS5_l",
+              "primary_body": "humerus_l",
+              "secondary_body": "midph5_l",
+              "source_actuator_index": 305,
+              "source_route_node_count": 10
+            }
+          ],
+          "member": "isa_BP3D_4.0_obj_99/FJ1475M.obj",
+          "member_id": "FJ1475M",
+          "member_sha256": "9174a210f8b7ce149355545208551a4d001f6c78570256a8596d3410023fb1ec",
+          "route_binding": {
+            "authored_world_route_nodes_changed": false,
+            "binding_body_count": 17,
+            "matched_route_count": 4,
+            "maximum_nearest_route_distance_m": 0.08810956572593445,
+            "maximum_vertex_influences": 4,
+            "method": "nearest_exact_myosim_route_nodes_inverse_squared_four_influence",
+            "query_frame": "global_source_atlas_after_named_bone_route_pullback"
+          },
+          "stable_id": 132,
+          "triangle_count": 8698,
+          "vertex_count": 6106
+        }
+      ]
+    },
+    "status": "native_route_body_sparse_kinematic_surface_binding_input_not_collision_or_physics"
+  },
+  "manifest_sha256": "fb7e71285b61d488441a8516ead3fb480f41de4b8e5a8c2f148b5d2ba608f33a",
+  "model_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/src/numilab_human/model.py",
+  "model_sha256": "5bd314fa7ceaebc6c0e72a0115befdda7a19e11b081bc2009cd2a1e94ce01483",
+  "myosim_artifact_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/recovered-artifact",
+  "payload_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/compiler-12bank-001/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "payload_sha256": "3124bb7b711b7e64bc769834946485bb6c0e27a94ab57f4227fc06e6c7a7d414",
+  "physical_admission": false,
+  "raw_nhtiss_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "raw_nhtiss_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "schema": "numi.human.physical-O-source-route-12-bank-emission.001.v1",
+  "scope": "Source-only 385 compiler emission of the 12 banks implicated by the 26 physical-O inside witnesses; no physics or native promotion.",
+  "source_registration_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/brachio109-local810-existing-full-parent-source-853b/assets/candidate-current-source.json",
+  "source_registration_sha256": "31c77660a16e8688fe68489eadff9d3861ceb27ed3b73d0288bda330d2a13b8c",
+  "stable_ids": [
+    75,
+    79,
+    81,
+    83,
+    85,
+    89,
+    93,
+    97,
+    103,
+    120,
+    122,
+    132
+  ]
+}

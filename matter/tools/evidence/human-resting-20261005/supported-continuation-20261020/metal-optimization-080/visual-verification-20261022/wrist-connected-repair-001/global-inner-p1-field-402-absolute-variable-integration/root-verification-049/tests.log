@@ -1,0 +1,18 @@
+test_actual_399_partial_witness_is_pinned_to_398_and_conflicts (test_absolute_field_402.AbsoluteFieldTests.test_actual_399_partial_witness_is_pinned_to_398_and_conflicts) ... ok
+test_actual_fixture_fixed_O_conflict (test_absolute_field_402.AbsoluteFieldTests.test_actual_fixture_fixed_O_conflict) ... ok
+test_all_fixed_satisfied_skips_empty_lp (test_absolute_field_402.AbsoluteFieldTests.test_all_fixed_satisfied_skips_empty_lp) ... ok
+test_corrupted_success_vector_is_rejected (test_absolute_field_402.AbsoluteFieldTests.test_corrupted_success_vector_is_rejected) ... ok
+test_current_producer_uses_398_and_no_legacy_constraint_parts (test_absolute_field_402.AbsoluteFieldTests.test_current_producer_uses_398_and_no_legacy_constraint_parts) ... ok
+test_finite_but_constraint_violating_success_is_rejected (test_absolute_field_402.AbsoluteFieldTests.test_finite_but_constraint_violating_success_is_rejected) ... ok
+test_fixed_support_conflict (test_absolute_field_402.AbsoluteFieldTests.test_fixed_support_conflict) ... ok
+test_max_value_validation_precedes_initializer_bounds (test_absolute_field_402.AbsoluteFieldTests.test_max_value_validation_precedes_initializer_bounds) ... ok
+test_noninteger_identity_rows_are_rejected (test_absolute_field_402.AbsoluteFieldTests.test_noninteger_identity_rows_are_rejected) ... ok
+test_reactivation_finds_skipped_cell_after_decrease (test_absolute_field_402.AbsoluteFieldTests.test_reactivation_finds_skipped_cell_after_decrease) ... ok
+test_reactivation_rejects_nonfinite_inputs (test_absolute_field_402.AbsoluteFieldTests.test_reactivation_rejects_nonfinite_inputs) ... ok
+test_solver_preserves_explicit_fixed_values (test_absolute_field_402.AbsoluteFieldTests.test_solver_preserves_explicit_fixed_values) ... ok
+test_weighted_minimum_can_lower_initializer (test_absolute_field_402.AbsoluteFieldTests.test_weighted_minimum_can_lower_initializer) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.048s
+
+OK

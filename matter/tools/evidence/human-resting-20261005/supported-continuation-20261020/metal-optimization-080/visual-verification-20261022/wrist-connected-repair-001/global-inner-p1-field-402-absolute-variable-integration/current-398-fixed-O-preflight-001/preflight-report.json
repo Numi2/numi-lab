@@ -1,0 +1,94 @@
+{
+  "elapsed_s": 0.28141762502491474,
+  "fixed_O_witness": {
+    "bank_id": 4,
+    "bank_local_face_row": 2562,
+    "bank_stable_id": 5,
+    "barycentric": [
+      0.7473772446181974,
+      0.0,
+      0.25262275538180257,
+      0.0
+    ],
+    "capacity": 0.0,
+    "flat_bank_face_row": 16346,
+    "positive_support_nodes": [
+      9451,
+      9473
+    ],
+    "solver_precheck": {
+      "conflict_rows": [
+        0
+      ],
+      "conflict_tet_ids": [
+        88190
+      ],
+      "constraints": 1,
+      "initializer_as_lower_bound": false,
+      "minimum_capacity": 0.0,
+      "pass": false,
+      "status": "fixed_support_conflict",
+      "target": 0.341
+    },
+    "target": 0.341,
+    "tet_nodes": [
+      9451,
+      9471,
+      9473,
+      27269
+    ],
+    "tet_row": 88190,
+    "world_m": [
+      -0.04637068259356838,
+      -1.493767143328421,
+      0.10053062839173255
+    ]
+  },
+  "full_scene_solve_run": false,
+  "geometry": {
+    "398_file_sha256": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+    "399_cache_sha256": "43b275328f2d49041611002ec45c3316511d123da16e49c868eeff3bf5a9e374",
+    "physical_outer_nodes": 18219,
+    "point_rows_bitwise_equal": true,
+    "points": 49951,
+    "tetrahedra_bitwise_equal": true,
+    "tets": 211439
+  },
+  "initializer": {
+    "395_file_sha256": "fd11505dbeaec0decf8b71fde1dc3f62c1e224bd9e039646b40dd3f9fcd0ef18",
+    "399_cached_initializer_sha256": "fd11505dbeaec0decf8b71fde1dc3f62c1e224bd9e039646b40dd3f9fcd0ef18",
+    "status": "unsolved initializer only; never a lower bound or objective",
+    "values_bitwise_equal_to_399_cache": true
+  },
+  "input_sha256": {
+    "395": "fd11505dbeaec0decf8b71fde1dc3f62c1e224bd9e039646b40dd3f9fcd0ef18",
+    "398": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+    "399_builder_current": "1cf9e1ccc0ea4e8f4a0d10140259ef43f1b171bc0b0de0bba14bc4b5cb65597c",
+    "399_cache": "43b275328f2d49041611002ec45c3316511d123da16e49c868eeff3bf5a9e374",
+    "399_partial_checkpoint": "362b43d1a3adf8e009988e7bba6e4b7e8547c33976236e28a2f5d8ae4763f7fe",
+    "399_partial_report": "6e210c39df084c38918ac33f277954d70128382f8930231defdc4e853efd2f2e",
+    "absolute_solver_402": "3a3ccbb93efa463f15575c4e9d96aef50576be9784ca1928ec741e3fefd8f446",
+    "registered_banks": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "robust_clip_302_current": "e1b5a246e531a16d8d2438b8569d31a27c9a10712f0de063084bed87db58c436"
+  },
+  "limitations": [
+    "399 chunks are partial and used only for a witness, not as complete coverage.",
+    "399 run output did not store the executed builder/helper hashes; current source and helper are pinned here and the selected witness was independently replayed.",
+    "No obstacle LP, level extraction, material-volume generation, or physical field admission was run.",
+    "A successful obstacle LP with only sampled surface constraints would still not certify a physically valid closed-solid skin/fat field."
+  ],
+  "partial_399": {
+    "all_chunk_sha256_verified": true,
+    "bank_cache_sha256": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "bank_count": 689,
+    "coverage": "partial only; not all-bank constraint coverage",
+    "helper_302_sha256_current": "e1b5a246e531a16d8d2438b8569d31a27c9a10712f0de063084bed87db58c436",
+    "partial_chunk_count": 46,
+    "partial_polygon_count": 541447,
+    "producer_source_sha256_current": "1cf9e1ccc0ea4e8f4a0d10140259ef43f1b171bc0b0de0bba14bc4b5cb65597c",
+    "witness_polygon_replayed_with_current_helper": true
+  },
+  "reused_legacy_parts": false,
+  "schema": "numi.global-p1-absolute-field-402-current-398-preflight.v1",
+  "status": "blocked_before_clipping_or_LP_by_verified_fixed_physical_O_witness"
+}

@@ -1,0 +1,70 @@
+{
+  "current_geometry": {
+    "398_candidate": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/local-quality-cavities-398/candidate-with-transfer.npz",
+    "points": 49951,
+    "sha256": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+    "tets": 211439
+  },
+  "first_blocker": {
+    "fixed_capacity": 0.0,
+    "interpretation": "the supplied fixed-physical-O boundary and registered soft-tissue intersection make this current P1 obstacle row infeasible; producer exits before clipping/LP",
+    "physical_outer_support_nodes": [
+      9451,
+      9473
+    ],
+    "report": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-402-absolute-variable-integration/current-398-fixed-O-preflight-002/preflight-report.json",
+    "report_sha256": "d06881738cc181398fcbfd8ffaea2d53283ca5e62ca4a8a3dbe096f03baf2cd6",
+    "required_level": 0.341,
+    "tet_row": 88190
+  },
+  "initializer": {
+    "395_file": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/p1-interior-face-support-395/refined-background-unsolved-initializer.npz",
+    "semantics": "unsolved diagnostic initializer only; not a lower bound, fixed condition, or objective term",
+    "sha256": "fd11505dbeaec0decf8b71fde1dc3f62c1e224bd9e039646b40dd3f9fcd0ef18"
+  },
+  "legacy_producer": {
+    "preserved_at": "superseded-legacy-311-producer-001/build_global_p1_402.py",
+    "sha256": "3e68e39468ea200bfe3e5ef67917dd63dbca6c538167662ed65bf593d68d8645",
+    "status": "superseded; it consumed legacy 293/296b/310 inputs and is not run by current producer"
+  },
+  "limitations": [
+    "No all-bank solve, level extraction, skin/fat material volume, or native run was performed.",
+    "Partial 399 chunks are not all-domain coverage and their executed builder/helper hashes were not stored; only the selected witness was replayed.",
+    "395 inside_closed_union flags are diagnostics only and are not certified solid-interior constraints; interior pockets remain possible even if a later sampled-surface LP passes.",
+    "Current fixed-O conflict must be repaired or the physical boundary/material model revised before a field solve."
+  ],
+  "partial_constraints": {
+    "399_cache_sha256": "43b275328f2d49041611002ec45c3316511d123da16e49c868eeff3bf5a9e374",
+    "all_bank_coverage": false,
+    "chunks_verified": 46,
+    "current_clip_helper_302_sha256": "e1b5a246e531a16d8d2438b8569d31a27c9a10712f0de063084bed87db58c436",
+    "executed_builder_helper_hash_caveat": "399 run output did not retain executed source/helper hashes; current source paths are checked and the selected witness polygon is independently replayed",
+    "partial_checkpoint_sha256": "362b43d1a3adf8e009988e7bba6e4b7e8547c33976236e28a2f5d8ae4763f7fe",
+    "partial_report_sha256": "6e210c39df084c38918ac33f277954d70128382f8930231defdc4e853efd2f2e",
+    "registered_banks_sha256": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "source": "global-inner-p1-field-399-398-refresh/run-002/constraint-parts",
+    "use": "single fixed-O witness only after current 398/395 identity checks and exact replay with current helper 302"
+  },
+  "producer": "build_global_p1_402.py",
+  "producer_sha256": "54457e176a3a270d3ff585cbbd0fa517bff10be31973b1571913568df39a3768",
+  "run_receipt": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-field-402-absolute-variable-integration/current-398-fixed-O-preflight-002/preflight-report.json",
+  "schema": "numi.global-p1-absolute-variable-integration.402.v2",
+  "solver": "absolute_field_402.py",
+  "solver_semantics": {
+    "constraint_assembly": "vectorized four-corner COO/CSR",
+    "empty_free_case": "already-satisfied fixed constraints return directly without empty LP",
+    "fixed_values": "explicit physical O = 0",
+    "objective": "existing weighted minimum c^T phi from 311",
+    "postsolve": "finite bounds and all supplied barycentric rows rechecked",
+    "variables": "absolute nodal phi in [0,1]"
+  },
+  "solver_sha256": "3a3ccbb93efa463f15575c4e9d96aef50576be9784ca1928ec741e3fefd8f446",
+  "status": "current-398-source-preflight-tested; physical field blocked by verified fixed-O witness",
+  "test_result": {
+    "elapsed_s": 0.036,
+    "failed": 0,
+    "passed": 13
+  },
+  "tests": "test_absolute_field_402.py",
+  "tests_sha256": "ee882af6681a028b3856d427e7acd7a6bff3352e6c2803836a2a29d687a47ec1"
+}

@@ -1,0 +1,660 @@
+{
+  "schema": "numi.human.nhtiss.route-weight-counterfactual.v1",
+  "source_payload_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "source_payload_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "source_manifest_sha256": "ffe60f996e92325ce21123da86e259a02a9aaed1a874373a0e71721a2ceba07b",
+  "registration_sha256": "31c77660a16e8688fe68489eadff9d3861ceb27ed3b73d0288bda330d2a13b8c",
+  "source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+  "producer_helper_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/src/numilab_human/model.py",
+  "producer_helper_sha256": "5bd314fa7ceaebc6c0e72a0115befdda7a19e11b081bc2009cd2a1e94ce01483",
+  "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/corrected-12-bank-route-candidate-001/output/corrected-route-weights-candidate-12.nhtissue",
+  "candidate_sha256": "b2d36c825528dedae0394dfa846bae64e9d5793bdac88f2a28133fc9c44c2c67",
+  "candidate_size_bytes": 36357012,
+  "abi": 5,
+  "rows": [
+    {
+      "stable_id": 75,
+      "member_id": "FJ1467",
+      "label": "acromial part of right deltoid",
+      "vertex_count": 1902,
+      "face_count": 2634,
+      "body_bindings": [
+        "humerus_r",
+        "scapula_r",
+        "radius_r",
+        "chest_r",
+        "clavicle_r"
+      ],
+      "route_names": [
+        "DELT2"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.030953067721939734,
+        "p95": 0.05815341200251892,
+        "max": 0.07569665577781351
+      },
+      "active_route_body_count_minmax": [
+        2,
+        2
+      ],
+      "changed_vertices": 1902,
+      "vertices_with_binding_index_changes": 1260,
+      "vertices_with_weight_changes": 1902,
+      "max_abs_fullvector_weight_delta": 0.6890110027228208,
+      "default_body_pose_displacement_mm": {
+        "p50": 2.2007529636736805,
+        "p95": 20.626961443506843,
+        "max": 26.128469628305112
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 2634,
+        "min_area_ratio": 0.062442403430858245,
+        "p01_area_ratio": 0.5702611911898394,
+        "min_normal_cosine": -0.9995468516648391,
+        "zero_area_faces": 0,
+        "reversed_faces": 121
+      },
+      "digit_binding_counts": {}
+    },
+    {
+      "stable_id": 79,
+      "member_id": "FJ1513",
+      "label": "spinal part of right deltoid",
+      "vertex_count": 1665,
+      "face_count": 1866,
+      "body_bindings": [
+        "scapula_r",
+        "humerus_r"
+      ],
+      "route_names": [
+        "DELT3"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.06132138005945191,
+        "p95": 0.0753652728274962,
+        "max": 0.07688383170419695
+      },
+      "active_route_body_count_minmax": [
+        2,
+        2
+      ],
+      "changed_vertices": 1665,
+      "vertices_with_binding_index_changes": 196,
+      "vertices_with_weight_changes": 1665,
+      "max_abs_fullvector_weight_delta": 0.4464890466660836,
+      "default_body_pose_displacement_mm": {
+        "p50": 11.074510996146966,
+        "p95": 14.122382784662078,
+        "max": 14.383658809185992
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 1866,
+        "min_area_ratio": 0.6326160669983548,
+        "p01_area_ratio": 0.7602729997938462,
+        "min_normal_cosine": 0.6245028561258935,
+        "zero_area_faces": 0,
+        "reversed_faces": 0
+      },
+      "digit_binding_counts": {}
+    },
+    {
+      "stable_id": 81,
+      "member_id": "FJ1506",
+      "label": "right supraspinatus",
+      "vertex_count": 569,
+      "face_count": 1126,
+      "body_bindings": [
+        "humerus_r",
+        "scapula_r"
+      ],
+      "route_names": [
+        "SUPSP"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.025645702600867976,
+        "p95": 0.05803830593429021,
+        "max": 0.06386040487971127
+      },
+      "active_route_body_count_minmax": [
+        2,
+        2
+      ],
+      "changed_vertices": 569,
+      "vertices_with_binding_index_changes": 204,
+      "vertices_with_weight_changes": 569,
+      "max_abs_fullvector_weight_delta": 0.3908423932593515,
+      "default_body_pose_displacement_mm": {
+        "p50": 8.100126295556672,
+        "p95": 18.48984315620073,
+        "max": 19.436079661082996
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 1126,
+        "min_area_ratio": 0.26664442804222105,
+        "p01_area_ratio": 0.8508848484517793,
+        "min_normal_cosine": -0.901680211016864,
+        "zero_area_faces": 0,
+        "reversed_faces": 6
+      },
+      "digit_binding_counts": {}
+    },
+    {
+      "stable_id": 83,
+      "member_id": "FJ1500",
+      "label": "right infraspinatus muscle",
+      "vertex_count": 743,
+      "face_count": 866,
+      "body_bindings": [
+        "humerus_r",
+        "scapula_r"
+      ],
+      "route_names": [
+        "INFSP"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.04452820097829875,
+        "p95": 0.11474093832553257,
+        "max": 0.11878281066499075
+      },
+      "active_route_body_count_minmax": [
+        2,
+        2
+      ],
+      "changed_vertices": 743,
+      "vertices_with_binding_index_changes": 529,
+      "vertices_with_weight_changes": 743,
+      "max_abs_fullvector_weight_delta": 0.7499262418223396,
+      "default_body_pose_displacement_mm": {
+        "p50": 18.927488426568626,
+        "p95": 33.33083353766506,
+        "max": 35.65084944908316
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 866,
+        "min_area_ratio": 0.4695436051318048,
+        "p01_area_ratio": 0.6309480724324086,
+        "min_normal_cosine": -0.04505156487675511,
+        "zero_area_faces": 0,
+        "reversed_faces": 1
+      },
+      "digit_binding_counts": {}
+    },
+    {
+      "stable_id": 85,
+      "member_id": "FJ1504",
+      "label": "right subscapularis",
+      "vertex_count": 1109,
+      "face_count": 2310,
+      "body_bindings": [
+        "humerus_r",
+        "scapula_r",
+        "chest_r"
+      ],
+      "route_names": [
+        "SUBSC"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.06858347965501721,
+        "p95": 0.13346314745377963,
+        "max": 0.13672753258373457
+      },
+      "active_route_body_count_minmax": [
+        2,
+        2
+      ],
+      "changed_vertices": 1109,
+      "vertices_with_binding_index_changes": 432,
+      "vertices_with_weight_changes": 1109,
+      "max_abs_fullvector_weight_delta": 0.6237632371775027,
+      "default_body_pose_displacement_mm": {
+        "p50": 7.649116997220914,
+        "p95": 27.004707684719698,
+        "max": 30.483080479902355
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 2310,
+        "min_area_ratio": 0.41502789003713664,
+        "p01_area_ratio": 0.7946113322782291,
+        "min_normal_cosine": -0.9040424425471535,
+        "zero_area_faces": 0,
+        "reversed_faces": 40
+      },
+      "digit_binding_counts": {}
+    },
+    {
+      "stable_id": 89,
+      "member_id": "FJ1508",
+      "label": "right teres minor",
+      "vertex_count": 392,
+      "face_count": 506,
+      "body_bindings": [
+        "humerus_r",
+        "scapula_r"
+      ],
+      "route_names": [
+        "TMIN"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.06941722116449374,
+        "p95": 0.09071284173665663,
+        "max": 0.09117567902079536
+      },
+      "active_route_body_count_minmax": [
+        2,
+        2
+      ],
+      "changed_vertices": 392,
+      "vertices_with_binding_index_changes": 365,
+      "vertices_with_weight_changes": 392,
+      "max_abs_fullvector_weight_delta": 0.9425723422202823,
+      "default_body_pose_displacement_mm": {
+        "p50": 23.447753514788584,
+        "p95": 34.91720586223077,
+        "max": 35.29717910620581
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 506,
+        "min_area_ratio": 0.8670466963341805,
+        "p01_area_ratio": 0.8998102148036289,
+        "min_normal_cosine": -0.07542261162986623,
+        "zero_area_faces": 0,
+        "reversed_faces": 1
+      },
+      "digit_binding_counts": {}
+    },
+    {
+      "stable_id": 93,
+      "member_id": "FJ1479",
+      "label": "long head of right triceps brachii",
+      "vertex_count": 839,
+      "face_count": 1674,
+      "body_bindings": [
+        "scapula_r",
+        "humerus_r",
+        "ulna_r",
+        "chest_r"
+      ],
+      "route_names": [
+        "TRIlong"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.02435291479655307,
+        "p95": 0.052505943491993036,
+        "max": 0.05832893042605226
+      },
+      "active_route_body_count_minmax": [
+        3,
+        3
+      ],
+      "changed_vertices": 839,
+      "vertices_with_binding_index_changes": 111,
+      "vertices_with_weight_changes": 839,
+      "max_abs_fullvector_weight_delta": 0.47129589241212944,
+      "default_body_pose_displacement_mm": {
+        "p50": 3.4724775387136146,
+        "p95": 16.167755194150583,
+        "max": 18.966331995160015
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 1674,
+        "min_area_ratio": 0.10047239519771396,
+        "p01_area_ratio": 0.473450437401305,
+        "min_normal_cosine": -0.9966875830122026,
+        "zero_area_faces": 0,
+        "reversed_faces": 34
+      },
+      "digit_binding_counts": {}
+    },
+    {
+      "stable_id": 97,
+      "member_id": "FJ1480",
+      "label": "medial head of right triceps brachii",
+      "vertex_count": 433,
+      "face_count": 862,
+      "body_bindings": [
+        "humerus_r",
+        "ulna_r",
+        "scapula_r",
+        "chest_r"
+      ],
+      "route_names": [
+        "TRImed"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.022739557904403882,
+        "p95": 0.05774035709675153,
+        "max": 0.07119685021136561
+      },
+      "active_route_body_count_minmax": [
+        2,
+        2
+      ],
+      "changed_vertices": 433,
+      "vertices_with_binding_index_changes": 238,
+      "vertices_with_weight_changes": 433,
+      "max_abs_fullvector_weight_delta": 0.8015458696126209,
+      "default_body_pose_displacement_mm": {
+        "p50": 6.8681730322168955,
+        "p95": 16.505595891253186,
+        "max": 18.45469638209003
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 862,
+        "min_area_ratio": 0.4478942170748817,
+        "p01_area_ratio": 0.6979458992843675,
+        "min_normal_cosine": -0.46645687171823746,
+        "zero_area_faces": 0,
+        "reversed_faces": 7
+      },
+      "digit_binding_counts": {}
+    },
+    {
+      "stable_id": 103,
+      "member_id": "FJ1478",
+      "label": "long head of right biceps brachii",
+      "vertex_count": 1999,
+      "face_count": 3992,
+      "body_bindings": [
+        "scapula_r",
+        "humerus_r",
+        "radius_r",
+        "chest_r",
+        "clavicle_r"
+      ],
+      "route_names": [
+        "BIClong"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.021000515024071787,
+        "p95": 0.06888471985979618,
+        "max": 0.08825247086362217
+      },
+      "active_route_body_count_minmax": [
+        3,
+        3
+      ],
+      "changed_vertices": 1999,
+      "vertices_with_binding_index_changes": 1432,
+      "vertices_with_weight_changes": 1999,
+      "max_abs_fullvector_weight_delta": 0.48798309114149896,
+      "default_body_pose_displacement_mm": {
+        "p50": 1.857252712118053,
+        "p95": 15.326366913083373,
+        "max": 18.56237376132956
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 3992,
+        "min_area_ratio": 0.09545709072667444,
+        "p01_area_ratio": 0.5469324832248543,
+        "min_normal_cosine": -0.9999162198103129,
+        "zero_area_faces": 0,
+        "reversed_faces": 235
+      },
+      "digit_binding_counts": {}
+    },
+    {
+      "stable_id": 120,
+      "member_id": "FJ1473M",
+      "label": "humeral head of left flexor carpi ulnaris",
+      "vertex_count": 1884,
+      "face_count": 2656,
+      "body_bindings": [
+        "humerus_l",
+        "radius_l",
+        "pisiform_l",
+        "fifthmc_l"
+      ],
+      "route_names": [
+        "FCU_l"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.018329046853517626,
+        "p95": 0.09316493819942064,
+        "max": 0.10110722374303432
+      },
+      "active_route_body_count_minmax": [
+        4,
+        4
+      ],
+      "changed_vertices": 1884,
+      "vertices_with_binding_index_changes": 817,
+      "vertices_with_weight_changes": 1884,
+      "max_abs_fullvector_weight_delta": 0.5682473686601693,
+      "default_body_pose_displacement_mm": {
+        "p50": 20.658625907515916,
+        "p95": 39.32211633269246,
+        "max": 40.71610650428545
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 2656,
+        "min_area_ratio": 0.07314328593699608,
+        "p01_area_ratio": 0.34272276385467104,
+        "min_normal_cosine": -0.9818303428276498,
+        "zero_area_faces": 0,
+        "reversed_faces": 189
+      },
+      "digit_binding_counts": {
+        "fifthmc_l": {
+          "old_nonzero": 1884,
+          "new_nonzero": 1884,
+          "old_mean": 0.16411930116016077,
+          "new_mean": 0.13378722966464637
+        }
+      }
+    },
+    {
+      "stable_id": 122,
+      "member_id": "FJ1518M",
+      "label": "ulnar head of left flexor carpi ulnaris",
+      "vertex_count": 771,
+      "face_count": 1582,
+      "body_bindings": [
+        "humerus_l",
+        "radius_l",
+        "pisiform_l",
+        "fifthmc_l"
+      ],
+      "route_names": [
+        "FCU_l"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.06353084245028237,
+        "p95": 0.0949184484696951,
+        "max": 0.10182165681780178
+      },
+      "active_route_body_count_minmax": [
+        4,
+        4
+      ],
+      "changed_vertices": 771,
+      "vertices_with_binding_index_changes": 344,
+      "vertices_with_weight_changes": 771,
+      "max_abs_fullvector_weight_delta": 0.3208130735267779,
+      "default_body_pose_displacement_mm": {
+        "p50": 19.2337159221708,
+        "p95": 35.995646576115334,
+        "max": 39.88776321101901
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 1582,
+        "min_area_ratio": 0.15244871962892007,
+        "p01_area_ratio": 0.49129645478182477,
+        "min_normal_cosine": 0.15492098315826547,
+        "zero_area_faces": 0,
+        "reversed_faces": 0
+      },
+      "digit_binding_counts": {
+        "fifthmc_l": {
+          "old_nonzero": 771,
+          "new_nonzero": 771,
+          "old_mean": 0.12304469646859416,
+          "new_mean": 0.08632904298396608
+        }
+      }
+    },
+    {
+      "stable_id": 132,
+      "member_id": "FJ1475M",
+      "label": "left flexor digitorum superficialis",
+      "vertex_count": 14710,
+      "face_count": 29412,
+      "body_bindings": [
+        "ulna_l",
+        "radius_l",
+        "lunate_l",
+        "capitate_l",
+        "secondmc_l",
+        "2proxph_l",
+        "midph2_l",
+        "thirdmc_l",
+        "3proxph_l",
+        "midph3_l",
+        "humerus_l",
+        "fourthmc_l",
+        "4proxph_l",
+        "midph4_l",
+        "fifthmc_l",
+        "5proxph_l",
+        "midph5_l"
+      ],
+      "route_names": [
+        "FDS2_l",
+        "FDS3_l",
+        "FDS4_l",
+        "FDS5_l"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.024354980540885064,
+        "p95": 0.06300524602275401,
+        "max": 0.08837997699773985
+      },
+      "active_route_body_count_minmax": [
+        4,
+        4
+      ],
+      "changed_vertices": 14710,
+      "vertices_with_binding_index_changes": 13554,
+      "vertices_with_weight_changes": 14710,
+      "max_abs_fullvector_weight_delta": 1.0,
+      "default_body_pose_displacement_mm": {
+        "p50": 10.188828049801963,
+        "p95": 40.08053360802363,
+        "max": 46.664447036575964
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 29412,
+        "min_area_ratio": 0.04450810206807202,
+        "p01_area_ratio": 0.46252170942511356,
+        "min_normal_cosine": -0.9999648046446596,
+        "zero_area_faces": 0,
+        "reversed_faces": 4159
+      },
+      "digit_binding_counts": {
+        "fourthmc_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 7780,
+          "old_mean": 0.0,
+          "new_mean": 0.0886686042637171
+        },
+        "4proxph_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 2404,
+          "old_mean": 0.0,
+          "new_mean": 0.04623289753112052
+        },
+        "midph4_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 433,
+          "old_mean": 0.0,
+          "new_mean": 0.0032181518346374627
+        },
+        "fifthmc_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 1548,
+          "old_mean": 0.0,
+          "new_mean": 0.01874398396596468
+        },
+        "5proxph_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 1385,
+          "old_mean": 0.0,
+          "new_mean": 0.02560856804691225
+        },
+        "midph5_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 207,
+          "old_mean": 0.0,
+          "new_mean": 0.0017193968571482773
+        }
+      }
+    }
+  ],
+  "checks": {
+    "all_nonweight_bytes_unchanged": true,
+    "only_selected12surface_lane_records_changed": true,
+    "xyz_normals_faces_binding_transforms_unselected_rows_exact": true,
+    "weight_sums_and_local_binding_indices_valid": [
+      {
+        "stable_id": 75,
+        "weight_sum_min": 0.9999999701976776,
+        "weight_sum_max": 1.0000000298023224
+      },
+      {
+        "stable_id": 79,
+        "weight_sum_min": 0.9999999701976776,
+        "weight_sum_max": 1.0000000298023224
+      },
+      {
+        "stable_id": 81,
+        "weight_sum_min": 0.9999999701976776,
+        "weight_sum_max": 1.0000000298023224
+      },
+      {
+        "stable_id": 83,
+        "weight_sum_min": 0.9999999701976776,
+        "weight_sum_max": 1.0000000298023224
+      },
+      {
+        "stable_id": 85,
+        "weight_sum_min": 0.9999999701976776,
+        "weight_sum_max": 1.0000000298023224
+      },
+      {
+        "stable_id": 89,
+        "weight_sum_min": 0.9999999701976776,
+        "weight_sum_max": 1.0000000298023224
+      },
+      {
+        "stable_id": 93,
+        "weight_sum_min": 0.9999999600695446,
+        "weight_sum_max": 1.0000000377185643
+      },
+      {
+        "stable_id": 97,
+        "weight_sum_min": 0.9999999701976776,
+        "weight_sum_max": 1.0000000298023224
+      },
+      {
+        "stable_id": 103,
+        "weight_sum_min": 0.9999999590218067,
+        "weight_sum_max": 1.0000000386498868
+      },
+      {
+        "stable_id": 120,
+        "weight_sum_min": 0.9999999592546374,
+        "weight_sum_max": 1.0000000353902578
+      },
+      {
+        "stable_id": 122,
+        "weight_sum_min": 0.9999999552965164,
+        "weight_sum_max": 1.0000000330619514
+      },
+      {
+        "stable_id": 132,
+        "weight_sum_min": 0.9999999552965164,
+        "weight_sum_max": 1.00000003981404
+      }
+    ]
+  },
+  "scope": "read-only counterfactual candidate for review; only weight lane binding-index/value records of stable rows 75/79/81/83/85/89/93/97/103/120/122/132 changed. No anatomical, clearance, dynamic or owner qualification is implied."
+}

@@ -1,0 +1,8 @@
+{
+  "no_claim": "superseded source is retained solely for audit and must not be run for current geometry",
+  "old_path": "build_global_p1_402.py before current-398 preflight",
+  "preserved_path": "superseded-legacy-311-producer-001/build_global_p1_402.py",
+  "reason": "old producer referenced 293 BG and legacy 296b/310 constraint parts; replaced with current 398/395/partial-399 witness-only fail-fast preflight",
+  "schema": "numi.superseded-producer-record.v1",
+  "sha256": "3e68e39468ea200bfe3e5ef67917dd63dbca6c538167662ed65bf593d68d8645"
+}

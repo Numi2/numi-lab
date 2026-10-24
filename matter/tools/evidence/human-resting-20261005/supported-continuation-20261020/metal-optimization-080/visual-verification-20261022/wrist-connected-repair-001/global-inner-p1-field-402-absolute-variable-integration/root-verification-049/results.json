@@ -1,0 +1,17 @@
+{
+  "pass": true,
+  "tests": 13,
+  "input_sha256": {
+    "build_global_p1_402.py": "54457e176a3a270d3ff585cbbd0fa517bff10be31973b1571913568df39a3768",
+    "absolute_field_402.py": "3a3ccbb93efa463f15575c4e9d96aef50576be9784ca1928ec741e3fefd8f446",
+    "test_absolute_field_402.py": "ee882af6681a028b3856d427e7acd7a6bff3352e6c2803836a2a29d687a47ec1",
+    "integration-manifest.json": "a47a25958d121952981169b4e210618cd5cb195462ec98b65021e09d46f1ddac"
+  },
+  "native_admission": false,
+  "preflight_report_sha256": "21c5e490f4ac91586c225cfe4cba945f476291a24d73b1f0e5ee33fbfa12148b",
+  "preflight_status": "blocked_before_clipping_or_LP_by_verified_fixed_physical_O_witness",
+  "actual_source_invocation": "importlib load unchanged build_global_p1_402.py; only module.OUT assigned to a new root verification directory; call main()",
+  "elapsed_s": 0.6590113330166787,
+  "python": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "host": "numi.local"
+}

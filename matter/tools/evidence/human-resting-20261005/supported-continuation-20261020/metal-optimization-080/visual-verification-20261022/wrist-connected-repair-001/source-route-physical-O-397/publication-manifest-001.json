@@ -1,0 +1,253 @@
+{
+  "candidate_status": {
+    "12_bank_route": "rejected-for-admission: 4741 current-pose face reversals across selected route surfaces; source/current geometry/topology/transforms unchanged; 26 O witnesses have 20 remaining inside and 6 cleared, which is not sufficient",
+    "stable5_route": "rejected-for-admission: reported O point clears stable5 soleus occupancy but exact soleus-vs-selected-tibia intersections rise 326 to 394; current calcn AABB is 36.32 mm separate; no full-bank or native admission"
+  },
+  "excluded_cache_inputs": [
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/registered-tissue-banks.npz",
+      "reason": "runtime/replay cache excluded from archival manifest; exact input hash remains recorded for provenance",
+      "role": "registered_191_bank_geometry_cache",
+      "sha256": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792"
+    }
+  ],
+  "files": [
+    {
+      "bytes": 36357012,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+      "role": "baseline_payload",
+      "sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042"
+    },
+    {
+      "bytes": 1628105,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.manifest.json",
+      "role": "baseline_manifest",
+      "sha256": "ffe60f996e92325ce21123da86e259a02a9aaed1a874373a0e71721a2ceba07b"
+    },
+    {
+      "bytes": 1631630,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/brachio109-local810-existing-full-parent-source-853b/assets/candidate-current-source.json",
+      "role": "source_current_manifest",
+      "sha256": "31c77660a16e8688fe68489eadff9d3861ceb27ed3b73d0288bda330d2a13b8c"
+    },
+    {
+      "bytes": 990346,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/src/numilab_human/model.py",
+      "role": "route_model_385",
+      "sha256": "5bd314fa7ceaebc6c0e72a0115befdda7a19e11b081bc2009cd2a1e94ce01483"
+    },
+    {
+      "bytes": 73339,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/registered-skin-poses.json",
+      "role": "identity003_pose",
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+    },
+    {
+      "bytes": 5783,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/prepare_registered_surrounding.py",
+      "role": "exact_191_emitter",
+      "sha256": "3606321c1265fd1350afb2c1ce765ce7f7afe99d65f0cebfd77a4504c58d235b"
+    },
+    {
+      "bytes": 36448,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-396/tools/rebind_human_tissue_reference.py",
+      "role": "reference_owner_396",
+      "sha256": "7adf9cb321168e859f21ae62cf79ee59d94ce50fffbc0aeac2971feb18defa83"
+    },
+    {
+      "bytes": 11293,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/corrected-12-bank-route-candidate-001/build_weight_candidate_12.py",
+      "role": "12_builder",
+      "sha256": "cbfebb1bdf3e379c8b627a2b824fc4c34f3e85f7fba164877f5c33ca5b11826c"
+    },
+    {
+      "bytes": 36357012,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/corrected-12-bank-route-candidate-001/output/corrected-route-weights-candidate-12.nhtissue",
+      "role": "12_candidate",
+      "sha256": "b2d36c825528dedae0394dfa846bae64e9d5793bdac88f2a28133fc9c44c2c67"
+    },
+    {
+      "bytes": 19773,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/corrected-12-bank-route-candidate-001/output/candidate-receipt-12.json",
+      "role": "12_receipt",
+      "sha256": "6c2ab863ac2314342149b1f489557ead14a4735cadc5599d621c43dbdd08c7db"
+    },
+    {
+      "bytes": 21839,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/current-pose-classification-001/classify_12banks_current_191.py",
+      "role": "12_classifier",
+      "sha256": "f9c0762ed334b2e2a3ff3d2825a1d96b52fc77ad60f9a9bba87a82f98504cac9"
+    },
+    {
+      "bytes": 206379,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/current-pose-classification-001/results/physical-o-26-route-reclassification.json",
+      "role": "12_report",
+      "sha256": "b0f4c40934b33e14f46c13d7f085c762e4a34b1fdfd6b48b9fa3043dab26582c"
+    },
+    {
+      "bytes": 36357012,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-386/corrected-route-weights-candidate.nhtissue",
+      "role": "386_candidate_restored",
+      "sha256": "7a40994f497555111652ac9c621b7f8d90b498d6e7be8bfda9193910060a65b2"
+    },
+    {
+      "bytes": 22338,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-386/candidate-receipt.json",
+      "role": "386_receipt_regenerated",
+      "sha256": "fa3e8becae2427daf6358945b5b8d6c96e56ab8e5a9e871057477070742a07a4"
+    },
+    {
+      "bytes": 36357012,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/wrong-output-incident-001/corrected-route-weights-candidate.nhtissue",
+      "role": "incident_12_candidate",
+      "sha256": "b2d36c825528dedae0394dfa846bae64e9d5793bdac88f2a28133fc9c44c2c67"
+    },
+    {
+      "bytes": 19726,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/wrong-output-incident-001/candidate-receipt.json",
+      "role": "incident_12_receipt",
+      "sha256": "503ae0cbbbbf3036a989918cba3857bd3270091c1ae68f19b4c04f4bf30a1985"
+    },
+    {
+      "bytes": 3048,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/wrong-output-incident-001/incident-receipt.json",
+      "role": "incident_receipt",
+      "sha256": "338406a21c3df87cbe8073a883bf0898072ef0f8f82ac65da06cb78cac0bfdea"
+    },
+    {
+      "bytes": 3805,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/wrong-output-incident-001/lineage-addendum-001.json",
+      "role": "incident_lineage_addendum",
+      "sha256": "5c6a3d66ed00c32e2e1c48310d8020b204a598c16cbfefbb2ad855a983bcc788"
+    },
+    {
+      "bytes": 10227,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/rebuild-385-final-001/build_weight_candidate_385_final.py",
+      "role": "385_rebuild_script",
+      "sha256": "1b8c0874c3571a3df9a6cffb446608a485cfd55a90e42c7a6bcee27e67938b49"
+    },
+    {
+      "bytes": 36357012,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/rebuild-385-final-001/output/corrected-route-weights-candidate.nhtissue",
+      "role": "385_rebuild_candidate",
+      "sha256": "7a40994f497555111652ac9c621b7f8d90b498d6e7be8bfda9193910060a65b2"
+    },
+    {
+      "bytes": 22338,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/rebuild-385-final-001/output/candidate-receipt.json",
+      "role": "385_rebuild_receipt",
+      "sha256": "fa3e8becae2427daf6358945b5b8d6c96e56ab8e5a9e871057477070742a07a4"
+    },
+    {
+      "bytes": 11204,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/stable5-route-candidate-001/build_weight_candidate_5.py",
+      "role": "stable5_builder",
+      "sha256": "38ad66666270bd2e46df3e15d3f793a539cbc4395e528c338238db437f566873"
+    },
+    {
+      "bytes": 36357012,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/stable5-route-candidate-001/output/corrected-route-weights-candidate-5.nhtissue",
+      "role": "stable5_candidate",
+      "sha256": "2faedf570d6c3481c450e7c390934e186a96467e256188b93cd79cb8c3f82e37"
+    },
+    {
+      "bytes": 3325,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/stable5-route-candidate-001/output/candidate-receipt-5.json",
+      "role": "stable5_receipt",
+      "sha256": "ec5f6525ccbfd2047c6b0aa9e68c8c66b4cc24e7494a149bde0579464014520b"
+    },
+    {
+      "bytes": 19098,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/stable5-route-candidate-001/classify_stable5_current_191.py",
+      "role": "stable5_classifier_v1_superseded",
+      "sha256": "4a010b3d69be6753ebfd81bebb4d55fa4560294bb72547d54484aef7bd9de8f1"
+    },
+    {
+      "bytes": 15164,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/stable5-route-candidate-001/classification-results/stable5-soleus-current-witness-classification.json",
+      "role": "stable5_report_v1_superseded",
+      "sha256": "9654dc3fedcbfaf4e50375acdfefae4b419a966213825dddbbe934f051135220"
+    },
+    {
+      "bytes": 20080,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/stable5-route-candidate-001/classify_stable5_current_191_shared_lattice_002.py",
+      "role": "stable5_classifier_v2_shared_lattice",
+      "sha256": "2dbe34df2aa4f72d25ca22eca29dd26c98cabf6a12ead7b5ba738fd916ec56db"
+    },
+    {
+      "bytes": 24778,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/stable5-route-candidate-001/classification-results-002/stable5-soleus-current-witness-classification.json",
+      "role": "stable5_report_v2",
+      "sha256": "ec8450f09f2f9db696b52c24235dc53e5bfbd3cd25eeae0a324e33c2ee51ebb8"
+    },
+    {
+      "bytes": 1273,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/stable5-route-candidate-001/classification-results-002/calcn-aabb-exclusion-001.json",
+      "role": "stable5_calcn_aabb_receipt",
+      "sha256": "a5ddf0611a9ec862c9ea30d12a2599b45f1bc41865a2cbf873e061eaae9339a7"
+    },
+    {
+      "bytes": 23626,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/stable5-route-candidate-001/physical-O-source-provenance-002.json",
+      "role": "physical_o_provenance_report",
+      "sha256": "7b113200bc1b5d396312d558eefe96d0c6b76e65a0d71dcacd1be87d9934f77f"
+    },
+    {
+      "bytes": 22997,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/p1-distance-initializer-393/physical-outer-inside-witnesses.json",
+      "role": "physical_o_witnesses",
+      "sha256": "e554b1466b58020c7a27d0ce591e3e2f35b4d597525e0e8b71bec7a155c48c82"
+    },
+    {
+      "bytes": 2565664,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/candidate.npz",
+      "role": "physical_o_candidate_014",
+      "sha256": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba"
+    },
+    {
+      "bytes": 587126,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-source-cut-plane-271/candidate-271-max-cut-distance-bilateral-collar.npz",
+      "role": "physical_o_source_271",
+      "sha256": "92f0079a8266bb1f5bdeb289bffa51c2624341e6e6f2e1e9e0eb0c6d969e3f1d"
+    },
+    {
+      "bytes": 564495,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/boundary-disk-construction-287/global-outer-dome-287.npz",
+      "role": "physical_o_source_287_dome",
+      "sha256": "cb17fa93f6d646c77b34241b01efa7385efa904923bdde3a1d917be805d109fb"
+    },
+    {
+      "bytes": 965303,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.manifest.json",
+      "role": "bone_manifest",
+      "sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4"
+    },
+    {
+      "bytes": 16981,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/audit_exact_joint_region_intersections_015.py",
+      "role": "bone_exact_audit_helper",
+      "sha256": "aef02f000fcf7ae4ea85835a4e8599963fc70c3551f8b2706752d6d68630a6f1"
+    },
+    {
+      "bytes": 22091,
+      "path": "/private/tmp/preflight129-d36-O-import-155-candidate-build-008-functions-only-014.py",
+      "role": "preflight129_bone_builder",
+      "sha256": "16dc19f9331ae5505519e93b218dcc7c937a0ffa408ec8826e7fab8691831501"
+    },
+    {
+      "bytes": 48276,
+      "path": "/Users/n/numi-human-anatomy-finish-1378/src/numilab_human/cardiac_cavity_intersections.py",
+      "role": "cardiac_exact_predicates",
+      "sha256": "05ba7856fc373f55a1270eb5f3ef887a4eac493ad9fb4590a618caee952d2a32"
+    },
+    {
+      "bytes": 9482,
+      "path": "/Users/n/numi-human-anatomy-finish-1378/src/numilab_human/compiled_quotient_embeddedness.py",
+      "role": "float32_quotient",
+      "sha256": "e14793d27e014e23117967a2f486415157d5ae494db342ace0ac701dd1bb5361"
+    }
+  ],
+  "retained_failure_note": "The original stable5 v1 report remains in place and is superseded by v2 because v1 used separately-scaled integer lattices for cross-mesh broadphase. The 386 incident receipt is preserved unchanged and clarified by the lineage addendum; original receipt SHA was not recovered.",
+  "schema": "numi.source-route-physical-O-397-publication-map.v1",
+  "status": "diagnostic-only-no-native-or-physical-admission"
+}

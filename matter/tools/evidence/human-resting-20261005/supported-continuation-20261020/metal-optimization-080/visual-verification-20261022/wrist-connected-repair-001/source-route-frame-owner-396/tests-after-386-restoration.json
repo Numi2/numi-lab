@@ -1,0 +1,6 @@
+{
+  "elapsed_s": 1.0344819170422852,
+  "exit_code": 0,
+  "pins_source": "tests-canonical-installed.json",
+  "scope": "Recheck canonical tool, payload pins and exact393 replay after detected386 output-path overwrite was restored. Original386receipt not used by this test. No native admission."
+}

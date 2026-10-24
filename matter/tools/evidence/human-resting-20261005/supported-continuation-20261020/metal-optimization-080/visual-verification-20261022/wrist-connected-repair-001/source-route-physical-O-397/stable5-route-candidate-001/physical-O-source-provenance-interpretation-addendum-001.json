@@ -1,0 +1,94 @@
+{
+  "clarifies_interpretation_entry_index": 0,
+  "clarifies_report_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/stable5-route-candidate-001/physical-O-source-provenance-002.json",
+  "clarifies_report_sha256": "7b113200bc1b5d396312d558eefe96d0c6b76e65a0d71dcacd1be87d9934f77f",
+  "corrected_interpretation": "These rows trace to candidate-271 physical O. Nodes 376, 466, 495, and 649 have only incident kind-0 faces with detailed_source_id=-1, so these sampled faces are coarse D36 O faces. Nodes 9451 and 9473 have only incident kind-2 faces and map to detailed source face IDs 40514, 40515, 40516, 40537, 40538 and 40554, 40555, 40556, 40557, 40558 respectively. All listed incident physical-O faces match candidate-271 exactly by mapped node ancestry and Float32 coordinates. This is a mixed coarse/detailed surface sample; it does not establish that all O points are detailed skin positions.",
+  "method_note": "The 014 report has no direct detailed-source face table; ancestry was followed through the 014 source map to the candidate-271 surface face kind and detailed source IDs.",
+  "node_face_classification": [
+    {
+      "014_node": 376,
+      "classification": "coarse D36 O",
+      "detailed_source_ids": [
+        -1
+      ],
+      "face_kind": [
+        0
+      ],
+      "incident_faces": 5,
+      "mapped_271_vertex": 376
+    },
+    {
+      "014_node": 466,
+      "classification": "coarse D36 O",
+      "detailed_source_ids": [
+        -1
+      ],
+      "face_kind": [
+        0
+      ],
+      "incident_faces": 13,
+      "mapped_271_vertex": 466
+    },
+    {
+      "014_node": 495,
+      "classification": "coarse D36 O",
+      "detailed_source_ids": [
+        -1
+      ],
+      "face_kind": [
+        0
+      ],
+      "incident_faces": 6,
+      "mapped_271_vertex": 495
+    },
+    {
+      "014_node": 649,
+      "classification": "coarse D36 O",
+      "detailed_source_ids": [
+        -1
+      ],
+      "face_kind": [
+        0
+      ],
+      "incident_faces": 4,
+      "mapped_271_vertex": 649
+    },
+    {
+      "014_node": 9451,
+      "classification": "detailed-source O faces",
+      "detailed_source_ids": [
+        40514,
+        40515,
+        40516,
+        40537,
+        40538
+      ],
+      "face_kind": [
+        2
+      ],
+      "incident_faces": 5,
+      "mapped_271_vertex": 9618
+    },
+    {
+      "014_node": 9473,
+      "classification": "detailed-source O faces",
+      "detailed_source_ids": [
+        40554,
+        40555,
+        40556,
+        40557,
+        40558
+      ],
+      "face_kind": [
+        2
+      ],
+      "incident_faces": 5,
+      "mapped_271_vertex": 9640
+    }
+  ],
+  "original_interpretation_entry": "These rows trace to candidate-271 physical O. Matching face records carry detailed_source_id=-1, so this does not establish that O points are detailed reconstructed-muscle positions.",
+  "preserves_original_report_bytes": true,
+  "schema": "numi.source-route-397-physical-o-provenance-interpretation-addendum.v1",
+  "status": "clarification-only-original-provenance-report-preserved",
+  "witness_caveat": "The reported point between 014 volume nodes 9451 and 9473 is an O-node segment witness. No physical-O triangle contains both endpoints, so it is not identified here as an actual surface edge."
+}

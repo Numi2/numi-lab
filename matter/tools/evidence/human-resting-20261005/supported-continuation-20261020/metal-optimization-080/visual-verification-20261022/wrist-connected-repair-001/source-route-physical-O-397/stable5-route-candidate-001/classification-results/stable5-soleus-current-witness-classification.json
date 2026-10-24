@@ -1,0 +1,276 @@
+{
+  "bone_distance_limit": "Exact triangle intersections use the existing 264 predicate via the retained 294 surface-audit owner. The edge point-to-bone nearest query scans all selected bone faces. The muscle-vertex clearance is an existing centroid-k64 accelerated nearest-surface diagnostic, not a global all-triangle-pair distance proof.",
+  "candidate_route_changes": {
+    "changed_binding_index_rows": 506,
+    "changed_vertex_records": 2674,
+    "default_pose_displacement_reported_by_builder_mm": {
+      "max": 17.6492249548635,
+      "p50": 9.344096433287454,
+      "p95": 16.02770702328939
+    },
+    "faces_reversed_vs_baseline_current": 0,
+    "identity003_current_emitted_displacement_mm": {
+      "max": 17.649215819989422,
+      "p50": 9.34408715360356,
+      "p95": 16.027700152435802
+    },
+    "max_weight_delta": 0.34086715736109396,
+    "min_current_face_area_ratio_vs_baseline": 0.7237217375406283,
+    "zero_area_faces_corrected_current": 0
+  },
+  "limitations": [
+    "Only the reported stable5 soleus obstacle and two O-edge witnesses were examined; no other bank or the full 689-bank obstacle set was re-audited.",
+    "Route reweighting changes the current routed muscle surface substantially while source p/n/faces and body transforms remain fixed. It is not a physical material remesh or admission.",
+    "No native application solve or accepted-state run was performed."
+  ],
+  "per_surface_point_classification": [
+    {
+      "closed": true,
+      "emitted_face_count": 4416,
+      "emitted_vertex_count": 2674,
+      "inside": true,
+      "nearest_face_row": 2562,
+      "point_to_surface_distance_m": 1.0219414862374188e-14,
+      "surface": "baseline",
+      "topology": {
+        "edge_incidence": {
+          "2": 6624
+        },
+        "face_count": 4416,
+        "welded_vertices": 2211
+      },
+      "winding": 1.0
+    },
+    {
+      "closed": true,
+      "emitted_face_count": 4416,
+      "emitted_vertex_count": 2674,
+      "inside": false,
+      "nearest_face_row": 2494,
+      "point_to_surface_distance_m": 0.010699696267515548,
+      "surface": "corrected385",
+      "topology": {
+        "edge_incidence": {
+          "2": 6624
+        },
+        "face_count": 4416,
+        "welded_vertices": 2211
+      },
+      "winding": 1.766974823035287e-17
+    }
+  ],
+  "physical_o_witness": {
+    "edge_barycentric_weights": [
+      0.7473772446,
+      0.2526227554
+    ],
+    "historical_obstacle_face_centroid_m": [
+      -0.04824311286211014,
+      -1.5058524211247761,
+      0.10006871322790782
+    ],
+    "historical_obstacle_face_row": 2562,
+    "historical_obstacle_face_xyz_m": [
+      [
+        -0.04583236575126648,
+        -1.4910670518875122,
+        0.10199089348316193
+      ],
+      [
+        -0.052408672869205475,
+        -1.5329248905181885,
+        0.09936094284057617
+      ],
+      [
+        -0.04648829996585846,
+        -1.493565320968628,
+        0.09885430335998535
+      ]
+    ],
+    "historical_obstacle_record": [
+      "bank_0004",
+      "stable5",
+      "right soleus"
+    ],
+    "interpolated_point_matches_reported_within_20nm": true,
+    "reconstructed_xyz_m": [
+      -0.046370682593577024,
+      -1.4937671433282247,
+      0.10053062839141552
+    ],
+    "reported_xyz_m": [
+      -0.04637068259,
+      -1.49376714333,
+      0.10053062839
+    ],
+    "source_o_node_ids": [
+      9451,
+      9473
+    ],
+    "tetrahedron_row": 88190
+  },
+  "pins": {
+    "/Users/n/numi-human-anatomy-finish-1378/src/numilab_human/cardiac_cavity_intersections.py": {
+      "expected_sha256": "05ba7856fc373f55a1270eb5f3ef887a4eac493ad9fb4590a618caee952d2a32",
+      "sha256": "05ba7856fc373f55a1270eb5f3ef887a4eac493ad9fb4590a618caee952d2a32"
+    },
+    "/Users/n/numi-human-anatomy-finish-1378/src/numilab_human/compiled_quotient_embeddedness.py": {
+      "expected_sha256": "e14793d27e014e23117967a2f486415157d5ae494db342ace0ac701dd1bb5361",
+      "sha256": "e14793d27e014e23117967a2f486415157d5ae494db342ace0ac701dd1bb5361"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/audit_bilateral_skin_retained_poses_002.py": {
+      "expected_sha256": "5d13ce7a8fff3470b2eb84a298fb7b8652cfa0130bb71cacee3756936b949a86",
+      "sha256": "5d13ce7a8fff3470b2eb84a298fb7b8652cfa0130bb71cacee3756936b949a86"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/candidate.npz": {
+      "expected_sha256": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba",
+      "sha256": "e70b3e08aa385c8a321ebb0849257ec4afa04d13050e26fc28647d36146d26ba"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/p1-distance-initializer-393/physical-outer-inside-witnesses.json": {
+      "expected_sha256": "e554b1466b58020c7a27d0ce591e3e2f35b4d597525e0e8b71bec7a155c48c82",
+      "sha256": "e554b1466b58020c7a27d0ce591e3e2f35b4d597525e0e8b71bec7a155c48c82"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/audit_exact_joint_region_intersections_015.py": {
+      "expected_sha256": "aef02f000fcf7ae4ea85835a4e8599963fc70c3551f8b2706752d6d68630a6f1",
+      "sha256": "aef02f000fcf7ae4ea85835a4e8599963fc70c3551f8b2706752d6d68630a6f1"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/inventory.json": {
+      "expected_sha256": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+      "sha256": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/prepare_registered_surrounding.py": {
+      "expected_sha256": "3606321c1265fd1350afb2c1ce765ce7f7afe99d65f0cebfd77a4504c58d235b",
+      "sha256": "3606321c1265fd1350afb2c1ce765ce7f7afe99d65f0cebfd77a4504c58d235b"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/registered-tissue-banks.npz": {
+      "expected_sha256": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+      "sha256": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-396/tools/rebind_human_tissue_reference.py": {
+      "expected_sha256": "7adf9cb321168e859f21ae62cf79ee59d94ce50fffbc0aeac2971feb18defa83",
+      "sha256": "7adf9cb321168e859f21ae62cf79ee59d94ce50fffbc0aeac2971feb18defa83"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/stable5-route-candidate-001/build_weight_candidate_5.py": {
+      "expected_sha256": "38ad66666270bd2e46df3e15d3f793a539cbc4395e528c338238db437f566873",
+      "sha256": "38ad66666270bd2e46df3e15d3f793a539cbc4395e528c338238db437f566873"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/stable5-route-candidate-001/output/candidate-receipt-5.json": {
+      "expected_sha256": "ec5f6525ccbfd2047c6b0aa9e68c8c66b4cc24e7494a149bde0579464014520b",
+      "sha256": "ec5f6525ccbfd2047c6b0aa9e68c8c66b4cc24e7494a149bde0579464014520b"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/stable5-route-candidate-001/output/corrected-route-weights-candidate-5.nhtissue": {
+      "expected_sha256": "2faedf570d6c3481c450e7c390934e186a96467e256188b93cd79cb8c3f82e37",
+      "sha256": "2faedf570d6c3481c450e7c390934e186a96467e256188b93cd79cb8c3f82e37"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/src/numilab_human/model.py": {
+      "expected_sha256": "5bd314fa7ceaebc6c0e72a0115befdda7a19e11b081bc2009cd2a1e94ce01483",
+      "sha256": "5bd314fa7ceaebc6c0e72a0115befdda7a19e11b081bc2009cd2a1e94ce01483"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/registered-skin-poses.json": {
+      "expected_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/brachio109-local810-existing-full-parent-source-853b/assets/candidate-current-source.json": {
+      "expected_sha256": "31c77660a16e8688fe68489eadff9d3861ceb27ed3b73d0288bda330d2a13b8c",
+      "sha256": "31c77660a16e8688fe68489eadff9d3861ceb27ed3b73d0288bda330d2a13b8c"
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.manifest.json": {
+      "expected_sha256": "ffe60f996e92325ce21123da86e259a02a9aaed1a874373a0e71721a2ceba07b",
+      "sha256": "ffe60f996e92325ce21123da86e259a02a9aaed1a874373a0e71721a2ceba07b"
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": {
+      "expected_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+      "sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042"
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.manifest.json": {
+      "expected_sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+      "sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4"
+    },
+    "/private/tmp/preflight129-d36-O-import-155-candidate-build-008-functions-only-014.py": {
+      "expected_sha256": "16dc19f9331ae5505519e93b218dcc7c937a0ffa408ec8826e7fab8691831501",
+      "sha256": "16dc19f9331ae5505519e93b218dcc7c937a0ffa408ec8826e7fab8691831501"
+    }
+  },
+  "point_to_bone_and_surface_intersection": {
+    "bone_manifest_sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+    "bone_surface_names_selected": [
+      "tibia_r"
+    ],
+    "combined_bone_faces": 2806,
+    "distance_queries": [
+      {
+        "bone_face_row": 641,
+        "bone_owner": "tibia_r",
+        "nearest_bone_distance_m": 0.05491199718443343,
+        "query": "O_edge_witness"
+      },
+      {
+        "inside_bone_vertex_count": 268,
+        "method": "existing 014 centroid-k=64 nearest-surface query at each muscle vertex",
+        "minimum_signed_vertex_to_bone_distance_m": -0.004475108043671993,
+        "minimum_unsigned_vertex_to_bone_distance_m": 3.5825798263907627e-06,
+        "nearest_bone_face_row": 2271,
+        "nearest_bone_owner": "tibia_r",
+        "query": "baseline_muscle_vertices",
+        "vertex_count": 2674
+      },
+      {
+        "inside_bone_vertex_count": 243,
+        "method": "existing 014 centroid-k=64 nearest-surface query at each muscle vertex",
+        "minimum_signed_vertex_to_bone_distance_m": -0.004296362113866448,
+        "minimum_unsigned_vertex_to_bone_distance_m": 5.961888184150509e-06,
+        "nearest_bone_face_row": 2525,
+        "nearest_bone_owner": "tibia_r",
+        "query": "corrected385_muscle_vertices",
+        "vertex_count": 2674
+      }
+    ],
+    "exact_bank5_vs_nearby_bones": {
+      "baseline": {
+        "bone_degenerate_faces": 0,
+        "candidate_triangle_pairs": 0,
+        "first_witnesses": [],
+        "intersection_pair_count": 0,
+        "muscle_degenerate_faces": 0,
+        "separate_vertex_id_domains": true,
+        "shared_vertex_exemptions": 0
+      },
+      "corrected385": {
+        "bone_degenerate_faces": 0,
+        "candidate_triangle_pairs": 0,
+        "first_witnesses": [],
+        "intersection_pair_count": 0,
+        "muscle_degenerate_faces": 0,
+        "separate_vertex_id_domains": true,
+        "shared_vertex_exemptions": 0
+      }
+    }
+  },
+  "pose": {
+    "emitter_owner": "exact 191 registered current replay",
+    "emitter_sha256": "3606321c1265fd1350afb2c1ce765ce7f7afe99d65f0cebfd77a4504c58d235b",
+    "name": "identity-003 current",
+    "pose_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+  },
+  "schema": "numi.human.stable5-soleus-corrected-route-witness-classification.v1",
+  "source_identity": {
+    "body_bindings": [
+      "tibia_r",
+      "calcn_r"
+    ],
+    "body_indices": [
+      136,
+      138
+    ],
+    "historical_payload_faces": 4416,
+    "historical_payload_vertices": 2674,
+    "inventory_key": "bank_0004",
+    "label": "right soleus",
+    "member_id": "FJ1437",
+    "payload_source_xyz_normals_topology_transforms_exact": true,
+    "raw_source_geometry_substituted": false,
+    "raw_source_manifest_member_sha256": "c9c62b720ffe375a8eddf390608684a796f1ea54880a5c34fa440404addc399e",
+    "stable_id": 5
+  },
+  "status": "diagnostic-only-no-native-or-physical-admission"
+}

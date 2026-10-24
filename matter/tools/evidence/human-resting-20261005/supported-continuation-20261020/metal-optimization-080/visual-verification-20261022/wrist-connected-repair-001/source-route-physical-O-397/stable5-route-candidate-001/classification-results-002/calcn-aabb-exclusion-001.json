@@ -1,0 +1,43 @@
+{
+  "aabb_euclidean_gap_m": 0.03632032871246338,
+  "calcn_excluded_from_014_build_bones_due_disjoint_aabb": true,
+  "calcn_r_current_aabb_world_m": {
+    "bone_record_count": 11,
+    "max": [
+      -0.07414091378450394,
+      -1.6758530139923096,
+      0.23308591544628143
+    ],
+    "min": [
+      -0.16019868850708008,
+      -1.7395724058151245,
+      0.060501426458358765
+    ]
+  },
+  "classification_report_exact_bone_names": [
+    "tibia_r"
+  ],
+  "classification_report_sha256": "ec8450f09f2f9db696b52c24235dc53e5bfbd3cd25eeae0a324e33c2ee51ebb8",
+  "limitation": "Exact soleus-vs-bone triangle pair screen covers selected tibia_r; calcn_r is excluded by the actual AABB test (36.32 mm gap). This is not a full 689-bank or native contact admission.",
+  "point_o_edge_to_tibia_r_exact_distance_m": 0.05491199718443343,
+  "pose": "identity-003 current",
+  "schema": "numi.stable5-current-calcn-bone-aabb-exclusion.v1",
+  "separating_axis_gap_m": [
+    0.0,
+    0.03632032871246338,
+    0.0
+  ],
+  "stable5_baseline_aabb_world_m": {
+    "max": [
+      -0.04470270872116089,
+      -1.3168535232543945,
+      0.12744350731372833
+    ],
+    "min": [
+      -0.13960130512714386,
+      -1.6395326852798462,
+      0.07365772128105164
+    ]
+  },
+  "status": "diagnostic-only"
+}

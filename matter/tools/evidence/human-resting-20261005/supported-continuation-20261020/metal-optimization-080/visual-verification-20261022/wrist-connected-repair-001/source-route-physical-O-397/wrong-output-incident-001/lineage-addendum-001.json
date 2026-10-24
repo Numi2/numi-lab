@@ -1,0 +1,38 @@
+{
+  "clarification": "This field does not describe the overwritten 386 output files. The 386 candidate payload and its receipt path were overwritten by the first 12-ID attempt. The 12-ID candidate and receipt were preserved under wrong-output-incident-001. The 386 candidate payload was restored byte-exact to its pinned SHA. The original 386 receipt SHA was not recovered; a regenerated receipt is present and is not byte-identical to the original.",
+  "clarifies_field": "frozen_inputs_touched=false",
+  "incident_receipt_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/wrong-output-incident-001/incident-receipt.json",
+  "incident_receipt_sha256": "338406a21c3df87cbe8073a883bf0898072ef0f8f82ac65da06cb78cac0bfdea",
+  "overwritten_386_candidate": {
+    "current_sha256": "7a40994f497555111652ac9c621b7f8d90b498d6e7be8bfda9193910060a65b2",
+    "expected_original_sha256": "7a40994f497555111652ac9c621b7f8d90b498d6e7be8bfda9193910060a65b2",
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-386/corrected-route-weights-candidate.nhtissue",
+    "status": "exact payload restored"
+  },
+  "overwritten_386_receipt": {
+    "current_sha256": "fa3e8becae2427daf6358945b5b8d6c96e56ab8e5a9e871057477070742a07a4",
+    "expected_original_sha256": "44f2ae1d2fd216d6864e1810c4c99ed11b190981dc900da4c337606d747da022",
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-386/candidate-receipt.json",
+    "status": "original unrecovered; regenerated receipt only"
+  },
+  "preserved_erroneous_12_id_candidate": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/wrong-output-incident-001/corrected-route-weights-candidate.nhtissue",
+    "sha256": "b2d36c825528dedae0394dfa846bae64e9d5793bdac88f2a28133fc9c44c2c67"
+  },
+  "preserved_erroneous_12_id_receipt": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/wrong-output-incident-001/candidate-receipt.json",
+    "sha256": "503ae0cbbbbf3036a989918cba3857bd3270091c1ae68f19b4c04f4bf30a1985"
+  },
+  "schema": "numi.source-route-397-incident-lineage-addendum.v1",
+  "source_assets_reported_untouched": [
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+      "sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042"
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/src/numilab_human/model.py",
+      "sha256": "5bd314fa7ceaebc6c0e72a0115befdda7a19e11b081bc2009cd2a1e94ce01483"
+    }
+  ],
+  "status": "clarification-preserve-original-incident-receipt"
+}

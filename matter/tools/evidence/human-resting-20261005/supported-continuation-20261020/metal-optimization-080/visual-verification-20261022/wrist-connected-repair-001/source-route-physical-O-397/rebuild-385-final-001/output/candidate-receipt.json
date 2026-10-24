@@ -1,0 +1,792 @@
+{
+  "schema": "numi.human.nhtiss.route-weight-counterfactual.v1",
+  "source_payload_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "source_payload_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "source_manifest_sha256": "ffe60f996e92325ce21123da86e259a02a9aaed1a874373a0e71721a2ceba07b",
+  "registration_sha256": "31c77660a16e8688fe68489eadff9d3861ceb27ed3b73d0288bda330d2a13b8c",
+  "source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+  "producer_helper_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/src/numilab_human/model.py",
+  "producer_helper_sha256": "5bd314fa7ceaebc6c0e72a0115befdda7a19e11b081bc2009cd2a1e94ce01483",
+  "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/rebuild-385-final-001/output/corrected-route-weights-candidate.nhtissue",
+  "candidate_sha256": "7a40994f497555111652ac9c621b7f8d90b498d6e7be8bfda9193910060a65b2",
+  "candidate_size_bytes": 36357012,
+  "abi": 5,
+  "rows": [
+    {
+      "stable_id": 131,
+      "member_id": "FJ1475",
+      "label": "right flexor digitorum superficialis",
+      "vertex_count": 6729,
+      "face_count": 13466,
+      "body_bindings": [
+        "ulna_r",
+        "radius_r",
+        "lunate_r",
+        "capitate_r",
+        "secondmc_r",
+        "2proxph_r",
+        "midph2_r",
+        "thirdmc_r",
+        "3proxph_r",
+        "midph3_r",
+        "humerus_r",
+        "fourthmc_r",
+        "4proxph_r",
+        "midph4_r",
+        "fifthmc_r",
+        "5proxph_r",
+        "midph5_r"
+      ],
+      "route_names": [
+        "FDS2",
+        "FDS3",
+        "FDS4",
+        "FDS5"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.016570587286495967,
+        "p95": 0.07877867535372157,
+        "max": 0.09513457885150829
+      },
+      "active_route_body_count_minmax": [
+        4,
+        4
+      ],
+      "changed_vertices": 6729,
+      "vertices_with_binding_index_changes": 6725,
+      "vertices_with_weight_changes": 6729,
+      "max_abs_fullvector_weight_delta": 0.8364320247351571,
+      "default_body_pose_displacement_mm": {
+        "p50": 13.159922473539735,
+        "p95": 33.676314999643964,
+        "max": 44.05715987621174
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 13466,
+        "min_area_ratio": 0.0899380582661095,
+        "p01_area_ratio": 0.4890272252435962,
+        "min_normal_cosine": -0.9996451140283563,
+        "zero_area_faces": 0,
+        "reversed_faces": 731
+      },
+      "digit_binding_counts": {
+        "fourthmc_r": {
+          "old_nonzero": 508,
+          "new_nonzero": 2646,
+          "old_mean": 0.012447951687340716,
+          "new_mean": 0.06287966300155164
+        },
+        "4proxph_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 1219,
+          "old_mean": 0.0,
+          "new_mean": 0.07683896707892242
+        },
+        "midph4_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 440,
+          "old_mean": 0.0,
+          "new_mean": 0.00621046850004419
+        },
+        "fifthmc_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 435,
+          "old_mean": 0.0,
+          "new_mean": 0.010838850080049077
+        },
+        "5proxph_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 697,
+          "old_mean": 0.0,
+          "new_mean": 0.01906283355879431
+        },
+        "midph5_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 400,
+          "old_mean": 0.0,
+          "new_mean": 0.012043647594946081
+        }
+      }
+    },
+    {
+      "stable_id": 132,
+      "member_id": "FJ1475M",
+      "label": "left flexor digitorum superficialis",
+      "vertex_count": 14710,
+      "face_count": 29412,
+      "body_bindings": [
+        "ulna_l",
+        "radius_l",
+        "lunate_l",
+        "capitate_l",
+        "secondmc_l",
+        "2proxph_l",
+        "midph2_l",
+        "thirdmc_l",
+        "3proxph_l",
+        "midph3_l",
+        "humerus_l",
+        "fourthmc_l",
+        "4proxph_l",
+        "midph4_l",
+        "fifthmc_l",
+        "5proxph_l",
+        "midph5_l"
+      ],
+      "route_names": [
+        "FDS2_l",
+        "FDS3_l",
+        "FDS4_l",
+        "FDS5_l"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.024354980540885064,
+        "p95": 0.06300524602275401,
+        "max": 0.08837997699773985
+      },
+      "active_route_body_count_minmax": [
+        4,
+        4
+      ],
+      "changed_vertices": 14710,
+      "vertices_with_binding_index_changes": 13554,
+      "vertices_with_weight_changes": 14710,
+      "max_abs_fullvector_weight_delta": 1.0,
+      "default_body_pose_displacement_mm": {
+        "p50": 10.188828049801963,
+        "p95": 40.08053360802363,
+        "max": 46.664447036575964
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 29412,
+        "min_area_ratio": 0.04450810206807202,
+        "p01_area_ratio": 0.46252170942511356,
+        "min_normal_cosine": -0.9999648046446596,
+        "zero_area_faces": 0,
+        "reversed_faces": 4159
+      },
+      "digit_binding_counts": {
+        "fourthmc_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 7780,
+          "old_mean": 0.0,
+          "new_mean": 0.0886686042637171
+        },
+        "4proxph_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 2404,
+          "old_mean": 0.0,
+          "new_mean": 0.04623289753112052
+        },
+        "midph4_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 433,
+          "old_mean": 0.0,
+          "new_mean": 0.0032181518346374627
+        },
+        "fifthmc_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 1548,
+          "old_mean": 0.0,
+          "new_mean": 0.01874398396596468
+        },
+        "5proxph_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 1385,
+          "old_mean": 0.0,
+          "new_mean": 0.02560856804691225
+        },
+        "midph5_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 207,
+          "old_mean": 0.0,
+          "new_mean": 0.0017193968571482773
+        }
+      }
+    },
+    {
+      "stable_id": 133,
+      "member_id": "FJ1497",
+      "label": "right flexor digitorum profundus",
+      "vertex_count": 6711,
+      "face_count": 13376,
+      "body_bindings": [
+        "ulna_r",
+        "radius_r",
+        "lunate_r",
+        "capitate_r",
+        "secondmc_r",
+        "2proxph_r",
+        "midph2_r",
+        "distph2_r",
+        "thirdmc_r",
+        "3proxph_r",
+        "midph3_r",
+        "distph3_r",
+        "fourthmc_r",
+        "4proxph_r",
+        "midph4_r",
+        "distph4_r",
+        "fifthmc_r",
+        "5proxph_r",
+        "midph5_r",
+        "distph5_r",
+        "humerus_r"
+      ],
+      "route_names": [
+        "FDP2",
+        "FDP3",
+        "FDP4",
+        "FDP5"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.0228275581911708,
+        "p95": 0.07571135948476151,
+        "max": 0.0882592116976542
+      },
+      "active_route_body_count_minmax": [
+        4,
+        4
+      ],
+      "changed_vertices": 6711,
+      "vertices_with_binding_index_changes": 6702,
+      "vertices_with_weight_changes": 6711,
+      "max_abs_fullvector_weight_delta": 0.9533651849874005,
+      "default_body_pose_displacement_mm": {
+        "p50": 16.41407394372494,
+        "p95": 31.31145259717445,
+        "max": 44.692256321666996
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 13376,
+        "min_area_ratio": 0.03647019558446216,
+        "p01_area_ratio": 0.2843968481015562,
+        "min_normal_cosine": -0.9996664686474916,
+        "zero_area_faces": 0,
+        "reversed_faces": 1070
+      },
+      "digit_binding_counts": {
+        "fourthmc_r": {
+          "old_nonzero": 434,
+          "new_nonzero": 1262,
+          "old_mean": 0.010648700789853902,
+          "new_mean": 0.023602417504955554
+        },
+        "4proxph_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 507,
+          "old_mean": 0.0,
+          "new_mean": 0.01959289156572848
+        },
+        "midph4_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 258,
+          "old_mean": 0.0,
+          "new_mean": 0.010123580952619136
+        },
+        "distph4_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 28,
+          "old_mean": 0.0,
+          "new_mean": 0.00022134693117825113
+        },
+        "fifthmc_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 90,
+          "old_mean": 0.0,
+          "new_mean": 0.002824910946439677
+        },
+        "5proxph_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 241,
+          "old_mean": 0.0,
+          "new_mean": 0.005624959629924459
+        },
+        "midph5_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 122,
+          "old_mean": 0.0,
+          "new_mean": 0.003367203014843207
+        },
+        "distph5_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 0,
+          "old_mean": 0.0,
+          "new_mean": 0.0
+        }
+      }
+    },
+    {
+      "stable_id": 134,
+      "member_id": "FJ1497M",
+      "label": "left flexor digitorum profundus",
+      "vertex_count": 39167,
+      "face_count": 64686,
+      "body_bindings": [
+        "ulna_l",
+        "radius_l",
+        "lunate_l",
+        "capitate_l",
+        "secondmc_l",
+        "2proxph_l",
+        "midph2_l",
+        "distph2_l",
+        "thirdmc_l",
+        "3proxph_l",
+        "midph3_l",
+        "distph3_l",
+        "fourthmc_l",
+        "4proxph_l",
+        "midph4_l",
+        "distph4_l",
+        "fifthmc_l",
+        "5proxph_l",
+        "midph5_l",
+        "distph5_l",
+        "humerus_l"
+      ],
+      "route_names": [
+        "FDP2_l",
+        "FDP3_l",
+        "FDP4_l",
+        "FDP5_l"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.03348700834484216,
+        "p95": 0.07518473493427755,
+        "max": 0.08612082698739648
+      },
+      "active_route_body_count_minmax": [
+        4,
+        4
+      ],
+      "changed_vertices": 39167,
+      "vertices_with_binding_index_changes": 37090,
+      "vertices_with_weight_changes": 39167,
+      "max_abs_fullvector_weight_delta": 1.0,
+      "default_body_pose_displacement_mm": {
+        "p50": 12.377509214810681,
+        "p95": 29.015615546213652,
+        "max": 63.30252857380886
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 64686,
+        "min_area_ratio": 0.018220233661758185,
+        "p01_area_ratio": 0.26497895397521104,
+        "min_normal_cosine": -0.9999684870195992,
+        "zero_area_faces": 0,
+        "reversed_faces": 11515
+      },
+      "digit_binding_counts": {
+        "fourthmc_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 9768,
+          "old_mean": 0.0,
+          "new_mean": 0.03632728918290341
+        },
+        "4proxph_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 2015,
+          "old_mean": 0.0,
+          "new_mean": 0.01267805851752146
+        },
+        "midph4_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 786,
+          "old_mean": 0.0,
+          "new_mean": 0.005395173331539617
+        },
+        "distph4_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 158,
+          "old_mean": 0.0,
+          "new_mean": 0.0007909455415365704
+        },
+        "fifthmc_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 1834,
+          "old_mean": 0.0,
+          "new_mean": 0.010111510055172619
+        },
+        "5proxph_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 1590,
+          "old_mean": 0.0,
+          "new_mean": 0.010962216670332103
+        },
+        "midph5_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 646,
+          "old_mean": 0.0,
+          "new_mean": 0.003549127991216459
+        },
+        "distph5_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 295,
+          "old_mean": 0.0,
+          "new_mean": 0.0021086098867646725
+        }
+      }
+    },
+    {
+      "stable_id": 137,
+      "member_id": "FJ1492",
+      "label": "right extensor digitorum",
+      "vertex_count": 2147,
+      "face_count": 4320,
+      "body_bindings": [
+        "humerus_r",
+        "radius_r",
+        "lunate_r",
+        "secondmc_r",
+        "2proxph_r",
+        "midph2_r",
+        "distph2_r",
+        "thirdmc_r",
+        "3proxph_r",
+        "midph3_r",
+        "distph3_r",
+        "fourthmc_r",
+        "4proxph_r",
+        "midph4_r",
+        "distph4_r",
+        "fifthmc_r",
+        "5proxph_r",
+        "midph5_r",
+        "distph5_r"
+      ],
+      "route_names": [
+        "EDC2",
+        "EDC3",
+        "EDC4",
+        "EDC5"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.011674396022607628,
+        "p95": 0.075312154169265,
+        "max": 0.09287162450711443
+      },
+      "active_route_body_count_minmax": [
+        4,
+        4
+      ],
+      "changed_vertices": 2147,
+      "vertices_with_binding_index_changes": 2147,
+      "vertices_with_weight_changes": 2147,
+      "max_abs_fullvector_weight_delta": 0.9156735442820492,
+      "default_body_pose_displacement_mm": {
+        "p50": 15.637751183321734,
+        "p95": 53.09844434422859,
+        "max": 66.3819251057254
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 4320,
+        "min_area_ratio": 0.009693781973524648,
+        "p01_area_ratio": 0.05601831551466424,
+        "min_normal_cosine": -0.9992753333832421,
+        "zero_area_faces": 0,
+        "reversed_faces": 422
+      },
+      "digit_binding_counts": {
+        "fourthmc_r": {
+          "old_nonzero": 204,
+          "new_nonzero": 505,
+          "old_mean": 0.008599788890947672,
+          "new_mean": 0.05091066261993678
+        },
+        "4proxph_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 597,
+          "old_mean": 0.0,
+          "new_mean": 0.05703447221698038
+        },
+        "midph4_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 192,
+          "old_mean": 0.0,
+          "new_mean": 0.024861558908680085
+        },
+        "distph4_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 0,
+          "old_mean": 0.0,
+          "new_mean": 0.0
+        },
+        "fifthmc_r": {
+          "old_nonzero": 694,
+          "new_nonzero": 909,
+          "old_mean": 0.023034206951148963,
+          "new_mean": 0.04797444653215851
+        },
+        "5proxph_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 351,
+          "old_mean": 0.0,
+          "new_mean": 0.03869375483356462
+        },
+        "midph5_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 137,
+          "old_mean": 0.0,
+          "new_mean": 0.025865129363025628
+        },
+        "distph5_r": {
+          "old_nonzero": 0,
+          "new_nonzero": 76,
+          "old_mean": 0.0,
+          "new_mean": 0.001223059390983022
+        }
+      }
+    },
+    {
+      "stable_id": 138,
+      "member_id": "FJ1492M",
+      "label": "left extensor digitorum",
+      "vertex_count": 2147,
+      "face_count": 4320,
+      "body_bindings": [
+        "humerus_l",
+        "radius_l",
+        "lunate_l",
+        "secondmc_l",
+        "2proxph_l",
+        "midph2_l",
+        "distph2_l",
+        "thirdmc_l",
+        "3proxph_l",
+        "midph3_l",
+        "distph3_l",
+        "fourthmc_l",
+        "4proxph_l",
+        "midph4_l",
+        "distph4_l",
+        "fifthmc_l",
+        "5proxph_l",
+        "midph5_l",
+        "distph5_l"
+      ],
+      "route_names": [
+        "EDC2_l",
+        "EDC3_l",
+        "EDC4_l",
+        "EDC5_l"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.011369550130825868,
+        "p95": 0.07488629179962523,
+        "max": 0.0915831677300156
+      },
+      "active_route_body_count_minmax": [
+        4,
+        4
+      ],
+      "changed_vertices": 2147,
+      "vertices_with_binding_index_changes": 2145,
+      "vertices_with_weight_changes": 2147,
+      "max_abs_fullvector_weight_delta": 0.9266709706162345,
+      "default_body_pose_displacement_mm": {
+        "p50": 13.550791449919702,
+        "p95": 51.370237970851434,
+        "max": 64.46754422921263
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 4320,
+        "min_area_ratio": 0.004506819633855563,
+        "p01_area_ratio": 0.05288225010055612,
+        "min_normal_cosine": -0.9998217927342866,
+        "zero_area_faces": 0,
+        "reversed_faces": 367
+      },
+      "digit_binding_counts": {
+        "fourthmc_l": {
+          "old_nonzero": 203,
+          "new_nonzero": 495,
+          "old_mean": 0.008585405824458705,
+          "new_mean": 0.04734564348027648
+        },
+        "4proxph_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 585,
+          "old_mean": 0.0,
+          "new_mean": 0.058005670010020875
+        },
+        "midph4_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 194,
+          "old_mean": 0.0,
+          "new_mean": 0.023418954305763354
+        },
+        "distph4_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 0,
+          "old_mean": 0.0,
+          "new_mean": 0.0
+        },
+        "fifthmc_l": {
+          "old_nonzero": 694,
+          "new_nonzero": 927,
+          "old_mean": 0.023092662991498675,
+          "new_mean": 0.04718366449114725
+        },
+        "5proxph_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 345,
+          "old_mean": 0.0,
+          "new_mean": 0.03880421654618835
+        },
+        "midph5_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 139,
+          "old_mean": 0.0,
+          "new_mean": 0.025465129138879192
+        },
+        "distph5_l": {
+          "old_nonzero": 0,
+          "new_nonzero": 77,
+          "old_mean": 0.0,
+          "new_mean": 0.0012786471862611306
+        }
+      }
+    },
+    {
+      "stable_id": 141,
+      "member_id": "FJ1493",
+      "label": "right extensor indicis",
+      "vertex_count": 361,
+      "face_count": 714,
+      "body_bindings": [
+        "ulna_r",
+        "radius_r",
+        "lunate_r",
+        "secondmc_r",
+        "2proxph_r",
+        "midph2_r",
+        "distph2_r"
+      ],
+      "route_names": [
+        "EIP"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.01557843410970735,
+        "p95": 0.029865752435135548,
+        "max": 0.03249587754957142
+      },
+      "active_route_body_count_minmax": [
+        4,
+        4
+      ],
+      "changed_vertices": 361,
+      "vertices_with_binding_index_changes": 293,
+      "vertices_with_weight_changes": 361,
+      "max_abs_fullvector_weight_delta": 0.66359901812894,
+      "default_body_pose_displacement_mm": {
+        "p50": 3.44827087435253,
+        "p95": 8.133662769489234,
+        "max": 9.572193334434974
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 714,
+        "min_area_ratio": 0.024263291408214482,
+        "p01_area_ratio": 0.30546065154590774,
+        "min_normal_cosine": -0.9786059085177791,
+        "zero_area_faces": 0,
+        "reversed_faces": 18
+      },
+      "digit_binding_counts": {}
+    },
+    {
+      "stable_id": 142,
+      "member_id": "FJ1493M",
+      "label": "left extensor indicis",
+      "vertex_count": 692,
+      "face_count": 714,
+      "body_bindings": [
+        "ulna_l",
+        "radius_l",
+        "lunate_l",
+        "secondmc_l",
+        "2proxph_l",
+        "midph2_l",
+        "distph2_l"
+      ],
+      "route_names": [
+        "EIP_l"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.016159809622115117,
+        "p95": 0.030439516450576014,
+        "max": 0.03287546050459872
+      },
+      "active_route_body_count_minmax": [
+        4,
+        4
+      ],
+      "changed_vertices": 692,
+      "vertices_with_binding_index_changes": 557,
+      "vertices_with_weight_changes": 692,
+      "max_abs_fullvector_weight_delta": 0.6751993668184171,
+      "default_body_pose_displacement_mm": {
+        "p50": 4.211215000110283,
+        "p95": 7.832110218008862,
+        "max": 8.208619005613027
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 714,
+        "min_area_ratio": 0.10954435760738468,
+        "p01_area_ratio": 0.32521365821235587,
+        "min_normal_cosine": -0.9987044096656436,
+        "zero_area_faces": 0,
+        "reversed_faces": 18
+      },
+      "digit_binding_counts": {}
+    }
+  ],
+  "checks": {
+    "all_nonweight_bytes_unchanged": true,
+    "only_selected8surface_lane_records_changed": true,
+    "xyz_normals_faces_binding_transforms_unselected_rows_exact": true,
+    "weight_sums_and_local_binding_indices_valid": [
+      {
+        "stable_id": 131,
+        "weight_sum_min": 0.9999999590218067,
+        "weight_sum_max": 1.0000000447034836
+      },
+      {
+        "stable_id": 132,
+        "weight_sum_min": 0.9999999552965164,
+        "weight_sum_max": 1.00000003981404
+      },
+      {
+        "stable_id": 133,
+        "weight_sum_min": 0.999999962747097,
+        "weight_sum_max": 1.000000037252903
+      },
+      {
+        "stable_id": 134,
+        "weight_sum_min": 0.9999999552965164,
+        "weight_sum_max": 1.0000000447034836
+      },
+      {
+        "stable_id": 137,
+        "weight_sum_min": 0.9999999590218067,
+        "weight_sum_max": 1.0000000465661287
+      },
+      {
+        "stable_id": 138,
+        "weight_sum_min": 0.9999999590218067,
+        "weight_sum_max": 1.000000037252903
+      },
+      {
+        "stable_id": 141,
+        "weight_sum_min": 0.9999999664723873,
+        "weight_sum_max": 1.0000000335276127
+      },
+      {
+        "stable_id": 142,
+        "weight_sum_min": 0.9999999601859599,
+        "weight_sum_max": 1.0000000335276127
+      }
+    ]
+  },
+  "scope": "read-only counterfactual candidate for review; only weight lane binding-index/value records of stable rows 131/132/133/134/137/138/141/142 changed. No anatomical, clearance, dynamic or owner qualification is implied."
+}

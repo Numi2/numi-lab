@@ -83,3 +83,4 @@ report=dict(scope='Static obstacle authoring cache from exact source payloads an
  'No collision predicates or anatomical interface classifications are performed by this preparation script.'])
 (OUT/'inventory.json').write_text(json.dumps(report,indent=2))
 print(json.dumps(dict(banks=len(banks),skipped=len(skipped),arrays=len(arrays),cache_sha256=report['cache_sha256'],path=str(OUT)),indent=2))
+

@@ -1,0 +1,38 @@
+{
+  "actual_original_tet_nodes": [
+    9451,
+    9471,
+    9473,
+    27269
+  ],
+  "bank_identity": {
+    "flat_face_row": 16346,
+    "key": "bank_0004",
+    "kind": "soft_tissue",
+    "local_face_row": 2562,
+    "stable_id": 5
+  },
+  "barycentric_constraint": [
+    0.7473772446181974,
+    0.0,
+    0.25262275538180257,
+    0.0
+  ],
+  "fixed_physical_O_support_nodes": [
+    9451,
+    9473
+  ],
+  "fixture_domain": "tetrahedra prefix through source tet row 88190 preserves original IDs; all physical O node IDs retained",
+  "fixture_npz_sha256": "62ce973989da6a1c82edf491eab0c18545c6c0895c7900c74e8db69a0b7f2938",
+  "original_background_npz_sha256": "8abe15f941dbc01659aee693a07e3edf66f32617c784cf0334410ca11a357890",
+  "original_tet_row": 88190,
+  "partial_conflict_report_sha256": "6e210c39df084c38918ac33f277954d70128382f8930231defdc4e853efd2f2e",
+  "schema": "numi.absolute-p1-fixed-O-witness-regression.402.v1",
+  "status": "retained-construction-witness-not-whole-scene-qualification",
+  "target": 0.341,
+  "world_witness_m": [
+    -0.04637068259356838,
+    -1.493767143328421,
+    0.10053062839173255
+  ]
+}

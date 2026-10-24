@@ -1,0 +1,70 @@
+{
+  "schema": "numi.human.nhtiss.route-weight-counterfactual.v1",
+  "source_payload_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "source_payload_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "source_manifest_sha256": "ffe60f996e92325ce21123da86e259a02a9aaed1a874373a0e71721a2ceba07b",
+  "registration_sha256": "31c77660a16e8688fe68489eadff9d3861ceb27ed3b73d0288bda330d2a13b8c",
+  "source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+  "producer_helper_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-weighting-owner-385/src/numilab_human/model.py",
+  "producer_helper_sha256": "5bd314fa7ceaebc6c0e72a0115befdda7a19e11b081bc2009cd2a1e94ce01483",
+  "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/stable5-route-candidate-001/output/corrected-route-weights-candidate-5.nhtissue",
+  "candidate_sha256": "2faedf570d6c3481c450e7c390934e186a96467e256188b93cd79cb8c3f82e37",
+  "candidate_size_bytes": 36357012,
+  "abi": 5,
+  "rows": [
+    {
+      "stable_id": 5,
+      "member_id": "FJ1437",
+      "label": "right soleus",
+      "vertex_count": 2674,
+      "face_count": 4416,
+      "body_bindings": [
+        "tibia_r",
+        "calcn_r"
+      ],
+      "route_names": [
+        "soleus_r"
+      ],
+      "route_query_distance_m": {
+        "p50": 0.06918581645195898,
+        "p95": 0.15551964113176464,
+        "max": 0.16678265889524027
+      },
+      "active_route_body_count_minmax": [
+        2,
+        2
+      ],
+      "changed_vertices": 2674,
+      "vertices_with_binding_index_changes": 506,
+      "vertices_with_weight_changes": 2674,
+      "max_abs_fullvector_weight_delta": 0.34086715736109396,
+      "default_body_pose_displacement_mm": {
+        "p50": 9.344096433287454,
+        "p95": 16.02770702328939,
+        "max": 17.6492249548635
+      },
+      "default_body_pose_triangle_change": {
+        "face_count": 4416,
+        "min_area_ratio": 0.7236963153904423,
+        "p01_area_ratio": 0.8933358252328262,
+        "min_normal_cosine": 0.9449790254802168,
+        "zero_area_faces": 0,
+        "reversed_faces": 0
+      },
+      "digit_binding_counts": {}
+    }
+  ],
+  "checks": {
+    "all_nonweight_bytes_unchanged": true,
+    "only_selected12surface_lane_records_changed": true,
+    "xyz_normals_faces_binding_transforms_unselected_rows_exact": true,
+    "weight_sums_and_local_binding_indices_valid": [
+      {
+        "stable_id": 5,
+        "weight_sum_min": 0.9999999701976776,
+        "weight_sum_max": 1.0000000298023224
+      }
+    ]
+  },
+  "scope": "read-only counterfactual candidate for review; only weight lane binding-index/value records of stable row 5 changed. No anatomical, clearance, dynamic or owner qualification is implied."
+}

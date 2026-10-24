@@ -1,0 +1,42 @@
+{
+  "schema": "numi.human.source-route-397-wrong-output-incident.v1",
+  "status": "recovered_candidate_original_receipt_unrecoverable",
+  "cause": "cloned 12-ID builder retained the 386 output directory in its first version and overwrote the eight-ID candidate and receipt before being stopped",
+  "overwritten_outputs_preserved": {
+    "candidate": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/wrong-output-incident-001/corrected-route-weights-candidate.nhtissue",
+      "sha256": "b2d36c825528dedae0394dfa846bae64e9d5793bdac88f2a28133fc9c44c2c67",
+      "meaning": "erroneous first 12-ID trial; preserved only as failed incident output"
+    },
+    "receipt": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-physical-O-397/wrong-output-incident-001/candidate-receipt.json",
+      "sha256": "503ae0cbbbbf3036a989918cba3857bd3270091c1ae68f19b4c04f4bf30a1985",
+      "meaning": "receipt for erroneous first 12-ID trial"
+    }
+  },
+  "386_restoration": {
+    "candidate": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-386/corrected-route-weights-candidate.nhtissue",
+      "sha256": "7a40994f497555111652ac9c621b7f8d90b498d6e7be8bfda9193910060a65b2",
+      "expected_original_sha256": "7a40994f497555111652ac9c621b7f8d90b498d6e7be8bfda9193910060a65b2",
+      "status": "exact_payload_hash_restored"
+    },
+    "receipt": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-386/candidate-receipt.json",
+      "sha256": "fa3e8becae2427daf6358945b5b8d6c96e56ab8e5a9e871057477070742a07a4",
+      "expected_original_sha256": "44f2ae1d2fd216d6864e1810c4c99ed11b190981dc900da4c337606d747da022",
+      "regenerated_from_retained_385_rebuild_sha256": "fa3e8becae2427daf6358945b5b8d6c96e56ab8e5a9e871057477070742a07a4",
+      "status": "original_receipt_not_found_after_search; regenerated receipt restored, not byte-identical original"
+    }
+  },
+  "retained_rebuild_candidate_sha256": "7a40994f497555111652ac9c621b7f8d90b498d6e7be8bfda9193910060a65b2",
+  "search": {
+    "scope": [
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005",
+      "/Users/n/numi-human-retained-delivery-20261009"
+    ],
+    "matching_candidate_receipts_checked": 5,
+    "original_receipt_sha256_found": false
+  },
+  "frozen_inputs_touched": false
+}

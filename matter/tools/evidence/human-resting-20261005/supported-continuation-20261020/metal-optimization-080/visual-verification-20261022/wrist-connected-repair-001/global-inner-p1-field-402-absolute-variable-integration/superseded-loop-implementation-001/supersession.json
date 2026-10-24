@@ -1,0 +1,6 @@
+{
+  "absolute_field_402.py_sha256": "4147c69eaf0230bd2bca5d4f4b39d585eb337fc3b365c8d7ac5f5f2282a15bdf",
+  "reason": "the first absolute solver assembled obstacle COO rows with per-row Python loops; replaced by vectorized four-corner COO/CSR assembly before any production solve",
+  "status": "superseded-performance-implementation",
+  "test_absolute_field_402.py_sha256": "a2efba61d8792d0f1955783ae3a25cbdada74c0c2723300e6917cd1010116bd5"
+}

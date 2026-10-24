@@ -1,0 +1,59 @@
+{
+  "method": "APFS copy-on-write clone plus exact changed64KiB chunks; no logical file or evidence bytes deleted",
+  "base": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "base_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "before_available_bytes": 12356960256,
+  "after_available_bytes": 12578422784,
+  "recovered_available_bytes": 221462528,
+  "files": [
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-393-centered-quantization/candidate.nhtissue",
+      "sha256_before_after": "dddda77c9970d520ee5736b51970a38e7471079cd01616b5896a6cada946ae08",
+      "bytes": 36357012,
+      "rewritten_chunks": 67,
+      "rewritten_bytes": 4390912
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-393-quantization/candidate.nhtissue",
+      "sha256_before_after": "d7313a4cf044ca511830e271f902c5950dfb2f2e4133a20ca1abce15de036a7e",
+      "bytes": 36357012,
+      "rewritten_chunks": 67,
+      "rewritten_bytes": 4390912
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-393-local-origin/candidate.nhtissue",
+      "sha256_before_after": "3ea2735dc799830def8f508bb51eb9e5e4de095eb0f0aa71b844ee08491eac3c",
+      "bytes": 36357012,
+      "rewritten_chunks": 67,
+      "rewritten_bytes": 4390912
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-393-centered/corrected-route-weights-centered-inverse-current-bind.nhtissue",
+      "sha256_before_after": "8f456e52ac4a63d7b82af2f85e7b5f81f6bb156fad06216e3fe3269bba04ffcc",
+      "bytes": 36357012,
+      "rewritten_chunks": 67,
+      "rewritten_bytes": 4390912
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/topology-flips-004/candidate-topology.nhtissue",
+      "sha256_before_after": "c3ebcaf1adea6cd5fbf22a08f8386f7bbda18f34dd2f08ab109cae91f59be370",
+      "bytes": 36357012,
+      "rewritten_chunks": 74,
+      "rewritten_bytes": 4849664
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/topology-flips-005/candidate-topology.nhtissue",
+      "sha256_before_after": "2bb28ed2bfde8b47c7e9fbc4735cae93ec76be3a15108f0f7dff5fa9d86fd065",
+      "bytes": 36357012,
+      "rewritten_chunks": 82,
+      "rewritten_bytes": 5373952
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/topology-flips-006/candidate-topology.nhtissue",
+      "sha256_before_after": "3c63ecbaa219ba964242707555e7ffecf9ecc4e159d650017d2b34dc4d43cef9",
+      "bytes": 36357012,
+      "rewritten_chunks": 81,
+      "rewritten_bytes": 5308416
+    }
+  ]
+}
