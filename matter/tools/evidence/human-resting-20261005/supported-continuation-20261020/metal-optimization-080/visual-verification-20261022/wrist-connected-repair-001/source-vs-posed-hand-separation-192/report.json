@@ -1,0 +1,525 @@
+{
+  "scope": "same pinned skin payload and bone sources; native-expression Float32 pose counterfactual, source rest is not accepted current state",
+  "witnesses": [
+    {
+      "source_vertex": 52310,
+      "positions": {
+        "rest": [
+          0.1940745860338211,
+          0.15402807295322418,
+          0.8511994481086731
+        ],
+        "current": [
+          0.25589653849601746,
+          -0.9397498965263367,
+          0.13515563309192657
+        ]
+      },
+      "weights": [
+        {
+          "body_index": 20,
+          "weight": 0.00014080975961405784
+        },
+        {
+          "body_index": 84,
+          "weight": 1.8205233573098667e-05
+        },
+        {
+          "body_index": 91,
+          "weight": 0.0002496700326446444
+        },
+        {
+          "body_index": 92,
+          "weight": 0.0012724418193101883
+        },
+        {
+          "body_index": 93,
+          "weight": 0.009358840994536877
+        },
+        {
+          "body_index": 95,
+          "weight": 0.0021156291477382183
+        },
+        {
+          "body_index": 96,
+          "weight": 0.006816480308771133
+        },
+        {
+          "body_index": 97,
+          "weight": 0.00035632067010737956
+        },
+        {
+          "body_index": 98,
+          "weight": 0.00088359450455755
+        },
+        {
+          "body_index": 99,
+          "weight": 0.008107679896056652
+        },
+        {
+          "body_index": 100,
+          "weight": 0.006260331720113754
+        },
+        {
+          "body_index": 102,
+          "weight": 0.04351776838302612
+        },
+        {
+          "body_index": 103,
+          "weight": 0.033340178430080414
+        },
+        {
+          "body_index": 104,
+          "weight": 0.01106724888086319
+        },
+        {
+          "body_index": 105,
+          "weight": 0.0043703303672373295
+        },
+        {
+          "body_index": 106,
+          "weight": 0.0017946450971066952
+        },
+        {
+          "body_index": 107,
+          "weight": 0.34520459175109863
+        },
+        {
+          "body_index": 109,
+          "weight": 0.1905190497636795
+        },
+        {
+          "body_index": 110,
+          "weight": 0.0377393439412117
+        },
+        {
+          "body_index": 111,
+          "weight": 0.009831588715314865
+        },
+        {
+          "body_index": 112,
+          "weight": 0.1364719569683075
+        },
+        {
+          "body_index": 114,
+          "weight": 0.08004382997751236
+        },
+        {
+          "body_index": 115,
+          "weight": 0.013743981719017029
+        },
+        {
+          "body_index": 116,
+          "weight": 0.0032285787165164948
+        },
+        {
+          "body_index": 117,
+          "weight": 0.02209336683154106
+        },
+        {
+          "body_index": 119,
+          "weight": 0.01787044107913971
+        },
+        {
+          "body_index": 120,
+          "weight": 0.0026480956003069878
+        },
+        {
+          "body_index": 121,
+          "weight": 0.000729879888240248
+        },
+        {
+          "body_index": 122,
+          "weight": 0.006876843515783548
+        },
+        {
+          "body_index": 124,
+          "weight": 0.002414928749203682
+        },
+        {
+          "body_index": 125,
+          "weight": 0.0007156098145060241
+        },
+        {
+          "body_index": 126,
+          "weight": 0.0001888949191197753
+        }
+      ],
+      "current_from_rest_singular_values": [
+        0.999999909586837,
+        0.9999991925682254,
+        0.999999129324008
+      ],
+      "rest_lbs_det": 1.0230076522899227,
+      "current_lbs_det": 1.0230058430803528,
+      "bone_checks": [
+        {
+          "bone": "secondmc_l",
+          "stable_id": 108,
+          "winding": {
+            "rest": 1.0000000000000002,
+            "current": 1.0
+          }
+        },
+        {
+          "bone": "3proxph_l",
+          "stable_id": 117,
+          "winding": {
+            "rest": 0.0,
+            "current": 0.0
+          }
+        },
+        {
+          "bone": "midph3_l",
+          "stable_id": 118,
+          "winding": {
+            "rest": 6.90224540248159e-20,
+            "current": -1.7255613506203977e-19
+          }
+        }
+      ]
+    },
+    {
+      "source_vertex": 52297,
+      "positions": {
+        "rest": [
+          0.1950523555278778,
+          0.15065698325634003,
+          0.8369802236557007
+        ],
+        "current": [
+          0.25828006863594055,
+          -0.9538171887397766,
+          0.13846367597579956
+        ]
+      },
+      "weights": [
+        {
+          "body_index": 20,
+          "weight": 2.2724198061041534e-05
+        },
+        {
+          "body_index": 91,
+          "weight": 4.098613862879574e-05
+        },
+        {
+          "body_index": 92,
+          "weight": 0.00022847233049105853
+        },
+        {
+          "body_index": 93,
+          "weight": 0.0015100627206265926
+        },
+        {
+          "body_index": 95,
+          "weight": 0.00042694623698480427
+        },
+        {
+          "body_index": 96,
+          "weight": 0.0010760201839730144
+        },
+        {
+          "body_index": 97,
+          "weight": 0.0001645736483624205
+        },
+        {
+          "body_index": 98,
+          "weight": 0.00021997313888277858
+        },
+        {
+          "body_index": 99,
+          "weight": 0.0011851415038108826
+        },
+        {
+          "body_index": 100,
+          "weight": 0.0011228210059925914
+        },
+        {
+          "body_index": 102,
+          "weight": 0.008741897530853748
+        },
+        {
+          "body_index": 103,
+          "weight": 0.008248814381659031
+        },
+        {
+          "body_index": 104,
+          "weight": 0.002927968045696616
+        },
+        {
+          "body_index": 105,
+          "weight": 0.0006293213809840381
+        },
+        {
+          "body_index": 106,
+          "weight": 0.0003918941074516624
+        },
+        {
+          "body_index": 107,
+          "weight": 0.22688278555870056
+        },
+        {
+          "body_index": 109,
+          "weight": 0.33491840958595276
+        },
+        {
+          "body_index": 110,
+          "weight": 0.03734176605939865
+        },
+        {
+          "body_index": 111,
+          "weight": 0.010574816726148129
+        },
+        {
+          "body_index": 112,
+          "weight": 0.060633353888988495
+        },
+        {
+          "body_index": 114,
+          "weight": 0.21120813488960266
+        },
+        {
+          "body_index": 115,
+          "weight": 0.0414191335439682
+        },
+        {
+          "body_index": 116,
+          "weight": 0.00950696598738432
+        },
+        {
+          "body_index": 117,
+          "weight": 0.010305614210665226
+        },
+        {
+          "body_index": 119,
+          "weight": 0.01945347897708416
+        },
+        {
+          "body_index": 120,
+          "weight": 0.004027628805488348
+        },
+        {
+          "body_index": 121,
+          "weight": 0.0011398395290598273
+        },
+        {
+          "body_index": 122,
+          "weight": 0.0025176636409014463
+        },
+        {
+          "body_index": 124,
+          "weight": 0.0020643651951104403
+        },
+        {
+          "body_index": 125,
+          "weight": 0.0008351297001354396
+        },
+        {
+          "body_index": 126,
+          "weight": 0.0002289673575432971
+        }
+      ],
+      "current_from_rest_singular_values": [
+        0.9999999132361433,
+        0.9999998693683294,
+        0.9999997873392424
+      ],
+      "rest_lbs_det": 1.02300770704625,
+      "current_lbs_det": 1.0230072670954158,
+      "bone_checks": [
+        {
+          "bone": "secondmc_l",
+          "stable_id": 108,
+          "winding": {
+            "rest": 7.730514850779382e-18,
+            "current": 1.1043592643970545e-18
+          }
+        },
+        {
+          "bone": "3proxph_l",
+          "stable_id": 117,
+          "winding": {
+            "rest": -8.834874115176436e-18,
+            "current": 0.0
+          }
+        },
+        {
+          "bone": "midph3_l",
+          "stable_id": 118,
+          "winding": {
+            "rest": -1.7255613506203977e-19,
+            "current": -2.415785890868557e-19
+          }
+        }
+      ]
+    },
+    {
+      "source_vertex": 51506,
+      "positions": {
+        "rest": [
+          0.19557316601276398,
+          0.16752181947231293,
+          0.8029766082763672
+        ],
+        "current": [
+          0.26226603984832764,
+          -0.9875103831291199,
+          0.12143969535827637
+        ]
+      },
+      "weights": [
+        {
+          "body_index": 92,
+          "weight": 5.276692900224589e-05
+        },
+        {
+          "body_index": 93,
+          "weight": 0.00021470928913913667
+        },
+        {
+          "body_index": 95,
+          "weight": 0.00011999574053334072
+        },
+        {
+          "body_index": 96,
+          "weight": 0.00015818336396478117
+        },
+        {
+          "body_index": 97,
+          "weight": 7.210477633634582e-05
+        },
+        {
+          "body_index": 98,
+          "weight": 8.314260048791766e-05
+        },
+        {
+          "body_index": 99,
+          "weight": 0.00021971888781990856
+        },
+        {
+          "body_index": 100,
+          "weight": 0.0001578775409143418
+        },
+        {
+          "body_index": 102,
+          "weight": 0.0011396444169804454
+        },
+        {
+          "body_index": 103,
+          "weight": 0.0011683363700285554
+        },
+        {
+          "body_index": 104,
+          "weight": 0.000453786866273731
+        },
+        {
+          "body_index": 105,
+          "weight": 9.417741966899484e-05
+        },
+        {
+          "body_index": 106,
+          "weight": 0.00012403909931890666
+        },
+        {
+          "body_index": 107,
+          "weight": 0.017209012061357498
+        },
+        {
+          "body_index": 109,
+          "weight": 0.033091168850660324
+        },
+        {
+          "body_index": 110,
+          "weight": 0.004266292788088322
+        },
+        {
+          "body_index": 111,
+          "weight": 0.0015809353208169341
+        },
+        {
+          "body_index": 112,
+          "weight": 0.025480253621935844
+        },
+        {
+          "body_index": 114,
+          "weight": 0.44662559032440186
+        },
+        {
+          "body_index": 115,
+          "weight": 0.3141523599624634
+        },
+        {
+          "body_index": 116,
+          "weight": 0.09703170508146286
+        },
+        {
+          "body_index": 117,
+          "weight": 0.007396654225885868
+        },
+        {
+          "body_index": 119,
+          "weight": 0.03503919392824173
+        },
+        {
+          "body_index": 120,
+          "weight": 0.007127970457077026
+        },
+        {
+          "body_index": 121,
+          "weight": 0.0019280164269730449
+        },
+        {
+          "body_index": 122,
+          "weight": 0.0015345682622864842
+        },
+        {
+          "body_index": 124,
+          "weight": 0.0022205093409866095
+        },
+        {
+          "body_index": 125,
+          "weight": 0.0009789549512788653
+        },
+        {
+          "body_index": 126,
+          "weight": 0.000266634306171909
+        }
+      ],
+      "current_from_rest_singular_values": [
+        0.999999977818332,
+        0.99999991254547,
+        0.9999998911395892
+      ],
+      "rest_lbs_det": 1.0230076887999304,
+      "current_lbs_det": 1.0230074652762349,
+      "bone_checks": [
+        {
+          "bone": "secondmc_l",
+          "stable_id": 108,
+          "winding": {
+            "rest": 6.90224540248159e-20,
+            "current": 3.4511227012407953e-19
+          }
+        },
+        {
+          "bone": "3proxph_l",
+          "stable_id": 117,
+          "winding": {
+            "rest": 1.0000000000000002,
+            "current": 1.0000000000000002
+          }
+        },
+        {
+          "bone": "midph3_l",
+          "stable_id": 118,
+          "winding": {
+            "rest": 5.300924469105861e-17,
+            "current": -1.236882376124701e-16
+          }
+        }
+      ]
+    }
+  ],
+  "payload_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+  "pose_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+}

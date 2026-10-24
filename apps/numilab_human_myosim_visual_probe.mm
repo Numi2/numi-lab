@@ -19,6 +19,7 @@
 #include "NumiHumanAcceptedQAuditWindow.hpp"
 #include "NumiHumanAcceptedFEMSkinTransfer.hpp"
 #include "NumiHumanSkinBoundaryNodeMap.hpp"
+#include "NumiHumanUnpairedSkinFatVolume.hpp"
 #include "NumiHumanElbowBaselineProlongation065.hpp"
 #include "NumiHumanWholeBodySkinEmbeddingConsumer.hpp"
 #include "NumiHumanWholeBodySkinTransferAncestry.hpp"
@@ -15404,7 +15405,8 @@ void writeSkinPoseSnapshot(
     const std::vector<MRBodyStateGPU>& restBodies,
     const std::filesystem::path& path
 ) {
-    require(bodies.size() == restBodies.size(), "skin snapshot rest pose size differs");
+    require(!bodies.empty() && bodies.size() == restBodies.size(),
+            "skin snapshot current/rest pose sizes differ or are empty");
     std::ofstream output(path);
     require(output.is_open(), "cannot write skin pose snapshot");
     output << std::setprecision(9)
@@ -15413,6 +15415,13 @@ void writeSkinPoseSnapshot(
            << ",\"binding_count\":" << skin.bindings.size()
            << ",\"payload_abi\":" << skin.header.payloadAbi
            << ",\"vertex_count\":" << skin.vertices.size() << ",\"bodies\":[";
+    const auto writePose = [&output](const MRBodyStateGPU& body) {
+        output << "{\"position_world_m\":[" << body.position.x << ','
+               << body.position.y << ',' << body.position.z
+               << "],\"orientation_world_xyzw\":[" << body.orientation.x << ','
+               << body.orientation.y << ',' << body.orientation.z << ','
+               << body.orientation.w << "]}";
+    };
     std::vector<std::uint32_t> owners;
     for (const SkinBindingRecord& binding : skin.bindings) {
         require(binding.bodyIndex < bodies.size(), "skin snapshot owner is invalid");
@@ -15420,20 +15429,30 @@ void writeSkinPoseSnapshot(
                 "skin snapshot contains duplicate owners");
         if (!owners.empty()) output << ',';
         owners.push_back(binding.bodyIndex);
-        const auto writePose = [&output](const MRBodyStateGPU& body) {
-            output << "{\"position_world_m\":[" << body.position.x << ','
-                   << body.position.y << ',' << body.position.z
-                   << "],\"orientation_world_xyzw\":[" << body.orientation.x << ','
-                   << body.orientation.y << ',' << body.orientation.z << ','
-                   << body.orientation.w << "]}";
-        };
         output << "{\"body_index\":" << binding.bodyIndex << ",\"current\":";
         writePose(bodies[binding.bodyIndex]);
         output << ",\"rest\":";
         writePose(restBodies[binding.bodyIndex]);
         output << '}';
     }
-    output << "],\"boundary\":\"actual native skin renderer current and source-rest COM poses; sampled visual blending, not tissue mechanics or clinical registration\"}\n";
+    const char* allBodyEnv=std::getenv("NUMI_HUMAN_SKIN_REFERENCE_ALL_BODY_POSES");
+    require(allBodyEnv==nullptr||std::string_view(allBodyEnv)=="0"||std::string_view(allBodyEnv)=="1",
+            "all-body skin reference pose opt-in must be 0 or 1");
+    if(allBodyEnv!=nullptr&&std::string_view(allBodyEnv)=="1") {
+        output << "],\"all_bodies\":[";
+        for(std::size_t bodyIndex=0;bodyIndex<bodies.size();++bodyIndex) {
+            if(bodyIndex!=0u) output << ',';
+            output << "{\"body_index\":" << bodyIndex << ",\"current\":";
+            writePose(bodies[bodyIndex]);
+            output << ",\"rest\":";
+            writePose(restBodies[bodyIndex]);
+            output << '}';
+        }
+        output << ']';
+    } else {
+        output << ']';
+    }
+    output << ",\"boundary\":\"actual native skin renderer current and source-rest COM poses; sampled visual blending, not tissue mechanics or clinical registration\"}\n";
     output.close();
     require(!output.fail(), "could not complete skin pose snapshot");
 }
@@ -22245,6 +22264,364 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             require(wholeBodySkinBoundaryNodeMap.volumeNodeCount==
                         source.objects.back().femNodes.size(),
                     "whole-body boundary map does not cover its physical volume nodes");
+            const char* identityPreflightEnv=std::getenv("NUMI_HUMAN_UNPAIRED_IDENTITY_PREFLIGHT");
+            require(identityPreflightEnv==nullptr||std::string_view(identityPreflightEnv)=="0"||
+                        std::string_view(identityPreflightEnv)=="1",
+                    "unpaired identity-preflight opt-in must be 0 or 1");
+            if(identityPreflightEnv!=nullptr&&std::string_view(identityPreflightEnv)=="1") {
+                // Exercise the new volume-node owner against an exact clone of the
+                // already accepted paired object. This is a source-preparation
+                // compatibility check only; it does not qualify repaired anatomy.
+                require(!source.objects.empty(),"identity preflight has no paired shell object");
+                const auto& paired=source.objects.back();
+                require(paired.representation==numi::matter::Representation::fem&&
+                            paired.femNodes.size()==3u*region.worldPoints.size()&&
+                            paired.femMaterialIndices.size()==paired.tetrahedra.size()&&
+                            (paired.femReferenceNodes.empty()||
+                             paired.femReferenceNodes.size()==paired.femNodes.size()),
+                        "identity preflight paired shell arrays are incomplete");
+                const std::size_t surfaceCount=region.worldPoints.size();
+                const std::size_t volumeCount=paired.femNodes.size();
+                const std::size_t tetCount=paired.tetrahedra.size();
+                require(volumeCount==3u*surfaceCount&&
+                            region.faces.size()==kWholeBodySkinFaces.size()&&
+                            region.donorBodyIndices.size()==surfaceCount&&
+                            region.donorLocalPoints.size()==surfaceCount&&
+                            region.worldToDonorLocalLinear.size()==surfaceCount&&
+                            region.sourceVertexIndices.size()==surfaceCount&&
+                            (region.sourceFaceIndices.empty()||
+                             region.sourceFaceIndices.size()==region.faces.size())&&
+                            (region.sourceEmbeddingFaceIndices.empty()||
+                             region.sourceEmbeddingFaceIndices.size()==surfaceCount)&&
+                            (region.sourceEmbeddingBarycentric.empty()||
+                             region.sourceEmbeddingBarycentric.size()==surfaceCount),
+                        "identity preflight source and three-layer boundary maps are not row-aligned");
+
+                ExplicitUnpairedVolumeTopology identityTopology;
+                std::vector<V3> identityCurrent(paired.femNodes.begin(),paired.femNodes.end());
+                std::vector<V3> identityReference;
+                if(paired.femReferenceNodes.empty()) identityReference=identityCurrent;
+                else identityReference.assign(paired.femReferenceNodes.begin(),paired.femReferenceNodes.end());
+                std::vector<std::array<std::uint32_t,4>> identityTets;
+                identityTets.reserve(tetCount);
+                for(const auto& tet:paired.tetrahedra) identityTets.push_back(tet.nodes);
+                std::vector<std::uint32_t> identityMaterials=paired.femMaterialIndices;
+                std::vector<std::uint32_t> nodeLayer(volumeCount,NM_INVALID_INDEX),nodeSurfaceRow(volumeCount,NM_INVALID_INDEX);
+                const std::array<const std::vector<std::uint32_t>*,3> roleMap{
+                    &wholeBodySkinBoundaryNodeMap.outer,&wholeBodySkinBoundaryNodeMap.skinInner,
+                    &wholeBodySkinBoundaryNodeMap.fatDeep};
+                for(std::uint32_t role=0;role<3u;++role) {
+                    require(roleMap[role]->size()==surfaceCount,
+                            "identity preflight boundary role has a mismatched surface row count");
+                    for(std::uint32_t row=0;row<surfaceCount;++row) {
+                        const auto node=(*roleMap[role])[row];
+                        require(node<volumeCount&&nodeLayer[node]==NM_INVALID_INDEX,
+                                "identity preflight boundary map aliases or exceeds the volume rows");
+                        nodeLayer[node]=role;nodeSurfaceRow[node]=row;
+                    }
+                }
+                require(std::none_of(nodeLayer.begin(),nodeLayer.end(),[](auto role){return role==NM_INVALID_INDEX;}),
+                        "identity preflight has an unmapped volume row");
+
+                std::map<Face,std::uint32_t> identitySurfaceFaceByKey;
+                for(std::uint32_t face=0;face<region.faces.size();++face) {
+                    auto key=region.faces[face];std::sort(key.begin(),key.end());
+                    require(key[0]<surfaceCount&&key[1]<surfaceCount&&key[2]<surfaceCount&&
+                                key[0]!=key[1]&&key[1]!=key[2]&&
+                                identitySurfaceFaceByKey.emplace(key,face).second,
+                            "identity preflight registered surface has an invalid or duplicate triangle");
+                }
+                std::vector<std::uint32_t> identityParentSurfaceFaces(tetCount,NM_INVALID_INDEX);
+                std::vector<std::uint32_t> identityStableFaces(tetCount,NM_INVALID_INDEX);
+                // Restore exact child-to-registered-face identities from each
+                // material partition before inspecting geometric facets.
+                // This is authoritative for mixed-layer/prism tets; row-triplet
+                // inference below is only a fallback for legacy rows.
+                auto seedIdentityFromReport=[&](const PreparedOrganicFEM& report,std::string_view role) {
+                    const auto count=report.tetChildIndex.size();
+                    require(report.tetParentSurfaceFace.size()==count&&
+                                report.tetSourceFaceIdentity.size()==count,
+                            "identity preflight "+std::string(role)+
+                                " child ancestry arrays are not aligned");
+                    for(std::size_t row=0;row<count;++row) {
+                        const auto child=report.tetChildIndex[row];
+                        const auto parentFace=report.tetParentSurfaceFace[row];
+                        const auto stable=report.tetSourceFaceIdentity[row];
+                        require(child<tetCount&&parentFace<region.faces.size(),
+                                "identity preflight "+std::string(role)+
+                                    " child ancestry index is outside the combined mesh");
+                        const auto expectedStable=region.sourceFaceIndices.empty()?parentFace:
+                            region.sourceFaceIndices[parentFace];
+                        require(stable==expectedStable&&stable!=NM_INVALID_INDEX,
+                                "identity preflight "+std::string(role)+
+                                    " stable parent identity differs from RegisteredSurface");
+                        require((identityParentSurfaceFaces[child]==NM_INVALID_INDEX&&
+                                    identityStableFaces[child]==NM_INVALID_INDEX)||
+                                    (identityParentSurfaceFaces[child]==parentFace&&
+                                     identityStableFaces[child]==stable),
+                                "identity preflight has conflicting material-report ancestry for child "+
+                                    std::to_string(child));
+                        identityParentSurfaceFaces[child]=parentFace;
+                        identityStableFaces[child]=stable;
+                    }
+                };
+                seedIdentityFromReport(preparedSkin,"skin");
+                seedIdentityFromReport(preparedFat,"fat");
+                std::vector<std::uint32_t> identityTetDonor(tetCount,NM_INVALID_INDEX);
+                std::vector<std::uint32_t> identityParentOffsets(tetCount+1u);
+                std::vector<std::uint32_t> identityParentRows(tetCount);
+                std::vector<double> identityParentFractions(tetCount,1.0);
+                std::vector<std::uint32_t> identityFacetRows(4u*tetCount,NM_INVALID_INDEX);
+                std::vector<std::uint32_t> identityFacetStable(4u*tetCount,NM_INVALID_INDEX);
+                std::vector<std::uint8_t> identityWallFlags(4u*tetCount,0u);
+                std::vector<std::uint32_t> identityWallStable(4u*tetCount,NM_INVALID_INDEX);
+                std::map<std::array<std::uint32_t,3>,std::vector<std::pair<std::uint32_t,std::uint32_t>>> identityFacetUses;
+                std::map<std::array<std::uint32_t,2>,std::uint32_t> identitySourceEdgeUse;
+                for(const auto& face:region.faces) for(unsigned e=0;e<3u;++e) {
+                    auto a=face[e],b=face[(e+1u)%3u];if(a>b)std::swap(a,b);
+                    ++identitySourceEdgeUse[{a,b}];
+                }
+                for(std::uint32_t ti=0;ti<tetCount;++ti) {
+                    identityParentOffsets[ti]=ti;identityParentRows[ti]=ti;
+                    const auto tet=identityTets[ti];
+                    std::map<std::uint32_t,unsigned> donorCounts;
+                    for(auto node:tet) {require(node<volumeCount,"identity preflight tetrahedron has an out-of-range node");
+                        ++donorCounts[region.donorBodyIndices[node%surfaceCount]];}
+                    auto selectedDonor=donorCounts.begin();
+                    for(auto it=donorCounts.begin();it!=donorCounts.end();++it)
+                        if(it->second>selectedDonor->second)selectedDonor=it;
+                    identityTetDonor[ti]=selectedDonor->first;
+                    for(unsigned omitted=0;omitted<4u;++omitted) {
+                        std::array<std::uint32_t,3> nodes{};unsigned at=0;
+                        for(unsigned corner=0;corner<4u;++corner)if(corner!=omitted)nodes[at++]=tet[corner];
+                        auto facetKey=nodes;std::sort(facetKey.begin(),facetKey.end());
+                        identityFacetUses[facetKey].push_back({ti,omitted});
+                        const auto role=nodeLayer[nodes[0]];bool sameRole=true;
+                        for(auto node:nodes)if(nodeLayer[node]!=role)sameRole=false;
+                        if(!sameRole)continue;
+                        Face key{};for(unsigned k=0;k<3u;++k)key[k]=nodeSurfaceRow[nodes[k]];
+                        std::sort(key.begin(),key.end());const auto found=identitySurfaceFaceByKey.find(key);
+                        if(found==identitySurfaceFaceByKey.end())continue;
+                        const auto surfaceFace=found->second;
+                        const auto stable=region.sourceFaceIndices.empty()?surfaceFace:region.sourceFaceIndices[surfaceFace];
+                        require(stable!=NM_INVALID_INDEX,
+                                "identity preflight registered boundary face has no stable source identity");
+                        identityFacetRows[4u*ti+omitted]=surfaceFace;
+                        identityFacetStable[4u*ti+omitted]=stable;
+                        if(identityParentSurfaceFaces[ti]==NM_INVALID_INDEX) {
+                            identityParentSurfaceFaces[ti]=surfaceFace;identityStableFaces[ti]=stable;
+                        }
+                    }
+                    if(identityParentSurfaceFaces[ti]==NM_INVALID_INDEX) {
+                        // The legacy prism split includes mixed-layer tetrahedra
+                        // without a same-layer facet. Their exact generating face
+                        // is still determined by the three surface-row identities
+                        // represented by the tetrahedron; no nearest-face fallback.
+                        std::set<std::uint32_t> representedRows;
+                        for(auto node:tet)representedRows.insert(nodeSurfaceRow[node]);
+                        require(representedRows.size()==3u,
+                                "identity preflight tet does not map to exactly three registered surface rows at tet "+std::to_string(ti));
+                        Face parentKey{};unsigned keyAt=0u;
+                        for(auto row:representedRows)parentKey[keyAt++]=row;
+                        std::sort(parentKey.begin(),parentKey.end());
+                        const auto parentFound=identitySurfaceFaceByKey.find(parentKey);
+                        require(parentFound!=identitySurfaceFaceByKey.end(),
+                                "identity preflight tet surface-row triplet is not an exact registered triangle at tet "+std::to_string(ti));
+                        identityParentSurfaceFaces[ti]=parentFound->second;
+                        identityStableFaces[ti]=region.sourceFaceIndices.empty()?parentFound->second:
+                            region.sourceFaceIndices[parentFound->second];
+                        require(identityStableFaces[ti]!=NM_INVALID_INDEX,
+                                "identity preflight generating triangle has no stable source identity");
+                    }
+                }
+                identityParentOffsets[tetCount]=static_cast<std::uint32_t>(tetCount);
+                std::set<std::uint32_t> identityStableSet(identityStableFaces.begin(),identityStableFaces.end());
+                std::uint32_t nextWallStable=0x80000000u;
+                for(const auto& [facet,uses]:identityFacetUses) {
+                    require(uses.size()==1u||uses.size()==2u,
+                            "identity preflight tetrahedra have nonmanifold facet incidence");
+                    if(uses.size()==2u)continue;
+                    const auto [ti,omitted]=uses.front();const auto slot=4u*ti+omitted;
+                    if(identityFacetRows[slot]!=NM_INVALID_INDEX)continue;
+                    std::set<std::uint32_t> distinctRows;
+                    bool mixedRoles=false;const auto firstRole=nodeLayer[facet[0]];
+                    for(auto node:facet) {
+                        if(nodeLayer[node]!=firstRole)mixedRoles=true;
+                        distinctRows.insert(nodeSurfaceRow[node]);
+                    }
+                    if(!mixedRoles||distinctRows.size()!=2u) {
+                        throw std::runtime_error("identity preflight exterior facet is not an O/I/D surface face or two-row sidewall");
+                    }
+                    auto rowIt=distinctRows.begin();
+                    std::array<std::uint32_t,2> edge{*rowIt,*std::next(rowIt)};
+                    if(edge[0]>edge[1])std::swap(edge[0],edge[1]);
+                    const auto edgeUse=identitySourceEdgeUse.find(edge);
+                    require(edgeUse!=identitySourceEdgeUse.end()&&edgeUse->second==1u,
+                            "identity preflight exterior sidewall is not on an exact registered boundary edge");
+                    while(identityStableSet.contains(nextWallStable)||nextWallStable==NM_INVALID_INDEX)++nextWallStable;
+                    identityWallFlags[slot]=1u;identityWallStable[slot]=nextWallStable;
+                    identityStableSet.insert(nextWallStable++);
+                }
+
+                std::vector<std::uint32_t> nodeDonor(volumeCount),nodeSourceVertex(volumeCount),
+                    nodeSourceFace(volumeCount,NM_INVALID_INDEX);
+                std::vector<std::array<double,3>> nodeSourceBary(volumeCount);
+                std::vector<V3> nodeLocal(volumeCount),nodeOrigin(volumeCount),nodeParentResidual(volumeCount);
+                std::vector<std::array<double,9>> nodeRotation(volumeCount),bodyRotation(bodies.size());
+                std::vector<V3> bodyOrigin(bodies.size());
+                std::vector<std::uint8_t> bodyFrameSet(bodies.size(),0u);
+                const auto transposeRotation=[](const std::array<double,9>& inverse) {
+                    std::array<double,9> result{};
+                    for(unsigned row=0;row<3u;++row)for(unsigned column=0;column<3u;++column)
+                        result[3u*row+column]=inverse[3u*column+row];
+                    return result;
+                };
+                const auto transformPoint=[](const std::array<double,9>& rotation,const V3& origin,const V3& local) {
+                    V3 result=origin;
+                    for(unsigned row=0;row<3u;++row)for(unsigned column=0;column<3u;++column)
+                        result[row]+=rotation[3u*row+column]*local[column];
+                    return result;
+                };
+                const std::array<const std::vector<V3>*,3> roleLocal{
+                    &region.donorLocalPoints,&skinLayer.innerLocal,&fatLayer.innerLocal};
+                const std::array<const std::vector<V3>*,3> roleWorld{
+                    &region.worldPoints,&skinLayer.innerWorld,&fatLayer.innerWorld};
+                for(std::uint32_t row=0;row<surfaceCount;++row) {
+                    const auto donor=region.donorBodyIndices[row];
+                    require(donor<bodies.size(),"identity preflight registered donor is outside the body pose table");
+                    const auto rotation=transposeRotation(region.worldToDonorLocalLinear[row]);
+                    const auto rotated=transformPoint(rotation,V3{},region.donorLocalPoints[row]);
+                    const V3 origin=sub(region.worldPoints[row],rotated);
+                    if(!bodyFrameSet[donor]) {bodyRotation[donor]=rotation;bodyOrigin[donor]=origin;bodyFrameSet[donor]=1u;}
+                    else {
+                        for(unsigned k=0;k<9u;++k)require(std::abs(bodyRotation[donor][k]-rotation[k])<=1.0e-8,
+                                "identity preflight registered donor rotation varies within one body ID");
+                        require(norm(sub(bodyOrigin[donor],origin))<=1.0e-7,
+                                "identity preflight registered donor origin varies within one body ID");
+                    }
+                }
+                for(std::size_t node=0;node<volumeCount;++node) {
+                    const auto role=nodeLayer[node],row=nodeSurfaceRow[node],donor=region.donorBodyIndices[row];
+                    require(role<3u&&row<surfaceCount&&roleLocal[role]->size()==surfaceCount&&
+                                roleWorld[role]->size()==surfaceCount,
+                            "identity preflight layer-local coordinate table is incomplete");
+                    nodeDonor[node]=donor;nodeLocal[node]=(*roleLocal[role])[row];
+                    nodeRotation[node]=bodyRotation[donor];nodeOrigin[node]=bodyOrigin[donor];
+                    nodeSourceVertex[node]=region.sourceVertexIndices[row];
+                    if(!region.sourceEmbeddingFaceIndices.empty()) {
+                        nodeSourceFace[node]=region.sourceEmbeddingFaceIndices[row];
+                        nodeSourceBary[node]=region.sourceEmbeddingBarycentric[row];
+                    }
+                    nodeParentResidual[node]=V3{};
+                    require(norm(sub(transformPoint(nodeRotation[node],nodeOrigin[node],nodeLocal[node]),identityCurrent[node]))<=1.0e-7,
+                            "identity preflight source donor frame does not reproduce the exact paired current node");
+                    require(norm(sub((*roleWorld[role])[row],identityCurrent[node]))<=1.0e-8,
+                            "identity preflight paired object differs from its exact O/I/D boundary source");
+                }
+                std::vector<std::uint32_t> noNodeParent(volumeCount,NM_INVALID_INDEX);
+                std::vector<std::array<double,4>> zeroNodeBary(volumeCount);
+                std::vector<std::uint32_t> faceSourceIDs=region.sourceFaceIndices;
+                if(faceSourceIDs.empty()) {faceSourceIDs.resize(region.faces.size());std::iota(faceSourceIDs.begin(),faceSourceIDs.end(),0u);}
+                identityTopology.currentWorldPoints=identityCurrent;
+                identityTopology.referenceWorldPoints=identityReference;
+                identityTopology.childTetrahedra=identityTets;
+                identityTopology.childMaterialIndices=identityMaterials;
+                identityTopology.childDominantParentTetrahedra=identityParentRows;
+                identityTopology.childParentSurfaceFaces=identityParentSurfaceFaces;
+                identityTopology.childStableSourceFaceIdentities=identityStableFaces;
+                identityTopology.childDonorBodyIndices=identityTetDonor;
+                identityTopology.parentReferenceWorldPoints=identityReference;
+                identityTopology.parentTetrahedra=identityTets;
+                identityTopology.parentMaterialIndices=identityMaterials;
+                identityTopology.parentStableSourceFaceIdentities=identityStableFaces;
+                identityTopology.parentDonorBodyIndices=identityTetDonor;
+                identityTopology.childParentAncestryOffsets=identityParentOffsets;
+                identityTopology.childParentAncestryTetrahedra=identityParentRows;
+                identityTopology.childParentAncestryVolumeFractions=identityParentFractions;
+                identityTopology.childRegisteredLayerFacetSurfaceFaces=identityFacetRows;
+                identityTopology.childRegisteredLayerFacetSourceFaceIdentities=identityFacetStable;
+                identityTopology.childAuthoredHeadSidewallFacetFlags=identityWallFlags;
+                identityTopology.childAuthoredHeadSidewallStableFaceIdentities=identityWallStable;
+                identityTopology.volumeNodeDonorBodyIndices=nodeDonor;
+                identityTopology.volumeNodeDonorLocalPoints=nodeLocal;
+                identityTopology.volumeNodeDonorLocalToWorldLinear=nodeRotation;
+                identityTopology.volumeNodeDonorOriginWorld=nodeOrigin;
+                identityTopology.registeredBodyLocalToWorldLinear=bodyRotation;
+                identityTopology.registeredBodyOriginWorld=bodyOrigin;
+                identityTopology.detailedSourceVertexCount=skin->vertices.size();
+                identityTopology.detailedSourceFaceCount=skin->indices.size()/3u;
+                identityTopology.volumeNodeSourceVertexIndices=nodeSourceVertex;
+                identityTopology.volumeNodeSourceFaceIndices=nodeSourceFace;
+                identityTopology.volumeNodeSourceBarycentric=nodeSourceBary;
+                identityTopology.retainedOriginalNodeCount=volumeCount;
+                identityTopology.volumeNodeParentTetrahedra=noNodeParent;
+                identityTopology.volumeNodeParentBarycentric=zeroNodeBary;
+                identityTopology.volumeNodeParentResidualWorldM=nodeParentResidual;
+                identityTopology.ancestryVerificationKind=VolumeAncestryVerificationKind::exactGeometricOverlap;
+                identityTopology.referenceSourceIdentity=materialIdentity;
+                identityTopology.materialSourceIdentity=materialIdentity;
+                std::string identityReceiptBytes;
+                identityReceiptBytes.append(reinterpret_cast<const char*>(identityReference.data()),identityReference.size()*sizeof(V3));
+                identityReceiptBytes.append(reinterpret_cast<const char*>(identityTets.data()),identityTets.size()*sizeof(identityTets.front()));
+                identityReceiptBytes.append(reinterpret_cast<const char*>(identityMaterials.data()),identityMaterials.size()*sizeof(identityMaterials.front()));
+                const auto identityDigest=loadedKneeSHA256(identityReceiptBytes.data(),identityReceiptBytes.size());
+                const auto identityReceipt=loadedKneeSHA256Hex(identityDigest);
+                identityTopology.ancestryVerificationReceiptSHA256=identityReceipt;
+
+                // Clone only source objects/materials needed by the owner. The
+                // production WorldSource and its paired object remain untouched.
+                numi::matter::WorldSource identityWorld;
+                identityWorld.materials=source.materials;
+                identityWorld.objects.assign(source.objects.begin(),source.objects.end()-1);
+                PreparedOrganicFEM identityPreparedSkin,identityPreparedFat;
+                ExplicitUnpairedVolumeReport identityReport;
+                require(appendRegisteredSkinFatUnpairedVolume(identityWorld,region,
+                            wholeBodySkinBoundaryNodeMap,identityTopology,skinMaterialIndex,skinMaterialName,
+                            skinThicknessProvenance,skinDebit,fatMaterialIndex,fatMaterialName,
+                            fatThicknessProvenance,fatDebit,bodies.size(),
+                            "BodyParts3D opt-in exact identity remap diagnostic",
+                            identityPreparedSkin,identityPreparedFat,identityReport,tissueError),
+                        "unpaired identity remap source preparation rejected: "+tissueError);
+                bool exactIdentityTets=identityWorld.objects.back().tetrahedra.size()==paired.tetrahedra.size();
+                if(exactIdentityTets)for(std::size_t ti=0;ti<paired.tetrahedra.size();++ti)
+                    exactIdentityTets=exactIdentityTets&&
+                        identityWorld.objects.back().tetrahedra[ti].nodes==paired.tetrahedra[ti].nodes;
+                require(identityWorld.objects.size()==source.objects.size()&&
+                            identityWorld.objects.back().femNodes==paired.femNodes&&exactIdentityTets&&
+                            identityWorld.objects.back().femMaterialIndices==paired.femMaterialIndices&&
+                            identityWorld.objects.back().femContactNodes==paired.femContactNodes,
+                        "unpaired identity remap changed the exact O/I/D node, tet, material, or contact map");
+                require(std::abs(identityPreparedSkin.volumeM3-preparedSkin.volumeM3)<=1.0e-10*preparedSkin.volumeM3&&
+                            std::abs(identityPreparedFat.volumeM3-preparedFat.volumeM3)<=1.0e-10*preparedFat.volumeM3&&
+                            std::abs(identityPreparedSkin.massDebitKg-preparedSkin.massDebitKg)<=1.0e-12&&
+                            std::abs(identityPreparedFat.massDebitKg-preparedFat.massDebitKg)<=1.0e-12,
+                        "unpaired identity remap changed source material volume or debit");
+                std::map<std::uint32_t,double> legacyNodeMass,newNodeMass;
+                std::map<std::uint32_t,std::uint32_t> legacyNodeDonor,newNodeDonor;
+                std::map<std::uint32_t,V3> legacyNodeLocal,newNodeLocal;
+                for(const auto& mass:preparedSkin.donorMassNodes) {
+                    legacyNodeMass[mass.nodeIndex]+=mass.massKg;legacyNodeDonor[mass.nodeIndex]=mass.donorBody;
+                    legacyNodeLocal[mass.nodeIndex]=mass.localPosition;
+                }
+                for(const auto* report:{&identityPreparedSkin,&identityPreparedFat})for(const auto& mass:report->donorMassNodes) {
+                    newNodeMass[mass.nodeIndex]+=mass.massKg;newNodeDonor[mass.nodeIndex]=mass.donorBody;
+                    newNodeLocal[mass.nodeIndex]=mass.localPosition;
+                }
+                require(legacyNodeMass.size()==volumeCount&&newNodeMass.size()==volumeCount,
+                        "unpaired identity remap donor-mass reports do not cover every original volume node");
+                for(const auto& [node,mass]:legacyNodeMass) {
+                    require(newNodeMass.contains(node)&&legacyNodeDonor[node]==newNodeDonor[node]&&
+                                norm(sub(legacyNodeLocal[node],newNodeLocal[node]))<=1.0e-7&&
+                                std::abs(mass-newNodeMass[node])<=1.0e-8*std::max(mass,1.0e-12),
+                            "unpaired identity remap changes a node's donor, local frame, or combined lumped mass");
+                }
+                std::cout<<"whole_body_skin_fat_unpaired_identity_remap=PASS"
+                    <<" nodes="<<identityReport.volumeNodeCount<<" tets="<<identityReport.tetrahedronCount
+                    <<" reference_m3="<<(identityPreparedSkin.volumeM3+identityPreparedFat.volumeM3)
+                    <<" mass_kg="<<(identityPreparedSkin.massDebitKg+identityPreparedFat.massDebitKg)
+                    <<" exact_identity_receipt_sha256="<<identityReceipt
+                    <<" source_world_mutated=0 physical_qualification=not_claimed"<<std::endl;
+            }
             if(partitionedReductionDiagnostic||
                partitionedPreconditionerRequested||endpointCaptureRequested) {
                 RegisteredSkinFatReductionSourceLabels sourceLabels;

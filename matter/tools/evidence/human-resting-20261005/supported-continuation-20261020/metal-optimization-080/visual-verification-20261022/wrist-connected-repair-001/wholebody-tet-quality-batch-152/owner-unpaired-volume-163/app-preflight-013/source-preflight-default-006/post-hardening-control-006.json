@@ -1,0 +1,85 @@
+{
+  "all_body_dump": {
+    "count": 157,
+    "current_rest_shapes_finite": true,
+    "indices_contiguous": true,
+    "max_unit_norm_error": 1.8623475495083142e-07,
+    "orientation_component_max": 1,
+    "orientation_component_min": -0.997066855,
+    "position_max_m": 2,
+    "position_min_m": -1.73013675,
+    "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+  },
+  "default_opt_in_flags_absent": true,
+  "default_output_files": {
+    "initial-skin-fem-nodes.csv": {
+      "baseline_sha256": "cb7cd7c5772532819bfcbc0931ac8cc5825237e64aed34821d6bf7ca3e66849b",
+      "candidate_sha256": "cb7cd7c5772532819bfcbc0931ac8cc5825237e64aed34821d6bf7ca3e66849b",
+      "identical": true
+    },
+    "registered-skin-poses.json": {
+      "baseline_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+      "candidate_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+      "identical": true
+    },
+    "registered-skin.csv": {
+      "baseline_sha256": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e",
+      "candidate_sha256": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e",
+      "identical": true
+    }
+  },
+  "default_source_only_receipt": {
+    "error": null,
+    "launch_manifest_sha256": "931268cf063e6795d5b5aa10ba5ba0ee058fa4c8654b5f735b66cd049fee1b13",
+    "physical_qualification": false,
+    "returncode": 1,
+    "source_only_marker_present": true,
+    "status": "SOURCE_ONLY_INTENTIONAL_STOP",
+    "stderr_sha256": "5a620bdecaa4ef513cd44f3a06de3b588f10cc35fb019a617c2a9405325a4964",
+    "stdout_sha256": "81f1eadfd5d7b13e26352b03a209f8ed9a032f59b0635c6657f22defe903b52b",
+    "wall_seconds": 7.880500625004061
+  },
+  "default_structural_fingerprint": {
+    "baseline_count": 1,
+    "baseline_sha256": "b7c190acbc81492816171d9f8ad9ab5baf7c6699779c7fdac66fa332f737a3e1",
+    "bytewise_identical": true,
+    "candidate_count": 1,
+    "candidate_sha256": "b7c190acbc81492816171d9f8ad9ab5baf7c6699779c7fdac66fa332f737a3e1",
+    "selected_prefixes": [
+      "whole_body_skin",
+      "resting_skin_fat_whole_body_preparation=",
+      "resting_tissue_mass_partition=",
+      "whole_body_tissue_mass_reference="
+    ]
+  },
+  "identity_mass": {
+    "combined_mass_kg": 13.93967974060784,
+    "combined_reference_volume_m3": 0.015104913880526679,
+    "fat_mass_kg": 10.487108964465744,
+    "fat_volume_m3": 0.011652343238944806,
+    "identity_output_line": "whole_body_skin_fat_unpaired_identity_remap=PASS nodes=7233 tets=28632 reference_m3=0.015104913880526679 mass_kg=13.93967974060784 exact_identity_receipt_sha256=bb3a5d548c13f5beab74508aeb82a32bd58169f142435f19245ee45f09d04b2a source_world_mutated=0 physical_qualification=not_claimed",
+    "preparation_output_line": "resting_skin_fat_whole_body_preparation=accepted source=BodyParts3D source_member=/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin source_payload_sha256=4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5 reduction_sha256=867074e8a99d79d83a883f814246f9cc9433cd40647910b50a7652ab62e539ab registered_csv_sha256=ba19f07304c36e4c3cdcd13068bbd66589bedbd51f22621f947dd0873858a3d6 source_vertices=2411 source_faces=4777 shared_fem_nodes=7233 shared_fem_tets=28632 skin_tets=14316 fat_tets=14316 contact_nodes=4867 skin_volume_m3=0.0034525706415818071 fat_volume_m3=0.011652343238944806 skin_mass_debit_kg=3.4525707761420956 fat_mass_debit_kg=10.487108964465744 interface_nodes_shared=1 contact_surface=outer_skin+deep_fat+open_sidewalls anchor_count=0 anchor_policy=distributed_donor_frame_deep_fat_nodes_min50um_incident_altitude_3_per_donor_25mm_spacing_0.85_weight_max_1/32_nodes layer_geometry_method=parent-tet conforming edge bisection of 79 same-donor edges; O/I/D geometry preserved; projected C rows carry explicit face/bary/residual; preparation only, not admitted; native evolution unqualified layer_receipt_sha256=5198db99cdeb1e10f89ca11f6d422b1ad1e36821ed2694d72db87e6654fdfd92 skin_thickness_bounds_m=[0.00050000000000000001,0.0025000000000000001] fat_thickness_bounds_m=[0.00050000000000000001,0.01] skin_field_range_m=[0.00050020638387214566,0.0024998107482138644] fat_field_range_m=[0.00050508042370964526,0.0099337731137026583] retained_node_mechanical_delta_vertices=2411 retained_node_mechanical_delta_max_m=0.0029459664272318761 assumed_reference=registered_scene_pose_not_measured_unloaded_skin thickness_reference=geometric construction field constrained to 0.5-2.5 mm; not subject-specific measured anatomy; geometric construction field constrained to 0.5-10 mm; not subject-specific measured anatomy",
+    "skin_mass_kg": 3.4525707761420956,
+    "skin_volume_m3": 0.003452570641581807
+  },
+  "identity_source_only_receipt": {
+    "error": null,
+    "launch_manifest_sha256": "1577f11b3233f83a2583cf080e7fbb065f1c953aafa2b81c3ea9f3279f6b3785",
+    "physical_qualification": false,
+    "returncode": 1,
+    "source_only_marker_present": true,
+    "status": "SOURCE_ONLY_INTENTIONAL_STOP",
+    "stderr_sha256": "c35ad9e7efe7862a490c685a7ce597fc60c118af53dc6bf545db760899ca8d6b",
+    "stdout_sha256": "8fefdc0d931997c78a74165fa548e3e310db2f85e8619f8b8a19964810634a43",
+    "wall_seconds": 7.9280898750294
+  },
+  "scope": "source-only control after fail-closed identity-preflight hardening; no physical qualification",
+  "sha256": {
+    "baseline_source_sha256": "e189a118f9afea44c458b537a0f90cd55f8502d3c0a39377895e1219ca189be1",
+    "candidate_source_sha256": "931268cf063e6795d5b5aa10ba5ba0ee058fa4c8654b5f735b66cd049fee1b13",
+    "comparison_stdout_sha256": "81f1eadfd5d7b13e26352b03a209f8ed9a032f59b0635c6657f22defe903b52b",
+    "identity_receipt_sha256": "6a244052363788938596fdee3a65e77ab18a7035b53faabddc86bb7390aba225",
+    "identity_source_sha256": "1577f11b3233f83a2583cf080e7fbb065f1c953aafa2b81c3ea9f3279f6b3785"
+  },
+  "status": "PASS"
+}
