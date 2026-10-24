@@ -1,0 +1,116 @@
+{
+  "schema": "numi.human.fixed-boundary-source-fit.exact-local-gate.v1",
+  "baseline_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "candidate_sha256": "99590439c083ae296c1a31e8e9e82c0c67c173a7fc8e78a1a73bf5e81f31629e",
+  "candidate_builder_sha256": "57286f2625e54ee400075bc2f2d33dcb6662786d4b49b926d18469982c310161",
+  "source_fit_report_sha256": "dac4e9043314956ec63aad588d68f3e260d44de00ae444daa1a4500803e517c4",
+  "stable_id": 134,
+  "seed_faces": [
+    63329,
+    63331
+  ],
+  "three_ring_patch_faces": [
+    11094,
+    11095,
+    11096,
+    11097,
+    11098,
+    11121,
+    11122,
+    11126,
+    11130,
+    11852,
+    11853,
+    11854,
+    63329,
+    63330,
+    63331,
+    63332,
+    63333,
+    63334
+  ],
+  "fixed_boundary_edge_count": 8,
+  "free_vertex_local_ids": [
+    33326,
+    38384,
+    38385,
+    38386,
+    38395,
+    38397
+  ],
+  "quality_preflight": [
+    {
+      "pose": "current191",
+      "minimum_altitude_mm": 0.0006445426848243951,
+      "minimum_altitude_to_vertex_ulp": 10.813631844518799,
+      "minimum_non_target_oriented_area_ratio": 0.7401356072818916,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006726644247828289,
+      "target_robust_area_ratio": 2.1464349562122544e-05,
+      "minimum_face_normal_cosine_diagnostic_only": 0.5124743769935284,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "rest003",
+      "minimum_altitude_mm": 0.0006419778139321438,
+      "minimum_altitude_to_vertex_ulp": 5.385300225773692,
+      "minimum_non_target_oriented_area_ratio": 0.7341722069934202,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006620870500524684,
+      "target_robust_area_ratio": 2.1126006000183756e-05,
+      "minimum_face_normal_cosine_diagnostic_only": 0.09182504718341035,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "right-ring-pip-57",
+      "minimum_altitude_mm": 0.0006338857619845009,
+      "minimum_altitude_to_vertex_ulp": 5.31741917406928,
+      "minimum_non_target_oriented_area_ratio": 0.7418176167124064,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006442590869387086,
+      "target_robust_area_ratio": 2.0559572857444245e-05,
+      "minimum_face_normal_cosine_diagnostic_only": -0.3849381820692467,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "right-little-pip-61",
+      "minimum_altitude_mm": 0.0006338857619845009,
+      "minimum_altitude_to_vertex_ulp": 5.31741917406928,
+      "minimum_non_target_oriented_area_ratio": 0.7418176167124064,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006442590869387086,
+      "target_robust_area_ratio": 2.0559572857444245e-05,
+      "minimum_face_normal_cosine_diagnostic_only": -0.3849381820692467,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "left-ring-pip-95",
+      "minimum_altitude_mm": 0.0006338857619845009,
+      "minimum_altitude_to_vertex_ulp": 5.31741917406928,
+      "minimum_non_target_oriented_area_ratio": 0.7418176167124064,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006442590869387086,
+      "target_robust_area_ratio": 2.0559572857444245e-05,
+      "minimum_face_normal_cosine_diagnostic_only": -0.3849381820692467,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "left-little-pip-99",
+      "minimum_altitude_mm": 0.0006338857619845009,
+      "minimum_altitude_to_vertex_ulp": 5.31741917406928,
+      "minimum_non_target_oriented_area_ratio": 0.7418176167124064,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006442590869387086,
+      "target_robust_area_ratio": 2.0559572857444245e-05,
+      "minimum_face_normal_cosine_diagnostic_only": -0.3849381820692467,
+      "zero_area_face_count": 0
+    }
+  ],
+  "quality_preflight_status": "FAIL_STOP_BEFORE_EXACT",
+  "exact_checks": [],
+  "limitations": [
+    "The candidate changes only stable134 position/normal rows. Scope is changed three-ring patch versus same-bank and selected-bank surfaces in six poses only. This does not qualify the whole hand or tissue system. The baseline F32 normal for source face 63330 is unreliable below coordinate ULP; its area gate uses the independently justified source one-ring/cofactor normal instead."
+  ],
+  "status": "FAIL_QUALITY",
+  "new_pair_total": 0
+}

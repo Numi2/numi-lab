@@ -1,0 +1,280 @@
+{
+  "schema": "numi.human.fixed-boundary-source-position-fit.preflight.v1",
+  "status": "POSITION_FIT_QUALITY_PASS_EXACT_LOCAL_GATE_PENDING",
+  "baseline_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "baseline_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "builder_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_008_robust134_highs.py",
+  "builder_sha256": "57286f2625e54ee400075bc2f2d33dcb6662786d4b49b926d18469982c310161",
+  "emitter_sha256": "f34897a3cbad65313ee59b164a33cb528dfad0fe94e2f683fa1e49a1baecb201",
+  "identity003_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "poses": {
+    "current191": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "rest003": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "right-ring-pip-57": "9e6ca87deab3965d11b6c32486efac37b46127a843d05d4359849bc2b1199d69",
+    "right-little-pip-61": "223730f948fc25866d9c1918ec5614d7d659157b3931a0156d661ef76fec46b2",
+    "left-ring-pip-95": "c9d251a53aec2c362a6bd5fed3ef0cc15fd863237a3df8b148a42b735b2db2a4",
+    "left-little-pip-99": "b013eea9e3cb93ee038c76e3eacde7d238e21c11e2a25f72e20b8165a150a634"
+  },
+  "patches": [
+    {
+      "stable_id": 134,
+      "fixed_only_violated_constraint_rows_at_start": [],
+      "seed_faces": [
+        63329,
+        63331
+      ],
+      "patch_faces": 18,
+      "patch_vertices": 14,
+      "fixed_boundary_edges": 8,
+      "fixed_boundary_vertices": 8,
+      "free_vertices_local": [
+        33326,
+        38384,
+        38385,
+        38386,
+        38395,
+        38397
+      ],
+      "optimizer": "scipy.optimize.linprog(method=highs)",
+      "lp_feasible_nonlinear_end_state": true,
+      "lp_stop_reason": "all_nonlinear_rows_satisfied",
+      "linearization_count": 1,
+      "linearization_history": [
+        {
+          "iteration": 0,
+          "feasibility_lp_status": 0,
+          "feasibility_lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "objective_l1_increment_um": 3.1396781857830613,
+          "step_linf_um": 1.1942254240434331,
+          "predicted_minimum_linearized_normalized_residual": -1.1102230246251565e-16,
+          "current_minimum_physical_residual": -0.0006529415998615245,
+          "current_minimum_scaled_residual": -3.0729155220579516,
+          "current_violation_merit_um": 11.15562901259569,
+          "line_search": [
+            {
+              "alpha": 1.0,
+              "merit_um": 0.0,
+              "minimum_scaled_residual": 0.0003210198887706019,
+              "all_rows_pass": true
+            }
+          ],
+          "accepted_alpha": 1.0
+        }
+      ],
+      "phase_i_records": [],
+      "minimum_final_normalized_constraint_residual": 0.0003210198887706019,
+      "minimum_final_physical_constraint_residual": 3.210198887706019e-07,
+      "negative_nonlinear_rows_at_end": [],
+      "movement_mm": {
+        "max": 0.0012487385942892722,
+        "rms": 0.0006579000773361908
+      },
+      "constraints": {
+        "poses": [
+          "current191",
+          "rest003",
+          "right-ring-pip-57",
+          "right-little-pip-61",
+          "left-ring-pip-95",
+          "left-little-pip-99"
+        ],
+        "emitted_altitude_target_mm": 0.0005,
+        "pre_emission_fit_altitude_margin_mm": 0.00065,
+        "oriented_double_area_fraction": 0.2,
+        "per_step_trust_um": 2.0,
+        "maximum_linearizations": 6,
+        "row_scaling": "each normalized quality row divided by its current Jacobian L2 norm per micrometre"
+      },
+      "robust_microface_normal_contract": {
+        "source_face_row": 63330,
+        "patch_face_ordinal": 13,
+        "incident_one_ring_faces": 10,
+        "source_area_cancellation_ratio": 0.9847136708290939,
+        "pose_normals": [
+          {
+            "pose": "current191",
+            "normal": [
+              0.40653227080462234,
+              0.08310526334940367,
+              0.9098489039384856
+            ],
+            "local_fit_det": 1.1288826006464634,
+            "local_fit_condition": 1.000000176781649,
+            "robust_baseline_oriented_area_mm2": 2.1458903424508563e-05,
+            "cofactor_vs_fp64_one_ring_dot": 1.0
+          },
+          {
+            "pose": "rest003",
+            "normal": [
+              0.41736601401499274,
+              -0.9075478758966935,
+              0.0465022934986741
+            ],
+            "local_fit_det": 1.1288822388326316,
+            "local_fit_condition": 1.0000000193223828,
+            "robust_baseline_oriented_area_mm2": 2.1458897951893367e-05,
+            "cofactor_vs_fp64_one_ring_dot": 1.0
+          },
+          {
+            "pose": "right-ring-pip-57",
+            "normal": [
+              0.41017877371490397,
+              -0.9072314170814401,
+              0.09319082279999368
+            ],
+            "local_fit_det": 1.128882206147083,
+            "local_fit_condition": 1.0000000049743418,
+            "robust_baseline_oriented_area_mm2": 2.1458897670731412e-05,
+            "cofactor_vs_fp64_one_ring_dot": 1.0
+          },
+          {
+            "pose": "right-little-pip-61",
+            "normal": [
+              0.41017877371490397,
+              -0.9072314170814401,
+              0.09319082279999368
+            ],
+            "local_fit_det": 1.128882206147083,
+            "local_fit_condition": 1.0000000049743418,
+            "robust_baseline_oriented_area_mm2": 2.1458897670731412e-05,
+            "cofactor_vs_fp64_one_ring_dot": 1.0
+          },
+          {
+            "pose": "left-ring-pip-95",
+            "normal": [
+              0.41017877371490397,
+              -0.9072314170814401,
+              0.09319082279999368
+            ],
+            "local_fit_det": 1.128882206147083,
+            "local_fit_condition": 1.0000000049743418,
+            "robust_baseline_oriented_area_mm2": 2.1458897670731412e-05,
+            "cofactor_vs_fp64_one_ring_dot": 1.0
+          },
+          {
+            "pose": "left-little-pip-99",
+            "normal": [
+              0.41017877371490397,
+              -0.9072314170814401,
+              0.09319082279999368
+            ],
+            "local_fit_det": 1.128882206147083,
+            "local_fit_condition": 1.0000000049743418,
+            "robust_baseline_oriented_area_mm2": 2.1458897670731412e-05,
+            "cofactor_vs_fp64_one_ring_dot": 1.0
+          }
+        ],
+        "central_difference_max_abs": 1.9147346439485347e-06,
+        "central_difference_max_relative": 1.9147346439485347e-06
+      },
+      "collision_contact_row_count": 0,
+      "collision_constraints_included": false
+    }
+  ],
+  "modified_vertex_count": 6,
+  "outside_patch_payload_bytes_unchanged": true,
+  "patch_normals_regenerated_from_area_weighted_source_faces": true,
+  "method": "actual8874 stable-134-only quality counterfactual; fixed outer ring; six-pose altitude/oriented-area inequalities solved by sequential row-normalized HiGHS L1 feasibility in micrometres; source-face row 63330 uses independently justified one-ring source normal transported by local cofactor; collision constraints were not included",
+  "limitations": [
+    "This stable-134 quality counterfactual does not include a collision barrier and is not an admitted asset. Exact local collision screening and full tissue qualification remain separate."
+  ],
+  "regenerated_normal_metrics": {
+    "134": {
+      "patch_vertex_count": 14,
+      "minimum_alignment_to_original_normal": 0.9914998079511773,
+      "maximum_normal_change_degrees": 7.475841963863804
+    }
+  },
+  "candidate_patch_stable_ids": [
+    134
+  ],
+  "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-008-134-robust-normal-highs/candidate-8874-local-position-fit.nhtissue",
+  "candidate_sha256": "99590439c083ae296c1a31e8e9e82c0c67c173a7fc8e78a1a73bf5e81f31629e",
+  "emitted_float32_quality": [
+    {
+      "stable_id": 134,
+      "pose": "current191",
+      "min_altitude_mm": 0.0006445426848243951,
+      "min_altitude_to_vertex_ulp": 10.813631844518799,
+      "zero_area_faces": 0,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.000672664424782829,
+      "target_cofactor_normal": [
+        0.40653227080462234,
+        0.08310526334940367,
+        0.9098489039384856
+      ]
+    },
+    {
+      "stable_id": 134,
+      "pose": "rest003",
+      "min_altitude_mm": 0.0006419778139321438,
+      "min_altitude_to_vertex_ulp": 5.385300225773692,
+      "zero_area_faces": 0,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006620870500524684,
+      "target_cofactor_normal": [
+        0.41736601401499274,
+        -0.9075478758966935,
+        0.0465022934986741
+      ]
+    },
+    {
+      "stable_id": 134,
+      "pose": "right-ring-pip-57",
+      "min_altitude_mm": 0.0006338857619845009,
+      "min_altitude_to_vertex_ulp": 5.31741917406928,
+      "zero_area_faces": 0,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006442590869387086,
+      "target_cofactor_normal": [
+        0.41017877371490397,
+        -0.9072314170814401,
+        0.09319082279999368
+      ]
+    },
+    {
+      "stable_id": 134,
+      "pose": "right-little-pip-61",
+      "min_altitude_mm": 0.0006338857619845009,
+      "min_altitude_to_vertex_ulp": 5.31741917406928,
+      "zero_area_faces": 0,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006442590869387086,
+      "target_cofactor_normal": [
+        0.41017877371490397,
+        -0.9072314170814401,
+        0.09319082279999368
+      ]
+    },
+    {
+      "stable_id": 134,
+      "pose": "left-ring-pip-95",
+      "min_altitude_mm": 0.0006338857619845009,
+      "min_altitude_to_vertex_ulp": 5.31741917406928,
+      "zero_area_faces": 0,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006442590869387086,
+      "target_cofactor_normal": [
+        0.41017877371490397,
+        -0.9072314170814401,
+        0.09319082279999368
+      ]
+    },
+    {
+      "stable_id": 134,
+      "pose": "left-little-pip-99",
+      "min_altitude_mm": 0.0006338857619845009,
+      "min_altitude_to_vertex_ulp": 5.31741917406928,
+      "zero_area_faces": 0,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006442590869387086,
+      "target_cofactor_normal": [
+        0.41017877371490397,
+        -0.9072314170814401,
+        0.09319082279999368
+      ]
+    }
+  ],
+  "exact_collision_gate": "not_run"
+}

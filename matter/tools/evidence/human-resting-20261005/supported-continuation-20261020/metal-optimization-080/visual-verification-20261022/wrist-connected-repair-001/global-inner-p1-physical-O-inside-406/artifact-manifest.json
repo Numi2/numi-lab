@@ -1,0 +1,70 @@
+{
+  "as_run_builder_bytes_available": false,
+  "as_run_builder_hash_binding": "unavailable; pre-amendment directory hash was recorded but no invocation receipt binds it",
+  "builder_provenance": {
+    "as_run_builder_bytes": "unavailable; the pre-amendment script was overwritten in place and no byte-for-byte copy was retained",
+    "current_builder_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-physical-O-inside-406/classify_26_o_vertices.py",
+    "current_builder_sha256": "eb67d0d4156a362a1643e3f392da4e99a08c10010621082b7265f4d44c5adfae",
+    "current_builder_status": "amended source; not byte-identical to the as-run builder and must not be represented as its exact source",
+    "pre_amendment_hash_status": "recorded from the diagnostic directory before edits, but no invocation receipt binds it independently to the run",
+    "pre_amendment_script_hash_recorded": "4c7e6a379e80aa3384c5a40989d45036bebd74507b11756cd1a80320481d75fb",
+    "report_generation": "the preserved as-run report JSON was amended for interpretation/provenance metadata; geometry queries were not rerun"
+  },
+  "detailed_skin": {
+    "face_count": 108987,
+    "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+    "registered_current_xyz_sha256": "ecb83d7fb712e6d1f8b878e60cce25f28cfe8b624f7deab6cc8f53875ce707ea",
+    "vertex_count": 61950
+  },
+  "files": [
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-physical-O-inside-406/classify_26_o_vertices.py",
+      "role": "current amended reproduction source; original as-run builder bytes unavailable",
+      "sha256": "eb67d0d4156a362a1643e3f392da4e99a08c10010621082b7265f4d44c5adfae"
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-physical-O-inside-406/classification-report.json",
+      "role": "amended report; interpretation/provenance metadata updated without rerunning geometry",
+      "sha256": "293991fb7ae0ce7308d8f2a0acf5212fe61ad133dcbc1e498ec788f8f08a8090"
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-inner-p1-physical-O-inside-406/classification-report-as-run.json",
+      "role": "preserved as-run report JSON; original as-run builder bytes not retained",
+      "sha256": "39f5973ca27a84889883a379898d39139eea0a6cb7763e5124a95d948096c3d4"
+    }
+  ],
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-source-cut-plane-271/candidate-271-max-cut-distance-bilateral-collar.npz": "92f0079a8266bb1f5bdeb289bffa51c2624341e6e6f2e1e9e0eb0c6d969e3f1d",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-014-batched-microedge-collapse/p1-interior-face-support-395/refined-background-unsolved-initializer.npz": "fd11505dbeaec0decf8b71fde1dc3f62c1e224bd9e039646b40dd3f9fcd0ef18",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/inventory.json": "b0823cf8f33df2586ba1cd45e5b260cd75d1e35b8d2682b67c15f64ea22bbcc7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-surrounding-tissue-native013-191/registered-tissue-banks.npz": "39deb100a99601dc48550c3e5bcddfaac7aea266525e389abbf349d1d8c47792",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/registered-skin-poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+  },
+  "method_caveat": "Float64 generalized solid-angle winding with absolute winding > 0.5, only for locally AABB-selected bank meshes whose undirected edges each have incidence 2; diagnostic only, not an exact predicate, not a self-intersection proof, and not a complete closed-solid certification",
+  "registered_pose_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "schema": "numi.human.physical-O-inside-406.manifest.v1",
+  "status": "bounded diagnostic only; no candidate geometry modified or admitted",
+  "summary": {
+    "all_26_coarse_only": true,
+    "classification_basis": "Float64 generalized solid-angle winding with absolute winding > 0.5, only for locally AABB-selected bank meshes whose undirected edges each have incidence 2; diagnostic only, not an exact predicate, not a self-intersection proof, and not a complete closed-solid certification",
+    "groups_float64_winding_diagnostic_inside_o": {
+      "103|long head of right biceps brachii": 2,
+      "132|left flexor digitorum superficialis": 1,
+      "75|acromial part of right deltoid": 17,
+      "93|long head of right triceps brachii": 1
+    },
+    "method_limit": "nearest detailed-skin projection and local Float64 winding diagnostics; only AABB-selected banks tested; no patch-wide exact intersection scan or clinical/anatomical qualification",
+    "nodes_where_skin_projection_remains_in_candidate_group": 21,
+    "nodes_with_any_tested_winding_group_inside_o": 21,
+    "owner_assignment": "unresolved by overlap alone; do not assign the correction to skin or muscle from these intersections without attachment/reference-landmark evidence",
+    "skin_projection_conclusion": "coarse-O-only projection to unchanged current detailed skin is insufficient for the 21 reproduced nodes; a coupled detailed-skin + physical-O update or soft-tissue geometry/registration correction is needed",
+    "unresolved_nodes": [
+      622,
+      649,
+      2028,
+      2029,
+      2224
+    ]
+  }
+}

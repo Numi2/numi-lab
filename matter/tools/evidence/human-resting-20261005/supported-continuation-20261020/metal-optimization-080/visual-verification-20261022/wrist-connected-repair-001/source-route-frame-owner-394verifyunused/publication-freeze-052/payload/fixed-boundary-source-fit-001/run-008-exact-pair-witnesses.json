@@ -1,0 +1,1755 @@
+{
+  "schema": "numi.human.exact-local-pair-witnesses.v1",
+  "baseline_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "candidate_sha256": "99590439c083ae296c1a31e8e9e82c0c67c173a7fc8e78a1a73bf5e81f31629e",
+  "gate_report_sha256": "6d602e8cea238eb85459ecd394684edb7aaa9d7f33e37a609435a514c16fcc28",
+  "stable_id": 134,
+  "face_pair_ids": [
+    [
+      11095,
+      63331
+    ],
+    [
+      11095,
+      63332
+    ],
+    [
+      11122,
+      63331
+    ],
+    [
+      11122,
+      63332
+    ]
+  ],
+  "poses": [
+    {
+      "pose": "current191",
+      "pairs": [
+        {
+          "face_rows": [
+            11095,
+            63331
+          ],
+          "face_vertices_local": [
+            [
+              33328,
+              38384,
+              38385
+            ],
+            [
+              38387,
+              38385,
+              38395
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38385
+          ],
+          "shared_vertex_global_ids": [
+            401458
+          ],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.2031339406967163,
+                  -0.7551615238189697,
+                  0.09946490824222565
+                ],
+                "world_mm": [
+                  203.1339406967163,
+                  -755.1615238189697,
+                  99.46490824222565
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20313504338264465,
+                  -0.7551614046096802,
+                  0.099465511739254
+                ],
+                "world_mm": [
+                  203.13504338264465,
+                  -755.1614046096802,
+                  99.465511739254
+                ]
+              },
+              {
+                "world_m": [
+                  0.20315140359337713,
+                  -0.755215641314072,
+                  0.09946209336663515
+                ],
+                "world_mm": [
+                  203.15140359337713,
+                  -755.2156413140721,
+                  99.46209336663516
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11095,
+            63332
+          ],
+          "face_vertices_local": [
+            [
+              33328,
+              38384,
+              38385
+            ],
+            [
+              38387,
+              38395,
+              38397
+            ]
+          ],
+          "shared_vertex_local_ids": [],
+          "shared_vertex_global_ids": [],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 0,
+            "unique_exact_intersection_points": []
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 2,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20315140359337713,
+                  -0.755215641314072,
+                  0.09946209336663515
+                ],
+                "world_mm": [
+                  203.15140359337713,
+                  -755.2156413140721,
+                  99.46209336663516
+                ]
+              },
+              {
+                "world_m": [
+                  0.2031523792700203,
+                  -0.7552185890033588,
+                  0.09946186198793616
+                ],
+                "world_mm": [
+                  203.1523792700203,
+                  -755.2185890033588,
+                  99.46186198793616
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11122,
+            63331
+          ],
+          "face_vertices_local": [
+            [
+              38395,
+              38384,
+              33328
+            ],
+            [
+              38387,
+              38385,
+              38395
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38395
+          ],
+          "shared_vertex_global_ids": [
+            401468
+          ],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20334509015083313,
+                  -0.7558121085166931,
+                  0.09942988306283951
+                ],
+                "world_mm": [
+                  203.34509015083313,
+                  -755.8121085166931,
+                  99.42988306283951
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20334498584270477,
+                  -0.7558122277259827,
+                  0.09943051636219025
+                ],
+                "world_mm": [
+                  203.34498584270477,
+                  -755.8122277259827,
+                  99.43051636219025
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11122,
+            63332
+          ],
+          "face_vertices_local": [
+            [
+              38395,
+              38384,
+              33328
+            ],
+            [
+              38387,
+              38395,
+              38397
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38395
+          ],
+          "shared_vertex_global_ids": [
+            401468
+          ],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20334509015083313,
+                  -0.7558121085166931,
+                  0.09942988306283951
+                ],
+                "world_mm": [
+                  203.34509015083313,
+                  -755.8121085166931,
+                  99.42988306283951
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.2031523792700203,
+                  -0.7552185890033588,
+                  0.09946186198793616
+                ],
+                "world_mm": [
+                  203.1523792700203,
+                  -755.2185890033588,
+                  99.46186198793616
+                ]
+              },
+              {
+                "world_m": [
+                  0.20334498584270477,
+                  -0.7558122277259827,
+                  0.09943051636219025
+                ],
+                "world_mm": [
+                  203.34498584270477,
+                  -755.8122277259827,
+                  99.43051636219025
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "pose": "rest003",
+      "pairs": [
+        {
+          "face_rows": [
+            11095,
+            63331
+          ],
+          "face_vertices_local": [
+            [
+              33328,
+              38384,
+              38385
+            ],
+            [
+              38387,
+              38385,
+              38395
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38385
+          ],
+          "shared_vertex_global_ids": [
+            401458
+          ],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.15978291630744934,
+                  0.1904473453760147,
+                  1.039955496788025
+                ],
+                "world_mm": [
+                  159.78291630744934,
+                  190.4473453760147,
+                  1039.955496788025
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.15978404879570007,
+                  0.19044673442840576,
+                  1.039955496788025
+                ],
+                "world_mm": [
+                  159.78404879570007,
+                  190.44673442840576,
+                  1039.955496788025
+                ]
+              },
+              {
+                "world_m": [
+                  0.1597949539708145,
+                  0.19044995875565188,
+                  1.0398996230926665
+                ],
+                "world_mm": [
+                  159.7949539708145,
+                  190.44995875565186,
+                  1039.8996230926664
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11095,
+            63332
+          ],
+          "face_vertices_local": [
+            [
+              33328,
+              38384,
+              38385
+            ],
+            [
+              38387,
+              38395,
+              38397
+            ]
+          ],
+          "shared_vertex_local_ids": [],
+          "shared_vertex_global_ids": [],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 0,
+            "unique_exact_intersection_points": []
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 2,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.1597949539708145,
+                  0.19044995875565188,
+                  1.0398996230926665
+                ],
+                "world_mm": [
+                  159.7949539708145,
+                  190.44995875565186,
+                  1039.8996230926664
+                ]
+              },
+              {
+                "world_m": [
+                  0.15979558273116498,
+                  0.19045016349561572,
+                  1.0398968012539875
+                ],
+                "world_mm": [
+                  159.79558273116498,
+                  190.45016349561573,
+                  1039.8968012539876
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11122,
+            63331
+          ],
+          "face_vertices_local": [
+            [
+              38395,
+              38384,
+              33328
+            ],
+            [
+              38387,
+              38385,
+              38395
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38395
+          ],
+          "shared_vertex_global_ids": [
+            401468
+          ],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.15992799401283264,
+                  0.19047990441322327,
+                  1.0392869710922241
+                ],
+                "world_mm": [
+                  159.92799401283264,
+                  190.47990441322327,
+                  1039.2869710922241
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.15992788970470428,
+                  0.19047926366329193,
+                  1.0392868518829346
+                ],
+                "world_mm": [
+                  159.92788970470428,
+                  190.47926366329193,
+                  1039.2868518829346
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11122,
+            63332
+          ],
+          "face_vertices_local": [
+            [
+              38395,
+              38384,
+              33328
+            ],
+            [
+              38387,
+              38395,
+              38397
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38395
+          ],
+          "shared_vertex_global_ids": [
+            401468
+          ],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.15992799401283264,
+                  0.19047990441322327,
+                  1.0392869710922241
+                ],
+                "world_mm": [
+                  159.92799401283264,
+                  190.47990441322327,
+                  1039.2869710922241
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.15979558273116498,
+                  0.19045016349561572,
+                  1.0398968012539875
+                ],
+                "world_mm": [
+                  159.79558273116498,
+                  190.45016349561573,
+                  1039.8968012539876
+                ]
+              },
+              {
+                "world_m": [
+                  0.15992788970470428,
+                  0.19047926366329193,
+                  1.0392868518829346
+                ],
+                "world_mm": [
+                  159.92788970470428,
+                  190.47926366329193,
+                  1039.2868518829346
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "pose": "right-ring-pip-57",
+      "pairs": [
+        {
+          "face_rows": [
+            11095,
+            63331
+          ],
+          "face_vertices_local": [
+            [
+              33328,
+              38384,
+              38385
+            ],
+            [
+              38387,
+              38385,
+              38395
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38385
+          ],
+          "shared_vertex_global_ids": [
+            401458
+          ],
+          "baseline": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20312240719795227,
+                  0.18979410827159882,
+                  1.0448896884918213
+                ],
+                "world_mm": [
+                  203.12240719795227,
+                  189.79410827159882,
+                  1044.8896884918213
+                ]
+              },
+              {
+                "world_m": [
+                  0.20314084114520298,
+                  0.1897966110397398,
+                  1.0448328137611465
+                ],
+                "world_mm": [
+                  203.14084114520298,
+                  189.7966110397398,
+                  1044.8328137611466
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.2031235247850418,
+                  0.18979351222515106,
+                  1.0448898077011108
+                ],
+                "world_mm": [
+                  203.1235247850418,
+                  189.79351222515106,
+                  1044.8898077011108
+                ]
+              },
+              {
+                "world_m": [
+                  0.20313999196377203,
+                  0.1897964061628044,
+                  1.0448351123098165
+                ],
+                "world_mm": [
+                  203.13999196377202,
+                  189.7964061628044,
+                  1044.8351123098166
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11095,
+            63332
+          ],
+          "face_vertices_local": [
+            [
+              33328,
+              38384,
+              38385
+            ],
+            [
+              38387,
+              38395,
+              38397
+            ]
+          ],
+          "shared_vertex_local_ids": [],
+          "shared_vertex_global_ids": [],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 0,
+            "unique_exact_intersection_points": []
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 2,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20313999196377203,
+                  0.1897964061628044,
+                  1.0448351123098165
+                ],
+                "world_mm": [
+                  203.13999196377202,
+                  189.7964061628044,
+                  1044.8351123098166
+                ]
+              },
+              {
+                "world_m": [
+                  0.2031408797100042,
+                  0.18979659107217775,
+                  1.0448324347689881
+                ],
+                "world_mm": [
+                  203.14087971000419,
+                  189.79659107217776,
+                  1044.8324347689882
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11122,
+            63331
+          ],
+          "face_vertices_local": [
+            [
+              38395,
+              38384,
+              33328
+            ],
+            [
+              38387,
+              38385,
+              38395
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38395
+          ],
+          "shared_vertex_global_ids": [
+            401468
+          ],
+          "baseline": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20314084114520298,
+                  0.1897966110397398,
+                  1.0448328137611465
+                ],
+                "world_mm": [
+                  203.14084114520298,
+                  189.7966110397398,
+                  1044.8328137611466
+                ]
+              },
+              {
+                "world_m": [
+                  0.20333340764045715,
+                  0.1898227483034134,
+                  1.0442386865615845
+                ],
+                "world_mm": [
+                  203.33340764045715,
+                  189.8227483034134,
+                  1044.2386865615845
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20333331823349,
+                  0.18982210755348206,
+                  1.044238567352295
+                ],
+                "world_mm": [
+                  203.33331823349,
+                  189.82210755348206,
+                  1044.238567352295
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11122,
+            63332
+          ],
+          "face_vertices_local": [
+            [
+              38395,
+              38384,
+              33328
+            ],
+            [
+              38387,
+              38395,
+              38397
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38395
+          ],
+          "shared_vertex_global_ids": [
+            401468
+          ],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20333340764045715,
+                  0.1898227483034134,
+                  1.0442386865615845
+                ],
+                "world_mm": [
+                  203.33340764045715,
+                  189.8227483034134,
+                  1044.2386865615845
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.2031408797100042,
+                  0.18979659107217775,
+                  1.0448324347689881
+                ],
+                "world_mm": [
+                  203.14087971000419,
+                  189.79659107217776,
+                  1044.8324347689882
+                ]
+              },
+              {
+                "world_m": [
+                  0.20333331823349,
+                  0.18982210755348206,
+                  1.044238567352295
+                ],
+                "world_mm": [
+                  203.33331823349,
+                  189.82210755348206,
+                  1044.238567352295
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "pose": "right-little-pip-61",
+      "pairs": [
+        {
+          "face_rows": [
+            11095,
+            63331
+          ],
+          "face_vertices_local": [
+            [
+              33328,
+              38384,
+              38385
+            ],
+            [
+              38387,
+              38385,
+              38395
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38385
+          ],
+          "shared_vertex_global_ids": [
+            401458
+          ],
+          "baseline": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20312240719795227,
+                  0.18979410827159882,
+                  1.0448896884918213
+                ],
+                "world_mm": [
+                  203.12240719795227,
+                  189.79410827159882,
+                  1044.8896884918213
+                ]
+              },
+              {
+                "world_m": [
+                  0.20314084114520298,
+                  0.1897966110397398,
+                  1.0448328137611465
+                ],
+                "world_mm": [
+                  203.14084114520298,
+                  189.7966110397398,
+                  1044.8328137611466
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.2031235247850418,
+                  0.18979351222515106,
+                  1.0448898077011108
+                ],
+                "world_mm": [
+                  203.1235247850418,
+                  189.79351222515106,
+                  1044.8898077011108
+                ]
+              },
+              {
+                "world_m": [
+                  0.20313999196377203,
+                  0.1897964061628044,
+                  1.0448351123098165
+                ],
+                "world_mm": [
+                  203.13999196377202,
+                  189.7964061628044,
+                  1044.8351123098166
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11095,
+            63332
+          ],
+          "face_vertices_local": [
+            [
+              33328,
+              38384,
+              38385
+            ],
+            [
+              38387,
+              38395,
+              38397
+            ]
+          ],
+          "shared_vertex_local_ids": [],
+          "shared_vertex_global_ids": [],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 0,
+            "unique_exact_intersection_points": []
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 2,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20313999196377203,
+                  0.1897964061628044,
+                  1.0448351123098165
+                ],
+                "world_mm": [
+                  203.13999196377202,
+                  189.7964061628044,
+                  1044.8351123098166
+                ]
+              },
+              {
+                "world_m": [
+                  0.2031408797100042,
+                  0.18979659107217775,
+                  1.0448324347689881
+                ],
+                "world_mm": [
+                  203.14087971000419,
+                  189.79659107217776,
+                  1044.8324347689882
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11122,
+            63331
+          ],
+          "face_vertices_local": [
+            [
+              38395,
+              38384,
+              33328
+            ],
+            [
+              38387,
+              38385,
+              38395
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38395
+          ],
+          "shared_vertex_global_ids": [
+            401468
+          ],
+          "baseline": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20314084114520298,
+                  0.1897966110397398,
+                  1.0448328137611465
+                ],
+                "world_mm": [
+                  203.14084114520298,
+                  189.7966110397398,
+                  1044.8328137611466
+                ]
+              },
+              {
+                "world_m": [
+                  0.20333340764045715,
+                  0.1898227483034134,
+                  1.0442386865615845
+                ],
+                "world_mm": [
+                  203.33340764045715,
+                  189.8227483034134,
+                  1044.2386865615845
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20333331823349,
+                  0.18982210755348206,
+                  1.044238567352295
+                ],
+                "world_mm": [
+                  203.33331823349,
+                  189.82210755348206,
+                  1044.238567352295
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11122,
+            63332
+          ],
+          "face_vertices_local": [
+            [
+              38395,
+              38384,
+              33328
+            ],
+            [
+              38387,
+              38395,
+              38397
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38395
+          ],
+          "shared_vertex_global_ids": [
+            401468
+          ],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20333340764045715,
+                  0.1898227483034134,
+                  1.0442386865615845
+                ],
+                "world_mm": [
+                  203.33340764045715,
+                  189.8227483034134,
+                  1044.2386865615845
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.2031408797100042,
+                  0.18979659107217775,
+                  1.0448324347689881
+                ],
+                "world_mm": [
+                  203.14087971000419,
+                  189.79659107217776,
+                  1044.8324347689882
+                ]
+              },
+              {
+                "world_m": [
+                  0.20333331823349,
+                  0.18982210755348206,
+                  1.044238567352295
+                ],
+                "world_mm": [
+                  203.33331823349,
+                  189.82210755348206,
+                  1044.238567352295
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "pose": "left-ring-pip-95",
+      "pairs": [
+        {
+          "face_rows": [
+            11095,
+            63331
+          ],
+          "face_vertices_local": [
+            [
+              33328,
+              38384,
+              38385
+            ],
+            [
+              38387,
+              38385,
+              38395
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38385
+          ],
+          "shared_vertex_global_ids": [
+            401458
+          ],
+          "baseline": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20312240719795227,
+                  0.18979410827159882,
+                  1.0448896884918213
+                ],
+                "world_mm": [
+                  203.12240719795227,
+                  189.79410827159882,
+                  1044.8896884918213
+                ]
+              },
+              {
+                "world_m": [
+                  0.20314084114520298,
+                  0.1897966110397398,
+                  1.0448328137611465
+                ],
+                "world_mm": [
+                  203.14084114520298,
+                  189.7966110397398,
+                  1044.8328137611466
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.2031235247850418,
+                  0.18979351222515106,
+                  1.0448898077011108
+                ],
+                "world_mm": [
+                  203.1235247850418,
+                  189.79351222515106,
+                  1044.8898077011108
+                ]
+              },
+              {
+                "world_m": [
+                  0.20313999196377203,
+                  0.1897964061628044,
+                  1.0448351123098165
+                ],
+                "world_mm": [
+                  203.13999196377202,
+                  189.7964061628044,
+                  1044.8351123098166
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11095,
+            63332
+          ],
+          "face_vertices_local": [
+            [
+              33328,
+              38384,
+              38385
+            ],
+            [
+              38387,
+              38395,
+              38397
+            ]
+          ],
+          "shared_vertex_local_ids": [],
+          "shared_vertex_global_ids": [],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 0,
+            "unique_exact_intersection_points": []
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 2,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20313999196377203,
+                  0.1897964061628044,
+                  1.0448351123098165
+                ],
+                "world_mm": [
+                  203.13999196377202,
+                  189.7964061628044,
+                  1044.8351123098166
+                ]
+              },
+              {
+                "world_m": [
+                  0.2031408797100042,
+                  0.18979659107217775,
+                  1.0448324347689881
+                ],
+                "world_mm": [
+                  203.14087971000419,
+                  189.79659107217776,
+                  1044.8324347689882
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11122,
+            63331
+          ],
+          "face_vertices_local": [
+            [
+              38395,
+              38384,
+              33328
+            ],
+            [
+              38387,
+              38385,
+              38395
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38395
+          ],
+          "shared_vertex_global_ids": [
+            401468
+          ],
+          "baseline": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20314084114520298,
+                  0.1897966110397398,
+                  1.0448328137611465
+                ],
+                "world_mm": [
+                  203.14084114520298,
+                  189.7966110397398,
+                  1044.8328137611466
+                ]
+              },
+              {
+                "world_m": [
+                  0.20333340764045715,
+                  0.1898227483034134,
+                  1.0442386865615845
+                ],
+                "world_mm": [
+                  203.33340764045715,
+                  189.8227483034134,
+                  1044.2386865615845
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20333331823349,
+                  0.18982210755348206,
+                  1.044238567352295
+                ],
+                "world_mm": [
+                  203.33331823349,
+                  189.82210755348206,
+                  1044.238567352295
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11122,
+            63332
+          ],
+          "face_vertices_local": [
+            [
+              38395,
+              38384,
+              33328
+            ],
+            [
+              38387,
+              38395,
+              38397
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38395
+          ],
+          "shared_vertex_global_ids": [
+            401468
+          ],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20333340764045715,
+                  0.1898227483034134,
+                  1.0442386865615845
+                ],
+                "world_mm": [
+                  203.33340764045715,
+                  189.8227483034134,
+                  1044.2386865615845
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.2031408797100042,
+                  0.18979659107217775,
+                  1.0448324347689881
+                ],
+                "world_mm": [
+                  203.14087971000419,
+                  189.79659107217776,
+                  1044.8324347689882
+                ]
+              },
+              {
+                "world_m": [
+                  0.20333331823349,
+                  0.18982210755348206,
+                  1.044238567352295
+                ],
+                "world_mm": [
+                  203.33331823349,
+                  189.82210755348206,
+                  1044.238567352295
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "pose": "left-little-pip-99",
+      "pairs": [
+        {
+          "face_rows": [
+            11095,
+            63331
+          ],
+          "face_vertices_local": [
+            [
+              33328,
+              38384,
+              38385
+            ],
+            [
+              38387,
+              38385,
+              38395
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38385
+          ],
+          "shared_vertex_global_ids": [
+            401458
+          ],
+          "baseline": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20312240719795227,
+                  0.18979410827159882,
+                  1.0448896884918213
+                ],
+                "world_mm": [
+                  203.12240719795227,
+                  189.79410827159882,
+                  1044.8896884918213
+                ]
+              },
+              {
+                "world_m": [
+                  0.20314084114520298,
+                  0.1897966110397398,
+                  1.0448328137611465
+                ],
+                "world_mm": [
+                  203.14084114520298,
+                  189.7966110397398,
+                  1044.8328137611466
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.2031235247850418,
+                  0.18979351222515106,
+                  1.0448898077011108
+                ],
+                "world_mm": [
+                  203.1235247850418,
+                  189.79351222515106,
+                  1044.8898077011108
+                ]
+              },
+              {
+                "world_m": [
+                  0.20313999196377203,
+                  0.1897964061628044,
+                  1.0448351123098165
+                ],
+                "world_mm": [
+                  203.13999196377202,
+                  189.7964061628044,
+                  1044.8351123098166
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11095,
+            63332
+          ],
+          "face_vertices_local": [
+            [
+              33328,
+              38384,
+              38385
+            ],
+            [
+              38387,
+              38395,
+              38397
+            ]
+          ],
+          "shared_vertex_local_ids": [],
+          "shared_vertex_global_ids": [],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 0,
+            "unique_exact_intersection_points": []
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 2,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20313999196377203,
+                  0.1897964061628044,
+                  1.0448351123098165
+                ],
+                "world_mm": [
+                  203.13999196377202,
+                  189.7964061628044,
+                  1044.8351123098166
+                ]
+              },
+              {
+                "world_m": [
+                  0.2031408797100042,
+                  0.18979659107217775,
+                  1.0448324347689881
+                ],
+                "world_mm": [
+                  203.14087971000419,
+                  189.79659107217776,
+                  1044.8324347689882
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11122,
+            63331
+          ],
+          "face_vertices_local": [
+            [
+              38395,
+              38384,
+              33328
+            ],
+            [
+              38387,
+              38385,
+              38395
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38395
+          ],
+          "shared_vertex_global_ids": [
+            401468
+          ],
+          "baseline": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20314084114520298,
+                  0.1897966110397398,
+                  1.0448328137611465
+                ],
+                "world_mm": [
+                  203.14084114520298,
+                  189.7966110397398,
+                  1044.8328137611466
+                ]
+              },
+              {
+                "world_m": [
+                  0.20333340764045715,
+                  0.1898227483034134,
+                  1.0442386865615845
+                ],
+                "world_mm": [
+                  203.33340764045715,
+                  189.8227483034134,
+                  1044.2386865615845
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20333331823349,
+                  0.18982210755348206,
+                  1.044238567352295
+                ],
+                "world_mm": [
+                  203.33331823349,
+                  189.82210755348206,
+                  1044.238567352295
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "face_rows": [
+            11122,
+            63332
+          ],
+          "face_vertices_local": [
+            [
+              38395,
+              38384,
+              33328
+            ],
+            [
+              38387,
+              38395,
+              38397
+            ]
+          ],
+          "shared_vertex_local_ids": [
+            38395
+          ],
+          "shared_vertex_global_ids": [
+            401468
+          ],
+          "baseline": {
+            "classified_as_pair": false,
+            "allowed_shared_feature_count": 1,
+            "exact_intersection_point_count_with_shared_points": 4,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.20333340764045715,
+                  0.1898227483034134,
+                  1.0442386865615845
+                ],
+                "world_mm": [
+                  203.33340764045715,
+                  189.8227483034134,
+                  1044.2386865615845
+                ]
+              }
+            ]
+          },
+          "candidate": {
+            "classified_as_pair": true,
+            "allowed_shared_feature_count": 0,
+            "exact_intersection_point_count_with_shared_points": 5,
+            "unique_exact_intersection_points": [
+              {
+                "world_m": [
+                  0.2031408797100042,
+                  0.18979659107217775,
+                  1.0448324347689881
+                ],
+                "world_mm": [
+                  203.14087971000419,
+                  189.79659107217776,
+                  1044.8324347689882
+                ]
+              },
+              {
+                "world_m": [
+                  0.20333331823349,
+                  0.18982210755348206,
+                  1.044238567352295
+                ],
+                "world_mm": [
+                  203.33331823349,
+                  189.82210755348206,
+                  1044.238567352295
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

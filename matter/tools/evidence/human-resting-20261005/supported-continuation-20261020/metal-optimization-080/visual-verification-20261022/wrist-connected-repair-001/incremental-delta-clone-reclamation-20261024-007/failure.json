@@ -1,0 +1,5 @@
+{
+  "status": "failed_before_replacement",
+  "reason": "frozen destination directory is not writable; clonefile permission denied",
+  "target_bytes_changed": false
+}

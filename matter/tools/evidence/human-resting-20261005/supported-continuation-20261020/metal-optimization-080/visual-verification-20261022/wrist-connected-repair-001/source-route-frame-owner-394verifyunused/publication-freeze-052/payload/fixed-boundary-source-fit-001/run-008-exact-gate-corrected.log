@@ -1,0 +1,220 @@
+waiting_for_human_geometry_slot pid=26866
+acquired_human_geometry_slot pid=26866
+{
+  "status": "FAIL_NEW_EXACT_LOCAL_PAIRS",
+  "quality": [
+    {
+      "pose": "current191",
+      "minimum_altitude_mm": 0.0006445426848243951,
+      "minimum_altitude_to_vertex_ulp": 10.813631844518799,
+      "minimum_non_target_oriented_area_ratio": 0.7401356072818916,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006726644247828289,
+      "target_robust_area_ratio": 21.464349562122543,
+      "minimum_face_normal_cosine_diagnostic_only": 0.5124743769935284,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "rest003",
+      "minimum_altitude_mm": 0.0006419778139321438,
+      "minimum_altitude_to_vertex_ulp": 5.385300225773692,
+      "minimum_non_target_oriented_area_ratio": 0.7341722069934202,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006620870500524684,
+      "target_robust_area_ratio": 21.126006000183757,
+      "minimum_face_normal_cosine_diagnostic_only": 0.09182504718341035,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "right-ring-pip-57",
+      "minimum_altitude_mm": 0.0006338857619845009,
+      "minimum_altitude_to_vertex_ulp": 5.31741917406928,
+      "minimum_non_target_oriented_area_ratio": 0.7418176167124064,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006442590869387086,
+      "target_robust_area_ratio": 20.559572857444245,
+      "minimum_face_normal_cosine_diagnostic_only": -0.3849381820692467,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "right-little-pip-61",
+      "minimum_altitude_mm": 0.0006338857619845009,
+      "minimum_altitude_to_vertex_ulp": 5.31741917406928,
+      "minimum_non_target_oriented_area_ratio": 0.7418176167124064,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006442590869387086,
+      "target_robust_area_ratio": 20.559572857444245,
+      "minimum_face_normal_cosine_diagnostic_only": -0.3849381820692467,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "left-ring-pip-95",
+      "minimum_altitude_mm": 0.0006338857619845009,
+      "minimum_altitude_to_vertex_ulp": 5.31741917406928,
+      "minimum_non_target_oriented_area_ratio": 0.7418176167124064,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006442590869387086,
+      "target_robust_area_ratio": 20.559572857444245,
+      "minimum_face_normal_cosine_diagnostic_only": -0.3849381820692467,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "left-little-pip-99",
+      "minimum_altitude_mm": 0.0006338857619845009,
+      "minimum_altitude_to_vertex_ulp": 5.31741917406928,
+      "minimum_non_target_oriented_area_ratio": 0.7418176167124064,
+      "target_source_face_row": 63330,
+      "target_robust_signed_altitude_mm": 0.0006442590869387086,
+      "target_robust_area_ratio": 20.559572857444245,
+      "minimum_face_normal_cosine_diagnostic_only": -0.3849381820692467,
+      "zero_area_face_count": 0
+    }
+  ],
+  "checks": [
+    {
+      "pose": "current191",
+      "target_stable_id": 134,
+      "baseline_scoped_pair_count": 0,
+      "candidate_scoped_pair_count": 3,
+      "new_pair_count": 3,
+      "resolved_pair_count": 0,
+      "new_pairs": [
+        [
+          11095,
+          63331
+        ],
+        [
+          11095,
+          63332
+        ],
+        [
+          11122,
+          63332
+        ]
+      ],
+      "resolved_pairs": []
+    },
+    {
+      "pose": "rest003",
+      "target_stable_id": 134,
+      "baseline_scoped_pair_count": 0,
+      "candidate_scoped_pair_count": 3,
+      "new_pair_count": 3,
+      "resolved_pair_count": 0,
+      "new_pairs": [
+        [
+          11095,
+          63331
+        ],
+        [
+          11095,
+          63332
+        ],
+        [
+          11122,
+          63332
+        ]
+      ],
+      "resolved_pairs": []
+    },
+    {
+      "pose": "right-ring-pip-57",
+      "target_stable_id": 134,
+      "baseline_scoped_pair_count": 2,
+      "candidate_scoped_pair_count": 3,
+      "new_pair_count": 2,
+      "resolved_pair_count": 1,
+      "new_pairs": [
+        [
+          11095,
+          63332
+        ],
+        [
+          11122,
+          63332
+        ]
+      ],
+      "resolved_pairs": [
+        [
+          11122,
+          63331
+        ]
+      ]
+    },
+    {
+      "pose": "right-little-pip-61",
+      "target_stable_id": 134,
+      "baseline_scoped_pair_count": 2,
+      "candidate_scoped_pair_count": 3,
+      "new_pair_count": 2,
+      "resolved_pair_count": 1,
+      "new_pairs": [
+        [
+          11095,
+          63332
+        ],
+        [
+          11122,
+          63332
+        ]
+      ],
+      "resolved_pairs": [
+        [
+          11122,
+          63331
+        ]
+      ]
+    },
+    {
+      "pose": "left-ring-pip-95",
+      "target_stable_id": 134,
+      "baseline_scoped_pair_count": 2,
+      "candidate_scoped_pair_count": 3,
+      "new_pair_count": 2,
+      "resolved_pair_count": 1,
+      "new_pairs": [
+        [
+          11095,
+          63332
+        ],
+        [
+          11122,
+          63332
+        ]
+      ],
+      "resolved_pairs": [
+        [
+          11122,
+          63331
+        ]
+      ]
+    },
+    {
+      "pose": "left-little-pip-99",
+      "target_stable_id": 134,
+      "baseline_scoped_pair_count": 2,
+      "candidate_scoped_pair_count": 3,
+      "new_pair_count": 2,
+      "resolved_pair_count": 1,
+      "new_pairs": [
+        [
+          11095,
+          63332
+        ],
+        [
+          11122,
+          63332
+        ]
+      ],
+      "resolved_pairs": [
+        [
+          11122,
+          63331
+        ]
+      ]
+    }
+  ],
+  "report": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-008-134-robust-normal-highs/exact-local-source-fit-134-allposes-corrected/exact-local-gate-report.json",
+  "sha256": "6d602e8cea238eb85459ecd394684edb7aaa9d7f33e37a609435a514c16fcc28",
+  "elapsed_s": 28.630290985107422
+}

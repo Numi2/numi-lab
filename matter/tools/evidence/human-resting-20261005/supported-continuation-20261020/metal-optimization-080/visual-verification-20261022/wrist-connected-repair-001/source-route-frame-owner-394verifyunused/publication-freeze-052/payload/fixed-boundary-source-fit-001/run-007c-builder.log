@@ -1,0 +1,16 @@
+waiting_for_human_geometry_slot pid=26561
+acquired_human_geometry_slot pid=26561
+Traceback (most recent call last):
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_007c_robust134.py", line 284, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_007c_robust134.py", line 224, in main
+    initial_values=cons(start);initial_jac=consjac(start)
+                                           ~~~~~~~^^^^^^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_007c_robust134.py", line 222, in consjac
+    def consjac(x):return np.vstack([evalc(x,True)[1]/quality_scales[:,None],np.asarray([w['row'] for w in witness_data])/collision_scales[:,None]])
+                          ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/numi-human-prep-venv-20261005/lib/python3.13/site-packages/numpy/_core/shape_base.py", line 290, in vstack
+    return _nx.concatenate(arrs, 0, dtype=dtype, casting=casting)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: all the input array dimensions except for the concatenation axis must match exactly, but along dimension 1, the array at index 0 has size 18 and the array at index 1 has size 0

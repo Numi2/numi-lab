@@ -1,0 +1,101 @@
+{
+  "schema": "numi.human.source-fit-counterfactual-freeze.v1",
+  "created_utc": "2026-10-24T17:37:39Z",
+  "previous_freeze": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/publication-freeze-001/publication-manifest.json",
+    "sha256": "66011b022c223b207ac09b24bb1b11b88ed3e9846b2a7ff816923252eb34415f"
+  },
+  "status": "NO_ADMITTED_CANDIDATE",
+  "baseline_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb9355d6b1042",
+  "robust_normal_diagnostic": {
+    "source_face_row": 63330,
+    "stable_id": 134,
+    "f32_fk_face_to_one_ring_dot": -0.9819936841,
+    "fp64_fk_face_to_one_ring_dot": 0.9940598051,
+    "f32_fk_face_to_fp64_face_dot": -0.9966075591,
+    "source_altitude_mm": 3.02703e-05,
+    "fk_f32_altitude_mm": 2.996342e-06,
+    "max_coordinate_ulp_mm": 0.00012397,
+    "robust_pose_gradient_cosine_min": 0.9999999991,
+    "analytic_derivative_fd_max_relative": 1.9147346439485347e-06
+  },
+  "fit_result": {
+    "status": "SOURCE_FIT_INFEASIBLE_NO_CANDIDATE",
+    "builder": "build_source_fit_007d_robust134.py",
+    "builder_sha256": "d470d630fdff725251666a483103dca2a11b21b7ba7ed11491249ba14b040a55",
+    "iterations": 50,
+    "optimizer_message": "Positive directional derivative for linesearch",
+    "minimum_scaled_constraint_slack": -0.00821414940026504,
+    "max_displacement_mm": 0.0006053170994961535,
+    "exact_collision_gate": "not run; no candidate emitted"
+  },
+  "failed_plumbing_attempts": [
+    {
+      "builder": "build_source_fit_007_robust134.py",
+      "sha256": "446bb5873300801b590ba49ace6d493cec66f79064068853f6552d760ec1cf04",
+      "result": "created empty run directory; no report; initial output capture did not preserve traceback"
+    },
+    {
+      "builder": "build_source_fit_007b_robust134.py",
+      "sha256": "dc94abd93ae5aab8b47639a6123d636f14d1d45602c855e035b8eaf26fc2cf8b",
+      "result": "failed before optimization: missing start initialization"
+    },
+    {
+      "builder": "build_source_fit_007c_robust134.py",
+      "sha256": "79ed3f5cc5db952e3239ca0ddea7eddd25cc182b06b21964ec4f805a24e3755e",
+      "result": "failed before optimization: empty collision-Jacobian shape handling"
+    }
+  ],
+  "files": [
+    {
+      "path": "diagnose_134_robust_normals.py",
+      "bytes": 8478,
+      "sha256": "29d36e75e0dbd9c37260141da4560080877d41946c6df4c0d7f368727361349d"
+    },
+    {
+      "path": "run-006b-134-robust-normal-003/diagnostic.json",
+      "bytes": 24898,
+      "sha256": "587920a19723b79cc7ec94f63afa2c10ac45e8671dd6e46d79c833d2487a35dd"
+    },
+    {
+      "path": "build_source_fit_007_robust134.py",
+      "bytes": 24291,
+      "sha256": "446bb5873300801b590ba49ace6d493cec66f79064068853f6552d760ec1cf04"
+    },
+    {
+      "path": "build_source_fit_007b_robust134.py",
+      "bytes": 24292,
+      "sha256": "dc94abd93ae5aab8b47639a6123d636f14d1d45602c855e035b8eaf26fc2cf8b"
+    },
+    {
+      "path": "run-007b-builder.log",
+      "bytes": 1050,
+      "sha256": "71553fd0c7f6019a50ef2bf5eef2ccfc0ee945252caea059688e23a858350e9c"
+    },
+    {
+      "path": "build_source_fit_007c_robust134.py",
+      "bytes": 24458,
+      "sha256": "79ed3f5cc5db952e3239ca0ddea7eddd25cc182b06b21964ec4f805a24e3755e"
+    },
+    {
+      "path": "run-007c-builder.log",
+      "bytes": 2069,
+      "sha256": "d5b38b422f105af2c1ddccfe61f8b8769ea55a651936416e8c1543204217df8d"
+    },
+    {
+      "path": "build_source_fit_007d_robust134.py",
+      "bytes": 24499,
+      "sha256": "d470d630fdff725251666a483103dca2a11b21b7ba7ed11491249ba14b040a55"
+    },
+    {
+      "path": "run-007d-builder.log",
+      "bytes": 5670,
+      "sha256": "bb7f00578cdfc86c36c3488af9eadd899514d226f4a9451c7b19d1afc315479f"
+    },
+    {
+      "path": "run-007d-134-robust-normal/source-fit-report.json",
+      "bytes": 7339,
+      "sha256": "3975f0587e26a12ca92f886712948c32c5bd2b75128424523b90148c45173534"
+    }
+  ]
+}

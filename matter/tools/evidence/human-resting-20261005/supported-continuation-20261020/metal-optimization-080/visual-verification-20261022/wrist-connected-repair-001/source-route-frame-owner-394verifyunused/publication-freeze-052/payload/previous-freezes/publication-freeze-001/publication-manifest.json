@@ -1,0 +1,292 @@
+{
+  "schema": "numi.human.source-fit-evidence-freeze.v1",
+  "created_utc": "2026-10-24T17:33:40Z",
+  "freeze_scope": "All existing fixed-boundary source-fit builder/gate scripts, raw candidates, receipts, logs, and stable-134 diagnostics through the robust-normal audit; excludes Python __pycache__ only.",
+  "immutability_note": "This is a hash inventory; source and receipt files remain in their original evidence paths and are not modified by the freeze.",
+  "baseline": {
+    "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+    "sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb9355d6b1042"
+  },
+  "publication_items": [
+    {
+      "name": "early source-fit attempts 001-003",
+      "paths": [
+        "fixed-boundary-source-fit-001/build_source_fit_001.py",
+        "fixed-boundary-source-fit-001/run-002/source-fit-report.json",
+        "fixed-boundary-source-fit-001/run-003/source-fit-report.json",
+        "fixed-boundary-source-fit-001/run-003/candidate-8874-local-position-fit.nhtissue"
+      ],
+      "status": "failed quality/feasibility; retained as diagnostic"
+    },
+    {
+      "name": "six-pose stable131 runs 004-005",
+      "paths": [
+        "fixed-boundary-source-fit-001/build_source_fit_004.py",
+        "fixed-boundary-source-fit-001/build_source_fit_005.py",
+        "fixed-boundary-source-fit-001/run-004/source-fit-report.json",
+        "fixed-boundary-source-fit-001/run-005/source-fit-report.json",
+        "fixed-boundary-source-fit-001/run-004/current191-new-pair-witnesses.json"
+      ],
+      "status": "quality preflight passed in places; exact/local contact qualification pending or failed; not admitted"
+    },
+    {
+      "name": "stable131 run 006 / 006b",
+      "paths": [
+        "fixed-boundary-source-fit-001/build_source_fit_006.py",
+        "fixed-boundary-source-fit-001/build_source_fit_006b.py",
+        "fixed-boundary-source-fit-001/run-006-builder.log",
+        "fixed-boundary-source-fit-001/run-006b/source-fit-report.json",
+        "fixed-boundary-source-fit-001/run-006b-builder.log"
+      ],
+      "status": "no admitted candidate; 006 serialization failure, 006b optimizer did not converge"
+    },
+    {
+      "name": "stable134 phase-I and row detail",
+      "paths": [
+        "fixed-boundary-source-fit-001/diagnose_134_scaling.py",
+        "fixed-boundary-source-fit-001/diagnose_134_scaling_002.py",
+        "fixed-boundary-source-fit-001/diagnose_134_row.py",
+        "fixed-boundary-source-fit-001/diagnose_134_row_002.py",
+        "fixed-boundary-source-fit-001/run-006b-134-diagnostic-002/diagnostic.json",
+        "fixed-boundary-source-fit-001/run-006b-134-row-002/diagnostic.json"
+      ],
+      "status": "diagnostic only; confirms six-pose microface conflict"
+    },
+    {
+      "name": "stable134 robust normal audit",
+      "paths": [
+        "fixed-boundary-source-fit-001/diagnose_134_robust_normals.py",
+        "fixed-boundary-source-fit-001/run-006b-134-robust-normal-003/diagnostic.json"
+      ],
+      "status": "diagnostic only; supports cofactor/one-ring normal for sub-ULP face; no fit"
+    }
+  ],
+  "file_count": 45,
+  "files": [
+    {
+      "path": "fixed-boundary-source-fit-001/build_source_fit_001.py",
+      "bytes": 15694,
+      "sha256": "cb704608b73b1c412a7dec7b16975874e96c93836608dae8460062df684b1c96"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/build_source_fit_004.py",
+      "bytes": 18592,
+      "sha256": "2119b2617b0bbfb7a289f606e5e3cee1cb283bd8c9ef02308b878870c8bc6787"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/build_source_fit_005.py",
+      "bytes": 20464,
+      "sha256": "0551615382583b092e3b2068593a676a4f7eb53ad70faeed8f2c1c69b11d5f5e"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/build_source_fit_006.py",
+      "bytes": 21032,
+      "sha256": "7aa6da8c107f2cb8ad6452f4ac0e5559891a49bcbc6e0b891c56f9263766e2f5"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/build_source_fit_006b.py",
+      "bytes": 20997,
+      "sha256": "9352348d499c5cc5af93a1d08d039a768c9416dce0d001cc59f2621c2ea63d0e"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/diagnose_134_robust_normals.py",
+      "bytes": 8478,
+      "sha256": "29d36e75e0dbd9c37260141da4560080877d41946c6df4c0d7f368727361349d"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/diagnose_134_row.py",
+      "bytes": 7161,
+      "sha256": "4d41d7f9bc1ac15d08e1a4629f5a5cd32a627d6dd28df7877e1bbac7cce1afbe"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/diagnose_134_row_002.py",
+      "bytes": 7164,
+      "sha256": "803685b1d7c00b7c0e4028bff5424e70d5f0ffcb1662f640d53ddad589b3c8c1"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/diagnose_134_scaling.py",
+      "bytes": 6225,
+      "sha256": "1d85f2fdb94fcc3091529297e3dd5fede6f38e6260d06d48f7a64a286fda1a7c"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/diagnose_134_scaling_002.py",
+      "bytes": 6387,
+      "sha256": "19b5c62190e6fa7ef225961309787ae65c5ad005af0e69ae9b0643f93350df66"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/extract_current_004_witnesses.py",
+      "bytes": 4589,
+      "sha256": "8f8e2db0a6395648389a236ced7208015e6b83551e5941d72fe6920c979e6bea"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/gate_source_fit_004.py",
+      "bytes": 8745,
+      "sha256": "01bdbaba1b1d99dd0b3a60cdff8853b0dd41da7759b25d77947b8526c7c02d45"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/gate_source_fit_004_allposes.py",
+      "bytes": 8654,
+      "sha256": "dd45259170636a12f70946bf9af7185993d371636aa846985a4f3606c489fb18"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/gate_source_fit_005_allposes.py",
+      "bytes": 8654,
+      "sha256": "77a0ad611efb67695d89f7f3570a1de0a9cc32c8c9ad60745ecc7ae43c1c7153"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/gate_source_fit_131.py",
+      "bytes": 8745,
+      "sha256": "4cc562620d113944a83e241add32e03081fe6a73b99f517f88f51f5f74640a65"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/inspect_134.py",
+      "bytes": 1220,
+      "sha256": "9a2fdbe6f59d2e9bba5e6f8890b3e2e0111bbc27ac85af33b3f379631aeb7f13"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-002/source-fit-report.json",
+      "bytes": 4227,
+      "sha256": "d0f3e215b4a2812033c298d57e2c8781db36aaf38ea7cc75103f80c7b0482148"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-003/candidate-8874-local-position-fit.nhtissue",
+      "bytes": 36357012,
+      "sha256": "eac5a08ad9f967de38725ca7c8c83662b88b852fb4e2dfc67da6086eb5cd9631"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-003/exact-local-source-fit-131-002/exact-local-gate-report.json",
+      "bytes": 6594,
+      "sha256": "2f37792791ba938145b14737265b657be8aa1655883dc42705e9ee7704287995"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-003/source-fit-report.json",
+      "bytes": 6309,
+      "sha256": "34f60b606ad27d94d59a429a29395829789d049b1a3a9a4e8fdd3e404369f2ed"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-004/candidate-8874-local-position-fit.nhtissue",
+      "bytes": 36357012,
+      "sha256": "c8fce576aaa9786ece799fd5c204be77dc219b7fbd35e98aa6bebddd8ba6c8da"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-004/current191-new-pair-witnesses.json",
+      "bytes": 613598,
+      "sha256": "d62b2eb59cf82755c870f45290e29c3bcd35d7d007836ea90c354d98e3990c6e"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-004/exact-local-source-fit-131-001/exact-local-gate-report.json",
+      "bytes": 6770,
+      "sha256": "9ce1ee8d8d8643b09b489456461da0a117ccd69c63eed542d15961a84a0fe4a5"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-004/exact-local-source-fit-131-allposes/exact-local-gate-report.json",
+      "bytes": 24934,
+      "sha256": "b9088b81e6cbc6ed5b1268660d4d0184c9b3d873b66b636903c08df3206ee7f3"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-004/source-fit-report.json",
+      "bytes": 7184,
+      "sha256": "73f2e5b7aef09dac47a95b45533649d0c79c10fc7ad2b0819f2420c8f54e1a0e"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-004-allposes-gate.log",
+      "bytes": 24240,
+      "sha256": "e404ed118c41367b46e8568a16666985fe2d00795d92b991b8f4d858a4c35d88"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-004-builder.log",
+      "bytes": 5276,
+      "sha256": "fc4742a9b60d714e0af14a534c7540a0c3090d5c425a4ef5810bf6446fc05ca8"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-004-gate.log",
+      "bytes": 4922,
+      "sha256": "a01cd58eb58ef40c85b514c1c907bd97c92191cae514e36c353bb969eb44084f"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-004-witness-extract.log",
+      "bytes": 103808,
+      "sha256": "f3becc8e0b7ab0e6402c778ec7d28ecf3b10020ed274db011f722b520f4959a7"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-005/candidate-8874-local-position-fit.nhtissue",
+      "bytes": 36357012,
+      "sha256": "c0b5adc38fba3447d36de5845073f8383e4ec156f3807197914466be5b8e9bbf"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-005/exact-local-source-fit-131-allposes/exact-local-gate-report.json",
+      "bytes": 28905,
+      "sha256": "edb8172b1861d10de0f98038f9eee9114b6518962417f078c4988a02008a3d52"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-005/source-fit-report.json",
+      "bytes": 53727,
+      "sha256": "60446a8da040cf013d551abc4b578f6eae680622c92a8909ee591a6c8b28cf18"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-005-allposes-gate.log",
+      "bytes": 28210,
+      "sha256": "ba1d247642e2cd0374331165b63216c4f599f4882b5173a0acec840e0bb28bde"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-005-builder.log",
+      "bytes": 51780,
+      "sha256": "a74b5099bb4cf76f540da305fd06497a3006b36ef28b1ba6368d65453f0e3f49"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-006-builder.log",
+      "bytes": 4046,
+      "sha256": "ec877eaff26388e72fe454ab652a9d0339d2cacd2344059fe22627aeb53feb0f"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-006b/source-fit-report.json",
+      "bytes": 51888,
+      "sha256": "f7f487acfa3247e60833241fe8c33a08399ac00c78d80b2f34cd7937ee58c9ce"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-006b-134-diagnostic/diagnostic.json",
+      "bytes": 10981,
+      "sha256": "df4eec7fb93e5c432e264bc76d4440b6b020793f8c142e7e055e3df4e487d969"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-006b-134-diagnostic-002/diagnostic.json",
+      "bytes": 12052,
+      "sha256": "2bfbba8b32760f7c816de627a24562965732d8028d18d49e964eab114059e002"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-006b-134-diagnostic-002.log",
+      "bytes": 9642,
+      "sha256": "52def9f22d391ff3cfed030a902fdf20d8fc2be0cc0a323f26148ee171e5ed81"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-006b-134-diagnostic.log",
+      "bytes": 8798,
+      "sha256": "318e9b4626b7c8118ff671fbc86252404f9bd9ab8f75fbc62cd03fbc084a8d1b"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-006b-134-robust-normal-003/diagnostic.json",
+      "bytes": 24898,
+      "sha256": "587920a19723b79cc7ec94f63afa2c10ac45e8671dd6e46d79c833d2487a35dd"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-006b-134-row-002/diagnostic.json",
+      "bytes": 21109,
+      "sha256": "f4a363b062a2718787e79046d3af4b3f37566f2d56275c5bc9ca5fe387011bca"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-006b-134-row-002.log",
+      "bytes": 18884,
+      "sha256": "fe2bbb24ace6bc13be8150a2d4c31df912c0ed756c9add2cd06ab4b56d04f2f3"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-006b-134-row.log",
+      "bytes": 1353,
+      "sha256": "43727da42a8c582bbd2e00d61d61ab7d04024f7ba9e61ed4aa09281bb22ece62"
+    },
+    {
+      "path": "fixed-boundary-source-fit-001/run-006b-builder.log",
+      "bytes": 50319,
+      "sha256": "2767d325fabe3e74de2ce9c7be126f1b50333f8581b5fba36e7eda0bfa4b8977"
+    }
+  ]
+}

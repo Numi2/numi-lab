@@ -1,0 +1,42 @@
+{
+  "source_manifest_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/publication-freeze-052/file-list-052.json",
+  "source_manifest_sha256": "8bd8eb0a7d161ea1440b31a93604df65937b627241b041d52dff223187fbf51c",
+  "manifest_path_resolution": "paths resolved against source-route-frame-owner-394verifyunused; original root_relative_to label was wrong and retained",
+  "method": "APFS clone plus exact changed64KiBblocks; identical bytes, paths, modes and mtimes; no deletion",
+  "before_available_bytes": 12299075584,
+  "after_available_bytes": 12479913984,
+  "recovered_available_bytes": 180838400,
+  "qualification_12GiB_free": false,
+  "files": [
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/publication-freeze-052/payload/external-inputs/baseline-nhtissue-8874.nhtissue",
+      "sha256_before_after": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+      "logical_bytes": 36357012,
+      "rewritten_bytes": 0
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/publication-freeze-052/payload/fixed-boundary-source-fit-001/run-003/candidate-8874-local-position-fit.nhtissue",
+      "sha256_before_after": "eac5a08ad9f967de38725ca7c8c83662b88b852fb4e2dfc67da6086eb5cd9631",
+      "logical_bytes": 36357012,
+      "rewritten_bytes": 196608
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/publication-freeze-052/payload/fixed-boundary-source-fit-001/run-004/candidate-8874-local-position-fit.nhtissue",
+      "sha256_before_after": "c8fce576aaa9786ece799fd5c204be77dc219b7fbd35e98aa6bebddd8ba6c8da",
+      "logical_bytes": 36357012,
+      "rewritten_bytes": 196608
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/publication-freeze-052/payload/fixed-boundary-source-fit-001/run-005/candidate-8874-local-position-fit.nhtissue",
+      "sha256_before_after": "c0b5adc38fba3447d36de5845073f8383e4ec156f3807197914466be5b8e9bbf",
+      "logical_bytes": 36357012,
+      "rewritten_bytes": 196608
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/publication-freeze-052/payload/fixed-boundary-source-fit-001/run-008-134-robust-normal-highs/candidate-8874-local-position-fit.nhtissue",
+      "sha256_before_after": "99590439c083ae296c1a31e8e9e82c0c67c173a7fc8e78a1a73bf5e81f31629e",
+      "logical_bytes": 36357012,
+      "rewritten_bytes": 327680
+    }
+  ]
+}

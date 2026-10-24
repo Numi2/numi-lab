@@ -1,0 +1,1040 @@
+{
+  "schema": "numi.human.arm-trial-file-list.v1",
+  "root_relative_to": "R",
+  "count": 79,
+  "contents_are_frozen_copies": true,
+  "hash_algorithm": "SHA-256",
+  "files": [
+    {
+      "path": "publication-freeze-052/payload/external-inputs/baseline-nhtissue-8874.nhtissue",
+      "origin": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+      "origin_kind": "external absolute path",
+      "bytes": 36357012,
+      "sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+      "roles": [
+        "008 reproducibility input/helper"
+      ],
+      "execution_statuses": [
+        "actual baseline input; corrected 64-character SHA verified"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/external-inputs/cardiac_cavity_intersections.py",
+      "origin": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/exact-plane-filter-owner-264/src/numilab_human/cardiac_cavity_intersections.py",
+      "origin_kind": "external absolute path",
+      "bytes": 60664,
+      "sha256": "207236eb886e921b21ff281f44637140ea4bf9438b27561954dfe9528be71d27",
+      "roles": [
+        "008 reproducibility input/helper"
+      ],
+      "execution_statuses": [
+        "gate dependency copied at freeze; exact runtime hash was not recorded in the 008 report"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/external-inputs/current_pose_preflight.py",
+      "origin": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-387/current_pose_preflight.py",
+      "origin_kind": "external absolute path",
+      "bytes": 7498,
+      "sha256": "f34897a3cbad65313ee59b164a33cb528dfad0fe94e2f683fa1e49a1baecb201",
+      "roles": [
+        "008 reproducibility input/helper"
+      ],
+      "execution_statuses": [
+        "emitter source hash verified against the 008 report"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/external-inputs/left-little-pip-99.json",
+      "origin": "/Users/numi/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-little-pip-99.json",
+      "origin_kind": "external absolute path",
+      "bytes": 22222,
+      "sha256": "b013eea9e3cb93ee038c76e3eacde7d238e21c11e2a25f72e20b8165a150a634",
+      "roles": [
+        "008 reproducibility input/helper"
+      ],
+      "execution_statuses": [
+        "four-FK pose input hash verified against the 008 report"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/external-inputs/left-ring-pip-95.json",
+      "origin": "/Users/numi/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-ring-pip-95.json",
+      "origin_kind": "external absolute path",
+      "bytes": 22223,
+      "sha256": "c9d251a53aec2c362a6bd5fed3ef0cc15fd863237a3df8b148a42b735b2db2a4",
+      "roles": [
+        "008 reproducibility input/helper"
+      ],
+      "execution_statuses": [
+        "four-FK pose input hash verified against the 008 report"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/external-inputs/rebind_human_tissue_reference.py",
+      "origin": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-396/tools/rebind_human_tissue_reference.py",
+      "origin_kind": "external absolute path",
+      "bytes": 36448,
+      "sha256": "7adf9cb321168e859f21ae62cf79ee59d94ce50fffbc0aeac2971feb18defa83",
+      "roles": [
+        "008 reproducibility input/helper"
+      ],
+      "execution_statuses": [
+        "gate dependency copied at freeze; exact runtime hash was not recorded in the 008 report"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/external-inputs/registered-skin-poses-identity-003.json",
+      "origin": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/registered-skin-poses.json",
+      "origin_kind": "external absolute path",
+      "bytes": 73339,
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+      "roles": [
+        "008 reproducibility input/helper"
+      ],
+      "execution_statuses": [
+        "identity/current/rest pose input hash verified against the 008 report"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/external-inputs/right-little-pip-61.json",
+      "origin": "/Users/numi/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-little-pip-61.json",
+      "origin_kind": "external absolute path",
+      "bytes": 22219,
+      "sha256": "223730f948fc25866d9c1918ec5614d7d659157b3931a0156d661ef76fec46b2",
+      "roles": [
+        "008 reproducibility input/helper"
+      ],
+      "execution_statuses": [
+        "four-FK pose input hash verified against the 008 report"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/external-inputs/right-ring-pip-57.json",
+      "origin": "/Users/numi/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-ring-pip-57.json",
+      "origin_kind": "external absolute path",
+      "bytes": 22218,
+      "sha256": "9e6ca87deab3965d11b6c32486efac37b46127a843d05d4359849bc2b1199d69",
+      "roles": [
+        "008 reproducibility input/helper"
+      ],
+      "execution_statuses": [
+        "four-FK pose input hash verified against the 008 report"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/build_source_fit_001.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_001.py",
+      "origin_kind": "R-relative",
+      "bytes": 15694,
+      "sha256": "cb704608b73b1c412a7dec7b16975874e96c93836608dae8460062df684b1c96",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/build_source_fit_004.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_004.py",
+      "origin_kind": "R-relative",
+      "bytes": 18592,
+      "sha256": "2119b2617b0bbfb7a289f606e5e3cee1cb283bd8c9ef02308b878870c8bc6787",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/build_source_fit_005.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_005.py",
+      "origin_kind": "R-relative",
+      "bytes": 20464,
+      "sha256": "0551615382583b092e3b2068593a676a4f7eb53ad70faeed8f2c1c69b11d5f5e",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/build_source_fit_006.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_006.py",
+      "origin_kind": "R-relative",
+      "bytes": 21032,
+      "sha256": "7aa6da8c107f2cb8ad6452f4ac0e5559891a49bcbc6e0b891c56f9263766e2f5",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/build_source_fit_006b.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_006b.py",
+      "origin_kind": "R-relative",
+      "bytes": 20997,
+      "sha256": "9352348d499c5cc5af93a1d08d039a768c9416dce0d001cc59f2621c2ea63d0e",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/build_source_fit_007_robust134.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_007_robust134.py",
+      "origin_kind": "R-relative",
+      "bytes": 24291,
+      "sha256": "446bb5873300801b590ba49ace6d493cec66f79064068853f6552d760ec1cf04",
+      "roles": [
+        "prior counterfactual inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior freeze"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/build_source_fit_007b_robust134.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_007b_robust134.py",
+      "origin_kind": "R-relative",
+      "bytes": 24292,
+      "sha256": "dc94abd93ae5aab8b47639a6123d636f14d1d45602c855e035b8eaf26fc2cf8b",
+      "roles": [
+        "prior counterfactual inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior freeze"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/build_source_fit_007c_robust134.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_007c_robust134.py",
+      "origin_kind": "R-relative",
+      "bytes": 24458,
+      "sha256": "79ed3f5cc5db952e3239ca0ddea7eddd25cc182b06b21964ec4f805a24e3755e",
+      "roles": [
+        "prior counterfactual inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior freeze"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/build_source_fit_007d_robust134.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_007d_robust134.py",
+      "origin_kind": "R-relative",
+      "bytes": 24499,
+      "sha256": "d470d630fdff725251666a483103dca2a11b21b7ba7ed11491249ba14b040a55",
+      "roles": [
+        "prior counterfactual inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior freeze"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/build_source_fit_008_robust134_highs.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_008_robust134_highs.py",
+      "origin_kind": "R-relative",
+      "bytes": 28957,
+      "sha256": "57286f2625e54ee400075bc2f2d33dcb6662786d4b49b926d18469982c310161",
+      "roles": [
+        "008 HiGHS builder source"
+      ],
+      "execution_statuses": [
+        "as-run builder; hash also pinned by source-fit report"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/diagnose_134_robust_normals.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/diagnose_134_robust_normals.py",
+      "origin_kind": "R-relative",
+      "bytes": 8478,
+      "sha256": "29d36e75e0dbd9c37260141da4560080877d41946c6df4c0d7f368727361349d",
+      "roles": [
+        "prior publication inventory payload",
+        "prior counterfactual inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest",
+        "historical status preserved in prior freeze"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/diagnose_134_row.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/diagnose_134_row.py",
+      "origin_kind": "R-relative",
+      "bytes": 7161,
+      "sha256": "4d41d7f9bc1ac15d08e1a4629f5a5cd32a627d6dd28df7877e1bbac7cce1afbe",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/diagnose_134_row_002.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/diagnose_134_row_002.py",
+      "origin_kind": "R-relative",
+      "bytes": 7164,
+      "sha256": "803685b1d7c00b7c0e4028bff5424e70d5f0ffcb1662f640d53ddad589b3c8c1",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/diagnose_134_scaling.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/diagnose_134_scaling.py",
+      "origin_kind": "R-relative",
+      "bytes": 6225,
+      "sha256": "1d85f2fdb94fcc3091529297e3dd5fede6f38e6260d06d48f7a64a286fda1a7c",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/diagnose_134_scaling_002.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/diagnose_134_scaling_002.py",
+      "origin_kind": "R-relative",
+      "bytes": 6387,
+      "sha256": "19b5c62190e6fa7ef225961309787ae65c5ad005af0e69ae9b0643f93350df66",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/extract_current_004_witnesses.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/extract_current_004_witnesses.py",
+      "origin_kind": "R-relative",
+      "bytes": 4589,
+      "sha256": "8f8e2db0a6395648389a236ced7208015e6b83551e5941d72fe6920c979e6bea",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/extract_exact_witnesses_008.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/extract_exact_witnesses_008.py",
+      "origin_kind": "R-relative",
+      "bytes": 3586,
+      "sha256": "67f5669b7538ed91cb8ec1f05bdd07c899e4b91ddd59d1474d93d7b2e4b147e5",
+      "roles": [
+        "008 exact witness extractor source"
+      ],
+      "execution_statuses": [
+        "as-run witness extractor source"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/gate-unit-preflight-008.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/gate-unit-preflight-008.json",
+      "origin_kind": "R-relative",
+      "bytes": 371,
+      "sha256": "5fbe2c35d4b5df13e04727e8e257969070fc24f4a9f1183ff7fb521ebda6fcb4",
+      "roles": [
+        "008 corrected unit fixture result"
+      ],
+      "execution_statuses": [
+        "unit conversion fixture PASS"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/gate_source_fit_004.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/gate_source_fit_004.py",
+      "origin_kind": "R-relative",
+      "bytes": 8745,
+      "sha256": "01bdbaba1b1d99dd0b3a60cdff8853b0dd41da7759b25d77947b8526c7c02d45",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/gate_source_fit_004_allposes.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/gate_source_fit_004_allposes.py",
+      "origin_kind": "R-relative",
+      "bytes": 8654,
+      "sha256": "dd45259170636a12f70946bf9af7185993d371636aa846985a4f3606c489fb18",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/gate_source_fit_005_allposes.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/gate_source_fit_005_allposes.py",
+      "origin_kind": "R-relative",
+      "bytes": 8654,
+      "sha256": "77a0ad611efb67695d89f7f3570a1de0a9cc32c8c9ad60745ecc7ae43c1c7153",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/gate_source_fit_008_134_allposes.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/gate_source_fit_008_134_allposes.py",
+      "origin_kind": "R-relative",
+      "bytes": 9825,
+      "sha256": "8c90ead196235a6cb537abc7a9590b0d573ab2ea93bb9f710ab609da19b21374",
+      "roles": [
+        "008 corrected exact gate source"
+      ],
+      "execution_statuses": [
+        "as-run corrected exact gate source"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/gate_source_fit_008_134_allposes_unitsbug.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/gate_source_fit_008_134_allposes_unitsbug.py",
+      "origin_kind": "R-relative",
+      "bytes": 9809,
+      "sha256": "26903a3dcc08885f213202895c75d9902db615cc8aa9a76b796ca9032d79db12",
+      "roles": [
+        "008 initial exact gate source"
+      ],
+      "execution_statuses": [
+        "failed reporter attempt; area-unit bug; not qualification"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/gate_source_fit_131.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/gate_source_fit_131.py",
+      "origin_kind": "R-relative",
+      "bytes": 8745,
+      "sha256": "4cc562620d113944a83e241add32e03081fe6a73b99f517f88f51f5f74640a65",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/inspect_134.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/inspect_134.py",
+      "origin_kind": "R-relative",
+      "bytes": 1220,
+      "sha256": "9a2fdbe6f59d2e9bba5e6f8890b3e2e0111bbc27ac85af33b3f379631aeb7f13",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-002/source-fit-report.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-002/source-fit-report.json",
+      "origin_kind": "R-relative",
+      "bytes": 4227,
+      "sha256": "d0f3e215b4a2812033c298d57e2c8781db36aaf38ea7cc75103f80c7b0482148",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-003/candidate-8874-local-position-fit.nhtissue",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-003/candidate-8874-local-position-fit.nhtissue",
+      "origin_kind": "R-relative",
+      "bytes": 36357012,
+      "sha256": "eac5a08ad9f967de38725ca7c8c83662b88b852fb4e2dfc67da6086eb5cd9631",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-003/exact-local-source-fit-131-002/exact-local-gate-report.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-003/exact-local-source-fit-131-002/exact-local-gate-report.json",
+      "origin_kind": "R-relative",
+      "bytes": 6594,
+      "sha256": "2f37792791ba938145b14737265b657be8aa1655883dc42705e9ee7704287995",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-003/source-fit-report.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-003/source-fit-report.json",
+      "origin_kind": "R-relative",
+      "bytes": 6309,
+      "sha256": "34f60b606ad27d94d59a429a29395829789d049b1a3a9a4e8fdd3e404369f2ed",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-004-allposes-gate.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-004-allposes-gate.log",
+      "origin_kind": "R-relative",
+      "bytes": 24240,
+      "sha256": "e404ed118c41367b46e8568a16666985fe2d00795d92b991b8f4d858a4c35d88",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-004-builder.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-004-builder.log",
+      "origin_kind": "R-relative",
+      "bytes": 5276,
+      "sha256": "fc4742a9b60d714e0af14a534c7540a0c3090d5c425a4ef5810bf6446fc05ca8",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-004-gate.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-004-gate.log",
+      "origin_kind": "R-relative",
+      "bytes": 4922,
+      "sha256": "a01cd58eb58ef40c85b514c1c907bd97c92191cae514e36c353bb969eb44084f",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-004-witness-extract.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-004-witness-extract.log",
+      "origin_kind": "R-relative",
+      "bytes": 103808,
+      "sha256": "f3becc8e0b7ab0e6402c778ec7d28ecf3b10020ed274db011f722b520f4959a7",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-004/candidate-8874-local-position-fit.nhtissue",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-004/candidate-8874-local-position-fit.nhtissue",
+      "origin_kind": "R-relative",
+      "bytes": 36357012,
+      "sha256": "c8fce576aaa9786ece799fd5c204be77dc219b7fbd35e98aa6bebddd8ba6c8da",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-004/current191-new-pair-witnesses.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-004/current191-new-pair-witnesses.json",
+      "origin_kind": "R-relative",
+      "bytes": 613598,
+      "sha256": "d62b2eb59cf82755c870f45290e29c3bcd35d7d007836ea90c354d98e3990c6e",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-004/exact-local-source-fit-131-001/exact-local-gate-report.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-004/exact-local-source-fit-131-001/exact-local-gate-report.json",
+      "origin_kind": "R-relative",
+      "bytes": 6770,
+      "sha256": "9ce1ee8d8d8643b09b489456461da0a117ccd69c63eed542d15961a84a0fe4a5",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-004/exact-local-source-fit-131-allposes/exact-local-gate-report.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-004/exact-local-source-fit-131-allposes/exact-local-gate-report.json",
+      "origin_kind": "R-relative",
+      "bytes": 24934,
+      "sha256": "b9088b81e6cbc6ed5b1268660d4d0184c9b3d873b66b636903c08df3206ee7f3",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-004/source-fit-report.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-004/source-fit-report.json",
+      "origin_kind": "R-relative",
+      "bytes": 7184,
+      "sha256": "73f2e5b7aef09dac47a95b45533649d0c79c10fc7ad2b0819f2420c8f54e1a0e",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-005-allposes-gate.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-005-allposes-gate.log",
+      "origin_kind": "R-relative",
+      "bytes": 28210,
+      "sha256": "ba1d247642e2cd0374331165b63216c4f599f4882b5173a0acec840e0bb28bde",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-005-builder.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-005-builder.log",
+      "origin_kind": "R-relative",
+      "bytes": 51780,
+      "sha256": "a74b5099bb4cf76f540da305fd06497a3006b36ef28b1ba6368d65453f0e3f49",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-005/candidate-8874-local-position-fit.nhtissue",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-005/candidate-8874-local-position-fit.nhtissue",
+      "origin_kind": "R-relative",
+      "bytes": 36357012,
+      "sha256": "c0b5adc38fba3447d36de5845073f8383e4ec156f3807197914466be5b8e9bbf",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-005/exact-local-source-fit-131-allposes/exact-local-gate-report.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-005/exact-local-source-fit-131-allposes/exact-local-gate-report.json",
+      "origin_kind": "R-relative",
+      "bytes": 28905,
+      "sha256": "edb8172b1861d10de0f98038f9eee9114b6518962417f078c4988a02008a3d52",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-005/source-fit-report.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-005/source-fit-report.json",
+      "origin_kind": "R-relative",
+      "bytes": 53727,
+      "sha256": "60446a8da040cf013d551abc4b578f6eae680622c92a8909ee591a6c8b28cf18",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-006-builder.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-006-builder.log",
+      "origin_kind": "R-relative",
+      "bytes": 4046,
+      "sha256": "ec877eaff26388e72fe454ab652a9d0339d2cacd2344059fe22627aeb53feb0f",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-006b-134-diagnostic-002.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-006b-134-diagnostic-002.log",
+      "origin_kind": "R-relative",
+      "bytes": 9642,
+      "sha256": "52def9f22d391ff3cfed030a902fdf20d8fc2be0cc0a323f26148ee171e5ed81",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-006b-134-diagnostic-002/diagnostic.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-006b-134-diagnostic-002/diagnostic.json",
+      "origin_kind": "R-relative",
+      "bytes": 12052,
+      "sha256": "2bfbba8b32760f7c816de627a24562965732d8028d18d49e964eab114059e002",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-006b-134-diagnostic.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-006b-134-diagnostic.log",
+      "origin_kind": "R-relative",
+      "bytes": 8798,
+      "sha256": "318e9b4626b7c8118ff671fbc86252404f9bd9ab8f75fbc62cd03fbc084a8d1b",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-006b-134-diagnostic/diagnostic.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-006b-134-diagnostic/diagnostic.json",
+      "origin_kind": "R-relative",
+      "bytes": 10981,
+      "sha256": "df4eec7fb93e5c432e264bc76d4440b6b020793f8c142e7e055e3df4e487d969",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-006b-134-robust-normal-003/diagnostic.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-006b-134-robust-normal-003/diagnostic.json",
+      "origin_kind": "R-relative",
+      "bytes": 24898,
+      "sha256": "587920a19723b79cc7ec94f63afa2c10ac45e8671dd6e46d79c833d2487a35dd",
+      "roles": [
+        "prior publication inventory payload",
+        "prior counterfactual inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest",
+        "historical status preserved in prior freeze"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-006b-134-row-002.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-006b-134-row-002.log",
+      "origin_kind": "R-relative",
+      "bytes": 18884,
+      "sha256": "fe2bbb24ace6bc13be8150a2d4c31df912c0ed756c9add2cd06ab4b56d04f2f3",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-006b-134-row-002/diagnostic.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-006b-134-row-002/diagnostic.json",
+      "origin_kind": "R-relative",
+      "bytes": 21109,
+      "sha256": "f4a363b062a2718787e79046d3af4b3f37566f2d56275c5bc9ca5fe387011bca",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-006b-134-row.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-006b-134-row.log",
+      "origin_kind": "R-relative",
+      "bytes": 1353,
+      "sha256": "43727da42a8c582bbd2e00d61d61ab7d04024f7ba9e61ed4aa09281bb22ece62",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-006b-builder.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-006b-builder.log",
+      "origin_kind": "R-relative",
+      "bytes": 50319,
+      "sha256": "2767d325fabe3e74de2ce9c7be126f1b50333f8581b5fba36e7eda0bfa4b8977",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-006b/source-fit-report.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-006b/source-fit-report.json",
+      "origin_kind": "R-relative",
+      "bytes": 51888,
+      "sha256": "f7f487acfa3247e60833241fe8c33a08399ac00c78d80b2f34cd7937ee58c9ce",
+      "roles": [
+        "prior publication inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior manifest"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-007b-builder.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-007b-builder.log",
+      "origin_kind": "R-relative",
+      "bytes": 1050,
+      "sha256": "71553fd0c7f6019a50ef2bf5eef2ccfc0ee945252caea059688e23a858350e9c",
+      "roles": [
+        "prior counterfactual inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior freeze"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-007c-builder.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-007c-builder.log",
+      "origin_kind": "R-relative",
+      "bytes": 2069,
+      "sha256": "d5b38b422f105af2c1ddccfe61f8b8769ea55a651936416e8c1543204217df8d",
+      "roles": [
+        "prior counterfactual inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior freeze"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-007d-134-robust-normal/source-fit-report.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-007d-134-robust-normal/source-fit-report.json",
+      "origin_kind": "R-relative",
+      "bytes": 7339,
+      "sha256": "3975f0587e26a12ca92f886712948c32c5bd2b75128424523b90148c45173534",
+      "roles": [
+        "prior counterfactual inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior freeze"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-007d-builder.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-007d-builder.log",
+      "origin_kind": "R-relative",
+      "bytes": 5670,
+      "sha256": "bb7f00578cdfc86c36c3488af9eadd899514d226f4a9451c7b19d1afc315479f",
+      "roles": [
+        "prior counterfactual inventory payload"
+      ],
+      "execution_statuses": [
+        "historical status preserved in prior freeze"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-008-134-robust-normal-highs/candidate-8874-local-position-fit.nhtissue",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-008-134-robust-normal-highs/candidate-8874-local-position-fit.nhtissue",
+      "origin_kind": "R-relative",
+      "bytes": 36357012,
+      "sha256": "99590439c083ae296c1a31e8e9e82c0c67c173a7fc8e78a1a73bf5e81f31629e",
+      "roles": [
+        "008 emitted candidate payload"
+      ],
+      "execution_statuses": [
+        "diagnostic only; not admitted; exact gate fails"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-008-134-robust-normal-highs/exact-local-source-fit-134-allposes-corrected/exact-local-gate-report.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-008-134-robust-normal-highs/exact-local-source-fit-134-allposes-corrected/exact-local-gate-report.json",
+      "origin_kind": "R-relative",
+      "bytes": 7024,
+      "sha256": "6d602e8cea238eb85459ecd394684edb7aaa9d7f33e37a609435a514c16fcc28",
+      "roles": [
+        "008 corrected exact gate report"
+      ],
+      "execution_statuses": [
+        "as-run exact gate report; FAIL_NEW_EXACT_LOCAL_PAIRS"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-008-134-robust-normal-highs/exact-local-source-fit-134-allposes/exact-local-gate-report.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-008-134-robust-normal-highs/exact-local-source-fit-134-allposes/exact-local-gate-report.json",
+      "origin_kind": "R-relative",
+      "bytes": 4393,
+      "sha256": "c89623b68e4283b5b8a2ec7ded3855be3f99e2e5ae27a5981cd93dea59b8bfba",
+      "roles": [
+        "008 initial exact gate report"
+      ],
+      "execution_statuses": [
+        "invalid initial unit report; retained failure evidence only"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-008-134-robust-normal-highs/source-fit-report.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-008-134-robust-normal-highs/source-fit-report.json",
+      "origin_kind": "R-relative",
+      "bytes": 11204,
+      "sha256": "dac4e9043314956ec63aad588d68f3e260d44de00ae444daa1a4500803e517c4",
+      "roles": [
+        "008 source-fit report"
+      ],
+      "execution_statuses": [
+        "as-run fit report; quality preflight passed; collision constraints absent"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-008-builder.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-008-builder.log",
+      "origin_kind": "R-relative",
+      "bytes": 9144,
+      "sha256": "09bf5fae40fdae8b148283135c3e3cbb1b722c25fd79311d5c7595192f647b45",
+      "roles": [
+        "008 builder stdout/stderr receipt"
+      ],
+      "execution_statuses": [
+        "as-run builder log"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-008-exact-gate-corrected.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-008-exact-gate-corrected.log",
+      "origin_kind": "R-relative",
+      "bytes": 6215,
+      "sha256": "4a4a4053f72d25d6636554af8f3f098078c3845674d3fff07b3a7f66d2c3be80",
+      "roles": [
+        "008 corrected exact gate log"
+      ],
+      "execution_statuses": [
+        "as-run exact gate; failed new exact local pairs"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-008-exact-gate.log",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-008-exact-gate.log",
+      "origin_kind": "R-relative",
+      "bytes": 3594,
+      "sha256": "e060b8a205b9d22e990bd3554d3dc45ceb010f0a9054671d46dffacd6b39e5c0",
+      "roles": [
+        "008 initial exact gate log"
+      ],
+      "execution_statuses": [
+        "failed reporter attempt; exact predicate did not run"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/run-008-exact-pair-witnesses.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-008-exact-pair-witnesses.json",
+      "origin_kind": "R-relative",
+      "bytes": 48131,
+      "sha256": "917fd57181a73beab935e5efbb8af7f23ba8868a5a5b1178d957ec7b83583fbd",
+      "roles": [
+        "008 exact pair witness map"
+      ],
+      "execution_statuses": [
+        "as-run failed exact witness output"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/test_gate_units_008.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/test_gate_units_008.py",
+      "origin_kind": "R-relative",
+      "bytes": 1578,
+      "sha256": "98dc7da7c4bd626fcd51ab5832135ed6b6c29a1c5e759354cfa12f7c9a465fe0",
+      "roles": [
+        "008 corrected unit fixture source"
+      ],
+      "execution_statuses": [
+        "passing unit test source"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/fixed-boundary-source-fit-001/test_gate_units_008_initial_failed.py",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/test_gate_units_008_initial_failed.py",
+      "origin_kind": "R-relative",
+      "bytes": 1326,
+      "sha256": "ab6d3a5ab073633cefb2151b65ccb962f1e41da1cf116eca93becf963f33bdbb",
+      "roles": [
+        "008 initial failed unit fixture source"
+      ],
+      "execution_statuses": [
+        "failed test source retained"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/previous-freezes/publication-freeze-001/counterfactual-134-freeze.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/publication-freeze-001/counterfactual-134-freeze.json",
+      "origin_kind": "R-relative",
+      "bytes": 4068,
+      "sha256": "39ca3d6e83870d1c90cc400731a8819a19e51867d703f41a814f4edd0b8d554c",
+      "roles": [
+        "prior counterfactual freeze bytes"
+      ],
+      "execution_statuses": [
+        "retained unchanged"
+      ]
+    },
+    {
+      "path": "publication-freeze-052/payload/previous-freezes/publication-freeze-001/publication-manifest.json",
+      "origin": "../../../../../../../../../../../numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/publication-freeze-001/publication-manifest.json",
+      "origin_kind": "R-relative",
+      "bytes": 12247,
+      "sha256": "66011b022c223b207ac09b24bb1b11b88ed3e9846b2a7ff816923252eb34415f",
+      "roles": [
+        "prior malformed manifest bytes"
+      ],
+      "execution_statuses": [
+        "retained unchanged"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "schema": "numi.human.fixed-boundary-source-position-fit.preflight.v1",
+  "status": "POSITION_FIT_QUALITY_PASS_EXACT_LOCAL_GATE_PENDING",
+  "baseline_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "baseline_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "builder_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_004.py",
+  "builder_sha256": "2119b2617b0bbfb7a289f606e5e3cee1cb283bd8c9ef02308b878870c8bc6787",
+  "emitter_sha256": "f34897a3cbad65313ee59b164a33cb528dfad0fe94e2f683fa1e49a1baecb201",
+  "identity003_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "poses": {
+    "current191": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "rest003": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "right-ring-pip-57": "9e6ca87deab3965d11b6c32486efac37b46127a843d05d4359849bc2b1199d69",
+    "right-little-pip-61": "223730f948fc25866d9c1918ec5614d7d659157b3931a0156d661ef76fec46b2",
+    "left-ring-pip-95": "c9d251a53aec2c362a6bd5fed3ef0cc15fd863237a3df8b148a42b735b2db2a4",
+    "left-little-pip-99": "b013eea9e3cb93ee038c76e3eacde7d238e21c11e2a25f72e20b8165a150a634"
+  },
+  "patches": [
+    {
+      "stable_id": 131,
+      "fixed_only_violated_constraint_rows_at_start": [],
+      "seed_faces": [
+        12677,
+        12679
+      ],
+      "patch_faces": 16,
+      "patch_vertices": 12,
+      "fixed_boundary_edges": 6,
+      "fixed_boundary_vertices": 6,
+      "free_vertices_local": [
+        3096,
+        3098,
+        3106,
+        6202,
+        6330,
+        6518
+      ],
+      "optimizer_success": true,
+      "optimizer_message": "Optimization terminated successfully",
+      "iterations": 18,
+      "objective_increment_from_run003_mm2": 1.5292314058776598e-06,
+      "seed_candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-003/candidate-8874-local-position-fit.nhtissue",
+      "seed_candidate_sha256": "eac5a08ad9f967de38725ca7c8c83662b88b852fb4e2dfc67da6086eb5cd9631",
+      "minimum_linearized_constraint_slack": 0.0,
+      "movement_mm": {
+        "max": 0.0005694069950941544,
+        "rms": 0.0003096170842968079
+      },
+      "constraints": {
+        "poses": [
+          "current191",
+          "rest003",
+          "right-ring-pip-57",
+          "right-little-pip-61",
+          "left-ring-pip-95",
+          "left-little-pip-99"
+        ],
+        "emitted_altitude_target_mm": 0.0005,
+        "pre_emission_fit_altitude_margin_mm": 0.00065,
+        "oriented_double_area_fraction": 0.2,
+        "witness_gap_floor_mm": 0.0005,
+        "trust_mm": 0.25
+      },
+      "collision_witnesses": [
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "source_face": 6157,
+          "target_face": 9592,
+          "axis": [
+            0.9146696713677925,
+            0.3920206791527378,
+            -0.09848441194707207
+          ],
+          "a_barycentric": [
+            0.0013600963,
+            0.9986399037,
+            0.0
+          ],
+          "b_barycentric": [
+            7.55863e-05,
+            0.9983590795,
+            0.0015653341
+          ],
+          "baseline_gap_mm": 2.1395539115027666e-05,
+          "initial_seed_gap_mm": 1.158150668671727e-05,
+          "required_gap_mm": 0.0005
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "source_face": 6157,
+          "target_face": 9593,
+          "axis": [
+            0.9154810533823576,
+            0.39012147269609854,
+            -0.09848694045078307
+          ],
+          "a_barycentric": [
+            0.0010372244,
+            0.9853502042,
+            0.0136125714
+          ],
+          "b_barycentric": [
+            0.0,
+            0.012341157,
+            0.987658843
+          ],
+          "baseline_gap_mm": 2.140070732632735e-05,
+          "initial_seed_gap_mm": 1.1006133488604164e-05,
+          "required_gap_mm": 0.0005
+        }
+      ]
+    }
+  ],
+  "modified_vertex_count": 6,
+  "outside_patch_payload_bytes_unchanged": true,
+  "patch_normals_regenerated_from_area_weighted_source_faces": true,
+  "method": "actual8874 source-space constrained local fit initialized from run-003, fixed outer ring, joint six-pose altitude/oriented-area constraints plus two REST exact-witness barycentric separation rows",
+  "limitations": [
+    "Only the stable131 patch is fitted; stable134 remains unchanged. Exact checks are required across all six pinned poses. This does not qualify the full hand/tissue system."
+  ],
+  "regenerated_normal_metrics": {
+    "131": {
+      "patch_vertex_count": 12,
+      "minimum_alignment_to_original_normal": 0.96692205621828,
+      "maximum_normal_change_degrees": 14.777852925084455
+    }
+  },
+  "candidate_patch_stable_ids": [
+    131
+  ],
+  "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-004/candidate-8874-local-position-fit.nhtissue",
+  "candidate_sha256": "c8fce576aaa9786ece799fd5c204be77dc219b7fbd35e98aa6bebddd8ba6c8da",
+  "emitted_float32_quality": [
+    {
+      "stable_id": 131,
+      "pose": "current191",
+      "min_altitude_mm": 0.0006663492777045564,
+      "min_altitude_to_vertex_ulp": 11.179485763493327,
+      "zero_area_faces": 0
+    },
+    {
+      "stable_id": 131,
+      "pose": "rest003",
+      "min_altitude_mm": 0.0006513293756669064,
+      "min_altitude_to_vertex_ulp": 10.927493622708832,
+      "zero_area_faces": 0
+    },
+    {
+      "stable_id": 131,
+      "pose": "right-ring-pip-57",
+      "min_altitude_mm": 0.000657689746170572,
+      "min_altitude_to_vertex_ulp": 11.034202932488858,
+      "zero_area_faces": 0
+    },
+    {
+      "stable_id": 131,
+      "pose": "right-little-pip-61",
+      "min_altitude_mm": 0.000657689746170572,
+      "min_altitude_to_vertex_ulp": 11.034202932488858,
+      "zero_area_faces": 0
+    },
+    {
+      "stable_id": 131,
+      "pose": "left-ring-pip-95",
+      "min_altitude_mm": 0.000657689746170572,
+      "min_altitude_to_vertex_ulp": 11.034202932488858,
+      "zero_area_faces": 0
+    },
+    {
+      "stable_id": 131,
+      "pose": "left-little-pip-99",
+      "min_altitude_mm": 0.000657689746170572,
+      "min_altitude_to_vertex_ulp": 11.034202932488858,
+      "zero_area_faces": 0
+    }
+  ],
+  "exact_collision_gate": "not_run"
+}

@@ -1,0 +1,324 @@
+{
+  "schema": "numi.human.fixed-boundary-source-fit.exact-local-gate.v1",
+  "baseline_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "candidate_sha256": "eac5a08ad9f967de38725ca7c8c83662b88b852fb4e2dfc67da6086eb5cd9631",
+  "candidate_builder_sha256": "cb704608b73b1c412a7dec7b16975874e96c93836608dae8460062df684b1c96",
+  "source_fit_report_sha256": "34f60b606ad27d94d59a429a29395829789d049b1a3a9a4e8fdd3e404369f2ed",
+  "stable_id": 131,
+  "seed_faces": [
+    12677,
+    12679
+  ],
+  "three_ring_patch_faces": [
+    6155,
+    6156,
+    6157,
+    6158,
+    6588,
+    12134,
+    12137,
+    12138,
+    12139,
+    12677,
+    12678,
+    12679,
+    12683,
+    12706,
+    12707,
+    12710
+  ],
+  "fixed_boundary_edge_count": 6,
+  "free_vertex_local_ids": [
+    3096,
+    3098,
+    3106,
+    6202,
+    6330,
+    6518
+  ],
+  "quality_preflight": [
+    {
+      "pose": "current191",
+      "minimum_altitude_mm": 0.0004507417335936911,
+      "minimum_altitude_to_vertex_ulp": 7.562191424715812,
+      "minimum_oriented_area_ratio": 0.9957222786198051,
+      "minimum_face_normal_cosine": 0.9860273280044678,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "rest003",
+      "minimum_altitude_mm": 0.00045697548819601956,
+      "minimum_altitude_to_vertex_ulp": 7.666776472170071,
+      "minimum_oriented_area_ratio": 0.995474798031241,
+      "minimum_face_normal_cosine": 0.7795934224578849,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "right-ring-pip-57",
+      "minimum_altitude_mm": 0.00045175928336944844,
+      "minimum_altitude_to_vertex_ulp": 7.579263077094445,
+      "minimum_oriented_area_ratio": 0.9955367647787354,
+      "minimum_face_normal_cosine": 0.5314870142681762,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "right-little-pip-61",
+      "minimum_altitude_mm": 0.00045175928336944844,
+      "minimum_altitude_to_vertex_ulp": 7.579263077094445,
+      "minimum_oriented_area_ratio": 0.9955367647787354,
+      "minimum_face_normal_cosine": 0.5314870142681762,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "left-ring-pip-95",
+      "minimum_altitude_mm": 0.00045175928336944844,
+      "minimum_altitude_to_vertex_ulp": 7.579263077094445,
+      "minimum_oriented_area_ratio": 0.9955367647787354,
+      "minimum_face_normal_cosine": 0.5314870142681762,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "left-little-pip-99",
+      "minimum_altitude_mm": 0.00045175928336944844,
+      "minimum_altitude_to_vertex_ulp": 7.579263077094445,
+      "minimum_oriented_area_ratio": 0.9955367647787354,
+      "minimum_face_normal_cosine": 0.5314870142681762,
+      "zero_area_face_count": 0
+    }
+  ],
+  "quality_preflight_status": "PASS",
+  "exact_checks": [
+    {
+      "pose": "current191",
+      "target_stable_id": 131,
+      "baseline_scoped_pair_count": 0,
+      "candidate_scoped_pair_count": 0,
+      "new_pair_count": 0,
+      "resolved_pair_count": 0,
+      "new_pairs": [],
+      "resolved_pairs": []
+    },
+    {
+      "pose": "current191",
+      "target_stable_id": 133,
+      "baseline_scoped_pair_count": 170,
+      "candidate_scoped_pair_count": 153,
+      "new_pair_count": 0,
+      "resolved_pair_count": 17,
+      "new_pairs": [],
+      "resolved_pairs": [
+        [
+          6156,
+          3437
+        ],
+        [
+          6156,
+          9581
+        ],
+        [
+          6156,
+          9582
+        ],
+        [
+          6157,
+          8951
+        ],
+        [
+          6157,
+          9581
+        ],
+        [
+          6157,
+          9582
+        ],
+        [
+          6588,
+          7509
+        ],
+        [
+          6588,
+          8951
+        ],
+        [
+          12138,
+          3437
+        ],
+        [
+          12138,
+          9581
+        ],
+        [
+          12138,
+          9582
+        ],
+        [
+          12677,
+          3437
+        ],
+        [
+          12677,
+          7509
+        ],
+        [
+          12677,
+          8951
+        ],
+        [
+          12679,
+          3437
+        ],
+        [
+          12679,
+          7509
+        ],
+        [
+          12679,
+          8951
+        ]
+      ]
+    },
+    {
+      "pose": "rest003",
+      "target_stable_id": 131,
+      "baseline_scoped_pair_count": 0,
+      "candidate_scoped_pair_count": 0,
+      "new_pair_count": 0,
+      "resolved_pair_count": 0,
+      "new_pairs": [],
+      "resolved_pairs": []
+    },
+    {
+      "pose": "rest003",
+      "target_stable_id": 133,
+      "baseline_scoped_pair_count": 68,
+      "candidate_scoped_pair_count": 43,
+      "new_pair_count": 2,
+      "resolved_pair_count": 27,
+      "new_pairs": [
+        [
+          6157,
+          9592
+        ],
+        [
+          6157,
+          9593
+        ]
+      ],
+      "resolved_pairs": [
+        [
+          6155,
+          7508
+        ],
+        [
+          6155,
+          7509
+        ],
+        [
+          6156,
+          3437
+        ],
+        [
+          6156,
+          7509
+        ],
+        [
+          6156,
+          8951
+        ],
+        [
+          6156,
+          9581
+        ],
+        [
+          6156,
+          9582
+        ],
+        [
+          6157,
+          7509
+        ],
+        [
+          6157,
+          8951
+        ],
+        [
+          6157,
+          9581
+        ],
+        [
+          6157,
+          9582
+        ],
+        [
+          6158,
+          7508
+        ],
+        [
+          6588,
+          7509
+        ],
+        [
+          6588,
+          8951
+        ],
+        [
+          12138,
+          3437
+        ],
+        [
+          12138,
+          7509
+        ],
+        [
+          12138,
+          8951
+        ],
+        [
+          12138,
+          9581
+        ],
+        [
+          12138,
+          9582
+        ],
+        [
+          12677,
+          3437
+        ],
+        [
+          12677,
+          7509
+        ],
+        [
+          12677,
+          8951
+        ],
+        [
+          12677,
+          9581
+        ],
+        [
+          12679,
+          3437
+        ],
+        [
+          12679,
+          7509
+        ],
+        [
+          12679,
+          8951
+        ],
+        [
+          12679,
+          9581
+        ]
+      ]
+    }
+  ],
+  "limitations": [
+    "The candidate changes only stable131 position/normal rows; stable134 remains unmodified because its fit failed. Scope is changed three-ring patch versus same-bank and selected-bank surfaces in six poses only. This does not qualify the whole hand or tissue system."
+  ],
+  "status": "FAIL_NEW_EXACT_LOCAL_PAIRS",
+  "failure_stage": "rest003:133"
+}

@@ -1,0 +1,1168 @@
+{
+  "admission": "diagnostic_only_no_NHTISS_regeneration_no_material_or_FEM_mapping",
+  "all_six_no_new_partner_faces": true,
+  "baseline_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "builder_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_007d_robust134.py",
+  "closed_oriented_winding_ready": true,
+  "elapsed_seconds": 9.368438005447388,
+  "emitter_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-387/current_pose_preflight.py",
+  "exact_predicate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+  "exact_record_owner": "collision-free-seam-records-owner-315 float32_surface_records; no source seam groups supplied; source vertex rows remain unaliased",
+  "full_bank_current191_topology": {
+    "baseline_boundary_edges": 0,
+    "candidate_bad_internal_edge_orientation": 0,
+    "candidate_boundary_edges": 0,
+    "candidate_overfull_edges": 0,
+    "oriented_boundary_exactly_equal": true,
+    "winding_preflight": {
+      "baseline": {
+        "closed_oriented_manifold": true,
+        "component_count": 4,
+        "signed_winding_prepared": true,
+        "vertex_mean_query": {
+          "attempts": 1,
+          "crossings": 0,
+          "ray": [
+            1,
+            1,
+            1
+          ],
+          "status": "resolved",
+          "winding_number": 0
+        }
+      },
+      "candidate": {
+        "closed_oriented_manifold": true,
+        "component_count": 4,
+        "signed_winding_prepared": true,
+        "vertex_mean_query": {
+          "attempts": 1,
+          "crossings": 0,
+          "ray": [
+            1,
+            1,
+            1
+          ],
+          "status": "resolved",
+          "winding_number": 0
+        }
+      }
+    }
+  },
+  "identity003_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/source-preflight-identity-003/registered-skin-poses.json",
+  "input_hashes": {
+    "baseline": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+    "builder": "d470d630fdff725251666a483103dca2a11b21b7ba7ed11491249ba14b040a55",
+    "emitter": "f34897a3cbad65313ee59b164a33cb528dfad0fe94e2f683fa1e49a1baecb201",
+    "exact": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "identity003": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "left-little-pip-99.json": "b013eea9e3cb93ee038c76e3eacde7d238e21c11e2a25f72e20b8165a150a634",
+    "left-ring-pip-95.json": "c9d251a53aec2c362a6bd5fed3ef0cc15fd863237a3df8b148a42b735b2db2a4",
+    "right-little-pip-61.json": "223730f948fc25866d9c1918ec5614d7d659157b3931a0156d661ef76fec46b2",
+    "right-ring-pip-57.json": "9e6ca87deab3965d11b6c32486efac37b46127a843d05d4359849bc2b1199d69"
+  },
+  "limitations": [
+    "Exact collision gate covers the changed disk against its same-bank AABB neighborhood and AABB-overlapping selected banks only; no full-anatomy, bone, or tissue clearance qualification.",
+    "Partner-face sets are compared at patch scope because a fan triangle has the full 18-face disk as construction ancestry; raw exact triangle-pair counts are retained and no one-to-one overlap ancestry is claimed.",
+    "No asset regenerated and no FEM/material map or physical admission claim."
+  ],
+  "patch": {
+    "construction_ancestry_kind": "every new fan face has all 18 old disk rows as construction ancestry; this is not exact geometric overlap or material/FEM ancestry",
+    "fan_construction_ancestry_offsets": [
+      0,
+      18,
+      36,
+      54,
+      72,
+      90,
+      108,
+      126,
+      144
+    ],
+    "fan_construction_ancestry_source_face_rows": [
+      11094,
+      11095,
+      11096,
+      11097,
+      11098,
+      11121,
+      11122,
+      11126,
+      11130,
+      11852,
+      11853,
+      11854,
+      63329,
+      63330,
+      63331,
+      63332,
+      63333,
+      63334,
+      11094,
+      11095,
+      11096,
+      11097,
+      11098,
+      11121,
+      11122,
+      11126,
+      11130,
+      11852,
+      11853,
+      11854,
+      63329,
+      63330,
+      63331,
+      63332,
+      63333,
+      63334,
+      11094,
+      11095,
+      11096,
+      11097,
+      11098,
+      11121,
+      11122,
+      11126,
+      11130,
+      11852,
+      11853,
+      11854,
+      63329,
+      63330,
+      63331,
+      63332,
+      63333,
+      63334,
+      11094,
+      11095,
+      11096,
+      11097,
+      11098,
+      11121,
+      11122,
+      11126,
+      11130,
+      11852,
+      11853,
+      11854,
+      63329,
+      63330,
+      63331,
+      63332,
+      63333,
+      63334,
+      11094,
+      11095,
+      11096,
+      11097,
+      11098,
+      11121,
+      11122,
+      11126,
+      11130,
+      11852,
+      11853,
+      11854,
+      63329,
+      63330,
+      63331,
+      63332,
+      63333,
+      63334,
+      11094,
+      11095,
+      11096,
+      11097,
+      11098,
+      11121,
+      11122,
+      11126,
+      11130,
+      11852,
+      11853,
+      11854,
+      63329,
+      63330,
+      63331,
+      63332,
+      63333,
+      63334,
+      11094,
+      11095,
+      11096,
+      11097,
+      11098,
+      11121,
+      11122,
+      11126,
+      11130,
+      11852,
+      11853,
+      11854,
+      63329,
+      63330,
+      63331,
+      63332,
+      63333,
+      63334,
+      11094,
+      11095,
+      11096,
+      11097,
+      11098,
+      11121,
+      11122,
+      11126,
+      11130,
+      11852,
+      11853,
+      11854,
+      63329,
+      63330,
+      63331,
+      63332,
+      63333,
+      63334
+    ],
+    "fan_source_vertex_triangles": [
+      [
+        18132,
+        19024,
+        38385
+      ],
+      [
+        19024,
+        33328,
+        38385
+      ],
+      [
+        33328,
+        35427,
+        38385
+      ],
+      [
+        35427,
+        38398,
+        38385
+      ],
+      [
+        38398,
+        39062,
+        38385
+      ],
+      [
+        39062,
+        38387,
+        38385
+      ],
+      [
+        38387,
+        38501,
+        38385
+      ],
+      [
+        38501,
+        18132,
+        38385
+      ]
+    ],
+    "fixed_boundary_cycle": [
+      18132,
+      19024,
+      33328,
+      35427,
+      38398,
+      39062,
+      38387,
+      38501
+    ],
+    "fixed_boundary_directed_edges": [
+      [
+        18132,
+        19024
+      ],
+      [
+        38501,
+        18132
+      ],
+      [
+        19024,
+        33328
+      ],
+      [
+        33328,
+        35427
+      ],
+      [
+        35427,
+        38398
+      ],
+      [
+        38387,
+        38501
+      ],
+      [
+        39062,
+        38387
+      ],
+      [
+        38398,
+        39062
+      ]
+    ],
+    "fixed_boundary_edges": [
+      [
+        18132,
+        19024
+      ],
+      [
+        18132,
+        38501
+      ],
+      [
+        19024,
+        33328
+      ],
+      [
+        33328,
+        35427
+      ],
+      [
+        35427,
+        38398
+      ],
+      [
+        38387,
+        38501
+      ],
+      [
+        38387,
+        39062
+      ],
+      [
+        38398,
+        39062
+      ]
+    ],
+    "hub_source_vertex_row": 38385,
+    "replaced_source_face_rows": [
+      11094,
+      11095,
+      11096,
+      11097,
+      11098,
+      11121,
+      11122,
+      11126,
+      11130,
+      11852,
+      11853,
+      11854,
+      63329,
+      63330,
+      63331,
+      63332,
+      63333,
+      63334
+    ],
+    "seed_face_rows": [
+      63329,
+      63331
+    ],
+    "source_coordinates_or_bindings_changed": false,
+    "source_vertex_rows": [
+      18132,
+      19024,
+      33326,
+      33328,
+      35427,
+      38384,
+      38385,
+      38386,
+      38387,
+      38395,
+      38397,
+      38398,
+      38501,
+      39062
+    ],
+    "stable_id": 134,
+    "unused_old_patch_vertex_rows": [
+      33326,
+      38384,
+      38386,
+      38395,
+      38397
+    ]
+  },
+  "pose_inputs": {
+    "current191": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "left-little-pip-99": "b013eea9e3cb93ee038c76e3eacde7d238e21c11e2a25f72e20b8165a150a634",
+    "left-ring-pip-95": "c9d251a53aec2c362a6bd5fed3ef0cc15fd863237a3df8b148a42b735b2db2a4",
+    "rest003": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "right-little-pip-61": "223730f948fc25866d9c1918ec5614d7d659157b3931a0156d661ef76fec46b2",
+    "right-ring-pip-57": "9e6ca87deab3965d11b6c32486efac37b46127a843d05d4359849bc2b1199d69"
+  },
+  "pose_results": {
+    "current191": {
+      "baseline_patch_flux": {
+        "area_m2": 1.3682827255904167e-06,
+        "area_vector_m2": [
+          7.729242545995163e-07,
+          1.809497521820802e-07,
+          1.112765799060611e-06
+        ],
+        "signed_volume_m3": 4.367829095690892e-08
+      },
+      "baseline_quality": {
+        "min_altitude_mm": 3.587035740337201e-05,
+        "min_altitude_to_max_vertex_ulp": 0.6018047341535713,
+        "min_area_mm2": 1.2283585155459912e-05,
+        "zero_area_faces": 0
+      },
+      "candidate_patch_flux": {
+        "area_m2": 1.3733306513554012e-06,
+        "area_vector_m2": [
+          7.729242545995163e-07,
+          1.809497521820802e-07,
+          1.112765799060611e-06
+        ],
+        "signed_volume_m3": 4.3680669067680265e-08
+      },
+      "candidate_quality": {
+        "min_altitude_mm": 0.005523270484026791,
+        "min_altitude_to_max_vertex_ulp": 92.66510193694202,
+        "min_area_mm2": 0.0022825558217785657,
+        "zero_area_faces": 0
+      },
+      "min_fan_dot_vs_patch_normal": 1.2184363824967766e-14,
+      "new_partner_count": 0,
+      "other_selected_banks": {
+        "131": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "132": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "133": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "137": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "138": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "141": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "142": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        }
+      },
+      "patch_area_vector_delta_m2": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "patch_area_vector_delta_norm_m2": 0.0,
+      "patch_signed_volume_delta_m3": 2.3781107713461315e-12,
+      "self": {
+        "baseline_internal_patch_pairs": [],
+        "baseline_partner_face_rows": [],
+        "baseline_raw_exact_pairs": 0,
+        "baseline_target_aabb_face_count": 322,
+        "candidate_internal_fan_pairs": [],
+        "candidate_partner_face_rows": [],
+        "candidate_raw_exact_pairs": 0,
+        "candidate_target_aabb_face_count": 312,
+        "new_partner_face_rows": [],
+        "resolved_partner_face_rows": []
+      },
+      "status": "NO_NEW_PARTNER_FACES",
+      "whole_bank_signed_volume_delta_m3": 2.378110763054473e-12
+    },
+    "left-little-pip-99": {
+      "baseline_patch_flux": {
+        "area_m2": 1.3682466340493438e-06,
+        "area_vector_m2": [
+          7.77328124534904e-07,
+          -1.1075504504631795e-06,
+          1.932476852983811e-07
+        ],
+        "signed_volume_m3": 4.986719829130242e-08
+      },
+      "baseline_quality": {
+        "min_altitude_mm": 2.9963420325929735e-06,
+        "min_altitude_to_max_vertex_ulp": 0.02513513874534568,
+        "min_area_mm2": 1.0261596047689046e-06,
+        "zero_area_faces": 0
+      },
+      "candidate_patch_flux": {
+        "area_m2": 1.3732857522487198e-06,
+        "area_vector_m2": [
+          7.77328124534904e-07,
+          -1.1075504504631795e-06,
+          1.932476852983811e-07
+        ],
+        "signed_volume_m3": 4.9869574473293456e-08
+      },
+      "candidate_quality": {
+        "min_altitude_mm": 0.00552830441900848,
+        "min_altitude_to_max_vertex_ulp": 46.37477867572989,
+        "min_area_mm2": 0.0022840293486685085,
+        "zero_area_faces": 0
+      },
+      "min_fan_dot_vs_patch_normal": 1.2191641094398306e-14,
+      "new_partner_count": 0,
+      "other_selected_banks": {
+        "131": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "132": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "133": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "137": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "138": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "141": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "142": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        }
+      },
+      "patch_area_vector_delta_m2": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "patch_area_vector_delta_norm_m2": 0.0,
+      "patch_signed_volume_delta_m3": 2.376181991033752e-12,
+      "self": {
+        "baseline_internal_patch_pairs": [
+          [
+            11095,
+            63331
+          ],
+          [
+            11122,
+            63331
+          ]
+        ],
+        "baseline_partner_face_rows": [],
+        "baseline_raw_exact_pairs": 2,
+        "baseline_target_aabb_face_count": 287,
+        "candidate_internal_fan_pairs": [],
+        "candidate_partner_face_rows": [],
+        "candidate_raw_exact_pairs": 0,
+        "candidate_target_aabb_face_count": 277,
+        "new_partner_face_rows": [],
+        "resolved_partner_face_rows": []
+      },
+      "status": "NO_NEW_PARTNER_FACES",
+      "whole_bank_signed_volume_delta_m3": 2.3761819470608306e-12
+    },
+    "left-ring-pip-95": {
+      "baseline_patch_flux": {
+        "area_m2": 1.3682466340493438e-06,
+        "area_vector_m2": [
+          7.77328124534904e-07,
+          -1.1075504504631795e-06,
+          1.932476852983811e-07
+        ],
+        "signed_volume_m3": 4.986719829130242e-08
+      },
+      "baseline_quality": {
+        "min_altitude_mm": 2.9963420325929735e-06,
+        "min_altitude_to_max_vertex_ulp": 0.02513513874534568,
+        "min_area_mm2": 1.0261596047689046e-06,
+        "zero_area_faces": 0
+      },
+      "candidate_patch_flux": {
+        "area_m2": 1.3732857522487198e-06,
+        "area_vector_m2": [
+          7.77328124534904e-07,
+          -1.1075504504631795e-06,
+          1.932476852983811e-07
+        ],
+        "signed_volume_m3": 4.9869574473293456e-08
+      },
+      "candidate_quality": {
+        "min_altitude_mm": 0.00552830441900848,
+        "min_altitude_to_max_vertex_ulp": 46.37477867572989,
+        "min_area_mm2": 0.0022840293486685085,
+        "zero_area_faces": 0
+      },
+      "min_fan_dot_vs_patch_normal": 1.2191641094398306e-14,
+      "new_partner_count": 0,
+      "other_selected_banks": {
+        "131": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "132": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "133": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "137": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "138": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "141": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "142": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        }
+      },
+      "patch_area_vector_delta_m2": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "patch_area_vector_delta_norm_m2": 0.0,
+      "patch_signed_volume_delta_m3": 2.376181991033752e-12,
+      "self": {
+        "baseline_internal_patch_pairs": [
+          [
+            11095,
+            63331
+          ],
+          [
+            11122,
+            63331
+          ]
+        ],
+        "baseline_partner_face_rows": [],
+        "baseline_raw_exact_pairs": 2,
+        "baseline_target_aabb_face_count": 287,
+        "candidate_internal_fan_pairs": [],
+        "candidate_partner_face_rows": [],
+        "candidate_raw_exact_pairs": 0,
+        "candidate_target_aabb_face_count": 277,
+        "new_partner_face_rows": [],
+        "resolved_partner_face_rows": []
+      },
+      "status": "NO_NEW_PARTNER_FACES",
+      "whole_bank_signed_volume_delta_m3": 2.3761819470608306e-12
+    },
+    "rest003": {
+      "baseline_patch_flux": {
+        "area_m2": 1.3683415911361206e-06,
+        "area_vector_m2": [
+          7.927134220153675e-07,
+          -1.1083598865369026e-06,
+          1.082999876445001e-07
+        ],
+        "signed_volume_m3": 9.399305024438553e-09
+      },
+      "baseline_quality": {
+        "min_altitude_mm": 1.6793485787715396e-05,
+        "min_altitude_to_max_vertex_ulp": 0.14087396922671566,
+        "min_area_mm2": 5.750599577966285e-06,
+        "zero_area_faces": 0
+      },
+      "candidate_patch_flux": {
+        "area_m2": 1.373392278337162e-06,
+        "area_vector_m2": [
+          7.927134220153675e-07,
+          -1.1083598865369026e-06,
+          1.082999876445001e-07
+        ],
+        "signed_volume_m3": 9.40167723546815e-09
+      },
+      "candidate_quality": {
+        "min_altitude_mm": 0.00553199452699105,
+        "min_altitude_to_max_vertex_ulp": 46.40573354507334,
+        "min_area_mm2": 0.0022812647525456823,
+        "zero_area_faces": 0
+      },
+      "min_fan_dot_vs_patch_normal": 1.2177788940387746e-14,
+      "new_partner_count": 0,
+      "other_selected_banks": {
+        "131": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "132": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "133": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "137": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "138": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "141": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "142": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        }
+      },
+      "patch_area_vector_delta_m2": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "patch_area_vector_delta_norm_m2": 0.0,
+      "patch_signed_volume_delta_m3": 2.3722110295966554e-12,
+      "self": {
+        "baseline_internal_patch_pairs": [],
+        "baseline_partner_face_rows": [],
+        "baseline_raw_exact_pairs": 0,
+        "baseline_target_aabb_face_count": 307,
+        "candidate_internal_fan_pairs": [],
+        "candidate_partner_face_rows": [],
+        "candidate_raw_exact_pairs": 0,
+        "candidate_target_aabb_face_count": 297,
+        "new_partner_face_rows": [],
+        "resolved_partner_face_rows": []
+      },
+      "status": "NO_NEW_PARTNER_FACES",
+      "whole_bank_signed_volume_delta_m3": 2.3722110227227845e-12
+    },
+    "right-little-pip-61": {
+      "baseline_patch_flux": {
+        "area_m2": 1.3682466340493438e-06,
+        "area_vector_m2": [
+          7.77328124534904e-07,
+          -1.1075504504631795e-06,
+          1.932476852983811e-07
+        ],
+        "signed_volume_m3": 4.986719829130242e-08
+      },
+      "baseline_quality": {
+        "min_altitude_mm": 2.9963420325929735e-06,
+        "min_altitude_to_max_vertex_ulp": 0.02513513874534568,
+        "min_area_mm2": 1.0261596047689046e-06,
+        "zero_area_faces": 0
+      },
+      "candidate_patch_flux": {
+        "area_m2": 1.3732857522487198e-06,
+        "area_vector_m2": [
+          7.77328124534904e-07,
+          -1.1075504504631795e-06,
+          1.932476852983811e-07
+        ],
+        "signed_volume_m3": 4.9869574473293456e-08
+      },
+      "candidate_quality": {
+        "min_altitude_mm": 0.00552830441900848,
+        "min_altitude_to_max_vertex_ulp": 46.37477867572989,
+        "min_area_mm2": 0.0022840293486685085,
+        "zero_area_faces": 0
+      },
+      "min_fan_dot_vs_patch_normal": 1.2191641094398306e-14,
+      "new_partner_count": 0,
+      "other_selected_banks": {
+        "131": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "132": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "133": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "137": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "138": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "141": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "142": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        }
+      },
+      "patch_area_vector_delta_m2": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "patch_area_vector_delta_norm_m2": 0.0,
+      "patch_signed_volume_delta_m3": 2.376181991033752e-12,
+      "self": {
+        "baseline_internal_patch_pairs": [
+          [
+            11095,
+            63331
+          ],
+          [
+            11122,
+            63331
+          ]
+        ],
+        "baseline_partner_face_rows": [],
+        "baseline_raw_exact_pairs": 2,
+        "baseline_target_aabb_face_count": 287,
+        "candidate_internal_fan_pairs": [],
+        "candidate_partner_face_rows": [],
+        "candidate_raw_exact_pairs": 0,
+        "candidate_target_aabb_face_count": 277,
+        "new_partner_face_rows": [],
+        "resolved_partner_face_rows": []
+      },
+      "status": "NO_NEW_PARTNER_FACES",
+      "whole_bank_signed_volume_delta_m3": 2.3761819470608306e-12
+    },
+    "right-ring-pip-57": {
+      "baseline_patch_flux": {
+        "area_m2": 1.3682466340493438e-06,
+        "area_vector_m2": [
+          7.77328124534904e-07,
+          -1.1075504504631795e-06,
+          1.932476852983811e-07
+        ],
+        "signed_volume_m3": 4.986719829130242e-08
+      },
+      "baseline_quality": {
+        "min_altitude_mm": 2.9963420325929735e-06,
+        "min_altitude_to_max_vertex_ulp": 0.02513513874534568,
+        "min_area_mm2": 1.0261596047689046e-06,
+        "zero_area_faces": 0
+      },
+      "candidate_patch_flux": {
+        "area_m2": 1.3732857522487198e-06,
+        "area_vector_m2": [
+          7.77328124534904e-07,
+          -1.1075504504631795e-06,
+          1.932476852983811e-07
+        ],
+        "signed_volume_m3": 4.9869574473293456e-08
+      },
+      "candidate_quality": {
+        "min_altitude_mm": 0.00552830441900848,
+        "min_altitude_to_max_vertex_ulp": 46.37477867572989,
+        "min_area_mm2": 0.0022840293486685085,
+        "zero_area_faces": 0
+      },
+      "min_fan_dot_vs_patch_normal": 1.2191641094398306e-14,
+      "new_partner_count": 0,
+      "other_selected_banks": {
+        "131": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "132": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "133": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "137": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "138": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "141": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        },
+        "142": {
+          "baseline_partner_face_rows": [],
+          "baseline_raw_exact_pairs": 0,
+          "candidate_partner_face_rows": [],
+          "candidate_raw_exact_pairs": 0,
+          "new_partner_face_rows": [],
+          "resolved_partner_face_rows": [],
+          "target_aabb_face_count": 0
+        }
+      },
+      "patch_area_vector_delta_m2": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "patch_area_vector_delta_norm_m2": 0.0,
+      "patch_signed_volume_delta_m3": 2.376181991033752e-12,
+      "self": {
+        "baseline_internal_patch_pairs": [
+          [
+            11095,
+            63331
+          ],
+          [
+            11122,
+            63331
+          ]
+        ],
+        "baseline_partner_face_rows": [],
+        "baseline_raw_exact_pairs": 2,
+        "baseline_target_aabb_face_count": 287,
+        "candidate_internal_fan_pairs": [],
+        "candidate_partner_face_rows": [],
+        "candidate_raw_exact_pairs": 0,
+        "candidate_target_aabb_face_count": 277,
+        "new_partner_face_rows": [],
+        "resolved_partner_face_rows": []
+      },
+      "status": "NO_NEW_PARTNER_FACES",
+      "whole_bank_signed_volume_delta_m3": 2.3761819470608306e-12
+    }
+  },
+  "quality_nonworsening_all_six": true,
+  "schema": "numi.human.stable134.fixed-boundary-star-fan-diagnostic.v1",
+  "status": "PASS_LOCAL_EXACT_NONREGRESSION"
+}

@@ -1,0 +1,10 @@
+waiting_for_human_geometry_slot pid=26522
+acquired_human_geometry_slot pid=26522
+Traceback (most recent call last):
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_007b_robust134.py", line 283, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_007b_robust134.py", line 223, in main
+    initial_values=cons(start);initial_jac=consjac(start)
+                        ^^^^^
+UnboundLocalError: cannot access local variable 'start' where it is not associated with a value

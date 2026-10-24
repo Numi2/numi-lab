@@ -1,0 +1,678 @@
+waiting_for_human_geometry_slot pid=25569
+acquired_human_geometry_slot pid=25569
+{
+  "report": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-006b-134-row-002/diagnostic.json",
+  "sha256": "f4a363b062a2718787e79046d3af4b3f37566f2d56275c5bc9ca5fe387011bca",
+  "status": "DIAGNOSTIC_ONLY_NO_FIT",
+  "phase_i": {
+    "method": "HiGHS LP minimizing sum of nonnegative normalized row slacks, box bounds \u00b10.25 mm",
+    "success": true,
+    "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "optimal_sum_normalized_slack": 3.690237608988081,
+    "maximum_normalized_row_slack": 0.6690233594737032,
+    "positive_slack_rows": [
+      13,
+      49,
+      85,
+      121,
+      157,
+      193
+    ],
+    "max_displacement_mm": 0.25
+  },
+  "active_rows": [
+    {
+      "pose": "current191",
+      "constraint": "altitude",
+      "patch_face_ordinal": 13,
+      "source_face_row": 63330,
+      "seed_altitude_slack_mm": -0.000614129642596628,
+      "jacobian_row_norm_raw": 1.412595065532461,
+      "jacobian_row_norm_scaled": 1412.5950655324611,
+      "jacobian_by_free_vertex_mm_per_mm": {
+        "33326": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "38384": [
+          -0.956911922606337,
+          -0.40475155632738896,
+          -0.06833902350341614
+        ],
+        "38385": [
+          0.8732917652462435,
+          0.36938216857887557,
+          0.06236718872511579
+        ],
+        "38386": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "38395": [
+          0.08362015736009347,
+          0.03536938774851342,
+          0.005971834778300359
+        ],
+        "38397": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "jacobian_flat": [
+        0.0,
+        0.0,
+        0.0,
+        -0.956911922606337,
+        -0.40475155632738896,
+        -0.06833902350341614,
+        0.8732917652462435,
+        0.36938216857887557,
+        0.06236718872511579,
+        0.0,
+        0.0,
+        0.0,
+        0.08362015736009347,
+        0.03536938774851342,
+        0.005971834778300359,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pose": "rest003",
+      "constraint": "altitude",
+      "patch_face_ordinal": 13,
+      "source_face_row": 63330,
+      "seed_altitude_slack_mm": -0.0006332065142122846,
+      "jacobian_row_norm_raw": 1.4126040268787237,
+      "jacobian_row_norm_scaled": 1412.6040268787237,
+      "jacobian_by_free_vertex_mm_per_mm": {
+        "33326": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "38384": [
+          -0.4227692007709977,
+          -0.9492135603724716,
+          0.06658899755893541
+        ],
+        "38385": [
+          0.385831400770701,
+          0.8662797501832094,
+          -0.060771045187838886
+        ],
+        "38386": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "38395": [
+          0.03693780000029678,
+          0.08293381018926216,
+          -0.005817952371096519
+        ],
+        "38397": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "jacobian_flat": [
+        0.0,
+        0.0,
+        0.0,
+        -0.4227692007709977,
+        -0.9492135603724716,
+        0.06658899755893541,
+        0.385831400770701,
+        0.8662797501832094,
+        -0.060771045187838886,
+        0.0,
+        0.0,
+        0.0,
+        0.03693780000029678,
+        0.08293381018926216,
+        -0.005817952371096519,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pose": "right-ring-pip-57",
+      "constraint": "altitude",
+      "patch_face_ordinal": 13,
+      "source_face_row": 63330,
+      "seed_altitude_slack_mm": -0.000647003657967407,
+      "jacobian_row_norm_raw": 1.412618688156009,
+      "jacobian_row_norm_scaled": 1412.6186881560088,
+      "jacobian_by_free_vertex_mm_per_mm": {
+        "33326": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "38384": [
+          0.6923290921023961,
+          0.7776393263141435,
+          -0.011478313657432362
+        ],
+        "38385": [
+          -0.6318556007255532,
+          -0.7097141652446488,
+          0.010475707079286706
+        ],
+        "38386": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "38395": [
+          -0.060473491376843,
+          -0.06792516106949477,
+          0.0010026065781455966
+        ],
+        "38397": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "jacobian_flat": [
+        0.0,
+        0.0,
+        0.0,
+        0.6923290921023961,
+        0.7776393263141435,
+        -0.011478313657432362,
+        -0.6318556007255532,
+        -0.7097141652446488,
+        0.010475707079286706,
+        0.0,
+        0.0,
+        0.0,
+        -0.060473491376843,
+        -0.06792516106949477,
+        0.0010026065781455966,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pose": "right-little-pip-61",
+      "constraint": "altitude",
+      "patch_face_ordinal": 13,
+      "source_face_row": 63330,
+      "seed_altitude_slack_mm": -0.000647003657967407,
+      "jacobian_row_norm_raw": 1.412618688156009,
+      "jacobian_row_norm_scaled": 1412.6186881560088,
+      "jacobian_by_free_vertex_mm_per_mm": {
+        "33326": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "38384": [
+          0.6923290921023961,
+          0.7776393263141435,
+          -0.011478313657432362
+        ],
+        "38385": [
+          -0.6318556007255532,
+          -0.7097141652446488,
+          0.010475707079286706
+        ],
+        "38386": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "38395": [
+          -0.060473491376843,
+          -0.06792516106949477,
+          0.0010026065781455966
+        ],
+        "38397": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "jacobian_flat": [
+        0.0,
+        0.0,
+        0.0,
+        0.6923290921023961,
+        0.7776393263141435,
+        -0.011478313657432362,
+        -0.6318556007255532,
+        -0.7097141652446488,
+        0.010475707079286706,
+        0.0,
+        0.0,
+        0.0,
+        -0.060473491376843,
+        -0.06792516106949477,
+        0.0010026065781455966,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pose": "left-ring-pip-95",
+      "constraint": "altitude",
+      "patch_face_ordinal": 13,
+      "source_face_row": 63330,
+      "seed_altitude_slack_mm": -0.000647003657967407,
+      "jacobian_row_norm_raw": 1.412618688156009,
+      "jacobian_row_norm_scaled": 1412.6186881560088,
+      "jacobian_by_free_vertex_mm_per_mm": {
+        "33326": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "38384": [
+          0.6923290921023961,
+          0.7776393263141435,
+          -0.011478313657432362
+        ],
+        "38385": [
+          -0.6318556007255532,
+          -0.7097141652446488,
+          0.010475707079286706
+        ],
+        "38386": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "38395": [
+          -0.060473491376843,
+          -0.06792516106949477,
+          0.0010026065781455966
+        ],
+        "38397": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "jacobian_flat": [
+        0.0,
+        0.0,
+        0.0,
+        0.6923290921023961,
+        0.7776393263141435,
+        -0.011478313657432362,
+        -0.6318556007255532,
+        -0.7097141652446488,
+        0.010475707079286706,
+        0.0,
+        0.0,
+        0.0,
+        -0.060473491376843,
+        -0.06792516106949477,
+        0.0010026065781455966,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pose": "left-little-pip-99",
+      "constraint": "altitude",
+      "patch_face_ordinal": 13,
+      "source_face_row": 63330,
+      "seed_altitude_slack_mm": -0.000647003657967407,
+      "jacobian_row_norm_raw": 1.412618688156009,
+      "jacobian_row_norm_scaled": 1412.6186881560088,
+      "jacobian_by_free_vertex_mm_per_mm": {
+        "33326": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "38384": [
+          0.6923290921023961,
+          0.7776393263141435,
+          -0.011478313657432362
+        ],
+        "38385": [
+          -0.6318556007255532,
+          -0.7097141652446488,
+          0.010475707079286706
+        ],
+        "38386": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "38395": [
+          -0.060473491376843,
+          -0.06792516106949477,
+          0.0010026065781455966
+        ],
+        "38397": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "jacobian_flat": [
+        0.0,
+        0.0,
+        0.0,
+        0.6923290921023961,
+        0.7776393263141435,
+        -0.011478313657432362,
+        -0.6318556007255532,
+        -0.7097141652446488,
+        0.010475707079286706,
+        0.0,
+        0.0,
+        0.0,
+        -0.060473491376843,
+        -0.06792516106949477,
+        0.0010026065781455966,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "gradient_cosines": [
+    {
+      "pose_a": "current191",
+      "pose_b": "rest003",
+      "jacobian_cosine": 0.7233134693052986
+    },
+    {
+      "pose_a": "current191",
+      "pose_b": "right-ring-pip-57",
+      "jacobian_cosine": -0.9006524319615322
+    },
+    {
+      "pose_a": "current191",
+      "pose_b": "right-little-pip-61",
+      "jacobian_cosine": -0.9006524319615322
+    },
+    {
+      "pose_a": "current191",
+      "pose_b": "left-ring-pip-95",
+      "jacobian_cosine": -0.9006524319615322
+    },
+    {
+      "pose_a": "current191",
+      "pose_b": "left-little-pip-99",
+      "jacobian_cosine": -0.9006524319615322
+    },
+    {
+      "pose_a": "rest003",
+      "pose_b": "right-ring-pip-57",
+      "jacobian_cosine": -0.9515126651463872
+    },
+    {
+      "pose_a": "rest003",
+      "pose_b": "right-little-pip-61",
+      "jacobian_cosine": -0.9515126651463872
+    },
+    {
+      "pose_a": "rest003",
+      "pose_b": "left-ring-pip-95",
+      "jacobian_cosine": -0.9515126651463872
+    },
+    {
+      "pose_a": "rest003",
+      "pose_b": "left-little-pip-99",
+      "jacobian_cosine": -0.9515126651463872
+    },
+    {
+      "pose_a": "right-ring-pip-57",
+      "pose_b": "right-little-pip-61",
+      "jacobian_cosine": 1.0000000000000002
+    },
+    {
+      "pose_a": "right-ring-pip-57",
+      "pose_b": "left-ring-pip-95",
+      "jacobian_cosine": 1.0000000000000002
+    },
+    {
+      "pose_a": "right-ring-pip-57",
+      "pose_b": "left-little-pip-99",
+      "jacobian_cosine": 1.0000000000000002
+    },
+    {
+      "pose_a": "right-little-pip-61",
+      "pose_b": "left-ring-pip-95",
+      "jacobian_cosine": 1.0000000000000002
+    },
+    {
+      "pose_a": "right-little-pip-61",
+      "pose_b": "left-little-pip-99",
+      "jacobian_cosine": 1.0000000000000002
+    },
+    {
+      "pose_a": "left-ring-pip-95",
+      "pose_b": "left-little-pip-99",
+      "jacobian_cosine": 1.0000000000000002
+    }
+  ],
+  "fixed_only": [],
+  "raw_norm_quantiles": [
+    0.0,
+    0.0,
+    1.0154210738225589,
+    2.0462628051119434,
+    7.524071425122467
+  ],
+  "scaled_norm_quantiles": [
+    0.0,
+    0.0,
+    1015.4210738225588,
+    4271.819577125976,
+    471447.742882761
+  ],
+  "groups": [
+    {
+      "pose": "current191",
+      "constraint": "altitude",
+      "count": 18,
+      "raw_value_min": -0.000614129642596628,
+      "raw_value_max": 0.7598346457634672,
+      "raw_jacobian_row_norm_min": 0.0,
+      "raw_jacobian_row_norm_median": 1.0415391691776406,
+      "raw_jacobian_row_norm_max": 1.460365270332431,
+      "scaled_value_min": -0.614129642596628,
+      "scaled_value_max": 759.8346457634672,
+      "scaled_jacobian_row_norm_min": 0.0,
+      "scaled_jacobian_row_norm_median": 1041.5391691776406,
+      "scaled_jacobian_row_norm_max": 1460.365270332431,
+      "violated_at_seed": 5
+    },
+    {
+      "pose": "current191",
+      "constraint": "oriented_double_area",
+      "count": 18,
+      "raw_value_min": 1.9653736248735863e-05,
+      "raw_value_max": 1.195631635924223,
+      "raw_jacobian_row_norm_min": 0.0,
+      "raw_jacobian_row_norm_median": 0.7430610685475941,
+      "raw_jacobian_row_norm_max": 7.523944271063525,
+      "scaled_value_min": 0.7999999999999998,
+      "scaled_value_max": 0.8000000000000003,
+      "scaled_jacobian_row_norm_min": 0.0,
+      "scaled_jacobian_row_norm_median": 183.2867444959117,
+      "scaled_jacobian_row_norm_max": 39380.568522043046,
+      "violated_at_seed": 0
+    },
+    {
+      "pose": "rest003",
+      "constraint": "altitude",
+      "count": 18,
+      "raw_value_min": -0.0006332065142122846,
+      "raw_value_max": 0.7598259393025263,
+      "raw_jacobian_row_norm_min": 0.0,
+      "raw_jacobian_row_norm_median": 1.041540074063979,
+      "raw_jacobian_row_norm_max": 1.4604285126785834,
+      "scaled_value_min": -0.6332065142122846,
+      "scaled_value_max": 759.8259393025263,
+      "scaled_jacobian_row_norm_min": 0.0,
+      "scaled_jacobian_row_norm_median": 1041.5400740639789,
+      "scaled_jacobian_row_norm_max": 1460.4285126785833,
+      "violated_at_seed": 5
+    },
+    {
+      "pose": "rest003",
+      "constraint": "oriented_double_area",
+      "count": 18,
+      "raw_value_min": 9.200959324746054e-06,
+      "raw_value_max": 1.1956065253222108,
+      "raw_jacobian_row_norm_min": 0.0,
+      "raw_jacobian_row_norm_median": 0.7430994281207637,
+      "raw_jacobian_row_norm_max": 7.524006466995373,
+      "scaled_value_min": 0.7999999999999997,
+      "scaled_value_max": 0.8000000000000004,
+      "scaled_jacobian_row_norm_min": 0.0,
+      "scaled_jacobian_row_norm_median": 183.35848653657453,
+      "scaled_jacobian_row_norm_max": 84116.18916981542,
+      "violated_at_seed": 0
+    },
+    {
+      "pose": "right-ring-pip-57",
+      "constraint": "altitude",
+      "count": 18,
+      "raw_value_min": -0.000647003657967407,
+      "raw_value_max": 0.7598421521540997,
+      "raw_jacobian_row_norm_min": 0.0,
+      "raw_jacobian_row_norm_median": 1.0415372503202969,
+      "raw_jacobian_row_norm_max": 1.460360509074787,
+      "scaled_value_min": -0.647003657967407,
+      "scaled_value_max": 759.8421521540996,
+      "scaled_jacobian_row_norm_min": 0.0,
+      "scaled_jacobian_row_norm_median": 1041.5372503202968,
+      "scaled_jacobian_row_norm_max": 1460.360509074787,
+      "violated_at_seed": 5
+    },
+    {
+      "pose": "right-ring-pip-57",
+      "constraint": "oriented_double_area",
+      "count": 18,
+      "raw_value_min": 1.6418553676302477e-06,
+      "raw_value_max": 1.1956294138718102,
+      "raw_jacobian_row_norm_min": 0.0,
+      "raw_jacobian_row_norm_median": 0.743021608424456,
+      "raw_jacobian_row_norm_max": 7.524071425122467,
+      "scaled_value_min": 0.7999999999999996,
+      "scaled_value_max": 0.8000000000000003,
+      "scaled_jacobian_row_norm_min": 0.0,
+      "scaled_jacobian_row_norm_median": 183.39070282812827,
+      "scaled_jacobian_row_norm_max": 471447.742882761,
+      "violated_at_seed": 0
+    },
+    {
+      "pose": "right-little-pip-61",
+      "constraint": "altitude",
+      "count": 18,
+      "raw_value_min": -0.000647003657967407,
+      "raw_value_max": 0.7598421521540997,
+      "raw_jacobian_row_norm_min": 0.0,
+      "raw_jacobian_row_norm_median": 1.0415372503202969,
+      "raw_jacobian_row_norm_max": 1.460360509074787,
+      "scaled_value_min": -0.647003657967407,
+      "scaled_value_max": 759.8421521540996,
+      "scaled_jacobian_row_norm_min": 0.0,
+      "scaled_jacobian_row_norm_median": 1041.5372503202968,
+      "scaled_jacobian_row_norm_max": 1460.360509074787,
+      "violated_at_seed": 5
+    },
+    {
+      "pose": "right-little-pip-61",
+      "constraint": "oriented_double_area",
+      "count": 18,
+      "raw_value_min": 1.6418553676302477e-06,
+      "raw_value_max": 1.1956294138718102,
+      "raw_jacobian_row_norm_min": 0.0,
+      "raw_jacobian_row_norm_median": 0.743021608424456,
+      "raw_jacobian_row_norm_max": 7.524071425122467,
+      "scaled_value_min": 0.7999999999999996,
+      "scaled_value_max": 0.8000000000000003,
+      "scaled_jacobian_row_norm_min": 0.0,
+      "scaled_jacobian_row_norm_median": 183.39070282812827,
+      "scaled_jacobian_row_norm_max": 471447.742882761,
+      "violated_at_seed": 0
+    },
+    {
+      "pose": "left-ring-pip-95",
+      "constraint": "altitude",
+      "count": 18,
+      "raw_value_min": -0.000647003657967407,
+      "raw_value_max": 0.7598421521540997,
+      "raw_jacobian_row_norm_min": 0.0,
+      "raw_jacobian_row_norm_median": 1.0415372503202969,
+      "raw_jacobian_row_norm_max": 1.460360509074787,
+      "scaled_value_min": -0.647003657967407,
+      "scaled_value_max": 759.8421521540996,
+      "scaled_jacobian_row_norm_min": 0.0,
+      "scaled_jacobian_row_norm_median": 1041.5372503202968,
+      "scaled_jacobian_row_norm_max": 1460.360509074787,
+      "violated_at_seed": 5
+    },
+    {
+      "pose": "left-ring-pip-95",
+      "constraint": "oriented_double_area",
+      "count": 18,
+      "raw_value_min": 1.6418553676302477e-06,
+      "raw_value_max": 1.1956294138718102,
+      "raw_jacobian_row_norm_min": 0.0,
+      "raw_jacobian_row_norm_median": 0.743021608424456,
+      "raw_jacobian_row_norm_max": 7.524071425122467,
+      "scaled_value_min": 0.7999999999999996,
+      "scaled_value_max": 0.8000000000000003,
+      "scaled_jacobian_row_norm_min": 0.0,
+      "scaled_jacobian_row_norm_median": 183.39070282812827,
+      "scaled_jacobian_row_norm_max": 471447.742882761,
+      "violated_at_seed": 0
+    },
+    {
+      "pose": "left-little-pip-99",
+      "constraint": "altitude",
+      "count": 18,
+      "raw_value_min": -0.000647003657967407,
+      "raw_value_max": 0.7598421521540997,
+      "raw_jacobian_row_norm_min": 0.0,
+      "raw_jacobian_row_norm_median": 1.0415372503202969,
+      "raw_jacobian_row_norm_max": 1.460360509074787,
+      "scaled_value_min": -0.647003657967407,
+      "scaled_value_max": 759.8421521540996,
+      "scaled_jacobian_row_norm_min": 0.0,
+      "scaled_jacobian_row_norm_median": 1041.5372503202968,
+      "scaled_jacobian_row_norm_max": 1460.360509074787,
+      "violated_at_seed": 5
+    },
+    {
+      "pose": "left-little-pip-99",
+      "constraint": "oriented_double_area",
+      "count": 18,
+      "raw_value_min": 1.6418553676302477e-06,
+      "raw_value_max": 1.1956294138718102,
+      "raw_jacobian_row_norm_min": 0.0,
+      "raw_jacobian_row_norm_median": 0.743021608424456,
+      "raw_jacobian_row_norm_max": 7.524071425122467,
+      "scaled_value_min": 0.7999999999999996,
+      "scaled_value_max": 0.8000000000000003,
+      "scaled_jacobian_row_norm_min": 0.0,
+      "scaled_jacobian_row_norm_median": 183.39070282812827,
+      "scaled_jacobian_row_norm_max": 471447.742882761,
+      "violated_at_seed": 0
+    }
+  ],
+  "elapsed_s": 2.3839399814605713
+}

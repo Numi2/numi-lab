@@ -1,0 +1,9 @@
+{
+  "schema": "numi.human.star-fan-preflight-failure.v1",
+  "status": "FAILED_BEFORE_GEOMETRY_GATE",
+  "error": "ImportError: relative import with no known parent package when loading collision-free-seam-records-owner-315/cardiac_cavity_intersections.py directly",
+  "input_hashes_verified_before_failure": true,
+  "candidate_nhtissue_emitted": false,
+  "topology_sidecar_emitted": false,
+  "original_source_script": "exact_star_fan_gate.py"
+}

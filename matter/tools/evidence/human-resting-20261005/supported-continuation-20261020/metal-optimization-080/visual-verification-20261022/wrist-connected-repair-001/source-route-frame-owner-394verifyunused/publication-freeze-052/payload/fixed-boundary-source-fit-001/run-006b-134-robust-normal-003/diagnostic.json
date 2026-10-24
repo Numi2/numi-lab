@@ -1,0 +1,785 @@
+{
+  "schema": "numi.human.source-fit-134.microface-robust-normal-audit.v1",
+  "status": "DIAGNOSTIC_ONLY_NO_FIT",
+  "baseline_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "baseline_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "seed_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-003/candidate-8874-local-position-fit.nhtissue",
+  "seed_sha256": "eac5a08ad9f967de38725ca7c8c83662b88b852fb4e2dfc67da6086eb5cd9631",
+  "fit_builder_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_006b.py",
+  "fit_builder_sha256": "9352348d499c5cc5af93a1d08d039a768c9416dce0d001cc59f2621c2ea63d0e",
+  "emitter_sha256": "f34897a3cbad65313ee59b164a33cb528dfad0fe94e2f683fa1e49a1baecb201",
+  "pose_hashes": {
+    "current191": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "rest003": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "right-ring-pip-57": "9e6ca87deab3965d11b6c32486efac37b46127a843d05d4359849bc2b1199d69",
+    "right-little-pip-61": "223730f948fc25866d9c1918ec5614d7d659157b3931a0156d661ef76fec46b2",
+    "left-ring-pip-95": "c9d251a53aec2c362a6bd5fed3ef0cc15fd863237a3df8b148a42b735b2db2a4",
+    "left-little-pip-99": "b013eea9e3cb93ee038c76e3eacde7d238e21c11e2a25f72e20b8165a150a634"
+  },
+  "stable_id": 134,
+  "face_identity": {
+    "record_vertex_start": 363073,
+    "record_face_start_index_offset": 1960692,
+    "face_local_row": 63330,
+    "face_global_index_row": 716894,
+    "vertices_local": [
+      38385,
+      38384,
+      38395
+    ],
+    "free_vertices_in_run006b": [
+      38384,
+      38385,
+      38395
+    ],
+    "source_reference_xyz_mm": [
+      [
+        226.8410176038742,
+        -98.81429374217987,
+        905.1699042320251
+      ],
+      [
+        226.8480509519577,
+        -98.82142394781113,
+        905.1132798194885
+      ],
+      [
+        226.92172229290009,
+        -98.8956168293953,
+        904.522180557251
+      ]
+    ]
+  },
+  "one_ring_definition": "all source faces incident to any of the three face vertices; oriented area-weighted cross-product sum",
+  "source_one_ring_normal": [
+    0.5967920126463125,
+    -0.7835454918286954,
+    0.17290389202239337
+  ],
+  "source_one_ring_area_cancellation_ratio": 0.9847136708290937,
+  "poses": [
+    {
+      "pose": "current191",
+      "face_record_local_row": 63330,
+      "face_global_index_row": 716894,
+      "vertex_ids_local": [
+        38385,
+        38384,
+        38395
+      ],
+      "incident_one_ring_face_count": 10,
+      "one_ring_vertex_count": 9,
+      "face_f32": {
+        "edge_lengths_mm": [
+          0.05984922423710037,
+          0.6848878040063904,
+          0.6250385915479404
+        ],
+        "area2_mm2": 2.4567170310919824e-05,
+        "minimum_altitude_mm": 3.587035740337201e-05,
+        "normal": [
+          0.17360700143411484,
+          0.0033260816601288143,
+          0.9848093958903141
+        ],
+        "one_ring_normal": [
+          0.4078767746667289,
+          0.08353552430186849,
+          0.9092075411406785
+        ],
+        "normal_dot_one_ring": 0.9664842391095281,
+        "coordinate_ulp_mm_per_axis_max": [
+          1.52587890625e-05,
+          6.103515625e-05,
+          7.62939453125e-06
+        ],
+        "altitude_over_max_axis_ulp": 0.5660061240196228
+      },
+      "face_fp64_affine": {
+        "edge_lengths_mm": [
+          0.05987458559670827,
+          0.684903390417134,
+          0.6250288139109345
+        ],
+        "area2_mm2": 2.1587135198355548e-05,
+        "minimum_altitude_mm": 3.151851122420069e-05,
+        "normal": [
+          0.49776717000691484,
+          0.11525361077311447,
+          0.8596187815927864
+        ],
+        "one_ring_normal": [
+          0.4065322708051281,
+          0.08310526334958328,
+          0.9098489039382431
+        ],
+        "normal_dot_one_ring": 0.994059805867368,
+        "normal_f32_fp64_dot": 0.9333598617146617,
+        "one_ring_f32_fp64_dot": 0.9999987979193206
+      },
+      "seed_candidate_f32": {
+        "edge_lengths_mm": [
+          0.05984922423710037,
+          0.6848878040063904,
+          0.6250385915479404
+        ],
+        "area2_mm2": 2.4567170310919824e-05,
+        "minimum_altitude_mm": 3.587035740337201e-05,
+        "normal": [
+          0.17360700143411484,
+          0.0033260816601288143,
+          0.9848093958903141
+        ],
+        "base_candidate_normal_dot": 1.0,
+        "vertices_vs_base_max_mm": 0.0
+      },
+      "source_cofactor_transport": {
+        "det_local_fit": 1.1288826006563857,
+        "condition_number": 1.00000017677053,
+        "cofactor_normal": [
+          0.40653227080421633,
+          0.08310526334926868,
+          0.9098489039386793
+        ],
+        "cofactor_vs_actual_one_ring_fp64_dot": 1.0,
+        "cofactor_vs_f32_face_dot": 0.966881012852123
+      },
+      "ulp_diagnostic": {
+        "source_reference_altitude_mm": 3.0270255639132726e-05,
+        "f32_vs_fp64_vertex_max_mm": 0.00010473202849377487,
+        "source_one_ring_area_cancellation_ratio": 0.9847136708290937
+      }
+    },
+    {
+      "pose": "rest003",
+      "face_record_local_row": 63330,
+      "face_global_index_row": 716894,
+      "vertex_ids_local": [
+        38385,
+        38384,
+        38395
+      ],
+      "incident_one_ring_face_count": 10,
+      "one_ring_vertex_count": 9,
+      "face_f32": {
+        "edge_lengths_mm": [
+          0.05983702243942399,
+          0.6848607431070574,
+          0.6250237232498193
+        ],
+        "area2_mm2": 1.150119915593257e-05,
+        "minimum_altitude_mm": 1.6793485787715393e-05,
+        "normal": [
+          0.7923269967395312,
+          -0.5930868747523976,
+          0.1430590410779709
+        ],
+        "one_ring_normal": [
+          0.41790911369219275,
+          -0.9072933002913467,
+          0.04659227338778645
+        ],
+        "normal_dot_one_ring": 0.8758898668678973,
+        "coordinate_ulp_mm_per_axis_max": [
+          1.52587890625e-05,
+          1.52587890625e-05,
+          0.0001220703125
+        ],
+        "altitude_over_max_axis_ulp": 0.13547176122665405
+      },
+      "face_fp64_affine": {
+        "edge_lengths_mm": [
+          0.05987457834434058,
+          0.6849033074342951,
+          0.6250287381804618
+        ],
+        "area2_mm2": 2.158712971046629e-05,
+        "minimum_altitude_mm": 3.1518507030333204e-05,
+        "normal": [
+          0.5110967566132918,
+          -0.8567366338652904,
+          0.06915522809263848
+        ],
+        "one_ring_normal": [
+          0.4173660140152665,
+          -0.907547875896564,
+          0.046502293498741416
+        ],
+        "normal_dot_one_ring": 0.9940598050647733,
+        "normal_f32_fp64_dot": 0.92296829149224,
+        "one_ring_f32_fp64_dot": 0.9999998160688109
+      },
+      "seed_candidate_f32": {
+        "edge_lengths_mm": [
+          0.05983702243942399,
+          0.6848607431070574,
+          0.6250237232498193
+        ],
+        "area2_mm2": 1.150119915593257e-05,
+        "minimum_altitude_mm": 1.6793485787715393e-05,
+        "normal": [
+          0.7923269967395312,
+          -0.5930868747523976,
+          0.1430590410779709
+        ],
+        "base_candidate_normal_dot": 0.9999999999999999,
+        "vertices_vs_base_max_mm": 0.0
+      },
+      "source_cofactor_transport": {
+        "det_local_fit": 1.1288822388360973,
+        "condition_number": 1.0000000193393026,
+        "cofactor_normal": [
+          0.4173660140158523,
+          -0.9075478758962876,
+          0.04650229349887856
+        ],
+        "cofactor_vs_actual_one_ring_fp64_dot": 1.0,
+        "cofactor_vs_f32_face_dot": 0.8755976673457113
+      },
+      "ulp_diagnostic": {
+        "source_reference_altitude_mm": 3.0270255639132726e-05,
+        "f32_vs_fp64_vertex_max_mm": 0.000116760722965497,
+        "source_one_ring_area_cancellation_ratio": 0.9847136708290937
+      }
+    },
+    {
+      "pose": "right-ring-pip-57",
+      "face_record_local_row": 63330,
+      "face_global_index_row": 716894,
+      "vertex_ids_local": [
+        38385,
+        38384,
+        38395
+      ],
+      "incident_one_ring_face_count": 10,
+      "one_ring_vertex_count": 9,
+      "face_f32": {
+        "edge_lengths_mm": [
+          0.05982820672975358,
+          0.6849415678228742,
+          0.6251133611753339
+        ],
+        "area2_mm2": 2.052319209537809e-06,
+        "minimum_altitude_mm": 2.996342032592974e-06,
+        "normal": [
+          -0.5660607607085605,
+          0.81100754248306,
+          -0.14779032857949037
+        ],
+        "one_ring_normal": [
+          0.41138379284964555,
+          -0.9066473875830272,
+          0.09356222298295559
+        ],
+        "normal_dot_one_ring": -0.981993684103319,
+        "coordinate_ulp_mm_per_axis_max": [
+          1.52587890625e-05,
+          1.52587890625e-05,
+          0.0001220703125
+        ],
+        "altitude_over_max_axis_ulp": 0.024171262979507446
+      },
+      "face_fp64_affine": {
+        "edge_lengths_mm": [
+          0.05987457829293177,
+          0.6849033068389696,
+          0.625028737636545
+        ],
+        "area2_mm2": 2.1587129426825135e-05,
+        "minimum_altitude_mm": 3.15185066435963e-05,
+        "normal": [
+          0.5012119009792473,
+          -0.8562815930535189,
+          0.12477364992055522
+        ],
+        "one_ring_normal": [
+          0.41017877371742045,
+          -0.9072314170802146,
+          0.09319082280084731
+        ],
+        "normal_dot_one_ring": 0.9940598051018538,
+        "normal_f32_fp64_dot": -0.9966075591201317,
+        "one_ring_f32_fp64_dot": 0.9999990344501712
+      },
+      "seed_candidate_f32": {
+        "edge_lengths_mm": [
+          0.05982820672975358,
+          0.6849415678228742,
+          0.6251133611753339
+        ],
+        "area2_mm2": 2.052319209537809e-06,
+        "minimum_altitude_mm": 2.996342032592974e-06,
+        "normal": [
+          -0.5660607607085605,
+          0.81100754248306,
+          -0.14779032857949037
+        ],
+        "base_candidate_normal_dot": 1.0000000000000002,
+        "vertices_vs_base_max_mm": 0.0
+      },
+      "source_cofactor_transport": {
+        "det_local_fit": 1.1288822061879855,
+        "condition_number": 1.000000004980936,
+        "cofactor_normal": [
+          0.4101787737156723,
+          -0.9072314170810654,
+          0.0931908228002587
+        ],
+        "cofactor_vs_actual_one_ring_fp64_dot": 1.0,
+        "cofactor_vs_f32_face_dot": -0.98173033302858
+      },
+      "ulp_diagnostic": {
+        "source_reference_altitude_mm": 3.0270255639132726e-05,
+        "f32_vs_fp64_vertex_max_mm": 0.0001220736980870936,
+        "source_one_ring_area_cancellation_ratio": 0.9847136708290937
+      }
+    },
+    {
+      "pose": "right-little-pip-61",
+      "face_record_local_row": 63330,
+      "face_global_index_row": 716894,
+      "vertex_ids_local": [
+        38385,
+        38384,
+        38395
+      ],
+      "incident_one_ring_face_count": 10,
+      "one_ring_vertex_count": 9,
+      "face_f32": {
+        "edge_lengths_mm": [
+          0.05982820672975358,
+          0.6849415678228742,
+          0.6251133611753339
+        ],
+        "area2_mm2": 2.052319209537809e-06,
+        "minimum_altitude_mm": 2.996342032592974e-06,
+        "normal": [
+          -0.5660607607085605,
+          0.81100754248306,
+          -0.14779032857949037
+        ],
+        "one_ring_normal": [
+          0.41138379284964555,
+          -0.9066473875830272,
+          0.09356222298295559
+        ],
+        "normal_dot_one_ring": -0.981993684103319,
+        "coordinate_ulp_mm_per_axis_max": [
+          1.52587890625e-05,
+          1.52587890625e-05,
+          0.0001220703125
+        ],
+        "altitude_over_max_axis_ulp": 0.024171262979507446
+      },
+      "face_fp64_affine": {
+        "edge_lengths_mm": [
+          0.05987457829293177,
+          0.6849033068389696,
+          0.625028737636545
+        ],
+        "area2_mm2": 2.1587129426825135e-05,
+        "minimum_altitude_mm": 3.15185066435963e-05,
+        "normal": [
+          0.5012119009792473,
+          -0.8562815930535189,
+          0.12477364992055522
+        ],
+        "one_ring_normal": [
+          0.41017877371742045,
+          -0.9072314170802146,
+          0.09319082280084731
+        ],
+        "normal_dot_one_ring": 0.9940598051018538,
+        "normal_f32_fp64_dot": -0.9966075591201317,
+        "one_ring_f32_fp64_dot": 0.9999990344501712
+      },
+      "seed_candidate_f32": {
+        "edge_lengths_mm": [
+          0.05982820672975358,
+          0.6849415678228742,
+          0.6251133611753339
+        ],
+        "area2_mm2": 2.052319209537809e-06,
+        "minimum_altitude_mm": 2.996342032592974e-06,
+        "normal": [
+          -0.5660607607085605,
+          0.81100754248306,
+          -0.14779032857949037
+        ],
+        "base_candidate_normal_dot": 1.0000000000000002,
+        "vertices_vs_base_max_mm": 0.0
+      },
+      "source_cofactor_transport": {
+        "det_local_fit": 1.1288822061879855,
+        "condition_number": 1.000000004980936,
+        "cofactor_normal": [
+          0.4101787737156723,
+          -0.9072314170810654,
+          0.0931908228002587
+        ],
+        "cofactor_vs_actual_one_ring_fp64_dot": 1.0,
+        "cofactor_vs_f32_face_dot": -0.98173033302858
+      },
+      "ulp_diagnostic": {
+        "source_reference_altitude_mm": 3.0270255639132726e-05,
+        "f32_vs_fp64_vertex_max_mm": 0.0001220736980870936,
+        "source_one_ring_area_cancellation_ratio": 0.9847136708290937
+      }
+    },
+    {
+      "pose": "left-ring-pip-95",
+      "face_record_local_row": 63330,
+      "face_global_index_row": 716894,
+      "vertex_ids_local": [
+        38385,
+        38384,
+        38395
+      ],
+      "incident_one_ring_face_count": 10,
+      "one_ring_vertex_count": 9,
+      "face_f32": {
+        "edge_lengths_mm": [
+          0.05982820672975358,
+          0.6849415678228742,
+          0.6251133611753339
+        ],
+        "area2_mm2": 2.052319209537809e-06,
+        "minimum_altitude_mm": 2.996342032592974e-06,
+        "normal": [
+          -0.5660607607085605,
+          0.81100754248306,
+          -0.14779032857949037
+        ],
+        "one_ring_normal": [
+          0.41138379284964555,
+          -0.9066473875830272,
+          0.09356222298295559
+        ],
+        "normal_dot_one_ring": -0.981993684103319,
+        "coordinate_ulp_mm_per_axis_max": [
+          1.52587890625e-05,
+          1.52587890625e-05,
+          0.0001220703125
+        ],
+        "altitude_over_max_axis_ulp": 0.024171262979507446
+      },
+      "face_fp64_affine": {
+        "edge_lengths_mm": [
+          0.05987457829293177,
+          0.6849033068389696,
+          0.625028737636545
+        ],
+        "area2_mm2": 2.1587129426825135e-05,
+        "minimum_altitude_mm": 3.15185066435963e-05,
+        "normal": [
+          0.5012119009792473,
+          -0.8562815930535189,
+          0.12477364992055522
+        ],
+        "one_ring_normal": [
+          0.41017877371742045,
+          -0.9072314170802146,
+          0.09319082280084731
+        ],
+        "normal_dot_one_ring": 0.9940598051018538,
+        "normal_f32_fp64_dot": -0.9966075591201317,
+        "one_ring_f32_fp64_dot": 0.9999990344501712
+      },
+      "seed_candidate_f32": {
+        "edge_lengths_mm": [
+          0.05982820672975358,
+          0.6849415678228742,
+          0.6251133611753339
+        ],
+        "area2_mm2": 2.052319209537809e-06,
+        "minimum_altitude_mm": 2.996342032592974e-06,
+        "normal": [
+          -0.5660607607085605,
+          0.81100754248306,
+          -0.14779032857949037
+        ],
+        "base_candidate_normal_dot": 1.0000000000000002,
+        "vertices_vs_base_max_mm": 0.0
+      },
+      "source_cofactor_transport": {
+        "det_local_fit": 1.1288822061879855,
+        "condition_number": 1.000000004980936,
+        "cofactor_normal": [
+          0.4101787737156723,
+          -0.9072314170810654,
+          0.0931908228002587
+        ],
+        "cofactor_vs_actual_one_ring_fp64_dot": 1.0,
+        "cofactor_vs_f32_face_dot": -0.98173033302858
+      },
+      "ulp_diagnostic": {
+        "source_reference_altitude_mm": 3.0270255639132726e-05,
+        "f32_vs_fp64_vertex_max_mm": 0.0001220736980870936,
+        "source_one_ring_area_cancellation_ratio": 0.9847136708290937
+      }
+    },
+    {
+      "pose": "left-little-pip-99",
+      "face_record_local_row": 63330,
+      "face_global_index_row": 716894,
+      "vertex_ids_local": [
+        38385,
+        38384,
+        38395
+      ],
+      "incident_one_ring_face_count": 10,
+      "one_ring_vertex_count": 9,
+      "face_f32": {
+        "edge_lengths_mm": [
+          0.05982820672975358,
+          0.6849415678228742,
+          0.6251133611753339
+        ],
+        "area2_mm2": 2.052319209537809e-06,
+        "minimum_altitude_mm": 2.996342032592974e-06,
+        "normal": [
+          -0.5660607607085605,
+          0.81100754248306,
+          -0.14779032857949037
+        ],
+        "one_ring_normal": [
+          0.41138379284964555,
+          -0.9066473875830272,
+          0.09356222298295559
+        ],
+        "normal_dot_one_ring": -0.981993684103319,
+        "coordinate_ulp_mm_per_axis_max": [
+          1.52587890625e-05,
+          1.52587890625e-05,
+          0.0001220703125
+        ],
+        "altitude_over_max_axis_ulp": 0.024171262979507446
+      },
+      "face_fp64_affine": {
+        "edge_lengths_mm": [
+          0.05987457829293177,
+          0.6849033068389696,
+          0.625028737636545
+        ],
+        "area2_mm2": 2.1587129426825135e-05,
+        "minimum_altitude_mm": 3.15185066435963e-05,
+        "normal": [
+          0.5012119009792473,
+          -0.8562815930535189,
+          0.12477364992055522
+        ],
+        "one_ring_normal": [
+          0.41017877371742045,
+          -0.9072314170802146,
+          0.09319082280084731
+        ],
+        "normal_dot_one_ring": 0.9940598051018538,
+        "normal_f32_fp64_dot": -0.9966075591201317,
+        "one_ring_f32_fp64_dot": 0.9999990344501712
+      },
+      "seed_candidate_f32": {
+        "edge_lengths_mm": [
+          0.05982820672975358,
+          0.6849415678228742,
+          0.6251133611753339
+        ],
+        "area2_mm2": 2.052319209537809e-06,
+        "minimum_altitude_mm": 2.996342032592974e-06,
+        "normal": [
+          -0.5660607607085605,
+          0.81100754248306,
+          -0.14779032857949037
+        ],
+        "base_candidate_normal_dot": 1.0000000000000002,
+        "vertices_vs_base_max_mm": 0.0
+      },
+      "source_cofactor_transport": {
+        "det_local_fit": 1.1288822061879855,
+        "condition_number": 1.000000004980936,
+        "cofactor_normal": [
+          0.4101787737156723,
+          -0.9072314170810654,
+          0.0931908228002587
+        ],
+        "cofactor_vs_actual_one_ring_fp64_dot": 1.0,
+        "cofactor_vs_f32_face_dot": -0.98173033302858
+      },
+      "ulp_diagnostic": {
+        "source_reference_altitude_mm": 3.0270255639132726e-05,
+        "f32_vs_fp64_vertex_max_mm": 0.0001220736980870936,
+        "source_one_ring_area_cancellation_ratio": 0.9847136708290937
+      }
+    }
+  ],
+  "cross_pose_normal_alignment": [
+    {
+      "pose_a": "current191",
+      "pose_b": "rest003",
+      "raw_face_normal_fp64_dot": 0.2151123285182978,
+      "robust_one_ring_normal_fp64_dot": 0.1365608089762167
+    },
+    {
+      "pose_a": "current191",
+      "pose_b": "right-ring-pip-57",
+      "raw_face_normal_fp64_dot": 0.25805505700584586,
+      "robust_one_ring_normal_fp64_dot": 0.17614477046239285
+    },
+    {
+      "pose_a": "current191",
+      "pose_b": "right-little-pip-61",
+      "raw_face_normal_fp64_dot": 0.25805505700584586,
+      "robust_one_ring_normal_fp64_dot": 0.17614477046239285
+    },
+    {
+      "pose_a": "current191",
+      "pose_b": "left-ring-pip-95",
+      "raw_face_normal_fp64_dot": 0.25805505700584586,
+      "robust_one_ring_normal_fp64_dot": 0.17614477046239285
+    },
+    {
+      "pose_a": "current191",
+      "pose_b": "left-little-pip-99",
+      "raw_face_normal_fp64_dot": 0.25805505700584586,
+      "robust_one_ring_normal_fp64_dot": 0.17614477046239285
+    },
+    {
+      "pose_a": "rest003",
+      "pose_b": "right-ring-pip-57",
+      "raw_face_normal_fp64_dot": 0.9984043368601629,
+      "robust_one_ring_normal_fp64_dot": 0.9988842123311625
+    },
+    {
+      "pose_a": "rest003",
+      "pose_b": "right-little-pip-61",
+      "raw_face_normal_fp64_dot": 0.9984043368601629,
+      "robust_one_ring_normal_fp64_dot": 0.9988842123311625
+    },
+    {
+      "pose_a": "rest003",
+      "pose_b": "left-ring-pip-95",
+      "raw_face_normal_fp64_dot": 0.9984043368601629,
+      "robust_one_ring_normal_fp64_dot": 0.9988842123311625
+    },
+    {
+      "pose_a": "rest003",
+      "pose_b": "left-little-pip-99",
+      "raw_face_normal_fp64_dot": 0.9984043368601629,
+      "robust_one_ring_normal_fp64_dot": 0.9988842123311625
+    },
+    {
+      "pose_a": "right-ring-pip-57",
+      "pose_b": "right-little-pip-61",
+      "raw_face_normal_fp64_dot": 1.0000000000000002,
+      "robust_one_ring_normal_fp64_dot": 0.9999999999999999
+    },
+    {
+      "pose_a": "right-ring-pip-57",
+      "pose_b": "left-ring-pip-95",
+      "raw_face_normal_fp64_dot": 1.0000000000000002,
+      "robust_one_ring_normal_fp64_dot": 0.9999999999999999
+    },
+    {
+      "pose_a": "right-ring-pip-57",
+      "pose_b": "left-little-pip-99",
+      "raw_face_normal_fp64_dot": 1.0000000000000002,
+      "robust_one_ring_normal_fp64_dot": 0.9999999999999999
+    },
+    {
+      "pose_a": "right-little-pip-61",
+      "pose_b": "left-ring-pip-95",
+      "raw_face_normal_fp64_dot": 1.0000000000000002,
+      "robust_one_ring_normal_fp64_dot": 0.9999999999999999
+    },
+    {
+      "pose_a": "right-little-pip-61",
+      "pose_b": "left-little-pip-99",
+      "raw_face_normal_fp64_dot": 1.0000000000000002,
+      "robust_one_ring_normal_fp64_dot": 0.9999999999999999
+    },
+    {
+      "pose_a": "left-ring-pip-95",
+      "pose_b": "left-little-pip-99",
+      "raw_face_normal_fp64_dot": 1.0000000000000002,
+      "robust_one_ring_normal_fp64_dot": 0.9999999999999999
+    }
+  ],
+  "gradient_cosines_from_phase_i": [
+    {
+      "pose_a": "current191",
+      "pose_b": "rest003",
+      "jacobian_cosine": 0.7233134693052986
+    },
+    {
+      "pose_a": "current191",
+      "pose_b": "right-ring-pip-57",
+      "jacobian_cosine": -0.9006524319615322
+    },
+    {
+      "pose_a": "current191",
+      "pose_b": "right-little-pip-61",
+      "jacobian_cosine": -0.9006524319615322
+    },
+    {
+      "pose_a": "current191",
+      "pose_b": "left-ring-pip-95",
+      "jacobian_cosine": -0.9006524319615322
+    },
+    {
+      "pose_a": "current191",
+      "pose_b": "left-little-pip-99",
+      "jacobian_cosine": -0.9006524319615322
+    },
+    {
+      "pose_a": "rest003",
+      "pose_b": "right-ring-pip-57",
+      "jacobian_cosine": -0.9515126651463872
+    },
+    {
+      "pose_a": "rest003",
+      "pose_b": "right-little-pip-61",
+      "jacobian_cosine": -0.9515126651463872
+    },
+    {
+      "pose_a": "rest003",
+      "pose_b": "left-ring-pip-95",
+      "jacobian_cosine": -0.9515126651463872
+    },
+    {
+      "pose_a": "rest003",
+      "pose_b": "left-little-pip-99",
+      "jacobian_cosine": -0.9515126651463872
+    },
+    {
+      "pose_a": "right-ring-pip-57",
+      "pose_b": "right-little-pip-61",
+      "jacobian_cosine": 1.0000000000000002
+    },
+    {
+      "pose_a": "right-ring-pip-57",
+      "pose_b": "left-ring-pip-95",
+      "jacobian_cosine": 1.0000000000000002
+    },
+    {
+      "pose_a": "right-ring-pip-57",
+      "pose_b": "left-little-pip-99",
+      "jacobian_cosine": 1.0000000000000002
+    },
+    {
+      "pose_a": "right-little-pip-61",
+      "pose_b": "left-ring-pip-95",
+      "jacobian_cosine": 1.0000000000000002
+    },
+    {
+      "pose_a": "right-little-pip-61",
+      "pose_b": "left-little-pip-99",
+      "jacobian_cosine": 1.0000000000000002
+    },
+    {
+      "pose_a": "left-ring-pip-95",
+      "pose_b": "left-little-pip-99",
+      "jacobian_cosine": 1.0000000000000002
+    }
+  ],
+  "elapsed_s": 4.814779996871948,
+  "interpretation": "Diagnostic only. Raw-face orientation under sub-ULP geometry is compared with a one-ring area-weighted normal and source cofactor transport; neither is an admission gate."
+}

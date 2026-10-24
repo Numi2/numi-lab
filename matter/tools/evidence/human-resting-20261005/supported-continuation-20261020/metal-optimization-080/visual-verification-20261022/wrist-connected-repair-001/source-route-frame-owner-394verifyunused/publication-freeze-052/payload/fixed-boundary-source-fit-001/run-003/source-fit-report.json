@@ -1,0 +1,168 @@
+{
+  "schema": "numi.human.fixed-boundary-source-position-fit.preflight.v1",
+  "status": "FAIL_EMITTED_FLOAT32_QUALITY",
+  "baseline_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "baseline_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "builder_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_001.py",
+  "builder_sha256": "cb704608b73b1c412a7dec7b16975874e96c93836608dae8460062df684b1c96",
+  "emitter_sha256": "f34897a3cbad65313ee59b164a33cb528dfad0fe94e2f683fa1e49a1baecb201",
+  "identity003_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "poses": {
+    "current191": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "rest003": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "right-ring-pip-57": "9e6ca87deab3965d11b6c32486efac37b46127a843d05d4359849bc2b1199d69",
+    "right-little-pip-61": "223730f948fc25866d9c1918ec5614d7d659157b3931a0156d661ef76fec46b2",
+    "left-ring-pip-95": "c9d251a53aec2c362a6bd5fed3ef0cc15fd863237a3df8b148a42b735b2db2a4",
+    "left-little-pip-99": "b013eea9e3cb93ee038c76e3eacde7d238e21c11e2a25f72e20b8165a150a634"
+  },
+  "patches": [
+    {
+      "stable_id": 131,
+      "fixed_only_violated_constraint_rows_at_start": [],
+      "seed_faces": [
+        12677,
+        12679
+      ],
+      "patch_faces": 16,
+      "patch_vertices": 12,
+      "fixed_boundary_edges": 6,
+      "fixed_boundary_vertices": 6,
+      "free_vertices_local": [
+        3096,
+        3098,
+        3106,
+        6202,
+        6330,
+        6518
+      ],
+      "optimizer_success": true,
+      "optimizer_message": "Optimization terminated successfully",
+      "iterations": 25,
+      "objective_mm2": 5.657318119328674e-07,
+      "minimum_linearized_constraint_slack": 4.2920646442339005e-10,
+      "movement_mm": {
+        "max": 0.00031942210684952194,
+        "rms": 0.00014383794666516996
+      },
+      "constraints": {
+        "poses": [
+          "current191",
+          "rest003",
+          "right-ring-pip-57",
+          "right-little-pip-61",
+          "left-ring-pip-95",
+          "left-little-pip-99"
+        ],
+        "altitude_floor_mm": 0.0005,
+        "oriented_double_area_fraction": 0.2,
+        "trust_mm": 0.25
+      }
+    },
+    {
+      "stable_id": 134,
+      "fixed_only_violated_constraint_rows_at_start": [],
+      "seed_faces": [
+        63329,
+        63331
+      ],
+      "patch_faces": 18,
+      "patch_vertices": 14,
+      "fixed_boundary_edges": 8,
+      "fixed_boundary_vertices": 8,
+      "free_vertices_local": [
+        33326,
+        38384,
+        38385,
+        38386,
+        38395,
+        38397
+      ],
+      "optimizer_success": false,
+      "optimizer_message": "Inequality constraints incompatible",
+      "iterations": 26,
+      "objective_mm2": 0.9563057285578187,
+      "minimum_linearized_constraint_slack": -0.08144017323944934,
+      "movement_mm": {
+        "max": 0.2709847939044634,
+        "rms": 0.2110211670709079
+      },
+      "constraints": {
+        "poses": [
+          "current191",
+          "rest003",
+          "right-ring-pip-57",
+          "right-little-pip-61",
+          "left-ring-pip-95",
+          "left-little-pip-99"
+        ],
+        "altitude_floor_mm": 0.0005,
+        "oriented_double_area_fraction": 0.2,
+        "trust_mm": 0.25
+      }
+    }
+  ],
+  "modified_vertex_count": 6,
+  "outside_patch_payload_bytes_unchanged": true,
+  "patch_normals_regenerated_from_area_weighted_source_faces": true,
+  "method": "actual8874 source-space smooth minimum-displacement fit on connected three-ring face patches, fixed outer ring, joint six-pose altitude/oriented-area inequalities",
+  "limitations": [
+    "The solver stage constrains six-pose geometry quality only; it does not impose collision constraints. Candidate is not admitted until exact local collision checks pass."
+  ],
+  "regenerated_normal_metrics": {
+    "131": {
+      "patch_vertex_count": 12,
+      "minimum_alignment_to_original_normal": 0.966931591085027,
+      "maximum_normal_change_degrees": 14.77571099541428
+    }
+  },
+  "candidate_patch_stable_ids": [
+    131
+  ],
+  "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-003/candidate-8874-local-position-fit.nhtissue",
+  "candidate_sha256": "eac5a08ad9f967de38725ca7c8c83662b88b852fb4e2dfc67da6086eb5cd9631",
+  "emitted_float32_quality": [
+    {
+      "stable_id": 131,
+      "pose": "current191",
+      "min_altitude_mm": 0.0004507417335936911,
+      "min_altitude_to_vertex_ulp": 7.562191424715812,
+      "zero_area_faces": 0
+    },
+    {
+      "stable_id": 131,
+      "pose": "rest003",
+      "min_altitude_mm": 0.00045697548819601956,
+      "min_altitude_to_vertex_ulp": 7.666776472170071,
+      "zero_area_faces": 0
+    },
+    {
+      "stable_id": 131,
+      "pose": "right-ring-pip-57",
+      "min_altitude_mm": 0.00045175928336944844,
+      "min_altitude_to_vertex_ulp": 7.579263077094445,
+      "zero_area_faces": 0
+    },
+    {
+      "stable_id": 131,
+      "pose": "right-little-pip-61",
+      "min_altitude_mm": 0.00045175928336944844,
+      "min_altitude_to_vertex_ulp": 7.579263077094445,
+      "zero_area_faces": 0
+    },
+    {
+      "stable_id": 131,
+      "pose": "left-ring-pip-95",
+      "min_altitude_mm": 0.00045175928336944844,
+      "min_altitude_to_vertex_ulp": 7.579263077094445,
+      "zero_area_faces": 0
+    },
+    {
+      "stable_id": 131,
+      "pose": "left-little-pip-99",
+      "min_altitude_mm": 0.00045175928336944844,
+      "min_altitude_to_vertex_ulp": 7.579263077094445,
+      "zero_area_faces": 0
+    }
+  ],
+  "exact_collision_gate": "not_run"
+}

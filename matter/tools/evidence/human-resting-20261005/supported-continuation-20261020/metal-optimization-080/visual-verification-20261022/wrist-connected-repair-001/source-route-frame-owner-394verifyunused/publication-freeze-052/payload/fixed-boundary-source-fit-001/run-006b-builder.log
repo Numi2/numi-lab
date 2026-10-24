@@ -1,0 +1,1670 @@
+waiting_for_human_geometry_slot pid=25349
+acquired_human_geometry_slot pid=25349
+{
+  "status": "SOURCE_FIT_INFEASIBLE_NO_CANDIDATE",
+  "builder_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_006b.py",
+  "builder_sha256": "9352348d499c5cc5af93a1d08d039a768c9416dce0d001cc59f2621c2ea63d0e",
+  "candidate_path": null,
+  "candidate_sha256": null,
+  "patches": [
+    {
+      "stable_id": 131,
+      "fixed_only_violated_constraint_rows_at_start": [],
+      "seed_faces": [
+        12677,
+        12679
+      ],
+      "patch_faces": 16,
+      "patch_vertices": 12,
+      "fixed_boundary_edges": 6,
+      "fixed_boundary_vertices": 6,
+      "free_vertices_local": [
+        3096,
+        3098,
+        3106,
+        6202,
+        6330,
+        6518
+      ],
+      "optimizer_success": false,
+      "optimizer_message": "Positive directional derivative for linesearch",
+      "iterations": 34,
+      "objective_increment_from_run003_mm2": 0.00018974586797479645,
+      "constraint_scaling": {
+        "altitude_mm_divisor": 0.001,
+        "oriented_area_divisor": "per-face baseline double area in mm^2",
+        "contact_gap_mm_divisor": 0.001,
+        "objective_multiplier": 1000000.0
+      },
+      "seed_candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/run-003/candidate-8874-local-position-fit.nhtissue",
+      "seed_candidate_sha256": "eac5a08ad9f967de38725ca7c8c83662b88b852fb4e2dfc67da6086eb5cd9631",
+      "minimum_linearized_constraint_slack": -0.03417142419591127,
+      "movement_mm": {
+        "max": 0.005411472359204551,
+        "rms": 0.0027341989811896974
+      },
+      "constraints": {
+        "poses": [
+          "current191",
+          "rest003",
+          "right-ring-pip-57",
+          "right-little-pip-61",
+          "left-ring-pip-95",
+          "left-little-pip-99"
+        ],
+        "emitted_altitude_target_mm": 0.0005,
+        "pre_emission_fit_altitude_margin_mm": 0.00065,
+        "oriented_double_area_fraction": 0.2,
+        "witness_gap_floor_mm": 5e-05,
+        "trust_mm": 0.25
+      },
+      "collision_contact_row_count": 684,
+      "unique_pose_contact_constraints": 62,
+      "fixed_only_violated_rows_at_seed": [],
+      "collision_witnesses": [
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "rest003",
+          "source_face": 6157,
+          "target_face": 9592,
+          "axis": [
+            0.9146696713677925,
+            0.3920206791527378,
+            -0.09848441194707207
+          ],
+          "a_barycentric": [
+            0.0013600963,
+            0.9986399037,
+            0.0
+          ],
+          "b_barycentric": [
+            7.55863e-05,
+            0.9983590795,
+            0.0015653341
+          ],
+          "baseline_gap_mm": 2.1395539115027666e-05,
+          "initial_seed_gap_mm": 1.158150668671727e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "rest003",
+          "source_face": 6157,
+          "target_face": 9593,
+          "axis": [
+            0.9154810533823576,
+            0.39012147269609854,
+            -0.09848694045078307
+          ],
+          "a_barycentric": [
+            0.0010372244,
+            0.9853502042,
+            0.0136125714
+          ],
+          "b_barycentric": [
+            0.0,
+            0.012341157,
+            0.987658843
+          ],
+          "baseline_gap_mm": 2.140070732632735e-05,
+          "initial_seed_gap_mm": 1.1006133488604164e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "current191",
+          "source_face": 12683,
+          "target_face": 9583,
+          "axis": [
+            -7.897618080594554e-07,
+            -2.5182970860763764e-06,
+            -0.9999999999965172
+          ],
+          "a_barycentric": [
+            3.1675132579759086e-15,
+            1.000000000000003,
+            3.2978794962842572e-15
+          ],
+          "b_barycentric": [
+            0.9999999999998416,
+            4.771953975280178e-13,
+            -3.315043498603862e-13
+          ],
+          "baseline_gap_mm": 7.4505780989479716e-06,
+          "initial_seed_gap_mm": 7.4505780989479716e-06,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "rest003",
+          "source_face": 6156,
+          "target_face": 7508,
+          "axis": [
+            -0.9583148474999094,
+            -0.25555061162174636,
+            0.12777534175644684
+          ],
+          "a_barycentric": [
+            0.9495139372048517,
+            9.552384309862327e-14,
+            0.0504860627950532
+          ],
+          "b_barycentric": [
+            0.9495140665689172,
+            0.00025564590498173683,
+            0.05023028752610053
+          ],
+          "baseline_gap_mm": 2.3550745479066115e-05,
+          "initial_seed_gap_mm": 2.4271829397817575e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "rest003",
+          "source_face": 6156,
+          "target_face": 7508,
+          "axis": [
+            -0.9579639143987276,
+            -0.2566487141257305,
+            0.12820521146769503
+          ],
+          "a_barycentric": [
+            0.9494175582807225,
+            0.00018806864456251271,
+            0.050394373074715205
+          ],
+          "b_barycentric": [
+            0.9494129211354433,
+            1.602969895354957e-13,
+            0.050587078864396104
+          ],
+          "baseline_gap_mm": 2.3516585727062125e-05,
+          "initial_seed_gap_mm": 2.424706856462675e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "rest003",
+          "source_face": 12137,
+          "target_face": 8951,
+          "axis": [
+            -0.16439898692140406,
+            -0.9863939238961359,
+            3.7883383539626965e-09
+          ],
+          "a_barycentric": [
+            5.195572933023366e-05,
+            0.6466517978351873,
+            0.3532962464354822
+          ],
+          "b_barycentric": [
+            0.6466883676695959,
+            0.353311632330398,
+            5.715971219975532e-15
+          ],
+          "baseline_gap_mm": 5.8612664492538556e-05,
+          "initial_seed_gap_mm": 5.280451454979646e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "rest003",
+          "source_face": 12137,
+          "target_face": 8951,
+          "axis": [
+            -0.16439899021757257,
+            -0.9863939233467744,
+            5.67115610444305e-09
+          ],
+          "a_barycentric": [
+            1.7320842765282928e-14,
+            0.6479461427964085,
+            0.3520538572035742
+          ],
+          "b_barycentric": [
+            0.6478789249967992,
+            0.3520691701061363,
+            5.1904897064067936e-05
+          ],
+          "baseline_gap_mm": 5.872998401976745e-05,
+          "initial_seed_gap_mm": 5.2910208469886034e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "rest003",
+          "source_face": 12683,
+          "target_face": 9583,
+          "axis": [
+            -0.999999999999849,
+            1.0244547080441582e-07,
+            5.401670278778288e-07
+          ],
+          "a_barycentric": [
+            2.6206720761247907e-15,
+            1.0000000000000022,
+            2.798780928782276e-15
+          ],
+          "b_barycentric": [
+            0.9999999999999465,
+            -5.5136462300908997e-14,
+            9.917163402889739e-14
+          ],
+          "baseline_gap_mm": 2.9802325995924642e-05,
+          "initial_seed_gap_mm": 2.9802325995924642e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-ring-pip-57",
+          "source_face": 6155,
+          "target_face": 7508,
+          "axis": [
+            -0.9348927894427044,
+            -0.23372319754000173,
+            0.26711222207101754
+          ],
+          "a_barycentric": [
+            9.127687566102039e-05,
+            0.17340496784567233,
+            0.8265037552786665
+          ],
+          "b_barycentric": [
+            -3.63668567900555e-14,
+            0.826553766497107,
+            0.17344623350292937
+          ],
+          "baseline_gap_mm": 7.738875663376557e-05,
+          "initial_seed_gap_mm": 7.9999735107312e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-ring-pip-57",
+          "source_face": 6155,
+          "target_face": 7508,
+          "axis": [
+            -0.934892786708004,
+            -0.2337231894148645,
+            0.26711223875196316
+          ],
+          "a_barycentric": [
+            0.9186159613252163,
+            0.0813566574438753,
+            2.7381230908721022e-05
+          ],
+          "b_barycentric": [
+            0.9186017433566612,
+            2.1430836223602234e-13,
+            0.081398256643124
+          ],
+          "baseline_gap_mm": 3.630859432487035e-05,
+          "initial_seed_gap_mm": 3.753359086330726e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-ring-pip-57",
+          "source_face": 6156,
+          "target_face": 7509,
+          "axis": [
+            -0.9348928355939076,
+            -0.23372327693012906,
+            0.26711199107532646
+          ],
+          "a_barycentric": [
+            0.9186396238105214,
+            -2.55006225349125e-14,
+            0.08136037618950392
+          ],
+          "b_barycentric": [
+            2.015051626532863e-05,
+            0.9186259217788332,
+            0.08135392770491127
+          ],
+          "baseline_gap_mm": 3.6310248985779995e-05,
+          "initial_seed_gap_mm": 3.753530124711575e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-ring-pip-57",
+          "source_face": 6156,
+          "target_face": 8951,
+          "axis": [
+            0.2166500181467559,
+            -0.9762493345927304,
+            7.965087165531223e-05
+          ],
+          "a_barycentric": [
+            0.3481833408950666,
+            0.6517568292039292,
+            5.982990100412258e-05
+          ],
+          "b_barycentric": [
+            4.96750182443273e-16,
+            0.34825544946798886,
+            0.6517445505320109
+          ],
+          "baseline_gap_mm": 8.95402842388591e-05,
+          "initial_seed_gap_mm": 8.744963304984374e-06,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-ring-pip-57",
+          "source_face": 6156,
+          "target_face": 8951,
+          "axis": [
+            0.21693045834327138,
+            -0.9761870600673715,
+            -1.238674862249796e-09
+          ],
+          "a_barycentric": [
+            0.34758591314608916,
+            0.6524140868537824,
+            1.2811859325075615e-13
+          ],
+          "b_barycentric": [
+            1.8938191009832924e-05,
+            0.3476552548689659,
+            0.6523258069400242
+          ],
+          "baseline_gap_mm": 8.962989872973338e-05,
+          "initial_seed_gap_mm": 8.741188561811215e-06,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-ring-pip-57",
+          "source_face": 12138,
+          "target_face": 8951,
+          "axis": [
+            0.15555009970805808,
+            -0.9878280045032198,
+            -1.008403010796165e-09
+          ],
+          "a_barycentric": [
+            0.42535943419080186,
+            0.5746405658092164,
+            -1.8458392172722995e-14
+          ],
+          "b_barycentric": [
+            0.4253214541622591,
+            8.549000976024448e-05,
+            0.5745930558279807
+          ],
+          "baseline_gap_mm": 0.00011009715488142004,
+          "initial_seed_gap_mm": 3.5579844758281995e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-ring-pip-57",
+          "source_face": 12139,
+          "target_face": 8952,
+          "axis": [
+            7.099376806764775e-09,
+            -1.0,
+            4.732917871176516e-09
+          ],
+          "a_barycentric": [
+            0.31484089811753974,
+            0.6851591018823305,
+            1.2977930766855516e-13
+          ],
+          "b_barycentric": [
+            0.6852225909943951,
+            7.779516736588853e-06,
+            0.3147696294888685
+          ],
+          "baseline_gap_mm": 2.3457474962462754e-05,
+          "initial_seed_gap_mm": 1.969903999988758e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-ring-pip-57",
+          "source_face": 12139,
+          "target_face": 8952,
+          "axis": [
+            1.2978916418692027e-08,
+            -0.9999999999999997,
+            -2.076626626990724e-08
+          ],
+          "a_barycentric": [
+            0.28702086140198363,
+            0.7129519848305227,
+            2.715376749327257e-05
+          ],
+          "b_barycentric": [
+            0.713026842578039,
+            1.0949118521269786e-13,
+            0.2869731574218518
+          ],
+          "baseline_gap_mm": 2.138512547600336e-05,
+          "initial_seed_gap_mm": 1.7958794047700496e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-ring-pip-57",
+          "source_face": 12678,
+          "target_face": 9586,
+          "axis": [
+            3.166496057719368e-07,
+            -0.9999999999992568,
+            -1.177191475575671e-06
+          ],
+          "a_barycentric": [
+            1.0000000000000902,
+            -2.0056111658555058e-13,
+            1.0043436813543629e-13
+          ],
+          "b_barycentric": [
+            2.432185048720597e-15,
+            3.1669110650524753e-15,
+            1.0000000000000027
+          ],
+          "baseline_gap_mm": 1.4901164469016653e-05,
+          "initial_seed_gap_mm": 1.4901164469013058e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-ring-pip-57",
+          "source_face": 12677,
+          "target_face": 8951,
+          "axis": [
+            0.21677465519805214,
+            -0.9762216699417011,
+            -4.207396592541834e-08
+          ],
+          "a_barycentric": [
+            0.9990321197202662,
+            0.0009678801727525113,
+            1.0697543755588685e-10
+          ],
+          "b_barycentric": [
+            0.0007280051661325468,
+            1.9545888264632904e-06,
+            0.9992700402450412
+          ],
+          "baseline_gap_mm": 0.00013721453637825592,
+          "initial_seed_gap_mm": 1.3377446238558438e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-ring-pip-57",
+          "source_face": 12677,
+          "target_face": 8951,
+          "axis": [
+            0.21336774074010725,
+            -0.976971958252365,
+            -3.992195730448769e-08
+          ],
+          "a_barycentric": [
+            0.99732554268828,
+            0.0009428098029475716,
+            0.0017316475087666512
+          ],
+          "b_barycentric": [
+            0.0007332830183628672,
+            1.1805481771805638e-14,
+            0.9992667169816253
+          ],
+          "baseline_gap_mm": 0.00013626818893601035,
+          "initial_seed_gap_mm": 1.3380373979745023e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-ring-pip-57",
+          "source_face": 12677,
+          "target_face": 9582,
+          "axis": [
+            0.21586002039150612,
+            -0.9764243194413876,
+            -3.8300319265125506e-08
+          ],
+          "a_barycentric": [
+            0.993398450984313,
+            0.006601548863276199,
+            1.5240520438660573e-10
+          ],
+          "b_barycentric": [
+            0.0007330824556328349,
+            0.9936401745999673,
+            0.0056267429443997785
+          ],
+          "baseline_gap_mm": 0.00013624033208750686,
+          "initial_seed_gap_mm": 1.325668571360841e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-ring-pip-57",
+          "source_face": 12678,
+          "target_face": 9582,
+          "axis": [
+            -0.28570815991167353,
+            -0.9583166738400579,
+            1.1672348693335034e-07
+          ],
+          "a_barycentric": [
+            7.402250079835252e-15,
+            0.36474089535330995,
+            0.6352591046466872
+          ],
+          "b_barycentric": [
+            0.6351722879809546,
+            5.818356591676111e-05,
+            0.36476952845312877
+          ],
+          "baseline_gap_mm": 3.804625971323489e-05,
+          "initial_seed_gap_mm": 3.6209692414669416e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-ring-pip-57",
+          "source_face": 12678,
+          "target_face": 9582,
+          "axis": [
+            -0.2851723336628911,
+            -0.9584762595459779,
+            1.078797883677404e-07
+          ],
+          "a_barycentric": [
+            5.9824658893044904e-05,
+            0.36435866508646836,
+            0.6355815102546432
+          ],
+          "b_barycentric": [
+            0.6354954540135005,
+            -3.932063787881638e-14,
+            0.3645045459865391
+          ],
+          "baseline_gap_mm": 3.807780172046995e-05,
+          "initial_seed_gap_mm": 3.62335628922803e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-little-pip-61",
+          "source_face": 6155,
+          "target_face": 7508,
+          "axis": [
+            -0.9348927894427044,
+            -0.23372319754000173,
+            0.26711222207101754
+          ],
+          "a_barycentric": [
+            9.127687566102039e-05,
+            0.17340496784567233,
+            0.8265037552786665
+          ],
+          "b_barycentric": [
+            -3.63668567900555e-14,
+            0.826553766497107,
+            0.17344623350292937
+          ],
+          "baseline_gap_mm": 7.738875663376557e-05,
+          "initial_seed_gap_mm": 7.9999735107312e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-little-pip-61",
+          "source_face": 6155,
+          "target_face": 7508,
+          "axis": [
+            -0.934892786708004,
+            -0.2337231894148645,
+            0.26711223875196316
+          ],
+          "a_barycentric": [
+            0.9186159613252163,
+            0.0813566574438753,
+            2.7381230908721022e-05
+          ],
+          "b_barycentric": [
+            0.9186017433566612,
+            2.1430836223602234e-13,
+            0.081398256643124
+          ],
+          "baseline_gap_mm": 3.630859432487035e-05,
+          "initial_seed_gap_mm": 3.753359086330726e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-little-pip-61",
+          "source_face": 6156,
+          "target_face": 7509,
+          "axis": [
+            -0.9348928355939076,
+            -0.23372327693012906,
+            0.26711199107532646
+          ],
+          "a_barycentric": [
+            0.9186396238105214,
+            -2.55006225349125e-14,
+            0.08136037618950392
+          ],
+          "b_barycentric": [
+            2.015051626532863e-05,
+            0.9186259217788332,
+            0.08135392770491127
+          ],
+          "baseline_gap_mm": 3.6310248985779995e-05,
+          "initial_seed_gap_mm": 3.753530124711575e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-little-pip-61",
+          "source_face": 6156,
+          "target_face": 8951,
+          "axis": [
+            0.2166500181467559,
+            -0.9762493345927304,
+            7.965087165531223e-05
+          ],
+          "a_barycentric": [
+            0.3481833408950666,
+            0.6517568292039292,
+            5.982990100412258e-05
+          ],
+          "b_barycentric": [
+            4.96750182443273e-16,
+            0.34825544946798886,
+            0.6517445505320109
+          ],
+          "baseline_gap_mm": 8.95402842388591e-05,
+          "initial_seed_gap_mm": 8.744963304984374e-06,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-little-pip-61",
+          "source_face": 6156,
+          "target_face": 8951,
+          "axis": [
+            0.21693045834327138,
+            -0.9761870600673715,
+            -1.238674862249796e-09
+          ],
+          "a_barycentric": [
+            0.34758591314608916,
+            0.6524140868537824,
+            1.2811859325075615e-13
+          ],
+          "b_barycentric": [
+            1.8938191009832924e-05,
+            0.3476552548689659,
+            0.6523258069400242
+          ],
+          "baseline_gap_mm": 8.962989872973338e-05,
+          "initial_seed_gap_mm": 8.741188561811215e-06,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-little-pip-61",
+          "source_face": 12138,
+          "target_face": 8951,
+          "axis": [
+            0.15555009970805808,
+            -0.9878280045032198,
+            -1.008403010796165e-09
+          ],
+          "a_barycentric": [
+            0.42535943419080186,
+            0.5746405658092164,
+            -1.8458392172722995e-14
+          ],
+          "b_barycentric": [
+            0.4253214541622591,
+            8.549000976024448e-05,
+            0.5745930558279807
+          ],
+          "baseline_gap_mm": 0.00011009715488142004,
+          "initial_seed_gap_mm": 3.5579844758281995e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-little-pip-61",
+          "source_face": 12139,
+          "target_face": 8952,
+          "axis": [
+            7.099376806764775e-09,
+            -1.0,
+            4.732917871176516e-09
+          ],
+          "a_barycentric": [
+            0.31484089811753974,
+            0.6851591018823305,
+            1.2977930766855516e-13
+          ],
+          "b_barycentric": [
+            0.6852225909943951,
+            7.779516736588853e-06,
+            0.3147696294888685
+          ],
+          "baseline_gap_mm": 2.3457474962462754e-05,
+          "initial_seed_gap_mm": 1.969903999988758e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-little-pip-61",
+          "source_face": 12139,
+          "target_face": 8952,
+          "axis": [
+            1.2978916418692027e-08,
+            -0.9999999999999997,
+            -2.076626626990724e-08
+          ],
+          "a_barycentric": [
+            0.28702086140198363,
+            0.7129519848305227,
+            2.715376749327257e-05
+          ],
+          "b_barycentric": [
+            0.713026842578039,
+            1.0949118521269786e-13,
+            0.2869731574218518
+          ],
+          "baseline_gap_mm": 2.138512547600336e-05,
+          "initial_seed_gap_mm": 1.7958794047700496e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-little-pip-61",
+          "source_face": 12678,
+          "target_face": 9586,
+          "axis": [
+            3.166496057719368e-07,
+            -0.9999999999992568,
+            -1.177191475575671e-06
+          ],
+          "a_barycentric": [
+            1.0000000000000902,
+            -2.0056111658555058e-13,
+            1.0043436813543629e-13
+          ],
+          "b_barycentric": [
+            2.432185048720597e-15,
+            3.1669110650524753e-15,
+            1.0000000000000027
+          ],
+          "baseline_gap_mm": 1.4901164469016653e-05,
+          "initial_seed_gap_mm": 1.4901164469013058e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-little-pip-61",
+          "source_face": 12677,
+          "target_face": 8951,
+          "axis": [
+            0.21677465519805214,
+            -0.9762216699417011,
+            -4.207396592541834e-08
+          ],
+          "a_barycentric": [
+            0.9990321197202662,
+            0.0009678801727525113,
+            1.0697543755588685e-10
+          ],
+          "b_barycentric": [
+            0.0007280051661325468,
+            1.9545888264632904e-06,
+            0.9992700402450412
+          ],
+          "baseline_gap_mm": 0.00013721453637825592,
+          "initial_seed_gap_mm": 1.3377446238558438e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-little-pip-61",
+          "source_face": 12677,
+          "target_face": 8951,
+          "axis": [
+            0.21336774074010725,
+            -0.976971958252365,
+            -3.992195730448769e-08
+          ],
+          "a_barycentric": [
+            0.99732554268828,
+            0.0009428098029475716,
+            0.0017316475087666512
+          ],
+          "b_barycentric": [
+            0.0007332830183628672,
+            1.1805481771805638e-14,
+            0.9992667169816253
+          ],
+          "baseline_gap_mm": 0.00013626818893601035,
+          "initial_seed_gap_mm": 1.3380373979745023e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-little-pip-61",
+          "source_face": 12677,
+          "target_face": 9582,
+          "axis": [
+            0.21586002039150612,
+            -0.9764243194413876,
+            -3.8300319265125506e-08
+          ],
+          "a_barycentric": [
+            0.993398450984313,
+            0.006601548863276199,
+            1.5240520438660573e-10
+          ],
+          "b_barycentric": [
+            0.0007330824556328349,
+            0.9936401745999673,
+            0.0056267429443997785
+          ],
+          "baseline_gap_mm": 0.00013624033208750686,
+          "initial_seed_gap_mm": 1.325668571360841e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-little-pip-61",
+          "source_face": 12678,
+          "target_face": 9582,
+          "axis": [
+            -0.28570815991167353,
+            -0.9583166738400579,
+            1.1672348693335034e-07
+          ],
+          "a_barycentric": [
+            7.402250079835252e-15,
+            0.36474089535330995,
+            0.6352591046466872
+          ],
+          "b_barycentric": [
+            0.6351722879809546,
+            5.818356591676111e-05,
+            0.36476952845312877
+          ],
+          "baseline_gap_mm": 3.804625971323489e-05,
+          "initial_seed_gap_mm": 3.6209692414669416e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "right-little-pip-61",
+          "source_face": 12678,
+          "target_face": 9582,
+          "axis": [
+            -0.2851723336628911,
+            -0.9584762595459779,
+            1.078797883677404e-07
+          ],
+          "a_barycentric": [
+            5.9824658893044904e-05,
+            0.36435866508646836,
+            0.6355815102546432
+          ],
+          "b_barycentric": [
+            0.6354954540135005,
+            -3.932063787881638e-14,
+            0.3645045459865391
+          ],
+          "baseline_gap_mm": 3.807780172046995e-05,
+          "initial_seed_gap_mm": 3.62335628922803e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-ring-pip-95",
+          "source_face": 6155,
+          "target_face": 7508,
+          "axis": [
+            -0.9348927894427044,
+            -0.23372319754000173,
+            0.26711222207101754
+          ],
+          "a_barycentric": [
+            9.127687566102039e-05,
+            0.17340496784567233,
+            0.8265037552786665
+          ],
+          "b_barycentric": [
+            -3.63668567900555e-14,
+            0.826553766497107,
+            0.17344623350292937
+          ],
+          "baseline_gap_mm": 7.738875663376557e-05,
+          "initial_seed_gap_mm": 7.9999735107312e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-ring-pip-95",
+          "source_face": 6155,
+          "target_face": 7508,
+          "axis": [
+            -0.934892786708004,
+            -0.2337231894148645,
+            0.26711223875196316
+          ],
+          "a_barycentric": [
+            0.9186159613252163,
+            0.0813566574438753,
+            2.7381230908721022e-05
+          ],
+          "b_barycentric": [
+            0.9186017433566612,
+            2.1430836223602234e-13,
+            0.081398256643124
+          ],
+          "baseline_gap_mm": 3.630859432487035e-05,
+          "initial_seed_gap_mm": 3.753359086330726e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-ring-pip-95",
+          "source_face": 6156,
+          "target_face": 7509,
+          "axis": [
+            -0.9348928355939076,
+            -0.23372327693012906,
+            0.26711199107532646
+          ],
+          "a_barycentric": [
+            0.9186396238105214,
+            -2.55006225349125e-14,
+            0.08136037618950392
+          ],
+          "b_barycentric": [
+            2.015051626532863e-05,
+            0.9186259217788332,
+            0.08135392770491127
+          ],
+          "baseline_gap_mm": 3.6310248985779995e-05,
+          "initial_seed_gap_mm": 3.753530124711575e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-ring-pip-95",
+          "source_face": 6156,
+          "target_face": 8951,
+          "axis": [
+            0.2166500181467559,
+            -0.9762493345927304,
+            7.965087165531223e-05
+          ],
+          "a_barycentric": [
+            0.3481833408950666,
+            0.6517568292039292,
+            5.982990100412258e-05
+          ],
+          "b_barycentric": [
+            4.96750182443273e-16,
+            0.34825544946798886,
+            0.6517445505320109
+          ],
+          "baseline_gap_mm": 8.95402842388591e-05,
+          "initial_seed_gap_mm": 8.744963304984374e-06,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-ring-pip-95",
+          "source_face": 6156,
+          "target_face": 8951,
+          "axis": [
+            0.21693045834327138,
+            -0.9761870600673715,
+            -1.238674862249796e-09
+          ],
+          "a_barycentric": [
+            0.34758591314608916,
+            0.6524140868537824,
+            1.2811859325075615e-13
+          ],
+          "b_barycentric": [
+            1.8938191009832924e-05,
+            0.3476552548689659,
+            0.6523258069400242
+          ],
+          "baseline_gap_mm": 8.962989872973338e-05,
+          "initial_seed_gap_mm": 8.741188561811215e-06,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-ring-pip-95",
+          "source_face": 12138,
+          "target_face": 8951,
+          "axis": [
+            0.15555009970805808,
+            -0.9878280045032198,
+            -1.008403010796165e-09
+          ],
+          "a_barycentric": [
+            0.42535943419080186,
+            0.5746405658092164,
+            -1.8458392172722995e-14
+          ],
+          "b_barycentric": [
+            0.4253214541622591,
+            8.549000976024448e-05,
+            0.5745930558279807
+          ],
+          "baseline_gap_mm": 0.00011009715488142004,
+          "initial_seed_gap_mm": 3.5579844758281995e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-ring-pip-95",
+          "source_face": 12139,
+          "target_face": 8952,
+          "axis": [
+            7.099376806764775e-09,
+            -1.0,
+            4.732917871176516e-09
+          ],
+          "a_barycentric": [
+            0.31484089811753974,
+            0.6851591018823305,
+            1.2977930766855516e-13
+          ],
+          "b_barycentric": [
+            0.6852225909943951,
+            7.779516736588853e-06,
+            0.3147696294888685
+          ],
+          "baseline_gap_mm": 2.3457474962462754e-05,
+          "initial_seed_gap_mm": 1.969903999988758e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-ring-pip-95",
+          "source_face": 12139,
+          "target_face": 8952,
+          "axis": [
+            1.2978916418692027e-08,
+            -0.9999999999999997,
+            -2.076626626990724e-08
+          ],
+          "a_barycentric": [
+            0.28702086140198363,
+            0.7129519848305227,
+            2.715376749327257e-05
+          ],
+          "b_barycentric": [
+            0.713026842578039,
+            1.0949118521269786e-13,
+            0.2869731574218518
+          ],
+          "baseline_gap_mm": 2.138512547600336e-05,
+          "initial_seed_gap_mm": 1.7958794047700496e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-ring-pip-95",
+          "source_face": 12678,
+          "target_face": 9586,
+          "axis": [
+            3.166496057719368e-07,
+            -0.9999999999992568,
+            -1.177191475575671e-06
+          ],
+          "a_barycentric": [
+            1.0000000000000902,
+            -2.0056111658555058e-13,
+            1.0043436813543629e-13
+          ],
+          "b_barycentric": [
+            2.432185048720597e-15,
+            3.1669110650524753e-15,
+            1.0000000000000027
+          ],
+          "baseline_gap_mm": 1.4901164469016653e-05,
+          "initial_seed_gap_mm": 1.4901164469013058e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-ring-pip-95",
+          "source_face": 12677,
+          "target_face": 8951,
+          "axis": [
+            0.21677465519805214,
+            -0.9762216699417011,
+            -4.207396592541834e-08
+          ],
+          "a_barycentric": [
+            0.9990321197202662,
+            0.0009678801727525113,
+            1.0697543755588685e-10
+          ],
+          "b_barycentric": [
+            0.0007280051661325468,
+            1.9545888264632904e-06,
+            0.9992700402450412
+          ],
+          "baseline_gap_mm": 0.00013721453637825592,
+          "initial_seed_gap_mm": 1.3377446238558438e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-ring-pip-95",
+          "source_face": 12677,
+          "target_face": 8951,
+          "axis": [
+            0.21336774074010725,
+            -0.976971958252365,
+            -3.992195730448769e-08
+          ],
+          "a_barycentric": [
+            0.99732554268828,
+            0.0009428098029475716,
+            0.0017316475087666512
+          ],
+          "b_barycentric": [
+            0.0007332830183628672,
+            1.1805481771805638e-14,
+            0.9992667169816253
+          ],
+          "baseline_gap_mm": 0.00013626818893601035,
+          "initial_seed_gap_mm": 1.3380373979745023e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-ring-pip-95",
+          "source_face": 12677,
+          "target_face": 9582,
+          "axis": [
+            0.21586002039150612,
+            -0.9764243194413876,
+            -3.8300319265125506e-08
+          ],
+          "a_barycentric": [
+            0.993398450984313,
+            0.006601548863276199,
+            1.5240520438660573e-10
+          ],
+          "b_barycentric": [
+            0.0007330824556328349,
+            0.9936401745999673,
+            0.0056267429443997785
+          ],
+          "baseline_gap_mm": 0.00013624033208750686,
+          "initial_seed_gap_mm": 1.325668571360841e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-ring-pip-95",
+          "source_face": 12678,
+          "target_face": 9582,
+          "axis": [
+            -0.28570815991167353,
+            -0.9583166738400579,
+            1.1672348693335034e-07
+          ],
+          "a_barycentric": [
+            7.402250079835252e-15,
+            0.36474089535330995,
+            0.6352591046466872
+          ],
+          "b_barycentric": [
+            0.6351722879809546,
+            5.818356591676111e-05,
+            0.36476952845312877
+          ],
+          "baseline_gap_mm": 3.804625971323489e-05,
+          "initial_seed_gap_mm": 3.6209692414669416e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-ring-pip-95",
+          "source_face": 12678,
+          "target_face": 9582,
+          "axis": [
+            -0.2851723336628911,
+            -0.9584762595459779,
+            1.078797883677404e-07
+          ],
+          "a_barycentric": [
+            5.9824658893044904e-05,
+            0.36435866508646836,
+            0.6355815102546432
+          ],
+          "b_barycentric": [
+            0.6354954540135005,
+            -3.932063787881638e-14,
+            0.3645045459865391
+          ],
+          "baseline_gap_mm": 3.807780172046995e-05,
+          "initial_seed_gap_mm": 3.62335628922803e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-little-pip-99",
+          "source_face": 6155,
+          "target_face": 7508,
+          "axis": [
+            -0.9348927894427044,
+            -0.23372319754000173,
+            0.26711222207101754
+          ],
+          "a_barycentric": [
+            9.127687566102039e-05,
+            0.17340496784567233,
+            0.8265037552786665
+          ],
+          "b_barycentric": [
+            -3.63668567900555e-14,
+            0.826553766497107,
+            0.17344623350292937
+          ],
+          "baseline_gap_mm": 7.738875663376557e-05,
+          "initial_seed_gap_mm": 7.9999735107312e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-little-pip-99",
+          "source_face": 6155,
+          "target_face": 7508,
+          "axis": [
+            -0.934892786708004,
+            -0.2337231894148645,
+            0.26711223875196316
+          ],
+          "a_barycentric": [
+            0.9186159613252163,
+            0.0813566574438753,
+            2.7381230908721022e-05
+          ],
+          "b_barycentric": [
+            0.9186017433566612,
+            2.1430836223602234e-13,
+            0.081398256643124
+          ],
+          "baseline_gap_mm": 3.630859432487035e-05,
+          "initial_seed_gap_mm": 3.753359086330726e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-little-pip-99",
+          "source_face": 6156,
+          "target_face": 7509,
+          "axis": [
+            -0.9348928355939076,
+            -0.23372327693012906,
+            0.26711199107532646
+          ],
+          "a_barycentric": [
+            0.9186396238105214,
+            -2.55006225349125e-14,
+            0.08136037618950392
+          ],
+          "b_barycentric": [
+            2.015051626532863e-05,
+            0.9186259217788332,
+            0.08135392770491127
+          ],
+          "baseline_gap_mm": 3.6310248985779995e-05,
+          "initial_seed_gap_mm": 3.753530124711575e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-little-pip-99",
+          "source_face": 6156,
+          "target_face": 8951,
+          "axis": [
+            0.2166500181467559,
+            -0.9762493345927304,
+            7.965087165531223e-05
+          ],
+          "a_barycentric": [
+            0.3481833408950666,
+            0.6517568292039292,
+            5.982990100412258e-05
+          ],
+          "b_barycentric": [
+            4.96750182443273e-16,
+            0.34825544946798886,
+            0.6517445505320109
+          ],
+          "baseline_gap_mm": 8.95402842388591e-05,
+          "initial_seed_gap_mm": 8.744963304984374e-06,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-little-pip-99",
+          "source_face": 6156,
+          "target_face": 8951,
+          "axis": [
+            0.21693045834327138,
+            -0.9761870600673715,
+            -1.238674862249796e-09
+          ],
+          "a_barycentric": [
+            0.34758591314608916,
+            0.6524140868537824,
+            1.2811859325075615e-13
+          ],
+          "b_barycentric": [
+            1.8938191009832924e-05,
+            0.3476552548689659,
+            0.6523258069400242
+          ],
+          "baseline_gap_mm": 8.962989872973338e-05,
+          "initial_seed_gap_mm": 8.741188561811215e-06,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-little-pip-99",
+          "source_face": 12138,
+          "target_face": 8951,
+          "axis": [
+            0.15555009970805808,
+            -0.9878280045032198,
+            -1.008403010796165e-09
+          ],
+          "a_barycentric": [
+            0.42535943419080186,
+            0.5746405658092164,
+            -1.8458392172722995e-14
+          ],
+          "b_barycentric": [
+            0.4253214541622591,
+            8.549000976024448e-05,
+            0.5745930558279807
+          ],
+          "baseline_gap_mm": 0.00011009715488142004,
+          "initial_seed_gap_mm": 3.5579844758281995e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-little-pip-99",
+          "source_face": 12139,
+          "target_face": 8952,
+          "axis": [
+            7.099376806764775e-09,
+            -1.0,
+            4.732917871176516e-09
+          ],
+          "a_barycentric": [
+            0.31484089811753974,
+            0.6851591018823305,
+            1.2977930766855516e-13
+          ],
+          "b_barycentric": [
+            0.6852225909943951,
+            7.779516736588853e-06,
+            0.3147696294888685
+          ],
+          "baseline_gap_mm": 2.3457474962462754e-05,
+          "initial_seed_gap_mm": 1.969903999988758e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-little-pip-99",
+          "source_face": 12139,
+          "target_face": 8952,
+          "axis": [
+            1.2978916418692027e-08,
+            -0.9999999999999997,
+            -2.076626626990724e-08
+          ],
+          "a_barycentric": [
+            0.28702086140198363,
+            0.7129519848305227,
+            2.715376749327257e-05
+          ],
+          "b_barycentric": [
+            0.713026842578039,
+            1.0949118521269786e-13,
+            0.2869731574218518
+          ],
+          "baseline_gap_mm": 2.138512547600336e-05,
+          "initial_seed_gap_mm": 1.7958794047700496e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-little-pip-99",
+          "source_face": 12678,
+          "target_face": 9586,
+          "axis": [
+            3.166496057719368e-07,
+            -0.9999999999992568,
+            -1.177191475575671e-06
+          ],
+          "a_barycentric": [
+            1.0000000000000902,
+            -2.0056111658555058e-13,
+            1.0043436813543629e-13
+          ],
+          "b_barycentric": [
+            2.432185048720597e-15,
+            3.1669110650524753e-15,
+            1.0000000000000027
+          ],
+          "baseline_gap_mm": 1.4901164469016653e-05,
+          "initial_seed_gap_mm": 1.4901164469013058e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-little-pip-99",
+          "source_face": 12677,
+          "target_face": 8951,
+          "axis": [
+            0.21677465519805214,
+            -0.9762216699417011,
+            -4.207396592541834e-08
+          ],
+          "a_barycentric": [
+            0.9990321197202662,
+            0.0009678801727525113,
+            1.0697543755588685e-10
+          ],
+          "b_barycentric": [
+            0.0007280051661325468,
+            1.9545888264632904e-06,
+            0.9992700402450412
+          ],
+          "baseline_gap_mm": 0.00013721453637825592,
+          "initial_seed_gap_mm": 1.3377446238558438e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-little-pip-99",
+          "source_face": 12677,
+          "target_face": 8951,
+          "axis": [
+            0.21336774074010725,
+            -0.976971958252365,
+            -3.992195730448769e-08
+          ],
+          "a_barycentric": [
+            0.99732554268828,
+            0.0009428098029475716,
+            0.0017316475087666512
+          ],
+          "b_barycentric": [
+            0.0007332830183628672,
+            1.1805481771805638e-14,
+            0.9992667169816253
+          ],
+          "baseline_gap_mm": 0.00013626818893601035,
+          "initial_seed_gap_mm": 1.3380373979745023e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-little-pip-99",
+          "source_face": 12677,
+          "target_face": 9582,
+          "axis": [
+            0.21586002039150612,
+            -0.9764243194413876,
+            -3.8300319265125506e-08
+          ],
+          "a_barycentric": [
+            0.993398450984313,
+            0.006601548863276199,
+            1.5240520438660573e-10
+          ],
+          "b_barycentric": [
+            0.0007330824556328349,
+            0.9936401745999673,
+            0.0056267429443997785
+          ],
+          "baseline_gap_mm": 0.00013624033208750686,
+          "initial_seed_gap_mm": 1.325668571360841e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-little-pip-99",
+          "source_face": 12678,
+          "target_face": 9582,
+          "axis": [
+            -0.28570815991167353,
+            -0.9583166738400579,
+            1.1672348693335034e-07
+          ],
+          "a_barycentric": [
+            7.402250079835252e-15,
+            0.36474089535330995,
+            0.6352591046466872
+          ],
+          "b_barycentric": [
+            0.6351722879809546,
+            5.818356591676111e-05,
+            0.36476952845312877
+          ],
+          "baseline_gap_mm": 3.804625971323489e-05,
+          "initial_seed_gap_mm": 3.6209692414669416e-05,
+          "required_gap_mm": 5e-05
+        },
+        {
+          "stable_id": 131,
+          "target_stable_id": 133,
+          "pose": "left-little-pip-99",
+          "source_face": 12678,
+          "target_face": 9582,
+          "axis": [
+            -0.2851723336628911,
+            -0.9584762595459779,
+            1.078797883677404e-07
+          ],
+          "a_barycentric": [
+            5.9824658893044904e-05,
+            0.36435866508646836,
+            0.6355815102546432
+          ],
+          "b_barycentric": [
+            0.6354954540135005,
+            -3.932063787881638e-14,
+            0.3645045459865391
+          ],
+          "baseline_gap_mm": 3.807780172046995e-05,
+          "initial_seed_gap_mm": 3.62335628922803e-05,
+          "required_gap_mm": 5e-05
+        }
+      ]
+    }
+  ],
+  "emitted_float32_quality": null,
+  "elapsed_s": 0.9305820465087891
+}

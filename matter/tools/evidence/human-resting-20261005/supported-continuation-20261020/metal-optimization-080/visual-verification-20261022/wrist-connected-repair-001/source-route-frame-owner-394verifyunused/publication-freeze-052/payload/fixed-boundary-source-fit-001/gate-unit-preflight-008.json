@@ -1,0 +1,10 @@
+{
+  "schema": "numi.human.gate-unit-conversion-preflight.v1",
+  "fixture": "1 mm^2 right triangle represented in mm and emitted world meters",
+  "source_area_mm2": 1.0,
+  "emitted_world_area_mm2": 1.0000000949949048,
+  "area_ratio": 1.0000000949949048,
+  "source_altitude_mm": 0.7071067811865475,
+  "emitted_minimum_altitude_mm": 0.7071068147723174,
+  "status": "PASS"
+}

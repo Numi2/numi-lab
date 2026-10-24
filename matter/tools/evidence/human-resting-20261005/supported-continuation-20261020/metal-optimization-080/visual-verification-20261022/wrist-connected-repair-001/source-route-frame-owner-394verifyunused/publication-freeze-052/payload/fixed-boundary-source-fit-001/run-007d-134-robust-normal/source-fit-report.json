@@ -1,0 +1,165 @@
+{
+  "schema": "numi.human.fixed-boundary-source-position-fit.preflight.v1",
+  "status": "SOURCE_FIT_INFEASIBLE_NO_CANDIDATE",
+  "baseline_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "baseline_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+  "builder_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/build_source_fit_007d_robust134.py",
+  "builder_sha256": "d470d630fdff725251666a483103dca2a11b21b7ba7ed11491249ba14b040a55",
+  "emitter_sha256": "f34897a3cbad65313ee59b164a33cb528dfad0fe94e2f683fa1e49a1baecb201",
+  "identity003_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "poses": {
+    "current191": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "rest003": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "right-ring-pip-57": "9e6ca87deab3965d11b6c32486efac37b46127a843d05d4359849bc2b1199d69",
+    "right-little-pip-61": "223730f948fc25866d9c1918ec5614d7d659157b3931a0156d661ef76fec46b2",
+    "left-ring-pip-95": "c9d251a53aec2c362a6bd5fed3ef0cc15fd863237a3df8b148a42b735b2db2a4",
+    "left-little-pip-99": "b013eea9e3cb93ee038c76e3eacde7d238e21c11e2a25f72e20b8165a150a634"
+  },
+  "patches": [
+    {
+      "stable_id": 134,
+      "fixed_only_violated_constraint_rows_at_start": [],
+      "seed_faces": [
+        63329,
+        63331
+      ],
+      "patch_faces": 18,
+      "patch_vertices": 14,
+      "fixed_boundary_edges": 8,
+      "fixed_boundary_vertices": 8,
+      "free_vertices_local": [
+        33326,
+        38384,
+        38385,
+        38386,
+        38395,
+        38397
+      ],
+      "optimizer_success": false,
+      "optimizer_message": "Positive directional derivative for linesearch",
+      "iterations": 50,
+      "objective_increment_from_run003_mm2": 3.496176980173106e-06,
+      "constraint_scaling": {
+        "altitude_mm_divisor": 0.001,
+        "oriented_area_divisor": "per-face baseline double area in mm^2",
+        "contact_gap_mm_divisor": 0.001,
+        "objective_multiplier": 1000000.0
+      },
+      "seed_candidate_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+      "seed_candidate_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+      "minimum_linearized_constraint_slack": -0.00821414940026504,
+      "movement_mm": {
+        "max": 0.0006053170994961535,
+        "rms": 0.00038425901328826667
+      },
+      "constraints": {
+        "poses": [
+          "current191",
+          "rest003",
+          "right-ring-pip-57",
+          "right-little-pip-61",
+          "left-ring-pip-95",
+          "left-little-pip-99"
+        ],
+        "emitted_altitude_target_mm": 0.0005,
+        "pre_emission_fit_altitude_margin_mm": 0.00065,
+        "oriented_double_area_fraction": 0.2,
+        "witness_gap_floor_mm": 5e-05,
+        "trust_mm": 0.25
+      },
+      "robust_microface_normal_contract": {
+        "source_face_row": 63330,
+        "patch_face_ordinal": 13,
+        "incident_one_ring_faces": 10,
+        "source_area_cancellation_ratio": 0.9847136708290939,
+        "pose_normals": [
+          {
+            "pose": "current191",
+            "normal": [
+              0.40653227080462234,
+              0.08310526334940367,
+              0.9098489039384856
+            ],
+            "local_fit_det": 1.1288826006464634,
+            "local_fit_condition": 1.000000176781649,
+            "robust_baseline_oriented_area_mm2": 2.1458903424508563e-05,
+            "cofactor_vs_fp64_one_ring_dot": 1.0
+          },
+          {
+            "pose": "rest003",
+            "normal": [
+              0.41736601401499274,
+              -0.9075478758966935,
+              0.0465022934986741
+            ],
+            "local_fit_det": 1.1288822388326316,
+            "local_fit_condition": 1.0000000193223828,
+            "robust_baseline_oriented_area_mm2": 2.1458897951893367e-05,
+            "cofactor_vs_fp64_one_ring_dot": 1.0
+          },
+          {
+            "pose": "right-ring-pip-57",
+            "normal": [
+              0.41017877371490397,
+              -0.9072314170814401,
+              0.09319082279999368
+            ],
+            "local_fit_det": 1.128882206147083,
+            "local_fit_condition": 1.0000000049743418,
+            "robust_baseline_oriented_area_mm2": 2.1458897670731412e-05,
+            "cofactor_vs_fp64_one_ring_dot": 1.0
+          },
+          {
+            "pose": "right-little-pip-61",
+            "normal": [
+              0.41017877371490397,
+              -0.9072314170814401,
+              0.09319082279999368
+            ],
+            "local_fit_det": 1.128882206147083,
+            "local_fit_condition": 1.0000000049743418,
+            "robust_baseline_oriented_area_mm2": 2.1458897670731412e-05,
+            "cofactor_vs_fp64_one_ring_dot": 1.0
+          },
+          {
+            "pose": "left-ring-pip-95",
+            "normal": [
+              0.41017877371490397,
+              -0.9072314170814401,
+              0.09319082279999368
+            ],
+            "local_fit_det": 1.128882206147083,
+            "local_fit_condition": 1.0000000049743418,
+            "robust_baseline_oriented_area_mm2": 2.1458897670731412e-05,
+            "cofactor_vs_fp64_one_ring_dot": 1.0
+          },
+          {
+            "pose": "left-little-pip-99",
+            "normal": [
+              0.41017877371490397,
+              -0.9072314170814401,
+              0.09319082279999368
+            ],
+            "local_fit_det": 1.128882206147083,
+            "local_fit_condition": 1.0000000049743418,
+            "robust_baseline_oriented_area_mm2": 2.1458897670731412e-05,
+            "cofactor_vs_fp64_one_ring_dot": 1.0
+          }
+        ],
+        "central_difference_max_abs": 1.9147346439485347e-06,
+        "central_difference_max_relative": 1.9147346439485347e-06
+      },
+      "collision_contact_row_count": 0,
+      "unique_pose_contact_constraints": 0,
+      "fixed_only_violated_rows_at_seed": [],
+      "collision_witnesses": []
+    }
+  ],
+  "modified_vertex_count": 0,
+  "outside_patch_payload_bytes_unchanged": true,
+  "patch_normals_regenerated_from_area_weighted_source_faces": true,
+  "method": "actual8874 stable-134-only quality counterfactual; fixed outer ring; six-pose altitude/oriented-area inequalities; source-face row 63330 uses independently justified one-ring source normal transported by local cofactor, because the emitted F32 face normal reverses below coordinate ULP; collision constraints were not included",
+  "limitations": [
+    "This stable-134 quality counterfactual does not include a collision barrier and is not an admitted asset. Exact local collision screening and full tissue qualification remain separate."
+  ]
+}

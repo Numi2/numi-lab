@@ -1,0 +1,52 @@
+{
+  "schema": "numi.human.arm-trial-publication-freeze.v1",
+  "created_utc": "2026-10-24T17:52:01Z",
+  "status": "NO_ADMITTED_CANDIDATE",
+  "scope": "Completed fixed-boundary source-fit arm trials through stable-134 run 008; historical freeze payloads plus immutable 008 sources, logs, corrected/failed gates, unit fixture, exact witnesses, and pinned inputs/helpers.",
+  "baseline": {
+    "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+    "sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+    "verified_bytes": 36357012,
+    "prior_manifest_typo": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb9355d6b1042",
+    "prior_manifest_typo_characters": 65,
+    "correction_note": "The prior publication-freeze-001 manifest is preserved byte-for-byte with its 65-character malformed SHA. This companion records the verified 64-character baseline SHA; no original file was edited."
+  },
+  "previous_freeze": {
+    "path": "publication-freeze-001/publication-manifest.json",
+    "sha256": "66011b022c223b207ac09b24bb1b11b88ed3e9846b2a7ff816923252eb34415f",
+    "counterfactual_path": "publication-freeze-001/counterfactual-134-freeze.json",
+    "counterfactual_sha256": "39ca3d6e83870d1c90cc400731a8819a19e51867d703f41a814f4edd0b8d554c",
+    "preserved_erroneous_manifest_copy": "publication-freeze-052/payload/previous-freezes/publication-freeze-001/publication-manifest.json"
+  },
+  "008_result": {
+    "stable_id": 134,
+    "fit_status": "POSITION_FIT_QUALITY_PASS_EXACT_LOCAL_GATE_PENDING",
+    "candidate_sha256": "99590439c083ae296c1a31e8e9e82c0c67c173a7fc8e78a1a73bf5e81f31629e",
+    "builder_sha256": "57286f2625e54ee400075bc2f2d33dcb6662786d4b49b926d18469982c310161",
+    "corrected_gate_status": "FAIL_NEW_EXACT_LOCAL_PAIRS",
+    "corrected_gate_sha256": "6d602e8cea238eb85459ecd394684edb7aaa9d7f33e37a609435a514c16fcc28",
+    "new_exact_pair_total": 14,
+    "witness_sha256": "917fd57181a73beab935e5efbb8af7f23ba8868a5a5b1178d957ec7b83583fbd",
+    "scope_limit": "Six listed poses; changed stable-134 three-ring patch against same-bank and selected-bank surfaces. Fit had no collision constraints; exact gate failed. Not a qualified hand, tissue, or full-body asset."
+  },
+  "file_list": {
+    "path": "publication-freeze-052/file-list-052.json",
+    "sha256": "8bd8eb0a7d161ea1440b31a93604df65937b627241b041d52dff223187fbf51c",
+    "file_count": 79
+  },
+  "no_promotion": true,
+  "publication_items": [
+    {
+      "name": "historical attempts and diagnostics",
+      "status": "preserved at exact bytes and prior statuses; no candidate promoted"
+    },
+    {
+      "name": "stable-134 run 008",
+      "status": "quality preflight passed; corrected exact-local gate failed; candidate diagnostic only"
+    },
+    {
+      "name": "gate units fixture",
+      "status": "corrected 1 mm^2 conversion fixture passed; initial failed fixture source retained"
+    }
+  ]
+}

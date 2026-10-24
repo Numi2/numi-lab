@@ -1,0 +1,35 @@
+{
+  "schema": "numi.human.arm-trial-file-list-root-correction.v1",
+  "created_utc": "2026-10-24T18:04:39Z",
+  "status": "CORRECTED_COMPANION_ONLY_ORIGINAL_IMMUTABLE",
+  "original_file_list": {
+    "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/publication-freeze-052/file-list-052.json",
+    "sha256": "8bd8eb0a7d161ea1440b31a93604df65937b627241b041d52dff223187fbf51c",
+    "root_label": "R",
+    "actual_resolved_root": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused"
+  },
+  "original_manifest": {
+    "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/publication-freeze-052/publication-manifest-052.json",
+    "sha256": "0b0e89a8bc7d6983191100cdc1e950d63156fe0722c5938a432882fcd327c599",
+    "bytes_preserved": true
+  },
+  "corrected_companion": {
+    "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/publication-freeze-052/file-list-052-rooted-companion.json",
+    "sha256": "15860ccc2422b86afe89b0246897007034e8b3e9ad960a7caaed716e12c48044",
+    "root_absolute": "/Users/n/numi-human-aortic-contact-opt-20261019",
+    "count": 79
+  },
+  "correction": "The original root label R did not match its copied-file paths: those paths resolve relative to source-route-frame-owner-394verifyunused (D). This companion makes the actual repository root R explicit, prefixes each copied payload path by D relative to R, and rebases former D-relative origins from D to R. Frozen payload bytes and the original list/manifest were not edited.",
+  "origin_source_integrity_note": "Frozen copy hashes are verified. Historical origin-source hash checks are diagnostic only because source files can change after freezing.",
+  "rebase_validation": {
+    "frozen_copy_paths_resolved_and_hash_verified": 79,
+    "origin_paths": 79,
+    "origin_paths_existing": 79,
+    "origin_paths_missing": 0,
+    "origin_hash_matches": 79,
+    "origin_hash_mismatches": 0,
+    "relative_origins_rebased": 70,
+    "absolute_origins": 9,
+    "source_origin_hashes_are_diagnostic_only": true
+  }
+}

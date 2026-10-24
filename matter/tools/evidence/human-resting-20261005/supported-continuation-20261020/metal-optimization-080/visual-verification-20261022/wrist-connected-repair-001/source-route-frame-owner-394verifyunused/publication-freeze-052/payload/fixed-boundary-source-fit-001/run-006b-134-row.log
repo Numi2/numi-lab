@@ -1,0 +1,10 @@
+waiting_for_human_geometry_slot pid=25550
+acquired_human_geometry_slot pid=25550
+Traceback (most recent call last):
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/diagnose_134_row.py", line 52, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/fixed-boundary-source-fit-001/diagnose_134_row.py", line 35, in main
+    row_details.append({'pose':name,'constraint':'altitude','patch_face_ordinal':13,'source_face_row':int(rows[13]),'seed_altitude_slack_mm':float(c[rid]),'jacobian_row_norm_raw':float(norm[rid]),'jacobian_row_norm_scaled':float(snorm[rid]),'jacobian_by_free_vertex_mm_per_mm':{str(int(gid)):g[j].tolist() for j,gid in enumerate(free)},'jacobian_flat':J[rid].tolist()})
+                                                                                                          ^^^^
+NameError: name 'rows' is not defined

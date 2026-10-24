@@ -1,0 +1,305 @@
+waiting_for_human_geometry_slot pid=24795
+acquired_human_geometry_slot pid=24795
+{
+  "status": "FAIL_NEW_EXACT_LOCAL_PAIRS",
+  "stage": "current191:133",
+  "quality": [
+    {
+      "pose": "current191",
+      "minimum_altitude_mm": 0.0006663492777045564,
+      "minimum_altitude_to_vertex_ulp": 11.179485763493327,
+      "minimum_oriented_area_ratio": 0.9926757834966997,
+      "minimum_face_normal_cosine": 0.992280741162929,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "rest003",
+      "minimum_altitude_mm": 0.0006513293756669064,
+      "minimum_altitude_to_vertex_ulp": 10.927493622708832,
+      "minimum_oriented_area_ratio": 0.992759581715816,
+      "minimum_face_normal_cosine": 0.7899235316042937,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "right-ring-pip-57",
+      "minimum_altitude_mm": 0.000657689746170572,
+      "minimum_altitude_to_vertex_ulp": 11.034202932488858,
+      "minimum_oriented_area_ratio": 0.9924100631792323,
+      "minimum_face_normal_cosine": 0.57661394650504,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "right-little-pip-61",
+      "minimum_altitude_mm": 0.000657689746170572,
+      "minimum_altitude_to_vertex_ulp": 11.034202932488858,
+      "minimum_oriented_area_ratio": 0.9924100631792323,
+      "minimum_face_normal_cosine": 0.57661394650504,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "left-ring-pip-95",
+      "minimum_altitude_mm": 0.000657689746170572,
+      "minimum_altitude_to_vertex_ulp": 11.034202932488858,
+      "minimum_oriented_area_ratio": 0.9924100631792323,
+      "minimum_face_normal_cosine": 0.57661394650504,
+      "zero_area_face_count": 0
+    },
+    {
+      "pose": "left-little-pip-99",
+      "minimum_altitude_mm": 0.000657689746170572,
+      "minimum_altitude_to_vertex_ulp": 11.034202932488858,
+      "minimum_oriented_area_ratio": 0.9924100631792323,
+      "minimum_face_normal_cosine": 0.57661394650504,
+      "zero_area_face_count": 0
+    }
+  ],
+  "check": {
+    "pose": "current191",
+    "target_stable_id": 133,
+    "baseline_scoped_pair_count": 170,
+    "candidate_scoped_pair_count": 169,
+    "new_pair_count": 29,
+    "resolved_pair_count": 30,
+    "new_pairs": [
+      [
+        12139,
+        9583
+      ],
+      [
+        12139,
+        9586
+      ],
+      [
+        12139,
+        9631
+      ],
+      [
+        12139,
+        9904
+      ],
+      [
+        12139,
+        10365
+      ],
+      [
+        12139,
+        10368
+      ],
+      [
+        12678,
+        9586
+      ],
+      [
+        12678,
+        9631
+      ],
+      [
+        12678,
+        9904
+      ],
+      [
+        12678,
+        10365
+      ],
+      [
+        12678,
+        10368
+      ],
+      [
+        12683,
+        8953
+      ],
+      [
+        12683,
+        9583
+      ],
+      [
+        12683,
+        9631
+      ],
+      [
+        12683,
+        9904
+      ],
+      [
+        12683,
+        10365
+      ],
+      [
+        12683,
+        10368
+      ],
+      [
+        12707,
+        8953
+      ],
+      [
+        12707,
+        9583
+      ],
+      [
+        12707,
+        9586
+      ],
+      [
+        12707,
+        9631
+      ],
+      [
+        12707,
+        9904
+      ],
+      [
+        12707,
+        10365
+      ],
+      [
+        12707,
+        10368
+      ],
+      [
+        12710,
+        8953
+      ],
+      [
+        12710,
+        9583
+      ],
+      [
+        12710,
+        9631
+      ],
+      [
+        12710,
+        9904
+      ],
+      [
+        12710,
+        10368
+      ]
+    ],
+    "resolved_pairs": [
+      [
+        6156,
+        3437
+      ],
+      [
+        6156,
+        9581
+      ],
+      [
+        6156,
+        9582
+      ],
+      [
+        6157,
+        3437
+      ],
+      [
+        6157,
+        7509
+      ],
+      [
+        6157,
+        8951
+      ],
+      [
+        6157,
+        9581
+      ],
+      [
+        6157,
+        9582
+      ],
+      [
+        6158,
+        7508
+      ],
+      [
+        6158,
+        9592
+      ],
+      [
+        6588,
+        3437
+      ],
+      [
+        6588,
+        7509
+      ],
+      [
+        6588,
+        8951
+      ],
+      [
+        6588,
+        9581
+      ],
+      [
+        6588,
+        9582
+      ],
+      [
+        12137,
+        8953
+      ],
+      [
+        12138,
+        3437
+      ],
+      [
+        12138,
+        9581
+      ],
+      [
+        12138,
+        9582
+      ],
+      [
+        12677,
+        3437
+      ],
+      [
+        12677,
+        7509
+      ],
+      [
+        12677,
+        8951
+      ],
+      [
+        12677,
+        9581
+      ],
+      [
+        12677,
+        9582
+      ],
+      [
+        12679,
+        3437
+      ],
+      [
+        12679,
+        7509
+      ],
+      [
+        12679,
+        8951
+      ],
+      [
+        12679,
+        9581
+      ],
+      [
+        12679,
+        9582
+      ],
+      [
+        12679,
+        9583
+      ]
+    ]
+  },
+  "elapsed_s": 1.3907420635223389
+}

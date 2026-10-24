@@ -1,0 +1,107 @@
+waiting_for_human_geometry_slot pid=29950
+acquired_human_geometry_slot pid=29950
+{
+  "status": "PASS_LOCAL_CURRENT191_NEARBY_EXACT_NONREGRESSION",
+  "report": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/source-route-frame-owner-394verifyunused/source-route-frame-owner-052/payload/nearby-typed-bank-exact-gate-current191.json",
+  "report_sha256": "a787b7515562f37487842eca4726b532bb6c63d9ad60c4a8154ba9102f7cccd7",
+  "inventory_banks": 689,
+  "nearby_banks": 11,
+  "self_baseline_pairs": 0,
+  "self_candidate_pairs": 0,
+  "nearby_baseline_pairs": 0,
+  "nearby_candidate_pairs": 0,
+  "new_nearby_partner_rows": 0,
+  "elapsed_seconds": 0.5411281585693359,
+  "nearby": [
+    {
+      "key": "bank_0109",
+      "kind": "soft_tissue",
+      "stable_id": 110,
+      "aabb_candidate_triangles": 0,
+      "baseline_raw_exact_pairs": 0,
+      "candidate_raw_exact_pairs": 0,
+      "new_partner_face_rows": []
+    },
+    {
+      "key": "bank_0111",
+      "kind": "soft_tissue",
+      "stable_id": 112,
+      "aabb_candidate_triangles": 0,
+      "baseline_raw_exact_pairs": 0,
+      "candidate_raw_exact_pairs": 0,
+      "new_partner_face_rows": []
+    },
+    {
+      "key": "bank_0113",
+      "kind": "soft_tissue",
+      "stable_id": 114,
+      "aabb_candidate_triangles": 0,
+      "baseline_raw_exact_pairs": 0,
+      "candidate_raw_exact_pairs": 0,
+      "new_partner_face_rows": []
+    },
+    {
+      "key": "bank_0117",
+      "kind": "soft_tissue",
+      "stable_id": 118,
+      "aabb_candidate_triangles": 0,
+      "baseline_raw_exact_pairs": 0,
+      "candidate_raw_exact_pairs": 0,
+      "new_partner_face_rows": []
+    },
+    {
+      "key": "bank_0119",
+      "kind": "soft_tissue",
+      "stable_id": 120,
+      "aabb_candidate_triangles": 0,
+      "baseline_raw_exact_pairs": 0,
+      "candidate_raw_exact_pairs": 0,
+      "new_partner_face_rows": []
+    },
+    {
+      "key": "bank_0123",
+      "kind": "soft_tissue",
+      "stable_id": 124,
+      "aabb_candidate_triangles": 0,
+      "baseline_raw_exact_pairs": 0,
+      "candidate_raw_exact_pairs": 0,
+      "new_partner_face_rows": []
+    },
+    {
+      "key": "bank_0131",
+      "kind": "soft_tissue",
+      "stable_id": 132,
+      "aabb_candidate_triangles": 0,
+      "baseline_raw_exact_pairs": 0,
+      "candidate_raw_exact_pairs": 0,
+      "new_partner_face_rows": []
+    },
+    {
+      "key": "bank_0137",
+      "kind": "soft_tissue",
+      "stable_id": 138,
+      "aabb_candidate_triangles": 0,
+      "baseline_raw_exact_pairs": 0,
+      "candidate_raw_exact_pairs": 0,
+      "new_partner_face_rows": []
+    },
+    {
+      "key": "bank_0139",
+      "kind": "soft_tissue",
+      "stable_id": 140,
+      "aabb_candidate_triangles": 0,
+      "baseline_raw_exact_pairs": 0,
+      "candidate_raw_exact_pairs": 0,
+      "new_partner_face_rows": []
+    },
+    {
+      "key": "bank_0147",
+      "kind": "soft_tissue",
+      "stable_id": 148,
+      "aabb_candidate_triangles": 0,
+      "baseline_raw_exact_pairs": 0,
+      "candidate_raw_exact_pairs": 0,
+      "new_partner_face_rows": []
+    }
+  ]
+}
