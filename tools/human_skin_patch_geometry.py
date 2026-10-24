@@ -444,6 +444,59 @@ def split_surface_edges(vertices, faces, edge_parameters):
             np.asarray(parents,dtype=np.int64), edges, weights)
 
 
+def clip_surface_halfspace(vertices, faces, normal, offset, *, keep_less=True):
+    """Conformingly clip an oriented surface; do not cap its new boundary.
+
+    Keep n.x <= offset (or >= when keep_less=False). Original rows remain
+    unchanged, including unused rows. Return the split_surface_edges tuple;
+    parent faces and affine edge ancestry refer to the input surface. New
+    edge points are classified by construction rather than a rounded plane
+    test. No coordinate welding or anatomical/physical admission is implied.
+    """
+    x = np.asarray(vertices, dtype=np.float64)
+    raw = np.asarray(faces)
+    n = np.asarray(normal, dtype=np.float64)
+    d = float(offset)
+    if (x.ndim != 2 or x.shape[1] != 3 or not np.isfinite(x).all()
+            or raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in 'iu'
+            or n.shape != (3,) or not np.isfinite(n).all()
+            or not np.isfinite(d) or not isinstance(keep_less, (bool, np.bool_))):
+        raise ValueError('finite geometry, integer faces and finite plane required')
+    scale = float(np.max(np.abs(n)))
+    if scale == 0:
+        raise ValueError('nonzero plane normal required')
+    n = n / scale
+    d = d / scale
+    if not np.isfinite(d):
+        raise ValueError('unrepresentable normalized plane offset')
+    if raw.size and (np.any(raw < 0) or np.any(raw >= len(x))):
+        raise ValueError('source face index outside vertex range')
+    f = raw.astype(np.int64)
+    h = x @ n - d
+    if not np.isfinite(h).all():
+        raise ValueError('unrepresentable plane distances')
+    cuts = {}
+    if len(f):
+        edges = np.unique(np.sort(np.concatenate((f[:, [0, 1]], f[:, [1, 2]],
+                                                   f[:, [2, 0]])), axis=1), axis=0)
+        for i, j in edges:
+            if (h[i] < 0 < h[j]) or (h[j] < 0 < h[i]):
+                # Normalize first to avoid overflow in opposite-sign sums.
+                a, b = abs(h[i]), abs(h[j])
+                s = max(a, b)
+                t = (a/s) / (a/s + b/s)
+                if not 0 < t < 1:
+                    raise ValueError('plane split collapses to a source endpoint')
+                cuts[(int(i), int(j))] = t
+    sx, sf, parents, edges, weights = split_surface_edges(x, f, cuts)
+    side = np.concatenate((np.sign(h), np.zeros(len(edges))))
+    tri_side = side[sf]
+    if np.any(np.any(tri_side < 0, axis=1) & np.any(tri_side > 0, axis=1)):
+        raise ValueError('source splitting left a triangle crossing the plane')
+    retain = np.all(tri_side <= 0 if keep_less else tri_side >= 0, axis=1)
+    return sx, sf[retain], parents[retain], edges, weights
+
+
 def transverse_surface_section(vertices, faces, value, *, axis=2):
     """Audit a transverse plane section using mesh-edge identity.
 

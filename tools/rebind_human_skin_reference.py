@@ -266,6 +266,43 @@ def merge_weight_repairs(payload, repairs):
     return merged, counts
 
 
+def merge_geometry_repairs(payload, repairs):
+    """Compose compatible XYZ/normal edits against one pinned NHSKIN ancestor.
+
+    Bindings, topology, source identities and both weight representations must
+    remain byte-identical. Conflicting rows fail rather than silently choosing
+    the last candidate. No interpolation or normal regeneration is performed;
+    callers must gate the combined surface and physical mapping after merging.
+    """
+    baseline = payload['verts'][:, :6].copy()
+    merged = baseline.copy()
+    occupied = np.zeros(payload['nv'], dtype=bool)
+    counts = []
+    for other in repairs:
+        replacement_weights(payload, other)
+        if (other['raw'][:other['vertoff']] != payload['raw'][:payload['vertoff']]
+                or other['inds'].tobytes() != payload['inds'].tobytes()
+                or other['weights'].tobytes() != payload['weights'].tobytes()
+                or other['verts'][:, 6:].tobytes() != payload['verts'][:, 6:].tobytes()):
+            raise RebindError('geometry repair changed source, bindings, topology or weights')
+        values = other['verts'][:, :6]
+        changed = np.any(values.view('<u4') != baseline.view('<u4'), axis=1)
+        conflict = occupied & changed & np.any(values.view('<u4') != merged.view('<u4'), axis=1)
+        if np.any(conflict):
+            raise RebindError('conflicting regional geometry repairs at vertex ' + str(int(np.flatnonzero(conflict)[0])))
+        merged[changed] = values[changed]
+        occupied |= changed
+        counts.append(int(np.count_nonzero(changed)))
+    blob = bytearray(payload['raw'])
+    rows = np.flatnonzero(occupied)
+    for i in rows:
+        start = payload['vertoff'] + int(i)*56
+        blob[start:start+24] = merged[i].astype('<f4').tobytes()
+    # Revalidate Float32 geometry and the original source contract on emission.
+    decode(bytes(blob))
+    return bytes(blob), dict(changed_rows=list(map(int, rows)), regional_row_counts=counts)
+
+
 def local_rigid_weights(payload, target_body, seeds, shell_gates):
     gates = np.asarray(shell_gates, dtype=float)
     if (not len(gates) or not np.isfinite(gates).all() or

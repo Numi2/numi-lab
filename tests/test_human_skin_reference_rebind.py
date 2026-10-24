@@ -37,6 +37,60 @@ def fixture(nb=4):
 
 class RebindTests(unittest.TestCase):
 
+    def _geometry_repair(self, base, row, xyz):
+        raw = bytearray(base['raw'])
+        struct.pack_into('<3f', raw, base['vertoff']+row*56, *xyz)
+        return m.decode(bytes(raw))
+
+    def test_geometry_repairs_compose_disjoint_rows_without_last_wins(self):
+        base = fixture()
+        a = self._geometry_repair(base,0,[.001,0,0])
+        b = self._geometry_repair(base,3,[1,1,.002])
+        blob,report=m.merge_geometry_repairs(base,[a,b])
+        result=m.decode(blob)
+        np.testing.assert_array_equal(result['verts'][0],a['verts'][0])
+        np.testing.assert_array_equal(result['verts'][3],b['verts'][3])
+        np.testing.assert_array_equal(result['verts'][[1,2,4]],base['verts'][[1,2,4]])
+        self.assertEqual(report['changed_rows'],[0,3])
+        self.assertEqual(report['regional_row_counts'],[1,1])
+        self.assertEqual(result['weights'].tobytes(),base['weights'].tobytes())
+        self.assertEqual(result['inds'].tobytes(),base['inds'].tobytes())
+        reverse,_=m.merge_geometry_repairs(base,[b,a])
+        self.assertEqual(blob,reverse)
+
+    def test_geometry_repairs_identical_overlap_and_conflict(self):
+        base=fixture();a=self._geometry_repair(base,0,[.001,0,0])
+        blob,_=m.merge_geometry_repairs(base,[a,a])
+        self.assertEqual(blob,a['raw'])
+        b=self._geometry_repair(base,0,[.002,0,0])
+        with self.assertRaisesRegex(m.RebindError,'conflicting.*vertex 0'):
+            m.merge_geometry_repairs(base,[a,b])
+        self.assertEqual(m.merge_geometry_repairs(base,[])[0],base['raw'])
+
+    def test_geometry_repairs_reject_topology_and_both_weight_changes(self):
+        base=fixture()
+        for location,fmt,value in ((base['indexoff'],'<I',1),
+                                    (base['weightoff'],'<f',.5),
+                                    (base['vertoff']+40,'<f',.5)):
+            raw=bytearray(base['raw']);struct.pack_into(fmt,raw,location,value)
+            # Dense weight mutation must preserve unity to reach merge gate.
+            if location==base['weightoff']:struct.pack_into('<f',raw,location+4,.5)
+            other=m.decode(bytes(raw))
+            with self.subTest(location=location),self.assertRaises(m.RebindError):
+                m.merge_geometry_repairs(base,[other])
+
+    def test_geometry_repairs_reject_other_registration(self):
+        base=fixture();raw=bytearray(base['raw']);struct.pack_into('<I',raw,24,124)
+        with self.assertRaises(m.RebindError):m.merge_geometry_repairs(base,[m.decode(bytes(raw))])
+
+    def test_geometry_repairs_copy_normals_and_preserve_float_bits(self):
+        base=fixture();raw=bytearray(base['raw'])
+        struct.pack_into('<3f',raw,base['vertoff']+12,1,0,0)
+        struct.pack_into('<f',raw,base['vertoff']+56,-0.)
+        other=m.decode(bytes(raw));blob,report=m.merge_geometry_repairs(base,[other])
+        self.assertEqual(blob,bytes(raw));self.assertEqual(report['changed_rows'],[0,1])
+
+
     def _registered_snapshot(self, payload):
         rows = [dict(body_index=int(binding["body"]),
                      current=dict(position_world_m=[1,2,3],
