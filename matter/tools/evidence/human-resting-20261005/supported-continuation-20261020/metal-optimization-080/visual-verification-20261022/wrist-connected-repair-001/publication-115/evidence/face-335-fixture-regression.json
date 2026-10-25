@@ -1,0 +1,10 @@
+{
+  "source_sha256": "1c3468b6e6285afed77e8ae7ca463abb797f6a22d562ccf878734c39161947c9",
+  "tested_clearance_m": [
+    5e-05,
+    0.00025,
+    0.3
+  ],
+  "status": "PASS",
+  "change": "fixture expected distance follows configured clearance and bounded-gap clipping; target geometry unchanged"
+}

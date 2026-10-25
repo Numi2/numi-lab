@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/build_outward_nearest_union_targets_335.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/global-275/backtrack/pass-002/candidate.npz",
+    "--surface-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/global-275/backtrack/pass-002/audit-159/report.json",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-unlock-334/round-001/face-targets",
+    "--direction-mode",
+    "outward-nearest",
+    "--clearance-m",
+    "0.00025"
+  ],
+  "geometry_slot_used": true,
+  "log_sha256": "b0a463a3b0d74881578efe59a32b34aaf74e4b945741c854938c73d78a5460c3",
+  "returncode": 0,
+  "wall_seconds": 31.722995624993928
+}

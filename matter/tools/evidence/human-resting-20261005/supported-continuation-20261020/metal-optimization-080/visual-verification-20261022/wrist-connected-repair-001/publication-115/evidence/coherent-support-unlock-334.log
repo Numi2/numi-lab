@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_coherent_target_continuation_333.py", line 914, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_coherent_target_continuation_333.py", line 835, in main
+    point_npz, point_report = run_point_targets(m185, current_state, candidate, rd)
+                              ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_coherent_target_continuation_333.py", line 410, in run_point_targets
+    raise ValueError('coherent point source ancestry incomplete')
+ValueError: coherent point source ancestry incomplete

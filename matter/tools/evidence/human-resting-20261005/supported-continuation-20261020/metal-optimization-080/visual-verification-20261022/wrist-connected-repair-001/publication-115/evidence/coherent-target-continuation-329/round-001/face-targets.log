@@ -1,0 +1,13 @@
+waiting_for_human_geometry_slot pid=97852
+acquired_human_geometry_slot pid=97852
+Traceback (most recent call last):
+  File "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/build_outward_nearest_union_targets_303.py", line 824, in <module>
+    if __name__=="__main__":main()
+                            ~~~~^^
+  File "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/build_outward_nearest_union_targets_303.py", line 619, in main
+    check_first_union_fixture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/build_outward_nearest_union_targets_303.py", line 84, in check_first_union_fixture
+    assert r and abs(r["target_distance_m"]-.00205)<1e-15 and r["next_event_distance_m"]==.5
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

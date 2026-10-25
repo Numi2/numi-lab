@@ -1,0 +1,8 @@
+{
+  "banks": 185,
+  "candidate_sha256": "2346d174df8b363bca2200c24589a36cf1ad6a4642a4b73a9a156a48e6826b25",
+  "classification": "construction target completeness; not clearance admission",
+  "status": "PASS_COMPLETE_MATCHED_FACE_TARGETS_ONLY",
+  "surface_pair_count": 3600,
+  "surface_report_sha256": "1d72e2bdf7da60d4fba7d400d343d9a9bb9a0b20b36580ebb29b96bf9df02eb9"
+}

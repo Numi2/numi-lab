@@ -1,0 +1,11 @@
+# Coordinated source-outward targets and connected support
+
+Offline construction only: native admission false, accepted physical steps 0. The current qualified geometry counter remains 3600 surface pairs and 489 inside point-bank pairs, with exact skin self-intersections zero. No cleared-crossing gain is claimed for target construction alone.
+
+327 builds point proposals from unique incident registered source-face normals with source037 area weights, instead of fighting face targets with nearest-bone directions. Actual331 and334 classify all489 emitted Float32 endpoints strictly outside all185 banks. Every target retains source ancestry and exact segment/point owner hashes. The complete334 face builder also generates3600/3600 source-outward targets. Construction clearance250um is a proposal margin, not skin thickness or an acceptance tolerance.
+
+All failures remain:330 exposed split segment/point-owner APIs;331 attempt001 completed endpoints but failed JSON serialization of an unbounded interval. The succeeding331 source retains identical endpoint NPZ, with its invalid shadowed timer explicitly corrected by sidecar; external tool elapsed8.29s is not corrected process timing. Future327 fixes timer shadowing and passes14 tests. 329 caught a fixed50um fixture assumption;335 changes only that fixture expectation and checks50um,250um and clipped300mm cases. 334 stopped because333 required an optional diagnostic absent from the actual327 report.
+
+336 corrects that consumer while retaining all489 endpoint masks and full per-target ancestry. Real334 adapter and cache-copy smoke tests pass, together with27 regressions. Existing315 --fixed-prefix-nodes0 already frees only connected witness-derived support; no new solver is introduced. Three focused tests cover anchors and support-only emission. 333/336 additionally prove all237 anchors and all rows outside each recorded LP support remain bitwise unchanged through fit and selected damping. Source and geometric ancestry, area, gradient, bone and self gates remain.
+
+337 was launched after full preflight using exact pinned334 targets; it is ongoing and its outcome is not included or claimed here. Matched inner skin/fat cells, physical mass transfer, retained motion and native physical admission remain pending. The45 existing head boundary edges remain declared open.

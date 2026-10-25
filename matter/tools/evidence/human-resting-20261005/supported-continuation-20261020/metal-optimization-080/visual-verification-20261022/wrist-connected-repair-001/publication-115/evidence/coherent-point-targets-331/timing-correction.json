@@ -1,0 +1,30 @@
+{
+  "as_run_report": {
+    "path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-point-targets-331/nearest-union-exits.json",
+    "sha256": "b1a349939e1afbcfc74b9cfa8f4e957a6bf2a081841a823fee04b813cf61a341"
+  },
+  "as_run_source": {
+    "path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-point-targets-331/build_coherent_point_targets_327-asrun_331.py",
+    "sha256": "bdfcf130174b13a446d8dbee2d947a4b9c6aa998fb87a71f906f3d0b297bdf14"
+  },
+  "candidate_npz": {
+    "path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-point-targets-331/nearest-union-exits.npz",
+    "sha256": "2f42c3d89ebbf9d4c84b997eb91b9c44c80447cd11831b8c5135c2b1c5a56304"
+  },
+  "corrected_process_wall_seconds": null,
+  "elapsed_measurement_scope": "External tool-call elapsed time for the completed 331 invocation; not a reconstructed process timer.",
+  "no_rerun_performed": true,
+  "observed_external_tool_elapsed_seconds": 8.29,
+  "passing_target_count": 489,
+  "record_kind": "derived_timing_correction",
+  "reported_wall_seconds_valid": false,
+  "target_count": 489,
+  "target_generation_status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY",
+  "target_row_count": null,
+  "timing_fix_source_for_future_runs": {
+    "path": "/Users/n/Work/numi-human-connected-surface-069/D/connected-coherent-point-targets-327/build_coherent_point_targets_327.py",
+    "sha256": "e86af08eee35cd2335072892cb11580f49097b2a30979ded5e23df0b280f2e22"
+  },
+  "timing_issue": "The run timer variable t0 was overwritten by the per-bank ray interval start inside the target loop; the report wall_seconds value therefore does not represent elapsed run time.",
+  "unchanged_as_run_outputs": true
+}

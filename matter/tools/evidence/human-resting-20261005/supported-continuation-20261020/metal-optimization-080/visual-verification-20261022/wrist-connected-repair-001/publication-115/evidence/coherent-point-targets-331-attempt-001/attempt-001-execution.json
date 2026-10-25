@@ -1,0 +1,30 @@
+{
+  "attempt": "coherent-point-targets-331-attempt-001",
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/n/Work/numi-human-connected-surface-069/D/connected-coherent-point-targets-327/build_coherent_point_targets_327.py",
+    "--candidate",
+    "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/global-275/backtrack/pass-002/candidate.npz",
+    "--point-summary",
+    "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/global-275/backtrack/pass-002/audit-130/summary.json",
+    "--query-dir",
+    "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/global-275/backtrack/pass-002/audit-130/query",
+    "--output-dir",
+    "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-point-targets-331",
+    "--clearance-m",
+    "0.00025"
+  ],
+  "source_sha256": "c7bf9e73fcacd68e2174cf18fcb7041b3a765279b132b9c42e6b5725ec1a3b86",
+  "returncode": 1,
+  "elapsed_seconds": 8.451,
+  "error": "ValueError: Out of range float values are not JSON compliant: inf",
+  "outputs": {
+    "npz_path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-point-targets-331/nearest-union-exits.npz",
+    "npz_sha256": "2f42c3d89ebbf9d4c84b997eb91b9c44c80447cd11831b8c5135c2b1c5a56304",
+    "json_report_written": false
+  },
+  "native_admission": false,
+  "note": "Exact all-bank endpoint checks completed and NPZ was written; report serialization failed on selector's infinite unbounded-free-gap field."
+}

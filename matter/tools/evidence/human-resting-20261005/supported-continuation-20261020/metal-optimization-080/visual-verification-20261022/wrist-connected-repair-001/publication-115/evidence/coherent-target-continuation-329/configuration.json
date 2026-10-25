@@ -1,0 +1,380 @@
+{
+  "accepted_physical_steps": 0,
+  "all_seed_roots": [
+    "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+    "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-source-outward-309",
+    "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-fixed-boundary-318"
+  ],
+  "area_reference_278": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-refined-278/candidate.npz",
+  "area_reference_keys": [
+    "area_reference_037_points_world_m_f64",
+    "area_reference_037_source_O_faces"
+  ],
+  "attempts_per_round": 2,
+  "backtracker_runner_287": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/no-progress-backtracker-306/run_local_witness_backtracking_306.py",
+  "construction_clearance_m": 0.00025,
+  "disk_floor_bytes": 209715200,
+  "early_pair_learning_maximum_LPs": 4,
+  "face_builder_292": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/build_outward_nearest_union_targets_303.py",
+  "face_direction_mode": "source-outward",
+  "fixed_boundary_emitter": "/Users/n/Work/numi-human-connected-surface-069/D/connected-fixed-boundary-314/emit_introduced_skin_bone_barriers_314.py",
+  "fixed_boundary_owner": "/Users/n/Work/numi-human-connected-surface-069/connected-fixed-boundary-313/fixed_bone_triangle_rows_313.py",
+  "fixed_prefix_nodes": 18430,
+  "global_backtracker_275": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/global_step_backtracking_275.py",
+  "global_first": {
+    "initial_scale": 1.0,
+    "maximum_construction_passes": 16,
+    "maximum_exact_audits": 1,
+    "zero_below": 0.015625
+  },
+  "initial_candidate_sha256": "2346d174df8b363bca2200c24589a36cf1ad6a4642a4b73a9a156a48e6826b25",
+  "initial_state": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/selected-result.json",
+  "initial_state_sha256": "326f477097dc738e1eb97541cd8d46d28fe8a2e8e5af742d5f69fab009d9dd6d",
+  "local_backtracker_183": "/Users/n/Work/numi-human-connected-surface-069/D/local-witness-backtracking-183/canonical/matter/tools/human_skin_fat_surface_fit_constraints.py",
+  "local_fallback_same_trial": {
+    "initial_scale": 1.0,
+    "maximum_construction_passes": 32,
+    "maximum_exact_audits": 8,
+    "zero_below": 0.015625
+  },
+  "max_edge_gradient_proposal_mm_per_mm": 0.5,
+  "native_admission": false,
+  "optional_first_face_target_cache": null,
+  "point_builder": "/Users/n/Work/numi-human-connected-surface-069/D/connected-coherent-point-targets-327/build_coherent_point_targets_327.py",
+  "probe_exact_audits": 1,
+  "rounds": 1,
+  "seed_self_pair_root_only": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+  "seed_self_pair_sources": [
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-001/attempt-001/global-275/backtrack/pass-002/candidate.npz",
+        "sha256": "f7dbce2c7dcc7a079c62169fb57adb4b98d6673de7ee688602defdc0a091b11d"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-001/attempt-001/global-275/backtrack/pass-002/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "47aec8022e0d4444799f0e226b9f5f6dc5404e8dfd2e0e3c5328a56e3a4c444b",
+      "pair_rows": 165,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-001/attempt-001/global-275/backtrack/pass-002/audit-130/summary.json",
+      "summary_sha256": "f94cacc74e57b15dc46b0d64065ae5bca10d49ccd37924d5a25a9894226b7704",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-001/attempt-002/global-275/backtrack/pass-002/candidate.npz",
+        "sha256": "13f6bea77fd1b60f4c1183cd40ede4a8cf4615d0c58f71a17f915e2c535484e1"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-001/attempt-002/global-275/backtrack/pass-002/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "5a8f992619977e9a3b3997fc3f11d6e10f388e56fc8b6f38fb303826c6236565",
+      "pair_rows": 4,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-001/attempt-002/global-275/backtrack/pass-002/audit-130/summary.json",
+      "summary_sha256": "958a9f8f76ae7a01b959a95c3ab5af09a0cf22d092d4697cca8f2eb929255811",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-001/attempt-003/global-275/backtrack/pass-002/candidate.npz",
+        "sha256": "660f82fd23d00d32d8771f2744e5a66858995d66d69d95f228116c80b56c4c17"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-001/attempt-003/global-275/backtrack/pass-002/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "pair_rows": 0,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-001/attempt-003/global-275/backtrack/pass-002/audit-130/summary.json",
+      "summary_sha256": "7663d4db03acc9074cafbf882d2eb412c6921701f30388dd8939e7a6e4f239ff",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-001/attempt-004/global-275/backtrack/pass-002/candidate.npz",
+        "sha256": "4c5eb421c612539eabafd063dcaa3f739e0361065571ee2f135475854f352d03"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-001/attempt-004/global-275/backtrack/pass-002/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "pair_rows": 0,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-001/attempt-004/global-275/backtrack/pass-002/audit-130/summary.json",
+      "summary_sha256": "003451f2f55f791cc9678df53c101c6c210e10528f689ae4090c908485825ba6",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-001/global-275/backtrack/pass-003/candidate.npz",
+        "sha256": "b09e7a6e6d2de2548fc0bc4cee80fc74b9d8f6423d5033bde290a962991a83b0"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-001/global-275/backtrack/pass-003/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "02b34170a1cf7bac2b2f963d0ae41703270b9fdc4b8a87e94b300ecce4865eda",
+      "pair_rows": 97,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-001/global-275/backtrack/pass-003/audit-130/summary.json",
+      "summary_sha256": "629581d2d7e757256a43cca92cec049b39a4fefd5710d51f89c53832a8984bfa",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-002/global-275/backtrack/pass-002/candidate.npz",
+        "sha256": "950690db4104ad3073243fd300689a8721ff2fa677b95034c16a750969733879"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-002/global-275/backtrack/pass-002/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "7121f6abf01ea7b8c00c0f5c02bf2799b6f5f50d4bc4d08af1baeae0037ae122",
+      "pair_rows": 72,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-002/global-275/backtrack/pass-002/audit-130/summary.json",
+      "summary_sha256": "eb454e8ff383702f5c92d43fb64620db21428be1b613ca5b678971dd1657283e",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-003/global-275/backtrack/pass-002/candidate.npz",
+        "sha256": "951196047966af4621f48420186f4cad15eafecca737604270b5fde496b13579"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-003/global-275/backtrack/pass-002/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "0977f78cfc74c6d437c232208fb138226caeb774a6ef2046699b19f5a467421a",
+      "pair_rows": 8,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-003/global-275/backtrack/pass-002/audit-130/summary.json",
+      "summary_sha256": "9a8cea8bd4429e0a69be567daac4f8dc489a5fa7389fa1b191aed393a0468bf7",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/global-275/backtrack/pass-002/candidate.npz",
+        "sha256": "b0b84e810877605ef755a44f3153a8f6319842b50cb5feb42cf391d431ad7c1b"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/global-275/backtrack/pass-002/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "pair_rows": 0,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/global-275/backtrack/pass-002/audit-130/summary.json",
+      "summary_sha256": "7d5ce9ddcbcc224c615c6f1bdac48e8264a9faa926585f2ba7e283abe96d439f",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/local-183-fallback/backtrack/pass-004/candidate.npz",
+        "sha256": "8a4fdc1a7604d951c66d03f9d56de670efeaf64c327d2f45de1057ac4cd38eda"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/local-183-fallback/backtrack/pass-004/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "6e2787b0c949b0f7161295e1dcc5466127275cc890519177ebc431497bd0337e",
+      "pair_rows": 145,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/local-183-fallback/backtrack/pass-004/audit-130/summary.json",
+      "summary_sha256": "4bde533f530dac7763160dbe48ec214b64b18c2a51848ff01dea6d18ae7794e9",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/local-183-fallback/backtrack/pass-005/candidate.npz",
+        "sha256": "c8c587010fd57128a828044817346692a26af0317d341bfce8b3b4df4d6d5377"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/local-183-fallback/backtrack/pass-005/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "86434195cf1a134bd01492ae1ae6dd651f6dfb0c336aca9fa082d113941fddf9",
+      "pair_rows": 5,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/local-183-fallback/backtrack/pass-005/audit-130/summary.json",
+      "summary_sha256": "a2bd6f00631501c9ef20b0ba0abd1e28ce5c3eb4c377db1b93f5fc56f54dd0c8",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/local-183-fallback/backtrack/pass-006/candidate.npz",
+        "sha256": "7dea4c2625c1abde83a0a230784398291feb6c0d54706bb2bdfe9f3a2fdc2cd9"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/local-183-fallback/backtrack/pass-006/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "pair_rows": 0,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/local-183-fallback/backtrack/pass-006/audit-130/summary.json",
+      "summary_sha256": "f61769d9f8b690da526f4140b98085518822f073c5c2f5f3054b2ae6b6b0b0d1",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/local-183-fallback/backtrack/pass-008/candidate.npz",
+        "sha256": "73dcee97f00bd4135855e2cf4b2a568eff73a4200836204c92e115ddb6ca741c"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/local-183-fallback/backtrack/pass-008/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "pair_rows": 0,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/local-183-fallback/backtrack/pass-008/audit-130/summary.json",
+      "summary_sha256": "5652ebd6a8067941b0675d49df7fe2334553e5065e48e05941d023e7e1806216",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-001/global-275/backtrack/pass-002/candidate.npz",
+        "sha256": "1ea265f3906d5694f08a4456e75cb4b46b000be1676910c4f8b698671f0eb2b0"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-001/global-275/backtrack/pass-002/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "07ec3a6d9ee1ee7b5cd947993441ea08b8b836539166e992189468ccffe9c68f",
+      "pair_rows": 110,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-001/global-275/backtrack/pass-002/audit-130/summary.json",
+      "summary_sha256": "219e8718b934bf2e728c1237b4159feda9904d1cd2339887d4729936c41480d3",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-002/global-275/backtrack/pass-002/candidate.npz",
+        "sha256": "002e650594b25de99fc16f8a5f702a69b9fb68e9a23c7be2a340125a47e734c0"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-002/global-275/backtrack/pass-002/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "pair_rows": 0,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-002/global-275/backtrack/pass-002/audit-130/summary.json",
+      "summary_sha256": "67673d554e5cb1218bf61d7667f113b0091a7e0ef45f550bb4d2ad79cc44641b",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-003/global-275/backtrack/pass-002/candidate.npz",
+        "sha256": "e547d709347bb2bbd9fd8eac299dcb4e45280077a0d941a2e9ddfaab8f049342"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-003/global-275/backtrack/pass-002/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "8819f4027424dea35579b25321ebb6dab082eb0ee4704e4248ff1662b3d6269f",
+      "pair_rows": 4,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-003/global-275/backtrack/pass-002/audit-130/summary.json",
+      "summary_sha256": "2d171c43d357f673e21186496f8a6053e6cbdba5985c23035a17bf0dcf67907e",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    },
+    {
+      "archive_recovery": null,
+      "audit_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+      "candidate": {
+        "mode": "local_candidate_bytes_verified",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/global-275/backtrack/pass-002/candidate.npz",
+        "sha256": "2346d174df8b363bca2200c24589a36cf1ad6a4642a4b73a9a156a48e6826b25"
+      },
+      "pair_file": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/global-275/backtrack/pass-002/audit-130/surface-self-pairs.npy",
+      "pair_file_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "pair_rows": 0,
+      "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/global-275/backtrack/pass-002/audit-130/summary.json",
+      "summary_sha256": "eb730b14a144130d066ed1a467cd39816c9842361449b78f0816a06f20f9f4e6",
+      "topology_dimensions": {
+        "faces": 41733,
+        "points": 20889
+      }
+    }
+  ],
+  "seed_self_pair_unique_count": 607,
+  "solver_279": "/Users/n/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-315/propose_joint_clearance_witnesses_315.py",
+  "source_files": {
+    "area_owner_sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+    "area_reference_sha256": "c2a076267c2a8261a5f1a51b742a0b4e44471d31b200f5b809b8c98d6205348f",
+    "audit130_sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9",
+    "audit159_sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+    "bary_owner_sha256": "965a166e86952d79c019302c98e7684f2f8ef3a9d63b328430ac9c8c8edbaff2",
+    "coherent_point_builder_327_sha256": "e86af08eee35cd2335072892cb11580f49097b2a30979ded5e23df0b280f2e22",
+    "face_builder_292_sha256": "c8fe5b7be2efb2c6867a2cde178ebc35280814c37f90eec5aea47e964fc17a1f",
+    "face_checker_302_sha256": "caa94e5df1d7363ac3fbdb1d66ed943a806a08bb132a9b49ebeb2236d59d7d50",
+    "fixed_emitter_314_sha256": "3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78",
+    "fixed_owner_313_sha256": "dc9d4f953ecede00567c59cbbb6b6b63e0a3556b97972689de499cbce29d4c2e",
+    "global_backtracker_275_sha256": "18891b1f700592563e139edfc8bd1361d230ff6fd5af2ae5ee036c9625c1826a",
+    "interval_selector_300_sha256": "5e613e21b7bdebcc036dc9712ad21903df7d081de32bfdb83fae0a0c344ac094",
+    "local_backtracker_287_sha256": "4b6c66f3ebbe860a11b1c60243731cc27835c10de3a2e1e91b944ff6e924e84a",
+    "local_step_helper_183_sha256": "05b1beb2105a184deb885974db892fa0f8e519fc3e1fdfde5aa441c180c97b34",
+    "merit_owner_175_sha256": "9d8c4d7bc8397a07192b395f0ed42cb8cf60f15ef00cfe7fd9f48eeb17133dba",
+    "pair_owner_sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+    "point_damping_254_sha256": "f78831353656e6b7e5bfee6d0edca89c876dac25ccd85eeaf522c350b58dd894",
+    "point_emitter_235_sha256": "4367ecca6a2506d61d83a76ede4ea6449606c1b792fbb45fab9182a4a5a1fd43",
+    "prepare_refined_185_sha256": "81d749a969d7a2e659ce1d3d9766eea5fa64909e2405a7fe303d2bb10ab15b3b",
+    "solver_279_sha256": "b248fbbd190ed8f139ac7b5a1682b343616ab900e416441f5a28353b62d667a9",
+    "source_base_sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+    "surface_damping_258_sha256": "5099756b1244845be2fb61a476c15d3a2c6095e41b3e41f08a9517148ba7764d"
+  },
+  "status": "PREPARED_BOUNDED_CONTINUATION"
+}

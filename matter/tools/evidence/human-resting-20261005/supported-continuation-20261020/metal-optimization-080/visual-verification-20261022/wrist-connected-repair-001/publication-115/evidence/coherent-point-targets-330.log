@@ -1,0 +1,12 @@
+waiting_for_human_geometry_slot pid=96634
+acquired_human_geometry_slot pid=96634
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-coherent-point-targets-327/build_coherent_point_targets_327.py", line 496, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-coherent-point-targets-327/build_coherent_point_targets_327.py", line 488, in main
+    report, paths = run(args)
+                    ~~~^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-coherent-point-targets-327/build_coherent_point_targets_327.py", line 291, in run
+    raise ValueError("pinned exact predicate owner lacks required segment/point classifiers")
+ValueError: pinned exact predicate owner lacks required segment/point classifiers

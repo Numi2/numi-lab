@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_coherent_target_continuation_328.py", line 829, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_coherent_target_continuation_328.py", line 750, in main
+    face_npz, face_report = run_face_targets(candidate, surface_path, rd, args.first_face_target_dir if round_index == 0 else None)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_coherent_target_continuation_328.py", line 487, in run_face_targets
+    run([PYTHON, FACE_BUILDER, '--candidate', candidate, '--surface-report', surface,
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         '--output-dir', target_dir, '--direction-mode', 'source-outward', '--clearance-m', CONSTRUCTION_CLEARANCE_M],
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        out / 'face-targets.log', slot=True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_coherent_target_continuation_328.py", line 124, in run
+    raise RuntimeError(f'child exited {proc.returncode}: {log}')
+RuntimeError: child exited 1: /Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-target-continuation-329/round-001/face-targets.log

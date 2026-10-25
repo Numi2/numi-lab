@@ -1,0 +1,33 @@
+{
+  "accepted_physical_steps": 0,
+  "baseline_counts": {
+    "already_free_support_nodes": 2255,
+    "fixed_prefix_nodes": 18430,
+    "fixed_prefix_support_rows": 1791,
+    "prefix_support_nonanchor_rows_released_if_fixed_prefix_zero": 1788,
+    "support_nodes": 4046,
+    "support_nodes_free_if_fixed_prefix_zero": 4043,
+    "threatened_pairs": 3496,
+    "typed_anchor_rows_in_support": [
+      194,
+      291,
+      329
+    ],
+    "typed_anchor_rows_total": 237
+  },
+  "baseline_fit_report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-001/attempt-001/proposal/report.json",
+  "baseline_fit_report_sha256": "8353dadaa615fce425fd40df3636b535bf3c12802a499888582adb1f45a33d06",
+  "native_admission": false,
+  "preserved_constraints": [
+    "same witness-derived LP support",
+    "237 typed anchors fixed",
+    "all coordinates outside LP support bitwise fixed",
+    "existing area/source-cap/trust/gradient/self-pair/fixed-bone constraints unchanged"
+  ],
+  "schema": "numi.human.fixed_prefix_zero_support_reuse.332.v1",
+  "scope": "Construction-only configuration proof; no geometry run or admission.",
+  "solver_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-315/propose_joint_clearance_witnesses_315.py",
+  "solver_sha256": "b248fbbd190ed8f139ac7b5a1682b343616ab900e416441f5a28353b62d667a9",
+  "status": "EXISTING_315_API_VERIFIED_FOR_LOCAL_SUPPORT_UNLOCK",
+  "usage": "Reuse existing 315 unchanged and pass --fixed-prefix-nodes 0. This disables only the contiguous-prefix zero bounds. The witness-derived LP support stays the same, typed anchors remain independently fixed, and emission updates only support rows."
+}
