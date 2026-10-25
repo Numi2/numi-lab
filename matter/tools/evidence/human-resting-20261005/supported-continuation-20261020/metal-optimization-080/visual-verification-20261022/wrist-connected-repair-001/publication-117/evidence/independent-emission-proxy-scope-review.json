@@ -1,0 +1,11 @@
+{
+  "scope": "read-only review of338 proposal and340 exact selection path before342",
+  "continuous_lp_no_regression_rows_retained": true,
+  "post_f32_proxy_deferred_only_by_explicit_construction_opt_in": true,
+  "emitted_per_target_nonregression_not_claimed": true,
+  "outer_exact_self_point_surface_and_merit_gates_unchanged": true,
+  "construction_progress_may_have_residual_intersections": true,
+  "final_zero_and_native_admission_not_established": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

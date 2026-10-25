@@ -1,0 +1,93 @@
+{
+  "base_commit": "770a03d0e7e4b28cf06a543d780e88e9a00be29b",
+  "canonical_changes": [],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "66c99fdd04616a60c76c4514a5bd0491ae2ce9ccac8504b9672bb41f69649202",
+      "bytes": 2588
+    },
+    {
+      "path": "evidence/116-remote-recovery-verification.json",
+      "sha256": "5f8f21d6c5007f8f9995e4a15dc051e4375e3759a7db54f1a7ed5384acc60bfc",
+      "bytes": 370
+    },
+    {
+      "path": "evidence/341-completed.json",
+      "sha256": "0b32b0d94cd941f785190c89e945508d2a06b72ad3ada08ead84f45b6c632ec4",
+      "bytes": 604
+    },
+    {
+      "path": "evidence/341-launch.json",
+      "sha256": "ff2bd5020a6cfca55f0872ca0889289a849ab122288f7e7f70fee9340eb10143",
+      "bytes": 576
+    },
+    {
+      "path": "evidence/341-timeout-report.json",
+      "sha256": "1c50a3a9026401cbb01d99dedb3bb75f7b8abe8a00e0469aa429a0ea4de58744",
+      "bytes": 10656
+    },
+    {
+      "path": "evidence/343-preflight-only.json",
+      "sha256": "15376b5dfdcb0158f19d30170bc56c7bcbba3c4d2191ed980df35bfa895ae16f",
+      "bytes": 5232
+    },
+    {
+      "path": "evidence/343-self-test.json",
+      "sha256": "0750dbeb44802e0c55e8b7a055e8cf7d55805ebdb44d413ab98118619ef4d114",
+      "bytes": 504
+    },
+    {
+      "path": "evidence/archive-manifest.json",
+      "sha256": "6eddc25ebb8d4e3c3e03e54b4bf441d3dd58e0cc4f1d6e65a726d445f14b9fd6",
+      "bytes": 16313
+    },
+    {
+      "path": "evidence/coherent-support-continuation-344-launch.json",
+      "sha256": "d9f85e33aba1f7b21b61406caa0ad096da1f6620a28f9929445a375d801d1649",
+      "bytes": 577
+    },
+    {
+      "path": "evidence/connected-support-failed-341.tar.xz",
+      "sha256": "8606c9da46b0f73b3fe0a4eb3d7e9f09be8a8966761c6a7a63af70db19907047",
+      "bytes": 1841500
+    },
+    {
+      "path": "evidence/independent-emission-proxy-scope-review.json",
+      "sha256": "523d0a4c8cd96121b7f8ce6fd5f48bf69980219978038cd1ecc0c959de2c7c94",
+      "bytes": 521
+    },
+    {
+      "path": "evidence/root-342-343-tests.json",
+      "sha256": "e5597d3784331734161bb18e700ea9341b2a1c7aa30dd0a0267c3ea652c2ca15",
+      "bytes": 605
+    },
+    {
+      "path": "evidence/root-342-tests.json",
+      "sha256": "9b4e990e4779f65a4c8a1eb37ccd121664930c47a96be3a726a695705f891d10",
+      "bytes": 471
+    },
+    {
+      "path": "sources/coherent-support-continuation-343/run_coherent_target_continuation_343.py",
+      "sha256": "6a9a257655422914dd21deb78c263c2a97453df05a007625dc99d817cb98283a",
+      "bytes": 75522
+    },
+    {
+      "path": "sources/coherent-support-continuation-343/test_coherent_target_continuation_343.py",
+      "sha256": "3c879f3b58c6b176c47b24ba100a2c54f5489018d4dd237556b32262c4f7fe19",
+      "bytes": 6001
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-342/propose_joint_clearance_witnesses_342.py",
+      "sha256": "d26f911809a6ecd7a554120bd25fe8a8955c834bab1a76b25e9ba3614a4b6182",
+      "bytes": 140320
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-342/test_propose_joint_clearance_witnesses_342.py",
+      "sha256": "eb09b4c2b57df29c96d1e1dfa27ffd94cfc82f4c5be41bd666ba4143f123e418",
+      "bytes": 21827
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

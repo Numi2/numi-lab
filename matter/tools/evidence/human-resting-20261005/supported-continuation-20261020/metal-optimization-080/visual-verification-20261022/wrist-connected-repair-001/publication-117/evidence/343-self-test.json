@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/coherent-support-continuation-343/run_coherent_target_continuation_343.py",
+    "--self-test"
+  ],
+  "returncode": 0,
+  "stdout": "{\"status\": \"PASS\", \"checks\": [\"fixed prefix and area-reference keys\", \"292 builder pin\", \"empty pair seed shape\", \"attempt and round limits\"]}\n",
+  "stderr": "",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

@@ -1,0 +1,216 @@
+{
+  "accepted_physical_steps": 0,
+  "area_reference_037_for_area_constraints_only": {
+    "face_shape": [
+      41733,
+      3
+    ],
+    "faces_array_sha256": "93d145d4f15babe57ae80c55687c1fcf015bc140f6f1b7128bb24b82d60013ce",
+    "faces_key": "area_reference_037_source_O_faces",
+    "path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-refined-278/candidate.npz",
+    "point_shape": [
+      20889,
+      3
+    ],
+    "points_array_sha256": "0100ced73116c068cb7cfe316a50ea538066afdb9ba411eecc58cf823c1b0162",
+    "points_key": "area_reference_037_points_world_m_f64",
+    "semantics": "accepted-037 fixed reference geometry for area constraints only",
+    "sha256": "c2a076267c2a8261a5f1a51b742a0b4e44471d31b200f5b809b8c98d6205348f"
+  },
+  "area_scp_failure": {
+    "absolute_rhs_min_mm": -3232.751076373308,
+    "clearance_slack_objective": null,
+    "clearance_stage1": {
+      "objective": 0.5349543724972327,
+      "status": 0,
+      "success": true
+    },
+    "clearance_stage2": {
+      "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+      "status": 1,
+      "success": false
+    },
+    "edge_gradient_inequality_rows": 100548,
+    "incremental_rhs_min_mm": -3232.751076373308,
+    "iteration": 1,
+    "linearization_center_area_gate": {
+      "area_floor": 0.1,
+      "bad_current_oriented_face_count": 0,
+      "bad_current_oriented_face_rows_first_64": [],
+      "bad_current_oriented_face_rows_truncated": false,
+      "bad_fixed_037_reference_face_count": 0,
+      "bad_fixed_037_reference_face_rows_first_64": [],
+      "bad_fixed_037_reference_face_rows_truncated": false,
+      "faces_checked": 41733,
+      "minimum_current_oriented_ratio": 0.9999999999999994,
+      "minimum_fixed_037_reference_magnitude_ratio": 0.10003977287040827,
+      "pass": true
+    },
+    "linearization_delta_l2_mm": 0.0,
+    "linearization_delta_max_abs_mm": 0.0,
+    "lp_iterations": 55403,
+    "lp_message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+    "lp_objective": null,
+    "lp_status": 1,
+    "lp_success": false,
+    "lp_wall_seconds": 96.66457041702233,
+    "minimum_clearance_progress_mm": null,
+    "minimum_normalized_linear_slack": null,
+    "zero_total_delta_feasibility_asserted": true,
+    "zero_total_delta_max_violation_mm": -1.7257688319383958e-06
+  },
+  "area_scp_iterations": [
+    {
+      "absolute_rhs_min_mm": -3232.751076373308,
+      "clearance_slack_objective": null,
+      "clearance_stage1": {
+        "objective": 0.5349543724972327,
+        "status": 0,
+        "success": true
+      },
+      "clearance_stage2": {
+        "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+        "status": 1,
+        "success": false
+      },
+      "edge_gradient_inequality_rows": 100548,
+      "incremental_rhs_min_mm": -3232.751076373308,
+      "iteration": 1,
+      "linearization_center_area_gate": {
+        "area_floor": 0.1,
+        "bad_current_oriented_face_count": 0,
+        "bad_current_oriented_face_rows_first_64": [],
+        "bad_current_oriented_face_rows_truncated": false,
+        "bad_fixed_037_reference_face_count": 0,
+        "bad_fixed_037_reference_face_rows_first_64": [],
+        "bad_fixed_037_reference_face_rows_truncated": false,
+        "faces_checked": 41733,
+        "minimum_current_oriented_ratio": 0.9999999999999994,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10003977287040827,
+        "pass": true
+      },
+      "linearization_delta_l2_mm": 0.0,
+      "linearization_delta_max_abs_mm": 0.0,
+      "lp_iterations": 55403,
+      "lp_message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+      "lp_objective": null,
+      "lp_status": 1,
+      "lp_success": false,
+      "lp_wall_seconds": 96.66457041702233,
+      "minimum_clearance_progress_mm": null,
+      "minimum_normalized_linear_slack": null,
+      "zero_total_delta_feasibility_asserted": true,
+      "zero_total_delta_max_violation_mm": -1.7257688319383958e-06
+    }
+  ],
+  "classification": "construction-only bounded area SCP; no candidate admitted",
+  "inputs": {
+    "area_owner": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-005/proposal/round-001/fit/area_scp_support_023.py",
+    "area_owner_sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+    "area_reference": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-refined-278/candidate.npz",
+    "area_reference_sha256": "c2a076267c2a8261a5f1a51b742a0b4e44471d31b200f5b809b8c98d6205348f",
+    "bary_owner": "/Users/n/Work/numi-human-connected-surface-069/publication-091/canonical/matter/tools/human_skin_fat_barycentric_constraints.py",
+    "bary_owner_sha256": "965a166e86952d79c019302c98e7684f2f8ef3a9d63b328430ac9c8c8edbaff2",
+    "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/global-275/backtrack/pass-002/candidate.npz",
+    "base_candidate_sha256": "2346d174df8b363bca2200c24589a36cf1ad6a4642a4b73a9a156a48e6826b25",
+    "face_target_npz": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-341/round-001/face-targets/targets.npz",
+    "face_target_npz_sha256": "d0a58d2cbbf16b5dda8f43f715a13d16484c36be8219c9a39956b168cdd3b4e7",
+    "face_target_report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-341/round-001/face-targets/report.json",
+    "face_target_report_sha256": "3e5eb7efdac0b1f27408049a257866ae7b35267fccc085968d012a33eed52a96",
+    "fixed_boundary_emitter": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-fixed-boundary-314/emit_introduced_skin_bone_barriers_314.py",
+    "fixed_boundary_emitter_sha256": "3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78",
+    "fixed_boundary_npz": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-341/round-001/attempt-001/fixed-boundary/introduced-skin-bone-barriers.npz",
+    "fixed_boundary_npz_sha256": "eab5848566da3faa97e4c48cad171e15ae850719095151191218a526011c1c4b",
+    "fixed_boundary_owner": "/Users/n/Work/numi-human-connected-surface-069/connected-fixed-boundary-313/fixed_bone_triangle_rows_313.py",
+    "fixed_boundary_owner_sha256": "dc9d4f953ecede00567c59cbbb6b6b63e0a3556b97972689de499cbce29d4c2e",
+    "fixed_boundary_report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-341/round-001/attempt-001/fixed-boundary/report.json",
+    "fixed_boundary_report_sha256": "9f8f512e1d36ed2f42f43855975abec8531399309805f8fdf6372d6c1a143b14",
+    "pair_owner": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-005/proposal/round-001/fit/self_separation_026.py",
+    "pair_owner_sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+    "point_target_npz": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-341/round-001/point-targets/nearest-union-exits.npz",
+    "point_target_npz_sha256": "2f42c3d89ebbf9d4c84b997eb91b9c44c80447cd11831b8c5135c2b1c5a56304",
+    "point_target_report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-341/round-001/point-targets/nearest-union-exits.json",
+    "point_target_report_sha256": "590f62af5eb3a9ef4722d59b0a7e76465d11cf667d5ca119f9691ed8a4673ee4",
+    "raw_trial": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/global-275/backtrack/pass-002/candidate.npz",
+    "raw_trial_sha256": "2346d174df8b363bca2200c24589a36cf1ad6a4642a4b73a9a156a48e6826b25",
+    "self_pairs": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-341/round-001/attempt-001/self-pairs.npy",
+    "self_pairs_sha256": "198f7b7c6cb36283fb254ab62c5e94b8ff9a9d2be98748307cee20623abbb0f5"
+  },
+  "native_admission": false,
+  "solver": {
+    "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+    "nit": 55403,
+    "objective": null,
+    "stage1": {
+      "objective": 0.5349543724972327,
+      "status": 0,
+      "success": true
+    },
+    "stage2": {
+      "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+      "status": 1,
+      "success": false
+    },
+    "status": 1,
+    "success": false,
+    "wall_seconds": 96.66399887495209
+  },
+  "source_reference_R0_for_cap_only": [
+    {
+      "columns": 13518,
+      "kind": "csr_level",
+      "level": 0,
+      "max_row_sum_error": 2.220446049250313e-16,
+      "nnz": 32638,
+      "prefix": "",
+      "rows": 20889
+    },
+    {
+      "columns": 10145,
+      "kind": "csr_level",
+      "level": 1,
+      "max_row_sum_error": 0.0,
+      "nnz": 18450,
+      "prefix": "prior_input_006__",
+      "rows": 13518
+    },
+    {
+      "columns": 8776,
+      "kind": "csr_level",
+      "level": 2,
+      "max_row_sum_error": 0.0,
+      "nnz": 12193,
+      "prefix": "prior_run028__",
+      "rows": 10145
+    },
+    {
+      "composed_nnz": 43457,
+      "composed_shape": [
+        20889,
+        8776
+      ],
+      "kind": "composed_source_base",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+      "shape": [
+        8776,
+        3
+      ]
+    }
+  ],
+  "status": "LP_NO_PROPOSAL",
+  "support": {
+    "area_faces_touching_free_support": 11552,
+    "core_faces": 8954,
+    "core_nodes": 3303,
+    "fixed_boundary_barrier_rows": 6204,
+    "fixed_boundary_skin_faces": 1034,
+    "fixed_prefix_nodes": 0,
+    "fixed_prefix_semantics": "LP coordinate bounds are exactly zero; not reinterpreted as native anchors",
+    "fixed_prefix_support_rows": 0,
+    "free_support_nodes": 5143,
+    "support_nodes": 5146,
+    "threatened_pairs": 11321
+  },
+  "wall_seconds": 96.66457041702233
+}

@@ -1,0 +1,8 @@
+{
+  "accepted_physical_steps": 0,
+  "final_candidate": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/global-275/backtrack/pass-002/candidate.npz",
+  "final_candidate_sha256": "2346d174df8b363bca2200c24589a36cf1ad6a4642a4b73a9a156a48e6826b25",
+  "final_state": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/selected-result.json",
+  "native_admission": false,
+  "status": "BOUNDED_COHERENT_TARGET_333_SUPPORT_SCOPED_CONTINUATION_FINISHED"
+}
