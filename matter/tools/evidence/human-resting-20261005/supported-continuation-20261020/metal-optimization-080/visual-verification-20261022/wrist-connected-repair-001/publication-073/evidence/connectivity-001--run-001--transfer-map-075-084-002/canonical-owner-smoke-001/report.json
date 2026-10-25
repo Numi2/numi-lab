@@ -1,0 +1,74 @@
+{
+  "schema": "real_075_084_mapped_skin_owner_smoke_v1",
+  "status": "pass_static_additive_owner_smoke",
+  "inputs_sha256": {
+    "Wnew": "55329313bf9c2c3b613fcd7eb52dd9b7b453520dd1b4a14e0e0d6ac457ce8519",
+    "sidecar": "050875e760a1b3e3ddbbf18da5aff145b1405eeb4d3aa5d6dc31a09b15908f5d",
+    "transfer_rows": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+    "detail_payload": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "embedded_surface_source": "31d7f036c9795b90e761e5713250e6a5ddbf07a71b7d3bec9e344e043d0cb60e"
+  },
+  "dimensions": {
+    "detail_rows": 61950,
+    "mechanical_nodes": 7360,
+    "W_nnz": 155384,
+    "active_rows": 54551,
+    "inactive_rows": 7399,
+    "detail_faces": 108987
+  },
+  "baseline": {
+    "bitwise_detail_origin_preserved": true,
+    "max_abs_delta_m": 0.0
+  },
+  "translation": {
+    "vector_m": [
+      0.0012499999720603228,
+      -0.000750000006519258,
+      0.0005000000237487257
+    ],
+    "active_rows_positive_dot_count": 54551,
+    "active_row_count": 54551,
+    "min_active_dot_m2": 2.3749358770436962e-06,
+    "inactive_rows_bitwise_fixed": true,
+    "matches_canonical_formula_bitwise": true
+  },
+  "affine_displacement": {
+    "matrix": [
+      [
+        0.012,
+        -0.004,
+        0.002
+      ],
+      [
+        0.003,
+        -0.009,
+        0.001
+      ],
+      [
+        -0.002,
+        0.005,
+        0.007
+      ]
+    ],
+    "offset_m": [
+      0.00035,
+      -0.0002,
+      0.00015
+    ],
+    "all_rows_match_canonical_formula_bitwise": true,
+    "inactive_rows_bitwise_fixed": true,
+    "max_abs_output_displacement_m": 0.01597607135772705
+  },
+  "adjoint": {
+    "lhs": 314.93793730212445,
+    "rhs": 314.9379373021245,
+    "absolute_error": 5.684341886080802e-14,
+    "relative_error": 1.8049085908083948e-16,
+    "seed": 86002
+  },
+  "limits": [
+    "CPU canonical MappedSkinSurface owner only; native Metal shader parity is unverified.",
+    "This verifies map application semantics, not mapped-surface self intersection, connected clearance, cell gates, or physical/native admission."
+  ],
+  "test_script_sha256": "fd5282c7ae7be90474a31c5e49a838a61db8cb07a2f5c880c81827fe2f6c00d2"
+}

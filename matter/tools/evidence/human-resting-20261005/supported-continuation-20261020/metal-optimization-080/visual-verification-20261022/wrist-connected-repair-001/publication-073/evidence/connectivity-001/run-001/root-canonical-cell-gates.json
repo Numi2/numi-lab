@@ -1,0 +1,12 @@
+{
+  "status": "ROOT_CANONICAL_Q_J_PASS_NOT_PHYSICAL_ADMISSION",
+  "nodes": 7360,
+  "cells": 32796,
+  "current_q_min": 3.5577131497787135e-05,
+  "ref_q_min": 3.5577131497787135e-05,
+  "current_J_min": 0.9989085751588187,
+  "current_J_max": 1.000827113094776,
+  "q_definition": "signed det / longest emitted edge length cubed",
+  "candidate_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "canonical_owner_sha256": "55e8ba07639dad6f365078bf7bed6ef1d5a31603372cd3d8b5ac7554a4274604"
+}

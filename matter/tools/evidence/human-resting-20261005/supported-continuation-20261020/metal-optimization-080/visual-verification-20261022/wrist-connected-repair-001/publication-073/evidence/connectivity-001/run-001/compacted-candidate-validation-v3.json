@@ -1,0 +1,62 @@
+{
+  "F32": {
+    "J_max": 1.0009854273219454,
+    "J_min": 0.9998882430208084,
+    "current_nonpositive": 0,
+    "current_q_below_floor": 0,
+    "current_q_min": 3.5577131497787135e-05,
+    "reference_nonpositive": 0,
+    "reference_q_below_floor": 0,
+    "reference_q_min": 3.5577131497787135e-05
+  },
+  "baseline_reference_volume_m3_by_material": {
+    "1": 0.0034525709483045623,
+    "2": 0.011652342870565699
+  },
+  "bistellar_source_sha256": "fe889eb46040d08a6a5f33e73891db8de09563dd03dd9e846c9facdc0652d0fd",
+  "canonical_owner_sha256": "5d8dab03eb64a3cba490c9fd380e3234cc49f14a7bac275a564126f2b5e85c22",
+  "cells": 32796,
+  "compacted_candidate_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "duplicate_tets": 0,
+  "generated_nodes_after_compaction": 127,
+  "limitations": "Connectivity-only topology counterfactual. F32 q/J, cell orientation, material domains and marked boundaries pass. This does not prove mass conservation, local mechanical energy/stress, clearance or native physical admission.",
+  "marked_surface_faces_and_markers_unchanged_by_stable_output_node_id": true,
+  "material_counts": {
+    "1": 16238,
+    "2": 16558
+  },
+  "nodes_after": 7360,
+  "nodes_before": 7361,
+  "nonmanifold_faces_gt2": 0,
+  "original_nodes_exact": 7233,
+  "per_material_oriented_boundary_chains_equal_to_084_baseline_by_stable_output_node_id": {
+    "1": {
+      "baseline_chain_sha256": "7f6bb13011fa66a392965fcc08934a1cedeae80e624a334a428e77c4562efb04",
+      "baseline_faces": 9862,
+      "candidate_chain_sha256": "7f6bb13011fa66a392965fcc08934a1cedeae80e624a334a428e77c4562efb04",
+      "candidate_faces": 9862,
+      "equal": true
+    },
+    "2": {
+      "baseline_chain_sha256": "1216500c2660271c4b721aba0b3cb22425ee301c1f6e8efc4f18ea49c265dc55",
+      "baseline_faces": 9788,
+      "candidate_chain_sha256": "1216500c2660271c4b721aba0b3cb22425ee301c1f6e8efc4f18ea49c265dc55",
+      "candidate_faces": 9788,
+      "equal": true
+    }
+  },
+  "raw_candidate_sha256": "4105b360ccd911c973fac8f63a608355eb621d468677e7c4a779c7422609593c",
+  "reference_volume_m3_by_material": {
+    "1": 0.0034525709483045623,
+    "2": 0.011652342870565699
+  },
+  "relative_volume_delta_by_material": {
+    "1": 0.0,
+    "2": 0.0
+  },
+  "removed_output_row_zero_based": 7237,
+  "removed_tetgen_output_node_id": 7238,
+  "status": "INDEPENDENT_COMPACTED_CANDIDATE_GATES_PASS; NOT_PHYSICAL_ADMISSION",
+  "surface_faces_and_markers_unchanged_from_084": true,
+  "whole_boundary_facets_equal_surface_records": true
+}

@@ -1,0 +1,6 @@
+{
+  "exception_type": "RuntimeError",
+  "message": "child reference-volume coverage failed at 4451: rel=1.890600346341132e-07",
+  "status": "FAILED",
+  "time_unix": 1792905327.840729
+}

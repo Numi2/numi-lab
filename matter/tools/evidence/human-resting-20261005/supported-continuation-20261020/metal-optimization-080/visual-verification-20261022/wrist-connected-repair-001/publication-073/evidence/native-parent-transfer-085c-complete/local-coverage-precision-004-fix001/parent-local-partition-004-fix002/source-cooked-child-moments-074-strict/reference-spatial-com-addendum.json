@@ -1,0 +1,61 @@
+{
+  "rows": {
+    "15": {
+      "candidate_com_m": [
+        -0.02634830442579732,
+        -0.8659455295974257,
+        0.12509193793968423
+      ],
+      "candidate_minus_native_com_mm": [
+        1.1157394452787628e-09,
+        -3.744338172850803e-09,
+        -1.1690926005059055e-09
+      ],
+      "candidate_minus_native_com_norm_mm": 4.078200629073601e-09,
+      "native_com_m": [
+        -0.02634830442691306,
+        -0.8659455295936813,
+        0.12509193794085333
+      ]
+    },
+    "16": {
+      "candidate_com_m": [
+        -0.027550137592069972,
+        -0.8485368251906361,
+        0.12518960487592112
+      ],
+      "candidate_minus_native_com_mm": [
+        -8.986908439645447e-11,
+        -7.833178550242792e-09,
+        -4.0842329518397946e-10
+      ],
+      "candidate_minus_native_com_norm_mm": 7.844333766507068e-09,
+      "native_com_m": [
+        -0.027550137591980103,
+        -0.8485368251828029,
+        0.12518960487632955
+      ]
+    },
+    "all": {
+      "candidate_com_m": [
+        -0.027252468305157398,
+        -0.8528486022095065,
+        0.12516541479024168
+      ],
+      "candidate_minus_native_com_mm": [
+        2.0852763960022003e-10,
+        -6.826983423025013e-09,
+        -5.966616090091748e-10
+      ],
+      "candidate_minus_native_com_norm_mm": 6.856179075140977e-09,
+      "native_com_m": [
+        -0.027252468305365925,
+        -0.8528486022026796,
+        0.12516541479083834
+      ]
+    }
+  },
+  "source_report": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/source-cooked-child-moments-074-strict/source-cooked-child-moments-074-parent-local-partition-004-strict.json",
+  "source_report_sha256": "f08ddaf7dc2452a5d1d039d48d92b37299ecbeca2efbb184596d48e7defbbf1d",
+  "status": "MEASURED_REFERENCE_SPATIAL_COM_FROM_CENTROID_LUMPED_CELL_MASSES_NO_ADMISSION_GATE"
+}

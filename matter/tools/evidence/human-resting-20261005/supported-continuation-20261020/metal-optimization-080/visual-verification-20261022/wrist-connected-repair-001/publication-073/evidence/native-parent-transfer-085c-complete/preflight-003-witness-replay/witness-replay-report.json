@@ -1,0 +1,194 @@
+{
+  "count": 22,
+  "elapsed_seconds": 0.05090712499804795,
+  "full_overlap_run": false,
+  "gate_waiver": false,
+  "original_witness_path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c-cross-audit-001/run-001/cross-material-witnesses.json",
+  "original_witness_sha256": "a770c026dd8e1eeeb17ba6c47c8a79c3e574be91a6f1882976d83dd9e7cbc1f9",
+  "prior_reclassification_path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c-cross-audit-001/reclassification-002/witness-reclassification.json",
+  "prior_reclassification_sha256": "4b4c361a9a50fe195c64030ce30385651ffe9d2028fe799efca158dd0fcdf2a4",
+  "rank_counts": {
+    "2": 22
+  },
+  "results": [
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 1109,
+      "classification": "exact_face_contact",
+      "native_parent_row": 4597,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 3496,
+      "classification": "exact_face_contact",
+      "native_parent_row": 23053,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 3782,
+      "classification": "exact_face_contact",
+      "native_parent_row": 20086,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 10156,
+      "classification": "exact_face_contact",
+      "native_parent_row": 4598,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 10157,
+      "classification": "exact_face_contact",
+      "native_parent_row": 4592,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 10206,
+      "classification": "exact_face_contact",
+      "native_parent_row": 5688,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 13473,
+      "classification": "exact_face_contact",
+      "native_parent_row": 21748,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 16703,
+      "classification": "exact_face_contact",
+      "native_parent_row": 19768,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 16834,
+      "classification": "exact_face_contact",
+      "native_parent_row": 5400,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 17172,
+      "classification": "exact_face_contact",
+      "native_parent_row": 5235,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 17895,
+      "classification": "exact_face_contact",
+      "native_parent_row": 8895,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 21095,
+      "classification": "exact_face_contact",
+      "native_parent_row": 24785,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 21233,
+      "classification": "exact_face_contact",
+      "native_parent_row": 24990,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 25017,
+      "classification": "exact_face_contact",
+      "native_parent_row": 8592,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 26096,
+      "classification": "exact_face_contact",
+      "native_parent_row": 14066,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 26904,
+      "classification": "exact_face_contact",
+      "native_parent_row": 6270,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 26931,
+      "classification": "exact_face_contact",
+      "native_parent_row": 20395,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 27768,
+      "classification": "exact_face_contact",
+      "native_parent_row": 8832,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 28241,
+      "classification": "exact_face_contact",
+      "native_parent_row": 6081,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 30068,
+      "classification": "exact_face_contact",
+      "native_parent_row": 20068,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 30089,
+      "classification": "exact_face_contact",
+      "native_parent_row": 5931,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    },
+    {
+      "affine_rank": 2,
+      "candidate_child_row": 32549,
+      "classification": "exact_face_contact",
+      "native_parent_row": 9328,
+      "transfer_action": "omit_zero_measure_pair_retain_boundary_contact_diagnostic",
+      "vertex_count": 3
+    }
+  ],
+  "source_path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/build_native_parent_transfer_085c-003.py",
+  "source_sha256": "7bdb7756458566176fa4be03f9b6d8e3de13647d746a9207619dc8cafce4dcab",
+  "status": "PASS_EXACT_CLASSIFIER_REPLAY_ON_ALL_FROZEN_22_WITNESSES"
+}

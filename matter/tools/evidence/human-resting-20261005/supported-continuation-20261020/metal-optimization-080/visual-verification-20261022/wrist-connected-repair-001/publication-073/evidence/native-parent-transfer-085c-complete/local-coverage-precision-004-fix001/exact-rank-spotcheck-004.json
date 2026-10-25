@@ -1,0 +1,98 @@
+{
+  "elapsed_seconds": 0.01785512501373887,
+  "method": "Fraction.from_float exact affine rank for original unshifted reference coordinates; clip values are unchanged-085b clip evaluated after pair-local translation",
+  "status": "EXACT_RANK_SPOTCHECK_COMPLETE",
+  "tested": [
+    {
+      "child": 5816,
+      "delta_m3": -2.449366330304629e-14,
+      "exact_rank": {
+        "affine_rank": 3,
+        "classification": "exact_positive_volume_intersection",
+        "vertex_count": 5
+      },
+      "incident_row": 316,
+      "old_overlap_m3": 3.438663847228123e-08,
+      "parent": 5175,
+      "translated_overlap_m3": 3.438661397861793e-08
+    },
+    {
+      "child": 9448,
+      "delta_m3": -2.1196286744184544e-15,
+      "exact_rank": {
+        "affine_rank": 3,
+        "classification": "exact_positive_volume_intersection",
+        "vertex_count": 4
+      },
+      "incident_row": 572,
+      "old_overlap_m3": 2.123160484977289e-09,
+      "parent": 4237,
+      "translated_overlap_m3": 2.1231583653486144e-09
+    },
+    {
+      "child": 29647,
+      "delta_m3": 2.042734420865633e-15,
+      "exact_rank": {
+        "affine_rank": 3,
+        "classification": "exact_positive_volume_intersection",
+        "vertex_count": 5
+      },
+      "incident_row": 898,
+      "old_overlap_m3": 3.247545215343801e-08,
+      "parent": 5175,
+      "translated_overlap_m3": 3.247545419617243e-08
+    },
+    {
+      "child": 4451,
+      "delta_m3": -1.1364117390080559e-15,
+      "exact_rank": {
+        "affine_rank": 3,
+        "classification": "exact_positive_volume_intersection",
+        "vertex_count": 5
+      },
+      "incident_row": 196,
+      "old_overlap_m3": 1.0776552932293901e-09,
+      "parent": 4786,
+      "translated_overlap_m3": 1.0776541568176511e-09
+    },
+    {
+      "child": 25669,
+      "delta_m3": -8.26631536886655e-16,
+      "exact_rank": {
+        "affine_rank": 3,
+        "classification": "exact_positive_volume_intersection",
+        "vertex_count": 4
+      },
+      "incident_row": 728,
+      "old_overlap_m3": 1.6404518848989126e-09,
+      "parent": 10042,
+      "translated_overlap_m3": 1.6404510582673757e-09
+    },
+    {
+      "child": 1561,
+      "delta_m3": -6.207978916862198e-15,
+      "exact_rank": {
+        "affine_rank": 2,
+        "classification": "exact_face_contact",
+        "vertex_count": 3
+      },
+      "incident_row": 49,
+      "old_overlap_m3": 6.207978916862198e-15,
+      "parent": 4633,
+      "translated_overlap_m3": 0.0
+    },
+    {
+      "child": 1561,
+      "delta_m3": -5.708657963305868e-15,
+      "exact_rank": {
+        "affine_rank": 2,
+        "classification": "exact_face_contact",
+        "vertex_count": 3
+      },
+      "incident_row": 50,
+      "old_overlap_m3": 5.708657963305868e-15,
+      "parent": 4634,
+      "translated_overlap_m3": 0.0
+    }
+  ]
+}

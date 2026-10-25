@@ -1,0 +1,6 @@
+{
+  "exception_type": "RuntimeError",
+  "message": "positive overlap crosses materials: count=22",
+  "status": "FAILED",
+  "time_unix": 1792904134.439088
+}

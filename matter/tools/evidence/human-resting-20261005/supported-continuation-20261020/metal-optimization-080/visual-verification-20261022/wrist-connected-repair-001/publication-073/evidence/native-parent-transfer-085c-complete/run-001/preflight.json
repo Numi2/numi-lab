@@ -1,0 +1,24 @@
+{
+  "candidate": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/connectivity-001/run-001/candidate-tetrahedra-compacted.npz",
+  "candidate_gate_sha256": "ced7f2ec3c45bfa1ece35b230f1bded46c9cadc39297ac8b8854a549cad61dd3",
+  "candidate_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "clip": {
+    "aabb_tolerance_m": 2e-10,
+    "inside_tolerance_m": 2e-10,
+    "method": "all AABB-overlapping pairs, unculled tetra_intersection_volume_stacked from pinned 085b",
+    "unique_tolerance_m": 2e-10
+  },
+  "halfspace_085_sha256": "0ba4109b943f7e1b4312ca339f8e5f2f931b81413daca4074fa2be42f3b9c305",
+  "input_sha256": {
+    "compiled-skin-fem-nodes.csv": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+    "compiled-skin-fem-tets.csv": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "premerge-layer-contributions.csv": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f"
+  },
+  "limits": {
+    "clip_seconds": 600.0,
+    "outer_seconds": 720.0
+  },
+  "owner_073_sha256": "167c176edef02cbb2360d68e3c011809722030bd00009e20afa80d2b8ad59586",
+  "stacked_085b_sha256": "ae3cbe1e9f79a580b3a0f22b5126a2d91f11293874f9c867f46a83e81d6f3f61",
+  "status": "PREFLIGHT_PASS_CLIPPING_NOT_STARTED"
+}

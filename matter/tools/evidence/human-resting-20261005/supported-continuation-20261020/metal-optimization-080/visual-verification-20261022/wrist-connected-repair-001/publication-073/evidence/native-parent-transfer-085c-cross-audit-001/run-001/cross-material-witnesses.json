@@ -1,0 +1,2430 @@
+{
+  "admission": {
+    "mass_transfer": false,
+    "native_physics": false,
+    "physical_geometry": false
+  },
+  "clip": {
+    "inside_tolerance_m": 2e-10,
+    "method": "pinned unculled 085b stacked exact tetra intersection; no plane rejection",
+    "positive_cutoff": "max(min(Vchild,Vnative)*1e-13,1e-25)",
+    "unique_tolerance_m": 2e-10
+  },
+  "counts": {
+    "candidate_children": 32796,
+    "candidate_interface_nonmanifold_faces": 0,
+    "candidate_material_interface_faces": 4889,
+    "cross_material_aabb_pairs_exactly_clipped": 1204783,
+    "native_interface_nonmanifold_faces": 0,
+    "native_material_interface_faces": 4777,
+    "native_parent_tets": 28632,
+    "positive_cross_material_pairs": 22,
+    "source_I_PLC_faces": 4777
+  },
+  "inputs_sha256": {
+    "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/connectivity-001/run-001/candidate-tetrahedra-compacted.npz": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085b/plane_filter_085.py": "0ba4109b943f7e1b4312ca339f8e5f2f931b81413daca4074fa2be42f3b9c305",
+    "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085b/plane_filter_085b.py": "ae3cbe1e9f79a580b3a0f22b5126a2d91f11293874f9c867f46a83e81d6f3f61",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-nodes.csv": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-tets.csv": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461"
+  },
+  "limitations": [
+    "This isolates only opposite-material AABB pairs; it does not compute complete child or native-parent coverage.",
+    "The candidate I-face and native tet material-interface distances are diagnostic nearest-triangle distances; they do not repartition overlap volume or establish a valid typed transfer."
+  ],
+  "status": "CROSS_MATERIAL_EXACT_WITNESS_AUDIT_COMPLETE",
+  "summary": {
+    "elapsed_seconds": 208.1078806669684,
+    "max_fraction_of_candidate_child": 2.7897170432393392e-08,
+    "min_candidate_I_PLC_distance_m": 1.0694978198187799e-13,
+    "min_candidate_interface_distance_m": 1.0693713615932183e-13,
+    "min_native_interface_distance_m": 1.0693713615932183e-13,
+    "total_cross_material_overlap_volume_m3": 1.7212372244094641e-13
+  },
+  "witnesses": [
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 1.172113570206853e-11,
+      "candidate_I_PLC_nearest_face_row": 1559,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3136,
+        3159,
+        4779
+      ],
+      "candidate_cell_uid": 1110,
+      "candidate_child_row": 1109,
+      "candidate_child_volume_m3": 1.7799372483236592e-06,
+      "candidate_material_id": 2,
+      "candidate_material_interface_distance_m": 1.172113570206853e-11,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3136,
+        3159,
+        4779
+      ],
+      "candidate_native_material_id": 16,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          -0.1756202131509781,
+          -0.7653743624687195,
+          0.16222065687179565
+        ],
+        [
+          -0.16373974084854126,
+          -0.6920977234840393,
+          0.1648787260055542
+        ],
+        [
+          -0.15766489505767822,
+          -0.6976495385169983,
+          0.1781545877456665
+        ],
+        [
+          -0.1661038100719452,
+          -0.7647810578346252,
+          0.15954892337322235
+        ]
+      ],
+      "fraction_of_candidate_child": 1.3675387094168479e-08,
+      "fraction_of_native_parent": 5.5233667210746343e-08,
+      "intersection_centroid_m": [
+        -0.1624709279129663,
+        -0.7100841406401038,
+        0.17231262913956996
+      ],
+      "intersection_points_m": [
+        [
+          -0.1576648950576782,
+          -0.6976495385169982,
+          0.1781545877456665
+        ],
+        [
+          -0.15766489514133658,
+          -0.6976495391825001,
+          0.17815458756122105
+        ],
+        [
+          -0.16373974084854123,
+          -0.6920977234840392,
+          0.1648787260055542
+        ],
+        [
+          -0.17562021315097806,
+          -0.7653743624687196,
+          0.16222065687179568
+        ],
+        [
+          -0.1576648953662975,
+          -0.6976495395482625,
+          0.1781545875136124
+        ]
+      ],
+      "native_material_id": 15,
+      "native_material_interface_distance_m": 1.172113570206853e-11,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3136,
+        3159,
+        4779
+      ],
+      "native_parent_row": 4597,
+      "native_parent_volume_m3": 4.406973518756191e-07,
+      "native_source_tet_row": 4597,
+      "native_tet_reference_points_m": [
+        [
+          -0.17797638475894928,
+          -0.765521228313446,
+          0.16288216412067413
+        ],
+        [
+          -0.1756202131509781,
+          -0.7653743624687195,
+          0.16222065687179565
+        ],
+        [
+          -0.16373974084854126,
+          -0.6920977234840393,
+          0.1648787260055542
+        ],
+        [
+          -0.15766489505767822,
+          -0.6976495385169983,
+          0.1781545877456665
+        ]
+      ],
+      "overlap_over_cutoff": 552336.6721074634,
+      "overlap_volume_m3": 2.4341330874155125e-14,
+      "positive_cutoff_m3": 4.406973518756191e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 2.9050340881767046e-12,
+      "candidate_I_PLC_nearest_face_row": 3675,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        4181,
+        4242,
+        4269
+      ],
+      "candidate_cell_uid": 3498,
+      "candidate_child_row": 3496,
+      "candidate_child_volume_m3": 9.556484262485007e-07,
+      "candidate_material_id": 1,
+      "candidate_material_interface_distance_m": 2.9050340881767046e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        4181,
+        4242,
+        4269
+      ],
+      "candidate_native_material_id": 15,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          0.04681484401226044,
+          -1.741869568824768,
+          0.1989508718252182
+        ],
+        [
+          0.05743875727057457,
+          -1.7345861196517944,
+          0.24957607686519623
+        ],
+        [
+          0.10056249052286148,
+          -1.7323248386383057,
+          0.17757265269756317
+        ],
+        [
+          0.09985969215631485,
+          -1.730698823928833,
+          0.17587924003601074
+        ]
+      ],
+      "fraction_of_candidate_child": 6.145527985725203e-09,
+      "fraction_of_native_parent": 2.5322339554432675e-09,
+      "intersection_centroid_m": [
+        0.06273203444543703,
+        -1.7372560202928757,
+        0.20583926510505748
+      ],
+      "intersection_points_m": [
+        [
+          0.09985969215631475,
+          -1.7306988239288332,
+          0.17587924003601096
+        ],
+        [
+          0.05743875727059102,
+          -1.734586119651793,
+          0.24957607686516803
+        ],
+        [
+          0.04681484401226789,
+          -1.7418695688247667,
+          0.1989508718252151
+        ],
+        [
+          0.04681484434257443,
+          -1.7418695687661094,
+          0.19895087169383585
+        ]
+      ],
+      "native_material_id": 16,
+      "native_material_interface_distance_m": 2.9050340881767046e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        4181,
+        4242,
+        4269
+      ],
+      "native_parent_row": 23053,
+      "native_parent_volume_m3": 2.319281808618014e-06,
+      "native_source_tet_row": 23053,
+      "native_tet_reference_points_m": [
+        [
+          0.04681484401226044,
+          -1.741869568824768,
+          0.1989508718252182
+        ],
+        [
+          0.05743875727057457,
+          -1.7345861196517944,
+          0.24957607686519623
+        ],
+        [
+          0.09985969215631485,
+          -1.730698823928833,
+          0.17587924003601074
+        ],
+        [
+          0.09815184026956558,
+          -1.7267531156539917,
+          0.17177008092403412
+        ]
+      ],
+      "overlap_over_cutoff": 61455.279857252026,
+      "overlap_volume_m3": 5.872964148024409e-15,
+      "positive_cutoff_m3": 9.556484262485008e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 6.418692967623889e-12,
+      "candidate_I_PLC_nearest_face_row": 1986,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3315,
+        3522,
+        3559
+      ],
+      "candidate_cell_uid": 3784,
+      "candidate_child_row": 3782,
+      "candidate_child_volume_m3": 2.811522410087061e-07,
+      "candidate_material_id": 1,
+      "candidate_material_interface_distance_m": 6.418692967623889e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3315,
+        3522,
+        3559
+      ],
+      "candidate_native_material_id": 15,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          -0.0925743505358696,
+          -1.3941686153411865,
+          0.03785496950149536
+        ],
+        [
+          -0.06201682984828949,
+          -1.4203529357910156,
+          0.045883964747190475
+        ],
+        [
+          -0.05441940575838089,
+          -1.3948190212249756,
+          0.05182455852627754
+        ],
+        [
+          -0.055859602987766266,
+          -1.3933850526809692,
+          0.05319352075457573
+        ]
+      ],
+      "fraction_of_candidate_child": 1.6444931552902954e-08,
+      "fraction_of_native_parent": 5.492024325222808e-09,
+      "intersection_centroid_m": [
+        -0.07575628363381287,
+        -1.4005188047859163,
+        0.043696856068756784
+      ],
+      "intersection_points_m": [
+        [
+          -0.055859602987766266,
+          -1.3933850526809692,
+          0.05319352075457574
+        ],
+        [
+          -0.0620168298482903,
+          -1.4203529357910187,
+          0.04588396474718969
+        ],
+        [
+          -0.09257435053587001,
+          -1.3941686153411865,
+          0.03785496950149521
+        ],
+        [
+          -0.09257435116332492,
+          -1.3941686153304904,
+          0.03785496927176652
+        ]
+      ],
+      "native_material_id": 16,
+      "native_material_interface_distance_m": 6.418692967623889e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3315,
+        3522,
+        3559
+      ],
+      "native_parent_row": 20086,
+      "native_parent_volume_m3": 8.418625056155179e-07,
+      "native_source_tet_row": 20086,
+      "native_tet_reference_points_m": [
+        [
+          -0.0925743505358696,
+          -1.3941686153411865,
+          0.03785496950149536
+        ],
+        [
+          -0.06201682984828949,
+          -1.4203529357910156,
+          0.045883964747190475
+        ],
+        [
+          -0.055859602987766266,
+          -1.3933850526809692,
+          0.05319352075457573
+        ],
+        [
+          -0.06017192453145981,
+          -1.3890912532806396,
+          0.057292692363262177
+        ]
+      ],
+      "overlap_over_cutoff": 164449.31552902953,
+      "overlap_volume_m3": 4.623529359333447e-15,
+      "positive_cutoff_m3": 2.811522410087061e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 1.0694978198187799e-13,
+      "candidate_I_PLC_nearest_face_row": 1563,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3136,
+        4779,
+        3176
+      ],
+      "candidate_cell_uid": 10161,
+      "candidate_child_row": 10156,
+      "candidate_child_volume_m3": 1.779936775469196e-06,
+      "candidate_material_id": 2,
+      "candidate_material_interface_distance_m": 1.0693713615932183e-13,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3136,
+        3176,
+        4779
+      ],
+      "candidate_native_material_id": 16,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          -0.15159006416797638,
+          -0.7032013535499573,
+          0.1914304494857788
+        ],
+        [
+          -0.15766489505767822,
+          -0.6976495385169983,
+          0.1781545877456665
+        ],
+        [
+          -0.1661038100719452,
+          -0.7647810578346252,
+          0.15954892337322235
+        ],
+        [
+          -0.1756202131509781,
+          -0.7653743624687195,
+          0.16222065687179565
+        ]
+      ],
+      "fraction_of_candidate_child": 6.77123170411786e-09,
+      "fraction_of_native_parent": 2.734840015693417e-08,
+      "intersection_centroid_m": [
+        -0.15882602639888455,
+        -0.7134152295374527,
+        0.1802781461757215
+      ],
+      "intersection_points_m": [
+        [
+          -0.17562021315097812,
+          -0.7653743624687196,
+          0.1622206568717956
+        ],
+        [
+          -0.1576648950576783,
+          -0.6976495385169986,
+          0.17815458774566642
+        ],
+        [
+          -0.15766489508601253,
+          -0.6976495387423972,
+          0.17815458768319667
+        ],
+        [
+          -0.15159006416797646,
+          -0.7032013535499575,
+          0.19143044948577867
+        ],
+        [
+          -0.1515900645317772,
+          -0.7032013544091913,
+          0.19143044909216997
+        ]
+      ],
+      "native_material_id": 15,
+      "native_material_interface_distance_m": 1.0693713615932183e-13,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3136,
+        3176,
+        4779
+      ],
+      "native_parent_row": 4598,
+      "native_parent_volume_m3": 4.40697234800642e-07,
+      "native_source_tet_row": 4598,
+      "native_tet_reference_points_m": [
+        [
+          -0.17797638475894928,
+          -0.765521228313446,
+          0.16288216412067413
+        ],
+        [
+          -0.1756202131509781,
+          -0.7653743624687195,
+          0.16222065687179565
+        ],
+        [
+          -0.15766489505767822,
+          -0.6976495385169983,
+          0.1781545877456665
+        ],
+        [
+          -0.15159006416797638,
+          -0.7032013535499573,
+          0.1914304494857788
+        ]
+      ],
+      "overlap_over_cutoff": 273484.00156934175,
+      "overlap_volume_m3": 1.2052364325382333e-14,
+      "positive_cutoff_m3": 4.40697234800642e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 1.8851421987049686e-12,
+      "candidate_I_PLC_nearest_face_row": 1562,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3175,
+        3136,
+        3176
+      ],
+      "candidate_cell_uid": 10162,
+      "candidate_child_row": 10157,
+      "candidate_child_volume_m3": 4.534127848580042e-06,
+      "candidate_material_id": 2,
+      "candidate_material_interface_distance_m": 1.8851309623053785e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3136,
+        3175,
+        3176
+      ],
+      "candidate_native_material_id": 16,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          -0.1756202131509781,
+          -0.7653743624687195,
+          0.16222065687179565
+        ],
+        [
+          -0.15159006416797638,
+          -0.7032013535499573,
+          0.1914304494857788
+        ],
+        [
+          -0.1548013985157013,
+          -0.7706089615821838,
+          0.19962000846862793
+        ],
+        [
+          -0.1661038100719452,
+          -0.7647810578346252,
+          0.15954892337322235
+        ]
+      ],
+      "fraction_of_candidate_child": 7.9576921837601e-10,
+      "fraction_of_native_parent": 3.214041202620448e-09,
+      "intersection_centroid_m": [
+        -0.15840043502185971,
+        -0.7355965078377792,
+        0.18617539105505646
+      ],
+      "intersection_points_m": [
+        [
+          -0.1548013985157013,
+          -0.7706089615821837,
+          0.1996200084686279
+        ],
+        [
+          -0.15159006416797638,
+          -0.7032013535499573,
+          0.1914304494857788
+        ],
+        [
+          -0.17562021315097803,
+          -0.7653743624687194,
+          0.1622206568717957
+        ],
+        [
+          -0.15159006425278315,
+          -0.703201353750256,
+          0.1914304493940234
+        ]
+      ],
+      "native_material_id": 15,
+      "native_material_interface_distance_m": 1.8851309623053785e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3136,
+        3175,
+        3176
+      ],
+      "native_parent_row": 4592,
+      "native_parent_volume_m3": 1.1226114248752305e-06,
+      "native_source_tet_row": 4592,
+      "native_tet_reference_points_m": [
+        [
+          -0.1756202131509781,
+          -0.7653743624687195,
+          0.16222065687179565
+        ],
+        [
+          -0.17797638475894928,
+          -0.765521228313446,
+          0.16288216412067413
+        ],
+        [
+          -0.1548013985157013,
+          -0.7706089615821838,
+          0.19962000846862793
+        ],
+        [
+          -0.15159006416797638,
+          -0.7032013535499573,
+          0.1914304494857788
+        ]
+      ],
+      "overlap_over_cutoff": 32140.412026204474,
+      "overlap_volume_m3": 3.60811937408144e-15,
+      "positive_cutoff_m3": 1.1226114248752306e-19
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 2.2776271286275968e-12,
+      "candidate_I_PLC_nearest_face_row": 1913,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3566,
+        3284,
+        3709
+      ],
+      "candidate_cell_uid": 10211,
+      "candidate_child_row": 10206,
+      "candidate_child_volume_m3": 6.117131442914977e-06,
+      "candidate_material_id": 2,
+      "candidate_material_interface_distance_m": 2.2776823041464437e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3284,
+        3566,
+        3709
+      ],
+      "candidate_native_material_id": 16,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          -0.023119814693927765,
+          -0.5610299110412598,
+          0.2595808506011963
+        ],
+        [
+          -0.09108719974756241,
+          -0.5578573942184448,
+          0.2573918104171753
+        ],
+        [
+          -0.053842224180698395,
+          -0.6143443584442139,
+          0.26351889967918396
+        ],
+        [
+          -0.09254816174507141,
+          -0.5574535131454468,
+          0.267177939414978
+        ]
+      ],
+      "fraction_of_candidate_child": 9.51846923766879e-10,
+      "fraction_of_native_parent": 3.843896181734209e-09,
+      "intersection_centroid_m": [
+        -0.05583810623764168,
+        -0.5867930352140174,
+        0.2634491473494805
+      ],
+      "intersection_points_m": [
+        [
+          -0.09254816174507145,
+          -0.5574535131454467,
+          0.267177939414978
+        ],
+        [
+          -0.05384222418069831,
+          -0.614344358444214,
+          0.26351889967918396
+        ],
+        [
+          -0.05384222433086927,
+          -0.6143443582251489,
+          0.2635188997025637
+        ],
+        [
+          -0.023119814693927713,
+          -0.5610299110412598,
+          0.2595808506011963
+        ]
+      ],
+      "native_material_id": 15,
+      "native_material_interface_distance_m": 2.2776823041464437e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3284,
+        3566,
+        3709
+      ],
+      "native_parent_row": 5688,
+      "native_parent_volume_m3": 1.5147580660176323e-06,
+      "native_source_tet_row": 5688,
+      "native_tet_reference_points_m": [
+        [
+          -0.09254816174507141,
+          -0.5574535131454468,
+          0.267177939414978
+        ],
+        [
+          -0.09290952235460281,
+          -0.5573540925979614,
+          0.2696011960506439
+        ],
+        [
+          -0.053842224180698395,
+          -0.6143443584442139,
+          0.26351889967918396
+        ],
+        [
+          -0.023119814693927765,
+          -0.5610299110412598,
+          0.2595808506011963
+        ]
+      ],
+      "overlap_over_cutoff": 38438.96181734208,
+      "overlap_volume_m3": 5.822572746216271e-15,
+      "positive_cutoff_m3": 1.5147580660176324e-19
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 3.492331095281003e-12,
+      "candidate_I_PLC_nearest_face_row": 2969,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3935,
+        3815,
+        4049
+      ],
+      "candidate_cell_uid": 13478,
+      "candidate_child_row": 13473,
+      "candidate_child_volume_m3": 1.3587369479474207e-07,
+      "candidate_material_id": 1,
+      "candidate_material_interface_distance_m": 3.4924366615836278e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3815,
+        3935,
+        4049
+      ],
+      "candidate_native_material_id": 15,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          0.02476303093135357,
+          -1.3429288864135742,
+          0.04802587628364563
+        ],
+        [
+          0.011158915236592293,
+          -1.3516179323196411,
+          0.06562934070825577
+        ],
+        [
+          -0.0007146229618228972,
+          -1.3778343200683594,
+          0.09161890298128128
+        ],
+        [
+          0.026033949106931686,
+          -1.3430324792861938,
+          0.05011949688196182
+        ]
+      ],
+      "fraction_of_candidate_child": 6.802505402442602e-09,
+      "fraction_of_native_parent": 1.6842455866639612e-09,
+      "intersection_centroid_m": [
+        0.00894090456164066,
+        -1.3625797629950007,
+        0.07474666096233203
+      ],
+      "intersection_points_m": [
+        [
+          0.026033949106931742,
+          -1.3430324792861938,
+          0.05011949688196177
+        ],
+        [
+          -0.000714622961824169,
+          -1.3778343200683614,
+          0.09161890298128347
+        ],
+        [
+          0.011158915236591608,
+          -1.351617932319642,
+          0.06562934070825681
+        ],
+        [
+          -0.0007146231351365385,
+          -1.3778343203058063,
+          0.09161890327782608
+        ]
+      ],
+      "native_material_id": 16,
+      "native_material_interface_distance_m": 3.4924366615836278e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3815,
+        3935,
+        4049
+      ],
+      "native_parent_row": 21748,
+      "native_parent_volume_m3": 5.48780742078015e-07,
+      "native_source_tet_row": 21748,
+      "native_tet_reference_points_m": [
+        [
+          0.011158915236592293,
+          -1.3516179323196411,
+          0.06562934070825577
+        ],
+        [
+          -0.0007146229618228972,
+          -1.3778343200683594,
+          0.09161890298128128
+        ],
+        [
+          0.026033949106931686,
+          -1.3430324792861938,
+          0.05011949688196182
+        ],
+        [
+          0.0311665628105402,
+          -1.3434516191482544,
+          0.05857626721262932
+        ]
+      ],
+      "overlap_over_cutoff": 68025.05402442603,
+      "overlap_volume_m3": 9.242815428910703e-16,
+      "positive_cutoff_m3": 1.3587369479474207e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 3.4826861059250775e-12,
+      "candidate_I_PLC_nearest_face_row": 1800,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3236,
+        3376,
+        3419
+      ],
+      "candidate_cell_uid": 16708,
+      "candidate_child_row": 16703,
+      "candidate_child_volume_m3": 5.94944143452695e-07,
+      "candidate_material_id": 1,
+      "candidate_material_interface_distance_m": 3.4826861059250775e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3236,
+        3376,
+        3419
+      ],
+      "candidate_native_material_id": 15,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          -0.0715787336230278,
+          -1.6905311346054077,
+          0.15831385552883148
+        ],
+        [
+          -0.07308517396450043,
+          -1.7246665954589844,
+          0.12434606999158859
+        ],
+        [
+          -0.0962715893983841,
+          -1.6852895021438599,
+          0.1911499947309494
+        ],
+        [
+          -0.07506364583969116,
+          -1.7233760356903076,
+          0.12369022518396378
+        ]
+      ],
+      "fraction_of_candidate_child": 6.086387666382328e-09,
+      "fraction_of_native_parent": 1.5068655179224378e-09,
+      "intersection_centroid_m": [
+        -0.07862317561873992,
+        -1.6974319517093086,
+        0.15786698279482497
+      ],
+      "intersection_points_m": [
+        [
+          -0.07506364583969088,
+          -1.723376035690308,
+          0.12369022518396328
+        ],
+        [
+          -0.09627158939838157,
+          -1.6852895021438652,
+          0.19114999473094085
+        ],
+        [
+          -0.07157873362302777,
+          -1.6905311346054108,
+          0.158313855528828
+        ],
+        [
+          -0.07157873361385947,
+          -1.6905311343976508,
+          0.15831385573556775
+        ]
+      ],
+      "native_material_id": 16,
+      "native_material_interface_distance_m": 3.4826861059250775e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3236,
+        3376,
+        3419
+      ],
+      "native_parent_row": 19768,
+      "native_parent_volume_m3": 2.403041713960878e-06,
+      "native_source_tet_row": 19768,
+      "native_tet_reference_points_m": [
+        [
+          -0.0962715893983841,
+          -1.6852895021438599,
+          0.1911499947309494
+        ],
+        [
+          -0.0715787336230278,
+          -1.6905311346054077,
+          0.15831385552883148
+        ],
+        [
+          -0.07506364583969116,
+          -1.7233760356903076,
+          0.12369022518396378
+        ],
+        [
+          -0.08305485546588898,
+          -1.7181655168533325,
+          0.12103859335184097
+        ]
+      ],
+      "overlap_over_cutoff": 60863.87666382327,
+      "overlap_volume_m3": 3.621060696896881e-15,
+      "positive_cutoff_m3": 5.949441434526951e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 8.086956157787188e-13,
+      "candidate_I_PLC_nearest_face_row": 1846,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3268,
+        3256,
+        3419
+      ],
+      "candidate_cell_uid": 16839,
+      "candidate_child_row": 16834,
+      "candidate_child_volume_m3": 1.0278092126692294e-06,
+      "candidate_material_id": 2,
+      "candidate_material_interface_distance_m": 8.087066923011439e-13,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3256,
+        3268,
+        3419
+      ],
+      "candidate_native_material_id": 16,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          -0.07597658783197403,
+          -1.7269154787063599,
+          0.2190016210079193
+        ],
+        [
+          -0.07506364583969116,
+          -1.7233760356903076,
+          0.12369022518396378
+        ],
+        [
+          -0.0758320540189743,
+          -1.7376787662506104,
+          0.2194710522890091
+        ],
+        [
+          -0.0819273442029953,
+          -1.7262508869171143,
+          0.21111638844013214
+        ]
+      ],
+      "fraction_of_candidate_child": 5.373193595565679e-10,
+      "fraction_of_native_parent": 2.169810224567893e-09,
+      "intersection_centroid_m": [
+        -0.07548398338288681,
+        -1.7278365790823869,
+        0.17146328086345283
+      ],
+      "intersection_points_m": [
+        [
+          -0.0758320540189743,
+          -1.7376787662506104,
+          0.21947105228900907
+        ],
+        [
+          -0.07506364583969119,
+          -1.7233760356903078,
+          0.12369022518396565
+        ],
+        [
+          -0.07597658783197403,
+          -1.72691547870636,
+          0.21900162100791934
+        ],
+        [
+          -0.07506364584090772,
+          -1.72337603568227,
+          0.12369022497291723
+        ]
+      ],
+      "native_material_id": 15,
+      "native_material_interface_distance_m": 8.087066923011439e-13,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3256,
+        3268,
+        3419
+      ],
+      "native_parent_row": 5400,
+      "native_parent_volume_m3": 2.545207786583045e-07,
+      "native_source_tet_row": 5400,
+      "native_tet_reference_points_m": [
+        [
+          -0.07597658783197403,
+          -1.7269154787063599,
+          0.2190016210079193
+        ],
+        [
+          -0.07450296729803085,
+          -1.7270801067352295,
+          0.22095341980457306
+        ],
+        [
+          -0.0758320540189743,
+          -1.7376787662506104,
+          0.2194710522890091
+        ],
+        [
+          -0.07506364583969116,
+          -1.7233760356903076,
+          0.12369022518396378
+        ]
+      ],
+      "overlap_over_cutoff": 21698.10224567893,
+      "overlap_volume_m3": 5.522617878977707e-16,
+      "positive_cutoff_m3": 2.5452077865830453e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 1.5472942509043384e-12,
+      "candidate_I_PLC_nearest_face_row": 1724,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3269,
+        3200,
+        3270
+      ],
+      "candidate_cell_uid": 17177,
+      "candidate_child_row": 17172,
+      "candidate_child_volume_m3": 9.315778303031747e-06,
+      "candidate_material_id": 2,
+      "candidate_material_interface_distance_m": 1.5473161543785498e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3200,
+        3269,
+        3270
+      ],
+      "candidate_native_material_id": 16,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          -0.14243818819522858,
+          -1.0114818811416626,
+          0.21419206261634827
+        ],
+        [
+          -0.09555085748434067,
+          -0.9367821216583252,
+          0.20697391033172607
+        ],
+        [
+          -0.10047463327646255,
+          -1.1088484525680542,
+          0.20343737304210663
+        ],
+        [
+          -0.1372789591550827,
+          -1.0094949007034302,
+          0.2059757113456726
+        ]
+      ],
+      "fraction_of_candidate_child": 8.690601832356381e-10,
+      "fraction_of_native_parent": 3.5093242162194693e-09,
+      "intersection_centroid_m": [
+        -0.10973457802018668,
+        -1.0414902270690152,
+        0.20701017974685135
+      ],
+      "intersection_points_m": [
+        [
+          -0.10047463327646206,
+          -1.1088484525680555,
+          0.20343737304210655
+        ],
+        [
+          -0.09555085748434049,
+          -0.936782121658325,
+          0.20697391033172607
+        ],
+        [
+          -0.14243818819522863,
+          -1.0114818811416626,
+          0.21419206261634827
+        ],
+        [
+          -0.10047463312471554,
+          -1.1088484529080174,
+          0.20343737299722456
+        ]
+      ],
+      "native_material_id": 15,
+      "native_material_interface_distance_m": 1.5473161543785498e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3200,
+        3269,
+        3270
+      ],
+      "native_parent_row": 5235,
+      "native_parent_volume_m3": 2.306988895923955e-06,
+      "native_source_tet_row": 5235,
+      "native_tet_reference_points_m": [
+        [
+          -0.14243818819522858,
+          -1.0114818811416626,
+          0.21419206261634827
+        ],
+        [
+          -0.14371590316295624,
+          -1.0119738578796387,
+          0.21622680127620697
+        ],
+        [
+          -0.10047463327646255,
+          -1.1088484525680542,
+          0.20343737304210663
+        ],
+        [
+          -0.09555085748434067,
+          -0.9367821216583252,
+          0.20697391033172607
+        ]
+      ],
+      "overlap_over_cutoff": 35093.24216219469,
+      "overlap_volume_m3": 8.095971999015353e-15,
+      "positive_cutoff_m3": 2.306988895923955e-19
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 2.2495430816653587e-12,
+      "candidate_I_PLC_nearest_face_row": 3724,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        4232,
+        4205,
+        4262
+      ],
+      "candidate_cell_uid": 17900,
+      "candidate_child_row": 17895,
+      "candidate_child_volume_m3": 2.879606079185739e-06,
+      "candidate_material_id": 2,
+      "candidate_material_interface_distance_m": 2.2495320425767814e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        4205,
+        4232,
+        4262
+      ],
+      "candidate_native_material_id": 16,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          0.06853959709405899,
+          -1.2632732391357422,
+          0.19313457608222961
+        ],
+        [
+          0.10250434279441833,
+          -1.2059004306793213,
+          0.17306552827358246
+        ],
+        [
+          0.07615876942873001,
+          -1.2908587455749512,
+          0.1809287965297699
+        ],
+        [
+          0.06501571834087372,
+          -1.262588620185852,
+          0.18390655517578125
+        ]
+      ],
+      "fraction_of_candidate_child": 9.783030082582622e-10,
+      "fraction_of_native_parent": 3.951433565883766e-09,
+      "intersection_centroid_m": [
+        0.08742676299521568,
+        -1.241483211574178,
+        0.1800486073118736
+      ],
+      "intersection_points_m": [
+        [
+          0.07615876942873007,
+          -1.2908587455749512,
+          0.18092879652976987
+        ],
+        [
+          0.10250434279441872,
+          -1.2059004306793206,
+          0.17306552827358232
+        ],
+        [
+          0.06853959709405906,
+          -1.2632732391357424,
+          0.19313457608222961
+        ],
+        [
+          0.1025043426636549,
+          -1.2059004309066983,
+          0.1730655283619127
+        ]
+      ],
+      "native_material_id": 15,
+      "native_material_interface_distance_m": 2.2495320425767814e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        4205,
+        4232,
+        4262
+      ],
+      "native_parent_row": 8895,
+      "native_parent_volume_m3": 7.129380370174888e-07,
+      "native_source_tet_row": 8895,
+      "native_tet_reference_points_m": [
+        [
+          0.06853959709405899,
+          -1.2632732391357422,
+          0.19313457608222961
+        ],
+        [
+          0.06941192597150803,
+          -1.2634429931640625,
+          0.1954193264245987
+        ],
+        [
+          0.07615876942873001,
+          -1.2908587455749512,
+          0.1809287965297699
+        ],
+        [
+          0.10250434279441833,
+          -1.2059004306793213,
+          0.17306552827358246
+        ]
+      ],
+      "overlap_over_cutoff": 39514.335658837656,
+      "overlap_volume_m3": 2.817127289866188e-15,
+      "positive_cutoff_m3": 7.129380370174888e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 9.464785274917645e-12,
+      "candidate_I_PLC_nearest_face_row": 4196,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        4440,
+        4808,
+        4618
+      ],
+      "candidate_cell_uid": 21100,
+      "candidate_child_row": 21095,
+      "candidate_child_volume_m3": 1.9368658756573496e-07,
+      "candidate_material_id": 1,
+      "candidate_material_interface_distance_m": 9.464785274917645e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        4440,
+        4618,
+        4808
+      ],
+      "candidate_native_material_id": 15,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          0.1955452859401703,
+          -0.6616160869598389,
+          0.13541100919246674
+        ],
+        [
+          0.1570284068584442,
+          -0.697064995765686,
+          0.12467449903488159
+        ],
+        [
+          0.16757002472877502,
+          -0.7088593244552612,
+          0.13188186287879944
+        ],
+        [
+          0.19637641310691833,
+          -0.6623859405517578,
+          0.13735105097293854
+        ]
+      ],
+      "fraction_of_candidate_child": 2.4273435044393875e-08,
+      "fraction_of_native_parent": 1.563224766299247e-08,
+      "intersection_centroid_m": [
+        0.17105675340287158,
+        -0.6970518111919238,
+        0.13114621935964207
+      ],
+      "intersection_points_m": [
+        [
+          0.167570024728775,
+          -0.7088593244552615,
+          0.1318818628787995
+        ],
+        [
+          0.16757002434104876,
+          -0.7088593250807806,
+          0.13188186280518566
+        ],
+        [
+          0.15702840685844457,
+          -0.6970649957656857,
+          0.12467449903488166
+        ],
+        [
+          0.19554528594017054,
+          -0.6616160869598386,
+          0.13541100919246682
+        ],
+        [
+          0.16757002514591915,
+          -0.7088593236980527,
+          0.13188186288687678
+        ]
+      ],
+      "native_material_id": 16,
+      "native_material_interface_distance_m": 9.464785274917645e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        4440,
+        4618,
+        4808
+      ],
+      "native_parent_row": 24785,
+      "native_parent_volume_m3": 3.007525791302094e-07,
+      "native_source_tet_row": 24785,
+      "native_tet_reference_points_m": [
+        [
+          0.16757002472877502,
+          -0.7088593244552612,
+          0.13188186287879944
+        ],
+        [
+          0.1570284068584442,
+          -0.697064995765686,
+          0.12467449903488159
+        ],
+        [
+          0.1955452859401703,
+          -0.6616160869598389,
+          0.13541100919246674
+        ],
+        [
+          0.19425489008426666,
+          -0.6604204177856445,
+          0.1323985755443573
+        ]
+      ],
+      "overlap_over_cutoff": 242734.35044393872,
+      "overlap_volume_m3": 4.701438802247174e-15,
+      "positive_cutoff_m3": 1.9368658756573498e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 1.8508187855891977e-11,
+      "candidate_I_PLC_nearest_face_row": 4194,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        4486,
+        4440,
+        4618
+      ],
+      "candidate_cell_uid": 21238,
+      "candidate_child_row": 21233,
+      "candidate_child_volume_m3": 8.303696036052454e-07,
+      "candidate_material_id": 1,
+      "candidate_material_interface_distance_m": 1.8508187855891977e-11,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        4440,
+        4486,
+        4618
+      ],
+      "candidate_native_material_id": 15,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          0.19108474254608154,
+          -0.7647899389266968,
+          0.1336640864610672
+        ],
+        [
+          0.1955452859401703,
+          -0.6616160869598389,
+          0.13541100919246674
+        ],
+        [
+          0.16757002472877502,
+          -0.7088593244552612,
+          0.13188186287879944
+        ],
+        [
+          0.19637641310691833,
+          -0.6623859405517578,
+          0.13735105097293854
+        ]
+      ],
+      "fraction_of_candidate_child": 2.570214301171407e-08,
+      "fraction_of_native_parent": 1.655236455452415e-08,
+      "intersection_centroid_m": [
+        0.1778680204698661,
+        -0.7105967999379167,
+        0.13294413683148795
+      ],
+      "intersection_points_m": [
+        [
+          0.16757002472877555,
+          -0.7088593244552606,
+          0.13188186287879952
+        ],
+        [
+          0.16757002398838985,
+          -0.7088593256497258,
+          0.1318818627382297
+        ],
+        [
+          0.1955452859401703,
+          -0.6616160869598391,
+          0.13541100919246676
+        ],
+        [
+          0.16757002514591318,
+          -0.7088593236980635,
+          0.1318818628868767
+        ],
+        [
+          0.19108474254608163,
+          -0.7647899389266944,
+          0.13366408646106726
+        ]
+      ],
+      "native_material_id": 16,
+      "native_material_interface_distance_m": 1.8508187855891977e-11,
+      "native_material_interface_nearest_face_vertex_rows": [
+        4440,
+        4486,
+        4618
+      ],
+      "native_parent_row": 24990,
+      "native_parent_volume_m3": 1.289379425769655e-06,
+      "native_source_tet_row": 24990,
+      "native_tet_reference_points_m": [
+        [
+          0.19108474254608154,
+          -0.7647899389266968,
+          0.1336640864610672
+        ],
+        [
+          0.16757002472877502,
+          -0.7088593244552612,
+          0.13188186287879944
+        ],
+        [
+          0.1955452859401703,
+          -0.6616160869598389,
+          0.13541100919246674
+        ],
+        [
+          0.19425489008426666,
+          -0.6604204177856445,
+          0.1323985755443573
+        ]
+      ],
+      "overlap_over_cutoff": 257021.43011714067,
+      "overlap_volume_m3": 2.1342278304442338e-14,
+      "positive_cutoff_m3": 8.303696036052454e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 1.4608224273613935e-11,
+      "candidate_I_PLC_nearest_face_row": 3649,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        4194,
+        4167,
+        4200
+      ],
+      "candidate_cell_uid": 25022,
+      "candidate_child_row": 25017,
+      "candidate_child_volume_m3": 5.429488540378264e-07,
+      "candidate_material_id": 2,
+      "candidate_material_interface_distance_m": 1.460825283679109e-11,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        4167,
+        4194,
+        4200
+      ],
+      "candidate_native_material_id": 16,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          0.058720462024211884,
+          -0.8072800636291504,
+          0.020896799862384796
+        ],
+        [
+          0.04788994789123535,
+          -0.8211120367050171,
+          0.02241409569978714
+        ],
+        [
+          0.05155174061655998,
+          -0.8189643621444702,
+          0.013469697907567024
+        ],
+        [
+          0.06789829581975937,
+          -0.831142008304596,
+          0.01991628110408783
+        ]
+      ],
+      "fraction_of_candidate_child": 5.964715058448327e-09,
+      "fraction_of_native_parent": 2.409395277438482e-08,
+      "intersection_centroid_m": [
+        0.05922274008347101,
+        -0.8161666244940106,
+        0.018794894626037034
+      ],
+      "intersection_points_m": [
+        [
+          0.06789829581975948,
+          -0.8311420083045962,
+          0.019916281104087823
+        ],
+        [
+          0.05155174061656008,
+          -0.8189643621444702,
+          0.01346969790756699
+        ],
+        [
+          0.05872046202421187,
+          -0.8072800636291505,
+          0.020896799862384793
+        ],
+        [
+          0.05872046187335261,
+          -0.8072800638978254,
+          0.020896799630108525
+        ]
+      ],
+      "native_material_id": 15,
+      "native_material_interface_distance_m": 1.460825283679109e-11,
+      "native_material_interface_nearest_face_vertex_rows": [
+        4167,
+        4194,
+        4200
+      ],
+      "native_parent_row": 8592,
+      "native_parent_volume_m3": 1.3441278133033004e-07,
+      "native_source_tet_row": 8592,
+      "native_tet_reference_points_m": [
+        [
+          0.05155174061655998,
+          -0.8189643621444702,
+          0.013469697907567024
+        ],
+        [
+          0.052459169179201126,
+          -0.8184311985969543,
+          0.01125636138021946
+        ],
+        [
+          0.058720462024211884,
+          -0.8072800636291504,
+          0.020896799862384796
+        ],
+        [
+          0.06789829581975937,
+          -0.831142008304596,
+          0.01991628110408783
+        ]
+      ],
+      "overlap_over_cutoff": 240939.5277438482,
+      "overlap_volume_m3": 3.2385352056466853e-15,
+      "positive_cutoff_m3": 1.3441278133033004e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 3.780209616574949e-12,
+      "candidate_I_PLC_nearest_face_row": 3098,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3969,
+        3878,
+        4040
+      ],
+      "candidate_cell_uid": 26101,
+      "candidate_child_row": 26096,
+      "candidate_child_volume_m3": 4.677199389755972e-07,
+      "candidate_material_id": 2,
+      "candidate_material_interface_distance_m": 3.7802074419305565e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3878,
+        3969,
+        4040
+      ],
+      "candidate_native_material_id": 16,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          0.005436237435787916,
+          -0.09057580679655075,
+          0.22042958438396454
+        ],
+        [
+          0.02721557766199112,
+          -0.11056997627019882,
+          0.20875436067581177
+        ],
+        [
+          0.01567821204662323,
+          -0.12530401349067688,
+          0.2236061543226242
+        ],
+        [
+          0.003620751667767763,
+          -0.09247121214866638,
+          0.21753402054309845
+        ]
+      ],
+      "fraction_of_candidate_child": 4.0314357054103425e-09,
+      "fraction_of_native_parent": 6.427661801485984e-09,
+      "intersection_centroid_m": [
+        0.01600205981238379,
+        -0.11293845256973864,
+        0.21909906342844213
+      ],
+      "intersection_points_m": [
+        [
+          0.015678212046623285,
+          -0.125304013490677,
+          0.22360615432262423
+        ],
+        [
+          0.027215577661991074,
+          -0.11056997627019877,
+          0.20875436067581182
+        ],
+        [
+          0.005436237435787921,
+          -0.09057580679655076,
+          0.22042958438396457
+        ],
+        [
+          0.015678212105132885,
+          -0.12530401372152802,
+          0.22360615433136785
+        ]
+      ],
+      "native_material_id": 15,
+      "native_material_interface_distance_m": 3.7802074419305565e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3878,
+        3969,
+        4040
+      ],
+      "native_parent_row": 14066,
+      "native_parent_volume_m3": 2.9335439859058063e-07,
+      "native_source_tet_row": 14066,
+      "native_tet_reference_points_m": [
+        [
+          0.005436237435787916,
+          -0.09057580679655075,
+          0.22042958438396454
+        ],
+        [
+          0.006575425621122122,
+          -0.08938874304294586,
+          0.22224584221839905
+        ],
+        [
+          0.01567821204662323,
+          -0.12530401349067688,
+          0.2236061543226242
+        ],
+        [
+          0.02721557766199112,
+          -0.11056997627019882,
+          0.20875436067581177
+        ]
+      ],
+      "overlap_over_cutoff": 64276.61801485983,
+      "overlap_volume_m3": 1.885582862118569e-15,
+      "positive_cutoff_m3": 2.9335439859058066e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 8.451585060684018e-12,
+      "candidate_I_PLC_nearest_face_row": 2694,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3678,
+        3679,
+        3682
+      ],
+      "candidate_cell_uid": 26909,
+      "candidate_child_row": 26904,
+      "candidate_child_volume_m3": 9.246289330972451e-07,
+      "candidate_material_id": 2,
+      "candidate_material_interface_distance_m": 8.451585060684018e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3678,
+        3679,
+        3682
+      ],
+      "candidate_native_material_id": 16,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          -0.03055342473089695,
+          -0.9397587180137634,
+          0.14541800320148468
+        ],
+        [
+          -0.03545451909303665,
+          -0.9695966243743896,
+          0.1488439440727234
+        ],
+        [
+          -0.04000895097851753,
+          -0.962855339050293,
+          0.14853712916374207
+        ],
+        [
+          -0.0289786197245121,
+          -0.9607332348823547,
+          0.1145721971988678
+        ]
+      ],
+      "fraction_of_candidate_child": 6.179056506546356e-09,
+      "fraction_of_native_parent": 2.052852549647706e-08,
+      "intersection_centroid_m": [
+        -0.03099129584443685,
+        -0.9577054530941143,
+        0.13085158559433507
+      ],
+      "intersection_points_m": [
+        [
+          -0.028978619724512135,
+          -0.9607332348823546,
+          0.11457219719886809
+        ],
+        [
+          -0.03545451909303663,
+          -0.9695966243743894,
+          0.1488439440727234
+        ],
+        [
+          -0.02897861982930166,
+          -0.9607332351059495,
+          0.11457219790426418
+        ],
+        [
+          -0.030553424730896978,
+          -0.9397587180137635,
+          0.14541800320148468
+        ]
+      ],
+      "native_material_id": 15,
+      "native_material_interface_distance_m": 8.451585060684018e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3678,
+        3679,
+        3682
+      ],
+      "native_parent_row": 6270,
+      "native_parent_volume_m3": 2.7831197258546527e-07,
+      "native_source_tet_row": 6270,
+      "native_tet_reference_points_m": [
+        [
+          -0.034083202481269836,
+          -0.9716251492500305,
+          0.14893396198749542
+        ],
+        [
+          -0.03545451909303665,
+          -0.9695966243743896,
+          0.1488439440727234
+        ],
+        [
+          -0.03055342473089695,
+          -0.9397587180137634,
+          0.14541800320148468
+        ],
+        [
+          -0.0289786197245121,
+          -0.9607332348823547,
+          0.1145721971988678
+        ]
+      ],
+      "overlap_over_cutoff": 205285.25496477057,
+      "overlap_volume_m3": 5.7133344251955484e-15,
+      "positive_cutoff_m3": 2.783119725854653e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 2.6612689799195564e-12,
+      "candidate_I_PLC_nearest_face_row": 2523,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3589,
+        3662,
+        3663
+      ],
+      "candidate_cell_uid": 26936,
+      "candidate_child_row": 26931,
+      "candidate_child_volume_m3": 2.0360501225054428e-06,
+      "candidate_material_id": 1,
+      "candidate_material_interface_distance_m": 2.6612689799195564e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3589,
+        3662,
+        3663
+      ],
+      "candidate_native_material_id": 15,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          -0.034371983259916306,
+          -1.0699690580368042,
+          0.10126344859600067
+        ],
+        [
+          -0.05620397999882698,
+          -1.2366167306900024,
+          0.15685151517391205
+        ],
+        [
+          -0.033867284655570984,
+          -1.0803112983703613,
+          0.1385582685470581
+        ],
+        [
+          -0.036332398653030396,
+          -1.0685131549835205,
+          0.10104697197675705
+        ]
+      ],
+      "fraction_of_candidate_child": 4.725869560849375e-09,
+      "fraction_of_native_parent": 1.1701327951141965e-09,
+      "intersection_centroid_m": [
+        -0.04776232466494322,
+        -1.1717349290953887,
+        0.14203195721296719
+      ],
+      "intersection_points_m": [
+        [
+          -0.03633239865303041,
+          -1.0685131549835205,
+          0.10104697197675705
+        ],
+        [
+          -0.03386728465557094,
+          -1.0803112983703613,
+          0.13855826854705833
+        ],
+        [
+          -0.05620397999882709,
+          -1.236616730690003,
+          0.1568515151739123
+        ],
+        [
+          -0.05620398003244865,
+          -1.2366167309466427,
+          0.15685151525951857
+        ],
+        [
+          -0.056203979984839024,
+          -1.2366167304864164,
+          0.15685151510758963
+        ]
+      ],
+      "native_material_id": 16,
+      "native_material_interface_distance_m": 2.6612689799195564e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3589,
+        3662,
+        3663
+      ],
+      "native_parent_row": 20395,
+      "native_parent_volume_m3": 8.223090010371912e-06,
+      "native_source_tet_row": 20395,
+      "native_tet_reference_points_m": [
+        [
+          -0.05620397999882698,
+          -1.2366167306900024,
+          0.15685151517391205
+        ],
+        [
+          -0.033867284655570984,
+          -1.0803112983703613,
+          0.1385582685470581
+        ],
+        [
+          -0.036332398653030396,
+          -1.0685131549835205,
+          0.10104697197675705
+        ],
+        [
+          -0.04424982890486717,
+          -1.062631607055664,
+          0.100172258913517
+        ]
+      ],
+      "overlap_over_cutoff": 47258.69560849375,
+      "overlap_volume_m3": 9.622107298312112e-15,
+      "positive_cutoff_m3": 2.0360501225054427e-19
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 4.197380239508232e-12,
+      "candidate_I_PLC_nearest_face_row": 3730,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        4208,
+        4210,
+        4233
+      ],
+      "candidate_cell_uid": 27776,
+      "candidate_child_row": 27768,
+      "candidate_child_volume_m3": 1.0741605934624687e-06,
+      "candidate_material_id": 2,
+      "candidate_material_interface_distance_m": 4.197380239508232e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        4208,
+        4210,
+        4233
+      ],
+      "candidate_native_material_id": 16,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          0.07521951198577881,
+          -1.6437751054763794,
+          0.12149681150913239
+        ],
+        [
+          0.07331135123968124,
+          -1.650003433227539,
+          0.08828706294298172
+        ],
+        [
+          0.08575130254030228,
+          -1.6725952625274658,
+          0.09678849577903748
+        ],
+        [
+          0.06740482151508331,
+          -1.6454828977584839,
+          0.11726944148540497
+        ]
+      ],
+      "fraction_of_candidate_child": 2.355114237605944e-09,
+      "fraction_of_native_parent": 8.692788775938033e-09,
+      "intersection_centroid_m": [
+        0.07689837924261306,
+        -1.6540943086292719,
+        0.09871485821887215
+      ],
+      "intersection_points_m": [
+        [
+          0.08575130254030237,
+          -1.672595262527466,
+          0.09678849577903727
+        ],
+        [
+          0.07331135123968138,
+          -1.6500034332275393,
+          0.0882870629429811
+        ],
+        [
+          0.07521951198577881,
+          -1.6437751054763794,
+          0.12149681150913226
+        ],
+        [
+          0.07331135120468965,
+          -1.6500034332857032,
+          0.08828706264433794
+        ]
+      ],
+      "native_material_id": 15,
+      "native_material_interface_distance_m": 4.197380239508232e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        4208,
+        4210,
+        4233
+      ],
+      "native_parent_row": 8832,
+      "native_parent_volume_m3": 2.91019484350202e-07,
+      "native_source_tet_row": 8832,
+      "native_tet_reference_points_m": [
+        [
+          0.07733678072690964,
+          -1.6433123350143433,
+          0.12264276295900345
+        ],
+        [
+          0.07521951198577881,
+          -1.6437751054763794,
+          0.12149681150913239
+        ],
+        [
+          0.07331135123968124,
+          -1.650003433227539,
+          0.08828706294298172
+        ],
+        [
+          0.08575130254030228,
+          -1.6725952625274658,
+          0.09678849577903748
+        ]
+      ],
+      "overlap_over_cutoff": 86927.88775938033,
+      "overlap_volume_m3": 2.5297709071387103e-15,
+      "positive_cutoff_m3": 2.91019484350202e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 2.485136940182907e-12,
+      "candidate_I_PLC_nearest_face_row": 2523,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3589,
+        3662,
+        3663
+      ],
+      "candidate_cell_uid": 28249,
+      "candidate_child_row": 28241,
+      "candidate_child_volume_m3": 5.432850246962892e-06,
+      "candidate_material_id": 2,
+      "candidate_material_interface_distance_m": 2.485136940182907e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3589,
+        3662,
+        3663
+      ],
+      "candidate_native_material_id": 16,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          -0.036332398653030396,
+          -1.0685131549835205,
+          0.10104697197675705
+        ],
+        [
+          -0.033867284655570984,
+          -1.0803112983703613,
+          0.1385582685470581
+        ],
+        [
+          -0.06185826286673546,
+          -1.2326743602752686,
+          0.15251168608665466
+        ],
+        [
+          -0.05620397999882698,
+          -1.2366167306900024,
+          0.15685151517391205
+        ]
+      ],
+      "fraction_of_candidate_child": 1.754311616619531e-09,
+      "fraction_of_native_parent": 5.827066573868633e-09,
+      "intersection_centroid_m": [
+        -0.040684015516582794,
+        -1.113488585003465,
+        0.12437593200181768
+      ],
+      "intersection_points_m": [
+        [
+          -0.05620397999882699,
+          -1.2366167306900024,
+          0.15685151517391205
+        ],
+        [
+          -0.03386728465557102,
+          -1.0803112983703616,
+          0.13855826854705813
+        ],
+        [
+          -0.036332398653030465,
+          -1.068513154983521,
+          0.10104697197675722
+        ],
+        [
+          -0.03633239875890271,
+          -1.0685131559699756,
+          0.10104697230954332
+        ]
+      ],
+      "native_material_id": 15,
+      "native_material_interface_distance_m": 2.485136940182907e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3589,
+        3662,
+        3663
+      ],
+      "native_parent_row": 6081,
+      "native_parent_volume_m3": 1.6356278375713918e-06,
+      "native_source_tet_row": 6081,
+      "native_tet_reference_points_m": [
+        [
+          -0.05450156703591347,
+          -1.2378026247024536,
+          0.15815775096416473
+        ],
+        [
+          -0.05620397999882698,
+          -1.2366167306900024,
+          0.15685151517391205
+        ],
+        [
+          -0.033867284655570984,
+          -1.0803112983703613,
+          0.1385582685470581
+        ],
+        [
+          -0.036332398653030396,
+          -1.0685131549835205,
+          0.10104697197675705
+        ]
+      ],
+      "overlap_over_cutoff": 58270.66573868632,
+      "overlap_volume_m3": 9.53091229960129e-15,
+      "positive_cutoff_m3": 1.6356278375713919e-19
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 1.518853485014071e-11,
+      "candidate_I_PLC_nearest_face_row": 2131,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3426,
+        3380,
+        3522
+      ],
+      "candidate_cell_uid": 30079,
+      "candidate_child_row": 30068,
+      "candidate_child_volume_m3": 6.351497898610511e-07,
+      "candidate_material_id": 1,
+      "candidate_material_interface_distance_m": 1.518853183076063e-11,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3380,
+        3426,
+        3522
+      ],
+      "candidate_native_material_id": 15,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          -0.06031235679984093,
+          -1.4213426113128662,
+          0.04442611709237099
+        ],
+        [
+          -0.07615809142589569,
+          -1.4205873012542725,
+          0.03940977156162262
+        ],
+        [
+          -0.07894855737686157,
+          -1.5313233137130737,
+          0.05949205160140991
+        ],
+        [
+          -0.06201682984828949,
+          -1.4203529357910156,
+          0.045883964747190475
+        ]
+      ],
+      "fraction_of_candidate_child": 2.7897170432393392e-08,
+      "fraction_of_native_parent": 6.9069394842518145e-09,
+      "intersection_centroid_m": [
+        -0.07332039240872275,
+        -1.4482127130084264,
+        0.046048889902946886
+      ],
+      "intersection_points_m": [
+        [
+          -0.06201682984828948,
+          -1.4203529357910156,
+          0.045883964747190475
+        ],
+        [
+          -0.07894855737686154,
+          -1.5313233137130737,
+          0.0594920516014099
+        ],
+        [
+          -0.07615809142589554,
+          -1.4205873012542725,
+          0.03940977156162267
+        ],
+        [
+          -0.07615809098384439,
+          -1.4205873012753434,
+          0.03940977170156451
+        ]
+      ],
+      "native_material_id": 16,
+      "native_material_interface_distance_m": 1.518853183076063e-11,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3380,
+        3426,
+        3522
+      ],
+      "native_parent_row": 20068,
+      "native_parent_volume_m3": 2.5653738502056624e-06,
+      "native_source_tet_row": 20068,
+      "native_tet_reference_points_m": [
+        [
+          -0.07615809142589569,
+          -1.4205873012542725,
+          0.03940977156162262
+        ],
+        [
+          -0.07894855737686157,
+          -1.5313233137130737,
+          0.05949205160140991
+        ],
+        [
+          -0.06201682984828949,
+          -1.4203529357910156,
+          0.045883964747190475
+        ],
+        [
+          -0.06890140473842621,
+          -1.4163556098937988,
+          0.05177212506532669
+        ]
+      ],
+      "overlap_over_cutoff": 278971.7043239339,
+      "overlap_volume_m3": 1.771888193785259e-14,
+      "positive_cutoff_m3": 6.35149789861051e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 2.4322169104312075e-11,
+      "candidate_I_PLC_nearest_face_row": 2419,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        3559,
+        3522,
+        3619
+      ],
+      "candidate_cell_uid": 30100,
+      "candidate_child_row": 30089,
+      "candidate_child_volume_m3": 1.978552535954341e-06,
+      "candidate_material_id": 2,
+      "candidate_material_interface_distance_m": 2.4322192660377508e-11,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        3522,
+        3559,
+        3619
+      ],
+      "candidate_native_material_id": 16,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          -0.055859602987766266,
+          -1.3933850526809692,
+          0.05319352075457573
+        ],
+        [
+          -0.04242798686027527,
+          -1.4164355993270874,
+          0.09188230335712433
+        ],
+        [
+          -0.06890140473842621,
+          -1.4163556098937988,
+          0.05177212506532669
+        ],
+        [
+          -0.06201682984828949,
+          -1.4203529357910156,
+          0.045883964747190475
+        ]
+      ],
+      "fraction_of_candidate_child": 8.391496242643672e-09,
+      "fraction_of_native_parent": 3.389386012301056e-08,
+      "intersection_centroid_m": [
+        -0.04903207877744596,
+        -1.412608957323995,
+        0.07494487883409037
+      ],
+      "intersection_points_m": [
+        [
+          -0.06201682984828947,
+          -1.4203529357910156,
+          0.045883964747190475
+        ],
+        [
+          -0.042427986860275,
+          -1.4164355993270874,
+          0.09188230335712493
+        ],
+        [
+          -0.04242798672445364,
+          -1.4164355993274977,
+          0.09188230356290929
+        ],
+        [
+          -0.04242798746644545,
+          -1.4164355994934048,
+          0.09188230174865135
+        ],
+        [
+          -0.05585960298776623,
+          -1.3933850526809692,
+          0.05319352075457577
+        ]
+      ],
+      "native_material_id": 15,
+      "native_material_interface_distance_m": 2.4322192660377508e-11,
+      "native_material_interface_nearest_face_vertex_rows": [
+        3522,
+        3559,
+        3619
+      ],
+      "native_parent_row": 5931,
+      "native_parent_volume_m3": 4.898532097281585e-07,
+      "native_source_tet_row": 5931,
+      "native_tet_reference_points_m": [
+        [
+          -0.06201682984828949,
+          -1.4203529357910156,
+          0.045883964747190475
+        ],
+        [
+          -0.06031235679984093,
+          -1.4213426113128662,
+          0.04442611709237099
+        ],
+        [
+          -0.055859602987766266,
+          -1.3933850526809692,
+          0.05319352075457573
+        ],
+        [
+          -0.04242798686027527,
+          -1.4164355993270874,
+          0.09188230335712433
+        ]
+      ],
+      "overlap_over_cutoff": 338938.60123010556,
+      "overlap_volume_m3": 1.660301617133396e-14,
+      "positive_cutoff_m3": 4.898532097281585e-20
+    },
+    {
+      "candidate_I_PLC_distance_from_overlap_centroid_m": 3.408031407213117e-12,
+      "candidate_I_PLC_nearest_face_row": 3854,
+      "candidate_I_PLC_nearest_face_vertex_rows": [
+        4275,
+        4272,
+        4276
+      ],
+      "candidate_cell_uid": 32561,
+      "candidate_child_row": 32549,
+      "candidate_child_volume_m3": 4.526647009136661e-06,
+      "candidate_material_id": 2,
+      "candidate_material_interface_distance_m": 3.4080456702358207e-12,
+      "candidate_material_interface_nearest_face_vertex_rows": [
+        4272,
+        4275,
+        4276
+      ],
+      "candidate_native_material_id": 16,
+      "candidate_nearest_interface_face_is_source_I_PLC": true,
+      "candidate_tet_reference_points_m": [
+        [
+          0.10557940602302551,
+          -1.4204787015914917,
+          0.12296368926763535
+        ],
+        [
+          0.10538815706968307,
+          -1.379866600036621,
+          0.0718974620103836
+        ],
+        [
+          0.10361563414335251,
+          -1.4590308666229248,
+          0.09666016697883606
+        ],
+        [
+          0.0966043695807457,
+          -1.4204800128936768,
+          0.12185294926166534
+        ]
+      ],
+      "fraction_of_candidate_child": 1.5256944200326196e-09,
+      "fraction_of_native_parent": 5.627964261481852e-09,
+      "intersection_centroid_m": [
+        0.10499283857274366,
+        -1.409810692014774,
+        0.09085469499453562
+      ],
+      "intersection_points_m": [
+        [
+          0.10361563414335251,
+          -1.459030866622925,
+          0.0966601669788361
+        ],
+        [
+          0.10538815706968307,
+          -1.3798666000366213,
+          0.0718974620103836
+        ],
+        [
+          0.10557940602302553,
+          -1.4204787015914917,
+          0.12296368926763529
+        ],
+        [
+          0.10538815705491356,
+          -1.379866599808058,
+          0.07189746172128746
+        ]
+      ],
+      "native_material_id": 15,
+      "native_material_interface_distance_m": 3.4080456702358207e-12,
+      "native_material_interface_nearest_face_vertex_rows": [
+        4272,
+        4275,
+        4276
+      ],
+      "native_parent_row": 9328,
+      "native_parent_volume_m3": 1.2271364497753075e-06,
+      "native_source_tet_row": 9328,
+      "native_tet_reference_points_m": [
+        [
+          0.10557940602302551,
+          -1.4204787015914917,
+          0.12296368926763535
+        ],
+        [
+          0.10801246762275696,
+          -1.4204787015914917,
+          0.12326531857252121
+        ],
+        [
+          0.10361563414335251,
+          -1.4590308666229248,
+          0.09666016697883606
+        ],
+        [
+          0.10538815706968307,
+          -1.379866600036621,
+          0.0718974620103836
+        ]
+      ],
+      "overlap_over_cutoff": 56279.64261481851,
+      "overlap_volume_m3": 6.9062800832971505e-15,
+      "positive_cutoff_m3": 1.2271364497753077e-19
+    }
+  ]
+}

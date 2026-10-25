@@ -1,0 +1,50 @@
+{
+  "array_checks": {
+    "child_native_parent_indptr": {
+      "array_equal": true,
+      "sha256_partition": "10590cd1a88ebcfc95756a6a22eae5c0f8900872f5e30f7b3421190d165b3add",
+      "sha256_raw": "10590cd1a88ebcfc95756a6a22eae5c0f8900872f5e30f7b3421190d165b3add",
+      "shape": [
+        32797
+      ]
+    },
+    "child_native_parent_rows": {
+      "array_equal": true,
+      "sha256_partition": "08d015839862a3a7272bd770c8f23d56e18a7656c21919c2c0c86a75bb7269c5",
+      "sha256_raw": "08d015839862a3a7272bd770c8f23d56e18a7656c21919c2c0c86a75bb7269c5",
+      "shape": [
+        132423
+      ]
+    },
+    "child_parent_fraction_overlap_over_child_volume": {
+      "array_equal": true,
+      "sha256_partition": "26149c7b19a17bfe367fced722b6509ae4c9442a57080f923704747262a5645c",
+      "sha256_raw": "26149c7b19a17bfe367fced722b6509ae4c9442a57080f923704747262a5645c",
+      "shape": [
+        132423
+      ]
+    },
+    "overlap_native_reference_volume_m3": {
+      "array_equal": true,
+      "sha256_partition": "b2bcd0ac0b4f1f3fe6f71b3d10b61ae958a7d07b07bcff0fd8f76735b929a82c",
+      "sha256_raw": "b2bcd0ac0b4f1f3fe6f71b3d10b61ae958a7d07b07bcff0fd8f76735b929a82c",
+      "shape": [
+        132423
+      ]
+    },
+    "parent_mass_fraction_overlap_over_native_parent_geometry_volume": {
+      "array_equal": true,
+      "sha256_partition": "bf46a422565dba13e17b32b24f401799594f235d2cfa3c4bc9ffcd96704eaee6",
+      "sha256_raw": "bf46a422565dba13e17b32b24f401799594f235d2cfa3c4bc9ffcd96704eaee6",
+      "shape": [
+        132423
+      ]
+    }
+  },
+  "new_parent_local_mass_fraction_key": "parent_mass_fraction_overlap_over_native_parent_covered_volume",
+  "parent_partition_map_path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/native-parent-transfer-085c-parent-local-partition.npz",
+  "parent_partition_map_sha256": "300e435da66fa372566e3c394446e7b7e409be064e943ebd4dd7bd795291933a",
+  "raw_geometric_arrays_exactly_unchanged": true,
+  "raw_transfer_map_path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/native-parent-transfer-085c.npz",
+  "raw_transfer_map_sha256": "c36c8ff08b3cd05e704ce99c3b6f4d1996b040caacdcb1d218eee2a32dc5c0c7"
+}

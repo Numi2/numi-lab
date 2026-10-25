@@ -1,0 +1,1 @@
+Attempt 001 stopped at unit tests before any geometry sample. NumPy 2 rejected the stacked solve RHS shape (n,3), interpreting it as a stack of matrices instead of n vectors. No candidate or overlap output was emitted. Original sources are retained as *-attempt-001-failed.py; test result was 12 failed / 1 passed, all failures at np.linalg.solve shape mismatch.

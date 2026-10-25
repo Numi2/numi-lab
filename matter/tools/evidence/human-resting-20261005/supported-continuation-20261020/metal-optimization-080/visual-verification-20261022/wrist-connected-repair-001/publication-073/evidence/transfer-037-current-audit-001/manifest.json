@@ -1,0 +1,20 @@
+{
+  "audit_script": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/audit_037_to_084.py",
+  "audit_script_sha256": "46877874567b32620dce420d9d1d1db5bfc6ff3d306d5d46cb609dfd6496dfbf",
+  "inputs": {
+    "candidate037_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/run-006/candidate.npz",
+    "candidate037_sha256": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+    "candidate084_path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/whole-skin-fat-reference-084-candidate.npz",
+    "candidate084_pins_sha256": "9c24b831b5319073858e5bf852c9243566bb3743cf7eebd1b3727f441761a3ce",
+    "candidate084_report_sha256": "f320d499f09c274f1d2c792d35decc3ee49ca4ccae27887e1e3ce6f2ad23a989",
+    "candidate084_sha256": "d3d0abb590f5858de4a27e0362e98bc9b3088831183ea045096cefc4ebba26e1",
+    "solver_path": "/Users/n/Work/numi-human-connected-surface-069/canonical/matter/tools/human_skin_fat_connected_repair.py",
+    "solver_sha256": "5d8dab03eb64a3cba490c9fd380e3234cc49f14a7bac275a564126f2b5e85c22"
+  },
+  "payloads": {
+    "generated_node_source_locations.npz": "6724b570fc7576b1039c92d9e42a1f18839e82025f8f37f6979daf3b02d9c689",
+    "transferred_current037_m_f32.npy": "5be9a6846bf44f3a61f2898008e1e7e584199bf23cc3f16738d496e3f469c205"
+  },
+  "report": "transfer-audit.json",
+  "report_sha256": "8128793f1a646d726261336337e3d8a07acfe208a8c44819961f4b70711b3199"
+}

@@ -1,0 +1,25 @@
+{
+  "ast_bodies_identical": true,
+  "canonical_helper": {
+    "path": "/Users/n/Work/numi-human-connected-surface-069/canonical/matter/tools/human_skin_fat_mass_transfer_geometry.py",
+    "sha256": "34bd5e228b1fdceb73ea7a71bd037aa8cbe2f52a42dcf8374f70d85fa160d7d8"
+  },
+  "canonical_tests": {
+    "path": "/Users/n/Work/numi-human-connected-surface-069/canonical/matter/tools/test_human_skin_fat_mass_transfer_geometry.py",
+    "sha256": "5862840f680c0b27464656951351409a99c260a0841f203649d98f886549aa07"
+  },
+  "functions": {
+    "classify_exact_cross_material_pair": {
+      "ast_sha256": "ff3b5e4d70c5f4d77ae879388a3c66790e32fd61488fdce98adcff33eb48a139"
+    },
+    "exact_binary64_intersection_rank": {
+      "ast_sha256": "d34e42c4bbbcfd8cbcd94330b9ef2f92e24a0a67aeefee13bbdeec2033330877"
+    }
+  },
+  "source_003": {
+    "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/build_native_parent_transfer_085c-003.py",
+    "sha256": "7bdb7756458566176fa4be03f9b6d8e3de13647d746a9207619dc8cafce4dcab"
+  },
+  "status": "PASS_EXACT_AST_FUNCTION_EQUIVALENCE",
+  "test_result": "7 passed"
+}

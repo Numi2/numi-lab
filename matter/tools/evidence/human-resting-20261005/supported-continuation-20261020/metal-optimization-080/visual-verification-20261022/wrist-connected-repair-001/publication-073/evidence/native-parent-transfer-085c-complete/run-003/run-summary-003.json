@@ -1,0 +1,112 @@
+{
+  "074_source_cooked_moment_audit_run": false,
+  "clip": {
+    "aabb_pairs": 2809982,
+    "candidate_children": 32796,
+    "elapsed_seconds": 476.63181987497956,
+    "exact_face_contacts_omitted": 22,
+    "exactly_disjoint_omitted": 0,
+    "genuine_full_dimensional_cross_material_pairs": 0,
+    "native_parent_tets": 28632,
+    "raw_tolerance_positive_cross_material_pairs": 22,
+    "tolerance_positive_overlaps_before_filter": 132447
+  },
+  "coverage_gate": {
+    "child_failure_count": 6,
+    "first_child_failures": [
+      {
+        "cell_uid": 1562,
+        "child_row": 1561,
+        "relative_error": 1.1223129045358595e-07
+      },
+      {
+        "cell_uid": 4453,
+        "child_row": 4451,
+        "relative_error": 1.890600346341132e-07
+      },
+      {
+        "cell_uid": 5819,
+        "child_row": 5816,
+        "relative_error": 1.2102092224318678e-07
+      },
+      {
+        "cell_uid": 9451,
+        "child_row": 9448,
+        "relative_error": 1.131984310145412e-07
+      },
+      {
+        "cell_uid": 25674,
+        "child_row": 25669,
+        "relative_error": 1.380716739602066e-07
+      },
+      {
+        "cell_uid": 30867,
+        "child_row": 30856,
+        "relative_error": 1.0029917746764145e-07
+      }
+    ],
+    "first_parent_failures": [
+      {
+        "parent_row": 4786,
+        "relative_error": 1.7876458577516758e-07
+      },
+      {
+        "parent_row": 5175,
+        "relative_error": 1.3196088465091563e-07
+      },
+      {
+        "parent_row": 19109,
+        "relative_error": 3.793658128650323e-07
+      }
+    ],
+    "max_child_absolute_relative_error": 1.890600346341132e-07,
+    "max_parent_absolute_relative_error": 3.793658128650323e-07,
+    "parent_failure_count": 3,
+    "threshold_relative_error": 1e-07
+  },
+  "failure": {
+    "exception_type": "RuntimeError",
+    "message": "child reference-volume coverage failed at 4451: rel=1.890600346341132e-07",
+    "status": "FAILED",
+    "time_unix": 1792905327.840729
+  },
+  "inputs": {
+    "candidate": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/connectivity-001/run-001/candidate-tetrahedra-compacted.npz",
+    "candidate_gate_sha256": "ced7f2ec3c45bfa1ece35b230f1bded46c9cadc39297ac8b8854a549cad61dd3",
+    "candidate_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "clip": {
+      "aabb_tolerance_m": 2e-10,
+      "inside_tolerance_m": 2e-10,
+      "method": "all AABB-overlapping pairs, unculled tetra_intersection_volume_stacked from pinned 085b",
+      "unique_tolerance_m": 2e-10
+    },
+    "halfspace_085_sha256": "0ba4109b943f7e1b4312ca339f8e5f2f931b81413daca4074fa2be42f3b9c305",
+    "input_sha256": {
+      "compiled-skin-fem-nodes.csv": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+      "compiled-skin-fem-tets.csv": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+      "premerge-layer-contributions.csv": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f"
+    },
+    "limits": {
+      "clip_seconds": 600.0,
+      "outer_seconds": 720.0
+    },
+    "owner_073_sha256": "167c176edef02cbb2360d68e3c011809722030bd00009e20afa80d2b8ad59586",
+    "stacked_085b_sha256": "ae3cbe1e9f79a580b3a0f22b5126a2d91f11293874f9c867f46a83e81d6f3f61",
+    "status": "PREFLIGHT_PASS_CLIPPING_NOT_STARTED"
+  },
+  "mass_map_emitted": false,
+  "mass_rescaled": false,
+  "outputs": {
+    "clip-progress.jsonl": "9371da60829102cc33eb1ddd2262fa2e2513c413fdd2bd563b6572eb0ac634c5",
+    "cross-material-exact-rank-classification-085c.json": "7245687a769a58eb7657bb5400ddd57eb082b9a4d3ed169bd289e9d6e4c01901",
+    "failure.json": "d22b62d12db80e315f671e99ea05398d9e743c9e0d410d5151ed2a636742cc5c",
+    "geometric-overlap-085c.npz": "6ce7364aa435d383fab8b701e8ed997469a8821903e8e8a9914dd8d06735dcd0",
+    "preflight.json": "153d89003959bb78046519fe338d951cb09fc621a34ab00755986a99c8ce3eef"
+  },
+  "physical_or_native_admission": false,
+  "source_path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/build_native_parent_transfer_085c-003.py",
+  "source_sha256": "7bdb7756458566176fa4be03f9b6d8e3de13647d746a9207619dc8cafce4dcab",
+  "status": "FAILED_COVERAGE_AFTER_EXACT_ZERO_MEASURE_CONTACT_OMISSION",
+  "test_path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/test_native_parent_transfer_085c_003.py",
+  "test_sha256": "d1b3f4d680fe4b2c9e843c133478aea5838e24a04cbe9f98d37197d2cb739de9"
+}

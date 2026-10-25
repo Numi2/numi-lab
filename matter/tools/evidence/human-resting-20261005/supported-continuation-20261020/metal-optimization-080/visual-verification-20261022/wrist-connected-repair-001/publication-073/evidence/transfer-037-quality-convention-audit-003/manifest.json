@@ -1,0 +1,8 @@
+{
+  "candidate084_sha256": "d3d0abb590f5858de4a27e0362e98bc9b3088831183ea045096cefc4ebba26e1",
+  "report": "quality-conventions.json",
+  "report_sha256": "d42451c18d69d9abc2e1a12dba6c90f9f5a9d9f4434aad487da88cb318077b3f",
+  "script": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/audit_q_conventions.py",
+  "script_sha256": "eda375181582f4feae7277c663f497cc11c0708257d8d6a99624fbce79071e86",
+  "transfer_report_sha256": "dee9c3f886d246c80d683bcede465f7acef7a981a919e07e048666bcf3e28448"
+}

@@ -1,0 +1,14 @@
+{
+  "host": "numi.local",
+  "hardware": "Apple M6",
+  "os": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "source_head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "source_branch": "numi-human-aortic-contact-perf",
+  "published_parent": "c482d104992e462f6b4a1ae1892b3e9d994fff93",
+  "disk": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   228Gi   184Gi   2.9Gi    99%    1.1M   30M    4%   /System/Volumes/Data",
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "visual_inspection_performed": false,
+  "execution": "All authoring and tests on SSH numi; CPU authoring only; Metal remains per-step physics owner.",
+  "python": "/Users/n/numi-human-prep-venv-20261005/bin/python"
+}

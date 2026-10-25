@@ -1,0 +1,351 @@
+{
+  "baseline_003_csr_sha256": "6ce7364aa435d383fab8b701e8ed997469a8821903e8e8a9914dd8d06735dcd0",
+  "candidate_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "clip_elapsed_seconds": 0.1647587079787627,
+  "clip_method": "same 085b stacked clip, unchanged inside/unique/AABB tolerances; subtract candidate child vertex 0 from both pair tetrahedra before clip; no separator culling, inverse, rescale, or geometry changes",
+  "clip_source_sha256": "ae3cbe1e9f79a580b3a0f22b5126a2d91f11293874f9c867f46a83e81d6f3f61",
+  "cross_material_exact_rank_counts": {
+    "-1": 0,
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0
+  },
+  "exact_rank_classifier_source_sha256": "7bdb7756458566176fa4be03f9b6d8e3de13647d746a9207619dc8cafce4dcab",
+  "gate": "PASS",
+  "global_coverage": {
+    "child_failed_count_over_1e-7": 0,
+    "child_max_abs_relative_error": 8.917995119230404e-08,
+    "child_worst_rows": [
+      {
+        "relative_error": 8.917995119230404e-08,
+        "row": 5612
+      },
+      {
+        "relative_error": 8.51295382785676e-08,
+        "row": 1509
+      },
+      {
+        "relative_error": 7.758888452265584e-08,
+        "row": 28979
+      },
+      {
+        "relative_error": 7.67120519357074e-08,
+        "row": 9201
+      },
+      {
+        "relative_error": 6.898431519665513e-08,
+        "row": 987
+      },
+      {
+        "relative_error": 6.526241225668373e-08,
+        "row": 25403
+      },
+      {
+        "relative_error": 6.387614324115127e-08,
+        "row": 21425
+      },
+      {
+        "relative_error": 6.315697830050406e-08,
+        "row": 30182
+      },
+      {
+        "relative_error": 6.13268357423317e-08,
+        "row": 1192
+      },
+      {
+        "relative_error": 6.03130560970346e-08,
+        "row": 496
+      },
+      {
+        "relative_error": 5.8888586431287716e-08,
+        "row": 8996
+      },
+      {
+        "relative_error": 5.816194746156092e-08,
+        "row": 821
+      }
+    ],
+    "failed_children": [],
+    "failed_parents": [],
+    "parent_failed_count_over_1e-7": 0,
+    "parent_max_abs_relative_error": 9.617538334561878e-08,
+    "parent_worst_rows": [
+      {
+        "relative_error": 9.617538334561878e-08,
+        "row": 4155
+      },
+      {
+        "relative_error": 9.273116970619997e-08,
+        "row": 3934
+      },
+      {
+        "relative_error": 7.516777109934179e-08,
+        "row": 3416
+      },
+      {
+        "relative_error": 7.256255552484906e-08,
+        "row": 4047
+      },
+      {
+        "relative_error": 6.848278787415349e-08,
+        "row": 3407
+      },
+      {
+        "relative_error": 6.829381597827781e-08,
+        "row": 19106
+      },
+      {
+        "relative_error": 5.944364957683654e-08,
+        "row": 4788
+      },
+      {
+        "relative_error": 5.9043491909476126e-08,
+        "row": 10325
+      },
+      {
+        "relative_error": 5.701134800267138e-08,
+        "row": 4148
+      },
+      {
+        "relative_error": 5.672588664987188e-08,
+        "row": 10337
+      },
+      {
+        "relative_error": 5.5197598069117247e-08,
+        "row": 5066
+      },
+      {
+        "relative_error": 5.5090026283748785e-08,
+        "row": 5173
+      }
+    ]
+  },
+  "incident_scope": {
+    "candidate_bad_child_pairs": [
+      148,
+      80,
+      121,
+      112,
+      112,
+      76
+    ],
+    "failed_children": [
+      1561,
+      4451,
+      5816,
+      9448,
+      25669,
+      30856
+    ],
+    "failed_native_parents": [
+      4786,
+      5175,
+      19109
+    ],
+    "native_bad_parent_pairs": [
+      99,
+      174,
+      108
+    ],
+    "unique_aabb_pairs": 1025
+  },
+  "mass_and_moment_audit": "not_run_unless_both_global_coverage_gates_pass",
+  "native_node_csv_sha256": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+  "native_tet_csv_sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+  "pair_delta_summary": {
+    "changed_pair_count": 54,
+    "largest_20": [
+      {
+        "child": 5816,
+        "cross_material_exact": null,
+        "delta_m3": -2.449366330304629e-14,
+        "old_m3": 3.438663847228123e-08,
+        "parent": 5175,
+        "translated_effective_m3": 3.438661397861793e-08,
+        "translated_raw_m3": 3.438661397861793e-08
+      },
+      {
+        "child": 1561,
+        "cross_material_exact": null,
+        "delta_m3": -6.207978916862198e-15,
+        "old_m3": 6.207978916862198e-15,
+        "parent": 4633,
+        "translated_effective_m3": 0.0,
+        "translated_raw_m3": 0.0
+      },
+      {
+        "child": 1561,
+        "cross_material_exact": null,
+        "delta_m3": -5.708657963305868e-15,
+        "old_m3": 5.708657963305868e-15,
+        "parent": 4634,
+        "translated_effective_m3": 0.0,
+        "translated_raw_m3": 0.0
+      },
+      {
+        "child": 9448,
+        "cross_material_exact": null,
+        "delta_m3": -2.1196286744184544e-15,
+        "old_m3": 2.123160484977289e-09,
+        "parent": 4237,
+        "translated_effective_m3": 2.1231583653486144e-09,
+        "translated_raw_m3": 2.1231583653486144e-09
+      },
+      {
+        "child": 29647,
+        "cross_material_exact": null,
+        "delta_m3": 2.042734420865633e-15,
+        "old_m3": 3.247545215343801e-08,
+        "parent": 5175,
+        "translated_effective_m3": 3.247545419617243e-08,
+        "translated_raw_m3": 3.247545419617243e-08
+      },
+      {
+        "child": 4451,
+        "cross_material_exact": null,
+        "delta_m3": -1.1364117390080559e-15,
+        "old_m3": 1.0776552932293901e-09,
+        "parent": 4786,
+        "translated_effective_m3": 1.0776541568176511e-09,
+        "translated_raw_m3": 1.0776541568176511e-09
+      },
+      {
+        "child": 25669,
+        "cross_material_exact": null,
+        "delta_m3": -8.26631536886655e-16,
+        "old_m3": 1.6404518848989126e-09,
+        "parent": 10042,
+        "translated_effective_m3": 1.6404510582673757e-09,
+        "translated_raw_m3": 1.6404510582673757e-09
+      },
+      {
+        "child": 30856,
+        "cross_material_exact": null,
+        "delta_m3": -6.348646029784179e-16,
+        "old_m3": 2.167111767401943e-09,
+        "parent": 4795,
+        "translated_effective_m3": 2.16711113253734e-09,
+        "translated_raw_m3": 2.16711113253734e-09
+      },
+      {
+        "child": 5816,
+        "cross_material_exact": null,
+        "delta_m3": 5.293339670783025e-16,
+        "old_m3": 1.9695153126074506e-08,
+        "parent": 5180,
+        "translated_effective_m3": 1.9695153655408473e-08,
+        "translated_raw_m3": 1.9695153655408473e-08
+      },
+      {
+        "child": 30856,
+        "cross_material_exact": null,
+        "delta_m3": -1.2983817323881447e-16,
+        "old_m3": 2.1135039576451943e-09,
+        "parent": 4797,
+        "translated_effective_m3": 2.113503827807021e-09,
+        "translated_raw_m3": 2.113503827807021e-09
+      },
+      {
+        "child": 30967,
+        "cross_material_exact": null,
+        "delta_m3": -5.471272560107095e-17,
+        "old_m3": 3.3637572768427254e-11,
+        "parent": 19109,
+        "translated_effective_m3": 3.363751805570165e-11,
+        "translated_raw_m3": 3.363751805570165e-11
+      },
+      {
+        "child": 30856,
+        "cross_material_exact": null,
+        "delta_m3": -3.756664264518487e-17,
+        "old_m3": 1.7472119674358796e-09,
+        "parent": 4786,
+        "translated_effective_m3": 1.747211929869237e-09,
+        "translated_raw_m3": 1.747211929869237e-09
+      },
+      {
+        "child": 4451,
+        "cross_material_exact": null,
+        "delta_m3": -2.9515643595381616e-17,
+        "old_m3": 1.5122794607186413e-10,
+        "parent": 4790,
+        "translated_effective_m3": 1.5122791655622053e-10,
+        "translated_raw_m3": 1.5122791655622053e-10
+      },
+      {
+        "child": 25669,
+        "cross_material_exact": null,
+        "delta_m3": -2.3081891830960387e-17,
+        "old_m3": 1.8360264055747325e-09,
+        "parent": 10045,
+        "translated_effective_m3": 1.8360263824928406e-09,
+        "translated_raw_m3": 1.8360263824928406e-09
+      },
+      {
+        "child": 821,
+        "cross_material_exact": null,
+        "delta_m3": -1.7255319908572464e-17,
+        "old_m3": 1.7270707124658078e-12,
+        "parent": 5175,
+        "translated_effective_m3": 1.7270534571458992e-12,
+        "translated_raw_m3": 1.7270534571458992e-12
+      },
+      {
+        "child": 5810,
+        "cross_material_exact": null,
+        "delta_m3": -7.327800210126971e-19,
+        "old_m3": 4.742816018449441e-11,
+        "parent": 4786,
+        "translated_effective_m3": 4.742815945171439e-11,
+        "translated_raw_m3": 4.742815945171439e-11
+      },
+      {
+        "child": 5847,
+        "cross_material_exact": null,
+        "delta_m3": -5.1880768019325896e-21,
+        "old_m3": 7.274432898929587e-08,
+        "parent": 5175,
+        "translated_effective_m3": 7.274432898929068e-08,
+        "translated_raw_m3": 7.274432898929068e-08
+      },
+      {
+        "child": 5816,
+        "cross_material_exact": null,
+        "delta_m3": -4.089580948462169e-21,
+        "old_m3": 1.0430643104916753e-07,
+        "parent": 5176,
+        "translated_effective_m3": 1.0430643104916344e-07,
+        "translated_raw_m3": 1.0430643104916344e-07
+      },
+      {
+        "child": 28064,
+        "cross_material_exact": null,
+        "delta_m3": 3.857970376947321e-21,
+        "old_m3": 3.5902911002114143e-08,
+        "parent": 5175,
+        "translated_effective_m3": 3.5902911002118e-08,
+        "translated_raw_m3": 3.5902911002118e-08
+      },
+      {
+        "child": 5816,
+        "cross_material_exact": null,
+        "delta_m3": -3.196225886904899e-21,
+        "old_m3": 3.0446287306879715e-08,
+        "parent": 5178,
+        "translated_effective_m3": 3.044628730687652e-08,
+        "translated_raw_m3": 3.044628730687652e-08
+      }
+    ],
+    "max_abs_delta_m3": 2.449366330304629e-14,
+    "new_positive_effective_count": 52,
+    "new_positive_raw_count": 52,
+    "old_positive_pair_count": 54
+  },
+  "status": "LOCAL_INCIDENCE_RECLIP_COMPLETE",
+  "tolerances_m": {
+    "aabb": 2e-10,
+    "inside": 2e-10,
+    "unique": 2e-10
+  }
+}

@@ -97,6 +97,15 @@ class ConnectedVolumeRepairTests(unittest.TestCase):
         self.assertTrue(report["lp_success"], report)
         self.assertTrue(report["step_applied"], report)
         self.assertEqual(len(report["components"]), 1)  # shared-cell graph couples the free nodes
+        attempts = report["components"][0]["attempts"]
+        self.assertTrue(attempts)
+        self.assertIsNone(attempts[-1]["first_failed_gate"])
+        final_j, _, final_q, _ = repair.cell_values_gradients(result, points.astype(np.float64), tets)
+        self.assertEqual(attempts[-1]["q_witness_row"], int(np.argmin(final_q)))
+        self.assertEqual(attempts[-1]["q_min"], float(final_q.min()))
+        self.assertEqual(attempts[-1]["J_min"], float(final_j.min()))
+        self.assertEqual(attempts[-1]["J_max"], float(final_j.max()))
+        self.assertGreaterEqual(attempts[-1]["hard_linear_min_slack_m"], -1e-9)
         np.testing.assert_array_equal(result[3:].view(np.uint32), points[3:].view(np.uint32))
         self.assertGreaterEqual(float((layer @ result.astype(np.float64).ravel())[0]), layer_target[0] - 1e-9)
         self.assertLess(float(np.maximum(target - contact @ result.astype(np.float64).ravel(), 0).sum()),
@@ -105,6 +114,64 @@ class ConnectedVolumeRepairTests(unittest.TestCase):
         self.assertGreaterEqual(float(qq.min()), 1e-5)
         self.assertGreaterEqual(float(jj.min()), .35)
         self.assertLessEqual(float(jj.max()), 2.5)
+
+
+    def test_boundary_area_and_cosine_gradients_match_central_differences(self):
+        origin = np.asarray([
+            [0.0, 0.0, 0.0], [1.1, 0.1, 0.0], [0.1, 1.0, 0.1],
+        ], dtype=np.float64)
+        points = np.asarray([
+            [0.02, -0.03, 0.01], [1.08, 0.12, 0.03], [0.11, 0.98, 0.45],
+        ], dtype=np.float64)
+        faces = np.asarray([[0, 1, 2]], dtype=np.int64)
+        area, area_grad, cosine, cosine_grad = repair.boundary_area_cosine_values_gradients(points, origin, faces)
+        h = 1e-7
+        fd_area = np.zeros((3, 3))
+        fd_cosine = np.zeros((3, 3))
+        for node in range(3):
+            for axis in range(3):
+                xp=points.copy();xp[node,axis]+=h
+                xm=points.copy();xm[node,axis]-=h
+                ap,_,cp,_=repair.boundary_area_cosine_values_gradients(xp,origin,faces)
+                am,_,cm,_=repair.boundary_area_cosine_values_gradients(xm,origin,faces)
+                fd_area[node,axis]=(ap[0]-am[0])/(2*h)
+                fd_cosine[node,axis]=(cp[0]-cm[0])/(2*h)
+        np.testing.assert_allclose(area_grad[0],fd_area,rtol=2e-6,atol=2e-8)
+        np.testing.assert_allclose(cosine_grad[0],fd_cosine,rtol=2e-6,atol=2e-8)
+        self.assertTrue(np.isfinite(area).all())
+        self.assertTrue(np.isfinite(cosine).all())
+
+    def test_lp_linearizes_true_area_and_normal_cosine_bounds(self):
+        points = np.asarray([
+            [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.5], [0.0, 0.0, 2.0],
+        ], dtype=np.float32)
+        reference = points.astype(np.float64)
+        origin = points.astype(np.float64).copy()
+        origin[2, 2] = 0.0
+        tets = np.asarray([[0, 1, 2, 3]], dtype=np.int64)
+        free = np.asarray([2], dtype=np.int64)
+        contact = np.zeros((2, 3 * len(points)), dtype=np.float64)
+        contact[0, 3 * 2 + 0] = 1.0
+        contact[1, 3 * 2 + 2] = 1.0
+        targets = contact @ points.astype(np.float64).ravel() + np.asarray([0.02, 0.20])
+        result, report = repair.coupled_clearance_step(
+            points, reference, tets, free, sparse.csr_matrix(contact), targets,
+            step_limit_mm=100.0, q_min=1e-5, J_bounds=(0.35, 2.5), time_limit_s=5.0,
+            max_incremental_gradient=0.12, construction_origin=origin,
+            boundary_faces=np.asarray([[0, 1, 2]], dtype=np.int64),
+            boundary_area_bounds=(0.9, 1.13), boundary_normal_cosine_min=0.88,
+        )
+        self.assertTrue(report["lp_success"], report)
+        self.assertTrue(report["step_applied"], report)
+        self.assertGreaterEqual(report["lp_linearized_boundary_area_ratio_min"], 0.9 - 1e-9)
+        self.assertLessEqual(report["lp_linearized_boundary_area_ratio_max"], 1.13 + 1e-9)
+        self.assertGreaterEqual(report["lp_linearized_boundary_normal_cosine_min"], 0.88 - 1e-9)
+        self.assertLess(report["contact_deficit_l1_mm"], report["starting_contact_deficit_l1_mm"])
+        self.assertGreaterEqual(report["boundary_area_ratio_min"], 0.9)
+        self.assertLessEqual(report["boundary_area_ratio_max"], 1.13)
+        self.assertGreaterEqual(report["boundary_normal_cosine_min"], 0.88)
+        self.assertIsNone(report["components"][0]["attempts"][-1]["first_failed_gate"])
+        self.assertGreaterEqual(report["components"][0]["attempts"][-1]["boundary_normal_cosine_min"], 0.88)
 
 
 if __name__ == "__main__":

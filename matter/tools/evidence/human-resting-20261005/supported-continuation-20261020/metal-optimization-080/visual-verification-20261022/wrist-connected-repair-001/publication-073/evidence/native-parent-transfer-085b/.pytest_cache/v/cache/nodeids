@@ -1,0 +1,15 @@
+[
+  "test_plane_filter_085b.py::test_determinant_threshold_slivers_match_owner[1.1e-10]",
+  "test_plane_filter_085b.py::test_determinant_threshold_slivers_match_owner[1e-05]",
+  "test_plane_filter_085b.py::test_determinant_threshold_slivers_match_owner[1e-08]",
+  "test_plane_filter_085b.py::test_determinant_threshold_slivers_match_owner[1e-10]",
+  "test_plane_filter_085b.py::test_determinant_threshold_slivers_match_owner[2e-10]",
+  "test_plane_filter_085b.py::test_determinant_threshold_slivers_match_owner[9e-11]",
+  "test_plane_filter_085b.py::test_many_deterministic_orientations_match_owner",
+  "test_plane_filter_085b.py::test_stacked_filter_reuses_prepared_planes_and_matches_owner",
+  "test_plane_filter_085b.py::test_stacked_matches_pinned_owner_cases[offset0-1.0]",
+  "test_plane_filter_085b.py::test_stacked_matches_pinned_owner_cases[offset1-1.0]",
+  "test_plane_filter_085b.py::test_stacked_matches_pinned_owner_cases[offset2-1.0]",
+  "test_plane_filter_085b.py::test_stacked_matches_pinned_owner_cases[offset3-1.0]",
+  "test_plane_filter_085b.py::test_stacked_matches_pinned_owner_cases[offset4-1.0]"
+]

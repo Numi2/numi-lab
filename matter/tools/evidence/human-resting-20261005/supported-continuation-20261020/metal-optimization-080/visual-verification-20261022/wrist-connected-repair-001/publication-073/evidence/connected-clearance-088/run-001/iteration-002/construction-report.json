@@ -1,0 +1,109 @@
+{
+  "linear_method": "highs-ipm",
+  "lp_success": true,
+  "lp_status": 0,
+  "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+  "free_nodes": 4437,
+  "touched_cells": 23311,
+  "contact_rows": 2369,
+  "starting_contact_deficit_l1_mm": 4824.240089873015,
+  "reference_unchanged": true,
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0,
+  "mapped_skin_faces": 108987,
+  "mapped_skin_active_vertices": 54551,
+  "mapped_skin_area_ratio_min": 0.7551978254878248,
+  "mapped_skin_area_ratio_max": 1.6339360001579069,
+  "mapped_skin_normal_cosine_min": 0.5910572880080651,
+  "mapped_skin_nonpositive_normal_faces": 0,
+  "mapped_skin_geometry_pass": true,
+  "mapped_skin_native_shader_parity_qualified": false,
+  "lp_predicted_contact_deficit_l1_mm": 2300.9047560191257,
+  "step_applied": true,
+  "components": [
+    {
+      "nodes": 4437,
+      "applied": true,
+      "line_fraction": 0.03125,
+      "attempts": [
+        {
+          "fraction": 1.0,
+          "first_failed_gate": "cell_quality",
+          "q_min": -0.050800429696784465,
+          "q_witness_row": 1486,
+          "J_min": -13.754898155143085,
+          "J_max": 19.66814273355057,
+          "hard_linear_min_slack_m": -5.618309015318745e-08,
+          "hard_linear_witness_row": 6100,
+          "contact_deficit_l1_mm": 2300.9076567534607
+        },
+        {
+          "fraction": 0.5,
+          "first_failed_gate": "cell_quality",
+          "q_min": -0.003647475181314362,
+          "q_witness_row": 2591,
+          "J_min": -1.305115212968907,
+          "J_max": 6.348645483565444,
+          "hard_linear_min_slack_m": 0.0,
+          "hard_linear_witness_row": 10374,
+          "contact_deficit_l1_mm": 3378.220496984194
+        },
+        {
+          "fraction": 0.25,
+          "first_failed_gate": "cell_J",
+          "q_min": 2.4649970481488e-05,
+          "q_witness_row": 3979,
+          "J_min": 0.5015399436412974,
+          "J_max": 2.929902560232493,
+          "hard_linear_min_slack_m": 0.0,
+          "hard_linear_witness_row": 10374,
+          "contact_deficit_l1_mm": 4068.1537954611135
+        },
+        {
+          "fraction": 0.125,
+          "first_failed_gate": "coarse_surface",
+          "q_min": 2.8202113798422354e-05,
+          "q_witness_row": 3979,
+          "J_min": 0.526496681337933,
+          "J_max": 2.303949096881524,
+          "hard_linear_min_slack_m": 0.0,
+          "hard_linear_witness_row": 10374,
+          "contact_deficit_l1_mm": 4438.333542332089
+        },
+        {
+          "fraction": 0.0625,
+          "first_failed_gate": "coarse_surface",
+          "q_min": 2.9602813928863814e-05,
+          "q_witness_row": 3979,
+          "J_min": 0.5381047016198618,
+          "J_max": 2.2374908606986947,
+          "hard_linear_min_slack_m": 0.0,
+          "hard_linear_witness_row": 10374,
+          "contact_deficit_l1_mm": 4629.661087205487
+        },
+        {
+          "fraction": 0.03125,
+          "first_failed_gate": null,
+          "q_min": 3.017776984492524e-05,
+          "q_witness_row": 3979,
+          "J_min": 0.5437483666612962,
+          "J_max": 2.2152332590703305,
+          "hard_linear_min_slack_m": 0.0,
+          "hard_linear_witness_row": 10374,
+          "contact_deficit_l1_mm": 4726.440227489253
+        }
+      ]
+    }
+  ],
+  "emitted_q_min": 3.017776984492524e-05,
+  "emitted_J_min": 0.5437483666612962,
+  "emitted_J_max": 2.2152332590703305,
+  "contact_deficit_l1_mm": 4726.440227489253,
+  "maximum_step_mm": 0.10827114047069228,
+  "maximum_cumulative_displacement_mm": 1.8403183321140784,
+  "cumulative_displacement_l1_mm": 3179.817431351694,
+  "boundary_faces": 9872,
+  "boundary_area_ratio_min": 0.7771166636445551,
+  "boundary_area_ratio_max": 1.8272019218773288,
+  "boundary_normal_cosine_min": 0.5051877552152392
+}

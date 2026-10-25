@@ -9,6 +9,7 @@
 #include <numeric>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace numi::human {
@@ -51,6 +52,43 @@ public:
         ProjectionWitness maximumAncestryFallbackWitness{};
     };
 
+    // Opt-in prepared refined O domain. Transfer-row vertex indices address
+    // the full accepted FEM node domain, while faces/source embeddings use the
+    // compact coarse-vertex order. Digests are caller-pinned source/candidate
+    // identities; unknown or mismatched identities fail closed.
+    struct PreparedRefinedDomain {
+        std::size_t originalCoarseVertexCount=0;
+        std::size_t mechanicalNodeCount=0;
+        // Source identity is pinned when the original owner is built. The
+        // candidate identity is checked against a separately trusted manifest
+        // value supplied to installPreparedRefinedDomain.
+        std::array<std::uint64_t,4> sourceIdentity{};
+        std::array<std::uint64_t,4> candidateIdentity{};
+        std::vector<Point> coarseRest;
+        std::vector<std::uint32_t> coarseSource,coarseDonor;
+        std::vector<std::uint32_t> coarseMechanicalNodeRows;
+        std::vector<Face> faces;
+        std::vector<std::uint32_t> originalFaceStableIDs,refinedFaceStableIDs;
+        std::vector<std::uint32_t> detailSourceIDs,detailParentStableFaceIDs;
+        std::vector<std::uint32_t> detailSelectedFaceRows;
+        std::vector<Face> coarseSourceFaces;
+        std::vector<Point> coarseSourceBarycentric;
+        std::vector<BaselineProlongationRow> coarseBaselineProlongation;
+        std::vector<std::uint32_t> coarseFaceSourceOffsets;
+        std::vector<std::uint32_t> coarseFaceStableSourceIDs;
+        std::vector<GPUTransferRow> rows;
+        double baselineToleranceMeters=1.0e-8;
+        double maximumTransferPointErrorMeters=2.0e-7;
+    };
+    struct RefinedDomainReport {
+        std::size_t originalCoarseVertexCount=0,refinedCoarseVertexCount=0;
+        std::size_t mechanicalNodeCount=0,detailRowCount=0;
+        std::size_t activeRows=0,inactiveRows=0,generatedCoarseVertices=0;
+        double maximumBaselineReconstructionErrorMeters=0;
+        double maximumTransferPointErrorMeters=0;
+        std::array<std::uint64_t,4> sourceIdentity{},candidateIdentity{};
+    };
+
     // Build once while registered triangles are in scope. Source IDs provide
     // exact one-hot ancestry when available. Otherwise a donor-filtered
     // triangle BVH supplies the nearest row; donors absent from the reduced
@@ -72,7 +110,8 @@ public:
                const std::vector<Point>* coarseSourceBarycentric=nullptr,
                const std::vector<BaselineProlongationRow>* coarseBaselineProlongation=nullptr,
                std::size_t sourceConnectedFaceRings=1,
-               const std::vector<std::uint32_t>* stableFaceIds=nullptr) {
+               const std::vector<std::uint32_t>* stableFaceIds=nullptr,
+               const std::array<std::uint64_t,4>* sourceIdentity=nullptr) {
         clear();
         auto fail=[&](const char* s){ if(error)*error=s; clear(); return false; };
         if(detailRest.size()!=detailSource.size() ||
@@ -89,6 +128,11 @@ public:
             return fail("source-connected face ring bound must be in [1,3]");
         if(stableFaceIds && stableFaceIds->size()!=faces.size())
             return fail("stable coarse face identity count differs from topology");
+        if(sourceIdentity) {
+            bool nonzero=false;
+            for(const auto word:*sourceIdentity)nonzero|=word!=0;
+            if(!nonzero)return fail("source identity pin is empty");
+        }
         for(const auto& p:detailRest) if(!finite(p)) return fail("nonfinite detail position");
         for(const auto& p:coarseRest) if(!finite(p)) return fail("nonfinite coarse position");
 
@@ -148,6 +192,20 @@ public:
         coarseRest_=coarseRest;
         coarseSource_=coarseSource;
         coarseDonor_=coarseDonor;
+        baseCoarseRest_=coarseRest;
+        baseCoarseSource_=coarseSource;
+        baseCoarseDonor_=coarseDonor;
+        originalFaces_=faces;
+        detailSource_=detailSource;
+        detailDonor_=detailDonor;
+        detailUsed_=detailUsed;
+        detailVertexCount_=detailRest.size();
+        baseCoarseSourceFaces_=coarseSourceFaces_;
+        baseCoarseSourceBarycentric_=coarseSourceBarycentric_;
+        baseCoarseBaselineProlongation_=coarseBaselineProlongation_;
+        if(stableFaceIds)baseStableFaceIds_=*stableFaceIds;
+        hasBaseSourceIdentity_=sourceIdentity!=nullptr;
+        if(sourceIdentity)baseSourceIdentity_=*sourceIdentity;
         rows_.resize(detailRest.size());
         selectedFaceIndices_.assign(detailRest.size(),std::numeric_limits<std::uint32_t>::max());
         std::unordered_map<Key,std::uint32_t,KeyHash> exact;
@@ -358,9 +416,330 @@ public:
         return true;
     }
 
+
     const std::vector<GPUTransferRow>& rows() const { return rows_; }
     std::size_t detailVertexCount() const { return rows_.size(); }
     std::uint32_t selectedFaceIndex(std::size_t i) const { return selectedFaceIndices_.at(i); }
+    bool hasPreparedRefinedDomain() const { return refinedDomainInstalled_; }
+    std::size_t mechanicalNodeCount() const {
+        return refinedDomainInstalled_ ? mechanicalNodeCount_ : coarseRest_.size();
+    }
+    const std::vector<std::uint32_t>& coarseMechanicalNodeRows() const {
+        return coarseMechanicalNodeRows_;
+    }
+
+    // Installs only a fully prepared, typed refined surface. This method never
+    // projects or repairs rows: every active detail row must already be bound
+    // to a child face carrying the same stable source-face identity.
+    bool installPreparedRefinedDomain(const PreparedRefinedDomain& in,
+                                      const std::array<std::uint64_t,4>& expectedCandidateIdentity,
+                                      RefinedDomainReport* report,
+                                      std::string* error) {
+        auto fail=[&](const char* text){ if(error)*error=text; return false; };
+        const auto invalid32=std::numeric_limits<std::uint32_t>::max();
+        if(refinedDomainInstalled_)return fail("a refined domain is already installed");
+        const std::size_t oldN=baseCoarseRest_.size(),newN=in.coarseRest.size();
+        if(oldN==0||originalFaces_.empty()||rows_.empty())
+            return fail("the existing owner build must succeed before refined installation");
+        if(in.originalCoarseVertexCount!=oldN||newN<oldN||in.mechanicalNodeCount==0||
+           in.coarseSource.size()!=newN||in.coarseDonor.size()!=newN||
+           in.coarseMechanicalNodeRows.size()!=newN||in.faces.empty()||
+           in.refinedFaceStableIDs.size()!=in.faces.size()||
+           in.originalFaceStableIDs.size()!=originalFaces_.size()||
+           in.detailSourceIDs.size()!=rows_.size()||
+           in.detailParentStableFaceIDs.size()!=rows_.size()||
+           in.detailSelectedFaceRows.size()!=rows_.size()||
+           in.coarseSourceFaces.size()!=newN||in.coarseSourceBarycentric.size()!=newN||
+           in.coarseBaselineProlongation.size()!=newN||
+           in.coarseFaceSourceOffsets.size()!=newN+1||in.rows.size()!=rows_.size())
+            return fail("refined-domain arrays have inconsistent dimensions");
+        if(!std::isfinite(in.baselineToleranceMeters)||in.baselineToleranceMeters<0)
+            return fail("invalid refined baseline tolerance");
+        const auto anyIdentity=[](const std::array<std::uint64_t,4>& identity) {
+            for(const auto word:identity)if(word!=0)return true;
+            return false;
+        };
+        if(!hasBaseSourceIdentity_||baseStableFaceIds_.size()!=originalFaces_.size())
+            return fail("original source build lacks pinned source and stable-face identities");
+        if(!anyIdentity(in.sourceIdentity)||in.sourceIdentity!=baseSourceIdentity_)
+            return fail("refined candidate source identity differs from the built source");
+        if(!anyIdentity(expectedCandidateIdentity)||
+           !anyIdentity(in.candidateIdentity)||
+           in.candidateIdentity!=expectedCandidateIdentity)
+            return fail("refined candidate identity differs from the trusted candidate pin");
+        if(!std::isfinite(in.maximumTransferPointErrorMeters)||
+           in.maximumTransferPointErrorMeters<0.0)
+            return fail("invalid refined transfer-point tolerance");
+        if(newN>std::numeric_limits<std::uint32_t>::max()||
+           in.mechanicalNodeCount>std::numeric_limits<std::uint32_t>::max())
+            return fail("refined domain exceeds GPU row index range");
+        for(const auto& p:in.coarseRest)if(!finite(p))
+            return fail("nonfinite refined coarse point");
+        for(std::size_t i=0;i<oldN;++i) {
+            if(in.coarseRest[i]!=baseCoarseRest_[i]||
+               in.coarseSource[i]!=baseCoarseSource_[i]||
+               in.coarseDonor[i]!=baseCoarseDonor_[i])
+                return fail("original coarse prefix identity or coordinates changed");
+            if(!baseCoarseSourceFaces_.empty()) {
+                if(in.coarseSourceFaces[i]!=baseCoarseSourceFaces_[i]||
+                   in.coarseSourceBarycentric[i]!=baseCoarseSourceBarycentric_[i])
+                    return fail("original coarse source embedding changed");
+            } else if(in.coarseSourceFaces[i]!=Face{invalid32,invalid32,invalid32}||
+                      in.coarseSourceBarycentric[i]!=Point{}) {
+                return fail("unembedded original coarse prefix changed its source representation");
+            }
+        }
+        if(in.originalFaceStableIDs!=baseStableFaceIds_)
+            return fail("original coarse stable face identities changed");
+        if(std::unordered_set<std::uint32_t>(baseStableFaceIds_.begin(),
+                    baseStableFaceIds_.end()).size()!=baseStableFaceIds_.size())
+            return fail("original stable face identities are not unique");
+
+        std::unordered_map<std::uint32_t,std::uint32_t> mechanicalToCoarse;
+        mechanicalToCoarse.reserve(newN*2);
+        for(std::size_t i=0;i<newN;++i) {
+            const auto m=in.coarseMechanicalNodeRows[i];
+            if(m>=in.mechanicalNodeCount||
+               !mechanicalToCoarse.emplace(m,static_cast<std::uint32_t>(i)).second)
+                return fail("invalid or duplicate coarse-to-mechanical row mapping");
+            if(i<oldN&&m!=i)
+                return fail("original coarse prefix no longer maps to its original mechanics row");
+            if(i>=oldN&&in.coarseSource[i]!=invalid32)
+                return fail("generated coarse vertex has a fabricated direct source vertex identity");
+            if(in.coarseDonor[i]!=invalid32&&
+               std::find(detailDonor_.begin(),detailDonor_.end(),in.coarseDonor[i])==detailDonor_.end())
+                return fail("coarse vertex donor identity is not present in the built source domain");
+            if(i<oldN&&in.coarseDonor[i]==invalid32)
+                return fail("original coarse prefix lost its donor identity");
+        }
+
+        std::unordered_set<std::uint32_t> knownFaceIDs;
+        std::unordered_set<std::uint32_t> representedChildFaceIDs;
+        std::unordered_set<std::string> duplicateFaceCheck;
+        std::vector<std::unordered_set<std::uint32_t>> expectedNodeFaces(oldN);
+        std::unordered_map<std::uint32_t,std::unordered_set<std::uint32_t>> parentVertices;
+        for(std::size_t fi=0;fi<originalFaces_.size();++fi) {
+            const auto id=in.originalFaceStableIDs[fi];
+            if(id==invalid32)return fail("unknown original stable face identity");
+            knownFaceIDs.insert(id);
+            for(auto v:originalFaces_[fi]) {
+                if(v>=oldN)return fail("stored original face row is invalid");
+                expectedNodeFaces[v].insert(id);
+                parentVertices[id].insert(v);
+            }
+        }
+        if(in.coarseFaceSourceOffsets.front()!=0||
+           in.coarseFaceSourceOffsets.back()!=in.coarseFaceStableSourceIDs.size())
+            return fail("invalid per-node source-face CSR endpoints");
+        for(std::size_t i=0;i<newN;++i) {
+            const auto b=in.coarseFaceSourceOffsets[i],e=in.coarseFaceSourceOffsets[i+1];
+            if(e<b||e>in.coarseFaceStableSourceIDs.size()||b==e)
+                return fail("invalid or empty per-node source-face ancestry row");
+            std::unordered_set<std::uint32_t> ids;
+            for(auto k=b;k<e;++k) {
+                const auto id=in.coarseFaceStableSourceIDs[k];
+                if(id==invalid32||!knownFaceIDs.count(id)||!ids.insert(id).second)
+                    return fail("unknown or duplicate per-node source-face identity");
+            }
+            if(i<oldN&&ids!=expectedNodeFaces[i])
+                return fail("original coarse per-node source-face ancestry changed");
+        }
+        for(std::size_t fi=0;fi<in.faces.size();++fi) {
+            const auto id=in.refinedFaceStableIDs[fi];
+            const auto& f=in.faces[fi];
+            if(id==invalid32||!knownFaceIDs.count(id)||f[0]>=newN||f[1]>=newN||f[2]>=newN||
+               f[0]==f[1]||f[1]==f[2]||f[2]==f[0])
+                return fail("invalid refined face or unknown stable parent face");
+            std::array<std::uint32_t,3> key=f;
+            std::sort(key.begin(),key.end());
+            const std::string faceKey=std::to_string(key[0])+":"+std::to_string(key[1])+":"+std::to_string(key[2]);
+            if(!duplicateFaceCheck.insert(faceKey).second)
+                return fail("duplicate refined child face");
+            representedChildFaceIDs.insert(id);
+            for(auto v:f) {
+                bool carries=false;
+                for(auto k=in.coarseFaceSourceOffsets[v];k<in.coarseFaceSourceOffsets[v+1];++k)
+                    carries|=in.coarseFaceStableSourceIDs[k]==id;
+                if(!carries)return fail("refined face vertex lacks its parent-face identity");
+            }
+        }
+        if(representedChildFaceIDs!=knownFaceIDs)
+            return fail("refined faces do not cover every original stable parent face");
+
+        double maximumBaselineError=0;
+        for(std::size_t i=0;i<newN;++i) {
+            const auto& row=in.coarseBaselineProlongation[i];
+            double sum=0;bool self=false,other=false;Point reconstructed{};
+            for(unsigned k=0;k<3;++k) {
+                const auto parent=row.parent[k];const double w=row.weight[k];
+                if(parent>=oldN||!std::isfinite(w)||w<0||w>1)
+                    return fail("invalid refined baseline parent or weight");
+                if(w>0){self|=parent==i;other|=parent!=i;}
+                sum+=w;
+                for(unsigned a=0;a<3;++a)reconstructed[a]+=w*baseCoarseRest_[parent][a];
+            }
+            if(std::abs(sum-1.0)>1.0e-12||(self&&other))
+                return fail("refined baseline ancestry is not a normalized convex partition");
+            if(i<oldN) {
+                if(self==false||other)
+                    return fail("original prefix baseline row is not preserved");
+                for(unsigned k=0;k<3;++k) {
+                    const auto& base=baseCoarseBaselineProlongation_;
+                    const std::uint32_t expectedParent=base.empty()
+                        ? static_cast<std::uint32_t>(i):base[i].parent[k];
+                    const double expectedWeight=base.empty()?(k==0?1.0:0.0):base[i].weight[k];
+                    if(row.parent[k]!=expectedParent||row.weight[k]!=expectedWeight)
+                        return fail("original prefix baseline prolongation changed");
+                }
+            } else {
+                for(unsigned a=0;a<3;++a) {
+                    const double d=std::abs(reconstructed[a]-in.coarseRest[i][a]);
+                    maximumBaselineError=std::max(maximumBaselineError,d);
+                }
+                if(maximumBaselineError>in.baselineToleranceMeters)
+                    return fail("generated baseline ancestry does not reproduce its rest point");
+                bool supportsFace=false;
+                for(auto k=in.coarseFaceSourceOffsets[i];k<in.coarseFaceSourceOffsets[i+1];++k) {
+                    const auto id=in.coarseFaceStableSourceIDs[k];
+                    const auto it=parentVertices.find(id);
+                    if(it==parentVertices.end())continue;
+                    bool all=true;
+                    for(unsigned j=0;j<3;++j)
+                        if(row.weight[j]>0)all&=it->second.count(row.parent[j])!=0;
+                    supportsFace|=all;
+                }
+                if(!supportsFace)
+                    return fail("generated baseline ancestry leaves its declared source-face domain");
+            }
+            const auto& sf=in.coarseSourceFaces[i];
+            const auto& sb=in.coarseSourceBarycentric[i];
+            const bool absentEmbedding=sf[0]==invalid32&&sf[1]==invalid32&&sf[2]==invalid32;
+            if(absentEmbedding) {
+                if(i<oldN||sb!=Point{}||(row.weight[0]==1.0&&row.parent[0]==i))
+                    return fail("source embedding is absent without generated baseline ancestry");
+                if(in.coarseDonor[i]!=invalid32)
+                    return fail("unembedded generated node must not invent a donor frame");
+            } else {
+                if(!finite(sb)||sb[0]<-1e-8||sb[1]<-1e-8||sb[2]<-1e-8||
+                   std::abs(sb[0]+sb[1]+sb[2]-1.0)>1e-8)
+                    return fail("invalid refined source-face barycentrics");
+                for(auto v:sf)if(v>=detailVertexCount_)
+                    return fail("refined source-face vertex index is out of range");
+                if(in.coarseDonor[i]==invalid32)
+                    return fail("embedded refined node lacks a donor identity");
+            }
+            if(i>=oldN&&in.coarseSource[i]!=invalid32)
+                return fail("generated vertex direct source identity is not a sentinel");
+        }
+
+        double maximumTransferPointError=0.0;
+        for(std::size_t i=0;i<in.rows.size();++i) {
+            const auto& row=in.rows[i];
+            if(in.detailSourceIDs[i]!=detailSource_[i])
+                return fail("prepared detail source identity differs from the existing owner");
+            if(row.donorBodyIndex!=detailDonor_[i]||!std::isfinite(row.restDistance)||row.restDistance<0)
+                return fail("prepared transfer donor identity or projection distance is invalid");
+            const auto faceRow=in.detailSelectedFaceRows[i];
+            bool any=false;double sum=0;
+            if(detailUsed_[i]) {
+                if(faceRow>=in.faces.size()||in.detailParentStableFaceIDs[i]==invalid32||
+                   in.refinedFaceStableIDs[faceRow]!=in.detailParentStableFaceIDs[i])
+                    return fail("active detail row has unknown or mismatched stable parent face");
+                const auto baseFace=selectedFaceIndices_[i];
+                bool baseParentMatches=false;
+                std::uint32_t directBaseVertex=invalid32;
+                for(std::size_t v=0;v<baseCoarseSource_.size();++v) {
+                    if(baseCoarseSource_[v]==detailSource_[i]&&
+                       baseCoarseDonor_[v]==detailDonor_[i]) {
+                        directBaseVertex=static_cast<std::uint32_t>(v);
+                        break; // build() resolves duplicate keys to the first row.
+                    }
+                }
+                bool baseIsExact=false;
+                if(directBaseVertex!=invalid32) {
+                    for(unsigned k=0;k<3;++k) {
+                        bool oneHot=rows_[i].weight[k]==1.0f;
+                        for(unsigned j=0;j<3;++j)if(j!=k)
+                            oneHot&=rows_[i].weight[j]==0.0f;
+                        baseIsExact|=oneHot&&rows_[i].coarseVertex[k]==directBaseVertex;
+                    }
+                }
+                if(baseIsExact) {
+                    for(std::size_t f=0;f<originalFaces_.size();++f) {
+                        bool contains=false;
+                        for(auto v:originalFaces_[f])contains|=v==directBaseVertex;
+                        if(contains&&baseStableFaceIds_[f]==in.detailParentStableFaceIDs[i])
+                            baseParentMatches=true;
+                    }
+                } else if(baseFace<baseStableFaceIds_.size()) {
+                    baseParentMatches=baseStableFaceIds_[baseFace]==in.detailParentStableFaceIDs[i];
+                }
+                if(!baseParentMatches)
+                    return fail("prepared parent face is not the existing owner row's source face");
+            }
+            for(unsigned k=0;k<3;++k) {
+                const auto node=row.coarseVertex[k];const float w=row.weight[k];
+                if(node>=in.mechanicalNodeCount||!std::isfinite(w)||w<0)
+                    return fail("prepared GPU row has invalid mechanics index or weight");
+                sum+=w;
+                if(w>0) {
+                    any=true;
+                    const auto it=mechanicalToCoarse.find(node);
+                    if(it==mechanicalToCoarse.end())
+                        return fail("prepared transfer support is not a refined outer node");
+                    if(detailUsed_[i]&&std::find(in.faces[faceRow].begin(),in.faces[faceRow].end(),it->second)==in.faces[faceRow].end())
+                        return fail("transfer support is outside the selected child face");
+                }
+            }
+            if(detailUsed_[i]) {
+                if(!any||std::abs(sum-1.0)>2e-6)
+                    return fail("active detailed transfer weights are not a convex partition");
+                Point oldPoint{},newPoint{};
+                for(unsigned k=0;k<3;++k) {
+                    const auto oldNode=rows_[i].coarseVertex[k];
+                    const double oldWeight=rows_[i].weight[k];
+                    if(oldNode>=oldN)return fail("built owner transfer support is outside original coarse domain");
+                    for(unsigned a=0;a<3;++a)oldPoint[a]+=oldWeight*baseCoarseRest_[oldNode][a];
+                    if(row.weight[k]>0.0f) {
+                        const auto it=mechanicalToCoarse.find(row.coarseVertex[k]);
+                        if(it==mechanicalToCoarse.end())return fail("new transfer support is not an outer mechanics node");
+                        for(unsigned a=0;a<3;++a)newPoint[a]+=double(row.weight[k])*in.coarseRest[it->second][a];
+                    }
+                }
+                const double pointError=std::sqrt(dist2(oldPoint,newPoint));
+                maximumTransferPointError=std::max(maximumTransferPointError,pointError);
+                if(pointError>in.maximumTransferPointErrorMeters)
+                    return fail("prepared transfer does not preserve the original baseline point");
+            } else if(any||sum!=0.0) {
+                return fail("inactive detailed row acquired transfer support");
+            }
+        }
+
+        coarseRest_=in.coarseRest;coarseSource_=in.coarseSource;coarseDonor_=in.coarseDonor;
+        rows_=in.rows;selectedFaceIndices_=in.detailSelectedFaceRows;
+        coarseSourceFaces_=in.coarseSourceFaces;
+        coarseSourceBarycentric_=in.coarseSourceBarycentric;
+        coarseBaselineProlongation_=in.coarseBaselineProlongation;
+        coarseMechanicalNodeRows_=in.coarseMechanicalNodeRows;
+        mechanicalNodeCount_=in.mechanicalNodeCount;
+        refinedDomainInstalled_=true;
+        trees_.clear();
+        if(report) {
+            *report=RefinedDomainReport{};
+            report->originalCoarseVertexCount=oldN;
+            report->refinedCoarseVertexCount=newN;
+            report->mechanicalNodeCount=in.mechanicalNodeCount;
+            report->detailRowCount=rows_.size();
+            report->generatedCoarseVertices=newN-oldN;
+            report->maximumBaselineReconstructionErrorMeters=maximumBaselineError;
+            report->maximumTransferPointErrorMeters=maximumTransferPointError;
+            report->sourceIdentity=in.sourceIdentity;
+            report->candidateIdentity=in.candidateIdentity;
+            for(auto used:detailUsed_)used?++report->activeRows:++report->inactiveRows;
+        }
+        if(error)error->clear();
+        return true;
+    }
 
     // Carry each coarse source-to-shell rest offset in its donor body's local
     // frame. This removes remeshing offsets at zero FEM displacement.
@@ -371,9 +750,14 @@ public:
              std::vector<Point>& out, std::string* error) const {
         out.resize(coarseSource_.size());
         for(std::size_t i=0;i<coarseSource_.size();++i) {
+            if(refinedDomainInstalled_&&i>=baseCoarseRest_.size()&&
+               !coarseBaselineProlongation_.empty()&&
+               coarseSourceFaces_[i][0]==std::numeric_limits<std::uint32_t>::max())
+                continue; // An unembedded generated vertex is defined by its pinned prefix prolongation below.
             const auto donor=coarseDonor_[i];
             Point sourceRest{},sourceCurrent{};
-            if(coarseSourceFaces_.empty()) {
+            if(coarseSourceFaces_.empty()||
+               coarseSourceFaces_[i][0]==std::numeric_limits<std::uint32_t>::max()) {
                 const auto source=coarseSource_[i];
                 if(source>=sourceRestByID.size() || source>=sourceCurrentByID.size()) {
                     if(error)*error="coarse source is out of range";
@@ -443,6 +827,10 @@ public:
     bool makeCoarseDisplacements(const std::vector<Point>& acceptedOuterPositions,
              const std::vector<Point>& currentMechanicalBaseline,
              std::vector<std::array<float,4>>& out, std::string* error) const {
+        if(refinedDomainInstalled_) {
+            if(error)*error="use makeCoarseDisplacementsFromMechanical for refined transfer rows";
+            out.clear();return false;
+        }
         if(acceptedOuterPositions.size()!=coarseSource_.size() ||
            currentMechanicalBaseline.size()!=coarseSource_.size()) {
             if(error)*error="accepted outer FEM or current baseline count mismatch";
@@ -458,6 +846,45 @@ public:
         }
         if(error)error->clear(); return true;
     }
+
+    // Full mechanics-domain adapters for prepared refined rows. Non-O nodes
+    // carry zero deltas and therefore cannot affect detailed skin transfer.
+    bool makeCurrentMechanicalBaseline(const std::vector<Point>& sourceRestByID,
+             const std::vector<Point>& sourceCurrentByID,
+             const std::vector<Pose>& donorRestPose,
+             const std::vector<Pose>& donorCurrentPose,
+             std::vector<Point>& out, std::string* error) const {
+        if(!refinedDomainInstalled_) {
+            if(error)*error="prepared refined domain is not installed";out.clear();return false;
+        }
+        std::vector<Point> compact;
+        if(!makeCurrentCoarseBaseline(sourceRestByID,sourceCurrentByID,
+                                      donorRestPose,donorCurrentPose,compact,error)) {
+            out.clear();return false;
+        }
+        out.assign(mechanicalNodeCount_,Point{});
+        for(std::size_t i=0;i<compact.size();++i)out[coarseMechanicalNodeRows_[i]]=compact[i];
+        if(error)error->clear();return true;
+    }
+    bool makeCoarseDisplacementsFromMechanical(const std::vector<Point>& acceptedMechanical,
+             const std::vector<Point>& baselineMechanical,
+             std::vector<std::array<float,4>>& out,std::string* error) const {
+        if(!refinedDomainInstalled_||acceptedMechanical.size()!=mechanicalNodeCount_||
+           baselineMechanical.size()!=mechanicalNodeCount_) {
+            if(error)*error="refined mechanical arrays have invalid dimensions";out.clear();return false;
+        }
+        out.assign(mechanicalNodeCount_,std::array<float,4>{0,0,0,0});
+        for(auto m:coarseMechanicalNodeRows_) {
+            if(!finite(acceptedMechanical[m])||!finite(baselineMechanical[m])) {
+                if(error)*error="nonfinite refined mechanical position";out.clear();return false;
+            }
+            out[m]={float(acceptedMechanical[m][0]-baselineMechanical[m][0]),
+                    float(acceptedMechanical[m][1]-baselineMechanical[m][1]),
+                    float(acceptedMechanical[m][2]-baselineMechanical[m][2]),0};
+        }
+        if(error)error->clear();return true;
+    }
+
     // CPU reference for parity tests; production applies the same interpolation
     // in a render-only Metal pass after ordinary skeletal skinning.
     bool applyReference(const std::vector<Point>& skeletalDetail,
@@ -593,7 +1020,15 @@ private:
         r.coarseVertex[0]=r.coarseVertex[1]=r.coarseVertex[2]=v;r.donorBodyIndex=d;
         r.weight[0]=1;r.weight[1]=r.weight[2]=0;r.restDistance=0;
     }
-    void clear(){rows_.clear();selectedFaceIndices_.clear();coarseRest_.clear();coarseSource_.clear();coarseDonor_.clear();coarseSourceFaces_.clear();coarseSourceBarycentric_.clear(); coarseBaselineProlongation_.clear();trees_.clear();}
+    void clear(){
+        rows_.clear();selectedFaceIndices_.clear();coarseRest_.clear();coarseSource_.clear();coarseDonor_.clear();
+        coarseSourceFaces_.clear();coarseSourceBarycentric_.clear();coarseBaselineProlongation_.clear();trees_.clear();
+        baseCoarseRest_.clear();baseCoarseSource_.clear();baseCoarseDonor_.clear();originalFaces_.clear();
+        detailSource_.clear();detailDonor_.clear();detailUsed_.clear();baseCoarseSourceFaces_.clear();
+        baseCoarseSourceBarycentric_.clear();baseCoarseBaselineProlongation_.clear();baseStableFaceIds_.clear();
+        coarseMechanicalNodeRows_.clear();detailVertexCount_=0;mechanicalNodeCount_=0;refinedDomainInstalled_=false;
+        baseSourceIdentity_={};hasBaseSourceIdentity_=false;
+    }
     std::vector<GPUTransferRow> rows_;
     std::vector<std::uint32_t> selectedFaceIndices_;
     std::vector<Point> coarseRest_;
@@ -602,6 +1037,20 @@ private:
     std::vector<Point> coarseSourceBarycentric_;
     std::vector<BaselineProlongationRow> coarseBaselineProlongation_;
     std::vector<Tree> trees_;
+    std::vector<Point> baseCoarseRest_;
+    std::vector<std::uint32_t> baseCoarseSource_,baseCoarseDonor_;
+    std::vector<Face> originalFaces_;
+    std::vector<std::uint32_t> detailSource_,detailDonor_;
+    std::vector<std::uint8_t> detailUsed_;
+    std::vector<Face> baseCoarseSourceFaces_;
+    std::vector<Point> baseCoarseSourceBarycentric_;
+    std::vector<BaselineProlongationRow> baseCoarseBaselineProlongation_;
+    std::vector<std::uint32_t> baseStableFaceIds_;
+    std::array<std::uint64_t,4> baseSourceIdentity_{};
+    bool hasBaseSourceIdentity_=false;
+    std::vector<std::uint32_t> coarseMechanicalNodeRows_;
+    std::size_t detailVertexCount_=0,mechanicalNodeCount_=0;
+    bool refinedDomainInstalled_=false;
 };
 static_assert(sizeof(AcceptedFEMSkinTransfer::GPUTransferRow)==32,"Metal row ABI");
 static_assert(alignof(AcceptedFEMSkinTransfer::GPUTransferRow)==16,"Metal row alignment");

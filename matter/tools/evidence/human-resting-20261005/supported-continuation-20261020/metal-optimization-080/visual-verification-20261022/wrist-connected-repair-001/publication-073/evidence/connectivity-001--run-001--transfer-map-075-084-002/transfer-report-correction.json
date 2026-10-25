@@ -1,0 +1,8 @@
+{
+  "schema": "075_to_compacted_084_additive_transfer_map_v3_report_correction",
+  "supersedes_field": "transfer-report.json:additive_owner.formula",
+  "pinned_report_sha256": "5452f7c24b9201734e0823a40a02d7cabcee6f945fd4755ea7acc5ee09fe8413",
+  "incorrect_report_text": "detail_origin_f32 + Wnew @ (mechanical_origin_f32 - current_X_f32)",
+  "correct_owner_formula": "detail_origin_f32 + Wnew @ (current_X_f32 - mechanical_origin_f32)",
+  "scope": "This corrects formula wording only. The builder constructs and validates Wnew, reference/current mapped-point parity, and exact zero-displacement baseline preservation; it does not evaluate a nonzero deformed detail candidate. No output geometry or transfer weights are changed."
+}

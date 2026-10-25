@@ -1,0 +1,11 @@
+{
+  "candidate_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "mapping_sha256": "55329313bf9c2c3b613fcd7eb52dd9b7b453520dd1b4a14e0e0d6ac457ce8519",
+  "mapping_report_sha256": "5452f7c24b9201734e0823a40a02d7cabcee6f945fd4755ea7acc5ee09fe8413",
+  "construction_owner_sha256": "efaa2873b08b7e608d237cafed8ba659b79338c9178d422f5fa820124a5cf4b2",
+  "embedded_owner_sha256": "31d7f036c9795b90e761e5713250e6a5ddbf07a71b7d3bec9e344e043d0cb60e",
+  "surface_separator_owner_sha256": "cafecf587c641b67c709ffa5c4633f5428dfe6fa979e856420662e1d0764a244",
+  "generated_thickness_owner_sha256": "a627a3b8c491345c42e1de9b8d5cb0cc7d35aa953742b29b2a09662f3eb8e253",
+  "static_authoring_only": true,
+  "accepted_physical_steps": 0
+}

@@ -1,0 +1,105 @@
+{
+  "admission": {
+    "bone_clearance": false,
+    "current_geometry": false,
+    "native_emission": false,
+    "native_physics": false,
+    "physical_mass_transfer": false
+  },
+  "coverage": {
+    "child_gate": true,
+    "child_max_abs_relative_error": 8.917995119230404e-08,
+    "cross_material_positive_pairs": 0,
+    "parent_gate": true,
+    "parent_max_abs_relative_error": 9.617538334561878e-08
+  },
+  "dimensions": {
+    "candidate_children": 32796,
+    "candidate_nodes": 7360,
+    "native_active_parents": 28632,
+    "native_nodes": 7233,
+    "transfer_csr_nnz": 132423
+  },
+  "input_sha256": {
+    "candidate": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "contributions": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f",
+    "nodes": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+    "precision_csr": "4e3491fab1e4e5c24433eb2106370538231be8892b728c7c973ba72b9eb5c715",
+    "tets": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461"
+  },
+  "limitations": [
+    "Reference-domain geometry and cooked-mass transfer only. Not current geometry, rendered skin, physical/native mass activation, bone clearance, or physical qualification.",
+    "Raw source contribution rows are retained as donor/frame provenance; they are not used as authoritative parent cell mass."
+  ],
+  "mass": {
+    "candidate_density_bounds_kg_m3": {
+      "15": [
+        900.0,
+        1100.0
+      ],
+      "16": [
+        850.0,
+        950.0
+      ]
+    },
+    "candidate_density_summary": {
+      "15": {
+        "bounds_kg_m3": [
+          900.0,
+          1100.0
+        ],
+        "child_rows": 16238,
+        "density_max_kg_m3": 1000.0001407496492,
+        "density_min_kg_m3": 999.9999867060685
+      },
+      "16": {
+        "bounds_kg_m3": [
+          850.0,
+          950.0
+        ],
+        "child_rows": 16558,
+        "density_max_kg_m3": 900.0000838185367,
+        "density_min_kg_m3": 899.9999482913205
+      }
+    },
+    "candidate_total_kg": 13.939679738169952,
+    "density_violation_count": 0,
+    "formula": "compiled inverse_rest_w_m3 * compiled_bulk_x; transfer by same-material overlap / per-parent covered overlap after passing raw 1e-7 geometry coverage",
+    "max_parent_mass_relative_closure_error": 4.897188074141377e-16,
+    "native_total_kg": 13.939679738169954,
+    "per_material": {
+      "15": {
+        "candidate_child_mass_kg": 3.4525711587090546,
+        "native_compiled_mass_kg": 3.4525711587090546,
+        "relative_delta": 0.0
+      },
+      "16": {
+        "candidate_child_mass_kg": 10.487108579460898,
+        "native_compiled_mass_kg": 10.487108579460898,
+        "relative_delta": 0.0
+      }
+    },
+    "relative_total_delta": -1.2743168227432006e-16
+  },
+  "method": "Uses the frozen 003 all-pair geometric CSR with only the 1,025 incident pairs replaced by unchanged 085b locally translated clips. The raw CSR is preserved. After unchanged child and parent geometric coverage gates pass at 1e-7 and same-material identity is checked, cooked parent mass is apportioned by overlap divided by that parent\u2019s math.fsum covered overlap. This is an explicit local roundoff partition; no geometric overlap is changed and no global mass rescale is applied. Rank<3 zero-measure cross-material contacts remain omitted; rank3 cross-material overlaps fail closed.",
+  "parent_local_partition": {
+    "child_coverage_gate_pass": true,
+    "correction_factor_max": 1.0000000001985256,
+    "correction_factor_mean": 0.9999999998395368,
+    "correction_factor_min": 0.9999999038246259,
+    "formula": "same-material overlap / per-parent math.fsum(covered overlap), applied only after raw geometric coverage passes",
+    "global_mass_rescale": false,
+    "max_abs_local_correction_relative": 9.61753741091087e-08,
+    "max_correction_parent_row": 4155,
+    "parent_count": 28632,
+    "parent_coverage_gate_pass": true,
+    "raw_geometric_csr_unchanged": true
+  },
+  "precision_report_sha256": "64ee4f53e12ebb8feae05b126427d2f689e4068bb63e9f65d22c6eab33eb22eb",
+  "raw_geometric_coverage": {
+    "child_max_abs_relative_error": 8.917995119230404e-08,
+    "parent_max_abs_relative_error": 9.617538334561878e-08,
+    "unchanged_tolerance": 1e-07
+  },
+  "status": "PASS_REFERENCE_DOMAIN_OVERLAP_AND_COOKED_MASS_LEDGER_AFTER_LOCAL_PRECISION_RECLIP"
+}

@@ -1,0 +1,166 @@
+{
+  "artifacts": {
+    "candidate_084": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/connectivity-001/run-001/candidate-tetrahedra-compacted.npz",
+      "sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db"
+    },
+    "compiled_native_nodes": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-nodes.csv",
+      "sha256": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9"
+    },
+    "compiled_native_tets": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-tets.csv",
+      "sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461"
+    },
+    "donor_source_diagnostic_report": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/source-cooked-child-moments-074-parent-local-partition/source-cooked-child-moments-074-parent-local-partition-004.json",
+      "sha256": "3262e834f43ab3750344e283034a6dcbddd27f9e7faa51bff446c7ee8198f7e7"
+    },
+    "existing_geometry_helper_test": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/publication-073/canonical/matter/tools/test_human_skin_fat_mass_transfer_geometry.py",
+      "sha256": "5862840f680c0b27464656951351409a99c260a0841f203649d98f886549aa07"
+    },
+    "helper_test_log": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/helper-tests.log",
+      "sha256": "26fbeab7ccff6016c0eb186fed2d6c5c8bb7ebf0eba5f3ea48ddc8a7ecbe5314"
+    },
+    "moment_audit_log": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/strict-moment-run.log",
+      "sha256": "f08ddaf7dc2452a5d1d039d48d92b37299ecbeca2efbb184596d48e7defbbf1d"
+    },
+    "moment_audit_report": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/source-cooked-child-moments-074-strict/source-cooked-child-moments-074-parent-local-partition-004-strict.json",
+      "sha256": "f08ddaf7dc2452a5d1d039d48d92b37299ecbeca2efbb184596d48e7defbbf1d"
+    },
+    "moment_audit_source": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/verify_source_cooked_child_moments_074_parent_local_partition_004.py",
+      "sha256": "28718b66a9e4a3a11d74dbf75bf139916a75becff7efa2065f75d32376db04ec"
+    },
+    "original_073_transfer_owner": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/publication-070/evidence/mass/native-parent-transfer-073/build_native_parent_transfer_073.py",
+      "sha256": "167c176edef02cbb2360d68e3c011809722030bd00009e20afa80d2b8ad59586"
+    },
+    "original_074_strict_owner": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/publication-070/evidence/mass/native-parent-transfer-073/source-cooked-child-moments-074/verify_source_cooked_child_moments_074.py",
+      "sha256": "f6c2eda8671bd6ce4d9d25cd668c2b44f67ca0bb75338be077cb876639d3509c"
+    },
+    "parent_partition_helper": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/publication-073/canonical/matter/tools/human_skin_fat_mass_transfer_geometry.py",
+      "sha256": "a00a21552f0c0ec9018123c7a69e3091d233874a7bfebd73964e919a18237652"
+    },
+    "parent_partition_tests": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/publication-073/canonical/matter/tools/test_human_skin_fat_parent_mass_partition.py",
+      "sha256": "f5b790033963b412243c31e386c135762b511c88b7bb55db83c39cc7ce40c320"
+    },
+    "partition_finalizer": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/finalize_parent_local_mass_partition_004_fix002.py",
+      "sha256": "194789ef4c7968c0e8aaa68e1ae278ad860bb937b67800851fe436bb45f3df36"
+    },
+    "partition_finalizer_log": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/finalizer-run.log",
+      "sha256": "cc68137c4b6f2c854ebf8003aa90df60a0c30412fb18f8710c502129648f9447"
+    },
+    "partition_manifest": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/transfer-manifest-parent-local-partition-004.json",
+      "sha256": "7c415b3250a8121ea950182dbbdf5b05da372c249c8e7eb4cf6a441ce81fc42f"
+    },
+    "partition_npz": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/native-parent-transfer-085c-parent-local-partition.npz",
+      "sha256": "300e435da66fa372566e3c394446e7b7e409be064e943ebd4dd7bd795291933a"
+    },
+    "partition_report": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/transfer-report-parent-local-partition-004.json",
+      "sha256": "cc68137c4b6f2c854ebf8003aa90df60a0c30412fb18f8710c502129648f9447"
+    },
+    "precision_reclip_source": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/run_local_coverage_precision_004_fix001.py",
+      "sha256": "cb3db8581b7096b2c3eaf128c8e3bd0fc7ef1ce22e8b5b4318f085beb06f842f"
+    },
+    "raw_073_fraction_074_failure_report": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/source-cooked-child-moments-074-diagnostic/source-cooked-child-moments-074-local-precision-004-diagnostic.json",
+      "sha256": "e81ea64ebd246507dd9b9153276704bb7906e8815043594555a9595fdc1db6be"
+    },
+    "raw_073_fraction_074_failure_source": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/audit_source_cooked_child_moments_074_local_precision_004_fix001.py",
+      "sha256": "93f055324033081b013404f6cb936bbf261546e0c4f2985b7e2c87b2129312c3"
+    },
+    "raw_073_mass_map": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/native-parent-transfer-085c.npz",
+      "sha256": "c36c8ff08b3cd05e704ce99c3b6f4d1996b040caacdcb1d218eee2a32dc5c0c7"
+    },
+    "raw_csr_invariance": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/raw-geometric-csr-invariance-004.json",
+      "sha256": "1e4ac7b959702b431a5b556dce36fa66e3a7a21abf534a855d0af7c4c299af48"
+    },
+    "raw_geometric_precision_csr": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/geometric-overlap-local-precision-004.npz",
+      "sha256": "4e3491fab1e4e5c24433eb2106370538231be8892b728c7c973ba72b9eb5c715"
+    },
+    "raw_geometric_precision_report": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/coverage-report-004.json",
+      "sha256": "64ee4f53e12ebb8feae05b126427d2f689e4068bb63e9f65d22c6eab33eb22eb"
+    },
+    "raw_source_contributions": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/premerge-layer-contributions.csv",
+      "sha256": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f"
+    },
+    "reference_com_addendum": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/source-cooked-child-moments-074-strict/reference-spatial-com-addendum.json",
+      "sha256": "bc9929cd6f211417bc34d4162b2d01c65cc53a6781a8408dba323ccdcad3694a"
+    },
+    "syntax_check_log": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/syntax-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "checks": {
+    "coverage_limit": 1e-07,
+    "cross_material_positive_pairs": 0,
+    "geometric_coverage_child_max_abs_relative": 8.917995119230404e-08,
+    "geometric_coverage_parent_max_abs_relative": 9.617538334561878e-08,
+    "max_parent_mass_relative_closure": 4.897188074141377e-16,
+    "maximum_child_node_material_relative_error": 5.278490148907224e-15,
+    "maximum_density_violation_count": 0,
+    "maximum_donor_material_cooked_to_child_first_moment_relative_error": 1.6698871569771796e-15,
+    "maximum_donor_material_cooked_to_child_mass_relative_error": 1.4741573615948211e-15,
+    "maximum_donor_material_cooked_to_child_second_moment_relative_error": 1.7342114991172701e-15,
+    "maximum_parent_csr_child_mass_recompute_relative_error": 5.634587417920302e-16,
+    "maximum_source_row_cooked_to_child_relative_error": 6.932822851145394e-15,
+    "per_material_relative_mass_deltas": {
+      "15": 0.0,
+      "16": 0.0
+    },
+    "raw_source_to_cooked_parent_max_donor_material_mass_relative_difference": 1.1517923699085063e-05,
+    "reference_geometric_centroid_lumped_com_shift_max_mm": 7.844333766507068e-09,
+    "reference_geometric_centroid_lumped_second_moment_relative_difference_max_all": 3.2573417080104253e-05,
+    "reference_geometric_spatial_moments_are_qualification_gate": false,
+    "total_child_mass_kg": 13.939679738169952,
+    "total_native_mass_kg": 13.939679738169954
+  },
+  "commands": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q -p no:cacheprovider publication-073/canonical/matter/tools/test_human_skin_fat_mass_transfer_geometry.py publication-073/canonical/matter/tools/test_human_skin_fat_parent_mass_partition.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python -m py_compile <helper, tests, finalizer, and strict-074 verifier listed above>",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python /Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/finalize_parent_local_mass_partition_004_fix002.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python /Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/verify_source_cooked_child_moments_074_parent_local_partition_004.py"
+  ],
+  "input_sha256": {
+    "candidate_084": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "compiled_native_nodes": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+    "compiled_native_tets": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "original_073_builder": "167c176edef02cbb2360d68e3c011809722030bd00009e20afa80d2b8ad59586",
+    "precision_csr": "4e3491fab1e4e5c24433eb2106370538231be8892b728c7c973ba72b9eb5c715",
+    "raw_source_contributions": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f"
+  },
+  "mass_rule": "For each parent separately, same-material overlap entries are divided by math.fsum of that parent covered overlap, only after child and parent raw geometric coverage errors pass the existing absolute-relative 1e-7 gate. This closes roundoff locally; it does not alter CSR overlap volumes or apply global mass scaling.",
+  "raw_073_strict_074_failure": {
+    "max_source_row_relative_error": 3.6699252799273495e-08,
+    "reason": "Raw overlap/native-parent-volume fractions preserve geometric coverage error within 1e-7 but do not meet the strict 074 1e-10 source-row closure threshold.",
+    "report_path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/local-coverage-precision-004-fix001/source-cooked-child-moments-074-diagnostic/source-cooked-child-moments-074-local-precision-004-diagnostic.json",
+    "report_sha256": "e81ea64ebd246507dd9b9153276704bb7906e8815043594555a9595fdc1db6be"
+  },
+  "raw_geometric_csr_unchanged": true,
+  "scope": "Separate cooked-mass partition variant over an unchanged raw geometric overlap CSR. It does not qualify current geometry, physical mass activation, native emission, bone clearance, or physical/native physics.",
+  "status": "PASS_REFERENCE_DOMAIN_PARENT_LOCAL_MASS_PARTITION_AND_074_DONOR_MOMENT_LEDGER",
+  "strict_074_result": "PASS with existing <1e-10 cooked-to-child source-row, node/material, donor mass, first-moment, and second-moment tolerances. Raw source-to-cooked differences and reference-space geometry moments remain separately reported, not waived or conflated.",
+  "test_result": "15 passed for the existing exact-intersection geometry helper plus the new parent-local mass partition tests."
+}

@@ -1,0 +1,136 @@
+{
+  "J": {
+    "max": 1.0009854273219454,
+    "min": 0.9998882430208084,
+    "nonpositive_current": 0,
+    "outside_0_35_2_5": 0
+  },
+  "by_material": {
+    "1": {
+      "J_max": 1.000053709368689,
+      "J_min": 0.999910226712022,
+      "J_outside_0_35_2_5": 0,
+      "cells": 16243,
+      "connected_solver_q_below_1e-5": 4,
+      "connected_solver_q_min": 1.8386813481473193e-06,
+      "q_low_tet_rows": [
+        992,
+        9741,
+        27256,
+        28425
+      ],
+      "tetgen_audit_q_below_1e-5": 0,
+      "tetgen_audit_q_min": 0.0005012042925686205,
+      "tetgen_reference_q_min": 0.0005012042925686205
+    },
+    "2": {
+      "J_max": 1.0009854273219454,
+      "J_min": 0.9998882430208084,
+      "J_outside_0_35_2_5": 0,
+      "cells": 16558,
+      "connected_solver_q_below_1e-5": 1,
+      "connected_solver_q_min": 7.2752794680007235e-06,
+      "q_low_tet_rows": [
+        28788
+      ],
+      "tetgen_audit_q_below_1e-5": 0,
+      "tetgen_audit_q_min": 0.0011114754653696048,
+      "tetgen_reference_q_min": 0.0011114754653696048
+    }
+  },
+  "candidate084_sha256": "d3d0abb590f5858de4a27e0362e98bc9b3088831183ea045096cefc4ebba26e1",
+  "comparison_to_084_builder_current": {
+    "max_abs_connected_q_delta": 1.470920659977018e-06,
+    "max_abs_delta_m": 1.1920928955078125e-07,
+    "max_abs_tetgen_q_delta": 1.691887096757355e-05,
+    "rms_node_delta_m": 2.0147154991085272e-09
+  },
+  "connected_q_low_cells": [
+    {
+      "J": 1.0,
+      "material_id": 1,
+      "q": 3.138119990119104e-06,
+      "tet_node_rows": [
+        3687,
+        7234,
+        3700,
+        7237
+      ],
+      "tet_row": 992,
+      "tetgen_q": 0.0006293248948747931
+    },
+    {
+      "J": 1.0,
+      "material_id": 1,
+      "q": 1.8386813481473193e-06,
+      "tet_node_rows": [
+        3523,
+        7234,
+        1276,
+        7237
+      ],
+      "tet_row": 9741,
+      "tetgen_q": 0.0005012042925686205
+    },
+    {
+      "J": 1.0,
+      "material_id": 1,
+      "q": 8.45087446554212e-06,
+      "tet_node_rows": [
+        1276,
+        7237,
+        7234,
+        3687
+      ],
+      "tet_row": 27256,
+      "tetgen_q": 0.000841959871779868
+    },
+    {
+      "J": 1.0,
+      "material_id": 1,
+      "q": 8.68652994082019e-06,
+      "tet_node_rows": [
+        3523,
+        3349,
+        7234,
+        7237
+      ],
+      "tet_row": 28425,
+      "tetgen_q": 0.0009508437817751129
+    },
+    {
+      "J": 1.0,
+      "material_id": 2,
+      "q": 7.2752794680007235e-06,
+      "tet_node_rows": [
+        4588,
+        7018,
+        6867,
+        7017
+      ],
+      "tet_row": 28788,
+      "tetgen_q": 0.0011114754653696048
+    }
+  ],
+  "current_domain": "037 current field interpolated in pulled-back reference domain, then rounded to Float32",
+  "definitions": {
+    "connected_solver_q": "signed determinant divided by longest current edge length cubed (the canonical connected-repair helper's q)",
+    "same_numerical_threshold": "1e-5; the definitions are distinct and must not be compared as if identical",
+    "tetgen_audit_q": "12*max(det/2,0)^(2/3)/sum(squared lengths of six edges) (the 084 TetGen audit's shape quality)"
+  },
+  "global": {
+    "connected_solver_q": {
+      "below_1e-5": 5,
+      "min": 1.8386813481473193e-06
+    },
+    "reference_tetgen_audit_q_min": 0.0005012042925686205,
+    "tetgen_audit_q": {
+      "below_1e-5": 0,
+      "min": 0.0005012042925686205
+    }
+  },
+  "reference_domain": "084 reference_points_m cast to Float32 then promoted to Float64",
+  "status": "QUALITY_CONVENTION_COMPARISON_DIAGNOSTIC_ONLY",
+  "transfer_audit_report_sha256": "dee9c3f886d246c80d683bcede465f7acef7a981a919e07e048666bcf3e28448",
+  "transferred_current_sha256": "70ee31eadad8d7ef969dbcbd170bb8bcc46209dc993d2cc397c596be775ef8b9"
+}

@@ -1,0 +1,28 @@
+{
+  "command": "/Users/n/numi-human-prep-venv-20261005/bin/python reclassify_cross_material_085c.py",
+  "input_pins": {
+    "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085b/plane_filter_085.py": "0ba4109b943f7e1b4312ca339f8e5f2f931b81413daca4074fa2be42f3b9c305",
+    "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085b/plane_filter_085b.py": "ae3cbe1e9f79a580b3a0f22b5126a2d91f11293874f9c867f46a83e81d6f3f61",
+    "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c-cross-audit-001/run-001/cross-material-witnesses.json": "a770c026dd8e1eeeb17ba6c47c8a79c3e574be91a6f1882976d83dd9e7cbc1f9"
+  },
+  "limitations": "Exact affine rank applies to serialized binary64 coordinates. It diagnoses positive volume versus lower-dimensional contact in those coordinates; it does not waive the existing material-overlap criterion, validate current-space physics, or admit the candidate.",
+  "method": "22 previously observed opposite-material pairs only; pinned scalar/stacked 085b clip at inside tolerance 2e-10 and at zero, plus common local translation and exact Fraction.from_float halfspace vertex/rank classification.",
+  "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "report_path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c-cross-audit-001/reclassification-002/witness-reclassification.json",
+  "report_sha256": "4b4c361a9a50fe195c64030ce30385651ffe9d2028fe799efca158dd0fcdf2a4",
+  "result_summary": {
+    "exact_binary64_affine_rank_2": 22,
+    "full_overlap_rerun": false,
+    "gate_waived": false,
+    "pairs": 22,
+    "prior_total_overlap_m3": 1.7212372244094641e-13,
+    "scalar_stacked_max_abs_difference_m3": 0.0,
+    "tol_2e-10_positive": 22,
+    "translated_tol_2e-10_positive": 0,
+    "translated_zero_tol_positive": 0,
+    "zero_tol_positive": 0
+  },
+  "source_path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c-cross-audit-001/reclassification-002/reclassify_cross_material_085c.py",
+  "source_sha256": "939237178f3f5eff1b28e740135141213dfe8cb57a4f28eeeb2fa9bd0256d28c",
+  "status": "frozen_witness_only_reclassification"
+}

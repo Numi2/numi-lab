@@ -10,6 +10,12 @@ from scipy.optimize import linprog
 from scipy.sparse.csgraph import connected_components
 
 def cell_values_gradients(points, reference, tetrahedra):
+    """Return J, dJ, signed det/longest-edge-cubed quality, and its gradient.
+
+    The quality floor applies to this dimensionless signed-volume measure;
+    mean-ratio, radius-edge and dihedral metrics are not interchangeable.
+    Pass the emitted Float32 positions when checking emitted mesh acceptance.
+    """
     rawX=np.asarray(points);rawR=np.asarray(reference);rawT=np.asarray(tetrahedra)
     if rawT.dtype.kind not in 'iu' or rawT.ndim!=2 or rawT.shape[1]!=4 or len(rawT)==0:
         raise ValueError('tetrahedra must be a nonempty integer Mx4 table')
@@ -78,6 +84,40 @@ def boundary_face_values_gradients(points, origin, faces):
     cosine=value/np.maximum(ratio,np.finfo(float).tiny)
     return value,G,ratio,cosine
 
+def boundary_area_cosine_values_gradients(points, origin, faces):
+    """Return true area ratios/cosines and their per-vertex gradients.
+
+    Gradients are with respect to the three current vertex coordinates in
+    metres. The area ratio is ||cross|| / ||reference_cross||; cosine compares
+    the current oriented area vector with the fixed construction-origin normal.
+    """
+    area, cosine = boundary_face_values_gradients(points, origin, faces)[2:]
+    X=np.asarray(points,dtype=np.float64);O=np.asarray(origin,dtype=np.float64)
+    F=np.asarray(faces,dtype=np.int64)
+    V=X[F];U=O[F]
+    e1=V[:,1]-V[:,0];e2=V[:,2]-V[:,0]
+    cross=np.cross(e1,e2)
+    ref_cross=np.cross(U[:,1]-U[:,0],U[:,2]-U[:,0])
+    cross_norm=np.linalg.norm(cross,axis=1)
+    ref_norm=np.linalg.norm(ref_cross,axis=1)
+    if np.any(cross_norm<=np.finfo(np.float64).tiny) or np.any(ref_norm<=np.finfo(np.float64).tiny):
+        raise ValueError('degenerate current or origin boundary face')
+    unit_ref=ref_cross/ref_norm[:,None]
+    unit_current=cross/cross_norm[:,None]
+    grad_cross_area=cross/(cross_norm*ref_norm)[:,None]
+    grad_cross_cos=(unit_ref-cosine[:,None]*unit_current)/cross_norm[:,None]
+
+    def vertex_gradients(gc):
+        g1=np.cross(e2,gc)
+        g2=np.cross(gc,e1)
+        return np.stack((-(g1+g2),g1,g2),axis=1)
+
+    area_grad=vertex_gradients(grad_cross_area)
+    cosine_grad=vertex_gradients(grad_cross_cos)
+    if not np.isfinite(area_grad).all() or not np.isfinite(cosine_grad).all():
+        raise ValueError('nonfinite boundary shape derivative')
+    return area,area_grad,cosine,cosine_grad
+
 def sparse_face_jacobian(gradients,faces,free_nodes,node_count):
     F=np.asarray(free_nodes,dtype=np.int64);T=np.asarray(faces,dtype=np.int64)
     lookup=np.full(node_count,-1,dtype=np.int64);lookup[F]=np.arange(len(F))
@@ -128,8 +168,8 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
         amin,amax=map(float,boundary_area_bounds);cmin=float(boundary_normal_cosine_min)
         if not np.isfinite([amin,amax,cmin]).all() or amin<=0 or amax<=amin or cmin<=0 or cmin>1:
             raise ValueError('invalid boundary area/normal bounds')
-        av,ag,ar,ac=boundary_face_values_gradients(X,O,boundary_faces)
         BF=np.asarray(boundary_faces,dtype=np.int64)
+        ar,area_grad,ac,cosine_grad=boundary_area_cosine_values_gradients(X,O,BF)
         if np.min(ar)<amin or np.max(ar)>amax or np.min(ac)<cmin:
             raise ValueError('starting boundary fails fixed-origin area/normal gates')
     if embedded_surface is not None:
@@ -164,11 +204,14 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
     anchor_offset=np.zeros(nd) if O is None else 1000*(X[F].astype(float)-O[F]).ravel()
     bs += [-anchor_offset,anchor_offset]
     if BF is not None:
-        AF=sparse_face_jacobian(ag,BF,F,len(X))*.001
-        rows += [sparse.hstack([-AF,z(len(BF))]),sparse.hstack([AF,z(len(BF))])]
-        # Projected area is a quadratic model; exact emitted geometry below
-        # still enforces actual area and normal-cosine bounds.
-        bs += [av-amin,amax-av]
+        # Linearize the actual norm-based area ratio and normal cosine. These
+        # are hard LP rows; the unchanged nonlinear Float32 gates below remain
+        # authoritative after each backtracked trial.
+        AA=sparse_face_jacobian(area_grad,BF,F,len(X))*.001
+        AC=sparse_face_jacobian(cosine_grad,BF,F,len(X))*.001
+        rows += [sparse.hstack([-AA,z(len(BF))]),sparse.hstack([AA,z(len(BF))]),
+                 sparse.hstack([-AC,z(len(BF))])]
+        bs += [ar-amin,amax-ar,ac-cmin]
     if embedded_surface is not None:
         ev,EJ=embedded_surface.projected_area_linearization(X,F)
         emin,emax=embedded_surface.area_bounds
@@ -207,6 +250,15 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
     delta=result.x[:nd].reshape(-1,3)*.001
     original=np.maximum(target-C@X.astype(float).ravel(),0).sum()
     report['lp_predicted_contact_deficit_l1_mm']=float(result.x[nd:nd+nc].sum())
+    if BF is not None:
+        report.update({
+            'starting_boundary_area_ratio_min':float(ar.min()),
+            'starting_boundary_area_ratio_max':float(ar.max()),
+            'starting_boundary_normal_cosine_min':float(ac.min()),
+            'lp_linearized_boundary_area_ratio_min':float(np.min(ar+AA@result.x[:nd])),
+            'lp_linearized_boundary_area_ratio_max':float(np.max(ar+AA@result.x[:nd])),
+            'lp_linearized_boundary_normal_cosine_min':float(np.min(ac+AC@result.x[:nd])),
+        })
     # Cells, collision rows and layer constraints induce exact connected solve
     # components. Independent components may take different line-search lengths;
     # no cell or constraint is allowed to straddle two components.
@@ -235,20 +287,39 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
     for label in range(count):
         local=np.flatnonzero(labels==label);nodes=F[local]
         original=np.maximum(target-C@best.astype(float).ravel(),0).sum()
-        accepted=False
+        accepted=False;attempts=[]
         for k in range(15):
             scale=2.**-k;Y=best.copy();Y[nodes]=X[nodes].astype(float)+scale*delta[local]
             jj,_,qq,_=cell_values_gradients(Y,R,T)
             linear_pass=True
             if lower_linear_matrix is not None:linear_pass=bool(np.min(L@Y.astype(float).ravel()-lt)>=-1e-9)
             surface_pass=True
+            trial_area_min=trial_area_max=trial_cosine_min=None
             if BF is not None:
                 _,_,area,cosine=boundary_face_values_gradients(Y,O,BF)
-                surface_pass=bool(np.min(area)>=amin and np.max(area)<=amax and np.min(cosine)>=cmin)
+                trial_area_min=float(np.min(area));trial_area_max=float(np.max(area))
+                trial_cosine_min=float(np.min(cosine))
+                surface_pass=bool(trial_area_min>=amin and trial_area_max<=amax and trial_cosine_min>=cmin)
             deficit=np.maximum(target-C@Y.astype(float).ravel(),0).sum()
-            if np.min(qq)>=q_min and np.min(jj)>=lo and np.max(jj)<=hi and linear_pass and surface_pass and (embedded_surface is None or embedded_surface.passes(Y)) and deficit<original-1e-12:
+            first_failed = (
+                'cell_quality' if not np.min(qq)>=q_min else
+                'cell_J' if not (np.min(jj)>=lo and np.max(jj)<=hi) else
+                'hard_linear' if not linear_pass else
+                'coarse_surface' if not surface_pass else
+                'mapped_skin' if embedded_surface is not None and not embedded_surface.passes(Y) else
+                'contact_progress' if not deficit<original-1e-12 else None)
+            attempts.append({'fraction':float(scale),'first_failed_gate':first_failed,
+                'q_min':float(qq.min()),'q_witness_row':int(qq.argmin()),
+                'J_min':float(jj.min()),'J_max':float(jj.max()),
+                'hard_linear_min_slack_m':None if lower_linear_matrix is None else float(np.min(L@Y.astype(float).ravel()-lt)),
+                'hard_linear_witness_row':None if lower_linear_matrix is None else int(np.argmin(L@Y.astype(float).ravel()-lt)),
+                'contact_deficit_l1_mm':float(deficit*1000),
+                'boundary_area_ratio_min':trial_area_min,
+                'boundary_area_ratio_max':trial_area_max,
+                'boundary_normal_cosine_min':trial_cosine_min})
+            if first_failed is None:
                 best=Y;accepted=True;break
-        components.append({'nodes':len(nodes),'applied':accepted,'line_fraction':scale if accepted else 0.})
+        components.append({'nodes':len(nodes),'applied':accepted,'line_fraction':scale if accepted else 0.,'attempts':attempts})
     jj,_,qq,_=cell_values_gradients(best,R,T)
     report.update({'step_applied':bool(np.any(best.view(np.uint32)!=X.view(np.uint32))),'components':components,
         'emitted_q_min':float(qq.min()),'emitted_J_min':float(jj.min()),'emitted_J_max':float(jj.max()),
@@ -426,17 +497,30 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
         local=np.flatnonzero(labels==label);nodes=F[local];dd=np.zeros_like(delta);dd[local]=delta[local]
         maxstep=float(np.abs(dd).max());maxgrad=float(np.abs(DG@dd.ravel()).max(initial=0))
         fraction=min(1.,float(step_limit_mm)/max(maxstep,1e-30),float(max_incremental_gradient)/max(maxgrad,1e-30))
-        initial=np.maximum(target-C@best.astype(float).ravel(),0).sum();accepted=False
+        initial=np.maximum(target-C@best.astype(float).ravel(),0).sum();accepted=False;attempts=[]
         for backtrack in range(16):
             alpha=fraction*2.**-backtrack
             Y=best.copy();Y[nodes]=X[nodes].astype(float)+.001*alpha*delta[local]
             jj,_,qq,_=cell_values_gradients(Y,R,T);_,_,ar,co=boundary_face_values_gradients(Y,O,BF)
             layer_ok=L is None or np.min(L@Y.astype(float).ravel()-lt)>=-1e-9
             deficit=np.maximum(target-C@Y.astype(float).ravel(),0).sum()
-            if jj.min()>=lo and jj.max()<=hi and qq.min()>=q_min and ar.min()>=amin and ar.max()<=amax and co.min()>=cmin and layer_ok and (embedded_surface is None or embedded_surface.passes(Y)) and deficit<initial-1e-12:
+            first_failed = (
+                'cell_J' if not (jj.min()>=lo and jj.max()<=hi) else
+                'cell_quality' if not qq.min()>=q_min else
+                'coarse_surface' if not (ar.min()>=amin and ar.max()<=amax and co.min()>=cmin) else
+                'hard_linear' if not layer_ok else
+                'mapped_skin' if embedded_surface is not None and not embedded_surface.passes(Y) else
+                'contact_progress' if not deficit<initial-1e-12 else None)
+            attempts.append({'fraction':float(alpha),'first_failed_gate':first_failed,
+                'q_min':float(qq.min()),'q_witness_row':int(qq.argmin()),
+                'J_min':float(jj.min()),'J_max':float(jj.max()),
+                'hard_linear_min_slack_m':None if L is None else float(np.min(L@Y.astype(float).ravel()-lt)),
+                'hard_linear_witness_row':None if L is None else int(np.argmin(L@Y.astype(float).ravel()-lt)),
+                'contact_deficit_l1_mm':float(deficit*1000)})
+            if first_failed is None:
                 best=Y;accepted=True;break
         components.append({'nodes':len(nodes),'applied':accepted,'line_fraction':float(alpha if accepted else 0),
-                           'direction_max_incremental_gradient':maxgrad})
+                           'direction_max_incremental_gradient':maxgrad,'attempts':attempts})
     jj,_,qq,_=cell_values_gradients(best,R,T);_,_,ar,co=boundary_face_values_gradients(best,O,BF)
     fixed=np.setdiff1d(np.arange(len(X)),F)
     assert np.array_equal(best[fixed].view(np.uint32),X[fixed].view(np.uint32))

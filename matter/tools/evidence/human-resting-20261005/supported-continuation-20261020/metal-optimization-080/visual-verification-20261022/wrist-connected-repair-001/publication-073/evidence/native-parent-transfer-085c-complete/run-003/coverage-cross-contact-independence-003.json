@@ -1,0 +1,85 @@
+{
+  "child_gate": {
+    "bad_count_before_and_after": 6,
+    "bad_rows": [
+      {
+        "cell_uid": 1562,
+        "child_row": 1561,
+        "filtered_relative_error": 1.1223129045358595e-07,
+        "has_omitted_cross_contact": false,
+        "restored_relative_error": 1.1223129045358595e-07
+      },
+      {
+        "cell_uid": 4453,
+        "child_row": 4451,
+        "filtered_relative_error": 1.890600346341132e-07,
+        "has_omitted_cross_contact": false,
+        "restored_relative_error": 1.890600346341132e-07
+      },
+      {
+        "cell_uid": 5819,
+        "child_row": 5816,
+        "filtered_relative_error": 1.2102092224318678e-07,
+        "has_omitted_cross_contact": false,
+        "restored_relative_error": 1.2102092224318678e-07
+      },
+      {
+        "cell_uid": 9451,
+        "child_row": 9448,
+        "filtered_relative_error": 1.131984310145412e-07,
+        "has_omitted_cross_contact": false,
+        "restored_relative_error": 1.131984310145412e-07
+      },
+      {
+        "cell_uid": 25674,
+        "child_row": 25669,
+        "filtered_relative_error": 1.380716739602066e-07,
+        "has_omitted_cross_contact": false,
+        "restored_relative_error": 1.380716739602066e-07
+      },
+      {
+        "cell_uid": 30867,
+        "child_row": 30856,
+        "filtered_relative_error": 1.0029917746764145e-07,
+        "has_omitted_cross_contact": false,
+        "restored_relative_error": 1.0029917746764145e-07
+      }
+    ],
+    "max_abs_error_after_restore": 1.890600346341132e-07,
+    "max_abs_error_before": 1.890600346341132e-07,
+    "threshold": 1e-07
+  },
+  "cross_classification_path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/run-003/cross-material-exact-rank-classification-085c.json",
+  "cross_classification_sha256": "7245687a769a58eb7657bb5400ddd57eb082b9a4d3ed169bd289e9d6e4c01901",
+  "geometry_csr_path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/native-parent-transfer-085c/run-003/geometric-overlap-085c.npz",
+  "geometry_csr_sha256": "6ce7364aa435d383fab8b701e8ed997469a8821903e8e8a9914dd8d06735dcd0",
+  "interpretation": "All six child and all three parent coverage failures are outside the 22 removed rank-2 cross-material contacts. Restoring their tolerance volumes to diagnostic coverage leaves the same failure counts and maxima. The coverage failure therefore remains independent; no mass map or rescaling is justified.",
+  "method": "Reconstructed diagnostic-only child/native coverage by adding each retained tolerance-positive rank<3 cross-material volume back to the saved filtered coverage. No source arrays changed.",
+  "parent_gate": {
+    "bad_count_before_and_after": 3,
+    "bad_rows": [
+      {
+        "filtered_relative_error": 1.7876458577516758e-07,
+        "has_omitted_cross_contact": false,
+        "parent_row": 4786,
+        "restored_relative_error": 1.7876458577516758e-07
+      },
+      {
+        "filtered_relative_error": 1.3196088465091563e-07,
+        "has_omitted_cross_contact": false,
+        "parent_row": 5175,
+        "restored_relative_error": 1.3196088465091563e-07
+      },
+      {
+        "filtered_relative_error": 3.793658128650323e-07,
+        "has_omitted_cross_contact": false,
+        "parent_row": 19109,
+        "restored_relative_error": 3.793658128650323e-07
+      }
+    ],
+    "max_abs_error_after_restore": 3.793658128650323e-07,
+    "max_abs_error_before": 3.793658128650323e-07,
+    "threshold": 1e-07
+  },
+  "status": "PASS_COVERAGE_FAILURES_NOT_CAUSED_BY_ZERO_MEASURE_CROSS_CONTACT_OMISSION"
+}

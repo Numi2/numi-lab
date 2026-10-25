@@ -1,0 +1,12 @@
+[
+  "test_plane_filter_085.py::test_filtered_matches_frozen_owner[offset0-True]",
+  "test_plane_filter_085.py::test_filtered_matches_frozen_owner[offset1-False]",
+  "test_plane_filter_085.py::test_filtered_matches_frozen_owner[offset2-False]",
+  "test_plane_filter_085.py::test_filtered_matches_frozen_owner[offset3-False]",
+  "test_plane_filter_085.py::test_filtered_matches_frozen_owner[offset4-False]",
+  "test_plane_filter_085.py::test_invalid_tolerance_fails_closed",
+  "test_plane_filter_085.py::test_nearly_coplanar_rotated_and_sliver_cases_match_owner",
+  "test_plane_filter_085.py::test_randomized_rejections_are_owner_zero_and_survivors_exact",
+  "test_plane_filter_085.py::test_vectorized_batch_empty_and_invalid_rows",
+  "test_plane_filter_085.py::test_vectorized_batch_matches_frozen_owner"
+]
