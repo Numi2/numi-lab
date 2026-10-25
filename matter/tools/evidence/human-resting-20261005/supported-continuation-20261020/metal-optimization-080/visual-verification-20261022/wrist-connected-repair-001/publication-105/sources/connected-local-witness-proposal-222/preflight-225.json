@@ -1,0 +1,46 @@
+{
+  "barycentric_owner": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-091/canonical/matter/tools/human_skin_fat_barycentric_constraints.py",
+    "sha256": "965a166e86952d79c019302c98e7684f2f8ef3a9d63b328430ac9c8c8edbaff2"
+  },
+  "builder": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-222/propose_joint_clearance_witnesses_222.py",
+    "sha256": "13171cd5559ea3644aaea7f98bf37bbbd4298168434cdffdc98aa729dde08564"
+  },
+  "candidate": {
+    "faces": 36815,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-halfstep-223-run001/pass-023/candidate.npz",
+    "points": 18430,
+    "sha256": "c73d46812745766d3c733407382913eecbdf82b97fcb0b5ae3229b807ebe4ac5"
+  },
+  "classification": "read-only schema/hash/affine-row check; no LP, geometry edit, exact audit, or physical step",
+  "expanded_target_nodes": 1199,
+  "face_targets": {
+    "npz": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-225-run001/targets/targets.npz",
+    "npz_sha256": "e135a0de4b77d600ba1b733e68129cf1396f527550ffec406c47a3fad70b0cae",
+    "report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-225-run001/targets/report.json",
+    "report_sha256": "378a83fc26885a66d7079a82be474d5d9b8453b4e822f81289707abfe4fb581c",
+    "rows": 3106
+  },
+  "full_self_area_point185_and_surface159_gates": "NOT_RUN_REQUIRED",
+  "native_admission": false,
+  "physical_steps": 0,
+  "point_targets": {
+    "npz": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-225-run001/proposal/targets/nearest-union-exits.npz",
+    "npz_sha256": "de9b2f5d6c2c03f8ff35bbcc871215577ba9f569fa9b8b2779819158e7d16273",
+    "report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-225-run001/proposal/targets/nearest-union-exits.json",
+    "report_sha256": "fe0a79b9f0d711ed653dde6b424af5d58007c7a0d2c82cdc433f76b87d36ed99",
+    "rows": 112
+  },
+  "sparse_clearance_rows": {
+    "metadata_rows": 3218,
+    "minimum_positive_projected_target_mm": 0.050159322073354655,
+    "nnz": 28290,
+    "normalized_weight_sum": 1.0,
+    "shape": [
+      3218,
+      3597
+    ]
+  },
+  "status": "PASS_TARGET_INPUT_COMPATIBILITY_PREFLIGHT_ONLY"
+}

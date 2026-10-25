@@ -1,0 +1,277 @@
+{
+  "iteration": 22,
+  "candidate_sha256": "3acc9fcc4c8273b17c89977792766f4285ddd84dd8a6acdb0f9e55dabbb313d7",
+  "emitted_points_sha256": "24d50c18db3ed5220553acea4b6f34103b856b94f10f1923838d4c381c79b561",
+  "minimum_allface_oriented_area_ratio": 0.11517046973756018,
+  "minimum_fixed_reference_area_magnitude_ratio": 0.10008137223981052,
+  "bad_area_faces": 0,
+  "anchors_bitwise_unchanged": true,
+  "nonzero_step_nodes": 1176,
+  "nonzero_construction_scale_nodes": 18173,
+  "maximum_step_m": 0.0004912737058932308,
+  "maximum_source_displacement_mm": 9.013849247149494,
+  "source_cap_pass": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "point_summary_sha256": "b2c8703cd382f1fbce845d54abc5b8b6d0b7c5e49746acf768ef0b378039de8d",
+  "point_merit": {
+    "construction_progress": true,
+    "strict_pair_count_reduction": true,
+    "maximum_depth_nonincreasing": true,
+    "squared_depth_nonincreasing": true,
+    "before_inside_pairs": 112,
+    "after_inside_pairs": 76,
+    "before_maximum_depth_m": 0.0023162252135661148,
+    "after_maximum_depth_m": 0.001979001672129494,
+    "before_squared_depth_m2": 3.532501621420735e-05,
+    "after_squared_depth_m2": 1.9824866990173114e-05,
+    "introduced_typed_pairs": [],
+    "introduced_depths_m": [],
+    "removed_typed_pairs": [
+      [
+        11263,
+        96,
+        81
+      ],
+      [
+        14185,
+        65,
+        99
+      ],
+      [
+        14276,
+        43,
+        16
+      ],
+      [
+        14384,
+        114,
+        117
+      ],
+      [
+        14782,
+        64,
+        98
+      ],
+      [
+        14824,
+        43,
+        16
+      ],
+      [
+        14979,
+        115,
+        118
+      ],
+      [
+        15075,
+        109,
+        114
+      ],
+      [
+        15076,
+        109,
+        114
+      ],
+      [
+        15174,
+        114,
+        117
+      ],
+      [
+        15338,
+        59,
+        95
+      ],
+      [
+        15429,
+        64,
+        98
+      ],
+      [
+        15628,
+        115,
+        118
+      ],
+      [
+        15970,
+        43,
+        16
+      ],
+      [
+        16019,
+        114,
+        117
+      ],
+      [
+        16033,
+        109,
+        114
+      ],
+      [
+        16698,
+        65,
+        99
+      ],
+      [
+        16705,
+        65,
+        99
+      ],
+      [
+        16958,
+        64,
+        98
+      ],
+      [
+        16961,
+        64,
+        98
+      ],
+      [
+        17046,
+        43,
+        16
+      ],
+      [
+        17054,
+        43,
+        16
+      ],
+      [
+        17421,
+        124,
+        123
+      ],
+      [
+        17424,
+        124,
+        123
+      ],
+      [
+        17426,
+        124,
+        123
+      ],
+      [
+        17728,
+        100,
+        85
+      ],
+      [
+        17803,
+        115,
+        118
+      ],
+      [
+        17811,
+        115,
+        118
+      ],
+      [
+        17858,
+        109,
+        114
+      ],
+      [
+        17859,
+        109,
+        114
+      ],
+      [
+        17964,
+        109,
+        114
+      ],
+      [
+        17965,
+        109,
+        114
+      ],
+      [
+        17987,
+        109,
+        114
+      ],
+      [
+        18165,
+        104,
+        113
+      ],
+      [
+        18393,
+        114,
+        117
+      ],
+      [
+        18417,
+        114,
+        117
+      ]
+    ],
+    "geometry_admitted": false,
+    "accepted_physical_steps": 0
+  },
+  "joint_merit": {
+    "classification": "JOINT_CLEARANCE_CONSTRUCTION_PROGRESS",
+    "construction_progress": true,
+    "strict_surface_pair_reduction": true,
+    "strict_total_pair_reduction": true,
+    "maximum_depth_nonincreasing": true,
+    "squared_depth_nonincreasing": true,
+    "topology_points": 18430,
+    "topology_faces": 36815,
+    "typed_bank_count": 185,
+    "before_candidate_sha256": "c73d46812745766d3c733407382913eecbdf82b97fcb0b5ae3229b807ebe4ac5",
+    "after_candidate_sha256": "3acc9fcc4c8273b17c89977792766f4285ddd84dd8a6acdb0f9e55dabbb313d7",
+    "before_point_pairs": 112,
+    "after_point_pairs": 76,
+    "before_surface_pairs": 3106,
+    "after_surface_pairs": 2905,
+    "before_total_pairs": 3218,
+    "after_total_pairs": 2981,
+    "before_maximum_point_depth_m": 0.0023162252135661148,
+    "after_maximum_point_depth_m": 0.001979001672129494,
+    "before_squared_point_depth_m2": 3.532501621420735e-05,
+    "after_squared_point_depth_m2": 1.9824866990173114e-05,
+    "final_zero_clearance_unchanged": false,
+    "geometry_admitted": false,
+    "accepted_physical_steps": 0,
+    "native_admission": false
+  },
+  "depth_merit": {
+    "classification": "NO_CONSTRUCTION_DEPTH_PROGRESS",
+    "construction_progress": false,
+    "point_pair_count_nonincreasing": true,
+    "surface_pair_count_nonincreasing": true,
+    "same_query_coverage": false,
+    "no_introduced_typed_pairs": false,
+    "introduced_point_pairs": [],
+    "introduced_surface_pair_count": 326,
+    "maximum_depth_nonincreasing": true,
+    "strict_squared_depth_progress": true,
+    "before_point_pairs": 112,
+    "after_point_pairs": 76,
+    "before_surface_pairs": 3106,
+    "after_surface_pairs": 2905,
+    "before_maximum_depth_m": 0.0023162252135661148,
+    "after_maximum_depth_m": 0.001979001672129494,
+    "before_squared_depth_m2": 3.532501621420735e-05,
+    "after_squared_depth_m2": 1.9824866990173114e-05,
+    "squared_depth_improvement_m2": 1.5500149224034236e-05,
+    "squared_depth_roundoff_threshold_m2": 5.0199867323225575e-19,
+    "typed_bank_count": 185,
+    "topology_points": 18430,
+    "topology_faces": 36815,
+    "before_candidate_sha256": "c73d46812745766d3c733407382913eecbdf82b97fcb0b5ae3229b807ebe4ac5",
+    "after_candidate_sha256": "3acc9fcc4c8273b17c89977792766f4285ddd84dd8a6acdb0f9e55dabbb313d7",
+    "geometry_admitted": false,
+    "native_admission": false,
+    "accepted_physical_steps": 0
+  },
+  "status": "CONSTRUCTION_PROGRESS_ONLY",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-minimum-movement-229-run001/joint-001/local-backtrack/pass-022/candidate.npz",
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-minimum-movement-229-run001/joint-001/local-backtrack/pass-022/audit-130/summary.json",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-minimum-movement-229-run001/joint-001/local-backtrack/pass-022/audit-159/report.json",
+  "parent_fit": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-225-run001/proposal/fit/attempt-001/fit-report.json"
+}

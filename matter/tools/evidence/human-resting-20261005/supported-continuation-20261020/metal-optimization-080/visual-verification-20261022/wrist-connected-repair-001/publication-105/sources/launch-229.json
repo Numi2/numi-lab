@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_joint_minimum_movement_229.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-222/propose_joint_clearance_witnesses_222.py",
+    "13171cd5559ea3644aaea7f98bf37bbbd4298168434cdffdc98aa729dde08564",
+    "[\"--point-target-npz\", \"/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-225-run001/proposal/targets/nearest-union-exits.npz\", \"--point-target-report\", \"/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-225-run001/proposal/targets/nearest-union-exits.json\", \"--face-target-npz\", \"/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-225-run001/targets/targets.npz\", \"--face-target-report\", \"/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-225-run001/targets/report.json\"]"
+  ],
+  "construction_budget": "stage2 weighted normalized clearance objective cap = stage1 optimum + 0.05; no change to physical/geometry gates"
+}
