@@ -1,0 +1,240 @@
+{
+  "base_commit": "060ca79fefdc16bfee87b62a8131057cee2651dc",
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "tests": 25,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "655affab4f3c680c8871d7769ea30b46797fbd7c772b3cc4789cae5d03efb0af",
+      "bytes": 1692
+    },
+    {
+      "path": "canonical/matter/tools/fixtures/human_skin_fat_surface_counts_027.json",
+      "sha256": "170cd9c8b85015ce1059f477f2d546c20aa26b3fb8d67cccd8cbfa8b117419a9",
+      "bytes": 199413
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_bone_audit.py",
+      "sha256": "d51ca1d32c1b5bb1d592427b948fd2cc2d50ea03294705a92ab33eb08e7d89e2",
+      "bytes": 51969
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_surface_count_summary.py",
+      "sha256": "8452c91bb0df2b5872ce2d29c9cee5007fb7d08184c8e9a21ac7a7a6ab6dc75b",
+      "bytes": 3169
+    },
+    {
+      "path": "evidence/as-run-source/area_scp_support_023.py",
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+      "bytes": 16549
+    },
+    {
+      "path": "evidence/as-run-source/run-027-post-audits.py",
+      "sha256": "c821cafcd0848a5bd32012513783911a579e14414562f4ad2991a851395ba1fb",
+      "bytes": 3272
+    },
+    {
+      "path": "evidence/as-run-source/run-027-self-separation-connected-fit-001.py",
+      "sha256": "97767c23e9ecf51d1788cadf597dc1225d32a970cc04522bb46ccf94ed95afe0",
+      "bytes": 34403
+    },
+    {
+      "path": "evidence/as-run-source/run-028-current-target-connected-fit-001.py",
+      "sha256": "11046ed780b1ea243bbd6a02564f7f47522e26175de27c9bf167e98360c1124f",
+      "bytes": 34425
+    },
+    {
+      "path": "evidence/as-run-source/self_separation_026.py",
+      "sha256": "ec647128549c31d38d02f1722de1ee584c1ff442b9275be92a2d3a25b0f52ee4",
+      "bytes": 11249
+    },
+    {
+      "path": "evidence/as-run-source/test_self_separation_026.py",
+      "sha256": "d9e310618cafaba4cf35fea0b4342c36e574654deb45f977c8c9635a13f70e54",
+      "bytes": 3163
+    },
+    {
+      "path": "evidence/current-point-targets/build_run027_first_union_exits.py",
+      "sha256": "b3fe01667f5be697bd53a2780070f65eda019ba003915fe5f1ec06784bbeb773",
+      "bytes": 18973
+    },
+    {
+      "path": "evidence/current-point-targets/generated-node-nearest-union-exits-run027.json",
+      "sha256": "9f58f856cad7c25f6fe30aece124337368359b264512f342d572c5ec5ce689b2",
+      "bytes": 759302
+    },
+    {
+      "path": "evidence/current-point-targets/generated-node-nearest-union-exits-run027.npz",
+      "sha256": "75406a8aa503686aaa0248dc175dec34b88deb5cbefd5cca7ff30e7fceffdabe",
+      "bytes": 17598
+    },
+    {
+      "path": "evidence/run-027-self-separation-connected-fit-001/candidate.npz",
+      "sha256": "ff1559240a4599e4bbcf29bc1061890c8d0e918953a9bc906fe5366a8e1f85c5",
+      "bytes": 992099
+    },
+    {
+      "path": "evidence/run-027-self-separation-connected-fit-001/crossing-count-correction-001/correction.json",
+      "sha256": "250d5f7b465a6acf3b02bf0e2ed21743030d47d5e9c9577a8f56853fa6d64d34",
+      "bytes": 24275
+    },
+    {
+      "path": "evidence/run-027-self-separation-connected-fit-001/fit-report.json",
+      "sha256": "8de3ff898acf2c16e18dcd80dcc0a80a48635423ea2f73d8ce10f6a23061b9a1",
+      "bytes": 124252
+    },
+    {
+      "path": "evidence/run-027-self-separation-connected-fit-001/post-audits-001/all-bank-face-audit-159/progress.json",
+      "sha256": "9cad6a69a1284c978738210ee7effe51684b9271ccf94d6c150369a1c9d577b4",
+      "bytes": 99
+    },
+    {
+      "path": "evidence/run-027-self-separation-connected-fit-001/post-audits-001/all-bank-face-audit-159/report.json",
+      "sha256": "170cd9c8b85015ce1059f477f2d546c20aa26b3fb8d67cccd8cbfa8b117419a9",
+      "bytes": 199413
+    },
+    {
+      "path": "evidence/run-027-self-separation-connected-fit-001/post-audits-001/exact-point-self-audit-130/query/nodes.csv",
+      "sha256": "4f6bf239d125780e11e0a2db5b666c52df9b6709305d133705e4d0355c01c4eb",
+      "bytes": 232506
+    },
+    {
+      "path": "evidence/run-027-self-separation-connected-fit-001/post-audits-001/exact-point-self-audit-130/query/pairs.csv",
+      "sha256": "67f460023ca14344659966c4f835b0c61a5b681b8b3de82aa32a838053da8a26",
+      "bytes": 841138
+    },
+    {
+      "path": "evidence/run-027-self-separation-connected-fit-001/post-audits-001/exact-point-self-audit-130/query/points-world.npz",
+      "sha256": "c0db71d75e4d58d7f0b78a6c180679287c21d6621a8606bdb188b4bffeb1629d",
+      "bytes": 110952
+    },
+    {
+      "path": "evidence/run-027-self-separation-connected-fit-001/post-audits-001/exact-point-self-audit-130/query/points.csv",
+      "sha256": "0eac05ef55a98c4545278c3442cb1e2b82c8ffec5f19120f555e1a27c0e215c2",
+      "bytes": 766329
+    },
+    {
+      "path": "evidence/run-027-self-separation-connected-fit-001/post-audits-001/exact-point-self-audit-130/query/query-receipt.json",
+      "sha256": "164e7396685675209f7e768f8ccb02b00712840eb8972bbf469c7fd8d88832eb",
+      "bytes": 1729
+    },
+    {
+      "path": "evidence/run-027-self-separation-connected-fit-001/post-audits-001/exact-point-self-audit-130/summary.json",
+      "sha256": "ad67d70d7029de2789335ac6a19191db1e1e597e7c2224c595e8fc8fa002bdc9",
+      "bytes": 251721
+    },
+    {
+      "path": "evidence/run-027-self-separation-connected-fit-001/post-audits-001/exact-point-self-audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "bytes": 128
+    },
+    {
+      "path": "evidence/run-027-self-separation-connected-fit-001/post-audits-001/manifest.json",
+      "sha256": "a48396d14498d8bac1f4e86e7bc8b4a0c611708181a1a9bea9d02403ae7962d1",
+      "bytes": 2032
+    },
+    {
+      "path": "evidence/run-028-current-target-connected-fit-001/candidate.npz",
+      "sha256": "2f93d0159f5e1ece1fa377da71e52e4edb7ee60f4b61e483a0390733ca404c11",
+      "bytes": 992065
+    },
+    {
+      "path": "evidence/run-028-current-target-connected-fit-001/crossing-count-correction-001/aggregation.json",
+      "sha256": "e1ca4811458d8dba0cfe9665d7cb1dc2f23132872842b52e08005a510a5412ff",
+      "bytes": 24389
+    },
+    {
+      "path": "evidence/run-028-current-target-connected-fit-001/crossing-count-correction-001/canonical-aggregation.json",
+      "sha256": "2190293d3c11eb0099f4512bdfee79caadd9e4823b2e3aeba3d3e99db8d6bf7c",
+      "bytes": 24748
+    },
+    {
+      "path": "evidence/run-028-current-target-connected-fit-001/fit-report.json",
+      "sha256": "965e880335441de148495da24aa297db693c2e752aea7250c1ce5ac4ec39550f",
+      "bytes": 108090
+    },
+    {
+      "path": "evidence/run-028-current-target-connected-fit-001/post-audits-001/all-bank-face-audit-159/progress.json",
+      "sha256": "eb0395ef7e8a843c0403202281894607b8fe6ac8ca8574a8997b897a2938acc3",
+      "bytes": 99
+    },
+    {
+      "path": "evidence/run-028-current-target-connected-fit-001/post-audits-001/all-bank-face-audit-159/report.json",
+      "sha256": "6dd739e73313074032f6bb750aa0eb1ff00d251de94e032181345cc46ad9f0a9",
+      "bytes": 194668
+    },
+    {
+      "path": "evidence/run-028-current-target-connected-fit-001/post-audits-001/exact-point-self-audit-130/query/nodes.csv",
+      "sha256": "b70a273120d09f9ea66b0fde87de695c21030d29ab23048046ba367c42587c44",
+      "bytes": 232506
+    },
+    {
+      "path": "evidence/run-028-current-target-connected-fit-001/post-audits-001/exact-point-self-audit-130/query/pairs.csv",
+      "sha256": "7847a130128025d8271461caae182eaa6c7c1cf4b224f3ed933e2c953b64d585",
+      "bytes": 833733
+    },
+    {
+      "path": "evidence/run-028-current-target-connected-fit-001/post-audits-001/exact-point-self-audit-130/query/points-world.npz",
+      "sha256": "14cb14c68afe42bd761c3661300c2799769c2fad4b8d9c821d716085ae919a89",
+      "bytes": 110918
+    },
+    {
+      "path": "evidence/run-028-current-target-connected-fit-001/post-audits-001/exact-point-self-audit-130/query/points.csv",
+      "sha256": "f2a0ac6f4bee47c4fea99e38294b81821cfed64531ed428e13690f559cc46621",
+      "bytes": 766255
+    },
+    {
+      "path": "evidence/run-028-current-target-connected-fit-001/post-audits-001/exact-point-self-audit-130/query/query-receipt.json",
+      "sha256": "370c9978f54334dbfac1b08c1fc43aac3f6c9336e3a852b458ca4af97c9da325",
+      "bytes": 1726
+    },
+    {
+      "path": "evidence/run-028-current-target-connected-fit-001/post-audits-001/exact-point-self-audit-130/summary.json",
+      "sha256": "f57ec74ebc965fbebd7c3d60c3d9d2ed1ea1ac16c4e96837c88710c0c7606cfe",
+      "bytes": 216190
+    },
+    {
+      "path": "evidence/run-028-current-target-connected-fit-001/post-audits-001/exact-point-self-audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "bytes": 128
+    },
+    {
+      "path": "evidence/tests.txt",
+      "sha256": "782c3e83fb9f85e8a02e0ed951cedd94cdc3acb7f424d1ca52fc52d9d7923a56",
+      "bytes": 99
+    },
+    {
+      "path": "verification/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root_exact_segment_witness.py",
+      "sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "bytes": 2734
+    },
+    {
+      "path": "verification/tools/human_skin_fat_bone_audit.py",
+      "sha256": "d51ca1d32c1b5bb1d592427b948fd2cc2d50ea03294705a92ab33eb08e7d89e2",
+      "bytes": 51969
+    },
+    {
+      "path": "verification/tools/test_human_skin_fat_bone_audit.py",
+      "sha256": "b6dc5dfa103de8f003ef704d0180b0b8d85d307d5c9595e5ecd92290173c68ad",
+      "bytes": 15455
+    }
+  ],
+  "canonical_changes": [
+    {
+      "path": "canonical/matter/tools/fixtures/human_skin_fat_surface_counts_027.json",
+      "sha256": "170cd9c8b85015ce1059f477f2d546c20aa26b3fb8d67cccd8cbfa8b117419a9",
+      "bytes": 199413
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_bone_audit.py",
+      "sha256": "d51ca1d32c1b5bb1d592427b948fd2cc2d50ea03294705a92ab33eb08e7d89e2",
+      "bytes": 51969
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_surface_count_summary.py",
+      "sha256": "8452c91bb0df2b5872ce2d29c9cee5007fb7d08184c8e9a21ac7a7a6ab6dc75b",
+      "bytes": 3169
+    }
+  ]
+}

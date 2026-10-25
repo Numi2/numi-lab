@@ -823,6 +823,60 @@ def world_clearance_plane(world,query_local,closest_local,M,offset,position):
     return n,margin-distance,closest_world,distance,error
 
 
+def summarize_surface_crossing_report(report, expected_banks=185, *, expected_bank_keys=None):
+    if not isinstance(report,dict) or report.get("complete") is not True:
+        raise ValueError("159 report must be a complete object")
+    banks=report.get("banks")
+    if not isinstance(banks,list) or len(banks)!=expected_banks:
+        raise ValueError("159 bank inventory is incomplete")
+    if int(report.get("bank_count",-1))!=expected_banks or int(report.get("expected_bank_count",-1))!=expected_banks:
+        raise ValueError("159 bank-count receipts disagree")
+    if not isinstance(expected_banks,int) or isinstance(expected_banks,bool) or expected_banks<=0:
+        raise ValueError("expected_banks must be a positive integer")
+    total=0; per_bank=[]; seen=set()
+    for i,bank in enumerate(banks):
+        if not isinstance(bank,dict):
+            raise ValueError(f"invalid bank row {i}")
+        body=bank.get("body");bone=bank.get("stable_bone_id")
+        if type(body) is not int or type(bone) is not int:
+            raise ValueError(f"missing typed bank identity at row {i}")
+        key=(body,bone)
+        if key in seen:
+            raise ValueError(f"duplicate typed bank identity: {key}")
+        seen.add(key)
+        if "result" not in bank:
+            raise ValueError(f"missing explicit result at bank row {i}")
+        result=bank["result"]
+        if result is None:
+            # The only admissible zero without narrowphase is a recorded complete
+            # skin-vs-bank AABB exclusion. Missing counts never silently become zero.
+            if (bank.get("skin_aabb_active") != 0 or bank.get("bank_aabb_active") != 0
+                or not isinstance(bank.get("skin_faces"),int) or bank["skin_faces"]<=0
+                or not isinstance(bank.get("bank_faces"),int) or bank["bank_faces"]<=0):
+                raise ValueError(f"missing result/count without explicit AABB exclusion at bank row {i}")
+            count=0; source="aabb_disjoint_no_narrowphase"
+        else:
+            if not isinstance(result,dict):
+                raise ValueError(f"invalid result object at bank row {i}")
+            count=result.get("count")
+            pairs=result.get("triangle_pairs")
+            if not isinstance(count,int) or isinstance(count,bool) or count<0:
+                raise ValueError(f"missing or invalid explicit count at bank row {i}")
+            if not isinstance(pairs,list) or len(pairs)!=count:
+                raise ValueError(f"pair-array/count mismatch at bank row {i}")
+            source="exact_narrowphase_count"
+        total+=count
+        per_bank.append({"body":body,"stable_bone_id":bone,"count":count,"count_source":source})
+    if expected_bank_keys is not None:
+        expected=set(expected_bank_keys)
+        if len(expected)!=expected_banks or seen!=expected:
+            raise ValueError("typed bank inventory differs from pinned expected keys")
+    return {"status":"COMPLETE_EXPLICIT_PER_BANK_COUNT_SUM","bank_count":len(banks),
+            "expected_bank_count":expected_banks,"total_crossing_pairs":total,
+            "nonzero_bank_count":sum(x["count"]>0 for x in per_bank),
+            "per_bank":per_bank}
+
+
 if __name__ == "__main__":
     main()
 

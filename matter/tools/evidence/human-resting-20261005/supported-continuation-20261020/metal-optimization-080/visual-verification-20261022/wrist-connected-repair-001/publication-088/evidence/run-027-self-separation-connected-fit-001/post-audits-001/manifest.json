@@ -1,0 +1,41 @@
+{
+  "candidate_sha256": "ff1559240a4599e4bbcf29bc1061890c8d0e918953a9bc906fe5366a8e1f85c5",
+  "audit130_sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9",
+  "audit159_sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+  "commands": {
+    "audit130": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "/Users/n/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+      "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-027-self-separation-connected-fit-001/candidate.npz",
+      "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-027-self-separation-connected-fit-001/post-audits-001/exact-point-self-audit-130"
+    ],
+    "audit159": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "/Users/n/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+      "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-027-self-separation-connected-fit-001/candidate.npz",
+      "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-027-self-separation-connected-fit-001/post-audits-001/all-bank-face-audit-159"
+    ]
+  },
+  "status": "COMPLETE_DIAGNOSTICS_UNADMITTED",
+  "physical_steps": 0,
+  "geometry_admitted": false,
+  "audit130": {
+    "summary_sha256": "ad67d70d7029de2789335ac6a19191db1e1e597e7c2224c595e8fc8fa002bdc9",
+    "complete_surface_audit": true,
+    "exact_PLC_surface_pairs": 0,
+    "inside_node_bank_pairs": 297,
+    "inside_nodes": 296,
+    "query_pair_count": 4045,
+    "status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC"
+  },
+  "audit159": {
+    "report_sha256": "170cd9c8b85015ce1059f477f2d546c20aa26b3fb8d67cccd8cbfa8b117419a9",
+    "status": "COMPLETE_TYPED_BANK_SURFACE_CROSSING_AUDIT",
+    "complete": true,
+    "bank_count": 185,
+    "expected_bank_count": 185,
+    "crossing_pair_count": 0,
+    "wall_seconds": 22.83788474998437
+  },
+  "elapsed_seconds": 26.82599962502718
+}
