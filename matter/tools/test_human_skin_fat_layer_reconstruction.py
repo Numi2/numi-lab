@@ -692,3 +692,56 @@ def test_affine_positive_volume_rejects_ambiguous_or_invalid_fields():
         with pytest.raises(ValueError):
             positive_linear_tetrahedron_volume_fractions(bad)
     assert positive_linear_tetrahedron_volume_fractions(np.empty((0,4))).shape==(0,)
+
+
+from human_skin_fat_layer_reconstruction import rebuild_registered_layer_fields_from_membership
+
+def test_registered_fields_use_closed_volume_membership_not_nearest_normal():
+    # An open boundary feature can have the same outward closest normal while
+    # one query lies inside its cap and the other is truly outside.
+    d=np.array([.06241258372115655,.06241258372115655,0.])
+    got=rebuild_registered_layer_fields_from_membership(d*d,np.array([True,False,True]),.002,.006)
+    assert np.allclose(got[:,0],[d[0],-d[1],0.],rtol=0,atol=1e-17)
+    assert np.allclose(got[:,0]+got[:,1],.002,rtol=0,atol=2*np.spacing(d.max()))
+    assert np.allclose(got[:,2]-got[:,1],.006,rtol=0,atol=2*np.spacing(d.max()))
+
+def test_registered_fields_preserve_varying_depths_and_scale():
+    rng=np.random.default_rng(670)
+    d=rng.uniform(0,.12,670);inside=rng.random(670)>.5
+    hs=rng.uniform(.0005,.0025,670);hf=rng.uniform(.0005,.01,670)
+    a=rebuild_registered_layer_fields_from_membership(d*d,inside,hs,hf)
+    b=rebuild_registered_layer_fields_from_membership((d*1024)**2,inside,hs*1024,hf*1024)
+    assert np.array_equal(b,a*1024)
+    assert np.allclose(a[:,0]+a[:,1],hs,rtol=0,atol=7e-18)
+    assert np.allclose(a[:,2]-a[:,1],hf,rtol=0,atol=3e-17)
+    assert np.all(a[:,2]>a[:,1])
+
+@pytest.mark.parametrize("d2,inside,hs,hf",[
+    ([-1.],np.array([True]),.001,.001),
+    ([np.nan],np.array([True]),.001,.001),
+    ([[1.]],np.array([True]),.001,.001),
+    ([1.],np.array([1]),.001,.001),
+    ([1.],np.array([True,False]),.001,.001),
+    ([1.],np.array([True]),0.,.001),
+    ([1.],np.array([True]),.001,-.001),
+    ([1e300],np.array([True]),.001,.001),
+])
+def test_registered_fields_reject_uncertified_shapes_and_unrepresentable_layers(d2,inside,hs,hf):
+    with pytest.raises(ValueError):
+        rebuild_registered_layer_fields_from_membership(d2,inside,hs,hf)
+
+def test_registered_fields_empty_domain_is_explicit():
+    assert rebuild_registered_layer_fields_from_membership(
+        np.array([]),np.array([],dtype=bool),.001,.001).shape==(0,3)
+
+
+def test_registered_fields_all_670_closed_volume_certified_regression_rows():
+    from pathlib import Path
+    fixture=Path(__file__).parent/"fixtures/human_skin_fat_closed_volume_sign.npz"
+    with np.load(fixture)as z:
+        result=rebuild_registered_layer_fields_from_membership(
+            z["distance_squared_m2"],z["inside_closed_volume"],z["skin_depth_m"],z["fat_depth_m"])
+        assert len(result)==670
+        assert np.all(result[:,0]>0)
+        bound=8*np.spacing(float(np.max(np.abs(z["expected_registered_fields_m"]))))
+        assert np.max(np.abs(result-z["expected_registered_fields_m"]))<=bound

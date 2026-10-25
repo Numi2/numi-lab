@@ -1,0 +1,85 @@
+{
+  "base_commit": "9885109f9957e685794a2be944b7c6d2dc18841d",
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "tests": 97,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "409fb12528db64d409fe9dfba4f188379d421f9551a96b24e6f0bc1dc25e7c4c",
+      "bytes": 1827
+    },
+    {
+      "path": "canonical/matter/tools/fixtures/human_skin_fat_closed_volume_sign.npz",
+      "sha256": "f1d1419cff0b9c5762ebeed7732281e2b9373f2b4755cdb98608b6e24d5a092b",
+      "bytes": 30185
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_layer_reconstruction.py",
+      "sha256": "e3b312c1141983b2622ccef30df0b3e1b42523d61eae6e751229d9c41f609435",
+      "bytes": 65693
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_layer_reconstruction.py",
+      "sha256": "2019d503144f48f3b25e14b04032a2306874fc9d216c8c7b9528e1c1ed6aee3d",
+      "bytes": 37753
+    },
+    {
+      "path": "evidence/canonical-full-candidate-check.json",
+      "sha256": "0197beaf7a621e8196016f90ee5287436cd5ad6b6a5815de92c3397c476f5bb2",
+      "bytes": 757
+    },
+    {
+      "path": "evidence/certificate/audit_closed_volume_sign.py",
+      "sha256": "f7e261cad6693a7645d6abcf47195755c664c27f7d8777d3fd3f180b8fca8c88",
+      "bytes": 10556
+    },
+    {
+      "path": "evidence/certificate/report.json",
+      "sha256": "9675dc5a3736ea4b417183aae49e454441b2ef0e91c6756a1be0fc5576765e23",
+      "bytes": 498544
+    },
+    {
+      "path": "evidence/correction/as-run-repair.py",
+      "sha256": "c5dd8a68c394841b490517a9377dfc7d1d9fc2ebeb288f758b3c1e2407e601fb",
+      "bytes": 9542
+    },
+    {
+      "path": "evidence/correction/corrected-registered-levelsets.npz",
+      "sha256": "d6b7542b224d0254a81dac42c0dd1a4025c366f459f405e38efebcad03f02528",
+      "bytes": 5782966
+    },
+    {
+      "path": "evidence/correction/report.json",
+      "sha256": "d1abd7e7abd0eab7907643423e9ef11f61e4eb436ce0e3eb66d942038fd1e0f6",
+      "bytes": 485571
+    },
+    {
+      "path": "evidence/sign-only-counterfactual.json",
+      "sha256": "205e7226ef7f4be261b8e341c2c2947545b66742ad43486e29c2fa4d589c74b8",
+      "bytes": 433
+    },
+    {
+      "path": "evidence/tests.txt",
+      "sha256": "c4f0dfae30cf90c10e8d56b1dc47856f51e2c6a8e75980ad55beacc1b137a919",
+      "bytes": 179
+    }
+  ],
+  "canonical_changes": [
+    {
+      "path": "canonical/matter/tools/fixtures/human_skin_fat_closed_volume_sign.npz",
+      "sha256": "f1d1419cff0b9c5762ebeed7732281e2b9373f2b4755cdb98608b6e24d5a092b",
+      "bytes": 30185
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_layer_reconstruction.py",
+      "sha256": "e3b312c1141983b2622ccef30df0b3e1b42523d61eae6e751229d9c41f609435",
+      "bytes": 65693
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_layer_reconstruction.py",
+      "sha256": "2019d503144f48f3b25e14b04032a2306874fc9d216c8c7b9528e1c1ed6aee3d",
+      "bytes": 37753
+    }
+  ]
+}

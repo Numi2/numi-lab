@@ -1,0 +1,20 @@
+{
+  "status": "CANONICAL_FIELD_REBUILD_MATCHES_ALL_CERTIFIED_ROWS",
+  "rows": 670,
+  "old_fields_sha256": "67ad75b444382ba864f244dc57b1ac073664379a409963eb6813972fa6091769",
+  "candidate_fields_sha256": "d6b7542b224d0254a81dac42c0dd1a4025c366f459f405e38efebcad03f02528",
+  "canonical_owner_sha256": "e3b312c1141983b2622ccef30df0b3e1b42523d61eae6e751229d9c41f609435",
+  "max_parity_error_m": 1.3877787807814457e-17,
+  "derived_comparison_bound_m": 1.1102230246251565e-16,
+  "all_other_rows_bytewise_unchanged": true,
+  "global_skin_depth_range_m": [
+    0.0005002264353692146,
+    0.002499801122454758
+  ],
+  "global_fat_depth_range_m": [
+    0.0005050744682764338,
+    0.009933762505155314
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

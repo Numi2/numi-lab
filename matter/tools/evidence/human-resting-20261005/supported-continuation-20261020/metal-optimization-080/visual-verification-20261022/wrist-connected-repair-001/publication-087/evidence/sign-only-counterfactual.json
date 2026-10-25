@@ -1,0 +1,17 @@
+{
+  "status": "SIGN_ONLY_COUNTERFACTUAL_NOT_ADMITTED",
+  "native_admission": false,
+  "negative_rows": 670,
+  "cases": {
+    "original": {
+      "skin_m3": 0.004883117534123087,
+      "fat_m3": 0.015126195901447306,
+      "total_m3": 0.020009313435570393
+    },
+    "closed_volume_sign_counterfactual": {
+      "skin_m3": 0.004790064429567782,
+      "fat_m3": 0.015107844766222032,
+      "total_m3": 0.019897909195789813
+    }
+  }
+}

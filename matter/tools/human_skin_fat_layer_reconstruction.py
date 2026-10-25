@@ -1264,3 +1264,31 @@ def positive_linear_tetrahedron_volume_fractions(values):
     return np.clip(out, 0.0, 1.0)
 
 
+
+
+def rebuild_registered_layer_fields_from_membership(
+    distance_squared_m2, inside_closed_volume, skin_depth_m, fat_depth_m,
+):
+    """Construct nested O/I/D fields using independently certified membership.
+
+    Membership must come from the closed construction volume, never from a
+    closest open-surface normal. This helper does not certify that membership,
+    modify thickness, move geometry, or admit material cells. Positive O is
+    inside; positive I/D identifies the outer skin/skin-plus-fat bands.
+    """
+    d2 = np.asarray(distance_squared_m2, dtype=np.float64)
+    inside = np.asarray(inside_closed_volume)
+    if d2.ndim != 1 or not np.isfinite(d2).all() or np.any(d2 < 0):
+        raise ValueError("distance_squared_m2 must be a finite nonnegative vector")
+    if inside.dtype.kind != "b" or inside.shape != d2.shape:
+        raise ValueError("inside_closed_volume must be a matching boolean vector")
+    hs = _positive_depth_field(skin_depth_m, "skin_depth_m", len(d2))
+    hf = _positive_depth_field(fat_depth_m, "fat_depth_m", len(d2))
+    outer = np.where(inside, np.sqrt(d2), -np.sqrt(d2))
+    with np.errstate(over="ignore", invalid="ignore"):
+        inner = hs - outer
+        deep = hs + hf - outer
+    fields = np.column_stack((outer, inner, deep))
+    if not np.isfinite(fields).all() or np.any(deep <= inner):
+        raise ValueError("layer separation is not representable in Float64")
+    return fields
