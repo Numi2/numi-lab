@@ -1,0 +1,31 @@
+{
+  "status": "PASS_UNIQUE_OUTER_SKIN_TET_ADJACENCY",
+  "scope": "Derived lookup only: each registered coarse O face is matched to its unique compiled tetrahedron facet from the same 075 source-only export. Paired boundary owner maps outer row i to local FEM node i. No physical clearance or simulation claim.",
+  "inputs": {
+    "coarse_faces": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-faces.csv",
+      "sha256": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2"
+    },
+    "compiled_tets": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/compiled-skin-fem-tets.csv",
+      "sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461"
+    },
+    "paired_boundary_owner": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-tet-quality-batch-152/owner-unpaired-volume-163/app-preflight-013/apps/NumiHumanSkinBoundaryNodeMap.hpp",
+      "sha256": "ce36fae5a378d65bdf63d0bf1408175abcf20baa3bb876be229f8c49e94e6241"
+    }
+  },
+  "counts": {
+    "coarse_faces": 4777,
+    "unique_single_tet_facets": 4777,
+    "missing_or_multiple": 0,
+    "material_indices": {
+      "15": 4777
+    }
+  },
+  "output": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/derived-adjacency-001/accepted-coarse-face-native-tet-adjacency.csv",
+    "sha256": "41cb73f3f77fffb5fa36fd21818f22fe93e03598bd30b12753e8c8307110687b",
+    "bytes": 284772
+  }
+}

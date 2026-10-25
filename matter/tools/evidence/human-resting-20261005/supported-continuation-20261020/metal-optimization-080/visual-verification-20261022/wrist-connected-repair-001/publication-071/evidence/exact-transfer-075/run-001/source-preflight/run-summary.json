@@ -1,0 +1,49 @@
+{
+  "returncode": 0,
+  "elapsed_seconds": 6.419694900512695,
+  "source_only_exit_expected": true,
+  "simulation_steps_requested": false,
+  "launch_manifest_sha256": "93150223a089b3b05f6b075b72c2dc9559053c857f5556a7e63c7bd369974418",
+  "outputs": {
+    "accepted-transfer-rows.csv": {
+      "bytes": 15484617,
+      "sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14"
+    },
+    "accepted-coarse-reference.csv": {
+      "bytes": 869580,
+      "sha256": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2"
+    },
+    "accepted-coarse-faces.csv": {
+      "bytes": 115765,
+      "sha256": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2"
+    },
+    "donor-rest-poses.csv": {
+      "bytes": 23530,
+      "sha256": "9e92712aebd610a5200d6367ec2351874c18a905802b39d43fc3d4cb57ef7925"
+    },
+    "initial-skin-fem-nodes.csv": {
+      "bytes": 694725,
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b"
+    },
+    "compiled-skin-fem-nodes.csv": {
+      "bytes": 1731845,
+      "sha256": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9"
+    },
+    "compiled-skin-fem-tets.csv": {
+      "bytes": 12664621,
+      "sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461"
+    },
+    "premerge-layer-contributions.csv": {
+      "bytes": 1542836,
+      "sha256": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f"
+    },
+    "stdout.txt": {
+      "bytes": 203309,
+      "sha256": "11a4795e93da883033acaaec60c33cc25ff51b16b982549309243195d3b39ec6"
+    },
+    "stderr.txt": {
+      "bytes": 73405,
+      "sha256": "bbfa38948ad87af351b6377925f4c8ae5df23dddc1cc2e97ceb97c17c1a3383c"
+    }
+  }
+}

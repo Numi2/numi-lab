@@ -1,0 +1,22 @@
+{
+  "parent_main": "e1d6e9865a2ace4c7c982e979f9f1141bc617c1c",
+  "canonical_paths": [
+    {
+      "path": "matter/tools/human_skin_fat_connected_repair.py",
+      "sha256": "5d8dab03eb64a3cba490c9fd380e3234cc49f14a7bac275a564126f2b5e85c22",
+      "size_bytes": 31198
+    },
+    {
+      "path": "matter/tools/human_skin_fat_embedded_surface.py",
+      "sha256": "31d7f036c9795b90e761e5713250e6a5ddbf07a71b7d3bec9e344e043d0cb60e",
+      "size_bytes": 4833
+    },
+    {
+      "path": "matter/tools/test_human_skin_fat_embedded_surface.py",
+      "sha256": "83faa36a775a8fa132f6df2539ffef51aeccf3e65f187b5b6a09ae7bdf470019",
+      "size_bytes": 4467
+    }
+  ],
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false
+}

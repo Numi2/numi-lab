@@ -1,0 +1,182 @@
+{
+  "parent": "e1d6e9865a2ace4c7c982e979f9f1141bc617c1c",
+  "paths": [
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/README.md",
+      "sha256": "01eb495049d68410c261f4a893617a830cb6400be9145917aaf055be3f167726",
+      "bytes": 1748
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/canonical-manifest.json",
+      "sha256": "7b788079eab67d1865d1d82df55719eb227067f499a84d620bc233f26cb12e17",
+      "bytes": 720
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/apps/numilab_human_myosim_visual_probe.mm.gz",
+      "sha256": "1499bd59e3bf1475be84561fac1a7f68e3739c18626bc0a86c594f0d23e4197b",
+      "bytes": 421116
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/build-001/build-driver.py",
+      "sha256": "63f0d08a531d460eceb7d298de1eb9dcdf87efc17512ffc76f39bb31ee97b003",
+      "bytes": 405
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/build-001/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/build-001/compile-attempt-003.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/build-001/compile-command.json",
+      "sha256": "9ac22a478f790995f856cd1299b214b1034c432762c05a2474ef28fcc129fb6b",
+      "bytes": 4892
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/build-001/link-command.json",
+      "sha256": "7b2b6b04df5fe25767cfd047dd1cd56aae005ebb46037707f5fd8b861c122b46",
+      "bytes": 1107
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/build-001/link.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/derived-adjacency-001/accepted-coarse-face-native-tet-adjacency.csv.gz",
+      "sha256": "a48b7d5df1602936876f0b7946f4b9a795958044453420902151717e99a2c89a",
+      "bytes": 92708
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/derived-adjacency-001/adjacency-report.json",
+      "sha256": "8d7600473738f9b55acdcdd2eed7b1eecf5475c460db8986b0a3560e7d745873",
+      "bytes": 2226
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/prebuild-manifest.json",
+      "sha256": "0defd435f423ff32dd8cd1e22a0dbea171555136d1c1c77db614684a6dfca8e3",
+      "bytes": 2600
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/accepted-coarse-faces.csv.gz",
+      "sha256": "8270d42f41289b6a077e33aae6ffb6af9ddfa40d90ceeb7a5bd93d4f8d4cb79a",
+      "bytes": 44158
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/accepted-coarse-reference.csv.gz",
+      "sha256": "00b24dd1f09d3f890cf085ceeb1665715a2de7e116275e84165b5c14f43585d4",
+      "bytes": 189360
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/accepted-transfer-rows.csv.gz",
+      "sha256": "46d6e0fb7f44cdb9dc0b48233d14f42b95b93ddf66b47144971c79088959db21",
+      "bytes": 6115512
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/compiled-skin-fem-nodes.csv.gz",
+      "sha256": "a3fc0c234ab012dc72d612f46a43a299eb7891f3cb5c392b7d871bcf41c700a9",
+      "bytes": 521582
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/compiled-skin-fem-tets.csv.gz",
+      "sha256": "32727fd24ab67925273b47249889efdbbf6805a6294e142c7eb26698bce68382",
+      "bytes": 4977751
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/donor-rest-poses.csv",
+      "sha256": "9e92712aebd610a5200d6367ec2351874c18a905802b39d43fc3d4cb57ef7925",
+      "bytes": 23530
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/initial-skin-fem-nodes.csv.gz",
+      "sha256": "f37cad0ff533a493e96cd49e84212f63ab962ec88292624b1e49b5645038b210",
+      "bytes": 312764
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/launch-manifest.json",
+      "sha256": "93150223a089b3b05f6b075b72c2dc9559053c857f5556a7e63c7bd369974418",
+      "bytes": 14271
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/premerge-layer-contributions.csv.gz",
+      "sha256": "aae8e8439a272bc41ec46ffdf5ace5e71abf8d6a55992c47e4d012f912b9f583",
+      "bytes": 529161
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/resting-coupled.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/run-summary.json",
+      "sha256": "e226f870bbbfd7d45e28509f282eca9a802c06c06d980c7ad1e33e9030f11912",
+      "bytes": 1718
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/stderr.txt",
+      "sha256": "bbfa38948ad87af351b6377925f4c8ae5df23dddc1cc2e97ceb97c17c1a3383c",
+      "bytes": 73405
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/stdout.txt.gz",
+      "sha256": "788afe53dfb4d85f4a7160df005fce3bf3c6937d54371181e847754cc29b70ee",
+      "bytes": 17283
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/validation-report.json",
+      "sha256": "312d52fbae8817234df107f08553bbbc0048077df00ab36c582a960506d3fadf",
+      "bytes": 7182
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/mapped-skin-076/075-explicit-AP-frame-comparison.json",
+      "sha256": "03393f8394ca26b783709e42d6af386732b19a98103b75efe3b95d236e0e1e63",
+      "bytes": 455
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/mapped-skin-076/original-connected-repair.py",
+      "sha256": "3907a29c8363d5f1d0a90e52f637e0f8fce03c23b47296189e4e02884ee9dd2f",
+      "bytes": 30025
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/mapped-skin-076/tests-final.log",
+      "sha256": "22abb2dcc5d5c74198dc671791b9d8f07525e1bc690bdb0345c43ea3e1878cbc",
+      "bytes": 4477
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/mapped-skin-076/tests.log",
+      "sha256": "224299ba177e40791afc65ec26c4b703cb34cf36ea98f27d2c33cacbdd0dba41",
+      "bytes": 4303
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/source-artifacts.json",
+      "sha256": "d8c82b69859b6cef5f3c287074f7f753c9698095e7e29773a4bae2d04f438543",
+      "bytes": 17457
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/verify_publication_071.py",
+      "sha256": "30dd337f34afd76de601b9936ee8374a610d1d3e9bd88ec9344827907ca27864",
+      "bytes": 1142
+    },
+    {
+      "path": "matter/tools/human_skin_fat_connected_repair.py",
+      "sha256": "5d8dab03eb64a3cba490c9fd380e3234cc49f14a7bac275a564126f2b5e85c22",
+      "bytes": 31198
+    },
+    {
+      "path": "matter/tools/human_skin_fat_embedded_surface.py",
+      "sha256": "31d7f036c9795b90e761e5713250e6a5ddbf07a71b7d3bec9e344e043d0cb60e",
+      "bytes": 4833
+    },
+    {
+      "path": "matter/tools/test_human_skin_fat_embedded_surface.py",
+      "sha256": "83faa36a775a8fa132f6df2539ffef51aeccf3e65f187b5b6a09ae7bdf470019",
+      "bytes": 4467
+    }
+  ],
+  "accepted_physical_steps": 0,
+  "anatomy_qualified": false
+}

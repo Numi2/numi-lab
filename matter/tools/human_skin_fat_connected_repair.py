@@ -267,12 +267,13 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
         *,construction_origin,boundary_faces,lower_linear_matrix=None,lower_linear_targets=None,
         step_limit_mm=2.,q_min=1e-5,J_bounds=(.35,2.5),boundary_area_bounds=(.5,2.),
         boundary_normal_cosine_min=.5,cumulative_displacement_weight=.002,
-        gradient_penalty_mm=2.,max_incremental_gradient=.3,iteration_limit=400,active_set_passes=0,active_set_penalty=100.):
+        gradient_penalty_mm=2.,max_incremental_gradient=.3,iteration_limit=400,active_set_passes=0,active_set_penalty=100.,embedded_surface=None):
     """Bounded sparse authoring direction with exact emitted-geometry admission.
 
     This is a least-squares direction, not a linear feasibility certificate.
     Current reference/material state is never changed. Cell, boundary and layer
-    constraints are mandatory nonlinear backtracking gates; failed directions
+    constraints and any supplied detailed-skin map are mandatory nonlinear
+    backtracking gates; failed directions
     leave all coordinates unchanged. No simulation state is advanced.
     """
     from scipy.sparse.linalg import lsmr
@@ -306,10 +307,15 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
         if L.shape[1]!=3*len(X) or L.shape[0]==0 or lt.shape!=(L.shape[0],) or np.any(np.diff(L.indptr)==0) or not np.isfinite(L.data).all() or not np.isfinite(lt).all():
             raise ValueError('invalid layer rows')
         if np.min(L@X.astype(float).ravel()-lt)<-1e-9:raise ValueError('starting mesh fails layer gates')
+    if embedded_surface is not None:
+        if embedded_surface.coarse_origin.shape!=X.shape or not np.array_equal(embedded_surface.coarse_origin,O.astype(np.float32)):
+            raise ValueError('mapped skin must use the identical fixed construction origin')
+        if not embedded_surface.passes(X):raise ValueError('starting mesh fails mapped detailed-skin gates')
     rhs=1000*(target-C@X.astype(float).ravel());hot=rhs>1e-8
     report={'algorithm':'sparse_regularized_least_squares_exact_geometry_backtracking','free_nodes':len(F),
             'contact_rows':len(rhs),'active_contact_rows':int(hot.sum()),'starting_contact_deficit_l1_mm':float(np.maximum(rhs,0).sum()),
             'accepted_physical_steps':0,'geometry_admitted':False,'reference_unchanged':True}
+    if embedded_surface is not None:report.update(embedded_surface.report(X))
     if not np.any(hot):report['step_applied']=False;return X.copy(),report
     dcols=(3*F[:,None]+np.arange(3)).ravel()
     active=np.flatnonzero(np.isin(T,F).any(axis=1))
@@ -335,6 +341,11 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
             np.full(DG.shape[0],max_incremental_gradient),np.full(DG.shape[0],max_incremental_gradient),
             hi-J[active],J[active]-lo,quality[active]-q_min,amax-av,av-amin,
             []if L is None else 1000*(L@X.astype(float).ravel()-lt)]
+        if embedded_surface is not None:
+            ev,EJ=embedded_surface.projected_area_linearization(X,F)
+            emin,emax=embedded_surface.area_bounds
+            H=sparse.vstack([H,.001*EJ,-.001*EJ],format='csr')
+            h=np.r_[h,emax-ev,ev-emin]
         norm=np.sqrt(np.asarray(H.power(2).sum(axis=1)).ravel())
         keep=norm>1e-20
         if np.any((~keep)&(h<-1e-9)):raise ValueError('fixed authoring constraints are infeasible')
@@ -385,6 +396,11 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
         for row in range(matrix.shape[0]):
             ix=np.unique(lookup[matrix.indices[matrix.indptr[row]:matrix.indptr[row+1]]//3]);ix=ix[ix>=0]
             for j in ix[1:]:er.extend([ix[0],j]);ec.extend([j,ix[0]])
+    if embedded_surface is not None:
+        S=embedded_surface.support
+        for row in range(S.shape[0]):
+            ix=lookup[S.indices[S.indptr[row]:S.indptr[row+1]]];ix=ix[ix>=0]
+            for j in ix[1:]:er.extend([ix[0],j]);ec.extend([j,ix[0]])
     graph=sparse.coo_matrix((np.ones(len(er)),(er,ec)),shape=(len(F),len(F))).tocsr()
     count,labels=connected_components(graph,directed=False)
     best=X.copy();components=[]
@@ -399,7 +415,7 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
             jj,_,qq,_=cell_values_gradients(Y,R,T);_,_,ar,co=boundary_face_values_gradients(Y,O,BF)
             layer_ok=L is None or np.min(L@Y.astype(float).ravel()-lt)>=-1e-9
             deficit=np.maximum(target-C@Y.astype(float).ravel(),0).sum()
-            if jj.min()>=lo and jj.max()<=hi and qq.min()>=q_min and ar.min()>=amin and ar.max()<=amax and co.min()>=cmin and layer_ok and deficit<initial-1e-12:
+            if jj.min()>=lo and jj.max()<=hi and qq.min()>=q_min and ar.min()>=amin and ar.max()<=amax and co.min()>=cmin and layer_ok and (embedded_surface is None or embedded_surface.passes(Y)) and deficit<initial-1e-12:
                 best=Y;accepted=True;break
         components.append({'nodes':len(nodes),'applied':accepted,'line_fraction':float(alpha if accepted else 0),
                            'direction_max_incremental_gradient':maxgrad})
@@ -412,4 +428,5 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
       'boundary_area_ratio_min':float(ar.min()),'boundary_area_ratio_max':float(ar.max()),'boundary_normal_cosine_min':float(co.min()),
       'maximum_step_mm':float(np.linalg.norm(best.astype(float)-X,axis=1).max()*1000),
       'maximum_cumulative_displacement_mm':float(np.linalg.norm(best.astype(float)-O,axis=1).max()*1000)})
+    if embedded_surface is not None:report.update(embedded_surface.report(best))
     return best,report

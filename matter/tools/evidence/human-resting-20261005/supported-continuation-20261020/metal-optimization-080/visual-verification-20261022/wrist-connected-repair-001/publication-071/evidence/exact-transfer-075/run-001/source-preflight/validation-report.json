@@ -1,0 +1,115 @@
+{
+  "status": "PASS_SOURCE_ONLY_TRANSFER_EXPORT",
+  "scope": "Production AcceptedFEMSkinTransfer::build()/rows() called on frozen 072 source-preflight inputs; exporter runs before existing compiled-tet source-only _Exit(0). No solver/physics step, no native acceptance claim.",
+  "input_and_build_pins": {
+    "original_app_sha256": "6a211071ada0642fe0a994ae8f2bec8c4628d291b0029c8fbd52bcec31d8a4cc",
+    "patched_app_sha256": "2c7a26b9f7ee278bf1aeb218915063b9af0f4f62d3db8a85134f853e6c0a0bc1",
+    "transfer_header_sha256": "b7f23c1d9f7279e05f995fcc1cb1d417675f3ffac845220e42ffc8204cf2a72d",
+    "embedding_header_sha256": "fdcec56d0c7af908995d3b4e4719bd2a59fa5aa835cd0efb081d29b448621efb",
+    "compile_command_sha256": "9ac22a478f790995f856cd1299b214b1034c432762c05a2474ef28fcc129fb6b",
+    "link_command_sha256": "7b2b6b04df5fe25767cfd047dd1cd56aae005ebb46037707f5fd8b861c122b46",
+    "binary_sha256": "47e2f3e98a3e0d5f8761faa1b8b03f7fc5ad9758cd0f7458d1378d20fc48a566",
+    "input_skin_payload": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin",
+    "input_skin_payload_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "launch_manifest_sha256": "93150223a089b3b05f6b075b72c2dc9559053c857f5556a7e63c7bd369974418"
+  },
+  "owner_rows": {
+    "detail_rows": 61950,
+    "unique_detail_rows": 61950,
+    "active_rows": 54551,
+    "inactive_rows": 7399,
+    "coarse_reference_rows": 2411,
+    "coarse_surface_faces": 4777,
+    "donor_pose_rows": 157,
+    "active_weight_sum_max_abs_error": 4.470348358154297e-08,
+    "active_coarse_indices_out_of_range": 0,
+    "active_transfer_donor_mismatches_or_missing_pose": 0,
+    "active_selected_face_rows_out_of_range": 0,
+    "active_selected_stable_face_id_mismatches": 0,
+    "nonfinite_active_transfer_rows": 0,
+    "coarse_source_bary_sum_max_abs_error": 1.1102230246251565e-16,
+    "coarse_source_face_vertex_ids_out_of_detail_range": 0,
+    "nonfinite_coarse_reference_rows": 0,
+    "computed_active_rest_offset_max_m": 0.031082916907683316,
+    "interpretation": "Rest offset is detail registered world position minus the weighted coarse world reference point; it is retained as measured owner residual, not an error correction."
+  },
+  "unchanged_source_export_parity": {
+    "initial-skin-fem-nodes.csv": {
+      "export_sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+      "072_sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+      "byte_identical": true
+    },
+    "compiled-skin-fem-nodes.csv": {
+      "export_sha256": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+      "072_sha256": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+      "byte_identical": true
+    },
+    "compiled-skin-fem-tets.csv": {
+      "export_sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+      "072_sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+      "byte_identical": true
+    },
+    "premerge-layer-contributions.csv": {
+      "export_sha256": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f",
+      "072_sha256": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f",
+      "byte_identical": true
+    }
+  },
+  "run": {
+    "returncode": 0,
+    "elapsed_seconds": 6.419694900512695,
+    "simulation_steps_requested": false,
+    "source_only_exit_expected": true,
+    "summary_sha256": "e226f870bbbfd7d45e28509f282eca9a802c06c06d980c7ad1e33e9030f11912",
+    "outputs": {
+      "accepted-transfer-rows.csv": {
+        "bytes": 15484617,
+        "sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14"
+      },
+      "accepted-coarse-reference.csv": {
+        "bytes": 869580,
+        "sha256": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2"
+      },
+      "accepted-coarse-faces.csv": {
+        "bytes": 115765,
+        "sha256": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2"
+      },
+      "donor-rest-poses.csv": {
+        "bytes": 23530,
+        "sha256": "9e92712aebd610a5200d6367ec2351874c18a905802b39d43fc3d4cb57ef7925"
+      },
+      "initial-skin-fem-nodes.csv": {
+        "bytes": 694725,
+        "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b"
+      },
+      "compiled-skin-fem-nodes.csv": {
+        "bytes": 1731845,
+        "sha256": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9"
+      },
+      "compiled-skin-fem-tets.csv": {
+        "bytes": 12664621,
+        "sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461"
+      },
+      "premerge-layer-contributions.csv": {
+        "bytes": 1542836,
+        "sha256": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f"
+      },
+      "stdout.txt": {
+        "bytes": 203309,
+        "sha256": "11a4795e93da883033acaaec60c33cc25ff51b16b982549309243195d3b39ec6"
+      },
+      "stderr.txt": {
+        "bytes": 73405,
+        "sha256": "bbfa38948ad87af351b6377925f4c8ae5df23dddc1cc2e97ceb97c17c1a3383c"
+      }
+    }
+  },
+  "files": {
+    "transfer_rows": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-transfer-rows.csv",
+    "coarse_reference": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-reference.csv",
+    "coarse_faces": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-faces.csv",
+    "donor_poses": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/donor-rest-poses.csv",
+    "source_only_launch": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/launch-manifest.json",
+    "run_summary": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/run-summary.json"
+  }
+}

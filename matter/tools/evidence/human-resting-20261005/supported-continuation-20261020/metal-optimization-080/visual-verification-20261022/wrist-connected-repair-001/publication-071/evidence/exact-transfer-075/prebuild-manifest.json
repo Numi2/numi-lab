@@ -1,0 +1,19 @@
+{
+  "source_app": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm",
+  "source_app_sha256": "6a211071ada0642fe0a994ae8f2bec8c4628d291b0029c8fbd52bcec31d8a4cc",
+  "patched_app": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/apps/numilab_human_myosim_visual_probe.mm",
+  "patched_app_sha256": "2c7a26b9f7ee278bf1aeb218915063b9af0f4f62d3db8a85134f853e6c0a0bc1",
+  "transfer_header": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanAcceptedFEMSkinTransfer.hpp",
+  "transfer_header_sha256": "b7f23c1d9f7279e05f995fcc1cb1d417675f3ffac845220e42ffc8204cf2a72d",
+  "source_consumer_header": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanWholeBodySkinEmbeddingConsumer.hpp",
+  "compile_command_sha256": "9ac22a478f790995f856cd1299b214b1034c432762c05a2474ef28fcc129fb6b",
+  "link_command_sha256": "7b2b6b04df5fe25767cfd047dd1cd56aae005ebb46037707f5fd8b861c122b46",
+  "build_driver_sha256": "63f0d08a531d460eceb7d298de1eb9dcdf87efc17512ffc76f39bb31ee97b003",
+  "source_only_scope": "compile and source-preflight only; existing NUMI_HUMAN_SOURCE_ONLY_COMPILED_TETS exit remains before mechanics or simulation steps",
+  "export_schema": {
+    "accepted-transfer-rows.csv": "one row per detailed render vertex, including inactive rows, exact owner transfer row, detail donor/source ID, registered world point, selected face and computed world rest offset",
+    "accepted-coarse-reference.csv": "one row per coarse registered vertex with world and donor-local point, body owner, detailed-source face+barycentric embedding, and world-to-donor-local linear transform",
+    "accepted-coarse-faces.csv": "coarse faces plus stable source-face identity",
+    "donor-rest-poses.csv": "body-indexed poses used at owner construction"
+  }
+}
