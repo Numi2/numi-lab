@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_connected_clearance_298.py", line 597, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_connected_clearance_298.py", line 542, in main
+    trial = run_fit_attempt(current_state, candidate, self_pairs, point_npz, point_report, face_npz, face_report, attempt_dir)
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_connected_clearance_298.py", line 378, in run_fit_attempt
+    run(args, out / 'fit.log', slot=True, timeout=900)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_connected_clearance_298.py", line 105, in run
+    raise RuntimeError(f'child exited {proc.returncode}: {log}')
+RuntimeError: child exited 1: /Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fixed-prefix-continuation-299/round-001/attempt-001/fit.log

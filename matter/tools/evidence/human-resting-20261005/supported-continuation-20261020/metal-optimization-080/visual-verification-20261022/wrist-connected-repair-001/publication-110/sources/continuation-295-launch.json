@@ -1,0 +1,18 @@
+{
+  "pid": 90687,
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_connected_clearance_295.py",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fixed-prefix-continuation-291",
+    "--rounds",
+    "3",
+    "--attempts-per-round",
+    "2",
+    "--first-face-target-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/outward-nearest-targets-293"
+  ],
+  "source_sha256": "bbd708812de5561f41dc89e633a281aaad09946592a8e9c6d7a23558b7d137e4",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

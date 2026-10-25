@@ -1,0 +1,7 @@
+{
+  "draft290": "literal newline escapes made all source one shebang comment; not executed/published as working code",
+  "295": "uncached run_face_targets output precreated, first passing round retained",
+  "298": "full face builder run found one Float32 unrepresentable freeinterval; fitter correctly rejected incomplete targets",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

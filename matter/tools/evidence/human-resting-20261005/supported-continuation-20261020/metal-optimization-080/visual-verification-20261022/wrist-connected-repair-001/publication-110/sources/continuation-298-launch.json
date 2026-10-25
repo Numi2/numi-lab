@@ -1,0 +1,16 @@
+{
+  "pid": 90814,
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_connected_clearance_298.py",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fixed-prefix-continuation-299",
+    "--rounds",
+    "3",
+    "--attempts-per-round",
+    "2"
+  ],
+  "source_sha256": "a34544e683fdaae2043be60371b52d5a9f39221a76baf12116f52e18a736c395",
+  "parent_state_sha256": "52fc2d9b80e17f25274168ecac0b5072385367b76fc2a1c5bbbeec57b7a51d97",
+  "reason": "Fix eager target-directory creation; resume retained passing 291 result, no duplicate round"
+}
