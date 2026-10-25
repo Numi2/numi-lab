@@ -295,3 +295,67 @@ def project_two_balls_halfspace(v, c1, radius1, c2, radius2, normal=None, lower=
     if not candidates:
         raise ValueError('no feasible active-set projection candidate')
     return min(candidates,key=lambda p:float(np.dot(p-v,p-v)))
+
+def project_node_sets_batched(v, source_center, source_cap, plane_rows, plane_normals,
+                             plane_lower, anchors, trust_center, trust_radius):
+    """Exact construction projection; batch contained-ball rows, enumerate overlap rows.
+
+    Eliminates the Python scan across every node. The same analytic projectors
+    remain responsible for each active constraint; exact geometry gates are
+    still required on the emitted surface.
+    """
+    v = np.asarray(v, dtype=np.float64)
+    source_center = np.asarray(source_center, dtype=np.float64)
+    trust_center = np.asarray(trust_center, dtype=np.float64)
+    rows = np.asarray(plane_rows, dtype=np.int64)
+    normals = np.asarray(plane_normals, dtype=np.float64).reshape(-1, 3)
+    lower = np.asarray(plane_lower, dtype=np.float64).reshape(-1)
+    anchors = np.asarray(anchors, dtype=np.int64)
+    if (v.ndim != 2 or v.shape[1] != 3 or source_center.shape != v.shape
+        or trust_center.shape != v.shape or rows.ndim != 1 or anchors.ndim != 1
+        or len(rows) != len(normals) or len(rows) != len(lower)):
+        raise ValueError("malformed node projection arrays")
+    if (not np.isfinite(source_center).all() or not np.isfinite(normals).all()
+        or not np.isfinite(lower).all() or not np.isfinite(source_cap) or source_cap <= 0):
+        raise ValueError("nonfinite node constraints")
+    if (len(np.unique(rows)) != len(rows) or np.any(rows < 0) or np.any(rows >= len(v))
+        or len(np.unique(anchors)) != len(anchors) or np.any(anchors < 0) or np.any(anchors >= len(v))
+        or np.any(np.linalg.norm(normals, axis=1) <= 1e-15)):
+        raise ValueError("invalid constraint identities or normals")
+    fixed = np.zeros(len(v), dtype=bool)
+    fixed[anchors] = True
+    contained = np.linalg.norm(trust_center - source_center, axis=1) + trust_radius <= source_cap + 1e-10
+    batched = contained[rows] & ~fixed[rows]
+    out = project_ball_halfspace(v, trust_center, trust_radius,
+                                normals[batched], lower[batched], rows[batched])
+    plane_lookup = {int(row): i for i, row in enumerate(rows)}
+    overlap_rows = rows[~contained[rows] & ~fixed[rows]]
+    unconstrained_source_outside = np.linalg.norm(out-source_center,axis=1) > source_cap + 1e-10
+    unconstrained_source_outside[rows] = False
+    unconstrained_source_outside[anchors] = False
+    plain_rows = np.flatnonzero(unconstrained_source_outside)
+    for row in overlap_rows:
+        i = plane_lookup[int(row)]
+        out[row] = project_two_balls_halfspace(v[row],source_center[row],source_cap,
+                                               trust_center[row],trust_radius,normals[i],lower[i])
+    for row in plain_rows:
+        out[row] = project_two_balls_halfspace(v[row],source_center[row],source_cap,
+                                               trust_center[row],trust_radius)
+    if len(anchors):
+        if (np.any(np.linalg.norm(source_center[anchors],axis=1) > source_cap + 1e-10)
+            or np.any(np.linalg.norm(trust_center[anchors],axis=1) > trust_radius + 1e-10)):
+            raise ValueError("anchor outside source or trust ball")
+        anchored_planes = fixed[rows]
+        if np.any(lower[anchored_planes] > 1e-10):
+            i = np.flatnonzero(anchored_planes & (lower > 1e-10))[0]
+            raise InfeasibleProjection(int(rows[i]),lower[i],source_cap)
+        out[anchors] = 0.0
+    errors = [
+        np.maximum(0,np.linalg.norm(out-source_center,axis=1)-source_cap).max(initial=0.0),
+        np.maximum(0,np.linalg.norm(out-trust_center,axis=1)-trust_radius).max(initial=0.0),
+        np.maximum(0,lower-np.einsum("ij,ij->i",normals,out[rows])).max(initial=0.0),
+    ]
+    overlap_count = len(overlap_rows) + len(plain_rows)
+    return out, dict(method="exact_active_set_candidates_batched",
+                     intersection_residual_mm=float(max(errors)),
+                     overlap_nodes=overlap_count, full_active_set_enumerations=overlap_count)

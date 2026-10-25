@@ -1,0 +1,27 @@
+{
+  "classification": "synthetic construction-helper microbenchmark; not integrated solver or physical throughput",
+  "nodes": 13518,
+  "planes": 1417,
+  "matched_pairs": [
+    {
+      "serial_s": 0.046500249998643994,
+      "batched_s": 0.002353540970943868,
+      "max_abs_difference_mm": 0.0,
+      "output_f32_bitwise_equal": true
+    },
+    {
+      "serial_s": 0.0440512920031324,
+      "batched_s": 0.002324625034816563,
+      "max_abs_difference_mm": 0.0,
+      "output_f32_bitwise_equal": true
+    },
+    {
+      "serial_s": 0.043751458055339754,
+      "batched_s": 0.0022909159306436777,
+      "max_abs_difference_mm": 0.0,
+      "output_f32_bitwise_equal": true
+    }
+  ],
+  "median_speedup": 19.097801656583236,
+  "owner_sha256": "9175186e4a916dbfd8b2ce4d10f4bd7bb09938cecf442b291bc093823a1336e7"
+}

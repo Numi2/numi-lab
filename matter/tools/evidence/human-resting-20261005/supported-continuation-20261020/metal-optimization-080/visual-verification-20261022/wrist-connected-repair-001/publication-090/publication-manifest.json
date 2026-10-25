@@ -1,0 +1,57 @@
+{
+  "base_commit": "14cc15499cb9293518344491ec0acb4d822a3ee7",
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "tests": 47,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "939c85fc3194603888572414ccfba1444f48bf340cf35e73bccba6ddbcbd926e",
+      "bytes": 1098
+    },
+    {
+      "path": "benchmark.json",
+      "sha256": "2b4f063420945a08f216eb0ed26700e2dee61f51c1d8805708f974dff5b07d3f",
+      "bytes": 810
+    },
+    {
+      "path": "canonical/matter/tools/fixtures/human_skin_fat_surface_fit_constraints.npz",
+      "sha256": "d93fb71ba2ee18bf7743e20c7932ff47aa6f58e27db284de8e2060653ea58494",
+      "bytes": 12478
+    },
+    {
+      "path": "canonical/matter/tools/fixtures/run032_node_projection_reference.py",
+      "sha256": "0feb02a0257e138413fc6b2c4a9243b0613eca853aef810d62a2fd77d4679049",
+      "bytes": 2641
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_surface_fit_constraints.py",
+      "sha256": "9175186e4a916dbfd8b2ce4d10f4bd7bb09938cecf442b291bc093823a1336e7",
+      "bytes": 20526
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_batched_node_projection.py",
+      "sha256": "1f3a88912ea1e51d4aecdfedb887bea0bf7a0cb1e1969503de19fc003704d868",
+      "bytes": 2162
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_surface_fit_constraints.py",
+      "sha256": "330b3caf15e98b0c6caf823df2ce42ef6a5ae73aafd92b132e990b038f8f65da",
+      "bytes": 8603
+    }
+  ],
+  "canonical_changes": [
+    {
+      "path": "canonical/matter/tools/fixtures/run032_node_projection_reference.py",
+      "sha256": "0feb02a0257e138413fc6b2c4a9243b0613eca853aef810d62a2fd77d4679049"
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_surface_fit_constraints.py",
+      "sha256": "9175186e4a916dbfd8b2ce4d10f4bd7bb09938cecf442b291bc093823a1336e7"
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_batched_node_projection.py",
+      "sha256": "1f3a88912ea1e51d4aecdfedb887bea0bf7a0cb1e1969503de19fc003704d868"
+    }
+  ]
+}
