@@ -1,0 +1,178 @@
+from pathlib import Path
+import json,hashlib,subprocess,importlib.util,numpy as np,time,sys
+from scipy import sparse
+D=Path('/Users/numi/Work/numi-human-connected-surface-069');H=D/'barycentric-connected-clearance-170';PY='/Users/n/numi-human-prep-venv-20261005/bin/python'
+GLOBAL_FAILURE_HELPER=H/'global_step_backtracking_275.py'
+GLOBAL_FAILURE_HELPER_SHA256='18891b1f700592563e139edfc8bd1361d230ff6fd5af2ae5ee036c9625c1826a'
+def module(name,path):
+ sp=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(sp);sp.loader.exec_module(m);return m
+def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+def read(p):return json.loads(Path(p).read_text())
+def write(p,j):Path(p).write_text(json.dumps(j,indent=2)+'\n')
+
+def require_pinned_sha(actual, expected, label):
+ assert isinstance(actual,str) and isinstance(expected,str) and len(expected)==64 and actual==expected, label+' hash mismatch'
+
+def validate_area_reference(points, faces, reference_points, reference_faces):
+ P=np.asarray(points); F=np.asarray(faces); Q=np.asarray(reference_points); RF=np.asarray(reference_faces)
+ assert P.ndim==2 and P.shape[1]==3 and np.isfinite(P).all(), 'current area points invalid'
+ assert F.ndim==2 and F.shape[1]==3 and np.issubdtype(F.dtype,np.integer), 'area topology invalid'
+ assert np.array_equal(F,RF), 'matched area-reference topology mismatch'
+ assert Q.shape==P.shape and np.isfinite(Q).all(), 'matched area-reference coordinate domain mismatch'
+ assert (F>=0).all() and (F<len(P)).all(), 'area topology index out of range'
+ current_cross=np.cross(P[F[:,1]]-P[F[:,0]],P[F[:,2]]-P[F[:,0]])
+ reference_cross=np.cross(Q[F[:,1]]-Q[F[:,0]],Q[F[:,2]]-Q[F[:,0]])
+ current_area=np.linalg.norm(current_cross,axis=1)
+ reference_area=np.linalg.norm(reference_cross,axis=1)
+ den=np.einsum('ij,ij->i',current_cross,current_cross)
+ assert np.isfinite(current_cross).all() and np.isfinite(current_area).all() and (current_area>0).all(), 'current geometry has nonpositive or nonfinite face area'
+ assert np.isfinite(reference_cross).all() and np.isfinite(reference_area).all() and (reference_area>0).all(), 'matched reference has nonpositive or nonfinite face area'
+ assert np.isfinite(den).all() and (den>0).all(), 'current area denominator is nonpositive or nonfinite'
+ return current_cross,den,reference_area
+
+def assert_fixed_prefix_equal(trial_points, start_points, fixed_prefix):
+ assert type(fixed_prefix) is int and 0<=fixed_prefix<=len(start_points), 'fixed prefix out of range'
+ assert np.shape(trial_points)==np.shape(start_points), 'fixed-prefix point domain mismatch'
+ trial_bytes=np.ascontiguousarray(np.asarray(trial_points)[:fixed_prefix]).view(np.uint8)
+ start_bytes=np.ascontiguousarray(np.asarray(start_points)[:fixed_prefix]).view(np.uint8)
+ assert np.array_equal(trial_bytes,start_bytes), 'trial changed fixed prefix'
+def emitted_f32_bitwise_equal(proposal, start):
+ p=np.asarray(proposal);q=np.asarray(start)
+ if p.dtype!=np.dtype(np.float32) or q.dtype!=np.dtype(np.float32) or p.shape!=q.shape:raise ValueError('no-progress comparison requires same-shape Float32 arrays')
+ return np.array_equal(np.ascontiguousarray(p).view(np.uint8),np.ascontiguousarray(q).view(np.uint8))
+
+def run(script,p,out):
+ cmd=[PY,'/tmp/numi-human-geometry-slot.py',PY,str(script),str(p),str(out)]
+ if script.name=='audit_skin_bone_surfaces_159.py':cmd+=['--max-seconds','600']
+ st=time.monotonic()
+ with Path(str(out)+'.log').open('x')as log:r=subprocess.run(cmd,stdout=log,stderr=subprocess.STDOUT)
+ write(str(out)+'.execution.json',dict(command=cmd,returncode=r.returncode,wall_seconds=time.monotonic()-st))
+ assert r.returncode==0
+surface_damping=module('surface_damping',H/'surface-regression-witnesses-258.py')
+assert sha(H/'surface-regression-witnesses-258.py')=='5099756b1244845be2fb61a476c15d3a2c6095e41b3e41f08a9517148ba7764d'
+point_damping=module('point_damping',H/'point-regression-witnesses-254.py')
+assert sha(H/'point-regression-witnesses-254.py')=='f78831353656e6b7e5bfee6d0edca89c876dac25ccd85eeaf522c350b58dd894'
+configpath=Path(sys.argv[1]);cfg=read(configpath)
+assert 1<=cfg.get('maximum_exact_audits',8)<=16 and 1<=cfg.get('maximum_construction_passes',40)<=64
+r=cfg['state']
+START=Path(r['candidate']);TRIAL=Path(cfg['trial'])
+OUT=Path(cfg['out']);OUT.mkdir(exist_ok=False)
+owner=module('bone_owner',D/'D/joint-clearance-merit-175/canonical/matter/tools/human_skin_fat_bone_audit.py')
+# The tested helper path is supplied in the adjacent execution configuration.
+config=cfg
+helper=module('local_steps',Path(config['helper']))
+assert sha(config['helper'])==config['helper_sha256']
+z=np.load(START);t=np.load(TRIAL);X=z['points_world_m'].astype(float);Y=t['points_world_m'].astype(float);F=z['source_O_faces'].astype(np.int64);assert np.array_equal(F,t['source_O_faces'])
+anchors=z['typed_coarse_anchor_output_rows_018'];payload={k:z[k]for k in z.files}
+before=read(r['point_summary']);before_surface=read(r['surface_report'])
+assert before['candidate_sha256']==before_surface['candidate_sha256']==sha(START)
+base=np.load(D/'full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz')
+nold=len(base['points_before_joint_self_pair_repair_m']);prefixes=('', 'prior_input_006__', 'prior_run028__');P=sparse.eye(len(X),format='csr')
+for level,prefix in enumerate(prefixes):
+ ind=np.asarray(z[prefix+'source_prolongation_indptr'],np.int64);cols=np.asarray(z[prefix+'source_prolongation_node_rows'],np.int64);w=np.asarray(z[prefix+'source_prolongation_weights'],float)
+ nc=len(z[prefixes[level+1]+'source_prolongation_indptr'])-1 if level+1<len(prefixes) else nold
+ assert len(ind)-1==P.shape[1] and ind[0]==0 and ind[-1]==len(cols)==len(w) and (np.diff(ind)>0).all() and (cols>=0).all() and (cols<nc).all() and np.isfinite(w).all() and (w>=0).all()
+ M=sparse.csr_matrix((w,cols,ind),shape=(len(ind)-1,nc));assert np.max(np.abs(np.asarray(M.sum(axis=1)).ravel()-1))<2e-10;P=P@M
+R0=np.asarray(P@base['points_before_joint_self_pair_repair_m'],float)
+refsource=Path(cfg['area_reference_npz']) if cfg.get('area_reference_npz') else D/'full-connected-clearance-150/run-037-local-refinement-006-prep/run-001/refined-candidate.npz'
+if cfg.get('area_reference_npz'):
+ require_pinned_sha(sha(refsource),cfg['area_reference_sha256'],'matched refined area-reference')
+refz=np.load(refsource)
+reference_points_key=cfg.get('area_reference_points_key','points_world_m');reference_faces_key=cfg.get('area_reference_faces_key','source_O_faces')
+XR=refz[reference_points_key].astype(float)
+ref,den,reference_area=validate_area_reference(X,F,XR,refz[reference_faces_key])
+fixed_prefix=cfg.get('fixed_prefix_nodes',0)
+assert_fixed_prefix_equal(t['points_world_m'],z['points_world_m'],fixed_prefix)
+
+assert np.array_equal(X[anchors].astype(np.float32).view(np.uint32),R0[anchors].astype(np.float32).view(np.uint32))
+assert np.linalg.norm(X-R0,axis=1).max()<=.012002
+
+scales=np.load(cfg['initial_scales']) if cfg.get('initial_scales') else np.full(len(X),cfg.get("initial_scale",.5))
+assert scales.shape==(len(X),) and np.isfinite(scales).all() and ((scales>=0)&(scales<=1)).all()
+scales[anchors]=0;scales[:fixed_prefix]=0;history=[];expensive_audits=0
+reduce_scales=getattr(helper,cfg.get('helper_entry','reduce_witness_node_scales'))
+uniform_failure=bool(cfg.get('uniform_failure_backtracking',False))
+if uniform_failure:
+ assert sha(GLOBAL_FAILURE_HELPER)==GLOBAL_FAILURE_HELPER_SHA256, 'pinned uniform failure helper changed'
+ global_policy=module('global_failure_policy_373',Path(__file__).with_name('backtracking_policy_373.py'))
+ global_step=module('global_failure_step_275',GLOBAL_FAILURE_HELPER)
+write(OUT/'source-inputs.json',dict(start=str(START),start_sha256=sha(START),trial=str(TRIAL),trial_sha256=sha(TRIAL),helper_sha256=sha(config['helper']),source_point_summary_sha256=sha(r['point_summary']),source_surface_report_sha256=sha(r['surface_report']),native_admission=False,accepted_physical_steps=0))
+for iteration in range(cfg.get('maximum_construction_passes',40)):
+ out=OUT/f'pass-{iteration+1:03d}';out.mkdir()
+ xp=(X+scales[:,None]*(Y-X)).astype(np.float32);xp[anchors]=X[anchors].astype(np.float32)
+ if uniform_failure and emitted_f32_bitwise_equal(xp,np.asarray(z['points_world_m'],dtype=np.float32)):
+  rec=dict(status='UNCHANGED_FLOAT32_CANDIDATE_NO_PROGRESS',iteration=iteration+1,candidate_sha256=sha(START),emitted_points_sha256=hashlib.sha256(xp.tobytes()).hexdigest(),unchanged_float32_bitwise=True,native_admission=False,accepted_physical_steps=0)
+  write(out/'result.json',rec);write(OUT/'result.json',rec);print(json.dumps(rec),flush=True);break
+ cross=np.cross(xp[F[:,1]].astype(float)-xp[F[:,0]],xp[F[:,2]].astype(float)-xp[F[:,0]])
+ ratios=np.einsum('ij,ij->i',cross,ref)/den
+ magnitude_ratios=np.linalg.norm(cross,axis=1)/reference_area
+ area_bad=np.flatnonzero((ratios<.1)|(magnitude_ratios<.1))
+ bad=area_bad.copy()
+ stepbad=np.flatnonzero(np.linalg.norm(xp.astype(float)-X,axis=1)>0.001003)
+ capbad=np.flatnonzero(np.linalg.norm(xp.astype(float)-R0,axis=1)>.012002)
+ move=Y-X;proj=np.einsum('ij,ij->i',xp.astype(float)-X,move);regress=np.flatnonzero(proj < -.000002*np.linalg.norm(move,axis=1))
+ badnodes=np.union1d(stepbad,np.union1d(capbad,regress))
+ if len(badnodes):bad=np.union1d(bad,np.flatnonzero(np.isin(F,badnodes).any(axis=1)))
+ failure_kind=('area' if len(area_bad) else ('construction_bound' if len(badnodes) else None))
+ assert np.isfinite(xp).all()
+ p=out/'candidate.npz'
+ if not len(bad):np.savez_compressed(p,**{**payload,'points_world_m':xp})
+ np.save(out/'node-step-scales.npy',scales)
+ rec=dict(iteration=iteration+1,candidate_sha256=sha(p) if p.exists() else None,emitted_points_sha256=hashlib.sha256(xp.tobytes()).hexdigest(),minimum_allface_oriented_area_ratio=float(ratios.min()),minimum_fixed_reference_area_magnitude_ratio=float(magnitude_ratios.min()),bad_area_faces=len(bad),anchors_bitwise_unchanged=bool(np.array_equal(xp[anchors].view(np.uint32),z['points_world_m'][anchors].view(np.uint32))),nonzero_step_nodes=int(np.count_nonzero(np.any(xp!=X.astype(np.float32),axis=1))),nonzero_construction_scale_nodes=int(np.count_nonzero(scales)),maximum_step_m=float(np.linalg.norm(xp.astype(float)-X,axis=1).max()),maximum_source_displacement_mm=float(np.linalg.norm(xp.astype(float)-R0,axis=1).max()*1000),source_cap_pass=not bool(len(capbad)),native_admission=False,accepted_physical_steps=0)
+ assert rec['anchors_bitwise_unchanged']
+ assert np.array_equal(xp[:fixed_prefix].view(np.uint32),z['points_world_m'][:fixed_prefix].view(np.uint32)), 'emitted fixed prefix changed'
+ selfpairs=np.empty((0,2),np.int64)
+ if not len(bad):
+  if expensive_audits>=cfg.get('maximum_exact_audits',8):
+   write(out/'result.json',dict(status='EXACT_AUDIT_BUDGET_REACHED',native_admission=False,accepted_physical_steps=0));break
+  expensive_audits+=1
+  run(D/'audit_connected_outer_geometry_130.py',p,out/'audit-130')
+  after=read(out/'audit-130/summary.json');rec['point_summary_sha256']=sha(out/'audit-130/summary.json')
+  assert after['candidate_sha256']==sha(p)
+  if after.get('exact_PLC_surface_pairs',-1)>0:
+   selfpairs=np.load(out/'audit-130/surface-self-pairs.npy')
+   rec['exact_self_pairs']=len(selfpairs)
+   if len(selfpairs):failure_kind='self'
+  elif after.get('complete_surface_audit')is True and after.get('exact_PLC_surface_pairs')==0:
+   merit=owner.assess_point_clearance_construction_progress(before,after);rec['point_merit']=merit
+   # Existing P093 joint merit owns construction selection; point count alone need not fall.
+   if merit['maximum_depth_nonincreasing'] and merit['squared_depth_nonincreasing']:
+    run(D/'audit_skin_bone_surfaces_159.py',p,out/'audit-159')
+    sr=read(out/'audit-159/report.json')
+    joint=owner.assess_joint_clearance_construction_progress(before,after,before_surface,sr)
+    rec['joint_merit']=joint
+    depth=owner.assess_construction_depth_progress(before,after,before_surface,sr);rec['depth_merit']=depth
+    if joint['construction_progress'] or depth['construction_progress']:
+     rec.update(status='CONSTRUCTION_PROGRESS_ONLY',candidate=str(p),point_summary=str(out/'audit-130/summary.json'),surface_report=str(out/'audit-159/report.json'),parent_fit=cfg['parent_fit'])
+     write(out/'result.json',rec);write(OUT/'selected-result.json',rec);print(json.dumps({k:v for k,v in rec.items()if k not in ['scale_update','point_merit','joint_merit']}),flush=True);break
+   if (not merit['maximum_depth_nonincreasing'] or not merit['squared_depth_nonincreasing']):
+    regressed_rows,bad=point_damping.regressed_point_faces(before,after,F,len(X))
+    if not len(bad):
+     rec['status']='NO_POINT_REGRESSION_WITNESS';write(out/'result.json',rec);break
+    failure_kind='point'
+    rec['point_regression_witness_nodes']=regressed_rows.tolist()
+    rec['point_regression_incident_faces']=bad.tolist()
+    rec['construction_action']='uniformly halve the whole connected construction step; rerun every geometry gate' if uniform_failure else 'halve only actual penetration witness incident-face node scales; rerun every geometry gate'
+   elif merit['maximum_depth_nonincreasing'] and merit['squared_depth_nonincreasing'] and 'joint_merit' in rec:
+    bad,introduced_count=surface_damping.introduced_surface_faces(before_surface,sr,len(F))
+    if not len(bad):
+     rec['status']='NO_COMBINED_PROGRESS';write(out/'result.json',rec);break
+    failure_kind='surface'
+    rec['introduced_surface_pair_count_for_damping']=introduced_count
+    rec['introduced_surface_witness_faces']=bad.tolist()
+    rec['construction_action']='uniformly halve the whole connected construction step; rerun every geometry gate' if uniform_failure else 'halve only exact introduced triangle witness face node scales; rerun every geometry gate'
+   else:
+    rec['status']='NO_COMBINED_PROGRESS';write(out/'result.json',rec);print(json.dumps({k:v for k,v in rec.items()if k not in ['scale_update','point_merit','joint_merit']}),flush=True);break
+  else:raise RuntimeError('incomplete geometry audit')
+ if uniform_failure:
+  if failure_kind is None:raise RuntimeError('uniform failure backtracking reached without an exact failure witness')
+  scales,update=global_policy.update_failure_scales(
+   faces=F,scales=scales,bad_faces=bad,self_pairs=selfpairs,anchors=anchors,
+   fixed_prefix_nodes=fixed_prefix,zero_below=cfg.get('zero_below',1/128),
+   failure_kind=failure_kind,uniform_failure_backtracking=True,
+   local_reducer=reduce_scales,global_reducer=global_step.reduce_global_step_scales,
+   point_witness_faces=bad if failure_kind=='point' else None)
+ else:
+  scales,update=reduce_scales(F,scales,bad,selfpairs,anchors=anchors,zero_below=cfg.get('zero_below',1/128))
+ rec['scale_update']={k:v for k,v in update.items()if not isinstance(v,list)};history.append(rec);write(out/'result.json',rec);print(json.dumps({k:v for k,v in rec.items()if k not in ['scale_update','point_merit','joint_merit']}),flush=True)
+else:write(OUT/'result.json',dict(status='BOUNDED_LOCAL_BACKTRACK_FAILED',history=history,native_admission=False,accepted_physical_steps=0))

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-coherent-point-targets-371/test_build_coherent_point_targets_371.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/coherent-support-continuation-372/test_run_coherent_target_continuation_372.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-370/test_select_bone_reducing_flips_370.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/no-progress-backtracker-373/test_backtracking_policy_373.py"
+  ],
+  "returncode": 0,
+  "stdout": ".........................................                                [100%]\n41 passed in 0.49s\n",
+  "stderr": "",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

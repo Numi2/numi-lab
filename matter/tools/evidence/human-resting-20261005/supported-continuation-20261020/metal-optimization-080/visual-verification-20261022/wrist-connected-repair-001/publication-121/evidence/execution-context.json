@@ -1,0 +1,9 @@
+{
+  "host": "ssh numi",
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "construction_only": true,
+  "launch375_nested_lock_correction": "Initial outer geometry lock caused child wait; process group9155 terminated before solve, startup files retained; relaunched9219 with runner-owned per-command lock.",
+  "device": "Hardware:\n\n    Hardware Overview:\n\n      Model Name: Mac mini\n      Model Identifier: Mac18,5\n      Model Number: MHQK4LL/A\n      Chip: Apple M6\n      Total Number of Cores: 12 (2 Super, 4 Performance, and 6 Efficiency)\n      Memory: 16 GB\n      System Firmware Version: 20457.1.29\n      OS Loader Version: 20457.1.29\n      Activation Lock Status: Disabled\n",
+  "disk": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   228Gi   173Gi    14Gi    93%    1.1M  148M    1%   /System/Volumes/Data\n"
+}
