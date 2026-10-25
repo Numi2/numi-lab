@@ -1,0 +1,1675 @@
+{
+  "status": "PASS_READ_ONLY_NEAR_VERTEX_QUALITY_AUDIT",
+  "scope": "saved full084 split outputs; no geometry regenerated or modified",
+  "physical_or_native_admission": false,
+  "input_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "split_sha256": "b789644e0074d1b51f9add1313723c9ee152d70abd24ffed27e4d186821ef6b5",
+  "threshold_q": 1e-06,
+  "metric": "positive Float32 determinant / longest_edge^3",
+  "low_quality_child_count": 16,
+  "low_quality_children": [
+    {
+      "split_child_row": 8,
+      "parent_cell_row": 5,
+      "parent_cell_uid": 5,
+      "material_id": 1,
+      "side_sign": 1,
+      "child_output_vertex_rows": [
+        1212,
+        7485,
+        7505,
+        7506
+      ],
+      "parent_source_vertex_rows": [
+        1212,
+        3623,
+        3757,
+        1257
+      ],
+      "parent_source_global_vertex_ids": [
+        1213,
+        3624,
+        3758,
+        1258
+      ],
+      "parent_plane_signed_values_um": [
+        12114.174570734216,
+        12045.277613321749,
+        21520.255368276008,
+        -84.29778207785787
+      ],
+      "parent_source_q_reference": 0.017995459062962148,
+      "child_q_reference_float32": 9.875726007366118e-07,
+      "child_q_current037_float32": 9.875726007366118e-07,
+      "child_det_reference_float32_m3": 1.677625336437688e-11,
+      "child_det_current037_float32_m3": 1.677625336437688e-11,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 6.305708390963932,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 105.79223170821435,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 7485,
+          "source_edge_rows": [
+            1212,
+            1257
+          ],
+          "source_edge_global_ids": [
+            1213,
+            1258
+          ],
+          "interpolation_weights": [
+            0.0069105195830874155,
+            0.9930894804169126
+          ],
+          "nearest_parent_vertex_row": 1257,
+          "nearest_parent_vertex_global_id": 1258,
+          "distance_to_parent_vertices_um": [
+            25601.382632429417,
+            26088.71868142205,
+            32490.487423638166,
+            178.1499648564224
+          ]
+        },
+        {
+          "output_row": 7505,
+          "source_edge_rows": [
+            1257,
+            3623
+          ],
+          "source_edge_global_ids": [
+            1258,
+            3624
+          ],
+          "interpolation_weights": [
+            0.9930502281135225,
+            0.00694977188647754
+          ],
+          "nearest_parent_vertex_row": 1257,
+          "nearest_parent_vertex_global_id": 1258,
+          "distance_to_parent_vertices_um": [
+            25597.181991314934,
+            26084.129229158498,
+            32483.47809001597,
+            182.5474108640067
+          ]
+        },
+        {
+          "output_row": 7506,
+          "source_edge_rows": [
+            1257,
+            3757
+          ],
+          "source_edge_global_ids": [
+            1258,
+            3758
+          ],
+          "interpolation_weights": [
+            0.9960981473909134,
+            0.003901852609086578
+          ],
+          "nearest_parent_vertex_row": 1257,
+          "nearest_parent_vertex_global_id": 1258,
+          "distance_to_parent_vertices_um": [
+            25706.442866339912,
+            26190.455681991407,
+            32465.671050745077,
+            127.1724715349593
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 1234,
+      "parent_cell_row": 1122,
+      "parent_cell_uid": 1123,
+      "material_id": 2,
+      "side_sign": -1,
+      "child_output_vertex_rows": [
+        5495,
+        7174,
+        7847,
+        8245
+      ],
+      "parent_source_vertex_rows": [
+        7174,
+        5495,
+        5561,
+        3149
+      ],
+      "parent_source_global_vertex_ids": [
+        7175,
+        5496,
+        5562,
+        3150
+      ],
+      "parent_plane_signed_values_um": [
+        -7.880376541036238,
+        -17460.3164054159,
+        48326.10368313284,
+        38158.942669636934
+      ],
+      "parent_source_q_reference": 0.001671290656690983,
+      "child_q_reference_float32": 6.997423325654649e-09,
+      "child_q_current037_float32": 6.997423325654649e-09,
+      "child_det_reference_float32_m3": 6.477095117131408e-14,
+      "child_det_current037_float32_m3": 6.477095117131408e-14,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 0.4650473723994794,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 7.8022002169785045,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 7847,
+          "source_edge_rows": [
+            3149,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3150,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00020647190182698782,
+            0.999793528098173
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            13.672477875516106,
+            20996.5017275996,
+            85820.97476981509,
+            66205.88453954949
+          ]
+        },
+        {
+          "output_row": 8245,
+          "source_edge_rows": [
+            5561,
+            7174
+          ],
+          "source_edge_global_ids": [
+            5562,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00016304007820466815,
+            0.9998369599217953
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            13.994484503871746,
+            20996.54038118263,
+            85820.63377373929,
+            66205.58197060865
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 1238,
+      "parent_cell_row": 1122,
+      "parent_cell_uid": 1123,
+      "material_id": 2,
+      "side_sign": 1,
+      "child_output_vertex_rows": [
+        3149,
+        7846,
+        7847,
+        8245
+      ],
+      "parent_source_vertex_rows": [
+        7174,
+        5495,
+        5561,
+        3149
+      ],
+      "parent_source_global_vertex_ids": [
+        7175,
+        5496,
+        5562,
+        3150
+      ],
+      "parent_plane_signed_values_um": [
+        -7.880376541036238,
+        -17460.3164054159,
+        48326.10368313284,
+        38158.942669636934
+      ],
+      "parent_source_q_reference": 0.001671290656690983,
+      "child_q_reference_float32": 7.413818404619634e-07,
+      "child_q_current037_float32": 7.413818404619634e-07,
+      "child_det_reference_float32_m3": 2.1514519718334305e-10,
+      "child_det_current037_float32_m3": 2.1514519718334305e-10,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 0.5128958058096222,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 8.604963719562088,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 7846,
+          "source_edge_rows": [
+            3149,
+            5495
+          ],
+          "source_edge_global_ids": [
+            3150,
+            5496
+          ],
+          "interpolation_weights": [
+            0.313925728170073,
+            0.686074271829927
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            10096.011992534428,
+            26860.191486840846,
+            77979.50933744018,
+            58702.05804082151
+          ]
+        },
+        {
+          "output_row": 7847,
+          "source_edge_rows": [
+            3149,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3150,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00020647190182698782,
+            0.999793528098173
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            13.672477875516106,
+            20996.5017275996,
+            85820.97476981509,
+            66205.88453954949
+          ]
+        },
+        {
+          "output_row": 8245,
+          "source_edge_rows": [
+            5561,
+            7174
+          ],
+          "source_edge_global_ids": [
+            5562,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00016304007820466815,
+            0.9998369599217953
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            13.994484503871746,
+            20996.54038118263,
+            85820.63377373929,
+            66205.58197060865
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 2484,
+      "parent_cell_row": 2220,
+      "parent_cell_uid": 2222,
+      "material_id": 1,
+      "side_sign": 1,
+      "child_output_vertex_rows": [
+        1212,
+        7485,
+        7506,
+        7503
+      ],
+      "parent_source_vertex_rows": [
+        1257,
+        1212,
+        1346,
+        3757
+      ],
+      "parent_source_global_vertex_ids": [
+        1258,
+        1213,
+        1347,
+        3758
+      ],
+      "parent_plane_signed_values_um": [
+        -84.29778207785787,
+        12114.174570734216,
+        22531.32379987821,
+        21520.255368276008
+      ],
+      "parent_source_q_reference": 0.031421117610478055,
+      "child_q_reference_float32": 9.266534323055948e-07,
+      "child_q_current037_float32": 9.266534323055948e-07,
+      "child_det_reference_float32_m3": 1.575460315361894e-11,
+      "child_det_current037_float32_m3": 1.575460315361894e-11,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 5.921699627703001,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 99.34963374109283,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 7485,
+          "source_edge_rows": [
+            1212,
+            1257
+          ],
+          "source_edge_global_ids": [
+            1213,
+            1258
+          ],
+          "interpolation_weights": [
+            0.0069105195830874155,
+            0.9930894804169126
+          ],
+          "nearest_parent_vertex_row": 1257,
+          "nearest_parent_vertex_global_id": 1258,
+          "distance_to_parent_vertices_um": [
+            178.1499648564224,
+            25601.382632429417,
+            32522.055742958793,
+            32490.487423638166
+          ]
+        },
+        {
+          "output_row": 7506,
+          "source_edge_rows": [
+            1257,
+            3757
+          ],
+          "source_edge_global_ids": [
+            1258,
+            3758
+          ],
+          "interpolation_weights": [
+            0.9960981473909134,
+            0.003901852609086578
+          ],
+          "nearest_parent_vertex_row": 1257,
+          "nearest_parent_vertex_global_id": 1258,
+          "distance_to_parent_vertices_um": [
+            127.1724715349593,
+            25706.442866339912,
+            32491.660446171743,
+            32465.671050745077
+          ]
+        },
+        {
+          "output_row": 7503,
+          "source_edge_rows": [
+            1257,
+            1346
+          ],
+          "source_edge_global_ids": [
+            1258,
+            1347
+          ],
+          "interpolation_weights": [
+            0.9962725861072457,
+            0.0037274138927543376
+          ],
+          "nearest_parent_vertex_row": 1257,
+          "nearest_parent_vertex_global_id": 1258,
+          "distance_to_parent_vertices_um": [
+            121.58297273361389,
+            25713.620592429346,
+            32497.003594750004,
+            32471.49603238146
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 4865,
+      "parent_cell_row": 4308,
+      "parent_cell_uid": 4310,
+      "material_id": 2,
+      "side_sign": 1,
+      "child_output_vertex_rows": [
+        2790,
+        7776,
+        7783,
+        7782
+      ],
+      "parent_source_vertex_rows": [
+        2776,
+        5200,
+        5201,
+        2790
+      ],
+      "parent_source_global_vertex_ids": [
+        2777,
+        5201,
+        5202,
+        2791
+      ],
+      "parent_plane_signed_values_um": [
+        -1082.309937479653,
+        39806.033487558925,
+        40275.145651296916,
+        38238.95374080638
+      ],
+      "parent_source_q_reference": 0.0009976730860032066,
+      "child_q_reference_float32": 7.295035672416713e-07,
+      "child_q_current037_float32": 7.295035672416713e-07,
+      "child_det_reference_float32_m3": 7.605619210122871e-10,
+      "child_det_current037_float32_m3": 7.605619210122871e-10,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 39.26263400709626,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 658.7176914659995,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 7776,
+          "source_edge_rows": [
+            2776,
+            2790
+          ],
+          "source_edge_global_ids": [
+            2777,
+            2791
+          ],
+          "interpolation_weights": [
+            0.9724751995171171,
+            0.027524800482882892
+          ],
+          "nearest_parent_vertex_row": 2776,
+          "nearest_parent_vertex_global_id": 2777,
+          "distance_to_parent_vertices_um": [
+            2863.3823314989427,
+            96761.38837527993,
+            101350.10273782715,
+            101165.79431156436
+          ]
+        },
+        {
+          "output_row": 7783,
+          "source_edge_rows": [
+            2776,
+            5201
+          ],
+          "source_edge_global_ids": [
+            2777,
+            5202
+          ],
+          "interpolation_weights": [
+            0.9738303548399779,
+            0.026169645160022036
+          ],
+          "nearest_parent_vertex_row": 2776,
+          "nearest_parent_vertex_global_id": 2777,
+          "distance_to_parent_vertices_um": [
+            2727.043247299281,
+            96890.26462651294,
+            101479.30844849072,
+            101308.91831050724
+          ]
+        },
+        {
+          "output_row": 7782,
+          "source_edge_rows": [
+            2776,
+            5200
+          ],
+          "source_edge_global_ids": [
+            2777,
+            5201
+          ],
+          "interpolation_weights": [
+            0.9735301103732932,
+            0.026469889626706773
+          ],
+          "nearest_parent_vertex_row": 2776,
+          "nearest_parent_vertex_global_id": 2777,
+          "distance_to_parent_vertices_um": [
+            2636.850682658528,
+            96980.13751959329,
+            101569.80945529779,
+            101399.46782443038
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 10022,
+      "parent_cell_row": 9069,
+      "parent_cell_uid": 9072,
+      "material_id": 2,
+      "side_sign": 1,
+      "child_output_vertex_rows": [
+        3149,
+        7847,
+        8235,
+        8245
+      ],
+      "parent_source_vertex_rows": [
+        3149,
+        7174,
+        5529,
+        5561
+      ],
+      "parent_source_global_vertex_ids": [
+        3150,
+        7175,
+        5530,
+        5562
+      ],
+      "parent_plane_signed_values_um": [
+        38158.942669636934,
+        -7.880376541036238,
+        17444.555652333936,
+        48326.10368313284
+      ],
+      "parent_source_q_reference": 0.0030398841228622252,
+      "child_q_reference_float32": 4.871325981823998e-10,
+      "child_q_current037_float32": 4.871325981823998e-10,
+      "child_det_reference_float32_m3": 1.4139635143411035e-13,
+      "child_det_current037_float32_m3": 1.4139635143411035e-13,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 0.45219544284370383,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 7.586580618804473,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 7847,
+          "source_edge_rows": [
+            3149,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3150,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00020647190182698782,
+            0.999793528098173
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            66205.88453954949,
+            13.672477875516106,
+            20971.947231071554,
+            85820.97476981509
+          ]
+        },
+        {
+          "output_row": 8235,
+          "source_edge_rows": [
+            5529,
+            7174
+          ],
+          "source_edge_global_ids": [
+            5530,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00045153447507251254,
+            0.9995484655249275
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            66211.04894958106,
+            9.475100395520393,
+            20974.748516248488,
+            85826.2899043891
+          ]
+        },
+        {
+          "output_row": 8245,
+          "source_edge_rows": [
+            5561,
+            7174
+          ],
+          "source_edge_global_ids": [
+            5562,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00016304007820466815,
+            0.9998369599217953
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            66205.58197060865,
+            13.994484503871746,
+            20971.908956964333,
+            85820.63377373929
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 10023,
+      "parent_cell_row": 9070,
+      "parent_cell_uid": 9073,
+      "material_id": 2,
+      "side_sign": -1,
+      "child_output_vertex_rows": [
+        4763,
+        7174,
+        7831,
+        7847
+      ],
+      "parent_source_vertex_rows": [
+        3118,
+        3149,
+        4763,
+        7174
+      ],
+      "parent_source_global_vertex_ids": [
+        3119,
+        3150,
+        4764,
+        7175
+      ],
+      "parent_plane_signed_values_um": [
+        8572.605742247884,
+        38158.942669636934,
+        -9301.58878647036,
+        -7.880376541036238
+      ],
+      "parent_source_q_reference": 0.013614637076594788,
+      "child_q_reference_float32": 9.851535430252052e-07,
+      "child_q_current037_float32": 9.851535430252052e-07,
+      "child_det_reference_float32_m3": 9.200612768404308e-13,
+      "child_det_current037_float32_m3": 9.200612768404308e-13,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 6.111973450027436,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 102.54189875737549,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 7831,
+          "source_edge_rows": [
+            3118,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3119,
+            7175
+          ],
+          "interpolation_weights": [
+            0.0009184067699591347,
+            0.9990815932300409
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            17214.03460290167,
+            66205.87351688271,
+            9772.604293638266,
+            15.824018803655965
+          ]
+        },
+        {
+          "output_row": 7847,
+          "source_edge_rows": [
+            3149,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3150,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00020647190182698782,
+            0.999793528098173
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            17218.03657966254,
+            66205.88453954949,
+            9774.717213663645,
+            13.672477875516106
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 10561,
+      "parent_cell_row": 9439,
+      "parent_cell_uid": 9442,
+      "material_id": 2,
+      "side_sign": -1,
+      "child_output_vertex_rows": [
+        5506,
+        7174,
+        8235,
+        8397
+      ],
+      "parent_source_vertex_rows": [
+        5506,
+        7180,
+        7174,
+        5529
+      ],
+      "parent_source_global_vertex_ids": [
+        5507,
+        7181,
+        7175,
+        5530
+      ],
+      "parent_plane_signed_values_um": [
+        -32459.895550223882,
+        22933.33278690218,
+        -7.880376541036238,
+        17444.555652333936
+      ],
+      "parent_source_q_reference": 0.006488805635512914,
+      "child_q_reference_float32": 1.7950358659663973e-09,
+      "child_q_current037_float32": 1.7950358659663973e-09,
+      "child_det_reference_float32_m3": 1.1990012574154964e-12,
+      "child_det_current037_float32_m3": 1.1990012574154964e-12,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 1.6880264676734889,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 28.32038466187514,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 8235,
+          "source_edge_rows": [
+            5529,
+            7174
+          ],
+          "source_edge_global_ids": [
+            5530,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00045153447507251254,
+            0.9995484655249275
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            87414.2160062212,
+            28474.2494870854,
+            9.475100395520393,
+            20974.748516248488
+          ]
+        },
+        {
+          "output_row": 8397,
+          "source_edge_rows": [
+            7174,
+            7180
+          ],
+          "source_edge_global_ids": [
+            7175,
+            7181
+          ],
+          "interpolation_weights": [
+            0.9996564969565954,
+            0.0003435030434045922
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            87412.36620804197,
+            28473.350294566982,
+            9.784043330778944,
+            20975.0491473651
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 29505,
+      "parent_cell_row": 26195,
+      "parent_cell_uid": 26200,
+      "material_id": 1,
+      "side_sign": -1,
+      "child_output_vertex_rows": [
+        2097,
+        7611,
+        7677,
+        7673
+      ],
+      "parent_source_vertex_rows": [
+        2191,
+        4508,
+        2097,
+        2190
+      ],
+      "parent_source_global_vertex_ids": [
+        2192,
+        4509,
+        2098,
+        2191
+      ],
+      "parent_plane_signed_values_um": [
+        112.86389385872786,
+        -23669.12347744199,
+        -24317.620433882636,
+        -6603.580238862705
+      ],
+      "parent_source_q_reference": 0.011006187953126143,
+      "child_q_reference_float32": 8.861180748834231e-07,
+      "child_q_current037_float32": 8.861180748834231e-07,
+      "child_det_reference_float32_m3": 1.496095338358272e-11,
+      "child_det_current037_float32_m3": 1.496095338358272e-11,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 6.721087845321263,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 112.76114253592941,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 7611,
+          "source_edge_rows": [
+            2097,
+            2191
+          ],
+          "source_edge_global_ids": [
+            2098,
+            2192
+          ],
+          "interpolation_weights": [
+            0.004619797640711076,
+            0.9953802023592889
+          ],
+          "nearest_parent_vertex_row": 2191,
+          "nearest_parent_vertex_global_id": 2192,
+          "distance_to_parent_vertices_um": [
+            119.06665486197545,
+            25421.54852563573,
+            25654.065443548963,
+            9660.480998827421
+          ]
+        },
+        {
+          "output_row": 7677,
+          "source_edge_rows": [
+            2191,
+            4508
+          ],
+          "source_edge_global_ids": [
+            2192,
+            4509
+          ],
+          "interpolation_weights": [
+            0.9952542278281197,
+            0.004745772171880308
+          ],
+          "nearest_parent_vertex_row": 2191,
+          "nearest_parent_vertex_global_id": 2192,
+          "distance_to_parent_vertices_um": [
+            121.20903261356756,
+            25419.21478539814,
+            25652.11787951143,
+            9658.112076715792
+          ]
+        },
+        {
+          "output_row": 7673,
+          "source_edge_rows": [
+            2190,
+            2191
+          ],
+          "source_edge_global_ids": [
+            2191,
+            2192
+          ],
+          "interpolation_weights": [
+            0.0168041141455898,
+            0.9831958858544102
+          ],
+          "nearest_parent_vertex_row": 2191,
+          "nearest_parent_vertex_global_id": 2192,
+          "distance_to_parent_vertices_um": [
+            164.03017858228202,
+            25400.630875325012,
+            25634.089736537164,
+            9597.280483863738
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 30301,
+      "parent_cell_row": 26708,
+      "parent_cell_uid": 26713,
+      "material_id": 1,
+      "side_sign": 1,
+      "child_output_vertex_rows": [
+        2286,
+        7742,
+        8166,
+        8167
+      ],
+      "parent_source_vertex_rows": [
+        4690,
+        2286,
+        4689,
+        4697
+      ],
+      "parent_source_global_vertex_ids": [
+        4691,
+        2287,
+        4690,
+        4698
+      ],
+      "parent_plane_signed_values_um": [
+        12537.754659460554,
+        25896.311878538996,
+        -245.67572807110417,
+        25049.83381028969
+      ],
+      "parent_source_q_reference": 0.0036182290632777504,
+      "child_q_reference_float32": 6.940386489068156e-07,
+      "child_q_current037_float32": 6.940386489068156e-07,
+      "child_det_reference_float32_m3": 9.822302985761384e-11,
+      "child_det_current037_float32_m3": 9.822302985761384e-11,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 18.88095943607433,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 316.76993474625726,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 7742,
+          "source_edge_rows": [
+            2286,
+            4689
+          ],
+          "source_edge_global_ids": [
+            2287,
+            4690
+          ],
+          "interpolation_weights": [
+            0.009397744799212737,
+            0.9906022552007873
+          ],
+          "nearest_parent_vertex_row": 4689,
+          "nearest_parent_vertex_global_id": 4690,
+          "distance_to_parent_vertices_um": [
+            34362.587529141696,
+            52112.68252276293,
+            494.3878217317604,
+            52265.07518339875
+          ]
+        },
+        {
+          "output_row": 8166,
+          "source_edge_rows": [
+            4689,
+            4690
+          ],
+          "source_edge_global_ids": [
+            4690,
+            4691
+          ],
+          "interpolation_weights": [
+            0.9807817056436804,
+            0.019218294356319603
+          ],
+          "nearest_parent_vertex_row": 4689,
+          "nearest_parent_vertex_global_id": 4690,
+          "distance_to_parent_vertices_um": [
+            34181.591032499324,
+            51944.86244340979,
+            669.78398378546,
+            52096.349608566714
+          ]
+        },
+        {
+          "output_row": 8167,
+          "source_edge_rows": [
+            4689,
+            4697
+          ],
+          "source_edge_global_ids": [
+            4690,
+            4698
+          ],
+          "interpolation_weights": [
+            0.9902877731046084,
+            0.009712226895391666
+          ],
+          "nearest_parent_vertex_row": 4689,
+          "nearest_parent_vertex_global_id": 4690,
+          "distance_to_parent_vertices_um": [
+            34344.3601281665,
+            52095.04054444652,
+            512.4083298321191,
+            52246.68959396811
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 31323,
+      "parent_cell_row": 27629,
+      "parent_cell_uid": 27637,
+      "material_id": 2,
+      "side_sign": -1,
+      "child_output_vertex_rows": [
+        4763,
+        7174,
+        8397,
+        7831
+      ],
+      "parent_source_vertex_rows": [
+        7180,
+        7174,
+        3118,
+        4763
+      ],
+      "parent_source_global_vertex_ids": [
+        7181,
+        7175,
+        3119,
+        4764
+      ],
+      "parent_plane_signed_values_um": [
+        22933.33278690218,
+        -7.880376541036238,
+        8572.605742247884,
+        -9301.58878647036
+      ],
+      "parent_source_q_reference": 0.03061945839576468,
+      "child_q_reference_float32": 4.4964964031079457e-07,
+      "child_q_current037_float32": 4.4964964031079457e-07,
+      "child_det_reference_float32_m3": 4.199309435692499e-13,
+      "child_det_current037_float32_m3": 4.199309435692499e-13,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 2.7896041737069646,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 46.80179177678327,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 8397,
+          "source_edge_rows": [
+            7174,
+            7180
+          ],
+          "source_edge_global_ids": [
+            7175,
+            7181
+          ],
+          "interpolation_weights": [
+            0.9996564969565954,
+            0.0003435030434045922
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            28473.350294566982,
+            9.784043330778944,
+            17221.300038283232,
+            9774.66077727848
+          ]
+        },
+        {
+          "output_row": 7831,
+          "source_edge_rows": [
+            3118,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3119,
+            7175
+          ],
+          "interpolation_weights": [
+            0.0009184067699591347,
+            0.9990815932300409
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            28469.292268310568,
+            15.824018803655965,
+            17214.03460290167,
+            9772.604293638266
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 31643,
+      "parent_cell_row": 27897,
+      "parent_cell_uid": 27905,
+      "material_id": 2,
+      "side_sign": 1,
+      "child_output_vertex_rows": [
+        3118,
+        7831,
+        8397,
+        8235
+      ],
+      "parent_source_vertex_rows": [
+        3118,
+        7180,
+        5529,
+        7174
+      ],
+      "parent_source_global_vertex_ids": [
+        3119,
+        7181,
+        5530,
+        7175
+      ],
+      "parent_plane_signed_values_um": [
+        8572.605742247884,
+        22933.33278690218,
+        17444.555652333936,
+        -7.880376541036238
+      ],
+      "parent_source_q_reference": 0.06944163854983214,
+      "child_q_reference_float32": 4.896417178259384e-08,
+      "child_q_current037_float32": 4.896417178259384e-08,
+      "child_det_reference_float32_m3": 2.500857199860085e-13,
+      "child_det_current037_float32_m3": 2.500857199860085e-13,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 3.064630397765876,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 51.41596614348402,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 7831,
+          "source_edge_rows": [
+            3118,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3119,
+            7175
+          ],
+          "interpolation_weights": [
+            0.0009184067699591347,
+            0.9990815932300409
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            17214.03460290167,
+            28469.292268310568,
+            20970.237904075675,
+            15.824018803655965
+          ]
+        },
+        {
+          "output_row": 8397,
+          "source_edge_rows": [
+            7174,
+            7180
+          ],
+          "source_edge_global_ids": [
+            7175,
+            7181
+          ],
+          "interpolation_weights": [
+            0.9996564969565954,
+            0.0003435030434045922
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            17221.300038283232,
+            28473.350294566982,
+            20975.0491473651,
+            9.784043330778944
+          ]
+        },
+        {
+          "output_row": 8235,
+          "source_edge_rows": [
+            5529,
+            7174
+          ],
+          "source_edge_global_ids": [
+            5530,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00045153447507251254,
+            0.9995484655249275
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            17221.484049883886,
+            28474.2494870854,
+            20974.748516248488,
+            9.475100395520393
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 33464,
+      "parent_cell_row": 29360,
+      "parent_cell_uid": 29371,
+      "material_id": 2,
+      "side_sign": -1,
+      "child_output_vertex_rows": [
+        5495,
+        7174,
+        7851,
+        7847
+      ],
+      "parent_source_vertex_rows": [
+        7174,
+        3150,
+        5495,
+        3149
+      ],
+      "parent_source_global_vertex_ids": [
+        7175,
+        3151,
+        5496,
+        3150
+      ],
+      "parent_plane_signed_values_um": [
+        -7.880376541036238,
+        38693.302568411855,
+        -17460.3164054159,
+        38158.942669636934
+      ],
+      "parent_source_q_reference": 0.001572594321136645,
+      "child_q_reference_float32": 7.2686218199370585e-09,
+      "child_q_current037_float32": 7.2686218199370585e-09,
+      "child_det_reference_float32_m3": 6.729769486926383e-14,
+      "child_det_current037_float32_m3": 6.729769486926383e-14,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 0.34968299509639217,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 5.866707140259113,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 7851,
+          "source_edge_rows": [
+            3150,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3151,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00020362107670579555,
+            0.9997963789232942
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            16.718275299544196,
+            82088.11866008499,
+            20998.211798710654,
+            66202.97403880321
+          ]
+        },
+        {
+          "output_row": 7847,
+          "source_edge_rows": [
+            3149,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3150,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00020647190182698782,
+            0.999793528098173
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            13.672477875516106,
+            82091.27509586356,
+            20996.5017275996,
+            66205.88453954949
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 33469,
+      "parent_cell_row": 29360,
+      "parent_cell_uid": 29371,
+      "material_id": 2,
+      "side_sign": 1,
+      "child_output_vertex_rows": [
+        3149,
+        7846,
+        7851,
+        7847
+      ],
+      "parent_source_vertex_rows": [
+        7174,
+        3150,
+        5495,
+        3149
+      ],
+      "parent_source_global_vertex_ids": [
+        7175,
+        3151,
+        5496,
+        3150
+      ],
+      "parent_plane_signed_values_um": [
+        -7.880376541036238,
+        38693.302568411855,
+        -17460.3164054159,
+        38158.942669636934
+      ],
+      "parent_source_q_reference": 0.001572594321136645,
+      "child_q_reference_float32": 7.698062701703856e-07,
+      "child_q_current037_float32": 7.698062701703856e-07,
+      "child_det_reference_float32_m3": 2.2339382049819522e-10,
+      "child_det_current037_float32_m3": 2.2339382049819522e-10,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 0.5325601271948021,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 8.934876286934669,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 7846,
+          "source_edge_rows": [
+            3149,
+            5495
+          ],
+          "source_edge_global_ids": [
+            3150,
+            5496
+          ],
+          "interpolation_weights": [
+            0.313925728170073,
+            0.686074271829927
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            10096.011992534428,
+            73721.80060132453,
+            26860.191486840846,
+            58702.05804082151
+          ]
+        },
+        {
+          "output_row": 7851,
+          "source_edge_rows": [
+            3150,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3151,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00020362107670579555,
+            0.9997963789232942
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            16.718275299544196,
+            82088.11866008499,
+            20998.211798710654,
+            66202.97403880321
+          ]
+        },
+        {
+          "output_row": 7847,
+          "source_edge_rows": [
+            3149,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3150,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00020647190182698782,
+            0.999793528098173
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            13.672477875516106,
+            82091.27509586356,
+            20996.5017275996,
+            66205.88453954949
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 37164,
+      "parent_cell_row": 32501,
+      "parent_cell_uid": 32513,
+      "material_id": 2,
+      "side_sign": 1,
+      "child_output_vertex_rows": [
+        3118,
+        7831,
+        8235,
+        7847
+      ],
+      "parent_source_vertex_rows": [
+        3118,
+        3149,
+        7174,
+        5529
+      ],
+      "parent_source_global_vertex_ids": [
+        3119,
+        3150,
+        7175,
+        5530
+      ],
+      "parent_plane_signed_values_um": [
+        8572.605742247884,
+        38158.942669636934,
+        -7.880376541036238,
+        17444.555652333936
+      ],
+      "parent_source_q_reference": 0.01592631607850492,
+      "child_q_reference_float32": 8.413856368161897e-08,
+      "child_q_current037_float32": 8.413856368161897e-08,
+      "child_det_reference_float32_m3": 4.297397977103419e-13,
+      "child_det_current037_float32_m3": 4.297397977103419e-13,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 3.6391013794838476,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 61.05398988949848,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 7831,
+          "source_edge_rows": [
+            3118,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3119,
+            7175
+          ],
+          "interpolation_weights": [
+            0.0009184067699591347,
+            0.9990815932300409
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            17214.03460290167,
+            66205.87351688271,
+            15.824018803655965,
+            20970.237904075675
+          ]
+        },
+        {
+          "output_row": 8235,
+          "source_edge_rows": [
+            5529,
+            7174
+          ],
+          "source_edge_global_ids": [
+            5530,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00045153447507251254,
+            0.9995484655249275
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            17221.484049883886,
+            66211.04894958106,
+            9.475100395520393,
+            20974.748516248488
+          ]
+        },
+        {
+          "output_row": 7847,
+          "source_edge_rows": [
+            3149,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3150,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00020647190182698782,
+            0.999793528098173
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            17218.03657966254,
+            66205.88453954949,
+            13.672477875516106,
+            20971.947231071554
+          ]
+        }
+      ]
+    },
+    {
+      "split_child_row": 37291,
+      "parent_cell_row": 32625,
+      "parent_cell_uid": 32637,
+      "material_id": 2,
+      "side_sign": -1,
+      "child_output_vertex_rows": [
+        4763,
+        7174,
+        7847,
+        7851
+      ],
+      "parent_source_vertex_rows": [
+        7174,
+        3150,
+        3149,
+        4763
+      ],
+      "parent_source_global_vertex_ids": [
+        7175,
+        3151,
+        3150,
+        4764
+      ],
+      "parent_plane_signed_values_um": [
+        -7.880376541036238,
+        38693.302568411855,
+        38158.942669636934,
+        -9301.58878647036
+      ],
+      "parent_source_q_reference": 0.005109515154762265,
+      "child_q_reference_float32": 1.4484003258287376e-07,
+      "child_q_current037_float32": 1.4484003258287376e-07,
+      "child_det_reference_float32_m3": 1.3526998533303649e-13,
+      "child_det_current037_float32_m3": 1.3526998533303649e-13,
+      "current037_over_reference_float32_det": 1.0,
+      "minimum_altitude_reference_float32_um": 0.8730732972853923,
+      "maximum_coordinate_ulp_in_child_um": 0.059604644775390625,
+      "minimum_altitude_over_max_coordinate_ulp": 14.64773929238924,
+      "f32_status": "positive determinant; no collapsed cell observed; altitude/ULP ratio is diagnostic only",
+      "cut_vertices": [
+        {
+          "output_row": 7847,
+          "source_edge_rows": [
+            3149,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3150,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00020647190182698782,
+            0.999793528098173
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            13.672477875516106,
+            82091.27509586356,
+            66205.88453954949,
+            9774.717213663645
+          ]
+        },
+        {
+          "output_row": 7851,
+          "source_edge_rows": [
+            3150,
+            7174
+          ],
+          "source_edge_global_ids": [
+            3151,
+            7175
+          ],
+          "interpolation_weights": [
+            0.00020362107670579555,
+            0.9997963789232942
+          ],
+          "nearest_parent_vertex_row": 7174,
+          "nearest_parent_vertex_global_id": 7175,
+          "distance_to_parent_vertices_um": [
+            16.718275299544196,
+            82088.11866008499,
+            66202.97403880321,
+            9774.312781144452
+          ]
+        }
+      ]
+    }
+  ],
+  "global_summary": {
+    "source_cell_count": 32796,
+    "split_child_count": 37492,
+    "source_min_q_reference": 3.5576533351633366e-05,
+    "split_min_q_reference_float32": 4.871325981823998e-10,
+    "split_cells_below_threshold": 16,
+    "minimum_child_altitude_over_coordinate_ulp": 5.866707140259113,
+    "interpretation": "The low-q rows arise where the exact scalar cut creates a small interface facet close to a source vertex. Source parents are positive and substantially better conditioned. All audited children retain positive Float32 determinants; this report does not establish an acceptance floor."
+  }
+}

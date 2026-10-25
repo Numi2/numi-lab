@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from human_skin_fat_layer_reconstruction import reconstruct_connected_layers
+from human_skin_fat_layer_reconstruction import reconstruct_connected_layers, split_tetrahedra_by_linear_scalar_field
 
 
 def grid_mesh():
@@ -169,3 +169,278 @@ def test_per_vertex_depth_shape_and_values_are_validated(field):
     P,F=grid_mesh()
     with pytest.raises(ValueError,match="finite positive scalar|finite and positive"):
         invoke(P,F,skin=field)
+
+
+
+def unit_tetrahedron(offset=0.0):
+    return np.asarray([[0.,0.,0.],[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]],dtype=np.float64)+offset
+
+
+def _cell_volumes(points,tets):
+    out=[]
+    for t in tets:
+        q=points[t]
+        out.append(abs(np.dot(q[1]-q[0],np.cross(q[2]-q[0],q[3]-q[0])))/6.)
+    return np.asarray(out)
+
+
+def test_scalar_split_conserves_parent_volume_mass_material_and_linear_interpolation():
+    P=unit_tetrahedron()
+    T=np.asarray([[0,1,2,3]],dtype=np.int32)
+    phi=np.asarray([-1.,1.,1.,1.])
+    out=split_tetrahedra_by_linear_scalar_field(
+        P,T,phi,global_vertex_ids=np.asarray([40,10,30,20]),
+        material_ids=np.asarray([7]),cell_mass=np.asarray([2.5]))
+    assert out.diagnostics["intersection_vertex_count"]==3
+    assert np.array_equal(np.unique(out.parent_cell_rows),np.asarray([0]))
+    assert set(out.side_signs.tolist())=={-1,1}
+    assert np.array_equal(out.points[:len(P)],P)
+    assert np.allclose(out.interpolation_weights@P,out.points,rtol=0,atol=2e-16)
+    assert np.allclose(out.interpolation_weights@phi,out.scalar_values,rtol=0,atol=1e-15)
+    assert np.max(np.abs(out.scalar_values[len(P):]))<1e-15
+    assert np.allclose(np.asarray(out.interpolation_weights.sum(axis=1)).ravel(),1.)
+    assert np.max(np.diff(out.interpolation_weights.indptr))<=2
+    vols=_cell_volumes(out.points,out.tetrahedra)
+    assert vols[out.side_signs<0].sum()==pytest.approx(1./48.,rel=1e-12)
+    assert vols[out.side_signs>0].sum()==pytest.approx(7./48.,rel=1e-12)
+    assert vols.sum()==pytest.approx(1./6.,rel=1e-12)
+    assert out.cell_masses.sum()==pytest.approx(2.5,rel=1e-12)
+    assert np.all(out.material_ids==7)
+    assert out.diagnostics["all_source_cells_have_children"]
+    assert out.diagnostics["float32_nonpositive_cell_count"]==0
+    assert out.diagnostics["float32_quality_warning"] is False
+    assert out.diagnostics["parent_volume_max_relative_error"]<1e-12
+
+
+def test_all_scalar_sign_permutations_make_positive_conservative_children():
+    from itertools import permutations
+    P=unit_tetrahedron()
+    T=np.asarray([[0,1,2,3]],dtype=np.int32)
+    values=(-1.,-2.,3.,4.)
+    for order in permutations(values):
+        out=split_tetrahedra_by_linear_scalar_field(P,T,np.asarray(order),
+            global_vertex_ids=np.asarray([101,7,55,23]))
+        assert set(out.side_signs.tolist())=={-1,1}
+        assert np.all(_cell_volumes(out.points,out.tetrahedra)>0.)
+        assert out.diagnostics["float32_nonpositive_cell_count"]==0
+        assert out.diagnostics["parent_volume_max_relative_error"]<1e-12
+        # The global edge cache and pulling order are deterministic.
+        again=split_tetrahedra_by_linear_scalar_field(P,T,np.asarray(order),
+            global_vertex_ids=np.asarray([101,7,55,23]))
+        assert np.array_equal(out.points,again.points)
+        assert np.array_equal(out.tetrahedra,again.tetrahedra)
+        assert np.array_equal(out.side_signs,again.side_signs)
+
+
+def test_shared_clipped_face_uses_identical_global_pulling_triangulation():
+    P=np.asarray([[0.,0.,0.],[1.,0.,0.],[0.,1.,0.],[0.,0.,1.],[0.,0.,-1.]])
+    T=np.asarray([[0,1,2,3],[0,2,1,4]],dtype=np.int32)
+    phi=np.asarray([-1.,1.,-1.,.5,.75])
+    out=split_tetrahedra_by_linear_scalar_field(P,T,phi,
+        global_vertex_ids=np.asarray([90,10,80,30,40]),
+        material_ids=np.asarray([4,9]),cell_mass=np.asarray([1.25,2.75]))
+    # The source tetrahedra have opposite sides of z=0 in the same shared
+    # source triangle. Their clipped boundary triangulations must match as
+    # exact vertex-index triples, once per parent and half-domain.
+    for side in (-1,1):
+        per_parent=[]
+        for parent in (0,1):
+            local=[]
+            rows=np.flatnonzero((out.side_signs==side)&(out.parent_cell_rows==parent))
+            for cellrow in rows:
+                tet=out.tetrahedra[cellrow]
+                for face in ((tet[1],tet[2],tet[3]),(tet[0],tet[3],tet[2]),
+                             (tet[0],tet[1],tet[3]),(tet[0],tet[2],tet[1])):
+                    xyz=out.points[np.asarray(face)]
+                    if np.all(np.abs(xyz[:,2])<1e-14):
+                        local.append(tuple(sorted(map(int,face))))
+            assert local, f"parent {parent} has no clipped shared-face triangles for side {side}"
+            assert len(local)==len(set(local)), "a parent emitted duplicate shared-face triangles"
+            per_parent.append(set(local))
+        assert per_parent[0]==per_parent[1]
+    edge_keys=out.intersection_edge_global_ids.tolist()
+    assert edge_keys.count([10,90])==1
+    crossing_row=out.global_vertex_order_keys.index((1,10,90))
+    for parent in (0,1):
+        assert np.any(out.tetrahedra[out.parent_cell_rows==parent]==crossing_row)
+    assert out.diagnostics["all_source_cells_have_children"]
+    assert np.all(out.scalar_values[out.tetrahedra] * out.side_signs[:,None] >= -1e-14)
+    assert np.array_equal(out.material_ids, np.asarray([4,9])[out.parent_cell_rows])
+    parent_mass=np.bincount(out.parent_cell_rows,weights=out.cell_masses,minlength=2)
+    assert np.allclose(parent_mass,[1.25,2.75],rtol=1e-12,atol=1e-14)
+
+
+def test_zero_field_vertices_are_reused_without_zero_volume_children():
+    P=unit_tetrahedron()
+    T=np.asarray([[0,1,2,3]],dtype=np.int32)
+    positive=split_tetrahedra_by_linear_scalar_field(P,T,np.asarray([0.,1.,2.,3.]))
+    assert len(positive.points)==len(P)
+    assert positive.side_signs.tolist()==[1]
+    assert _cell_volumes(positive.points,positive.tetrahedra).sum()==pytest.approx(1./6.)
+    # Owner quality uses the longest of all six edges, including the edge
+    # opposite source vertex zero (length sqrt(2) in this fixture).
+    assert positive.diagnostics["float32_min_owner_quality_det_over_longest_edge_cubed"] == pytest.approx(1.0/(2.0**1.5),rel=1e-6)
+    mixed=split_tetrahedra_by_linear_scalar_field(P,T,np.asarray([0.,-1.,1.,-1.]))
+    assert set(mixed.side_signs.tolist())=={-1,1}
+    assert len(np.unique(mixed.tetrahedra))>=4
+    assert mixed.diagnostics["parent_volume_max_relative_error"]<1e-12
+    assert mixed.diagnostics["float32_nonpositive_cell_count"]==0
+
+
+def test_tiny_cut_that_collapses_in_float32_fails_instead_of_dropping_cells():
+    P=unit_tetrahedron(offset=1000.)
+    T=np.asarray([[0,1,2,3]],dtype=np.int32)
+    phi=np.asarray([-1e-8,1.,1.,1.])
+    with pytest.raises(ValueError,match="Float32 emission contains nonpositive"):
+        split_tetrahedra_by_linear_scalar_field(P,T,phi)
+
+
+def test_subnormal_opposite_signs_fail_closed_without_missed_edge_cache():
+    P=unit_tetrahedron()
+    T=np.asarray([[0,1,2,3]],dtype=np.int32)
+    phi=np.asarray([-1e-300,1e-300,1e-300,1e-300])
+    # The edge crossing is real despite the product of endpoint values
+    # underflowing in float64. The resulting midpoint remains representable.
+    out=split_tetrahedra_by_linear_scalar_field(P,T,phi)
+    assert out.diagnostics["intersection_vertex_count"]==3
+    assert out.diagnostics["all_source_cells_have_children"]
+    assert out.diagnostics["float32_nonpositive_cell_count"]==0
+
+
+def test_negative_source_orientation_is_rejected_without_reindexing():
+    P=unit_tetrahedron()
+    T=np.asarray([[0,1,3,2]],dtype=np.int32)
+    with pytest.raises(ValueError,match="negative orientation"):
+        split_tetrahedra_by_linear_scalar_field(P,T,np.asarray([-1.,1.,1.,1.]))
+
+
+def test_identically_zero_parent_field_is_rejected_as_ambiguous():
+    with pytest.raises(ValueError,match="identically zero scalar field"):
+        split_tetrahedra_by_linear_scalar_field(unit_tetrahedron(),np.asarray([[0,1,2,3]]),np.zeros(4))
+
+
+def test_near_vertex_cut_keeps_positive_thin_children_and_reports_quality_warning():
+    # The requested scalar plane passes close to one source vertex. The large
+    # clipped side necessarily contains a thin positive tetrahedron; it must be
+    # retained and conserved, while the diagnostic warning exposes its quality.
+    P=unit_tetrahedron()
+    T=np.asarray([[0,1,2,3]],dtype=np.int32)
+    out=split_tetrahedra_by_linear_scalar_field(
+        P,T,np.asarray([-1.0e-3,1.0,1.0,1.0]),
+        global_vertex_ids=np.asarray([40,10,30,20]),
+        material_ids=np.asarray([7]),cell_mass=np.asarray([2.5]))
+    q=out.diagnostics["float32_min_owner_quality_det_over_longest_edge_cubed"]
+    assert 0.0 < q < out.diagnostics["float32_quality_warning_threshold_det_over_longest_edge_cubed"]
+    assert out.diagnostics["float32_quality_warning"] is True
+    assert out.diagnostics["float32_quality_warning_cell_count"] > 0
+    assert out.diagnostics["float32_quality_warning_parent_rows_first16"] == [0]
+    assert out.diagnostics["float32_nonpositive_cell_count"] == 0
+    assert np.all(_cell_volumes(out.points_float32,out.tetrahedra) > 0.0)
+    assert out.diagnostics["all_source_cells_have_children"]
+    assert np.all(out.material_ids == 7)
+    assert out.cell_masses.sum() == pytest.approx(2.5,rel=1e-12)
+    assert _cell_volumes(out.points,out.tetrahedra).sum() == pytest.approx(1.0/6.0,rel=1e-12)
+
+
+def test_polygon_area_vector_is_translation_stable_for_tiny_clipped_faces():
+    from human_skin_fat_layer_reconstruction import _polygon_area_vector
+
+    local = np.asarray([[0., 0., 0.], [3e-9, 0., 0.],
+                        [3e-9, 2e-9, 0.], [0., 2e-9, 0.]])
+    face = np.arange(4, dtype=np.int64)
+    local_area = _polygon_area_vector(local, face)
+    world = local + np.asarray([0.25, -0.5, 0.75])
+    world_area = _polygon_area_vector(world, face)
+    expected = np.asarray([0., 0., 1.2e-17])
+    assert np.linalg.norm(local_area - expected) <= 1e-30
+    assert np.allclose(world_area, expected, rtol=1e-7, atol=1e-30)
+    assert np.linalg.norm(world_area) > 0.0
+
+
+def test_retained_side_filters_only_after_full_parent_volume_and_mass_partition():
+    # A healthy positive-domain tet is retained while a separate tiny negative
+    # exterior tet is F64-valid but collapses at this Float32 world offset.
+    safe=unit_tetrahedron()
+    tiny=np.asarray([[1000.,1000.,1000.], [1000.00001,1000.,1000.],
+                     [1000.,1001.,1000.], [1000.,1000.,1001.]])
+    P=np.vstack((safe,tiny))
+    T=np.asarray([[0,1,2,3],[4,5,6,7]],dtype=np.int32)
+    phi=np.asarray([1.,1.,1.,1.,-1.,-1.,-1.,-1.])
+    out=split_tetrahedra_by_linear_scalar_field(
+        P,T,phi,material_ids=np.asarray([3,7]),cell_mass=np.asarray([2.5,4.]),
+        retained_sides=(1,))
+    assert len(out.tetrahedra) > 0
+    assert np.all(out.side_signs == 1)
+    assert np.all(out.parent_cell_rows == 0)
+    assert np.all(_cell_volumes(out.points_float32,out.tetrahedra) > 0.)
+    assert out.diagnostics["float32_nonpositive_cell_count"] == 0
+    assert out.diagnostics["selected_sides"] == [1]
+    assert out.diagnostics["prefilter_child_count"] == 2
+    assert out.diagnostics["excluded_child_count"] == 1
+    assert np.allclose(out.retained_parent_volumes + out.excluded_parent_volumes,
+                       _cell_volumes(P,T),rtol=1e-12,atol=1e-15)
+    assert out.retained_parent_volumes[1] == 0.
+    assert out.excluded_parent_volumes[1] > 0.
+    assert np.allclose(out.retained_parent_masses + out.excluded_parent_masses,
+                       [2.5,4.],rtol=1e-12,atol=1e-14)
+    assert out.retained_parent_masses[0] == pytest.approx(2.5)
+    assert out.excluded_parent_masses[1] == pytest.approx(4.)
+    assert out.cell_masses.sum() == pytest.approx(2.5)
+    assert np.all(out.material_ids == 3)
+    assert out.diagnostics["parent_volume_max_relative_error"] < 1e-12
+    assert out.diagnostics["parent_mass_max_abs_partition_error"] < 1e-12
+
+
+
+def test_mixed_parent_retained_side_has_exact_excluded_volume_and_mass():
+    P=unit_tetrahedron()
+    T=np.asarray([[0,1,2,3]],dtype=np.int32)
+    phi=np.asarray([-1.,1.,1.,1.])
+    full=split_tetrahedra_by_linear_scalar_field(
+        P,T,phi,material_ids=np.asarray([11]),cell_mass=np.asarray([3.]))
+    positive=split_tetrahedra_by_linear_scalar_field(
+        P,T,phi,material_ids=np.asarray([11]),cell_mass=np.asarray([3.]),
+        retained_sides=(1,))
+    assert np.all(positive.side_signs == 1)
+    assert positive.diagnostics["prefilter_child_count"] == len(full.tetrahedra)
+    assert positive.diagnostics["output_tetrahedron_count"] < positive.diagnostics["prefilter_child_count"]
+    assert positive.retained_parent_volumes[0] + positive.excluded_parent_volumes[0] == pytest.approx(1./6.,rel=1e-12)
+    assert positive.retained_parent_masses[0] + positive.excluded_parent_masses[0] == pytest.approx(3.,rel=1e-12)
+    assert positive.retained_parent_volumes[0] == pytest.approx(_cell_volumes(positive.points,positive.tetrahedra).sum(),rel=1e-12)
+    assert positive.retained_parent_masses[0] == pytest.approx(positive.cell_masses.sum(),rel=1e-12)
+    assert positive.diagnostics["unused_intersection_vertex_count_after_filter"] == 0
+    assert np.array_equal(positive.material_ids,np.asarray([11])[positive.parent_cell_rows])
+    assert positive.diagnostics["float32_nonpositive_cell_count"] == 0
+
+
+def test_default_and_requesting_collapsed_negative_side_still_fail():
+    safe=unit_tetrahedron()
+    tiny=np.asarray([[1000.,1000.,1000.], [1000.00001,1000.,1000.],
+                     [1000.,1001.,1000.], [1000.,1000.,1001.]])
+    P=np.vstack((safe,tiny))
+    T=np.asarray([[0,1,2,3],[4,5,6,7]],dtype=np.int32)
+    phi=np.asarray([1.,1.,1.,1.,-1.,-1.,-1.,-1.])
+    with pytest.raises(ValueError,match="Float32 emission contains nonpositive"):
+        split_tetrahedra_by_linear_scalar_field(P,T,phi)
+    with pytest.raises(ValueError,match="Float32 emission contains nonpositive"):
+        split_tetrahedra_by_linear_scalar_field(P,T,phi,retained_sides=(-1,))
+
+
+@pytest.mark.parametrize("sides", [(), (0,), (1,1), (True,)])
+def test_retained_sides_must_be_nonempty_unique_signed_halfdomains(sides):
+    P=unit_tetrahedron()
+    T=np.asarray([[0,1,2,3]],dtype=np.int32)
+    with pytest.raises(ValueError,match="retained_sides"):
+        split_tetrahedra_by_linear_scalar_field(P,T,np.asarray([-1.,1.,1.,1.]),retained_sides=sides)
+
+
+def test_retained_side_with_no_selected_cells_fails_explicitly():
+    P=unit_tetrahedron()
+    T=np.asarray([[0,1,2,3]],dtype=np.int32)
+    with pytest.raises(ValueError,match="selects no output cells"):
+        split_tetrahedra_by_linear_scalar_field(P,T,np.ones(4),retained_sides=(-1,))
+    out=split_tetrahedra_by_linear_scalar_field(P,T,np.ones(4),retained_sides=(1,))
+    assert out.retained_parent_masses is None
+    assert out.excluded_parent_masses is None
+    assert out.retained_parent_volumes[0] == pytest.approx(1./6.)
+    assert out.excluded_parent_volumes[0] == 0.

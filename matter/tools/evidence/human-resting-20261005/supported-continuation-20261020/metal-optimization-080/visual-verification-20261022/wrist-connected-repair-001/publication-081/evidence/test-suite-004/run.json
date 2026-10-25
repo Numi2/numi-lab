@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "returncode": 0,
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "cwd": "/Users/n/Work/numi-human-connected-surface-069/publication-081-test-work/tools",
+  "hostname": "numi.local",
+  "python_executable": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "python_version": "Python 3.13.16",
+  "pytest_version": "pytest 9.1.1",
+  "canonical_inputs": {
+    "publication-081/canonical/matter/tools/human_skin_fat_layer_reconstruction.py": "7beb7148b806ad5daf43f1085fbd9d102a98e85c786b900e727c3a399eecb82e",
+    "publication-081/canonical/matter/tools/test_human_skin_fat_layer_reconstruction.py": "b65b4cda51da2de2831204c76e14e41520dbd2969efb283aa303c5852326d2ef"
+  },
+  "stdout_sha256": "23e9f4204905208cf2aa5fb473ff70ffc8e5c43badca5d413d38477b2ca043c8"
+}

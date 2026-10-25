@@ -1,0 +1,11 @@
+{
+  "as_run_source": "/Users/n/Work/numi-human-connected-surface-069/static-volume-layer-split-154/run-001-084-median-plane/run_full_asset_regression-as-run.py",
+  "as_run_source_sha256": "ab1cd6f302243093de321ca4323015df11976cd37d971396be2aaae3b4791ae2",
+  "correction_plan": "Use interpolated-current Float64 coordinates to gate exact per-parent volume partition; keep Float32 child determinant positivity as a strict gate and report rounded-Float32 volume drift separately.",
+  "failure": "ValueError: mapped-current Float32 child volumes exceed partition tolerance",
+  "geometry_lock": "/tmp/numi-human-connected-repair-heavy.lock; wrapper reported acquired_human_geometry_slot before execution",
+  "input": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/connectivity-001/run-001/candidate-tetrahedra-compacted.npz",
+  "input_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "observation": "The process reached the mapped-current Float32 parent-volume relative-error check and raised before writing a candidate NPZ or completed report. Split arrays were held only in process memory and were not preserved.",
+  "status": "FAILED_DIAGNOSTIC_CHECK_AFTER_SPLIT"
+}
