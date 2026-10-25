@@ -1,0 +1,12 @@
+{
+  "commit": "36bc849def19e27102519896b0d4087df301fc87",
+  "remote_blob_oid": "f8f856f97d08652d9a810e84247878af3e1fc897",
+  "archive_sha256": "3a4e3eb07418c3925a3285f5fb270d449f14a40d43567b518b4fa0e2979f73b1",
+  "independent_source": "GitHub REST git/blobs API",
+  "verified_members": 277,
+  "verified_bytes": 169764524,
+  "bytes_hash_mode_owner_mtime_verified": true,
+  "retired_files": 0,
+  "retired_logical_bytes": 0,
+  "reason": "all candidate files retained for active322 witness replay; empty-retirement lsof invocation failed closed after remote verification and deleted nothing"
+}

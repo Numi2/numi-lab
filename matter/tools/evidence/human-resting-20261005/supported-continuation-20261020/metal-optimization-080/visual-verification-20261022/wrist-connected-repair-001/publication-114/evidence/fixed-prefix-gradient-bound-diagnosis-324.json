@@ -1,0 +1,11 @@
+{
+  "target_rows": 509,
+  "fixed_old_rows": 0,
+  "finite_neighbor_bounds": 509,
+  "request_exceeds_component_box_motion_bound": 3,
+  "median_request_mm": 0.33851224957143855,
+  "median_anchor_neighbor_bound_mm": 2.5552296212395396,
+  "maximum_request_mm": 3.004617648554641,
+  "minimum_bound_mm": 0.1992049314204296,
+  "classification": "single LP construction-step bounds only; not anatomical acceptance"
+}

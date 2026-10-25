@@ -1,0 +1,108 @@
+{
+  "base_commit": "36bc849def19e27102519896b0d4087df301fc87",
+  "canonical_changes": [],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "3593c1bd2f619b0d485b7a84f1d8c9d841f711c4ef226bbf4f5c7ad12ed0e123",
+      "bytes": 1610
+    },
+    {
+      "path": "evidence/archive-manifest.json",
+      "sha256": "ab3d9396165885d23ff2482c37d368fcb48fa19c0bf7f39981f53e54d9b9b935",
+      "bytes": 391069
+    },
+    {
+      "path": "evidence/completed.json",
+      "sha256": "07143f1f42b85b18fd1400aa2f43f3a8f1817e50e5f787be148b84b32691146a",
+      "bytes": 613
+    },
+    {
+      "path": "evidence/fixed-prefix-gradient-bound-diagnosis-324.json",
+      "sha256": "ae2fa0073d276667316a30d54aa131d5dc78aeae91ef1751f4753b676a9837a0",
+      "bytes": 408
+    },
+    {
+      "path": "evidence/joint-boundary-connected-trials-322.tar.xz",
+      "sha256": "484b82ad1c2b5f25e0503f37add286c14fc6534abf7158f6352b5ec8d7b2268b",
+      "bytes": 92900268
+    },
+    {
+      "path": "evidence/p113-remote-recovery-verification.json",
+      "sha256": "3f9c7a6711bfeb82a6cd36e9e64aa7386e21413515f76d39dc5c62bb239cf023",
+      "bytes": 371
+    },
+    {
+      "path": "evidence/p113-root-publication-receipt.json",
+      "sha256": "ecc597bd769acb17427296dbb60ddae7269b0708f481db157cfc882df88921d2",
+      "bytes": 622
+    },
+    {
+      "path": "evidence/p113-verified-local-retirement.json",
+      "sha256": "083e08fb224c0936e8418698ab32f2031d921d0e77f16827d28d154cbe150454",
+      "bytes": 590
+    },
+    {
+      "path": "evidence/point-face-direction-coherence-diagnosis-325.json",
+      "sha256": "d2efb35a4f480b60369745dc2b247118c4032694fb0ec9c9899c7b31a6cb1131",
+      "bytes": 607
+    },
+    {
+      "path": "evidence/refined-322-independent-prefix.json",
+      "sha256": "5846416ffe8fbcaefdc30de8105e40c2c70104a79353248d49dc1531f02218a6",
+      "bytes": 589
+    },
+    {
+      "path": "evidence/selected-candidate.npz",
+      "sha256": "2346d174df8b363bca2200c24589a36cf1ad6a4642a4b73a9a156a48e6826b25",
+      "bytes": 3395014
+    },
+    {
+      "path": "evidence/selected-point-summary.json",
+      "sha256": "eb730b14a144130d066ed1a467cd39816c9842361449b78f0816a06f20f9f4e6",
+      "bytes": 414804
+    },
+    {
+      "path": "evidence/selected-result.json",
+      "sha256": "326f477097dc738e1eb97541cd8d46d28fe8a2e8e5af742d5f69fab009d9dd6d",
+      "bytes": 5179
+    },
+    {
+      "path": "evidence/selected-surface-report.json",
+      "sha256": "1d72e2bdf7da60d4fba7d400d343d9a9bb9a0b20b36580ebb29b96bf9df02eb9",
+      "bytes": 276904
+    },
+    {
+      "path": "evidence/verified-inactive-proposal-retirement-323.json",
+      "sha256": "18a31d0e09c297170be0e939041ec13e83fc355c52b0fcfa6b3cf8d68fe41bcd",
+      "bytes": 8973
+    },
+    {
+      "path": "evidence/worst-depth-source-cap-diagnosis-326.json",
+      "sha256": "22e1a4572ca57ce4d9c3dc5915696deaa193b1a17d9e24ebeedf7d56a70c080b",
+      "bytes": 2320
+    },
+    {
+      "path": "sources/fixed-boundary-320-tests/test-log.txt",
+      "sha256": "26fbeab7ccff6016c0eb186fed2d6c5c8bb7ebf0eba5f3ea48ddc8a7ecbe5314",
+      "bytes": 99
+    },
+    {
+      "path": "sources/fixed-boundary-320-tests/test_run_joint_boundary_continuation_320.py",
+      "sha256": "439c5f64898869ec252fde231db1d4e616e50cc8bac7c3c2de8b94e3edd9e4b0",
+      "bytes": 14344
+    },
+    {
+      "path": "sources/joint-boundary-continuation-322-launch.json",
+      "sha256": "4e1ddb51e6c338bb023b5fb6f7a8c9b98ed9899785ad3acb2d45ca54ce65a8b6",
+      "bytes": 575
+    },
+    {
+      "path": "sources/run_joint_boundary_continuation_320.py",
+      "sha256": "7ace51b137edec62b868ec32f1071c2fbb231fef99ed2197cda64f44e4fabdf3",
+      "bytes": 49038
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

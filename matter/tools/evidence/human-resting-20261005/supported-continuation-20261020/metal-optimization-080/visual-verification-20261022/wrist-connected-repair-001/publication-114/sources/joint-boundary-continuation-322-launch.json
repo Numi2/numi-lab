@@ -1,0 +1,16 @@
+{
+  "pid": 94420,
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_joint_boundary_continuation_320.py",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322",
+    "--rounds",
+    "3",
+    "--attempts-per-round",
+    "4"
+  ],
+  "source_sha256": "7ace51b137edec62b868ec32f1071c2fbb231fef99ed2197cda64f44e4fabdf3",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

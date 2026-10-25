@@ -1,0 +1,22 @@
+{
+  "point_count": 509,
+  "valid_source_normals": 255,
+  "nearest_point_direction_opposes_registered_source": 143,
+  "point_source_dot_quantiles": [
+    -0.984065869346909,
+    -0.8294279861759362,
+    -0.0927953005258379,
+    0.8594890704342729,
+    0.9901003953153432
+  ],
+  "incident_point_face_direction_pairs": 3372,
+  "opposed_point_face_pairs": 1655,
+  "point_face_dot_quantiles": [
+    -0.9928829524043532,
+    -0.7106097396143001,
+    0.003032674954133008,
+    0.8215105776810792,
+    0.994628954735428
+  ],
+  "classification": "construction objective direction diagnosis; no geometry admission"
+}
