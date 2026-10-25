@@ -1,0 +1,15 @@
+waiting_for_human_geometry_slot pid=41775
+acquired_human_geometry_slot pid=41775
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/H/nearest-face-union-190/build_nearest_face_union_targets.py", line 390, in <module>
+    if __name__=="__main__":main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/H/nearest-face-union-190/build_nearest_face_union_targets.py", line 231, in main
+    triangles,ids,gids,bodies,M,off,pos,bankkeys,bankpins,exact_unused=reader.read_bank_inputs(BANK,BANK_FIX)
+                                                                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/publication-084/canonical/matter/tools/human_skin_fat_bone_audit.py", line 158, in read_bank_inputs
+    pins = {name: require_pin(path, PINNED_039[name], f"039 {name}") for name, path in paths.items()}
+                  ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/publication-084/canonical/matter/tools/human_skin_fat_bone_audit.py", line 43, in require_pin
+    raise FileNotFoundError(f"missing {what}: {path}")
+FileNotFoundError: missing 039 exact-emitted.triangles.csv: /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-2025/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv

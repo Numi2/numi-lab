@@ -1,0 +1,12 @@
+{
+  "schema": "numi.prepared-publication-receipt.v1",
+  "publication": "100",
+  "base_commit": "f7e3e42ebf74091a4d48bdc18467329e097f66eb",
+  "manifest_sha256": "929a86fb5e17e246b21d5558c7eb82fd45f3243ae9f2ad615eb64946f06ee901",
+  "file_count": 39,
+  "total_bytes": 12029976,
+  "canonical_changes": [],
+  "status": "prepared_for_root_review_not_pushed",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

@@ -1,0 +1,16 @@
+waiting_for_human_geometry_slot pid=42233
+acquired_human_geometry_slot pid=42233
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/nearest-face-union-190-run002/report.json",
+  "report_sha256": "f376934125afed9e9181dad001edf237fea5c3ff3d3f5708b1ed3dce51f53913",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/nearest-face-union-190-run002/targets.npz",
+  "npz_sha256": "b776fb1f39e76fef2aab31292a078141ab21f12bf0194650a087f4f44f2c7bcb",
+  "rows": 4397,
+  "pairs": 4397,
+  "targets": 4394,
+  "failures": {
+    "RECONSTRUCTED_SAMPLE_NOT_INSIDE_IMPLICATED_BANK": 2,
+    "NO_CERTIFIED_INSIDE_FACE_SAMPLE": 1
+  },
+  "elapsed_seconds": 20.94662216596771
+}

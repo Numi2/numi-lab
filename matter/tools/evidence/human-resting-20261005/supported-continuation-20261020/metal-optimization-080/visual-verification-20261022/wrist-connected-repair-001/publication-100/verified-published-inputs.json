@@ -1,0 +1,51 @@
+{
+  "schema": "numi.verified-published-inputs.v1",
+  "commit": "f7e3e42ebf74091a4d48bdc18467329e097f66eb",
+  "tree": "ad3fa9218d277d09594b63fb599e9e230db9787e",
+  "remote_main_observed": "f7e3e42ebf74091a4d48bdc18467329e097f66eb",
+  "verification": "Each listed Git blob was read with git show from the pinned completed parent commit and SHA-256 verified during P100 preparation.",
+  "dependencies": [
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-099/evidence/189/final-candidate.npz",
+      "bytes": 2172260,
+      "sha256": "7aad7ab7286cc89ae006f90dc35e72d8d60f8178023f4ebbc3a9464fee3a0c21",
+      "note": "P099 actual 193 start candidate"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-099/evidence/189/final-self-and-point-summary.json",
+      "bytes": 284363,
+      "sha256": "86d5280aaad623270f23a6571278d0b95323d84f237dbf9aa2fffb6426082056",
+      "note": "P099 130 starting point and self summary"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-099/evidence/189/final-bank-surface-report.json",
+      "bytes": 324327,
+      "sha256": "579ce371ae17e196d0edc7a8db78e37e6bac3f878baf44bcc186c1a53e667dac",
+      "note": "P099 159 starting surface audit"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-072/evidence/run-006-direct-detail-p1-075/direct-detail-p1-075.npz",
+      "bytes": 5652587,
+      "sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+      "note": "Detailed skin source input"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-098/canonical/matter/tools/human_skin_fat_surface_fit_constraints.py",
+      "bytes": 27751,
+      "sha256": "05b1beb2105a184deb885974db892fa0f8e519fc3e1fdfde5aa441c180c97b34",
+      "note": "P098 fit-constraint owner used by local backtracking"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-084/canonical/matter/tools/human_skin_fat_bone_audit.py",
+      "bytes": 48788,
+      "sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+      "note": "Typed 185-bank audit reader"
+    },
+    {
+      "git_path": "matter/root_exact_segment_witness.py",
+      "bytes": 2734,
+      "sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "note": "Exact segment classifier"
+    }
+  ]
+}

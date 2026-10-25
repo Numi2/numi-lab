@@ -1,0 +1,84 @@
+{
+  "schema": "numi.p100.source-pins.v1",
+  "base_commit": "f7e3e42ebf74091a4d48bdc18467329e097f66eb",
+  "base_tree": "ad3fa9218d277d09594b63fb599e9e230db9787e",
+  "canonical_changes": [],
+  "inputs": {
+    "actual_190_report_sha256": "f376934125afed9e9181dad001edf237fea5c3ff3d3f5708b1ed3dce51f53913",
+    "actual_190_target_npz_sha256": "b776fb1f39e76fef2aab31292a078141ab21f12bf0194650a087f4f44f2c7bcb",
+    "actual_190_target_records_sha256": "d0b7b412dab4f3dbac7a72e006b5c34ba8ca379abdc897ada8c890608b47a9da",
+    "actual_193_raw_scp_trial_sha256": "b681c76ca15b63ebaca6d801c55491ba0a6851e4d56ab2afa4022fa2d6835ec6",
+    "actual_193_selected_candidate_sha256": "3d745f5e1a8abd20d1920829268ca4cec541dd470612fa6c48db6ab1ab2c743b",
+    "actual_193_selected_point_summary_sha256": "90db3793db88bf139eeddafd76b50c40d3bc147f184ae25a4756e355c9a6035d",
+    "actual_193_selected_surface_report_sha256": "a3fdf2b31a768af1fa5ec639f60435a6d078eabc3525690ac0034479a962d0a2"
+  },
+  "local_source_files": [
+    {
+      "path": "evidence/190/source/build_nearest_face_union_targets.py",
+      "bytes": 28129,
+      "sha256": "8ada192774600253ae34a8b23d53ef6605c4c7b15b3f41d7c2159c25baf31457"
+    },
+    {
+      "path": "evidence/190/source/nearest-face-union-190-as-run002.py",
+      "bytes": 28129,
+      "sha256": "8ada192774600253ae34a8b23d53ef6605c4c7b15b3f41d7c2159c25baf31457"
+    },
+    {
+      "path": "evidence/190/source/test_nearest_face_union_targets.py",
+      "bytes": 3590,
+      "sha256": "c5ffc0d49b4387576a1b1e27f1fb9fe6913c01043edc0f228a908387a36b70af"
+    },
+    {
+      "path": "evidence/193/source/area_scp_support_023.py",
+      "bytes": 16549,
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd"
+    },
+    {
+      "path": "evidence/193/source/point_driver.py",
+      "bytes": 47275,
+      "sha256": "a7a6c99ceef889590b72b0a67ea353dee7be2e0ee587a3ff1ad57c248fb334dd"
+    },
+    {
+      "path": "evidence/193/source/prepare_refined_proposal_185.py",
+      "bytes": 9160,
+      "sha256": "81d749a969d7a2e659ce1d3d9766eea5fa64909e2405a7fe303d2bb10ab15b3b"
+    },
+    {
+      "path": "evidence/193/source/run_face_soft_proposal_193.py",
+      "bytes": 2234,
+      "sha256": "c9bfeee0ce2656f810d62780e6cd96855076e0ddbd6f88af4ecd4c3afa298941"
+    },
+    {
+      "path": "evidence/193/source/run_local_witness_backtracking_191.py",
+      "bytes": 8406,
+      "sha256": "4287dc5191689154e5f704b1ed0bd784fc340660dd34f1ce0322c054acc4f6c6"
+    },
+    {
+      "path": "evidence/193/source/self_separation_026.py",
+      "bytes": 13276,
+      "sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3"
+    }
+  ],
+  "external_pinned_inputs": {
+    "candidate_sha256": "7aad7ab7286cc89ae006f90dc35e72d8d60f8178023f4ebbc3a9464fee3a0c21",
+    "surface_report_sha256": "579ce371ae17e196d0edc7a8db78e37e6bac3f878baf44bcc186c1a53e667dac",
+    "query_receipt_sha256": "4475ef7ed881576235be88192bf1c00886b92dce4b633c376f9fd51b895311c8",
+    "detail_source_sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+    "exact_bank_triangle_export_sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "exact_bank_body_export_sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "exact_bank_node_export_sha256": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "exact_bank_inventory_sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "bank_reader_sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+    "exact_predicate_sha256": "6f04ec7b129f47e810e75262f9f3ad3be0159bbe13dc2611a96e27141132b0fc",
+    "exact_segment_classifier_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+    "virtual_sample_helper_sha256": "0e97159845d6902875c015bc96ae283a2ed43206e85f14637e29cfc611d7589f"
+  },
+  "published_dependencies_manifest": "verified-published-inputs.json",
+  "run_reconciliation": "execution-reconciliation.json",
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "active_outputs_excluded": [
+    "194",
+    "195"
+  ]
+}

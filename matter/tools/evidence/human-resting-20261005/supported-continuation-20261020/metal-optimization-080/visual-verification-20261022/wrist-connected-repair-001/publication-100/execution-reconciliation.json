@@ -1,0 +1,103 @@
+{
+  "schema": "numi.human.publication-100.execution-reconciliation.v1",
+  "construction_only": true,
+  "190_targets": {
+    "runner_sha256": "8ada192774600253ae34a8b23d53ef6605c4c7b15b3f41d7c2159c25baf31457",
+    "report_sha256": "f376934125afed9e9181dad001edf237fea5c3ff3d3f5708b1ed3dce51f53913",
+    "targets_npz_sha256": "b776fb1f39e76fef2aab31292a078141ab21f12bf0194650a087f4f44f2c7bcb",
+    "target_records_sha256": "d0b7b412dab4f3dbac7a72e006b5c34ba8ca379abdc897ada8c890608b47a9da",
+    "candidate_sha256": "7aad7ab7286cc89ae006f90dc35e72d8d60f8178023f4ebbc3a9464fee3a0c21",
+    "candidate_points": 18430,
+    "candidate_faces": 36815,
+    "matched_surface_bank_triangle_pairs": 4397,
+    "complete_typed_bank_count": 185,
+    "matched_159_complete": true,
+    "targets_emitted": 4394,
+    "target_rows": 4397,
+    "failures": {
+      "RECONSTRUCTED_SAMPLE_NOT_INSIDE_IMPLICATED_BANK": 2,
+      "NO_CERTIFIED_INSIDE_FACE_SAMPLE": 1
+    },
+    "test_command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q -p no:cacheprovider /Users/numi/Work/numi-human-connected-surface-069/publication-100/evidence/190/source/test_nearest_face_union_targets.py",
+    "tests_passed": 5,
+    "test_log_sha256": "0e96d7ca7406320840ee2e704cbada03e2fe4b6d6aea1d667b4f685b07e7e24d",
+    "prelaunch_pins_discrepancy": {
+      "preserved_source_pins_sha256": "08621a10b9b8e50378a72d36a86759d096a84de3a65555f7a15c31cef8fb8ce8",
+      "prelaunch_state": "prepared_not_executed",
+      "prelaunch_candidate_sha256": "b6f431209e8c5c1d0cd6704baee8463f4f55db1c520747a7eedc79b10b39401b",
+      "actual_candidate_sha256": "7aad7ab7286cc89ae006f90dc35e72d8d60f8178023f4ebbc3a9464fee3a0c21",
+      "prelaunch_builder_sha256": "6dc68508e8a7c6f89b24b759a400ef7ca8f2ec690e9647e7fd8273f71a324b9e",
+      "actual_runner_sha256": "8ada192774600253ae34a8b23d53ef6605c4c7b15b3f41d7c2159c25baf31457",
+      "prelaunch_query_receipt_sha256": "78a85f5f7f3a24d63d3ed52dff61dcc3bd7691a94debede8e51fe936c7203241",
+      "actual_query_receipt_sha256": "4475ef7ed881576235be88192bf1c00886b92dce4b633c376f9fd51b895311c8",
+      "note": "The preserved pins file is a prepared-not-executed snapshot; run002 report and log are authoritative for the completed run."
+    }
+  },
+  "193_clearance_construction": {
+    "start_candidate_sha256": "7aad7ab7286cc89ae006f90dc35e72d8d60f8178023f4ebbc3a9464fee3a0c21",
+    "raw_scp_trial_sha256": "b681c76ca15b63ebaca6d801c55491ba0a6851e4d56ab2afa4022fa2d6835ec6",
+    "fit_report_sha256": "6f324b430f41bb122350b35de6733292fbef1b2bfdfc6e2425aedff2bd0f2d58",
+    "fit_accepted_scp_steps": 0,
+    "fit_final_candidate_sha256": "7aad7ab7286cc89ae006f90dc35e72d8d60f8178023f4ebbc3a9464fee3a0c21",
+    "raw_proposal_was_nontrivial": true,
+    "local_backtrack_selected_candidate_sha256": "3d745f5e1a8abd20d1920829268ca4cec541dd470612fa6c48db6ab1ab2c743b",
+    "selected_point_summary_sha256": "90db3793db88bf139eeddafd76b50c40d3bc147f184ae25a4756e355c9a6035d",
+    "selected_surface_report_sha256": "a3fdf2b31a768af1fa5ec639f60435a6d078eabc3525690ac0034479a962d0a2",
+    "surface_banks_complete": true,
+    "typed_banks": 185,
+    "surface_crossing_pairs": 3947,
+    "point_inside_bank_pairs": 312,
+    "exact_PLC_self_pairs": 0,
+    "geometry_admitted": false,
+    "accepted_physical_steps": 0,
+    "native_admission": false,
+    "note": "The SCP fit accepted zero SCP steps and its final fit candidate stayed at the start; its persisted raw proposal was then used by the separate local-witness backtracking run, which selected a construction-progress candidate. No physical or native step was accepted."
+  },
+  "staged_python_sources": [
+    {
+      "path": "evidence/190/source/build_nearest_face_union_targets.py",
+      "bytes": 28129,
+      "sha256": "8ada192774600253ae34a8b23d53ef6605c4c7b15b3f41d7c2159c25baf31457"
+    },
+    {
+      "path": "evidence/190/source/nearest-face-union-190-as-run002.py",
+      "bytes": 28129,
+      "sha256": "8ada192774600253ae34a8b23d53ef6605c4c7b15b3f41d7c2159c25baf31457"
+    },
+    {
+      "path": "evidence/190/source/test_nearest_face_union_targets.py",
+      "bytes": 3590,
+      "sha256": "c5ffc0d49b4387576a1b1e27f1fb9fe6913c01043edc0f228a908387a36b70af"
+    },
+    {
+      "path": "evidence/193/source/area_scp_support_023.py",
+      "bytes": 16549,
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd"
+    },
+    {
+      "path": "evidence/193/source/point_driver.py",
+      "bytes": 47275,
+      "sha256": "a7a6c99ceef889590b72b0a67ea353dee7be2e0ee587a3ff1ad57c248fb334dd"
+    },
+    {
+      "path": "evidence/193/source/prepare_refined_proposal_185.py",
+      "bytes": 9160,
+      "sha256": "81d749a969d7a2e659ce1d3d9766eea5fa64909e2405a7fe303d2bb10ab15b3b"
+    },
+    {
+      "path": "evidence/193/source/run_face_soft_proposal_193.py",
+      "bytes": 2234,
+      "sha256": "c9bfeee0ce2656f810d62780e6cd96855076e0ddbd6f88af4ecd4c3afa298941"
+    },
+    {
+      "path": "evidence/193/source/run_local_witness_backtracking_191.py",
+      "bytes": 8406,
+      "sha256": "4287dc5191689154e5f704b1ed0bd784fc340660dd34f1ce0322c054acc4f6c6"
+    },
+    {
+      "path": "evidence/193/source/self_separation_026.py",
+      "bytes": 13276,
+      "sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3"
+    }
+  ]
+}
