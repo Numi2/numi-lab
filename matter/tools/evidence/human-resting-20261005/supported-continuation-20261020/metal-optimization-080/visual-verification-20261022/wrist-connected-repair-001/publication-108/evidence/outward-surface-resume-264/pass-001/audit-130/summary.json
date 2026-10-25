@@ -1,0 +1,17 @@
+{
+  "candidate_sha256": "5a7239e62cbc0cf461440a48a8c4747d7d733eec630d63cf9e08682009593cc6",
+  "points": 18430,
+  "faces": 36815,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "exact_PLC_surface_pairs": 0,
+  "complete_surface_audit": true,
+  "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "inside_node_bank_pairs": 0,
+  "inside_nodes": 0,
+  "query_pair_count": 11158,
+  "wall_seconds": 7.789115792023949,
+  "status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC",
+  "inside_witnesses": [],
+  "edge_and_solid_clearance_certified": false
+}

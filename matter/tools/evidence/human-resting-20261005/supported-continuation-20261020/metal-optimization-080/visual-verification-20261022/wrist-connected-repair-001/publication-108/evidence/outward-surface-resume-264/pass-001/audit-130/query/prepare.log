@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/outward-surface-resume-264/pass-001/audit-130/query/points-world.npz",
+  "input_sha256": "7091445027f63a8bcc7b555b8db323ae3bf79b9daca4d9eb65e8eaf340d58997",
+  "field": "points_world_f32",
+  "query_count": 18430,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/outward-surface-resume-264/pass-001/audit-130/query/points.csv",
+  "output_sha256": "d721ac8ca718852f3478777d82a1dafb90145fc70d00559207fa26ff1e89add0",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

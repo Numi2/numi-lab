@@ -1,0 +1,8 @@
+{
+  "reason": "Single manual construction-budget continuation for strict-decreasing 68-to-18 exact self-pair tail; geometry gates unchanged; no LP repetition",
+  "maximum_additional_exact_audits": 8,
+  "runner_sha256": "92df5a68cc57b2283c4b66270247c8ce0d84b75dfdadac023defbe896f51ee3d",
+  "config_sha256": "4e4afe1c0b07a67d94f12654e9e4281b099bb80b347ba22f75b4c984fa15cffe",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

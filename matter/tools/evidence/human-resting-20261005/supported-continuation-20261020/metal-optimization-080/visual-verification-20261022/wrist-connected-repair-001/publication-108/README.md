@@ -1,0 +1,9 @@
+# Connected outward construction and exact regression witnesses
+
+The retained matched 185-bank emitted Float32 candidate reduces 1,994 to 1,987 skin-bone triangle pairs, with zero inside point-bank pairs and exact skin self-intersections zero. Source cap, step bound, fixed-reference area magnitude, current-oriented area, and bitwise anchors pass. The small gain is reported as measured; zero crossings is not achieved.
+
+Optional source-outward target directions use original NHSKIN/coarse face ancestry and the pinned layer-order orientation receipt. Legacy nearest direction remains diagnostic and the default mode. The fitter explicitly selects the outward proposal instead of mistakenly using the old nearest field. Every selected target still requires the exact first-union ray and all-185-bank endpoint classification. Focused builder and fitter regression tests passed.
+
+The first full outward proposal failed self-intersection checks; its bounded continuation cleared self intersections but introduced eight inside point pairs. Exact point-regression witness damping cleared those, yet surface pairs rose to2,025, so that candidate was not promoted. A short exploratory seed yielded no proposal because the secondary LP timed out; it remains unpromoted evidence. Exact introduced-triangle witness damping and a bounded saved-scale continuation finally passed the original strict joint construction gate at1,987. All failed stages and frozen sources are retained. No tolerance or admission gate was weakened.
+
+This is offline outer-surface construction only: no native admission or accepted physical steps. Inner skin/fat matching, positive volume cells, mass/contact transfer, retained poses and native qualification remain open. Existing head loops are preserved and are not called closed skin. Preserve sources, selected intermediates, and unique inputs; retire only verified redundant local copies after independent remote restoration proof.
