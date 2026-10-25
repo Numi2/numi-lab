@@ -1,0 +1,53 @@
+{
+  "arrays": [
+    {
+      "source": "barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-003/candidate.npz",
+      "sha256": "971f0a96f614cea38c08bf7a2c837b9b641bdd51d3f7b8a79e675e0c185d969a",
+      "bytes": 2172231,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-004/candidate.npz",
+      "sha256": "13169f8d9e8c9009e89e649bb9b0f11fb618d7de74db46a099bbbaed1de539bc",
+      "bytes": 2172221,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-005/candidate.npz",
+      "sha256": "d1fb958e3a2ab7fbfb72ac5110cf815f321431da529d6451c5863a1fac5528ad",
+      "bytes": 2172218,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-006/candidate.npz",
+      "sha256": "1559fc540611d2f0aaf92e6c60a4cc234a346194c4472ae1f4540abc1ec668b2",
+      "bytes": 2172227,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-011/candidate.npz",
+      "sha256": "8ca0de8fa3ddad4cf9e04f7e23431baedec49bc54939df3b414c1f4d1f220af8",
+      "bytes": 2172224,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-012/candidate.npz",
+      "sha256": "4eb5f213538cb2b7b3dc4bfd0b1e80ed0d37f3c4aa7141fc124a5a02b6942c72",
+      "bytes": 2172223,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-013/candidate.npz",
+      "sha256": "933fc4befec3a821ade9910dfb1349498f7bda504180bb90a42c8a065ab60db6",
+      "bytes": 2172221,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-014/candidate.npz",
+      "sha256": "6a3e9e2a46edebdbe47fd24de01bc4d45d3456c537d5c7b256a061cd921754f0",
+      "bytes": 2172222,
+      "staged": false
+    }
+  ],
+  "candidate_bytes_staged": false
+}

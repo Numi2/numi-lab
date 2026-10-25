@@ -1,0 +1,8 @@
+{
+  "candidate_sha256": "3d745f5e1a8abd20d1920829268ca4cec541dd470612fa6c48db6ab1ab2c743b",
+  "point_summary_sha256": "90db3793db88bf139eeddafd76b50c40d3bc147f184ae25a4756e355c9a6035d",
+  "surface_report_sha256": "a3fdf2b31a768af1fa5ec639f60435a6d078eabc3525690ac0034479a962d0a2",
+  "parent_fit_sha256": "6f324b430f41bb122350b35de6733292fbef1b2bfdfc6e2425aedff2bd0f2d58",
+  "driver_template_sha256": "a7a6c99ceef889590b72b0a67ea353dee7be2e0ee587a3ff1ad57c248fb334dd",
+  "target_template_sha256": "cfa5071fb03e3b8d637b5be285a96b83aade01a755a663bc1c52a91fc093e240"
+}

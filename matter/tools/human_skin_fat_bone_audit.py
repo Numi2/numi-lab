@@ -1059,6 +1059,142 @@ def assess_joint_clearance_construction_progress(before_points, after_points,
         "native_admission": False,
     }
 
+
+
+from collections import Counter
+
+def assess_construction_depth_progress(before_points, after_points,
+                                      before_surface, after_surface, *,
+                                      absolute_roundoff_m2=1.0e-24,
+                                      relative_roundoff=64.0 * 2.220446049250313e-16):
+    """Classify strict point-depth progress without requiring pair-count reduction.
+
+    The existing joint assessor is called first, so all complete-report,
+    candidate-hash, topology, zero-self-pair, and matched-185-bank checks remain
+    mandatory. This additive construction classification permits unchanged
+    counts only when no typed point or surface witness is introduced, maximum
+    point depth does not increase, and squared point depth decreases beyond a
+    conservative floating-point roundoff threshold. It never admits geometry or
+    native execution.
+    """
+    import json
+    import math
+
+    for name, value in (("absolute_roundoff_m2", absolute_roundoff_m2),
+                        ("relative_roundoff", relative_roundoff)):
+        if isinstance(value, bool):
+            raise ValueError(name + " must be a finite nonnegative number")
+        try:
+            value = float(value)
+        except (TypeError, ValueError):
+            raise ValueError(name + " must be a finite nonnegative number") from None
+        if not math.isfinite(value) or value < 0.0:
+            raise ValueError(name + " must be a finite nonnegative number")
+        if name == "absolute_roundoff_m2":
+            absolute_roundoff_m2 = value
+        else:
+            relative_roundoff = value
+
+    # Reuse the owner validator; this must not weaken the default joint merit.
+    base = assess_joint_clearance_construction_progress(
+        before_points, after_points, before_surface, after_surface)
+
+    old_points = _read_point_clearance_report(before_points)
+    new_points = _read_point_clearance_report(after_points)
+    old_max = max(old_points.values(), default=0.0)
+    new_max = max(new_points.values(), default=0.0)
+    old_squared = math.fsum(v * v for v in old_points.values())
+    new_squared = math.fsum(v * v for v in new_points.values())
+
+    old_surface = summarize_surface_crossing_report(before_surface, expected_banks=185)
+    new_surface = summarize_surface_crossing_report(
+        after_surface, expected_banks=185,
+        expected_bank_keys=[(row["body"], row["stable_bone_id"])
+                            for row in old_surface["per_bank"]])
+    old_bank_counts = {(row["body"], row["stable_bone_id"]): row["count"]
+                       for row in old_surface["per_bank"]}
+    new_bank_counts = {(row["body"], row["stable_bone_id"]): row["count"]
+                       for row in new_surface["per_bank"]}
+    if old_bank_counts.keys() != new_bank_counts.keys() or len(old_bank_counts) != 185:
+        raise ValueError("depth progress requires the same 185 typed banks")
+
+    # Surface witnesses are typed by bank plus the exact triangle-pair identity.
+    def surface_pairs(report):
+        typed = Counter()
+        for bank in report["banks"]:
+            result = bank["result"]
+            if result is None:
+                continue
+            for pair in result["triangle_pairs"]:
+                try:
+                    identity = json.dumps(pair, sort_keys=True, separators=(",", ":"),
+                                          allow_nan=False)
+                except (TypeError, ValueError):
+                    raise ValueError("surface pair identity is not finite JSON data") from None
+                typed[(bank["body"], bank["stable_bone_id"], identity)] += 1
+        return typed
+
+    old_surface_pairs = surface_pairs(before_surface)
+    new_surface_pairs = surface_pairs(after_surface)
+    introduced_point_pairs = sorted(new_points.keys() - old_points.keys())
+    introduced_surface_pairs = sorted(
+        key for key, count in new_surface_pairs.items()
+        if count > old_surface_pairs.get(key, 0)
+    )
+    no_introduced_typed_pairs = not introduced_point_pairs and not introduced_surface_pairs
+    point_count_nonincreasing = len(new_points) <= len(old_points)
+    surface_count_nonincreasing = (
+        new_surface["total_crossing_pairs"] <= old_surface["total_crossing_pairs"]
+        and all(new_bank_counts[key] <= old_bank_counts[key] for key in old_bank_counts)
+    )
+    same_query_coverage = before_points["query_pair_count"] == after_points["query_pair_count"]
+    maximum_nonincreasing = new_max <= old_max
+    roundoff_threshold = max(
+        absolute_roundoff_m2,
+        relative_roundoff * max(abs(old_squared), abs(new_squared)),
+        8.0 * max(math.ulp(old_squared), math.ulp(new_squared)),
+    )
+    squared_improvement = old_squared - new_squared
+    strict_squared_progress = squared_improvement > roundoff_threshold
+    progress = bool(
+        point_count_nonincreasing and surface_count_nonincreasing
+        and no_introduced_typed_pairs and same_query_coverage
+        and maximum_nonincreasing and strict_squared_progress
+    )
+    return {
+        "classification": ("CONSTRUCTION_DEPTH_PROGRESS" if progress
+                           else "NO_CONSTRUCTION_DEPTH_PROGRESS"),
+        "construction_progress": progress,
+        "point_pair_count_nonincreasing": point_count_nonincreasing,
+        "surface_pair_count_nonincreasing": surface_count_nonincreasing,
+        "same_query_coverage": same_query_coverage,
+        "no_introduced_typed_pairs": no_introduced_typed_pairs,
+        "introduced_point_pairs": [list(k) for k in introduced_point_pairs],
+        "introduced_surface_pair_count": len(introduced_surface_pairs),
+        "maximum_depth_nonincreasing": maximum_nonincreasing,
+        "strict_squared_depth_progress": strict_squared_progress,
+        "before_point_pairs": len(old_points),
+        "after_point_pairs": len(new_points),
+        "before_surface_pairs": old_surface["total_crossing_pairs"],
+        "after_surface_pairs": new_surface["total_crossing_pairs"],
+        "before_maximum_depth_m": old_max,
+        "after_maximum_depth_m": new_max,
+        "before_squared_depth_m2": old_squared,
+        "after_squared_depth_m2": new_squared,
+        "squared_depth_improvement_m2": squared_improvement,
+        "squared_depth_roundoff_threshold_m2": roundoff_threshold,
+        "typed_bank_count": len(old_bank_counts),
+        "topology_points": base["topology_points"],
+        "topology_faces": base["topology_faces"],
+        "before_candidate_sha256": base["before_candidate_sha256"],
+        "after_candidate_sha256": base["after_candidate_sha256"],
+        "geometry_admitted": False,
+        "native_admission": False,
+        "accepted_physical_steps": 0,
+    }
+
+
+
 if __name__ == "__main__":
     main()
 

@@ -1,0 +1,42 @@
+{
+  "schema": "numi.human.nearest-complete-bank-first-union-targets.190.v1",
+  "runner_sha256": "8ada192774600253ae34a8b23d53ef6605c4c7b15b3f41d7c2159c25baf31457",
+  "classification": "construction_target_proposals_only_no_fit_or_clearance_admission",
+  "inputs": {
+    "candidate_sha256": "80e0cd7d53164a2fea5f2bfd5ce2a3ce0723b1737849dda6331f927f59ff89b4",
+    "surface_report_sha256": "7337d70a1c1af484a87ace632b2c3e7b17ddfad07832b5cbcee017e81b5d064f",
+    "query_receipt_sha256": "2a0272cd553f2f06b86f3b13abee5e6c29ce276635c3a4f513240e29afbb0d29",
+    "detail_source_sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+    "exact_bank_triangle_export_sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "exact_bank_body_export_sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "exact_bank_node_export_sha256": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "exact_bank_inventory_sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "bank_reader_sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+    "exact_predicate_sha256": "6f04ec7b129f47e810e75262f9f3ad3be0159bbe13dc2611a96e27141132b0fc",
+    "exact_segment_classifier_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+    "virtual_sample_helper_sha256": "0e97159845d6902875c015bc96ae283a2ed43206e85f14637e29cfc611d7589f"
+  },
+  "candidate_points": 18430,
+  "candidate_faces": 36815,
+  "matched_surface_bank_triangle_pairs": 3529,
+  "banks": 185,
+  "matched_159_complete": true,
+  "crossing_pairs": 3529,
+  "inside_samples_certified_for_implicated_bank": 3529,
+  "nearest_boundary_first_union_targets": 3529,
+  "failure_counts": {},
+  "initial_inside_union_count_histogram": {
+    "1": 3529
+  },
+  "direction_method": "For each exact barycentric inside sample, classify its inside-bank set; transform each complete bank's emitted local F32 triangles to world coordinates using solve(M, local + offset) + body position; choose the nearest triangle point in world Euclidean metric among those complete banks. Equal computed squared distances tie by body, stable bone ID, stable triangle ID, then input row. No face-normal fallback.",
+  "full_union_endpoint_classification": "Exact point-location for every target against all185 complete banks; target accepted only if outside every complete bank; event-parity endpoint also required.",
+  "limitations": [
+    "Nearest-boundary direction is a construction proposal, not an anatomical outward normal or clearance admission.",
+    "Only banks in the exact initial inside-union set are searched for the nearest complete triangle; the subsequent ray and target checks cover all 185 banks.",
+    "No fit or native physical step was run."
+  ],
+  "elapsed_seconds": 17.879985041101463,
+  "result_rows": 3529,
+  "passing_targets": 3529,
+  "output_sha256_pending": true
+}

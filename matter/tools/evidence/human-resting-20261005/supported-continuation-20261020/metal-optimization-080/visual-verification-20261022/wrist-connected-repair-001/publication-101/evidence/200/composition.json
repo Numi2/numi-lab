@@ -1,0 +1,13 @@
+{
+  "parent_sha256": "af5cd16e0cd15f5353282a061ad46b87d3d16aad732d0b7e3f9d2cd2129f5745",
+  "branch_start_sha256": "7aad7ab7286cc89ae006f90dc35e72d8d60f8178023f4ebbc3a9464fee3a0c21",
+  "branch_candidate_sha256": "4a487929ed9a07445cd6c8a524edcd901d0f02f75c4475e02c3ca0b4131ee887",
+  "changed_nodes": 50,
+  "maximum_delta_mm": 0.41297379794820105,
+  "target_node_delta_mm": [
+    -0.2886652946472168,
+    -0.09328126907348633,
+    0.16573071479797363
+  ],
+  "construction_only": true
+}

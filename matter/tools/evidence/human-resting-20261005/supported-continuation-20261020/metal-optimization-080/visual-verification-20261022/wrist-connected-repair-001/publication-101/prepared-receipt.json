@@ -1,0 +1,11 @@
+{
+  "publication": "P101",
+  "status": "prepared_not_published",
+  "base_commit": "47d38867fd5d1e58c51b7d8fa6fdb154d63b3dd0",
+  "base_tree": "5d471d14990cbcf454c3334e27fe53f153d8746a",
+  "file_count": 213,
+  "canonical_changes": 2,
+  "manifest_sha256": "ea320bdbd5ee6331d745011608280fb36f544e4486b789579f22e1a4f1a2d83b",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

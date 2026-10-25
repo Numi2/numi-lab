@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-001/fit/proposal/fit/run_connected_fit.py"
+  ],
+  "returncode": 0,
+  "wall_seconds": 12.030262166052125,
+  "log_sha256": "93f0d44fb48ca0e70cbfb954413e60cb5909b301d7433fe50ca783caa3e1078d"
+}

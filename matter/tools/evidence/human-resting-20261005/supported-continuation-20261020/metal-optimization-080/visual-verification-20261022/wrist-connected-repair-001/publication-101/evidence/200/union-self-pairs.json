@@ -1,0 +1,37 @@
+{
+  "sources": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-003/audit-130/surface-self-pairs.npy",
+      "pairs": 51
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-004/audit-130/surface-self-pairs.npy",
+      "pairs": 50
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-005/audit-130/surface-self-pairs.npy",
+      "pairs": 63
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-006/audit-130/surface-self-pairs.npy",
+      "pairs": 59
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-011/audit-130/surface-self-pairs.npy",
+      "pairs": 30
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-012/audit-130/surface-self-pairs.npy",
+      "pairs": 17
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-013/audit-130/surface-self-pairs.npy",
+      "pairs": 4
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-cluster-200-run001/local-backtrack/pass-014/audit-130/surface-self-pairs.npy",
+      "pairs": 0
+    }
+  ],
+  "unique_pairs": 107
+}

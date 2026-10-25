@@ -1,0 +1,4804 @@
+{
+  "accepted_physical_steps": 0,
+  "all_185_bank_point_query": "NOT_RUN",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-clusters-199-run001/candidate.npz",
+  "candidate_sha256": "7b543e2e06d3b47a44b48ea03dae26f77940926c7be6cb49a12dea0fdfd61f12",
+  "classification": "construction-only local joint projection; exact global gates pending",
+  "constraints": {
+    "actual_pair_records": [
+      {
+        "axis_world": [
+          0.6751148107908914,
+          0.5240710061372977,
+          -0.5192008982821766
+        ],
+        "closest_a_barycentric": [
+          0.3664978104884431,
+          0.6335021895115569,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "closest_distance_mm": 0.17341420001624747,
+        "closest_points_world_mm": [
+          [
+            -284.9788179449972,
+            -849.1391382283655,
+            135.51314574377946
+          ],
+          [
+            -284.8617434501648,
+            -849.0482568740845,
+            135.42310893535614
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17016,
+          17148
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -707.6744631774518,
+        "preserved_margin_mm": 0.04335355000406187,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_gap_mm": 0.17341420001639563
+      },
+      {
+        "axis_world": [
+          0.6751148107908914,
+          0.5240710061372977,
+          -0.5192008982821766
+        ],
+        "closest_a_barycentric": [
+          0.3664978104884431,
+          0.6335021895115569,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "closest_distance_mm": 0.17341420001624747,
+        "closest_points_world_mm": [
+          [
+            -284.9788179449972,
+            -849.1391382283655,
+            135.51314574377946
+          ],
+          [
+            -284.8617434501648,
+            -849.0482568740845,
+            135.42310893535614
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17016,
+          17149
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -707.6744631774518,
+        "preserved_margin_mm": 0.04335355000406187,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "support_gap_mm": 0.17341420001639563
+      },
+      {
+        "axis_world": [
+          0.6751148107908914,
+          0.5240710061372977,
+          -0.5192008982821766
+        ],
+        "closest_a_barycentric": [
+          0.3664978104884431,
+          0.6335021895115569,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "closest_distance_mm": 0.17341420001624747,
+        "closest_points_world_mm": [
+          [
+            -284.9788179449972,
+            -849.1391382283655,
+            135.51314574377946
+          ],
+          [
+            -284.8617434501648,
+            -849.0482568740845,
+            135.42310893535614
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17016,
+          17155
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -707.6744631774518,
+        "preserved_margin_mm": 0.04335355000406187,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_gap_mm": 0.17341420001639563
+      },
+      {
+        "axis_world": [
+          0.6751148107908914,
+          0.5240710061372977,
+          -0.5192008982821766
+        ],
+        "closest_a_barycentric": [
+          0.3664978104884431,
+          0.6335021895115569,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "closest_distance_mm": 0.17341420001624747,
+        "closest_points_world_mm": [
+          [
+            -284.9788179449972,
+            -849.1391382283655,
+            135.51314574377946
+          ],
+          [
+            -284.8617434501648,
+            -849.0482568740845,
+            135.42310893535614
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17016,
+          17156
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -707.6744631774518,
+        "preserved_margin_mm": 0.04335355000406187,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "support_gap_mm": 0.17341420001639563
+      },
+      {
+        "axis_world": [
+          0.4654361049317689,
+          0.8650056644984351,
+          -0.18744181126836165
+        ],
+        "closest_a_barycentric": [
+          0.7484186059048449,
+          0.2515813940951551,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "closest_distance_mm": 0.06497309369279568,
+        "closest_points_world_mm": [
+          [
+            -277.20489244642596,
+            -859.0601631803574,
+            126.48113514485499
+          ],
+          [
+            -277.1746516227722,
+            -859.0039610862732,
+            126.4689564704895
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17037,
+          17140
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -895.7884392202373,
+        "preserved_margin_mm": 0.016243273423185656,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_gap_mm": 0.06497309369274262
+      },
+      {
+        "axis_world": [
+          -0.6685061184938258,
+          -0.6685061184938258,
+          -0.32588209382020067
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17037,
+          17141
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.04300064523175953,
+        "preserved_margin_mm": 0.010750161307939883,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 5884,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -276.01146697998047,
+            -859.8669767379761,
+            125.72124600410461
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.4654361049317689,
+          0.8650056644984351,
+          -0.18744181126836165
+        ],
+        "closest_a_barycentric": [
+          0.2515813940951551,
+          0.7484186059048449,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "closest_distance_mm": 0.06497309369279568,
+        "closest_points_world_mm": [
+          [
+            -277.20489244642596,
+            -859.0601631803574,
+            126.48113514485499
+          ],
+          [
+            -277.1746516227722,
+            -859.0039610862732,
+            126.4689564704895
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17082,
+          17140
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -895.7884392202373,
+        "preserved_margin_mm": 0.016243273423185656,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_gap_mm": 0.06497309369274262
+      },
+      {
+        "axis_world": [
+          -0.6685061184938258,
+          -0.6685061184938258,
+          -0.32588209382020067
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17082,
+          17141
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.04300064523175953,
+        "preserved_margin_mm": 0.010750161307939883,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 5884,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -276.01146697998047,
+            -859.8669767379761,
+            125.72124600410461
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.2283720004845341,
+          -0.6213042190046999,
+          0.7495513970647056
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17130,
+          17159
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.029632550827394466,
+        "preserved_margin_mm": 0.0074081377068486165,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 11684,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -280.22632002830505,
+            -856.0803532600403,
+            128.84892523288727
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.5879402789631503,
+          0.7845766553647477,
+          -0.19689007143428747
+        ],
+        "closest_a_barycentric": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "closest_b_barycentric": [
+          0.15203654280837486,
+          0.0,
+          0.8479634571916251
+        ],
+        "closest_distance_mm": 0.11834773086072642,
+        "closest_points_world_mm": [
+          [
+            -280.96577525138855,
+            -854.8360466957092,
+            130.14516234397888
+          ],
+          [
+            -280.89619385349164,
+            -854.7431938288605,
+            130.12186085079563
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17130,
+          17160
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -861.4406191274447,
+        "preserved_margin_mm": 0.02958693271506263,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_gap_mm": 0.11834773086025052
+      },
+      {
+        "axis_world": [
+          0.22837200048453407,
+          -0.6213042190046999,
+          0.7495513970647056
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17131,
+          17159
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.029632550827394244,
+        "preserved_margin_mm": 0.007408137706848561,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 11684,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -280.22632002830505,
+            -856.0803532600403,
+            128.84892523288727
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.5879402789631503,
+          0.7845766553647477,
+          -0.19689007143428747
+        ],
+        "closest_a_barycentric": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "closest_b_barycentric": [
+          0.15203654280837486,
+          0.0,
+          0.8479634571916251
+        ],
+        "closest_distance_mm": 0.11834773086072642,
+        "closest_points_world_mm": [
+          [
+            -280.96577525138855,
+            -854.8360466957092,
+            130.14516234397888
+          ],
+          [
+            -280.89619385349164,
+            -854.7431938288605,
+            130.12186085079563
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17131,
+          17160
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -861.4406191274447,
+        "preserved_margin_mm": 0.02958693271506263,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_gap_mm": 0.11834773086025052
+      },
+      {
+        "axis_world": [
+          -0.4173970025489087,
+          0.41410599518817326,
+          -0.8088856328384124
+        ],
+        "closest_a_barycentric": [
+          0.37594373695988426,
+          0.6240562630401157,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.9274938983139176,
+          0.07250610168608235
+        ],
+        "closest_distance_mm": 0.0014593546689585723,
+        "closest_points_world_mm": [
+          [
+            -278.19635087450285,
+            -856.1391438742119,
+            127.87904538179589
+          ],
+          [
+            -278.19696000476733,
+            -856.1385395466943,
+            127.87786493077095
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17136,
+          17185
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -341.8528220916149,
+        "preserved_margin_mm": 0.0003648386589816255,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_gap_mm": 0.001459354635926502
+      },
+      {
+        "axis_world": [
+          0.4169866853508208,
+          -0.414364007208242,
+          0.8089651251880168
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17136,
+          17186
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0010606207606602691,
+        "preserved_margin_mm": 0.0002651551901650673,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 9721,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -277.53403782844543,
+            -855.6798696517944,
+            127.77240574359894
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.6675322920556332,
+          0.5173566677246629,
+          -0.5354836294638571
+        ],
+        "closest_a_barycentric": [
+          0.12752508612114832,
+          0.0,
+          0.8724749138788517
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "closest_distance_mm": 0.15245335096672108,
+        "closest_points_world_mm": [
+          [
+            -284.9635109849672,
+            -849.1271296317241,
+            135.50474520905573
+          ],
+          [
+            -284.8617434501648,
+            -849.0482568740845,
+            135.42310893535614
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17142,
+          17148
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -702.0082739995294,
+        "preserved_margin_mm": 0.03811333774168027,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_gap_mm": 0.15245335096676627
+      },
+      {
+        "axis_world": [
+          0.6675322920556332,
+          0.5173566677246629,
+          -0.5354836294638571
+        ],
+        "closest_a_barycentric": [
+          0.12752508612114832,
+          0.0,
+          0.8724749138788517
+        ],
+        "closest_b_barycentric": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "closest_distance_mm": 0.15245335096672108,
+        "closest_points_world_mm": [
+          [
+            -284.9635109849672,
+            -849.1271296317241,
+            135.50474520905573
+          ],
+          [
+            -284.8617434501648,
+            -849.0482568740845,
+            135.42310893535614
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17142,
+          17149
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -702.0082739995294,
+        "preserved_margin_mm": 0.03811333774168027,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "support_gap_mm": 0.15245335096676627
+      },
+      {
+        "axis_world": [
+          -0.45672657595298816,
+          0.3466473836299902,
+          -0.8192901965974827
+        ],
+        "closest_a_barycentric": [
+          0.5013416648530561,
+          0.4986583351469439,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.5144968992945861,
+          0.4855031007054139
+        ],
+        "closest_distance_mm": 0.00583637592462908,
+        "closest_points_world_mm": [
+          [
+            -285.12512153027876,
+            -847.9088979821718,
+            136.05912768144967
+          ],
+          [
+            -285.1277871582708,
+            -847.9068748177276,
+            136.05434599587096
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17143,
+          17148
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -275.1701718464588,
+        "preserved_margin_mm": 0.0014590939771466083,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_gap_mm": 0.005836375908586433
+      },
+      {
+        "axis_world": [
+          0.4525804943816479,
+          -0.3484601591242838,
+          0.820820573333991
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17143,
+          17149
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0038873958362881655,
+        "preserved_margin_mm": 0.0009718489590720414,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 12578,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -284.4068109989166,
+            -849.3180871009827,
+            135.06245613098145
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.3984187566999262,
+          -0.38553014535081875,
+          0.8322433546358071
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17146,
+          17147
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.013874176966874874,
+        "preserved_margin_mm": 0.0034685442417187184,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 5889,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -286.4949107170105,
+            -841.935396194458,
+            139.46539163589478
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          -0.45672657595298816,
+          0.3466473836299902,
+          -0.8192901965974827
+        ],
+        "closest_a_barycentric": [
+          0.5013416648530529,
+          0.0,
+          0.49865833514694713
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.5144968992945904,
+          0.48550310070540964
+        ],
+        "closest_distance_mm": 0.00583637592462908,
+        "closest_points_world_mm": [
+          [
+            -285.12512153027876,
+            -847.9088979821718,
+            136.05912768144967
+          ],
+          [
+            -285.1277871582708,
+            -847.9068748177276,
+            136.05434599587096
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17146,
+          17148
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -275.1701718464588,
+        "preserved_margin_mm": 0.0014590939771466083,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_gap_mm": 0.005836375908586433
+      },
+      {
+        "axis_world": [
+          0.452580494381648,
+          -0.34846015912428374,
+          0.820820573333991
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17146,
+          17149
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0038873958362881655,
+        "preserved_margin_mm": 0.0009718489590720414,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 12578,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -284.4068109989166,
+            -849.3180871009827,
+            135.06245613098145
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.40537716906686505,
+          -0.3810614835118765,
+          0.830940128157897
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17146,
+          17197
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0011513088765018331,
+        "preserved_margin_mm": 0.0002878272191254583,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 5889,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -286.4949107170105,
+            -841.935396194458,
+            139.46539163589478
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.4053771690668651,
+          -0.38106148351187646,
+          0.8309401281578969
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17146,
+          17198
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0011513088765022772,
+        "preserved_margin_mm": 0.0002878272191255693,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 5889,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -286.4949107170105,
+            -841.935396194458,
+            139.46539163589478
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          -0.4060054408475305,
+          0.38065579212325146,
+          -0.8308193244774836
+        ],
+        "closest_a_barycentric": [
+          0.027325779623271096,
+          0.3736641315220965,
+          0.5990100888546324
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "closest_distance_mm": 0.0018724154588066202,
+        "closest_points_world_mm": [
+          [
+            -285.2262107001622,
+            -846.4826320344249,
+            136.761999087967
+          ],
+          [
+            -285.226970911026,
+            -846.4819192886353,
+            136.76044344902039
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17146,
+          17199
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -320.0386988877153,
+        "preserved_margin_mm": 0.00046810383516060483,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_gap_mm": 0.0018724153406424193
+      },
+      {
+        "axis_world": [
+          -0.4060054408475305,
+          0.38065579212325146,
+          -0.8308193244774836
+        ],
+        "closest_a_barycentric": [
+          0.027325779623271096,
+          0.3736641315220965,
+          0.5990100888546324
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "closest_distance_mm": 0.0018724154588066202,
+        "closest_points_world_mm": [
+          [
+            -285.2262107001622,
+            -846.4826320344249,
+            136.761999087967
+          ],
+          [
+            -285.226970911026,
+            -846.4819192886353,
+            136.76044344902039
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17146,
+          17200
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -320.0386988877153,
+        "preserved_margin_mm": 0.00046810383516060483,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_gap_mm": 0.0018724153406424193
+      },
+      {
+        "axis_world": [
+          0.3181154267911393,
+          -0.4176289182052007,
+          0.8511102525033083
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17150,
+          17197
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 9.840039658959299e-05,
+        "preserved_margin_mm": 2.4600099147398247e-05,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 5889,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -286.4949107170105,
+            -841.935396194458,
+            139.46539163589478
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.3181154267911391,
+          -0.4176289182052008,
+          0.8511102525033083
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17150,
+          17198
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 9.840039659003708e-05,
+        "preserved_margin_mm": 2.460009914750927e-05,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 5889,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -286.4949107170105,
+            -841.935396194458,
+            139.46539163589478
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          -0.3182421954148089,
+          0.417569003441564,
+          -0.8510922584669547
+        ],
+        "closest_a_barycentric": [
+          0.5715870460060001,
+          0.35979797900889504,
+          0.06861497498510492
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "closest_distance_mm": 0.00016139653095713648,
+        "closest_points_world_mm": [
+          [
+            -285.22691954783966,
+            -846.4819866828238,
+            136.76058081235843
+          ],
+          [
+            -285.226970911026,
+            -846.4819192886353,
+            136.76044344902039
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17150,
+          17199
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -379.0891894365526,
+        "preserved_margin_mm": 4.034908324968001e-05,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_gap_mm": 0.00016139633299872003
+      },
+      {
+        "axis_world": [
+          -0.3182421954148089,
+          0.417569003441564,
+          -0.8510922584669547
+        ],
+        "closest_a_barycentric": [
+          0.5715870460060001,
+          0.35979797900889504,
+          0.06861497498510492
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "closest_distance_mm": 0.00016139653095713648,
+        "closest_points_world_mm": [
+          [
+            -285.22691954783966,
+            -846.4819866828238,
+            136.76058081235843
+          ],
+          [
+            -285.226970911026,
+            -846.4819192886353,
+            136.76044344902039
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17150,
+          17200
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -379.0891894365526,
+        "preserved_margin_mm": 4.034908324968001e-05,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_gap_mm": 0.00016139633299872003
+      },
+      {
+        "axis_world": [
+          0.7239437740535923,
+          0.684414309047532,
+          -0.0865012461183677
+        ],
+        "closest_a_barycentric": [
+          0.3337182746608165,
+          0.6662817253391835,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.6540464087520742,
+          0.3459535912479258,
+          0.0
+        ],
+        "closest_distance_mm": 0.014042073234195346,
+        "closest_points_world_mm": [
+          [
+            -281.91677478040896,
+            -850.5889512790096,
+            132.71895692869845
+          ],
+          [
+            -281.90660910891626,
+            -850.5793406831594,
+            132.7177422718656
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17151,
+          17176
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -797.7204773978758,
+        "preserved_margin_mm": 0.003510518302618948,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.014042073210475792
+      },
+      {
+        "axis_world": [
+          0.7253899275282062,
+          0.6832008779058273,
+          -0.0839405353171555
+        ],
+        "closest_a_barycentric": [
+          0.06407386847391361,
+          0.9359261315260864,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.9282918881749513,
+          0.07170811182504866,
+          0.0
+        ],
+        "closest_distance_mm": 0.014706549288252761,
+        "closest_points_world_mm": [
+          [
+            -281.09045397262474,
+            -851.5814169971864,
+            131.78200008445327
+          ],
+          [
+            -281.07978598990235,
+            -851.5713694698017,
+            131.78076560883335
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17151,
+          17182
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -796.7558540944475,
+        "preserved_margin_mm": 0.003676637320950249,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.014706549283800996
+      },
+      {
+        "axis_world": [
+          0.7239437740576038,
+          0.6844143090432283,
+          -0.086501246118847
+        ],
+        "closest_a_barycentric": [
+          0.3337182746608284,
+          0.6662817253391716,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.34595359124793945,
+          0.6540464087520605,
+          0.0
+        ],
+        "closest_distance_mm": 0.014042073234117537,
+        "closest_points_world_mm": [
+          [
+            -281.916774780409,
+            -850.5889512790095,
+            132.71895692869847
+          ],
+          [
+            -281.9066091089163,
+            -850.5793406831594,
+            132.71774227186563
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17151,
+          17183
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -797.720477395414,
+        "preserved_margin_mm": 0.0035105183074506385,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.014042073229802554
+      },
+      {
+        "axis_world": [
+          0.7253899275282062,
+          0.6832008779058273,
+          -0.0839405353171555
+        ],
+        "closest_a_barycentric": [
+          0.06407386847390562,
+          0.9359261315260944,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.07170811182503967,
+          0.9282918881749603,
+          0.0
+        ],
+        "closest_distance_mm": 0.014706549288252761,
+        "closest_points_world_mm": [
+          [
+            -281.09045397262474,
+            -851.5814169971865,
+            131.78200008445324
+          ],
+          [
+            -281.07978598990235,
+            -851.5713694698018,
+            131.78076560883332
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17151,
+          17189
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -796.7558540944475,
+        "preserved_margin_mm": 0.003676637320950249,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.014706549283800996
+      },
+      {
+        "axis_world": [
+          0.5294793054123128,
+          0.7822926994578303,
+          -0.32813076282950904
+        ],
+        "closest_a_barycentric": [
+          0.045915971856268833,
+          0.9540840281437312,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.43105475518155034,
+          0.5689452448184497,
+          0.0
+        ],
+        "closest_distance_mm": 0.008198398304310874,
+        "closest_points_world_mm": [
+          [
+            -277.688318379132,
+            -855.5025137281315,
+            127.94628729307068
+          ],
+          [
+            -277.68397749689234,
+            -855.4961001809908,
+            127.94359714638111
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17152,
+          17326
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -858.2626024453577,
+        "preserved_margin_mm": 0.0020495995709666204,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.008198398283866482
+      },
+      {
+        "axis_world": [
+          0.5294793054123128,
+          0.7822926994578303,
+          -0.32813076282950904
+        ],
+        "closest_a_barycentric": [
+          0.045915971856268833,
+          0.9540840281437312,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.5689452448184498,
+          0.4310547551815503,
+          0.0
+        ],
+        "closest_distance_mm": 0.008198398304310874,
+        "closest_points_world_mm": [
+          [
+            -277.688318379132,
+            -855.5025137281315,
+            127.94628729307068
+          ],
+          [
+            -277.68397749689234,
+            -855.4961001809908,
+            127.94359714638111
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17152,
+          17334
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -858.2626024453577,
+        "preserved_margin_mm": 0.0020495995709666204,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.008198398283866482
+      },
+      {
+        "axis_world": [
+          0.5973557763455356,
+          0.7984086467228545,
+          -0.07556261843532551
+        ],
+        "closest_a_barycentric": [
+          0.9681036248232364,
+          0.0,
+          0.03189637517676358
+        ],
+        "closest_b_barycentric": [
+          0.42590359877115325,
+          0.5740964012288468,
+          0.0
+        ],
+        "closest_distance_mm": 0.04422013679530972,
+        "closest_points_world_mm": [
+          [
+            -277.7042374100171,
+            -855.5361391389525,
+            127.94558636304224
+          ],
+          [
+            -277.6778222558716,
+            -855.5008333993759,
+            127.94224497371842
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17153,
+          17326
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -858.6014748593691,
+        "preserved_margin_mm": 0.011055034198477642,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.04422013679391057
+      },
+      {
+        "axis_world": [
+          0.5973557763455356,
+          0.7984086467228545,
+          -0.07556261843532551
+        ],
+        "closest_a_barycentric": [
+          0.9681036248232364,
+          0.0,
+          0.03189637517676358
+        ],
+        "closest_b_barycentric": [
+          0.5740964012288468,
+          0.42590359877115325,
+          0.0
+        ],
+        "closest_distance_mm": 0.04422013679530972,
+        "closest_points_world_mm": [
+          [
+            -277.7042374100171,
+            -855.5361391389525,
+            127.94558636304224
+          ],
+          [
+            -277.6778222558716,
+            -855.5008333993759,
+            127.94224497371842
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17153,
+          17334
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -858.6014748593691,
+        "preserved_margin_mm": 0.011055034198477642,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.04422013679391057
+      },
+      {
+        "axis_world": [
+          0.42529010453498245,
+          -0.4361585459073022,
+          0.7930284041676261
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17154,
+          17156
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.01257955562079971,
+        "preserved_margin_mm": 0.0031448889051999274,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 17069,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -282.8700542449951,
+            -851.1736989021301,
+            133.20188224315643
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          -0.34840368448385783,
+          0.5012673094098216,
+          -0.792051738938253
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17155,
+          17160
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.008101533182899523,
+        "preserved_margin_mm": 0.0020253832957248807,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 12578,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -284.4068109989166,
+            -849.3180871009827,
+            135.06245613098145
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          -0.47025319496909573,
+          0.3878191751248137,
+          -0.7927535682839068
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17155,
+          17166
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.03266997713433528,
+        "preserved_margin_mm": 0.00816749428358382,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 12578,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -284.4068109989166,
+            -849.3180871009827,
+            135.06245613098145
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          -0.42655836467225816,
+          0.43118137724469446,
+          -0.7950664006518559
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17155,
+          17167
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.02365808423778515,
+        "preserved_margin_mm": 0.005914521059446287,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 12578,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -284.4068109989166,
+            -849.3180871009827,
+            135.06245613098145
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.353796397720562,
+          -0.49671366636240144,
+          0.7925299001354932
+        ],
+        "closest_a_barycentric": [
+          0.5190941453939679,
+          0.0,
+          0.4809058546060321
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.8701566157874426,
+          0.12984338421255737
+        ],
+        "closest_distance_mm": 0.009153692720005038,
+        "closest_points_world_mm": [
+          [
+            -283.90392845084307,
+            -850.0703943889973,
+            134.35490801467012
+          ],
+          [
+            -283.9006899073329,
+            -850.074941153269,
+            134.36216258984737
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17156,
+          17160
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 428.2822537564135,
+        "preserved_margin_mm": 0.0022884231772906105,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_gap_mm": 0.009153692709162442
+      },
+      {
+        "axis_world": [
+          0.353796397720562,
+          -0.49671366636240144,
+          0.7925299001354932
+        ],
+        "closest_a_barycentric": [
+          0.5190941453939679,
+          0.0,
+          0.4809058546060321
+        ],
+        "closest_b_barycentric": [
+          0.8701566157874426,
+          0.0,
+          0.12984338421255737
+        ],
+        "closest_distance_mm": 0.009153692720005038,
+        "closest_points_world_mm": [
+          [
+            -283.90392845084307,
+            -850.0703943889973,
+            134.35490801467012
+          ],
+          [
+            -283.9006899073329,
+            -850.074941153269,
+            134.36216258984737
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17156,
+          17161
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 428.2822537564135,
+        "preserved_margin_mm": 0.0022884231772906105,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_gap_mm": 0.009153692709162442
+      },
+      {
+        "axis_world": [
+          0.49104477695589926,
+          -0.3659999258783678,
+          0.7905182358942522
+        ],
+        "closest_a_barycentric": [
+          0.7206670594298368,
+          0.0,
+          0.2793329405701632
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.8665278421993696,
+          0.13347215780063043
+        ],
+        "closest_distance_mm": 0.037047428412789594,
+        "closest_points_world_mm": [
+          [
+            -284.3053990477829,
+            -849.6419628457899,
+            134.80264715175105
+          ],
+          [
+            -284.28720710156114,
+            -849.6555222018429,
+            134.83193381950434
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17156,
+          17166
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 277.94468869641844,
+        "preserved_margin_mm": 0.009261857102629278,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_gap_mm": 0.037047428410517114
+      },
+      {
+        "axis_world": [
+          0.4409067067953605,
+          -0.4172977000526742,
+          0.7946470319793679
+        ],
+        "closest_a_barycentric": [
+          0.6935792197837298,
+          0.0,
+          0.30642078021627017
+        ],
+        "closest_b_barycentric": [
+          0.8762691485063692,
+          0.12373085149363083,
+          0.0
+        ],
+        "closest_distance_mm": 0.02659062141199385,
+        "closest_points_world_mm": [
+          [
+            -284.25144848996837,
+            -849.6995364786227,
+            134.7424789192951
+          ],
+          [
+            -284.23972450664996,
+            -849.7106326837809,
+            134.76360907767864
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17156,
+          17167
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 336.3352985182959,
+        "preserved_margin_mm": 0.00664765535286449,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.02659062141145796
+      },
+      {
+        "axis_world": [
+          -0.4173970025489087,
+          0.41410599518817326,
+          -0.8088856328384124
+        ],
+        "closest_a_barycentric": [
+          0.6240562630401156,
+          0.37594373695988437,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.9274938983139177,
+          0.07250610168608233
+        ],
+        "closest_distance_mm": 0.0014593546689585723,
+        "closest_points_world_mm": [
+          [
+            -278.19635087450285,
+            -856.1391438742119,
+            127.87904538179589
+          ],
+          [
+            -278.19696000476733,
+            -856.1385395466943,
+            127.87786493077095
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17157,
+          17185
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -341.8528220916149,
+        "preserved_margin_mm": 0.0003648386589816255,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_gap_mm": 0.001459354635926502
+      },
+      {
+        "axis_world": [
+          0.4169866853508208,
+          -0.414364007208242,
+          0.8089651251880168
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17157,
+          17186
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0010606207606602691,
+        "preserved_margin_mm": 0.0002651551901650673,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 9721,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -277.53403782844543,
+            -855.6798696517944,
+            127.77240574359894
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          -0.48406331910187794,
+          0.34443907320218564,
+          -0.804390718464412
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17169,
+          17198
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.003928136308091634,
+        "preserved_margin_mm": 0.0009820340770229086,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 5889,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -286.4949107170105,
+            -841.935396194458,
+            139.46539163589478
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.4855442073366554,
+          -0.3429975317745433,
+          0.8041141187159881
+        ],
+        "closest_a_barycentric": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "closest_b_barycentric": [
+          0.23653585667259258,
+          0.20073285746159014,
+          0.5627312858658173
+        ],
+        "closest_distance_mm": 0.006927142587575853,
+        "closest_points_world_mm": [
+          [
+            -285.19004583358765,
+            -845.8276987075806,
+            137.00859248638153
+          ],
+          [
+            -285.18668239963085,
+            -845.8300747003904,
+            137.01416269953856
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17170,
+          17198
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 261.818445393666,
+        "preserved_margin_mm": 0.0017317856372898177,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_b_weights": [
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "support_gap_mm": 0.006927142549159271
+      },
+      {
+        "axis_world": [
+          -0.4827203156861588,
+          0.3444314798230326,
+          -0.8052006287446447
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17171,
+          17198
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0038499584599995806,
+        "preserved_margin_mm": 0.0009624896149998952,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 12579,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -283.53217244148254,
+            -848.5920429229736,
+            134.83700156211853
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          -0.1497527958607289,
+          -0.7022286237138363,
+          0.6960237497161044
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17173,
+          17353
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0025419929053835943,
+        "preserved_margin_mm": 0.0006354982263458986,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 14280,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -281.4573347568512,
+            -850.6704568862915,
+            132.0102959871292
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          -0.7023002524364511,
+          -0.7017959142227641,
+          0.11940205277938763
+        ],
+        "closest_a_barycentric": [
+          0.4886365593683174,
+          0.5113634406316826,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.2418624975975726,
+          0.7581375024024274
+        ],
+        "closest_distance_mm": 0.003382904227997914,
+        "closest_points_world_mm": [
+          [
+            -282.31771783515575,
+            -850.0767484835934,
+            133.25370784757254
+          ],
+          [
+            -282.32009364964904,
+            -850.0791225919588,
+            133.25411177328172
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17176,
+          17192
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 810.7646510740493,
+        "preserved_margin_mm": 0.00084572605604194,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_gap_mm": 0.00338290422416776
+      },
+      {
+        "axis_world": [
+          -0.7023002524449665,
+          -0.7017959142144824,
+          0.11940205277797858
+        ],
+        "closest_a_barycentric": [
+          0.4886365593683072,
+          0.5113634406316928,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.24186249759758524,
+          0.0,
+          0.7581375024024147
+        ],
+        "closest_distance_mm": 0.003382904228037835,
+        "closest_points_world_mm": [
+          [
+            -282.31771783515575,
+            -850.0767484835934,
+            133.25370784757257
+          ],
+          [
+            -282.3200936496491,
+            -850.0791225919588,
+            133.25411177328175
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17176,
+          17193
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 810.76465106923,
+        "preserved_margin_mm": 0.0008457260502723329,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_gap_mm": 0.0033829042010893318
+      },
+      {
+        "axis_world": [
+          0.6850735524890161,
+          0.7138862004963535,
+          -0.1450541982190088
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17176,
+          17194
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.003567723784812505,
+        "preserved_margin_mm": 0.0008919309462031262,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 12579,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -283.53217244148254,
+            -848.5920429229736,
+            134.83700156211853
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.14162289092958144,
+          0.7000582616760327,
+          -0.6999009837283264
+        ],
+        "closest_a_barycentric": [
+          0.0,
+          0.16929354350843573,
+          0.8307064564915643
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.2552695448575494,
+          0.7447304551424506
+        ],
+        "closest_distance_mm": 0.0044352827983576044,
+        "closest_points_world_mm": [
+          [
+            -282.2184198017118,
+            -849.2397844089579,
+            133.29362366762467
+          ],
+          [
+            -282.2177916641398,
+            -849.236679452592,
+            133.290519408831
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17178,
+          17353
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -727.7760363936485,
+        "preserved_margin_mm": 0.0011088206971123782,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_b_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_gap_mm": 0.004435282788449513
+      },
+      {
+        "axis_world": [
+          -0.13703815318124188,
+          -0.6992029489074324,
+          0.7016664312989648
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17178,
+          17354
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0024226864082677046,
+        "preserved_margin_mm": 0.0006056716020669262,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 10757,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -284.08393263816833,
+            -846.4903235435486,
+            135.66622138023376
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          -0.6963090147087317,
+          -0.7059682986324219,
+          0.12947014081014532
+        ],
+        "closest_a_barycentric": [
+          0.6288074497802846,
+          0.3711925502197154,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.03434580861673675,
+          0.9656541913832632
+        ],
+        "closest_distance_mm": 0.0009127505423756641,
+        "closest_points_world_mm": [
+          [
+            -281.87097202581845,
+            -850.6101826394122,
+            132.7667648615799
+          ],
+          [
+            -281.8716075822493,
+            -850.6108270123597,
+            132.76688303552115
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17182,
+          17192
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 813.9629103603846,
+        "preserved_margin_mm": 0.00022818753365072553,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_gap_mm": 0.0009127501346029021
+      },
+      {
+        "axis_world": [
+          -0.6963090148020413,
+          -0.7059682985393307,
+          0.12947014081591543
+        ],
+        "closest_a_barycentric": [
+          0.6288074497802676,
+          0.3711925502197324,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.03434580861675868,
+          0.0,
+          0.9656541913832413
+        ],
+        "closest_distance_mm": 0.0009127505423349854,
+        "closest_points_world_mm": [
+          [
+            -281.87097202581845,
+            -850.6101826394122,
+            132.76676486157996
+          ],
+          [
+            -281.87160758224934,
+            -850.6108270123596,
+            132.7668830355212
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17182,
+          17193
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 813.9629103084033,
+        "preserved_margin_mm": 0.00022818760115228542,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_gap_mm": 0.0009127504046091417
+      },
+      {
+        "axis_world": [
+          0.6717677406557733,
+          0.7221186254202657,
+          -0.16514476508622233
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17182,
+          17194
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0007845416747603307,
+        "preserved_margin_mm": 0.00019613541869008266,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 12579,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -283.53217244148254,
+            -848.5920429229736,
+            134.83700156211853
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          -0.2437523301142845,
+          0.5986887471518004,
+          -0.7629918646995292
+        ],
+        "closest_a_barycentric": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "closest_b_barycentric": [
+          0.5007646474003445,
+          0.4134767568297905,
+          0.08575859576986491
+        ],
+        "closest_distance_mm": 0.016998347592367704,
+        "closest_points_world_mm": [
+          [
+            -279.80682253837585,
+            -853.0020117759705,
+            130.12301921844482
+          ],
+          [
+            -279.8109659252096,
+            -852.9918350565467,
+            130.1100496175185
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17182,
+          17329
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -541.7534466725356,
+        "preserved_margin_mm": 0.004249586895326729,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_b_weights": [
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "support_gap_mm": 0.016998347581306916
+      },
+      {
+        "axis_world": [
+          0.6599235585493893,
+          0.7331401234295781,
+          -0.16433641193957532
+        ],
+        "closest_a_barycentric": [
+          0.0,
+          0.5426350244362581,
+          0.4573649755637419
+        ],
+        "closest_b_barycentric": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "closest_distance_mm": 0.10732171207432502,
+        "closest_points_world_mm": [
+          [
+            -281.82832787408177,
+            -850.6090082196614,
+            132.68099114269629
+          ],
+          [
+            -281.75750374794006,
+            -850.5303263664246,
+            132.66335427761078
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17182,
+          17330
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -831.3514034681018,
+        "preserved_margin_mm": 0.02683042801848501,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_b_weights": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "support_gap_mm": 0.10732171207394003
+      },
+      {
+        "axis_world": [
+          0.6599235585493893,
+          0.7331401234295781,
+          -0.16433641193957532
+        ],
+        "closest_a_barycentric": [
+          0.0,
+          0.5426350244362581,
+          0.4573649755637419
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "closest_distance_mm": 0.10732171207432502,
+        "closest_points_world_mm": [
+          [
+            -281.82832787408177,
+            -850.6090082196614,
+            132.68099114269629
+          ],
+          [
+            -281.75750374794006,
+            -850.5303263664246,
+            132.66335427761078
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17182,
+          17370
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -831.3514034681018,
+        "preserved_margin_mm": 0.02683042801848501,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_b_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_gap_mm": 0.10732171207394003
+      },
+      {
+        "axis_world": [
+          -0.7023002524364511,
+          -0.7017959142227641,
+          0.11940205277938763
+        ],
+        "closest_a_barycentric": [
+          0.5113634406316877,
+          0.4886365593683123,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.24186249759757894,
+          0.7581375024024211
+        ],
+        "closest_distance_mm": 0.003382904227997914,
+        "closest_points_world_mm": [
+          [
+            -282.31771783515575,
+            -850.0767484835934,
+            133.25370784757254
+          ],
+          [
+            -282.32009364964904,
+            -850.0791225919588,
+            133.25411177328172
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17183,
+          17192
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 810.7646510740493,
+        "preserved_margin_mm": 0.00084572605604194,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_gap_mm": 0.00338290422416776
+      },
+      {
+        "axis_world": [
+          -0.7023002524364511,
+          -0.7017959142227641,
+          0.11940205277938763
+        ],
+        "closest_a_barycentric": [
+          0.5113634406316826,
+          0.4886365593683174,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.2418624975975726,
+          0.0,
+          0.7581375024024274
+        ],
+        "closest_distance_mm": 0.003382904227997914,
+        "closest_points_world_mm": [
+          [
+            -282.31771783515575,
+            -850.0767484835934,
+            133.25370784757254
+          ],
+          [
+            -282.32009364964904,
+            -850.0791225919588,
+            133.25411177328172
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17183,
+          17193
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 810.7646510740493,
+        "preserved_margin_mm": 0.00084572605604194,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_gap_mm": 0.00338290422416776
+      },
+      {
+        "axis_world": [
+          0.6850735524890161,
+          0.7138862004963535,
+          -0.1450541982190088
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17183,
+          17194
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.003567723784812505,
+        "preserved_margin_mm": 0.0008919309462031262,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 12579,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -283.53217244148254,
+            -848.5920429229736,
+            134.83700156211853
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          -0.2437523301142845,
+          0.5986887471518004,
+          -0.7629918646995292
+        ],
+        "closest_a_barycentric": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "closest_b_barycentric": [
+          0.5007646474003445,
+          0.4134767568297905,
+          0.08575859576986491
+        ],
+        "closest_distance_mm": 0.016998347592367704,
+        "closest_points_world_mm": [
+          [
+            -279.80682253837585,
+            -853.0020117759705,
+            130.12301921844482
+          ],
+          [
+            -279.8109659252096,
+            -852.9918350565467,
+            130.1100496175185
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17183,
+          17329
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -541.7534466725356,
+        "preserved_margin_mm": 0.004249586895326729,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_b_weights": [
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "support_gap_mm": 0.016998347581306916
+      },
+      {
+        "axis_world": [
+          0.6599235585493893,
+          0.7331401234295781,
+          -0.16433641193957532
+        ],
+        "closest_a_barycentric": [
+          0.5426350244362581,
+          0.0,
+          0.4573649755637419
+        ],
+        "closest_b_barycentric": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "closest_distance_mm": 0.10732171207432502,
+        "closest_points_world_mm": [
+          [
+            -281.82832787408177,
+            -850.6090082196614,
+            132.68099114269629
+          ],
+          [
+            -281.75750374794006,
+            -850.5303263664246,
+            132.66335427761078
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17183,
+          17330
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -831.3514034681018,
+        "preserved_margin_mm": 0.02683042801848501,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "support_gap_mm": 0.10732171207394003
+      },
+      {
+        "axis_world": [
+          0.6599235585493893,
+          0.7331401234295781,
+          -0.16433641193957532
+        ],
+        "closest_a_barycentric": [
+          0.5426350244362581,
+          0.0,
+          0.4573649755637419
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "closest_distance_mm": 0.10732171207432502,
+        "closest_points_world_mm": [
+          [
+            -281.82832787408177,
+            -850.6090082196614,
+            132.68099114269629
+          ],
+          [
+            -281.75750374794006,
+            -850.5303263664246,
+            132.66335427761078
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17183,
+          17370
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -831.3514034681018,
+        "preserved_margin_mm": 0.02683042801848501,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_gap_mm": 0.10732171207394003
+      },
+      {
+        "axis_world": [
+          -0.24986480887814683,
+          0.5949742498032956,
+          -0.7639196419488721
+        ],
+        "closest_a_barycentric": [
+          0.0,
+          0.3446367096545857,
+          0.6553632903454143
+        ],
+        "closest_b_barycentric": [
+          0.5524022630421324,
+          0.44759773695786764,
+          0.0
+        ],
+        "closest_distance_mm": 0.0173839110697754,
+        "closest_points_world_mm": [
+          [
+            -280.23415669625666,
+            -852.5293415374069,
+            130.6309291699269
+          ],
+          [
+            -280.23850032387367,
+            -852.5189985579595,
+            130.6176492588068
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17183,
+          17371
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -536.9951920958816,
+        "preserved_margin_mm": 0.004345977765296993,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.017383911061187973
+      },
+      {
+        "axis_world": [
+          0.23053716836207755,
+          -0.60797060917141,
+          0.7597528232177486
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17184,
+          17329
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.011194936715694492,
+        "preserved_margin_mm": 0.002798734178923623,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 9106,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -278.36382389068604,
+            -854.973316192627,
+            128.0929446220398
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.23053716836207933,
+          -0.6079706091714089,
+          0.7597528232177491
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17184,
+          17371
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.011194936715694936,
+        "preserved_margin_mm": 0.002798734178923734,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 9106,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -278.36382389068604,
+            -854.973316192627,
+            128.0929446220398
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.5222756416511242,
+          0.7785771150823142,
+          -0.34791641238666415
+        ],
+        "closest_a_barycentric": [
+          0.0,
+          0.9227330839887272,
+          0.07726691601127278
+        ],
+        "closest_b_barycentric": [
+          0.4339220588829582,
+          0.5660779411170418,
+          0.0
+        ],
+        "closest_distance_mm": 0.005208569184376397,
+        "closest_points_world_mm": [
+          [
+            -277.6901240160463,
+            -855.4975207881599,
+            127.94616195702567
+          ],
+          [
+            -277.68740370723344,
+            -855.4934655153907,
+            127.94434981032137
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17186,
+          17326
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -855.6135447581188,
+        "preserved_margin_mm": 0.0013021422956285278,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.005208569182514111
+      },
+      {
+        "axis_world": [
+          0.5222756416511242,
+          0.7785771150823142,
+          -0.34791641238666415
+        ],
+        "closest_a_barycentric": [
+          0.0,
+          0.9227330839887271,
+          0.07726691601127295
+        ],
+        "closest_b_barycentric": [
+          0.5660779411170413,
+          0.4339220588829586,
+          0.0
+        ],
+        "closest_distance_mm": 0.005208569184376397,
+        "closest_points_world_mm": [
+          [
+            -277.6901240160463,
+            -855.4975207881599,
+            127.94616195702567
+          ],
+          [
+            -277.68740370723344,
+            -855.4934655153907,
+            127.94434981032137
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17186,
+          17334
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -855.6135447581188,
+        "preserved_margin_mm": 0.0013021422956285278,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.005208569182514111
+      },
+      {
+        "axis_world": [
+          0.5222756416511242,
+          0.7785771150823142,
+          -0.34791641238666415
+        ],
+        "closest_a_barycentric": [
+          0.9227330839887274,
+          0.0,
+          0.07726691601127256
+        ],
+        "closest_b_barycentric": [
+          0.43392205888295754,
+          0.5660779411170425,
+          0.0
+        ],
+        "closest_distance_mm": 0.005208569184376397,
+        "closest_points_world_mm": [
+          [
+            -277.6901240160463,
+            -855.4975207881599,
+            127.94616195702567
+          ],
+          [
+            -277.68740370723344,
+            -855.4934655153907,
+            127.94434981032137
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17187,
+          17326
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -855.6135447581188,
+        "preserved_margin_mm": 0.0013021422956285278,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.005208569182514111
+      },
+      {
+        "axis_world": [
+          0.632052573128078,
+          -0.20612660215404324,
+          0.7470082788608198
+        ],
+        "closest_a_barycentric": [
+          0.41864111262691406,
+          0.5813588873730859,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.9711449241990184,
+          0.028855075800981605
+        ],
+        "closest_distance_mm": 0.007707395125502331,
+        "closest_points_world_mm": [
+          [
+            -279.1816217313962,
+            -853.7303655741447,
+            129.70438472904686
+          ],
+          [
+            -279.176750252475,
+            -853.7319542733134,
+            129.71014221701407
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17187,
+          17331
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 96.41317992083785,
+        "preserved_margin_mm": 0.0019268487803181245,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_gap_mm": 0.007707395121272498
+      },
+      {
+        "axis_world": [
+          0.632052573128078,
+          -0.20612660215404324,
+          0.7470082788608198
+        ],
+        "closest_a_barycentric": [
+          0.41864111262691406,
+          0.5813588873730859,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.9711449241990184,
+          0.0,
+          0.028855075800981567
+        ],
+        "closest_distance_mm": 0.007707395125502331,
+        "closest_points_world_mm": [
+          [
+            -279.1816217313962,
+            -853.7303655741447,
+            129.70438472904686
+          ],
+          [
+            -279.176750252475,
+            -853.7319542733134,
+            129.71014221701407
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17187,
+          17332
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 96.41317992083785,
+        "preserved_margin_mm": 0.0019268487803181245,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_gap_mm": 0.007707395121272498
+      },
+      {
+        "axis_world": [
+          0.5222756416511242,
+          0.7785771150823142,
+          -0.34791641238666415
+        ],
+        "closest_a_barycentric": [
+          0.9227330839887274,
+          0.0,
+          0.07726691601127256
+        ],
+        "closest_b_barycentric": [
+          0.5660779411170425,
+          0.4339220588829576,
+          0.0
+        ],
+        "closest_distance_mm": 0.005208569184376397,
+        "closest_points_world_mm": [
+          [
+            -277.6901240160463,
+            -855.4975207881599,
+            127.94616195702567
+          ],
+          [
+            -277.68740370723344,
+            -855.4934655153907,
+            127.94434981032137
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17187,
+          17334
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -855.6135447581188,
+        "preserved_margin_mm": 0.0013021422956285278,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.005208569182514111
+      },
+      {
+        "axis_world": [
+          0.2543377761492401,
+          -0.5637781015444587,
+          0.7857903968886264
+        ],
+        "closest_a_barycentric": [
+          0.4221972380909258,
+          0.5778027619090742,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.004974184381210223,
+          0.9950258156187898,
+          0.0
+        ],
+        "closest_distance_mm": 0.014887724403160505,
+        "closest_points_world_mm": [
+          [
+            -279.17154359343596,
+            -853.7422905334828,
+            129.69256696928554
+          ],
+          [
+            -279.16775708271933,
+            -853.7506839064831,
+            129.70426560015306
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17187,
+          17339
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 512.2359557379796,
+        "preserved_margin_mm": 0.0037219310985960874,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.01488772439438435
+      },
+      {
+        "axis_world": [
+          0.12963522971328334,
+          -0.6405404989778664,
+          0.7569032807343156
+        ],
+        "closest_a_barycentric": [
+          0.40861793687963754,
+          0.5913820631203625,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.9943991324270408,
+          0.0,
+          0.0056008675729591895
+        ],
+        "closest_distance_mm": 0.016245557968771536,
+        "closest_points_world_mm": [
+          [
+            -279.21002763242626,
+            -853.6967542844325,
+            129.73769386963417
+          ],
+          [
+            -279.20792163578716,
+            -853.70716022224,
+            129.7499901857581
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17187,
+          17340
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 608.8388977985735,
+        "preserved_margin_mm": 0.004061389490885858,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_gap_mm": 0.016245557963543433
+      },
+      {
+        "axis_world": [
+          -0.22847246379733369,
+          -0.782388592654222,
+          0.5793689872360462
+        ],
+        "closest_a_barycentric": [
+          0.3765693897258139,
+          0.556717601038824,
+          0.06671300923536215
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "closest_distance_mm": 0.005889561239050469,
+        "closest_points_world_mm": [
+          [
+            -281.79603365272783,
+            -850.6942207716754,
+            132.6828302320742
+          ],
+          [
+            -281.7973792552948,
+            -850.6988286972046,
+            132.68624246120453
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17189,
+          17191
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 806.8313500214833,
+        "preserved_margin_mm": 0.0014723902555147106,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_gap_mm": 0.005889561022058842
+      },
+      {
+        "axis_world": [
+          -0.696309014740814,
+          -0.7059682986018082,
+          0.12947014080453095
+        ],
+        "closest_a_barycentric": [
+          0.37119255021972397,
+          0.628807449780276,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.03434580861674774,
+          0.9656541913832523
+        ],
+        "closest_distance_mm": 0.0009127505424152447,
+        "closest_points_world_mm": [
+          [
+            -281.87097202581845,
+            -850.6101826394122,
+            132.76676486157993
+          ],
+          [
+            -281.87160758224934,
+            -850.6108270123597,
+            132.76688303552118
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17189,
+          17192
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 813.9629103426764,
+        "preserved_margin_mm": 0.00022818758139919737,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_gap_mm": 0.0009127503255967895
+      },
+      {
+        "axis_world": [
+          -0.696309014740814,
+          -0.7059682986018082,
+          0.12947014080453095
+        ],
+        "closest_a_barycentric": [
+          0.3711925502197494,
+          0.6288074497802506,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.03434580861678063,
+          0.0,
+          0.9656541913832194
+        ],
+        "closest_distance_mm": 0.0009127505424152447,
+        "closest_points_world_mm": [
+          [
+            -281.8709720258185,
+            -850.6101826394121,
+            132.76676486158001
+          ],
+          [
+            -281.8716075822494,
+            -850.6108270123596,
+            132.76688303552126
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17189,
+          17193
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 813.9629103426764,
+        "preserved_margin_mm": 0.00022818758139919737,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_b_weights": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "support_gap_mm": 0.0009127503255967895
+      },
+      {
+        "axis_world": [
+          0.6717677406557733,
+          0.7221186254202657,
+          -0.1651447650862224
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17189,
+          17194
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0007845416747601641,
+        "preserved_margin_mm": 0.00019613541869004103,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 12579,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -283.53217244148254,
+            -848.5920429229736,
+            134.83700156211853
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.21272966535094465,
+          0.7790152803071002,
+          -0.5898146170855088
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17189,
+          17195
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.003627180959957066,
+        "preserved_margin_mm": 0.0009067952399892665,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 12579,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -283.53217244148254,
+            -848.5920429229736,
+            134.83700156211853
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          -0.22847246379733369,
+          -0.782388592654222,
+          0.5793689872360462
+        ],
+        "closest_a_barycentric": [
+          0.3765693897258139,
+          0.556717601038824,
+          0.06671300923536215
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "closest_distance_mm": 0.005889561239050469,
+        "closest_points_world_mm": [
+          [
+            -281.79603365272783,
+            -850.6942207716754,
+            132.6828302320742
+          ],
+          [
+            -281.7973792552948,
+            -850.6988286972046,
+            132.68624246120453
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17189,
+          17196
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 806.8313500214833,
+        "preserved_margin_mm": 0.0014723902555147106,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "support_gap_mm": 0.005889561022058842
+      },
+      {
+        "axis_world": [
+          0.5272261472469665,
+          0.781155717633607,
+          -0.3344074378171698
+        ],
+        "closest_a_barycentric": [
+          0.9648406652168202,
+          0.0,
+          0.035159334783179785
+        ],
+        "closest_b_barycentric": [
+          0.4278183357933161,
+          0.5721816642066839,
+          0.0
+        ],
+        "closest_distance_mm": 0.0072527807499127815,
+        "closest_points_world_mm": [
+          [
+            -277.68393407696703,
+            -855.5047395653032,
+            127.94517297382312
+          ],
+          [
+            -277.68011022131543,
+            -855.4990740141517,
+            127.94274758999549
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17191,
+          17326
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -857.4668405747466,
+        "preserved_margin_mm": 0.0018131951869690965,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.007252780747876386
+      },
+      {
+        "axis_world": [
+          0.5272261472469665,
+          0.781155717633607,
+          -0.3344074378171698
+        ],
+        "closest_a_barycentric": [
+          0.9648406652168198,
+          0.0,
+          0.03515933478318023
+        ],
+        "closest_b_barycentric": [
+          0.5721816642066817,
+          0.42781833579331835,
+          0.0
+        ],
+        "closest_distance_mm": 0.0072527807499127815,
+        "closest_points_world_mm": [
+          [
+            -277.68393407696703,
+            -855.5047395653032,
+            127.94517297382312
+          ],
+          [
+            -277.68011022131543,
+            -855.4990740141517,
+            127.94274758999549
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17191,
+          17334
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -857.4668405747466,
+        "preserved_margin_mm": 0.0018131951869690965,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.007252780747876386
+      },
+      {
+        "axis_world": [
+          0.5254827387481905,
+          0.780260003621019,
+          -0.3392082222279235
+        ],
+        "closest_a_barycentric": [
+          0.05173354238499639,
+          0.9482664576150036,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.4254009419886613,
+          0.5745990580113387,
+          0.0
+        ],
+        "closest_distance_mm": 0.006527728932836078,
+        "closest_points_world_mm": [
+          [
+            -277.68065182803747,
+            -855.5063885990036,
+            127.94432728621474
+          ],
+          [
+            -277.67722161916004,
+            -855.5012952732028,
+            127.94211302688825
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17196,
+          17326
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -856.8303112244771,
+        "preserved_margin_mm": 0.0016319322283777637,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.006527728913511055
+      },
+      {
+        "axis_world": [
+          0.632052573128078,
+          -0.20612660215404324,
+          0.7470082788608198
+        ],
+        "closest_a_barycentric": [
+          0.5813588873730859,
+          0.418641112626914,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.9711449241990183,
+          0.028855075800981646
+        ],
+        "closest_distance_mm": 0.007707395125502331,
+        "closest_points_world_mm": [
+          [
+            -279.1816217313962,
+            -853.7303655741447,
+            129.70438472904686
+          ],
+          [
+            -279.176750252475,
+            -853.7319542733134,
+            129.71014221701407
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17196,
+          17331
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 96.41317992083785,
+        "preserved_margin_mm": 0.0019268487803181245,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_gap_mm": 0.007707395121272498
+      },
+      {
+        "axis_world": [
+          0.632052573128078,
+          -0.20612660215404324,
+          0.7470082788608198
+        ],
+        "closest_a_barycentric": [
+          0.5813588873730859,
+          0.418641112626914,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.9711449241990184,
+          0.0,
+          0.028855075800981567
+        ],
+        "closest_distance_mm": 0.007707395125502331,
+        "closest_points_world_mm": [
+          [
+            -279.1816217313962,
+            -853.7303655741447,
+            129.70438472904686
+          ],
+          [
+            -279.176750252475,
+            -853.7319542733134,
+            129.71014221701407
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17196,
+          17332
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 96.41317992083785,
+        "preserved_margin_mm": 0.0019268487803181245,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_gap_mm": 0.007707395121272498
+      },
+      {
+        "axis_world": [
+          0.5254827387481905,
+          0.780260003621019,
+          -0.3392082222279235
+        ],
+        "closest_a_barycentric": [
+          0.05173354238499639,
+          0.9482664576150036,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.5745990580113387,
+          0.42540094198866135,
+          0.0
+        ],
+        "closest_distance_mm": 0.006527728932836078,
+        "closest_points_world_mm": [
+          [
+            -277.68065182803747,
+            -855.5063885990036,
+            127.94432728621474
+          ],
+          [
+            -277.67722161916004,
+            -855.5012952732028,
+            127.94211302688825
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17196,
+          17334
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -856.8303112244771,
+        "preserved_margin_mm": 0.0016319322283777637,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.006527728913511055
+      },
+      {
+        "axis_world": [
+          0.25433777614566894,
+          -0.5637781015450062,
+          0.7857903968893895
+        ],
+        "closest_a_barycentric": [
+          0.5778027619090738,
+          0.42219723809092624,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.004974184381210556,
+          0.9950258156187894,
+          0.0
+        ],
+        "closest_distance_mm": 0.014887724403146048,
+        "closest_points_world_mm": [
+          [
+            -279.1715435934359,
+            -853.7422905334828,
+            129.69256696928554
+          ],
+          [
+            -279.16775708271933,
+            -853.7506839064831,
+            129.70426560015306
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17196,
+          17339
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 512.2359557395391,
+        "preserved_margin_mm": 0.003721931094020192,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_gap_mm": 0.014887724376080769
+      },
+      {
+        "axis_world": [
+          0.12963522971328334,
+          -0.6405404989778664,
+          0.7569032807343156
+        ],
+        "closest_a_barycentric": [
+          0.5913820631203626,
+          0.4086179368796375,
+          0.0
+        ],
+        "closest_b_barycentric": [
+          0.9943991324270408,
+          0.0,
+          0.0056008675729591895
+        ],
+        "closest_distance_mm": 0.016245557968771536,
+        "closest_points_world_mm": [
+          [
+            -279.21002763242626,
+            -853.6967542844325,
+            129.73769386963417
+          ],
+          [
+            -279.20792163578716,
+            -853.70716022224,
+            129.7499901857581
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17196,
+          17340
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": 608.8388977985735,
+        "preserved_margin_mm": 0.004061389490885858,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.5,
+          0.0
+        ],
+        "support_b_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_gap_mm": 0.016245557963543433
+      },
+      {
+        "axis_world": [
+          0.07318327916366137,
+          -0.7260484200942319,
+          0.6837381803947498
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17202,
+          17322
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0010802869048944785,
+        "preserved_margin_mm": 0.00027007172622361963,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 10749,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -274.0584909915924,
+            -857.0296764373779,
+            125.71744620800018
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.07322856973971739,
+          -0.7259930981790921,
+          0.6837920721755983
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17202,
+          17325
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0010922218717395182,
+        "preserved_margin_mm": 0.00027305546793487956,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 10749,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -274.0584909915924,
+            -857.0296764373779,
+            125.71744620800018
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.07322856973971739,
+          -0.7259930981790921,
+          0.6837920721755983
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17202,
+          17328
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0010922218717395182,
+        "preserved_margin_mm": 0.00027305546793487956,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 10749,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -274.0584909915924,
+            -857.0296764373779,
+            125.71744620800018
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.07412291423124433,
+          -0.724744760164826,
+          0.6850188509811218
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17203,
+          17321
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0007591684260228604,
+        "preserved_margin_mm": 0.0001897921065057151,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 5888,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -269.51268315315247,
+            -858.5206866264343,
+            123.64919483661652
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          -0.0741369923122546,
+          0.7248820896982628,
+          -0.6848720043961298
+        ],
+        "closest_a_barycentric": [
+          0.24592274188368907,
+          0.0,
+          0.7540772581163109
+        ],
+        "closest_b_barycentric": [
+          0.7673295632033031,
+          0.0,
+          0.23267043679669686
+        ],
+        "closest_distance_mm": 0.0013316400981998498,
+        "closest_points_world_mm": [
+          [
+            -273.82419932028273,
+            -857.0066635346623,
+            125.71838594750083
+          ],
+          [
+            -273.82429804407445,
+            -857.0056982526052,
+            125.71747394447765
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17203,
+          17322
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -687.0286157416814,
+        "preserved_margin_mm": 0.00033291001392399266,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_gap_mm": 0.0013316400556959707
+      },
+      {
+        "axis_world": [
+          -0.07415199323294644,
+          0.7248637213668744,
+          -0.6848898213185441
+        ],
+        "closest_a_barycentric": [
+          0.12750140496519427,
+          0.0,
+          0.8724985950348058
+        ],
+        "closest_b_barycentric": [
+          0.7771789326753069,
+          0.0,
+          0.2228210673246931
+        ],
+        "closest_distance_mm": 0.0013355941408864493,
+        "closest_points_world_mm": [
+          [
+            -274.50128579008646,
+            -856.7688992515953,
+            126.04333458512835
+          ],
+          [
+            -274.50138482705415,
+            -856.7679311278561,
+            126.04241985029584
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17203,
+          17325
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -687.0110042818997,
+        "preserved_margin_mm": 0.00033389852495702144,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_gap_mm": 0.0013355940998280857
+      },
+      {
+        "axis_world": [
+          -0.07415199323294644,
+          0.7248637213668744,
+          -0.6848898213185441
+        ],
+        "closest_a_barycentric": [
+          0.12750140496519427,
+          0.0,
+          0.8724985950348058
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.7771789326753069,
+          0.22282106732469306
+        ],
+        "closest_distance_mm": 0.0013355941408864493,
+        "closest_points_world_mm": [
+          [
+            -274.50128579008646,
+            -856.7688992515953,
+            126.04333458512835
+          ],
+          [
+            -274.50138482705415,
+            -856.7679311278561,
+            126.04241985029584
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17203,
+          17328
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -687.0110042818997,
+        "preserved_margin_mm": 0.00033389852495702144,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_b_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_gap_mm": 0.0013355940998280857
+      },
+      {
+        "axis_world": [
+          -0.38818855278180026,
+          0.2776312877150976,
+          -0.878766473854589
+        ],
+        "closest_a_barycentric": [
+          0.0,
+          0.15098157183358707,
+          0.8490184281664129
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.10764986070023219,
+          0.8923501392997678
+        ],
+        "closest_distance_mm": 0.004232155639545442,
+        "closest_points_world_mm": [
+          [
+            -277.496351689452,
+            -856.902033972115,
+            127.27609261137951
+          ],
+          [
+            -277.4979945638249,
+            -856.900858993295,
+            127.27237353489134
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17205,
+          17211
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -242.02575500507623,
+        "preserved_margin_mm": 0.0010580389070611318,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_b_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_gap_mm": 0.004232155628244527
+      },
+      {
+        "axis_world": [
+          -0.38818855278180026,
+          0.2776312877150976,
+          -0.878766473854589
+        ],
+        "closest_a_barycentric": [
+          0.0,
+          0.15098157183358685,
+          0.8490184281664132
+        ],
+        "closest_b_barycentric": [
+          0.10764986070023226,
+          0.0,
+          0.8923501392997677
+        ],
+        "closest_distance_mm": 0.004232155639545442,
+        "closest_points_world_mm": [
+          [
+            -277.496351689452,
+            -856.902033972115,
+            127.27609261137951
+          ],
+          [
+            -277.4979945638249,
+            -856.900858993295,
+            127.27237353489134
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17205,
+          17212
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -242.02575500507623,
+        "preserved_margin_mm": 0.0010580389070611318,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_b_weights": [
+          0.5,
+          0.0,
+          0.5
+        ],
+        "support_gap_mm": 0.004232155628244527
+      },
+      {
+        "axis_world": [
+          -0.38679895143474713,
+          0.2484142471540748,
+          -0.8880748464965407
+        ],
+        "closest_a_barycentric": [
+          0.0,
+          0.08586115857352317,
+          0.9141388414264768
+        ],
+        "closest_b_barycentric": [
+          0.0,
+          0.12312251906008664,
+          0.8768774809399134
+        ],
+        "closest_distance_mm": 0.0005424502323176332,
+        "closest_points_world_mm": [
+          [
+            -277.4584644828374,
+            -856.8942669102864,
+            127.25761106711317
+          ],
+          [
+            -277.4586743020185,
+            -856.8941321579204,
+            127.25712933070638
+          ]
+        ],
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17206,
+          17211
+        ],
+        "kind": "moving_sat_midplane",
+        "margin_cap_applied": false,
+        "midplane_projection_mm": -218.55811326528425,
+        "preserved_margin_mm": 0.0001356125342795167,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": null,
+        "support_a_weights": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "support_b_weights": [
+          0.0,
+          0.5,
+          0.5
+        ],
+        "support_gap_mm": 0.0005424501371180668
+      },
+      {
+        "axis_world": [
+          0.3868093084194093,
+          -0.24860767641418252,
+          0.8880162060165565
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17206,
+          17212
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0002833912616277967,
+        "preserved_margin_mm": 7.084781540694918e-05,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 11685,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -278.18068861961365,
+            -855.783224105835,
+            127.8829574584961
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.38689237622127787,
+          -0.24834198651581563,
+          0.8880543603604633
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17207,
+          17211
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.0002890173886809233,
+        "preserved_margin_mm": 7.225434717023083e-05,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 12580,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -275.2302885055542,
+            -856.5129041671753,
+            126.39319896697998
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.39178836533431793,
+          -0.3307765623160227,
+          0.8585387251668135
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17208,
+          17211
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.005971953095996296,
+        "preserved_margin_mm": 0.001492988273999074,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 12580,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -275.2302885055542,
+            -856.5129041671753,
+            126.39319896697998
+          ]
+        ]
+      },
+      {
+        "axis_world": [
+          0.39178836533431793,
+          -0.3307765623160227,
+          0.8585387251668135
+        ],
+        "closest_distance_mm": 0.0,
+        "effective_margin_fraction": 0.25,
+        "faces": [
+          17208,
+          17212
+        ],
+        "kind": "common_vertex_wedge",
+        "margin_cap_applied": false,
+        "minimum_vertex_side_gap_mm": 0.005971953095996296,
+        "preserved_margin_mm": 0.001492988273999074,
+        "requested_margin_fraction": 0.25,
+        "shared_vertex": 12580,
+        "side_sign": 1.0,
+        "witness_points_world_mm": [
+          [
+            -275.2302885055542,
+            -856.5129041671753,
+            126.39319896697998
+          ]
+        ]
+      }
+    ],
+    "area_floor": 0.1,
+    "area_linearization_layout_check": {
+      "finite_difference_directional_derivative": 0.008509137838785819,
+      "layout": "node-major xyz",
+      "predicted_directional_derivative": 0.008509138357786772,
+      "relative_error": 6.099336538649723e-08,
+      "support_order": [
+        2,
+        0,
+        1
+      ]
+    },
+    "area_rows": 206,
+    "baseline_minimum_normalized_slack_mm": 3.294503457745579e-05,
+    "combined_rows": 776,
+    "component_bound_minmax_mm": [
+      -0.5773502691896258,
+      0.5773502691896258
+    ],
+    "pair_margin_fraction": 0.25,
+    "pair_rows": 570,
+    "source_safe_box": {
+      "bound_semantics": "per-node component cube with radius <= min(trust, source_cap - base_source_distance)/sqrt(3)",
+      "maximum_base_source_displacement_mm": 8.747331149655485,
+      "maximum_component_bound_mm": 0.5773502691896258,
+      "minimum_remaining_source_cap_mm_on_support": 3.970387587994944,
+      "source_cap_norm_guarantee_mm": 12.0,
+      "trust_norm_guarantee_mm": 1.0
+    },
+    "trust_mm": 1.0
+  },
+  "emitted_f32_checks": {
+    "alpha": 0.5,
+    "anchors_bitwise_unchanged": true,
+    "changed_nodes": 60,
+    "maximum_node_step_mm": 0.2199830200153043,
+    "maximum_source_displacement_mm": 8.74733114965547,
+    "minimum_emitted_normalized_linear_slack_mm": 1.954171444406193e-05,
+    "minimum_local_fixed_source_area_magnitude_ratio": 0.1366084586061373,
+    "minimum_local_oriented_area_ratio": 0.5368837397507379,
+    "outside_support_bitwise_unchanged": true
+  },
+  "full_surface_bone_audit": "NOT_RUN",
+  "global_exact_self_audit": "NOT_RUN",
+  "inputs": {
+    "area_owner": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-005/proposal/round-001/fit/area_scp_support_023.py",
+    "area_owner_sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+    "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-003/fit/local-backtrack/pass-025/candidate.npz",
+    "base_candidate_sha256": "af5cd16e0cd15f5353282a061ad46b87d3d16aad732d0b7e3f9d2cd2129f5745",
+    "pair_owner": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-005/proposal/round-001/fit/self_separation_026.py",
+    "pair_owner_sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+    "raw_trial": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-cluster-200-run001/proposal.npz",
+    "raw_trial_sha256": "a7e4ffcb7c3c22c3136fca65366def6010c67eed660c72869b2589fd89829ebd",
+    "self_pairs": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-cluster-200-run001/union-self-pairs.npy",
+    "self_pairs_sha256": "2ab80e9735b48ec3ace7a8586ed359c68734131a9413aa1e2410fa014d43114d"
+  },
+  "maximum_emitted_node_step_mm": 0.2199830200153043,
+  "maximum_source_displacement_mm": 8.74733114965547,
+  "native_admission": false,
+  "solver": {
+    "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "method": "scipy.optimize.linprog(method=highs), sparse L1 closest to raw target",
+    "minimum_normalized_linear_slack": -1.6653345369377348e-16,
+    "nit": 678,
+    "objective": 3.8433930431260466,
+    "raw_target_l1_mm": 23.503318428993225,
+    "residual_to_raw_target_l1_mm": 3.8433930431260466,
+    "status": 0,
+    "success": true,
+    "wall_seconds": 0.010836874949745834
+  },
+  "source_cap_mm": 12.0,
+  "source_reference": [
+    {
+      "columns": 13518,
+      "kind": "csr_level",
+      "level": 0,
+      "max_row_sum_error": 0.0,
+      "nnz": 25680,
+      "prefix": "",
+      "rows": 18430
+    },
+    {
+      "columns": 10145,
+      "kind": "csr_level",
+      "level": 1,
+      "max_row_sum_error": 0.0,
+      "nnz": 18450,
+      "prefix": "prior_input_006__",
+      "rows": 13518
+    },
+    {
+      "columns": 8776,
+      "kind": "csr_level",
+      "level": 2,
+      "max_row_sum_error": 0.0,
+      "nnz": 12193,
+      "prefix": "prior_run028__",
+      "rows": 10145
+    },
+    {
+      "composed_nnz": 36124,
+      "composed_shape": [
+        18430,
+        8776
+      ],
+      "kind": "composed_source_base",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+      "shape": [
+        8776,
+        3
+      ]
+    }
+  ],
+  "source_reference_max_displacement_after_mm": 8.74733114965547,
+  "source_reference_max_displacement_before_mm": 8.747331149655485,
+  "source_reference_shape": [
+    18430,
+    3
+  ],
+  "status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED",
+  "support": {
+    "core_nodes": 63,
+    "fixed_anchor_rows_in_support": [],
+    "fixed_anchor_rows_total": 237,
+    "one_ring_faces": 206,
+    "support_nodes": 138,
+    "threatened_pairs": 107
+  }
+}

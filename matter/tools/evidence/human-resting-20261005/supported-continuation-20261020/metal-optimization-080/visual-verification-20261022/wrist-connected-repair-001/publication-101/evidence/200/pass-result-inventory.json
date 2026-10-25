@@ -1,0 +1,74 @@
+{
+  "passes": [
+    {
+      "pass": "pass-001",
+      "result_sha256": "ffbd8789a0121c4b0e682b96b2e01c6736c2b349483a60052ccced339b7fd142",
+      "result_bytes": 804
+    },
+    {
+      "pass": "pass-002",
+      "result_sha256": "e8159ba22a26e5b92766e0998d74f8a8ce4eed43c19133ef090206a06fbba1ac",
+      "result_bytes": 805
+    },
+    {
+      "pass": "pass-003",
+      "result_sha256": "b249b1fa5cfd13f9c3e301048f4881609aac890799bca7cbe7be35a41d6eadea",
+      "result_bytes": 986
+    },
+    {
+      "pass": "pass-004",
+      "result_sha256": "161f9b05780a8491cb8ff8cc6d0a103d0cac1297576acd89f11b15082403f8a0",
+      "result_bytes": 985
+    },
+    {
+      "pass": "pass-005",
+      "result_sha256": "f902246630e379f3f73c8546df0e7cbee326fe8e9b606f43ce1a532cdcd5a944",
+      "result_bytes": 985
+    },
+    {
+      "pass": "pass-006",
+      "result_sha256": "b4a156eac57e9e61103143a4ba7771995c48d67e0ea73e9b1ee9069673946235",
+      "result_bytes": 986
+    },
+    {
+      "pass": "pass-007",
+      "result_sha256": "068899805d95bdb5493f93107bb7f3ab274122dd350e8a542e746573c11274f4",
+      "result_bytes": 805
+    },
+    {
+      "pass": "pass-008",
+      "result_sha256": "553b567cfe81a80355ed2868c668adaab50efacf9a49b8a251ef0ff4823f18de",
+      "result_bytes": 806
+    },
+    {
+      "pass": "pass-009",
+      "result_sha256": "f883b7cd4883f6ea6ecbb4419fdcfc955132aa999c42e5910fd947c7527d9419",
+      "result_bytes": 807
+    },
+    {
+      "pass": "pass-010",
+      "result_sha256": "97876e44ebecb360d5712e8d0a4654e1b6f825d62fffb4abb34d8266af28269e",
+      "result_bytes": 808
+    },
+    {
+      "pass": "pass-011",
+      "result_sha256": "f93e4f40d9d33f78c1df889df877c706fb7110a6069acb297413e2c85415ffe8",
+      "result_bytes": 988
+    },
+    {
+      "pass": "pass-012",
+      "result_sha256": "dec57b89d389eff491bc902f643b2e3577548d85e66e6d1b184935a6078495c6",
+      "result_bytes": 988
+    },
+    {
+      "pass": "pass-013",
+      "result_sha256": "31ad4b0768d5e067af76b0ba8cae4e20ec589082681a88c4d5d0cd8953103c60",
+      "result_bytes": 987
+    },
+    {
+      "pass": "pass-014",
+      "result_sha256": "83618ca06e4a51f3103e990656a5da593e54e3c144c273a1713fdae90c3e44fa",
+      "result_bytes": 2515
+    }
+  ]
+}

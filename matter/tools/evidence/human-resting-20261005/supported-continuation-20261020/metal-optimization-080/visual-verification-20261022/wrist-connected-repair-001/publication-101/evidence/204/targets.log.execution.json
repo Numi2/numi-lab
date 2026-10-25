@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/H/nearest-face-union-190/build_nearest_face_union_targets_198.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-clusters-199-run001/candidate.npz",
+    "--surface-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-clusters-199-run001/audit-159/report.json",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-connected-204-run001/targets"
+  ],
+  "returncode": 0,
+  "wall_seconds": 16.877213125000708,
+  "log_sha256": "a0e7d84dbb2f25ab7458031f5ad34216f3e3d133efb230980f602b11a2700922"
+}

@@ -1,0 +1,61 @@
+{
+  "publication": "P101",
+  "status": "prepared_not_published",
+  "base_commit": "47d38867fd5d1e58c51b7d8fa6fdb154d63b3dd0",
+  "runs": {
+    "195": {
+      "status": "bounded_three_round_construction_progress_only",
+      "candidate_sha256": "af5cd16e0cd15f5353282a061ad46b87d3d16aad732d0b7e3f9d2cd2129f5745",
+      "surface_pairs": 3414,
+      "inside_point_pairs": 300,
+      "maximum_depth_mm": 3.3851283017981575,
+      "exact_self_pairs": 0
+    },
+    "198": {
+      "status": "complete_target_construction_only",
+      "candidate_sha256": "7aad7ab7286cc89ae006f90dc35e72d8d60f8178023f4ebbc3a9464fee3a0c21",
+      "typed_banks": 185,
+      "target_rows": 4397,
+      "failed_rows": 0
+    },
+    "199": {
+      "status": "selected_strict_count_construction_progress_only",
+      "candidate_sha256": "7b543e2e06d3b47a44b48ea03dae26f77940926c7be6cb49a12dea0fdfd61f12",
+      "before_point_pairs": 300,
+      "after_point_pairs": 300,
+      "before_surface_pairs": 3414,
+      "after_surface_pairs": 3412,
+      "before_maximum_depth_mm": 3.3851283017981575,
+      "after_maximum_depth_mm": 3.212867036337457,
+      "exact_self_pairs": 0
+    },
+    "200": {
+      "status": "additive_depth_progress_classification",
+      "pass": 14,
+      "point_pairs": 300,
+      "surface_pairs": 3414,
+      "squared_depth_improvement_m2": 4.3576646883202526e-07,
+      "maximum_depth_nonincreasing": true,
+      "native_admission": false
+    },
+    "204": {
+      "status": "no_accepted_construction_step",
+      "candidate_sha256": "7b543e2e06d3b47a44b48ea03dae26f77940926c7be6cb49a12dea0fdfd61f12",
+      "reference_frame_mismatch": true,
+      "interpretation": "not physical infeasibility"
+    }
+  },
+  "tests": {
+    "depth_owner": {
+      "passed": 62,
+      "failed": 0
+    },
+    "nearest_union_198": {
+      "passed": 12,
+      "failed": 0
+    }
+  },
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "active_205_included": false
+}

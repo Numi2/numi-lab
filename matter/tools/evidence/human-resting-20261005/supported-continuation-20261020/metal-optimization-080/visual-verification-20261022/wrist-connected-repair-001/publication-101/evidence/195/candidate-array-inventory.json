@@ -1,0 +1,166 @@
+{
+  "arrays": [
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-001/fit/local-backtrack/pass-007/candidate.npz",
+      "sha256": "d4704402f88986dc640046cd8b8313727374de2f5b8dcb61d30392e954d6f293",
+      "bytes": 2172229,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-001/fit/local-backtrack/pass-012/candidate.npz",
+      "sha256": "79ed3f4a37ba278a340d575aecf50b1efce2e9a2c225ce929bccdaa8f64a50d0",
+      "bytes": 2172255,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-001/fit/local-backtrack/pass-015/candidate.npz",
+      "sha256": "b64116b9de9052d4be0a326a48c4c950f89994ab404885a64ec98981930c4f4c",
+      "bytes": 2172258,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-001/fit/local-backtrack/pass-019/candidate.npz",
+      "sha256": "6bc420ee8551a4a6b301d08569e16946b62321a783e6ff68bc8d7865938a8e87",
+      "bytes": 2172254,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-001/fit/local-backtrack/pass-021/candidate.npz",
+      "sha256": "79929a5ca6553e4fd4bf979eb5662df372e944aba293db4ccc08a676e131e798",
+      "bytes": 2172259,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-001/fit/local-backtrack/pass-022/candidate.npz",
+      "sha256": "23c998c072a0cce15873d30527debace1183080e6b2ef2f747c9b55a6d32da44",
+      "bytes": 2172259,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-001/fit/local-backtrack/pass-023/candidate.npz",
+      "sha256": "98edd10a96b9c3c81302d2409332a9fcd2976bab24dca0bfc40f2d8fa4b5039b",
+      "bytes": 2172260,
+      "staged_path": "195/round-001/fit/local-backtrack/pass-023/candidate.npz"
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-001/fit/proposal/fit/attempt-001/candidate.npz",
+      "sha256": "3d745f5e1a8abd20d1920829268ca4cec541dd470612fa6c48db6ab1ab2c743b",
+      "bytes": 2172337,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-001/fit/proposal/fit/attempt-001/scp-01-alpha-1p0/candidate.npz",
+      "sha256": "924341986f434b4ac3029e1a6029625d94c5aa0d08805ba0b31fd40517a2ed8b",
+      "bytes": 2172682,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-002/fit/local-backtrack/pass-007/candidate.npz",
+      "sha256": "54673973a24b3375369886f24a25e01a1e28750f46c1fbc1e6c31c0fedf6c561",
+      "bytes": 2172232,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-002/fit/local-backtrack/pass-012/candidate.npz",
+      "sha256": "7ac4cc6a1d455dacaa183fedc541d6b16c301adc9671b05f373f4e8ddc81e49a",
+      "bytes": 2172260,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-002/fit/local-backtrack/pass-015/candidate.npz",
+      "sha256": "0aa4c572c5c2c05d195211f0705cb50a9d851add9f515e065dbcd3d41196d0a4",
+      "bytes": 2172277,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-002/fit/local-backtrack/pass-018/candidate.npz",
+      "sha256": "2325b723ced66ce9d074fc9c74987e33b72f4c76de9d0a5130710ce4869edafa",
+      "bytes": 2172265,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-002/fit/local-backtrack/pass-020/candidate.npz",
+      "sha256": "a89c53349c4e6b91e18d5c28b49f5ce90958e3a7afc29d61f46c483bda723abe",
+      "bytes": 2172285,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-002/fit/local-backtrack/pass-022/candidate.npz",
+      "sha256": "4e52db901a4c74b0417e2b4d141ff7ab330cfd574f6c086542bfb6a5f363416f",
+      "bytes": 2172285,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-002/fit/local-backtrack/pass-023/candidate.npz",
+      "sha256": "80e0cd7d53164a2fea5f2bfd5ce2a3ce0723b1737849dda6331f927f59ff89b4",
+      "bytes": 2172286,
+      "staged_path": "195/round-002/fit/local-backtrack/pass-023/candidate.npz"
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-002/fit/proposal/fit/attempt-001/candidate.npz",
+      "sha256": "98edd10a96b9c3c81302d2409332a9fcd2976bab24dca0bfc40f2d8fa4b5039b",
+      "bytes": 2172260,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-002/fit/proposal/fit/attempt-001/scp-01-alpha-1p0/candidate.npz",
+      "sha256": "c84f444b7b7c5387a18d66251ab8067ae713fd5faaa80f88a0493a447af0548a",
+      "bytes": 2172678,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-003/fit/local-backtrack/pass-007/candidate.npz",
+      "sha256": "4ea341b4f24cf579e4c7d469bf275d2ea4c3b687c3c263827aea53f2d812d4fe",
+      "bytes": 2172167,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-003/fit/local-backtrack/pass-013/candidate.npz",
+      "sha256": "728dc04dfffcc4148c7dde6b3e3d6f8d68ad8e041c04c71ce87caa3b64508adf",
+      "bytes": 2172207,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-003/fit/local-backtrack/pass-017/candidate.npz",
+      "sha256": "f3f090731979e9b6923244452e86d8279f311b4beec510d8dd89057c91c00018",
+      "bytes": 2172227,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-003/fit/local-backtrack/pass-021/candidate.npz",
+      "sha256": "2216dbf84e15504528d25bd6abe537578bc112980708141582b91703d832965b",
+      "bytes": 2172208,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-003/fit/local-backtrack/pass-023/candidate.npz",
+      "sha256": "57e1ee9bcaf180e56046d1d53360427d062cde0f66d871ff7ac3287b22b063d7",
+      "bytes": 2172219,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-003/fit/local-backtrack/pass-024/candidate.npz",
+      "sha256": "36bf73ab88b2a949d9401888270b5a9b6e4054baf8854e98d2d38f6524b79f06",
+      "bytes": 2172222,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-003/fit/local-backtrack/pass-025/candidate.npz",
+      "sha256": "af5cd16e0cd15f5353282a061ad46b87d3d16aad732d0b7e3f9d2cd2129f5745",
+      "bytes": 2172222,
+      "staged_path": "195/round-003/fit/local-backtrack/pass-025/candidate.npz"
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-003/fit/proposal/fit/attempt-001/candidate.npz",
+      "sha256": "80e0cd7d53164a2fea5f2bfd5ce2a3ce0723b1737849dda6331f927f59ff89b4",
+      "bytes": 2172286,
+      "staged_path": null
+    },
+    {
+      "source": "barycentric-connected-clearance-170/face-connected-continuation-195-run001/round-003/fit/proposal/fit/attempt-001/scp-01-alpha-1p0/candidate.npz",
+      "sha256": "6e1e2247b9425b7458bc6210ad47f88e95f41183e8d4e081f67d274c0966f87e",
+      "bytes": 2172665,
+      "staged_path": null
+    }
+  ]
+}

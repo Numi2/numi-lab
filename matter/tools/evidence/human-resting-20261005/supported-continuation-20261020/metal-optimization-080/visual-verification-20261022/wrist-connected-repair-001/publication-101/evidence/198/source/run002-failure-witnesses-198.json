@@ -1,0 +1,150 @@
+{
+  "schema": "numi.human.nearest-face-union-failure-witnesses.198.v1",
+  "classification": "read_only_diagnostic_of_frozen_190_run002; no geometry rerun and no mutation of 190 artifacts",
+  "inputs": {
+    "run002_report_sha256": "f376934125afed9e9181dad001edf237fea5c3ff3d3f5708b1ed3dce51f53913",
+    "run002_target_records_sha256": "d0b7b412dab4f3dbac7a72e006b5c34ba8ca379abdc897ada8c890608b47a9da",
+    "run002_targets_npz_sha256": "b776fb1f39e76fef2aab31292a078141ab21f12bf0194650a087f4f44f2c7bcb",
+    "as_run_190_builder_sha256": "8ada192774600253ae34a8b23d53ef6605c4c7b15b3f41d7c2159c25baf31457",
+    "matched_candidate_sha256": "7aad7ab7286cc89ae006f90dc35e72d8d60f8178023f4ebbc3a9464fee3a0c21",
+    "matched_surface_report_sha256": "579ce371ae17e196d0edc7a8db78e37e6bac3f878baf44bcc186c1a53e667dac",
+    "matched_query_receipt_sha256": "4475ef7ed881576235be88192bf1c00886b92dce4b633c376f9fd51b895311c8"
+  },
+  "failures": [
+    {
+      "pair_index": 707,
+      "face_row": 15325,
+      "face_node_rows": [
+        12477,
+        14776,
+        16919
+      ],
+      "bank": {
+        "body": 46,
+        "stable_bone_id": 74,
+        "triangle_stable_id": 73
+      },
+      "original_status": "RECONSTRUCTED_SAMPLE_NOT_INSIDE_IMPLICATED_BANK",
+      "f64_virtual_sample_world_m": [
+        -0.2710552631062046,
+        -0.8679571848607508,
+        0.12607825413781545
+      ],
+      "diagnostic_f32_rounded_world_m": [
+        -0.2710552513599396,
+        -0.8679571747779846,
+        0.12607824802398682
+      ],
+      "f64_vs_f32_rounding_displacement_nm": 16.64379212301748,
+      "barycentric_weights": [
+        4.744287685597148e-05,
+        0.9999330492401634,
+        1.9507882980676627e-05
+      ],
+      "prior_point_location_diagnostic": {
+        "f64_virtual": "inside_implicated_bank",
+        "f32_rounded": "outside_implicated_bank"
+      },
+      "exact_intersection_points_bank_local_m": [
+        [
+          0.0013496133453518892,
+          0.0002628435858820164,
+          -0.010091941306323347
+        ],
+        [
+          0.0013496243970549625,
+          0.0002628241790310884,
+          -0.010091960565673982
+        ]
+      ]
+    },
+    {
+      "pair_index": 1248,
+      "face_row": 7835,
+      "face_node_rows": [
+        13563,
+        4230,
+        16213
+      ],
+      "bank": {
+        "body": 61,
+        "stable_bone_id": 97,
+        "triangle_stable_id": 62
+      },
+      "original_status": "RECONSTRUCTED_SAMPLE_NOT_INSIDE_IMPLICATED_BANK",
+      "f64_virtual_sample_world_m": [
+        -0.31720235104452943,
+        -1.026250227554781,
+        0.1449533887514158
+      ],
+      "diagnostic_f32_rounded_world_m": [
+        -0.3172023594379425,
+        -1.0262502431869507,
+        0.1449533849954605
+      ],
+      "f64_vs_f32_rounding_displacement_nm": 18.136188003754654,
+      "barycentric_weights": [
+        4.0635982648715686e-05,
+        0.15508009625529812,
+        0.8448792677620531
+      ],
+      "prior_point_location_diagnostic": {
+        "f64_virtual": "inside_implicated_bank",
+        "f32_rounded": "outside_implicated_bank"
+      },
+      "exact_intersection_points_bank_local_m": [
+        [
+          0.0005399434950431359,
+          -0.019118459221211564,
+          -0.0007821213910554831
+        ],
+        [
+          0.0005400461261412538,
+          -0.01911857529944675,
+          -0.0007820769165634371
+        ]
+      ]
+    },
+    {
+      "pair_index": 4333,
+      "face_row": 21133,
+      "bank": {
+        "body": 128,
+        "stable_bone_id": 18,
+        "triangle_stable_id": 1991
+      },
+      "original_status": "NO_CERTIFIED_INSIDE_FACE_SAMPLE",
+      "exact_intersection_points_bank_local_m": [
+        [
+          0.017255976129111398,
+          0.09166249932207611,
+          0.14404296091266952
+        ],
+        [
+          0.017260387687433196,
+          0.09165954637713669,
+          0.144044732880976
+        ]
+      ],
+      "original_inward_fraction_schedule": [
+        0.5,
+        0.25,
+        0.125,
+        0.0625,
+        0.03125,
+        0.015625,
+        0.0078125
+      ],
+      "prior_diagnostic": "fractions down to 0.0078125 remained outside; a point at fraction 0.001 was inside. The frozen run did not evaluate that point.",
+      "action": "198 private source extends the schedule through 1/1024 and 1/2048; this exact row must be rechecked in a later run before claiming resolution."
+    }
+  ],
+  "limits": [
+    "These are diagnostics of the frozen 190 run, not a rerun.",
+    "Exact endpoint clearance and all-185 membership remain mandatory for any new target.",
+    "The F32-rounded sample is retained only as diagnostic in 198; F64 virtual membership is authoritative."
+  ],
+  "private_198_source_sha256": "24d0c1a97138aabedd169f91fd2ac407bf0a75c95d901b79a4001926a36c09fa",
+  "private_198_test_sha256": "e8e0339e8c5af6336af4fe9896d01f47f1c60273be42cb49e9262749d6ba327a",
+  "private_198_tests": "7 passed; test-only, no target-generation run"
+}
