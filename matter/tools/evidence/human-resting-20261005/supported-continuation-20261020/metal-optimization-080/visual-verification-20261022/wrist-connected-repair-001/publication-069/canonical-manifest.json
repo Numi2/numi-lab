@@ -1,0 +1,73 @@
+{
+  "parent_main": "868486402da2ff0a208bf60c267df0928e2f91e0",
+  "canonical_paths": [
+    {
+      "path": "apps/NumiHumanD37InitialSkinBoneWitness.hpp",
+      "sha256": "7f1ca8a2f76cbaac640abf5e05b2646ae65854a3b4722250540d9deaa99e3241",
+      "size_bytes": 17154
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "sha256": "22c5142ee72c9f427ec5e177fc58f5f284ab512ccbec73b573e39c2dc8b0cb21",
+      "size_bytes": 155297
+    },
+    {
+      "path": "matter/root_exact_segment_witness.py",
+      "sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "size_bytes": 2734
+    },
+    {
+      "path": "matter/tools/human_skin_fat_bone_audit.py",
+      "sha256": "ea833990d8b1ffb309d4960e62fb8c67e5cf0ecdbcdc0d8e9ad40c20eaf4c6db",
+      "size_bytes": 46986
+    },
+    {
+      "path": "matter/tools/human_skin_fat_connected_repair.py",
+      "sha256": "3907a29c8363d5f1d0a90e52f637e0f8fce03c23b47296189e4e02884ee9dd2f",
+      "size_bytes": 30025
+    },
+    {
+      "path": "matter/tools/human_skin_fat_static_query.cmake",
+      "sha256": "911c5124732cbe88549483a7691d414c1d7861312fd44187a78525be03f9469f",
+      "size_bytes": 542
+    },
+    {
+      "path": "matter/tools/human_skin_fat_static_query.cpp",
+      "sha256": "68026aa61ca6be39a801e421b59154bb7ce25ee3b5997a9e54d154c978fb3641",
+      "size_bytes": 7259
+    },
+    {
+      "path": "matter/tools/test_human_skin_fat_bone_audit.py",
+      "sha256": "ed3d2f00fcd2f9d2abcdf9f99cafc8eabd774f18129ab406991925a153bb4739",
+      "size_bytes": 14024
+    },
+    {
+      "path": "matter/tools/test_human_skin_fat_connected_repair.py",
+      "sha256": "b6e3f2813f308eff33aaa39b3d0390793cc1504109eabd22e4478a11744a6c79",
+      "size_bytes": 5500
+    },
+    {
+      "path": "matter/tools/test_human_skin_fat_connected_repair_inputs.py",
+      "sha256": "058fb0b3e67addff25c94e6b7886027ffc9934cfc7045ab06ccc6c98be803c53",
+      "size_bytes": 3617
+    },
+    {
+      "path": "matter/tools/test_human_skin_fat_connected_repair_scaling.py",
+      "sha256": "0a418b5610c1b4a419cadc854e8ab1d91698d7c3da03f77be45237ff516cd344",
+      "size_bytes": 1993
+    },
+    {
+      "path": "matter/tools/test_human_skin_fat_connected_sparse.py",
+      "sha256": "34ad20548d207648f4cceb3f980591e575b281d2fcb250df325be0d6efd44f31",
+      "size_bytes": 3909
+    },
+    {
+      "path": "matter/tools/test_human_skin_fat_connected_surface.py",
+      "sha256": "ea62df465fc580de50efe332c29d8832da577c3beb8a0be136ea2140751bfd22",
+      "size_bytes": 3525
+    }
+  ],
+  "python_tests": 34,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false
+}

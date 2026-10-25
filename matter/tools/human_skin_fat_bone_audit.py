@@ -355,9 +355,23 @@ def exact_segment_triangle_hits(segment_start: np.ndarray, segment_end: np.ndarr
 
 def audit_unique_tet_edges(global_node_ids: np.ndarray, tetrahedra: np.ndarray,
                            triangle_ids: np.ndarray, bank_triangles: np.ndarray,
-                           body_local_points: dict[int, np.ndarray], exact_classifier) -> dict[str, Any]:
-    """Screen deduplicated FEM edges against all typed bone banks; not a solid gate."""
+                           body_local_points: dict[int, np.ndarray], exact_classifier,
+                           *, node_identity_domain: str = "global_node") -> dict[str, Any]:
+    """Screen unique FEM edges against typed bone banks, preserving ID semantics.
+
+    global_node is the historical output contract. query_row is for point sets
+    without compiled global IDs: the supplied identity vector must be exactly
+    the contiguous array row sequence, and witnesses emit endpoint_query_rows
+    instead of global-node/layer/column fields.
+    """
+    if node_identity_domain not in ("global_node", "query_row"):
+        raise ValueError("node_identity_domain must be 'global_node' or 'query_row'")
     gids = np.asarray(global_node_ids, dtype=np.int64)
+    if gids.ndim != 1:
+        raise ValueError("node identity vector must be one-dimensional")
+    if node_identity_domain == "query_row" and not np.array_equal(
+            gids, np.arange(len(gids), dtype=np.int64)):
+        raise ValueError("query_row identity requires contiguous zero-based array rows")
     tets = np.asarray(tetrahedra, dtype=np.int64)
     ids = np.asarray(triangle_ids, dtype=np.int64)
     tris = np.asarray(bank_triangles, dtype=np.float64)
@@ -399,18 +413,22 @@ def audit_unique_tet_edges(global_node_ids: np.ndarray, tetrahedra: np.ndarray,
             # Convert candidate-subset index back to the full typed-bank-local index.
             for hit in result["hits"]:
                 local_index = int(candidate_rows[hit["bank_local_index"]])
-                records.append({"edge_index": int(edge_index),
-                                "endpoint_local_nodes": edges[edge_index].tolist(),
-                                "endpoint_global_nodes": gids[edges[edge_index]].tolist(),
-                                "endpoint_layers": (edges[edge_index] // ROUTE_ROWS).tolist(),
-                                "endpoint_columns": (edges[edge_index] % ROUTE_ROWS).tolist(),
-                                "body": body, "bone_stable_id": bone,
-                                "source_record_index": source,
-                                "triangle_bank_local_index": local_index,
-                                "triangle_stable_id": int(stable[local_index]),
-                                "classification": hit["classification"],
-                                "exact_result": hit["exact_result"],
-                                "hit_reconstruction_error_m": hit["hit_reconstruction_error_m"]})
+                record = {"edge_index": int(edge_index),
+                          "endpoint_local_nodes": edges[edge_index].tolist(),
+                          "body": body, "bone_stable_id": bone,
+                          "source_record_index": source,
+                          "triangle_bank_local_index": local_index,
+                          "triangle_stable_id": int(stable[local_index]),
+                          "classification": hit["classification"],
+                          "exact_result": hit["exact_result"],
+                          "hit_reconstruction_error_m": hit["hit_reconstruction_error_m"]}
+                if node_identity_domain == "global_node":
+                    record.update({"endpoint_global_nodes": gids[edges[edge_index]].tolist(),
+                                   "endpoint_layers": (edges[edge_index] // ROUTE_ROWS).tolist(),
+                                   "endpoint_columns": (edges[edge_index] % ROUTE_ROWS).tolist()})
+                else:
+                    record["endpoint_query_rows"] = edges[edge_index].tolist()
+                records.append(record)
                 counts["proper_hits"] += int(hit["classification"] == "proper_interior_hit")
                 counts["boundary_hits"] += int(hit["classification"] == "boundary_hit")
             for bad in result["uncertain"]:

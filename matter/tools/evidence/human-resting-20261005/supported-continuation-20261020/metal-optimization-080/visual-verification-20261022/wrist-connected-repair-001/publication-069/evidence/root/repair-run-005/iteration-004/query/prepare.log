@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-004/candidate.npz",
+  "input_sha256": "e5dceaf0f0125cb3ad3daadf759e412802f9acd025f67ddb22a2c4638d21e0ea",
+  "field": "points_world_f32",
+  "query_count": 9320,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-004/query/points.csv",
+  "output_sha256": "f4faa721570a56b73f88366ad67d45a046b0bdde5554292d7bffa4bc8f60a166",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

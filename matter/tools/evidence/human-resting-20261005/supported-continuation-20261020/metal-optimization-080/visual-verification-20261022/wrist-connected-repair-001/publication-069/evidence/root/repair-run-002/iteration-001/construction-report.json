@@ -1,0 +1,33 @@
+{
+  "algorithm": "sparse_regularized_least_squares_exact_geometry_backtracking",
+  "free_nodes": 6243,
+  "contact_rows": 9700,
+  "active_contact_rows": 9700,
+  "starting_contact_deficit_l1_mm": 17222.82606974194,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "reference_unchanged": true,
+  "linear_stop": 7,
+  "linear_iterations": 400,
+  "linear_residual_norm": 196.30508980866733,
+  "estimated_condition": 16.696646751702012,
+  "touched_cells": 28756,
+  "step_applied": true,
+  "components": [
+    {
+      "nodes": 6243,
+      "applied": true,
+      "line_fraction": 0.11875920670921848,
+      "direction_max_incremental_gradient": 1.6770617460330028
+    }
+  ],
+  "contact_deficit_l1_mm": 16280.838589668405,
+  "emitted_J_min": 0.8558333743861936,
+  "emitted_J_max": 1.1683265532654619,
+  "emitted_q_min": 1.434755642340412e-05,
+  "boundary_area_ratio_min": 0.9347013671000822,
+  "boundary_area_ratio_max": 1.175621525270299,
+  "boundary_normal_cosine_min": 0.9967012532104178,
+  "maximum_step_mm": 2.4557542034024835,
+  "maximum_cumulative_displacement_mm": 2.4557542034024835
+}

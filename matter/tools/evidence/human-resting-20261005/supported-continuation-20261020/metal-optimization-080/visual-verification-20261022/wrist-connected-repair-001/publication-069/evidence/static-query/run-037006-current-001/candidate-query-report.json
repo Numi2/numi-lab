@@ -1,0 +1,54 @@
+{
+  "baseline_parity": {
+    "exact_7,233_row_pair_and_node_summary_parity": true,
+    "report_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-baseline-001/baseline-parity.json",
+    "report_sha256": "4143b7b408845ad4b52983fb9b1d16788d637a513aa0f8625efcf77dc7be222d"
+  },
+  "bone_asset": {
+    "bodies_csv": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+    "bodies_sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "closed_per_bone_banks": 185,
+    "native_triangle_rows": 469136,
+    "triangles_csv": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+    "triangles_sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac"
+  },
+  "candidate": {
+    "ancestry_rows": 9320,
+    "appended_rows": 2087,
+    "original_prefix_rows": 7233,
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/run-006/candidate.npz",
+    "point_dtype": "float32",
+    "point_field": "current_points_f32",
+    "prefix_bitwise_matches_native_baseline": true,
+    "query_rows": 9320,
+    "report_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/run-006/report.json",
+    "report_sha256": "05d26d04485c6d767e0805932e048cae6e7b3bb2e29117e8e44a032e78a8e693",
+    "sha256": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492"
+  },
+  "limits": [
+    "This is static per-node containment only; no triangle or tetrahedron intersection test.",
+    "Query row indices are not native global node IDs.",
+    "Containment was evaluated against the exact 039 current-pose emitted bone banks; no independent rest-pose query is included.",
+    "No mass transfer, native FEM admission, or physical simulation."
+  ],
+  "query": {
+    "aabb_proven_outside": 1719826,
+    "ambiguous": 0,
+    "inside": 1030,
+    "inside_appended_rows": 889,
+    "inside_original_prefix_rows": 139,
+    "inside_pair_rows": 1030,
+    "inside_unique_query_rows": 1028,
+    "invalid": 0,
+    "node_bank_pairs": 1724200,
+    "node_output_sha256": "d03099b78bbab62b3b0da487416feddb975aa54383baa9c730ceaa990b787ee1",
+    "pair_output_sha256": "448d24c1f8a32f0dce6110b094c0dfd2dafcffe040e93b92edf18f01d15e9952",
+    "parity_outside": 3344,
+    "point_export_sha256": "3dc530517f52b960c5a207fadbce92de18ec19f3c55286b07a2741fcefb71a2f",
+    "query_rows": 9320,
+    "tool_binary_sha256": "7216d3d3e31411f5cdc72cff129b479ce68b88a0d2d01dde7a1524e5f2cd7517",
+    "tool_source_sha256": "86d409cdf964a4d6d0c326ddc5d85de6c7d20e520a88a43e836e058cef271f19"
+  },
+  "schema": "numi.human.generic-static-query-candidate-report.v1",
+  "status": "STATIC_QUERY_COMPLETE_NOT_SURFACE_CLEARANCE"
+}

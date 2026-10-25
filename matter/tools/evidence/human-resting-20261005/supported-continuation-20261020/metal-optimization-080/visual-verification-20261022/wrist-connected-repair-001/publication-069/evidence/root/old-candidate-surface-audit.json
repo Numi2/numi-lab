@@ -1,0 +1,32 @@
+{
+  "original": {
+    "boundary_faces": 9734,
+    "min_area_ratio": 0.9999999999999998,
+    "max_area_ratio": 1.0000000000000002,
+    "min_normal_cosine": 0.9999999999999996,
+    "area_below_025": 0,
+    "area_above_4": 0,
+    "normal_cosine_below_025": 0,
+    "normal_dot_nonpositive": 0
+  },
+  "old039005": {
+    "boundary_faces": 9734,
+    "min_area_ratio": 0.3414722087302572,
+    "max_area_ratio": 2.4742397633245012,
+    "min_normal_cosine": 0.33457771496486055,
+    "area_below_025": 0,
+    "area_above_4": 0,
+    "normal_cosine_below_025": 0,
+    "normal_dot_nonpositive": 0
+  },
+  "old041005": {
+    "boundary_faces": 9734,
+    "min_area_ratio": 0.29879938146828916,
+    "max_area_ratio": 3.37174483507281,
+    "min_normal_cosine": -0.021899118562689703,
+    "area_below_025": 0,
+    "area_above_4": 0,
+    "normal_cosine_below_025": 11,
+    "normal_dot_nonpositive": 1
+  }
+}

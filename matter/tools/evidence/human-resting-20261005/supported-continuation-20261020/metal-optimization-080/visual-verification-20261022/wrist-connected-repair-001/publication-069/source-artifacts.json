@@ -1,0 +1,1537 @@
+{
+  "files": [
+    {
+      "path": "evidence/root/baseline-inside-layer-diagnosis.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/baseline-inside-layer-diagnosis.json",
+      "uncompressed_sha256": "dda6093b9da4ce0182ea7fc7fedecf4e8c7646935f28a25225200f11498512af",
+      "uncompressed_size_bytes": 966,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/connected-tests-final.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-tests-final.log",
+      "uncompressed_sha256": "51346b347ff8e24267a86631a4131c9c23c144bcd3a910b302c5b99728efa0b9",
+      "uncompressed_size_bytes": 3663,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/old-candidate-surface-audit.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/old-candidate-surface-audit.json",
+      "uncompressed_sha256": "dbab9a6d3545507335e8a4289aaf0eafdd4a4b372db2101beb2b9db4150f4e13",
+      "uncompressed_size_bytes": 885,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/run-active.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/run-active.log",
+      "uncompressed_sha256": "395f261ca590d798807a203e61d751cd9731ce29b1cbd78bb9feb9aac068cac1",
+      "uncompressed_size_bytes": 11661,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/run-hinge.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/run-hinge.log",
+      "uncompressed_sha256": "b4746d1cd8346a0d59e21b63acbf68efa5184941bb3140f44ed95a9578d0b58f",
+      "uncompressed_size_bytes": 19448,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/run-ipm.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/run-ipm.log",
+      "uncompressed_sha256": "bcec10c29de652cbd9a34ccce083f72628b608abcf1c25ea30d0aa4f31871e93",
+      "uncompressed_size_bytes": 540,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/run-sparse.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/run-sparse.log",
+      "uncompressed_sha256": "1ab684fc7ba67d08ac9a6f5b06c485b7f1ec827d1c55c01f8e2eb6dbeec2d436",
+      "uncompressed_size_bytes": 7654,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/run.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/run.log",
+      "uncompressed_sha256": "d472c5e756ab99736a4899f76739e1536b44590bea3907f3922f652773945248",
+      "uncompressed_size_bytes": 510,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/run_refined_connected.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/run_refined_connected.py",
+      "uncompressed_sha256": "8681178950e90ea0450b58efb25eea0a8c09226120bbe2a7c1ce555e77203713",
+      "uncompressed_size_bytes": 10389,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/run_refined_connected_active.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/run_refined_connected_active.py",
+      "uncompressed_sha256": "bd392ac859e7fae92b74e6e03796eca44f7755744590d46368f14f39cf6a28b1",
+      "uncompressed_size_bytes": 10298,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/run_refined_connected_hinge.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/run_refined_connected_hinge.py",
+      "uncompressed_sha256": "c8a6e526cb381ee0397c0d0d44678f26304d234994aaeae2e84d0cbbb82a36b9",
+      "uncompressed_size_bytes": 10299,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/run_refined_connected_ipm.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/run_refined_connected_ipm.py",
+      "uncompressed_sha256": "d743162c19d50225a49934e681e57bb15b7c34e5d8e7c6cde2051e4a8fcf8896",
+      "uncompressed_size_bytes": 10415,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/run_refined_connected_sparse.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/run_refined_connected_sparse.py",
+      "uncompressed_sha256": "c0025a2e9dc1af2fcd7c5cf25f022dbf3125389d75e9ed71df91e22cd6978779",
+      "uncompressed_size_bytes": 10385,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/run_refined_connected_template.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/run_refined_connected_template.py",
+      "uncompressed_sha256": "19766122b44179a4a33079a3e171400731db5138d9c86ab81edf03f833c1c88d",
+      "uncompressed_size_bytes": 9761,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/source-manifest.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/source-manifest.json",
+      "uncompressed_sha256": "463d3dbc709b9510150a935780a33b608f84e3da1809eb97317073c4a99d17d8",
+      "uncompressed_size_bytes": 969,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/tests-active.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/tests-active.log",
+      "uncompressed_sha256": "4cdae0d2419bfacdf12a9e078c39c4b65396c10aaa5c9a79cfdf7e336f48036f",
+      "uncompressed_size_bytes": 122,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/tests-ipm.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/tests-ipm.log",
+      "uncompressed_sha256": "4ae6df1a77452c65fc9db0e89ba5d338820b095a01c9e8cfc99926a7a999e42d",
+      "uncompressed_size_bytes": 120,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/tests-sparse.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/tests-sparse.log",
+      "uncompressed_sha256": "99670808c7c263c8c3de0989424b45c8bb6447ce3fbf95567e955e9d51a1d496",
+      "uncompressed_size_bytes": 120,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/tests.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/tests.log",
+      "uncompressed_sha256": "ea652c61c25295c95e783b19a5963ad9ef37626f6bd948a5bb9a37049998521d",
+      "uncompressed_size_bytes": 115,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-001/as-run-source/human_skin_fat_connected_repair.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-001/as-run-source/human_skin_fat_connected_repair.py",
+      "uncompressed_sha256": "d8a64295614425e0eeff25d3e1d2002a44951c93e148cc802972f9ff2920bfe4",
+      "uncompressed_size_bytes": 17429,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-001/boundary-faces.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-001/boundary-faces.npy",
+      "uncompressed_sha256": "86b51420f75ad8dc9612080dea66e16087811517d15c690d5729c39a229cf4b9",
+      "uncompressed_size_bytes": 271808,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-001/failure-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-001/failure-receipt.json",
+      "uncompressed_sha256": "014413c023ff440e604563a7f2363a9fe076581251586fc8fed11e5042d5cf1c",
+      "uncompressed_size_bytes": 393,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-001/iteration-001/construction-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-001/iteration-001/construction-report.json",
+      "uncompressed_sha256": "500759435e41ab5894e33e24ca58356178c2439478cd19cb8ad0ac78cc499d77",
+      "uncompressed_size_bytes": 380,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-001/iteration-001/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-001/iteration-001/contact-provenance.json",
+      "uncompressed_sha256": "ec1740844f4146b825ca517b94b9266b78c27a1dfcb5e87c47bbb47de1f9e2e6",
+      "uncompressed_size_bytes": 1805394,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-001/iteration-001/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-001/iteration-001/contact-rows.npz",
+      "uncompressed_sha256": "32f409ecc0afe267dc5b82fd41d4ebbbc2cb9697a8c805cf1c36869b7016f017",
+      "uncompressed_size_bytes": 483763,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-001/iteration-001/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-001/iteration-001/input.npz",
+      "uncompressed_sha256": "b23c9a0c7552c9a66be412e6c61729794e520e2ef0c73a49e9291ec63f694346",
+      "uncompressed_size_bytes": 664588,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-001/layer-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-001/layer-rows.npz",
+      "uncompressed_sha256": "c72bd74c778e7012ab4005e85e462996090c83342ffeabdcc750039b643d9bfe",
+      "uncompressed_size_bytes": 212209,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-001/layer-targets.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-001/layer-targets.npy",
+      "uncompressed_sha256": "2c47807a0a7f4b3cbd70fa48f9d05e2c290e7e4f9b0ae6436307bacb81fb34dd",
+      "uncompressed_size_bytes": 77280,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/as-run-source/human_skin_fat_connected_repair.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/as-run-source/human_skin_fat_connected_repair.py",
+      "uncompressed_sha256": "c608769a0980ed056f8aa9704ae60e4748c67f23a3d2c13c35e23a519cc581b2",
+      "uncompressed_size_bytes": 26060,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/boundary-faces.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/boundary-faces.npy",
+      "uncompressed_sha256": "86b51420f75ad8dc9612080dea66e16087811517d15c690d5729c39a229cf4b9",
+      "uncompressed_size_bytes": 271808,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/continuation.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/continuation.json",
+      "uncompressed_sha256": "163238e87c7feb9de80667976cd45770094cea0db99d393593b8a2e588d14ee2",
+      "uncompressed_size_bytes": 4524,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-001/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/candidate.npz",
+      "uncompressed_sha256": "152741adf272bb11d3c9945c3490fff2f56c04847652c20fd62a3321ea6a0101",
+      "uncompressed_size_bytes": 286486,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-001/construction-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/construction-report.json",
+      "uncompressed_sha256": "7fb0acaf6bcb9d6df92493d60733aee8b239d2754c6d5c0b6c54da315512ac49",
+      "uncompressed_size_bytes": 1099,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-001/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/contact-provenance.json",
+      "uncompressed_sha256": "ec1740844f4146b825ca517b94b9266b78c27a1dfcb5e87c47bbb47de1f9e2e6",
+      "uncompressed_size_bytes": 1805394,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-001/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/contact-rows.npz",
+      "uncompressed_sha256": "32f409ecc0afe267dc5b82fd41d4ebbbc2cb9697a8c805cf1c36869b7016f017",
+      "uncompressed_size_bytes": 483763,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-001/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/input.npz",
+      "uncompressed_sha256": "b23c9a0c7552c9a66be412e6c61729794e520e2ef0c73a49e9291ec63f694346",
+      "uncompressed_size_bytes": 664588,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-001/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/query/nodes.csv",
+      "uncompressed_sha256": "03e8fdad4a45f726923cfd99afea64cefffb083364c5657b340123a61f8489c8",
+      "uncompressed_size_bytes": 213386,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-001/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/query/pairs.csv",
+      "uncompressed_sha256": "7312b394645d2b64162522b46a5fc198d4de690834890a28eb25faf85e414358",
+      "uncompressed_size_bytes": 892964,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-001/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/query/points.csv",
+      "uncompressed_sha256": "677a60bf9a46b397d319fc62b0cd9c3cdfd98d15bcce2496f6ac8d257b2a9327",
+      "uncompressed_size_bytes": 707033,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-001/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/query/prepare.log",
+      "uncompressed_sha256": "9b699b585eb1a0940ea4570912c63c30f13efb369b93f282b68e5bb7db24e592",
+      "uncompressed_size_bytes": 560,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-001/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/query/query-receipt.json",
+      "uncompressed_sha256": "4ba2551da3df85e577389f9684d03510086befb4d89dce98b899416e7726df93",
+      "uncompressed_size_bytes": 1650,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-001/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/query/query.log",
+      "uncompressed_sha256": "497dd1ffca1d9a12808da7879473bd34e0d77ab9f8064bb9ea5eac5dc7064271",
+      "uncompressed_size_bytes": 135,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-001/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/tet-edge-report.json",
+      "uncompressed_sha256": "7f50bb30a4f83cb32d615bed7cc1f3cbe6bf5d759726a822a3d4911838345ab6",
+      "uncompressed_size_bytes": 8364582,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-002/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/candidate.npz",
+      "uncompressed_sha256": "3310879ea12bd2d7c8a917b1079ed462eba226a1cc9f97854baf9a6ebb99c183",
+      "uncompressed_size_bytes": 286498,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-002/construction-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/construction-report.json",
+      "uncompressed_sha256": "530bb56b741a1bcbf6d7ae61ef2f3d0d9a38a79429696e8b09e2031a1dd66a33",
+      "uncompressed_size_bytes": 1095,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-002/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/contact-provenance.json",
+      "uncompressed_sha256": "fcbf25eea6d5fbfa3f7389c7286414e603957104ff1ba4fc434784beba3a15bf",
+      "uncompressed_size_bytes": 1774586,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-002/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/contact-rows.npz",
+      "uncompressed_sha256": "2c1bbe138dd24b345fdcdf0a0ad81b5167e1b43c3853eb606b237762e0819952",
+      "uncompressed_size_bytes": 475867,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-002/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/input.npz",
+      "uncompressed_sha256": "135688645071d6cfff5f9beff0a4a885ac80a8786ece6e9f8725e0fbfc8450a7",
+      "uncompressed_size_bytes": 663967,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-002/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/query/nodes.csv",
+      "uncompressed_sha256": "a4f9b28ffeaa10f20dfece301a88c65a4a753e957eea71062254de6e6e1fc6e8",
+      "uncompressed_size_bytes": 213386,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-002/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/query/pairs.csv",
+      "uncompressed_sha256": "11aad7f0c3b5b29f3b48c3f2806e74c123198d6ea709bb1730aff567c1eb61e1",
+      "uncompressed_size_bytes": 886708,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-002/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/query/points.csv",
+      "uncompressed_sha256": "87998cde337240b4a6d01efbd27e3a0966dc92756271f6798a1ab534314d2414",
+      "uncompressed_size_bytes": 707168,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-002/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/query/prepare.log",
+      "uncompressed_sha256": "4f5ba310b58088491af859b4913ea7d485b04203933483965b583b48454c8d10",
+      "uncompressed_size_bytes": 560,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-002/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/query/query-receipt.json",
+      "uncompressed_sha256": "ea6f77ae5bc7156e0f779fb9bb8e574dc5d3b3fc8dd243fab855ff968cea2ae6",
+      "uncompressed_size_bytes": 1650,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-002/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/query/query.log",
+      "uncompressed_sha256": "d66ceb6203d4d5f8e2110b306367c2c760470bb6246fe34c232ae2b14dbbeac5",
+      "uncompressed_size_bytes": 134,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-002/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/tet-edge-report.json",
+      "uncompressed_sha256": "fb4f777488fd582eb427981b5ac2684e16326768272a43b4b984a8925c46888d",
+      "uncompressed_size_bytes": 8175531,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-003/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/candidate.npz",
+      "uncompressed_sha256": "18fcc1a5282c375598e9ccec9a41fe836229d5ce2efa578178e285b00cbd9832",
+      "uncompressed_size_bytes": 286453,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-003/construction-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/construction-report.json",
+      "uncompressed_sha256": "d5410611d659499d2d32bd894e7253331e75b97c87104312c74050a0999e6012",
+      "uncompressed_size_bytes": 1096,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-003/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/contact-provenance.json",
+      "uncompressed_sha256": "bc39add7c6de217032c381b03912ea402d074a6fa3eb65a8221c2ff7d959dc99",
+      "uncompressed_size_bytes": 1740691,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-003/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/contact-rows.npz",
+      "uncompressed_sha256": "316efbab56dfd8fdff003036589846ed979b7bf1bf4a7169ad36dcb743d821a0",
+      "uncompressed_size_bytes": 466779,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-003/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/input.npz",
+      "uncompressed_sha256": "fd0c9fc97139989bb5c120fc9f70cfd54f673f4763f43f49a71a312a5dc4473f",
+      "uncompressed_size_bytes": 663256,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-003/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/query/nodes.csv",
+      "uncompressed_sha256": "caa3cd6edb4b39cb71e6466b993d7e03eefa0ba72aba45190d1883ee0233a0f7",
+      "uncompressed_size_bytes": 213386,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-003/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/query/pairs.csv",
+      "uncompressed_sha256": "b4a3f1827def9f2680c37ad49f10662ae4b541a745852759e9efecd27da21638",
+      "uncompressed_size_bytes": 880914,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-003/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/query/points.csv",
+      "uncompressed_sha256": "520c0708a6528d57279138074b8a6e167fde5e9822c70da48519c0fa4eecd189",
+      "uncompressed_size_bytes": 707061,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-003/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/query/prepare.log",
+      "uncompressed_sha256": "c3968aad23593f2d51446b7c640ca0bea11cec116b0f4bbce00c1fa05f4ebbf8",
+      "uncompressed_size_bytes": 560,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-003/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/query/query-receipt.json",
+      "uncompressed_sha256": "d0f36373f8938979dbb0300fc9b013fdfb45b89bfa3327dae291e4aa50ac672d",
+      "uncompressed_size_bytes": 1650,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-003/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/query/query.log",
+      "uncompressed_sha256": "ada9563268f946b83dea8a64dc35da3899d9a984bb072e379da1e5e9cb900d44",
+      "uncompressed_size_bytes": 134,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-003/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/tet-edge-report.json",
+      "uncompressed_sha256": "3e570f843a4acb4fcbfcc1a816ae7c6f73f71d656833faae256c23f18e9f354d",
+      "uncompressed_size_bytes": 8054279,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-004/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/candidate.npz",
+      "uncompressed_sha256": "03abfa50723272451788a13e59547895c3f7cba46a6f083fc37ebddb561bc389",
+      "uncompressed_size_bytes": 286477,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-004/construction-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/construction-report.json",
+      "uncompressed_sha256": "f7dab78b221de2b3da6a207a5a20f0d3e1bad60577588c66fafd5b9b25ccb9a2",
+      "uncompressed_size_bytes": 1099,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-004/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/contact-provenance.json",
+      "uncompressed_sha256": "db424c6f971aee4857eca77b785a9c2d0428fdc4ecd57b1f1601cf600539a411",
+      "uncompressed_size_bytes": 1707441,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-004/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/contact-rows.npz",
+      "uncompressed_sha256": "341a55050860243c8697f1a6e4691644a88c49f638280c04e67240f9c5c89b9b",
+      "uncompressed_size_bytes": 458119,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-004/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/input.npz",
+      "uncompressed_sha256": "94644b83a26dee792d574fd9bda921708cc92b9acb95ff0b995dfa9fb7d1900c",
+      "uncompressed_size_bytes": 662415,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-004/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/query/nodes.csv",
+      "uncompressed_sha256": "9fb6f5e2f365493141199307fdc01f213b6d705690abca758b02569ccd8ce032",
+      "uncompressed_size_bytes": 213386,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-004/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/query/pairs.csv",
+      "uncompressed_sha256": "2dbc750fe03a5bbbe8c1f2fc21194b2ff49712f4814f9b74f0d99a7ec29787aa",
+      "uncompressed_size_bytes": 876982,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-004/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/query/points.csv",
+      "uncompressed_sha256": "0d13176c8f6470d0f5d414684f1760996affe7ca86adf0f0aeaa3f0fe3b18010",
+      "uncompressed_size_bytes": 707010,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-004/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/query/prepare.log",
+      "uncompressed_sha256": "be049fcfbd851534616fb579642a00657c17f0a79a4840ac4fa40496702c5107",
+      "uncompressed_size_bytes": 560,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-004/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/query/query-receipt.json",
+      "uncompressed_sha256": "a35c374ba4adc2a84fccabd461f4ac1e0b23372eb8cb984c474ecb671a833d99",
+      "uncompressed_size_bytes": 1650,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-004/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/query/query.log",
+      "uncompressed_sha256": "394b2adc0af88b85cd2861f76135edabb4fc5f679881b57cf4b160c3393600a2",
+      "uncompressed_size_bytes": 134,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/iteration-004/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/tet-edge-report.json",
+      "uncompressed_sha256": "548f7e835a40de4ff8d83afff641f488d7e0bf51ac882a45b6dd0792885df6c7",
+      "uncompressed_size_bytes": 7966531,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-002/layer-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/layer-rows.npz",
+      "uncompressed_sha256": "c72bd74c778e7012ab4005e85e462996090c83342ffeabdcc750039b643d9bfe",
+      "uncompressed_size_bytes": 212209,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-002/layer-targets.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/layer-targets.npy",
+      "uncompressed_sha256": "2c47807a0a7f4b3cbd70fa48f9d05e2c290e7e4f9b0ae6436307bacb81fb34dd",
+      "uncompressed_size_bytes": 77280,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-003/as-run-source/human_skin_fat_connected_repair.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-003/as-run-source/human_skin_fat_connected_repair.py",
+      "uncompressed_sha256": "44a03b451894878f1422cad1f8526b4d6e27077ab3558a6e54d6c05bf1148dea",
+      "uncompressed_size_bytes": 26232,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-003/boundary-faces.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-003/boundary-faces.npy",
+      "uncompressed_sha256": "86b51420f75ad8dc9612080dea66e16087811517d15c690d5729c39a229cf4b9",
+      "uncompressed_size_bytes": 271808,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-003/iteration-001/construction-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-003/iteration-001/construction-report.json",
+      "uncompressed_sha256": "6cc8fc739646059fe551cefc7084b4d0eb7ca93203c1cc77ea629800d7643bff",
+      "uncompressed_size_bytes": 412,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-003/iteration-001/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-003/iteration-001/contact-provenance.json",
+      "uncompressed_sha256": "ec1740844f4146b825ca517b94b9266b78c27a1dfcb5e87c47bbb47de1f9e2e6",
+      "uncompressed_size_bytes": 1805394,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-003/iteration-001/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-003/iteration-001/contact-rows.npz",
+      "uncompressed_sha256": "32f409ecc0afe267dc5b82fd41d4ebbbc2cb9697a8c805cf1c36869b7016f017",
+      "uncompressed_size_bytes": 483763,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-003/iteration-001/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-003/iteration-001/input.npz",
+      "uncompressed_sha256": "b23c9a0c7552c9a66be412e6c61729794e520e2ef0c73a49e9291ec63f694346",
+      "uncompressed_size_bytes": 664588,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-003/layer-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-003/layer-rows.npz",
+      "uncompressed_sha256": "c72bd74c778e7012ab4005e85e462996090c83342ffeabdcc750039b643d9bfe",
+      "uncompressed_size_bytes": 212209,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-003/layer-targets.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-003/layer-targets.npy",
+      "uncompressed_sha256": "2c47807a0a7f4b3cbd70fa48f9d05e2c290e7e4f9b0ae6436307bacb81fb34dd",
+      "uncompressed_size_bytes": 77280,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/as-run-source/human_skin_fat_connected_repair.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/as-run-source/human_skin_fat_connected_repair.py",
+      "uncompressed_sha256": "b5d2571d7382f58a0b15e1c808f64ff3bf0e5d8c7b9947e6400077ce3cc53a6e",
+      "uncompressed_size_bytes": 28906,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/boundary-faces.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/boundary-faces.npy",
+      "uncompressed_sha256": "86b51420f75ad8dc9612080dea66e16087811517d15c690d5729c39a229cf4b9",
+      "uncompressed_size_bytes": 271808,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/continuation.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/continuation.json",
+      "uncompressed_sha256": "ecbce14786723d50a7724cf98205af6160a61dd97aee1ae61c57e700c7602fdd",
+      "uncompressed_size_bytes": 4628,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-001/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-001/candidate.npz",
+      "uncompressed_sha256": "fb1c46a085ad8c703e7c3582e7a17cbab2ff482a95d91c44fde259c1cd1b9e0a",
+      "uncompressed_size_bytes": 286471,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-001/construction-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-001/construction-report.json",
+      "uncompressed_sha256": "bfd5cf11a9b93b6aa39614f9d844060b3d3652a3f4d15345290660b09273e30f",
+      "uncompressed_size_bytes": 2331,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-001/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-001/contact-provenance.json",
+      "uncompressed_sha256": "8cd88a571e00ffce0bfda841287ccd49dc024702c5f6433ff1c7ba13024d368b",
+      "uncompressed_size_bytes": 1690508,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-001/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-001/contact-rows.npz",
+      "uncompressed_sha256": "74b175b5ffb46b1888f5e64fb624c182e01a1075263677df0c9201649dbde21f",
+      "uncompressed_size_bytes": 453735,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-001/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-001/input.npz",
+      "uncompressed_sha256": "88f0208c3cdcd4d6ef502c1a8ef365ba5fd380e2c8169985c4151744a95de9a2",
+      "uncompressed_size_bytes": 662006,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-001/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-001/query/nodes.csv",
+      "uncompressed_sha256": "69ba223d9672dc8d76ddb4558f352e14640124a49380da040971bfe51541c92e",
+      "uncompressed_size_bytes": 213386,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-001/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-001/query/pairs.csv",
+      "uncompressed_sha256": "80b9dc9c8ba6c2492ee8dc787484f0dcd368219cdbda0a56128b5c0de4b4a131",
+      "uncompressed_size_bytes": 876932,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-001/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-001/query/points.csv",
+      "uncompressed_sha256": "ad477a3acd5447fc1425579537b681f5737b1d31127c0bb4979f59163ff5bda7",
+      "uncompressed_size_bytes": 707057,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-001/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-001/query/prepare.log",
+      "uncompressed_sha256": "517bf2b739a79f20afd222c6f0707672ff9eed3d448c7c2071f1628a1d07474e",
+      "uncompressed_size_bytes": 560,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-001/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-001/query/query-receipt.json",
+      "uncompressed_sha256": "f7d2857f38db989acec0763a3f26396fa5d16103e2f619a372cff1f63e6391bb",
+      "uncompressed_size_bytes": 1650,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-001/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-001/query/query.log",
+      "uncompressed_sha256": "394b2adc0af88b85cd2861f76135edabb4fc5f679881b57cf4b160c3393600a2",
+      "uncompressed_size_bytes": 134,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-001/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-001/tet-edge-report.json",
+      "uncompressed_sha256": "3d35113899208a105e72bc43f0ad763a8cf2e45139fe6fdb20968218c28e7ec0",
+      "uncompressed_size_bytes": 7960266,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-002/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-002/candidate.npz",
+      "uncompressed_sha256": "d3a73b7591fbaf69b958e5917337c9cf12b58ece0814cb9216c487e59f7b02cb",
+      "uncompressed_size_bytes": 286478,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-002/construction-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-002/construction-report.json",
+      "uncompressed_sha256": "2a5fb3e9d76941226d0a4a91e1d124db76b1a36e0edfff224201dfeba162b35b",
+      "uncompressed_size_bytes": 2336,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-002/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-002/contact-provenance.json",
+      "uncompressed_sha256": "293219d23cbe9fd025108457b4d579c8b7bf4a9e45267877376091c9256e6279",
+      "uncompressed_size_bytes": 1690108,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-002/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-002/contact-rows.npz",
+      "uncompressed_sha256": "d4405ce9a8d3aea8b54afe437d1bd7731d7fa110da089d92d805fe33c99e8a0a",
+      "uncompressed_size_bytes": 453607,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-002/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-002/input.npz",
+      "uncompressed_sha256": "e929c58c45102053b0f126d88a8b23b11ea4614dfb577cc9582b16da97f8cfa1",
+      "uncompressed_size_bytes": 661987,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-002/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-002/query/nodes.csv",
+      "uncompressed_sha256": "4601a3fc08e44c824e68f90aca312d5748767d21a27b9184912a6110135689f7",
+      "uncompressed_size_bytes": 213386,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-002/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-002/query/pairs.csv",
+      "uncompressed_sha256": "ee1b3ac55d63c3f85bfd624c1c9e57f9dbe8ee420c86641803ca74403454c15e",
+      "uncompressed_size_bytes": 876530,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-002/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-002/query/points.csv",
+      "uncompressed_sha256": "5ad78ae795954bcc2652c3bacc307a4ed04de9aa4db0520c3475db6d82cb8785",
+      "uncompressed_size_bytes": 706999,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-002/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-002/query/prepare.log",
+      "uncompressed_sha256": "7961e843b9bff8e09712ee2c6f5f2e5062ca039397518568e9ec1af086b2cc0f",
+      "uncompressed_size_bytes": 560,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-002/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-002/query/query-receipt.json",
+      "uncompressed_sha256": "ec0a3d45a74cd98d031af3c11f4435f801325f5b77b6649db447a34804fd63b0",
+      "uncompressed_size_bytes": 1650,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-002/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-002/query/query.log",
+      "uncompressed_sha256": "61930321b531a51f54a1fb7a74ac677fdb421d640989d44ff762c484139a9347",
+      "uncompressed_size_bytes": 134,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-002/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-002/tet-edge-report.json",
+      "uncompressed_sha256": "960c8d3db05ee7c93a3d3cb62931f83b2eeb2b480242a253c090b6386f64da7e",
+      "uncompressed_size_bytes": 7960607,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-003/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-003/candidate.npz",
+      "uncompressed_sha256": "46e0587580e1351d9b1a6bb57f9d2db73d3733d693152758f0e67de372d2c76c",
+      "uncompressed_size_bytes": 286465,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-003/construction-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-003/construction-report.json",
+      "uncompressed_sha256": "ad3963ae12fe47764e807aeb718100d4253422fd6e7661bb4de6bd27a692e622",
+      "uncompressed_size_bytes": 2334,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-003/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-003/contact-provenance.json",
+      "uncompressed_sha256": "f784d11a5b8cacb665c95f09d2eb4e3e30ccb4e48ab8e76b4f3533b2e62c533c",
+      "uncompressed_size_bytes": 1688937,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-003/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-003/contact-rows.npz",
+      "uncompressed_sha256": "812a591bd7b8f0d18585aa103bbed669a6d0f759a8c326a8841f1ab184b6ce41",
+      "uncompressed_size_bytes": 453278,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-003/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-003/input.npz",
+      "uncompressed_sha256": "3eecaf793a9ed35d46d65707c77bfb8d5d2683f53193776248bb9d10f6f15b39",
+      "uncompressed_size_bytes": 661897,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-003/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-003/query/nodes.csv",
+      "uncompressed_sha256": "0c61b391f1aac309e52bf0f44b5f53feb689c05822ce1b0d7e6f946c1e3d16ce",
+      "uncompressed_size_bytes": 213386,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-003/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-003/query/pairs.csv",
+      "uncompressed_sha256": "87a31c74863c52a7119ac89458d2c1c7e972f6bad9326443f832475a0c4d6bde",
+      "uncompressed_size_bytes": 876436,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-003/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-003/query/points.csv",
+      "uncompressed_sha256": "7bc223b82fef382db8a2f92816a50cbdf03e6a822eac1928105c80f46989a15d",
+      "uncompressed_size_bytes": 706933,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-003/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-003/query/prepare.log",
+      "uncompressed_sha256": "e7c11a895c67b2d400d8a6b555b4e446f28ed3d57188c449cd819801e06f7013",
+      "uncompressed_size_bytes": 560,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-003/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-003/query/query-receipt.json",
+      "uncompressed_sha256": "7001b7dc4471f9378e0ba2ac3973ef453f683dfcdb8c800d78b3bbf03e588a79",
+      "uncompressed_size_bytes": 1650,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-003/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-003/query/query.log",
+      "uncompressed_sha256": "af4e8b946da27464f54920f61610648d12b9388e79f9d9c329fe6f6600f8261e",
+      "uncompressed_size_bytes": 134,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-003/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-003/tet-edge-report.json",
+      "uncompressed_sha256": "43a34d8f01fb5aecf06a528f0aeeb63e90ef81126dbd22eeacb841b93e0408a1",
+      "uncompressed_size_bytes": 7956343,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-004/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-004/candidate.npz",
+      "uncompressed_sha256": "aa8891a1aa2b7b4d0441c9ed56f84cf40194fa3742315c751b9593f38e9ef734",
+      "uncompressed_size_bytes": 286470,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-004/construction-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-004/construction-report.json",
+      "uncompressed_sha256": "3430fdef4ba0f8f73d882081a2f0564a9148286ba0c01582c8ec84496eb8f301",
+      "uncompressed_size_bytes": 2331,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-004/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-004/contact-provenance.json",
+      "uncompressed_sha256": "e6a03064911dd8068f709df999c094879ff56f13c6da6fa0c3aae71c159e0405",
+      "uncompressed_size_bytes": 1687512,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-004/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-004/contact-rows.npz",
+      "uncompressed_sha256": "247ff058cae018387740eeba5bb89ee4dabc32ff988fad91594277f477d02211",
+      "uncompressed_size_bytes": 452893,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-004/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-004/input.npz",
+      "uncompressed_sha256": "affadc6ad2a55142abc9e72c49b2e068ca6d446c664c3efc2d6b580e5344de03",
+      "uncompressed_size_bytes": 661782,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-004/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-004/query/nodes.csv",
+      "uncompressed_sha256": "6cf9e24c61f9430b791bd339f2f6ed2a791086d38104353f261e02cd4027c729",
+      "uncompressed_size_bytes": 213386,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-004/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-004/query/pairs.csv",
+      "uncompressed_sha256": "ddc80f96820f51c8e727efe0232a7090dede8adfcda0f8263972b765b524480f",
+      "uncompressed_size_bytes": 876560,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-004/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-004/query/points.csv",
+      "uncompressed_sha256": "185792a96a6566af00c47cb482d3d53f76e67a3d04d427217e103ec30a0b8cd1",
+      "uncompressed_size_bytes": 707034,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-004/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-004/query/prepare.log",
+      "uncompressed_sha256": "6a219fa294f0f4506263840450bb7eb106eb2243c37effa1767714ddcb3b9525",
+      "uncompressed_size_bytes": 560,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-004/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-004/query/query-receipt.json",
+      "uncompressed_sha256": "477e278369601d29c8f772a63c1c7ace0b33657c2ffb0948564d8608f12819f7",
+      "uncompressed_size_bytes": 1650,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-004/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-004/query/query.log",
+      "uncompressed_sha256": "addb24f2fc632649e48a94435c9f257c8434a91c44b483fa1d048329bcca331c",
+      "uncompressed_size_bytes": 134,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/iteration-004/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/iteration-004/tet-edge-report.json",
+      "uncompressed_sha256": "30ba84d72014de4b48ae6a4375593289eb3f1ae4cf6ca6c504e72deb9c0aa359",
+      "uncompressed_size_bytes": 7960046,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-004/layer-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/layer-rows.npz",
+      "uncompressed_sha256": "c72bd74c778e7012ab4005e85e462996090c83342ffeabdcc750039b643d9bfe",
+      "uncompressed_size_bytes": 212209,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-004/layer-targets.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-004/layer-targets.npy",
+      "uncompressed_sha256": "2c47807a0a7f4b3cbd70fa48f9d05e2c290e7e4f9b0ae6436307bacb81fb34dd",
+      "uncompressed_size_bytes": 77280,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/as-run-source/human_skin_fat_connected_repair.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/as-run-source/human_skin_fat_connected_repair.py",
+      "uncompressed_sha256": "7e775e6a5d70f23a9ae3127caa1c3a6e542994f64416a89d35c4173720cdec86",
+      "uncompressed_size_bytes": 29824,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/as-run-source/run_refined_connected_hinge.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/as-run-source/run_refined_connected_hinge.py",
+      "uncompressed_sha256": "c8a6e526cb381ee0397c0d0d44678f26304d234994aaeae2e84d0cbbb82a36b9",
+      "uncompressed_size_bytes": 10299,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/boundary-faces.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/boundary-faces.npy",
+      "uncompressed_sha256": "86b51420f75ad8dc9612080dea66e16087811517d15c690d5729c39a229cf4b9",
+      "uncompressed_size_bytes": 271808,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/continuation.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/continuation.json",
+      "uncompressed_sha256": "be8c60df29bedb5b7bf0971247428ce549472f07639c94b3769d683eeaca15b2",
+      "uncompressed_size_bytes": 4629,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-001/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-001/candidate.npz",
+      "uncompressed_sha256": "bcaeed7c49d07bde1b9e53100b4a165d6b03764826bfba8585ac687f42905bcf",
+      "uncompressed_size_bytes": 286474,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-001/construction-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-001/construction-report.json",
+      "uncompressed_sha256": "fb7f5329cbc853b1f0dc240150f864a291d82fc1f547a37d00e208b4d2bb25f2",
+      "uncompressed_size_bytes": 4694,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-001/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-001/contact-provenance.json",
+      "uncompressed_sha256": "8cd88a571e00ffce0bfda841287ccd49dc024702c5f6433ff1c7ba13024d368b",
+      "uncompressed_size_bytes": 1690508,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-001/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-001/contact-rows.npz",
+      "uncompressed_sha256": "74b175b5ffb46b1888f5e64fb624c182e01a1075263677df0c9201649dbde21f",
+      "uncompressed_size_bytes": 453735,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-001/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-001/input.npz",
+      "uncompressed_sha256": "88f0208c3cdcd4d6ef502c1a8ef365ba5fd380e2c8169985c4151744a95de9a2",
+      "uncompressed_size_bytes": 662006,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-001/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-001/query/nodes.csv",
+      "uncompressed_sha256": "a6793917ae583ec199c305b91876e6e06c97d81258e12945cd73c2b01984d557",
+      "uncompressed_size_bytes": 213386,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-001/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-001/query/pairs.csv",
+      "uncompressed_sha256": "76b5b41b8458c4c460a6668640b6cc5359cb1324792b5d2aca093408548e0809",
+      "uncompressed_size_bytes": 875855,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-001/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-001/query/points.csv",
+      "uncompressed_sha256": "7e77bfcb54c2c25e616bd7c6d93e727427bb666c3420aa2dac9a7fb3920e7910",
+      "uncompressed_size_bytes": 706977,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-001/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-001/query/prepare.log",
+      "uncompressed_sha256": "562d790c3b6c3d861bd5f4147411bbf1e8cc95f822689ea42481049878293c17",
+      "uncompressed_size_bytes": 560,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-001/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-001/query/query-receipt.json",
+      "uncompressed_sha256": "ed8a12bfad7f4de0c5d714d81e10d5edc8249610591f14593998ae3d34d95b6b",
+      "uncompressed_size_bytes": 1650,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-001/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-001/query/query.log",
+      "uncompressed_sha256": "119a688a7519fbfa1afb26166246db8c0876a04b91114292cc14093affe1b2af",
+      "uncompressed_size_bytes": 134,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-001/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-001/tet-edge-report.json",
+      "uncompressed_sha256": "b3ae7f1fa7db8778e01d367797b6bbc14cf92ca96467bf69c035846fa382a763",
+      "uncompressed_size_bytes": 7938789,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-002/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-002/candidate.npz",
+      "uncompressed_sha256": "607663acb61188fedecbfb3c6ec6e72fc02a14c47946b475a2de595665775b5d",
+      "uncompressed_size_bytes": 286476,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-002/construction-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-002/construction-report.json",
+      "uncompressed_sha256": "f317c000b52509a7f97e7055ce81cdfa6dfbfd9d65b61a2e97cec4234c21cd7d",
+      "uncompressed_size_bytes": 4686,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-002/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-002/contact-provenance.json",
+      "uncompressed_sha256": "f654b7159052daa8c9397950093e7e4b80f614a824c05ada94a98b65f913348a",
+      "uncompressed_size_bytes": 1682419,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-002/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-002/contact-rows.npz",
+      "uncompressed_sha256": "755c23569c268da8cd5521825c4276a6ff245045173820fca6f0edbed03a6fdc",
+      "uncompressed_size_bytes": 451652,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-002/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-002/input.npz",
+      "uncompressed_sha256": "b5afdcdaa3ab0eedf7b15e6116838ce72c7f39ea78215893551a6684d73c4e1e",
+      "uncompressed_size_bytes": 661773,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-002/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-002/query/nodes.csv",
+      "uncompressed_sha256": "ebe48067f374f9ba9fc8050c4355f266030c94486fd64cdf2f7112e5bb341946",
+      "uncompressed_size_bytes": 213386,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-002/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-002/query/pairs.csv",
+      "uncompressed_sha256": "cbae19ff8a7015d0dbd85a6cbf0df7ed9e5172e28831c6449c5105fb9519bcc1",
+      "uncompressed_size_bytes": 873720,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-002/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-002/query/points.csv",
+      "uncompressed_sha256": "092d28534c51cc7179bfd4c81d9e28282e1f30d87530e360ffd2d468db8cf5ae",
+      "uncompressed_size_bytes": 707023,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-002/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-002/query/prepare.log",
+      "uncompressed_sha256": "43a8bf57998b770ab4df538c0637e73c23a3c3914ddb02fc88390fc8495ef5f8",
+      "uncompressed_size_bytes": 560,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-002/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-002/query/query-receipt.json",
+      "uncompressed_sha256": "6b7af4ecf08b5933d5bdb57e53fe862bb1b645b032d5df9f44703feeb82d79fe",
+      "uncompressed_size_bytes": 1650,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-002/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-002/query/query.log",
+      "uncompressed_sha256": "740b3fa8049ed06b2eeb3a89d9c002a530608f2580e3548031aa567d1f960aa2",
+      "uncompressed_size_bytes": 134,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-002/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-002/tet-edge-report.json",
+      "uncompressed_sha256": "e814adddf84b2cfb81cff0ec1091ccbe53bcf7a21b19810e911affc0af601b9f",
+      "uncompressed_size_bytes": 7889314,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-003/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-003/candidate.npz",
+      "uncompressed_sha256": "22630f1090ba94b8fd2865d8dfff263912b60ab2c5f2df524eed8807ed15b3bd",
+      "uncompressed_size_bytes": 286440,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-003/construction-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-003/construction-report.json",
+      "uncompressed_sha256": "992dab580998ce6c608ac8ca80cc3fff468164718d52cd436dac639477ff49c8",
+      "uncompressed_size_bytes": 4682,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-003/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-003/contact-provenance.json",
+      "uncompressed_sha256": "793e07ca1bcdbd5ef4e06d5f19cd8be54cd12dd247e39321d26d5312487b4fc3",
+      "uncompressed_size_bytes": 1672797,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-003/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-003/contact-rows.npz",
+      "uncompressed_sha256": "24639d33094380b56aacdad204c5027544de5a9648ab2eca5b1ebc773415e6db",
+      "uncompressed_size_bytes": 449077,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-003/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-003/input.npz",
+      "uncompressed_sha256": "32df4bda6a7ba986dff58e4050e4c80c996c548dc6298c77efe2380599b8c8af",
+      "uncompressed_size_bytes": 661450,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-003/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-003/query/nodes.csv",
+      "uncompressed_sha256": "2e9d40422ef357674fdbcaf727a6be5ac6546648b7aae6022d66327d71e52bff",
+      "uncompressed_size_bytes": 213386,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-003/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-003/query/pairs.csv",
+      "uncompressed_sha256": "1e736b2542747a133ac47d1102be2e95cc65fe0e71d9bbc53c25faebe2dfe927",
+      "uncompressed_size_bytes": 868047,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-003/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-003/query/points.csv",
+      "uncompressed_sha256": "468c2555002bc7f3f9531dbacefd902379b4c2e729c09ade534532fced1a4c80",
+      "uncompressed_size_bytes": 707041,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-003/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-003/query/prepare.log",
+      "uncompressed_sha256": "077f7fe8697c8030b4ba0db5027d1a0f3d9f84942f4b9bd305d74aaf0b859d02",
+      "uncompressed_size_bytes": 560,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-003/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-003/query/query-receipt.json",
+      "uncompressed_sha256": "5111d00e90b5553db13c92615e172ea1a84044cc3642313c146b264a88b061c0",
+      "uncompressed_size_bytes": 1650,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-003/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-003/query/query.log",
+      "uncompressed_sha256": "59730a73ceb24d515d87d14cc6973dc8d64ffa221a204bf351e3f3226198397c",
+      "uncompressed_size_bytes": 134,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-003/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-003/tet-edge-report.json",
+      "uncompressed_sha256": "22a942de04e1d0252a50e8444c36629535c07f4ff090ace7e6e578e9248f46c5",
+      "uncompressed_size_bytes": 7744051,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-004/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-004/candidate.npz",
+      "uncompressed_sha256": "e5dceaf0f0125cb3ad3daadf759e412802f9acd025f67ddb22a2c4638d21e0ea",
+      "uncompressed_size_bytes": 286426,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-004/construction-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-004/construction-report.json",
+      "uncompressed_sha256": "8a7c1418c2bd4379e0532c031e0c358152810fc6e60f9360183c33038db35c5a",
+      "uncompressed_size_bytes": 4697,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-004/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-004/contact-provenance.json",
+      "uncompressed_sha256": "9170e0c3ffe61134e876d48bd7ed45ff049183c725f29a36f164a4273e0cde21",
+      "uncompressed_size_bytes": 1641119,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-004/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-004/contact-rows.npz",
+      "uncompressed_sha256": "d9a0f79d3bd859c188a57a7a35f9efaba79e6e518a7ba169e5125647cabca5ff",
+      "uncompressed_size_bytes": 440840,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-004/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-004/input.npz",
+      "uncompressed_sha256": "69cdbe252cc756745b5c259a9a9ee49fbee265b830bb3eed6f1cf90f648d28f1",
+      "uncompressed_size_bytes": 660480,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-004/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-004/query/nodes.csv",
+      "uncompressed_sha256": "fe6b69b2e11a7dc7d0092cb939d96c65fa5b6d24f13090f4877f1c8dd0c87b5f",
+      "uncompressed_size_bytes": 213386,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-004/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-004/query/pairs.csv",
+      "uncompressed_sha256": "b331eb124825eb02a205fb72cd2b9b583b0586d5bd09716fb6b1fc3590155448",
+      "uncompressed_size_bytes": 866257,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-004/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-004/query/points.csv",
+      "uncompressed_sha256": "f4faa721570a56b73f88366ad67d45a046b0bdde5554292d7bffa4bc8f60a166",
+      "uncompressed_size_bytes": 707005,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-004/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-004/query/prepare.log",
+      "uncompressed_sha256": "0a0eba3acb9c34d69cc3d8da1133d1aa3d360dec15d3bfcf53725f7e24b9ec0b",
+      "uncompressed_size_bytes": 560,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-004/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-004/query/query-receipt.json",
+      "uncompressed_sha256": "d0ad0f90839258b073a93ddb851f1b51fb91a88d5984a7e203e6b5f5ce8520fc",
+      "uncompressed_size_bytes": 1650,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-004/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-004/query/query.log",
+      "uncompressed_sha256": "2ac6a1d24a329d4d30ec68822c659a7774f394dacc8fea06aba37153b236e17e",
+      "uncompressed_size_bytes": 134,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/iteration-004/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/iteration-004/tet-edge-report.json",
+      "uncompressed_sha256": "efed5dfee17eb5f8b0bbc0bf67d5dd247af9ee0a13abb77b6d01c260b6aa6bb9",
+      "uncompressed_size_bytes": 7662216,
+      "gzip": true
+    },
+    {
+      "path": "evidence/root/repair-run-005/layer-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/layer-rows.npz",
+      "uncompressed_sha256": "c72bd74c778e7012ab4005e85e462996090c83342ffeabdcc750039b643d9bfe",
+      "uncompressed_size_bytes": 212209,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root/repair-run-005/layer-targets.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-005/layer-targets.npy",
+      "uncompressed_sha256": "2c47807a0a7f4b3cbd70fa48f9d05e2c290e7e4f9b0ae6436307bacb81fb34dd",
+      "uncompressed_size_bytes": 77280,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/manifest.json",
+      "source_path": "/Users/numi/Work/generic-static-query-042-freeze/manifest.json",
+      "uncompressed_sha256": "f8c5faca01c559b0e9b7c518caeb92fd78465c72528259a7c3bc872c683c745a",
+      "uncompressed_size_bytes": 12910,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/queryrow-tet-edge-043/attempt-001-preflight-failure.json",
+      "source_path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/attempt-001-preflight-failure.json",
+      "uncompressed_sha256": "c33350a75e0842d70be1a9c8aaa0646c33bd9d9e360e7abcf84eb0e2c002fabf",
+      "uncompressed_size_bytes": 932,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/queryrow-tet-edge-043/attempt-002-prefix-source-preflight-failure.json",
+      "source_path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/attempt-002-prefix-source-preflight-failure.json",
+      "uncompressed_sha256": "2d1b97152146c182d89d26a09d334206dc1d98911282e17c94280a8b735e1d48",
+      "uncompressed_size_bytes": 1207,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/queryrow-tet-edge-043/evidence/root_exact_segment_witness.py",
+      "source_path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/evidence/root_exact_segment_witness.py",
+      "uncompressed_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "uncompressed_size_bytes": 2734,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/queryrow-tet-edge-043/freeze-manifest.json",
+      "source_path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/freeze-manifest.json",
+      "uncompressed_sha256": "1043b043c340ff4ee4ca09d4d7e6f2877062dfcec5db68b33ad74ba1245b30a8",
+      "uncompressed_size_bytes": 10294,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/queryrow-tet-edge-043/matter/root_exact_segment_witness.py",
+      "source_path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/matter/root_exact_segment_witness.py",
+      "uncompressed_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "uncompressed_size_bytes": 2734,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/queryrow-tet-edge-043/matter/tools/human_skin_fat_bone_audit.py",
+      "source_path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/matter/tools/human_skin_fat_bone_audit.py",
+      "uncompressed_sha256": "ea833990d8b1ffb309d4960e62fb8c67e5cf0ecdbcdc0d8e9ad40c20eaf4c6db",
+      "uncompressed_size_bytes": 46986,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/queryrow-tet-edge-043/matter/tools/test_human_skin_fat_bone_audit.py",
+      "source_path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/matter/tools/test_human_skin_fat_bone_audit.py",
+      "uncompressed_sha256": "ed3d2f00fcd2f9d2abcdf9f99cafc8eabd774f18129ab406991925a153bb4739",
+      "uncompressed_size_bytes": 14024,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/queryrow-tet-edge-043/run_refined_tet_edges.py",
+      "source_path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/run_refined_tet_edges.py",
+      "uncompressed_sha256": "a97f80ed21f1cf10777a1ace0928867c35c5ea7b085c24eb5808ea24e0b047c7",
+      "uncompressed_size_bytes": 9455,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/queryrow-tet-edge-043/run_refined_tet_edges_002.py",
+      "source_path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/run_refined_tet_edges_002.py",
+      "uncompressed_sha256": "b8ff40f66e2e7e748d68cd844fc23efacc21e560cbd4bbb03ef9ede257f62c00",
+      "uncompressed_size_bytes": 9455,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/queryrow-tet-edge-043/run_refined_tet_edges_003.py",
+      "source_path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/run_refined_tet_edges_003.py",
+      "uncompressed_sha256": "6fa8d07b7f69a960b1ca8115741a653a215cd12a9f0856df155b1a011d12375b",
+      "uncompressed_size_bytes": 9958,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/run-baseline-001/baseline-parity.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-baseline-001/baseline-parity.json",
+      "uncompressed_sha256": "4143b7b408845ad4b52983fb9b1d16788d637a513aa0f8625efcf77dc7be222d",
+      "uncompressed_size_bytes": 1923,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/run-baseline-001/nodes.csv.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-baseline-001/nodes.csv",
+      "uncompressed_sha256": "7ca1f606ee82efb871b0d69edef936ac41093f363a2129c4d693c9657de7d802",
+      "uncompressed_size_bytes": 165385,
+      "gzip": true
+    },
+    {
+      "path": "evidence/static-query/run-baseline-001/pairs.csv.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-baseline-001/pairs.csv",
+      "uncompressed_sha256": "ad186c26ee2bfadf102c3f3e5e898fbffe5e76002a5ec1bf35330dadc5cb9c7f",
+      "uncompressed_size_bytes": 431628,
+      "gzip": true
+    },
+    {
+      "path": "evidence/static-query/run-baseline-001/parity-test-report.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-baseline-001/parity-test-report.json",
+      "uncompressed_sha256": "0de63a1d6e6222b969b97f4390721f4c74b80cdf67bd8f647b4dae14116eb000",
+      "uncompressed_size_bytes": 1755,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/run-baseline-001/prepare.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-baseline-001/prepare.json",
+      "uncompressed_sha256": "eada608c2b195f36ec0b91969cc280a167be43310a0826954cc65bf105ab3ddf",
+      "uncompressed_size_bytes": 951,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/run-baseline-001/query-points.csv.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-baseline-001/query-points.csv",
+      "uncompressed_sha256": "83d9e05386ecf1ddd5c6475d0d66729abc2a326141e201c9cf4a377a6b97f9c3",
+      "uncompressed_size_bytes": 548318,
+      "gzip": true
+    },
+    {
+      "path": "evidence/static-query/run-037006-current-001/candidate-query-report.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-037006-current-001/candidate-query-report.json",
+      "uncompressed_sha256": "b0d5eda31a5a86e89d8c94606595986fed82d9c4bbd5333e88cf7e13f374d2b0",
+      "uncompressed_size_bytes": 3675,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/run-037006-current-001/nodes.csv.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-037006-current-001/nodes.csv",
+      "uncompressed_sha256": "d03099b78bbab62b3b0da487416feddb975aa54383baa9c730ceaa990b787ee1",
+      "uncompressed_size_bytes": 213386,
+      "gzip": true
+    },
+    {
+      "path": "evidence/static-query/run-037006-current-001/pairs.csv.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-037006-current-001/pairs.csv",
+      "uncompressed_sha256": "448d24c1f8a32f0dce6110b094c0dfd2dafcffe040e93b92edf18f01d15e9952",
+      "uncompressed_size_bytes": 900583,
+      "gzip": true
+    },
+    {
+      "path": "evidence/static-query/run-037006-current-001/prepare.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-037006-current-001/prepare.json",
+      "uncompressed_sha256": "41bf6382013fdcaa4b98b552cb09b6c0468fa98f386cea43249b8ba05316d8df",
+      "uncompressed_size_bytes": 904,
+      "gzip": false
+    },
+    {
+      "path": "evidence/static-query/run-037006-current-001/query-points.csv.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-037006-current-001/query-points.csv",
+      "uncompressed_sha256": "3dc530517f52b960c5a207fadbce92de18ec19f3c55286b07a2741fcefb71a2f",
+      "uncompressed_size_bytes": 707064,
+      "gzip": true
+    },
+    {
+      "path": "evidence/static-query/prepare_generic_query_points.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/prepare_generic_query_points.py",
+      "uncompressed_sha256": "0e09fecb9cf0d2c5e9049356b822d138819e1560a2a2049bcbd4d8602336a1ee",
+      "uncompressed_size_bytes": 2457,
+      "gzip": false
+    }
+  ]
+}

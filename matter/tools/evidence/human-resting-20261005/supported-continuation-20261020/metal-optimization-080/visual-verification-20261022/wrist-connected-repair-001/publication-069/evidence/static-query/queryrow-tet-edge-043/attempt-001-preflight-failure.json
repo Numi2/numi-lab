@@ -1,0 +1,14 @@
+{
+  "actual_helper_sha256": "ea833990d8b1ffb309d4960e62fb8c67e5cf0ecdbcdc0d8e9ad40c20eaf4c6db",
+  "attempt": 1,
+  "candidate_or_bank_audit_started": false,
+  "command": "python3 /tmp/numi-human-geometry-slot.py /Users/n/numi-human-prep-venv-20261005/bin/python /Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/run_refined_tet_edges.py",
+  "error": "edge-audit helper is not the pinned counter-corrected owner",
+  "geometry_lock": "acquired and released by PID 92362",
+  "output_directory_created": false,
+  "runner_expected_helper_sha256": "902269457740f70387267fce437d4198b1545a2e4f8d95fdbbdecc666a23f4c2",
+  "runner_path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/run_refined_tet_edges.py",
+  "runner_sha256": "a97f80ed21f1cf10777a1ace0928867c35c5ea7b085c24eb5808ea24e0b047c7",
+  "schema": "numi.human.query-row-tet-edge-preflight-failure.v1",
+  "status": "FAILED_PRE_AUDIT"
+}

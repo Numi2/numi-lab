@@ -2424,3 +2424,5 @@ if(BUILD_TESTING)
     set_tests_properties(matter.compiler.parent_reference_mass_transfer PROPERTIES
         TIMEOUT 30 LABELS "matter;compiler;human;mass;cpu;synthetic")
 endif()
+
+include("${CMAKE_CURRENT_SOURCE_DIR}/tools/human_skin_fat_static_query.cmake")

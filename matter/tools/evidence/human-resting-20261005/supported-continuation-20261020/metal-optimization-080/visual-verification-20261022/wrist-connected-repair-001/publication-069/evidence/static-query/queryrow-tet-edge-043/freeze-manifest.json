@@ -1,0 +1,149 @@
+{
+  "base_helper_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/canonical/matter/tools/human_skin_fat_bone_audit.py",
+  "base_helper_sha256": "902269457740f70387267fce437d4198b1545a2e4f8d95fdbbdecc666a23f4c2",
+  "bundle_root": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043",
+  "change": "Add optional node_identity_domain; default global_node output compares equal to explicit global_node; query_row requires contiguous zero-based identity and emits endpoint_query_rows without endpoint_global_nodes/layers/columns.",
+  "failed_preflights_retained": [
+    {
+      "attempt": 1,
+      "receipt": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/attempt-001-preflight-failure.json",
+      "runner_sha256": "a97f80ed21f1cf10777a1ace0928867c35c5ea7b085c24eb5808ea24e0b047c7",
+      "status": "FAILED_PRE_AUDIT"
+    },
+    {
+      "attempt": 2,
+      "receipt": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/attempt-002-prefix-source-preflight-failure.json",
+      "runner_sha256": "b8ff40f66e2e7e748d68cd844fc23efacc21e560cbd4bbb03ef9ede257f62c00",
+      "status": "FAILED_PRE_AUDIT"
+    }
+  ],
+  "frozen_files": {
+    "canonical_helper_overlay": {
+      "path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/matter/tools/human_skin_fat_bone_audit.py",
+      "sha256": "ea833990d8b1ffb309d4960e62fb8c67e5cf0ecdbcdc0d8e9ad40c20eaf4c6db"
+    },
+    "edge_report": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-043/run-037006-query-row-edges-001/tet-edge-report.json",
+      "sha256": "08b9380fc10e8862fcd7c6fa7a31f030d34fd0345869be5daa1f4f7e7b12f23c"
+    },
+    "exact_classifier": {
+      "path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/matter/root_exact_segment_witness.py",
+      "sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2"
+    },
+    "failure_receipt_attempt_001": {
+      "path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/attempt-001-preflight-failure.json",
+      "sha256": "c33350a75e0842d70be1a9c8aaa0646c33bd9d9e360e7abcf84eb0e2c002fabf"
+    },
+    "failure_receipt_attempt_002": {
+      "path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/attempt-002-prefix-source-preflight-failure.json",
+      "sha256": "2d1b97152146c182d89d26a09d334206dc1d98911282e17c94280a8b735e1d48"
+    },
+    "run_manifest": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-043/run-037006-query-row-edges-001/run-manifest.json",
+      "sha256": "516a3f308b986557b007718c3d017691d8f340cf6554a85442387568dda20b7b"
+    },
+    "runner_attempt_001": {
+      "path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/run_refined_tet_edges.py",
+      "sha256": "a97f80ed21f1cf10777a1ace0928867c35c5ea7b085c24eb5808ea24e0b047c7"
+    },
+    "runner_attempt_002": {
+      "path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/run_refined_tet_edges_002.py",
+      "sha256": "b8ff40f66e2e7e748d68cd844fc23efacc21e560cbd4bbb03ef9ede257f62c00"
+    },
+    "runner_successful_attempt": {
+      "path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/run_refined_tet_edges_003.py",
+      "sha256": "6fa8d07b7f69a960b1ca8115741a653a215cd12a9f0856df155b1a011d12375b"
+    },
+    "unit_tests": {
+      "path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/matter/tools/test_human_skin_fat_bone_audit.py",
+      "sha256": "ed3d2f00fcd2f9d2abcdf9f99cafc8eabd774f18129ab406991925a153bb4739"
+    }
+  },
+  "inputs": {
+    "039_bank_inventory": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv",
+      "sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df"
+    },
+    "039_bodies": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+      "sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90"
+    },
+    "039_nodes": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv",
+      "sha256": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c"
+    },
+    "039_triangles": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+      "sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac"
+    },
+    "042_baseline_points": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-baseline-001/query-points.csv",
+      "sha256": "83d9e05386ecf1ddd5c6475d0d66729abc2a326141e201c9cf4a377a6b97f9c3"
+    },
+    "042_refined_points": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-037006-current-001/query-points.csv",
+      "sha256": "3dc530517f52b960c5a207fadbce92de18ec19f3c55286b07a2741fcefb71a2f"
+    },
+    "candidate_npz": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/run-006/candidate.npz",
+      "sha256": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492"
+    },
+    "candidate_report": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/run-006/report.json",
+      "sha256": "05d26d04485c6d767e0805932e048cae6e7b3bb2e29117e8e44a032e78a8e693"
+    }
+  },
+  "limitations": [
+    "Exact narrowphase checks unique FEM tetrahedral edge segments against pinned 039 current-pose per-bone triangles.",
+    "This is not a full FEM surface/tetrahedron intersection or clearance certificate.",
+    "No rest-pose, mass-transfer/admission, or physical simulation claim.",
+    "Appended rows are query_row identities and are not assigned compiled global node IDs."
+  ],
+  "preflight": {
+    "appended_native_global_IDs_assigned": false,
+    "bank_triangles": 469136,
+    "candidate_material_ids": [
+      1,
+      2
+    ],
+    "candidate_points": 9320,
+    "candidate_tetrahedra": 37935,
+    "native_039_world_to_body_raw_quaternion_matrix_validation": "passed, maximum difference below 1e-12",
+    "original_7233_world_prefix_matches_042_baseline_float32_bits": true,
+    "original_prefix_IDs_match_039_query_IDs": true,
+    "query_points_match_refined_csv_float32_bits": true,
+    "typed_banks": 185
+  },
+  "schema": "numi.human.query-row-tet-edge-audit-freeze.v1",
+  "status": "EDGE_WITNESSES_NOT_FULL_SOLID_CERTIFICATION",
+  "successful_run": {
+    "banks_with_hits": 106,
+    "command": "python3 /tmp/numi-human-geometry-slot.py /Users/n/numi-human-prep-venv-20261005/bin/python /Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/run_refined_tet_edges_003.py",
+    "counts": {
+      "ambiguous": 0,
+      "boundary_hits": 0,
+      "broadphase_edge_bank_pairs": 40728,
+      "exact_narrowphase_tests": 11038,
+      "proper_hits": 11038,
+      "triangle_aabb_pairs": 1170597,
+      "typed_banks": 185,
+      "unique_tetrahedral_edges": 52915
+    },
+    "edge_bank_groups_with_hits": 8618,
+    "edges_with_hits": 7691,
+    "elapsed_seconds": 6.08272395899985,
+    "geometry_lock_pid": 92451,
+    "identity_domain": "query_row",
+    "output_directory": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-043/run-037006-query-row-edges-001",
+    "report_sha256": "08b9380fc10e8862fcd7c6fa7a31f030d34fd0345869be5daa1f4f7e7b12f23c",
+    "run_manifest_sha256": "516a3f308b986557b007718c3d017691d8f340cf6554a85442387568dda20b7b",
+    "runner_sha256": "6fa8d07b7f69a960b1ca8115741a653a215cd12a9f0856df155b1a011d12375b",
+    "slot_released": true
+  },
+  "tests": {
+    "command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m unittest -v /Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/matter/tools/test_human_skin_fat_bone_audit.py",
+    "helper_sha256": "ea833990d8b1ffb309d4960e62fb8c67e5cf0ecdbcdc0d8e9ad40c20eaf4c6db",
+    "result": "11 passed",
+    "test_sha256": "ed3d2f00fcd2f9d2abcdf9f99cafc8eabd774f18129ab406991925a153bb4739"
+  }
+}

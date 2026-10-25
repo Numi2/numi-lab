@@ -1,0 +1,75 @@
+{
+  "algorithm": "sparse_regularized_least_squares_exact_geometry_backtracking",
+  "free_nodes": 6220,
+  "contact_rows": 9067,
+  "active_contact_rows": 9067,
+  "starting_contact_deficit_l1_mm": 14340.353224651924,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "reference_unchanged": true,
+  "active_set_history": [
+    {
+      "pass": 0,
+      "selected_rows": 3411,
+      "max_normalized_violation_before_mm": 11.53731830442312,
+      "max_normalized_violation_after_mm": 76.78974452188531,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 1,
+      "selected_rows": 12146,
+      "max_normalized_violation_before_mm": 76.78974452188531,
+      "max_normalized_violation_after_mm": 70.64414359301189,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 2,
+      "selected_rows": 27785,
+      "max_normalized_violation_before_mm": 70.64414359301189,
+      "max_normalized_violation_after_mm": 70.35379607167873,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 3,
+      "selected_rows": 49636,
+      "max_normalized_violation_before_mm": 70.35379607167873,
+      "max_normalized_violation_after_mm": 105.039034364937,
+      "linear_stop": 2,
+      "linear_iterations": 274
+    },
+    {
+      "pass": 4,
+      "selected_rows": 66003,
+      "max_normalized_violation_before_mm": 105.039034364937,
+      "max_normalized_violation_after_mm": 133.09443001465462,
+      "linear_stop": 2,
+      "linear_iterations": 258
+    }
+  ],
+  "linear_stop": 7,
+  "linear_iterations": 400,
+  "linear_residual_norm": 174.22433524002233,
+  "estimated_condition": 16.351509729012637,
+  "touched_cells": 28631,
+  "step_applied": true,
+  "components": [
+    {
+      "nodes": 6220,
+      "applied": true,
+      "line_fraction": 0.006097849749187237,
+      "direction_max_incremental_gradient": 49.197670054101614
+    }
+  ],
+  "contact_deficit_l1_mm": 14315.676144754543,
+  "emitted_J_min": 0.38381195110151667,
+  "emitted_J_max": 1.7719589953553998,
+  "emitted_q_min": 1.499524455870142e-05,
+  "boundary_area_ratio_min": 0.7021042079924424,
+  "boundary_area_ratio_max": 1.8649050477812001,
+  "boundary_normal_cosine_min": 0.9368291028620044,
+  "maximum_step_mm": 0.8340344756506638,
+  "maximum_cumulative_displacement_mm": 11.143767687415954
+}

@@ -1,0 +1,17 @@
+{
+  "in_aabb_pair_rows": 2112,
+  "input_hashes": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-baseline-001/nodes.csv": "7ca1f606ee82efb871b0d69edef936ac41093f363a2129c4d693c9657de7d802",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-baseline-001/pairs.csv": "ad186c26ee2bfadf102c3f3e5e898fbffe5e76002a5ec1bf35330dadc5cb9c7f",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/source-preflight-003/all-bank-containment.csv": "11452398859d5dd435ec8fbbe4a02c0b1797e5f337b3749850671093ecb231aa",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/source-preflight-003/all-bank-containment.csv.nodes.csv": "44caaa9bc6246dee818fa92ade9ff867fa67f2bc72c677c4d31be8426f40567a"
+  },
+  "limitations": [
+    "Per-node closed-solid containment parity only; not surface or tetrahedron clearance."
+  ],
+  "node_bank_counts_exact": true,
+  "pair_results_exact": true,
+  "query_rows": 7233,
+  "schema": "numi.human.generic-static-query-parity-test.v1",
+  "status": "PASS"
+}

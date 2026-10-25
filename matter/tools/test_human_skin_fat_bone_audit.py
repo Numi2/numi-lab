@@ -97,14 +97,14 @@ class RouteAuditConsolidationTests(unittest.TestCase):
         candidate_points = np.array([a, b, [0., -2., 0.], [0., 0., 2.]])
         candidate_tets = np.array([[0, 1, 2, 3]], dtype=np.int64)
         typed_ids = np.array([[7, 9, 3, stable_id] for stable_id in stable], dtype=np.int64)
+        global_ids = np.array([100, 101, 102, 103])
         edge_report = mod.audit_unique_tet_edges(
-            np.array([100, 101, 102, 103]), candidate_tets, typed_ids, faces,
+            global_ids, candidate_tets, typed_ids, faces,
             {7: candidate_points}, exact["classify_segment_triangle"])
         through_edge = [r for r in edge_report["witnesses"] if r["endpoint_local_nodes"] == [0, 1]]
         self.assertEqual([r["triangle_stable_id"] for r in through_edge], [11, 13])
         self.assertEqual(edge_report["counts"]["unique_tetrahedral_edges"], 6)
         # Each triangle witness counts once, even when an edge has multiple hits.
-        # The old accumulator added the whole edge's hits once per hit.
         self.assertEqual(edge_report["counts"]["proper_hits"],
                          sum(r["classification"] == "proper_interior_hit"
                              for r in edge_report["witnesses"]))
@@ -114,6 +114,35 @@ class RouteAuditConsolidationTests(unittest.TestCase):
         self.assertLessEqual(edge_report["counts"]["proper_hits"] +
                              edge_report["counts"]["boundary_hits"],
                              edge_report["counts"]["exact_narrowphase_tests"])
+
+        explicit_global = mod.audit_unique_tet_edges(
+            global_ids, candidate_tets, typed_ids, faces, {7: candidate_points},
+            exact["classify_segment_triangle"], node_identity_domain="global_node")
+        self.assertEqual(edge_report, explicit_global)
+        global_hit = next(r for r in explicit_global["witnesses"]
+                          if r["endpoint_local_nodes"] == [0, 1] and r["triangle_stable_id"] == 11)
+        self.assertEqual(global_hit["endpoint_global_nodes"], [100, 101])
+        self.assertEqual(global_hit["endpoint_layers"], [0, 0])
+        self.assertEqual(global_hit["endpoint_columns"], [0, 1])
+
+        query_report = mod.audit_unique_tet_edges(
+            np.arange(len(candidate_points)), candidate_tets, typed_ids, faces,
+            {7: candidate_points}, exact["classify_segment_triangle"],
+            node_identity_domain="query_row")
+        query_hit = next(r for r in query_report["witnesses"]
+                         if r["endpoint_local_nodes"] == [0, 1] and r["triangle_stable_id"] == 11)
+        self.assertEqual(query_hit["endpoint_query_rows"], [0, 1])
+        self.assertNotIn("endpoint_global_nodes", query_hit)
+        self.assertNotIn("endpoint_layers", query_hit)
+        self.assertNotIn("endpoint_columns", query_hit)
+        with self.assertRaisesRegex(ValueError, "contiguous zero-based"):
+            mod.audit_unique_tet_edges(global_ids, candidate_tets, typed_ids, faces,
+                                       {7: candidate_points}, exact["classify_segment_triangle"],
+                                       node_identity_domain="query_row")
+        with self.assertRaisesRegex(ValueError, "node_identity_domain"):
+            mod.audit_unique_tet_edges(global_ids, candidate_tets, typed_ids, faces,
+                                       {7: candidate_points}, exact["classify_segment_triangle"],
+                                       node_identity_domain="invented_native_id")
 
     def test_bank_local_hit_triangle_reconstructs_reported_segment_hit(self):
         # The hit index is local to a typed bank, not to the 469k-row global table.

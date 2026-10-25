@@ -1,0 +1,12 @@
+{
+  "lp_success": false,
+  "lp_status": 1,
+  "lp_message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+  "free_nodes": 6243,
+  "touched_cells": 28756,
+  "contact_rows": 9700,
+  "starting_contact_deficit_l1_mm": 17222.82606974194,
+  "reference_unchanged": true,
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0
+}

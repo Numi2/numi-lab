@@ -1,0 +1,8 @@
+{
+  "status": "WHOLE_VOLUME_LP_TIME_LIMIT_NO_CANDIDATE",
+  "solver_sha256": "d8a64295614425e0eeff25d3e1d2002a44951c93e148cc802972f9ff2920bfe4",
+  "runner_sha256": "8681178950e90ea0450b58efb25eea0a8c09226120bbe2a7c1ce555e77203713",
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "next_method": "sparse regularized least-squares with unchanged exact nonlinear geometry gates"
+}

@@ -1,0 +1,106 @@
+{
+  "history": [
+    {
+      "iteration": 1,
+      "edge_bank_groups": 8474,
+      "edges": 7569,
+      "inside_nodes": 998,
+      "inside_pairs": 1000,
+      "ambiguous": 0,
+      "candidate_sha256": "152741adf272bb11d3c9945c3490fff2f56c04847652c20fd62a3321ea6a0101",
+      "quality": {
+        "J_min": 0.8558333743861936,
+        "J_max": 1.1683265532654619,
+        "q_min": 1.434755642340412e-05,
+        "invalid_cells": 0,
+        "q_below_1e_minus5": 0,
+        "area_ratio_min": 0.9347013671000822,
+        "area_ratio_max": 1.175621525270299,
+        "normal_cosine_min": 0.9967012532104178,
+        "max_total_move_mm": 2.4557542034024835
+      },
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/candidate.npz",
+      "query_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/query",
+      "audit_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-001/tet-edge-report.json"
+    },
+    {
+      "iteration": 2,
+      "edge_bank_groups": 8326,
+      "edges": 7459,
+      "inside_nodes": 978,
+      "inside_pairs": 980,
+      "ambiguous": 0,
+      "candidate_sha256": "3310879ea12bd2d7c8a917b1079ed462eba226a1cc9f97854baf9a6ebb99c183",
+      "quality": {
+        "J_min": 0.6963934932809258,
+        "J_max": 1.3747722056875,
+        "q_min": 1.5120875440336225e-05,
+        "invalid_cells": 0,
+        "q_below_1e_minus5": 0,
+        "area_ratio_min": 0.8696594387133081,
+        "area_ratio_max": 1.4030661844210075,
+        "normal_cosine_min": 0.9846387308417985,
+        "max_total_move_mm": 5.554137750805119
+      },
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/candidate.npz",
+      "query_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/query",
+      "audit_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-002/tet-edge-report.json"
+    },
+    {
+      "iteration": 3,
+      "edge_bank_groups": 8165,
+      "edges": 7338,
+      "inside_nodes": 949,
+      "inside_pairs": 951,
+      "ambiguous": 0,
+      "candidate_sha256": "18fcc1a5282c375598e9ccec9a41fe836229d5ce2efa578178e285b00cbd9832",
+      "quality": {
+        "J_min": 0.5135962144812384,
+        "J_max": 1.582784927838116,
+        "q_min": 1.5776278808818175e-05,
+        "invalid_cells": 0,
+        "q_below_1e_minus5": 0,
+        "area_ratio_min": 0.7877918204394065,
+        "area_ratio_max": 1.6511004812209444,
+        "normal_cosine_min": 0.9627780412025615,
+        "max_total_move_mm": 8.60474990227567
+      },
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/candidate.npz",
+      "query_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/query",
+      "audit_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-003/tet-edge-report.json"
+    },
+    {
+      "iteration": 4,
+      "edge_bank_groups": 8075,
+      "edges": 7266,
+      "inside_nodes": 931,
+      "inside_pairs": 933,
+      "ambiguous": 0,
+      "candidate_sha256": "03abfa50723272451788a13e59547895c3f7cba46a6f083fc37ebddb561bc389",
+      "quality": {
+        "J_min": 0.38645080297426476,
+        "J_max": 1.7672726123148568,
+        "q_min": 1.582337109464245e-05,
+        "invalid_cells": 0,
+        "q_below_1e_minus5": 0,
+        "area_ratio_min": 0.703981888137714,
+        "area_ratio_max": 1.8613532188974133,
+        "normal_cosine_min": 0.9373990382169818,
+        "max_total_move_mm": 11.095040077413573
+      },
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/candidate.npz",
+      "query_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/query",
+      "audit_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-002/iteration-004/tet-edge-report.json"
+    }
+  ],
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "elapsed_s": 33.399615542031825,
+  "input_sha256": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+  "solver_sha256": "c608769a0980ed056f8aa9704ae60e4748c67f23a3d2c13c35e23a519cc581b2",
+  "audit_sha256": "ea833990d8b1ffb309d4960e62fb8c67e5cf0ecdbcdc0d8e9ad40c20eaf4c6db",
+  "limitations": [
+    "Static connected asset authoring only.",
+    "No detailed skin, full-solid, material, mass or native physical qualification."
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "algorithm": "sparse_regularized_least_squares_exact_geometry_backtracking",
+  "free_nodes": 6220,
+  "contact_rows": 9022,
+  "active_contact_rows": 9022,
+  "starting_contact_deficit_l1_mm": 14120.30107234807,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "reference_unchanged": true,
+  "active_set_history": [
+    {
+      "pass": 0,
+      "selected_rows": 3288,
+      "max_normalized_violation_before_mm": 11.589528129672733,
+      "max_normalized_violation_after_mm": 10.595879408597025,
+      "merit_before": 29370195.679248936,
+      "merit_after": 26053074.80213026,
+      "merit_line_fraction": 0.125,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 1,
+      "selected_rows": 3636,
+      "max_normalized_violation_before_mm": 10.595879408597025,
+      "max_normalized_violation_after_mm": 10.347665681474918,
+      "merit_before": 26053074.80213026,
+      "merit_after": 22813294.54884419,
+      "merit_line_fraction": 0.5,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 2,
+      "selected_rows": 5535,
+      "max_normalized_violation_before_mm": 10.347665681474918,
+      "max_normalized_violation_after_mm": 8.313484081157183,
+      "merit_before": 22813294.54884419,
+      "merit_after": 15078062.181770762,
+      "merit_line_fraction": 0.25,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 3,
+      "selected_rows": 6111,
+      "max_normalized_violation_before_mm": 8.313484081157183,
+      "max_normalized_violation_after_mm": 9.988008636144153,
+      "merit_before": 15078062.181770762,
+      "merit_after": 13000734.41690077,
+      "merit_line_fraction": 0.5,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 4,
+      "selected_rows": 7469,
+      "max_normalized_violation_before_mm": 9.988008636144153,
+      "max_normalized_violation_after_mm": 8.808135544333556,
+      "merit_before": 13000734.41690077,
+      "merit_after": 12460989.407456445,
+      "merit_line_fraction": 0.125,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 5,
+      "selected_rows": 7464,
+      "max_normalized_violation_before_mm": 8.808135544333556,
+      "max_normalized_violation_after_mm": 9.1685549173947,
+      "merit_before": 12460989.407456445,
+      "merit_after": 11902678.231938804,
+      "merit_line_fraction": 0.5,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 6,
+      "selected_rows": 8011,
+      "max_normalized_violation_before_mm": 9.1685549173947,
+      "max_normalized_violation_after_mm": 13.210192941367543,
+      "merit_before": 11902678.231938804,
+      "merit_after": 11402763.617754916,
+      "merit_line_fraction": 0.5,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 7,
+      "selected_rows": 8360,
+      "max_normalized_violation_before_mm": 13.210192941367543,
+      "max_normalized_violation_after_mm": 7.963988264643785,
+      "merit_before": 11402763.617754916,
+      "merit_after": 7903422.627869512,
+      "merit_line_fraction": 0.5,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 8,
+      "selected_rows": 8462,
+      "max_normalized_violation_before_mm": 7.963988264643785,
+      "max_normalized_violation_after_mm": 4.644321339537641,
+      "merit_before": 7903422.627869512,
+      "merit_after": 4048034.127904735,
+      "merit_line_fraction": 0.5,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 9,
+      "selected_rows": 8282,
+      "max_normalized_violation_before_mm": 4.644321339537641,
+      "max_normalized_violation_after_mm": 6.10016361295793,
+      "merit_before": 4048034.127904735,
+      "merit_after": 3417114.509652057,
+      "merit_line_fraction": 0.25,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    }
+  ],
+  "linear_stop": 7,
+  "linear_iterations": 400,
+  "linear_residual_norm": 172.07782577224273,
+  "estimated_condition": 16.652974214298776,
+  "touched_cells": 28631,
+  "step_applied": true,
+  "components": [
+    {
+      "nodes": 6220,
+      "applied": true,
+      "line_fraction": 0.07274210760739434,
+      "direction_max_incremental_gradient": 4.124158755739771
+    }
+  ],
+  "contact_deficit_l1_mm": 13795.014829913427,
+  "emitted_J_min": 0.3783540406023048,
+  "emitted_J_max": 1.8534687038263167,
+  "emitted_q_min": 1.3901160921015514e-05,
+  "boundary_area_ratio_min": 0.6803449393996202,
+  "boundary_area_ratio_max": 1.887882477138826,
+  "boundary_normal_cosine_min": 0.9213266139814421,
+  "maximum_step_mm": 0.6593938770331387,
+  "maximum_cumulative_displacement_mm": 11.417748692776803
+}

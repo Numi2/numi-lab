@@ -1,0 +1,9 @@
+{
+  "input": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/source-preflight-003/initial-skin-fem-nodes.csv",
+  "input_sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+  "field": "baseline_registered_node_positions",
+  "query_count": 7233,
+  "output": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-baseline-001/query-points.csv",
+  "output_sha256": "83d9e05386ecf1ddd5c6475d0d66729abc2a326141e201c9cf4a377a6b97f9c3",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

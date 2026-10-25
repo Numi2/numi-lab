@@ -1,0 +1,9 @@
+{
+  "input": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/run-006/candidate.npz",
+  "input_sha256": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+  "field": "current_points_f32",
+  "query_count": 9320,
+  "output": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-037006-current-001/query-points.csv",
+  "output_sha256": "3dc530517f52b960c5a207fadbce92de18ec19f3c55286b07a2741fcefb71a2f",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}
