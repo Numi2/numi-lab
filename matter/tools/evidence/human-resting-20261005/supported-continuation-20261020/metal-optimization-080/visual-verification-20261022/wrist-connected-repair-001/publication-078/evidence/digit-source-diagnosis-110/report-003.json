@@ -1,0 +1,133 @@
+{
+  "coarse_chord": {
+    "65:99": {
+      "aabb_candidate_pairs": 103,
+      "aabb_rejected_pairs": 239,
+      "all_segment_bank_pairs": 342,
+      "bank_triangle_count": 342,
+      "body_index": 65,
+      "bone_stable_id": 99,
+      "classification_counts_among_exact_tests": {
+        "boundary_hit": 0,
+        "coplanar_requires_2d_test": 0,
+        "disjoint": 103,
+        "invalid_degenerate_triangle": 0,
+        "parallel_disjoint": 0,
+        "proper_interior_hit": 0
+      },
+      "exact_predicate_tests": 103,
+      "segment_count": 1,
+      "witnesses": []
+    },
+    "66:100": {
+      "aabb_candidate_pairs": 168,
+      "aabb_rejected_pairs": 6,
+      "all_segment_bank_pairs": 174,
+      "bank_triangle_count": 174,
+      "body_index": 66,
+      "bone_stable_id": 100,
+      "classification_counts_among_exact_tests": {
+        "boundary_hit": 0,
+        "coplanar_requires_2d_test": 0,
+        "disjoint": 166,
+        "invalid_degenerate_triangle": 0,
+        "parallel_disjoint": 0,
+        "proper_interior_hit": 2
+      },
+      "exact_predicate_tests": 168,
+      "segment_count": 1,
+      "witnesses": [
+        {
+          "barycentric": [
+            0.041493759511275576,
+            0.2754686781299292,
+            0.6830375623587952
+          ],
+          "classification": "proper_interior_hit",
+          "t": 0.557438766996148,
+          "triangle_stable_id": 22
+        },
+        {
+          "barycentric": [
+            0.28811771655616486,
+            0.2846372277449863,
+            0.42724505569884885
+          ],
+          "classification": "proper_interior_hit",
+          "t": 0.7118348578495461,
+          "triangle_stable_id": 76
+        }
+      ]
+    }
+  },
+  "elapsed_seconds": 0.9852737499168143,
+  "fine_detailed_path": {
+    "65:99": {
+      "aabb_candidate_pairs": 0,
+      "aabb_rejected_pairs": 6156,
+      "all_segment_bank_pairs": 6156,
+      "bank_triangle_count": 342,
+      "body_index": 65,
+      "bone_stable_id": 99,
+      "classification_counts_among_exact_tests": {
+        "boundary_hit": 0,
+        "coplanar_requires_2d_test": 0,
+        "disjoint": 0,
+        "invalid_degenerate_triangle": 0,
+        "parallel_disjoint": 0,
+        "proper_interior_hit": 0
+      },
+      "exact_predicate_tests": 0,
+      "segment_count": 18,
+      "witnesses": []
+    },
+    "66:100": {
+      "aabb_candidate_pairs": 0,
+      "aabb_rejected_pairs": 3132,
+      "all_segment_bank_pairs": 3132,
+      "bank_triangle_count": 174,
+      "body_index": 66,
+      "bone_stable_id": 100,
+      "classification_counts_among_exact_tests": {
+        "boundary_hit": 0,
+        "coplanar_requires_2d_test": 0,
+        "disjoint": 0,
+        "invalid_degenerate_triangle": 0,
+        "parallel_disjoint": 0,
+        "proper_interior_hit": 0
+      },
+      "exact_predicate_tests": 0,
+      "segment_count": 18,
+      "witnesses": []
+    }
+  },
+  "frame": {
+    "W_role": "Wnew is a displacement prolongation operator; it is not multiplied by absolute positions. At the pinned zero-displacement baseline the accepted transfer detail_rest_world coordinates define the fine path.",
+    "anchor_residual_to_baseline_coarse_endpoint_mm": [
+      0.0001228781230931777,
+      0.0002443972150513042
+    ],
+    "coarse_source": "baseline103 points_world_f32; exact predicates use emitted binary32 values promoted to binary64",
+    "fine_path_source": "accepted-transfer-rows.csv detail_rest_world_m coordinates; exact predicates use parsed binary64 coordinates as supplied",
+    "transform": "the audited native 039 world-to-body matrix from emitted float32 quaternion, and emitted COM offset; local=(world-position)@M.T-offset"
+  },
+  "input_pins": {
+    "W_semantics_correction_sha256": "d57d88470e3240af1688e6d86f42be0404de3e43193e2d8e3eaaa4d959c1d856",
+    "accepted_transfer_rows_sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+    "baseline103_candidate_sha256": "ddb86fbf07183adce0194c59a1acfc5456c96cb2efc709eb587e5489d3d59163",
+    "compact084_mesh_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "detailed_payload_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "exact_bank_bodies_sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "exact_bank_triangles_sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "exact_classifier_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+    "path_report_sha256": "1c2c9031fa063973112902bc027e4a4f20e0bb9908c226a4b0f60b6c7850ef48",
+    "transfer_W_sha256": "55329313bf9c2c3b613fcd7eb52dd9b7b453520dd1b4a14e0e0d6ac457ce8519"
+  },
+  "interpretation_limits": [
+    "A proper interior hit is an exact segment/triangle intersection. Boundary hits and coplanar cases are retained separately and are not silently treated as disjoint.",
+    "The fine NHSKIN path coordinates come from the accepted transfer row export; this audit did not run a full detailed-mesh vs bone-bank surface intersection test.",
+    "This two-bank, one-edge witness is local mechanism evidence only; it is not all-bank clearance or physical qualification."
+  ],
+  "scope": "Exact binary-rational segment/triangle narrowphase on one saved O-O chord and the 18 segments of its mapped detailed NHSKIN edge path against complete exact-emitted banks (65:99, 66:100). No broadphase/query rerun, geometry mutation, or physical admission.",
+  "status": "SAVED_GEOMETRY_EXACT_SEGMENT_COMPARISON"
+}

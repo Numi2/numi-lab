@@ -1,0 +1,45 @@
+Opening /Users/numi/Work/numi-human-connected-surface-069/connected-boundary-refinement-121/run-003/whole-skin-fat-reference-121.poly.
+Delaunizing vertices...
+Delaunay seconds:  0.015829
+Creating surface mesh ...
+Surface mesh seconds:  0.00278
+Recovering boundaries...
+Boundary recovery seconds:  0.138094
+Removing exterior tetrahedra ...
+Spreading region attributes.
+Exterior tets removal seconds:  0.003186
+Suppressing Steiner points ...
+Steiner suppression seconds:  3e-06
+Recovering Delaunayness...
+Delaunay recovery seconds:  0.01838
+Refining mesh...
+Refinement seconds:  0.020454
+Improving mesh...
+Mesh improvement seconds:  0.01354
+Jettisoning redundant points.
+
+Writing /Users/numi/Work/numi-human-connected-surface-069/connected-boundary-refinement-121/run-003/whole-skin-fat-reference-121.1.node.
+Writing /Users/numi/Work/numi-human-connected-surface-069/connected-boundary-refinement-121/run-003/whole-skin-fat-reference-121.1.ele.
+Writing /Users/numi/Work/numi-human-connected-surface-069/connected-boundary-refinement-121/run-003/whole-skin-fat-reference-121.1.face.
+Writing /Users/numi/Work/numi-human-connected-surface-069/connected-boundary-refinement-121/run-003/whole-skin-fat-reference-121.1.edge.
+
+Output seconds:  0.017453
+Total running seconds:  0.229843
+
+Statistics:
+
+  Input points: 7671
+  Input facets: 15387
+  Input segments: 22182
+  Input holes: 0
+  Input regions: 2
+
+  Mesh points: 8184
+  Mesh tetrahedra: 36439
+  Mesh faces: 78381
+  Mesh faces on exterior boundary: 11006
+  Mesh faces on input facets: 16448
+  Mesh edges on input segments: 22694
+  Steiner points on input segments:  512
+  Steiner points inside domain: 1
+

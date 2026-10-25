@@ -1,0 +1,8 @@
+{
+  "failure": "Source-face marker crosswalk compared only cyclic orientation, rejecting globally reversed O faces even though vertex sets and geometry matched.",
+  "no_output_mesh_written": true,
+  "script": "/Users/numi/Work/numi-human-connected-surface-069/connected-boundary-refinement-121/preflight-orientation-failure-001/build_linear_plc_121_as_run.py",
+  "script_sha256": "5621822c3d6ea9d1395cc98b41e10d9e420b13c2946c94ca9600de5b770b8925",
+  "status": "PRE-TETGEN_PREFLIGHT_FAILURE",
+  "tetgen_not_run": true
+}

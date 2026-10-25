@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/connected-boundary-refinement-121/run-003/tetgen-reference-identity.npz",
+  "input_sha256": "a26b0e97c97565a71fd4979886bfb1aced4fb0e1e22bc173d4bf18ef42ede9c8",
+  "field": "points_world_f32",
+  "query_count": 8184,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/connected-boundary-refinement-121/run-003/reference-identity-119/query/points.csv",
+  "output_sha256": "64b52aee1f211d20d9e83e09a5e5ce3a530ce25a5ba8f3343544def78169a478",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

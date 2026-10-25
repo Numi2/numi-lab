@@ -1,0 +1,2307 @@
+{
+  "array_sha256": {
+    "115_current037": "8db911ab3026aad98b3e07bb6dbabf1bfe3bc5c75357d993c4a629d4b9ee7721",
+    "115_reference": "e339e2ef52d53f96babf9f5a2c263bcab27f5488475f3222d88b5abf240b4cd6"
+  },
+  "builder_sha256": "430d884dba0c4cbfbfb6c0c17c9c7400af7b3a193a922cf33bf8876f5b0a516c",
+  "candidate_sha256": "fdcb88d99dd488afb59b5f49ad3b6f5975f37fc46479f74dd8d31e24a0e5d5b8",
+  "candidate_size_bytes": 426748,
+  "input_sha256": {
+    "batch145": "e4c6c76d497e176e40ad802cb3159a4a143279cc131ae632fe515498aa38fafa",
+    "compact084": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "marker_map": "8e7ac9430c037d29e74d4c2f7f9f838995f6541c0f5fdf29a7b7095d9a6d8ff7",
+    "orientation112": "e43908188f134182635ac36a9a1602abad1918df374a04f3f7cc9eb1812d7497",
+    "quality114": "aa683f25a629f867d20decaa5a8222535142901c2807ba2361748605979b741a",
+    "reference115": "abff4290774cc96a17f6c68a21fe86fc3933a1878e0bd6512733e99589fb6dd9"
+  },
+  "interpretation": "146-edge surface-only conforming subdivision. O midpoints follow detailed NHSKIN source paths; I/D midpoints use signed projections of the existing 115 OI/ID fields onto source normals. No clamping. This is a reconstruction proposal, not measured thickness or an admitted geometry.",
+  "inventory": {
+    "O_I_D_face_topology_exact": true,
+    "crossing_source_edges": 145,
+    "endpoint_depths_signed_recomputed_from_115": true,
+    "held_edges": 0,
+    "negative_endpoint_projection_counts_115": {
+      "current037": {
+        "fat_endpoint": 4,
+        "skin_endpoint": 7
+      },
+      "reference": {
+        "fat_endpoint": 4,
+        "skin_endpoint": 7
+      }
+    },
+    "quality_only_edge": 1,
+    "source_outward_to_coarse_face_winding_parity": -1,
+    "used_edges": 146
+  },
+  "limitations": [
+    "No TetGen or tetrahedral rebuild.",
+    "No capacity, full-bank containment, mapped self-intersection, positive-volume, mass-transfer, native, or physical acceptance gate.",
+    "The projected OI/ID scalar layer samples are explicitly inferred from existing 115 offsets and source normals; signed negative endpoint projections are retained without clamping.",
+    "Source-normal local triangle checks do not establish global embeddedness."
+  ],
+  "orientation_mode": {
+    "all_child_orientation_pass": false,
+    "default_parent_normal_gate_changed": false,
+    "diagnostics_by_frame_layer": {
+      "current037_D": {
+        "child_count": 5069,
+        "collect_orientation_failures": true,
+        "expected_normal_source": "caller supplied per-parent source-oriented normals",
+        "failed_child_count": 56,
+        "failed_children": [
+          {
+            "child_triangle": [
+              4823,
+              7365,
+              4822
+            ],
+            "parent_face_row": 1,
+            "signed_cosine_to_expected_normal": -0.386273197173286,
+            "twice_area_m2": 0.0001907876417745813
+          },
+          {
+            "child_triangle": [
+              7365,
+              7362,
+              4822
+            ],
+            "parent_face_row": 1,
+            "signed_cosine_to_expected_normal": -0.39389094572631017,
+            "twice_area_m2": 4.0129467579501066e-05
+          },
+          {
+            "child_triangle": [
+              7362,
+              7368,
+              4852
+            ],
+            "parent_face_row": 2,
+            "signed_cosine_to_expected_normal": -0.14108987476856885,
+            "twice_area_m2": 0.00021081828095883927
+          },
+          {
+            "child_triangle": [
+              5022,
+              7377,
+              4944
+            ],
+            "parent_face_row": 288,
+            "signed_cosine_to_expected_normal": -0.9956111806418736,
+            "twice_area_m2": 3.7720324727439458e-06
+          },
+          {
+            "child_triangle": [
+              7377,
+              7371,
+              4944
+            ],
+            "parent_face_row": 288,
+            "signed_cosine_to_expected_normal": -0.8386198288743631,
+            "twice_area_m2": 1.0942952298280005e-06
+          },
+          {
+            "child_triangle": [
+              5036,
+              7401,
+              4964
+            ],
+            "parent_face_row": 329,
+            "signed_cosine_to_expected_normal": -0.19695698147555696,
+            "twice_area_m2": 4.5731147672297906e-07
+          },
+          {
+            "child_triangle": [
+              7401,
+              7374,
+              4964
+            ],
+            "parent_face_row": 329,
+            "signed_cosine_to_expected_normal": -0.11062671661183451,
+            "twice_area_m2": 6.301139039734374e-07
+          },
+          {
+            "child_triangle": [
+              4964,
+              7374,
+              5038
+            ],
+            "parent_face_row": 330,
+            "signed_cosine_to_expected_normal": -0.8945071445659447,
+            "twice_area_m2": 1.6253802543909683e-06
+          },
+          {
+            "child_triangle": [
+              7386,
+              5026,
+              7377
+            ],
+            "parent_face_row": 444,
+            "signed_cosine_to_expected_normal": -0.9991187705011003,
+            "twice_area_m2": 1.2141790941214219e-06
+          },
+          {
+            "child_triangle": [
+              7386,
+              7377,
+              5022
+            ],
+            "parent_face_row": 444,
+            "signed_cosine_to_expected_normal": -0.7302801551255058,
+            "twice_area_m2": 7.515573488249926e-07
+          },
+          {
+            "child_triangle": [
+              7383,
+              7401,
+              5036
+            ],
+            "parent_face_row": 450,
+            "signed_cosine_to_expected_normal": -0.15602982303265764,
+            "twice_area_m2": 7.145768891746442e-07
+          },
+          {
+            "child_triangle": [
+              7389,
+              5026,
+              7386
+            ],
+            "parent_face_row": 451,
+            "signed_cosine_to_expected_normal": -0.32446447768577164,
+            "twice_area_m2": 5.8745596147681073e-08
+          },
+          {
+            "child_triangle": [
+              7389,
+              5028,
+              7392
+            ],
+            "parent_face_row": 452,
+            "signed_cosine_to_expected_normal": -0.27521276388329413,
+            "twice_area_m2": 6.565007504249562e-07
+          },
+          {
+            "child_triangle": [
+              5026,
+              7389,
+              5039
+            ],
+            "parent_face_row": 452,
+            "signed_cosine_to_expected_normal": -0.9922678063122947,
+            "twice_area_m2": 2.4560907628691683e-06
+          },
+          {
+            "child_triangle": [
+              7395,
+              5039,
+              7392
+            ],
+            "parent_face_row": 456,
+            "signed_cosine_to_expected_normal": -0.489786192146672,
+            "twice_area_m2": 1.906845008573425e-07
+          },
+          {
+            "child_triangle": [
+              7395,
+              7392,
+              5028
+            ],
+            "parent_face_row": 456,
+            "signed_cosine_to_expected_normal": -0.8337492331838788,
+            "twice_area_m2": 6.079206129199391e-07
+          },
+          {
+            "child_triangle": [
+              5039,
+              7407,
+              5037
+            ],
+            "parent_face_row": 471,
+            "signed_cosine_to_expected_normal": -0.6794238436667696,
+            "twice_area_m2": 2.1252816204854795e-06
+          },
+          {
+            "child_triangle": [
+              5040,
+              7410,
+              5039
+            ],
+            "parent_face_row": 472,
+            "signed_cosine_to_expected_normal": -0.1231378869123006,
+            "twice_area_m2": 2.8483700190362732e-06
+          },
+          {
+            "child_triangle": [
+              7410,
+              7407,
+              5039
+            ],
+            "parent_face_row": 472,
+            "signed_cosine_to_expected_normal": -0.05383446634587514,
+            "twice_area_m2": 1.5462608373495326e-06
+          },
+          {
+            "child_triangle": [
+              5040,
+              7416,
+              5093
+            ],
+            "parent_face_row": 477,
+            "signed_cosine_to_expected_normal": -0.31320127066961073,
+            "twice_area_m2": 4.704727861043541e-06
+          },
+          {
+            "child_triangle": [
+              7416,
+              7428,
+              5093
+            ],
+            "parent_face_row": 477,
+            "signed_cosine_to_expected_normal": -0.7611666645037285,
+            "twice_area_m2": 3.986375192454438e-06
+          },
+          {
+            "child_triangle": [
+              7431,
+              5053,
+              7434
+            ],
+            "parent_face_row": 498,
+            "signed_cosine_to_expected_normal": -0.21354772167381772,
+            "twice_area_m2": 6.313820522470677e-06
+          },
+          {
+            "child_triangle": [
+              5051,
+              7431,
+              5052
+            ],
+            "parent_face_row": 498,
+            "signed_cosine_to_expected_normal": -0.05256580724714564,
+            "twice_area_m2": 4.707933436295516e-07
+          },
+          {
+            "child_triangle": [
+              7431,
+              7434,
+              5052
+            ],
+            "parent_face_row": 498,
+            "signed_cosine_to_expected_normal": -0.580824979402487,
+            "twice_area_m2": 3.384419330648921e-06
+          },
+          {
+            "child_triangle": [
+              5093,
+              7446,
+              5055
+            ],
+            "parent_face_row": 507,
+            "signed_cosine_to_expected_normal": -0.9487807793057494,
+            "twice_area_m2": 3.205518856841339e-06
+          },
+          {
+            "child_triangle": [
+              7446,
+              7443,
+              5055
+            ],
+            "parent_face_row": 507,
+            "signed_cosine_to_expected_normal": -0.6351152745463124,
+            "twice_area_m2": 1.946286109246575e-06
+          },
+          {
+            "child_triangle": [
+              7446,
+              5093,
+              7458
+            ],
+            "parent_face_row": 509,
+            "signed_cosine_to_expected_normal": -0.8995567492928929,
+            "twice_area_m2": 4.440704989779083e-06
+          },
+          {
+            "child_triangle": [
+              7446,
+              7458,
+              5094
+            ],
+            "parent_face_row": 509,
+            "signed_cosine_to_expected_normal": -0.8999918693770448,
+            "twice_area_m2": 6.750128687916983e-06
+          },
+          {
+            "child_triangle": [
+              5176,
+              7503,
+              7500
+            ],
+            "parent_face_row": 733,
+            "signed_cosine_to_expected_normal": -0.024250374947972178,
+            "twice_area_m2": 3.362874419685265e-05
+          },
+          {
+            "child_triangle": [
+              7500,
+              7503,
+              7515
+            ],
+            "parent_face_row": 733,
+            "signed_cosine_to_expected_normal": -0.966556265526257,
+            "twice_area_m2": 1.874345826007927e-05
+          },
+          {
+            "child_triangle": [
+              7530,
+              5191,
+              7527
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.8153741874707515,
+            "twice_area_m2": 5.4024636536641704e-05
+          },
+          {
+            "child_triangle": [
+              7530,
+              7527,
+              5209
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.09722411096620656,
+            "twice_area_m2": 4.802887026862663e-06
+          },
+          {
+            "child_triangle": [
+              7533,
+              5203,
+              5199
+            ],
+            "parent_face_row": 792,
+            "signed_cosine_to_expected_normal": -0.7523727273812989,
+            "twice_area_m2": 0.00019050730798969334
+          },
+          {
+            "child_triangle": [
+              7536,
+              7533,
+              5289
+            ],
+            "parent_face_row": 802,
+            "signed_cosine_to_expected_normal": -0.6361795828224418,
+            "twice_area_m2": 8.961046312516607e-05
+          },
+          {
+            "child_triangle": [
+              7551,
+              5211,
+              5397
+            ],
+            "parent_face_row": 824,
+            "signed_cosine_to_expected_normal": -0.2935471383248017,
+            "twice_area_m2": 0.0001727179477138124
+          },
+          {
+            "child_triangle": [
+              7605,
+              6006,
+              5758
+            ],
+            "parent_face_row": 1972,
+            "signed_cosine_to_expected_normal": -0.5118964594160903,
+            "twice_area_m2": 0.00029785871052183225
+          },
+          {
+            "child_triangle": [
+              7659,
+              6846,
+              7662
+            ],
+            "parent_face_row": 4190,
+            "signed_cosine_to_expected_normal": -0.05190456498145685,
+            "twice_area_m2": 3.8440966145836495e-05
+          },
+          {
+            "child_triangle": [
+              7659,
+              7662,
+              6863
+            ],
+            "parent_face_row": 4190,
+            "signed_cosine_to_expected_normal": -0.34418340753800647,
+            "twice_area_m2": 6.030253426308356e-05
+          },
+          {
+            "child_triangle": [
+              7680,
+              7683,
+              7057
+            ],
+            "parent_face_row": 4540,
+            "signed_cosine_to_expected_normal": -0.01755988700237603,
+            "twice_area_m2": 3.779469767900116e-05
+          },
+          {
+            "child_triangle": [
+              7060,
+              7716,
+              7011
+            ],
+            "parent_face_row": 4545,
+            "signed_cosine_to_expected_normal": -0.30989868555752903,
+            "twice_area_m2": 6.97891244957355e-05
+          },
+          {
+            "child_triangle": [
+              7692,
+              7084,
+              7776
+            ],
+            "parent_face_row": 4581,
+            "signed_cosine_to_expected_normal": -0.9561874575037853,
+            "twice_area_m2": 0.000151200416822525
+          },
+          {
+            "child_triangle": [
+              7028,
+              7692,
+              7085
+            ],
+            "parent_face_row": 4581,
+            "signed_cosine_to_expected_normal": -0.9953217639466512,
+            "twice_area_m2": 0.00030598352559172733
+          },
+          {
+            "child_triangle": [
+              7701,
+              7058,
+              7707
+            ],
+            "parent_face_row": 4622,
+            "signed_cosine_to_expected_normal": -0.3670478742442298,
+            "twice_area_m2": 2.938814331365654e-05
+          },
+          {
+            "child_triangle": [
+              7707,
+              7704,
+              7077
+            ],
+            "parent_face_row": 4623,
+            "signed_cosine_to_expected_normal": -0.2774309364553248,
+            "twice_area_m2": 5.658925967558901e-05
+          },
+          {
+            "child_triangle": [
+              7740,
+              7076,
+              7743
+            ],
+            "parent_face_row": 4662,
+            "signed_cosine_to_expected_normal": -0.45533343999975523,
+            "twice_area_m2": 1.7305415172001e-05
+          },
+          {
+            "child_triangle": [
+              7740,
+              7743,
+              7106
+            ],
+            "parent_face_row": 4662,
+            "signed_cosine_to_expected_normal": -0.5075256110612263,
+            "twice_area_m2": 8.727652273301846e-06
+          },
+          {
+            "child_triangle": [
+              7743,
+              7076,
+              7749
+            ],
+            "parent_face_row": 4663,
+            "signed_cosine_to_expected_normal": -0.684804730672449,
+            "twice_area_m2": 2.1829809015906073e-05
+          },
+          {
+            "child_triangle": [
+              7743,
+              7749,
+              7115
+            ],
+            "parent_face_row": 4663,
+            "signed_cosine_to_expected_normal": -0.5649128748627337,
+            "twice_area_m2": 5.857418824586403e-05
+          },
+          {
+            "child_triangle": [
+              7080,
+              7752,
+              7088
+            ],
+            "parent_face_row": 4667,
+            "signed_cosine_to_expected_normal": -0.5925450594105642,
+            "twice_area_m2": 3.468872005825403e-05
+          },
+          {
+            "child_triangle": [
+              7752,
+              7761,
+              7088
+            ],
+            "parent_face_row": 4667,
+            "signed_cosine_to_expected_normal": -0.4065991505631205,
+            "twice_area_m2": 2.6859442358522444e-05
+          },
+          {
+            "child_triangle": [
+              7092,
+              7764,
+              7080
+            ],
+            "parent_face_row": 4668,
+            "signed_cosine_to_expected_normal": -0.30223614324239156,
+            "twice_area_m2": 0.0001759615541846173
+          },
+          {
+            "child_triangle": [
+              7083,
+              7770,
+              7758
+            ],
+            "parent_face_row": 4673,
+            "signed_cosine_to_expected_normal": -0.8720823196316837,
+            "twice_area_m2": 3.306994586735424e-05
+          },
+          {
+            "child_triangle": [
+              7767,
+              7764,
+              7092
+            ],
+            "parent_face_row": 4674,
+            "signed_cosine_to_expected_normal": -0.993496065442636,
+            "twice_area_m2": 5.576552222074644e-06
+          },
+          {
+            "child_triangle": [
+              7083,
+              7767,
+              7773
+            ],
+            "parent_face_row": 4675,
+            "signed_cosine_to_expected_normal": -0.01079830879267632,
+            "twice_area_m2": 0.00013622742384027085
+          },
+          {
+            "child_triangle": [
+              7776,
+              7084,
+              7779
+            ],
+            "parent_face_row": 4677,
+            "signed_cosine_to_expected_normal": -0.970788524220817,
+            "twice_area_m2": 0.00011547410940684602
+          },
+          {
+            "child_triangle": [
+              7129,
+              7794,
+              7135
+            ],
+            "parent_face_row": 4722,
+            "signed_cosine_to_expected_normal": -0.5911474364246335,
+            "twice_area_m2": 2.8936059285472797e-05
+          }
+        ],
+        "minimum_signed_cosine": -0.9991187705011003,
+        "minimum_twice_area_m2": 5.8745596147681073e-08,
+        "oriented_boundary_chain_preserved": true
+      },
+      "current037_I": {
+        "child_count": 5069,
+        "collect_orientation_failures": true,
+        "expected_normal_source": "caller supplied per-parent source-oriented normals",
+        "failed_child_count": 28,
+        "failed_children": [
+          {
+            "child_triangle": [
+              7361,
+              7367,
+              2441
+            ],
+            "parent_face_row": 2,
+            "signed_cosine_to_expected_normal": -0.10199935329188423,
+            "twice_area_m2": 0.0002597620647747672
+          },
+          {
+            "child_triangle": [
+              2505,
+              7364,
+              2437
+            ],
+            "parent_face_row": 3,
+            "signed_cosine_to_expected_normal": -0.4993167113454716,
+            "twice_area_m2": 4.778108610790472e-05
+          },
+          {
+            "child_triangle": [
+              7364,
+              2412,
+              2437
+            ],
+            "parent_face_row": 3,
+            "signed_cosine_to_expected_normal": -0.7917120683756644,
+            "twice_area_m2": 4.614437151948837e-05
+          },
+          {
+            "child_triangle": [
+              7409,
+              2627,
+              7406
+            ],
+            "parent_face_row": 472,
+            "signed_cosine_to_expected_normal": -0.07473796292986587,
+            "twice_area_m2": 2.685352151330712e-07
+          },
+          {
+            "child_triangle": [
+              7409,
+              7406,
+              2628
+            ],
+            "parent_face_row": 472,
+            "signed_cosine_to_expected_normal": -0.36307204332478,
+            "twice_area_m2": 2.3163859822027145e-07
+          },
+          {
+            "child_triangle": [
+              7415,
+              7427,
+              2682
+            ],
+            "parent_face_row": 477,
+            "signed_cosine_to_expected_normal": -0.6973735927475956,
+            "twice_area_m2": 2.571162767814248e-06
+          },
+          {
+            "child_triangle": [
+              7430,
+              7433,
+              2641
+            ],
+            "parent_face_row": 498,
+            "signed_cosine_to_expected_normal": -0.6274986573697346,
+            "twice_area_m2": 2.553069000858658e-06
+          },
+          {
+            "child_triangle": [
+              7445,
+              2682,
+              7457
+            ],
+            "parent_face_row": 509,
+            "signed_cosine_to_expected_normal": -0.9827519102979615,
+            "twice_area_m2": 2.3319001102568456e-06
+          },
+          {
+            "child_triangle": [
+              7445,
+              7457,
+              2683
+            ],
+            "parent_face_row": 509,
+            "signed_cosine_to_expected_normal": -0.982998322966763,
+            "twice_area_m2": 2.816538621547088e-06
+          },
+          {
+            "child_triangle": [
+              2765,
+              7502,
+              7499
+            ],
+            "parent_face_row": 733,
+            "signed_cosine_to_expected_normal": -0.11740073443344783,
+            "twice_area_m2": 1.5394798090050256e-05
+          },
+          {
+            "child_triangle": [
+              7499,
+              7502,
+              7514
+            ],
+            "parent_face_row": 733,
+            "signed_cosine_to_expected_normal": -0.47808896308876647,
+            "twice_area_m2": 3.1365504787022764e-05
+          },
+          {
+            "child_triangle": [
+              7529,
+              2780,
+              7526
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.9163601067349331,
+            "twice_area_m2": 6.441374057679731e-05
+          },
+          {
+            "child_triangle": [
+              2799,
+              7529,
+              2798
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.3713887611737668,
+            "twice_area_m2": 5.21238191929997e-05
+          },
+          {
+            "child_triangle": [
+              7529,
+              7526,
+              2798
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.9593417102089443,
+            "twice_area_m2": 3.6746803878243204e-05
+          },
+          {
+            "child_triangle": [
+              7535,
+              7532,
+              2878
+            ],
+            "parent_face_row": 802,
+            "signed_cosine_to_expected_normal": -0.09692349092884389,
+            "twice_area_m2": 4.105313211036911e-05
+          },
+          {
+            "child_triangle": [
+              2802,
+              7550,
+              2986
+            ],
+            "parent_face_row": 824,
+            "signed_cosine_to_expected_normal": -0.08099279852430469,
+            "twice_area_m2": 0.000196846590072975
+          },
+          {
+            "child_triangle": [
+              7550,
+              2800,
+              2986
+            ],
+            "parent_face_row": 824,
+            "signed_cosine_to_expected_normal": -0.2723807745761494,
+            "twice_area_m2": 0.00017052980808890576
+          },
+          {
+            "child_triangle": [
+              7604,
+              3595,
+              3347
+            ],
+            "parent_face_row": 1972,
+            "signed_cosine_to_expected_normal": -0.44259369401659976,
+            "twice_area_m2": 0.00027515144229610134
+          },
+          {
+            "child_triangle": [
+              7691,
+              4673,
+              7775
+            ],
+            "parent_face_row": 4581,
+            "signed_cosine_to_expected_normal": -0.630478197428253,
+            "twice_area_m2": 9.029358631587398e-05
+          },
+          {
+            "child_triangle": [
+              4617,
+              7691,
+              4674
+            ],
+            "parent_face_row": 4581,
+            "signed_cosine_to_expected_normal": -0.9696325207550607,
+            "twice_area_m2": 0.00028076296593169183
+          },
+          {
+            "child_triangle": [
+              7700,
+              4647,
+              7706
+            ],
+            "parent_face_row": 4622,
+            "signed_cosine_to_expected_normal": -0.3326136646264451,
+            "twice_area_m2": 3.136750827454791e-05
+          },
+          {
+            "child_triangle": [
+              7706,
+              7703,
+              4666
+            ],
+            "parent_face_row": 4623,
+            "signed_cosine_to_expected_normal": -0.35031726077609043,
+            "twice_area_m2": 5.6795981962864063e-05
+          },
+          {
+            "child_triangle": [
+              7739,
+              4665,
+              7742
+            ],
+            "parent_face_row": 4662,
+            "signed_cosine_to_expected_normal": -0.7166832350837968,
+            "twice_area_m2": 1.3511384875604421e-05
+          },
+          {
+            "child_triangle": [
+              7739,
+              7742,
+              4695
+            ],
+            "parent_face_row": 4662,
+            "signed_cosine_to_expected_normal": -0.9638990131237108,
+            "twice_area_m2": 7.190794438583182e-06
+          },
+          {
+            "child_triangle": [
+              7742,
+              4665,
+              7748
+            ],
+            "parent_face_row": 4663,
+            "signed_cosine_to_expected_normal": -0.7810489364169669,
+            "twice_area_m2": 1.8388743866428423e-05
+          },
+          {
+            "child_triangle": [
+              7742,
+              7748,
+              4704
+            ],
+            "parent_face_row": 4663,
+            "signed_cosine_to_expected_normal": -0.6413750016440345,
+            "twice_area_m2": 5.700223437953379e-05
+          },
+          {
+            "child_triangle": [
+              4669,
+              7751,
+              4677
+            ],
+            "parent_face_row": 4667,
+            "signed_cosine_to_expected_normal": -0.4893481793677897,
+            "twice_area_m2": 1.1193824520657295e-05
+          },
+          {
+            "child_triangle": [
+              7751,
+              7760,
+              4677
+            ],
+            "parent_face_row": 4667,
+            "signed_cosine_to_expected_normal": -0.5880151005649797,
+            "twice_area_m2": 1.5224228501873891e-05
+          }
+        ],
+        "minimum_signed_cosine": -0.982998322966763,
+        "minimum_twice_area_m2": 4.062617712821332e-08,
+        "oriented_boundary_chain_preserved": true
+      },
+      "current037_O": {
+        "child_count": 5069,
+        "collect_orientation_failures": true,
+        "expected_normal_source": "caller supplied per-parent source-oriented normals",
+        "failed_child_count": 24,
+        "failed_children": [
+          {
+            "child_triangle": [
+              7360,
+              7366,
+              30
+            ],
+            "parent_face_row": 2,
+            "signed_cosine_to_expected_normal": -0.05420735794280104,
+            "twice_area_m2": 0.00027665114063827505
+          },
+          {
+            "child_triangle": [
+              94,
+              7363,
+              26
+            ],
+            "parent_face_row": 3,
+            "signed_cosine_to_expected_normal": -0.6876976282305235,
+            "twice_area_m2": 7.642463750256055e-05
+          },
+          {
+            "child_triangle": [
+              7363,
+              1,
+              26
+            ],
+            "parent_face_row": 3,
+            "signed_cosine_to_expected_normal": -0.7884240342207249,
+            "twice_area_m2": 7.102981125065585e-05
+          },
+          {
+            "child_triangle": [
+              7408,
+              216,
+              7405
+            ],
+            "parent_face_row": 472,
+            "signed_cosine_to_expected_normal": -0.9980593036494172,
+            "twice_area_m2": 5.210149529046373e-08
+          },
+          {
+            "child_triangle": [
+              7408,
+              7405,
+              217
+            ],
+            "parent_face_row": 472,
+            "signed_cosine_to_expected_normal": -0.9712259616703836,
+            "twice_area_m2": 8.787663705273829e-08
+          },
+          {
+            "child_triangle": [
+              354,
+              7501,
+              7498
+            ],
+            "parent_face_row": 733,
+            "signed_cosine_to_expected_normal": -0.14135593762301998,
+            "twice_area_m2": 2.338910518994279e-05
+          },
+          {
+            "child_triangle": [
+              7498,
+              7501,
+              7513
+            ],
+            "parent_face_row": 733,
+            "signed_cosine_to_expected_normal": -0.5949074141679203,
+            "twice_area_m2": 2.4380581178797284e-05
+          },
+          {
+            "child_triangle": [
+              7528,
+              369,
+              7525
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.8999350953194369,
+            "twice_area_m2": 6.743604132422979e-05
+          },
+          {
+            "child_triangle": [
+              388,
+              7528,
+              387
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.4638191317185678,
+            "twice_area_m2": 7.996386359936312e-05
+          },
+          {
+            "child_triangle": [
+              7528,
+              7525,
+              387
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.9721451993355193,
+            "twice_area_m2": 5.9009983312763134e-05
+          },
+          {
+            "child_triangle": [
+              391,
+              7549,
+              575
+            ],
+            "parent_face_row": 824,
+            "signed_cosine_to_expected_normal": -0.29499857662046136,
+            "twice_area_m2": 0.00020041473871969077
+          },
+          {
+            "child_triangle": [
+              7549,
+              389,
+              575
+            ],
+            "parent_face_row": 824,
+            "signed_cosine_to_expected_normal": -0.32124107236620975,
+            "twice_area_m2": 0.00019328381126080881
+          },
+          {
+            "child_triangle": [
+              7603,
+              1184,
+              936
+            ],
+            "parent_face_row": 1972,
+            "signed_cosine_to_expected_normal": -0.3524550671118887,
+            "twice_area_m2": 0.00026761013913897226
+          },
+          {
+            "child_triangle": [
+              7690,
+              2262,
+              7774
+            ],
+            "parent_face_row": 4581,
+            "signed_cosine_to_expected_normal": -0.47926816029831115,
+            "twice_area_m2": 8.908621543796569e-05
+          },
+          {
+            "child_triangle": [
+              2206,
+              7690,
+              2263
+            ],
+            "parent_face_row": 4581,
+            "signed_cosine_to_expected_normal": -0.975366310736648,
+            "twice_area_m2": 0.0002858001772231192
+          },
+          {
+            "child_triangle": [
+              7699,
+              2236,
+              7705
+            ],
+            "parent_face_row": 4622,
+            "signed_cosine_to_expected_normal": -0.2627091276445827,
+            "twice_area_m2": 3.609228897379132e-05
+          },
+          {
+            "child_triangle": [
+              7705,
+              7702,
+              2255
+            ],
+            "parent_face_row": 4623,
+            "signed_cosine_to_expected_normal": -0.5178998567951647,
+            "twice_area_m2": 5.90287498218127e-05
+          },
+          {
+            "child_triangle": [
+              7738,
+              2254,
+              7741
+            ],
+            "parent_face_row": 4662,
+            "signed_cosine_to_expected_normal": -0.8776468260079889,
+            "twice_area_m2": 1.2641308731800302e-05
+          },
+          {
+            "child_triangle": [
+              7738,
+              7741,
+              2284
+            ],
+            "parent_face_row": 4662,
+            "signed_cosine_to_expected_normal": -0.9908834048010918,
+            "twice_area_m2": 9.910415659582171e-06
+          },
+          {
+            "child_triangle": [
+              7741,
+              2254,
+              7747
+            ],
+            "parent_face_row": 4663,
+            "signed_cosine_to_expected_normal": -0.7977130123318987,
+            "twice_area_m2": 1.6325655987205067e-05
+          },
+          {
+            "child_triangle": [
+              7741,
+              7747,
+              2293
+            ],
+            "parent_face_row": 4663,
+            "signed_cosine_to_expected_normal": -0.6836586536108649,
+            "twice_area_m2": 5.757165166740867e-05
+          },
+          {
+            "child_triangle": [
+              2258,
+              7750,
+              2266
+            ],
+            "parent_face_row": 4667,
+            "signed_cosine_to_expected_normal": -0.24642095156742724,
+            "twice_area_m2": 2.8859583790816716e-05
+          },
+          {
+            "child_triangle": [
+              7750,
+              7759,
+              2266
+            ],
+            "parent_face_row": 4667,
+            "signed_cosine_to_expected_normal": -0.8831544133224055,
+            "twice_area_m2": 1.1449596097515373e-05
+          },
+          {
+            "child_triangle": [
+              2263,
+              7774,
+              2282
+            ],
+            "parent_face_row": 4677,
+            "signed_cosine_to_expected_normal": -0.03559798950880566,
+            "twice_area_m2": 0.00019045426679066611
+          }
+        ],
+        "minimum_signed_cosine": -0.9980593036494172,
+        "minimum_twice_area_m2": 5.01466121120826e-08,
+        "oriented_boundary_chain_preserved": true
+      },
+      "reference_D": {
+        "child_count": 5069,
+        "collect_orientation_failures": true,
+        "expected_normal_source": "caller supplied per-parent source-oriented normals",
+        "failed_child_count": 56,
+        "failed_children": [
+          {
+            "child_triangle": [
+              4823,
+              7365,
+              4822
+            ],
+            "parent_face_row": 1,
+            "signed_cosine_to_expected_normal": -0.3862727558051026,
+            "twice_area_m2": 0.00019078758526186424
+          },
+          {
+            "child_triangle": [
+              7365,
+              7362,
+              4822
+            ],
+            "parent_face_row": 1,
+            "signed_cosine_to_expected_normal": -0.393891539249821,
+            "twice_area_m2": 4.012916836607886e-05
+          },
+          {
+            "child_triangle": [
+              7362,
+              7368,
+              4852
+            ],
+            "parent_face_row": 2,
+            "signed_cosine_to_expected_normal": -0.14108721119609172,
+            "twice_area_m2": 0.0002108184005875845
+          },
+          {
+            "child_triangle": [
+              5022,
+              7377,
+              4944
+            ],
+            "parent_face_row": 288,
+            "signed_cosine_to_expected_normal": -0.9956111232275238,
+            "twice_area_m2": 3.772018817059892e-06
+          },
+          {
+            "child_triangle": [
+              7377,
+              7371,
+              4944
+            ],
+            "parent_face_row": 288,
+            "signed_cosine_to_expected_normal": -0.8385849351124478,
+            "twice_area_m2": 1.0941704008775308e-06
+          },
+          {
+            "child_triangle": [
+              5036,
+              7401,
+              4964
+            ],
+            "parent_face_row": 329,
+            "signed_cosine_to_expected_normal": -0.1969327129525274,
+            "twice_area_m2": 4.572978566205106e-07
+          },
+          {
+            "child_triangle": [
+              7401,
+              7374,
+              4964
+            ],
+            "parent_face_row": 329,
+            "signed_cosine_to_expected_normal": -0.11061197332805735,
+            "twice_area_m2": 6.300845765905003e-07
+          },
+          {
+            "child_triangle": [
+              4964,
+              7374,
+              5038
+            ],
+            "parent_face_row": 330,
+            "signed_cosine_to_expected_normal": -0.8945072691459316,
+            "twice_area_m2": 1.6253745572703541e-06
+          },
+          {
+            "child_triangle": [
+              7386,
+              5026,
+              7377
+            ],
+            "parent_face_row": 444,
+            "signed_cosine_to_expected_normal": -0.9991188046190295,
+            "twice_area_m2": 1.2141467899142774e-06
+          },
+          {
+            "child_triangle": [
+              7386,
+              7377,
+              5022
+            ],
+            "parent_face_row": 444,
+            "signed_cosine_to_expected_normal": -0.7302947120999423,
+            "twice_area_m2": 7.515746857347053e-07
+          },
+          {
+            "child_triangle": [
+              7383,
+              7401,
+              5036
+            ],
+            "parent_face_row": 450,
+            "signed_cosine_to_expected_normal": -0.15600146505433704,
+            "twice_area_m2": 7.14569379615681e-07
+          },
+          {
+            "child_triangle": [
+              7389,
+              5026,
+              7386
+            ],
+            "parent_face_row": 451,
+            "signed_cosine_to_expected_normal": -0.3242292449653454,
+            "twice_area_m2": 5.873225303991202e-08
+          },
+          {
+            "child_triangle": [
+              7389,
+              5028,
+              7392
+            ],
+            "parent_face_row": 452,
+            "signed_cosine_to_expected_normal": -0.275157912989765,
+            "twice_area_m2": 6.565042916942353e-07
+          },
+          {
+            "child_triangle": [
+              5026,
+              7389,
+              5039
+            ],
+            "parent_face_row": 452,
+            "signed_cosine_to_expected_normal": -0.9922690724141836,
+            "twice_area_m2": 2.4560805302899055e-06
+          },
+          {
+            "child_triangle": [
+              7395,
+              5039,
+              7392
+            ],
+            "parent_face_row": 456,
+            "signed_cosine_to_expected_normal": -0.48972553031083865,
+            "twice_area_m2": 1.9066917665932486e-07
+          },
+          {
+            "child_triangle": [
+              7395,
+              7392,
+              5028
+            ],
+            "parent_face_row": 456,
+            "signed_cosine_to_expected_normal": -0.8337394173998164,
+            "twice_area_m2": 6.079054583909543e-07
+          },
+          {
+            "child_triangle": [
+              5039,
+              7407,
+              5037
+            ],
+            "parent_face_row": 471,
+            "signed_cosine_to_expected_normal": -0.679421101698117,
+            "twice_area_m2": 2.1253030798178027e-06
+          },
+          {
+            "child_triangle": [
+              5040,
+              7410,
+              5039
+            ],
+            "parent_face_row": 472,
+            "signed_cosine_to_expected_normal": -0.12317293897044057,
+            "twice_area_m2": 2.848426322577127e-06
+          },
+          {
+            "child_triangle": [
+              7410,
+              7407,
+              5039
+            ],
+            "parent_face_row": 472,
+            "signed_cosine_to_expected_normal": -0.05378815158592037,
+            "twice_area_m2": 1.5462866082737793e-06
+          },
+          {
+            "child_triangle": [
+              5040,
+              7416,
+              5093
+            ],
+            "parent_face_row": 477,
+            "signed_cosine_to_expected_normal": -0.3131761544480443,
+            "twice_area_m2": 4.704703886919112e-06
+          },
+          {
+            "child_triangle": [
+              7416,
+              7428,
+              5093
+            ],
+            "parent_face_row": 477,
+            "signed_cosine_to_expected_normal": -0.7611700679061041,
+            "twice_area_m2": 3.986437238116764e-06
+          },
+          {
+            "child_triangle": [
+              7431,
+              5053,
+              7434
+            ],
+            "parent_face_row": 498,
+            "signed_cosine_to_expected_normal": -0.21356885006664164,
+            "twice_area_m2": 6.313790212842782e-06
+          },
+          {
+            "child_triangle": [
+              5051,
+              7431,
+              5052
+            ],
+            "parent_face_row": 498,
+            "signed_cosine_to_expected_normal": -0.05259086904431765,
+            "twice_area_m2": 4.707419164103394e-07
+          },
+          {
+            "child_triangle": [
+              7431,
+              7434,
+              5052
+            ],
+            "parent_face_row": 498,
+            "signed_cosine_to_expected_normal": -0.5808212456792681,
+            "twice_area_m2": 3.384346607831661e-06
+          },
+          {
+            "child_triangle": [
+              5093,
+              7446,
+              5055
+            ],
+            "parent_face_row": 507,
+            "signed_cosine_to_expected_normal": -0.948785098777718,
+            "twice_area_m2": 3.2054754464439085e-06
+          },
+          {
+            "child_triangle": [
+              7446,
+              7443,
+              5055
+            ],
+            "parent_face_row": 507,
+            "signed_cosine_to_expected_normal": -0.635155695705722,
+            "twice_area_m2": 1.9461657784862925e-06
+          },
+          {
+            "child_triangle": [
+              7446,
+              5093,
+              7458
+            ],
+            "parent_face_row": 509,
+            "signed_cosine_to_expected_normal": -0.8995609797570904,
+            "twice_area_m2": 4.440638123836434e-06
+          },
+          {
+            "child_triangle": [
+              7446,
+              7458,
+              5094
+            ],
+            "parent_face_row": 509,
+            "signed_cosine_to_expected_normal": -0.89998619693514,
+            "twice_area_m2": 6.750083365799336e-06
+          },
+          {
+            "child_triangle": [
+              5176,
+              7503,
+              7500
+            ],
+            "parent_face_row": 733,
+            "signed_cosine_to_expected_normal": -0.024249956058533993,
+            "twice_area_m2": 3.3629041218479096e-05
+          },
+          {
+            "child_triangle": [
+              7500,
+              7503,
+              7515
+            ],
+            "parent_face_row": 733,
+            "signed_cosine_to_expected_normal": -0.9665599713044467,
+            "twice_area_m2": 1.874346164350209e-05
+          },
+          {
+            "child_triangle": [
+              7530,
+              5191,
+              7527
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.8153739299556068,
+            "twice_area_m2": 5.4024403028038524e-05
+          },
+          {
+            "child_triangle": [
+              7530,
+              7527,
+              5209
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.09720081378791932,
+            "twice_area_m2": 4.802891443474104e-06
+          },
+          {
+            "child_triangle": [
+              7533,
+              5203,
+              5199
+            ],
+            "parent_face_row": 792,
+            "signed_cosine_to_expected_normal": -0.7523725370008828,
+            "twice_area_m2": 0.00019050753583471
+          },
+          {
+            "child_triangle": [
+              7536,
+              7533,
+              5289
+            ],
+            "parent_face_row": 802,
+            "signed_cosine_to_expected_normal": -0.6361784102784982,
+            "twice_area_m2": 8.96106489521299e-05
+          },
+          {
+            "child_triangle": [
+              7551,
+              5211,
+              5397
+            ],
+            "parent_face_row": 824,
+            "signed_cosine_to_expected_normal": -0.2935471061248828,
+            "twice_area_m2": 0.0001727178604510624
+          },
+          {
+            "child_triangle": [
+              7605,
+              6006,
+              5758
+            ],
+            "parent_face_row": 1972,
+            "signed_cosine_to_expected_normal": -0.5118968058232471,
+            "twice_area_m2": 0.0002978587246934922
+          },
+          {
+            "child_triangle": [
+              7659,
+              6846,
+              7662
+            ],
+            "parent_face_row": 4190,
+            "signed_cosine_to_expected_normal": -0.05190467556214919,
+            "twice_area_m2": 3.8441025755784936e-05
+          },
+          {
+            "child_triangle": [
+              7659,
+              7662,
+              6863
+            ],
+            "parent_face_row": 4190,
+            "signed_cosine_to_expected_normal": -0.3441836799534427,
+            "twice_area_m2": 6.03026352324927e-05
+          },
+          {
+            "child_triangle": [
+              7680,
+              7683,
+              7057
+            ],
+            "parent_face_row": 4540,
+            "signed_cosine_to_expected_normal": -0.017563287667036766,
+            "twice_area_m2": 3.7794860082974165e-05
+          },
+          {
+            "child_triangle": [
+              7060,
+              7716,
+              7011
+            ],
+            "parent_face_row": 4545,
+            "signed_cosine_to_expected_normal": -0.3098969615577956,
+            "twice_area_m2": 6.978948824754201e-05
+          },
+          {
+            "child_triangle": [
+              7692,
+              7084,
+              7776
+            ],
+            "parent_face_row": 4581,
+            "signed_cosine_to_expected_normal": -0.9561876554535427,
+            "twice_area_m2": 0.00015120047639835584
+          },
+          {
+            "child_triangle": [
+              7028,
+              7692,
+              7085
+            ],
+            "parent_face_row": 4581,
+            "signed_cosine_to_expected_normal": -0.9953218119313226,
+            "twice_area_m2": 0.00030598398225143586
+          },
+          {
+            "child_triangle": [
+              7701,
+              7058,
+              7707
+            ],
+            "parent_face_row": 4622,
+            "signed_cosine_to_expected_normal": -0.367049010072969,
+            "twice_area_m2": 2.9388093562945047e-05
+          },
+          {
+            "child_triangle": [
+              7707,
+              7704,
+              7077
+            ],
+            "parent_face_row": 4623,
+            "signed_cosine_to_expected_normal": -0.2774359205356184,
+            "twice_area_m2": 5.658928307756742e-05
+          },
+          {
+            "child_triangle": [
+              7740,
+              7076,
+              7743
+            ],
+            "parent_face_row": 4662,
+            "signed_cosine_to_expected_normal": -0.455340380788948,
+            "twice_area_m2": 1.7305031501477284e-05
+          },
+          {
+            "child_triangle": [
+              7740,
+              7743,
+              7106
+            ],
+            "parent_face_row": 4662,
+            "signed_cosine_to_expected_normal": -0.5075459987541916,
+            "twice_area_m2": 8.727219985183222e-06
+          },
+          {
+            "child_triangle": [
+              7743,
+              7076,
+              7749
+            ],
+            "parent_face_row": 4663,
+            "signed_cosine_to_expected_normal": -0.6848000664902176,
+            "twice_area_m2": 2.1829732831233804e-05
+          },
+          {
+            "child_triangle": [
+              7743,
+              7749,
+              7115
+            ],
+            "parent_face_row": 4663,
+            "signed_cosine_to_expected_normal": -0.5649118467149703,
+            "twice_area_m2": 5.8574000371014626e-05
+          },
+          {
+            "child_triangle": [
+              7080,
+              7752,
+              7088
+            ],
+            "parent_face_row": 4667,
+            "signed_cosine_to_expected_normal": -0.5925463572797726,
+            "twice_area_m2": 3.468879444361297e-05
+          },
+          {
+            "child_triangle": [
+              7752,
+              7761,
+              7088
+            ],
+            "parent_face_row": 4667,
+            "signed_cosine_to_expected_normal": -0.40659953333909776,
+            "twice_area_m2": 2.685957241369483e-05
+          },
+          {
+            "child_triangle": [
+              7092,
+              7764,
+              7080
+            ],
+            "parent_face_row": 4668,
+            "signed_cosine_to_expected_normal": -0.30223675824387103,
+            "twice_area_m2": 0.0001759612307989643
+          },
+          {
+            "child_triangle": [
+              7083,
+              7770,
+              7758
+            ],
+            "parent_face_row": 4673,
+            "signed_cosine_to_expected_normal": -0.8720821666461263,
+            "twice_area_m2": 3.307014199193452e-05
+          },
+          {
+            "child_triangle": [
+              7767,
+              7764,
+              7092
+            ],
+            "parent_face_row": 4674,
+            "signed_cosine_to_expected_normal": -0.9934947570470399,
+            "twice_area_m2": 5.576798093208937e-06
+          },
+          {
+            "child_triangle": [
+              7083,
+              7767,
+              7773
+            ],
+            "parent_face_row": 4675,
+            "signed_cosine_to_expected_normal": -0.01080023401463749,
+            "twice_area_m2": 0.00013622734685259325
+          },
+          {
+            "child_triangle": [
+              7776,
+              7084,
+              7779
+            ],
+            "parent_face_row": 4677,
+            "signed_cosine_to_expected_normal": -0.9707883127886778,
+            "twice_area_m2": 0.00011547416708223718
+          },
+          {
+            "child_triangle": [
+              7129,
+              7794,
+              7135
+            ],
+            "parent_face_row": 4722,
+            "signed_cosine_to_expected_normal": -0.5911494097218339,
+            "twice_area_m2": 2.893591539465204e-05
+          }
+        ],
+        "minimum_signed_cosine": -0.9991188046190295,
+        "minimum_twice_area_m2": 5.873225303991202e-08,
+        "oriented_boundary_chain_preserved": true
+      },
+      "reference_I": {
+        "child_count": 5069,
+        "collect_orientation_failures": true,
+        "expected_normal_source": "caller supplied per-parent source-oriented normals",
+        "failed_child_count": 28,
+        "failed_children": [
+          {
+            "child_triangle": [
+              7361,
+              7367,
+              2441
+            ],
+            "parent_face_row": 2,
+            "signed_cosine_to_expected_normal": -0.10199884483517814,
+            "twice_area_m2": 0.00025976225012375837
+          },
+          {
+            "child_triangle": [
+              2505,
+              7364,
+              2437
+            ],
+            "parent_face_row": 3,
+            "signed_cosine_to_expected_normal": -0.4993149996716804,
+            "twice_area_m2": 4.778097044874122e-05
+          },
+          {
+            "child_triangle": [
+              7364,
+              2412,
+              2437
+            ],
+            "parent_face_row": 3,
+            "signed_cosine_to_expected_normal": -0.791712413837908,
+            "twice_area_m2": 4.614430647365282e-05
+          },
+          {
+            "child_triangle": [
+              7409,
+              2627,
+              7406
+            ],
+            "parent_face_row": 472,
+            "signed_cosine_to_expected_normal": -0.07477763861391125,
+            "twice_area_m2": 2.6854746995213786e-07
+          },
+          {
+            "child_triangle": [
+              7409,
+              7406,
+              2628
+            ],
+            "parent_face_row": 472,
+            "signed_cosine_to_expected_normal": -0.36310552103878174,
+            "twice_area_m2": 2.3166369655712087e-07
+          },
+          {
+            "child_triangle": [
+              7415,
+              7427,
+              2682
+            ],
+            "parent_face_row": 477,
+            "signed_cosine_to_expected_normal": -0.6973907942546219,
+            "twice_area_m2": 2.5712159621626737e-06
+          },
+          {
+            "child_triangle": [
+              7430,
+              7433,
+              2641
+            ],
+            "parent_face_row": 498,
+            "signed_cosine_to_expected_normal": -0.6274996030663731,
+            "twice_area_m2": 2.5530617990009912e-06
+          },
+          {
+            "child_triangle": [
+              7445,
+              2682,
+              7457
+            ],
+            "parent_face_row": 509,
+            "signed_cosine_to_expected_normal": -0.9827485351621098,
+            "twice_area_m2": 2.331943376267587e-06
+          },
+          {
+            "child_triangle": [
+              7445,
+              7457,
+              2683
+            ],
+            "parent_face_row": 509,
+            "signed_cosine_to_expected_normal": -0.9829977182313338,
+            "twice_area_m2": 2.8166168445973975e-06
+          },
+          {
+            "child_triangle": [
+              2765,
+              7502,
+              7499
+            ],
+            "parent_face_row": 733,
+            "signed_cosine_to_expected_normal": -0.11740248273487658,
+            "twice_area_m2": 1.5394582780286044e-05
+          },
+          {
+            "child_triangle": [
+              7499,
+              7502,
+              7514
+            ],
+            "parent_face_row": 733,
+            "signed_cosine_to_expected_normal": -0.478088072012094,
+            "twice_area_m2": 3.1365490366183696e-05
+          },
+          {
+            "child_triangle": [
+              7529,
+              2780,
+              7526
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.9163595968923189,
+            "twice_area_m2": 6.441428054842143e-05
+          },
+          {
+            "child_triangle": [
+              2799,
+              7529,
+              2798
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.371389110915236,
+            "twice_area_m2": 5.21240955939541e-05
+          },
+          {
+            "child_triangle": [
+              7529,
+              7526,
+              2798
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.9593416086403384,
+            "twice_area_m2": 3.6747136574278856e-05
+          },
+          {
+            "child_triangle": [
+              7535,
+              7532,
+              2878
+            ],
+            "parent_face_row": 802,
+            "signed_cosine_to_expected_normal": -0.09692508781555152,
+            "twice_area_m2": 4.1053229493587065e-05
+          },
+          {
+            "child_triangle": [
+              2802,
+              7550,
+              2986
+            ],
+            "parent_face_row": 824,
+            "signed_cosine_to_expected_normal": -0.0809949660683418,
+            "twice_area_m2": 0.0001968464740411453
+          },
+          {
+            "child_triangle": [
+              7550,
+              2800,
+              2986
+            ],
+            "parent_face_row": 824,
+            "signed_cosine_to_expected_normal": -0.27238135193164514,
+            "twice_area_m2": 0.00017052991592814414
+          },
+          {
+            "child_triangle": [
+              7604,
+              3595,
+              3347
+            ],
+            "parent_face_row": 1972,
+            "signed_cosine_to_expected_normal": -0.44259335135974576,
+            "twice_area_m2": 0.00027515159486238787
+          },
+          {
+            "child_triangle": [
+              7691,
+              4673,
+              7775
+            ],
+            "parent_face_row": 4581,
+            "signed_cosine_to_expected_normal": -0.6304759638845276,
+            "twice_area_m2": 9.029365089412102e-05
+          },
+          {
+            "child_triangle": [
+              4617,
+              7691,
+              4674
+            ],
+            "parent_face_row": 4581,
+            "signed_cosine_to_expected_normal": -0.9696325694151081,
+            "twice_area_m2": 0.00028076360471727556
+          },
+          {
+            "child_triangle": [
+              7700,
+              4647,
+              7706
+            ],
+            "parent_face_row": 4622,
+            "signed_cosine_to_expected_normal": -0.3326192471788307,
+            "twice_area_m2": 3.136766942703108e-05
+          },
+          {
+            "child_triangle": [
+              7706,
+              7703,
+              4666
+            ],
+            "parent_face_row": 4623,
+            "signed_cosine_to_expected_normal": -0.35032065238618876,
+            "twice_area_m2": 5.679643430965272e-05
+          },
+          {
+            "child_triangle": [
+              7739,
+              4665,
+              7742
+            ],
+            "parent_face_row": 4662,
+            "signed_cosine_to_expected_normal": -0.7166850431316174,
+            "twice_area_m2": 1.3511417665911652e-05
+          },
+          {
+            "child_triangle": [
+              7739,
+              7742,
+              4695
+            ],
+            "parent_face_row": 4662,
+            "signed_cosine_to_expected_normal": -0.9639024007302124,
+            "twice_area_m2": 7.190840742414689e-06
+          },
+          {
+            "child_triangle": [
+              7742,
+              4665,
+              7748
+            ],
+            "parent_face_row": 4663,
+            "signed_cosine_to_expected_normal": -0.7810249477445081,
+            "twice_area_m2": 1.8388963235062626e-05
+          },
+          {
+            "child_triangle": [
+              7742,
+              7748,
+              4704
+            ],
+            "parent_face_row": 4663,
+            "signed_cosine_to_expected_normal": -0.641365703956142,
+            "twice_area_m2": 5.7002510677587126e-05
+          },
+          {
+            "child_triangle": [
+              4669,
+              7751,
+              4677
+            ],
+            "parent_face_row": 4667,
+            "signed_cosine_to_expected_normal": -0.4893604130456981,
+            "twice_area_m2": 1.119374219406991e-05
+          },
+          {
+            "child_triangle": [
+              7751,
+              7760,
+              4677
+            ],
+            "parent_face_row": 4667,
+            "signed_cosine_to_expected_normal": -0.5880201055838965,
+            "twice_area_m2": 1.5224663850689249e-05
+          }
+        ],
+        "minimum_signed_cosine": -0.9829977182313338,
+        "minimum_twice_area_m2": 4.061151391332737e-08,
+        "oriented_boundary_chain_preserved": true
+      },
+      "reference_O": {
+        "child_count": 5069,
+        "collect_orientation_failures": true,
+        "expected_normal_source": "caller supplied per-parent source-oriented normals",
+        "failed_child_count": 24,
+        "failed_children": [
+          {
+            "child_triangle": [
+              7360,
+              7366,
+              30
+            ],
+            "parent_face_row": 2,
+            "signed_cosine_to_expected_normal": -0.05420742097137317,
+            "twice_area_m2": 0.00027665124406749244
+          },
+          {
+            "child_triangle": [
+              94,
+              7363,
+              26
+            ],
+            "parent_face_row": 3,
+            "signed_cosine_to_expected_normal": -0.6876969526673699,
+            "twice_area_m2": 7.642460536158322e-05
+          },
+          {
+            "child_triangle": [
+              7363,
+              1,
+              26
+            ],
+            "parent_face_row": 3,
+            "signed_cosine_to_expected_normal": -0.7884239770530107,
+            "twice_area_m2": 7.102978057528598e-05
+          },
+          {
+            "child_triangle": [
+              7408,
+              216,
+              7405
+            ],
+            "parent_face_row": 472,
+            "signed_cosine_to_expected_normal": -0.9980557374301348,
+            "twice_area_m2": 5.2036463352455567e-08
+          },
+          {
+            "child_triangle": [
+              7408,
+              7405,
+              217
+            ],
+            "parent_face_row": 472,
+            "signed_cosine_to_expected_normal": -0.9711970475664463,
+            "twice_area_m2": 8.782822414094988e-08
+          },
+          {
+            "child_triangle": [
+              354,
+              7501,
+              7498
+            ],
+            "parent_face_row": 733,
+            "signed_cosine_to_expected_normal": -0.14135589960164596,
+            "twice_area_m2": 2.3388935166237526e-05
+          },
+          {
+            "child_triangle": [
+              7498,
+              7501,
+              7513
+            ],
+            "parent_face_row": 733,
+            "signed_cosine_to_expected_normal": -0.5949018522962554,
+            "twice_area_m2": 2.4380896166807863e-05
+          },
+          {
+            "child_triangle": [
+              7528,
+              369,
+              7525
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.8999349385100774,
+            "twice_area_m2": 6.743580101920854e-05
+          },
+          {
+            "child_triangle": [
+              388,
+              7528,
+              387
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.4638192767860243,
+            "twice_area_m2": 7.996402877092223e-05
+          },
+          {
+            "child_triangle": [
+              7528,
+              7525,
+              387
+            ],
+            "parent_face_row": 772,
+            "signed_cosine_to_expected_normal": -0.9721450442102173,
+            "twice_area_m2": 5.901010601773588e-05
+          },
+          {
+            "child_triangle": [
+              391,
+              7549,
+              575
+            ],
+            "parent_face_row": 824,
+            "signed_cosine_to_expected_normal": -0.2949999034037716,
+            "twice_area_m2": 0.00020041470339313312
+          },
+          {
+            "child_triangle": [
+              7549,
+              389,
+              575
+            ],
+            "parent_face_row": 824,
+            "signed_cosine_to_expected_normal": -0.3212414219546918,
+            "twice_area_m2": 0.00019328410885354944
+          },
+          {
+            "child_triangle": [
+              7603,
+              1184,
+              936
+            ],
+            "parent_face_row": 1972,
+            "signed_cosine_to_expected_normal": -0.3524558071558456,
+            "twice_area_m2": 0.0002676102370638783
+          },
+          {
+            "child_triangle": [
+              7690,
+              2262,
+              7774
+            ],
+            "parent_face_row": 4581,
+            "signed_cosine_to_expected_normal": -0.4792701312984138,
+            "twice_area_m2": 8.908595479060101e-05
+          },
+          {
+            "child_triangle": [
+              2206,
+              7690,
+              2263
+            ],
+            "parent_face_row": 4581,
+            "signed_cosine_to_expected_normal": -0.975365790296681,
+            "twice_area_m2": 0.0002858003786640872
+          },
+          {
+            "child_triangle": [
+              7699,
+              2236,
+              7705
+            ],
+            "parent_face_row": 4622,
+            "signed_cosine_to_expected_normal": -0.2626994679672813,
+            "twice_area_m2": 3.609220846558623e-05
+          },
+          {
+            "child_triangle": [
+              7705,
+              7702,
+              2255
+            ],
+            "parent_face_row": 4623,
+            "signed_cosine_to_expected_normal": -0.517897595213571,
+            "twice_area_m2": 5.902823249301307e-05
+          },
+          {
+            "child_triangle": [
+              7738,
+              2254,
+              7741
+            ],
+            "parent_face_row": 4662,
+            "signed_cosine_to_expected_normal": -0.8776377561476647,
+            "twice_area_m2": 1.2641335340692553e-05
+          },
+          {
+            "child_triangle": [
+              7738,
+              7741,
+              2284
+            ],
+            "parent_face_row": 4662,
+            "signed_cosine_to_expected_normal": -0.9908882385494638,
+            "twice_area_m2": 9.910233211945637e-06
+          },
+          {
+            "child_triangle": [
+              7741,
+              2254,
+              7747
+            ],
+            "parent_face_row": 4663,
+            "signed_cosine_to_expected_normal": -0.7977188575874273,
+            "twice_area_m2": 1.6325653229754753e-05
+          },
+          {
+            "child_triangle": [
+              7741,
+              7747,
+              2293
+            ],
+            "parent_face_row": 4663,
+            "signed_cosine_to_expected_normal": -0.6836588038711507,
+            "twice_area_m2": 5.757170850680387e-05
+          },
+          {
+            "child_triangle": [
+              2258,
+              7750,
+              2266
+            ],
+            "parent_face_row": 4667,
+            "signed_cosine_to_expected_normal": -0.2464246832883186,
+            "twice_area_m2": 2.8859468321408142e-05
+          },
+          {
+            "child_triangle": [
+              7750,
+              7759,
+              2266
+            ],
+            "parent_face_row": 4667,
+            "signed_cosine_to_expected_normal": -0.8831526692876268,
+            "twice_area_m2": 1.1449619963781187e-05
+          },
+          {
+            "child_triangle": [
+              2263,
+              7774,
+              2282
+            ],
+            "parent_face_row": 4677,
+            "signed_cosine_to_expected_normal": -0.03559702373419663,
+            "twice_area_m2": 0.00019045381449091142
+          }
+        ],
+        "minimum_signed_cosine": -0.9980557374301348,
+        "minimum_twice_area_m2": 5.0040672344802654e-08,
+        "oriented_boundary_chain_preserved": true
+      }
+    },
+    "expected_normal": "fine NHSKIN outward, corrected by audited fine-to-coarse winding parity -1",
+    "normal_mean_cancellation_faces": {
+      "current037_D": [],
+      "current037_I": [],
+      "current037_O": [],
+      "reference_D": [],
+      "reference_I": [],
+      "reference_O": []
+    },
+    "orientation_failures_retained": true
+  },
+  "refiner_sha256": "a94f203efba2f0019ef1553a687b93798884e4b64b6d2434e5a690da42035d1d",
+  "status": "raw_connected_source_normal_surface_proposal",
+  "topology": {
+    "appended_nodes": 438,
+    "combined_faces": 15387,
+    "input_faces_per_layer": {
+      "D": 4777,
+      "I": 4777,
+      "O": 4777
+    },
+    "input_nodes": 7360,
+    "oriented_boundary_chain_preserved": true,
+    "original_current037_prefix_exact": true,
+    "original_reference_prefix_exact": true,
+    "output_faces_per_layer": {
+      "D": 5069,
+      "I": 5069,
+      "O": 5069
+    },
+    "tetrahedra_included": false,
+    "unchanged_caps": 180
+  }
+}

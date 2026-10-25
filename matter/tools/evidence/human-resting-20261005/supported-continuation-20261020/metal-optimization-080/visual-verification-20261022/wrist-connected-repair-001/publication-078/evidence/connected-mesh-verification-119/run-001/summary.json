@@ -1,0 +1,11 @@
+{
+  "candidate_sha256": "957490efc4df1bc797c32ce8b536e7bab6fc6a1ac1373ed2aa7727e27ed004a2",
+  "points": 7745,
+  "cells": 34841,
+  "invalid_cells": 0,
+  "below_quality_1e_minus5": 3,
+  "q_min": 7.014256487190345e-06,
+  "J_min": 0.9993373681537019,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false
+}

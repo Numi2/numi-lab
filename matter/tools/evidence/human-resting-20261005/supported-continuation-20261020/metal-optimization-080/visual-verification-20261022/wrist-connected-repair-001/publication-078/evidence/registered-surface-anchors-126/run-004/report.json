@@ -1,0 +1,104 @@
+{
+  "input_sha256": {
+    "transfer_rows": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+    "coarse_reference": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2",
+    "coarse_faces": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+    "detail_payload": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb"
+  },
+  "anchor_helper_sha256": "93beccf972e82649cb90759b54659e47f348a1db5e5037bc14dc06523724ba8e",
+  "source_id_equals_row_verified": true,
+  "columns": 2411,
+  "anchor_counts": {
+    "source_direct_id": 2332,
+    "source_face_barycentric": 79
+  },
+  "max_direct_residual_m": 0.0029459902896184663,
+  "max_indirect_offset_m": 0.011597958637970418,
+  "minimum_onehot_is_wrong_above_1um_columns": 9,
+  "worst_hypothetical_min_onehot_error_m": 0.01711076727423043,
+  "wrong_min_onehot_examples": [
+    {
+      "coarse_row": 677,
+      "hypothetical_min_onehot_detail_row": 7331,
+      "registered_anchor_kind": "source_direct_id",
+      "registered_source_ids": [
+        7536
+      ],
+      "distance_to_registered_anchor_m": 0.01711076727423043
+    },
+    {
+      "coarse_row": 1244,
+      "hypothetical_min_onehot_detail_row": 24464,
+      "registered_anchor_kind": "source_direct_id",
+      "registered_source_ids": [
+        25396
+      ],
+      "distance_to_registered_anchor_m": 0.007618432334092858
+    },
+    {
+      "coarse_row": 26,
+      "hypothetical_min_onehot_detail_row": 196,
+      "registered_anchor_kind": "source_direct_id",
+      "registered_source_ids": [
+        417
+      ],
+      "distance_to_registered_anchor_m": 0.0069181015899756
+    },
+    {
+      "coarse_row": 1202,
+      "hypothetical_min_onehot_detail_row": 23689,
+      "registered_anchor_kind": "source_direct_id",
+      "registered_source_ids": [
+        23691
+      ],
+      "distance_to_registered_anchor_m": 0.002834320797600212
+    },
+    {
+      "coarse_row": 366,
+      "hypothetical_min_onehot_detail_row": 3845,
+      "registered_anchor_kind": "source_direct_id",
+      "registered_source_ids": [
+        3855
+      ],
+      "distance_to_registered_anchor_m": 0.0019213903417755634
+    },
+    {
+      "coarse_row": 1265,
+      "hypothetical_min_onehot_detail_row": 25616,
+      "registered_anchor_kind": "source_direct_id",
+      "registered_source_ids": [
+        26415
+      ],
+      "distance_to_registered_anchor_m": 0.0018342332782991298
+    },
+    {
+      "coarse_row": 2214,
+      "hypothetical_min_onehot_detail_row": 50119,
+      "registered_anchor_kind": "source_direct_id",
+      "registered_source_ids": [
+        50121
+      ],
+      "distance_to_registered_anchor_m": 0.001542100006962846
+    },
+    {
+      "coarse_row": 1942,
+      "hypothetical_min_onehot_detail_row": 45747,
+      "registered_anchor_kind": "source_direct_id",
+      "registered_source_ids": [
+        45749
+      ],
+      "distance_to_registered_anchor_m": 0.0007719336657726473
+    },
+    {
+      "coarse_row": 0,
+      "hypothetical_min_onehot_detail_row": 91,
+      "registered_anchor_kind": "source_direct_id",
+      "registered_source_ids": [
+        156
+      ],
+      "distance_to_registered_anchor_m": 0.000766794841678496
+    }
+  ],
+  "interpretation": "Actual registered ID/barycentric anchors, with explicit source-ID to detailed-row map. One-hot weight alternatives are diagnostics only; they are not geometric correspondences. Indirect mechanical-to-source offsets are retained, not concealed. Geometry or physics admission not claimed.",
+  "accepted_physical_steps": 0
+}

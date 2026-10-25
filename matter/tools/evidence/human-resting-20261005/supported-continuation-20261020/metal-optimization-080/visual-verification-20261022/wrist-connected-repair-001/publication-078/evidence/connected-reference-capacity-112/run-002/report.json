@@ -1,0 +1,58 @@
+{
+  "O_I_D_columns": 2411,
+  "aabb_broadphase_pad_rule": "max(8*eps32*coordinate_scale, measured_query_local_residual+64*eps64*scale); widens candidate boxes only",
+  "aabb_disjoint_segment_proofs": {
+    "ID": 445021,
+    "OD": 445009,
+    "OI": 445424
+  },
+  "clearance_source": "existing 107 construction parameter in first_exit_contact, 50 micrometres; not a biological thickness target",
+  "column_count": 2411,
+  "complete_typed_bank_count": 185,
+  "cross_bank_equal_parameter_policy": "fail closed; no cross-bank geometric-feature coalescing",
+  "declared_clearance_m": 5e-05,
+  "endpoint_ambiguities_invalid": 0,
+  "endpoint_bank_status_rows": 1361600,
+  "endpoint_count": 7360,
+  "endpoint_query_nodes_sha256": "e49ef0e61ed9551bc3782e3bb8def6a45b5b2b32124ce1c7b7dabb9e286badef",
+  "endpoint_query_pair_max_per_node": 4,
+  "endpoint_query_pair_min_per_node": 0,
+  "endpoint_query_pair_sha256": "95023ef49a865473ab8baaca65da37bc45d78d5b4adf9e16ee7effa604bad4eb",
+  "endpoint_query_pairs": 2137,
+  "endpoint_query_points_sha256": "f15ea806a61c6a70fb4d051c932df22ac173b1f39e3f60662fad396362a8b58d",
+  "exact_classifier_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+  "exact_segment_status_counts": {
+    "ID:PASS": 1014,
+    "OD:PASS": 1026,
+    "OI:PASS": 611
+  },
+  "exact_segments_audited": {
+    "ID": 1014,
+    "OD": 1026,
+    "OI": 611
+  },
+  "input_084_compacted_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "input_candidate": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-witness-103/run-001/baseline/candidate.npz",
+  "input_candidate_sha256": "ddb86fbf07183adce0194c59a1acfc5456c96cb2efc709eb587e5489d3d59163",
+  "max_query_local_residual_witness": {
+    "body": 41,
+    "bone": 12,
+    "query_row": 5187
+  },
+  "max_query_local_transform_residual_m": 5.553824967135427e-17,
+  "output_columns_csv": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-002/column-capacity-proposals.csv",
+  "output_columns_sha256": "1925ea2ff2b083e0e233b046c0ebcc3d79b4e513422dd549c2ccac5d51dfe63e",
+  "output_exact_segment_jsonl_gz": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-002/exact-segment-audits.jsonl.gz",
+  "output_exact_segment_jsonl_gz_sha256": "40aa807d719ad8b46a6504c1d2800b7cce41d01204dc01ee7ee6ae2dc5c4f08f",
+  "query_receipt_sha256": "a6fd88a3b064cd3b0e0c26304f6d276564ce30aad9a07ed2852515a22766fcaf",
+  "rational_parameter_source_sha256": "116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1",
+  "run_wall_seconds": 1.3092295000096783,
+  "schema": "connected-reference-capacity-112-run-v2",
+  "scope": "offline reference path-capacity audit only; O/I/D proposals retain original O and I, D changes only along the original I-D segment; no mass/topology/native/biological admission",
+  "typed_bank_pins": {
+    "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac"
+  }
+}

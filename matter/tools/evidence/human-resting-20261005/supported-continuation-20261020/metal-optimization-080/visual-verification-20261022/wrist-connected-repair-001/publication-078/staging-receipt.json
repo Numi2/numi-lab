@@ -1,0 +1,35 @@
+{
+  "accepted_physical_steps": 0,
+  "canonical_test_result": "210 passed, 11 subtests passed in 0.55s",
+  "canonical_tests_expected": "210 tests plus 11 subtests",
+  "canonical_tests_result": "210 passed, 11 subtests passed in 0.55s",
+  "canonical_tests_run": true,
+  "commit_or_push_performed": false,
+  "excluded_active_roots": [
+    "connected-source-patch-cut-123"
+  ],
+  "geometry_admitted": false,
+  "inherited_parent_artifacts_verified_at_parent": 283,
+  "inherited_published_evidence": {
+    "artifact_count": 283,
+    "payload_copied": false,
+    "publication": "publication-077"
+  },
+  "previous_publication": "publication-077",
+  "published_dependencies_verified": 20,
+  "published_parent": "016f64a22a0b5512d33f86cde69e92c1ef5999b2",
+  "retained_roots": [
+    "digit-source-diagnosis-110",
+    "connected-reference-capacity-112",
+    "connected-boundary-refinement-114",
+    "connected-layer-mass-ledger-118",
+    "connected-mesh-verification-119",
+    "connected-boundary-surface-check-120",
+    "connected-boundary-refinement-121",
+    "connected-source-contour-122",
+    "connected-boundary-continuation-123",
+    "connected-boundary-remesh-124",
+    "registered-surface-anchors-126"
+  ],
+  "status": "STAGED_UNPUBLISHED"
+}

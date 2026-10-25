@@ -1,0 +1,1044 @@
+{
+  "D_shortening_verification": {
+    "I_to_first_entry_distance_m_min_median_max": [
+      0.00021518403726564732,
+      0.004268928983896626,
+      0.009779096915570084
+    ],
+    "alpha_min_median_max": [
+      0.016683814057016574,
+      0.4709247826250107,
+      0.9826472387311209
+    ],
+    "clearance_equals_declared_50um_within_3nm": true,
+    "count": 176,
+    "remaining_clearance_m_min_max": [
+      4.999999999999883e-05,
+      5.0000000000000565e-05
+    ],
+    "verified_point_lies_on_original_I_D_segment": true
+  },
+  "capacity_status_counts": {
+    "NO_FEASIBLE_D_SHORTENING": 1,
+    "NO_I_TO_D_ENTRY_D_UNCHANGED": 2219,
+    "PROPOSED_D_SHORTENING": 176,
+    "REQUIRES_SKIN_RECONSTRUCTION": 15
+  },
+  "coarse_reference_csv_sha256": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2",
+  "coarse_reference_identity": "075 accepted coarse reference rows, row-aligned to O/I/D column row; donor_body and source_dominant_body are source labels, not anatomical-region certification",
+  "counts_by_donor_body": {
+    "1": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 95
+    },
+    "100": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "102": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "103": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 6
+    },
+    "104": {
+      "NO_FEASIBLE_D_SHORTENING": 1,
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 10
+    },
+    "107": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "109": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "110": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "111": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 9
+    },
+    "112": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "114": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "115": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5
+    },
+    "116": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5
+    },
+    "119": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "120": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 6
+    },
+    "121": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "122": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "124": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "125": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4
+    },
+    "126": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 6
+    },
+    "128": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 290,
+      "PROPOSED_D_SHORTENING": 3
+    },
+    "131": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 23
+    },
+    "136": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 58,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "138": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 32
+    },
+    "139": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 21,
+      "PROPOSED_D_SHORTENING": 6
+    },
+    "142": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "145": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 29
+    },
+    "150": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 56,
+      "PROPOSED_D_SHORTENING": 4
+    },
+    "152": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 39,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "153": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 23,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "156": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 11
+    },
+    "20": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 508,
+      "PROPOSED_D_SHORTENING": 3
+    },
+    "23": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 221,
+      "PROPOSED_D_SHORTENING": 131,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "26": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 14
+    },
+    "29": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "34": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "4": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "41": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 79
+    },
+    "42": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 28
+    },
+    "43": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 19
+    },
+    "46": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "49": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 17,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "50": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "52": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "53": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 8
+    },
+    "54": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "57": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "59": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 42,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "60": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 61
+    },
+    "61": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 197,
+      "REQUIRES_SKIN_RECONSTRUCTION": 8
+    },
+    "62": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "64": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5
+    },
+    "65": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4
+    },
+    "66": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "69": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "70": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3
+    },
+    "71": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7
+    },
+    "72": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "74": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "75": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3
+    },
+    "76": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7
+    },
+    "79": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "84": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "91": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 27,
+      "PROPOSED_D_SHORTENING": 3,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "92": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 38
+    },
+    "93": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 14
+    },
+    "95": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "98": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 9,
+      "PROPOSED_D_SHORTENING": 3
+    },
+    "99": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 115,
+      "PROPOSED_D_SHORTENING": 7
+    }
+  },
+  "counts_by_source_dominant_body": {
+    "1": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 95
+    },
+    "100": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "102": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "103": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 6
+    },
+    "104": {
+      "NO_FEASIBLE_D_SHORTENING": 1,
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 10
+    },
+    "107": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "109": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "110": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "111": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 9
+    },
+    "112": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "114": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "115": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5
+    },
+    "116": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5
+    },
+    "119": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "120": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 6
+    },
+    "121": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "122": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "124": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "125": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4
+    },
+    "126": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 6
+    },
+    "128": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 290,
+      "PROPOSED_D_SHORTENING": 3
+    },
+    "131": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 23
+    },
+    "136": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 58,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "138": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 32
+    },
+    "139": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 21,
+      "PROPOSED_D_SHORTENING": 6
+    },
+    "142": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "145": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 29
+    },
+    "150": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 56,
+      "PROPOSED_D_SHORTENING": 4
+    },
+    "152": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 39,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "153": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 23,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "156": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 11
+    },
+    "20": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 508,
+      "PROPOSED_D_SHORTENING": 3
+    },
+    "23": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 221,
+      "PROPOSED_D_SHORTENING": 131,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "26": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 14
+    },
+    "29": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "34": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "4": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "41": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 79
+    },
+    "42": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 28
+    },
+    "43": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 19
+    },
+    "46": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "49": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 17,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "50": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "52": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "53": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 8
+    },
+    "54": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "57": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "59": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 42,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "60": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 61
+    },
+    "61": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 197,
+      "REQUIRES_SKIN_RECONSTRUCTION": 8
+    },
+    "62": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "64": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5
+    },
+    "65": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4
+    },
+    "66": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "69": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "70": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3
+    },
+    "71": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7
+    },
+    "72": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "74": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "75": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3
+    },
+    "76": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7
+    },
+    "79": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "84": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "91": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 27,
+      "PROPOSED_D_SHORTENING": 3,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "92": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 38
+    },
+    "93": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 14
+    },
+    "95": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "98": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 9,
+      "PROPOSED_D_SHORTENING": 3
+    },
+    "99": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 115,
+      "PROPOSED_D_SHORTENING": 7
+    }
+  },
+  "first_entry_segment_statuses": {
+    "ID_candidate_bank_segments_PASS": 1014,
+    "OD_candidate_bank_segments_PASS": 1026,
+    "OI_candidate_bank_segments_PASS": 611,
+    "cross_bank_equal_t_parameter_ties": 0,
+    "nonPASS": 0
+  },
+  "full_bank_coverage": "For all 2411 columns \u00d7 3 routes \u00d7 185 typed banks, each route-bank is exact-tested when local segment AABB intersects the conservatively padded complete-bank AABB, otherwise counted as disjoint after matching endpoint outside classifications; see main run report/script and pins.",
+  "limitations": [
+    "The 185 endpoint query is an exact classification against its pinned bank meshes; this helper does not prove each source bone mesh is watertight or self-intersection-free.",
+    "First-entry/capacity results are exact with respect to the emitted Float32 endpoints, pinned triangles, and classifier; O/I/D field direction is only a construction path.",
+    "Donor/body integers are grouping keys from the pinned transfer export, not named anatomical regions.",
+    "No mesh positions, topology, source surface, mass, or native state were changed."
+  ],
+  "parent_run_report_sha256": "3bfd2449332c9f13ab243425e9ef9b74ffdc572c388260f929c2929e6ba86758",
+  "proposal_csv_sha256": "ec00f14dbec8852e7eb8b3a5e3299e6c2657fa81b1e50aa96d20f51bd6a8b8c9",
+  "proposal_semantics": {
+    "NO_FEASIBLE_D_SHORTENING": "The first I-D entry is closer than the declared 50 \u00b5m construction clearance.",
+    "NO_I_TO_D_ENTRY_D_UNCHANGED": "No proper outside-to-inside entry was found on I-D for the complete typed-bank set.",
+    "PROPOSED_D_SHORTENING": "D is proposed on the original I-D segment, stopping 50 \u00b5m before its first certified entry. It preserves O and I. This is geometric capacity only, not a tissue-thickness or anatomical admission.",
+    "REQUIRES_SKIN_RECONSTRUCTION": "The O-I route is not entirely exterior: an endpoint is already inside a typed bank and/or an exact O-I outside-to-inside event exists. No arbitrary layer clamp is proposed."
+  },
+  "schema": "connected-reference-capacity-112-interpretation-addendum-v1",
+  "segment_receipts_sha256": "d08aff6853b2807a67345090f73a3a87b9ff4593c2002ba6567ad947373d09a6",
+  "skin_reconstruction_rows": [
+    {
+      "D_endpoint_inside_banks": [],
+      "ID_first_entry": null,
+      "I_endpoint_inside_banks": [],
+      "OD_first_entry": null,
+      "OI_first_entry": null,
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "column_row": 204,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "ID_first_entry": null,
+      "I_endpoint_inside_banks": [],
+      "OD_first_entry": null,
+      "OI_first_entry": null,
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "column_row": 215,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "ID_first_entry": null,
+      "I_endpoint_inside_banks": [],
+      "OD_first_entry": null,
+      "OI_first_entry": null,
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "column_row": 217,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "ID_first_entry": null,
+      "I_endpoint_inside_banks": [],
+      "OD_first_entry": null,
+      "OI_first_entry": null,
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "column_row": 218,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "ID_first_entry": null,
+      "I_endpoint_inside_banks": [],
+      "OD_first_entry": null,
+      "OI_first_entry": null,
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "column_row": 219,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "ID_first_entry": null,
+      "I_endpoint_inside_banks": [],
+      "OD_first_entry": null,
+      "OI_first_entry": null,
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "column_row": 231,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "ID_first_entry": null,
+      "I_endpoint_inside_banks": [],
+      "OD_first_entry": null,
+      "OI_first_entry": null,
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "column_row": 233,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "ID_first_entry": null,
+      "I_endpoint_inside_banks": [],
+      "OD_first_entry": null,
+      "OI_first_entry": null,
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "column_row": 271,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [
+        [
+          59,
+          95
+        ]
+      ],
+      "ID_first_entry": null,
+      "I_endpoint_inside_banks": [
+        [
+          59,
+          95
+        ]
+      ],
+      "OD_first_entry": null,
+      "OI_first_entry": null,
+      "O_endpoint_inside_banks": [
+        [
+          59,
+          95
+        ]
+      ],
+      "column_row": 337,
+      "donor_body": 59,
+      "source_dominant_body": 59
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "ID_first_entry": null,
+      "I_endpoint_inside_banks": [
+        [
+          23,
+          32
+        ]
+      ],
+      "OD_first_entry": {
+        "barycentric": [
+          0.19734322835273618,
+          0.2182656454994776,
+          0.5843911261477862
+        ],
+        "barycentric_residual_m": 0.0,
+        "body": 23,
+        "bone": 32,
+        "distance_m": 0.0013467057170606295,
+        "hit_local": [
+          -0.03148313214307098,
+          -0.1208680696570851,
+          0.05813486236005215
+        ],
+        "hit_world": [
+          0.005949656101165265,
+          -0.09004157826030672,
+          0.22124792690374046
+        ],
+        "t": 0.21178970330937372,
+        "t_denominator": "13145599114131291459013665",
+        "t_numerator": "2784102536205832214067482",
+        "triangle_row": 10731,
+        "triangle_stable_id": 10731
+      },
+      "OI_first_entry": {
+        "barycentric": [
+          0.1974687184547348,
+          0.21822153956024284,
+          0.5843097419850224
+        ],
+        "barycentric_residual_m": 1.3877787807814457e-17,
+        "body": 23,
+        "bone": 32,
+        "distance_m": 0.0013466249069201423,
+        "hit_local": [
+          -0.031482918308290066,
+          -0.1208683569220283,
+          0.058134384806956936
+        ],
+        "hit_world": [
+          0.005949443902334426,
+          -0.09004103229450104,
+          0.2212478120284815
+        ],
+        "t": 0.5494980784092733,
+        "t_denominator": "17733199185935435159083713",
+        "t_numerator": "9744358876720412749236187",
+        "triangle_row": 10731,
+        "triangle_stable_id": 10731
+      },
+      "O_endpoint_inside_banks": [],
+      "column_row": 1467,
+      "donor_body": 23,
+      "source_dominant_body": 23
+    },
+    {
+      "D_endpoint_inside_banks": [
+        [
+          91,
+          13
+        ]
+      ],
+      "ID_first_entry": null,
+      "I_endpoint_inside_banks": [
+        [
+          91,
+          13
+        ]
+      ],
+      "OD_first_entry": {
+        "barycentric": [
+          0.8044469342014443,
+          0.1614976188693285,
+          0.03405544692922712
+        ],
+        "barycentric_residual_m": 2.7809732887839817e-17,
+        "body": 91,
+        "bone": 13,
+        "distance_m": 0.0021060815469260575,
+        "hit_local": [
+          0.043789188569134746,
+          0.009566354702496303,
+          0.1585448159837233
+        ],
+        "hit_world": [
+          0.1463299714714033,
+          -0.3019787781520997,
+          0.08813613393729952
+        ],
+        "t": 0.17050020634239044,
+        "t_denominator": "3324751896911101930652155",
+        "t_numerator": "566870884460596888968574",
+        "triangle_row": 977,
+        "triangle_stable_id": 977
+      },
+      "OI_first_entry": {
+        "barycentric": [
+          0.8041720315965158,
+          0.16157678894777594,
+          0.03425117945570827
+        ],
+        "barycentric_residual_m": 2.7809732887839817e-17,
+        "body": 91,
+        "bone": 13,
+        "distance_m": 0.0021054384618774003,
+        "hit_local": [
+          0.04378993446459981,
+          0.009565947181819327,
+          0.15854449319692748
+        ],
+        "hit_world": [
+          0.1463308701857747,
+          -0.301978910119194,
+          0.08813617294543
+        ],
+        "t": 0.8589710354124148,
+        "t_denominator": "659941792086653007433781",
+        "t_numerator": "566870884460596888968574",
+        "triangle_row": 977,
+        "triangle_stable_id": 977
+      },
+      "O_endpoint_inside_banks": [],
+      "column_row": 1990,
+      "donor_body": 84,
+      "source_dominant_body": 84
+    },
+    {
+      "D_endpoint_inside_banks": [
+        [
+          91,
+          13
+        ]
+      ],
+      "ID_first_entry": null,
+      "I_endpoint_inside_banks": [
+        [
+          91,
+          13
+        ]
+      ],
+      "OD_first_entry": {
+        "barycentric": [
+          0.35175122414580334,
+          0.14495962763059803,
+          0.5032891482235986
+        ],
+        "barycentric_residual_m": 0.0,
+        "body": 91,
+        "bone": 13,
+        "distance_m": 0.0010823595531688447,
+        "hit_local": [
+          0.06075728146848985,
+          -0.00031548814245797787,
+          0.14450901861609225
+        ],
+        "hit_world": [
+          0.1684889204759132,
+          -0.3114717860500629,
+          0.0893337943023132
+        ],
+        "t": 0.08762773550908641,
+        "t_denominator": "2926093283750172751606439477",
+        "t_numerator": "256406928343374264357070398",
+        "triangle_row": 2222,
+        "triangle_stable_id": 2222
+      },
+      "OI_first_entry": {
+        "barycentric": [
+          0.35169839782665724,
+          0.1448720965997968,
+          0.5034295055735459
+        ],
+        "barycentric_residual_m": 2.8609792490763984e-17,
+        "body": 91,
+        "bone": 13,
+        "distance_m": 0.001082052267694095,
+        "hit_local": [
+          0.060757505808340245,
+          -0.00031608398874721983,
+          0.14450899548654236
+        ],
+        "hit_world": [
+          0.16848937495434643,
+          -0.311471724833785,
+          0.08933423656703862
+        ],
+        "t": 0.44147852475073657,
+        "t_denominator": "580791395205790169467868957",
+        "t_numerator": "256406928343374264357070398",
+        "triangle_row": 2222,
+        "triangle_stable_id": 2222
+      },
+      "O_endpoint_inside_banks": [],
+      "column_row": 2024,
+      "donor_body": 91,
+      "source_dominant_body": 91
+    },
+    {
+      "D_endpoint_inside_banks": [
+        [
+          124,
+          123
+        ]
+      ],
+      "ID_first_entry": null,
+      "I_endpoint_inside_banks": [
+        [
+          124,
+          123
+        ]
+      ],
+      "OD_first_entry": null,
+      "OI_first_entry": null,
+      "O_endpoint_inside_banks": [
+        [
+          124,
+          123
+        ]
+      ],
+      "column_row": 2187,
+      "donor_body": 124,
+      "source_dominant_body": 124
+    },
+    {
+      "D_endpoint_inside_banks": [
+        [
+          107,
+          108
+        ]
+      ],
+      "ID_first_entry": {
+        "barycentric": [
+          0.7171115764185517,
+          0.08991482856761689,
+          0.19297359501383138
+        ],
+        "barycentric_residual_m": 7.204847710556568e-18,
+        "body": 107,
+        "bone": 108,
+        "distance_m": 0.00350716129972207,
+        "hit_local": [
+          0.004994543537068908,
+          -0.03620958173007291,
+          -0.008574924912267284
+        ],
+        "hit_world": [
+          0.2563966887845889,
+          -0.9495441336874344,
+          0.1377609805400323
+        ],
+        "t": 0.46232380861298844,
+        "t_denominator": "52022978805252154156741805",
+        "t_numerator": "24051461696636950939614304",
+        "triangle_row": 638,
+        "triangle_stable_id": 638
+      },
+      "I_endpoint_inside_banks": [
+        [
+          109,
+          114
+        ]
+      ],
+      "OD_first_entry": {
+        "barycentric": [
+          0.6989512570338041,
+          0.1464059025044302,
+          0.15464284046176568
+        ],
+        "barycentric_residual_m": 1.734723475976807e-18,
+        "body": 107,
+        "bone": 108,
+        "distance_m": 0.004624182204149221,
+        "hit_local": [
+          0.005038166116121827,
+          -0.036338292581475404,
+          -0.00848628481416756
+        ],
+        "hit_world": [
+          0.25632112475175456,
+          -0.9496812653231029,
+          0.13780354193721608
+        ],
+        "t": 0.5256179031795742,
+        "t_denominator": "58964107828048234492135309",
+        "t_numerator": "30992590719433031275007808",
+        "triangle_row": 638,
+        "triangle_stable_id": 638
+      },
+      "OI_first_entry": null,
+      "O_endpoint_inside_banks": [
+        [
+          109,
+          114
+        ]
+      ],
+      "column_row": 2261,
+      "donor_body": 109,
+      "source_dominant_body": 109
+    },
+    {
+      "D_endpoint_inside_banks": [
+        [
+          107,
+          108
+        ]
+      ],
+      "ID_first_entry": null,
+      "I_endpoint_inside_banks": [
+        [
+          107,
+          108
+        ]
+      ],
+      "OD_first_entry": null,
+      "OI_first_entry": null,
+      "O_endpoint_inside_banks": [
+        [
+          107,
+          108
+        ]
+      ],
+      "column_row": 2262,
+      "donor_body": 107,
+      "source_dominant_body": 107
+    }
+  ],
+  "tightest_I_D_entry": {
+    "available_after_50um_m": -2.68205888361553e-05,
+    "bank_body": 104,
+    "bank_stable_bone_id": 113,
+    "barycentric": [
+      0.800973079211887,
+      0.09739085779170058,
+      0.10163606299641247
+    ],
+    "column_row": 2307,
+    "distance_from_I_m": 2.3179411163844704e-05,
+    "donor_body": 104,
+    "exact_parameter": {
+      "denominator": "9183715341379271849707351805714",
+      "numerator": "57001386285490484489544389683"
+    },
+    "hit_world_m": [
+      0.2047742992655596,
+      -0.9562660558472805,
+      0.17760530944918157
+    ],
+    "source_dominant_body": 104,
+    "status": "NO_FEASIBLE_D_SHORTENING",
+    "triangle_stable_id": 193
+  }
+}

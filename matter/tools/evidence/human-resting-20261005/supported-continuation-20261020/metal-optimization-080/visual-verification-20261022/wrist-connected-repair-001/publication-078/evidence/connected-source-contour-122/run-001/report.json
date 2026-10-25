@@ -1,0 +1,301 @@
+{
+  "source_plane_sha256": "fcecff75e446fa7b99412903c7780fe1f03ee9ba754142a78f25a135f714496f",
+  "candidate_sha256": "7d7cff9292e81b5ba24042f2d0fb040a2286f387dcfe49167b09d9db411d6920",
+  "construction_solver": {
+    "rings": 3,
+    "free_columns": 350,
+    "solver_success": true,
+    "solver_message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+    "iterations": 25,
+    "minimum_plane_slack_m": -9.58883146495726e-12,
+    "outside_patch_exact_zero": true
+  },
+  "plane_constraints": [
+    {
+      "column_row": 204,
+      "query_row": 204,
+      "layer": "O",
+      "normal": [
+        -0.9800882118176318,
+        0.18588305024974944,
+        -0.0698182546757352
+      ],
+      "target": 0.11309209518350555,
+      "deficit_m": 0.0031855199935224288,
+      "body": 61,
+      "bone_stable_id": 97
+    },
+    {
+      "column_row": 215,
+      "query_row": 215,
+      "layer": "O",
+      "normal": [
+        -0.9800504291926796,
+        0.186046327191379,
+        -0.06991366374209612
+      ],
+      "target": 0.11289929054102746,
+      "deficit_m": 0.00022260438227657275,
+      "body": 61,
+      "bone_stable_id": 97
+    },
+    {
+      "column_row": 217,
+      "query_row": 217,
+      "layer": "O",
+      "normal": [
+        -0.8848028489494155,
+        0.09104210935560601,
+        0.45698495906876363
+      ],
+      "target": 0.25677544489063137,
+      "deficit_m": 0.0017892503828427775,
+      "body": 61,
+      "bone_stable_id": 97
+    },
+    {
+      "column_row": 218,
+      "query_row": 218,
+      "layer": "O",
+      "normal": [
+        -0.8848028489494155,
+        0.09104210935560601,
+        0.45698495906876363
+      ],
+      "target": 0.2567754448906313,
+      "deficit_m": 0.0018576244498571537,
+      "body": 61,
+      "bone_stable_id": 97
+    },
+    {
+      "column_row": 219,
+      "query_row": 219,
+      "layer": "O",
+      "normal": [
+        0.5680461678281863,
+        0.815055081561558,
+        0.11405597413723574
+      ],
+      "target": -0.9861919242857756,
+      "deficit_m": 0.00763789414125382,
+      "body": 61,
+      "bone_stable_id": 97
+    },
+    {
+      "column_row": 231,
+      "query_row": 231,
+      "layer": "O",
+      "normal": [
+        -0.8848028489494155,
+        0.09104210935560601,
+        0.45698495906876363
+      ],
+      "target": 0.25677544489063137,
+      "deficit_m": 0.00016296769786583454,
+      "body": 61,
+      "bone_stable_id": 97
+    },
+    {
+      "column_row": 233,
+      "query_row": 233,
+      "layer": "O",
+      "normal": [
+        -0.8232824005846607,
+        -0.527551150126391,
+        0.20951341935036186
+      ],
+      "target": 0.8271682551277028,
+      "deficit_m": 0.0010513190707314157,
+      "body": 61,
+      "bone_stable_id": 97
+    },
+    {
+      "column_row": 271,
+      "query_row": 271,
+      "layer": "O",
+      "normal": [
+        -0.2328868412877821,
+        0.8206241917517876,
+        0.5218617202542498
+      ],
+      "target": -0.6771049282931166,
+      "deficit_m": 0.006181029739527832,
+      "body": 61,
+      "bone_stable_id": 97
+    },
+    {
+      "column_row": 337,
+      "query_row": 337,
+      "layer": "O",
+      "normal": [
+        -0.8822015768973335,
+        0.39946292005304085,
+        0.24929852230319394
+      ],
+      "target": -0.07272433648390182,
+      "deficit_m": 0.0011639222981823655,
+      "body": 59,
+      "bone_stable_id": 95
+    },
+    {
+      "column_row": 337,
+      "query_row": 2748,
+      "layer": "I",
+      "normal": [
+        -0.8822015768973335,
+        0.39946292005304085,
+        0.24929852230319394
+      ],
+      "target": -0.07272433648390184,
+      "deficit_m": 0.0015396851354331775,
+      "body": 59,
+      "bone_stable_id": 95
+    },
+    {
+      "column_row": 1467,
+      "query_row": 3878,
+      "layer": "I",
+      "normal": [
+        0.5112922942178502,
+        0.21899482000813034,
+        0.8310363762694472
+      ],
+      "target": 0.16743714724123612,
+      "deficit_m": 0.0013082704082507668,
+      "body": 23,
+      "bone_stable_id": 32
+    },
+    {
+      "column_row": 1990,
+      "query_row": 4401,
+      "layer": "I",
+      "normal": [
+        0.1492032808947411,
+        0.98209250905785,
+        -0.11503340655088874
+      ],
+      "target": -0.28482678380788523,
+      "deficit_m": 0.0002919129140955268,
+      "body": 91,
+      "bone_stable_id": 13
+    },
+    {
+      "column_row": 2024,
+      "query_row": 4435,
+      "layer": "I",
+      "normal": [
+        0.6022214199097844,
+        0.7063148640035548,
+        -0.3720869176543069
+      ],
+      "target": -0.15125065535810356,
+      "deficit_m": 0.0018249774454781598,
+      "body": 91,
+      "bone_stable_id": 13
+    },
+    {
+      "column_row": 2187,
+      "query_row": 2187,
+      "layer": "O",
+      "normal": [
+        -0.04300190885467995,
+        0.09080731784998268,
+        -0.9949396297563717
+      ],
+      "target": -0.18302720932827155,
+      "deficit_m": 0.000573414360042851,
+      "body": 124,
+      "bone_stable_id": 123
+    },
+    {
+      "column_row": 2187,
+      "query_row": 4598,
+      "layer": "I",
+      "normal": [
+        0.010815417612160481,
+        0.08694046481443876,
+        -0.9961547983720822
+      ],
+      "target": -0.16673422403125995,
+      "deficit_m": 0.00144019924795033,
+      "body": 124,
+      "bone_stable_id": 123
+    },
+    {
+      "column_row": 2261,
+      "query_row": 2261,
+      "layer": "O",
+      "normal": [
+        0.863062123319646,
+        0.04338894200743172,
+        -0.5032307333643882
+      ],
+      "target": 0.11438709664871528,
+      "deficit_m": 0.0025397197370667923,
+      "body": 109,
+      "bone_stable_id": 114
+    },
+    {
+      "column_row": 2261,
+      "query_row": 4672,
+      "layer": "I",
+      "normal": [
+        0.863062123319646,
+        0.04338894200743172,
+        -0.5032307333643882
+      ],
+      "target": 0.11438709664871527,
+      "deficit_m": 0.0026315678668381304,
+      "body": 109,
+      "bone_stable_id": 114
+    },
+    {
+      "column_row": 2262,
+      "query_row": 2262,
+      "layer": "O",
+      "normal": [
+        0.9765183562695007,
+        0.21524057289159482,
+        -0.009132121878877086
+      ],
+      "target": 0.047649768590634425,
+      "deficit_m": 0.0012687398814283865,
+      "body": 107,
+      "bone_stable_id": 108
+    },
+    {
+      "column_row": 2262,
+      "query_row": 4673,
+      "layer": "I",
+      "normal": [
+        0.9270181093907467,
+        0.19177482910294127,
+        -0.32227292747629804
+      ],
+      "target": 0.01498515708831055,
+      "deficit_m": 0.002025382414854218,
+      "body": 107,
+      "bone_stable_id": 108
+    }
+  ],
+  "maximum_column_translation_m": 0.008015526017046205,
+  "maximum_emitted_OI_vector_change_m": 5.960464477539063e-08,
+  "maximum_emitted_ID_vector_change_m": 5.960464477539063e-08,
+  "old_connectivity_invalid_cells": 110,
+  "old_connectivity_below_quality": 110,
+  "surfaces": {
+    "PLC": {
+      "self_pairs": 132,
+      "complete": true,
+      "wall_seconds": 2.358848417061381
+    },
+    "detailed": {
+      "self_pairs": 0,
+      "complete": true,
+      "wall_seconds": 8.60814229096286
+    }
+  },
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "interpretation": "Simultaneous connected source-reference construction with identical translations of all three column layers. Source-exit constraints and topology anchoring are authoring constraints; never runtime locks or forces. Native mass/ancestry/transfer and full clearance remain required."
+}

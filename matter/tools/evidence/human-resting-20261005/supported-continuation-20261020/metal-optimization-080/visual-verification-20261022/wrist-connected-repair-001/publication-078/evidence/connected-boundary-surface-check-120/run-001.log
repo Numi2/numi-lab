@@ -1,0 +1,30 @@
+waiting_for_human_geometry_slot pid=32752
+acquired_human_geometry_slot pid=32752
+{
+  "reference": {
+    "pairs": 626,
+    "layer_pair_counts": {
+      "0,0": 47,
+      "0,1": 170,
+      "0,2": 102,
+      "1,1": 47,
+      "1,2": 194,
+      "2,2": 66
+    },
+    "complete": true,
+    "wall_seconds": 2.531121541047469
+  },
+  "current037": {
+    "pairs": 626,
+    "layer_pair_counts": {
+      "0,0": 47,
+      "0,1": 170,
+      "0,2": 102,
+      "1,1": 47,
+      "1,2": 194,
+      "2,2": 66
+    },
+    "complete": true,
+    "wall_seconds": 2.5101372079225257
+  }
+}

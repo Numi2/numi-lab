@@ -1,0 +1,19 @@
+{
+  "files": {
+    "bistellar_connected_121_as_run.py": "866296a3a64aa04fe8d56e6d91bf9a724deb8e292a131653c2e174430c087d62",
+    "candidate-tetrahedra.npz": "b75d1df89bc0b8ffaf32b2f3fcdf6aa325c6b91b04485c97116b554729973f94",
+    "report.json": "f1e8911e3660c8e4e624b1b5a8c6331ed3d6da7be1bfaaf526547b4275de6a2a",
+    "test_bistellar_121_as_run.py": "0335b987ce2bd8981170e9393f0d256b118ec07c257447572b579faf8d2e8757"
+  },
+  "geometry_changed": false,
+  "host": "numi.local",
+  "input_candidate": "/Users/numi/Work/numi-human-connected-surface-069/connected-boundary-refinement-121/run-003/tetgen-reference-identity.npz",
+  "input_candidate_sha256": "a26b0e97c97565a71fd4979886bfb1aced4fb0e1e22bc173d4bf18ef42ede9c8",
+  "quality_gate": "4 to 3 cells below q=1e-5; minimum unchanged; bounded flips stalled, no threshold change",
+  "quality_owner": "/Users/numi/Work/numi-human-connected-surface-069/canonical/matter/tools/human_skin_fat_connected_repair.py",
+  "quality_owner_sha256": "5d8dab03eb64a3cba490c9fd380e3234cc49f14a7bac275a564126f2b5e85c22",
+  "source_117": "/Users/numi/Work/numi-human-connected-surface-069/connected-boundary-refinement-121/quality-repair-122/run-002/bistellar_connected_121_as_run.py",
+  "source_117_sha256": "866296a3a64aa04fe8d56e6d91bf9a724deb8e292a131653c2e174430c087d62",
+  "status": "FROZEN_BOUNDED_QUALITY_COUNTERFACTUAL_NOT_ADMITTED",
+  "test_source_sha256": "0335b987ce2bd8981170e9393f0d256b118ec07c257447572b579faf8d2e8757"
+}

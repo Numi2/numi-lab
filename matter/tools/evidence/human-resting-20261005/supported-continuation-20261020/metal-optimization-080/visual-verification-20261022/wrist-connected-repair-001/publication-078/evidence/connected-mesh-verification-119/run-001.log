@@ -1,0 +1,10 @@
+waiting_for_human_geometry_slot pid=31183
+acquired_human_geometry_slot pid=31183
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/connected-mesh-verification-119/audit_connected_mesh_119.py", line 72, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/connected-mesh-verification-119/audit_connected_mesh_119.py", line 60, in main
+    local={int(body):(X.astype(float)-pos[int(body)])@rot[int(body)].T-off[int(body)]for body in bodies}
+                                      ~~~^^^^^^^^^^^
+KeyError: 0

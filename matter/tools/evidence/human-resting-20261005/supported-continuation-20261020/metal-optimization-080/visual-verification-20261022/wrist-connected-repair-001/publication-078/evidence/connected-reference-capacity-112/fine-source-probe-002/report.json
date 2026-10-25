@@ -1,0 +1,1836 @@
+{
+  "detail_face_count": 108987,
+  "elapsed_seconds": 0.3540940284729004,
+  "input_pins": {
+    "Wnew": "55329313bf9c2c3b613fcd7eb52dd9b7b453520dd1b4a14e0e0d6ac457ce8519",
+    "accepted_transfer_rows": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+    "candidate": "ddb86fbf07183adce0194c59a1acfc5456c96cb2efc709eb587e5489d3d59163",
+    "compact084": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "nhskin": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "query_nodes": "e49ef0e61ed9551bc3782e3bb8def6a45b5b2b32124ce1c7b7dabb9e286badef",
+    "query_pairs": "95023ef49a865473ab8baaca65da37bc45d78d5b4adf9e16ee7effa604bad4eb",
+    "query_points": "f15ea806a61c6a70fb4d051c932df22ac173b1f39e3f60662fad396362a8b58d",
+    "registered_skin_csv": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+    "run112_audits": "40aa807d719ad8b46a6504c1d2800b7cce41d01204dc01ee7ee6ae2dc5c4f08f",
+    "run112_report": "b2505e18fabd1b37e5094ba404ffafd979ae2cfcf9594b1b24d15675776ce0af"
+  },
+  "results": [
+    {
+      "O_world_current037_m": [
+        -0.31718364357948303,
+        -1.0262292623519897,
+        0.14613297581672668
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        -0.24888442533371424,
+        -0.163743602694637,
+        -0.9545913132869415
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "outside",
+          "I_endpoint_status": "outside",
+          "O_endpoint_status": "inside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 3,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "inside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "inside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 61,
+          "complete_bank_triangle_count": 210,
+          "fine_nearest_anchor_status": "inside",
+          "stable_bone_id": 97
+        }
+      ],
+      "barycentric_on_detail_face": [
+        0.49999233349789945,
+        0.49998156161327884,
+        2.6104888821753122e-05
+      ],
+      "column_row": 204,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            204
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1227,
+          "source_face_row": 288,
+          "transfer_donor_body": 61,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            204,
+            205,
+            206
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1229,
+          "source_face_row": 451,
+          "transfer_donor_body": 61,
+          "weights": [
+            0.6246839761734009,
+            0.19639968872070312,
+            0.17891636490821838
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            122,
+            200,
+            204
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1207,
+          "source_face_row": 288,
+          "transfer_donor_body": 61,
+          "weights": [
+            0.10682753473520279,
+            0.508070170879364,
+            0.3851022720336914
+          ]
+        }
+      ],
+      "detail_source_face_row": 2468,
+      "detail_triangle_area_m2": 1.733890094691105e-06,
+      "detail_vertex_rows": [
+        1227,
+        1229,
+        1207
+      ],
+      "distance_O_to_detail_surface_m": 3.480532474199688e-08,
+      "endpoint_inside_banks": {
+        "D": [],
+        "I": [],
+        "O": [
+          [
+            61,
+            97
+          ]
+        ]
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        -0.31718363491697976,
+        -1.0262292566528406,
+        0.14613300904158735
+      ],
+      "route_event_banks": [
+        [
+          61,
+          97
+        ]
+      ]
+    },
+    {
+      "O_world_current037_m": [
+        -0.31939008831977844,
+        -1.0216604471206665,
+        0.14683157205581665
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        -0.6337931728235815,
+        -0.02930834108582907,
+        -0.7729471102378315
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "outside",
+          "I_endpoint_status": "outside",
+          "O_endpoint_status": "inside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 1,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "inside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "inside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 61,
+          "complete_bank_triangle_count": 210,
+          "fine_nearest_anchor_status": "inside",
+          "stable_bone_id": 97
+        }
+      ],
+      "barycentric_on_detail_face": [
+        6.92062818752337e-06,
+        0.4999322135690828,
+        0.5000608658027297
+      ],
+      "column_row": 215,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            203
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1226,
+          "source_face_row": 283,
+          "transfer_donor_body": 61,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            215
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1261,
+          "source_face_row": 329,
+          "transfer_donor_body": 61,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            204,
+            215,
+            217
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1264,
+          "source_face_row": 453,
+          "transfer_donor_body": 61,
+          "weights": [
+            0.16728681325912476,
+            0.6922000646591187,
+            0.1405130922794342
+          ]
+        }
+      ],
+      "detail_source_face_row": 2534,
+      "detail_triangle_area_m2": 4.03903581024075e-06,
+      "detail_vertex_rows": [
+        1226,
+        1261,
+        1264
+      ],
+      "distance_O_to_detail_surface_m": 6.891533389101362e-08,
+      "endpoint_inside_banks": {
+        "D": [],
+        "I": [],
+        "O": [
+          [
+            61,
+            97
+          ]
+        ]
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        -0.31939004464171034,
+        -1.0216604451008724,
+        0.14683162532372485
+      ],
+      "route_event_banks": [
+        [
+          61,
+          97
+        ]
+      ]
+    },
+    {
+      "O_world_current037_m": [
+        -0.31788185238838196,
+        -1.0206602811813354,
+        0.14583957195281982
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        -0.429906805050483,
+        -0.03200831770618697,
+        -0.9023057167994148
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "outside",
+          "I_endpoint_status": "outside",
+          "O_endpoint_status": "inside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 0,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "inside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "inside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 61,
+          "complete_bank_triangle_count": 210,
+          "fine_nearest_anchor_status": "inside",
+          "stable_bone_id": 97
+        }
+      ],
+      "barycentric_on_detail_face": [
+        0.39221056172509133,
+        0.22302478039305382,
+        0.3847646578818548
+      ],
+      "column_row": 217,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            217
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1265,
+          "source_face_row": 452,
+          "transfer_donor_body": 61,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            217,
+            218,
+            219
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1267,
+          "source_face_row": 475,
+          "transfer_donor_body": 61,
+          "weights": [
+            0.6750822067260742,
+            0.2606700360774994,
+            0.0642477348446846
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            206,
+            207,
+            217
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1266,
+          "source_face_row": 456,
+          "transfer_donor_body": 61,
+          "weights": [
+            0.1514563262462616,
+            0.038604605942964554,
+            0.8099390864372253
+          ]
+        }
+      ],
+      "detail_source_face_row": 2542,
+      "detail_triangle_area_m2": 7.733082449957445e-07,
+      "detail_vertex_rows": [
+        1265,
+        1267,
+        1266
+      ],
+      "distance_O_to_detail_surface_m": 1.574816570630887e-05,
+      "endpoint_inside_banks": {
+        "D": [],
+        "I": [],
+        "O": [
+          [
+            61,
+            97
+          ]
+        ]
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        -0.3178886226319862,
+        -1.0206607852536267,
+        0.14582536229287393
+      ],
+      "route_event_banks": [
+        [
+          61,
+          97
+        ]
+      ]
+    },
+    {
+      "O_world_current037_m": [
+        -0.31742051243782043,
+        -1.0170865058898926,
+        0.14587120711803436
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        -0.4242827996554533,
+        0.08566790648508901,
+        -0.9014683109876865
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "outside",
+          "I_endpoint_status": "outside",
+          "O_endpoint_status": "inside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 0,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "inside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "inside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 61,
+          "complete_bank_triangle_count": 210,
+          "fine_nearest_anchor_status": "inside",
+          "stable_bone_id": 97
+        }
+      ],
+      "barycentric_on_detail_face": [
+        0.42746437172983137,
+        0.5226047778221309,
+        0.04993085044803775
+      ],
+      "column_row": 218,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            218
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1269,
+          "source_face_row": 472,
+          "transfer_donor_body": 61,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            218,
+            233,
+            271
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1290,
+          "source_face_row": 479,
+          "transfer_donor_body": 61,
+          "weights": [
+            0.7328735589981079,
+            0.23590172827243805,
+            0.031224709004163742
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            218,
+            219,
+            220
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1272,
+          "source_face_row": 476,
+          "transfer_donor_body": 61,
+          "weights": [
+            0.5685650110244751,
+            0.17328110337257385,
+            0.25815391540527344
+          ]
+        }
+      ],
+      "detail_source_face_row": 2549,
+      "detail_triangle_area_m2": 1.3922598226423453e-06,
+      "detail_vertex_rows": [
+        1269,
+        1290,
+        1272
+      ],
+      "distance_O_to_detail_surface_m": 0.00011212989333806032,
+      "endpoint_inside_banks": {
+        "D": [],
+        "I": [],
+        "O": [
+          [
+            61,
+            97
+          ]
+        ]
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        -0.317468087222891,
+        -1.017076899956676,
+        0.14577012557247568
+      ],
+      "route_event_banks": [
+        [
+          61,
+          97
+        ]
+      ]
+    },
+    {
+      "O_world_current037_m": [
+        -0.3154155910015106,
+        -1.019818663597107,
+        0.1450970321893692
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        -0.07632627588858303,
+        -0.030640829596447643,
+        -0.9966119802463853
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "outside",
+          "I_endpoint_status": "outside",
+          "O_endpoint_status": "inside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 2,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "inside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "inside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 61,
+          "complete_bank_triangle_count": 210,
+          "fine_nearest_anchor_status": "inside",
+          "stable_bone_id": 97
+        }
+      ],
+      "barycentric_on_detail_face": [
+        0.9548634011585868,
+        0.03605968231883814,
+        0.009076916522575015
+      ],
+      "column_row": 219,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            219
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1271,
+          "source_face_row": 459,
+          "transfer_donor_body": 61,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            220
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1273,
+          "source_face_row": 476,
+          "transfer_donor_body": 61,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            222
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1276,
+          "source_face_row": 480,
+          "transfer_donor_body": 61,
+          "weights": [
+            1.0
+          ]
+        }
+      ],
+      "detail_source_face_row": 2550,
+      "detail_triangle_area_m2": 3.476425663744326e-06,
+      "detail_vertex_rows": [
+        1271,
+        1273,
+        1276
+      ],
+      "distance_O_to_detail_surface_m": 5.662878187342147e-05,
+      "endpoint_inside_banks": {
+        "D": [],
+        "I": [],
+        "O": [
+          [
+            61,
+            97
+          ]
+        ]
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        -0.31541991326553914,
+        -1.0198203987499626,
+        0.1450405952669274
+      ],
+      "route_event_banks": [
+        [
+          61,
+          97
+        ]
+      ]
+    },
+    {
+      "O_world_current037_m": [
+        -0.3184179663658142,
+        -1.014288306236267,
+        0.1470908373594284
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        -0.6311031341026974,
+        0.19083921546351507,
+        -0.7518571858850741
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "outside",
+          "I_endpoint_status": "outside",
+          "O_endpoint_status": "inside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 2,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "inside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "inside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 61,
+          "complete_bank_triangle_count": 210,
+          "fine_nearest_anchor_status": "inside",
+          "stable_bone_id": 97
+        }
+      ],
+      "barycentric_on_detail_face": [
+        1.979666609119396e-05,
+        0.9999223647319091,
+        5.7838601999709194e-05
+      ],
+      "column_row": 231,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            216,
+            218,
+            231
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1270,
+          "source_face_row": 473,
+          "transfer_donor_body": 61,
+          "weights": [
+            0.3673974573612213,
+            0.4933890700340271,
+            0.13921348750591278
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            231
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1288,
+          "source_face_row": 473,
+          "transfer_donor_body": 61,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            233
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1291,
+          "source_face_row": 478,
+          "transfer_donor_body": 61,
+          "weights": [
+            1.0
+          ]
+        }
+      ],
+      "detail_source_face_row": 2583,
+      "detail_triangle_area_m2": 2.57048502529848e-06,
+      "detail_vertex_rows": [
+        1270,
+        1288,
+        1291
+      ],
+      "distance_O_to_detail_surface_m": 1.1610836703911432e-08,
+      "endpoint_inside_banks": {
+        "D": [],
+        "I": [],
+        "O": [
+          [
+            61,
+            97
+          ]
+        ]
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        -0.31841797369344965,
+        -1.0142883040204642,
+        0.14709082862973738
+      ],
+      "route_event_banks": [
+        [
+          61,
+          97
+        ]
+      ]
+    },
+    {
+      "O_world_current037_m": [
+        -0.31694042682647705,
+        -1.0133161544799805,
+        0.1460973620414734
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        0.12236354128173486,
+        0.8225480344287031,
+        -0.5553754539250635
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "outside",
+          "I_endpoint_status": "outside",
+          "O_endpoint_status": "inside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 1,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "inside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "inside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 61,
+          "complete_bank_triangle_count": 210,
+          "fine_nearest_anchor_status": "inside",
+          "stable_bone_id": 97
+        }
+      ],
+      "barycentric_on_detail_face": [
+        0.9999793821500398,
+        2.8042460673819997e-06,
+        1.781360389282158e-05
+      ],
+      "column_row": 233,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            233
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1291,
+          "source_face_row": 478,
+          "transfer_donor_body": 61,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            232,
+            233,
+            234
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1532,
+          "source_face_row": 502,
+          "transfer_donor_body": 61,
+          "weights": [
+            0.07372855395078659,
+            6.584218974276987e-16,
+            0.9262714385986328
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            271
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1531,
+          "source_face_row": 477,
+          "transfer_donor_body": 61,
+          "weights": [
+            1.0
+          ]
+        }
+      ],
+      "detail_source_face_row": 2590,
+      "detail_triangle_area_m2": 6.3589045418505105e-06,
+      "detail_vertex_rows": [
+        1291,
+        1532,
+        1531
+      ],
+      "distance_O_to_detail_surface_m": 2.3844913775153667e-08,
+      "endpoint_inside_banks": {
+        "D": [],
+        "I": [],
+        "O": [
+          [
+            61,
+            97
+          ]
+        ]
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        -0.3169404297442251,
+        -1.0133161740935674,
+        0.14609737528435318
+      ],
+      "route_event_banks": [
+        [
+          61,
+          97
+        ]
+      ]
+    },
+    {
+      "O_world_current037_m": [
+        -0.31480562686920166,
+        -1.0143152475357056,
+        0.14519475400447845
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        0.12236354128173486,
+        0.8225480344287031,
+        -0.5553754539250635
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "outside",
+          "I_endpoint_status": "outside",
+          "O_endpoint_status": "inside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 1,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "inside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "inside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 61,
+          "complete_bank_triangle_count": 210,
+          "fine_nearest_anchor_status": "inside",
+          "stable_bone_id": 97
+        }
+      ],
+      "barycentric_on_detail_face": [
+        0.0,
+        0.0603794551699367,
+        0.9396205448300633
+      ],
+      "column_row": 271,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            233
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1291,
+          "source_face_row": 478,
+          "transfer_donor_body": 61,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            232,
+            233,
+            234
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1532,
+          "source_face_row": 502,
+          "transfer_donor_body": 61,
+          "weights": [
+            0.07372855395078659,
+            6.584218974276987e-16,
+            0.9262714385986328
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            271
+          ],
+          "detail_donor_body": 61,
+          "detail_row": 1531,
+          "source_face_row": 477,
+          "transfer_donor_body": 61,
+          "weights": [
+            1.0
+          ]
+        }
+      ],
+      "detail_source_face_row": 2590,
+      "detail_triangle_area_m2": 6.3589045418505105e-06,
+      "detail_vertex_rows": [
+        1291,
+        1532,
+        1531
+      ],
+      "distance_O_to_detail_surface_m": 6.573833370131362e-05,
+      "endpoint_inside_banks": {
+        "D": [],
+        "I": [],
+        "O": [
+          [
+            61,
+            97
+          ]
+        ]
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        -0.3148020560325654,
+        -1.0142503428252287,
+        0.14518494807762464
+      ],
+      "route_event_banks": [
+        [
+          61,
+          97
+        ]
+      ]
+    },
+    {
+      "O_world_current037_m": [
+        -0.307320237159729,
+        -0.9493142366409302,
+        0.13722175359725952
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        -0.9137994261984496,
+        -0.27901468582046574,
+        0.2951633679437393
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "inside",
+          "I_endpoint_status": "inside",
+          "O_endpoint_status": "inside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 2,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "inside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "inside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 59,
+          "complete_bank_triangle_count": 386,
+          "fine_nearest_anchor_status": "inside",
+          "stable_bone_id": 95
+        }
+      ],
+      "barycentric_on_detail_face": [
+        0.9999965304321119,
+        1.3435226246542733e-06,
+        2.1260452634104146e-06
+      ],
+      "column_row": 337,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            337
+          ],
+          "detail_donor_body": 59,
+          "detail_row": 2562,
+          "source_face_row": 640,
+          "transfer_donor_body": 59,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            337,
+            350,
+            357
+          ],
+          "detail_donor_body": 59,
+          "detail_row": 2558,
+          "source_face_row": 698,
+          "transfer_donor_body": 59,
+          "weights": [
+            0.8499835729598999,
+            0.1141013503074646,
+            0.03591509908437729
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            335,
+            336,
+            337
+          ],
+          "detail_donor_body": 59,
+          "detail_row": 2557,
+          "source_face_row": 695,
+          "transfer_donor_body": 59,
+          "weights": [
+            0.034433361142873764,
+            0.11257991194725037,
+            0.852986752986908
+          ]
+        }
+      ],
+      "detail_source_face_row": 5136,
+      "detail_triangle_area_m2": 3.384927442359227e-06,
+      "detail_vertex_rows": [
+        2562,
+        2558,
+        2557
+      ],
+      "distance_O_to_detail_surface_m": 3.163162200126285e-08,
+      "endpoint_inside_banks": {
+        "D": [
+          [
+            59,
+            95
+          ]
+        ],
+        "I": [
+          [
+            59,
+            95
+          ]
+        ],
+        "O": [
+          [
+            59,
+            95
+          ]
+        ]
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        -0.30732026606468704,
+        -0.9493142454666172,
+        0.1372217629337556
+      ],
+      "route_event_banks": []
+    },
+    {
+      "O_world_current037_m": [
+        0.006575425621122122,
+        -0.08938874304294586,
+        0.22224584221839905
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        0.4662634358102579,
+        0.2802854951482461,
+        0.8390699909041653
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "outside",
+          "I_endpoint_status": "inside",
+          "O_endpoint_status": "outside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 1,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "outside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "outside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 23,
+          "complete_bank_triangle_count": 14510,
+          "fine_nearest_anchor_status": "outside",
+          "stable_bone_id": 32
+        }
+      ],
+      "barycentric_on_detail_face": [
+        0.9999457545241118,
+        2.977575153113573e-05,
+        2.4469724356968205e-05
+      ],
+      "column_row": 1467,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            1467
+          ],
+          "detail_donor_body": 23,
+          "detail_row": 32183,
+          "source_face_row": 2725,
+          "transfer_donor_body": 23,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            1356,
+            1467,
+            1558
+          ],
+          "detail_donor_body": 23,
+          "detail_row": 31349,
+          "source_face_row": 2870,
+          "transfer_donor_body": 23,
+          "weights": [
+            0.2585219144821167,
+            0.6761134266853333,
+            0.06536464393138885
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            1467,
+            1558,
+            1629
+          ],
+          "detail_donor_body": 23,
+          "detail_row": 32182,
+          "source_face_row": 3098,
+          "transfer_donor_body": 23,
+          "weights": [
+            0.7571939826011658,
+            0.20591293275356293,
+            0.036893080919981
+          ]
+        }
+      ],
+      "detail_source_face_row": 104084,
+      "detail_triangle_area_m2": 2.6951380216377347e-05,
+      "detail_vertex_rows": [
+        32183,
+        31349,
+        32182
+      ],
+      "distance_O_to_detail_surface_m": 1.4205429186018645e-07,
+      "endpoint_inside_banks": {
+        "D": [],
+        "I": [
+          [
+            23,
+            32
+          ]
+        ],
+        "O": []
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        0.0065754918558443174,
+        -0.08938870322718834,
+        0.22224596141189243
+      ],
+      "route_event_banks": [
+        [
+          23,
+          32
+        ]
+      ]
+    },
+    {
+      "O_world_current037_m": [
+        0.1480279266834259,
+        -0.30077341198921204,
+        0.08782050758600235
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        0.3868374543882545,
+        0.9130807271374907,
+        -0.12899755661440374
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "inside",
+          "I_endpoint_status": "inside",
+          "O_endpoint_status": "outside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 0,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "outside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "outside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 91,
+          "complete_bank_triangle_count": 3844,
+          "fine_nearest_anchor_status": "outside",
+          "stable_bone_id": 13
+        }
+      ],
+      "barycentric_on_detail_face": [
+        0.9999888757738857,
+        3.685914570755648e-06,
+        7.438311543536773e-06
+      ],
+      "column_row": 1990,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            1990
+          ],
+          "detail_donor_body": 84,
+          "detail_row": 46603,
+          "source_face_row": 3805,
+          "transfer_donor_body": 84,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            1990,
+            2023,
+            2024
+          ],
+          "detail_donor_body": 91,
+          "detail_row": 47222,
+          "source_face_row": 4096,
+          "transfer_donor_body": 91,
+          "weights": [
+            0.22152699530124664,
+            0.674373209476471,
+            0.10409978777170181
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            1937,
+            1990,
+            2024
+          ],
+          "detail_donor_body": 84,
+          "detail_row": 46787,
+          "source_face_row": 4006,
+          "transfer_donor_body": 84,
+          "weights": [
+            0.13310223817825317,
+            0.5429649353027344,
+            0.32393282651901245
+          ]
+        }
+      ],
+      "detail_source_face_row": 78782,
+      "detail_triangle_area_m2": 0.00010074982731839154,
+      "detail_vertex_rows": [
+        46603,
+        47222,
+        46787
+      ],
+      "distance_O_to_detail_surface_m": 2.10972288472083e-07,
+      "endpoint_inside_banks": {
+        "D": [
+          [
+            91,
+            13
+          ]
+        ],
+        "I": [
+          [
+            91,
+            13
+          ]
+        ],
+        "O": []
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        0.14802800829540894,
+        -0.3007732193544815,
+        0.08782048037109261
+      ],
+      "route_event_banks": [
+        [
+          91,
+          13
+        ]
+      ]
+    },
+    {
+      "O_world_current037_m": [
+        0.16936203837394714,
+        -0.31087398529052734,
+        0.08910619467496872
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        0.6610206444550767,
+        0.7064648047101386,
+        -0.25290153678864996
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "inside",
+          "I_endpoint_status": "inside",
+          "O_endpoint_status": "outside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 2,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "outside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "outside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 91,
+          "complete_bank_triangle_count": 3844,
+          "fine_nearest_anchor_status": "outside",
+          "stable_bone_id": 13
+        }
+      ],
+      "barycentric_on_detail_face": [
+        3.767775076877559e-05,
+        0.9999490729111737,
+        1.3249338057482479e-05
+      ],
+      "column_row": 2024,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            2024,
+            2041
+          ],
+          "detail_donor_body": 91,
+          "detail_row": 47390,
+          "source_face_row": 4008,
+          "transfer_donor_body": 91,
+          "weights": [
+            0.8333830237388611,
+            0.16661696135997772
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            2024
+          ],
+          "detail_donor_body": 91,
+          "detail_row": 47230,
+          "source_face_row": 4006,
+          "transfer_donor_body": 91,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            2023,
+            2024,
+            2039
+          ],
+          "detail_donor_body": 91,
+          "detail_row": 47388,
+          "source_face_row": 4187,
+          "transfer_donor_body": 91,
+          "weights": [
+            0.07427817583084106,
+            0.7313632369041443,
+            0.19435860216617584
+          ]
+        }
+      ],
+      "detail_source_face_row": 80019,
+      "detail_triangle_area_m2": 7.456558453643644e-06,
+      "detail_vertex_rows": [
+        47390,
+        47230,
+        47388
+      ],
+      "distance_O_to_detail_surface_m": 2.0446147003134854e-07,
+      "endpoint_inside_banks": {
+        "D": [
+          [
+            91,
+            13
+          ]
+        ],
+        "I": [
+          [
+            91,
+            13
+          ]
+        ],
+        "O": []
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        0.16936217352719984,
+        -0.31087384084569486,
+        0.08910614296634874
+      ],
+      "route_event_banks": [
+        [
+          91,
+          13
+        ]
+      ]
+    },
+    {
+      "O_world_current037_m": [
+        0.23663629591464996,
+        -0.956240177154541,
+        0.08703161776065826
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        -0.69875082946474,
+        -0.3930024750954131,
+        0.5977426978987004
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "inside",
+          "I_endpoint_status": "inside",
+          "O_endpoint_status": "inside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 3,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "inside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "inside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 124,
+          "complete_bank_triangle_count": 274,
+          "fine_nearest_anchor_status": "inside",
+          "stable_bone_id": 123
+        }
+      ],
+      "barycentric_on_detail_face": [
+        0.9998263751627176,
+        0.0001023686021135475,
+        7.125623516888362e-05
+      ],
+      "column_row": 2187,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            2187
+          ],
+          "detail_donor_body": 124,
+          "detail_row": 49300,
+          "source_face_row": 4257,
+          "transfer_donor_body": 124,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            2156,
+            2187,
+            2202
+          ],
+          "detail_donor_body": 125,
+          "detail_row": 49299,
+          "source_face_row": 4493,
+          "transfer_donor_body": 125,
+          "weights": [
+            0.05466429144144058,
+            0.9163767099380493,
+            0.028958989307284355
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            2156,
+            2187,
+            2202
+          ],
+          "detail_donor_body": 124,
+          "detail_row": 49302,
+          "source_face_row": 4493,
+          "transfer_donor_body": 124,
+          "weights": [
+            0.02043205127120018,
+            0.7848042845726013,
+            0.1947636753320694
+          ]
+        }
+      ],
+      "detail_source_face_row": 83781,
+      "detail_triangle_area_m2": 1.4639849045768825e-06,
+      "detail_vertex_rows": [
+        49300,
+        49299,
+        49302
+      ],
+      "distance_O_to_detail_surface_m": 1.4701768307513488e-07,
+      "endpoint_inside_banks": {
+        "D": [
+          [
+            124,
+            123
+          ]
+        ],
+        "I": [
+          [
+            124,
+            123
+          ]
+        ],
+        "O": [
+          [
+            124,
+            123
+          ]
+        ]
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        0.23663639864337796,
+        -0.9562401193762277,
+        0.08703152988191176
+      ],
+      "route_event_banks": []
+    },
+    {
+      "O_world_current037_m": [
+        0.2582801282405853,
+        -0.95381760597229,
+        0.13846388459205627
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        0.8407545622313598,
+        -0.5377939001714357,
+        -0.06252589084171684
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "inside",
+          "I_endpoint_status": "outside",
+          "O_endpoint_status": "outside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 0,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "outside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "outside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 107,
+          "complete_bank_triangle_count": 774,
+          "fine_nearest_anchor_status": "outside",
+          "stable_bone_id": 108
+        },
+        {
+          "D_endpoint_status": "outside",
+          "I_endpoint_status": "inside",
+          "O_endpoint_status": "inside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 0,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "inside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "inside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 109,
+          "complete_bank_triangle_count": 392,
+          "fine_nearest_anchor_status": "inside",
+          "stable_bone_id": 114
+        }
+      ],
+      "barycentric_on_detail_face": [
+        0.9998505326545986,
+        6.813563980295474e-05,
+        8.133170559851261e-05
+      ],
+      "column_row": 2261,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            2261
+          ],
+          "detail_donor_body": 109,
+          "detail_row": 52297,
+          "source_face_row": 4642,
+          "transfer_donor_body": 109,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            2261,
+            2282,
+            2283
+          ],
+          "detail_donor_body": 109,
+          "detail_row": 52602,
+          "source_face_row": 4676,
+          "transfer_donor_body": 109,
+          "weights": [
+            0.8748641014099121,
+            0.11806528270244598,
+            0.007070591207593679
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            2261,
+            2270,
+            2271
+          ],
+          "detail_donor_body": 109,
+          "detail_row": 52601,
+          "source_face_row": 4674,
+          "transfer_donor_body": 109,
+          "weights": [
+            0.8770687580108643,
+            0.07046128064393997,
+            0.052469946444034576
+          ]
+        }
+      ],
+      "detail_source_face_row": 90120,
+      "detail_triangle_area_m2": 2.7065654290160215e-06,
+      "detail_vertex_rows": [
+        52297,
+        52602,
+        52601
+      ],
+      "distance_O_to_detail_surface_m": 1.652890172432556e-07,
+      "endpoint_inside_banks": {
+        "D": [
+          [
+            107,
+            108
+          ]
+        ],
+        "I": [
+          [
+            109,
+            114
+          ]
+        ],
+        "O": [
+          [
+            109,
+            114
+          ]
+        ]
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        0.25827998927309,
+        -0.9538175170808648,
+        0.13846389492689934
+      ],
+      "route_event_banks": [
+        [
+          107,
+          108
+        ],
+        [
+          109,
+          114
+        ]
+      ]
+    },
+    {
+      "O_world_current037_m": [
+        0.25589656829833984,
+        -0.9397503733634949,
+        0.13515575230121613
+      ],
+      "authored_winding_unit_normal_diagnostic_only": [
+        0.7645586994200007,
+        0.6445157376754277,
+        0.007032711418535683
+      ],
+      "bank_comparisons": [
+        {
+          "D_endpoint_status": "inside",
+          "I_endpoint_status": "inside",
+          "O_endpoint_status": "inside",
+          "O_to_anchor_exact_segment": {
+            "candidate_triangle_count": 3,
+            "equal_parameter_ties": [],
+            "parity_inferred_end_status": "inside",
+            "proper_hits": [],
+            "scope": "exact segment hit parity from pinned classifier, conditional on exact start class; no standalone ray classification/watertightness proof",
+            "start_status": "inside",
+            "status": "PARITY_INFERRED",
+            "unresolved": []
+          },
+          "body": 107,
+          "complete_bank_triangle_count": 774,
+          "fine_nearest_anchor_status": "inside",
+          "stable_bone_id": 108
+        }
+      ],
+      "barycentric_on_detail_face": [
+        7.765974802863698e-05,
+        0.999921561002334,
+        7.792496373823812e-07
+      ],
+      "column_row": 2262,
+      "detail_face_transfer_support": [
+        {
+          "active": true,
+          "coarse_support_rows": [
+            2261,
+            2262,
+            2282
+          ],
+          "detail_donor_body": 107,
+          "detail_row": 52309,
+          "source_face_row": 4673,
+          "transfer_donor_body": 107,
+          "weights": [
+            0.2760259509086609,
+            0.6989417672157288,
+            0.02503228560090065
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            2262
+          ],
+          "detail_donor_body": 107,
+          "detail_row": 52310,
+          "source_face_row": 4544,
+          "transfer_donor_body": 107,
+          "weights": [
+            1.0
+          ]
+        },
+        {
+          "active": true,
+          "coarse_support_rows": [
+            2261,
+            2262,
+            2282
+          ],
+          "detail_donor_body": 107,
+          "detail_row": 52779,
+          "source_face_row": 4673,
+          "transfer_donor_body": 107,
+          "weights": [
+            0.09326951950788498,
+            0.4957940876483917,
+            0.4109363853931427
+          ]
+        }
+      ],
+      "detail_source_face_row": 90161,
+      "detail_triangle_area_m2": 1.6115756372389492e-05,
+      "detail_vertex_rows": [
+        52309,
+        52310,
+        52779
+      ],
+      "distance_O_to_detail_surface_m": 1.9971768209792482e-07,
+      "endpoint_inside_banks": {
+        "D": [
+          [
+            107,
+            108
+          ]
+        ],
+        "I": [
+          [
+            107,
+            108
+          ]
+        ],
+        "O": [
+          [
+            107,
+            108
+          ]
+        ]
+      },
+      "nearest_registered_detailed_surface_point_world_current037_m": [
+        0.25589672099423116,
+        -0.9397502446423057,
+        0.13515575370577293
+      ],
+      "route_event_banks": []
+    }
+  ],
+  "schema": "fine-source-vs-bone-15column-probe-v1",
+  "scope": {
+    "bone_test": "Exact proper-hit parity from known 103 O point class along O-to-nearest-detail-anchor segment, only for culprit banks seen inside O/I/D or as exact segment-event banks in frozen112. Anchor endpoint class is inferred by parity, not independent all-bank ray query.",
+    "candidate_current_points": "Exact Float32 103/084 baseline points; detailed surface induced in current037 frame by Wnew*(C-R) from pinned 075 accepted-transfer rows.",
+    "columns": [
+      204,
+      215,
+      217,
+      218,
+      219,
+      231,
+      233,
+      271,
+      337,
+      1467,
+      1990,
+      2024,
+      2187,
+      2261,
+      2262
+    ],
+    "limitations": [
+      "This does not query all185 banks for each nearest anchor.",
+      "Endpoint parity classification is conditional on pinned known O status and exact segment having no unresolved/tied contacts; it is not an independent point ray certificate.",
+      "Registered detailed current points are induced by Wnew P1 displacement; not a new native surface emission.",
+      "No geometry changed and no admission claim."
+    ],
+    "surface_distance": "Vectorized Euclidean closest point on actual candidate.nhskin triangles; source face and barycentrics retained."
+  },
+  "status": "READ_ONLY_DIAGNOSTIC"
+}

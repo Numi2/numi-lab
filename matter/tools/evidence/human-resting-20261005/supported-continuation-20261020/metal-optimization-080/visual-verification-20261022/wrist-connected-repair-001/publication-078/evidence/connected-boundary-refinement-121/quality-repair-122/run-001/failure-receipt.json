@@ -1,0 +1,8 @@
+{
+  "candidate_sha256": "b75d1df89bc0b8ffaf32b2f3fcdf6aa325c6b91b04485c97116b554729973f94",
+  "failure": "Existing 117 flip pass completed candidate write, then report hashing referenced test_bistellar_084.py absent from isolated directory.",
+  "input_sha256": "a26b0e97c97565a71fd4979886bfb1aced4fb0e1e22bc173d4bf18ef42ede9c8",
+  "report_written": false,
+  "script_sha256": "99bb5619be20f39550274391bf21bc0bc09b15e8a4ca01c80fbfc867e82cb295",
+  "status": "PARTIAL_OUTPUT_REPORT_PATH_FAILURE"
+}

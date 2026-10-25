@@ -1,0 +1,390 @@
+{
+  "115_mapping": {
+    "interpretation": "Identity rows exist against the 084 remesh, not native compiled parent cells; the proposed reference has invalid cells, so it is not an admissible physical transfer map.",
+    "nonpositive_proposed_cells_by_material": {
+      "1": 0,
+      "2": 63
+    },
+    "same_084_connectivity_material_and_uid_rows": true
+  },
+  "116_mapping": {
+    "cells": 37692,
+    "geometric_parent_child_overlap_csr_available": false,
+    "native_parent_cell_csr_available": false,
+    "reason": "New TetGen cell rows and node source_input_row do not encode parent-cell mass ancestry.",
+    "status": "BLOCKED_NO_NATIVE_PARENT_CELL_ANCESTRY_OR_GEOMETRIC_OVERLAP_CSR",
+    "unique_cell_uids": true
+  },
+  "116_volume_crosscheck": {
+    "1": {
+      "computed_m3": 0.0034525709483045628,
+      "delta_m3": 0.0,
+      "frozen_report_m3": 0.0034525709483045628
+    },
+    "2": {
+      "computed_m3": 0.011237668835972527,
+      "delta_m3": 0.0,
+      "frozen_report_m3": 0.011237668835972527
+    }
+  },
+  "admission": {
+    "accepted_physical_steps": 0,
+    "conservative_transfer_claimed": false,
+    "density_rescaled": false,
+    "geometry_admitted": false,
+    "limitations": [
+      "115/116 volumes support only aggregate density-capacity arithmetic",
+      "no parent-cell overlap ancestry exists for 116",
+      "116 run-002 has three cells below q=1e-5",
+      "full material, detailed-skin, clearance, and native gates remain"
+    ]
+  },
+  "boundary_topology": {
+    "084_O_I_D": {
+      "D": {
+        "boundary_edges": 45,
+        "closed_edge_incidence": false,
+        "distinct_index_faces": 4777,
+        "edge_incidence_histogram": {
+          "1": 45,
+          "2": 7143
+        },
+        "edges": 7188,
+        "face_count": 4777,
+        "indices_in_range": true,
+        "min_area_m2": 1.8287426458676723e-07,
+        "name": "D",
+        "nonmanifold_edges": 0,
+        "nonzero_raw_chain_coefficients": 45,
+        "point_count": 7360,
+        "points_finite": true,
+        "raw_oriented_chain_zero": false,
+        "signed_surface_volume_m3": -0.053252362923115214,
+        "zero_area_faces": 0
+      },
+      "I": {
+        "boundary_edges": 45,
+        "closed_edge_incidence": false,
+        "distinct_index_faces": 4777,
+        "edge_incidence_histogram": {
+          "1": 45,
+          "2": 7143
+        },
+        "edges": 7188,
+        "face_count": 4777,
+        "indices_in_range": true,
+        "min_area_m2": 2.2699400087438324e-07,
+        "name": "I",
+        "nonmanifold_edges": 0,
+        "nonzero_raw_chain_coefficients": 45,
+        "point_count": 7360,
+        "points_finite": true,
+        "raw_oriented_chain_zero": false,
+        "signed_surface_volume_m3": -0.0649448521775259,
+        "zero_area_faces": 0
+      },
+      "O": {
+        "boundary_edges": 45,
+        "closed_edge_incidence": false,
+        "distinct_index_faces": 4777,
+        "edge_incidence_histogram": {
+          "1": 45,
+          "2": 7143
+        },
+        "edges": 7188,
+        "face_count": 4777,
+        "indices_in_range": true,
+        "min_area_m2": 2.327703735125035e-07,
+        "name": "O",
+        "nonmanifold_edges": 0,
+        "nonzero_raw_chain_coefficients": 45,
+        "point_count": 7360,
+        "points_finite": true,
+        "raw_oriented_chain_zero": false,
+        "signed_surface_volume_m3": -0.0684117084046424,
+        "zero_area_faces": 0
+      }
+    },
+    "084_closed_material_shell_chains": {
+      "I_D_side_cap_faces": 90,
+      "O_I_side_cap_faces": 90,
+      "fat_closed_boundary": {
+        "boundary_edges": 0,
+        "closed_two_incidence": true,
+        "edge_count": 14466,
+        "faces": 9644,
+        "name": "fat I+reverse(D)+ID caps",
+        "nonmanifold_edges": 0,
+        "orientability_conflicts": 0,
+        "orientable_closed_boundary_chain_zero_after_consistent_orientation": true,
+        "orientation_components": 1,
+        "vertices_referenced": 4822
+      },
+      "side_cap_faces_total": 180,
+      "skin_closed_boundary": {
+        "boundary_edges": 0,
+        "closed_two_incidence": true,
+        "edge_count": 14466,
+        "faces": 9644,
+        "name": "skin O+reverse(I)+OI caps",
+        "nonmanifold_edges": 0,
+        "orientability_conflicts": 0,
+        "orientable_closed_boundary_chain_zero_after_consistent_orientation": true,
+        "orientation_components": 1,
+        "vertices_referenced": 4822
+      },
+      "unclassified_side_cap_faces": 0
+    },
+    "114_explicit_parent_O_face_rows_in_source_records": false,
+    "114_invalid_proposals": [],
+    "114_is_geometry": false,
+    "114_proposal_source_O_edge_and_finite_sample_checks_pass": true,
+    "114_source_edge_proposals": 146,
+    "114_status": "146_SOURCE_MIDPOINT_PROPOSALS_DIAGNOSTIC_ONLY",
+    "116_closed_material_shell_chains": {
+      "I_D_side_cap_faces": 90,
+      "O_I_side_cap_faces": 90,
+      "fat_closed_boundary": {
+        "boundary_edges": 0,
+        "closed_two_incidence": true,
+        "edge_count": 16200,
+        "faces": 10800,
+        "name": "fat I+reverse(D)+ID caps",
+        "nonmanifold_edges": 0,
+        "orientability_conflicts": 0,
+        "orientable_closed_boundary_chain_zero_after_consistent_orientation": true,
+        "orientation_components": 1,
+        "vertices_referenced": 5400
+      },
+      "side_cap_faces_total": 180,
+      "skin_closed_boundary": {
+        "boundary_edges": 0,
+        "closed_two_incidence": true,
+        "edge_count": 17049,
+        "faces": 11366,
+        "name": "skin O+reverse(I)+OI caps",
+        "nonmanifold_edges": 0,
+        "orientability_conflicts": 0,
+        "orientable_closed_boundary_chain_zero_after_consistent_orientation": true,
+        "orientation_components": 1,
+        "vertices_referenced": 5683
+      },
+      "unclassified_side_cap_faces": 0
+    },
+    "116_marker_layer_surfaces": {
+      "D": {
+        "boundary_edges": 45,
+        "closed_edge_incidence": false,
+        "distinct_index_faces": 5099,
+        "edge_incidence_histogram": {
+          "1": 45,
+          "2": 7626
+        },
+        "edges": 7671,
+        "face_count": 5099,
+        "indices_in_range": true,
+        "min_area_m2": 1.8287426458676723e-07,
+        "name": "116-D",
+        "nonmanifold_edges": 0,
+        "nonzero_raw_chain_coefficients": 45,
+        "point_count": 8257,
+        "points_finite": true,
+        "raw_oriented_chain_zero": false,
+        "signed_surface_volume_m3": 0.053667036957708386,
+        "zero_area_faces": 0
+      },
+      "I": {
+        "boundary_edges": 45,
+        "closed_edge_incidence": false,
+        "distinct_index_faces": 5611,
+        "edge_incidence_histogram": {
+          "1": 45,
+          "2": 8394
+        },
+        "edges": 8439,
+        "face_count": 5611,
+        "indices_in_range": true,
+        "min_area_m2": 2.2699400087438324e-07,
+        "name": "116-I",
+        "nonmanifold_edges": 0,
+        "nonzero_raw_chain_coefficients": 54,
+        "point_count": 8257,
+        "points_finite": true,
+        "raw_oriented_chain_zero": false,
+        "signed_surface_volume_m3": -0.06495564274500286,
+        "zero_area_faces": 0
+      },
+      "O": {
+        "boundary_edges": 45,
+        "closed_edge_incidence": false,
+        "distinct_index_faces": 5665,
+        "edge_incidence_histogram": {
+          "1": 45,
+          "2": 8475
+        },
+        "edges": 8520,
+        "face_count": 5665,
+        "indices_in_range": true,
+        "min_area_m2": 2.327703735125035e-07,
+        "name": "116-O",
+        "nonmanifold_edges": 0,
+        "nonzero_raw_chain_coefficients": 45,
+        "point_count": 8257,
+        "points_finite": true,
+        "raw_oriented_chain_zero": false,
+        "signed_surface_volume_m3": -0.0684117084046424,
+        "zero_area_faces": 0
+      }
+    }
+  },
+  "input_sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/run-004/source-preflight/compiled-skin-fem-tets.csv": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-capacity-reference-115/candidate.npz": "abff4290774cc96a17f6c68a21fe86fc3933a1878e0bd6512733e99589fb6dd9",
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-capacity-reference-115/report.json": "a36ab99e27a574418b8aa1681644a6c30b7f15e759955312d31acbc978f53d6b",
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/candidate.npz": "0d7b641e0b79257f5f68209a901f8baf3e1ed03972a5497cd66de10abc8baf28",
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/cell-audit.json": "52ee77881893e7fdb8173b59cc52664dc6ed2f11173d3183650eca93a4c9a0df",
+    "/Users/numi/Work/numi-human-connected-surface-069/digit-source-diagnosis-110/batch-146-curved-source-midpoints-quality-114.json": "aa683f25a629f867d20decaa5a8222535142901c2807ba2361748605979b741a",
+    "/Users/numi/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/connectivity-001/run-001/candidate-tetrahedra-compacted.npz": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db"
+  },
+  "mass_transfer_helper": {
+    "actual_116_map_supplied": false,
+    "function": "conservative_parent_transfer in this source file",
+    "helper_applied_to_actual_candidate": false,
+    "input": "nonnegative parent-by-child geometric overlap measures in m^3",
+    "requirements": [
+      "each parent row closes to parent reference volume",
+      "no cross-material overlap",
+      "mass closes by material"
+    ]
+  },
+  "material_volume_mass": {
+    "1": {
+      "115_same_topology": {
+        "aggregate_mass_feasible": true,
+        "aggregate_preserving_mass_capacity_kg": [
+          3.1073138534741065,
+          3.797828043135019
+        ],
+        "claim": "aggregate capacity only; no local conservative transfer implied",
+        "delta_volume_m3": 3.23715446809425e-13,
+        "delta_volume_percent": 9.376077692024865e-09,
+        "density_bounds_kg_m3": [
+          900.0,
+          1100.0
+        ],
+        "explicit_old_compiled_density_kg_m3": 1000.0000610351562,
+        "mass_at_same_density_kg": 3.45257115903277,
+        "material": "skin",
+        "material_id": 1,
+        "new_volume_m3": 0.0034525709483045628,
+        "old_authoritative_compiled_mass_kg": 3.452571158709057,
+        "old_native_reference_volume_m3": 0.0034525709479808473,
+        "required_aggregate_density_to_preserve_mass_kg_m3": 1000.0000609413962,
+        "same_density_mass_delta_kg": 3.237130563604751e-10
+      },
+      "116_remeshed": {
+        "aggregate_mass_feasible": true,
+        "aggregate_preserving_mass_capacity_kg": [
+          3.1073138534741065,
+          3.797828043135019
+        ],
+        "claim": "aggregate capacity only; no local conservative transfer implied",
+        "delta_volume_m3": 3.23715446809425e-13,
+        "delta_volume_percent": 9.376077692024865e-09,
+        "density_bounds_kg_m3": [
+          900.0,
+          1100.0
+        ],
+        "explicit_old_compiled_density_kg_m3": 1000.0000610351562,
+        "mass_at_same_density_kg": 3.45257115903277,
+        "material": "skin",
+        "material_id": 1,
+        "new_volume_m3": 0.0034525709483045628,
+        "old_authoritative_compiled_mass_kg": 3.452571158709057,
+        "old_native_reference_volume_m3": 0.0034525709479808473,
+        "required_aggregate_density_to_preserve_mass_kg_m3": 1000.0000609413962,
+        "same_density_mass_delta_kg": 3.237130563604751e-10
+      }
+    },
+    "2": {
+      "115_same_topology": {
+        "aggregate_mass_feasible": true,
+        "aggregate_preserving_mass_capacity_kg": [
+          9.552018510576648,
+          10.6757853941739
+        ],
+        "claim": "aggregate capacity only; no local conservative transfer implied",
+        "delta_volume_m3": -0.00041467403009513674,
+        "delta_volume_percent": -3.5587180609205515,
+        "density_bounds_kg_m3": [
+          850.0,
+          950.0
+        ],
+        "explicit_old_compiled_density_kg_m3": 900.0,
+        "mass_at_same_density_kg": 10.113901952375274,
+        "material": "fat",
+        "material_id": 2,
+        "new_volume_m3": 0.011237668835972527,
+        "old_authoritative_compiled_mass_kg": 10.487108579460903,
+        "old_native_reference_volume_m3": 0.011652342866067663,
+        "required_aggregate_density_to_preserve_mass_kg_m3": 933.2103243593521,
+        "same_density_mass_delta_kg": -0.37320662708562935
+      },
+      "116_remeshed": {
+        "aggregate_mass_feasible": true,
+        "aggregate_preserving_mass_capacity_kg": [
+          9.552018510576648,
+          10.6757853941739
+        ],
+        "claim": "aggregate capacity only; no local conservative transfer implied",
+        "delta_volume_m3": -0.00041467403009513674,
+        "delta_volume_percent": -3.5587180609205515,
+        "density_bounds_kg_m3": [
+          850.0,
+          950.0
+        ],
+        "explicit_old_compiled_density_kg_m3": 900.0,
+        "mass_at_same_density_kg": 10.113901952375274,
+        "material": "fat",
+        "material_id": 2,
+        "new_volume_m3": 0.011237668835972527,
+        "old_authoritative_compiled_mass_kg": 10.487108579460903,
+        "old_native_reference_volume_m3": 0.011652342866067663,
+        "required_aggregate_density_to_preserve_mass_kg_m3": 933.2103243593521,
+        "same_density_mass_delta_kg": -0.37320662708562935
+      }
+    }
+  },
+  "native_parent_mass_source": {
+    "active_tets_by_material": {
+      "1": 14316,
+      "2": 14316
+    },
+    "density_kg_m3": {
+      "1": 1000.0000610351562,
+      "2": 900.0
+    },
+    "density_times_compiled_inverse_rest_volume_kg": {
+      "1": 3.452571158709057,
+      "2": 10.487108579460903
+    },
+    "mass_from_authoritative_corner_ledger_kg": {
+      "1": 3.452571158709057,
+      "2": 10.487108579460903
+    },
+    "material_id_mapping": {
+      "native15": "skin candidate1",
+      "native16": "fat candidate2"
+    },
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/run-004/source-preflight/compiled-skin-fem-tets.csv",
+    "rounding_residual_kg": {
+      "1": 0.0,
+      "2": 0.0
+    },
+    "volume_m3": {
+      "1": 0.0034525709479808473,
+      "2": 0.011652342866067663
+    }
+  },
+  "schema": "connected-layer-mass-ledger-118-v1"
+}

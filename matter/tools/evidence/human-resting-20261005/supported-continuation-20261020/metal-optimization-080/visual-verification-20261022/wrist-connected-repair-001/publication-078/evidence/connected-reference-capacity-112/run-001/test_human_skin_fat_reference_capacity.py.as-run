@@ -1,0 +1,99 @@
+import importlib.util
+from fractions import Fraction
+from pathlib import Path
+import sys
+import unittest
+import numpy as np
+
+HERE=Path(__file__).resolve().parent
+sys.path.insert(0,str(HERE))
+import human_skin_fat_reference_capacity as owner
+PRED=Path("/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-107/matter/root_exact_segment_witness.py")
+RAY=Path("/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-107/matter/tools/human_skin_fat_bone_clearance.py")
+import hashlib
+PRED_SHA="d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2"
+RAY_SHA="116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1"
+assert hashlib.sha256(PRED.read_bytes()).hexdigest()==PRED_SHA
+assert hashlib.sha256(RAY.read_bytes()).hexdigest()==RAY_SHA
+spec=importlib.util.spec_from_file_location("capacity_pinned_segment",PRED)
+exact=importlib.util.module_from_spec(spec);spec.loader.exec_module(exact)
+spec=importlib.util.spec_from_file_location("capacity_pinned_ray",RAY)
+ray=importlib.util.module_from_spec(spec);spec.loader.exec_module(ray)
+def bank(triangles, ids=None, matrix=None, pos=(0,0,0), offset=(0,0,0), bounds=None):
+    tri=np.asarray(triangles,dtype=np.float64)
+    ids=np.arange(len(tri),dtype=np.int64) if ids is None else np.asarray(ids,dtype=np.int64)
+    return {"triangles_local":tri,"triangle_stable_ids":ids,"expected_triangle_count":len(tri),
+      "aabb_min_local":tri.min(axis=(0,1)) if bounds is None else np.asarray(bounds[0],float),
+      "aabb_max_local":tri.max(axis=(0,1)) if bounds is None else np.asarray(bounds[1],float),
+      "world_to_local":np.eye(3) if matrix is None else np.asarray(matrix,float),
+      "body_position_world":np.asarray(pos,float),"com_offset":np.asarray(offset,float)}
+V=np.array([[0.,0.,0.],[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
+TRI=V[[[0,2,1],[0,1,3],[1,2,3],[2,0,3]]]
+def seg(a,b,sa,sb,bk=TRI):
+    return owner.audit_exact_segment(a,b,start_status=sa,end_status=sb,bank=bank(bk),
+      exact_classifier=exact.classify_segment_triangle,exact_parameter=ray._exact_t_barycentric,
+      exact_classifier_sha256=PRED_SHA,exact_parameter_sha256=RAY_SHA)
+class ReferenceCapacityTests(unittest.TestCase):
+    def test_rational_first_entry_and_endpoint_parity(self):
+        r=seg((.25,.25,-1),(.25,.25,.25),"outside","inside")
+        self.assertEqual(r["status"],"PASS")
+        self.assertEqual((r["first_entry"]["t_numerator"],r["first_entry"]["t_denominator"]),("4","5"))
+        bad=seg((.25,.25,-1),(.25,.25,.25),"outside","outside")
+        self.assertEqual(bad["reason"],"exact_hit_parity_disagrees_with_endpoint_classifications")
+    def test_boundary_coplanar_and_equal_t_fail_closed(self):
+        boundary=seg((0,0,-1),(0,0,.5),"outside","inside")
+        self.assertEqual(boundary["status"],"REJECT")
+        self.assertEqual(boundary["reason"],"boundary_coplanar_degenerate_or_nonproper_hit")
+        duplicate=np.concatenate([TRI,TRI[:1]],axis=0)
+        tie=seg((.25,.25,-1),(.25,.25,.25),"outside","inside",duplicate)
+        self.assertEqual(tie["reason"],"nonunique_exact_hit_parameter")
+        coplanar=seg((-.1,.2,0),(.2,.2,0),"outside","outside")
+        self.assertEqual(coplanar["status"],"REJECT")
+    def test_bank_aabb_must_be_exact_complete_bound(self):
+        with self.assertRaises(owner.CapacityAuditError):
+            owner.audit_exact_segment((.25,.25,-1),(.25,.25,.25),start_status="outside",end_status="inside",
+              bank=bank(TRI,bounds=((-9,-9,-1),(9,9,1))),exact_classifier=exact.classify_segment_triangle,
+              exact_parameter=ray._exact_t_barycentric,exact_classifier_sha256=PRED_SHA,exact_parameter_sha256=RAY_SHA)
+    def test_noncollinear_column_shortens_D_along_ID_only(self):
+        O=np.array([.0625,.125,-2.]);I=np.array([.125,.125,-2.]);D=np.array([.25,.25,.25])
+        bk={(23,32):bank(TRI)}
+        classes={(23,32):("outside","outside","inside")}
+        r=owner.audit_layer_paths(O,I,D,endpoint_classes=classes,banks=bk,
+          exact_classifier=exact.classify_segment_triangle,exact_parameter=ray._exact_t_barycentric,
+          exact_classifier_sha256=PRED_SHA,exact_parameter_sha256=RAY_SHA,declared_clearance_m=.25)
+        p=r["bank_results"][0]["proposal"]
+        self.assertEqual(p["status"],"PROPOSED_D_SHORTENING")
+        self.assertTrue(p["preserves_O"] and p["preserves_I"])
+        expected=I+p["proposed_D_parameter_from_I"]*(D-I)
+        np.testing.assert_allclose(p["proposed_D_world"],expected,atol=1e-14)
+        self.assertAlmostEqual(p["safe_I_to_entry_distance_m"],(8./9.)*np.linalg.norm(D-I))
+        self.assertFalse(np.allclose(np.cross(I-O,D-O),np.zeros(3)))
+    def test_outer_skin_crossing_requires_reconstruction_and_never_clamps(self):
+        O=np.array([.25,.25,-1.]);I=np.array([.25,.25,.25]);D=np.array([.25,.25,.375])
+        r=owner.audit_layer_paths(O,I,D,endpoint_classes={(23,32):("outside","inside","inside")},
+          banks={(23,32):bank(TRI)},exact_classifier=exact.classify_segment_triangle,
+          exact_parameter=ray._exact_t_barycentric,exact_classifier_sha256=PRED_SHA,
+          exact_parameter_sha256=RAY_SHA,declared_clearance_m=.1)
+        p=r["bank_results"][0]["proposal"]
+        self.assertEqual(p["status"],"REQUIRES_SKIN_RECONSTRUCTION")
+        self.assertEqual(p["proposed_D_world"],D.tolist())
+        self.assertTrue(p["preserves_O"] and p["preserves_I"])
+    def test_clearance_exhausting_ID_path_withholds_D(self):
+        O=np.array([.0625,.125,-2.]);I=np.array([.125,.125,-2.]);D=np.array([.25,.25,.25])
+        r=owner.audit_layer_paths(O,I,D,endpoint_classes={(23,32):("outside","outside","inside")},
+          banks={(23,32):bank(TRI)},exact_classifier=exact.classify_segment_triangle,
+          exact_parameter=ray._exact_t_barycentric,exact_classifier_sha256=PRED_SHA,
+          exact_parameter_sha256=RAY_SHA,declared_clearance_m=2.1)
+        self.assertEqual(r["bank_results"][0]["proposal"]["status"],"NO_FEASIBLE_D_SHORTENING")
+    def test_offset_and_nonorthogonal_world_to_local_transform(self):
+        M=np.array([[1.,.1,0],[0,1.,.1],[.1,0,1.]])
+        # World point is chosen by solving exact owner frame from a known local segment.
+        a=np.array([.25,.25,-1.]);b=np.array([.25,.25,.25]);pos=np.array([4.,-2.,1.]);off=np.array([.01,-.02,.03])
+        aw=np.linalg.solve(M,a+off)+pos;bw=np.linalg.solve(M,b+off)+pos
+        bk=bank(TRI,matrix=M,pos=pos,offset=off)
+        r=owner.audit_exact_segment(aw,bw,start_status="outside",end_status="inside",bank=bk,
+          exact_classifier=exact.classify_segment_triangle,exact_parameter=ray._exact_t_barycentric,
+          exact_classifier_sha256=PRED_SHA,exact_parameter_sha256=RAY_SHA)
+        self.assertEqual(r["status"],"PASS")
+        self.assertAlmostEqual(r["first_entry"]["t"],4./5.)
+if __name__=="__main__": unittest.main()

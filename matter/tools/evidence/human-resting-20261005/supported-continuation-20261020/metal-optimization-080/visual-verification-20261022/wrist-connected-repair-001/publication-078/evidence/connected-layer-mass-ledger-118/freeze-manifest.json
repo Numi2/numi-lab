@@ -1,0 +1,48 @@
+{
+  "claims": {
+    "114_is_geometry": false,
+    "accepted_physical_steps": 0,
+    "aggregate_mass_capacity_only": true,
+    "conservative_parent_transfer_applied": false,
+    "geometry_admitted": false
+  },
+  "execution": {
+    "audit_command": "python build_mass_and_boundary_audit_118.py",
+    "host": "SSH Numi",
+    "python": "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "test_command": "python -m pytest -q test_mass_and_boundary_ledger_118.py",
+    "test_result": "5 passed"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 2574,
+      "sha256": "162e4eded7ceb5a88a859201821a964f7f3aba26d053371dc5ed9b299597c7f2"
+    },
+    "build_mass_and_boundary_audit_118.py": {
+      "bytes": 13613,
+      "sha256": "b11f35a8cf32399cf5a70374b6766d0363e2c8c6aef7b3b1d6075b5100615c65"
+    },
+    "mass-and-boundary-audit.json": {
+      "bytes": 14697,
+      "sha256": "9e018ba1824bc34cb22696ef0d4e9ca8decf72a2f8fbc17c8369a024e0e6f8ec"
+    },
+    "test.log": {
+      "bytes": 98,
+      "sha256": "d8723ee001feaaf2086b9ce1b811b05cd7fcaa5a6810308b70293e0529ba97f7"
+    },
+    "test_mass_and_boundary_ledger_118.py": {
+      "bytes": 2255,
+      "sha256": "1baa4a7a7c802aa1f4bfddd2d61c9dcf87a675e08ef0fbd12b748dd1648313c8"
+    }
+  },
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/run-004/source-preflight/compiled-skin-fem-tets.csv": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-capacity-reference-115/candidate.npz": "abff4290774cc96a17f6c68a21fe86fc3933a1878e0bd6512733e99589fb6dd9",
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-capacity-reference-115/report.json": "a36ab99e27a574418b8aa1681644a6c30b7f15e759955312d31acbc978f53d6b",
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/candidate.npz": "0d7b641e0b79257f5f68209a901f8baf3e1ed03972a5497cd66de10abc8baf28",
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/cell-audit.json": "52ee77881893e7fdb8173b59cc52664dc6ed2f11173d3183650eca93a4c9a0df",
+    "/Users/numi/Work/numi-human-connected-surface-069/digit-source-diagnosis-110/batch-146-curved-source-midpoints-quality-114.json": "aa683f25a629f867d20decaa5a8222535142901c2807ba2361748605979b741a",
+    "/Users/numi/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/connectivity-001/run-001/candidate-tetrahedra-compacted.npz": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db"
+  },
+  "schema": "connected-layer-mass-ledger-118-freeze-v1"
+}

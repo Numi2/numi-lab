@@ -1,0 +1,86 @@
+{
+  "W_semantics": "displacement support only; endpoint absolute detail positions come from the pinned accepted-transfer rows",
+  "coarse_O_edge": [
+    329,
+    340
+  ],
+  "detailed_path": {
+    "detail_row_count": 19,
+    "edge_count": 18,
+    "edge_endpoint_records": [
+      {
+        "W_displacement_support_coarse_rows": [
+          328,
+          329,
+          340
+        ],
+        "W_displacement_weights": [
+          0.3858811557292938,
+          0.6141188144683838,
+          3.3861802251067274e-15
+        ],
+        "detail_donor_body": 65,
+        "detail_rest_world_m": [
+          -0.3075578510761261,
+          -1.014940857887268,
+          0.1313188374042511
+        ],
+        "detail_row": 2030,
+        "selected_parent_source_face_row": 670,
+        "transfer_donor_body": 65
+      },
+      {
+        "W_displacement_support_coarse_rows": [
+          328,
+          329,
+          340
+        ],
+        "W_displacement_weights": [
+          0.44531577825546265,
+          0.395398885011673,
+          0.15928535163402557
+        ],
+        "detail_donor_body": 66,
+        "detail_rest_world_m": [
+          -0.31827229261398315,
+          -1.0205844640731812,
+          0.12977832555770874
+        ],
+        "detail_row": 2011,
+        "selected_parent_source_face_row": 670,
+        "transfer_donor_body": 66
+      }
+    ],
+    "edge_fraction_from_first_vertex": 0.9152069125722943,
+    "half_arclength_mm": 29.029790631255874,
+    "incident_NHSKIN_triangle_rows": [
+      4086,
+      4087
+    ],
+    "incident_NHSKIN_triangles": [
+      [
+        2011,
+        2034,
+        2030
+      ],
+      [
+        2011,
+        2030,
+        2025
+      ]
+    ],
+    "midpoint_edge_index": 3,
+    "midpoint_world_m": [
+      -0.3173637820359246,
+      -1.0201059252804514,
+      0.12990895031339603
+    ],
+    "payload_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb"
+  },
+  "parent_face_lineage": [
+    670,
+    676
+  ],
+  "scope": "one mapped detailed-path edge only; point is edge interpolation along source NHSKIN geometry, not a proposed rest-space displacement or collision certificate",
+  "status": "SOURCE_PATH_MIDPOINT_WITNESS"
+}

@@ -1,0 +1,22 @@
+{
+  "candidate_sha256": "fdcb88d99dd488afb59b5f49ad3b6f5975f37fc46479f74dd8d31e24a0e5d5b8",
+  "evidence": {
+    "compact_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "compact_source_global_ids": [
+      2010,
+      3998
+    ],
+    "output_rows": [
+      344,
+      2332
+    ],
+    "quality_report_global_labels": [
+      345,
+      2333
+    ]
+  },
+  "impact": "Does not change frozen candidate bytes. Requires owner review before using this quality-only edge as an identity-sensitive ancestry claim.",
+  "quality114_sha256": "aa683f25a629f867d20decaa5a8222535142901c2807ba2361748605979b741a",
+  "scope": "Quality-only selected edge index 145. Geometry/topology uses explicit 0-based compact O endpoint rows [344,2332]. The 114 report labels edge_global_node_ids [345,2333], while the compact source_global_node_ids at those exact rows are [2010,3998]. This mismatch is unresolved and the report-provided IDs were not used to choose geometry or construct topology. Candidate selected_edge_global_column_ids uses the compact source_global_node_ids [2010,3998].",
+  "status": "derived_metadata_correction_for_frozen_run002"
+}

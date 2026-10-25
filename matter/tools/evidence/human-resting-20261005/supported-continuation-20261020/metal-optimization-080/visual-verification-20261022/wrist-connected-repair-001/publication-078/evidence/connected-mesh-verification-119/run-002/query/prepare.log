@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/candidate.npz",
+  "input_sha256": "957490efc4df1bc797c32ce8b536e7bab6fc6a1ac1373ed2aa7727e27ed004a2",
+  "field": "points_world_f32",
+  "query_count": 7745,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/connected-mesh-verification-119/run-002/query/points.csv",
+  "output_sha256": "a448089923a51a51c766e2497ef36d767e2287d0bb8f490983076f8758798349",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

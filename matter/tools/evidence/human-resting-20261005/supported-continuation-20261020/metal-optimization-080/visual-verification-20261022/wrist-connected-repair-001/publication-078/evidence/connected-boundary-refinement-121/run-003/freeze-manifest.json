@@ -1,0 +1,29 @@
+{
+  "files": {
+    "build_linear_plc_121_as_run.py": "af50c473d760b3e52923c6fd281befbe702cd40a832d28c07c3cbd1526a305e4",
+    "candidate.npz": "d0e3f38da93deb031b57f7524d1e294517facd85c30337d688752605e2cf15cb",
+    "exact-self-pairs.npy": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "human_skin_fat_boundary_refinement_121_as_run.py": "1e5b46ad79681d7c22f7f4635bbb171746a826d961aedfff7fe956b5971a30c8",
+    "reference-quality-witnesses.json": "1b7ff89d6dada16c0b4048b3bcaf2588e3af57a4e80352202d4fbe0a72a2db8d",
+    "report-correction.json": "4e75478d64e305ede7815ac4dd60a2a622b86b3bed80fa5ad22467f5f3b44a75",
+    "report.json": "6ef1d4a7c13ff98226c2f2566671042603a414a530c04435446e291d4ddaad9f",
+    "tetgen.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tetgen.stdout.log": "15d42719e19e27b39299b014b847b6117b3159f4d0b088017b3ea6cb00000372",
+    "whole-skin-fat-reference-121.1.edge": "358d7c38a3912ff86a92f66eb3a5c0b314306f83e40f185633a0036b762d84ae",
+    "whole-skin-fat-reference-121.1.ele": "9009fbffe358e6f53c4c9e4b2fefb60599a2d6646efce509c273bb96c21e0ddd",
+    "whole-skin-fat-reference-121.1.face": "88391a0ed839a7d2c25ce0f11bc655d2f876b5cbcc0992182457a46babc3fb22",
+    "whole-skin-fat-reference-121.1.node": "1827da2e7d399e78e41aeaa011360a398817049d5cffcc2758c5eb9a7259aba3",
+    "whole-skin-fat-reference-121.poly": "f2b101b19c17c3fa2c40c25b2bea3d594319b1d4c477a682a7557a00cbc7af43"
+  },
+  "helper_sha256": "1e5b46ad79681d7c22f7f4635bbb171746a826d961aedfff7fe956b5971a30c8",
+  "host": "numi.local",
+  "predecessor_failures": {
+    "run-001": "source face marker crosswalk rejected globally reversed O winding before any output; script/error preserved under preflight-orientation-failure-001",
+    "run-002": "predicate module import root incorrect; candidate/PLC and failure receipt preserved; TetGen not run"
+  },
+  "report_correction_sha256": "4e75478d64e305ede7815ac4dd60a2a622b86b3bed80fa5ad22467f5f3b44a75",
+  "run_report_sha256": "6ef1d4a7c13ff98226c2f2566671042603a414a530c04435446e291d4ddaad9f",
+  "script_sha256": "af50c473d760b3e52923c6fd281befbe702cd40a832d28c07c3cbd1526a305e4",
+  "status": "FROZEN_GEOMETRY_CONSTRUCTION_NOT_ADMITTED",
+  "tetgen_command": "pinned TetGen 1.6.0 -pq1.2/10AS512 on whole-skin-fat-reference-121.poly"
+}

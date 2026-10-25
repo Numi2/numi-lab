@@ -1,0 +1,1057 @@
+{
+  "O_O_interpretation": {
+    "internal_volume_chord_groups": 2,
+    "interpretation_limit": "A tetrahedral O-O chord absent from the O boundary graph is an internal volume chord. A matching W-supported detailed edge is direct topology evidence that the coarse O surface edge is represented in the frozen detailed mesh; it does not establish an anatomical defect or its cause.",
+    "note": "O-O means both endpoints are original outer-layer source nodes. It does not itself imply a skin edge.",
+    "outer_shell_edge_groups": 164,
+    "outer_shell_edges_with_a_detailed_NHSKIN_edge_mapped_to_same_coarse_O_edge": 37,
+    "outer_shell_edges_without_a_detailed_NHSKIN_edge_mapped_to_same_coarse_O_edge": 127
+  },
+  "exact_edge_report_counts": {
+    "ambiguous": 0,
+    "boundary_hits": 0,
+    "broadphase_edge_bank_pairs": 25928,
+    "exact_narrowphase_tests": 3991,
+    "proper_hits": 3991,
+    "triangle_aabb_pairs": 863001,
+    "typed_banks": 185,
+    "unique_tetrahedral_edges": 45092
+  },
+  "input_pins": {
+    "Wnew_transfer_sha256": "55329313bf9c2c3b613fcd7eb52dd9b7b453520dd1b4a14e0e0d6ac457ce8519",
+    "baseline_compact_query_candidate_sha256": "ddb86fbf07183adce0194c59a1acfc5456c96cb2efc709eb587e5489d3d59163",
+    "baseline_exact_edge_report_sha256": "41c8b9625e99ae6f5a4b4f3d909e847c906c53adc7523b221e0f2373faa7c2ee",
+    "baseline_query_nodes_sha256": "e49ef0e61ed9551bc3782e3bb8def6a45b5b2b32124ce1c7b7dabb9e286badef",
+    "baseline_query_pairs_sha256": "95023ef49a865473ab8baaca65da37bc45d78d5b4adf9e16ee7effa604bad4eb",
+    "baseline_query_points_sha256": "f15ea806a61c6a70fb4d051c932df22ac173b1f39e3f60662fad396362a8b58d",
+    "compact_084_mesh_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "detail_NHSKIN_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "detail_face_source": "NHSKIN v5 ABI5 index payload parsed read-only; exact source payload bytes hash-pinned.",
+    "facet_marker_map_sha256": "8e7ac9430c037d29e74d4c2f7f9f838995f6541c0f5fdf29a7b7095d9a6d8ff7"
+  },
+  "limitations": [
+    "The edge witness report counts exact segment-triangle hits; this is not a full tet-solid or physical-material clearance certificate.",
+    "Generated endpoints are grouped as generated; this report does not assign them an O/I/D column unless their source_input_row is original.",
+    "Detailed edge correspondence is inferred from the frozen W transfer support plus NHSKIN face adjacency. It is not a new geometric intersection audit.",
+    "No source geometry, candidate, rest positions, weights, bindings, masses, or native state were changed."
+  ],
+  "mapping_checks": {
+    "O_surface_face_count": 4883,
+    "O_surface_unique_edges": 7347,
+    "baseline_query_points_equal_compact_current037_F32_bitwise": true,
+    "baseline_query_rows": 7360,
+    "compact_output_rows": 7360,
+    "detail_header": {
+      "abi": 5,
+      "bindings": 86,
+      "indices": 326961,
+      "magic": "NHSKIN1",
+      "vertices": 61950
+    },
+    "detail_to_coarse_W_nnz": 155384,
+    "detail_to_coarse_edge_mapping": {
+      "coarse_O_edges_with_detail_edge_support": 3099,
+      "detail_edges_mapped_to_coarse_O_edges": 11473,
+      "inactive_support_edges": 0,
+      "support_threshold_abs_weight": 1e-10,
+      "unique_detail_edges": 163538
+    },
+    "generated_output_rows": [
+      7233,
+      7234,
+      7235,
+      7236,
+      7237,
+      7238,
+      7239,
+      7240,
+      7241,
+      7242,
+      7243,
+      7244,
+      7245,
+      7246,
+      7247,
+      7248,
+      7249,
+      7250,
+      7251,
+      7252,
+      7253,
+      7254,
+      7255,
+      7256,
+      7257,
+      7258,
+      7259,
+      7260,
+      7261,
+      7262,
+      7263,
+      7264,
+      7265,
+      7266,
+      7267,
+      7268,
+      7269,
+      7270,
+      7271,
+      7272,
+      7273,
+      7274,
+      7275,
+      7276,
+      7277,
+      7278,
+      7279,
+      7280,
+      7281,
+      7282,
+      7283,
+      7284,
+      7285,
+      7286,
+      7287,
+      7288,
+      7289,
+      7290,
+      7291,
+      7292,
+      7293,
+      7294,
+      7295,
+      7296,
+      7297,
+      7298,
+      7299,
+      7300,
+      7301,
+      7302,
+      7303,
+      7304,
+      7305,
+      7306,
+      7307,
+      7308,
+      7309,
+      7310,
+      7311,
+      7312,
+      7313,
+      7314,
+      7315,
+      7316,
+      7317,
+      7318,
+      7319,
+      7320,
+      7321,
+      7322,
+      7323,
+      7324,
+      7325,
+      7326,
+      7327,
+      7328,
+      7329,
+      7330,
+      7331,
+      7332,
+      7333,
+      7334,
+      7335,
+      7336,
+      7337,
+      7338,
+      7339,
+      7340,
+      7341,
+      7342,
+      7343,
+      7344,
+      7345,
+      7346,
+      7347,
+      7348,
+      7349,
+      7350,
+      7351,
+      7352,
+      7353,
+      7354,
+      7355,
+      7356,
+      7357,
+      7358,
+      7359
+    ],
+    "query_positions_vs_reference_max_abs_m": 1.0011177620228295e-07,
+    "source_input_rows_0_through_7232_are_output_row_identity": true,
+    "transfer_shape": [
+      61950,
+      7360
+    ]
+  },
+  "requested_columns": {
+    "2277": {
+      "category_counts": {},
+      "groups": [],
+      "incident_edge_bank_group_count": 0,
+      "incident_source_rows": [
+        2277,
+        4688,
+        7099
+      ]
+    },
+    "2301": {
+      "category_counts": {},
+      "groups": [],
+      "incident_edge_bank_group_count": 0,
+      "incident_source_rows": [
+        2301,
+        4712,
+        7123
+      ]
+    },
+    "328": {
+      "category_counts": {
+        "D-D": 1,
+        "I-D": 2,
+        "I-I": 1,
+        "O-I": 1
+      },
+      "groups": [
+        {
+          "bank_body": 66,
+          "bone_stable_id": 100,
+          "edge_query_rows": [
+            347,
+            2739
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 0.0,
+              "distance_to_requested_original_O_mm": 16.784394779468364,
+              "query_row": 347,
+              "source_column": 347,
+              "source_input_row": 347,
+              "source_layer": "O",
+              "world_current037_f32_m": [
+                -0.31982970237731934,
+                -1.0285693407058716,
+                0.11210877448320389
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 2.450222635945042,
+              "distance_to_requested_original_O_mm": 2.450222635945042,
+              "query_row": 2739,
+              "source_column": 328,
+              "source_input_row": 2739,
+              "source_layer": "I",
+              "world_current037_f32_m": [
+                -0.32017961144447327,
+                -1.0359288454055786,
+                0.1258002370595932
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.3907729573050431,
+            0.5154735022777778
+          ],
+          "layer_pair": "O-I",
+          "triangle_stable_ids": [
+            142,
+            169
+          ],
+          "triangle_witness_count": 2
+        },
+        {
+          "bank_body": 66,
+          "bone_stable_id": 100,
+          "edge_query_rows": [
+            2739,
+            2758
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 2.450222635945042,
+              "distance_to_requested_original_O_mm": 2.450222635945042,
+              "query_row": 2739,
+              "source_column": 328,
+              "source_input_row": 2739,
+              "source_layer": "I",
+              "world_current037_f32_m": [
+                -0.32017961144447327,
+                -1.0359288454055786,
+                0.1258002370595932
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 2.4495637162687585,
+              "distance_to_requested_original_O_mm": 17.31986837688446,
+              "query_row": 2758,
+              "source_column": 347,
+              "source_input_row": 2758,
+              "source_layer": "I",
+              "world_current037_f32_m": [
+                -0.3185746967792511,
+                -1.0267080068588257,
+                0.11308895796537399
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.3773726583040121,
+            0.7050077066784087
+          ],
+          "layer_pair": "I-I",
+          "triangle_stable_ids": [
+            82,
+            172
+          ],
+          "triangle_witness_count": 2
+        },
+        {
+          "bank_body": 66,
+          "bone_stable_id": 100,
+          "edge_query_rows": [
+            2739,
+            5162
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 2.450222635945042,
+              "distance_to_requested_original_O_mm": 2.450222635945042,
+              "query_row": 2739,
+              "source_column": 328,
+              "source_input_row": 2739,
+              "source_layer": "I",
+              "world_current037_f32_m": [
+                -0.32017961144447327,
+                -1.0359288454055786,
+                0.1258002370595932
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 8.265517472620388,
+              "distance_to_requested_original_O_mm": 13.306675180332414,
+              "query_row": 5162,
+              "source_column": 340,
+              "source_input_row": 5162,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.32223349809646606,
+                -1.029197335243225,
+                0.11596064269542694
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.5689059578452199,
+            0.606599328886575
+          ],
+          "layer_pair": "I-D",
+          "triangle_stable_ids": [
+            83,
+            144
+          ],
+          "triangle_witness_count": 2
+        },
+        {
+          "bank_body": 66,
+          "bone_stable_id": 100,
+          "edge_query_rows": [
+            2758,
+            5150
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 2.4495637162687585,
+              "distance_to_requested_original_O_mm": 17.31986837688446,
+              "query_row": 2758,
+              "source_column": 347,
+              "source_input_row": 2758,
+              "source_layer": "I",
+              "world_current037_f32_m": [
+                -0.3185746967792511,
+                -1.0267080068588257,
+                0.11308895796537399
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 8.980750146378181,
+              "distance_to_requested_original_O_mm": 8.980750146378181,
+              "query_row": 5150,
+              "source_column": 328,
+              "source_input_row": 5150,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.3168559670448303,
+                -1.0303105115890503,
+                0.12561143934726715
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.326669301825572,
+            0.4822064353491622
+          ],
+          "layer_pair": "I-D",
+          "triangle_stable_ids": [
+            74,
+            118
+          ],
+          "triangle_witness_count": 2
+        },
+        {
+          "bank_body": 66,
+          "bone_stable_id": 100,
+          "edge_query_rows": [
+            5150,
+            5162
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 8.980750146378181,
+              "distance_to_requested_original_O_mm": 8.980750146378181,
+              "query_row": 5150,
+              "source_column": 328,
+              "source_input_row": 5150,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.3168559670448303,
+                -1.0303105115890503,
+                0.12561143934726715
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 8.265517472620388,
+              "distance_to_requested_original_O_mm": 13.306675180332414,
+              "query_row": 5162,
+              "source_column": 340,
+              "source_input_row": 5162,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.32223349809646606,
+                -1.029197335243225,
+                0.11596064269542694
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.34428000960102667,
+            0.7570700473205103
+          ],
+          "layer_pair": "D-D",
+          "triangle_stable_ids": [
+            30,
+            138
+          ],
+          "triangle_witness_count": 2
+        }
+      ],
+      "incident_edge_bank_group_count": 5,
+      "incident_source_rows": [
+        328,
+        2739,
+        5150
+      ]
+    },
+    "340": {
+      "category_counts": {
+        "D-D": 5,
+        "I-D": 2,
+        "I-I": 1,
+        "O-I": 1,
+        "O-O": 1
+      },
+      "groups": [
+        {
+          "bank_body": 66,
+          "bone_stable_id": 100,
+          "detailed_NHSKIN_edges_mapped_to_same_O_edge": 0,
+          "edge_query_rows": [
+            329,
+            340
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 0.0,
+              "distance_to_requested_original_O_mm": 47.95985116940967,
+              "query_row": 329,
+              "source_column": 329,
+              "source_input_row": 329,
+              "source_layer": "O",
+              "world_current037_f32_m": [
+                -0.30122843384742737,
+                -0.998796820640564,
+                0.1322498619556427
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 0.0,
+              "distance_to_requested_original_O_mm": 0.0,
+              "query_row": 340,
+              "source_column": 340,
+              "source_input_row": 340,
+              "source_layer": "O",
+              "world_current037_f32_m": [
+                -0.3280475437641144,
+                -1.0350723266601562,
+                0.11597195267677307
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.557438766996148,
+            0.7118348578495461
+          ],
+          "layer_pair": "O-O",
+          "outer_surface_classification": "actual_compacted_O_surface_edge",
+          "triangle_stable_ids": [
+            22,
+            76
+          ],
+          "triangle_witness_count": 2
+        },
+        {
+          "bank_body": 66,
+          "bone_stable_id": 100,
+          "edge_query_rows": [
+            329,
+            2751
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 0.0,
+              "distance_to_requested_original_O_mm": 47.95985116940967,
+              "query_row": 329,
+              "source_column": 329,
+              "source_input_row": 329,
+              "source_layer": "O",
+              "world_current037_f32_m": [
+                -0.30122843384742737,
+                -0.998796820640564,
+                0.1322498619556427
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 1.878716285224474,
+              "distance_to_requested_original_O_mm": 1.878716285224474,
+              "query_row": 2751,
+              "source_column": 340,
+              "source_input_row": 2751,
+              "source_layer": "I",
+              "world_current037_f32_m": [
+                -0.32656702399253845,
+                -1.033935546875,
+                0.11575895547866821
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.5822144452852164,
+            0.7706758739147965
+          ],
+          "layer_pair": "O-I",
+          "triangle_stable_ids": [
+            15,
+            140
+          ],
+          "triangle_witness_count": 2
+        },
+        {
+          "bank_body": 66,
+          "bone_stable_id": 100,
+          "edge_query_rows": [
+            2739,
+            5162
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 2.450222635945042,
+              "distance_to_requested_original_O_mm": 12.6187621127153,
+              "query_row": 2739,
+              "source_column": 328,
+              "source_input_row": 2739,
+              "source_layer": "I",
+              "world_current037_f32_m": [
+                -0.32017961144447327,
+                -1.0359288454055786,
+                0.1258002370595932
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 8.265517472620388,
+              "distance_to_requested_original_O_mm": 8.265517472620388,
+              "query_row": 5162,
+              "source_column": 340,
+              "source_input_row": 5162,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.32223349809646606,
+                -1.029197335243225,
+                0.11596064269542694
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.5689059578452199,
+            0.606599328886575
+          ],
+          "layer_pair": "I-D",
+          "triangle_stable_ids": [
+            83,
+            144
+          ],
+          "triangle_witness_count": 2
+        },
+        {
+          "bank_body": 66,
+          "bone_stable_id": 100,
+          "edge_query_rows": [
+            2740,
+            2751
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 1.641403549319796,
+              "distance_to_requested_original_O_mm": 48.428191936327444,
+              "query_row": 2740,
+              "source_column": 329,
+              "source_input_row": 2740,
+              "source_layer": "I",
+              "world_current037_f32_m": [
+                -0.3006100654602051,
+                -0.998069703578949,
+                0.13091452419757843
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 1.878716285224474,
+              "distance_to_requested_original_O_mm": 1.878716285224474,
+              "query_row": 2751,
+              "source_column": 340,
+              "source_input_row": 2751,
+              "source_layer": "I",
+              "world_current037_f32_m": [
+                -0.32656702399253845,
+                -1.033935546875,
+                0.11575895547866821
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.5494036632718846,
+            0.5647329471510065,
+            0.5748991292625119,
+            0.774705486425622
+          ],
+          "layer_pair": "I-I",
+          "triangle_stable_ids": [
+            14,
+            18,
+            20,
+            140
+          ],
+          "triangle_witness_count": 4
+        },
+        {
+          "bank_body": 66,
+          "bone_stable_id": 100,
+          "edge_query_rows": [
+            2740,
+            5162
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 1.641403549319796,
+              "distance_to_requested_original_O_mm": 48.428191936327444,
+              "query_row": 2740,
+              "source_column": 329,
+              "source_input_row": 2740,
+              "source_layer": "I",
+              "world_current037_f32_m": [
+                -0.3006100654602051,
+                -0.998069703578949,
+                0.13091452419757843
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 8.265517472620388,
+              "distance_to_requested_original_O_mm": 8.265517472620388,
+              "query_row": 5162,
+              "source_column": 340,
+              "source_input_row": 5162,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.32223349809646606,
+                -1.029197335243225,
+                0.11596064269542694
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.6337535265099083,
+            0.6527106500440131,
+            0.6720495342646264,
+            0.8901909980560859
+          ],
+          "layer_pair": "I-D",
+          "triangle_stable_ids": [
+            10,
+            16,
+            20,
+            137
+          ],
+          "triangle_witness_count": 4
+        },
+        {
+          "bank_body": 66,
+          "bone_stable_id": 100,
+          "edge_query_rows": [
+            5150,
+            5162
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 8.980750146378181,
+              "distance_to_requested_original_O_mm": 15.519213108455782,
+              "query_row": 5150,
+              "source_column": 328,
+              "source_input_row": 5150,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.3168559670448303,
+                -1.0303105115890503,
+                0.12561143934726715
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 8.265517472620388,
+              "distance_to_requested_original_O_mm": 8.265517472620388,
+              "query_row": 5162,
+              "source_column": 340,
+              "source_input_row": 5162,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.32223349809646606,
+                -1.029197335243225,
+                0.11596064269542694
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.34428000960102667,
+            0.7570700473205103
+          ],
+          "layer_pair": "D-D",
+          "triangle_stable_ids": [
+            30,
+            138
+          ],
+          "triangle_witness_count": 2
+        },
+        {
+          "bank_body": 66,
+          "bone_stable_id": 100,
+          "edge_query_rows": [
+            5151,
+            5162
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 3.864083754585718,
+              "distance_to_requested_original_O_mm": 49.152983719740824,
+              "query_row": 5151,
+              "source_column": 329,
+              "source_input_row": 5151,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.2997784912586212,
+                -0.9970695376396179,
+                0.1291121393442154
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 8.265517472620388,
+              "distance_to_requested_original_O_mm": 8.265517472620388,
+              "query_row": 5162,
+              "source_column": 340,
+              "source_input_row": 5162,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.32223349809646606,
+                -1.029197335243225,
+                0.11596064269542694
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.6378603780470016,
+            0.8809684798014813
+          ],
+          "layer_pair": "D-D",
+          "triangle_stable_ids": [
+            8,
+            127
+          ],
+          "triangle_witness_count": 2
+        },
+        {
+          "bank_body": 65,
+          "bone_stable_id": 99,
+          "edge_query_rows": [
+            5156,
+            5162
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 6.113469483221356,
+              "distance_to_requested_original_O_mm": 28.52108483414371,
+              "query_row": 5156,
+              "source_column": 334,
+              "source_input_row": 5156,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.3164537250995636,
+                -1.0097055435180664,
+                0.12193533778190613
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 8.265517472620388,
+              "distance_to_requested_original_O_mm": 8.265517472620388,
+              "query_row": 5162,
+              "source_column": 340,
+              "source_input_row": 5162,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.32223349809646606,
+                -1.029197335243225,
+                0.11596064269542694
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.25785245889514746
+          ],
+          "layer_pair": "D-D",
+          "triangle_stable_ids": [
+            181
+          ],
+          "triangle_witness_count": 1
+        },
+        {
+          "bank_body": 66,
+          "bone_stable_id": 100,
+          "edge_query_rows": [
+            5156,
+            5162
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 6.113469483221356,
+              "distance_to_requested_original_O_mm": 28.52108483414371,
+              "query_row": 5156,
+              "source_column": 334,
+              "source_input_row": 5156,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.3164537250995636,
+                -1.0097055435180664,
+                0.12193533778190613
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 8.265517472620388,
+              "distance_to_requested_original_O_mm": 8.265517472620388,
+              "query_row": 5162,
+              "source_column": 340,
+              "source_input_row": 5162,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.32223349809646606,
+                -1.029197335243225,
+                0.11596064269542694
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.23823973886240832,
+            0.5944319918558899
+          ],
+          "layer_pair": "D-D",
+          "triangle_stable_ids": [
+            56,
+            128
+          ],
+          "triangle_witness_count": 2
+        },
+        {
+          "bank_body": 66,
+          "bone_stable_id": 100,
+          "edge_query_rows": [
+            5162,
+            5170
+          ],
+          "endpoints": [
+            {
+              "distance_to_own_column_original_O_mm": 8.265517472620388,
+              "distance_to_requested_original_O_mm": 8.265517472620388,
+              "query_row": 5162,
+              "source_column": 340,
+              "source_input_row": 5162,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.32223349809646606,
+                -1.029197335243225,
+                0.11596064269542694
+              ]
+            },
+            {
+              "distance_to_own_column_original_O_mm": 8.303457983862007,
+              "distance_to_requested_original_O_mm": 24.134744026758355,
+              "query_row": 5170,
+              "source_column": 348,
+              "source_input_row": 5170,
+              "source_layer": "D",
+              "world_current037_f32_m": [
+                -0.3142380118370056,
+                -1.015280842781067,
+                0.11568935215473175
+              ]
+            }
+          ],
+          "exact_classifications": [
+            "proper_interior_hit"
+          ],
+          "hit_parameters_t": [
+            0.7056799617127051,
+            0.9173546229088373
+          ],
+          "layer_pair": "D-D",
+          "triangle_stable_ids": [
+            94,
+            155
+          ],
+          "triangle_witness_count": 2
+        }
+      ],
+      "incident_edge_bank_group_count": 10,
+      "incident_source_rows": [
+        340,
+        2751,
+        5162
+      ]
+    }
+  },
+  "scope": "Baseline103 exact tetrahedral edge/bank witnesses; 084 output layers and outer-surface topology; frozen 075 detailed NHSKIN transfer graph. No query, geometry edit, or physical admission.",
+  "status": "READ_ONLY_SAVED_WITNESS_DIAGNOSIS",
+  "unique_edge_bank_groups_by_layer_pair": {
+    "D-D": {
+      "O_edges_with_detailed_edge_support": 0,
+      "O_edges_without_detailed_edge_support": 0,
+      "O_internal_chords": 0,
+      "banks": 101,
+      "edge_bank_groups": 819,
+      "outer_O_edges": 0,
+      "triangle_hit_witnesses": 1240,
+      "unique_edges": 706
+    },
+    "I-D": {
+      "O_edges_with_detailed_edge_support": 0,
+      "O_edges_without_detailed_edge_support": 0,
+      "O_internal_chords": 0,
+      "banks": 83,
+      "edge_bank_groups": 1001,
+      "outer_O_edges": 0,
+      "triangle_hit_witnesses": 1555,
+      "unique_edges": 923
+    },
+    "I-I": {
+      "O_edges_with_detailed_edge_support": 0,
+      "O_edges_without_detailed_edge_support": 0,
+      "O_internal_chords": 0,
+      "banks": 62,
+      "edge_bank_groups": 246,
+      "outer_O_edges": 0,
+      "triangle_hit_witnesses": 460,
+      "unique_edges": 206
+    },
+    "O-I": {
+      "O_edges_with_detailed_edge_support": 0,
+      "O_edges_without_detailed_edge_support": 0,
+      "O_internal_chords": 0,
+      "banks": 56,
+      "edge_bank_groups": 237,
+      "outer_O_edges": 0,
+      "triangle_hit_witnesses": 401,
+      "unique_edges": 212
+    },
+    "O-O": {
+      "O_edges_with_detailed_edge_support": 37,
+      "O_edges_without_detailed_edge_support": 127,
+      "O_internal_chords": 2,
+      "banks": 50,
+      "edge_bank_groups": 166,
+      "outer_O_edges": 164,
+      "triangle_hit_witnesses": 288,
+      "unique_edges": 147
+    },
+    "generated": {
+      "O_edges_with_detailed_edge_support": 0,
+      "O_edges_without_detailed_edge_support": 0,
+      "O_internal_chords": 0,
+      "banks": 3,
+      "edge_bank_groups": 29,
+      "outer_O_edges": 0,
+      "triangle_hit_witnesses": 47,
+      "unique_edges": 29
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "below_floor_count": 4,
+  "metric": "signed-volume / longest-edge^3, emitted F32 coordinates vs TetGen Float64 reference; identity deformation only",
+  "minimum_q": 5.866654347346614e-06,
+  "nonpositive_count": 0,
+  "q_floor": 1e-05,
+  "witnesses": [
+    {
+      "J": 1.0036646340638173,
+      "material_id": 1,
+      "q": 9.510790922275251e-06,
+      "tet_row": 5068
+    },
+    {
+      "J": 1.0016719717225975,
+      "material_id": 1,
+      "q": 8.156030349790277e-06,
+      "tet_row": 5560
+    },
+    {
+      "J": 0.9995602013974466,
+      "material_id": 1,
+      "q": 5.866654347346614e-06,
+      "tet_row": 21368
+    },
+    {
+      "J": 1.0,
+      "material_id": 2,
+      "q": 7.2752794680007235e-06,
+      "tet_row": 33727
+    }
+  ]
+}

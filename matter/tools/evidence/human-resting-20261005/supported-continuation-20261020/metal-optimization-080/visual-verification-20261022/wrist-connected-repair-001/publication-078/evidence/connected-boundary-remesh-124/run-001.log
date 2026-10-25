@@ -1,0 +1,35 @@
+waiting_for_human_geometry_slot pid=33871
+acquired_human_geometry_slot pid=33871
+{
+  "source_candidate_sha256": "34f77de89404b60690d156a6a39b136862ae571e45bbd6cdab29418e8e1e85d6",
+  "surface_gate_report_sha256": "5aeda6267cfb42985291ac9c07c044d72f75ef864cef1ea254b335de69588290",
+  "poly_sha256": "83d608de3b9e794f9feb1d9a1aee328f94df617763b01afc13cfe55198128a06",
+  "input_points": 7671,
+  "input_facets": 15387,
+  "unused_084_generated_points_excluded": 127,
+  "command": [
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-remesh-118/tetgen-v1.6.0/tetgen",
+    "-pq1.2/10AS512",
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-boundary-remesh-124/run-001/whole-skin-fat-reference.poly"
+  ],
+  "tetgen_binary_sha256": "95b1df3923d7405b168ba5a3c4b39498ddfc0e7ba94000dedff7ebf93350de07",
+  "tetgen_return_code": 0,
+  "tetgen_wall_seconds": 0.21400616702158004,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "candidate_sha256": "94363d0cc47d210602c332167726ef0252180317be59a6d564ce77d3fd253105",
+  "points": 8183,
+  "cells": 36680,
+  "generated_nodes": 512,
+  "invalid_reference_cells": 0,
+  "invalid_Float32_cells": 0,
+  "below_quality_floor_1e_minus5": 5,
+  "q_min": 3.4015748286144224e-06,
+  "J_min": 0.9965425239830299,
+  "J_max": 1.00390024800012,
+  "material_volume_m3": {
+    "1": 0.003455407576301522,
+    "2": 0.011245676256845954
+  },
+  "remaining_gates": "Exact full emitted surface, bone and surrounding solids, conservative native mass/ancestry, detail mapping and native qualification."
+}

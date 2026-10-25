@@ -1,0 +1,12 @@
+{
+  "as_run_report_sha256": "6ef1d4a7c13ff98226c2f2566671042603a414a530c04435446e291d4ddaad9f",
+  "corrected_interpretation": "Construction/refinement input only. TetGen and an emitted-F32 identity/reference quality diagnostic did run. No transferred-current deformation, conservative material transfer, bone clearance, native, or physical admission is claimed. TetGen inserted 513 unreferenced-to-input Steiner nodes for which no qualified current037 interpolation was established.",
+  "correction_scope": "Corrects the interpretation string only; numerical result and as-run report bytes remain unchanged.",
+  "limitations": {
+    "current037_mesh_field": "not evaluated on full TetGen mesh because 513 TetGen nodes lack a qualified ancestry map in this run",
+    "inherited_surface_incidence": "the source PLC has 45 edges with three incident facets, unchanged after refinement; exact surface self-pair audit passes but no 2-manifold claim is made",
+    "reference_identity_quality": "only a Float32 coordinate-rounding identity check against TetGen Float64 reference points; not a deformed-current gate",
+    "source_curve": "all 438 added coordinates are exact registered linear midpoints; the maximum deviation from 114's curved samples is 22.398 mm"
+  },
+  "status": "REPORT_TEXT_CORRECTION"
+}

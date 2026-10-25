@@ -1,0 +1,32 @@
+waiting_for_human_geometry_slot pid=33908
+acquired_human_geometry_slot pid=33908
+{
+  "candidate_sha256": "94363d0cc47d210602c332167726ef0252180317be59a6d564ce77d3fd253105",
+  "points": 8183,
+  "cells": 36680,
+  "invalid_cells": 0,
+  "below_quality_1e_minus5": 5,
+  "q_min": 3.4015748286144224e-06,
+  "J_min": 0.9965425239830299,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "exact_PLC_surface_pairs": 0,
+  "complete_surface_audit": true,
+  "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "inside_node_bank_pairs": 191,
+  "inside_nodes": 188,
+  "query_pair_count": 2915,
+  "edge_bank_groups_with_hits": 3359,
+  "edge_counts": {
+    "unique_tetrahedral_edges": 50343,
+    "typed_banks": 185,
+    "broadphase_edge_bank_pairs": 31621,
+    "triangle_aabb_pairs": 876652,
+    "exact_narrowphase_tests": 5312,
+    "proper_hits": 5312,
+    "boundary_hits": 0,
+    "ambiguous": 0
+  },
+  "wall_seconds": 9.571858791983686,
+  "status": "GEOMETRY_DIAGNOSTIC_NOT_ADMITTED"
+}

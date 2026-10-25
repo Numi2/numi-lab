@@ -1,0 +1,3100 @@
+{
+  "direction_definition": "Pinned 098 source field normalize(O-D) at source input row, prolonged through declared native parent tetrahedra; field audit reports 7,233 direct +127 generated, zero unresolved, max parent direction spread 4.61e-15.",
+  "input_pins": {
+    "084_compact": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "098_field": "048f4f37354475bba48bd9427e8fb6f9723da22e1b5f2c3cf4de7485e386570a",
+    "098_field_report": "33a7090fec99e497cbe38feaa1b04aa6b58421c75c9ce219b75821704d29c7b7",
+    "098_helper": "712b6aa304893cf1ad3aca1edde4ea913d4ab60cb5c0eb3617f5f09732e1743f",
+    "103_candidate": "ddb86fbf07183adce0194c59a1acfc5456c96cb2efc709eb587e5489d3d59163",
+    "exact_predicate": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+    "probe_report": "d6ae04efd7c788ef289a0d60f16b2b91c77af79ac023897c00ea11bacbb2e447"
+  },
+  "limitations": [
+    "O-D direction is a construction field, not anatomical outward proof.",
+    "Planes are per complete bank, not whole-surface/tet clearance or native/physical admission.",
+    "Overlapping constraints across banks remain separate."
+  ],
+  "results": [
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.010330067508510437,
+        "aabb_exit_axis": 2,
+        "endpoint_local": [
+          -0.000725174385709459,
+          -0.00997494878954752,
+          0.0034497302568412304
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 61,
+      "bone_stable_id": 97,
+      "clearance_m": 5e-05,
+      "column_row": 204,
+      "complete_bank_triangle_count": 210,
+      "first_exit_distance_m": 0.006261404722984939,
+      "layer": "O",
+      "local_source_direction_unit": [
+        -0.23618776156217722,
+        0.8806003417772708,
+        0.4108021170222983
+      ],
+      "query_row": 204,
+      "report": {
+        "candidate_triangle_count": 31,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 210,
+        "disjoint_candidate_count": 30,
+        "end_local": [
+          -0.000725174385709459,
+          -0.00997494878954752,
+          0.0034497302568412304
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": 0.11309209518350555,
+          "point_world": [
+            -0.3191885591313943,
+            -1.0204789223980046,
+            0.14467726534019554
+          ],
+          "unit_normal_world": [
+            -0.9800882118176318,
+            0.18588305024974944,
+            -0.0698182546757352
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.33077893334048963,
+              0.3446707069104253,
+              0.3245503597490851
+            ],
+            "hit_local": [
+              0.00024051772538638436,
+              -0.01357542663589328,
+              0.001770098928757069
+            ],
+            "hit_world": [
+              -0.3191885591313943,
+              -1.0204789223980046,
+              0.14467726534019554
+            ],
+            "source_direction_dot_exit_normal": 0.5007694171265252,
+            "t": 0.6049626939956133,
+            "t_exact_denominator": "7949728665170906473623193655203",
+            "t_exact_numerator": "4809289269815942534986679409572",
+            "triangle_row": 37,
+            "triangle_stable_id": 37,
+            "unit_exit_normal_world": [
+              -0.9800882118176318,
+              0.18588305024974944,
+              -0.0698182546757352
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 0.9999999999999999,
+        "selected_first_exit": {
+          "barycentric": [
+            0.33077893334048963,
+            0.3446707069104253,
+            0.3245503597490851
+          ],
+          "hit_local": [
+            0.00024051772538638436,
+            -0.01357542663589328,
+            0.001770098928757069
+          ],
+          "hit_world": [
+            -0.3191885591313943,
+            -1.0204789223980046,
+            0.14467726534019554
+          ],
+          "source_direction_dot_exit_normal": 0.5007694171265252,
+          "t": 0.6049626939956133,
+          "t_exact_denominator": "7949728665170906473623193655203",
+          "t_exact_numerator": "4809289269815942534986679409572",
+          "triangle_row": 37,
+          "triangle_stable_id": 37,
+          "unit_exit_normal_world": [
+            -0.9800882118176318,
+            0.18588305024974944,
+            -0.0698182546757352
+          ]
+        },
+        "source_direction_local_unit": [
+          -0.23618776156217722,
+          0.8806003417772708,
+          0.4108021170222983
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.0017193848911430413,
+          -0.019089221774959635,
+          -0.0008020993869785611
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          -0.31718364357948303,
+          -1.0262292623519897,
+          0.14613297581672668
+        ],
+        "world_to_local": [
+          [
+            -0.003487039996502128,
+            -0.005247827408801697,
+            0.999980159738983
+          ],
+          [
+            0.09962530720305551,
+            0.9950094385909443,
+            0.0055691448339847405
+          ],
+          [
+            -0.9950189233018694,
+            0.09964274944506757,
+            -0.002946821343906336
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        -0.32020219816837925,
+        0.9183785779536829,
+        -0.2324894402847344
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        -0.31718364357948303,
+        -1.0262292623519897,
+        0.14613297581672668
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.0021806578126988326,
+        "aabb_exit_axis": 2,
+        "endpoint_local": [
+          0.0025371930529999465,
+          -0.013264567857884869,
+          0.0034561425404062065
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 61,
+      "bone_stable_id": 97,
+      "clearance_m": 5e-05,
+      "column_row": 215,
+      "complete_bank_triangle_count": 210,
+      "first_exit_distance_m": 0.00022073393787353293,
+      "layer": "O",
+      "local_source_direction_unit": [
+        0.06157621373660603,
+        0.6791454725710823,
+        0.7314162952710755
+      ],
+      "query_row": 215,
+      "report": {
+        "candidate_triangle_count": 5,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 210,
+        "disjoint_candidate_count": 4,
+        "end_local": [
+          0.0025371930529999465,
+          -0.013264567857884869,
+          0.0034561425404062065
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": 0.11289929054102746,
+          "point_world": [
+            -0.3195358450497016,
+            -1.0214952689694614,
+            0.14684552285962388
+          ],
+          "unit_normal_world": [
+            -0.9800504291926796,
+            0.186046327191379,
+            -0.06991366374209612
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.8032621642639564,
+              0.030305567225683894,
+              0.16643226851035975
+            ],
+            "hit_local": [
+              0.0024152768373014947,
+              -0.014609224193507866,
+              0.002007993954962733
+            ],
+            "hit_world": [
+              -0.3195358450497016,
+              -1.0214952689694614,
+              0.14684552285962388
+            ],
+            "source_direction_dot_exit_normal": 0.7819567028948586,
+            "t": 0.10030361676394853,
+            "t_exact_denominator": "8693320580185826748537386465",
+            "t_exact_numerator": "871971495881105780561328437",
+            "triangle_row": 105,
+            "triangle_stable_id": 105,
+            "unit_exit_normal_world": [
+              -0.9800504291926796,
+              0.186046327191379,
+              -0.06991366374209612
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.8032621642639564,
+            0.030305567225683894,
+            0.16643226851035975
+          ],
+          "hit_local": [
+            0.0024152768373014947,
+            -0.014609224193507866,
+            0.002007993954962733
+          ],
+          "hit_world": [
+            -0.3195358450497016,
+            -1.0214952689694614,
+            0.14684552285962388
+          ],
+          "source_direction_dot_exit_normal": 0.7819567028948586,
+          "t": 0.10030361676394853,
+          "t_exact_denominator": "8693320580185826748537386465",
+          "t_exact_numerator": "871971495881105780561328437",
+          "triangle_row": 105,
+          "triangle_stable_id": 105,
+          "unit_exit_normal_world": [
+            -0.9800504291926796,
+            0.186046327191379,
+            -0.06991366374209612
+          ]
+        },
+        "source_direction_local_unit": [
+          0.06157621373660603,
+          0.6791454725710823,
+          0.7314162952710755
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.0024016848771640713,
+          -0.014759134648057462,
+          0.0018465455558826778
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          -0.31939008831977844,
+          -1.0216604471206665,
+          0.14683157205581665
+        ],
+        "world_to_local": [
+          [
+            -0.003487039996502128,
+            -0.005247827408801697,
+            0.999980159738983
+          ],
+          [
+            0.09962530720305551,
+            0.9950094385909443,
+            0.0055691448339847405
+          ],
+          [
+            -0.9950189233018694,
+            0.09964274944506757,
+            -0.002946821343906336
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        -0.6603276868010094,
+        0.7483133475406725,
+        0.06320189820330387
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        -0.31939008831977844,
+        -1.0216604471206665,
+        0.14683157205581665
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.006330264014642151,
+        "aabb_exit_axis": 2,
+        "endpoint_local": [
+          0.001398337308824913,
+          -0.008023652063479249,
+          0.0034509707218852016
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 61,
+      "bone_stable_id": 97,
+      "clearance_m": 5e-05,
+      "column_row": 217,
+      "complete_bank_triangle_count": 210,
+      "first_exit_distance_m": 0.004099535582595574,
+      "layer": "O",
+      "local_source_direction_unit": [
+        -0.0001352966797302777,
+        0.8811561450253835,
+        0.47282536922082957
+      ],
+      "query_row": 217,
+      "report": {
+        "candidate_triangle_count": 3,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 210,
+        "disjoint_candidate_count": 2,
+        "end_local": [
+          0.001398337308824913,
+          -0.008023652063479249,
+          0.0034509707218852016
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": 0.25677544489063137,
+          "point_world": [
+            -0.31945068012203126,
+            -1.0168728309007584,
+            0.1458534228944104
+          ],
+          "unit_normal_world": [
+            -0.8848028489494155,
+            0.09104210935560601,
+            0.45698495906876363
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.14517925722264896,
+              0.3413409730296905,
+              0.5134797697476605
+            ],
+            "hit_local": [
+              0.0013986418249087433,
+              -0.010006895252160435,
+              0.0023867692199869605
+            ],
+            "hit_world": [
+              -0.31945068012203126,
+              -1.0168728309007584,
+              0.1458534228944104
+            ],
+            "source_direction_dot_exit_normal": 0.4242554669428144,
+            "t": 0.6455693138337322,
+            "t_exact_denominator": "7960307019905851664539678420520",
+            "t_exact_numerator": "5138929940746462276087413637957",
+            "triangle_row": 88,
+            "triangle_stable_id": 88,
+            "unit_exit_normal_world": [
+              -0.8848028489494155,
+              0.09104210935560601,
+              0.45698495906876363
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.14517925722264896,
+            0.3413409730296905,
+            0.5134797697476605
+          ],
+          "hit_local": [
+            0.0013986418249087433,
+            -0.010006895252160435,
+            0.0023867692199869605
+          ],
+          "hit_world": [
+            -0.31945068012203126,
+            -1.0168728309007584,
+            0.1458534228944104
+          ],
+          "source_direction_dot_exit_normal": 0.4242554669428144,
+          "t": 0.6455693138337322,
+          "t_exact_denominator": "7960307019905851664539678420520",
+          "t_exact_numerator": "5138929940746462276087413637957",
+          "triangle_row": 88,
+          "triangle_stable_id": 88,
+          "unit_exit_normal_world": [
+            -0.8848028489494155,
+            0.09104210935560601,
+            0.45698495906876363
+          ]
+        },
+        "source_direction_local_unit": [
+          -0.0001352966797302777,
+          0.8811561450253835,
+          0.47282536922082957
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.0013991964784615047,
+          -0.013619226222514741,
+          0.0004484047945122792
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          -0.31788185238838196,
+          -1.0206602811813354,
+          0.14583957195281982
+        ],
+        "world_to_local": [
+          [
+            -0.003487039996502128,
+            -0.005247827408801697,
+            0.999980159738983
+          ],
+          [
+            0.09962530720305551,
+            0.9950094385909443,
+            0.0055691448339847405
+          ],
+          [
+            -0.9950189233018694,
+            0.09964274944506757,
+            -0.002946821343906336
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        -0.3826842589312474,
+        0.9238730121694545,
+        0.0033786611521427015
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        -0.31788185238838196,
+        -1.0206602811813354,
+        0.14583957195281982
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.005076989050749923,
+        "aabb_exit_axis": 2,
+        "endpoint_local": [
+          0.002628275204467555,
+          -0.006165595684551399,
+          0.0034537109862375955
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 61,
+      "bone_stable_id": 97,
+      "clearance_m": 5e-05,
+      "column_row": 218,
+      "complete_bank_triangle_count": 210,
+      "first_exit_distance_m": 0.002758960256556153,
+      "layer": "O",
+      "local_source_direction_unit": [
+        0.23892683368609452,
+        0.7556526094344349,
+        0.6098385868405399
+      ],
+      "query_row": 218,
+      "report": {
+        "candidate_triangle_count": 7,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 210,
+        "disjoint_candidate_count": 6,
+        "end_local": [
+          0.002628275204467555,
+          -0.006165595684551399,
+          0.0034537109862375955
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": 0.2567754448906313,
+          "point_world": [
+            -0.3188892503028655,
+            -1.0148479031258326,
+            0.14653703621988515
+          ],
+          "unit_normal_world": [
+            -0.8848028489494155,
+            0.09104210935560601,
+            0.45698495906876363
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.5537153837594844,
+              0.26228439286176064,
+              0.184000223378755
+            ],
+            "hit_local": [
+              0.0020696573876039202,
+              -0.007932333243816767,
+              0.0020278908103939755
+            ],
+            "hit_world": [
+              -0.3188892503028655,
+              -1.0148479031258326,
+              0.14653703621988515
+            ],
+            "source_direction_dot_exit_normal": 0.6551832146047415,
+            "t": 0.5412921685892627,
+            "t_exact_denominator": "78936349759672447893686800364981",
+            "t_exact_numerator": "42727627941933624640496750542925",
+            "triangle_row": 88,
+            "triangle_stable_id": 88,
+            "unit_exit_normal_world": [
+              -0.8848028489494155,
+              0.09104210935560601,
+              0.45698495906876363
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.5537153837594844,
+            0.26228439286176064,
+            0.184000223378755
+          ],
+          "hit_local": [
+            0.0020696573876039202,
+            -0.007932333243816767,
+            0.0020278908103939755
+          ],
+          "hit_world": [
+            -0.3188892503028655,
+            -1.0148479031258326,
+            0.14653703621988515
+          ],
+          "source_direction_dot_exit_normal": 0.6551832146047415,
+          "t": 0.5412921685892627,
+          "t_exact_denominator": "78936349759672447893686800364981",
+          "t_exact_numerator": "42727627941933624640496750542925",
+          "triangle_row": 88,
+          "triangle_stable_id": 88,
+          "unit_exit_normal_world": [
+            -0.8848028489494155,
+            0.09104210935560601,
+            0.45698495906876363
+          ]
+        },
+        "source_direction_local_unit": [
+          0.23892683368609452,
+          0.7556526094344349,
+          0.6098385868405399
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.0014104677492391836,
+          -0.010017148761009322,
+          0.0003453703863865577
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          -0.31742051243782043,
+          -1.0170865058898926,
+          0.14587120711803436
+        ],
+        "world_to_local": [
+          [
+            -0.003487039996502128,
+            -0.005247827408801697,
+            0.999980159738983
+          ],
+          [
+            0.09962530720305551,
+            0.9950094385909443,
+            0.0055691448339847405
+          ],
+          [
+            -0.9950189233018694,
+            0.09964274944506757,
+            -0.002946821343906336
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        -0.5323519491299507,
+        0.811393627914992,
+        0.24133334381408986
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        -0.31742051243782043,
+        -1.0170865058898926,
+        0.14587120711803436
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.011913657996808096,
+        "aabb_exit_axis": 1,
+        "endpoint_local": [
+          0.00036829041081636184,
+          -0.001284449822655756,
+          0.002035664879654211
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 61,
+      "bone_stable_id": 97,
+      "clearance_m": 5e-05,
+      "column_row": 219,
+      "complete_bank_triangle_count": 210,
+      "first_exit_distance_m": 0.011568937160095922,
+      "layer": "O",
+      "local_source_direction_unit": [
+        -0.023074602986511056,
+        0.9431971509536856,
+        0.33143128568357183
+      ],
+      "query_row": 219,
+      "report": {
+        "candidate_triangle_count": 17,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 210,
+        "disjoint_candidate_count": 16,
+        "end_local": [
+          0.00036829041081636184,
+          -0.001284449822655756,
+          0.002035664879654211
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": -0.9861919242857756,
+          "point_world": [
+            -0.3181427785268878,
+            -1.008577869119312,
+            0.14487955918008116
+          ],
+          "unit_normal_world": [
+            0.5680461678281863,
+            0.815055081561558,
+            0.11405597413723574
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.21101286808559436,
+              0.1971821772014343,
+              0.5918049547129713
+            ],
+            "hit_local": [
+              0.00037670619932440337,
+              -0.0016284534767361221,
+              0.0019147849838271073
+            ],
+            "hit_world": [
+              -0.3181427785268878,
+              -1.008577869119312,
+              0.14487955918008116
+            ],
+            "source_direction_dot_exit_normal": 0.6558851548979026,
+            "t": 0.9694376328859328,
+            "t_exact_denominator": "22081105354722740940913551233",
+            "t_exact_numerator": "21406254506587307804040049275",
+            "triangle_row": 136,
+            "triangle_stable_id": 136,
+            "unit_exit_normal_world": [
+              0.5680461678281863,
+              0.815055081561558,
+              0.11405597413723574
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.21101286808559436,
+            0.1971821772014343,
+            0.5918049547129713
+          ],
+          "hit_local": [
+            0.00037670619932440337,
+            -0.0016284534767361221,
+            0.0019147849838271073
+          ],
+          "hit_world": [
+            -0.3181427785268878,
+            -1.008577869119312,
+            0.14487955918008116
+          ],
+          "source_direction_dot_exit_normal": 0.6558851548979026,
+          "t": 0.9694376328859328,
+          "t_exact_denominator": "22081105354722740940913551233",
+          "t_exact_numerator": "21406254506587307804040049275",
+          "triangle_row": 136,
+          "triangle_stable_id": 136,
+          "unit_exit_normal_world": [
+            0.5680461678281863,
+            0.815055081561558,
+            0.11405597413723574
+          ]
+        },
+        "source_direction_local_unit": [
+          -0.023074602986511056,
+          0.9431971509536856,
+          0.33143128568357183
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.0006436548312695115,
+          -0.012540242045700818,
+          -0.0019195227331359338
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          -0.3154155910015106,
+          -1.019818663597107,
+          0.1450970321893692
+        ],
+        "world_to_local": [
+          [
+            -0.003487039996502128,
+            -0.005247827408801697,
+            0.999980159738983
+          ],
+          [
+            0.09962530720305551,
+            0.9950094385909443,
+            0.0055691448339847405
+          ],
+          [
+            -0.9950189233018694,
+            0.09964274944506757,
+            -0.002946821343906336
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        -0.23573362788787638,
+        0.9716358841976213,
+        -0.018798011126893385
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        -0.3154155910015106,
+        -1.019818663597107,
+        0.1450970321893692
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.0023760419350354967,
+        "aabb_exit_axis": 2,
+        "endpoint_local": [
+          0.0036935093668096263,
+          -0.006236236406814785,
+          0.0034569047847859413
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 61,
+      "bone_stable_id": 97,
+      "clearance_m": 5e-05,
+      "column_row": 231,
+      "complete_bank_triangle_count": 210,
+      "first_exit_distance_m": 0.0001266700616119227,
+      "layer": "O",
+      "local_source_direction_unit": [
+        0.44850712558118294,
+        0.4546066696024545,
+        0.7695285142578343
+      ],
+      "query_row": 231,
+      "report": {
+        "candidate_triangle_count": 2,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 210,
+        "disjoint_candidate_count": 1,
+        "end_local": [
+          0.0036935093668096263,
+          -0.006236236406814785,
+          0.0034569047847859413
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": 0.25677544489063137,
+          "point_world": [
+            -0.3185094182301964,
+            -1.0142215939060095,
+            0.14714768211096024
+          ],
+          "unit_normal_world": [
+            -0.8848028489494155,
+            0.09104210935560601,
+            0.45698495906876363
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.8071789908586644,
+              0.14884936235787297,
+              0.04397164678346261
+            ],
+            "hit_local": [
+              0.002675679910985635,
+              -0.007267907996281359,
+              0.0017105584187317804
+            ],
+            "hit_world": [
+              -0.3185094182301964,
+              -1.0142215939060095,
+              0.14714768211096024
+            ],
+            "source_direction_dot_exit_normal": 0.8918263434017254,
+            "t": 0.05286637923974653,
+            "t_exact_denominator": "12627439500278896916903631826473",
+            "t_exact_numerator": "667567005448699576840922732782",
+            "triangle_row": 88,
+            "triangle_stable_id": 88,
+            "unit_exit_normal_world": [
+              -0.8848028489494155,
+              0.09104210935560601,
+              0.45698495906876363
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.8071789908586644,
+            0.14884936235787297,
+            0.04397164678346261
+          ],
+          "hit_local": [
+            0.002675679910985635,
+            -0.007267907996281359,
+            0.0017105584187317804
+          ],
+          "hit_world": [
+            -0.3185094182301964,
+            -1.0142215939060095,
+            0.14714768211096024
+          ],
+          "source_direction_dot_exit_normal": 0.8918263434017254,
+          "t": 0.05286637923974653,
+          "t_exact_denominator": "12627439500278896916903631826473",
+          "t_exact_numerator": "667567005448699576840922732782",
+          "triangle_row": 88,
+          "triangle_stable_id": 88,
+          "unit_exit_normal_world": [
+            -0.8848028489494155,
+            0.09104210935560601,
+            0.45698495906876363
+          ]
+        },
+        "source_direction_local_unit": [
+          0.44850712558118294,
+          0.4546066696024545,
+          0.7695285142578343
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.0026188674857548803,
+          -0.007325493051129093,
+          0.0016130821944186093
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          -0.3184179663658142,
+          -1.014288306236267,
+          0.1470908373594284
+        ],
+        "world_to_local": [
+          [
+            -0.003487039996502128,
+            -0.005247827408801697,
+            0.999980159738983
+          ],
+          [
+            0.09962530720305551,
+            0.9950094385909443,
+            0.0055691448339847405
+          ],
+          [
+            -0.9950189233018694,
+            0.09964274944506757,
+            -0.002946821343906336
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        -0.7219690577132812,
+        0.5266621794903664,
+        0.44876232952316075
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        -0.3184179663658142,
+        -1.014288306236267,
+        0.1470908373594284
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.004343116392537119,
+        "aabb_exit_axis": 2,
+        "endpoint_local": [
+          0.0036278840134470356,
+          -0.004058091892979966,
+          0.003456244726254972
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 61,
+      "bone_stable_id": 97,
+      "clearance_m": 5e-05,
+      "column_row": 233,
+      "complete_bank_triangle_count": 210,
+      "first_exit_distance_m": 0.0027527614041709014,
+      "layer": "O",
+      "local_source_direction_unit": [
+        0.46130469092744114,
+        0.4946999502503803,
+        0.736525587709354
+      ],
+      "query_row": 233,
+      "report": {
+        "candidate_triangle_count": 13,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 210,
+        "disjoint_candidate_count": 12,
+        "end_local": [
+          0.0036278840134470356,
+          -0.004058091892979966,
+          0.003456244726254972
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": 0.8271682551277028,
+          "point_world": [
+            -0.3188265661897392,
+            -1.0117658000643732,
+            0.14736880796503735
+          ],
+          "unit_normal_world": [
+            -0.8232824005846607,
+            -0.527551150126391,
+            0.20951341935036186
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.4374973360100418,
+              0.11250788809890924,
+              0.4499947758910489
+            ],
+            "hit_local": [
+              0.0028850197032552942,
+              -0.004854734425610185,
+              0.0022701770720278537
+            ],
+            "hit_world": [
+              -0.3188265661897392,
+              -1.0117658000643732,
+              0.14736880796503735
+            ],
+            "source_direction_dot_exit_normal": 0.3637507664900908,
+            "t": 0.630916335140487,
+            "t_exact_denominator": "646652600651438921171383437590",
+            "t_exact_numerator": "407983688912070704922477985533",
+            "triangle_row": 148,
+            "triangle_stable_id": 148,
+            "unit_exit_normal_world": [
+              -0.8232824005846607,
+              -0.527551150126391,
+              0.20951341935036186
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.4374973360100418,
+            0.11250788809890924,
+            0.4499947758910489
+          ],
+          "hit_local": [
+            0.0028850197032552942,
+            -0.004854734425610185,
+            0.0022701770720278537
+          ],
+          "hit_world": [
+            -0.3188265661897392,
+            -1.0117658000643732,
+            0.14736880796503735
+          ],
+          "source_direction_dot_exit_normal": 0.3637507664900908,
+          "t": 0.630916335140487,
+          "t_exact_denominator": "646652600651438921171383437590",
+          "t_exact_numerator": "407983688912070704922477985533",
+          "triangle_row": 148,
+          "triangle_stable_id": 148,
+          "unit_exit_normal_world": [
+            -0.8232824005846607,
+            -0.527551150126391,
+            0.20951341935036186
+          ]
+        },
+        "source_direction_local_unit": [
+          0.46130469092744114,
+          0.4946999502503803,
+          0.736525587709354
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.0016151579545072476,
+          -0.006216525355304698,
+          0.00024269786099725412
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          -0.31694042682647705,
+          -1.0133161544799805,
+          0.1460973620414734
+        ],
+        "world_to_local": [
+          [
+            -0.003487039996502128,
+            -0.005247827408801697,
+            0.999980159738983
+          ],
+          [
+            0.09962530720305551,
+            0.9950094385909443,
+            0.0055691448339847405
+          ],
+          [
+            -0.9950189233018694,
+            0.09964274944506757,
+            -0.002946821343906336
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        -0.6851808416315398,
+        0.5631997104793561,
+        0.46188017967549133
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        -0.31694042682647705,
+        -1.0133161544799805,
+        0.1460973620414734
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.007570011498124702,
+        "aabb_exit_axis": 1,
+        "endpoint_local": [
+          0.0025970021632508835,
+          -0.0012882552277456742,
+          0.002646659305462813
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 61,
+      "bone_stable_id": 97,
+      "clearance_m": 5e-05,
+      "column_row": 271,
+      "complete_bank_triangle_count": 210,
+      "first_exit_distance_m": 0.006675434813734899,
+      "layer": "O",
+      "local_source_direction_unit": [
+        0.24856818769502945,
+        0.7529268964577773,
+        0.6093561722477817
+      ],
+      "query_row": 271,
+      "report": {
+        "candidate_triangle_count": 42,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 210,
+        "disjoint_candidate_count": 41,
+        "end_local": [
+          0.0025970021632508835,
+          -0.0012882552277456742,
+          0.002646659305462813
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": -0.6771049282931166,
+          "point_world": [
+            -0.3183581404457694,
+            -1.0089176054311086,
+            0.14687002611329056
+          ],
+          "unit_normal_world": [
+            -0.2328868412877821,
+            0.8206241917517876,
+            0.5218617202542498
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.08556582749710384,
+              0.019575310580299567,
+              0.8948588619225966
+            ],
+            "hit_local": [
+              0.002369667494303981,
+              -0.0019768646122959323,
+              0.0020893563578359754
+            ],
+            "hit_world": [
+              -0.3183581404457694,
+              -1.0089176054311086,
+              0.14687002611329056
+            ],
+            "source_direction_dot_exit_normal": 0.9184464998314438,
+            "t": 0.879502595665926,
+            "t_exact_denominator": "132689535805179113708923581663",
+            "t_exact_numerator": "116700791158361864095397427319",
+            "triangle_row": 198,
+            "triangle_stable_id": 198,
+            "unit_exit_normal_world": [
+              -0.2328868412877821,
+              0.8206241917517876,
+              0.5218617202542498
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.08556582749710384,
+            0.019575310580299567,
+            0.8948588619225966
+          ],
+          "hit_local": [
+            0.002369667494303981,
+            -0.0019768646122959323,
+            0.0020893563578359754
+          ],
+          "hit_world": [
+            -0.3183581404457694,
+            -1.0089176054311086,
+            0.14687002611329056
+          ],
+          "source_direction_dot_exit_normal": 0.9184464998314438,
+          "t": 0.879502595665926,
+          "t_exact_denominator": "132689535805179113708923581663",
+          "t_exact_numerator": "116700791158361864095397427319",
+          "triangle_row": 198,
+          "triangle_stable_id": 198,
+          "unit_exit_normal_world": [
+            -0.2328868412877821,
+            0.8206241917517876,
+            0.5218617202542498
+          ]
+        },
+        "source_direction_local_unit": [
+          0.24856818769502945,
+          0.7529268964577773,
+          0.6093561722477817
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.0007103667605775909,
+          -0.007002979029107551,
+          -0.0019783610483511066
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          -0.31480562686920166,
+          -1.0143152475357056,
+          0.14519475400447845
+        ],
+        "world_to_local": [
+          [
+            -0.003487039996502128,
+            -0.005247827408801697,
+            0.999980159738983
+          ],
+          [
+            0.09962530720305551,
+            0.9950094385909443,
+            0.0055691448339847405
+          ],
+          [
+            -0.9950189233018694,
+            0.09964274944506757,
+            -0.002946821343906336
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        -0.532177107284239,
+        0.8085828525264435,
+        0.25096074809176694
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        -0.31480562686920166,
+        -1.0143152475357056,
+        0.14519475400447845
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.006866327096517703,
+        "aabb_exit_axis": 2,
+        "endpoint_local": [
+          -0.0009392498044089709,
+          -0.00826439071271278,
+          0.011092463532013229
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 59,
+      "bone_stable_id": 95,
+      "clearance_m": 5e-05,
+      "column_row": 337,
+      "complete_bank_triangle_count": 386,
+      "first_exit_distance_m": 0.0020030339361791936,
+      "layer": "O",
+      "local_source_direction_unit": [
+        -0.6030151992469018,
+        -0.0694735940406463,
+        0.794698741164408
+      ],
+      "query_row": 337,
+      "report": {
+        "candidate_triangle_count": 6,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 386,
+        "disjoint_candidate_count": 5,
+        "end_local": [
+          -0.0009392498044089709,
+          -0.00826439071271278,
+          0.011092463532013229
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": -0.07272433648390182,
+          "point_world": [
+            -0.30891376855594865,
+            -0.9492877493131169,
+            0.13600845191012453
+          ],
+          "unit_normal_world": [
+            -0.8822015768973335,
+            0.39946292005304085,
+            0.24929852230319394
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.12776697111881163,
+              0.5381726390579903,
+              0.3340603898231981
+            ],
+            "hit_local": [
+              0.0020054501936535877,
+              -0.007925130786109957,
+              0.007211716604755452
+            ],
+            "hit_world": [
+              -0.30891376855594865,
+              -0.9492877493131169,
+              0.13600845191012453
+            ],
+            "source_direction_dot_exit_normal": 0.5561175365341888,
+            "t": 0.2908711578908434,
+            "t_exact_denominator": "3844417359014931289028786287",
+            "t_exact_numerator": "1118230128632331173749574089",
+            "triangle_row": 300,
+            "triangle_stable_id": 300,
+            "unit_exit_normal_world": [
+              -0.8822015768973335,
+              0.39946292005304085,
+              0.24929852230319394
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.12776697111881163,
+            0.5381726390579903,
+            0.3340603898231981
+          ],
+          "hit_local": [
+            0.0020054501936535877,
+            -0.007925130786109957,
+            0.007211716604755452
+          ],
+          "hit_world": [
+            -0.30891376855594865,
+            -0.9492877493131169,
+            0.13600845191012453
+          ],
+          "source_direction_dot_exit_normal": 0.5561175365341888,
+          "t": 0.2908711578908434,
+          "t_exact_denominator": "3844417359014931289028786287",
+          "t_exact_numerator": "1118230128632331173749574089",
+          "triangle_row": 300,
+          "triangle_stable_id": 300,
+          "unit_exit_normal_world": [
+            -0.8822015768973335,
+            0.39946292005304085,
+            0.24929852230319394
+          ]
+        },
+        "source_direction_local_unit": [
+          -0.6030151992469018,
+          -0.0694735940406463,
+          0.794698741164408
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.0032133101017769905,
+          -0.007785972819578205,
+          0.005619908057164258
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          -0.307320237159729,
+          -0.9493142366409302,
+          0.13722175359725952
+        ],
+        "world_to_local": [
+          [
+            -0.003487039996502128,
+            -0.005247827408801697,
+            0.999980159738983
+          ],
+          [
+            0.09962530720305551,
+            0.9950094385909443,
+            0.0055691448339847405
+          ],
+          [
+            -0.9950189233018694,
+            0.09964274944506757,
+            -0.002946821343906336
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        -0.7955588682603361,
+        0.013223604246771277,
+        -0.605731973254721
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        -0.307320237159729,
+        -0.9493142366409302,
+        0.13722175359725952
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.007627420419466389,
+        "aabb_exit_axis": 2,
+        "endpoint_local": [
+          -0.001384646688643376,
+          -0.00775319509362376,
+          0.011092463532013229
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 59,
+      "bone_stable_id": 95,
+      "clearance_m": 5e-05,
+      "column_row": 337,
+      "complete_bank_triangle_count": 386,
+      "first_exit_distance_m": 0.0026787235387632745,
+      "layer": "I",
+      "local_source_direction_unit": [
+        -0.6030151992469018,
+        -0.0694735940406463,
+        0.794698741164408
+      ],
+      "query_row": 2748,
+      "report": {
+        "candidate_triangle_count": 6,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 386,
+        "disjoint_candidate_count": 5,
+        "end_local": [
+          -0.001384646688643376,
+          -0.00775319509362376,
+          0.011092463532013229
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": -0.07272433648390184,
+          "point_world": [
+            -0.3087933437326949,
+            -0.9487778968266111,
+            0.13561764255761105
+          ],
+          "unit_normal_world": [
+            -0.8822015768973335,
+            0.39946292005304085,
+            0.24929852230319394
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.463262842140171,
+              0.36749830602281053,
+              0.1692388518370185
+            ],
+            "hit_local": [
+              0.0016115530508712715,
+              -0.007408001863622766,
+              0.007143846375690944
+            ],
+            "hit_world": [
+              -0.3087933437326949,
+              -0.9487778968266111,
+              0.13561764255761105
+            ],
+            "source_direction_dot_exit_normal": 0.5561175365341888,
+            "t": 0.350278053491688,
+            "t_exact_denominator": "1423103850098787076740355676",
+            "t_exact_numerator": "498482046529130098442918929",
+            "triangle_row": 300,
+            "triangle_stable_id": 300,
+            "unit_exit_normal_world": [
+              -0.8822015768973335,
+              0.39946292005304085,
+              0.24929852230319394
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.463262842140171,
+            0.36749830602281053,
+            0.1692388518370185
+          ],
+          "hit_local": [
+            0.0016115530508712715,
+            -0.007408001863622766,
+            0.007143846375690944
+          ],
+          "hit_world": [
+            -0.3087933437326949,
+            -0.9487778968266111,
+            0.13561764255761105
+          ],
+          "source_direction_dot_exit_normal": 0.5561175365341888,
+          "t": 0.350278053491688,
+          "t_exact_denominator": "1423103850098787076740355676",
+          "t_exact_numerator": "498482046529130098442918929",
+          "triangle_row": 300,
+          "triangle_stable_id": 300,
+          "unit_exit_normal_world": [
+            -0.8822015768973335,
+            0.39946292005304085,
+            0.24929852230319394
+          ]
+        },
+        "source_direction_local_unit": [
+          -0.6030151992469018,
+          -0.0694735940406463,
+          0.794698741164408
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.0032268640593259737,
+          -0.007221901311943603,
+          0.005015068151508302
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          -0.30666226148605347,
+          -0.9488133192062378,
+          0.1372402310371399
+        ],
+        "world_to_local": [
+          [
+            -0.003487039996502128,
+            -0.005247827408801697,
+            0.999980159738983
+          ],
+          [
+            0.09962530720305551,
+            0.9950094385909443,
+            0.0055691448339847405
+          ],
+          [
+            -0.9950189233018694,
+            0.09964274944506757,
+            -0.002946821343906336
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        -0.7955588682603361,
+        0.013223604246771277,
+        -0.605731973254721
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        -0.30666226148605347,
+        -0.9488133192062378,
+        0.1372402310371399
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.04385042348638579,
+        "aabb_exit_axis": 2,
+        "endpoint_local": [
+          -0.0516511815876627,
+          -0.11384756218165197,
+          0.09618385175950953
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 23,
+      "bone_stable_id": 32,
+      "clearance_m": 5e-05,
+      "column_row": 1467,
+      "complete_bank_triangle_count": 14510,
+      "first_exit_distance_m": 0.00257800176603915,
+      "layer": "I",
+      "local_source_direction_unit": [
+        -0.4714884591331118,
+        0.1380949092467466,
+        0.8709927835202866
+      ],
+      "query_row": 3878,
+      "report": {
+        "candidate_triangle_count": 24,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 14510,
+        "disjoint_candidate_count": 23,
+        "end_local": [
+          -0.0516511815876627,
+          -0.11384756218165197,
+          0.09618385175950953
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": 0.16743714724123612,
+          "point_world": [
+            0.00664181590849703,
+            -0.09246728917159928,
+            0.22170039790971274
+          ],
+          "unit_normal_world": [
+            0.5112922942178502,
+            0.21899482000813034,
+            0.8310363762694472
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.07366271841090156,
+              0.42591741298163893,
+              0.5004198686074596
+            ],
+            "hit_local": [
+              -0.03218228129686183,
+              -0.11954983541170164,
+              0.06021845042701126
+            ],
+            "hit_world": [
+              0.00664181590849703,
+              -0.09246728917159928,
+              0.22170039790971274
+            ],
+            "source_direction_dot_exit_normal": 0.48807973090878487,
+            "t": 0.05876400456538047,
+            "t_exact_denominator": "97254418198503127535593220",
+            "t_exact_numerator": "5715059075020259876602037",
+            "triangle_row": 11027,
+            "triangle_stable_id": 11027,
+            "unit_exit_normal_world": [
+              0.5112922942178502,
+              0.21899482000813034,
+              0.8310363762694472
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.07366271841090156,
+            0.42591741298163893,
+            0.5004198686074596
+          ],
+          "hit_local": [
+            -0.03218228129686183,
+            -0.11954983541170164,
+            0.06021845042701126
+          ],
+          "hit_world": [
+            0.00664181590849703,
+            -0.09246728917159928,
+            0.22170039790971274
+          ],
+          "source_direction_dot_exit_normal": 0.48807973090878487,
+          "t": 0.05876400456538047,
+          "t_exact_denominator": "97254418198503127535593220",
+          "t_exact_numerator": "5715059075020259876602037",
+          "triangle_row": 11027,
+          "triangle_stable_id": 11027,
+          "unit_exit_normal_world": [
+            0.5112922942178502,
+            0.21899482000813034,
+            0.8310363762694472
+          ]
+        },
+        "source_direction_local_unit": [
+          -0.4714884591331118,
+          0.1380949092467466,
+          0.8709927835202866
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          -0.03096678321654959,
+          -0.11990584433162076,
+          0.0579730294928886
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          0.005436237435787916,
+          -0.09057580679655075,
+          0.22042958438396454
+        ],
+        "world_to_local": [
+          [
+            -0.9999863266177513,
+            0.0019752194726948957,
+            -0.004878763873171228
+          ],
+          [
+            0.0022364130667299077,
+            -0.679633986352006,
+            -0.7335481872922119
+          ],
+          [
+            -0.004764691542002856,
+            -0.7335489371072182,
+            0.6796199760247419
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        0.4676407071109146,
+        -0.7337010201980885,
+        0.4929452119790676
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        0.005436237435787916,
+        -0.09057580679655075,
+        0.22042958438396454
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.03219220658648733,
+        "aabb_exit_axis": 1,
+        "endpoint_local": [
+          0.05956614920911727,
+          -0.018259538092708458,
+          0.15844471565289284
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 91,
+      "bone_stable_id": 13,
+      "clearance_m": 5e-05,
+      "column_row": 1990,
+      "complete_bank_triangle_count": 3844,
+      "first_exit_distance_m": 0.0011456460281196652,
+      "layer": "I",
+      "local_source_direction_unit": [
+        0.4993546531270545,
+        -0.8663971471721686,
+        0.0009559143720132164
+      ],
+      "query_row": 4401,
+      "report": {
+        "candidate_triangle_count": 5,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 3844,
+        "disjoint_candidate_count": 4,
+        "end_local": [
+          0.05956614920911727,
+          -0.018259538092708458,
+          0.15844471565289284
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": -0.28482678380788523,
+          "point_world": [
+            0.14697519045452312,
+            -0.3019941607678305,
+            0.088841682350858
+          ],
+          "unit_normal_world": [
+            0.1492032808947411,
+            0.98209250905785,
+            -0.11503340655088874
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.647368512761207,
+              0.32563790638557577,
+              0.026993580853217243
+            ],
+            "hit_local": [
+              0.04405291763764295,
+              0.008656441347512702,
+              0.1584150186811661
+            ],
+            "hit_world": [
+              0.14697519045452312,
+              -0.3019941607678305,
+              0.088841682350858
+            ],
+            "source_direction_dot_exit_normal": 0.21115851507169314,
+            "t": 0.03556558676114573,
+            "t_exact_denominator": "2616880982482007342001669",
+            "t_exact_numerator": "93070907626056118465207",
+            "triangle_row": 977,
+            "triangle_stable_id": 977,
+            "unit_exit_normal_world": [
+              0.1492032808947411,
+              0.98209250905785,
+              -0.11503340655088874
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0000000000000002,
+        "selected_first_exit": {
+          "barycentric": [
+            0.647368512761207,
+            0.32563790638557577,
+            0.026993580853217243
+          ],
+          "hit_local": [
+            0.04405291763764295,
+            0.008656441347512702,
+            0.1584150186811661
+          ],
+          "hit_world": [
+            0.14697519045452312,
+            -0.3019941607678305,
+            0.088841682350858
+          ],
+          "source_direction_dot_exit_normal": 0.21115851507169314,
+          "t": 0.03556558676114573,
+          "t_exact_denominator": "2616880982482007342001669",
+          "t_exact_numerator": "93070907626056118465207",
+          "triangle_row": 977,
+          "triangle_stable_id": 977,
+          "unit_exit_normal_world": [
+            0.1492032808947411,
+            0.98209250905785,
+            -0.11503340655088874
+          ]
+        },
+        "source_direction_local_unit": [
+          0.4993546531270545,
+          -0.8663971471721686,
+          0.0009559143720132164
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.04348083396266487,
+          0.009649025797944707,
+          0.15841392354166256
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          0.14605224132537842,
+          -0.302176833152771,
+          0.08818800002336502
+        ],
+        "world_to_local": [
+          [
+            0.8795701025033361,
+            0.2119577979493874,
+            -0.42594638082860037
+          ],
+          [
+            -0.4231374134230288,
+            -0.060797435496809715,
+            -0.9040234159773084
+          ],
+          [
+            -0.21751127974016704,
+            0.9753858206689594,
+            0.03621167442427964
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        0.8056145492050077,
+        0.1594492333314682,
+        0.570579652721002
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        0.14605224132537842,
+        -0.302176833152771,
+        0.08818800002336502
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.007666512976451374,
+        "aabb_exit_axis": 0,
+        "endpoint_local": [
+          0.06350885978233549,
+          -0.006608459348754925,
+          0.14447447265656274
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 91,
+      "bone_stable_id": 13,
+      "clearance_m": 5e-05,
+      "column_row": 2024,
+      "complete_bank_triangle_count": 3844,
+      "first_exit_distance_m": 0.004072741765103624,
+      "layer": "I",
+      "local_source_direction_unit": [
+        0.5211188851457186,
+        -0.8514515064506335,
+        0.058867985420177606
+      ],
+      "query_row": 4435,
+      "report": {
+        "candidate_triangle_count": 8,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 3844,
+        "disjoint_candidate_count": 7,
+        "end_local": [
+          0.06350885978233549,
+          -0.006608459348754925,
+          0.14447447265656274
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": -0.15125065535810356,
+          "point_world": [
+            0.17066732124076672,
+            -0.3113333963927437,
+            0.0918623169298523
+          ],
+          "unit_normal_world": [
+            0.6022214199097844,
+            0.7063148640035548,
+            -0.3720869176543069
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.31949398690044684,
+              0.28176356260825086,
+              0.3987424504913023
+            ],
+            "hit_local": [
+              0.06162565535750625,
+              -0.0035315084068849494,
+              0.14426173722558128
+            ],
+            "hit_world": [
+              0.17066732124076672,
+              -0.3113333963927437,
+              0.0918623169298523
+            ],
+            "source_direction_dot_exit_normal": 0.4358188041006296,
+            "t": 0.5298555765899299,
+            "t_exact_denominator": "451196386575304467037869",
+            "t_exact_numerator": "239068921564150864245479",
+            "triangle_row": 2225,
+            "triangle_stable_id": 2225,
+            "unit_exit_normal_world": [
+              0.6022214199097844,
+              0.7063148640035548,
+              -0.3720869176543069
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 0.9999999999999999,
+        "selected_first_exit": {
+          "barycentric": [
+            0.31949398690044684,
+            0.28176356260825086,
+            0.3987424504913023
+          ],
+          "hit_local": [
+            0.06162565535750625,
+            -0.0035315084068849494,
+            0.14426173722558128
+          ],
+          "hit_world": [
+            0.17066732124076672,
+            -0.3113333963927437,
+            0.0918623169298523
+          ],
+          "source_direction_dot_exit_normal": 0.4358188041006296,
+          "t": 0.5298555765899299,
+          "t_exact_denominator": "451196386575304467037869",
+          "t_exact_numerator": "239068921564150864245479",
+          "triangle_row": 2225,
+          "triangle_stable_id": 2225,
+          "unit_exit_normal_world": [
+            0.6022214199097844,
+            0.7063148640035548,
+            -0.3720869176543069
+          ]
+        },
+        "source_direction_local_unit": [
+          0.5211188851457186,
+          -0.8514515064506335,
+          0.058867985420177606
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.05950327270938904,
+          -6.376629560305878e-05,
+          0.14402198312273298
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          0.16738535463809967,
+          -0.31222793459892273,
+          0.08962273597717285
+        ],
+        "world_to_local": [
+          [
+            0.8795701025033361,
+            0.2119577979493874,
+            -0.42594638082860037
+          ],
+          [
+            -0.4231374134230288,
+            -0.060797435496809715,
+            -0.9040234159773084
+          ],
+          [
+            -0.21751127974016704,
+            0.9753858206689594,
+            0.03621167442427964
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        0.8058371285429848,
+        0.2196402909321099,
+        0.5498951398774633
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        0.16738535463809967,
+        -0.31222793459892273,
+        0.08962273597717285
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.0027787585217857445,
+        "aabb_exit_axis": 0,
+        "endpoint_local": [
+          -0.008926679644374986,
+          -0.02066700181534196,
+          0.0025529385167406067
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 124,
+      "bone_stable_id": 123,
+      "clearance_m": 5e-05,
+      "column_row": 2187,
+      "complete_bank_triangle_count": 274,
+      "first_exit_distance_m": 0.0008532505657540656,
+      "layer": "O",
+      "local_source_direction_unit": [
+        -0.5344526662895742,
+        0.7086089781362184,
+        0.46068824990519286
+      ],
+      "query_row": 2187,
+      "report": {
+        "candidate_triangle_count": 3,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 274,
+        "disjoint_candidate_count": 2,
+        "end_local": [
+          -0.008926679644374986,
+          -0.02066700181534196,
+          0.0025529385167406067
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": -0.18302720932827155,
+          "point_world": [
+            0.23618696744491766,
+            -0.9556753592709933,
+            0.08657651197582404
+          ],
+          "unit_normal_world": [
+            -0.04300190885467995,
+            0.09080731784998268,
+            -0.9949396297563717
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.5256195849152391,
+              0.12277414839570082,
+              0.3516062666890601
+            ],
+            "hit_local": [
+              -0.007886897729986277,
+              -0.02204560622002145,
+              0.0016566658612997436
+            ],
+            "hit_world": [
+              0.23618696744491766,
+              -0.9556753592709933,
+              0.08657651197582404
+            ],
+            "source_direction_dot_exit_normal": 0.6134357023019139,
+            "t": 0.30486751862023814,
+            "t_exact_denominator": "9704961510993594565584723605",
+            "t_exact_numerator": "2958727534161534283974249939",
+            "triangle_row": 49,
+            "triangle_stable_id": 49,
+            "unit_exit_normal_world": [
+              -0.04300190885467995,
+              0.09080731784998268,
+              -0.9949396297563717
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 0.9999999999999998,
+        "selected_first_exit": {
+          "barycentric": [
+            0.5256195849152391,
+            0.12277414839570082,
+            0.3516062666890601
+          ],
+          "hit_local": [
+            -0.007886897729986277,
+            -0.02204560622002145,
+            0.0016566658612997436
+          ],
+          "hit_world": [
+            0.23618696744491766,
+            -0.9556753592709933,
+            0.08657651197582404
+          ],
+          "source_direction_dot_exit_normal": 0.6134357023019139,
+          "t": 0.30486751862023814,
+          "t_exact_denominator": "9704961510993594565584723605",
+          "t_exact_numerator": "2958727534161534283974249939",
+          "triangle_row": 49,
+          "triangle_stable_id": 49,
+          "unit_exit_normal_world": [
+            -0.04300190885467995,
+            0.09080731784998268,
+            -0.9949396297563717
+          ]
+        },
+        "source_direction_local_unit": [
+          -0.5344526662895742,
+          0.7086089781362184,
+          0.46068824990519286
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          -0.007430875690105927,
+          -0.02265022723151459,
+          0.0012635833514318875
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          0.23663629591464996,
+          -0.956240177154541,
+          0.08703161776065826
+        ],
+        "world_to_local": [
+          [
+            -0.004533214364993654,
+            -0.0052479579185917835,
+            0.9999758667870768
+          ],
+          [
+            -0.09969120381555152,
+            0.9950069902735476,
+            0.0047699392028079934
+          ],
+          [
+            -0.9950080095660976,
+            -0.09966718304375322,
+            -0.0050337548332999305
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        -0.5266078551982678,
+        0.6619601344421069,
+        -0.5333788027779771
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        0.23663629591464996,
+        -0.956240177154541,
+        0.08703161776065826
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.004597681064518154,
+        "aabb_exit_axis": 0,
+        "endpoint_local": [
+          -0.008926679644374986,
+          -0.018685350321504982,
+          0.002547506030428825
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 124,
+      "bone_stable_id": 123,
+      "clearance_m": 5e-05,
+      "column_row": 2187,
+      "complete_bank_triangle_count": 274,
+      "first_exit_distance_m": 0.0023838109411417722,
+      "layer": "I",
+      "local_source_direction_unit": [
+        -0.5344526662895742,
+        0.7086089781362184,
+        0.46068824990519286
+      ],
+      "query_row": 4598,
+      "report": {
+        "candidate_triangle_count": 4,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 274,
+        "disjoint_candidate_count": 3,
+        "end_local": [
+          -0.008926679644374986,
+          -0.018685350321504982,
+          0.002547506030428825
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": -0.16673422403125995,
+          "point_world": [
+            0.23614667336277342,
+            -0.9538939450089798,
+            0.08673979797100477
+          ],
+          "unit_normal_world": [
+            0.010815417612160481,
+            0.08694046481443876,
+            -0.9961547983720822
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.0069665120380958505,
+              0.5988712516766059,
+              0.3941622362852982
+            ],
+            "hit_local": [
+              -0.007732781800791858,
+              -0.02026829074691975,
+              0.001518388312775062
+            ],
+            "hit_world": [
+              0.23614667336277342,
+              -0.9538939450089798,
+              0.08673979797100477
+            ],
+            "source_direction_dot_exit_normal": 0.5831835167618038,
+            "t": 0.5162355103861028,
+            "t_exact_denominator": "203429253817375415105858111557",
+            "t_exact_numerator": "105017404671876859656668383799",
+            "triangle_row": 30,
+            "triangle_stable_id": 30,
+            "unit_exit_normal_world": [
+              0.010815417612160481,
+              0.08694046481443876,
+              -0.9961547983720822
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.0069665120380958505,
+            0.5988712516766059,
+            0.3941622362852982
+          ],
+          "hit_local": [
+            -0.007732781800791858,
+            -0.02026829074691975,
+            0.001518388312775062
+          ],
+          "hit_world": [
+            0.23614667336277342,
+            -0.9538939450089798,
+            0.08673979797100477
+          ],
+          "source_direction_dot_exit_normal": 0.5831835167618038,
+          "t": 0.5162355103861028,
+          "t_exact_denominator": "203429253817375415105858111557",
+          "t_exact_numerator": "105017404671876859656668383799",
+          "triangle_row": 30,
+          "triangle_stable_id": 30,
+          "unit_exit_normal_world": [
+            0.010815417612160481,
+            0.08694046481443876,
+            -0.9961547983720822
+          ]
+        },
+        "source_direction_local_unit": [
+          -0.5344526662895742,
+          0.7086089781362184,
+          0.46068824990519286
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          -0.006458747687368379,
+          -0.021957480581992157,
+          0.0004201946221956082
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          0.23740200698375702,
+          -0.955471932888031,
+          0.08801127225160599
+        ],
+        "world_to_local": [
+          [
+            -0.004533214364993654,
+            -0.0052479579185917835,
+            0.9999758667870768
+          ],
+          [
+            -0.09969120381555152,
+            0.9950069902735476,
+            0.0047699392028079934
+          ],
+          [
+            -0.9950080095660976,
+            -0.09966718304375322,
+            -0.0050337548332999305
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        -0.5266078551982678,
+        0.6619601344421069,
+        -0.5333788027779771
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        0.23740200698375702,
+        -0.955471932888031,
+        0.08801127225160599
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.008888750741966779,
+        "aabb_exit_axis": 0,
+        "endpoint_local": [
+          -0.0057540520706485035,
+          -0.014156632972013986,
+          -0.009992678680990217
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 109,
+      "bone_stable_id": 114,
+      "clearance_m": 5e-05,
+      "column_row": 2261,
+      "complete_bank_triangle_count": 392,
+      "first_exit_distance_m": 0.0030779663504709965,
+      "layer": "O",
+      "local_source_direction_unit": [
+        -0.893993569961789,
+        -0.196828534013485,
+        -0.40253450170771454
+      ],
+      "query_row": 2261,
+      "report": {
+        "candidate_triangle_count": 10,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 392,
+        "disjoint_candidate_count": 9,
+        "end_local": [
+          -0.0057540520706485035,
+          -0.014156632972013986,
+          -0.009992678680990217
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": 0.11438709664871528,
+          "point_world": [
+            0.2595858011492555,
+            -0.9542824855438539,
+            0.13571561536836688
+          ],
+          "unit_normal_world": [
+            0.863062123319646,
+            0.04338894200743172,
+            -0.5032307333643882
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.18158644729888032,
+              0.018692010637129195,
+              0.7997215420639905
+            ],
+            "hit_local": [
+              -0.0005413683168177118,
+              -0.01300896822808716,
+              -0.007645586791394343
+            ],
+            "hit_world": [
+              0.2595858011492555,
+              -0.9542824855438539,
+              0.13571561536836688
+            ],
+            "source_direction_dot_exit_normal": 0.8088846509598077,
+            "t": 0.3454992107896237,
+            "t_exact_denominator": "59273421854617493327863500719",
+            "t_exact_numerator": "20478920471570777202663415347",
+            "triangle_row": 86,
+            "triangle_stable_id": 86,
+            "unit_exit_normal_world": [
+              0.863062123319646,
+              0.04338894200743172,
+              -0.5032307333643882
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.18158644729888032,
+            0.018692010637129195,
+            0.7997215420639905
+          ],
+          "hit_local": [
+            -0.0005413683168177118,
+            -0.01300896822808716,
+            -0.007645586791394343
+          ],
+          "hit_world": [
+            0.2595858011492555,
+            -0.9542824855438539,
+            0.13571561536836688
+          ],
+          "source_direction_dot_exit_normal": 0.8088846509598077,
+          "t": 0.3454992107896237,
+          "t_exact_denominator": "59273421854617493327863500719",
+          "t_exact_numerator": "20478920471570777202663415347",
+          "triangle_row": 86,
+          "triangle_stable_id": 86,
+          "unit_exit_normal_world": [
+            0.863062123319646,
+            0.04338894200743172,
+            -0.5032307333643882
+          ]
+        },
+        "source_direction_local_unit": [
+          -0.8939935699617891,
+          -0.19682853401348502,
+          -0.4025345017077146
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.002210313809062114,
+          -0.012403136623581118,
+          -0.006406599140234388
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          0.2582801282405853,
+          -0.95381760597229,
+          0.13846388459205627
+        ],
+        "world_to_local": [
+          [
+            -0.004533214364993654,
+            -0.0052479579185917835,
+            0.9999758667870768
+          ],
+          [
+            -0.09969120381555152,
+            0.9950069902735476,
+            0.0047699392028079934
+          ],
+          [
+            -0.9950080095660976,
+            -0.09966718304375322,
+            -0.0050337548332999305
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        0.4241998279249151,
+        -0.1510346373534331,
+        -0.8928846758165299
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        0.2582801282405853,
+        -0.95381760597229,
+        0.13846388459205627
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.008629362118387992,
+        "aabb_exit_axis": 0,
+        "endpoint_local": [
+          -0.0057540520706485035,
+          -0.012901407975011598,
+          -0.00970815865417304
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 109,
+      "bone_stable_id": 114,
+      "clearance_m": 5e-05,
+      "column_row": 2261,
+      "complete_bank_triangle_count": 392,
+      "first_exit_distance_m": 0.0031915154574572654,
+      "layer": "I",
+      "local_source_direction_unit": [
+        -0.893993569961789,
+        -0.196828534013485,
+        -0.40253450170771454
+      ],
+      "query_row": 4672,
+      "report": {
+        "candidate_triangle_count": 10,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 392,
+        "disjoint_candidate_count": 9,
+        "end_local": [
+          -0.0057540520706485035,
+          -0.012901407975011598,
+          -0.00970815865417304
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": 0.11438709664871527,
+          "point_world": [
+            0.2593357666272369,
+            -0.9531182117294332,
+            0.13538718010894438
+          ],
+          "unit_normal_world": [
+            0.863062123319646,
+            0.04338894200743172,
+            -0.5032307333643882
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.05111089843491567,
+              0.16892343137308022,
+              0.7799656701920041
+            ],
+            "hit_local": [
+              -0.0008747722499390137,
+              -0.011827148017870208,
+              -0.007511187068118177
+            ],
+            "hit_world": [
+              0.2593357666272369,
+              -0.9531182117294332,
+              0.13538718010894438
+            ],
+            "source_direction_dot_exit_normal": 0.8088846509598077,
+            "t": 0.3689885350819464,
+            "t_exact_denominator": "86321411014701280823906319905",
+            "t_exact_numerator": "31851610996521218576490805427",
+            "triangle_row": 86,
+            "triangle_stable_id": 86,
+            "unit_exit_normal_world": [
+              0.863062123319646,
+              0.04338894200743172,
+              -0.5032307333643882
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.05111089843491567,
+            0.16892343137308022,
+            0.7799656701920041
+          ],
+          "hit_local": [
+            -0.0008747722499390137,
+            -0.011827148017870208,
+            -0.007511187068118177
+          ],
+          "hit_world": [
+            0.2593357666272369,
+            -0.9531182117294332,
+            0.13538718010894438
+          ],
+          "source_direction_dot_exit_normal": 0.8088846509598077,
+          "t": 0.3689885350819464,
+          "t_exact_denominator": "86321411014701280823906319905",
+          "t_exact_numerator": "31851610996521218576490805427",
+          "triangle_row": 86,
+          "triangle_stable_id": 86,
+          "unit_exit_normal_world": [
+            0.863062123319646,
+            0.04338894200743172,
+            -0.5032307333643882
+          ]
+        },
+        "source_direction_local_unit": [
+          -0.8939935699617891,
+          -0.19682853401348502,
+          -0.4025345017077146
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.0019784220474614394,
+          -0.011198966709097518,
+          -0.006226491983758147
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          0.25798192620277405,
+          -0.952636182308197,
+          0.13823683559894562
+        ],
+        "world_to_local": [
+          [
+            -0.004533214364993654,
+            -0.0052479579185917835,
+            0.9999758667870768
+          ],
+          [
+            -0.09969120381555152,
+            0.9950069902735476,
+            0.0047699392028079934
+          ],
+          [
+            -0.9950080095660976,
+            -0.09966718304375322,
+            -0.0050337548332999305
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        0.4241998279249151,
+        -0.1510346373534331,
+        -0.8928846758165299
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        0.25798192620277405,
+        -0.952636182308197,
+        0.13823683559894562
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.0021189613945805136,
+        "aabb_exit_axis": 2,
+        "endpoint_local": [
+          0.0010368352403806401,
+          -0.026895720637587873,
+          -0.01067028639166982
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 107,
+      "bone_stable_id": 108,
+      "clearance_m": 5e-05,
+      "column_row": 2262,
+      "complete_bank_triangle_count": 774,
+      "first_exit_distance_m": 0.0016466661049611645,
+      "layer": "O",
+      "local_source_direction_unit": [
+        -0.6093671653121098,
+        -0.2189986809035984,
+        -0.7620441165719789
+      ],
+      "query_row": 2262,
+      "report": {
+        "candidate_triangle_count": 4,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 774,
+        "disjoint_candidate_count": 3,
+        "end_local": [
+          0.0010368352403806401,
+          -0.026895720637587873,
+          -0.01067028639166982
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": 0.047649768590634425,
+          "point_world": [
+            0.2571856357791386,
+            -0.9399788589767804,
+            0.13415694847661291
+          ],
+          "unit_normal_world": [
+            0.9765183562695007,
+            0.21524057289159482,
+            -0.009132121878877086
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.9510340151232616,
+              0.02806564341831995,
+              0.02090034145841851
+            ],
+            "hit_local": [
+              0.0013368238255124874,
+              -0.026787908618546182,
+              -0.010295135662599295
+            ],
+            "hit_world": [
+              0.2571856357791386,
+              -0.9399788589767804,
+              0.13415694847661291
+            ],
+            "source_direction_dot_exit_normal": 0.7401256865350525,
+            "t": 0.7698437705015724,
+            "t_exact_denominator": "2440728825424388118436261",
+            "t_exact_numerator": "1878979881736584866515266",
+            "triangle_row": 459,
+            "triangle_stable_id": 459,
+            "unit_exit_normal_world": [
+              0.9765183562695007,
+              0.21524057289159482,
+              -0.009132121878877086
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.9510340151232616,
+            0.02806564341831995,
+            0.02090034145841851
+          ],
+          "hit_local": [
+            0.0013368238255124874,
+            -0.026787908618546182,
+            -0.010295135662599295
+          ],
+          "hit_world": [
+            0.2571856357791386,
+            -0.9399788589767804,
+            0.13415694847661291
+          ],
+          "source_direction_dot_exit_normal": 0.7401256865350525,
+          "t": 0.7698437705015724,
+          "t_exact_denominator": "2440728825424388118436261",
+          "t_exact_numerator": "1878979881736584866515266",
+          "triangle_row": 459,
+          "triangle_stable_id": 459,
+          "unit_exit_normal_world": [
+            0.9765183562695007,
+            0.21524057289159482,
+            -0.009132121878877086
+          ]
+        },
+        "source_direction_local_unit": [
+          -0.6093671653121098,
+          -0.2189986809035984,
+          -0.7620441165719789
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.002340248082108205,
+          -0.02642729091367102,
+          -0.009040303445355143
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          0.25589656829833984,
+          -0.9397503733634949,
+          0.13515575230121613
+        ],
+        "world_to_local": [
+          [
+            -0.004533214364993654,
+            -0.0052479579185917835,
+            0.9999758667870768
+          ],
+          [
+            -0.09969120381555152,
+            0.9950069902735476,
+            0.0047699392028079934
+          ],
+          [
+            -0.9950080095660976,
+            -0.09966718304375322,
+            -0.0050337548332999305
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        0.7828347025172565,
+        -0.13875648076620298,
+        -0.606561182058411
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        0.25589656829833984,
+        -0.9397503733634949,
+        0.13515575230121613
+      ]
+    },
+    {
+      "aabb_endpoint": {
+        "aabb_boundary_parameter_m": 0.0029282681160309083,
+        "aabb_exit_axis": 2,
+        "endpoint_local": [
+          0.00043267795304195787,
+          -0.02645526141966802,
+          -0.01067028639166982
+        ],
+        "endpoint_outside_aabb": true,
+        "outside_padding_m": 2e-05
+      },
+      "body": 107,
+      "bone_stable_id": 108,
+      "clearance_m": 5e-05,
+      "column_row": 2262,
+      "complete_bank_triangle_count": 774,
+      "first_exit_distance_m": 0.002208191442564494,
+      "layer": "I",
+      "local_source_direction_unit": [
+        -0.6093671653121098,
+        -0.2189986809035984,
+        -0.7620441165719789
+      ],
+      "query_row": 4673,
+      "report": {
+        "candidate_triangle_count": 5,
+        "clearance_m": 5e-05,
+        "complete_target_bank_triangle_count": 774,
+        "disjoint_candidate_count": 4,
+        "end_local": [
+          0.00043267795304195787,
+          -0.02645526141966802,
+          -0.01067028639166982
+        ],
+        "endpoint_outside_aabb_proven": true,
+        "endpoint_parity": "odd",
+        "exact_predicate_source_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+        "plane": {
+          "inequality": "dot(unit_normal_world, x_world) >= minimum_signed_distance_m",
+          "minimum_signed_distance_m": 0.01498515708831055,
+          "point_world": [
+            0.2569504927585389,
+            -0.9395030471131953,
+            0.1337052012135718
+          ],
+          "unit_normal_world": [
+            0.9270181093907467,
+            0.19177482910294127,
+            -0.32227292747629804
+          ]
+        },
+        "proper_hits": [
+          {
+            "barycentric": [
+              0.14887472510721877,
+              0.06100315746997989,
+              0.7901221174228014
+            ],
+            "hit_local": [
+              0.0008836563776658027,
+              -0.02629318560441135,
+              -0.010106315316842576
+            ],
+            "hit_world": [
+              0.2569504927585389,
+              -0.9395030471131953,
+              0.1337052012135718
+            ],
+            "source_direction_dot_exit_normal": 0.8945702699400588,
+            "t": 0.7489791822384393,
+            "t_exact_denominator": "19876605670181612890951431",
+            "t_exact_numerator": "14887163860528549458830966",
+            "triangle_row": 462,
+            "triangle_stable_id": 462,
+            "unit_exit_normal_world": [
+              0.9270181093907467,
+              0.19177482910294127,
+              -0.32227292747629804
+            ]
+          }
+        ],
+        "reason": "certified_first_proper_exit_from_inside_to_aabb_outside_with_odd_exact_hit_parity",
+        "scope_limit": "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate.",
+        "segment_source_direction_cosine": 1.0,
+        "selected_first_exit": {
+          "barycentric": [
+            0.14887472510721877,
+            0.06100315746997989,
+            0.7901221174228014
+          ],
+          "hit_local": [
+            0.0008836563776658027,
+            -0.02629318560441135,
+            -0.010106315316842576
+          ],
+          "hit_world": [
+            0.2569504927585389,
+            -0.9395030471131953,
+            0.1337052012135718
+          ],
+          "source_direction_dot_exit_normal": 0.8945702699400588,
+          "t": 0.7489791822384393,
+          "t_exact_denominator": "19876605670181612890951431",
+          "t_exact_numerator": "14887163860528549458830966",
+          "triangle_row": 462,
+          "triangle_stable_id": 462,
+          "unit_exit_normal_world": [
+            0.9270181093907467,
+            0.19177482910294127,
+            -0.32227292747629804
+          ]
+        },
+        "source_direction_local_unit": [
+          -0.6093671653121098,
+          -0.2189986809035984,
+          -0.7620441165719789
+        ],
+        "start_classification": "inside",
+        "start_inside_bank_aabb": true,
+        "start_local": [
+          0.002229255737487787,
+          -0.025809594591307113,
+          -0.008423576019771712
+        ],
+        "status": "PASS",
+        "unresolved_witnesses": [],
+        "world_start": [
+          0.2552218437194824,
+          -0.9391966462135315,
+          0.13504460453987122
+        ],
+        "world_to_local": [
+          [
+            -0.004533214364993654,
+            -0.0052479579185917835,
+            0.9999758667870768
+          ],
+          [
+            -0.09969120381555152,
+            0.9950069902735476,
+            0.0047699392028079934
+          ],
+          [
+            -0.9950080095660976,
+            -0.09966718304375322,
+            -0.0050337548332999305
+          ]
+        ]
+      },
+      "source_direction_world_unit": [
+        0.7828347025172565,
+        -0.13875648076620298,
+        -0.606561182058411
+      ],
+      "status": "PASS",
+      "world_start_m": [
+        0.2552218437194824,
+        -0.9391966462135315,
+        0.13504460453987122
+      ]
+    }
+  ],
+  "schema": "098-source-OD-first-outward-exit-planes-003",
+  "scope": "First outward exit for every O- or I-inside relation among the 15 selected columns, against each implicated complete typed bank. Exact start classes were rechecked against frozen 103 all-bank endpoint query. 50um helper clearance is the existing construction margin, not an anatomical thickness target.",
+  "status": "CONSTRUCTION_PLANES_ONLY"
+}

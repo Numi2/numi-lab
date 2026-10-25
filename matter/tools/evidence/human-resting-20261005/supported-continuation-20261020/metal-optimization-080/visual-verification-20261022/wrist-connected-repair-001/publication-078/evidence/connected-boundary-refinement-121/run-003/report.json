@@ -1,0 +1,176 @@
+{
+  "TetGen": {
+    "all_tetgen_nodes_exactly_map_to_121_PLC": false,
+    "binary_sha256": "95b1df3923d7405b168ba5a3c4b39498ddfc0e7ba94000dedff7ebf93350de07",
+    "command": [
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-remesh-118/tetgen-v1.6.0/tetgen",
+      "-pq1.2/10AS512",
+      "/Users/numi/Work/numi-human-connected-surface-069/connected-boundary-refinement-121/run-003/whole-skin-fat-reference-121.poly"
+    ],
+    "material_id_counts": {
+      "1": 18039,
+      "2": 18400
+    },
+    "mesh_candidate": {
+      "interpretation": "Current037 values are known only at exact PLC input vertices; no nearest or guessed interpolation is used.",
+      "status": "not_mapped_no_qualified_Steiner_ancestry",
+      "unmapped_output_node_count": 513
+    },
+    "node_count": 8184,
+    "reference_domain_min_signed_volume_m3": 6.393284900506282e-15,
+    "reference_domain_nonpositive_cells": 0,
+    "reference_domain_positive_cells": 36439,
+    "reference_identity_emitted_F32_J_max": 1.0036646340638173,
+    "reference_identity_emitted_F32_J_min": 0.9958963755950282,
+    "reference_identity_emitted_F32_invalid_J": 0,
+    "reference_identity_emitted_F32_q_below_1e_minus5": 4,
+    "reference_identity_emitted_F32_q_min": 5.866654347346614e-06,
+    "return_code": 0,
+    "status": "completed",
+    "tet_count": 36439,
+    "timed_out": false,
+    "wall_seconds": 0.23588083300273865
+  },
+  "candidate_sha256": "d0e3f38da93deb031b57f7524d1e294517facd85c30337d688752605e2cf15cb",
+  "counts": {
+    "facets_by_surface": {
+      "D": 5069,
+      "I": 5069,
+      "O": 5069,
+      "side_caps": 180
+    },
+    "new_linear_midpoints": 438,
+    "output_facets": 15387,
+    "output_points": 7671,
+    "selected_edges": 146,
+    "selected_edges_by_layer": {
+      "D": 146,
+      "I": 146,
+      "O": 146
+    },
+    "source_points": 7233
+  },
+  "edge_maps": {
+    "D": {
+      "cap_edge_overlap": 0,
+      "selected_edges": 146,
+      "two_face_oppositely_oriented": true
+    },
+    "I": {
+      "cap_edge_overlap": 0,
+      "selected_edges": 146,
+      "two_face_oppositely_oriented": true
+    },
+    "O": {
+      "cap_edge_overlap": 0,
+      "selected_edges": 146,
+      "two_face_oppositely_oriented": true
+    }
+  },
+  "exact_self_gate": {
+    "aabb_candidate_pairs": 228760,
+    "allowed_shared_vertex_or_edge_pairs": 103903,
+    "complete_surface_audit": true,
+    "complete_surface_face_count": 15387,
+    "count": 0,
+    "covered_required_witness_pairs": 0,
+    "pair_count": 0,
+    "pair_file": "exact-self-pairs.npy",
+    "predicate": "315 exact rational triangle classifier on emitted Float32 coordinates, complete all-facet pair query",
+    "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "predicate_source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+    "seconds": 2.491108665941283,
+    "selected_face_count": 15387
+  },
+  "face_provenance": {
+    "exact_115_parent_winding_preserved_per_child": true,
+    "parent_face_rows_and_original_markers_preserved": true,
+    "same_unoriented_tri1_tri2_tri3_connectivity_as_114_after_midpoint_row_remap": true,
+    "template_orientation_difference_is_only_uniform_per_layer": {
+      "D": 1,
+      "I": 1,
+      "O": -1
+    }
+  },
+  "host": "numi.local",
+  "input_sha256": {
+    "batch114": "aa683f25a629f867d20decaa5a8222535142901c2807ba2361748605979b741a",
+    "compact084": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "helper114": "a94f203efba2f0019ef1553a687b93798884e4b64b6d2434e5a690da42035d1d",
+    "helper121": "1e5b46ad79681d7c22f7f4635bbb171746a826d961aedfff7fe956b5971a30c8",
+    "poly115": "20e005ac365f494361ac56a9699d0a0f3f41d054a55ed2ef77568fd00f392bb1",
+    "predicate315": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "reference115": "abff4290774cc96a17f6c68a21fe86fc3933a1878e0bd6512733e99589fb6dd9",
+    "template114_npz": "fdcb88d99dd488afb59b5f49ad3b6f5975f37fc46479f74dd8d31e24a0e5d5b8",
+    "template114_report": "a636f31846c8a2f21ea543ca5028d2db6726aae8a146dd2d3026540149c45492"
+  },
+  "inputs": {
+    "exact_base_PLC": "116 run-002 whole-skin-fat-reference.poly",
+    "face_topology_template": "114 run-002 surface-proposal.npz; only child connectivity/parent marker ancestry reused",
+    "reference_field": "115 candidate.npz::proposed_reference_points_m[:7233]",
+    "topology_endpoint_map": "114 run-002 surface-proposal.npz::selected_edge_layer_endpoint_rows"
+  },
+  "interpretation": "Construction/refinement input only. No TetGen or cell-quality, material-transfer, bone, native, or physical admission is claimed.",
+  "linear_midpoint": {
+    "maximum_F64_distance_from_source_edge_line_m": 5.551115123125783e-17,
+    "maximum_delta_from_114_registered_source_samples_m": {
+      "D": 0.02239801586483505,
+      "I": 0.019280895445155044,
+      "O": 0.018437603329461958
+    },
+    "original_115_prefix_bitwise_unchanged": true,
+    "parameter": 0.5,
+    "source_claim": "registered linear chord midpoint only; no detailed-skin curve claim"
+  },
+  "parent_geometry": {
+    "all_146_edges_two_face_oppositely_oriented_by_layer": true,
+    "maximum_relative_area_partition_error": 3.9666542972920715e-15,
+    "minimum_child_normal_cosine": 0.9999999999999996,
+    "per_layer": {
+      "D": {
+        "all_parent_rows_covered": true,
+        "max_relative_area_partition_error": 3.9666542972920715e-15,
+        "minimum_child_normal_cosine": 0.9999999999999996
+      },
+      "I": {
+        "all_parent_rows_covered": true,
+        "max_relative_area_partition_error": 0.0,
+        "minimum_child_normal_cosine": 0.9999999999999996
+      },
+      "O": {
+        "all_parent_rows_covered": true,
+        "max_relative_area_partition_error": 0.0,
+        "minimum_child_normal_cosine": 0.9999999999999996
+      }
+    },
+    "selected_edges_on_side_caps": 0,
+    "source_chain_after": {
+      "boundary_edges": 0,
+      "incidence_histogram": {
+        "2": 23013,
+        "3": 45
+      },
+      "nonmanifold_edges": 45,
+      "two_face_orientation_conflicts": 0,
+      "unique_edges": 23058
+    },
+    "source_chain_before": {
+      "boundary_edges": 0,
+      "incidence_histogram": {
+        "2": 21699,
+        "3": 45
+      },
+      "nonmanifold_edges": 45,
+      "two_face_orientation_conflicts": 0,
+      "unique_edges": 21744
+    }
+  },
+  "poly_sha256": "f2b101b19c17c3fa2c40c25b2bea3d594319b1d4c477a682a7557a00cbc7af43",
+  "scope": "Actual 115 reference PLC, topology-only linear midpoint split on 146 explicitly mapped O/I/D edges (438 new points).",
+  "source_face_winding_against_084": {
+    "D": 1,
+    "I": 1,
+    "O": -1
+  },
+  "status": "PLC_SELF_GATE_PASS_TETGEN_DIAGNOSTIC"
+}

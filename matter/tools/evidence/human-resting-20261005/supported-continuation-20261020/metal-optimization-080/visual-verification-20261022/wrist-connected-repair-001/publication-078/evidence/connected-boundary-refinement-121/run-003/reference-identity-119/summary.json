@@ -1,0 +1,30 @@
+{
+  "candidate_sha256": "a26b0e97c97565a71fd4979886bfb1aced4fb0e1e22bc173d4bf18ef42ede9c8",
+  "points": 8184,
+  "cells": 36439,
+  "invalid_cells": 0,
+  "below_quality_1e_minus5": 4,
+  "q_min": 5.866654347346614e-06,
+  "J_min": 0.9958963755950282,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "exact_PLC_surface_pairs": 0,
+  "complete_surface_audit": true,
+  "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "inside_node_bank_pairs": 183,
+  "inside_nodes": 183,
+  "query_pair_count": 2847,
+  "edge_bank_groups_with_hits": 3181,
+  "edge_counts": {
+    "unique_tetrahedral_edges": 50126,
+    "typed_banks": 185,
+    "broadphase_edge_bank_pairs": 30700,
+    "triangle_aabb_pairs": 852145,
+    "exact_narrowphase_tests": 5146,
+    "proper_hits": 5146,
+    "boundary_hits": 0,
+    "ambiguous": 0
+  },
+  "wall_seconds": 9.390174541040324,
+  "status": "GEOMETRY_DIAGNOSTIC_NOT_ADMITTED"
+}

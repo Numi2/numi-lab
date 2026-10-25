@@ -1,0 +1,276 @@
+{
+  "all_fine_normals_opposed_current_O_to_I": true,
+  "baseline_candidate_sha256": "ddb86fbf07183adce0194c59a1acfc5456c96cb2efc709eb587e5489d3d59163",
+  "input_report_sha256": "717921214fee88ea7891d5c6c93f67596be1c16c4ada26772ccba24351b9eaef",
+  "interpretation": "negative fine-normal dot O-to-I confirms the signed BFS/layer-order choice points opposite the current inward O-to-I displacement at each sampled column; this is a construction orientation consistency check, not anatomical proof.",
+  "old_OD_report_sha256": "fcecff75e446fa7b99412903c7780fe1f03ee9ba754142a78f25a135f714496f",
+  "rows": [
+    {
+      "OD_exit_distance_m": 0.006261404722984939,
+      "bank": [
+        61,
+        97
+      ],
+      "column_row": 204,
+      "fine_exit_distance_m": 0.0017362993330137869,
+      "fine_normal_dot_current_O_to_I_m": -0.002436976996674126,
+      "fine_plane_deficit_at_start_m": 0.0003848192747323842,
+      "fine_vs_OD_direction_cosine": 0.15124712321676614,
+      "layer": "O",
+      "query_row": 204
+    },
+    {
+      "OD_exit_distance_m": 0.00022073393787353293,
+      "bank": [
+        61,
+        97
+      ],
+      "column_row": 215,
+      "fine_exit_distance_m": 0.0002577199842686348,
+      "fine_normal_dot_current_O_to_I_m": -0.0024365267131250083,
+      "fine_plane_deficit_at_start_m": 0.00022260438227662827,
+      "fine_vs_OD_direction_cosine": 0.34772763231427806,
+      "layer": "O",
+      "query_row": 215
+    },
+    {
+      "OD_exit_distance_m": 0.004099535582595574,
+      "bank": [
+        61,
+        97
+      ],
+      "column_row": 217,
+      "fine_exit_distance_m": 0.0024273538845755844,
+      "fine_normal_dot_current_O_to_I_m": -0.0024446845054807856,
+      "fine_plane_deficit_at_start_m": 0.0024401485565618553,
+      "fine_vs_OD_direction_cosine": 0.13189836093384605,
+      "layer": "O",
+      "query_row": 217
+    },
+    {
+      "OD_exit_distance_m": 0.002758960256556153,
+      "bank": [
+        61,
+        97
+      ],
+      "column_row": 218,
+      "fine_exit_distance_m": 0.003045979569197956,
+      "fine_normal_dot_current_O_to_I_m": -0.0019746017439332556,
+      "fine_plane_deficit_at_start_m": 0.002391019747158385,
+      "fine_vs_OD_direction_cosine": 0.07782380698461336,
+      "layer": "O",
+      "query_row": 218
+    },
+    {
+      "OD_exit_distance_m": 0.011568937160095922,
+      "bank": [
+        61,
+        97
+      ],
+      "column_row": 219,
+      "fine_exit_distance_m": 0.00025814142161167914,
+      "fine_normal_dot_current_O_to_I_m": -0.0019967716938168907,
+      "fine_plane_deficit_at_start_m": 0.0001537295313874254,
+      "fine_vs_OD_direction_cosine": 0.006955263454760375,
+      "layer": "O",
+      "query_row": 219
+    },
+    {
+      "OD_exit_distance_m": 0.0001266700616119227,
+      "bank": [
+        61,
+        97
+      ],
+      "column_row": 231,
+      "fine_exit_distance_m": 0.0004865337351136139,
+      "fine_normal_dot_current_O_to_I_m": -0.002292081783685084,
+      "fine_plane_deficit_at_start_m": 0.00016296769786577903,
+      "fine_vs_OD_direction_cosine": 0.21873954998975553,
+      "layer": "O",
+      "query_row": 231
+    },
+    {
+      "OD_exit_distance_m": 0.0027527614041709014,
+      "bank": [
+        61,
+        97
+      ],
+      "column_row": 233,
+      "fine_exit_distance_m": 0.0045701949952636056,
+      "fine_normal_dot_current_O_to_I_m": -0.0015015284092042063,
+      "fine_plane_deficit_at_start_m": 0.003808728588644783,
+      "fine_vs_OD_direction_cosine": 0.1229007461989084,
+      "layer": "O",
+      "query_row": 233
+    },
+    {
+      "OD_exit_distance_m": 0.006675434813734899,
+      "bank": [
+        61,
+        97
+      ],
+      "column_row": 271,
+      "fine_exit_distance_m": 0.005320324360879708,
+      "fine_normal_dot_current_O_to_I_m": -0.0012132440338544566,
+      "fine_plane_deficit_at_start_m": 0.003407448274243996,
+      "fine_vs_OD_direction_cosine": 0.46060172119317216,
+      "layer": "O",
+      "query_row": 271
+    },
+    {
+      "OD_exit_distance_m": 0.0020030339361791936,
+      "bank": [
+        59,
+        95
+      ],
+      "column_row": 337,
+      "fine_exit_distance_m": 0.0012337393191327137,
+      "fine_normal_dot_current_O_to_I_m": -0.0007355672503338648,
+      "fine_plane_deficit_at_start_m": 0.0010186717462598999,
+      "fine_vs_OD_direction_cosine": 0.5445017682419855,
+      "layer": "O",
+      "query_row": 337
+    },
+    {
+      "OD_exit_distance_m": 0.0026787235387632745,
+      "bank": [
+        59,
+        95
+      ],
+      "column_row": 337,
+      "fine_exit_distance_m": 0.0017077840910193454,
+      "fine_normal_dot_current_O_to_I_m": -0.0007355672503338648,
+      "fine_plane_deficit_at_start_m": 0.0013908685060353698,
+      "fine_vs_OD_direction_cosine": 0.5445017682419855,
+      "layer": "I",
+      "query_row": 2748
+    },
+    {
+      "OD_exit_distance_m": 0.00257800176603915,
+      "bank": [
+        23,
+        32
+      ],
+      "column_row": 1467,
+      "fine_exit_distance_m": 0.0010880151215759725,
+      "fine_normal_dot_current_O_to_I_m": -0.0023878459938986444,
+      "fine_plane_deficit_at_start_m": 0.0011345535922531458,
+      "fine_vs_OD_direction_cosine": 0.4260135436168071,
+      "layer": "I",
+      "query_row": 3878
+    },
+    {
+      "OD_exit_distance_m": 0.0011456460281196652,
+      "bank": [
+        91,
+        13
+      ],
+      "column_row": 1990,
+      "fine_exit_distance_m": 0.00024406323376924386,
+      "fine_normal_dot_current_O_to_I_m": -0.0020931115375758514,
+      "fine_plane_deficit_at_start_m": 0.00027776795594242065,
+      "fine_vs_OD_direction_cosine": 0.3836285222895146,
+      "layer": "I",
+      "query_row": 4401
+    },
+    {
+      "OD_exit_distance_m": 0.004072741765103624,
+      "bank": [
+        91,
+        13
+      ],
+      "column_row": 2024,
+      "fine_exit_distance_m": 0.0012484724825221581,
+      "fine_normal_dot_current_O_to_I_m": -0.0023937803798389744,
+      "fine_plane_deficit_at_start_m": 0.0012104809746755207,
+      "fine_vs_OD_direction_cosine": 0.5487737873275232,
+      "layer": "I",
+      "query_row": 4435
+    },
+    {
+      "OD_exit_distance_m": 0.0008532505657540656,
+      "bank": [
+        124,
+        123
+      ],
+      "column_row": 2187,
+      "fine_exit_distance_m": 0.0038206258341512696,
+      "fine_normal_dot_current_O_to_I_m": -0.000251381824457512,
+      "fine_plane_deficit_at_start_m": 0.0036887967793012982,
+      "fine_vs_OD_direction_cosine": -0.21100758020229,
+      "layer": "O",
+      "query_row": 2187
+    },
+    {
+      "OD_exit_distance_m": 0.0023838109411417722,
+      "bank": [
+        124,
+        123
+      ],
+      "column_row": 2187,
+      "fine_exit_distance_m": 0.004215232708908948,
+      "fine_normal_dot_current_O_to_I_m": -0.000251381824457512,
+      "fine_plane_deficit_at_start_m": 0.004064623747784699,
+      "fine_vs_OD_direction_cosine": -0.21100758020229,
+      "layer": "I",
+      "query_row": 4598
+    },
+    {
+      "OD_exit_distance_m": 0.0030779663504709965,
+      "bank": [
+        109,
+        114
+      ],
+      "column_row": 2261,
+      "fine_exit_distance_m": 0.0025006704337767888,
+      "fine_normal_dot_current_O_to_I_m": -0.000871880723264975,
+      "fine_plane_deficit_at_start_m": 0.001736145195752466,
+      "fine_vs_OD_direction_cosine": 0.49370185708325753,
+      "layer": "O",
+      "query_row": 2261
+    },
+    {
+      "OD_exit_distance_m": 0.0031915154574572654,
+      "bank": [
+        109,
+        114
+      ],
+      "column_row": 2261,
+      "fine_exit_distance_m": 0.0024363500953709176,
+      "fine_normal_dot_current_O_to_I_m": -0.000871880723264975,
+      "fine_plane_deficit_at_start_m": 0.0016927754545313558,
+      "fine_vs_OD_direction_cosine": 0.49370185708325753,
+      "layer": "I",
+      "query_row": 4672
+    },
+    {
+      "OD_exit_distance_m": 0.0016466661049611645,
+      "bank": [
+        107,
+        108
+      ],
+      "column_row": 2262,
+      "fine_exit_distance_m": 0.0011551431027025062,
+      "fine_normal_dot_current_O_to_I_m": -0.00015976235407873384,
+      "fine_plane_deficit_at_start_m": 0.0009722955218103291,
+      "fine_vs_OD_direction_cosine": 0.5048265767080584,
+      "layer": "O",
+      "query_row": 2262
+    },
+    {
+      "OD_exit_distance_m": 0.002208191442564494,
+      "bank": [
+        107,
+        108
+      ],
+      "column_row": 2262,
+      "fine_exit_distance_m": 0.001911271492580708,
+      "fine_normal_dot_current_O_to_I_m": -0.00015976235407873384,
+      "fine_plane_deficit_at_start_m": 0.0015760075868063717,
+      "fine_vs_OD_direction_cosine": 0.5048265767080584,
+      "layer": "I",
+      "query_row": 4673
+    }
+  ],
+  "schema": "fine-surface-vs-OD-exit-comparison-005"
+}

@@ -1,0 +1,550 @@
+{
+  "detailed_surface_patch": {
+    "W_semantics": {
+      "absolute_detail_positions_source": "accepted-transfer-rows.csv detail_rest_world_{x,y,z}_m",
+      "active_rows": 54551,
+      "role": "displacement prolongation from coarse source, not absolute reference-to-detail position map"
+    },
+    "active_detail_vertices_selected_by_parent_face": {
+      "670": 185,
+      "676": 39
+    },
+    "coarse_chord_hit_point_to_detailed_path_mm": [
+      {
+        "distance_to_detailed_path_mm": 6.887727821240208,
+        "triangle_stable_id": 22
+      },
+      {
+        "distance_to_detailed_path_mm": 7.194131106124788,
+        "triangle_stable_id": 76
+      }
+    ],
+    "detail_header": {
+      "abi": 5,
+      "binding_count": 86,
+      "face_count": 108987,
+      "vertex_count": 61950
+    },
+    "direct_anchor_detail_rows": {
+      "329": 2048,
+      "340": 2690
+    },
+    "direct_anchor_donors": {
+      "329": {
+        "detail_donor_body": 65,
+        "transfer_donor_body": 65
+      },
+      "340": {
+        "detail_donor_body": 66,
+        "transfer_donor_body": 66
+      }
+    },
+    "interpretation_limit": "W maps each detailed row to coarse source faces; the path is an exact NHSKIN face-edge path whose endpoints are direct W one-hot anchors. This diagnoses a coarse boundary shortcut versus a fine connected route, but does not certify that the detailed path clears all triangles of the target bone bank.",
+    "parent_face_rows": [
+      670,
+      676
+    ],
+    "selected_detail_face_edge_count": 570,
+    "selected_detail_vertex_count": 224,
+    "shortest_surface_edge_path": {
+      "detail_donor_bodies_on_path": {
+        "65": 4,
+        "66": 15
+      },
+      "edge_count": 18,
+      "endpoint_chord_mm": 47.959772610768965,
+      "length_mm": 58.05958126251176,
+      "max_lateral_distance_to_endpoint_chord_mm": 7.559031710730545,
+      "maximum_chord_parameter": 1.0152220654886739,
+      "minimum_chord_parameter": 0.0,
+      "p95_lateral_distance_to_endpoint_chord_mm": 7.539499175308908,
+      "path_to_chord_ratio": 1.2105891688376138,
+      "path_vertices_on_both_sides_of_parent_face0_chord_plane": false,
+      "selected_parent_face_rows_on_path": {
+        "670": 19
+      },
+      "signed_side_extent_relative_to_parent_face0_mm": [
+        -6.571746453871749,
+        0.0
+      ],
+      "vertex_count": 19,
+      "vertices": [
+        {
+          "chord_parameter": 0.0,
+          "detail_donor_body": 65,
+          "detail_row": 2048,
+          "distance_to_chord_mm": 0.0,
+          "next_edge_length_mm": 5.118895393710078,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": 0.0,
+          "transfer_donor_body": 65,
+          "world_rest_m": [
+            -0.30122843384742737,
+            -0.9987967014312744,
+            0.1322498917579651
+          ]
+        },
+        {
+          "chord_parameter": 0.10188411914161152,
+          "detail_donor_body": 65,
+          "detail_row": 2043,
+          "distance_to_chord_mm": 1.525378446307638,
+          "next_edge_length_mm": 6.653421333903023,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -1.5242637194499438,
+          "transfer_donor_body": 65,
+          "world_rest_m": [
+            -0.30338767170906067,
+            -1.0034019947052002,
+            0.1316736489534378
+          ]
+        },
+        {
+          "chord_parameter": 0.23553705563020622,
+          "detail_donor_body": 65,
+          "detail_row": 2040,
+          "distance_to_chord_mm": 3.1693293294199436,
+          "next_edge_length_mm": 6.08509793550506,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -3.0481228606998383,
+          "transfer_donor_body": 65,
+          "world_rest_m": [
+            -0.3071403503417969,
+            -1.008872151374817,
+            0.13116100430488586
+          ]
+        },
+        {
+          "chord_parameter": 0.3349973133457112,
+          "detail_donor_body": 65,
+          "detail_row": 2030,
+          "distance_to_chord_mm": 6.5903812410755345,
+          "next_edge_length_mm": 12.207486432479476,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -6.571746453871749,
+          "transfer_donor_body": 65,
+          "world_rest_m": [
+            -0.3075578510761261,
+            -1.014940857887268,
+            0.1313188374042511
+          ]
+        },
+        {
+          "chord_parameter": 0.559832514075903,
+          "detail_donor_body": 66,
+          "detail_row": 2011,
+          "distance_to_chord_mm": 7.100417573995694,
+          "next_edge_length_mm": 2.6083112471432357,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -5.026640837236068,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.31827229261398315,
+            -1.0205844640731812,
+            0.12977832555770874
+          ]
+        },
+        {
+          "chord_parameter": 0.6097780311277655,
+          "detail_donor_body": 66,
+          "detail_row": 2010,
+          "distance_to_chord_mm": 7.537328893595393,
+          "next_edge_length_mm": 2.282052490618166,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -4.613221158301946,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.32046735286712646,
+            -1.0218782424926758,
+            0.12922053039073944
+          ]
+        },
+        {
+          "chord_parameter": 0.6518946483494121,
+          "detail_donor_body": 66,
+          "detail_row": 2012,
+          "distance_to_chord_mm": 7.559031710730545,
+          "next_edge_length_mm": 2.341700878588522,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -3.7419684802311304,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.32235652208328247,
+            -1.0227187871932983,
+            0.1282549798488617
+          ]
+        },
+        {
+          "chord_parameter": 0.7005571208401209,
+          "detail_donor_body": 66,
+          "detail_row": 2002,
+          "distance_to_chord_mm": 7.368893778581738,
+          "next_edge_length_mm": 5.041357735776562,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -3.6268771663366697,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.3235861659049988,
+            -1.0244613885879517,
+            0.1272880882024765
+          ]
+        },
+        {
+          "chord_parameter": 0.8028271030408894,
+          "detail_donor_body": 66,
+          "detail_row": 1989,
+          "distance_to_chord_mm": 6.631685639257555,
+          "next_edge_length_mm": 3.0833893054416786,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -3.9804759711975684,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.32537034153938293,
+            -1.0287022590637207,
+            0.12522725760936737
+          ]
+        },
+        {
+          "chord_parameter": 0.8665208123787623,
+          "detail_donor_body": 66,
+          "detail_row": 2350,
+          "distance_to_chord_mm": 6.333917611821964,
+          "next_edge_length_mm": 3.0844093792600495,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -4.028584640702904,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.32674822211265564,
+            -1.0311625003814697,
+            0.12397988140583038
+          ]
+        },
+        {
+          "chord_parameter": 0.9292603188599928,
+          "detail_donor_body": 66,
+          "detail_row": 2336,
+          "distance_to_chord_mm": 6.6416684354016065,
+          "next_edge_length_mm": 1.0099864614670961,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -4.682845962109389,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.328069806098938,
+            -1.0338733196258545,
+            0.12333299964666367
+          ]
+        },
+        {
+          "chord_parameter": 0.9493381640814303,
+          "detail_donor_body": 66,
+          "detail_row": 2335,
+          "distance_to_chord_mm": 6.764744494386192,
+          "next_edge_length_mm": 1.7579464774352875,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -4.964940187773626,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.3284236192703247,
+            -1.034800410270691,
+            0.12314487248659134
+          ]
+        },
+        {
+          "chord_parameter": 0.9764058252548965,
+          "detail_donor_body": 66,
+          "detail_row": 2339,
+          "distance_to_chord_mm": 5.630193986721804,
+          "next_edge_length_mm": 1.49110576616013,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -3.9131151174860634,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.3291032910346985,
+            -1.0353260040283203,
+            0.12161119282245636
+          ]
+        },
+        {
+          "chord_parameter": 0.9862650887004368,
+          "detail_donor_body": 66,
+          "detail_row": 2343,
+          "distance_to_chord_mm": 4.305757184767426,
+          "next_edge_length_mm": 1.051615046799166,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -2.6661815300159115,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.32929855585098267,
+            -1.0351482629776,
+            0.12014365196228027
+          ]
+        },
+        {
+          "chord_parameter": 1.0029241538647258,
+          "detail_donor_body": 66,
+          "detail_row": 2345,
+          "distance_to_chord_mm": 3.6414173687742317,
+          "next_edge_length_mm": 1.3564929585219276,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -2.3697928132566606,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.32938438653945923,
+            -1.0357588529586792,
+            0.1192917674779892
+          ]
+        },
+        {
+          "chord_parameter": 1.0053440114345173,
+          "detail_donor_body": 66,
+          "detail_row": 2349,
+          "distance_to_chord_mm": 2.3053901783232083,
+          "next_edge_length_mm": 0.7748590799467443,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -1.3734070434243997,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.3291078805923462,
+            -1.0355297327041626,
+            0.11798366904258728
+          ]
+        },
+        {
+          "chord_parameter": 1.0044408911632152,
+          "detail_donor_body": 66,
+          "detail_row": 2685,
+          "distance_to_chord_mm": 1.5391194526026997,
+          "next_edge_length_mm": 0.9701587327215897,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -0.8455256487205285,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.3288412094116211,
+            -1.0353529453277588,
+            0.11727795004844666
+          ]
+        },
+        {
+          "chord_parameter": 1.0152220654886739,
+          "detail_donor_body": 66,
+          "detail_row": 2687,
+          "distance_to_chord_mm": 0.8772599675011905,
+          "next_edge_length_mm": 1.1412946070339651,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": -0.7394150181316215,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.3285544216632843,
+            -1.035919427871704,
+            0.11654442548751831
+          ]
+        },
+        {
+          "chord_parameter": 0.9999999999999999,
+          "detail_donor_body": 66,
+          "detail_row": 2690,
+          "distance_to_chord_mm": 7.757919228897728e-15,
+          "next_edge_length_mm": null,
+          "selected_source_face_row": 670,
+          "signed_side_from_parent_face0_mm": 0.0,
+          "transfer_donor_body": 66,
+          "world_rest_m": [
+            -0.32804757356643677,
+            -1.0350720882415771,
+            0.11597199738025665
+          ]
+        }
+      ]
+    }
+  },
+  "edge": {
+    "baseline103_exact_bank_hit_witnesses": [
+      {
+        "barycentric": [
+          0.041493759511275576,
+          0.2754686781299292,
+          0.6830375623587952
+        ],
+        "body": 66,
+        "bone_stable_id": 100,
+        "exact_t": 0.557438766996148,
+        "source_record_index": 43,
+        "triangle_stable_id": 22,
+        "world_hit_m": [
+          -0.31617844541131956,
+          -1.0190181939882867,
+          0.12317592427795446
+        ]
+      },
+      {
+        "barycentric": [
+          0.28811771655616486,
+          0.2846372277449863,
+          0.42724505569884885
+        ],
+        "body": 66,
+        "bone_stable_id": 100,
+        "exact_t": 0.7118348578495461,
+        "source_record_index": 43,
+        "triangle_stable_id": 76,
+        "world_hit_m": [
+          -0.3203192111426236,
+          -1.0246189903114409,
+          0.12066267871803073
+        ]
+      }
+    ],
+    "baseline_current_world_chord_length_mm": 0.047959851169409665,
+    "compact_output_rows": [
+      329,
+      340
+    ],
+    "interpretation": "This is a compact O-surface edge, not an interior tetrahedral chord. Its exact baseline segment crosses the recorded body66/stable100 bank triangles. The same endpoint pair is joined through a longer, laterally displaced path in the detailed NHSKIN graph.",
+    "reference_coarse_chord_length_mm": 47.95985116940967,
+    "source_global_node_ids": [
+      1995,
+      2006
+    ],
+    "source_input_rows": [
+      329,
+      340
+    ],
+    "target_bank": {
+      "bone_source_label": "FJ3196",
+      "name": "distph3_r",
+      "stable_id": 100
+    }
+  },
+  "input_pins": {
+    "Wnew_detail_to_084_sha256": "55329313bf9c2c3b613fcd7eb52dd9b7b453520dd1b4a14e0e0d6ac457ce8519",
+    "accepted_coarse_faces_sha256": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+    "accepted_transfer_rows_sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+    "baseline103_candidate_sha256": "ddb86fbf07183adce0194c59a1acfc5456c96cb2efc709eb587e5489d3d59163",
+    "baseline103_edge_report_sha256": "41c8b9625e99ae6f5a4b4f3d909e847c906c53adc7523b221e0f2373faa7c2ee",
+    "compact084_mesh_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "detail_NHSKIN_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "facet_marker_map_sha256": "8e7ac9430c037d29e74d4c2f7f9f838995f6541c0f5fdf29a7b7095d9a6d8ff7",
+    "initial_diagnosis_report_sha256": "94cd9bf0bfd1a34272d0ee378f93f76d33902875bf690ee365cd38e0fd04b351",
+    "initial_diagnosis_script_sha256": "e60aef2bd84d88cbe580401a954fbd4e53de437c35ae296c0cf161991d7c8cbb"
+  },
+  "limitations": [
+    "No new exact test was run on the detailed path against the complete 185-bank triangle set.",
+    "The reported hit-to-path distance is geometric proximity only, not clearance.",
+    "The path and source-face ancestry are construction evidence; they do not qualify a surface refinement or claim a physical cause."
+  ],
+  "outer_surface_parentage": {
+    "accepted_coarse_face_vertices": {
+      "670": [
+        329,
+        328,
+        340
+      ],
+      "676": [
+        334,
+        329,
+        340
+      ]
+    },
+    "marker_to_source_face_parent_verified": true,
+    "output_O_faces": [
+      {
+        "marker": 100671,
+        "marker_source_vertex_ids": [
+          329,
+          340,
+          328
+        ],
+        "output_surface_face_row": 1292,
+        "source_face_row": 670,
+        "triangle_output_rows": [
+          340,
+          329,
+          328
+        ]
+      },
+      {
+        "marker": 100677,
+        "marker_source_vertex_ids": [
+          334,
+          340,
+          329
+        ],
+        "output_surface_face_row": 1294,
+        "source_face_row": 676,
+        "triangle_output_rows": [
+          340,
+          334,
+          329
+        ]
+      }
+    ],
+    "source_O_face_rows": [
+      670,
+      676
+    ],
+    "source_O_face_vertices": {
+      "670": [
+        329,
+        328,
+        340
+      ],
+      "676": [
+        334,
+        329,
+        340
+      ]
+    }
+  },
+  "scope": "Exact baseline103 O-O edge/bank witness plus two-face detailed NHSKIN source graph under frozen W transfer. No new bank query, geometry edit, or physical admission.",
+  "status": "READ_ONLY_LOCAL_SOURCE_PATH_DIAGNOSIS",
+  "target_digit_bank_baseline103_edge_groups": {
+    "110": {
+      "anatomical_label": "midph2_l",
+      "groups_by_layer_pair": {
+        "I-D": 1,
+        "I-I": 2,
+        "O-I": 3,
+        "O-O": 2
+      },
+      "source_bone_label": "FJ3296",
+      "stable_id": 115,
+      "unique_edge_bank_groups": 8
+    },
+    "111": {
+      "anatomical_label": "distph2_l",
+      "groups_by_layer_pair": {
+        "O-I": 1,
+        "O-O": 2
+      },
+      "source_bone_label": "FJ3183",
+      "stable_id": 116,
+      "unique_edge_bank_groups": 3
+    },
+    "65": {
+      "anatomical_label": "midph3_r",
+      "groups_by_layer_pair": {
+        "D-D": 6,
+        "I-D": 7,
+        "I-I": 1,
+        "O-I": 1,
+        "O-O": 1
+      },
+      "source_bone_label": "FJ3306",
+      "stable_id": 99,
+      "unique_edge_bank_groups": 16
+    },
+    "66": {
+      "anatomical_label": "distph3_r",
+      "groups_by_layer_pair": {
+        "D-D": 4,
+        "I-D": 5,
+        "I-I": 2,
+        "O-I": 2,
+        "O-O": 1
+      },
+      "source_bone_label": "FJ3196",
+      "stable_id": 100,
+      "unique_edge_bank_groups": 14
+    }
+  }
+}

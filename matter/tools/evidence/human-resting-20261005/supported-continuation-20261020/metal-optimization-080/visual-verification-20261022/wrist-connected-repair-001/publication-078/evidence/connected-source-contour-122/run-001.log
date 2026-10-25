@@ -1,0 +1,35 @@
+waiting_for_human_geometry_slot pid=33457
+acquired_human_geometry_slot pid=33457
+{
+  "source_plane_sha256": "fcecff75e446fa7b99412903c7780fe1f03ee9ba754142a78f25a135f714496f",
+  "candidate_sha256": "7d7cff9292e81b5ba24042f2d0fb040a2286f387dcfe49167b09d9db411d6920",
+  "construction_solver": {
+    "rings": 3,
+    "free_columns": 350,
+    "solver_success": true,
+    "solver_message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+    "iterations": 25,
+    "minimum_plane_slack_m": -9.58883146495726e-12,
+    "outside_patch_exact_zero": true
+  },
+  "maximum_column_translation_m": 0.008015526017046205,
+  "maximum_emitted_OI_vector_change_m": 5.960464477539063e-08,
+  "maximum_emitted_ID_vector_change_m": 5.960464477539063e-08,
+  "old_connectivity_invalid_cells": 110,
+  "old_connectivity_below_quality": 110,
+  "surfaces": {
+    "PLC": {
+      "self_pairs": 132,
+      "complete": true,
+      "wall_seconds": 2.358848417061381
+    },
+    "detailed": {
+      "self_pairs": 0,
+      "complete": true,
+      "wall_seconds": 8.60814229096286
+    }
+  },
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "interpretation": "Simultaneous connected source-reference construction with identical translations of all three column layers. Source-exit constraints and topology anchoring are authoring constraints; never runtime locks or forces. Native mass/ancestry/transfer and full clearance remain required."
+}

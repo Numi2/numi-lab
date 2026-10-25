@@ -1,0 +1,1180 @@
+{
+  "results": [
+    {
+      "O_to_nearest_source_surface_m": 3.480532474199688e-08,
+      "column_row": 204,
+      "events": [
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.1536915039896595,
+                0.1773135053231781,
+                0.6689949906871624
+              ],
+              "barycentric_residual_m": 4.336808689942018e-19,
+              "hit_local": [
+                0.002940469268723136,
+                -0.01874399409015148,
+                -0.0012089684944720698
+              ],
+              "hit_world": [
+                -0.31674866568207694,
+                -1.0259327071421618,
+                0.14735715753827588
+              ],
+              "t": 0.5438752526463101,
+              "t_denominator": "2294534439536722105992504593",
+              "t_numerator": "1247940498008694310000278725",
+              "triangle_row": 125,
+              "triangle_stable_id": 125
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OI",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.15918950459194242,
+                0.17839545656910336,
+                0.6624150388389543
+              ],
+              "barycentric_residual_m": 0.0,
+              "hit_local": [
+                0.0029539949349601906,
+                -0.01874318218660672,
+                -0.0011986979289747234
+              ],
+              "hit_world": [
+                -0.31675885136730303,
+                -1.0259309468834448,
+                0.14737065719199174
+              ],
+              "t": 0.229162227651956,
+              "t_denominator": "1089132804123395917938559588",
+              "t_numerator": "249588099601738862000055745",
+              "triangle_row": 125,
+              "triangle_stable_id": 125
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OD",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        }
+      ],
+      "nearest_detail_face_row": 2468,
+      "nearest_detail_vertex_rows": [
+        1227,
+        1229,
+        1207
+      ]
+    },
+    {
+      "O_to_nearest_source_surface_m": 6.891533389101362e-08,
+      "column_row": 215,
+      "events": [
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.13482356002867044,
+                0.5172185553814113,
+                0.3479578845899183
+              ],
+              "barycentric_residual_m": 1.791395985745431e-18,
+              "hit_local": [
+                0.003844584337737428,
+                -0.014761026633135844,
+                0.0005663029001464501
+              ],
+              "hit_world": [
+                -0.31812144261280134,
+                -1.0217974686466,
+                0.14827820497096686
+              ],
+              "t": 0.7872738826146232,
+              "t_denominator": "392832641130192748011869045",
+              "t_numerator": "309266878600323750062750864",
+              "triangle_row": 174,
+              "triangle_stable_id": 174
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OI",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.13457814851738753,
+                0.5176702121883702,
+                0.3477516392942423
+              ],
+              "barycentric_residual_m": 1.734723475976807e-18,
+              "hit_local": [
+                0.0038450701892508727,
+                -0.014762029320873738,
+                0.000566906919094119
+              ],
+              "hit_world": [
+                -0.31812214521032933,
+                -1.0217984086939194,
+                0.14827868344878167
+              ],
+              "t": 0.3718848191136555,
+              "t_denominator": "103952508513733374015792911",
+              "t_numerator": "38658359825040468757843858",
+              "triangle_row": 174,
+              "triangle_stable_id": 174
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OD",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        }
+      ],
+      "nearest_detail_face_row": 2534,
+      "nearest_detail_vertex_rows": [
+        1226,
+        1261,
+        1264
+      ]
+    },
+    {
+      "O_to_nearest_source_surface_m": 1.574816570630887e-05,
+      "column_row": 217,
+      "events": [
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.3322877583100459,
+                0.667431171392327,
+                0.00028107029762708017
+              ],
+              "barycentric_residual_m": 1.734723475976807e-18,
+              "hit_local": [
+                0.003225994697498689,
+                -0.013559156941680249,
+                -0.00031847056596323315
+              ],
+              "hit_world": [
+                -0.317119182605231,
+                -1.0206865119685917,
+                0.14766892827215752
+              ],
+              "t": 0.808969822886572,
+              "t_denominator": "248440799173547767324686313303",
+              "t_numerator": "200981109305223347207675524591",
+              "triangle_row": 172,
+              "triangle_stable_id": 172
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OI",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.33721144025639527,
+                0.662200789674433,
+                0.0005877700691716964
+              ],
+              "barycentric_residual_m": 1.788112030672749e-18,
+              "hit_local": [
+                0.0032296687388973754,
+                -0.013561144363357366,
+                -0.0003066935847691575
+              ],
+              "hit_world": [
+                -0.31713111173317665,
+                -1.0206873352618748,
+                0.14767255646769323
+              ],
+              "t": 0.33822068024599067,
+              "t_denominator": "594230693283001374967019240119",
+              "t_numerator": "200981109305223347207675524591",
+              "triangle_row": 172,
+              "triangle_stable_id": 172
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OD",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        }
+      ],
+      "nearest_detail_face_row": 2542,
+      "nearest_detail_vertex_rows": [
+        1265,
+        1267,
+        1266
+      ]
+    },
+    {
+      "O_to_nearest_source_surface_m": 0.00011212989333806032,
+      "column_row": 218,
+      "events": [
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.5633430311307455,
+                0.22495220612462977,
+                0.21170476274462477
+              ],
+              "barycentric_residual_m": 0.0,
+              "hit_local": [
+                0.002774321196634047,
+                -0.01033929779462115,
+                -0.0005866684475420684
+              ],
+              "hit_world": [
+                -0.3165299661860114,
+                -1.0175070753962783,
+                0.1472359859372131
+              ],
+              "t": 0.8326629043715338,
+              "t_denominator": "33219832740767883148433714775",
+              "t_numerator": "27660922412664356295407382539",
+              "triangle_row": 176,
+              "triangle_stable_id": 176
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OI",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.5631643284477347,
+                0.22516810304003854,
+                0.2116675685122268
+              ],
+              "barycentric_residual_m": 1.0842021724855044e-19,
+              "hit_local": [
+                0.002774354939112114,
+                -0.010340116092729765,
+                -0.0005868555742004806
+              ],
+              "hit_world": [
+                -0.3165298616323098,
+                -1.017507908433509,
+                0.14723601567322847
+              ],
+              "t": 0.4873818762720984,
+              "t_denominator": "170262316425703463505466466617",
+              "t_numerator": "82982767237993068886222147617",
+              "triangle_row": 176,
+              "triangle_stable_id": 176
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OD",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        }
+      ],
+      "nearest_detail_face_row": 2549,
+      "nearest_detail_vertex_rows": [
+        1269,
+        1290,
+        1272
+      ]
+    },
+    {
+      "O_to_nearest_source_surface_m": 5.662878187342147e-05,
+      "column_row": 219,
+      "events": [
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.07745347391331346,
+                0.42192917476282554,
+                0.500617351323861
+              ],
+              "barycentric_residual_m": 1.734723475976807e-18,
+              "hit_local": [
+                0.0017507342705795177,
+                -0.012498049334824946,
+                -0.0021841555207789947
+              ],
+              "hit_world": [
+                -0.3151519333435329,
+                -1.019808859950586,
+                0.14620510444576568
+              ],
+              "t": 0.5632804632555684,
+              "t_denominator": "2145530253855521129472335341",
+              "t_numerator": "1208535275320575181712793309",
+              "triangle_row": 103,
+              "triangle_stable_id": 103
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OI",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.07523336877594142,
+                0.42188689724316303,
+                0.5028797339808956
+              ],
+              "barycentric_residual_m": 2.168404344971009e-19,
+              "hit_local": [
+                0.001749389445285184,
+                -0.01249873577779406,
+                -0.0021843310609067183
+              ],
+              "hit_world": [
+                -0.31515182237541894,
+                -1.0198095534017104,
+                0.14620375634156305
+              ],
+              "t": 0.2985228827552449,
+              "t_denominator": "4048384044017951542166758517",
+              "t_numerator": "1208535275320575181712793309",
+              "triangle_row": 103,
+              "triangle_stable_id": 103
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OD",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        }
+      ],
+      "nearest_detail_face_row": 2550,
+      "nearest_detail_vertex_rows": [
+        1271,
+        1273,
+        1276
+      ]
+    },
+    {
+      "O_to_nearest_source_surface_m": 1.1610836703911432e-08,
+      "column_row": 231,
+      "events": [
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.025299695630376786,
+                0.9355273727507644,
+                0.03917293161885888
+              ],
+              "barycentric_residual_m": 0.0,
+              "hit_local": [
+                0.0032969154536787383,
+                -0.007813653536794932,
+                0.0006260457354185052
+              ],
+              "hit_world": [
+                -0.3174868439480488,
+                -1.0148759398307756,
+                0.14776906184493188
+              ],
+              "t": 0.527776003422146,
+              "t_denominator": "1885384812392399600298455220981",
+              "t_numerator": "995060861197273273647022387057",
+              "triangle_row": 167,
+              "triangle_stable_id": 167
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OI",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.025201877262925113,
+                0.9354639524077817,
+                0.03933417032929315
+              ],
+              "barycentric_residual_m": 4.4702800766818725e-19,
+              "hit_local": [
+                0.0032969978953940856,
+                -0.00781387409199861,
+                0.0006262234002529375
+              ],
+              "hit_world": [
+                -0.31748704298827496,
+                -1.0148761420149124,
+                0.14776914253315943
+              ],
+              "t": 0.4013285517563368,
+              "t_denominator": "2479417068241424185331626872374",
+              "t_numerator": "995060861197273273647022387057",
+              "triangle_row": 167,
+              "triangle_stable_id": 167
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OD",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        }
+      ],
+      "nearest_detail_face_row": 2583,
+      "nearest_detail_vertex_rows": [
+        1270,
+        1288,
+        1291
+      ]
+    },
+    {
+      "O_to_nearest_source_surface_m": 2.3844913775153667e-08,
+      "column_row": 233,
+      "events": [
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.4404055452428719,
+                0.4975593801244704,
+                0.06203507463265772
+              ],
+              "barycentric_residual_m": 4.84869951806108e-19,
+              "hit_local": [
+                0.0024297626133596706,
+                -0.006788950017207398,
+                -0.0008138708112655935
+              ],
+              "hit_world": [
+                -0.31594898956504514,
+                -1.0139952767318314,
+                0.1469118761255153
+              ],
+              "t": 0.5925002969167232,
+              "t_denominator": "134644292716767426088012869519",
+              "t_numerator": "79776783412826903016354294467",
+              "triangle_row": 158,
+              "triangle_stable_id": 158
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OI",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.44032848069409947,
+                0.4978343536375428,
+                0.061837165668357716
+              ],
+              "barycentric_residual_m": 8.741117365843378e-19,
+              "hit_local": [
+                0.002429402853418194,
+                -0.006789419011549391,
+                -0.0008140043669593042
+              ],
+              "hit_world": [
+                -0.31594890214381277,
+                -1.013995754805527,
+                0.1469115141543853
+              ],
+              "t": 0.45055723762600913,
+              "t_denominator": "177062483410923824697263779377",
+              "t_numerator": "79776783412826903016354294467",
+              "triangle_row": 158,
+              "triangle_stable_id": 158
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OD",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        }
+      ],
+      "nearest_detail_face_row": 2590,
+      "nearest_detail_vertex_rows": [
+        1291,
+        1532,
+        1531
+      ]
+    },
+    {
+      "O_to_nearest_source_surface_m": 6.573833370131362e-05,
+      "column_row": 271,
+      "events": [
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.47839125536843136,
+                0.27579685071955845,
+                0.24581189391201025
+              ],
+              "barycentric_residual_m": 8.673617379884035e-19,
+              "hit_local": [
+                0.0010297220202304422,
+                -0.0070836082933083185,
+                -0.0021980241311934513
+              ],
+              "hit_world": [
+                -0.3145962042688611,
+                -1.014419038168907,
+                0.1455143011936848
+              ],
+              "t": 0.1955218809791555,
+              "t_denominator": "219544833166855831150031980577",
+              "t_numerator": "42925818740038534652628456902",
+              "triangle_row": 98,
+              "triangle_stable_id": 98
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OI",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 61,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.47875277607959377,
+                0.2753821008048758,
+                0.24586512311553044
+              ],
+              "barycentric_residual_m": 4.336808689942018e-19,
+              "hit_local": [
+                0.0010298233024656934,
+                -0.007082691043108791,
+                -0.00219780198803856
+              ],
+              "hit_world": [
+                -0.31459633427734285,
+                -1.0144181038928581,
+                0.14551440692759254
+              ],
+              "t": 0.12486565274402504,
+              "t_denominator": "1203216114988227097904749823257",
+              "t_numerator": "150240365590134871284199599157",
+              "triangle_row": 98,
+              "triangle_stable_id": 98
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OD",
+          "stable_bone_id": 97,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        }
+      ],
+      "nearest_detail_face_row": 2590,
+      "nearest_detail_vertex_rows": [
+        1291,
+        1532,
+        1531
+      ]
+    },
+    {
+      "O_to_nearest_source_surface_m": 3.163162200126285e-08,
+      "column_row": 337,
+      "events": [],
+      "nearest_detail_face_row": 5136,
+      "nearest_detail_vertex_rows": [
+        2562,
+        2558,
+        2557
+      ]
+    },
+    {
+      "O_to_nearest_source_surface_m": 1.4205429186018645e-07,
+      "column_row": 1467,
+      "events": [
+        {
+          "body": 23,
+          "endpoint_parity_status": "inside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.1974687184547348,
+                0.21822153956024284,
+                0.5843097419850224
+              ],
+              "barycentric_residual_m": 1.3877787807814457e-17,
+              "hit_local": [
+                -0.031482918308290066,
+                -0.1208683569220283,
+                0.058134384806956936
+              ],
+              "hit_world": [
+                0.005949443902334426,
+                -0.09004103229450104,
+                0.2212478120284815
+              ],
+              "t": 0.5494980784092733,
+              "t_denominator": "17733199185935435159083713",
+              "t_numerator": "9744358876720412749236187",
+              "triangle_row": 10731,
+              "triangle_stable_id": 10731
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OI",
+          "stable_bone_id": 32,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 23,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.16298965153154435,
+                0.7912819134870926,
+                0.04572843498136297
+              ],
+              "barycentric_residual_m": 3.469446951953614e-18,
+              "hit_local": [
+                -0.029709768941805895,
+                -0.117559475910974,
+                0.057581393919372344
+              ],
+              "hit_world": [
+                0.00418635426812944,
+                -0.09188071112972138,
+                0.21843611433350757
+              ],
+              "t": 0.6884566046593231,
+              "t_denominator": "36003332857000016589718627",
+              "t_numerator": "24786732295149680442487210",
+              "triangle_row": 10750,
+              "triangle_stable_id": 10750
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "ID",
+          "stable_bone_id": 32,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 23,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 2,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.19734322835273618,
+                0.2182656454994776,
+                0.5843911261477862
+              ],
+              "barycentric_residual_m": 0.0,
+              "hit_local": [
+                -0.03148313214307098,
+                -0.1208680696570851,
+                0.05813486236005215
+              ],
+              "hit_world": [
+                0.005949656101165265,
+                -0.09004157826030672,
+                0.22124792690374046
+              ],
+              "t": 0.21178970330937372,
+              "t_denominator": "13145599114131291459013665",
+              "t_numerator": "2784102536205832214067482",
+              "triangle_row": 10731,
+              "triangle_stable_id": 10731
+            },
+            {
+              "barycentric": [
+                0.1629874848124435,
+                0.7913222046550682,
+                0.045690310532488364
+              ],
+              "barycentric_residual_m": 7.757919228897728e-18,
+              "hit_local": [
+                -0.02970987868348607,
+                -0.1175592915960508,
+                0.057581661087042456
+              ],
+              "hit_world": [
+                0.0041864631475027735,
+                -0.09188103259364139,
+                0.2184361612375584
+              ],
+              "t": 0.8085367493449557,
+              "t_denominator": "3083345738528907582090161",
+              "t_numerator": "2492998340536784626972718",
+              "triangle_row": 10750,
+              "triangle_stable_id": 10750
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OD",
+          "stable_bone_id": 32,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        }
+      ],
+      "nearest_detail_face_row": 104084,
+      "nearest_detail_vertex_rows": [
+        32183,
+        31349,
+        32182
+      ]
+    },
+    {
+      "O_to_nearest_source_surface_m": 2.10972288472083e-07,
+      "column_row": 1990,
+      "events": [
+        {
+          "body": 91,
+          "endpoint_parity_status": "inside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.8041720315965158,
+                0.16157678894777594,
+                0.03425117945570827
+              ],
+              "barycentric_residual_m": 2.7809732887839817e-17,
+              "hit_local": [
+                0.04378993446459981,
+                0.009565947181819327,
+                0.15854449319692748
+              ],
+              "hit_world": [
+                0.1463308701857747,
+                -0.301978910119194,
+                0.08813617294543
+              ],
+              "t": 0.8589710354124148,
+              "t_denominator": "659941792086653007433781",
+              "t_numerator": "566870884460596888968574",
+              "triangle_row": 977,
+              "triangle_stable_id": 977
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OI",
+          "stable_bone_id": 13,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 91,
+          "endpoint_parity_status": "inside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.8044469342014443,
+                0.1614976188693285,
+                0.03405544692922712
+              ],
+              "barycentric_residual_m": 2.7809732887839817e-17,
+              "hit_local": [
+                0.043789188569134746,
+                0.009566354702496303,
+                0.1585448159837233
+              ],
+              "hit_world": [
+                0.1463299714714033,
+                -0.3019787781520997,
+                0.08813613393729952
+              ],
+              "t": 0.17050020634239044,
+              "t_denominator": "3324751896911101930652155",
+              "t_numerator": "566870884460596888968574",
+              "triangle_row": 977,
+              "triangle_stable_id": 977
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OD",
+          "stable_bone_id": 13,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        }
+      ],
+      "nearest_detail_face_row": 78782,
+      "nearest_detail_vertex_rows": [
+        46603,
+        47222,
+        46787
+      ]
+    },
+    {
+      "O_to_nearest_source_surface_m": 2.0446147003134854e-07,
+      "column_row": 2024,
+      "events": [
+        {
+          "body": 91,
+          "endpoint_parity_status": "inside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.35169839782665724,
+                0.1448720965997968,
+                0.5034295055735459
+              ],
+              "barycentric_residual_m": 2.8609792490763984e-17,
+              "hit_local": [
+                0.060757505808340245,
+                -0.00031608398874721983,
+                0.14450899548654236
+              ],
+              "hit_world": [
+                0.16848937495434643,
+                -0.311471724833785,
+                0.08933423656703862
+              ],
+              "t": 0.44147852475073657,
+              "t_denominator": "580791395205790169467868957",
+              "t_numerator": "256406928343374264357070398",
+              "triangle_row": 2222,
+              "triangle_stable_id": 2222
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OI",
+          "stable_bone_id": 13,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 91,
+          "endpoint_parity_status": "inside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.35175122414580334,
+                0.14495962763059803,
+                0.5032891482235986
+              ],
+              "barycentric_residual_m": 0.0,
+              "hit_local": [
+                0.06075728146848985,
+                -0.00031548814245797787,
+                0.14450901861609225
+              ],
+              "hit_world": [
+                0.1684889204759132,
+                -0.3114717860500629,
+                0.0893337943023132
+              ],
+              "t": 0.08762773550908641,
+              "t_denominator": "2926093283750172751606439477",
+              "t_numerator": "256406928343374264357070398",
+              "triangle_row": 2222,
+              "triangle_stable_id": 2222
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OD",
+          "stable_bone_id": 13,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        }
+      ],
+      "nearest_detail_face_row": 80019,
+      "nearest_detail_vertex_rows": [
+        47390,
+        47230,
+        47388
+      ]
+    },
+    {
+      "O_to_nearest_source_surface_m": 1.4701768307513488e-07,
+      "column_row": 2187,
+      "events": [],
+      "nearest_detail_face_row": 83781,
+      "nearest_detail_vertex_rows": [
+        49300,
+        49299,
+        49302
+      ]
+    },
+    {
+      "O_to_nearest_source_surface_m": 1.652890172432556e-07,
+      "column_row": 2261,
+      "events": [
+        {
+          "body": 107,
+          "endpoint_parity_status": "inside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.7171115764185517,
+                0.08991482856761689,
+                0.19297359501383138
+              ],
+              "barycentric_residual_m": 7.204847710556568e-18,
+              "hit_local": [
+                0.004994543537068908,
+                -0.03620958173007291,
+                -0.008574924912267284
+              ],
+              "hit_world": [
+                0.2563966887845889,
+                -0.9495441336874344,
+                0.1377609805400323
+              ],
+              "t": 0.46232380861298844,
+              "t_denominator": "52022978805252154156741805",
+              "t_numerator": "24051461696636950939614304",
+              "triangle_row": 638,
+              "triangle_stable_id": 638
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "ID",
+          "stable_bone_id": 108,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 107,
+          "endpoint_parity_status": "inside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.6989512570338041,
+                0.1464059025044302,
+                0.15464284046176568
+              ],
+              "barycentric_residual_m": 1.734723475976807e-18,
+              "hit_local": [
+                0.005038166116121827,
+                -0.036338292581475404,
+                -0.00848628481416756
+              ],
+              "hit_world": [
+                0.25632112475175456,
+                -0.9496812653231029,
+                0.13780354193721608
+              ],
+              "t": 0.5256179031795742,
+              "t_denominator": "58964107828048234492135309",
+              "t_numerator": "30992590719433031275007808",
+              "triangle_row": 638,
+              "triangle_stable_id": 638
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OD",
+          "stable_bone_id": 108,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 109,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.15126418290313745,
+                0.06522827843835735,
+                0.7835075386585052
+              ],
+              "barycentric_residual_m": 8.673617379884035e-19,
+              "hit_local": [
+                0.0012398934821121585,
+                -0.006275728594894505,
+                -0.004289800696558706
+              ],
+              "hit_world": [
+                0.2555674468553524,
+                -0.9479266747919021,
+                0.1375120594872212
+              ],
+              "t": 0.7041666282362476,
+              "t_denominator": "15327261835350718316891273729",
+              "t_numerator": "10792946286693036479133021363",
+              "triangle_row": 69,
+              "triangle_stable_id": 69
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "ID",
+          "stable_bone_id": 114,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        },
+        {
+          "body": 109,
+          "endpoint_parity_status": "outside",
+          "equal_parameter_groups": [],
+          "proper_hit_count": 1,
+          "proper_hits": [
+            {
+              "barycentric": [
+                0.13793617086202703,
+                0.0787987524827436,
+                0.7832650766552294
+              ],
+              "barycentric_residual_m": 8.673617379884035e-19,
+              "hit_local": [
+                0.0012554155513738103,
+                -0.006292282526588918,
+                -0.004221627960019983
+              ],
+              "hit_world": [
+                0.2555011943411763,
+                -0.9479500221139323,
+                0.1375271590582715
+              ],
+              "t": 0.745612459400888,
+              "t_denominator": "8912220185742679285103876159",
+              "t_numerator": "6645062411413838366224749976",
+              "triangle_row": 69,
+              "triangle_stable_id": 69
+            }
+          ],
+          "reason": "exact_proper_hit_parity_matches_endpoint_classifications",
+          "route": "OD",
+          "stable_bone_id": 114,
+          "status": "PASS",
+          "unresolved_witnesses": []
+        }
+      ],
+      "nearest_detail_face_row": 90120,
+      "nearest_detail_vertex_rows": [
+        52297,
+        52602,
+        52601
+      ]
+    },
+    {
+      "O_to_nearest_source_surface_m": 1.9971768209792482e-07,
+      "column_row": 2262,
+      "events": [],
+      "nearest_detail_face_row": 90161,
+      "nearest_detail_vertex_rows": [
+        52309,
+        52310,
+        52779
+      ]
+    }
+  ],
+  "schema": "fine-source-probe-route-witnesses-v1",
+  "scope": "Frozen exact OI/ID/OD event witnesses for the same 15 columns, copied from run-002 and not recomputed.",
+  "source_probe_report_sha256": "d6ae04efd7c788ef289a0d60f16b2b91c77af79ac023897c00ea11bacbb2e447",
+  "source_run112_jsonl_gz_sha256": "40aa807d719ad8b46a6504c1d2800b7cce41d01204dc01ee7ee6ae2dc5c4f08f"
+}

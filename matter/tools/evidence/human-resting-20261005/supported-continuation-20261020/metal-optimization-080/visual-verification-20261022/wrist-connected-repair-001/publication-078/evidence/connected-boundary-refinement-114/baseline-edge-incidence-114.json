@@ -1,0 +1,4169 @@
+{
+  "counts": {
+    "baseline103_O_layer_edge_hit_records": 166,
+    "distinct_candidate_edge_bank_groups": 166,
+    "distinct_candidate_edges": 147,
+    "eligible_O_edge_bank_groups": 164,
+    "eligible_interior_oriented_O_edges": 145,
+    "excluded_non_O_or_nonmanifold_edges": 2
+  },
+  "eligible_edges": [
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        0,
+        94
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            94,
+            0
+          ],
+          "source_O_face_row": 1
+        },
+        {
+          "directed_edge": [
+            0,
+            94
+          ],
+          "source_O_face_row": 2
+        }
+      ],
+      "source_parent_markers": [
+        100002,
+        100003
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1,
+        94
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1,
+            94
+          ],
+          "source_O_face_row": 1
+        },
+        {
+          "directed_edge": [
+            94,
+            1
+          ],
+          "source_O_face_row": 3
+        }
+      ],
+      "source_parent_markers": [
+        100002,
+        100004
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        30,
+        94
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            94,
+            30
+          ],
+          "source_O_face_row": 2
+        },
+        {
+          "directed_edge": [
+            30,
+            94
+          ],
+          "source_O_face_row": 86
+        }
+      ],
+      "source_parent_markers": [
+        100003,
+        100087
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        122,
+        204
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            204,
+            122
+          ],
+          "source_O_face_row": 288
+        },
+        {
+          "directed_edge": [
+            122,
+            204
+          ],
+          "source_O_face_row": 289
+        }
+      ],
+      "source_parent_markers": [
+        100289,
+        100290
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        142,
+        215
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            215,
+            142
+          ],
+          "source_O_face_row": 329
+        },
+        {
+          "directed_edge": [
+            142,
+            215
+          ],
+          "source_O_face_row": 330
+        }
+      ],
+      "source_parent_markers": [
+        100330,
+        100331
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        200,
+        204
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            200,
+            204
+          ],
+          "source_O_face_row": 288
+        },
+        {
+          "directed_edge": [
+            204,
+            200
+          ],
+          "source_O_face_row": 444
+        }
+      ],
+      "source_parent_markers": [
+        100289,
+        100445
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        203,
+        204
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            204,
+            203
+          ],
+          "source_O_face_row": 289
+        },
+        {
+          "directed_edge": [
+            203,
+            204
+          ],
+          "source_O_face_row": 449
+        }
+      ],
+      "source_parent_markers": [
+        100290,
+        100450
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        203,
+        215
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            215,
+            203
+          ],
+          "source_O_face_row": 449
+        },
+        {
+          "directed_edge": [
+            203,
+            215
+          ],
+          "source_O_face_row": 450
+        }
+      ],
+      "source_parent_markers": [
+        100450,
+        100451
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        204,
+        205
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            205,
+            204
+          ],
+          "source_O_face_row": 444
+        },
+        {
+          "directed_edge": [
+            204,
+            205
+          ],
+          "source_O_face_row": 451
+        }
+      ],
+      "source_parent_markers": [
+        100445,
+        100452
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        204,
+        206
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            206,
+            204
+          ],
+          "source_O_face_row": 451
+        },
+        {
+          "directed_edge": [
+            204,
+            206
+          ],
+          "source_O_face_row": 452
+        }
+      ],
+      "source_parent_markers": [
+        100452,
+        100453
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        206,
+        217
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            206,
+            217
+          ],
+          "source_O_face_row": 452
+        },
+        {
+          "directed_edge": [
+            217,
+            206
+          ],
+          "source_O_face_row": 456
+        }
+      ],
+      "source_parent_markers": [
+        100453,
+        100457
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        207,
+        217
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            207,
+            217
+          ],
+          "source_O_face_row": 456
+        },
+        {
+          "directed_edge": [
+            217,
+            207
+          ],
+          "source_O_face_row": 459
+        }
+      ],
+      "source_parent_markers": [
+        100457,
+        100460
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        207,
+        219
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            207,
+            219
+          ],
+          "source_O_face_row": 459
+        },
+        {
+          "directed_edge": [
+            219,
+            207
+          ],
+          "source_O_face_row": 460
+        }
+      ],
+      "source_parent_markers": [
+        100460,
+        100461
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        214,
+        215
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            214,
+            215
+          ],
+          "source_O_face_row": 329
+        },
+        {
+          "directed_edge": [
+            215,
+            214
+          ],
+          "source_O_face_row": 450
+        }
+      ],
+      "source_parent_markers": [
+        100330,
+        100451
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        215,
+        216
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            215,
+            216
+          ],
+          "source_O_face_row": 330
+        },
+        {
+          "directed_edge": [
+            216,
+            215
+          ],
+          "source_O_face_row": 471
+        }
+      ],
+      "source_parent_markers": [
+        100331,
+        100472
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        216,
+        217
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            217,
+            216
+          ],
+          "source_O_face_row": 471
+        },
+        {
+          "directed_edge": [
+            216,
+            217
+          ],
+          "source_O_face_row": 472
+        }
+      ],
+      "source_parent_markers": [
+        100472,
+        100473
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        216,
+        218
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            218,
+            216
+          ],
+          "source_O_face_row": 472
+        },
+        {
+          "directed_edge": [
+            216,
+            218
+          ],
+          "source_O_face_row": 473
+        }
+      ],
+      "source_parent_markers": [
+        100473,
+        100474
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        216,
+        231
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            231,
+            216
+          ],
+          "source_O_face_row": 473
+        },
+        {
+          "directed_edge": [
+            216,
+            231
+          ],
+          "source_O_face_row": 474
+        }
+      ],
+      "source_parent_markers": [
+        100474,
+        100475
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        218,
+        220
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            220,
+            218
+          ],
+          "source_O_face_row": 476
+        },
+        {
+          "directed_edge": [
+            218,
+            220
+          ],
+          "source_O_face_row": 477
+        }
+      ],
+      "source_parent_markers": [
+        100477,
+        100478
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        219,
+        220
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            219,
+            220
+          ],
+          "source_O_face_row": 476
+        },
+        {
+          "directed_edge": [
+            220,
+            219
+          ],
+          "source_O_face_row": 480
+        }
+      ],
+      "source_parent_markers": [
+        100477,
+        100481
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        219,
+        221
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            221,
+            219
+          ],
+          "source_O_face_row": 460
+        },
+        {
+          "directed_edge": [
+            219,
+            221
+          ],
+          "source_O_face_row": 481
+        }
+      ],
+      "source_parent_markers": [
+        100461,
+        100482
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        219,
+        222
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            219,
+            222
+          ],
+          "source_O_face_row": 480
+        },
+        {
+          "directed_edge": [
+            222,
+            219
+          ],
+          "source_O_face_row": 481
+        }
+      ],
+      "source_parent_markers": [
+        100481,
+        100482
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        220,
+        271
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            220,
+            271
+          ],
+          "source_O_face_row": 477
+        },
+        {
+          "directed_edge": [
+            271,
+            220
+          ],
+          "source_O_face_row": 483
+        }
+      ],
+      "source_parent_markers": [
+        100478,
+        100484
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        229,
+        231
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            231,
+            229
+          ],
+          "source_O_face_row": 474
+        },
+        {
+          "directed_edge": [
+            229,
+            231
+          ],
+          "source_O_face_row": 498
+        }
+      ],
+      "source_parent_markers": [
+        100475,
+        100499
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        230,
+        231
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            231,
+            230
+          ],
+          "source_O_face_row": 498
+        },
+        {
+          "directed_edge": [
+            230,
+            231
+          ],
+          "source_O_face_row": 499
+        }
+      ],
+      "source_parent_markers": [
+        100499,
+        100500
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        231,
+        232
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            231,
+            232
+          ],
+          "source_O_face_row": 499
+        },
+        {
+          "directed_edge": [
+            232,
+            231
+          ],
+          "source_O_face_row": 501
+        }
+      ],
+      "source_parent_markers": [
+        100500,
+        100502
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        232,
+        233
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            233,
+            232
+          ],
+          "source_O_face_row": 501
+        },
+        {
+          "directed_edge": [
+            232,
+            233
+          ],
+          "source_O_face_row": 502
+        }
+      ],
+      "source_parent_markers": [
+        100502,
+        100503
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        233,
+        234
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            233,
+            234
+          ],
+          "source_O_face_row": 502
+        },
+        {
+          "directed_edge": [
+            234,
+            233
+          ],
+          "source_O_face_row": 507
+        }
+      ],
+      "source_parent_markers": [
+        100503,
+        100508
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        234,
+        271
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            271,
+            234
+          ],
+          "source_O_face_row": 507
+        },
+        {
+          "directed_edge": [
+            234,
+            271
+          ],
+          "source_O_face_row": 509
+        }
+      ],
+      "source_parent_markers": [
+        100508,
+        100510
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        267,
+        357
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            357,
+            267
+          ],
+          "source_O_face_row": 572
+        },
+        {
+          "directed_edge": [
+            267,
+            357
+          ],
+          "source_O_face_row": 575
+        }
+      ],
+      "source_parent_markers": [
+        100573,
+        100576
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        267,
+        465
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            267,
+            465
+          ],
+          "source_O_face_row": 574
+        },
+        {
+          "directed_edge": [
+            465,
+            267
+          ],
+          "source_O_face_row": 576
+        }
+      ],
+      "source_parent_markers": [
+        100575,
+        100577
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        267,
+        577
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            577,
+            267
+          ],
+          "source_O_face_row": 575
+        },
+        {
+          "directed_edge": [
+            267,
+            577
+          ],
+          "source_O_face_row": 576
+        }
+      ],
+      "source_parent_markers": [
+        100576,
+        100577
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        271,
+        272
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            272,
+            271
+          ],
+          "source_O_face_row": 483
+        },
+        {
+          "directed_edge": [
+            271,
+            272
+          ],
+          "source_O_face_row": 509
+        }
+      ],
+      "source_parent_markers": [
+        100484,
+        100510
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        308,
+        337
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            308,
+            337
+          ],
+          "source_O_face_row": 640
+        },
+        {
+          "directed_edge": [
+            337,
+            308
+          ],
+          "source_O_face_row": 642
+        }
+      ],
+      "source_parent_markers": [
+        100641,
+        100643
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        310,
+        364
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            310,
+            364
+          ],
+          "source_O_face_row": 646
+        },
+        {
+          "directed_edge": [
+            364,
+            310
+          ],
+          "source_O_face_row": 647
+        }
+      ],
+      "source_parent_markers": [
+        100647,
+        100648
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        311,
+        337
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            337,
+            311
+          ],
+          "source_O_face_row": 640
+        },
+        {
+          "directed_edge": [
+            311,
+            337
+          ],
+          "source_O_face_row": 648
+        }
+      ],
+      "source_parent_markers": [
+        100641,
+        100649
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        311,
+        357
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            311,
+            357
+          ],
+          "source_O_face_row": 572
+        },
+        {
+          "directed_edge": [
+            357,
+            311
+          ],
+          "source_O_face_row": 648
+        }
+      ],
+      "source_parent_markers": [
+        100573,
+        100649
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        329,
+        340
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            340,
+            329
+          ],
+          "source_O_face_row": 670
+        },
+        {
+          "directed_edge": [
+            329,
+            340
+          ],
+          "source_O_face_row": 676
+        }
+      ],
+      "source_parent_markers": [
+        100671,
+        100677
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        330,
+        337
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            330,
+            337
+          ],
+          "source_O_face_row": 642
+        },
+        {
+          "directed_edge": [
+            337,
+            330
+          ],
+          "source_O_face_row": 679
+        }
+      ],
+      "source_parent_markers": [
+        100643,
+        100680
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        334,
+        349
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            334,
+            349
+          ],
+          "source_O_face_row": 693
+        },
+        {
+          "directed_edge": [
+            349,
+            334
+          ],
+          "source_O_face_row": 694
+        }
+      ],
+      "source_parent_markers": [
+        100694,
+        100695
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        335,
+        337
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            335,
+            337
+          ],
+          "source_O_face_row": 679
+        },
+        {
+          "directed_edge": [
+            337,
+            335
+          ],
+          "source_O_face_row": 695
+        }
+      ],
+      "source_parent_markers": [
+        100680,
+        100696
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        336,
+        337
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            336,
+            337
+          ],
+          "source_O_face_row": 695
+        },
+        {
+          "directed_edge": [
+            337,
+            336
+          ],
+          "source_O_face_row": 696
+        }
+      ],
+      "source_parent_markers": [
+        100696,
+        100697
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        337,
+        350
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            350,
+            337
+          ],
+          "source_O_face_row": 696
+        },
+        {
+          "directed_edge": [
+            337,
+            350
+          ],
+          "source_O_face_row": 698
+        }
+      ],
+      "source_parent_markers": [
+        100697,
+        100699
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        337,
+        357
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            337,
+            357
+          ],
+          "source_O_face_row": 648
+        },
+        {
+          "directed_edge": [
+            357,
+            337
+          ],
+          "source_O_face_row": 698
+        }
+      ],
+      "source_parent_markers": [
+        100649,
+        100699
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        342,
+        357
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            357,
+            342
+          ],
+          "source_O_face_row": 710
+        },
+        {
+          "directed_edge": [
+            342,
+            357
+          ],
+          "source_O_face_row": 711
+        }
+      ],
+      "source_parent_markers": [
+        100711,
+        100712
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        349,
+        357
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            349,
+            357
+          ],
+          "source_O_face_row": 710
+        },
+        {
+          "directed_edge": [
+            357,
+            349
+          ],
+          "source_O_face_row": 724
+        }
+      ],
+      "source_parent_markers": [
+        100711,
+        100725
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        354,
+        357
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            354,
+            357
+          ],
+          "source_O_face_row": 724
+        },
+        {
+          "directed_edge": [
+            357,
+            354
+          ],
+          "source_O_face_row": 733
+        }
+      ],
+      "source_parent_markers": [
+        100725,
+        100734
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        354,
+        363
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            354,
+            363
+          ],
+          "source_O_face_row": 733
+        },
+        {
+          "directed_edge": [
+            363,
+            354
+          ],
+          "source_O_face_row": 736
+        }
+      ],
+      "source_parent_markers": [
+        100734,
+        100737
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        355,
+        356
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            356,
+            355
+          ],
+          "source_O_face_row": 633
+        },
+        {
+          "directed_edge": [
+            355,
+            356
+          ],
+          "source_O_face_row": 737
+        }
+      ],
+      "source_parent_markers": [
+        100634,
+        100738
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        356,
+        373
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            356,
+            373
+          ],
+          "source_O_face_row": 737
+        },
+        {
+          "directed_edge": [
+            373,
+            356
+          ],
+          "source_O_face_row": 739
+        }
+      ],
+      "source_parent_markers": [
+        100738,
+        100740
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        356,
+        576
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            576,
+            356
+          ],
+          "source_O_face_row": 715
+        },
+        {
+          "directed_edge": [
+            356,
+            576
+          ],
+          "source_O_face_row": 739
+        }
+      ],
+      "source_parent_markers": [
+        100716,
+        100740
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        357,
+        363
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            363,
+            357
+          ],
+          "source_O_face_row": 733
+        },
+        {
+          "directed_edge": [
+            357,
+            363
+          ],
+          "source_O_face_row": 740
+        }
+      ],
+      "source_parent_markers": [
+        100734,
+        100741
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        360,
+        388
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            388,
+            360
+          ],
+          "source_O_face_row": 744
+        },
+        {
+          "directed_edge": [
+            360,
+            388
+          ],
+          "source_O_face_row": 749
+        }
+      ],
+      "source_parent_markers": [
+        100745,
+        100750
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        364,
+        377
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            364,
+            377
+          ],
+          "source_O_face_row": 700
+        },
+        {
+          "directed_edge": [
+            377,
+            364
+          ],
+          "source_O_face_row": 753
+        }
+      ],
+      "source_parent_markers": [
+        100701,
+        100754
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        365,
+        619
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            619,
+            365
+          ],
+          "source_O_face_row": 763
+        },
+        {
+          "directed_edge": [
+            365,
+            619
+          ],
+          "source_O_face_row": 764
+        }
+      ],
+      "source_parent_markers": [
+        100764,
+        100765
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        369,
+        387
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            387,
+            369
+          ],
+          "source_O_face_row": 771
+        },
+        {
+          "directed_edge": [
+            369,
+            387
+          ],
+          "source_O_face_row": 772
+        }
+      ],
+      "source_parent_markers": [
+        100772,
+        100773
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        369,
+        388
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            369,
+            388
+          ],
+          "source_O_face_row": 770
+        },
+        {
+          "directed_edge": [
+            388,
+            369
+          ],
+          "source_O_face_row": 772
+        }
+      ],
+      "source_parent_markers": [
+        100771,
+        100773
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        381,
+        467
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            467,
+            381
+          ],
+          "source_O_face_row": 792
+        },
+        {
+          "directed_edge": [
+            381,
+            467
+          ],
+          "source_O_face_row": 802
+        }
+      ],
+      "source_parent_markers": [
+        100793,
+        100803
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        381,
+        630
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            630,
+            381
+          ],
+          "source_O_face_row": 802
+        },
+        {
+          "directed_edge": [
+            381,
+            630
+          ],
+          "source_O_face_row": 803
+        }
+      ],
+      "source_parent_markers": [
+        100803,
+        100804
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        381,
+        662
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            381,
+            662
+          ],
+          "source_O_face_row": 773
+        },
+        {
+          "directed_edge": [
+            662,
+            381
+          ],
+          "source_O_face_row": 804
+        }
+      ],
+      "source_parent_markers": [
+        100774,
+        100805
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        381,
+        677
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            677,
+            381
+          ],
+          "source_O_face_row": 805
+        },
+        {
+          "directed_edge": [
+            381,
+            677
+          ],
+          "source_O_face_row": 806
+        }
+      ],
+      "source_parent_markers": [
+        100806,
+        100807
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        381,
+        2339
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2339,
+            381
+          ],
+          "source_O_face_row": 803
+        },
+        {
+          "directed_edge": [
+            381,
+            2339
+          ],
+          "source_O_face_row": 805
+        }
+      ],
+      "source_parent_markers": [
+        100804,
+        100806
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        381,
+        2345
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            381,
+            2345
+          ],
+          "source_O_face_row": 804
+        },
+        {
+          "directed_edge": [
+            2345,
+            381
+          ],
+          "source_O_face_row": 806
+        }
+      ],
+      "source_parent_markers": [
+        100805,
+        100807
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        389,
+        391
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            389,
+            391
+          ],
+          "source_O_face_row": 822
+        },
+        {
+          "directed_edge": [
+            391,
+            389
+          ],
+          "source_O_face_row": 824
+        }
+      ],
+      "source_parent_markers": [
+        100823,
+        100825
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        389,
+        573
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            389,
+            573
+          ],
+          "source_O_face_row": 825
+        },
+        {
+          "directed_edge": [
+            573,
+            389
+          ],
+          "source_O_face_row": 826
+        }
+      ],
+      "source_parent_markers": [
+        100826,
+        100827
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        389,
+        574
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            574,
+            389
+          ],
+          "source_O_face_row": 823
+        },
+        {
+          "directed_edge": [
+            389,
+            574
+          ],
+          "source_O_face_row": 827
+        }
+      ],
+      "source_parent_markers": [
+        100824,
+        100828
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        389,
+        654
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            389,
+            654
+          ],
+          "source_O_face_row": 826
+        },
+        {
+          "directed_edge": [
+            654,
+            389
+          ],
+          "source_O_face_row": 827
+        }
+      ],
+      "source_parent_markers": [
+        100827,
+        100828
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        464,
+        629
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            464,
+            629
+          ],
+          "source_O_face_row": 1006
+        },
+        {
+          "directed_edge": [
+            629,
+            464
+          ],
+          "source_O_face_row": 1007
+        }
+      ],
+      "source_parent_markers": [
+        101007,
+        101008
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        659,
+        719
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            659,
+            719
+          ],
+          "source_O_face_row": 1351
+        },
+        {
+          "directed_edge": [
+            719,
+            659
+          ],
+          "source_O_face_row": 1352
+        }
+      ],
+      "source_parent_markers": [
+        101352,
+        101353
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        672,
+        719
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            719,
+            672
+          ],
+          "source_O_face_row": 1351
+        },
+        {
+          "directed_edge": [
+            672,
+            719
+          ],
+          "source_O_face_row": 1395
+        }
+      ],
+      "source_parent_markers": [
+        101352,
+        101396
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        683,
+        719
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            719,
+            683
+          ],
+          "source_O_face_row": 1395
+        },
+        {
+          "directed_edge": [
+            683,
+            719
+          ],
+          "source_O_face_row": 1431
+        }
+      ],
+      "source_parent_markers": [
+        101396,
+        101432
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        721,
+        752
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            752,
+            721
+          ],
+          "source_O_face_row": 1550
+        },
+        {
+          "directed_edge": [
+            721,
+            752
+          ],
+          "source_O_face_row": 1551
+        }
+      ],
+      "source_parent_markers": [
+        101551,
+        101552
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        725,
+        781
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            781,
+            725
+          ],
+          "source_O_face_row": 1561
+        },
+        {
+          "directed_edge": [
+            725,
+            781
+          ],
+          "source_O_face_row": 1564
+        }
+      ],
+      "source_parent_markers": [
+        101562,
+        101565
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        786,
+        857
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            857,
+            786
+          ],
+          "source_O_face_row": 1718
+        },
+        {
+          "directed_edge": [
+            786,
+            857
+          ],
+          "source_O_face_row": 1719
+        }
+      ],
+      "source_parent_markers": [
+        101719,
+        101720
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        787,
+        845
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            787,
+            845
+          ],
+          "source_O_face_row": 1693
+        },
+        {
+          "directed_edge": [
+            845,
+            787
+          ],
+          "source_O_face_row": 1721
+        }
+      ],
+      "source_parent_markers": [
+        101694,
+        101722
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        825,
+        1008
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            825,
+            1008
+          ],
+          "source_O_face_row": 1798
+        },
+        {
+          "directed_edge": [
+            1008,
+            825
+          ],
+          "source_O_face_row": 1800
+        }
+      ],
+      "source_parent_markers": [
+        101799,
+        101801
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        852,
+        865
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            852,
+            865
+          ],
+          "source_O_face_row": 1857
+        },
+        {
+          "directed_edge": [
+            865,
+            852
+          ],
+          "source_O_face_row": 1859
+        }
+      ],
+      "source_parent_markers": [
+        101858,
+        101860
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        852,
+        1011
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            852,
+            1011
+          ],
+          "source_O_face_row": 1863
+        },
+        {
+          "directed_edge": [
+            1011,
+            852
+          ],
+          "source_O_face_row": 1864
+        }
+      ],
+      "source_parent_markers": [
+        101864,
+        101865
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        852,
+        1012
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            852,
+            1012
+          ],
+          "source_O_face_row": 1860
+        },
+        {
+          "directed_edge": [
+            1012,
+            852
+          ],
+          "source_O_face_row": 1863
+        }
+      ],
+      "source_parent_markers": [
+        101861,
+        101864
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        865,
+        898
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            898,
+            865
+          ],
+          "source_O_face_row": 1859
+        },
+        {
+          "directed_edge": [
+            865,
+            898
+          ],
+          "source_O_face_row": 1900
+        }
+      ],
+      "source_parent_markers": [
+        101860,
+        101901
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        897,
+        1153
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1153,
+            897
+          ],
+          "source_O_face_row": 1970
+        },
+        {
+          "directed_edge": [
+            897,
+            1153
+          ],
+          "source_O_face_row": 1973
+        }
+      ],
+      "source_parent_markers": [
+        101971,
+        101974
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        897,
+        1184
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            897,
+            1184
+          ],
+          "source_O_face_row": 1972
+        },
+        {
+          "directed_edge": [
+            1184,
+            897
+          ],
+          "source_O_face_row": 1973
+        }
+      ],
+      "source_parent_markers": [
+        101973,
+        101974
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1057,
+        1191
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1057,
+            1191
+          ],
+          "source_O_face_row": 2207
+        },
+        {
+          "directed_edge": [
+            1191,
+            1057
+          ],
+          "source_O_face_row": 2314
+        }
+      ],
+      "source_parent_markers": [
+        102208,
+        102315
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        1104,
+        1520
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1520,
+            1104
+          ],
+          "source_O_face_row": 2406
+        },
+        {
+          "directed_edge": [
+            1104,
+            1520
+          ],
+          "source_O_face_row": 2407
+        }
+      ],
+      "source_parent_markers": [
+        102407,
+        102408
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1191,
+        1286
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1286,
+            1191
+          ],
+          "source_O_face_row": 2314
+        },
+        {
+          "directed_edge": [
+            1191,
+            1286
+          ],
+          "source_O_face_row": 2549
+        }
+      ],
+      "source_parent_markers": [
+        102315,
+        102550
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1331,
+        1526
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1526,
+            1331
+          ],
+          "source_O_face_row": 2739
+        },
+        {
+          "directed_edge": [
+            1331,
+            1526
+          ],
+          "source_O_face_row": 2830
+        }
+      ],
+      "source_parent_markers": [
+        102740,
+        102831
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1467,
+        1693
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1693,
+            1467
+          ],
+          "source_O_face_row": 3099
+        },
+        {
+          "directed_edge": [
+            1467,
+            1693
+          ],
+          "source_O_face_row": 3100
+        }
+      ],
+      "source_parent_markers": [
+        103100,
+        103101
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1522,
+        1660
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1660,
+            1522
+          ],
+          "source_O_face_row": 3207
+        },
+        {
+          "directed_edge": [
+            1522,
+            1660
+          ],
+          "source_O_face_row": 3208
+        }
+      ],
+      "source_parent_markers": [
+        103208,
+        103209
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1603,
+        1605
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1605,
+            1603
+          ],
+          "source_O_face_row": 3122
+        },
+        {
+          "directed_edge": [
+            1603,
+            1605
+          ],
+          "source_O_face_row": 3205
+        }
+      ],
+      "source_parent_markers": [
+        103123,
+        103206
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1635,
+        1835
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1635,
+            1835
+          ],
+          "source_O_face_row": 3416
+        },
+        {
+          "directed_edge": [
+            1835,
+            1635
+          ],
+          "source_O_face_row": 3418
+        }
+      ],
+      "source_parent_markers": [
+        103417,
+        103419
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1663,
+        1696
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1663,
+            1696
+          ],
+          "source_O_face_row": 3474
+        },
+        {
+          "directed_edge": [
+            1696,
+            1663
+          ],
+          "source_O_face_row": 3475
+        }
+      ],
+      "source_parent_markers": [
+        103475,
+        103476
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1797,
+        1799
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1797,
+            1799
+          ],
+          "source_O_face_row": 3730
+        },
+        {
+          "directed_edge": [
+            1799,
+            1797
+          ],
+          "source_O_face_row": 3731
+        }
+      ],
+      "source_parent_markers": [
+        103731,
+        103732
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1896,
+        1897
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1897,
+            1896
+          ],
+          "source_O_face_row": 3893
+        },
+        {
+          "directed_edge": [
+            1896,
+            1897
+          ],
+          "source_O_face_row": 3917
+        }
+      ],
+      "source_parent_markers": [
+        103894,
+        103918
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1908,
+        1990
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1990,
+            1908
+          ],
+          "source_O_face_row": 3806
+        },
+        {
+          "directed_edge": [
+            1908,
+            1990
+          ],
+          "source_O_face_row": 3935
+        }
+      ],
+      "source_parent_markers": [
+        103807,
+        103936
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1937,
+        1990
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1937,
+            1990
+          ],
+          "source_O_face_row": 3906
+        },
+        {
+          "directed_edge": [
+            1990,
+            1937
+          ],
+          "source_O_face_row": 4006
+        }
+      ],
+      "source_parent_markers": [
+        103907,
+        104007
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1937,
+        2024
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1937,
+            2024
+          ],
+          "source_O_face_row": 4006
+        },
+        {
+          "directed_edge": [
+            2024,
+            1937
+          ],
+          "source_O_face_row": 4008
+        }
+      ],
+      "source_parent_markers": [
+        104007,
+        104009
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1989,
+        1990
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1990,
+            1989
+          ],
+          "source_O_face_row": 3935
+        },
+        {
+          "directed_edge": [
+            1989,
+            1990
+          ],
+          "source_O_face_row": 4094
+        }
+      ],
+      "source_parent_markers": [
+        103936,
+        104095
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        1990,
+        2023
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            1990,
+            2023
+          ],
+          "source_O_face_row": 4094
+        },
+        {
+          "directed_edge": [
+            2023,
+            1990
+          ],
+          "source_O_face_row": 4096
+        }
+      ],
+      "source_parent_markers": [
+        104095,
+        104097
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2023,
+        2024
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2024,
+            2023
+          ],
+          "source_O_face_row": 4096
+        },
+        {
+          "directed_edge": [
+            2023,
+            2024
+          ],
+          "source_O_face_row": 4187
+        }
+      ],
+      "source_parent_markers": [
+        104097,
+        104188
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2024,
+        2039
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2024,
+            2039
+          ],
+          "source_O_face_row": 4187
+        },
+        {
+          "directed_edge": [
+            2039,
+            2024
+          ],
+          "source_O_face_row": 4190
+        }
+      ],
+      "source_parent_markers": [
+        104188,
+        104191
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2024,
+        2041
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2041,
+            2024
+          ],
+          "source_O_face_row": 4008
+        },
+        {
+          "directed_edge": [
+            2024,
+            2041
+          ],
+          "source_O_face_row": 4190
+        }
+      ],
+      "source_parent_markers": [
+        104009,
+        104191
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2053,
+        2187
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2187,
+            2053
+          ],
+          "source_O_face_row": 4257
+        },
+        {
+          "directed_edge": [
+            2053,
+            2187
+          ],
+          "source_O_face_row": 4260
+        }
+      ],
+      "source_parent_markers": [
+        104258,
+        104261
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        2081,
+        2202
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2202,
+            2081
+          ],
+          "source_O_face_row": 4335
+        },
+        {
+          "directed_edge": [
+            2081,
+            2202
+          ],
+          "source_O_face_row": 4336
+        }
+      ],
+      "source_parent_markers": [
+        104336,
+        104337
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2084,
+        2187
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2084,
+            2187
+          ],
+          "source_O_face_row": 4257
+        },
+        {
+          "directed_edge": [
+            2187,
+            2084
+          ],
+          "source_O_face_row": 4337
+        }
+      ],
+      "source_parent_markers": [
+        104258,
+        104338
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2156,
+        2187
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2187,
+            2156
+          ],
+          "source_O_face_row": 4260
+        },
+        {
+          "directed_edge": [
+            2156,
+            2187
+          ],
+          "source_O_face_row": 4493
+        }
+      ],
+      "source_parent_markers": [
+        104261,
+        104494
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2156,
+        2202
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2156,
+            2202
+          ],
+          "source_O_face_row": 4335
+        },
+        {
+          "directed_edge": [
+            2202,
+            2156
+          ],
+          "source_O_face_row": 4493
+        }
+      ],
+      "source_parent_markers": [
+        104336,
+        104494
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2187,
+        2202
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2187,
+            2202
+          ],
+          "source_O_face_row": 4493
+        },
+        {
+          "directed_edge": [
+            2202,
+            2187
+          ],
+          "source_O_face_row": 4540
+        }
+      ],
+      "source_parent_markers": [
+        104494,
+        104541
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2187,
+        2235
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2235,
+            2187
+          ],
+          "source_O_face_row": 4337
+        },
+        {
+          "directed_edge": [
+            2187,
+            2235
+          ],
+          "source_O_face_row": 4540
+        }
+      ],
+      "source_parent_markers": [
+        104338,
+        104541
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        2189,
+        2262
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2189,
+            2262
+          ],
+          "source_O_face_row": 4544
+        },
+        {
+          "directed_edge": [
+            2262,
+            2189
+          ],
+          "source_O_face_row": 4545
+        }
+      ],
+      "source_parent_markers": [
+        104545,
+        104546
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2204,
+        2245
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2245,
+            2204
+          ],
+          "source_O_face_row": 4576
+        },
+        {
+          "directed_edge": [
+            2204,
+            2245
+          ],
+          "source_O_face_row": 4577
+        }
+      ],
+      "source_parent_markers": [
+        104577,
+        104578
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2206,
+        2262
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2262,
+            2206
+          ],
+          "source_O_face_row": 4544
+        },
+        {
+          "directed_edge": [
+            2206,
+            2262
+          ],
+          "source_O_face_row": 4581
+        }
+      ],
+      "source_parent_markers": [
+        104545,
+        104582
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2219,
+        2241
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2241,
+            2219
+          ],
+          "source_O_face_row": 4584
+        },
+        {
+          "directed_edge": [
+            2219,
+            2241
+          ],
+          "source_O_face_row": 4599
+        }
+      ],
+      "source_parent_markers": [
+        104585,
+        104600
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2219,
+        2246
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2219,
+            2246
+          ],
+          "source_O_face_row": 4598
+        },
+        {
+          "directed_edge": [
+            2246,
+            2219
+          ],
+          "source_O_face_row": 4599
+        }
+      ],
+      "source_parent_markers": [
+        104599,
+        104600
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2236,
+        2254
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2236,
+            2254
+          ],
+          "source_O_face_row": 4594
+        },
+        {
+          "directed_edge": [
+            2254,
+            2236
+          ],
+          "source_O_face_row": 4622
+        }
+      ],
+      "source_parent_markers": [
+        104595,
+        104623
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        2236,
+        2255
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2255,
+            2236
+          ],
+          "source_O_face_row": 4578
+        },
+        {
+          "directed_edge": [
+            2236,
+            2255
+          ],
+          "source_O_face_row": 4623
+        }
+      ],
+      "source_parent_markers": [
+        104579,
+        104624
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2236,
+        2272
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2236,
+            2272
+          ],
+          "source_O_face_row": 4622
+        },
+        {
+          "directed_edge": [
+            2272,
+            2236
+          ],
+          "source_O_face_row": 4623
+        }
+      ],
+      "source_parent_markers": [
+        104623,
+        104624
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2237,
+        2245
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2237,
+            2245
+          ],
+          "source_O_face_row": 4576
+        },
+        {
+          "directed_edge": [
+            2245,
+            2237
+          ],
+          "source_O_face_row": 4626
+        }
+      ],
+      "source_parent_markers": [
+        104577,
+        104627
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2238,
+        2245
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2245,
+            2238
+          ],
+          "source_O_face_row": 4577
+        },
+        {
+          "directed_edge": [
+            2238,
+            2245
+          ],
+          "source_O_face_row": 4627
+        }
+      ],
+      "source_parent_markers": [
+        104578,
+        104628
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        2238,
+        2262
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2238,
+            2262
+          ],
+          "source_O_face_row": 4545
+        },
+        {
+          "directed_edge": [
+            2262,
+            2238
+          ],
+          "source_O_face_row": 4627
+        }
+      ],
+      "source_parent_markers": [
+        104546,
+        104628
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        2242,
+        2252
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2242,
+            2252
+          ],
+          "source_O_face_row": 4634
+        },
+        {
+          "directed_edge": [
+            2252,
+            2242
+          ],
+          "source_O_face_row": 4635
+        }
+      ],
+      "source_parent_markers": [
+        104635,
+        104636
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2242,
+        2265
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2242,
+            2265
+          ],
+          "source_O_face_row": 4636
+        },
+        {
+          "directed_edge": [
+            2265,
+            2242
+          ],
+          "source_O_face_row": 4637
+        }
+      ],
+      "source_parent_markers": [
+        104637,
+        104638
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        2243,
+        2245
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2243,
+            2245
+          ],
+          "source_O_face_row": 4626
+        },
+        {
+          "directed_edge": [
+            2245,
+            2243
+          ],
+          "source_O_face_row": 4638
+        }
+      ],
+      "source_parent_markers": [
+        104627,
+        104639
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2243,
+        2252
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2252,
+            2243
+          ],
+          "source_O_face_row": 4634
+        },
+        {
+          "directed_edge": [
+            2243,
+            2252
+          ],
+          "source_O_face_row": 4639
+        }
+      ],
+      "source_parent_markers": [
+        104635,
+        104640
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2245,
+        2261
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2261,
+            2245
+          ],
+          "source_O_face_row": 4642
+        },
+        {
+          "directed_edge": [
+            2245,
+            2261
+          ],
+          "source_O_face_row": 4643
+        }
+      ],
+      "source_parent_markers": [
+        104643,
+        104644
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2245,
+        2262
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2245,
+            2262
+          ],
+          "source_O_face_row": 4627
+        },
+        {
+          "directed_edge": [
+            2262,
+            2245
+          ],
+          "source_O_face_row": 4643
+        }
+      ],
+      "source_parent_markers": [
+        104628,
+        104644
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2254,
+        2274
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2254,
+            2274
+          ],
+          "source_O_face_row": 4596
+        },
+        {
+          "directed_edge": [
+            2274,
+            2254
+          ],
+          "source_O_face_row": 4661
+        }
+      ],
+      "source_parent_markers": [
+        104597,
+        104662
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2254,
+        2275
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2254,
+            2275
+          ],
+          "source_O_face_row": 4661
+        },
+        {
+          "directed_edge": [
+            2275,
+            2254
+          ],
+          "source_O_face_row": 4662
+        }
+      ],
+      "source_parent_markers": [
+        104662,
+        104663
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2254,
+        2284
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2254,
+            2284
+          ],
+          "source_O_face_row": 4662
+        },
+        {
+          "directed_edge": [
+            2284,
+            2254
+          ],
+          "source_O_face_row": 4663
+        }
+      ],
+      "source_parent_markers": [
+        104663,
+        104664
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2254,
+        2288
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2288,
+            2254
+          ],
+          "source_O_face_row": 4660
+        },
+        {
+          "directed_edge": [
+            2254,
+            2288
+          ],
+          "source_O_face_row": 4664
+        }
+      ],
+      "source_parent_markers": [
+        104661,
+        104665
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2254,
+        2293
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2254,
+            2293
+          ],
+          "source_O_face_row": 4663
+        },
+        {
+          "directed_edge": [
+            2293,
+            2254
+          ],
+          "source_O_face_row": 4664
+        }
+      ],
+      "source_parent_markers": [
+        104664,
+        104665
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2258,
+        2261
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2258,
+            2261
+          ],
+          "source_O_face_row": 4667
+        },
+        {
+          "directed_edge": [
+            2261,
+            2258
+          ],
+          "source_O_face_row": 4668
+        }
+      ],
+      "source_parent_markers": [
+        104668,
+        104669
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2259,
+        2261
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2259,
+            2261
+          ],
+          "source_O_face_row": 4642
+        },
+        {
+          "directed_edge": [
+            2261,
+            2259
+          ],
+          "source_O_face_row": 4670
+        }
+      ],
+      "source_parent_markers": [
+        104643,
+        104671
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        2261,
+        2262
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2261,
+            2262
+          ],
+          "source_O_face_row": 4643
+        },
+        {
+          "directed_edge": [
+            2262,
+            2261
+          ],
+          "source_O_face_row": 4673
+        }
+      ],
+      "source_parent_markers": [
+        104644,
+        104674
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2261,
+        2266
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2261,
+            2266
+          ],
+          "source_O_face_row": 4667
+        },
+        {
+          "directed_edge": [
+            2266,
+            2261
+          ],
+          "source_O_face_row": 4670
+        }
+      ],
+      "source_parent_markers": [
+        104668,
+        104671
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2261,
+        2270
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2270,
+            2261
+          ],
+          "source_O_face_row": 4668
+        },
+        {
+          "directed_edge": [
+            2261,
+            2270
+          ],
+          "source_O_face_row": 4674
+        }
+      ],
+      "source_parent_markers": [
+        104669,
+        104675
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2261,
+        2271
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2271,
+            2261
+          ],
+          "source_O_face_row": 4674
+        },
+        {
+          "directed_edge": [
+            2261,
+            2271
+          ],
+          "source_O_face_row": 4675
+        }
+      ],
+      "source_parent_markers": [
+        104675,
+        104676
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2261,
+        2282
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2261,
+            2282
+          ],
+          "source_O_face_row": 4673
+        },
+        {
+          "directed_edge": [
+            2282,
+            2261
+          ],
+          "source_O_face_row": 4676
+        }
+      ],
+      "source_parent_markers": [
+        104674,
+        104677
+      ]
+    },
+    {
+      "baseline_bank_groups": 3,
+      "edge": [
+        2261,
+        2283
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2283,
+            2261
+          ],
+          "source_O_face_row": 4675
+        },
+        {
+          "directed_edge": [
+            2261,
+            2283
+          ],
+          "source_O_face_row": 4676
+        }
+      ],
+      "source_parent_markers": [
+        104676,
+        104677
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2262,
+        2263
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2262,
+            2263
+          ],
+          "source_O_face_row": 4581
+        },
+        {
+          "directed_edge": [
+            2263,
+            2262
+          ],
+          "source_O_face_row": 4677
+        }
+      ],
+      "source_parent_markers": [
+        104582,
+        104678
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2262,
+        2282
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2282,
+            2262
+          ],
+          "source_O_face_row": 4673
+        },
+        {
+          "directed_edge": [
+            2262,
+            2282
+          ],
+          "source_O_face_row": 4677
+        }
+      ],
+      "source_parent_markers": [
+        104674,
+        104678
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2263,
+        2287
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2287,
+            2263
+          ],
+          "source_O_face_row": 4678
+        },
+        {
+          "directed_edge": [
+            2263,
+            2287
+          ],
+          "source_O_face_row": 4679
+        }
+      ],
+      "source_parent_markers": [
+        104679,
+        104680
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2263,
+        2294
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2294,
+            2263
+          ],
+          "source_O_face_row": 4679
+        },
+        {
+          "directed_edge": [
+            2263,
+            2294
+          ],
+          "source_O_face_row": 4680
+        }
+      ],
+      "source_parent_markers": [
+        104680,
+        104681
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2263,
+        2296
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2263,
+            2296
+          ],
+          "source_O_face_row": 4632
+        },
+        {
+          "directed_edge": [
+            2296,
+            2263
+          ],
+          "source_O_face_row": 4680
+        }
+      ],
+      "source_parent_markers": [
+        104633,
+        104681
+      ]
+    },
+    {
+      "baseline_bank_groups": 2,
+      "edge": [
+        2271,
+        2283
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2271,
+            2283
+          ],
+          "source_O_face_row": 4675
+        },
+        {
+          "directed_edge": [
+            2283,
+            2271
+          ],
+          "source_O_face_row": 4694
+        }
+      ],
+      "source_parent_markers": [
+        104676,
+        104695
+      ]
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        2285,
+        2307
+      ],
+      "eligible_for_conforming_O_subdivision": true,
+      "incident_source_O_faces": [
+        {
+          "directed_edge": [
+            2285,
+            2307
+          ],
+          "source_O_face_row": 4720
+        },
+        {
+          "directed_edge": [
+            2307,
+            2285
+          ],
+          "source_O_face_row": 4722
+        }
+      ],
+      "source_parent_markers": [
+        104721,
+        104723
+      ]
+    }
+  ],
+  "excluded_edges": [
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        206,
+        215
+      ],
+      "eligible_for_conforming_O_subdivision": false,
+      "incident_source_O_faces": [],
+      "reason": "not an interior two-face O edge with opposite oriented use"
+    },
+    {
+      "baseline_bank_groups": 1,
+      "edge": [
+        903,
+        1184
+      ],
+      "eligible_for_conforming_O_subdivision": false,
+      "incident_source_O_faces": [],
+      "reason": "not an interior two-face O edge with opposite oriented use"
+    }
+  ],
+  "inputs": {
+    "/Users/numi/Work/numi-human-connected-surface-069/digit-source-diagnosis-110/fine-path-midpoint-110.json": {
+      "bytes": 2186,
+      "sha256": "f687180c30c94d65681d01df14b8e9d2cfffbbfcf94e3cdedac9572b7aada02a"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/digit-source-diagnosis-110/report-002.json": {
+      "bytes": 17763,
+      "sha256": "1c2c9031fa063973112902bc027e4a4f20e0bb9908c226a4b0f60b6c7850ef48"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-072/evidence/transfer-adapter-075/load_transfer_075.py": {
+      "bytes": 9944,
+      "sha256": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-075/evidence/connected-cell-witness-103/run-001/baseline/candidate.npz": {
+      "bytes": 330149,
+      "sha256": "ddb86fbf07183adce0194c59a1acfc5456c96cb2efc709eb587e5489d3d59163"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-075/evidence/connected-cell-witness-103/run-001/baseline/tet-edge-report.json.gz": {
+      "bytes": 277552,
+      "sha256": "db521fffabc7181a770c283e52ca5e1ea3e2498c13d8adc74a4ae5aeb32585d8"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/build_whole_reference_plc_083.py": {
+      "bytes": 20306,
+      "sha256": "89ade1b661529185b818f3054396263dbcd3413d7d56286396a7363ea5d9b977"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/connectivity-001/run-001/candidate-tetrahedra-compacted.npz": {
+      "bytes": 653436,
+      "sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/facet-marker-map.csv": {
+      "bytes": 427213,
+      "sha256": "8e7ac9430c037d29e74d4c2f7f9f838995f6541c0f5fdf29a7b7095d9a6d8ff7"
+    }
+  },
+  "limitations": [
+    "No O midpoint sample set exists here for all 145 eligible edges.",
+    "The 110 sample for edge (329,340) is a deterministic detailed NHSKIN path witness, but its report leaves path uniqueness and source-normal compatibility unresolved.",
+    "No surface refinement candidate, TetGen run, collision clearance, conservative transfer, or physical/native admission was produced."
+  ],
+  "schema": "numi.human.connected_boundary_refinement_input_audit.v1",
+  "single_source_path_example": {
+    "detail_faces_at_midpoint": [
+      4086,
+      4087
+    ],
+    "detailed_path_vertex_ids": [
+      2030,
+      2011
+    ],
+    "edge": [
+      329,
+      340
+    ],
+    "midpoint_world_m": [
+      -0.3173637820359246,
+      -1.0201059252804514,
+      0.12990895031339603
+    ],
+    "source_face_rows": [
+      670,
+      676
+    ],
+    "status": "one deterministic path witness only; report-002 does not establish path uniqueness or source-normal compatibility; not accepted as an insertion sample"
+  },
+  "source_O_face_domain": {
+    "marker_rule_from_083": "marker=100000+source_O_face_row+1",
+    "rows": 4777,
+    "unique_vertices": 2411
+  },
+  "source_path_segment_audit": {
+    "interpretation": "the 329-340 detail path segments were exact-disjoint from the two named emitted banks in report-004; this is a bounded two-bank path audit, not source-path uniqueness, normal compatibility, or all-185-bank clearance",
+    "report_path": "/Users/numi/Work/numi-human-connected-surface-069/digit-source-diagnosis-110/report-004.json",
+    "sha256": "b58d49302c02d1020f264b1a99fd975d228d1d193200b60e5d97490e4dfcdce4"
+  },
+  "status": "TOPOLOGY_ONLY_SOURCE_MIDPOINTS_INCOMPLETE_NOT_ADMITTED"
+}
