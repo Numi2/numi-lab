@@ -1,0 +1,11 @@
+waiting_for_human_geometry_slot pid=43813
+acquired_human_geometry_slot pid=43813
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-199/propose_all_witness_clusters_199.py", line 530, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-199/propose_all_witness_clusters_199.py", line 525, in main
+    result = run(args)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-199/propose_all_witness_clusters_199.py", line 334, in run
+    raise ValueError(f"base candidate infeasible for local pair/area rows: {float(np.max(b))} mm")
+ValueError: base candidate infeasible for local pair/area rows: 0.026270886485284906 mm

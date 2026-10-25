@@ -1,0 +1,71 @@
+{
+  "arrays": [
+    {
+      "source": "barycentric-connected-clearance-170/whole-witness-local-210-run001/local-backtrack/pass-012/candidate.npz",
+      "sha256": "fa9c99d1f97c278ea6c425ed3867de4d1dbfce3daa93191d4cbb7c1b2cf07c2a",
+      "bytes": 2421177,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/whole-witness-local-210-run001/local-backtrack/pass-021/candidate.npz",
+      "sha256": "c89a51e1b347d8f62b9b2946473e9cdb2282df11d2e54c678907b86632034866",
+      "bytes": 2421167,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/whole-witness-local-210-run001/local-backtrack/pass-025/candidate.npz",
+      "sha256": "7b0648361978aefbe303bf8806601012a73f0dd1680add6da9db404569fca82f",
+      "bytes": 2421188,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/whole-witness-local-210-run001/local-backtrack/pass-028/candidate.npz",
+      "sha256": "17bed2552ba41ce417dfa98969118be167ab0598c43cef0e95fbb596134cc591",
+      "bytes": 2421192,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/whole-witness-local-210-run001/local-backtrack/pass-034/candidate.npz",
+      "sha256": "49b0f79658c8a26f92a9505ee18860a99f2849f6bad92dc8a998c5f3b6174cca",
+      "bytes": 2421199,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/whole-witness-local-210-run001/local-backtrack/pass-037/candidate.npz",
+      "sha256": "325a81baee689d87aebae7fdd146e74c57b8c978b9812e0419e8561c66c0bc5e",
+      "bytes": 2421200,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/whole-witness-local-210-run001/local-backtrack/pass-038/candidate.npz",
+      "sha256": "9c9747ebc7e0351c66585654b66bc69955aec9c42feef5bf941dd741a72b90b4",
+      "bytes": 2421208,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/whole-witness-local-210-run001/local-backtrack/pass-039/candidate.npz",
+      "sha256": "28686b444b43462e46c6aa6e44c0b20e005cb9d12ef406555a001072f273cd1a",
+      "bytes": 2421211,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/whole-witness-local-210-run001/local-backtrack/pass-040/candidate.npz",
+      "sha256": "5abe3e5f181ade99352340aafbadde9416f3f893d6f0cad33ea2c2b994e02ce0",
+      "bytes": 2421206,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/whole-witness-local-210-run001/joint-proposal/candidate.npz",
+      "sha256": "b746107a504b8f4ecf24be8c686f36f83a8df9d1a04e25abc25ea3622a7d7cf3",
+      "bytes": 2920019,
+      "staged": false
+    },
+    {
+      "source": "barycentric-connected-clearance-170/whole-witness-local-210-run001/joint-proposal/raw-lp-candidate.npz",
+      "sha256": "f595e833af078c6829d5cdf8d4dc6fabb5cf473bc2a8455b403e042dbfe2e38d",
+      "bytes": 2495414,
+      "staged": false
+    }
+  ],
+  "candidate_bytes_staged": false
+}

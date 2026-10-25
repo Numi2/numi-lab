@@ -1,0 +1,12 @@
+{
+  "script": "sources/212/propose_all_witness_clusters_212.py",
+  "script_sha256": "bc68d710505f6491248a2b7c7c24940263cb157cf6565e225b8ba890230e594a",
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-102/evidence/sources/212/propose_all_witness_clusters_212.py",
+    "--self-test"
+  ],
+  "exit_code": 0,
+  "stdout": "{\n  \"status\": \"PASS\",\n  \"self_test\": \"sparse LP, bounded area-SCP RHS/FD, raw LP serialization/pins, source/trust box, distinct R0/037 area reference\"\n}\n",
+  "stderr": ""
+}

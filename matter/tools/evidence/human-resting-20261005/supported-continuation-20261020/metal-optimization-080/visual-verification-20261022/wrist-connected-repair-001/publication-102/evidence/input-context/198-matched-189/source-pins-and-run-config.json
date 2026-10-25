@@ -1,0 +1,83 @@
+{
+  "schema": "numi.human.nearest-face-union-190.preparation-pins.v1",
+  "state": "prepared_not_executed",
+  "classification": "construction_target_proposals_only_no_fit_or_clearance_admission",
+  "builder": "/Users/numi/Work/numi-human-connected-surface-069/H/nearest-face-union-190/build_nearest_face_union_targets.py",
+  "builder_sha256": "6dc68508e8a7c6f89b24b759a400ef7ca8f2ec690e9647e7fd8273f71a324b9e",
+  "tests": "/Users/numi/Work/numi-human-connected-surface-069/H/nearest-face-union-190/test_nearest_face_union_targets.py",
+  "tests_sha256": "c5ffc0d49b4387576a1b1e27f1fb9fe6913c01043edc0f228a908387a36b70af",
+  "inputs": {
+    "candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-188-run001/pass-001/candidate.npz",
+      "sha256": "b6f431209e8c5c1d0cd6704baee8463f4f55db1c520747a7eedc79b10b39401b",
+      "bytes": 2172235
+    },
+    "surface_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-188-run001/pass-001/audit-159/report.json",
+      "sha256": "6956d696ebb7fa7d014e1fae583228a91f46793b067408250de305f7e650270b",
+      "bytes": 353680
+    },
+    "query_receipt": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-188-run001/pass-001/audit-130/query/query-receipt.json",
+      "sha256": "78a85f5f7f3a24d63d3ed52dff61dcc3bd7691a94debede8e51fe936c7203241",
+      "bytes": 1675
+    },
+    "detail_source": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-072/evidence/run-006-direct-detail-p1-075/direct-detail-p1-075.npz",
+      "sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+      "bytes": 5652587
+    },
+    "bank_reader": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-084/canonical/matter/tools/human_skin_fat_bone_audit.py",
+      "sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+      "bytes": 48788
+    },
+    "triangles": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+      "sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+      "bytes": 146247212
+    },
+    "body_frames": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+      "sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+      "bytes": 80016
+    },
+    "exact_predicate": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/incremental-exact-audit-owner-253/src/numilab_human/cardiac_cavity_intersections.py",
+      "sha256": "6f04ec7b129f47e810e75262f9f3ad3be0159bbe13dc2611a96e27141132b0fc",
+      "bytes": 58164
+    },
+    "virtual_sample_helper": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-virtual-point-170/human_skin_fat_virtual_point_constraints.py",
+      "sha256": "0e97159845d6902875c015bc96ae283a2ed43206e85f14637e29cfc611d7589f",
+      "bytes": 4729
+    },
+    "bank_nodes_export": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv",
+      "sha256": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+      "bytes": 1056107
+    },
+    "bank_inventory": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv",
+      "sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+      "bytes": 26176
+    },
+    "exact_segment_classifier": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root_exact_segment_witness.py",
+      "sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "bytes": 2734
+    }
+  },
+  "configured_candidate": {
+    "candidate_sha256": "b6f431209e8c5c1d0cd6704baee8463f4f55db1c520747a7eedc79b10b39401b",
+    "surface_report_candidate_sha256": "b6f431209e8c5c1d0cd6704baee8463f4f55db1c520747a7eedc79b10b39401b",
+    "query_rows": 18430,
+    "output_dir": "/Users/numi/Work/numi-human-connected-surface-069/H/nearest-face-union-190/run-188-derived"
+  },
+  "test_environment": {
+    "python": "3.13.16",
+    "host": "numi.local",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+    "command": "/Users/numi/numi-human-prep-venv-20261005/bin/python -m pytest -q H/nearest-face-union-190/test_nearest_face_union_targets.py"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "207": [
+    {
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-replay-207-run001/joint-001/proposal/candidate.npz",
+      "sha256": "b746107a504b8f4ecf24be8c686f36f83a8df9d1a04e25abc25ea3622a7d7cf3",
+      "bytes": 2920019,
+      "retained_full_payload": false
+    }
+  ],
+  "210": [
+    {
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-local-210-run001/joint-proposal/candidate.npz",
+      "sha256": "b746107a504b8f4ecf24be8c686f36f83a8df9d1a04e25abc25ea3622a7d7cf3",
+      "bytes": 2920019,
+      "retained_full_payload": false
+    },
+    {
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-local-210-run001/joint-proposal/raw-lp-candidate.npz",
+      "sha256": "f595e833af078c6829d5cdf8d4dc6fabb5cf473bc2a8455b403e042dbfe2e38d",
+      "bytes": 2495414,
+      "retained_full_payload": false
+    }
+  ],
+  "204": [
+    {
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-connected-204-run001/proposal/fit/attempt-001/candidate.npz",
+      "sha256": "7b543e2e06d3b47a44b48ea03dae26f77940926c7be6cb49a12dea0fdfd61f12",
+      "bytes": 2421067,
+      "retained_full_payload": false
+    },
+    {
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-connected-204-run001/proposal/fit/attempt-001/scp-01-alpha-1p0/candidate.npz",
+      "sha256": "d2013eda12ae29113d8af37a326893d958a149a8044d3bcec66bce8f3d1a158d",
+      "bytes": 2421460,
+      "retained_full_payload": false
+    }
+  ],
+  "215-preparation": [
+    {
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-prep/candidate.npz",
+      "sha256": "5364fdf04d1efece3ad2ce1c39b58e71eb8450bdc64ee5dc067105600a233bb6",
+      "bytes": 2421036,
+      "retained_full_payload": false
+    }
+  ],
+  "215-trials": [
+    {
+      "pass": 1,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/pass-001/candidate.npz",
+      "sha256": "5364fdf04d1efece3ad2ce1c39b58e71eb8450bdc64ee5dc067105600a233bb6",
+      "bytes": 2421036,
+      "retained_full_payload": false
+    },
+    {
+      "pass": 6,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/pass-006/candidate.npz",
+      "sha256": "7fd767a53f88713540ff64d08141e9614e4f6817ee3e5065fbd30d35f5ceaf69",
+      "bytes": 2421029,
+      "retained_full_payload": false
+    },
+    {
+      "pass": 8,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/pass-008/candidate.npz",
+      "sha256": "5cfbec01e581025e890bc36ed34b740f93de4a695ab9ad47da9b0fcc889b30d0",
+      "bytes": 2421023,
+      "retained_full_payload": false
+    },
+    {
+      "pass": 10,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/pass-010/candidate.npz",
+      "sha256": "825b8032a65a4f781b69b178a18f9ab8c78adf9f14f8fa5b7252a40087c5e7c3",
+      "bytes": 2421024,
+      "retained_full_payload": false
+    },
+    {
+      "pass": 11,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/pass-011/candidate.npz",
+      "sha256": "f0cfc4514831f6822413fb30c9d69e08f8656d53a697cb417896a7f9a1a64136",
+      "bytes": 2421023,
+      "retained_full_payload": false
+    },
+    {
+      "pass": 12,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/pass-012/candidate.npz",
+      "sha256": "0a0142560bb565cc06feb9ed3c46f1066155e2104909d0e35fd7a96ff60c4d13",
+      "bytes": 2421026,
+      "retained_full_payload": false
+    },
+    {
+      "pass": 13,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/pass-013/candidate.npz",
+      "sha256": "f5b82d77ec9896496ec4d5e9f37b99d4c26564a97b9669c0de1a16bd979d461a",
+      "bytes": 2421025,
+      "retained_full_payload": true
+    }
+  ]
+}

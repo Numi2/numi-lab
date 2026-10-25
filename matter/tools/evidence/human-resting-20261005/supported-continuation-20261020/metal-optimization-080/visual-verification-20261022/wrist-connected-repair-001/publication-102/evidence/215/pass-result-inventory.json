@@ -1,0 +1,82 @@
+{
+  "passes": [
+    {
+      "pass": "pass-001",
+      "result_sha256": "4e329f2395d399435fd3cfe7ea330ea1f06df9aad02628c8c351090708b8424f",
+      "candidate_sha256": "5364fdf04d1efece3ad2ce1c39b58e71eb8450bdc64ee5dc067105600a233bb6",
+      "staged_candidate": false
+    },
+    {
+      "pass": "pass-002",
+      "result_sha256": "e11f08337c2fdf1d407201e37451ef693b9c902164b98b81c537292160b12d8f",
+      "candidate_sha256": null,
+      "staged_candidate": false
+    },
+    {
+      "pass": "pass-003",
+      "result_sha256": "88819831f4ca26a3b501acaba9378eb8502f60682f178b54dee135f8c961c43c",
+      "candidate_sha256": null,
+      "staged_candidate": false
+    },
+    {
+      "pass": "pass-004",
+      "result_sha256": "7c13af6c36450d862317fec0dde53a409a161c06a87d40ad0d92370393f1b01f",
+      "candidate_sha256": null,
+      "staged_candidate": false
+    },
+    {
+      "pass": "pass-005",
+      "result_sha256": "e61eaa269ad7a4d2182da69789bd23fc30d6871b043fc400027ec51832ddb31c",
+      "candidate_sha256": null,
+      "staged_candidate": false
+    },
+    {
+      "pass": "pass-006",
+      "result_sha256": "c976ca423497e192b25111909b50007724969527cacd00226cc9cf1698e59871",
+      "candidate_sha256": "7fd767a53f88713540ff64d08141e9614e4f6817ee3e5065fbd30d35f5ceaf69",
+      "staged_candidate": false
+    },
+    {
+      "pass": "pass-007",
+      "result_sha256": "41b95b29d29bce44c3bca27ffd4a693bd4e2515b7e1e549309864bca030d008c",
+      "candidate_sha256": null,
+      "staged_candidate": false
+    },
+    {
+      "pass": "pass-008",
+      "result_sha256": "8240734459839d6bcdd72df1bb2708c91b3b8d096a12b8fe4e54fcc2e610895e",
+      "candidate_sha256": "5cfbec01e581025e890bc36ed34b740f93de4a695ab9ad47da9b0fcc889b30d0",
+      "staged_candidate": false
+    },
+    {
+      "pass": "pass-009",
+      "result_sha256": "5c09cd6824a9078822ca09f5389c6082037a0bf318755c7b966b87ef8e5024db",
+      "candidate_sha256": null,
+      "staged_candidate": false
+    },
+    {
+      "pass": "pass-010",
+      "result_sha256": "4ff4cee1ce13eb3254bc68f6b695f0a6a8d068b3bfadf82bbf6a33ea66d9f407",
+      "candidate_sha256": "825b8032a65a4f781b69b178a18f9ab8c78adf9f14f8fa5b7252a40087c5e7c3",
+      "staged_candidate": false
+    },
+    {
+      "pass": "pass-011",
+      "result_sha256": "538ce38017d9c8ab8a38c05997a6ef6e88730342202cbe13e4bc9af6e593f7d4",
+      "candidate_sha256": "f0cfc4514831f6822413fb30c9d69e08f8656d53a697cb417896a7f9a1a64136",
+      "staged_candidate": false
+    },
+    {
+      "pass": "pass-012",
+      "result_sha256": "bb190adf3a12c1b694083c63f41abf72bda1e125a16e48f1d43a090cba842461",
+      "candidate_sha256": "0a0142560bb565cc06feb9ed3c46f1066155e2104909d0e35fd7a96ff60c4d13",
+      "staged_candidate": false
+    },
+    {
+      "pass": "pass-013",
+      "result_sha256": "ea501b28a3272952784ba0bb8ad37e7cc4ad27a36f2d5dacee25d55111b43212",
+      "candidate_sha256": "f5b82d77ec9896496ec4d5e9f37b99d4c26564a97b9669c0de1a16bd979d461a",
+      "staged_candidate": true
+    }
+  ]
+}

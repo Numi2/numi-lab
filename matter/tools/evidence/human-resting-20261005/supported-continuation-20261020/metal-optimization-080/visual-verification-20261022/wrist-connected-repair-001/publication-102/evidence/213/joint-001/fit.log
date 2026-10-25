@@ -1,0 +1,876 @@
+waiting_for_human_geometry_slot pid=44527
+acquired_human_geometry_slot pid=44527
+{
+  "accepted_physical_steps": 0,
+  "all_185_bank_point_query": "NOT_RUN",
+  "alpha_backtracking_failure_witnesses": [
+    {
+      "alpha": 1.0,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 5,
+      "f32_current_orientation_face_rows_first_64": [
+        11408,
+        23497,
+        28809,
+        28897,
+        36449
+      ],
+      "f32_fixed_037_magnitude_face_count": 0,
+      "f32_fixed_037_magnitude_face_rows_first_64": [],
+      "linearized_area_face_count": 5,
+      "linearized_area_face_rows_first_64": [
+        8798,
+        13085,
+        13168,
+        14032,
+        19635
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 80,
+      "linearized_pair_row_indices_first_64": [
+        188,
+        194,
+        200,
+        206,
+        228,
+        246,
+        252,
+        312,
+        393,
+        405,
+        424,
+        460,
+        463,
+        470,
+        471,
+        475,
+        479,
+        482,
+        494,
+        1142,
+        1145,
+        1347,
+        1361,
+        1587,
+        2001,
+        2204,
+        2209,
+        2213,
+        2397,
+        2459,
+        2500,
+        2502,
+        2506,
+        2507,
+        2512,
+        2514,
+        2518,
+        2519,
+        4814,
+        4820,
+        5329,
+        5383,
+        5395,
+        5461,
+        5550,
+        5555,
+        5559,
+        5564,
+        5753,
+        6176,
+        6182,
+        6188,
+        6298,
+        6434,
+        6454,
+        6480,
+        6598,
+        6604,
+        6611,
+        6617,
+        6941,
+        6963,
+        7113,
+        7121
+      ],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 0.5,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 0,
+      "f32_fixed_037_magnitude_face_rows_first_64": [],
+      "linearized_area_face_count": 3,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        13085,
+        14032
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 15,
+      "linearized_pair_row_indices_first_64": [
+        459,
+        469,
+        474,
+        478,
+        2331,
+        2335,
+        4762,
+        4915,
+        5177,
+        6585,
+        6595,
+        12427,
+        12433,
+        12439,
+        12447
+      ],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 0.25,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 0,
+      "f32_fixed_037_magnitude_face_rows_first_64": [],
+      "linearized_area_face_count": 3,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        13085,
+        14032
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 9,
+      "linearized_pair_row_indices_first_64": [
+        460,
+        463,
+        470,
+        471,
+        477,
+        480,
+        7113,
+        7121,
+        8562
+      ],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 0.125,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 1,
+      "f32_fixed_037_magnitude_face_rows_first_64": [
+        13085
+      ],
+      "linearized_area_face_count": 3,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        13085,
+        14032
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 8,
+      "linearized_pair_row_indices_first_64": [
+        462,
+        472,
+        475,
+        479,
+        2332,
+        2335,
+        6591,
+        6592
+      ],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 0.0625,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 2,
+      "f32_fixed_037_magnitude_face_rows_first_64": [
+        13085,
+        27082
+      ],
+      "linearized_area_face_count": 3,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        13085,
+        14032
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 4,
+      "linearized_pair_row_indices_first_64": [
+        4904,
+        7114,
+        7117,
+        7119
+      ],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 0.03125,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 1,
+      "f32_fixed_037_magnitude_face_rows_first_64": [
+        13085
+      ],
+      "linearized_area_face_count": 4,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        11570,
+        13085,
+        14032
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 8,
+      "linearized_pair_row_indices_first_64": [
+        460,
+        463,
+        470,
+        471,
+        2335,
+        4914,
+        4915,
+        7113
+      ],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 0.015625,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 1,
+      "f32_fixed_037_magnitude_face_rows_first_64": [
+        13085
+      ],
+      "linearized_area_face_count": 5,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        11570,
+        13085,
+        14032,
+        23826
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 11,
+      "linearized_pair_row_indices_first_64": [
+        166,
+        459,
+        469,
+        477,
+        480,
+        2209,
+        4760,
+        4907,
+        4908,
+        4913,
+        4917
+      ],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 0.0078125,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 1,
+      "f32_fixed_037_magnitude_face_rows_first_64": [
+        13085
+      ],
+      "linearized_area_face_count": 6,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        11570,
+        13085,
+        14032,
+        23826,
+        36453
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 6,
+      "linearized_pair_row_indices_first_64": [
+        6584,
+        6585,
+        6595,
+        7114,
+        7117,
+        7119
+      ],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 0.00390625,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 1,
+      "f32_fixed_037_magnitude_face_rows_first_64": [
+        13085
+      ],
+      "linearized_area_face_count": 6,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        11570,
+        13085,
+        14032,
+        23826,
+        36453
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 6,
+      "linearized_pair_row_indices_first_64": [
+        63,
+        459,
+        469,
+        2351,
+        4911,
+        4914
+      ],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 0.001953125,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 1,
+      "f32_fixed_037_magnitude_face_rows_first_64": [
+        13085
+      ],
+      "linearized_area_face_count": 6,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        11570,
+        13085,
+        14032,
+        23826,
+        36453
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 9,
+      "linearized_pair_row_indices_first_64": [
+        460,
+        463,
+        470,
+        471,
+        2332,
+        2336,
+        2338,
+        4904,
+        4911
+      ],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 0.0009765625,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 1,
+      "f32_fixed_037_magnitude_face_rows_first_64": [
+        13085
+      ],
+      "linearized_area_face_count": 6,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        11570,
+        13085,
+        14032,
+        23826,
+        36453
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 2,
+      "linearized_pair_row_indices_first_64": [
+        12444,
+        12445
+      ],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 0.00048828125,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 1,
+      "f32_fixed_037_magnitude_face_rows_first_64": [
+        13085
+      ],
+      "linearized_area_face_count": 6,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        11570,
+        13085,
+        14032,
+        23826,
+        36453
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 0,
+      "linearized_pair_row_indices_first_64": [],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 0.000244140625,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 1,
+      "f32_fixed_037_magnitude_face_rows_first_64": [
+        13085
+      ],
+      "linearized_area_face_count": 6,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        11570,
+        13085,
+        14032,
+        23826,
+        36453
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 0,
+      "linearized_pair_row_indices_first_64": [],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 0.0001220703125,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 0,
+      "f32_fixed_037_magnitude_face_rows_first_64": [],
+      "linearized_area_face_count": 6,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        11570,
+        13085,
+        14032,
+        23826,
+        36453
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 0,
+      "linearized_pair_row_indices_first_64": [],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 6.103515625e-05,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 0,
+      "f32_fixed_037_magnitude_face_rows_first_64": [],
+      "linearized_area_face_count": 6,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        11570,
+        13085,
+        14032,
+        23826,
+        36453
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 0,
+      "linearized_pair_row_indices_first_64": [],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 3.0517578125e-05,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 0,
+      "f32_fixed_037_magnitude_face_rows_first_64": [],
+      "linearized_area_face_count": 6,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        11570,
+        13085,
+        14032,
+        23826,
+        36453
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 0,
+      "linearized_pair_row_indices_first_64": [],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 1.52587890625e-05,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 0,
+      "f32_fixed_037_magnitude_face_rows_first_64": [],
+      "linearized_area_face_count": 6,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        11570,
+        13085,
+        14032,
+        23826,
+        36453
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 0,
+      "linearized_pair_row_indices_first_64": [],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    },
+    {
+      "alpha": 7.62939453125e-06,
+      "anchors_bitwise_unchanged": true,
+      "f32_current_orientation_face_count": 0,
+      "f32_current_orientation_face_rows_first_64": [],
+      "f32_fixed_037_magnitude_face_count": 0,
+      "f32_fixed_037_magnitude_face_rows_first_64": [],
+      "linearized_area_face_count": 6,
+      "linearized_area_face_rows_first_64": [
+        11510,
+        11570,
+        13085,
+        14032,
+        23826,
+        36453
+      ],
+      "linearized_area_face_rows_truncated": false,
+      "linearized_pair_row_count": 0,
+      "linearized_pair_row_indices_first_64": [],
+      "outside_support_bitwise_unchanged": true,
+      "source_cap_violation_node_rows_first_64": [],
+      "trust_violation_node_rows_first_64": []
+    }
+  ],
+  "area_reference": {
+    "face_shape": [
+      36815,
+      3
+    ],
+    "faces_array_sha256": "9e814abf2028fc7954e47fb6a61ea849ade18cd0b673ede086c95dc60f8d6bc2",
+    "faces_key": "source_O_faces",
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-037-local-refinement-006-prep/run-001/refined-candidate.npz",
+    "point_shape": [
+      18430,
+      3
+    ],
+    "points_array_sha256": "0f817e50125c80ad9e861d0f6e33b9cd4752b6b8e38703537f65f8bc1ed298e0",
+    "points_key": "points_world_m",
+    "semantics": "accepted-037 fixed reference geometry for area constraints only",
+    "sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc"
+  },
+  "area_scp_failure": null,
+  "area_scp_iterations": [
+    {
+      "absolute_delta_max_abs_mm": 0.5773502691896258,
+      "absolute_delta_step_l2_mm": 11.587177895972305,
+      "absolute_rhs_min_mm": -3230.4413744371177,
+      "incremental_rhs_min_mm": -3230.4413744371177,
+      "iteration": 1,
+      "linearization_delta_l2_mm": 0.0,
+      "linearization_delta_max_abs_mm": 0.0,
+      "lp_iterations": 17954,
+      "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "lp_objective": 85.63817276525309,
+      "lp_status": 0,
+      "lp_success": true,
+      "lp_wall_seconds": 0.4072750409832224,
+      "minimum_normalized_linear_slack": -1.260360766294278e-09,
+      "zero_total_delta_feasibility_asserted": true,
+      "zero_total_delta_max_violation_mm": -2.0356860071557723e-06
+    },
+    {
+      "absolute_delta_max_abs_mm": 0.5773502691896258,
+      "absolute_delta_step_l2_mm": 0.6030332096299817,
+      "absolute_rhs_min_mm": -3230.4413744371172,
+      "incremental_rhs_min_mm": -3231.8011729266727,
+      "iteration": 2,
+      "linearization_delta_l2_mm": 11.587177895972305,
+      "linearization_delta_max_abs_mm": 0.5773502691896258,
+      "lp_iterations": 17900,
+      "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "lp_objective": 85.89531165324192,
+      "lp_status": 0,
+      "lp_success": true,
+      "lp_wall_seconds": 0.40396945900283754,
+      "minimum_normalized_linear_slack": -6.1729229107883e-08,
+      "zero_total_delta_feasibility_asserted": false,
+      "zero_total_delta_max_violation_mm": 0.028671516084115414
+    },
+    {
+      "absolute_delta_max_abs_mm": 0.5773502691896258,
+      "absolute_delta_step_l2_mm": 0.007649669957818844,
+      "absolute_rhs_min_mm": -3230.4413744371172,
+      "incremental_rhs_min_mm": -3231.8011729266727,
+      "iteration": 3,
+      "linearization_delta_l2_mm": 11.583867883460037,
+      "linearization_delta_max_abs_mm": 0.5773502691896258,
+      "lp_iterations": 18252,
+      "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "lp_objective": 85.8947305476107,
+      "lp_status": 0,
+      "lp_success": true,
+      "lp_wall_seconds": 0.4224429160822183,
+      "minimum_normalized_linear_slack": -6.1729229107883e-08,
+      "zero_total_delta_feasibility_asserted": false,
+      "zero_total_delta_max_violation_mm": 0.02093999198798057
+    },
+    {
+      "absolute_delta_max_abs_mm": 0.5773502691896258,
+      "absolute_delta_step_l2_mm": 6.243495111699935e-07,
+      "absolute_rhs_min_mm": -3230.4413744371172,
+      "incremental_rhs_min_mm": -3231.8011729266727,
+      "iteration": 4,
+      "linearization_delta_l2_mm": 11.584158939497563,
+      "linearization_delta_max_abs_mm": 0.5773502691896258,
+      "lp_iterations": 17764,
+      "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "lp_objective": 85.89473085821174,
+      "lp_status": 0,
+      "lp_success": true,
+      "lp_wall_seconds": 0.39598649996332824,
+      "minimum_normalized_linear_slack": -6.1729229107883e-08,
+      "zero_total_delta_feasibility_asserted": false,
+      "zero_total_delta_max_violation_mm": 0.02093999198797816
+    }
+  ],
+  "candidate_path": null,
+  "classification": "construction-only; no candidate emitted because full-mesh F32 gates failed",
+  "constraints": {
+    "area_floor": 0.1,
+    "pair_margin_fraction": 0.25,
+    "source_cap_mm": 12.0,
+    "trust_mm": 1.0
+  },
+  "full_surface_bone_audit": "NOT_RUN",
+  "global_exact_self_audit": "NOT_RUN",
+  "inputs": {
+    "area_owner": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-005/proposal/round-001/fit/area_scp_support_023.py",
+    "area_owner_sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+    "area_reference": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-037-local-refinement-006-prep/run-001/refined-candidate.npz",
+    "area_reference_sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+    "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-clusters-199-run001/candidate.npz",
+    "base_candidate_sha256": "7b543e2e06d3b47a44b48ea03dae26f77940926c7be6cb49a12dea0fdfd61f12",
+    "pair_owner": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-005/proposal/round-001/fit/self_separation_026.py",
+    "pair_owner_sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+    "raw_trial": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-connected-204-run001/proposal/fit/attempt-001/scp-01-alpha-1p0/candidate.npz",
+    "raw_trial_sha256": "d2013eda12ae29113d8af37a326893d958a149a8044d3bcec66bce8f3d1a158d",
+    "self_pairs": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-scp-213-run001/joint-001/self-pairs.npy",
+    "self_pairs_sha256": "b7ea2a352310c8d9f9f62fe84d7f655a2536532957a519a13ab94ed07ef45876"
+  },
+  "native_admission": false,
+  "raw_unbacktracked_lp_candidate": {
+    "all_185_bank_point_query": "NOT_RUN",
+    "area_scp_failure": null,
+    "area_scp_iterations": [
+      {
+        "absolute_delta_max_abs_mm": 0.5773502691896258,
+        "absolute_delta_step_l2_mm": 11.587177895972305,
+        "absolute_rhs_min_mm": -3230.4413744371177,
+        "incremental_rhs_min_mm": -3230.4413744371177,
+        "iteration": 1,
+        "linearization_delta_l2_mm": 0.0,
+        "linearization_delta_max_abs_mm": 0.0,
+        "lp_iterations": 17954,
+        "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "lp_objective": 85.63817276525309,
+        "lp_status": 0,
+        "lp_success": true,
+        "lp_wall_seconds": 0.4072750409832224,
+        "minimum_normalized_linear_slack": -1.260360766294278e-09,
+        "zero_total_delta_feasibility_asserted": true,
+        "zero_total_delta_max_violation_mm": -2.0356860071557723e-06
+      },
+      {
+        "absolute_delta_max_abs_mm": 0.5773502691896258,
+        "absolute_delta_step_l2_mm": 0.6030332096299817,
+        "absolute_rhs_min_mm": -3230.4413744371172,
+        "incremental_rhs_min_mm": -3231.8011729266727,
+        "iteration": 2,
+        "linearization_delta_l2_mm": 11.587177895972305,
+        "linearization_delta_max_abs_mm": 0.5773502691896258,
+        "lp_iterations": 17900,
+        "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "lp_objective": 85.89531165324192,
+        "lp_status": 0,
+        "lp_success": true,
+        "lp_wall_seconds": 0.40396945900283754,
+        "minimum_normalized_linear_slack": -6.1729229107883e-08,
+        "zero_total_delta_feasibility_asserted": false,
+        "zero_total_delta_max_violation_mm": 0.028671516084115414
+      },
+      {
+        "absolute_delta_max_abs_mm": 0.5773502691896258,
+        "absolute_delta_step_l2_mm": 0.007649669957818844,
+        "absolute_rhs_min_mm": -3230.4413744371172,
+        "incremental_rhs_min_mm": -3231.8011729266727,
+        "iteration": 3,
+        "linearization_delta_l2_mm": 11.583867883460037,
+        "linearization_delta_max_abs_mm": 0.5773502691896258,
+        "lp_iterations": 18252,
+        "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "lp_objective": 85.8947305476107,
+        "lp_status": 0,
+        "lp_success": true,
+        "lp_wall_seconds": 0.4224429160822183,
+        "minimum_normalized_linear_slack": -6.1729229107883e-08,
+        "zero_total_delta_feasibility_asserted": false,
+        "zero_total_delta_max_violation_mm": 0.02093999198798057
+      },
+      {
+        "absolute_delta_max_abs_mm": 0.5773502691896258,
+        "absolute_delta_step_l2_mm": 6.243495111699935e-07,
+        "absolute_rhs_min_mm": -3230.4413744371172,
+        "incremental_rhs_min_mm": -3231.8011729266727,
+        "iteration": 4,
+        "linearization_delta_l2_mm": 11.584158939497563,
+        "linearization_delta_max_abs_mm": 0.5773502691896258,
+        "lp_iterations": 17764,
+        "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "lp_objective": 85.89473085821174,
+        "lp_status": 0,
+        "lp_success": true,
+        "lp_wall_seconds": 0.39598649996332824,
+        "minimum_normalized_linear_slack": -6.1729229107883e-08,
+        "zero_total_delta_feasibility_asserted": false,
+        "zero_total_delta_max_violation_mm": 0.02093999198797816
+      }
+    ],
+    "exact_global_self_audit": "NOT_RUN",
+    "full_mesh_f32_area_gate": {
+      "area_floor": 0.1,
+      "bad_current_oriented_face_count": 5,
+      "bad_current_oriented_face_rows_first_64": [
+        11408,
+        23497,
+        28809,
+        28897,
+        36449
+      ],
+      "bad_current_oriented_face_rows_truncated": false,
+      "bad_fixed_037_reference_face_count": 0,
+      "bad_fixed_037_reference_face_rows_first_64": [],
+      "bad_fixed_037_reference_face_rows_truncated": false,
+      "faces_checked": 36815,
+      "minimum_current_oriented_ratio": 0.09991981374979761,
+      "minimum_fixed_037_reference_magnitude_ratio": 0.10001410676965261,
+      "pass": false
+    },
+    "full_surface_bone_audit": "NOT_RUN",
+    "maximum_node_step_mm": 0.8500553340948768,
+    "maximum_source_displacement_mm": 8.83720624622097,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-scp-213-run001/joint-001/proposal/raw-lp-candidate.npz",
+    "qualified": false,
+    "semantics": "unbacktracked LP result saved before alpha backtracking; diagnostic only",
+    "sha256": "060024d037b46d8da5dfd0f316a93417f8930edff4973d461a2c323b6dfa27e9",
+    "solver_delta_max_abs_mm": 0.5773502691896258,
+    "solver_delta_shape_mm": [
+      3350,
+      3
+    ]
+  },
+  "solver": {
+    "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "minimum_normalized_linear_slack": -6.1729229107883e-08,
+    "nit": 17764,
+    "objective": 85.89473085821174,
+    "raw_target_l1_mm": 723.7975262105465,
+    "residual_to_raw_target_l1_mm": 85.89473085821159,
+    "status": 0,
+    "success": true,
+    "wall_seconds": 1.6296739160316065
+  },
+  "source_reference": [
+    {
+      "columns": 13518,
+      "kind": "csr_level",
+      "level": 0,
+      "max_row_sum_error": 0.0,
+      "nnz": 25680,
+      "prefix": "",
+      "rows": 18430
+    },
+    {
+      "columns": 10145,
+      "kind": "csr_level",
+      "level": 1,
+      "max_row_sum_error": 0.0,
+      "nnz": 18450,
+      "prefix": "prior_input_006__",
+      "rows": 13518
+    },
+    {
+      "columns": 8776,
+      "kind": "csr_level",
+      "level": 2,
+      "max_row_sum_error": 0.0,
+      "nnz": 12193,
+      "prefix": "prior_run028__",
+      "rows": 10145
+    },
+    {
+      "composed_nnz": 36124,
+      "composed_shape": [
+        18430,
+        8776
+      ],
+      "kind": "composed_source_base",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+      "shape": [
+        8776,
+        3
+      ]
+    }
+  ],
+  "status": "NO_POSITIVE_F32_FEASIBLE_STEP_BASE_PRESERVED",
+  "support": {
+    "area_faces_touching_free_support": 8372,
+    "core_faces": 5054,
+    "core_nodes": 1481,
+    "free_support_nodes": 3341,
+    "support_nodes": 3350,
+    "threatened_pairs": 2496
+  }
+}
