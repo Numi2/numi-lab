@@ -1,0 +1,2128 @@
+{
+  "schema": "numi.human.area-constrained-connected-scp.v3",
+  "status": "CANDIDATE_WRITTEN_UNADMITTED",
+  "classification": "construction_geometry_only_no_anatomical_physical_or_native_admission",
+  "inputs": {
+    "start_sha256": "34dc98d228ccc2ae9dc7ac51a65dcf45d894f607186531ac7d0e099f9da42d25",
+    "base_702_sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+    "old_rejected_fit_sha256": "cad4e517de2c498aeb18ec7b81ddf6300715f5070355690b0c5fa7fa6bc2dc02",
+    "nearest_union_report_sha256": "792a5109e8b409c225589c0f87c92b54eec4693fcf9caf1d99779b4317b17891",
+    "nearest_union_npz_sha256": "1bb0111f39bfe183f07d271380f76c5087be0d40d6a040ce6ff988e5277452f1",
+    "exact_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "support_helper_sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd"
+  },
+  "constraints": {
+    "source_cap_mm": 7.0,
+    "proposal_target_max_mm": 6.0,
+    "local_trust_step_mm": 2.0,
+    "progressive_lens_support_fraction": 0.95,
+    "area_floor_ratio": 0.1,
+    "area_constrained_seed_faces": [
+      7124,
+      7154,
+      7161,
+      8023,
+      8499,
+      8804,
+      9160,
+      10403,
+      10404,
+      10688,
+      10698,
+      11094,
+      11096,
+      11102,
+      11365,
+      11366,
+      14654,
+      14660,
+      14815,
+      14825,
+      15586,
+      15587,
+      15645,
+      15952,
+      15956,
+      16450,
+      16505,
+      16508,
+      16520,
+      16933,
+      16981,
+      18135,
+      18220,
+      18240,
+      20092,
+      20130,
+      20131
+    ],
+    "area_constrained_seed_face_count": 37,
+    "active_area_faces_final": 584,
+    "hard_exit_feasible_rows": 379,
+    "unresolved_proposals": [
+      {
+        "query_row": 9891,
+        "reason": "first_union_target_exceeds_6mm_construction_target_cap",
+        "distance_mm": 8.001632645008863
+      }
+    ],
+    "fixed_anchor_rows": 237,
+    "all_faces_checked_without_rounding_mask": true
+  },
+  "solver": {
+    "method": "SCP of sparse graph-Laplacian soft-target objective; each node uses exact active-set candidate projection onto source ball, exit halfspace, fixed anchor, and 2mm trust ball; oriented-area rows use cyclic Dykstra; full emitted-F32 area and exact self gates before each accepted iterate",
+    "target_weight": 8.0,
+    "laplacian_weight": 1.5,
+    "source_regularization": 0.02,
+    "admm_rho": 3.0,
+    "stop_reason": "max_scp_iterations",
+    "accepted_steps": 1,
+    "stages": [
+      {
+        "scp_iteration": 1,
+        "status": "ACCEPTED",
+        "active_area_face_count": 500,
+        "active_face_color_count": 18,
+        "area_linearized_max_violation_mm2": 4.2004182538413204e-05,
+        "admm_iterations": 681,
+        "admm_residual_log": [
+          {
+            "iteration": 1,
+            "primal_inf_mm": 1.5438653945207383,
+            "dual_inf_mm": 8.198454064789718,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 1,
+              "max_violation_mm2": 8.881784197001252e-16
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 4.440892098500626e-16,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 21,
+            "primal_inf_mm": 0.24831174196812722,
+            "dual_inf_mm": 0.07273095931833323,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 19,
+              "max_violation_mm2": 9.619979020270009e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.1102230246251565e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 41,
+            "primal_inf_mm": 0.10392041061604372,
+            "dual_inf_mm": 0.030513975470348464,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 21,
+              "max_violation_mm2": 4.895499498669409e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 2.6645352591003757e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 61,
+            "primal_inf_mm": 0.06124516841877643,
+            "dual_inf_mm": 0.01786225677934028,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 21,
+              "max_violation_mm2": 9.402426810600772e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 8.881784197001252e-16,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 81,
+            "primal_inf_mm": 0.036626693733349064,
+            "dual_inf_mm": 0.010691341733739366,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 22,
+              "max_violation_mm2": 5.4268018477632296e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 2.220446049250313e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 101,
+            "primal_inf_mm": 0.02203666292217455,
+            "dual_inf_mm": 0.006439849275362527,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 22,
+              "max_violation_mm2": 6.957485002967445e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.1102230246251565e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 121,
+            "primal_inf_mm": 0.013296425908822284,
+            "dual_inf_mm": 0.0038888797991815543,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 22,
+              "max_violation_mm2": 7.897863147343642e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 2.220446049250313e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 141,
+            "primal_inf_mm": 0.010020531679582365,
+            "dual_inf_mm": 0.0023513447962842287,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 22,
+              "max_violation_mm2": 8.898484178265775e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 161,
+            "primal_inf_mm": 0.008147183002929518,
+            "dual_inf_mm": 0.0021948647563235246,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 22,
+              "max_violation_mm2": 9.598715133707358e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 181,
+            "primal_inf_mm": 0.005519545633843013,
+            "dual_inf_mm": 0.0008993755036683946,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 3.94207581297934e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.9984014443252818e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 201,
+            "primal_inf_mm": 0.003919701494370263,
+            "dual_inf_mm": 0.0006964261328267797,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.043767406347598e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.9984014443252818e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 221,
+            "primal_inf_mm": 0.0028599162221053655,
+            "dual_inf_mm": 0.0005175891024609069,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.105415577493332e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 241,
+            "primal_inf_mm": 0.002332614672140576,
+            "dual_inf_mm": 0.00038055496881621596,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.142797983774926e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 261,
+            "primal_inf_mm": 0.0022506398985678976,
+            "dual_inf_mm": 0.00027905844403229715,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.165478216622276e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 8.881784197001252e-16,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 281,
+            "primal_inf_mm": 0.0022065143869761917,
+            "dual_inf_mm": 0.00020451516515398636,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.179240184942756e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 301,
+            "primal_inf_mm": 0.0021718298609339636,
+            "dual_inf_mm": 0.00014987147444361354,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.187582076697893e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 321,
+            "primal_inf_mm": 0.002136494065952569,
+            "dual_inf_mm": 0.00010982858478420902,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.192638329891807e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.1102230246251565e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 341,
+            "primal_inf_mm": 0.0021016691399412795,
+            "dual_inf_mm": 0.00010369756325981854,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.1957029982331306e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.5543122344752192e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 361,
+            "primal_inf_mm": 0.0020674084275413627,
+            "dual_inf_mm": 0.00010200699278076394,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.197560520768917e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 381,
+            "primal_inf_mm": 0.0020337058241987533,
+            "dual_inf_mm": 0.00010034351495873925,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.198686378664718e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 8.881784197001252e-16,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 401,
+            "primal_inf_mm": 0.002000552537218634,
+            "dual_inf_mm": 9.870729995159958e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.199368773516454e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 421,
+            "primal_inf_mm": 0.0019679396949339556,
+            "dual_inf_mm": 9.709788077998087e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.1997823831518843e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.1102230246251565e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 441,
+            "primal_inf_mm": 0.0019358585107209652,
+            "dual_inf_mm": 9.551478335285382e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.200033082746302e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 2.220446049250313e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 461,
+            "primal_inf_mm": 0.0019043003221937752,
+            "dual_inf_mm": 9.395755297095293e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.200185039593407e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.5543122344752192e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 481,
+            "primal_inf_mm": 0.0018732566028674662,
+            "dual_inf_mm": 9.242575062186445e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.200277148669329e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 501,
+            "primal_inf_mm": 0.0018427189640611106,
+            "dual_inf_mm": 9.091894987549507e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.200332980985877e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 8.881784197001252e-16,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 521,
+            "primal_inf_mm": 0.0018126791538007716,
+            "dual_inf_mm": 8.943673486833126e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.200366827689095e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 541,
+            "primal_inf_mm": 0.0017831290549031422,
+            "dual_inf_mm": 8.797869895003648e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.200387346742218e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 6.661338147750939e-16,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 561,
+            "primal_inf_mm": 0.0017540606828072348,
+            "dual_inf_mm": 8.654444376482087e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.2003997854145325e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.1102230246251565e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 581,
+            "primal_inf_mm": 0.0017254661833967957,
+            "dual_inf_mm": 8.513357859568514e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.200407326582223e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 601,
+            "primal_inf_mm": 0.0016973378308221933,
+            "dual_inf_mm": 8.374571991101034e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.2004119011451735e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 621,
+            "primal_inf_mm": 0.0016696680253748897,
+            "dual_inf_mm": 8.238049100782199e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.2004146758145566e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 8.881784197001252e-16,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 641,
+            "primal_inf_mm": 0.0009601870623917655,
+            "dual_inf_mm": 0.0002505436220763463,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.200416359889658e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 8.881784197001252e-16,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 661,
+            "primal_inf_mm": 0.0005298677825597141,
+            "dual_inf_mm": 0.00013530945854921015,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.2004173725462834e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 681,
+            "primal_inf_mm": 0.0002923034209171232,
+            "dual_inf_mm": 7.442269120683814e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 23,
+              "max_violation_mm2": 4.200417986366389e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.5543122344752192e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          }
+        ],
+        "node_projection": {
+          "method": "exact_active_set_candidates",
+          "intersection_residual_mm": 1.1102230246251565e-15,
+          "overlap_nodes": 0,
+          "full_active_set_enumerations": 0
+        },
+        "area_projection": {
+          "converged": true,
+          "sweeps": 23,
+          "max_violation_mm2": 4.2004182538413204e-05
+        },
+        "factor_seconds": 0.011263958062045276,
+        "solve_seconds": 15.953827375080436,
+        "elapsed_seconds": 20.262568000005558,
+        "exit_constraint_progress_max_mm": 1.9000000000000004,
+        "trials": [
+          {
+            "alpha": 1.0,
+            "max_cumulative_source_displacement_mm": 6.031087915898132,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 2.0000151304239697,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 3.887161433299429,
+            "allface_flip_count": 14,
+            "first_flipped_face_rows": [
+              7124,
+              7154,
+              7161,
+              8019,
+              8023,
+              11077,
+              11094,
+              11096,
+              11102,
+              14660,
+              14825,
+              15952,
+              16450,
+              20093
+            ],
+            "active_face_below_10pct_count": 30,
+            "exact_self_complete": false,
+            "exact_self_pair_count": 0,
+            "self_pairs_first8": [],
+            "accepted": false
+          },
+          {
+            "alpha": 0.75,
+            "max_cumulative_source_displacement_mm": 5.945581411499827,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 1.5000199435005626,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 4.386703230134161,
+            "allface_flip_count": 3,
+            "first_flipped_face_rows": [
+              7154,
+              11094,
+              11096
+            ],
+            "active_face_below_10pct_count": 4,
+            "exact_self_complete": false,
+            "exact_self_pair_count": 0,
+            "self_pairs_first8": [],
+            "accepted": false
+          },
+          {
+            "alpha": 0.5,
+            "max_cumulative_source_displacement_mm": 5.862530500466949,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 1.0000157979746522,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 4.886245026968894,
+            "allface_flip_count": 0,
+            "first_flipped_face_rows": [],
+            "active_face_below_10pct_count": 0,
+            "exact_self_complete": true,
+            "exact_self_pair_count": 3,
+            "self_pairs_first8": [
+              [
+                19968,
+                19993
+              ],
+              [
+                19968,
+                19994
+              ],
+              [
+                19994,
+                19995
+              ]
+            ],
+            "accepted": false
+          },
+          {
+            "alpha": 0.25,
+            "max_cumulative_source_displacement_mm": 5.782021822776252,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 0.5000163364778267,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 5.385779987492539,
+            "allface_flip_count": 0,
+            "first_flipped_face_rows": [],
+            "active_face_below_10pct_count": 0,
+            "exact_self_complete": true,
+            "exact_self_pair_count": 0,
+            "self_pairs_first8": [],
+            "accepted": true
+          }
+        ]
+      },
+      {
+        "scp_iteration": 2,
+        "status": "NO_ACCEPTABLE_BACKTRACK",
+        "active_area_face_count": 500,
+        "active_face_color_count": 18,
+        "area_linearized_max_violation_mm2": 9.076718790401728e-05,
+        "admm_iterations": 361,
+        "admm_residual_log": [
+          {
+            "iteration": 1,
+            "primal_inf_mm": 1.924403813712584,
+            "dual_inf_mm": 7.246978196118995,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 1,
+              "max_violation_mm2": 3.552713678800501e-15
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 4.440892098500626e-16,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 21,
+            "primal_inf_mm": 0.27037658041141455,
+            "dual_inf_mm": 0.07684765445221495,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 28,
+              "max_violation_mm2": 5.874057689769785e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 41,
+            "primal_inf_mm": 0.10863934317109383,
+            "dual_inf_mm": 0.03092112701603492,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 28,
+              "max_violation_mm2": 9.427721170096603e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 2.220446049250313e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 61,
+            "primal_inf_mm": 0.06511668520335767,
+            "dual_inf_mm": 0.01660243407242379,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 6.667249834801936e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.5543122344752192e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 81,
+            "primal_inf_mm": 0.03927637683272919,
+            "dual_inf_mm": 0.00963114943546672,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 7.573594441767639e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 101,
+            "primal_inf_mm": 0.023611028653475963,
+            "dual_inf_mm": 0.005698016914046186,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.160134505708072e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 121,
+            "primal_inf_mm": 0.014182230180982778,
+            "dual_inf_mm": 0.003397944289564858,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.52153852135551e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.5543122344752192e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 141,
+            "primal_inf_mm": 0.008795225950874721,
+            "dual_inf_mm": 0.002033641544351503,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.743231402696949e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 161,
+            "primal_inf_mm": 0.006354141017807019,
+            "dual_inf_mm": 0.0012192939974880368,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.876587232364841e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 3.1086244689504383e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 181,
+            "primal_inf_mm": 0.0057305649795229095,
+            "dual_inf_mm": 0.0008493918136820841,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.956766006651407e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 201,
+            "primal_inf_mm": 0.005656623750258419,
+            "dual_inf_mm": 0.0006137511050025768,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.004978862137136e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 221,
+            "primal_inf_mm": 0.005583525754507105,
+            "dual_inf_mm": 0.0004435159700319701,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.033958438298129e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.5543122344752192e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 241,
+            "primal_inf_mm": 0.00509231332000723,
+            "dual_inf_mm": 0.001521697751479549,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.05137216520302e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 261,
+            "primal_inf_mm": 0.0028701035149491,
+            "dual_inf_mm": 0.0007479704680509074,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.061834628898424e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 8.881784197001252e-16,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 281,
+            "primal_inf_mm": 0.0015798005480347386,
+            "dual_inf_mm": 0.0004055901244925538,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.068120464439389e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.5543122344752192e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 301,
+            "primal_inf_mm": 0.0008702840202047654,
+            "dual_inf_mm": 0.00022300816689411763,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.071897028389841e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.1102230246251565e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 321,
+            "primal_inf_mm": 0.0004797483454784248,
+            "dual_inf_mm": 0.00012290158802837862,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.074166092304381e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 341,
+            "primal_inf_mm": 0.0003418086962900078,
+            "dual_inf_mm": 6.775960566556718e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.075529504931623e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 361,
+            "primal_inf_mm": 0.0002470372831673733,
+            "dual_inf_mm": 4.567113988201573e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.076348807113277e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          }
+        ],
+        "node_projection": {
+          "method": "exact_active_set_candidates",
+          "intersection_residual_mm": 2.220446049250313e-15,
+          "overlap_nodes": 0,
+          "full_active_set_enumerations": 0
+        },
+        "area_projection": {
+          "converged": true,
+          "sweeps": 29,
+          "max_violation_mm2": 9.076718790401728e-05
+        },
+        "factor_seconds": 0.011263958062045276,
+        "solve_seconds": 9.000605833018199,
+        "elapsed_seconds": 13.367585125030018,
+        "exit_constraint_progress_max_mm": 1.9000000000000008,
+        "trials": [
+          {
+            "alpha": 1.0,
+            "max_cumulative_source_displacement_mm": 6.031155369247623,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 2.0000125383486926,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 3.38854531128451,
+            "allface_flip_count": 13,
+            "first_flipped_face_rows": [
+              7124,
+              7154,
+              7161,
+              8023,
+              11094,
+              11096,
+              11102,
+              14660,
+              14815,
+              15952,
+              16450,
+              16981,
+              20093
+            ],
+            "active_face_below_10pct_count": 32,
+            "exact_self_complete": false,
+            "exact_self_pair_count": 0,
+            "self_pairs_first8": [],
+            "accepted": false
+          },
+          {
+            "alpha": 0.75,
+            "max_cumulative_source_displacement_mm": 5.966822521969781,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 1.500024399721886,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 3.88783894898518,
+            "allface_flip_count": 1,
+            "first_flipped_face_rows": [
+              11096
+            ],
+            "active_face_below_10pct_count": 2,
+            "exact_self_complete": false,
+            "exact_self_pair_count": 0,
+            "self_pairs_first8": [],
+            "accepted": false
+          },
+          {
+            "alpha": 0.5,
+            "max_cumulative_source_displacement_mm": 5.903803881848323,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 1.0000112363519487,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 4.387192380638952,
+            "allface_flip_count": 0,
+            "first_flipped_face_rows": [],
+            "active_face_below_10pct_count": 0,
+            "exact_self_complete": true,
+            "exact_self_pair_count": 3,
+            "self_pairs_first8": [
+              [
+                19968,
+                19993
+              ],
+              [
+                19968,
+                19994
+              ],
+              [
+                19994,
+                19995
+              ]
+            ],
+            "accepted": false
+          },
+          {
+            "alpha": 0.25,
+            "max_cumulative_source_displacement_mm": 5.842214040769845,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 0.5000083954709728,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 4.886486349791869,
+            "allface_flip_count": 0,
+            "first_flipped_face_rows": [],
+            "active_face_below_10pct_count": 0,
+            "exact_self_complete": true,
+            "exact_self_pair_count": 3,
+            "self_pairs_first8": [
+              [
+                19968,
+                19993
+              ],
+              [
+                19968,
+                19994
+              ],
+              [
+                19994,
+                19995
+              ]
+            ],
+            "accepted": false
+          }
+        ],
+        "added_area_rows_for_next_scp": 584
+      },
+      {
+        "scp_iteration": 3,
+        "status": "NO_ACCEPTABLE_BACKTRACK",
+        "active_area_face_count": 584,
+        "active_face_color_count": 18,
+        "area_linearized_max_violation_mm2": 9.076718790401728e-05,
+        "admm_iterations": 361,
+        "admm_residual_log": [
+          {
+            "iteration": 1,
+            "primal_inf_mm": 1.924403813712584,
+            "dual_inf_mm": 7.246978196118995,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 1,
+              "max_violation_mm2": 3.552713678800501e-15
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 4.440892098500626e-16,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 21,
+            "primal_inf_mm": 0.27037658041141455,
+            "dual_inf_mm": 0.07684765445221495,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 28,
+              "max_violation_mm2": 5.874057689769785e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 41,
+            "primal_inf_mm": 0.10863934317109383,
+            "dual_inf_mm": 0.03092112701603492,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 28,
+              "max_violation_mm2": 9.427721170096603e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 2.220446049250313e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 61,
+            "primal_inf_mm": 0.06511668520335767,
+            "dual_inf_mm": 0.01660243407242379,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 6.667249834801936e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.5543122344752192e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 81,
+            "primal_inf_mm": 0.03927637683272919,
+            "dual_inf_mm": 0.00963114943546672,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 7.573594441767639e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 101,
+            "primal_inf_mm": 0.023611028653475963,
+            "dual_inf_mm": 0.005698016914046186,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.160134505708072e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 121,
+            "primal_inf_mm": 0.014182230180982778,
+            "dual_inf_mm": 0.003397944289564858,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.52153852135551e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 141,
+            "primal_inf_mm": 0.008795225949713301,
+            "dual_inf_mm": 0.002033641544351503,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.743231402696949e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 161,
+            "primal_inf_mm": 0.006354141019621185,
+            "dual_inf_mm": 0.0012192939974880368,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.876587232364841e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 181,
+            "primal_inf_mm": 0.005730564979522887,
+            "dual_inf_mm": 0.0008493918146654778,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.956766006651407e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 201,
+            "primal_inf_mm": 0.005656623750258402,
+            "dual_inf_mm": 0.0006137511060115646,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.004978862137136e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 221,
+            "primal_inf_mm": 0.005583525754507081,
+            "dual_inf_mm": 0.00044351597088526233,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.033958438298129e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 241,
+            "primal_inf_mm": 0.005092313320007443,
+            "dual_inf_mm": 0.0015216977514795368,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.05137216520302e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 261,
+            "primal_inf_mm": 0.002870103514949097,
+            "dual_inf_mm": 0.0007479704680499218,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.061834628898424e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 2.6645352591003757e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 281,
+            "primal_inf_mm": 0.001579800548033619,
+            "dual_inf_mm": 0.00040559012449253905,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.068120464439389e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.5543122344752192e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 301,
+            "primal_inf_mm": 0.0008702840202047653,
+            "dual_inf_mm": 0.00022300816689478875,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.071897028389841e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.1102230246251565e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 321,
+            "primal_inf_mm": 0.0004797483454784792,
+            "dual_inf_mm": 0.0001229015880277146,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.074166092304381e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 341,
+            "primal_inf_mm": 0.0003418086970018207,
+            "dual_inf_mm": 6.775960566423992e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.075529504931623e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 2.220446049250313e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 361,
+            "primal_inf_mm": 0.0002470372836732148,
+            "dual_inf_mm": 4.567113997831356e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.076348807113277e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          }
+        ],
+        "node_projection": {
+          "method": "exact_active_set_candidates",
+          "intersection_residual_mm": 1.1102230246251565e-15,
+          "overlap_nodes": 0,
+          "full_active_set_enumerations": 0
+        },
+        "area_projection": {
+          "converged": true,
+          "sweeps": 29,
+          "max_violation_mm2": 9.076718790401728e-05
+        },
+        "factor_seconds": 0.011263958062045276,
+        "solve_seconds": 9.134586582891643,
+        "elapsed_seconds": 13.538626416004263,
+        "exit_constraint_progress_max_mm": 1.9000000000000008,
+        "trials": [
+          {
+            "alpha": 1.0,
+            "max_cumulative_source_displacement_mm": 6.031155369247623,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 2.0000125383486926,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 3.38854531128451,
+            "allface_flip_count": 13,
+            "first_flipped_face_rows": [
+              7124,
+              7154,
+              7161,
+              8023,
+              11094,
+              11096,
+              11102,
+              14660,
+              14815,
+              15952,
+              16450,
+              16981,
+              20093
+            ],
+            "active_face_below_10pct_count": 35,
+            "exact_self_complete": false,
+            "exact_self_pair_count": 0,
+            "self_pairs_first8": [],
+            "accepted": false
+          },
+          {
+            "alpha": 0.75,
+            "max_cumulative_source_displacement_mm": 5.966822521969781,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 1.500024399721886,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 3.88783894898518,
+            "allface_flip_count": 1,
+            "first_flipped_face_rows": [
+              11096
+            ],
+            "active_face_below_10pct_count": 2,
+            "exact_self_complete": false,
+            "exact_self_pair_count": 0,
+            "self_pairs_first8": [],
+            "accepted": false
+          },
+          {
+            "alpha": 0.5,
+            "max_cumulative_source_displacement_mm": 5.903803881848323,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 1.0000112363519487,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 4.387192380638952,
+            "allface_flip_count": 0,
+            "first_flipped_face_rows": [],
+            "active_face_below_10pct_count": 0,
+            "exact_self_complete": true,
+            "exact_self_pair_count": 3,
+            "self_pairs_first8": [
+              [
+                19968,
+                19993
+              ],
+              [
+                19968,
+                19994
+              ],
+              [
+                19994,
+                19995
+              ]
+            ],
+            "accepted": false
+          },
+          {
+            "alpha": 0.25,
+            "max_cumulative_source_displacement_mm": 5.842214040769845,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 0.5000083954709728,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 4.886486349791869,
+            "allface_flip_count": 0,
+            "first_flipped_face_rows": [],
+            "active_face_below_10pct_count": 0,
+            "exact_self_complete": true,
+            "exact_self_pair_count": 3,
+            "self_pairs_first8": [
+              [
+                19968,
+                19993
+              ],
+              [
+                19968,
+                19994
+              ],
+              [
+                19994,
+                19995
+              ]
+            ],
+            "accepted": false
+          }
+        ],
+        "added_area_rows_for_next_scp": 584
+      },
+      {
+        "scp_iteration": 4,
+        "status": "NO_ACCEPTABLE_BACKTRACK",
+        "active_area_face_count": 584,
+        "active_face_color_count": 18,
+        "area_linearized_max_violation_mm2": 9.076718790401728e-05,
+        "admm_iterations": 361,
+        "admm_residual_log": [
+          {
+            "iteration": 1,
+            "primal_inf_mm": 1.924403813712584,
+            "dual_inf_mm": 7.246978196118995,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 1,
+              "max_violation_mm2": 3.552713678800501e-15
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 4.440892098500626e-16,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 21,
+            "primal_inf_mm": 0.27037658041141455,
+            "dual_inf_mm": 0.07684765445221495,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 28,
+              "max_violation_mm2": 5.874057689769785e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 41,
+            "primal_inf_mm": 0.10863934317109383,
+            "dual_inf_mm": 0.03092112701603492,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 28,
+              "max_violation_mm2": 9.427721170096603e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 2.220446049250313e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 61,
+            "primal_inf_mm": 0.06511668520335767,
+            "dual_inf_mm": 0.01660243407242379,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 6.667249834801936e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.5543122344752192e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 81,
+            "primal_inf_mm": 0.03927637683272919,
+            "dual_inf_mm": 0.00963114943546672,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 7.573594441767639e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 101,
+            "primal_inf_mm": 0.023611028653475963,
+            "dual_inf_mm": 0.005698016914046186,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.160134505708072e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 121,
+            "primal_inf_mm": 0.014182230180982778,
+            "dual_inf_mm": 0.003397944289564858,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.52153852135551e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 141,
+            "primal_inf_mm": 0.008795225949713301,
+            "dual_inf_mm": 0.002033641544351503,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.743231402696949e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 161,
+            "primal_inf_mm": 0.006354141019621185,
+            "dual_inf_mm": 0.0012192939974880368,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.876587232364841e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 181,
+            "primal_inf_mm": 0.005730564979522887,
+            "dual_inf_mm": 0.0008493918146654778,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 8.956766006651407e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 201,
+            "primal_inf_mm": 0.005656623750258402,
+            "dual_inf_mm": 0.0006137511060115646,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.004978862137136e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 221,
+            "primal_inf_mm": 0.005583525754507081,
+            "dual_inf_mm": 0.00044351597088526233,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.033958438298129e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 241,
+            "primal_inf_mm": 0.005092313320007443,
+            "dual_inf_mm": 0.0015216977514795368,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.05137216520302e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.3322676295501878e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 261,
+            "primal_inf_mm": 0.002870103514949097,
+            "dual_inf_mm": 0.0007479704680499218,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.061834628898424e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 2.6645352591003757e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 281,
+            "primal_inf_mm": 0.001579800548033619,
+            "dual_inf_mm": 0.00040559012449253905,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.068120464439389e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.5543122344752192e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 301,
+            "primal_inf_mm": 0.0008702840202047653,
+            "dual_inf_mm": 0.00022300816689478875,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.071897028389841e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.1102230246251565e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 321,
+            "primal_inf_mm": 0.0004797483454784792,
+            "dual_inf_mm": 0.0001229015880277146,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.074166092304381e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 341,
+            "primal_inf_mm": 0.0003418086970018207,
+            "dual_inf_mm": 6.775960566423992e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.075529504931623e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 2.220446049250313e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          },
+          {
+            "iteration": 361,
+            "primal_inf_mm": 0.0002470372836732148,
+            "dual_inf_mm": 4.567113997831356e-05,
+            "area_projection": {
+              "converged": true,
+              "sweeps": 29,
+              "max_violation_mm2": 9.076348807113277e-05
+            },
+            "node_projection": {
+              "method": "exact_active_set_candidates",
+              "intersection_residual_mm": 1.7763568394002505e-15,
+              "overlap_nodes": 0,
+              "full_active_set_enumerations": 0
+            }
+          }
+        ],
+        "node_projection": {
+          "method": "exact_active_set_candidates",
+          "intersection_residual_mm": 1.1102230246251565e-15,
+          "overlap_nodes": 0,
+          "full_active_set_enumerations": 0
+        },
+        "area_projection": {
+          "converged": true,
+          "sweeps": 29,
+          "max_violation_mm2": 9.076718790401728e-05
+        },
+        "factor_seconds": 0.011263958062045276,
+        "solve_seconds": 9.108398832962848,
+        "elapsed_seconds": 13.511559540987946,
+        "exit_constraint_progress_max_mm": 1.9000000000000008,
+        "trials": [
+          {
+            "alpha": 1.0,
+            "max_cumulative_source_displacement_mm": 6.031155369247623,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 2.0000125383486926,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 3.38854531128451,
+            "allface_flip_count": 13,
+            "first_flipped_face_rows": [
+              7124,
+              7154,
+              7161,
+              8023,
+              11094,
+              11096,
+              11102,
+              14660,
+              14815,
+              15952,
+              16450,
+              16981,
+              20093
+            ],
+            "active_face_below_10pct_count": 35,
+            "exact_self_complete": false,
+            "exact_self_pair_count": 0,
+            "self_pairs_first8": [],
+            "accepted": false
+          },
+          {
+            "alpha": 0.75,
+            "max_cumulative_source_displacement_mm": 5.966822521969781,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 1.500024399721886,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 3.88783894898518,
+            "allface_flip_count": 1,
+            "first_flipped_face_rows": [
+              11096
+            ],
+            "active_face_below_10pct_count": 2,
+            "exact_self_complete": false,
+            "exact_self_pair_count": 0,
+            "self_pairs_first8": [],
+            "accepted": false
+          },
+          {
+            "alpha": 0.5,
+            "max_cumulative_source_displacement_mm": 5.903803881848323,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 1.0000112363519487,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 4.387192380638952,
+            "allface_flip_count": 0,
+            "first_flipped_face_rows": [],
+            "active_face_below_10pct_count": 0,
+            "exact_self_complete": true,
+            "exact_self_pair_count": 3,
+            "self_pairs_first8": [
+              [
+                19968,
+                19993
+              ],
+              [
+                19968,
+                19994
+              ],
+              [
+                19994,
+                19995
+              ]
+            ],
+            "accepted": false
+          },
+          {
+            "alpha": 0.25,
+            "max_cumulative_source_displacement_mm": 5.842214040769845,
+            "source_cap_7mm_ok": true,
+            "anchors_bitwise_unchanged": true,
+            "max_increment_mm": 0.5000083954709728,
+            "step_2mm_ok": true,
+            "exit_progress_nonregressing": true,
+            "hard_exit_rows": 379,
+            "hard_exit_max_remaining_mm": 4.886486349791869,
+            "allface_flip_count": 0,
+            "first_flipped_face_rows": [],
+            "active_face_below_10pct_count": 0,
+            "exact_self_complete": true,
+            "exact_self_pair_count": 3,
+            "self_pairs_first8": [
+              [
+                19968,
+                19993
+              ],
+              [
+                19968,
+                19994
+              ],
+              [
+                19994,
+                19995
+              ]
+            ],
+            "accepted": false
+          }
+        ],
+        "added_area_rows_for_next_scp": 584
+      }
+    ]
+  },
+  "final_geometry": {
+    "candidate_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-024-area-constrained-connected-fit-001/candidate.npz",
+    "candidate_sha256": "aa59d2a4be2f468fa641124e543da903425657b4839662343b9e4447c0ee1a1e",
+    "points": 10145,
+    "faces": 20245,
+    "changed_nodes": 8545,
+    "max_source_displacement_mm": 5.782021822776252,
+    "source_cap_pass": true,
+    "anchors_bitwise_unchanged": true,
+    "minimum_allface_oriented_area_ratio": 0.6941058583860793,
+    "allface_nonpositive_count": 0,
+    "allface_first_nonpositive_rows": [],
+    "self_audit_ran_on_each_accepted_iterate": true,
+    "wall_seconds": 62.91221054201014
+  },
+  "limitations": "No exact bone query or material/layer reconstruction included. Exit proposals are geometric first-union suggestions and do not establish anatomical outwardness. A candidate can remain unadmitted even when the listed local gates pass."
+}

@@ -1,0 +1,27 @@
+{
+  "status": "SIGNED_BOUNDARY_VOLUME_COMPARISON_ONLY",
+  "native_admission": false,
+  "outer_closed_construction_volume_m3": 0.06860425724578324,
+  "historical_material_volume_m3": {
+    "skin": 0.00345257095,
+    "fat": 0.01165234286
+  },
+  "candidates": {
+    "original": {
+      "sha256": "c771e159f34e6bdf17467a3ce3bc10764a80f68d206d4ddc7cd6f4e49e2de4da",
+      "inner_signed_volume_m3": -0.026545979932406132,
+      "deep_signed_volume_m3": -0.016237112003976612,
+      "skin_volume_from_signed_boundaries_m3": 0.04205827731337711,
+      "fat_volume_from_signed_boundaries_m3": 0.01030886792842952,
+      "combined_volume_m3": 0.052367145241806634
+    },
+    "refined": {
+      "sha256": "f62be2ab6e71df1497be6cb5ced0b216a07d4c3b733ca67bd69d728c750272aa",
+      "inner_signed_volume_m3": -0.06372114067541289,
+      "deep_signed_volume_m3": -0.04859494447781671,
+      "skin_volume_from_signed_boundaries_m3": 0.004883116570370355,
+      "fat_volume_from_signed_boundaries_m3": 0.015126196197596177,
+      "combined_volume_m3": 0.020009312767966532
+    }
+  }
+}

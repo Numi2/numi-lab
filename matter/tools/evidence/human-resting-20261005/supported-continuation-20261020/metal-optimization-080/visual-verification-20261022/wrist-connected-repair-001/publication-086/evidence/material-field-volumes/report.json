@@ -1,0 +1,45 @@
+{
+  "status": "EXACT_AFFINE_FIELD_VOLUME_AUDIT_ONLY",
+  "physical_or_native_admission": false,
+  "native_physical_steps_accepted": 0,
+  "reference_domain_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "reference_material_volumes_m3": {
+    "1": 0.0034525709483045628,
+    "2": 0.011652342870565699
+  },
+  "owner_sha256": "8020d21445b3e9a30ca3476fd8a80d9ea1ce4f069749940782ee9611e05d3745",
+  "cases": {
+    "original": {
+      "foundation_sha256": "f4f50a725d51b0dd5d0433c6078e6913c64fe0e9cf4ea676aa0f01fe8ce76ddb",
+      "facets_sha256": "c771e159f34e6bdf17467a3ce3bc10764a80f68d206d4ddc7cd6f4e49e2de4da",
+      "total_foundation_volume_m3": 0.06860425724578324,
+      "skin_volume_m3": 0.04205827713313887,
+      "fat_volume_m3": 0.010308868178922903,
+      "combined_volume_m3": 0.052367145312061776,
+      "emitted_surface_skin_volume_m3": 0.04205827731337711,
+      "emitted_surface_combined_volume_m3": 0.052367145241806634,
+      "surface_emission_skin_difference_m3": 1.8023823405988182e-10,
+      "surface_emission_combined_difference_m3": -7.025514198177873e-11,
+      "skin_relative_reference_volume_change": 11.18172711375916,
+      "fat_relative_reference_volume_change": -0.11529652933887391,
+      "seconds": 0.00783599994610995,
+      "reference_mass_gate_pass": false
+    },
+    "refined": {
+      "foundation_sha256": "cf51ebb33721a351be149f822f49f0737af136e66eb95a39924f10bbe6e3f179",
+      "facets_sha256": "f62be2ab6e71df1497be6cb5ced0b216a07d4c3b733ca67bd69d728c750272aa",
+      "total_foundation_volume_m3": 0.06860425724578326,
+      "skin_volume_m3": 0.004883116803552309,
+      "fat_volume_m3": 0.015126195893875087,
+      "combined_volume_m3": 0.020009312697427395,
+      "emitted_surface_skin_volume_m3": 0.004883116570370369,
+      "emitted_surface_combined_volume_m3": 0.020009312767966546,
+      "surface_emission_skin_difference_m3": -2.331819399029045e-10,
+      "surface_emission_combined_difference_m3": 7.053915090926566e-11,
+      "skin_relative_reference_volume_change": 0.41434220372798913,
+      "fat_relative_reference_volume_change": 0.29812485453757853,
+      "seconds": 0.169359749997966,
+      "reference_mass_gate_pass": false
+    }
+  }
+}

@@ -1213,3 +1213,54 @@ def extract_joint_zero_level_facets(
         point_scalar_values_m=np.asarray(Wphi, dtype=np.float64),
         diagnostics=diagnostics,
     )
+
+
+def positive_linear_tetrahedron_volume_fractions(values):
+    """Exact volume fractions of phi > 0 for affine phi on tetrahedra.
+
+    Each row contains the four nodal scalar values. The one/three-positive
+    cases are corner tetrahedra; the two-positive clipped wedge has a fixed
+    three-tetrahedron decomposition in barycentric coordinates. No physical
+    tetrahedra or material state are created here. All-zero cells are
+    ambiguous and rejected. Row scaling avoids overflow in scalar ratios.
+    """
+    v = np.asarray(values, dtype=np.float64)
+    if v.ndim != 2 or v.shape[1] != 4 or not np.isfinite(v).all():
+        raise ValueError("values must be a finite Mx4 scalar table")
+    scale = np.max(np.abs(v), axis=1)
+    if np.any(scale == 0.0):
+        raise ValueError("all-zero affine tetrahedron field is ambiguous")
+    if len(v) == 0:
+        return np.empty(0, dtype=np.float64)
+    scaled = v / scale[:,None]
+    if np.any((v != 0.0) & (scaled == 0.0)):
+        raise ValueError("scalar dynamic range cannot be resolved in Float64")
+    v = scaled
+    count = np.count_nonzero(v > 0.0, axis=1)
+    out = np.zeros(len(v), dtype=np.float64)
+    out[count == 4] = 1.0
+    for k in (1, 2, 3):
+        mask = count == k
+        a = v[mask]
+        # Stable sign partition; scalar sorting is unnecessary.
+        a = np.take_along_axis(a, np.argsort(a <= 0.0, axis=1, kind="stable"), axis=1)
+        if k == 1:
+            p = a[:,0]
+            out[mask] = np.prod(p[:,None] / (p[:,None]-a[:,1:]), axis=1)
+        elif k == 3:
+            n = -a[:,3]
+            out[mask] = 1.0 - np.prod(n[:,None] / (n[:,None]+a[:,:3]), axis=1)
+        else:
+            # Positive P0,P1 and nonpositive N0,N1. The wedge is the
+            # union of [P0,a,b,P1], [P1,a,b,c], [P1,b,c,d], where
+            # a=P0--N0, b=P0--N1, c=P1--N0, d=P1--N1.
+            t0 = a[:,0] / (a[:,0]-a[:,2])
+            t1 = a[:,0] / (a[:,0]-a[:,3])
+            s0 = a[:,1] / (a[:,1]-a[:,2])
+            s1 = a[:,1] / (a[:,1]-a[:,3])
+            out[mask] = t0*t1 + s0*t1*(1.0-t0) + s0*s1*(1.0-t1)
+    if not np.isfinite(out).all() or np.any(out < -1e-14) or np.any(out > 1.0+1e-14):
+        raise ValueError("affine positive volume fraction is numerically invalid")
+    return np.clip(out, 0.0, 1.0)
+
+

@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-024-area-constrained-connected-fit-001/post-audit-130/query/points-world.npz",
+  "input_sha256": "5cef49896aef08952dea176b961fcb0b19bf49e5146c6ea9077d5b5b71f21224",
+  "field": "points_world_f32",
+  "query_count": 10145,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-024-area-constrained-connected-fit-001/post-audit-130/query/points.csv",
+  "output_sha256": "9e8f4b89346c6cf5742b091ecb191eb7225b7e2476cc6556f864ec43cd701f33",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

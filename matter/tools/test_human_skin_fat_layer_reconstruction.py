@@ -654,3 +654,41 @@ def test_fixed_facet_quality_rejects_bad_indices(facets):
 def test_fixed_facet_quality_rejects_float32_coordinate_overflow():
     with pytest.raises(ValueError,match="Float32"):
         facet_incident_tetrahedron_quality_upper_bound(np.full((3,3),1e100),np.array([[0,1,2]]))
+
+from fractions import Fraction
+from itertools import permutations
+from human_skin_fat_layer_reconstruction import positive_linear_tetrahedron_volume_fractions
+
+def test_affine_positive_volume_known_corners_wedge_and_zero_vertices():
+    phi=np.array([[1,1,1,1],[-1,-1,-1,-1],[1,-1,-1,-1],[-1,1,1,1],
+                  [1,1,-1,-1],[1,2,-3,-4],[0,1,1,1],[0,-1,-1,-1],[0,0,1,1]],float)
+    assert np.allclose(positive_linear_tetrahedron_volume_fractions(phi),
+                       [1,0,.125,.875,.5,13/60,1,0,1],rtol=1e-14,atol=0)
+
+def test_affine_positive_volume_all_permutations_and_scalar_units():
+    p=np.asarray(list(permutations([1.,2.,-3.,-4.])))
+    a=positive_linear_tetrahedron_volume_fractions(p)
+    for factor in [1e-200,1e200,1024.]:
+        assert np.allclose(a,positive_linear_tetrahedron_volume_fractions(p*factor),rtol=2e-14,atol=0)
+    assert np.allclose(a,13/60,rtol=1e-14,atol=0)
+
+def test_affine_positive_volume_against_exact_divided_difference():
+    rng=np.random.default_rng(867)
+    rows=np.asarray([rng.choice(np.arange(-9,10),size=4,replace=False)for _ in range(100)],float)
+    got=positive_linear_tetrahedron_volume_fractions(rows)
+    for phi,result in zip(rows,got):
+        x=[Fraction(int(v))for v in phi]
+        exact=Fraction(0)
+        for i,p in enumerate(x):
+            if p>0:
+                denominator=Fraction(1)
+                for j,q in enumerate(x):
+                    if j!=i:denominator*=p-q
+                exact+=p**3/denominator
+        assert float(exact)==pytest.approx(result,rel=3e-14,abs=1e-15)
+
+def test_affine_positive_volume_rejects_ambiguous_or_invalid_fields():
+    for bad in [np.zeros((1,4)),np.full((1,4),np.nan),np.zeros((2,3))]:
+        with pytest.raises(ValueError):
+            positive_linear_tetrahedron_volume_fractions(bad)
+    assert positive_linear_tetrahedron_volume_fractions(np.empty((0,4))).shape==(0,)

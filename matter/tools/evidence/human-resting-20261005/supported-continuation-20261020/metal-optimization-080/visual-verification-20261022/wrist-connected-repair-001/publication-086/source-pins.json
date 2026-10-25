@@ -1,0 +1,7 @@
+{
+  "fixture_is_static_geometry_only": true,
+  "as_run_helper_sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+  "source_start_sha256": "34dc98d228ccc2ae9dc7ac51a65dcf45d894f607186531ac7d0e099f9da42d25",
+  "source_rejected_trial_sha256": "cad4e517de2c498aeb18ec7b81ddf6300715f5070355690b0c5fa7fa6bc2dc02",
+  "source_reference_sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+}

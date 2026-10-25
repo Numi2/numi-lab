@@ -1,0 +1,205 @@
+{
+  "publication": "086",
+  "base_commit": "458b584e0335e6e2728d7d7ac4247a41ecec8460",
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "canonical_changes": [
+    {
+      "path": "canonical/matter/tools/fixtures/human_skin_fat_surface_fit_constraints.npz",
+      "sha256": "d93fb71ba2ee18bf7743e20c7932ff47aa6f58e27db284de8e2060653ea58494"
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_layer_reconstruction.py",
+      "sha256": "8020d21445b3e9a30ca3476fd8a80d9ea1ce4f069749940782ee9611e05d3745"
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_surface_fit_constraints.py",
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd"
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_layer_reconstruction.py",
+      "sha256": "8997e41dd82ef0803b495dc08bc2fafdf9858781a271860698c4f9c6c8152844"
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_surface_fit_constraints.py",
+      "sha256": "330b3caf15e98b0c6caf823df2ce42ef6a5ae73aafd92b132e990b038f8f65da"
+    }
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "c1aeea71e9c7971f886b664cf12df056cc02d4800c0fbef779ddbe1f4ff3eed3",
+      "bytes": 3099
+    },
+    {
+      "path": "canonical/matter/tools/fixtures/human_skin_fat_surface_fit_constraints.npz",
+      "sha256": "d93fb71ba2ee18bf7743e20c7932ff47aa6f58e27db284de8e2060653ea58494",
+      "bytes": 12478
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_layer_reconstruction.py",
+      "sha256": "8020d21445b3e9a30ca3476fd8a80d9ea1ce4f069749940782ee9611e05d3745",
+      "bytes": 64254
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_surface_fit_constraints.py",
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+      "bytes": 16549
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_layer_reconstruction.py",
+      "sha256": "8997e41dd82ef0803b495dc08bc2fafdf9858781a271860698c4f9c6c8152844",
+      "bytes": 35089
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_surface_fit_constraints.py",
+      "sha256": "330b3caf15e98b0c6caf823df2ce42ef6a5ae73aafd92b132e990b038f8f65da",
+      "bytes": 8603
+    },
+    {
+      "path": "evidence/connected-fit-024/candidate.npz",
+      "sha256": "aa59d2a4be2f468fa641124e543da903425657b4839662343b9e4447c0ee1a1e",
+      "bytes": 992087
+    },
+    {
+      "path": "evidence/connected-fit-024/fit-report.json",
+      "sha256": "f284b8c93fd766a535e445c9ae8e3339604170215aa930fdb1aa8b99f8e90aa7",
+      "bytes": 74278
+    },
+    {
+      "path": "evidence/connected-fit-024/post-audit-130/query/nodes.csv",
+      "sha256": "0bcea9f3d0e5fc9fb866db0f3cc5df86f2f7f7fa4e607091f86fa7ba4472f18f",
+      "bytes": 232506
+    },
+    {
+      "path": "evidence/connected-fit-024/post-audit-130/query/pairs.csv",
+      "sha256": "f50437999a9a311efcfb3f71bd7d61bc9dfc1f2da586e056ccbb591bfc9bcefd",
+      "bytes": 848344
+    },
+    {
+      "path": "evidence/connected-fit-024/post-audit-130/query/points-world.npz",
+      "sha256": "5cef49896aef08952dea176b961fcb0b19bf49e5146c6ea9077d5b5b71f21224",
+      "bytes": 110940
+    },
+    {
+      "path": "evidence/connected-fit-024/post-audit-130/query/points.csv",
+      "sha256": "9e8f4b89346c6cf5742b091ecb191eb7225b7e2476cc6556f864ec43cd701f33",
+      "bytes": 766303
+    },
+    {
+      "path": "evidence/connected-fit-024/post-audit-130/query/prepare.log",
+      "sha256": "31c9982e6926b06ea38e7eb854eecbac5cdc27e8aa266153e7d11fc40b733483",
+      "bytes": 686
+    },
+    {
+      "path": "evidence/connected-fit-024/post-audit-130/query/query-receipt.json",
+      "sha256": "5c1656b02e1847b0a5a950680753027060f40d4c3859c422fbc075d2f047c8ed",
+      "bytes": 1657
+    },
+    {
+      "path": "evidence/connected-fit-024/post-audit-130/query/query.log",
+      "sha256": "72db6b0fe930785eb7b640845d9281f3d7a54d18f33b0b7b7e3de7dfda23854c",
+      "bytes": 135
+    },
+    {
+      "path": "evidence/connected-fit-024/post-audit-130/summary.json",
+      "sha256": "9877548736da4316a0a9658d16f46313da66e37525237d1cdf2fabe8662d77a0",
+      "bytes": 299807
+    },
+    {
+      "path": "evidence/connected-fit-024/post-audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "bytes": 128
+    },
+    {
+      "path": "evidence/connected-fit-024/post-audit-159/progress.json",
+      "sha256": "ec7ff50d4171e035df0d3fd1b43fb241151701d0f106389898653fcc60718aa9",
+      "bytes": 99
+    },
+    {
+      "path": "evidence/connected-fit-024/post-audit-159/report.json",
+      "sha256": "9086fbbc0fbb9524728d48c6708cb649340db54b444f18711f634e0aba676356",
+      "bytes": 210939
+    },
+    {
+      "path": "evidence/material-field-volumes/audit_material_field_volume_167.py",
+      "sha256": "978fdd6a7c80df8b7e77da417680eb292759c5cd55c8bb3daa03e3b1131da061",
+      "bytes": 2967
+    },
+    {
+      "path": "evidence/material-field-volumes/report.json",
+      "sha256": "c48e25ea280504b944dfcf66c10f4a43f57f31752fed90a785be2933402edd68",
+      "bytes": 2216
+    },
+    {
+      "path": "evidence/rejected-original-foundation/joint-facets/run-001/deep-scalar-snap-ledger.npz",
+      "sha256": "34dab492340be40b3a5d6ebaaf90736065a78c692b1d051d2df64ac96f7b498d",
+      "bytes": 347214
+    },
+    {
+      "path": "evidence/rejected-original-foundation/joint-facets/run-001/inner-scalar-snap-ledger.npz",
+      "sha256": "ad66ccb115198d4111863cbf645848ecded513fab3b465f791dd0fc3e6928732",
+      "bytes": 521150
+    },
+    {
+      "path": "evidence/rejected-original-foundation/joint-facets/run-001/joint-interface-facets.npz",
+      "sha256": "c771e159f34e6bdf17467a3ce3bc10764a80f68d206d4ddc7cd6f4e49e2de4da",
+      "bytes": 1395773
+    },
+    {
+      "path": "evidence/rejected-original-foundation/joint-facets/run-001/point-interpolation-weights.npz",
+      "sha256": "8115fef37a37c4570f71f39507243dac8124d54f8b70236fb8f153acc684d18a",
+      "bytes": 183916
+    },
+    {
+      "path": "evidence/rejected-original-foundation/joint-facets/run-001/run-report.json",
+      "sha256": "46577bf5f4d2517b6debc571f76e50559e5dd35bd450f23321568bb4cd0af3b7",
+      "bytes": 4793
+    },
+    {
+      "path": "evidence/rejected-original-foundation/run-001.log",
+      "sha256": "46577bf5f4d2517b6debc571f76e50559e5dd35bd450f23321568bb4cd0af3b7",
+      "bytes": 4793
+    },
+    {
+      "path": "evidence/rejected-original-foundation/run_original_foundation_joint_166.py",
+      "sha256": "772df9aa0f79d75e183cb2ee5856c306f3ad4e9a0f072dc3e3ecbc4f928bb8c6",
+      "bytes": 11428
+    },
+    {
+      "path": "evidence/rejected-original-foundation/signed-volume-comparison.json",
+      "sha256": "f27f865f41cdb046f23d683bb99cc11221426d419c0b54a36450d4b3422232a3",
+      "bytes": 1067
+    },
+    {
+      "path": "run-metadata.json",
+      "sha256": "04e4897d55a72c3e3d281078a793357238a108d59a1341b0626d60a7f5ab6774",
+      "bytes": 633
+    },
+    {
+      "path": "runners/area_scp_support_023.py",
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+      "bytes": 16549
+    },
+    {
+      "path": "runners/run-024-area-constrained-connected-fit-001.py",
+      "sha256": "6677387553e3ecf828dc8aa8892c46616028c1a81b98578a8e581f3e2b94deda",
+      "bytes": 26006
+    },
+    {
+      "path": "runners/test_area_scp_support_023.py",
+      "sha256": "f3ff56a6de85cfea79201feaa5a1b523c332535d848f4c8408643ff65a125f29",
+      "bytes": 10052
+    },
+    {
+      "path": "source-pins.json",
+      "sha256": "0dbd83e089a28330d3868404a9c7a58377047747511a1d2c26b5b8f145b8aa44",
+      "bytes": 432
+    },
+    {
+      "path": "tests.log",
+      "sha256": "60a44db1dfff1910be08c2428a6f0e6ffc46d79e55ffb8579dc1ca8490158d75",
+      "bytes": 179
+    }
+  ]
+}

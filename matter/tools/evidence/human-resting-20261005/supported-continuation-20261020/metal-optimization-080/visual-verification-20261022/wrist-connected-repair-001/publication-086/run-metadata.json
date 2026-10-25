@@ -1,0 +1,17 @@
+{
+  "host": "SSH numi",
+  "machine": "arm64",
+  "cpu": "Apple M6",
+  "memory_bytes": 17179869184,
+  "macos": "27.0",
+  "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "native_runs": 0,
+  "accepted_physical_steps": 0,
+  "kind": "CPU static geometry preparation only, no per-step physics",
+  "launch": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-024-area-constrained-connected-fit-001.py"
+  ]
+}
