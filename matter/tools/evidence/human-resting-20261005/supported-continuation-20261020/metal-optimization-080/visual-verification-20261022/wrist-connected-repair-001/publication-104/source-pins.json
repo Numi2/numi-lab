@@ -1,0 +1,35 @@
+{
+  "archive_manifest": "evidence/archive-manifest.json",
+  "base_commit": "65fc3d97c6be00147330e9522ea59658f26377a9",
+  "base_tree": "78a77260c8b1686086e8f47ecf3a317231aa320d",
+  "exclusions": [
+    {
+      "bytes": 2421025,
+      "path": "barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/pass-013/candidate.npz",
+      "reason": "selected 215 pass-013 candidate",
+      "sha256": "f5b82d77ec9896496ec4d5e9f37b99d4c26564a97b9669c0de1a16bd979d461a"
+    },
+    {
+      "bytes": 2421064,
+      "path": "barycentric-connected-clearance-170/whole-connected-joint-217-run001/joint-001/local-backtrack/pass-017/candidate.npz",
+      "reason": "selected 217 pass-017 candidate",
+      "sha256": "0e0c5d2a285f75ee82800439eb21c0ea2bb0727b43c4c3ef40710630340f666d"
+    },
+    {
+      "bytes": 2495414,
+      "path": "barycentric-connected-clearance-170/whole-witness-local-210-run001/joint-proposal/raw-lp-candidate.npz",
+      "reason": "raw LP payload",
+      "sha256": "f595e833af078c6829d5cdf8d4dc6fabb5cf473bc2a8455b403e042dbfe2e38d"
+    }
+  ],
+  "origin": "https://github.com/Numi2/numi-lab.git",
+  "origin_main_verified": "65fc3d97c6be00147330e9522ea59658f26377a9",
+  "selection_rules": {
+    "210": "all candidate.npz files under whole-witness-local-210-run001; raw-lp-candidate.npz excluded",
+    "215": "candidate.npz under passes 001-012 only; selected pass 013 excluded",
+    "217": "candidate.npz under local-backtrack passes 001-016 only; selected pass 017 excluded",
+    "219": "candidate.npz under round-002 joint-001 and joint-002 local-backtrack pass directories only"
+  },
+  "source_artifacts_root": "/Users/numi/Work/numi-human-connected-surface-069",
+  "source_repository": "/Users/numi/numi-human-aortic-contact-opt-20261019"
+}

@@ -1,0 +1,11 @@
+{
+  "archive_member_count": 33,
+  "archive_stream_restore": "PASS",
+  "archive_uncompressed_bytes": 80396008,
+  "base_commit": "65fc3d97c6be00147330e9522ea59658f26377a9",
+  "base_tree": "78a77260c8b1686086e8f47ecf3a317231aa320d",
+  "open_candidate_consumers": "none at archive preflight (lsof exact-file scan)",
+  "origin_main_verified": "65fc3d97c6be00147330e9522ea59658f26377a9",
+  "original_files_rechecked_unchanged": true,
+  "source_retirement": "none"
+}

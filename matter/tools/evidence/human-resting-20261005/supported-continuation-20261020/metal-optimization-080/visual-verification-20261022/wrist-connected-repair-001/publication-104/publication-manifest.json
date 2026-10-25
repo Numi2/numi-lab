@@ -1,0 +1,34 @@
+{
+  "base_commit": "65fc3d97c6be00147330e9522ea59658f26377a9",
+  "base_tree": "78a77260c8b1686086e8f47ecf3a317231aa320d",
+  "canonical_changes": [],
+  "file_count": 5,
+  "files": [
+    {
+      "bytes": 1237,
+      "path": "README.md",
+      "sha256": "9f489c6ea536e8d4e15baca04085ec7eba37405644650d6847bdfe0a96868bac"
+    },
+    {
+      "bytes": 23938,
+      "path": "evidence/archive-manifest.json",
+      "sha256": "69ee9894bddb7ae9d6e909e6e02d7f4b97cb7890eb491897c428fa350e7ab06b"
+    },
+    {
+      "bytes": 5707316,
+      "path": "evidence/failed-unselected-candidates.tar.xz",
+      "sha256": "61c4800bffc2e05dbdf342ceec7067e5f99c8d2e21844a09c1aef3fdbaa5bdf9"
+    },
+    {
+      "bytes": 460,
+      "path": "prepared-receipt.json",
+      "sha256": "53b5894a1fe5943a98ae83110931dd01c36cf50512efffdae883fc364410b77e"
+    },
+    {
+      "bytes": 1761,
+      "path": "source-pins.json",
+      "sha256": "589738e8be627f28ffc19ef54dcd77a1d48563341902cb50d83efd774157894b"
+    }
+  ],
+  "source_retirement": "none"
+}
