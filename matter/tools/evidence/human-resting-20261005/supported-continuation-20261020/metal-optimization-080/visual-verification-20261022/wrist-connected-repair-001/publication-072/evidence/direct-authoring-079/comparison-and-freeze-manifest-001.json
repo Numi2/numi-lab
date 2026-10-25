@@ -1,0 +1,153 @@
+{
+  "host": "SSH Numi",
+  "slot": "shared flock wrapper",
+  "scope": "isolated direct-authoring-079 only; no canonical checkout edits",
+  "inputs": {
+    "037_candidate_sha256": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+    "transfer_rows_sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+    "coarse_reference_sha256": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2",
+    "coarse_faces_sha256": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+    "detail_payload_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb"
+  },
+  "source_hashes": {
+    "077_driver_input": "bf518fc1fe9b950e38ec23f8d641682e8d41618ed29d7ec934ae48f3d40008cd",
+    "canonical_solver_input": "5d8dab03eb64a3cba490c9fd380e3234cc49f14a7bac275a564126f2b5e85c22",
+    "079_driver": "acc29dd5d8f461d38b8404bbca8e9db857002c4bd1a69877dd1b4ed87bebdf7f",
+    "079_solver": "fa912c37a8a47801e0029228874c170463e9e7feeadd792054827cb4b4f40d45",
+    "079_embedded_surface": "31d7f036c9795b90e761e5713250e6a5ddbf07a71b7d3bec9e344e043d0cb60e",
+    "079_normal_adapter": "9e8aa4049d69ab2fd22f344549a63edbe2bf06f74afb242cf39c1b7cdcbb61be",
+    "lsmr_control_driver": "fec24b26abd70b251cc452c2e7ab91c49040c71fe07c63883a4d197178dca153",
+    "lsmr_control_solver": "0702842552d89a0a8bff87e269927e6ed6969761630784c35c1b64eafaf136a0",
+    "lsmr_instrumentation": "5a133886e7945497971d42d089a93d0f74a0e08fa8043eaf21c3a2ae9d41b2a1"
+  },
+  "settings": {
+    "iterations": 1,
+    "active_set_passes": 4,
+    "lsmr_maxiter_argument": 400,
+    "normal_solve_budget_s": 60
+  },
+  "direct": {
+    "candidate_sha256": "8884f88df5b9aca393fe05a91ce8c50b1ad5c538c5759678a762b551974d5074",
+    "report_sha256": "c1968faa8ae0538ea20f2ccdd2748dce4f37124d6f71120ee88f3cb90fddc0e2",
+    "edge_report_sha256": "167f267f4031e54ef69acc14b0ba503fc07311f6b8068658cd95d00be903bdb9",
+    "factorizations": 5,
+    "factor_elapsed_s": [
+      4.493195625022054,
+      5.08435670810286,
+      5.336175291915424,
+      4.2426581250038,
+      4.8888524998910725
+    ],
+    "total_solver_elapsed_s": 24.10003746021539,
+    "normal_residual_relative_to_rhs": [
+      6.461979000885302e-14,
+      7.694930139841731e-16,
+      8.297091476480494e-16,
+      7.863727479299713e-16,
+      8.217392219138904e-16
+    ],
+    "normal_backward_error": [
+      2.6381074704826783e-16,
+      2.939042474472007e-17,
+      3.411436987314679e-17,
+      3.61985924229291e-17,
+      4.137431562561423e-17
+    ],
+    "pivot_ratio_proxy_not_condition_estimate": [
+      249114.34058334207,
+      174410.66500639895,
+      374039.97544203524,
+      354334.8333031711,
+      117340.43499957368
+    ],
+    "max_lu_nnz": 26020623,
+    "all_finite_and_residual_guard_1e-8": true,
+    "postflight_pivot_proxy_guard_1e12": true,
+    "peak_rss_measured": false,
+    "2GiB_cap_enforced": false
+  },
+  "matched_lsmr": {
+    "candidate_sha256": "fe7e5642f08b26db8046d317457f1ff4b8c0d0884a7bcf4b8b76f0635c7317b1",
+    "report_sha256": "18280645b42d9cbf9e2821bb555ae81f2843d6a092422d3ed48d8ad50aea26c6",
+    "edge_report_sha256": "1eb2b693926885e2c101528371719d9de3a4148b111a8faf148aed70c6c1ec43",
+    "all_5_stop_codes": [
+      7,
+      7,
+      7,
+      7,
+      7
+    ],
+    "all_5_iterations": [
+      400,
+      400,
+      400,
+      400,
+      400
+    ],
+    "initial_matrix_shape_equal": true,
+    "initial_matrix_nnz_equal": true,
+    "initial_normal_residual_relative_to_rhs": 0.000704694299754966,
+    "initial_direct_normal_residual_relative_to_rhs": 6.461979000885302e-14,
+    "initial_lsmr_over_direct_normal_residual_ratio": 10905239705.335188
+  },
+  "geometry": {
+    "baseline_score": 12730,
+    "direct_score": 12627,
+    "lsmr_score": 12663,
+    "direct_vs_lsmr_score_gain": 36,
+    "direct_edge_bank_groups": 8563,
+    "direct_inside_nodes": 1016,
+    "lsmr_edge_bank_groups": 8583,
+    "lsmr_inside_nodes": 1020,
+    "direct_contact_deficit_l1_mm": 16906.81740235901,
+    "lsmr_contact_deficit_l1_mm": 17014.955565810815,
+    "direct_last_linearized_violation_mm": 12.268607083304502,
+    "lsmr_last_linearized_violation_mm": 10.476836185406762,
+    "direct_inside_signed_face_min_mm": -13.343657038794365,
+    "lsmr_inside_signed_face_min_mm": -13.419656420546502,
+    "direct_gates": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "lsmr_gates": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "direct_J_min_max": [
+      0.6334861359304123,
+      1.32258843945553
+    ],
+    "direct_q_min": 1.1334144763959861e-05,
+    "direct_max_move_mm": 0.7643200836182352,
+    "lsmr_J_min_max": [
+      0.8570146007689882,
+      1.1103970328484065
+    ],
+    "lsmr_q_min": 1.1737208477688395e-05,
+    "lsmr_max_move_mm": 0.45990868815014263,
+    "max_point_difference_mm": 0.7360379098593596,
+    "nodes_diff_gt_1um": 5848
+  },
+  "limits": [
+    "Only the first linear solve is an identical-matrix LSMR comparison; later active rows diverged.",
+    "Both outcomes are static construction diagnostics, not physical/native qualification.",
+    "Signed-face distance is diagnostic, not certified solid penetration.",
+    "Pivot ratio is a rough LU diagonal proxy, not a condition-number estimate; no explicit condition estimate is claimed.",
+    "Adapter rejects near-collinear/singular and nonfinite fixtures; actual run also passed finite and 1e-8 normal-residual guards.",
+    "Peak RSS was not recorded and a 2 GiB cap was not enforced."
+  ],
+  "adapter_tests": {
+    "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-079/test_normal_equation_adapter_001.py",
+    "sha256": "e32a642fbafadb36b4bb5a05da148872137c3f1d732851e3033054e97919e030",
+    "result": "3 passed",
+    "cases": [
+      "well-conditioned normal-equation solve and relative orthogonality",
+      "near-collinear matrix rejected by sparse LU as singular",
+      "nonfinite RHS rejected"
+    ]
+  }
+}

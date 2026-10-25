@@ -1,0 +1,428 @@
+{
+  "kind": "approximate line-direction gate replay from accepted Float32 endpoint; NOT exact LP direction",
+  "method": "direction_m = 32 * (accepted_candidate_F32 - original037_F32) at the saved free nodes; reconstruct each tested point by Float32 emission from original baseline plus alpha*direction",
+  "no_lp_solve": true,
+  "candidate_sha256": "cd717a9ca78d92b02ae9d30c1a3da6602993d229524d48dc62d0722092519c30",
+  "input_sha256": "b23c9a0c7552c9a66be412e6c61729794e520e2ef0c73a49e9291ec63f694346",
+  "solver_sha256": "4dfc3552a01cf529c89f419a2f68956ace1526701bc2cf97fc27d74b3a26f538",
+  "free_nodes": 6243,
+  "accepted_fraction": 0.03125,
+  "direction_reconstruction_warning": "F32 rounding at the accepted endpoint is amplified by 32; larger-fraction results are approximate diagnostics and cannot identify the exact LP backtracking predicate.",
+  "gradient_diagnostic": {
+    "current_max_abs": 858.2689877287492,
+    "reference_max_abs": 863.0110544775671,
+    "current_rows_over_0_12": 85930,
+    "reference_rows_over_0_12": 85930,
+    "unit": "dimensionless gradient from reconstructed displacement in mm"
+  },
+  "fractions": [
+    {
+      "fraction": 1.0,
+      "q_min": -0.07566215391963861,
+      "J_min": -257.15837149118676,
+      "J_max": 253.4683272017876,
+      "layer_min_margin": -1.2752109753424654e-06,
+      "coarse_area_min": 0.11858084028112015,
+      "coarse_area_max": 11.878729331553345,
+      "coarse_normal_min": -0.9209563099264573,
+      "detail_area_min": 0.12795401339323617,
+      "detail_area_max": 6.505254761404495,
+      "detail_normal_min": 0.09928984635382437,
+      "contact_deficit_l1_mm": 7881.813017850405,
+      "first_failed_gate": "q",
+      "gates": {
+        "q": {
+          "pass": false,
+          "count": 432,
+          "min": -0.07566215391963861,
+          "row": 30340
+        },
+        "J": {
+          "pass": false,
+          "low_count": 1257,
+          "high_count": 1134,
+          "min": -257.15837149118676,
+          "min_row": 34248,
+          "max": 253.4683272017876,
+          "max_row": 34240
+        },
+        "layer": {
+          "pass": false,
+          "count": 89,
+          "min_margin": -1.2752109753424654e-06,
+          "row": 9143
+        },
+        "coarse_area": {
+          "pass": false,
+          "below_count": 41,
+          "above_count": 176,
+          "min": 0.11858084028112015,
+          "min_row": 7123,
+          "max": 11.878729331553345,
+          "max_row": 8543
+        },
+        "coarse_normal": {
+          "pass": false,
+          "count": 82,
+          "min_cosine": -0.9209563099264573,
+          "row": 11279
+        },
+        "detail_area": {
+          "pass": false,
+          "below_count": 2,
+          "above_count": 60,
+          "min": 0.12795401339323617,
+          "min_row": 2540,
+          "max": 6.505254761404495,
+          "max_row": 87443
+        },
+        "detail_normal": {
+          "pass": false,
+          "count": 10,
+          "min_cosine": 0.09928984635382437,
+          "row": 87443
+        }
+      }
+    },
+    {
+      "fraction": 0.5,
+      "q_min": -0.00691385840930676,
+      "J_min": -49.29434346498975,
+      "J_max": 54.00919360638726,
+      "layer_min_margin": 0.00013710782079356942,
+      "coarse_area_min": 0.2588067762680159,
+      "coarse_area_max": 4.688010450292939,
+      "coarse_normal_min": -0.3568916626097419,
+      "detail_area_min": 0.7420535063430885,
+      "detail_area_max": 3.4405749252634075,
+      "detail_normal_min": 0.22860224886656585,
+      "contact_deficit_l1_mm": 11657.733981182815,
+      "first_failed_gate": "q",
+      "gates": {
+        "q": {
+          "pass": false,
+          "count": 82,
+          "min": -0.00691385840930676,
+          "row": 27714
+        },
+        "J": {
+          "pass": false,
+          "low_count": 115,
+          "high_count": 69,
+          "min": -49.29434346498975,
+          "min_row": 37412,
+          "max": 54.00919360638726,
+          "max_row": 34240
+        },
+        "layer": {
+          "pass": true,
+          "count": 0,
+          "min_margin": 0.00013710782079356942,
+          "row": 1350
+        },
+        "coarse_area": {
+          "pass": false,
+          "below_count": 1,
+          "above_count": 23,
+          "min": 0.2588067762680159,
+          "min_row": 8477,
+          "max": 4.688010450292939,
+          "max_row": 7924
+        },
+        "coarse_normal": {
+          "pass": false,
+          "count": 10,
+          "min_cosine": -0.3568916626097419,
+          "row": 8543
+        },
+        "detail_area": {
+          "pass": false,
+          "below_count": 0,
+          "above_count": 1,
+          "min": 0.7420535063430885,
+          "min_row": 2510,
+          "max": 3.4405749252634075,
+          "max_row": 87443
+        },
+        "detail_normal": {
+          "pass": false,
+          "count": 1,
+          "min_cosine": 0.22860224886656585,
+          "row": 87443
+        }
+      }
+    },
+    {
+      "fraction": 0.25,
+      "q_min": -0.000979750987278374,
+      "J_min": -11.75136460393938,
+      "J_max": 12.920011868784862,
+      "layer_min_margin": 0.00019795838707615247,
+      "coarse_area_min": 0.6763940210832157,
+      "coarse_area_max": 2.3957949078921965,
+      "coarse_normal_min": 0.3561852194122253,
+      "detail_area_min": 0.8726378944210924,
+      "detail_area_max": 1.917312870208064,
+      "detail_normal_min": 0.46096637752828107,
+      "contact_deficit_l1_mm": 14253.22026210814,
+      "first_failed_gate": "q",
+      "gates": {
+        "q": {
+          "pass": false,
+          "count": 26,
+          "min": -0.000979750987278374,
+          "row": 34248
+        },
+        "J": {
+          "pass": false,
+          "low_count": 33,
+          "high_count": 28,
+          "min": -11.75136460393938,
+          "min_row": 37412,
+          "max": 12.920011868784862,
+          "max_row": 34240
+        },
+        "layer": {
+          "pass": true,
+          "count": 0,
+          "min_margin": 0.00019795838707615247,
+          "row": 1236
+        },
+        "coarse_area": {
+          "pass": false,
+          "below_count": 0,
+          "above_count": 2,
+          "min": 0.6763940210832157,
+          "min_row": 8477,
+          "max": 2.3957949078921965,
+          "max_row": 7924
+        },
+        "coarse_normal": {
+          "pass": false,
+          "count": 1,
+          "min_cosine": 0.3561852194122253,
+          "row": 7924
+        },
+        "detail_area": {
+          "pass": true,
+          "below_count": 0,
+          "above_count": 0,
+          "min": 0.8726378944210924,
+          "min_row": 2510,
+          "max": 1.917312870208064,
+          "max_row": 87443
+        },
+        "detail_normal": {
+          "pass": false,
+          "count": 1,
+          "min_cosine": 0.46096637752828107,
+          "row": 87443
+        }
+      }
+    },
+    {
+      "fraction": 0.125,
+      "q_min": -0.0001496590096851647,
+      "J_min": -2.1502616926555556,
+      "J_max": 3.779153678864659,
+      "layer_min_margin": 0.00022403580238038434,
+      "coarse_area_min": 0.8879111040121791,
+      "coarse_area_max": 1.4411820895664225,
+      "coarse_normal_min": 0.6467343929140756,
+      "detail_area_min": 0.9368326099301927,
+      "detail_area_max": 1.2719519992148853,
+      "detail_normal_min": 0.7382758315423902,
+      "contact_deficit_l1_mm": 15686.234251715652,
+      "first_failed_gate": "q",
+      "gates": {
+        "q": {
+          "pass": false,
+          "count": 9,
+          "min": -0.0001496590096851647,
+          "row": 34249
+        },
+        "J": {
+          "pass": false,
+          "low_count": 13,
+          "high_count": 9,
+          "min": -2.1502616926555556,
+          "min_row": 37412,
+          "max": 3.779153678864659,
+          "max_row": 34240
+        },
+        "layer": {
+          "pass": true,
+          "count": 0,
+          "min_margin": 0.00022403580238038434,
+          "row": 1236
+        },
+        "coarse_area": {
+          "pass": true,
+          "below_count": 0,
+          "above_count": 0,
+          "min": 0.8879111040121791,
+          "min_row": 8477,
+          "max": 1.4411820895664225,
+          "max_row": 7924
+        },
+        "coarse_normal": {
+          "pass": true,
+          "count": 0,
+          "min_cosine": 0.6467343929140756,
+          "row": 7924
+        },
+        "detail_area": {
+          "pass": true,
+          "below_count": 0,
+          "above_count": 0,
+          "min": 0.9368326099301927,
+          "min_row": 2510,
+          "max": 1.2719519992148853,
+          "max_row": 87443
+        },
+        "detail_normal": {
+          "pass": true,
+          "count": 0,
+          "min_cosine": 0.7382758315423902,
+          "row": 87443
+        }
+      }
+    },
+    {
+      "fraction": 0.0625,
+      "q_min": 1.2846888713656366e-05,
+      "J_min": 0.2399628282212837,
+      "J_max": 1.6526123053568758,
+      "layer_min_margin": 0.00023707451003250022,
+      "coarse_area_min": 0.9565150198397924,
+      "coarse_area_max": 1.1101477309850514,
+      "coarse_normal_min": 0.8713958953063214,
+      "detail_area_min": 0.9685699229549019,
+      "detail_area_max": 1.0693775442345872,
+      "detail_normal_min": 0.9137840058487872,
+      "contact_deficit_l1_mm": 16440.095533424636,
+      "first_failed_gate": "J",
+      "gates": {
+        "q": {
+          "pass": true,
+          "count": 0,
+          "min": 1.2846888713656366e-05,
+          "row": 37412
+        },
+        "J": {
+          "pass": false,
+          "low_count": 1,
+          "high_count": 0,
+          "min": 0.2399628282212837,
+          "min_row": 37412,
+          "max": 1.6526123053568758,
+          "max_row": 34240
+        },
+        "layer": {
+          "pass": true,
+          "count": 0,
+          "min_margin": 0.00023707451003250022,
+          "row": 1236
+        },
+        "coarse_area": {
+          "pass": true,
+          "below_count": 0,
+          "above_count": 0,
+          "min": 0.9565150198397924,
+          "min_row": 8477,
+          "max": 1.1101477309850514,
+          "max_row": 7924
+        },
+        "coarse_normal": {
+          "pass": true,
+          "count": 0,
+          "min_cosine": 0.8713958953063214,
+          "row": 7924
+        },
+        "detail_area": {
+          "pass": true,
+          "below_count": 0,
+          "above_count": 0,
+          "min": 0.9685699229549019,
+          "min_row": 2510,
+          "max": 1.0693775442345872,
+          "max_row": 78036
+        },
+        "detail_normal": {
+          "pass": true,
+          "count": 0,
+          "min_cosine": 0.9137840058487872,
+          "row": 87443
+        }
+      }
+    },
+    {
+      "fraction": 0.03125,
+      "q_min": 1.4204917300670652e-05,
+      "J_min": 0.8177716202778312,
+      "J_max": 1.170553191221821,
+      "layer_min_margin": 0.00024359386385855816,
+      "coarse_area_min": 0.9813864918213634,
+      "coarse_area_max": 1.0393916318836143,
+      "coarse_normal_min": 0.9640902336275079,
+      "detail_area_min": 0.9843032480456172,
+      "detail_area_max": 1.0330039293292501,
+      "detail_normal_min": 0.9767534906317674,
+      "contact_deficit_l1_mm": 16829.546665816786,
+      "first_failed_gate": null,
+      "gates": {
+        "q": {
+          "pass": true,
+          "count": 0,
+          "min": 1.4204917300670652e-05,
+          "row": 35871
+        },
+        "J": {
+          "pass": true,
+          "low_count": 0,
+          "high_count": 0,
+          "min": 0.8177716202778312,
+          "min_row": 37412,
+          "max": 1.170553191221821,
+          "max_row": 37535
+        },
+        "layer": {
+          "pass": true,
+          "count": 0,
+          "min_margin": 0.00024359386385855816,
+          "row": 1236
+        },
+        "coarse_area": {
+          "pass": true,
+          "below_count": 0,
+          "above_count": 0,
+          "min": 0.9813864918213634,
+          "min_row": 8477,
+          "max": 1.0393916318836143,
+          "max_row": 7931
+        },
+        "coarse_normal": {
+          "pass": true,
+          "count": 0,
+          "min_cosine": 0.9640902336275079,
+          "row": 7924
+        },
+        "detail_area": {
+          "pass": true,
+          "below_count": 0,
+          "above_count": 0,
+          "min": 0.9843032480456172,
+          "min_row": 2510,
+          "max": 1.0330039293292501,
+          "max_row": 78036
+        },
+        "detail_normal": {
+          "pass": true,
+          "count": 0,
+          "min_cosine": 0.9767534906317674,
+          "row": 87443
+        }
+      }
+    }
+  ]
+}

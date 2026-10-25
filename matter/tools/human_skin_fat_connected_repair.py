@@ -90,7 +90,7 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
                            *, step_limit_mm=2.,q_min=1e-5,J_bounds=(.35,2.5),time_limit_s=90.,
                            lower_linear_matrix=None,lower_linear_targets=None,max_incremental_gradient=.12,
                            construction_origin=None,cumulative_displacement_weight=.01,
-                           boundary_faces=None,boundary_area_bounds=(.25,4.),boundary_normal_cosine_min=.25,linear_method="highs"):
+                           boundary_faces=None,boundary_area_bounds=(.25,4.),boundary_normal_cosine_min=.25,linear_method="highs",embedded_surface=None):
     """One bounded sparse LP and hard nonlinear Float32 backtracking transaction.
 
     Contact matrix maps absolute xyz metres to normal separation metres. Each row
@@ -132,6 +132,10 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
         BF=np.asarray(boundary_faces,dtype=np.int64)
         if np.min(ar)<amin or np.max(ar)>amax or np.min(ac)<cmin:
             raise ValueError('starting boundary fails fixed-origin area/normal gates')
+    if embedded_surface is not None:
+        if O is None or embedded_surface.coarse_origin.shape!=X.shape or not np.array_equal(embedded_surface.coarse_origin,O.astype(np.float32)):
+            raise ValueError('mapped skin must use the identical fixed construction origin')
+        if not embedded_surface.passes(X):raise ValueError('starting mesh fails mapped detailed-skin gates')
     nd=3*len(F);nc=len(target);dcols=(3*F[:,None]+np.arange(3)).ravel()
     A=C[:,dcols];rhs=1000*(target-C@X.astype(float).ravel())
     active=np.unique(np.flatnonzero(np.isin(T,F).any(axis=1)))
@@ -165,6 +169,12 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
         # Projected area is a quadratic model; exact emitted geometry below
         # still enforces actual area and normal-cosine bounds.
         bs += [av-amin,amax-av]
+    if embedded_surface is not None:
+        ev,EJ=embedded_surface.projected_area_linearization(X,F)
+        emin,emax=embedded_surface.area_bounds
+        EJ=.001*EJ
+        rows += [sparse.hstack([-EJ,z(len(ev))]),sparse.hstack([EJ,z(len(ev))])]
+        bs += [ev-emin,emax-ev]
     # Limit the actual P1 displacement gradient, instead of letting slender
     # cells force a tiny whole-body line search after unrelated nodal jumps.
     if max_incremental_gradient is not None:
@@ -192,6 +202,7 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
     report={'linear_method':linear_method,'lp_success':bool(result.success),'lp_status':int(result.status),'lp_message':result.message,
             'free_nodes':len(F),'touched_cells':len(active),'contact_rows':nc,'starting_contact_deficit_l1_mm':float(np.maximum(rhs,0).sum()),
             'reference_unchanged':True,'geometry_admitted':False,'accepted_physical_steps':0}
+    if embedded_surface is not None:report.update(embedded_surface.report(X))
     if not result.success:return X.copy(),report
     delta=result.x[:nd].reshape(-1,3)*.001
     original=np.maximum(target-C@X.astype(float).ravel(),0).sum()
@@ -212,6 +223,12 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
         for face in BF:
             ix=lookup[face];ix=ix[ix>=0]
             for j in ix[1:]:er.append(ix[0]);ec.append(j);er.append(j);ec.append(ix[0])
+    if embedded_surface is not None:
+        S=embedded_surface.support
+        for row in range(S.shape[0]):
+            ix=lookup[S.indices[S.indptr[row]:S.indptr[row+1]]]
+            ix=ix[ix>=0]
+            for j in ix[1:]:er.append(ix[0]);ec.append(j);er.append(j);ec.append(ix[0])
     graph=sparse.coo_matrix((np.ones(len(er)),(er,ec)),shape=(len(F),len(F))).tocsr()
     count,labels=connected_components(graph,directed=False)
     best=X.copy();components=[]
@@ -229,7 +246,7 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
                 _,_,area,cosine=boundary_face_values_gradients(Y,O,BF)
                 surface_pass=bool(np.min(area)>=amin and np.max(area)<=amax and np.min(cosine)>=cmin)
             deficit=np.maximum(target-C@Y.astype(float).ravel(),0).sum()
-            if np.min(qq)>=q_min and np.min(jj)>=lo and np.max(jj)<=hi and linear_pass and surface_pass and deficit<original-1e-12:
+            if np.min(qq)>=q_min and np.min(jj)>=lo and np.max(jj)<=hi and linear_pass and surface_pass and (embedded_surface is None or embedded_surface.passes(Y)) and deficit<original-1e-12:
                 best=Y;accepted=True;break
         components.append({'nodes':len(nodes),'applied':accepted,'line_fraction':scale if accepted else 0.})
     jj,_,qq,_=cell_values_gradients(best,R,T)
@@ -244,6 +261,7 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
         _,_,area,cosine=boundary_face_values_gradients(best,O,BF)
         report.update({'boundary_faces':len(BF),'boundary_area_ratio_min':float(area.min()),
                        'boundary_area_ratio_max':float(area.max()),'boundary_normal_cosine_min':float(cosine.min())})
+    if embedded_surface is not None:report.update(embedded_surface.report(best))
     fixed=np.setdiff1d(np.arange(len(X)),F);assert np.array_equal(best[fixed].view(np.uint32),X[fixed].view(np.uint32))
     return best,report
 

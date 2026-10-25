@@ -1,0 +1,15 @@
+{
+  "status": "completed",
+  "returncode": 0,
+  "elapsed_s": 27.371796792023815,
+  "argv": [
+    "/usr/bin/time",
+    "-l",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/run_refined_connected_embedded_082.py"
+  ],
+  "driver_sha256": "1d39cf4d319b2c66440fca3d3f4c515511d2f03b6604bade4ab28b2adb909043",
+  "solver_sha256": "8a097cb5f4062855fe90da5ac4e33395478769751e0be0c8427f78003697ecf4"
+}

@@ -1,0 +1,18 @@
+Opening whole-skin-fat-reference.poly.
+Delaunizing vertices...
+Delaunay seconds:  0.014881
+Creating surface mesh ...
+Surface mesh seconds:  0.002409
+Recovering boundaries...
+Boundary recovery seconds:  0.118564
+Removing exterior tetrahedra ...
+Spreading region attributes.
+Exterior tets removal seconds:  0.003001
+Suppressing Steiner points ...
+Steiner suppression seconds:  3e-06
+Writing whole-skin-fat-reference.1.node.
+Writing whole-skin-fat-reference.1.ele.
+Writing whole-skin-fat-reference.1.face.
+Writing whole-skin-fat-reference.1.edge.
+!! Boundary contains Steiner points (-YY option). Program stopped.
+Boundary contains Steiner points (-YY option). Program stopped.

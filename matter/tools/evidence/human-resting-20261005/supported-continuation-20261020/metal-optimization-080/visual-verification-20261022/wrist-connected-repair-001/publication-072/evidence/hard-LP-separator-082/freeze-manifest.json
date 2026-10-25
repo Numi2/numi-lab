@@ -1,0 +1,349 @@
+{
+  "artifact": "connected-clearance-082-hard-fine-skin-separator",
+  "host": "Numi via SSH alias numi",
+  "scope": "one static connected authoring iteration from original 037 baseline with exact all-bank contact rows, existing thickness rows, 25 fine-skin separator rows as hard linear inequalities, and mapped detailed-skin geometry gates",
+  "solver": {
+    "method": "scipy.optimize.linprog highs-ipm",
+    "time_limit_s": 60,
+    "outer_limit_s": 90,
+    "max_incremental_gradient": null,
+    "step_limit_mm": 2,
+    "iterations": 1,
+    "result_x_saved_unrounded": true,
+    "replay_solver_calls": 0
+  },
+  "separator": {
+    "rows": 25,
+    "source_min_slack_m": 0.0,
+    "baseline_max_slack_m": 0.0021439495141696648,
+    "hard_linear_not_contact_slack": true,
+    "target_semantics": "CSR(A) @ points_world_m >= target[m]"
+  },
+  "outcome": {
+    "lp_success": true,
+    "candidate_sha256": "cd717a9ca78d92b02ae9d30c1a3da6602993d229524d48dc62d0722092519c30",
+    "candidate_identical_to_080": true,
+    "contact_deficit_start_mm": 17222.82606974194,
+    "contact_deficit_end_mm": 16829.546665816786,
+    "edge_bank_groups_before": 8618,
+    "edge_bank_groups_after": 8571,
+    "inside_nodes_before": 1028,
+    "inside_nodes_after": 1013,
+    "accepted_fraction": 0.03125,
+    "max_step_mm": 0.10827114047069228,
+    "J_min": 0.8177716202778312,
+    "J_max": 1.170553191221821,
+    "q_min": 1.4204917300670652e-05,
+    "boundary_area_ratio_min": 0.9813864918213634,
+    "boundary_area_ratio_max": 1.0393916318836143,
+    "boundary_normal_cosine_min": 0.9640902336275079,
+    "detail_area_ratio_min": 0.9843032480456172,
+    "detail_area_ratio_max": 1.0330039293292501,
+    "detail_normal_cosine_min": 0.9767534906317674,
+    "cell_gate_pass": true,
+    "boundary_gate_pass": true,
+    "detail_gate_pass": true,
+    "exact_direction_replay_bitwise_match": true,
+    "line_replay_first_failures": [
+      {
+        "fraction": 1.0,
+        "gate": "q",
+        "details": {
+          "pass": false,
+          "min": -0.0756304245255909,
+          "row": 30340
+        }
+      },
+      {
+        "fraction": 0.5,
+        "gate": "q",
+        "details": {
+          "pass": false,
+          "min": -0.006907456823975109,
+          "row": 27714
+        }
+      },
+      {
+        "fraction": 0.25,
+        "gate": "q",
+        "details": {
+          "pass": false,
+          "min": -0.000979123068315996,
+          "row": 34248
+        }
+      },
+      {
+        "fraction": 0.125,
+        "gate": "q",
+        "details": {
+          "pass": false,
+          "min": -0.00014912126836397617,
+          "row": 34249
+        }
+      },
+      {
+        "fraction": 0.0625,
+        "gate": "J",
+        "details": {
+          "pass": false,
+          "min": 0.2616704749042144,
+          "min_row": 37412,
+          "max": 1.6669480907399818,
+          "max_row": 34240
+        }
+      },
+      {
+        "fraction": 0.03125,
+        "gate": null,
+        "details": null
+      }
+    ],
+    "geometry_admitted": false,
+    "physical_steps": 0,
+    "native_shader_parity_qualified": false
+  },
+  "limitations": [
+    "Static authoring evidence only.",
+    "Fine-skin separator plus P1 thickness rows are pointwise hard linear rows; they do not certify whole-surface collision-free geometry.",
+    "The mapped detailed-skin gate checks area and orientation only.",
+    "No mass, material, or native physical qualification."
+  ],
+  "files": [
+    {
+      "role": "isolated-solver",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/canonical/matter/tools/human_skin_fat_connected_repair.py",
+      "size_bytes": 33031,
+      "sha256": "8a097cb5f4062855fe90da5ac4e33395478769751e0be0c8427f78003697ecf4"
+    },
+    {
+      "role": "embedded-helper",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/canonical/matter/tools/human_skin_fat_embedded_surface.py",
+      "size_bytes": 4833,
+      "sha256": "31d7f036c9795b90e761e5713250e6a5ddbf07a71b7d3bec9e344e043d0cb60e"
+    },
+    {
+      "role": "single-iteration-driver",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/run_refined_connected_embedded_082.py",
+      "size_bytes": 22002,
+      "sha256": "1d39cf4d319b2c66440fca3d3f4c515511d2f03b6604bade4ab28b2adb909043"
+    },
+    {
+      "role": "lp-capture-and-replay-test",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/test_lp_embedded_separator_gate.py",
+      "size_bytes": 2324,
+      "sha256": "a794f5bf05ae396882ee25b6812a17f544dc72f9d8ac295700dae8384ea2f53b"
+    },
+    {
+      "role": "launcher",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/launch_082.py",
+      "size_bytes": 1106,
+      "sha256": "24fd0a34bebc66b9d27278a962d6afc57b1941fa68f5c76e1781db967324d6c1"
+    },
+    {
+      "role": "launch-report",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/launch-082/launch-report.json",
+      "size_bytes": 570,
+      "sha256": "9390cdf34e90841eb7d68eec20b743d19cd1b84035234e2e3cea006e071a5120"
+    },
+    {
+      "role": "stdout",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/launch-082/stdout.log",
+      "size_bytes": 9278,
+      "sha256": "bfd33e89f39842a4b998daeaa8fd8bbb16fb49be571de39306b438ca9bc278c9"
+    },
+    {
+      "role": "stderr-resource-log",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/launch-082/stderr.log",
+      "size_bytes": 777,
+      "sha256": "d568283d72543ae0506e2376c7bb31fe711bbc876210cd432ca5b173c5fce741"
+    },
+    {
+      "role": "input-pins",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/input-pins.json",
+      "size_bytes": 2637,
+      "sha256": "7b0ca9d6d40692d1ea7f8d62fec6d509e56be785a81477a46708ad01045bad6d"
+    },
+    {
+      "role": "baseline-layer-rows",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/layer-rows.npz",
+      "size_bytes": 212209,
+      "sha256": "c72bd74c778e7012ab4005e85e462996090c83342ffeabdcc750039b643d9bfe"
+    },
+    {
+      "role": "baseline-layer-targets",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/layer-targets.npy",
+      "size_bytes": 77280,
+      "sha256": "2c47807a0a7f4b3cbd70fa48f9d05e2c290e7e4f9b0ae6436307bacb81fb34dd"
+    },
+    {
+      "role": "fine-separator-rows",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/separator-rows.npz",
+      "size_bytes": 2677,
+      "sha256": "130a0a8aa68067ec1dd16af9653b2f87af7eb47787aa15f311b24ad8508b9cd8"
+    },
+    {
+      "role": "fine-separator-targets",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/separator-targets.npy",
+      "size_bytes": 328,
+      "sha256": "a17efb9e3ecd3928919b8735788e494f1c89a50861cd65919c864700ecaae1b8"
+    },
+    {
+      "role": "combined-hard-linear-rows",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/combined-hard-linear-rows.npz",
+      "size_bytes": 213950,
+      "sha256": "d55a321cafc2713b6f2461b68569048372668010deeddde3445b127bffeca96c"
+    },
+    {
+      "role": "combined-hard-linear-targets",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/combined-hard-linear-targets.npy",
+      "size_bytes": 77480,
+      "sha256": "85d7233ab0c6688849474232160ab507842f7c8d2091cfedf32fc1f9ba54e0e8"
+    },
+    {
+      "role": "continuation-summary",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/continuation.json",
+      "size_bytes": 3473,
+      "sha256": "73de58ae654dc92a948b253141fc92f6686b9ce5af4cbe1db820b091219cbdd8"
+    },
+    {
+      "role": "contact-input",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/iteration-001/input.npz",
+      "size_bytes": 664588,
+      "sha256": "b23c9a0c7552c9a66be412e6c61729794e520e2ef0c73a49e9291ec63f694346"
+    },
+    {
+      "role": "contact-rows",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/iteration-001/contact-rows.npz",
+      "size_bytes": 483763,
+      "sha256": "32f409ecc0afe267dc5b82fd41d4ebbbc2cb9697a8c805cf1c36869b7016f017"
+    },
+    {
+      "role": "contact-provenance",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/iteration-001/contact-provenance.json",
+      "size_bytes": 1805394,
+      "sha256": "ec1740844f4146b825ca517b94b9266b78c27a1dfcb5e87c47bbb47de1f9e2e6"
+    },
+    {
+      "role": "unrounded-lp-solution",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/iteration-001/unrounded-lp-solution.npz",
+      "size_bytes": 128627,
+      "sha256": "f2b0635ba8d60dbfe1113a1b839e1d1e40a35eeafbff8022e41d523bf2b9f1a6"
+    },
+    {
+      "role": "unrounded-lp-solution-metadata",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/iteration-001/unrounded-lp-solution.json",
+      "size_bytes": 463,
+      "sha256": "8e0f466c1e598c0ea95810cab08a6f1f225c7d2f7d2c471a6239118982e6dc1b"
+    },
+    {
+      "role": "exact-line-search-replay",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/iteration-001/unrounded-line-search-replay.json",
+      "size_bytes": 9852,
+      "sha256": "326e6f3c358f32d9eaf6f72941b0db33e2d6cc8bc51ab86072750a99c2895c6b"
+    },
+    {
+      "role": "candidate",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/iteration-001/candidate.npz",
+      "size_bytes": 286479,
+      "sha256": "cd717a9ca78d92b02ae9d30c1a3da6602993d229524d48dc62d0722092519c30"
+    },
+    {
+      "role": "construction-report",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/iteration-001/construction-report.json",
+      "size_bytes": 1440,
+      "sha256": "ce149f5d27c3afe8c50c5de64cff82d9fbd233c3c0878a3bc784d1f55b73ccfd"
+    },
+    {
+      "role": "all-bank-query-pairs",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/iteration-001/query/pairs.csv",
+      "size_bytes": 898877,
+      "sha256": "adcc069a99dbfe74a2c0fae6549327627055ec2be10d755b2bc5ff0335a87864"
+    },
+    {
+      "role": "all-bank-query-nodes",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/iteration-001/query/nodes.csv",
+      "size_bytes": 213386,
+      "sha256": "cac1f7f7811367984c152faf6abb21c0c377b2ffb720cff4673e1a10173f31ed"
+    },
+    {
+      "role": "all-bank-query-receipt",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/iteration-001/query/query-receipt.json",
+      "size_bytes": 1731,
+      "sha256": "fa39361dcb8679da5e28f27ef3bc24a4f0c8cfd233967e5cfe98ba7a654013ff"
+    },
+    {
+      "role": "tet-edge-audit",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-082/repair-run-embedded-082/iteration-001/tet-edge-report.json",
+      "size_bytes": 8473707,
+      "sha256": "4f7082408992632e4381109df6b5ade789c99820c304ba43a60f9bed8f03c45f"
+    }
+  ],
+  "inputs": [
+    {
+      "role": "037-baseline",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/run-006/candidate.npz",
+      "size_bytes": 2042862,
+      "sha256": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492"
+    },
+    {
+      "role": "075-transfer-rows",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-transfer-rows.csv",
+      "size_bytes": 15484617,
+      "sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14"
+    },
+    {
+      "role": "075-coarse-reference",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-reference.csv",
+      "size_bytes": 869580,
+      "sha256": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2"
+    },
+    {
+      "role": "075-coarse-faces",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-faces.csv",
+      "size_bytes": 115765,
+      "sha256": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2"
+    },
+    {
+      "role": "075-detail-payload",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin",
+      "size_bytes": 26091000,
+      "sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb"
+    },
+    {
+      "role": "075-adapter",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/accepted-transfer-row-adapter-075/load_transfer_075.py",
+      "size_bytes": 9944,
+      "sha256": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117"
+    },
+    {
+      "role": "fine-separator-inequalities",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/E/embedded-self-separator-078/run-002/separator-inequalities.npz",
+      "size_bytes": 2677,
+      "sha256": "130a0a8aa68067ec1dd16af9653b2f87af7eb47787aa15f311b24ad8508b9cd8"
+    },
+    {
+      "role": "fine-separator-targets",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/E/embedded-self-separator-078/run-002/separator-targets.npz",
+      "size_bytes": 728,
+      "sha256": "1425e5f2af00963698c3a2f63569b592878d581fda956af687adb1c1ff87a325"
+    },
+    {
+      "role": "baseline-query-pairs",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-037006-current-001/pairs.csv",
+      "size_bytes": 900583,
+      "sha256": "448d24c1f8a32f0dce6110b094c0dfd2dafcffe040e93b92edf18f01d15e9952"
+    },
+    {
+      "role": "baseline-query-nodes",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-042/run-037006-current-001/nodes.csv",
+      "size_bytes": 213386,
+      "sha256": "d03099b78bbab62b3b0da487416feddb975aa54383baa9c730ceaa990b787ee1"
+    },
+    {
+      "role": "baseline-edge-report",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/generic-static-query-043/run-037006-query-row-edges-001/tet-edge-report.json",
+      "size_bytes": 8508381,
+      "sha256": "08b9380fc10e8862fcd7c6fa7a31f030d34fd0345869be5daa1f4f7e7b12f23c"
+    }
+  ]
+}

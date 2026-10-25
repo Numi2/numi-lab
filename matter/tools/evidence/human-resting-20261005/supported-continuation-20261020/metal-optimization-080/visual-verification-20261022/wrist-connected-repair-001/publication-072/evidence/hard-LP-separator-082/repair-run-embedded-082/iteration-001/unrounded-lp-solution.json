@@ -1,0 +1,15 @@
+{
+  "solver": {
+    "success": true,
+    "status": 0,
+    "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "nd": 18729,
+    "nc": 9700,
+    "delta_units": "millimetres",
+    "variable_layout": "delta_mm[nd],contact_slack_mm[nc],max_abs_cumulative_displacement_mm[1],anchor_epigraph_mm[nd]"
+  },
+  "separator_rows": 25,
+  "contact_rows": 9700,
+  "hard_linear_rows": 9669,
+  "direction_source": "unrounded scipy linprog result.x"
+}

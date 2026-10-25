@@ -1,0 +1,309 @@
+{
+  "candidate": {
+    "candidate_current_vs_reference_max_displacement_m": 0.017951560313591203,
+    "candidate_reference_prefix_vs_075_coarse_max_abs_m": 0.0,
+    "material_ids": {
+      "1": 14316,
+      "2": 14316
+    },
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-039/iteration-005/candidate.npz",
+    "points": 7233,
+    "tetrahedra": 28632
+  },
+  "candidate_face_to_tet": {
+    "active_row_status_counts": {
+      "exact_source_vertex": 2332,
+      "source_connected_representative_fallback": 52219
+    },
+    "active_rows_with_valid_P1": 54551,
+    "candidate_skin_material_id": 1,
+    "candidate_vs_compiled_tet_set_differences": {
+      "1": {
+        "candidate_count": 14316,
+        "candidate_only_cell_sets": 7,
+        "compiled_count": 14316,
+        "compiled_only_cell_sets": 7
+      },
+      "2": {
+        "candidate_count": 14316,
+        "candidate_only_cell_sets": 7,
+        "compiled_count": 14316,
+        "compiled_only_cell_sets": 7
+      }
+    },
+    "classification_limit": "CSV exports selected face and representative row but not the runtime BuildReport ancestryFallbackRows bit. Representative-present non-exact rows are labeled fallback candidates, not asserted fallbacks.",
+    "compiled_adjacency_match_rows": 54502,
+    "compiled_adjacency_missing_or_different_rows": 49,
+    "explicit_cases": {
+      "donor_bvh_projection_candidates": 0,
+      "exact_source_vertex_rows": 2332,
+      "multiple_candidate_tets": 0,
+      "no_candidate_tet": 0,
+      "no_selected_face": 0,
+      "representative_fallback_candidates": 52219,
+      "support_face_mismatch": 0
+    },
+    "face_count": 4777,
+    "failure_counts": {
+      "invalid_offset_or_gradient": 0,
+      "invalid_selected_face": 0,
+      "invalid_support_or_weights": 0,
+      "multiple_candidate_skin_tets": 0,
+      "no_candidate_skin_tet": 0,
+      "stable_face_id_mismatch": 0,
+      "support_differs_from_selected_face": 0
+    },
+    "native_compiled_skin_material_id": 15
+  },
+  "classification": "offline diagnostic only; no source mutation, renderer/native/physical admission",
+  "direct_P1": {
+    "determinant_F": {
+      "count": 54551,
+      "max": 2.4608364905983118,
+      "median": 0.9999993186721418,
+      "min": 0.35640083046922605,
+      "p01": 0.38925448649297695,
+      "p95": 1.475972925497773,
+      "p99": 1.9470337731103002
+    },
+    "direct_P1_movement_m": {
+      "count": 54551,
+      "max": 0.01984746841005015,
+      "median": 0.0007368291797824329,
+      "min": 0.0,
+      "p01": 0.0,
+      "p95": 0.009822400776173641,
+      "p99": 0.012514448180754558
+    },
+    "direct_vs_owner_additive_displacement_m": {
+      "count": 54551,
+      "max": 0.012040480934142152,
+      "median": 0.0001109990738012474,
+      "min": 0.0,
+      "p01": 0.0,
+      "p95": 0.002251701620414939,
+      "p99": 0.004034566361629566
+    },
+    "equation": "x_detail_new = sum_k(w_k*X_candidate[coarse_vertex_k]) + F_selected_skin_tet*rest_offset; F=D(candidate tet)*inverse(D(reference tet)).",
+    "gradient_scope": "Per selected face, exact piecewise-linear deformation gradient of its unique material-1 039005 candidate tet; no nodal averaging.",
+    "invalid_active_rows": 0,
+    "nonpositive_F": 0,
+    "owner_additive_movement_m": {
+      "count": 54551,
+      "max": 0.01721396116256081,
+      "median": 0.000532785830118341,
+      "min": 0.0,
+      "p01": 0.0,
+      "p95": 0.009924821087063775,
+      "p99": 0.012349561430354304
+    },
+    "valid_active_rows": 54551
+  },
+  "inputs": {
+    "/Users/n/Work/294-source-frame-audit-001/p1-transport-039/run-005-counterfactual-003/full-detail-harmonic-p1-anchor-extension.npz": {
+      "bytes": 2268622,
+      "sha256": "bc86bcfe87b2447494f56a51944c441b8733b57ddd4789a3bd5ed00b01d8a062"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/derived-adjacency-001/accepted-coarse-face-native-tet-adjacency.csv": {
+      "bytes": 284772,
+      "sha256": "41cb73f3f77fffb5fa36fd21818f22fe93e03598bd30b12753e8c8307110687b"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-faces.csv": {
+      "bytes": 115765,
+      "sha256": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-reference.csv": {
+      "bytes": 869580,
+      "sha256": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-transfer-rows.csv": {
+      "bytes": 15484617,
+      "sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/compiled-skin-fem-tets.csv": {
+      "bytes": 12664621,
+      "sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-039/iteration-005/candidate.npz": {
+      "bytes": 213096,
+      "sha256": "72f9a409ca1eb067c9667e9c150963e4b8638848be50451b81a41463025fba38"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-039/iteration-005/repair-input.npz": {
+      "bytes": 429363,
+      "sha256": "c322e0c19696edc3ff0fe91f390b97ea98ba7d65469f70d4274ac7487eb080b8"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/source/apps/NumiHumanAcceptedFEMSkinTransfer.hpp": {
+      "bytes": 34604,
+      "sha256": "b7f23c1d9f7279e05f995fcc1cb1d417675f3ffac845220e42ffc8204cf2a72d"
+    }
+  },
+  "limits": [
+    "The retained 108,987-face topology comes from the previous 294 source-surface artifact; source-ID mapping is audited before metrics.",
+    "Candidate-vs-compiled topology is not assumed identical: all candidate/compiled tet-set differences and selected-face adjacency differences are recorded.",
+    "Inactive rows are unchanged owner no-ops; direct P1 is never filled by fallback.",
+    "A selected-face gradient is discontinuous across element boundaries. This is a row-local evaluation, not a globally continuous detailed deformation.",
+    "The compared 531 folded-face baseline from the earlier harmonic counterfactual is comparable only when source position residuals and row identity checks confirm the same surface.",
+    "No all-bank self/bone check, detailed material volume/mass transfer, native run, or physical qualification was performed."
+  ],
+  "output_npz": {
+    "bytes": 5652587,
+    "path": "/Users/n/Work/294-source-frame-audit-001/p1-transport-039/run-006-direct-detail-p1-075/direct-detail-p1-075.npz",
+    "sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4"
+  },
+  "runtime": {
+    "host": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 1.573319911956787
+  },
+  "schema": "numi.human.accepted-transfer-direct-per-detail-p1-diagnostic.v1",
+  "surface_float32_metrics": {
+    "direct_P1": {
+      "affected_face_count": 98823,
+      "area_after_m2_on_mapped_faces": 1.8645798554414146,
+      "area_before_m2_on_mapped_faces": 1.8150982182257995,
+      "area_change_fraction_on_mapped_faces": 0.027261134807339493,
+      "area_ratio_mapped_faces": {
+        "count": 108987,
+        "max": 11.579267269280537,
+        "median": 1.0000000754787421,
+        "min": 0.04926393770798916,
+        "p01": 0.6164367461552805,
+        "p95": 1.4929628388817104,
+        "p99": 2.013514201636177
+      },
+      "complete_surface": true,
+      "fold_definition": "Float32 before/after triangle crosses; affected if any vertex differs after Float32 emission; folded iff cross dot <= 0.",
+      "folded_affected_faces_cross_dot_le_zero": 316,
+      "folded_all_mapped_faces_cross_dot_le_zero": 316,
+      "fully_mapped_face_count": 108987,
+      "minimum_altitude_after_mm_mapped_faces": {
+        "count": 108987,
+        "max": 27.289322131649303,
+        "median": 2.707985762480691,
+        "min": 0.0005423083251850148,
+        "p01": 0.47554252334499325,
+        "p95": 6.939160855320381,
+        "p99": 9.889849439457517
+      },
+      "minimum_altitude_before_mm_mapped_faces": {
+        "count": 108987,
+        "max": 27.28923775211831,
+        "median": 2.6543489794058535,
+        "min": 0.0005422912034915761,
+        "p01": 0.5127808760827108,
+        "p95": 6.8466262260827095,
+        "p99": 9.780253417865561
+      },
+      "normal_cosine_mapped_faces": {
+        "count": 108987,
+        "max": 1.0000000000000004,
+        "median": 0.9992157625536212,
+        "min": -0.9986050793611315,
+        "p01": 0.6683966677311556,
+        "p95": 1.0,
+        "p99": 1.0000000000000002
+      },
+      "surface_face_count": 108987,
+      "unmapped_face_count": 0,
+      "zero_area_after_float32": 0,
+      "zero_area_baseline_float32": 0
+    },
+    "owner_additive": {
+      "affected_face_count": 70443,
+      "area_after_m2_on_mapped_faces": 1.8601644422619747,
+      "area_before_m2_on_mapped_faces": 1.8150982182257995,
+      "area_change_fraction_on_mapped_faces": 0.024828531912849394,
+      "area_ratio_mapped_faces": {
+        "count": 108987,
+        "max": 8.260652101790146,
+        "median": 1.0,
+        "min": 0.044911331762941535,
+        "p01": 0.7349669949775621,
+        "p95": 1.3714662652602736,
+        "p99": 1.6733146727845707
+      },
+      "complete_surface": true,
+      "fold_definition": "Float32 before/after triangle crosses; affected if any vertex differs after Float32 emission; folded iff cross dot <= 0.",
+      "folded_affected_faces_cross_dot_le_zero": 58,
+      "folded_all_mapped_faces_cross_dot_le_zero": 58,
+      "fully_mapped_face_count": 108987,
+      "minimum_altitude_after_mm_mapped_faces": {
+        "count": 108987,
+        "max": 27.28923775211831,
+        "median": 2.711624751177595,
+        "min": 0.0005422912034915761,
+        "p01": 0.5081421623919007,
+        "p95": 6.922410183030316,
+        "p99": 9.896125619362742
+      },
+      "minimum_altitude_before_mm_mapped_faces": {
+        "count": 108987,
+        "max": 27.28923775211831,
+        "median": 2.6543489794058535,
+        "min": 0.0005422912034915761,
+        "p01": 0.5127808760827108,
+        "p95": 6.8466262260827095,
+        "p99": 9.780253417865561
+      },
+      "normal_cosine_mapped_faces": {
+        "count": 108987,
+        "max": 1.0000000000000004,
+        "median": 0.9997503065931751,
+        "min": -0.999869556081813,
+        "p01": 0.8759792978672092,
+        "p95": 1.0000000000000002,
+        "p99": 1.0000000000000002
+      },
+      "surface_face_count": 108987,
+      "unmapped_face_count": 0,
+      "zero_area_after_float32": 0,
+      "zero_area_baseline_float32": 0
+    }
+  },
+  "transfer_rows": {
+    "active": 54551,
+    "duplicate_source_ids": 0,
+    "inactive_noop": 7399,
+    "offset_reconstruction_residual_m": {
+      "count": 61950,
+      "max": 0.0,
+      "median": 0.0,
+      "min": 0.0,
+      "p01": 0.0,
+      "p95": 0.0,
+      "p99": 0.0
+    },
+    "rest_distance_m": {
+      "count": 61950,
+      "max": 0.03108290210366249,
+      "median": 0.0017257894505746663,
+      "min": 0.0,
+      "p01": 0.0,
+      "p95": 0.006327383406460284,
+      "p99": 0.009118011910468349
+    },
+    "row_baseline_vs_retained294_source_positions_m": {
+      "count": 61950,
+      "max": 2.0721956536903945,
+      "median": 1.6251547736888179,
+      "min": 1.3774656104388063,
+      "p01": 1.4036150599110335,
+      "p95": 1.9627636136638142,
+      "p99": 2.041919753095149
+    },
+    "source_id_complete_unique": true,
+    "source_row_identity": true,
+    "total": 61950,
+    "transfer_vs_detail_donor_mismatch": 0,
+    "weight_sum_residual": {
+      "count": 61950,
+      "max": 4.470348358154297e-08,
+      "median": 0.0,
+      "min": -1.0,
+      "p01": -1.0,
+      "p95": 2.9802322387695312e-08,
+      "p99": 3.3527612686157227e-08
+    }
+  }
+}

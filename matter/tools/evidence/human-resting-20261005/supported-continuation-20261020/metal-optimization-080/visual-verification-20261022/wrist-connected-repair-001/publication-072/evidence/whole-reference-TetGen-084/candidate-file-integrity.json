@@ -1,0 +1,26 @@
+{
+  "F32_current035_positive": true,
+  "F32_qfloor_current035_min": 0.0005012042925686205,
+  "F32_qfloor_reference_min": 0.0005012042925686205,
+  "F32_reference_positive": true,
+  "J_max": 1.000053709368686,
+  "J_min": 0.9999102267120287,
+  "all_material_attrs_1_2": true,
+  "all_nodes_used": true,
+  "ancestry_material_entries": 184,
+  "candidate_sha256": "d3d0abb590f5858de4a27e0362e98bc9b3088831183ea045096cefc4ebba26e1",
+  "generated_nodes": 128,
+  "generated_nodes_with_source_tet_ancestry": 128,
+  "limitation": "Verifies serialized geometry and construction ancestry only; does not establish conservative mass transfer, tissue/bone clearance, mechanics or native physical admission.",
+  "material_counts": {
+    "1": 16243,
+    "2": 16558
+  },
+  "max_current035_reconstruction_error_m": 2.220446049250313e-16,
+  "max_reference_reconstruction_error_m": 4.787836793695988e-16,
+  "nodes": 7361,
+  "original_nodes_exact": 7233,
+  "source_facet_parent_chain_pass_from_audit": true,
+  "status": "PASS_SERIALIZED_CANDIDATE_INTEGRITY; NOT_PHYSICAL_ADMISSION",
+  "tetrahedra": 32801
+}

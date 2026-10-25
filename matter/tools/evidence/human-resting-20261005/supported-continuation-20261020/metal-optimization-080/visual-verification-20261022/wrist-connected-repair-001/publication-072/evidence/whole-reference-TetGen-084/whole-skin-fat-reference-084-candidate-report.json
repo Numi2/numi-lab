@@ -1,0 +1,148 @@
+{
+  "F32_cell_gate": {
+    "1": {
+      "J_max": 1.000053709368686,
+      "J_min": 0.9999102267120287,
+      "J_outside_0_35_2_5": 0,
+      "cells": 16243,
+      "current_f32_below_q1e-5": 0,
+      "current_f32_min_q": 0.0005012042925686205,
+      "current_f32_nonpositive": 0,
+      "current_volume_m3": 0.0034525709923942487,
+      "ref_f32_below_q1e-5": 0,
+      "ref_f32_min_q": 0.0005012042925686205,
+      "ref_f32_nonpositive": 0,
+      "reference_volume_m3": 0.003452570954632436
+    },
+    "2": {
+      "J_max": 1.0000012565269047,
+      "J_min": 0.9999965002407257,
+      "J_outside_0_35_2_5": 0,
+      "cells": 16558,
+      "current_f32_below_q1e-5": 0,
+      "current_f32_min_q": 0.0011114754653696048,
+      "current_f32_nonpositive": 0,
+      "current_volume_m3": 0.01165234286214714,
+      "ref_f32_below_q1e-5": 0,
+      "ref_f32_min_q": 0.0011114754653696048,
+      "ref_f32_nonpositive": 0,
+      "reference_volume_m3": 0.011652342862490173
+    }
+  },
+  "added_boundary_nodes": 125,
+  "added_interior_nodes": 3,
+  "added_node_marker_namespace_counts": {
+    "1": 53,
+    "2": 56,
+    "3": 16,
+    "4": 0
+  },
+  "added_nodes": 128,
+  "candidate_arrays": {
+    "current035_points_m_f32": [
+      7361,
+      3
+    ],
+    "current035_points_m_f64": [
+      7361,
+      3
+    ],
+    "material_ids": [
+      32801
+    ],
+    "newnode_ancestry_barycentric": [
+      184,
+      4
+    ],
+    "newnode_ancestry_material_id": [
+      184
+    ],
+    "newnode_ancestry_output_row": [
+      184
+    ],
+    "newnode_ancestry_source_tet_row": [
+      184
+    ],
+    "output_node_ids": [
+      7361
+    ],
+    "reference_points_m": [
+      7361,
+      3
+    ],
+    "source_D_faces": [
+      4777,
+      3
+    ],
+    "source_I_faces": [
+      4777,
+      3
+    ],
+    "source_O_faces": [
+      4777,
+      3
+    ],
+    "source_current035_points_m": [
+      7233,
+      3
+    ],
+    "source_global_node_ids": [
+      7233
+    ],
+    "source_input_row": [
+      7361
+    ],
+    "source_material_ids": [
+      28632
+    ],
+    "source_reference_points_m": [
+      7233,
+      3
+    ],
+    "source_tetrahedra_zero_based": [
+      28632,
+      4
+    ],
+    "surface_face_markers": [
+      14761
+    ],
+    "surface_faces_zero_based": [
+      14761,
+      3
+    ],
+    "tetrahedra_zero_based": [
+      32801,
+      4
+    ]
+  },
+  "candidate_npz": "whole-skin-fat-reference-084-candidate.npz",
+  "candidate_npz_sha256": "d3d0abb590f5858de4a27e0362e98bc9b3088831183ea045096cefc4ebba26e1",
+  "limitations": "This is a same-domain baseline remesh diagnostic. TetGen-generated points carry source-tet barycentric construction ancestry; this is not conservative mass transfer or a physical/native admission. Later current deformation must be transported through the source ancestry and independently gated.",
+  "material_counts": {
+    "1": 16243,
+    "2": 16558
+  },
+  "max_source_current035_reconstruction_error_m": 2.220446049250313e-16,
+  "max_source_reference_reconstruction_error_m": 4.787836793695988e-16,
+  "original_input_coordinates_exact": true,
+  "original_input_nodes": 7233,
+  "output_node_count": 7361,
+  "parent_ancestry_entries": 184,
+  "source_pins": {
+    "OID_npz_sha256": "0feda312f87a58ac8d7f73b9d27d870911d86040396ac0c65c24feeac682ee2b",
+    "audit_v1_sha256": "cccb4d1bfa8dd674269e354b3b894c40c66772373bda1b823c9d4f3a548f0959",
+    "audit_v2_sha256": "a07c2c2801c4ac4fb8a3d5c28710d2f7d99ac4f8b123c2f77d6f4f72a9d37872",
+    "builder_sha256": "89ade1b661529185b818f3054396263dbcd3413d7d56286396a7363ea5d9b977",
+    "current035_csv_sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+    "facet_marker_map_sha256": "8e7ac9430c037d29e74d4c2f7f9f838995f6541c0f5fdf29a7b7095d9a6d8ff7",
+    "native_array_expected_sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "native_tet_csv_sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "poly_sha256": "652ebfba116ce79f4ce4ae12c977929355d56b36d9a172a8f2761367b95ec764",
+    "region_seeds_sha256": "b3586be357c9eb8d783c4659c379de2d0ecd12a38eb14059a5b17777532e3364",
+    "tetgen_binary_sha256": "95b1df3923d7405b168ba5a3c4b39498ddfc0e7ba94000dedff7ebf93350de07",
+    "tetgen_runner_sha256": "a9f32cd866265dc455de3c596dd5eaa7ac1ce6bd5bdff8c67c222709af15e2a0"
+  },
+  "status": "BASELINE_REMESH_DIAGNOSTIC_ONLY_NOT_ADMITTED",
+  "surface_parent_chain_pass": true,
+  "tet_count": 32801
+}

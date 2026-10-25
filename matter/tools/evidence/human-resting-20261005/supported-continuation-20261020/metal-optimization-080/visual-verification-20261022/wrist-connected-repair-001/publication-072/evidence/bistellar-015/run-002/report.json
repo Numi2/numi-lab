@@ -1,0 +1,112 @@
+{
+  "accepted_flips": [],
+  "baseline": {
+    "J_above_2.5": 126,
+    "J_above_50": 2,
+    "J_below_0.35": 201,
+    "Jmax": 105.00100868761493,
+    "Jmin": -140.54641684608868,
+    "cells": 28632,
+    "current_nonpositive_f32": 126,
+    "current_q_below_1e-5": 0,
+    "qcur_min": 0.00014246906844333593,
+    "qref_min": 0.002069086691075745,
+    "reference_nonpositive_f32": 0,
+    "reference_q_below_1e-5": 0
+  },
+  "classification": "no_admissible_flip_found",
+  "counts": {
+    "accepted": 0,
+    "added_cells": 0,
+    "candidate_cavities_checked": 583,
+    "removed_cells": 0
+  },
+  "final": {
+    "J_above_2.5": 126,
+    "J_above_50": 2,
+    "J_below_0.35": 201,
+    "Jmax": 105.00100868761493,
+    "Jmin": -140.54641684608868,
+    "cells": 28632,
+    "current_nonpositive_f32": 126,
+    "current_q_below_1e-5": 0,
+    "qcur_min": 0.00014246906844333593,
+    "qref_min": 0.002069086691075745,
+    "reference_nonpositive_f32": 0,
+    "reference_q_below_1e-5": 0
+  },
+  "invariants": {
+    "candidate_D_faces_bitwise_unchanged": true,
+    "candidate_I_faces_bitwise_unchanged": true,
+    "candidate_O_faces_bitwise_unchanged": true,
+    "reference_points_bitwise_unchanged": true,
+    "target_points_bitwise_unchanged": true
+  },
+  "limits": [
+    "No positions, source bindings, material references, or outer faces were modified.",
+    "This is a local topology counterfactual only; no mass ancestry/conservation, global collision, material constitutive, native runtime, or physical qualification is asserted."
+  ],
+  "method": {
+    "coordinates_and_OID_faces_fixed_bitwise": true,
+    "families": [
+      "2->3",
+      "3->2",
+      "4->4"
+    ],
+    "hard_J_max": 50.0,
+    "max_seconds": 300.0,
+    "max_sweeps": 4,
+    "orientation": "trusted reference positivity only; current geometry never chooses cell winding",
+    "requirements": [
+      "same material",
+      "exact oriented cavity boundary",
+      "postflip face incidence <=2",
+      "no duplicate cells or forbidden exterior edge",
+      "reference Float32 q>=1e-5",
+      "current Float32 determinant>0 and q>=1e-5",
+      "strict global current nonpositive-cell reduction",
+      "new J within adaptive old-cavity bound and <=50",
+      "global standard J-outlier count nonincreasing"
+    ],
+    "standard_J_bounds": [
+      0.35,
+      2.5
+    ],
+    "starts_from_original_frozen_001_baseline": true
+  },
+  "output": {
+    "path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/bistellar-internal-015/run-002/candidate-tetrahedra.npz",
+    "sha256": "558927c72bf7712a6964d7d1ade37d3a6b1e06002687ae4ba5c5e354c9f6fd7a"
+  },
+  "rejections": {
+    "2to3:material_mismatch": 44,
+    "2to3:oriented_boundary_mismatch": 267,
+    "2to3:postflip_face_incidence": 69,
+    "2to3:reference_degenerate": 1,
+    "3to2:oriented_boundary_mismatch": 1,
+    "3to2:postflip_face_incidence": 1,
+    "4to4:material_mismatch": 32,
+    "4to4:oriented_boundary_mismatch": 90,
+    "4to4:postflip_face_incidence": 77,
+    "4to4:reference_degenerate": 1
+  },
+  "runtime": {
+    "hostname": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 0.24999022483825684
+  },
+  "schema": "numi.human.connected-same-material-2-3-3-2-4-4-flips.v1",
+  "source": {
+    "path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/retessellation-001/volume-cavity-001/oid-cavity-replacement.npz",
+    "sha256": "0feda312f87a58ac8d7f73b9d27d870911d86040396ac0c65c24feeac682ee2b"
+  },
+  "sweeps": [
+    {
+      "accepted": 0,
+      "proposals_checked": 583,
+      "seconds": 0.22907686233520508,
+      "sweep": 1
+    }
+  ]
+}

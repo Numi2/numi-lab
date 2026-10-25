@@ -1,0 +1,24 @@
+{
+  "paths": {
+    "adapter": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/accepted-transfer-row-adapter-075/load_transfer_075.py",
+    "baseline_037": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/run-006/candidate.npz",
+    "candidate_077": "/Users/n/Work/numi-human-connected-surface-069/repair-run-embedded-077/iteration-004/candidate.npz",
+    "coarse_faces": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-faces.csv",
+    "coarse_reference": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-reference.csv",
+    "detail_payload": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin",
+    "localization": "/Users/n/Work/numi-human-connected-surface-069/self-intersection-077/run-003/new-pair-localization.json",
+    "mapped_surface_owner": "/Users/n/Work/numi-human-connected-surface-069/canonical/matter/tools/human_skin_fat_embedded_surface.py",
+    "transfer_rows": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-transfer-rows.csv"
+  },
+  "sha256": {
+    "adapter": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+    "baseline_037": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+    "candidate_077": "484bb4939493abe0daf28c9ded2f33625b4b2424bc9ee01d4939dae47692156a",
+    "coarse_faces": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+    "coarse_reference": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2",
+    "detail_payload": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "localization": "e2232567c1864b0858143dcd789c463950544b173c61dd7038dcb909f32383fe",
+    "mapped_surface_owner": "31d7f036c9795b90e761e5713250e6a5ddbf07a71b7d3bec9e344e043d0cb60e",
+    "transfer_rows": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14"
+  }
+}

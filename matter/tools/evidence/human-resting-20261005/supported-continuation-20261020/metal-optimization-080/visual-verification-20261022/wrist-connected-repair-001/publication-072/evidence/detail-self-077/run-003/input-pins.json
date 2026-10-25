@@ -1,0 +1,32 @@
+{
+  "adapter": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/accepted-transfer-row-adapter-075/load_transfer_075.py",
+  "audit_dependency_hashes": {
+    "__init__.py": "e06e46ca88bde0b4c4a6235c6135dafdb2e75d27633776dba0098698a082cf42",
+    "cardiac_cavity_geometry.py": "f6e98744dad9e23cd3b505efc02e7faa618fccce81d2ee08b07f948ef182fb72",
+    "model.py": "980f918f4a539d7e622159acf44e40eb46829b05b117aa56591793581b4b8a56",
+    "physiology.py": "efb717aee62893268b266abe6a5c2901b0259333ccbae90110fda2070d84ecef"
+  },
+  "baseline_037": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/run-006/candidate.npz",
+  "candidate_077_iteration004": "/Users/n/Work/numi-human-connected-surface-069/repair-run-embedded-077/iteration-004/candidate.npz",
+  "candidate_077_iteration004_sha256": "484bb4939493abe0daf28c9ded2f33625b4b2424bc9ee01d4939dae47692156a",
+  "coarse_faces": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-faces.csv",
+  "coarse_reference": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-reference.csv",
+  "detail_payload": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin",
+  "exact_predicate": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+  "hashes": {
+    "adapter": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+    "baseline_037": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+    "candidate_077_iteration004": "484bb4939493abe0daf28c9ded2f33625b4b2424bc9ee01d4939dae47692156a",
+    "coarse_faces": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+    "coarse_reference": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2",
+    "detail_payload": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "exact_predicate": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "mapped_surface_owner": "31d7f036c9795b90e761e5713250e6a5ddbf07a71b7d3bec9e344e043d0cb60e",
+    "transfer_rows": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14"
+  },
+  "mapped_surface_owner": "/Users/n/Work/numi-human-connected-surface-069/canonical/matter/tools/human_skin_fat_embedded_surface.py",
+  "parent_runner": "/Users/n/Work/numi-human-connected-surface-069/self-intersection-077/audit_mapped_skin_self_077_v3.py",
+  "parent_runner_sha256": "b42d9f77fb3c6463806ed3458277862cbc6c49f2714556c8afa0cd4d98a0db0b",
+  "scope": "mapped detailed NHSKIN self-intersection exact audit; physical/native admission not evaluated",
+  "transfer_rows": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-transfer-rows.csv"
+}

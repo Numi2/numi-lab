@@ -1,0 +1,24 @@
+{
+  "files": {
+    "baseline_triangle_pairs.npy": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "candidate_triangle_pairs.npy": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "input-pins.json": "001fd0318d0305194ab02aa919fa31ada8b7b918282007807e21a3376875a677",
+    "new_triangle_pairs.npy": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "progress.json": "7ac56bda94e78dddace61b1e0cc2e5ffc38e3a9ca64efed20049b6d4ceac0833",
+    "report.json": "9aab39271aa0f0dc73528dd10961abc45552edb2e1f360ec01d3e24607832fcd",
+    "resolved_triangle_pairs.npy": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "surface-positions.npz": "6f3f0758de6723528855f47aa1d39663cae0cfe08099f8ebf274e1f96afec18d"
+  },
+  "input_pins": {
+    "adapter": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+    "baseline_037": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+    "candidate_082_samebytes_080": "cd717a9ca78d92b02ae9d30c1a3da6602993d229524d48dc62d0722092519c30",
+    "coarse_faces": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+    "coarse_reference": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2",
+    "detail_payload": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "exact_predicate": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "mapped_surface_owner": "31d7f036c9795b90e761e5713250e6a5ddbf07a71b7d3bec9e344e043d0cb60e",
+    "transfer_rows": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14"
+  },
+  "status": "complete"
+}

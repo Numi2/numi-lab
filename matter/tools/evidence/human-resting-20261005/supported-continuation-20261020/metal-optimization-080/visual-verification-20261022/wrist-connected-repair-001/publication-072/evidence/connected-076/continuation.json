@@ -1,0 +1,67 @@
+{
+  "history": [
+    {
+      "iteration": 1,
+      "inside_signed_face_distance_min_mm": -12.338596153108154,
+      "inside_nearest_distance_max_mm": 12.340400869467267,
+      "edge_bank_groups": 8474,
+      "edges": 7569,
+      "inside_nodes": 998,
+      "inside_pairs": 1000,
+      "ambiguous": 0,
+      "candidate_sha256": "152741adf272bb11d3c9945c3490fff2f56c04847652c20fd62a3321ea6a0101",
+      "quality": {
+        "J_min": 0.8558333743861936,
+        "J_max": 1.1683265532654619,
+        "q_min": 1.434755642340412e-05,
+        "invalid_cells": 0,
+        "q_below_1e_minus5": 0,
+        "area_ratio_min": 0.9347013671000822,
+        "area_ratio_max": 1.175621525270299,
+        "normal_cosine_min": 0.9967012532104178,
+        "max_total_move_mm": 2.4557542034024835,
+        "mapped_skin_faces": 108987,
+        "mapped_skin_active_vertices": 54551,
+        "mapped_skin_area_ratio_min": 0.629501326054601,
+        "mapped_skin_area_ratio_max": 1.1208448696300808,
+        "mapped_skin_normal_cosine_min": 0.8251434026318937,
+        "mapped_skin_nonpositive_normal_faces": 0,
+        "mapped_skin_geometry_pass": true,
+        "mapped_skin_native_shader_parity_qualified": false
+      },
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-embedded-076/iteration-001/candidate.npz",
+      "query_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-embedded-076/iteration-001/query",
+      "audit_path": "/Users/numi/Work/numi-human-connected-surface-069/repair-run-embedded-076/iteration-001/tet-edge-report.json"
+    }
+  ],
+  "baseline": {
+    "query_rows": 9320,
+    "inside_pairs": 1030,
+    "inside_nodes": 1028,
+    "edge_bank_groups_with_hits": 8618,
+    "inside_signed_face_distance_min_mm": -13.564265704857801,
+    "inside_nearest_distance_max_mm": 13.564313767272042,
+    "note": "signed/nearest distances are source-query diagnostics, not a certified solid-penetration depth",
+    "mapped_skin_baseline": {
+      "mapped_skin_faces": 108987,
+      "mapped_skin_active_vertices": 54551,
+      "mapped_skin_area_ratio_min": 0.9999999999999998,
+      "mapped_skin_area_ratio_max": 1.0000000000000002,
+      "mapped_skin_normal_cosine_min": 0.9999999999999996,
+      "mapped_skin_nonpositive_normal_faces": 0,
+      "mapped_skin_geometry_pass": true,
+      "mapped_skin_native_shader_parity_qualified": false
+    }
+  },
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "elapsed_s": 8.755369083024561,
+  "input_sha256": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+  "solver_sha256": "5d8dab03eb64a3cba490c9fd380e3234cc49f14a7bac275a564126f2b5e85c22",
+  "audit_sha256": "ea833990d8b1ffb309d4960e62fb8c67e5cf0ecdbcdc0d8e9ad40c20eaf4c6db",
+  "limitations": [
+    "Static connected asset authoring only.",
+    "075 mapped detail skin was included as a constrained surface; this does not certify all-bank surface clearance or full solid self-crossings.",
+    "No mass, material or native physical qualification."
+  ]
+}

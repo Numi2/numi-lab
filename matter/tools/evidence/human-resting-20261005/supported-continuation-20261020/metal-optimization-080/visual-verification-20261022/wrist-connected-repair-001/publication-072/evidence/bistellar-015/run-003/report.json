@@ -1,0 +1,461 @@
+{
+  "accepted_flips": [
+    {
+      "adaptive_J_bounds": [
+        0.35,
+        2.5
+      ],
+      "kind": "2to3",
+      "link_or_opposites": [
+        651,
+        3061
+      ],
+      "new_J_ratios": [
+        1.792987973643534,
+        2.4552171921491452,
+        1.6538597611447947
+      ],
+      "new_cell_uids": [
+        28632,
+        28633,
+        28634
+      ],
+      "new_current_determinants_f32": [
+        3.771570952916212e-09,
+        3.3503782060204703e-09,
+        4.122247604117038e-09
+      ],
+      "new_current_q_f32": [
+        0.19648321356060477,
+        0.5407127221324418,
+        0.20733821200724112
+      ],
+      "new_reference_determinants_f32": [
+        2.1035115730597995e-09,
+        1.3645954487178206e-09,
+        2.4925012996649946e-09
+      ],
+      "new_reference_q_f32": [
+        0.12606783486409456,
+        0.2817079976410089,
+        0.1373887808121388
+      ],
+      "new_standard_J_outliers": 0,
+      "old_J_ratios": [
+        2.1021905471284232,
+        -70.63639910228963
+      ],
+      "old_cell_uids": [
+        3883,
+        3884
+      ],
+      "old_current_nonpositive": 1,
+      "old_material_id": 1,
+      "reference_cavity_volume_delta_m3": 0.0,
+      "shared_feature": [
+        624,
+        650,
+        3062
+      ],
+      "state_after": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 200,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28633,
+        "current_nonpositive_f32": 125,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "state_before": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 201,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 126,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "sweep": 1
+    },
+    {
+      "adaptive_J_bounds": [
+        0.35,
+        2.5
+      ],
+      "kind": "2to3",
+      "link_or_opposites": [
+        3569,
+        3571
+      ],
+      "new_J_ratios": [
+        0.9257775308925329,
+        1.0,
+        0.9142644407877563
+      ],
+      "new_cell_uids": [
+        28635,
+        28636,
+        28637
+      ],
+      "new_current_determinants_f32": [
+        1.379559096268324e-08,
+        3.361539694312781e-08,
+        9.199219729040144e-08
+      ],
+      "new_current_q_f32": [
+        0.7781233006025153,
+        0.07457780727854693,
+        0.1473717648879485
+      ],
+      "new_reference_determinants_f32": [
+        1.4901626473244656e-08,
+        3.361539694312781e-08,
+        1.0061880697354733e-07
+      ],
+      "new_reference_q_f32": [
+        0.8078430007700853,
+        0.07457780727854693,
+        0.1547881904379017
+      ],
+      "new_standard_J_outliers": 0,
+      "old_J_ratios": [
+        -0.19358755529431607,
+        0.9709248755525198
+      ],
+      "old_cell_uids": [
+        13388,
+        13400
+      ],
+      "old_current_nonpositive": 1,
+      "old_material_id": 1,
+      "reference_cavity_volume_delta_m3": -3.308722450212111e-24,
+      "shared_feature": [
+        1118,
+        3529,
+        3656
+      ],
+      "state_after": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 199,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28634,
+        "current_nonpositive_f32": 124,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "state_before": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 200,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28633,
+        "current_nonpositive_f32": 125,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "sweep": 1
+    },
+    {
+      "adaptive_J_bounds": [
+        0.35,
+        2.5
+      ],
+      "kind": "3to2",
+      "link_or_opposites": [
+        1118,
+        1157,
+        3656
+      ],
+      "new_J_ratios": [
+        0.6156273887722532,
+        0.6008921773662064
+      ],
+      "new_cell_uids": [
+        28638,
+        28639
+      ],
+      "new_current_determinants_f32": [
+        1.1281874875859946e-08,
+        2.2286543391043023e-08
+      ],
+      "new_current_q_f32": [
+        0.03892310630716737,
+        0.06137620144352735
+      ],
+      "new_reference_determinants_f32": [
+        1.8325817014670855e-08,
+        3.7089088908975365e-08
+      ],
+      "new_reference_q_f32": [
+        0.05298760935572079,
+        0.08474409801055245
+      ],
+      "new_standard_J_outliers": 0,
+      "old_J_ratios": [
+        -5.70091928806297,
+        0.7726228187009492,
+        1.0000269055977629
+      ],
+      "old_cell_uids": [
+        13387,
+        13389,
+        13396
+      ],
+      "old_current_nonpositive": 1,
+      "old_material_id": 1,
+      "reference_cavity_volume_delta_m3": 1.6543612251060553e-24,
+      "shared_feature": [
+        1158,
+        3569
+      ],
+      "state_after": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 198,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28633,
+        "current_nonpositive_f32": 123,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "state_before": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 199,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28634,
+        "current_nonpositive_f32": 124,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "sweep": 1
+    },
+    {
+      "adaptive_J_bounds": [
+        0.35,
+        2.5
+      ],
+      "kind": "3to2",
+      "link_or_opposites": [
+        1118,
+        1157,
+        1245
+      ],
+      "new_J_ratios": [
+        0.5351481859836683,
+        0.6053188584878875
+      ],
+      "new_cell_uids": [
+        28640,
+        28641
+      ],
+      "new_current_determinants_f32": [
+        6.491364602772887e-09,
+        3.5063789254841116e-08
+      ],
+      "new_current_q_f32": [
+        0.026659127025357717,
+        0.05966703746994755
+      ],
+      "new_reference_determinants_f32": [
+        1.2130031966456093e-08,
+        5.7926147125883326e-08
+      ],
+      "new_reference_q_f32": [
+        0.039923769514756964,
+        0.08190412814049396
+      ],
+      "new_standard_J_outliers": 0,
+      "old_J_ratios": [
+        -27.405440528681325,
+        1.0000245156722374,
+        0.6156273887722532
+      ],
+      "old_cell_uids": [
+        13386,
+        13395,
+        28638
+      ],
+      "old_current_nonpositive": 1,
+      "old_material_id": 1,
+      "reference_cavity_volume_delta_m3": -1.6543612251060553e-24,
+      "shared_feature": [
+        1158,
+        3656
+      ],
+      "state_after": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 197,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 122,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "state_before": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 198,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28633,
+        "current_nonpositive_f32": 123,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "sweep": 1
+    }
+  ],
+  "baseline": {
+    "J_above_2.5": 126,
+    "J_above_50": 2,
+    "J_below_0.35": 201,
+    "Jmax": 105.00100868761493,
+    "Jmin": -140.54641684608868,
+    "cells": 28632,
+    "current_nonpositive_f32": 126,
+    "current_q_below_1e-5": 0,
+    "qcur_min": 0.00014246906844333593,
+    "qref_min": 0.002069086691075745,
+    "reference_nonpositive_f32": 0,
+    "reference_q_below_1e-5": 0
+  },
+  "classification": "partial_topology_counterfactual_no_physical_admission",
+  "counts": {
+    "accepted": 4,
+    "added_cells": 10,
+    "candidate_cavities_checked": 3415,
+    "removed_cells": 10
+  },
+  "final": {
+    "J_above_2.5": 126,
+    "J_above_50": 2,
+    "J_below_0.35": 197,
+    "Jmax": 105.00100868761493,
+    "Jmin": -140.54641684608868,
+    "cells": 28632,
+    "current_nonpositive_f32": 122,
+    "current_q_below_1e-5": 0,
+    "qcur_min": 0.00014246906844333593,
+    "qref_min": 0.002069086691075745,
+    "reference_nonpositive_f32": 0,
+    "reference_q_below_1e-5": 0
+  },
+  "invariants": {
+    "candidate_D_faces_bitwise_unchanged": true,
+    "candidate_I_faces_bitwise_unchanged": true,
+    "candidate_O_faces_bitwise_unchanged": true,
+    "reference_points_bitwise_unchanged": true,
+    "target_points_bitwise_unchanged": true
+  },
+  "limits": [
+    "No positions, source bindings, material references, or outer faces were modified.",
+    "This is a local topology counterfactual only; no mass ancestry/conservation, global collision, material constitutive, native runtime, or physical qualification is asserted."
+  ],
+  "method": {
+    "coordinates_and_OID_faces_fixed_bitwise": true,
+    "families": [
+      "2->3",
+      "3->2",
+      "4->4"
+    ],
+    "hard_J_max": 50.0,
+    "max_seconds": 300.0,
+    "max_sweeps": 4,
+    "orientation": "trusted reference positivity only; current geometry never chooses cell winding",
+    "requirements": [
+      "same material",
+      "exact oriented cavity boundary",
+      "postflip face incidence <=2",
+      "no duplicate cells or forbidden exterior edge",
+      "reference Float32 q>=1e-5",
+      "current Float32 determinant>0 and q>=1e-5",
+      "strict global current nonpositive-cell reduction",
+      "new J within adaptive old-cavity bound and <=50",
+      "global standard J-outlier count nonincreasing"
+    ],
+    "standard_J_bounds": [
+      0.35,
+      2.5
+    ],
+    "starts_from_original_frozen_001_baseline": true
+  },
+  "output": {
+    "path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/bistellar-internal-015/run-003/candidate-tetrahedra.npz",
+    "sha256": "75cef4bec496a416ce1337a82052219873ac797a467e95f7e0bf3f7f52ce2715"
+  },
+  "rejections": {
+    "2to3:current_nonpositive": 320,
+    "2to3:individual_J_bound": 48,
+    "2to3:material_mismatch": 260,
+    "2to3:nonconvex_reference_bipyramid": 6,
+    "2to3:oriented_boundary_mismatch": 1572,
+    "2to3:reference_degenerate": 6,
+    "2to3:reference_quality_floor": 24,
+    "3to2:oriented_boundary_mismatch": 6,
+    "4to4:material_mismatch": 184,
+    "4to4:noncrossing_reference_diagonals": 454,
+    "4to4:oriented_boundary_mismatch": 522,
+    "4to4:reference_degenerate": 6
+  },
+  "runtime": {
+    "hostname": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 1.6471848487854004
+  },
+  "schema": "numi.human.connected-same-material-2-3-3-2-4-4-flips.v1",
+  "source": {
+    "path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/retessellation-001/volume-cavity-001/oid-cavity-replacement.npz",
+    "sha256": "0feda312f87a58ac8d7f73b9d27d870911d86040396ac0c65c24feeac682ee2b"
+  },
+  "sweeps": [
+    {
+      "accepted": 4,
+      "proposals_checked": 2854,
+      "seconds": 1.3505373001098633,
+      "sweep": 1
+    },
+    {
+      "accepted": 0,
+      "proposals_checked": 561,
+      "seconds": 0.2765622138977051,
+      "sweep": 2
+    }
+  ]
+}

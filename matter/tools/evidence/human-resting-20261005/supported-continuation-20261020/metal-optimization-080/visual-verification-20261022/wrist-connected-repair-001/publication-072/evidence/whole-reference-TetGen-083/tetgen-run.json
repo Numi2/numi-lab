@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-remesh-118/tetgen-v1.6.0/tetgen",
+    "-pYYq1.2/10AS0",
+    "whole-skin-fat-reference.poly"
+  ],
+  "cwd": "/Users/numi/Work/numi-human-connected-surface-069/whole-reference-tetgen-083",
+  "elapsed_s": 0.16234862501733005,
+  "poly_sha256": "652ebfba116ce79f4ce4ae12c977929355d56b36d9a172a8f2761367b95ec764",
+  "returncode": 200,
+  "tetgen_sha256": "95b1df3923d7405b168ba5a3c4b39498ddfc0e7ba94000dedff7ebf93350de07",
+  "timed_out": false
+}

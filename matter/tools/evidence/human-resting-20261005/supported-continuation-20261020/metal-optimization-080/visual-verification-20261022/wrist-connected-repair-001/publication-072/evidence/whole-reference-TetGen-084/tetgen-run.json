@@ -1,0 +1,29 @@
+{
+  "binary_sha256": "95b1df3923d7405b168ba5a3c4b39498ddfc0e7ba94000dedff7ebf93350de07",
+  "command": [
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-remesh-118/tetgen-v1.6.0/tetgen",
+    "-pq1.2/10AS128",
+    "whole-skin-fat-reference.poly"
+  ],
+  "cwd": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded",
+  "elapsed_seconds": 0.1867703750031069,
+  "host": "numi.local",
+  "input_sha256": {
+    "facet-marker-map.csv": "8e7ac9430c037d29e74d4c2f7f9f838995f6541c0f5fdf29a7b7095d9a6d8ff7",
+    "region-seeds.json": "b3586be357c9eb8d783c4659c379de2d0ecd12a38eb14059a5b17777532e3364",
+    "whole-skin-fat-reference.poly": "652ebfba116ce79f4ce4ae12c977929355d56b36d9a172a8f2761367b95ec764"
+  },
+  "return_code": 0,
+  "status": "EXECUTED_DIAGNOSTIC_ONLY",
+  "stderr": "",
+  "stdout": "Opening whole-skin-fat-reference.poly.\nDelaunizing vertices...\nDelaunay seconds:  0.015909\nCreating surface mesh ...\nSurface mesh seconds:  0.0024\nRecovering boundaries...\nBoundary recovery seconds:  0.110942\nRemoving exterior tetrahedra ...\nSpreading region attributes.\nExterior tets removal seconds:  0.002828\nSuppressing Steiner points ...\nSteiner suppression seconds:  0\nRecovering Delaunayness...\nDelaunay recovery seconds:  0.016312\nRefining mesh...\nRefinement seconds:  0.012052\nSmoothing vertices...\nMesh smoothing seconds:  1.4e-05\nImproving mesh...\nMesh improvement seconds:  0.005275\nJettisoning redundant points.\n\nWriting whole-skin-fat-reference.1.node.\nWriting whole-skin-fat-reference.1.ele.\nWriting whole-skin-fat-reference.1.face.\nWriting whole-skin-fat-reference.1.edge.\n\nOutput seconds:  0.015614\nTotal running seconds:  0.181539\n\nStatistics:\n\n  Input points: 7233\n  Input facets: 14511\n  Input segments: 21744\n  Input holes: 0\n  Input regions: 2\n\n  Mesh points: 7361\n  Mesh tetrahedra: 32801\n  Mesh faces: 70538\n  Mesh faces on exterior boundary: 9872\n  Mesh faces on input facets: 14761\n  Mesh edges on input segments: 21869\n  Steiner points on input segments:  125\n  Steiner points inside domain: 3\n\n",
+  "switch_notes": {
+    "A": "assign region attributes",
+    "S128": "TetGen Steiner budget; independently enforce actual output additions <=128",
+    "Y": "omitted to permit facet/edge recovery subdivisions",
+    "p": "PLC tetrahedralization",
+    "q1.2/10": "quality/volume constraints"
+  },
+  "timed_out": false,
+  "timeout_seconds": 45
+}

@@ -1,0 +1,11 @@
+{
+  "baseline": null,
+  "candidate": null,
+  "elapsed_seconds": 0.0029254580149427056,
+  "error": "ModuleNotFoundError(\"No module named 'numilab_human.cardiac_cavity_geometry'\")",
+  "peak_rss_bytes": 50659328,
+  "scope": "mapped detailed NHSKIN self-intersection exact audit; physical/native admission not evaluated",
+  "stage": "setup",
+  "started_unix": 1792900094.458612,
+  "status": "incomplete"
+}

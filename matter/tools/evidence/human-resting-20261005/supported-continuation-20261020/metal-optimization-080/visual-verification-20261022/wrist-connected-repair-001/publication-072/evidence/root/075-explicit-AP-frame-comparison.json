@@ -1,0 +1,10 @@
+{
+  "comparison": "explicit source_current_AP_world_m by exported source ID; no fitted transform",
+  "rows": 61950,
+  "max_error_m": 2.2408962691643175e-06,
+  "median_error_m": 2.3426242173130146e-07,
+  "p99_error_m": 1.3409225003527672e-06,
+  "input_csv_sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+  "input_npz_sha256": "ac66cfd7a1f3139e8f63030c4889fb83000dab701700dc120bc3bbc69f6867d0",
+  "accepted_physical_steps": 0
+}

@@ -1,0 +1,9 @@
+{
+  "classification": "failed_after_fit_before_candidate_serialization",
+  "error": "dynamic exact predicate import lacked its package context; fit had completed but no candidate/report was saved",
+  "error_type": "ImportError",
+  "executed_source_sha256": "a060fb1b5b25d692dcb8ade5899fd4cb549635cf41a6a4c25664240ca17e86fb",
+  "geometry_candidate_emitted": false,
+  "recovery": "same bounded fit implementation retried with package-aware exact predicate import in run-002",
+  "status": "retained_failed_plumbing_attempt"
+}

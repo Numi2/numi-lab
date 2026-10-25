@@ -1,0 +1,24 @@
+{
+  "files": {
+    "baseline_triangle_pairs.npy": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "candidate_triangle_pairs.npy": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "input-pins.json": "f7c84b6aec9fa064f874ac5297625423334b13d4a7fa47d77ce0e7d1198b13aa",
+    "new_triangle_pairs.npy": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "progress.json": "e52377941ee288b2a66002871c324fd25685037ce9d109f4fff508d8bddbcc71",
+    "report.json": "343dbff0befd9f60c5c2cea21f94dd5836f4153c7abd3bf9d5b2ea046bde7212",
+    "resolved_triangle_pairs.npy": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "surface-positions.npz": "20227bed743a27326671f016c0c4c37b2957a63b8e6fb7cbc89a6504a1a33801"
+  },
+  "input_pins": {
+    "adapter": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+    "baseline_037": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+    "candidate_076": "152741adf272bb11d3c9945c3490fff2f56c04847652c20fd62a3321ea6a0101",
+    "coarse_faces": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+    "coarse_reference": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2",
+    "detail_payload": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "exact_predicate": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "mapped_surface_owner": "31d7f036c9795b90e761e5713250e6a5ddbf07a71b7d3bec9e344e043d0cb60e",
+    "transfer_rows": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14"
+  },
+  "status": "complete"
+}

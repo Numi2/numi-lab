@@ -1,0 +1,21 @@
+{
+  "D_faces_bitwise_identical": true,
+  "I_faces_bitwise_identical": true,
+  "O_faces_bitwise_identical": true,
+  "boundary_face_count": 9734,
+  "boundary_face_set_identical": true,
+  "candidate_cell_uids_unique": true,
+  "candidate_sha256": "01ff7b7c0221f6bf6959b0cada4899154d0491ed8190938b0dc02fc7d357c384",
+  "cells": 28631,
+  "duplicate_cells": 0,
+  "material_ids_count": {
+    "1": 14315,
+    "2": 14316
+  },
+  "max_face_incidence": 2,
+  "nonmanifold_faces": 0,
+  "reference_points_bitwise_identical": true,
+  "source_boundary_face_count": 9734,
+  "source_sha256": "0feda312f87a58ac8d7f73b9d27d870911d86040396ac0c65c24feeac682ee2b",
+  "target_points_bitwise_identical": true
+}

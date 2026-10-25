@@ -1,0 +1,58 @@
+{
+  "as_run_fit_report_sha256": "283853f7b15662b81e7eb7b6a1a8185ad74ea84766cbc7e8be17ee44e52fb5c8",
+  "candidate_npz_sha256": "4dd5913ff2582a9e2486c091ded990a95b11551593e1b1de8c25ea8aed37f656",
+  "candidate_vs_reference_f32": {
+    "current_j_above_2_5": 178,
+    "current_j_below_0_35": 379,
+    "current_j_max": 21.388601876480333,
+    "current_j_min": -25.71846745946435,
+    "current_j_nonpositive": 81,
+    "current_q_below_1e-5": 82,
+    "current_q_min": -0.019831350955684852
+  },
+  "classification": "metric_interpretation_correction_not_a_new_fit",
+  "corrected_reference_geometry_f32": {
+    "reference_j_max": 1.0,
+    "reference_j_min": 1.0,
+    "reference_j_nonpositive": 0,
+    "reference_q_below_1e-5": 0,
+    "reference_q_min": 2.6016244143916926e-05
+  },
+  "exact_coarse_O_self_pairs": {
+    "baseline_count": 0,
+    "baseline_pair_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "candidate_count": 2,
+    "candidate_pair_sha256": "cb1c3850958c64e70103df1bca6aa2dc00351cfbf239be4ab5e1e0ff5cb4bdde",
+    "candidate_pairs_face_ids": [
+      [
+        2298,
+        2302
+      ],
+      [
+        2298,
+        2303
+      ]
+    ],
+    "predicate": "owner315 exact Float32 indexed-surface pair audit"
+  },
+  "field_correction": {
+    "as_run_emitted_reference_F32_nonpositive_and_q_below_were_mislabeled_candidate_vs_F32_reference_j_and_q": true,
+    "as_run_starting_reference_F32_nonpositive_was_direct_reference_determinant_count": true,
+    "as_run_starting_reference_F32_q_below_was_mislabeled_candidate_vs_F32_reference_q": true
+  },
+  "fit_helper_sha256": "52d5cc94a287d3620c854142ee3fff475f878f3e01adacceb6208328769754a5",
+  "reference_geometry_f64": {
+    "reference_j_nonpositive": 0,
+    "reference_q_below_1e-5": 0,
+    "reference_q_min": 2.6016244143916926e-05
+  },
+  "starting_candidate_vs_reference_f32": {
+    "current_j_max": 105.00100868761493,
+    "current_j_min": -140.54641684608868,
+    "current_j_nonpositive": 114,
+    "current_q_below_1e-5": 115,
+    "current_q_min": -0.14783906269064842
+  },
+  "stop_condition": "Candidate fails current-cell and coarse-O exact self gates; no further fit was run.",
+  "topology_input_sha256": "01ff7b7c0221f6bf6959b0cada4899154d0491ed8190938b0dc02fc7d357c384"
+}

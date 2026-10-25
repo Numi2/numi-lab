@@ -1,0 +1,496 @@
+{
+  "bounds": {
+    "035_initial_layer0_world": {
+      "max": [
+        0.27575117349624634,
+        -0.026353320106863976,
+        0.2948005199432373
+      ],
+      "min": [
+        -0.3280475437641144,
+        -1.7451446056365967,
+        5.6714325182838365e-06
+      ],
+      "n": 2411
+    },
+    "075_coarse_world": {
+      "max": [
+        0.2757511609812521,
+        -0.026353320464389096,
+        0.2948005170501603
+      ],
+      "min": [
+        -0.3280475468674175,
+        -1.7451446514975149,
+        5.671432320664138e-06
+      ],
+      "n": 2411
+    },
+    "075_detail_AP": {
+      "max": [
+        0.27715522050857544,
+        -0.02260599657893181,
+        0.2967504560947418
+      ],
+      "min": [
+        -0.32943060994148254,
+        -1.7474573850631714,
+        5.624934601655696e-06
+      ],
+      "n": 61950
+    },
+    "294_detail_AP": {
+      "max": [
+        0.2771552565309279,
+        -0.02260670340914217,
+        0.29675060729344915
+      ],
+      "min": [
+        -0.3294305835418677,
+        -1.7474574269907825,
+        5.634551422106782e-06
+      ],
+      "n": 61950
+    },
+    "294_detail_native_D36": {
+      "max": [
+        0.2772224247455597,
+        0.29185786843299866,
+        2.1277339458465576
+      ],
+      "min": [
+        -0.3293592631816864,
+        -0.019272008910775185,
+        0.40383389592170715
+      ],
+      "n": 61950
+    }
+  },
+  "coarse_samples": [
+    {
+      "035_layer0": [
+        -0.24981722235679626,
+        -0.9702194929122925,
+        0.18596428632736206
+      ],
+      "075_coarse": [
+        -0.24981722098768,
+        -0.9702195171632346,
+        0.18596428896151504
+      ],
+      "075_minus_035": [
+        1.3691162648044042e-09,
+        -2.425094214331125e-08,
+        2.6341529790752105e-09
+      ],
+      "294_AP_outer": [
+        -0.24981722235679626,
+        -0.9702194929122925,
+        0.18596428632736206
+      ],
+      "row": 0
+    },
+    {
+      "035_layer0": [
+        -0.24261970818042755,
+        -0.9513246417045593,
+        0.17910394072532654
+      ],
+      "075_coarse": [
+        -0.24261971494885157,
+        -0.9513246124081602,
+        0.17910394672091393
+      ],
+      "075_minus_035": [
+        -6.768424015701768e-09,
+        2.9296399084444147e-08,
+        5.995587387674917e-09
+      ],
+      "294_AP_outer": [
+        -0.24261970818042755,
+        -0.9513246417045593,
+        0.17910394072532654
+      ],
+      "row": 1
+    },
+    {
+      "035_layer0": [
+        -0.2521229386329651,
+        -0.35920464992523193,
+        0.09625105559825897
+      ],
+      "075_coarse": [
+        -0.2521229271971493,
+        -0.35920465733058515,
+        0.0962510556049781
+      ],
+      "075_minus_035": [
+        1.1435815794325066e-08,
+        -7.405353219525068e-09,
+        6.719125256182679e-12
+      ],
+      "294_AP_outer": [
+        -0.2521229386329651,
+        -0.35920464992523193,
+        0.09625105559825897
+      ],
+      "row": 602
+    },
+    {
+      "035_layer0": [
+        -0.05129281058907509,
+        -0.309879869222641,
+        0.18343183398246765
+      ],
+      "075_coarse": [
+        -0.05129281199918852,
+        -0.3098798744359461,
+        0.18343183878091499
+      ],
+      "075_minus_035": [
+        -1.410113428801374e-09,
+        -5.213305120932432e-09,
+        4.798447333920208e-09
+      ],
+      "294_AP_outer": [
+        -0.05129281058907509,
+        -0.309879869222641,
+        0.18343183398246765
+      ],
+      "row": 1205
+    },
+    {
+      "035_layer0": [
+        0.0794888436794281,
+        -0.8940111398696899,
+        0.2088818997144699
+      ],
+      "075_coarse": [
+        0.07948884400211986,
+        -0.8940111541302895,
+        0.20888189651794783
+      ],
+      "075_minus_035": [
+        3.226917622001224e-10,
+        -1.4260599590087963e-08,
+        -3.1965220748109147e-09
+      ],
+      "294_AP_outer": [
+        0.0794888436794281,
+        -0.8940111398696899,
+        0.2088818997144699
+      ],
+      "row": 1807
+    },
+    {
+      "035_layer0": [
+        0.11999112367630005,
+        -0.6257690787315369,
+        0.1276070773601532
+      ],
+      "075_coarse": [
+        0.11999112479754052,
+        -0.62576908030664,
+        0.12760707495752263
+      ],
+      "075_minus_035": [
+        1.1212404754656902e-09,
+        -1.5751031590127695e-09,
+        -2.402630566722408e-09
+      ],
+      "294_AP_outer": [
+        0.11999112367630005,
+        -0.6257690787315369,
+        0.1276070773601532
+      ],
+      "row": 2410
+    }
+  ],
+  "comparisons": {
+    "075_coarse_vs_035_initial_layer0": {
+      "max_m": 6.009655911156041e-08,
+      "median_m": 1.3505733716316152e-08,
+      "n": 2411,
+      "p99_m": 5.78140206288448e-08,
+      "rms_m": 2.2032298920064943e-08
+    },
+    "075_coarse_vs_294_original_AP_outer": {
+      "max_m": 6.009655911156041e-08,
+      "median_m": 1.3505733716316152e-08,
+      "n": 2411,
+      "p99_m": 5.78140206288448e-08,
+      "rms_m": 2.2032298920064943e-08
+    },
+    "075_detail_vs_294_AP_by_identity_ID": {
+      "max_m": 2.2408962691643175e-06,
+      "median_m": 2.3426242173130146e-07,
+      "n": 61950,
+      "p99_m": 1.3409225003527672e-06,
+      "rms_m": 3.98297449903528e-07
+    },
+    "075_detail_vs_declared_D36_to_AP_native": {
+      "max_m": 2.2408962691643175e-06,
+      "median_m": 2.3426242173130146e-07,
+      "n": 61950,
+      "p99_m": 1.3409225003527672e-06,
+      "rms_m": 3.98297449903528e-07
+    },
+    "075_detail_vs_native_untransformed": {
+      "max_m": 2.0721956536903945,
+      "median_m": 1.6251547736888179,
+      "n": 61950,
+      "p99_m": 2.041919753095149,
+      "rms_m": 1.6658979895012123
+    },
+    "075coarse_F32_bitwise_equal_035": true,
+    "075detail_F32_bitwise_equal_294_AP": false,
+    "declared_D36_to_AP_vs_saved_AP": {
+      "max_m": 0.0,
+      "median_m": 0.0,
+      "n": 61950,
+      "p99_m": 0.0,
+      "rms_m": 0.0
+    }
+  },
+  "declared_transform": {
+    "label": "D36_to_AP_placement",
+    "report_path": "/Users/n/Work/294-source-frame-audit-001/reference-fit-layer-counterfactual-001/run-001/report.json",
+    "report_sha256": "4a0a121c5c8f4ddd6a83af8666dbc81373b833e8f1b93db9523035c84da3f4d7",
+    "rotation": [
+      [
+        0.9999919579254425,
+        0.004010091058458769,
+        -5.704509512336146e-05
+      ],
+      [
+        1.2464988393676784e-05,
+        0.011116127222207376,
+        0.999938213871339
+      ],
+      [
+        0.004010477410991484,
+        -0.9999301730047366,
+        0.011115987839744962
+      ]
+    ],
+    "translation_m": [
+      -0.0006683030606407792,
+      -2.152077192044122,
+      0.27292564606876923
+    ]
+  },
+  "detail_samples": [
+    {
+      "075_detail_AP": [
+        -0.24386416375637054,
+        -0.964836597442627,
+        0.18960264325141907
+      ],
+      "075_minus_AP": [
+        -7.449143227256094e-08,
+        1.5488378002359582e-07,
+        5.455851587177207e-08
+      ],
+      "075_minus_declared_transform": [
+        -7.449143227256094e-08,
+        1.5488378002359582e-07,
+        5.455851587177207e-08
+      ],
+      "294_AP": [
+        -0.24386408926493827,
+        -0.964836752326407,
+        0.1896025886929032
+      ],
+      "294_native": [
+        -0.24351319670677185,
+        0.09553951770067215,
+        1.1862547397613525
+      ],
+      "D36_to_AP(native)": [
+        -0.24386408926493827,
+        -0.964836752326407,
+        0.1896025886929032
+      ],
+      "id": 0
+    },
+    {
+      "075_detail_AP": [
+        -0.24354879558086395,
+        -0.9634811878204346,
+        0.18938203155994415
+      ],
+      "075_minus_AP": [
+        2.3850088265442437e-08,
+        3.4312455210461223e-07,
+        1.2954253558739026e-08
+      ],
+      "075_minus_declared_transform": [
+        2.3850088265442437e-08,
+        3.4312455210461223e-07,
+        1.2954253558739026e-08
+      ],
+      "294_AP": [
+        -0.24354881943095222,
+        -0.9634815309449867,
+        0.1893820186056906
+      ],
+      "294_native": [
+        -0.24319879710674286,
+        0.09577640146017075,
+        1.1876074075698853
+      ],
+      "D36_to_AP(native)": [
+        -0.24354881943095222,
+        -0.9634815309449867,
+        0.1893820186056906
+      ],
+      "id": 1
+    },
+    {
+      "075_detail_AP": [
+        -0.15291675925254822,
+        -0.4784432351589203,
+        0.24601706862449646
+      ],
+      "075_minus_AP": [
+        1.6373649408540913e-08,
+        -4.23536702598426e-07,
+        2.0680559292829415e-08
+      ],
+      "075_minus_declared_transform": [
+        1.6373649408540913e-08,
+        -4.23536702598426e-07,
+        2.0680559292829415e-08
+      ],
+      "294_AP": [
+        -0.15291677562619763,
+        -0.4784428116222177,
+        0.24601704794393717
+      ],
+      "294_native": [
+        -0.1523343026638031,
+        0.044900521636009216,
+        1.6732405424118042
+      ],
+      "D36_to_AP(native)": [
+        -0.15291677562619763,
+        -0.4784428116222177,
+        0.24601704794393717
+      ],
+      "id": 12345
+    },
+    {
+      "075_detail_AP": [
+        -0.008119745180010796,
+        -1.4239927530288696,
+        0.10506928712129593
+      ],
+      "075_minus_AP": [
+        1.5780466437048668e-08,
+        -8.11698930291982e-09,
+        4.604196446322817e-08
+      ],
+      "075_minus_declared_transform": [
+        1.5780466437048668e-08,
+        -8.11698930291982e-09,
+        4.604196446322817e-08
+      ],
+      "294_AP": [
+        -0.008119760960477233,
+        -1.4239927449118803,
+        0.10506924107933147
+      ],
+      "294_native": [
+        -0.00811550673097372,
+        0.17590828239917755,
+        0.726173996925354
+      ],
+      "D36_to_AP(native)": [
+        -0.008119760960477233,
+        -1.4239927449118803,
+        0.10506924107933147
+      ],
+      "id": 30975
+    },
+    {
+      "075_detail_AP": [
+        0.2694673538208008,
+        -1.000755786895752,
+        0.12212999165058136
+      ],
+      "075_minus_AP": [
+        2.2114383324556286e-08,
+        6.709443649555169e-07,
+        -1.9191064357104715e-07
+      ],
+      "075_minus_declared_transform": [
+        2.2114383324556286e-08,
+        6.709443649555169e-07,
+        -1.9191064357104715e-07
+      ],
+      "294_AP": [
+        0.26946733170641746,
+        -1.000756457840117,
+        0.12213018356122493
+      ],
+      "294_native": [
+        0.2695430517196655,
+        0.16466642916202545,
+        1.1495579481124878
+      ],
+      "D36_to_AP(native)": [
+        0.26946733170641746,
+        -1.000756457840117,
+        0.12213018356122493
+      ],
+      "id": 61949
+    }
+  ],
+  "host": "numi.local",
+  "inputs": {
+    "/Users/n/Work/294-source-frame-audit-001/reference-fit-layer-counterfactual-001/run-001/report.json": {
+      "bytes": 12761,
+      "sha256": "4a0a121c5c8f4ddd6a83af8666dbc81373b833e8f1b93db9523035c84da3f4d7"
+    },
+    "/Users/n/Work/294-source-frame-audit-001/reference-fit-layer-counterfactual-001/run-001/whole-layer-reference-fit.npz": {
+      "bytes": 4093676,
+      "sha256": "ac66cfd7a1f3139e8f63030c4889fb83000dab701700dc120bc3bbc69f6867d0"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-reference.csv": {
+      "bytes": 869580,
+      "sha256": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-transfer-rows.csv": {
+      "bytes": 15484617,
+      "sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/initial-skin-fem-nodes.csv": {
+      "bytes": 694725,
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/validation-report.json": {
+      "bytes": 7182,
+      "sha256": "312d52fbae8817234df107f08553bbbc0048077df00ab36c582a960506d3fadf"
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin": {
+      "bytes": 26091000,
+      "sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb"
+    }
+  },
+  "interpretation": "The 075 source rows are in AP world coordinates. Comparing them directly to native D36 coordinates produces a metre-scale frame mismatch. The declared D36-to-AP placement is used as pinned; no best-fit transform was performed. Coarse-reference rows compare directly against 035 layer-0 FEM positions. This is coordinate-frame evidence only, not P1 physical qualification.",
+  "lineage": {
+    "075_detail_input_payload": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin",
+    "075_payload_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "075_status": "PASS_SOURCE_ONLY_TRANSFER_EXPORT",
+    "294_NHSKIN_hash": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "294_registered_skin_hash": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327",
+    "294_source_positions_semantics": "native registered-skin.csv world positions are checked against full ABI5 86-binding weighted LBS reconstruction using pinned body poses; reported anchors are composed by source vertex or source face barycentrics, then AP placement."
+  },
+  "runtime": {
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 0.19211196899414062
+  },
+  "schema": "numi.human.p1-frame-lineage-audit.v1",
+  "scope": "read-only exact-row/frame audit; no transform fit, geometry mutation, or simulation"
+}

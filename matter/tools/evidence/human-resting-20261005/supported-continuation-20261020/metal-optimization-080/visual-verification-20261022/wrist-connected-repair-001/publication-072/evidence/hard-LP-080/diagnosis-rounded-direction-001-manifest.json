@@ -1,0 +1,50 @@
+{
+  "artifact": "080-rounded-direction-diagnostic-supplement",
+  "host": "Numi via SSH alias numi",
+  "method": "no LP solve; approximate direction reconstructed as 32 times the F32 accepted endpoint displacement from frozen baseline; every fraction is re-emitted to Float32 before evaluating gates",
+  "limitation": "Accepted endpoint rounding is amplified by 32, so this cannot identify exact LP backtracking rejection predicates.",
+  "files": [
+    {
+      "role": "approximate-replay-script",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-080/diagnose_rounded_direction_001.py",
+      "bytes": 6393,
+      "sha256": "d3a4575222bead3f7e47694098f52c56b1edf17979665d6cef5a6dfe60f33463"
+    },
+    {
+      "role": "approximate-replay-report",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-080/diagnosis-rounded-direction-001.json",
+      "bytes": 12464,
+      "sha256": "33e1549b3172d7882617d4096cafb12202aa492a16ccd4d91e570543b57ca651"
+    },
+    {
+      "role": "frozen-baseline-input",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-080/repair-run-embedded-080/iteration-001/input.npz",
+      "bytes": 664588,
+      "sha256": "b23c9a0c7552c9a66be412e6c61729794e520e2ef0c73a49e9291ec63f694346"
+    },
+    {
+      "role": "frozen-accepted-candidate",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-080/repair-run-embedded-080/iteration-001/candidate.npz",
+      "bytes": 286479,
+      "sha256": "cd717a9ca78d92b02ae9d30c1a3da6602993d229524d48dc62d0722092519c30"
+    },
+    {
+      "role": "frozen-contact-rows",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-080/repair-run-embedded-080/iteration-001/contact-rows.npz",
+      "bytes": 483763,
+      "sha256": "32f409ecc0afe267dc5b82fd41d4ebbbc2cb9697a8c805cf1c36869b7016f017"
+    },
+    {
+      "role": "frozen-layer-rows",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-080/repair-run-embedded-080/layer-rows.npz",
+      "bytes": 212209,
+      "sha256": "c72bd74c778e7012ab4005e85e462996090c83342ffeabdcc750039b643d9bfe"
+    },
+    {
+      "role": "frozen-boundary-faces",
+      "path": "/Users/n/Work/numi-human-connected-surface-069/direct-authoring-080/repair-run-embedded-080/boundary-faces.npy",
+      "bytes": 271808,
+      "sha256": "86b51420f75ad8dc9612080dea66e16087811517d15c690d5729c39a229cf4b9"
+    }
+  ]
+}

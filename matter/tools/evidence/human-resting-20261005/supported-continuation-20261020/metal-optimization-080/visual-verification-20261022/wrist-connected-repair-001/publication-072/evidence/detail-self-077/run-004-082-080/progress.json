@@ -1,0 +1,32 @@
+{
+  "baseline": {
+    "aabb_candidate_pairs": 724831,
+    "allowed_shared_vertex_or_edge_pairs": 681879,
+    "complete_surface_audit": true,
+    "elapsed_seconds": 8.229940791032277,
+    "faces": 108987,
+    "intersection_pairs": 0,
+    "peak_rss_bytes": 394985472,
+    "status": "complete"
+  },
+  "candidate": null,
+  "mapping": {
+    "active_detail_rows": 54551,
+    "baseline_bitwise_matches_detail_origin": true,
+    "detail_faces": 108987,
+    "detail_vertices": 61950,
+    "inactive_detail_rows": 7399,
+    "max_detail_displacement_mm": 0.10826683955967392,
+    "median_detail_displacement_mm": 0.0,
+    "p99_detail_displacement_mm": 0.09565082285213766,
+    "transfer_nnz": 153088,
+    "transfer_shape": [
+      61950,
+      9320
+    ]
+  },
+  "scope": "mapped detailed NHSKIN self-intersection exact audit; physical/native admission not evaluated",
+  "stage": "candidate_exact_self_audit",
+  "started_unix": 1792901897.760108,
+  "status": "running"
+}

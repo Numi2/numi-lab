@@ -1,0 +1,304 @@
+{
+  "cell_gates": {
+    "all_J_0_35_2_5": true,
+    "all_cells_positive_both": true,
+    "all_q_ge_1e-5_both": false,
+    "duplicate_tet_sets": 0,
+    "new_reference_volume_rel_change": {
+      "1": 5.32722255277424e-10,
+      "2": -8.177770174937328e-10
+    },
+    "old_reference_volume_m3_by_material": {
+      "1": 0.003452570948304563,
+      "2": 0.011652342870565699
+    },
+    "reference_float32_current_float32_by_material": {
+      "1": {
+        "J_max": 1.0,
+        "J_min": 1.0,
+        "J_outside_0_35_2_5": 0,
+        "cells": 16434,
+        "current_f32_below_q1e-5": 4,
+        "current_f32_min_q": 4.020691310218065e-06,
+        "current_f32_nonpositive": 0,
+        "current_volume_m3": 0.0034525709501438246,
+        "ref_f32_below_q1e-5": 4,
+        "ref_f32_min_q": 4.020691310218065e-06,
+        "ref_f32_nonpositive": 0,
+        "reference_volume_m3": 0.0034525709501438246
+      },
+      "2": {
+        "J_max": 1.0,
+        "J_min": 1.0,
+        "J_outside_0_35_2_5": 0,
+        "cells": 16812,
+        "current_f32_below_q1e-5": 2,
+        "current_f32_min_q": 7.372695456309614e-07,
+        "current_f32_nonpositive": 0,
+        "current_volume_m3": 0.01165234286103668,
+        "ref_f32_below_q1e-5": 2,
+        "ref_f32_min_q": 7.372695456309614e-07,
+        "ref_f32_nonpositive": 0,
+        "reference_volume_m3": 0.01165234286103668
+      }
+    }
+  },
+  "input": {
+    "external_interface_facets": 14511,
+    "native_material_counts": {
+      "1": 14316,
+      "2": 14316
+    },
+    "native_tets": 28632,
+    "points": 7233
+  },
+  "interpretation": "TetGen stopped with code 200 under -YY, so this is a diagnostic postmortem, not an admitted mesh. Boundary evidence tests exact geometric subdivision on each marked parent triangle; it does not establish mass transfer, mechanics, collision clearance, or physical admission.",
+  "output": {
+    "all_7233_original_point_coordinates_preserved_exactly": true,
+    "all_material_attrs_are_1_or_2": true,
+    "face_count": 14517,
+    "material_counts": {
+      "1": 16434,
+      "2": 16812
+    },
+    "new_node_records": 43,
+    "new_point_rows_unused_by_output_tets": 37,
+    "new_points_used_by_output_tets": 6,
+    "node_records": 7276,
+    "output_cell_attribute_count": 1,
+    "tet_count": 33246,
+    "used_new_boundary_nodes": 3,
+    "used_new_interior_nodes": 3
+  },
+  "source_tet_witnesses": {
+    "all_used_additions_mapped": true,
+    "explanation": "Each used new point gets barycentric ancestry in its incident material source tetrahedra; generated current points are interpolated from frozen 035 source coordinates. This is construction lineage only.",
+    "f32_mismatch_node_ids": [],
+    "max_current_vs_output_ref_point_error_m": 4.787836793695988e-16,
+    "max_ref_reconstruction_error_m": 4.787836793695988e-16,
+    "used_node_F32_mismatch_count": 0
+  },
+  "status": "FAILED_YY_OUTPUT_POSTMORTEM_ONLY_NOT_CANDIDATE",
+  "surface_domain": {
+    "all_input_facet_markers_have_output_faces": true,
+    "boundary_marker_child_area_matches_parent": true,
+    "max_child_barycentric_excursion": 4.6956154309908116e-14,
+    "max_child_plane_distance_m": 2.3288648128195195e-15,
+    "max_parent_area_ratio_error": 1.6653345369377348e-14,
+    "max_parent_signed_area_ratio_error": 1.687538997430238e-14,
+    "minimum_child_signed_area_ratio": 0.2064076517143402,
+    "negative_or_zero_oriented_child_count": 0,
+    "oriented_child_faces_from_output_tet_incidence": 14511,
+    "oriented_parent_chain_matches": true,
+    "oriented_parent_signed_area_ratio_max": 1.0000000000000169,
+    "oriented_parent_signed_area_ratio_min": 0.9999999999999933,
+    "output_external_faces": 9740,
+    "output_material_interface_faces": 4777,
+    "output_nonmanifold_tet_faces_gt2": 0,
+    "split_parent_markers": {
+      "102067": 2,
+      "102069": 2,
+      "302229": 2,
+      "302230": 2,
+      "303832": 2,
+      "303957": 2
+    },
+    "split_surface_counts": {
+      "1": 2,
+      "2": 0,
+      "3": 4,
+      "4": 0
+    },
+    "unknown_output_boundary_or_interface_faces": 0
+  },
+  "tetgen_run": {
+    "command": [
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-remesh-118/tetgen-v1.6.0/tetgen",
+      "-pYYq1.2/10AS0",
+      "whole-skin-fat-reference.poly"
+    ],
+    "cwd": "/Users/numi/Work/numi-human-connected-surface-069/whole-reference-tetgen-083",
+    "elapsed_s": 0.16234862501733005,
+    "poly_sha256": "652ebfba116ce79f4ce4ae12c977929355d56b36d9a172a8f2761367b95ec764",
+    "returncode": 200,
+    "tetgen_sha256": "95b1df3923d7405b168ba5a3c4b39498ddfc0e7ba94000dedff7ebf93350de07",
+    "timed_out": false
+  },
+  "unmapped_used_new_nodes": [],
+  "used_new_node_ancestry": {
+    "7252": {
+      "boundary_face_incidence": 4,
+      "interpolated_current_xyz_m": [
+        0.1026447951965809,
+        -1.7262161310518833,
+        0.2634320787992335
+      ],
+      "marker": -1,
+      "output_materials": [
+        2
+      ],
+      "output_xyz_m": [
+        0.10264479519658086,
+        -1.7262161310518835,
+        0.26343207879923347
+      ],
+      "source_tet_by_material": {
+        "2": {
+          "barycentric": [
+            -3.552713678800501e-15,
+            -1.6697754290362354e-13,
+            0.4333465443726361,
+            0.5666534556275343
+          ],
+          "max_abs_reference_reconstruction_m": 2.220446049250313e-16,
+          "source_tet_row": 23901
+        }
+      }
+    },
+    "7258": {
+      "boundary_face_incidence": 4,
+      "interpolated_current_xyz_m": [
+        -0.042727584732362225,
+        -0.47671513913063585,
+        0.024542617193336336
+      ],
+      "marker": -1,
+      "output_materials": [
+        1
+      ],
+      "output_xyz_m": [
+        -0.04272758473236224,
+        -0.47671513913063585,
+        0.02454261719333633
+      ],
+      "source_tet_by_material": {
+        "1": {
+          "barycentric": [
+            0.7935923482856594,
+            0.20640765171434025,
+            1.1102230246251565e-15,
+            -7.771561172376096e-16
+          ],
+          "max_abs_reference_reconstruction_m": 1.3877787807814457e-17,
+          "source_tet_row": 6187
+        }
+      }
+    },
+    "7268": {
+      "boundary_face_incidence": 4,
+      "interpolated_current_xyz_m": [
+        -0.0680653608249269,
+        -0.15275867992984177,
+        0.069307876210164
+      ],
+      "marker": -1,
+      "output_materials": [
+        2
+      ],
+      "output_xyz_m": [
+        -0.0680653608249269,
+        -0.15275867992984177,
+        0.069307876210164
+      ],
+      "source_tet_by_material": {
+        "2": {
+          "barycentric": [
+            0.5209828983545743,
+            8.881784197001252e-16,
+            0.47901710164542455,
+            2.7755575615628914e-16
+          ],
+          "max_abs_reference_reconstruction_m": 0.0,
+          "source_tet_row": 27785
+        }
+      }
+    },
+    "7274": {
+      "boundary_face_incidence": 0,
+      "interpolated_current_xyz_m": [
+        0.10264170279774874,
+        -1.7261820030452673,
+        0.2634343448661342
+      ],
+      "marker": 0,
+      "output_materials": [
+        2
+      ],
+      "output_xyz_m": [
+        0.10264170279774877,
+        -1.7261820030452673,
+        0.2634343448661342
+      ],
+      "source_tet_by_material": {
+        "2": {
+          "barycentric": [
+            0.0005635128620933294,
+            0.06685082634373174,
+            0.36666723397346956,
+            0.5659184268207054
+          ],
+          "max_abs_reference_reconstruction_m": 2.7755575615628914e-17,
+          "source_tet_row": 23901
+        }
+      }
+    },
+    "7275": {
+      "boundary_face_incidence": 0,
+      "interpolated_current_xyz_m": [
+        -0.04273699009105209,
+        -0.4767071624469652,
+        0.024541244418443034
+      ],
+      "marker": 0,
+      "output_materials": [
+        1
+      ],
+      "output_xyz_m": [
+        -0.04273699009105161,
+        -0.476707162446965,
+        0.02454124441844304
+      ],
+      "source_tet_by_material": {
+        "1": {
+          "barycentric": [
+            0.004331236421119655,
+            0.20363949535012082,
+            0.7461884841459465,
+            0.045840784082813
+          ],
+          "max_abs_reference_reconstruction_m": 4.787836793695988e-16,
+          "source_tet_row": 5941
+        }
+      }
+    },
+    "7276": {
+      "boundary_face_incidence": 0,
+      "interpolated_current_xyz_m": [
+        -0.06819485613435945,
+        -0.15332215215624662,
+        0.06833202716216215
+      ],
+      "marker": 0,
+      "output_materials": [
+        2
+      ],
+      "output_xyz_m": [
+        -0.06819485613435945,
+        -0.15332215215624664,
+        0.06833202716216215
+      ],
+      "source_tet_by_material": {
+        "2": {
+          "barycentric": [
+            0.4177530821861366,
+            0.10353507562593878,
+            0.43856077153221634,
+            0.04015107065570822
+          ],
+          "max_abs_reference_reconstruction_m": 2.7755575615628914e-17,
+          "source_tet_row": 27785
+        }
+      }
+    }
+  }
+}

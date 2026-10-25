@@ -1,0 +1,89 @@
+{
+  "transfer_csv_sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+  "rows": [
+    {
+      "detail_row": "41816",
+      "active": "1",
+      "detail_donor_body": "20",
+      "transfer_donor_body": "20",
+      "selected_face_stable_id": "71192",
+      "selected_face_row": "3810",
+      "coarse_vertex0": "1836",
+      "coarse_vertex1": "1875",
+      "coarse_vertex2": "2387",
+      "weight0": "0.69007962942123413",
+      "weight1": "0.13378700613975525",
+      "weight2": "0.17613334953784943"
+    },
+    {
+      "detail_row": "46547",
+      "active": "1",
+      "detail_donor_body": "92",
+      "transfer_donor_body": "92",
+      "selected_face_stable_id": "78656",
+      "selected_face_row": "4088",
+      "coarse_vertex0": "2006",
+      "coarse_vertex1": "1988",
+      "coarse_vertex2": "2325",
+      "weight0": "0.13529057800769806",
+      "weight1": "0.55381536483764648",
+      "weight2": "0.31089404225349426"
+    },
+    {
+      "detail_row": "55337",
+      "active": "1",
+      "detail_donor_body": "20",
+      "transfer_donor_body": "20",
+      "selected_face_stable_id": "78310",
+      "selected_face_row": "4092",
+      "coarse_vertex0": "1988",
+      "coarse_vertex1": "2408",
+      "coarse_vertex2": "2325",
+      "weight0": "0.027206921949982643",
+      "weight1": "0.41834688186645508",
+      "weight2": "0.55444622039794922"
+    },
+    {
+      "detail_row": "55338",
+      "active": "1",
+      "detail_donor_body": "20",
+      "transfer_donor_body": "20",
+      "selected_face_stable_id": "78311",
+      "selected_face_row": "4773",
+      "coarse_vertex0": "2408",
+      "coarse_vertex1": "2385",
+      "coarse_vertex2": "2325",
+      "weight0": "0",
+      "weight1": "0.35693359375",
+      "weight2": "0.64306640625"
+    },
+    {
+      "detail_row": "55339",
+      "active": "1",
+      "detail_donor_body": "20",
+      "transfer_donor_body": "20",
+      "selected_face_stable_id": "78310",
+      "selected_face_row": "4092",
+      "coarse_vertex0": "1988",
+      "coarse_vertex1": "2408",
+      "coarse_vertex2": "2325",
+      "weight0": "0.023286269977688789",
+      "weight1": "0.29866954684257507",
+      "weight2": "0.67804419994354248"
+    },
+    {
+      "detail_row": "55340",
+      "active": "1",
+      "detail_donor_body": "20",
+      "transfer_donor_body": "20",
+      "selected_face_stable_id": "69078",
+      "selected_face_row": "4775",
+      "coarse_vertex0": "2386",
+      "coarse_vertex1": "2387",
+      "coarse_vertex2": "2329",
+      "weight0": "0.76582241058349609",
+      "weight1": "0",
+      "weight2": "0.23417758941650391"
+    }
+  ]
+}

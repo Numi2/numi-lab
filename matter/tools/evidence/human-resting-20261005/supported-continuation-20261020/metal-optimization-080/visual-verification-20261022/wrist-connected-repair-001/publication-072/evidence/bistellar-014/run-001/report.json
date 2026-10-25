@@ -1,0 +1,618 @@
+{
+  "accepted_flips": [
+    {
+      "material_id": 1,
+      "new_J_out_of_bounds": 0,
+      "new_J_ratios": [
+        1.792987973643534,
+        2.4552171921491452,
+        1.6538597611447947
+      ],
+      "new_cell_uids": [
+        28632,
+        28633,
+        28634
+      ],
+      "new_current_nonpositive": 0,
+      "new_current_q_f32": [
+        0.19648321356060477,
+        0.5407127221324418,
+        0.20733821200724112
+      ],
+      "new_reference_q_f32": [
+        0.12606783486409456,
+        0.2817079976410089,
+        0.1373887808121388
+      ],
+      "old_J_out_of_bounds": 1,
+      "old_cell_uids": [
+        3883,
+        3884
+      ],
+      "old_initial_rows": [
+        3883,
+        3884
+      ],
+      "opposite_vertices": [
+        651,
+        3061
+      ],
+      "reference_volume_delta_m3": 0.0,
+      "removed_current_nonpositive": 1,
+      "shared_face": [
+        624,
+        650,
+        3062
+      ],
+      "state_after": {
+        "cell_count": 28633,
+        "current_J_above_2.5": 126,
+        "current_J_below_0.35": 200,
+        "current_J_max": 105.00100868761493,
+        "current_J_min_positive_reference": -140.54641684608868,
+        "current_nonpositive_f32": 125,
+        "current_q_min_f32": 0.00014246906844333593,
+        "current_quality_below_1e-5_f32": 0,
+        "reference_nonpositive_f32": 0,
+        "reference_q_min_f32": 0.002069086691075745,
+        "reference_quality_below_1e-5_f32": 0
+      },
+      "state_before": {
+        "cell_count": 28632,
+        "current_J_above_2.5": 126,
+        "current_J_below_0.35": 201,
+        "current_J_max": 105.00100868761493,
+        "current_J_min_positive_reference": -140.54641684608868,
+        "current_nonpositive_f32": 126,
+        "current_q_min_f32": 0.00014246906844333593,
+        "current_quality_below_1e-5_f32": 0,
+        "reference_nonpositive_f32": 0,
+        "reference_q_min_f32": 0.002069086691075745,
+        "reference_quality_below_1e-5_f32": 0
+      },
+      "sweep": 1
+    },
+    {
+      "material_id": 1,
+      "new_J_out_of_bounds": 0,
+      "new_J_ratios": [
+        0.9257775308925329,
+        1.0,
+        0.9142644407877563
+      ],
+      "new_cell_uids": [
+        28635,
+        28636,
+        28637
+      ],
+      "new_current_nonpositive": 0,
+      "new_current_q_f32": [
+        0.7781233006025153,
+        0.07457780727854693,
+        0.1473717648879485
+      ],
+      "new_reference_q_f32": [
+        0.8078430007700853,
+        0.07457780727854693,
+        0.1547881904379017
+      ],
+      "old_J_out_of_bounds": 1,
+      "old_cell_uids": [
+        13388,
+        13400
+      ],
+      "old_initial_rows": [
+        13388,
+        13400
+      ],
+      "opposite_vertices": [
+        3569,
+        3571
+      ],
+      "reference_volume_delta_m3": -3.308722450212111e-24,
+      "removed_current_nonpositive": 1,
+      "shared_face": [
+        1118,
+        3529,
+        3656
+      ],
+      "state_after": {
+        "cell_count": 28634,
+        "current_J_above_2.5": 126,
+        "current_J_below_0.35": 199,
+        "current_J_max": 105.00100868761493,
+        "current_J_min_positive_reference": -140.54641684608868,
+        "current_nonpositive_f32": 124,
+        "current_q_min_f32": 0.00014246906844333593,
+        "current_quality_below_1e-5_f32": 0,
+        "reference_nonpositive_f32": 0,
+        "reference_q_min_f32": 0.002069086691075745,
+        "reference_quality_below_1e-5_f32": 0
+      },
+      "state_before": {
+        "cell_count": 28633,
+        "current_J_above_2.5": 126,
+        "current_J_below_0.35": 200,
+        "current_J_max": 105.00100868761493,
+        "current_J_min_positive_reference": -140.54641684608868,
+        "current_nonpositive_f32": 125,
+        "current_q_min_f32": 0.00014246906844333593,
+        "current_quality_below_1e-5_f32": 0,
+        "reference_nonpositive_f32": 0,
+        "reference_q_min_f32": 0.002069086691075745,
+        "reference_quality_below_1e-5_f32": 0
+      },
+      "sweep": 1
+    },
+    {
+      "material_id": 1,
+      "new_J_out_of_bounds": 1,
+      "new_J_ratios": [
+        2.1447481442616976,
+        6.6144707560614835,
+        0.5171430608155374
+      ],
+      "new_cell_uids": [
+        28638,
+        28639,
+        28640
+      ],
+      "new_current_nonpositive": 0,
+      "new_current_q_f32": [
+        0.26478606971360136,
+        0.14182431272095009,
+        0.0668563369039744
+      ],
+      "new_reference_q_f32": [
+        0.15510906148493755,
+        0.035865889766826343,
+        0.10933619020478247
+      ],
+      "old_J_out_of_bounds": 2,
+      "old_cell_uids": [
+        13419,
+        13420
+      ],
+      "old_initial_rows": [
+        13419,
+        13420
+      ],
+      "opposite_vertices": [
+        1169,
+        3579
+      ],
+      "reference_volume_delta_m3": 2.0679515313825692e-25,
+      "removed_current_nonpositive": 1,
+      "shared_face": [
+        1129,
+        1168,
+        3580
+      ],
+      "state_after": {
+        "cell_count": 28635,
+        "current_J_above_2.5": 126,
+        "current_J_below_0.35": 198,
+        "current_J_max": 105.00100868761493,
+        "current_J_min_positive_reference": -140.54641684608868,
+        "current_nonpositive_f32": 123,
+        "current_q_min_f32": 0.00014246906844333593,
+        "current_quality_below_1e-5_f32": 0,
+        "reference_nonpositive_f32": 0,
+        "reference_q_min_f32": 0.002069086691075745,
+        "reference_quality_below_1e-5_f32": 0
+      },
+      "state_before": {
+        "cell_count": 28634,
+        "current_J_above_2.5": 126,
+        "current_J_below_0.35": 199,
+        "current_J_max": 105.00100868761493,
+        "current_J_min_positive_reference": -140.54641684608868,
+        "current_nonpositive_f32": 124,
+        "current_q_min_f32": 0.00014246906844333593,
+        "current_quality_below_1e-5_f32": 0,
+        "reference_nonpositive_f32": 0,
+        "reference_q_min_f32": 0.002069086691075745,
+        "reference_quality_below_1e-5_f32": 0
+      },
+      "sweep": 1
+    },
+    {
+      "material_id": 1,
+      "new_J_out_of_bounds": 1,
+      "new_J_ratios": [
+        7.1241888224099545,
+        0.5605349549044574,
+        0.4726347226790814
+      ],
+      "new_cell_uids": [
+        28641,
+        28642,
+        28643
+      ],
+      "new_current_nonpositive": 0,
+      "new_current_q_f32": [
+        0.05713514295107562,
+        0.2907365187734108,
+        0.1398853837653133
+      ],
+      "new_reference_q_f32": [
+        0.017638661465499583,
+        0.4107438016917614,
+        0.2249167576423539
+      ],
+      "old_J_out_of_bounds": 1,
+      "old_cell_uids": [
+        13426,
+        13427
+      ],
+      "old_initial_rows": [
+        13426,
+        13427
+      ],
+      "opposite_vertices": [
+        1170,
+        3580
+      ],
+      "reference_volume_delta_m3": 0.0,
+      "removed_current_nonpositive": 1,
+      "shared_face": [
+        1169,
+        3581,
+        3604
+      ],
+      "state_after": {
+        "cell_count": 28636,
+        "current_J_above_2.5": 127,
+        "current_J_below_0.35": 197,
+        "current_J_max": 105.00100868761493,
+        "current_J_min_positive_reference": -140.54641684608868,
+        "current_nonpositive_f32": 122,
+        "current_q_min_f32": 0.00014246906844333593,
+        "current_quality_below_1e-5_f32": 0,
+        "reference_nonpositive_f32": 0,
+        "reference_q_min_f32": 0.002069086691075745,
+        "reference_quality_below_1e-5_f32": 0
+      },
+      "state_before": {
+        "cell_count": 28635,
+        "current_J_above_2.5": 126,
+        "current_J_below_0.35": 198,
+        "current_J_max": 105.00100868761493,
+        "current_J_min_positive_reference": -140.54641684608868,
+        "current_nonpositive_f32": 123,
+        "current_q_min_f32": 0.00014246906844333593,
+        "current_quality_below_1e-5_f32": 0,
+        "reference_nonpositive_f32": 0,
+        "reference_q_min_f32": 0.002069086691075745,
+        "reference_quality_below_1e-5_f32": 0
+      },
+      "sweep": 1
+    },
+    {
+      "material_id": 1,
+      "new_J_out_of_bounds": 1,
+      "new_J_ratios": [
+        0.13602720258468415,
+        0.8194494000571104,
+        0.695227658395944
+      ],
+      "new_cell_uids": [
+        28644,
+        28645,
+        28646
+      ],
+      "new_current_nonpositive": 0,
+      "new_current_q_f32": [
+        0.010996390132942024,
+        0.01468188142456395,
+        0.04146628206162784
+      ],
+      "new_reference_q_f32": [
+        0.041579039487561927,
+        0.017516586157570152,
+        0.05264183054157655
+      ],
+      "old_J_out_of_bounds": 1,
+      "old_cell_uids": [
+        141,
+        142
+      ],
+      "old_initial_rows": [
+        141,
+        142
+      ],
+      "opposite_vertices": [
+        28,
+        2438
+      ],
+      "reference_volume_delta_m3": 0.0,
+      "removed_current_nonpositive": 1,
+      "shared_face": [
+        24,
+        27,
+        2439
+      ],
+      "state_after": {
+        "cell_count": 28637,
+        "current_J_above_2.5": 127,
+        "current_J_below_0.35": 197,
+        "current_J_max": 105.00100868761493,
+        "current_J_min_positive_reference": -140.54641684608868,
+        "current_nonpositive_f32": 121,
+        "current_q_min_f32": 0.00014246906844333593,
+        "current_quality_below_1e-5_f32": 0,
+        "reference_nonpositive_f32": 0,
+        "reference_q_min_f32": 0.002069086691075745,
+        "reference_quality_below_1e-5_f32": 0
+      },
+      "state_before": {
+        "cell_count": 28636,
+        "current_J_above_2.5": 127,
+        "current_J_below_0.35": 197,
+        "current_J_max": 105.00100868761493,
+        "current_J_min_positive_reference": -140.54641684608868,
+        "current_nonpositive_f32": 122,
+        "current_q_min_f32": 0.00014246906844333593,
+        "current_quality_below_1e-5_f32": 0,
+        "reference_nonpositive_f32": 0,
+        "reference_q_min_f32": 0.002069086691075745,
+        "reference_quality_below_1e-5_f32": 0
+      },
+      "sweep": 1
+    },
+    {
+      "material_id": 1,
+      "new_J_out_of_bounds": 1,
+      "new_J_ratios": [
+        1.1653796116042376,
+        1.1968291548785401,
+        8.870249085496956
+      ],
+      "new_cell_uids": [
+        28647,
+        28648,
+        28649
+      ],
+      "new_current_nonpositive": 0,
+      "new_current_q_f32": [
+        0.25365354801521967,
+        0.23411151606964475,
+        0.0467228484539254
+      ],
+      "new_reference_q_f32": [
+        0.2576440685066497,
+        0.20978690669950376,
+        0.010977178081097123
+      ],
+      "old_J_out_of_bounds": 1,
+      "old_cell_uids": [
+        6437,
+        6441
+      ],
+      "old_initial_rows": [
+        6437,
+        6441
+      ],
+      "opposite_vertices": [
+        1292,
+        3753
+      ],
+      "reference_volume_delta_m3": 0.0,
+      "removed_current_nonpositive": 1,
+      "shared_face": [
+        1295,
+        3706,
+        3725
+      ],
+      "state_after": {
+        "cell_count": 28638,
+        "current_J_above_2.5": 128,
+        "current_J_below_0.35": 196,
+        "current_J_max": 105.00100868761493,
+        "current_J_min_positive_reference": -140.54641684608868,
+        "current_nonpositive_f32": 120,
+        "current_q_min_f32": 0.00014246906844333593,
+        "current_quality_below_1e-5_f32": 0,
+        "reference_nonpositive_f32": 0,
+        "reference_q_min_f32": 0.002069086691075745,
+        "reference_quality_below_1e-5_f32": 0
+      },
+      "state_before": {
+        "cell_count": 28637,
+        "current_J_above_2.5": 127,
+        "current_J_below_0.35": 197,
+        "current_J_max": 105.00100868761493,
+        "current_J_min_positive_reference": -140.54641684608868,
+        "current_nonpositive_f32": 121,
+        "current_q_min_f32": 0.00014246906844333593,
+        "current_quality_below_1e-5_f32": 0,
+        "reference_nonpositive_f32": 0,
+        "reference_q_min_f32": 0.002069086691075745,
+        "reference_quality_below_1e-5_f32": 0
+      },
+      "sweep": 1
+    },
+    {
+      "material_id": 1,
+      "new_J_out_of_bounds": 1,
+      "new_J_ratios": [
+        303.12007121432805,
+        1.17685534512466,
+        0.38583964334256754
+      ],
+      "new_cell_uids": [
+        28650,
+        28651,
+        28652
+      ],
+      "new_current_nonpositive": 0,
+      "new_current_q_f32": [
+        0.15361937486560182,
+        0.6357671042421492,
+        0.1576381483453858
+      ],
+      "new_reference_q_f32": [
+        0.004385197516238794,
+        0.6107435527133621,
+        0.39757276979412015
+      ],
+      "old_J_out_of_bounds": 1,
+      "old_cell_uids": [
+        13201,
+        13202
+      ],
+      "old_initial_rows": [
+        13201,
+        13202
+      ],
+      "opposite_vertices": [
+        1098,
+        3459
+      ],
+      "reference_volume_delta_m3": 0.0,
+      "removed_current_nonpositive": 1,
+      "shared_face": [
+        1048,
+        3509,
+        3510
+      ],
+      "state_after": {
+        "cell_count": 28639,
+        "current_J_above_2.5": 129,
+        "current_J_below_0.35": 195,
+        "current_J_max": 303.12007121432805,
+        "current_J_min_positive_reference": -140.54641684608868,
+        "current_nonpositive_f32": 119,
+        "current_q_min_f32": 0.00014246906844333593,
+        "current_quality_below_1e-5_f32": 0,
+        "reference_nonpositive_f32": 0,
+        "reference_q_min_f32": 0.002069086691075745,
+        "reference_quality_below_1e-5_f32": 0
+      },
+      "state_before": {
+        "cell_count": 28638,
+        "current_J_above_2.5": 128,
+        "current_J_below_0.35": 196,
+        "current_J_max": 105.00100868761493,
+        "current_J_min_positive_reference": -140.54641684608868,
+        "current_nonpositive_f32": 120,
+        "current_q_min_f32": 0.00014246906844333593,
+        "current_quality_below_1e-5_f32": 0,
+        "reference_nonpositive_f32": 0,
+        "reference_q_min_f32": 0.002069086691075745,
+        "reference_quality_below_1e-5_f32": 0
+      },
+      "sweep": 1
+    }
+  ],
+  "baseline": {
+    "cell_count": 28632,
+    "current_J_above_2.5": 126,
+    "current_J_below_0.35": 201,
+    "current_J_max": 105.00100868761493,
+    "current_J_min_positive_reference": -140.54641684608868,
+    "current_nonpositive_f32": 126,
+    "current_q_min_f32": 0.00014246906844333593,
+    "current_quality_below_1e-5_f32": 0,
+    "reference_nonpositive_f32": 0,
+    "reference_q_min_f32": 0.002069086691075745,
+    "reference_quality_below_1e-5_f32": 0
+  },
+  "classification": "partial_current_invalid_cell_reduction_topology_counterfactual",
+  "counts": {
+    "accepted": 7,
+    "candidate_pair_checks": 565,
+    "changed_cells_added": 21,
+    "changed_cells_removed": 14
+  },
+  "final": {
+    "cell_count": 28639,
+    "current_J_above_2.5": 129,
+    "current_J_below_0.35": 195,
+    "current_J_max": 303.12007121432805,
+    "current_J_min_positive_reference": -140.54641684608868,
+    "current_nonpositive_f32": 119,
+    "current_q_min_f32": 0.00014246906844333593,
+    "current_quality_below_1e-5_f32": 0,
+    "reference_nonpositive_f32": 0,
+    "reference_q_min_f32": 0.002069086691075745,
+    "reference_quality_below_1e-5_f32": 0
+  },
+  "invariants": {
+    "all_untouched_material_ids_preserved": true,
+    "all_untouched_tet_connectivity_preserved": true,
+    "current_points_bitwise_unchanged": true,
+    "outer_face_arrays_bitwise_unchanged": true,
+    "reference_points_bitwise_unchanged": true
+  },
+  "limits": [
+    "This is a topology-only counterfactual, not a qualified physical repair.",
+    "The current state is the source-target O surface with original I/D positions.",
+    "Positive cells and bounded determinant ratios do not establish conservative mass ancestry or native material acceptance.",
+    "No whole-body collision, detailed-surface, constitutive, or runtime admission is inferred."
+  ],
+  "method": {
+    "J_bounds": [
+      0.35,
+      2.5
+    ],
+    "acceptance": [
+      "exact oriented cavity boundary equality",
+      "reference F32 q >= 1e-5",
+      "current F32 determinant > 0 and q >= 1e-5",
+      "current local J-out-of-range count does not increase",
+      "strict global reduction of current nonpositive cells",
+      "same material",
+      "no duplicate cells",
+      "new opposite edge absent outside pair"
+    ],
+    "candidate_scope": "entire connected tetrahedral mesh; only internal faces incident to current-F32-nonpositive cells",
+    "fixed": [
+      "all reference/current point coordinates",
+      "O/I/D face arrays",
+      "material IDs of untouched cells"
+    ],
+    "kind": "same-material bistellar 2-to-3 flips on internal faces touching current-invalid cells",
+    "max_seconds": 600.0,
+    "max_sweeps": 4,
+    "orientation": "all old/new cells oriented using trusted positive reference coordinates; current pose never determines orientation",
+    "quality_definition": "pinned reference_fit_layer_counterfactual.tet_metrics; q is 12*(3*abs(volume))^(2/3)/sum(edge_length_squared)"
+  },
+  "output": {
+    "path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/bistellar-internal-014/run-001/candidate-tetrahedra.npz",
+    "sha256": "dd5242bcd80d187f287519e5163df629886c34be48178458c4f17a7bfdf29539"
+  },
+  "rejections": {
+    "current_nonpositive": 474,
+    "jacobian_bound_count_increase": 27,
+    "material_mismatch": 382,
+    "new_edge_exists_outside_pair": 121,
+    "nonconvex_reference_bipyramid": 2267,
+    "reference_quality_floor": 36
+  },
+  "runtime": {
+    "hostname": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 2.0079729557037354
+  },
+  "schema": "numi.human.connected-mesh-same-material-2-to-3-flip.v1",
+  "source": {
+    "path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/retessellation-001/volume-cavity-001/oid-cavity-replacement.npz",
+    "sha256": "0feda312f87a58ac8d7f73b9d27d870911d86040396ac0c65c24feeac682ee2b"
+  },
+  "sweeps": [
+    {
+      "accepted": 7,
+      "candidate_pair_checks": 507,
+      "elapsed_seconds": 1.7688121795654297,
+      "sweep": 1
+    },
+    {
+      "accepted": 0,
+      "candidate_pair_checks": 58,
+      "elapsed_seconds": 0.21921014785766602,
+      "sweep": 2
+    }
+  ]
+}

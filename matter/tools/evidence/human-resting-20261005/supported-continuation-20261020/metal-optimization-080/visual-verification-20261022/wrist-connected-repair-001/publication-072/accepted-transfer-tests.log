@@ -1,0 +1,15 @@
+test_active_donor_mismatch_rejected (test_human_skin_fat_accepted_transfer.Transfer075Tests.test_active_donor_mismatch_rejected) ... ok
+test_active_inactive_duplicate_columns_and_detail_faces (test_human_skin_fat_accepted_transfer.Transfer075Tests.test_active_inactive_duplicate_columns_and_detail_faces) ... ok
+test_coarse_face_out_of_range_rejected (test_human_skin_fat_accepted_transfer.Transfer075Tests.test_coarse_face_out_of_range_rejected) ... ok
+test_detailed_payload_face_out_of_range_rejected (test_human_skin_fat_accepted_transfer.Transfer075Tests.test_detailed_payload_face_out_of_range_rejected) ... ok
+test_hash_pins_fail_closed (test_human_skin_fat_accepted_transfer.Transfer075Tests.test_hash_pins_fail_closed) ... ok
+test_invalid_selected_face_row_rejected (test_human_skin_fat_accepted_transfer.Transfer075Tests.test_invalid_selected_face_row_rejected) ... ok
+test_negative_nonfinite_and_nonpartition_weights_rejected (test_human_skin_fat_accepted_transfer.Transfer075Tests.test_negative_nonfinite_and_nonpartition_weights_rejected) ... ok
+test_repeated_detail_face_vertex_rejected (test_human_skin_fat_accepted_transfer.Transfer075Tests.test_repeated_detail_face_vertex_rejected) ... ok
+test_stable_face_identity_mismatch_rejected (test_human_skin_fat_accepted_transfer.Transfer075Tests.test_stable_face_identity_mismatch_rejected) ... ok
+test_support_outside_selected_face_rejected (test_human_skin_fat_accepted_transfer.Transfer075Tests.test_support_outside_selected_face_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.008s
+
+OK

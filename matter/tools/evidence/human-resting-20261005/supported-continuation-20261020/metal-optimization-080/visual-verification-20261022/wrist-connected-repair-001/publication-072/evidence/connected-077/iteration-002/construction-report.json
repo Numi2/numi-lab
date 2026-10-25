@@ -1,0 +1,153 @@
+{
+  "algorithm": "sparse_regularized_least_squares_exact_geometry_backtracking",
+  "free_nodes": 6242,
+  "contact_rows": 9627,
+  "active_contact_rows": 9627,
+  "starting_contact_deficit_l1_mm": 16913.97356255716,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "reference_unchanged": true,
+  "mapped_skin_faces": 108987,
+  "mapped_skin_active_vertices": 54551,
+  "mapped_skin_area_ratio_min": 0.9078478314053835,
+  "mapped_skin_area_ratio_max": 1.1536447763694526,
+  "mapped_skin_normal_cosine_min": 0.9827541479876774,
+  "mapped_skin_nonpositive_normal_faces": 0,
+  "mapped_skin_geometry_pass": true,
+  "mapped_skin_native_shader_parity_qualified": false,
+  "active_set_history": [
+    {
+      "pass": 0,
+      "selected_rows": 5262,
+      "max_normalized_violation_before_mm": 13.806109824473978,
+      "max_normalized_violation_after_mm": 23.55979484720526,
+      "merit_before": 74425324.8418416,
+      "merit_after": 51113325.44574946,
+      "merit_line_fraction": 0.5,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 1,
+      "selected_rows": 7778,
+      "max_normalized_violation_before_mm": 23.55979484720526,
+      "max_normalized_violation_after_mm": 20.351480642316506,
+      "merit_before": 51113325.44574946,
+      "merit_after": 44698822.316307835,
+      "merit_line_fraction": 0.25,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 2,
+      "selected_rows": 8471,
+      "max_normalized_violation_before_mm": 20.351480642316506,
+      "max_normalized_violation_after_mm": 17.11253801888129,
+      "merit_before": 44698822.316307835,
+      "merit_after": 30636360.3012228,
+      "merit_line_fraction": 0.5,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 3,
+      "selected_rows": 9666,
+      "max_normalized_violation_before_mm": 17.11253801888129,
+      "max_normalized_violation_after_mm": 13.999968572114282,
+      "merit_before": 30636360.3012228,
+      "merit_after": 21213476.047688052,
+      "merit_line_fraction": 0.25,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 4,
+      "selected_rows": 9984,
+      "max_normalized_violation_before_mm": 13.999968572114282,
+      "max_normalized_violation_after_mm": 14.216617148094834,
+      "merit_before": 21213476.047688052,
+      "merit_after": 20065017.13214531,
+      "merit_line_fraction": 0.25,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 5,
+      "selected_rows": 10236,
+      "max_normalized_violation_before_mm": 14.216617148094834,
+      "max_normalized_violation_after_mm": 13.509989918118512,
+      "merit_before": 20065017.13214531,
+      "merit_after": 18994010.59310363,
+      "merit_line_fraction": 0.0625,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 6,
+      "selected_rows": 10214,
+      "max_normalized_violation_before_mm": 13.509989918118512,
+      "max_normalized_violation_after_mm": 8.60323923314784,
+      "merit_before": 18994010.59310363,
+      "merit_after": 12488580.432053396,
+      "merit_line_fraction": 0.5,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 7,
+      "selected_rows": 10453,
+      "max_normalized_violation_before_mm": 8.60323923314784,
+      "max_normalized_violation_after_mm": 8.000101482355134,
+      "merit_before": 12488580.432053396,
+      "merit_after": 10937483.082358403,
+      "merit_line_fraction": 0.125,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 8,
+      "selected_rows": 10444,
+      "max_normalized_violation_before_mm": 8.000101482355134,
+      "max_normalized_violation_after_mm": 6.902557887246726,
+      "merit_before": 10937483.082358403,
+      "merit_after": 8205090.784075004,
+      "merit_line_fraction": 0.25,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    },
+    {
+      "pass": 9,
+      "selected_rows": 10279,
+      "max_normalized_violation_before_mm": 6.902557887246726,
+      "max_normalized_violation_after_mm": 6.006374736835676,
+      "merit_before": 8205090.784075004,
+      "merit_after": 4078725.315245196,
+      "merit_line_fraction": 0.5,
+      "linear_stop": 7,
+      "linear_iterations": 400
+    }
+  ],
+  "linear_stop": 7,
+  "linear_iterations": 400,
+  "linear_residual_norm": 194.1922060645303,
+  "estimated_condition": 17.286610839739026,
+  "touched_cells": 28756,
+  "step_applied": true,
+  "components": [
+    {
+      "nodes": 6242,
+      "applied": true,
+      "line_fraction": 0.060640856642172954,
+      "direction_max_incremental_gradient": 2.473579832242703
+    }
+  ],
+  "contact_deficit_l1_mm": 16596.846549151487,
+  "emitted_J_min": 0.7991464503664292,
+  "emitted_J_max": 1.1947573204832542,
+  "emitted_q_min": 1.096911779060307e-05,
+  "boundary_area_ratio_min": 0.9384361040529103,
+  "boundary_area_ratio_max": 1.082823252492152,
+  "boundary_normal_cosine_min": 0.9922181208658646,
+  "maximum_step_mm": 0.5416508976314927,
+  "maximum_cumulative_displacement_mm": 0.7055726310595679
+}

@@ -1,0 +1,42 @@
+{
+  "input_npz": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/run-006/candidate.npz",
+  "input_sha256": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+  "baseline_query_pairs_sha256": "448d24c1f8a32f0dce6110b094c0dfd2dafcffe040e93b92edf18f01d15e9952",
+  "baseline_query_nodes_sha256": "d03099b78bbab62b3b0da487416feddb975aa54383baa9c730ceaa990b787ee1",
+  "baseline_edge_audit_sha256": "08b9380fc10e8862fcd7c6fa7a31f030d34fd0345869be5daa1f4f7e7b12f23c",
+  "transfer_rows_sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+  "coarse_reference_sha256": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2",
+  "coarse_faces_sha256": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+  "detail_payload_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+  "separator_rows_sha256": "130a0a8aa68067ec1dd16af9653b2f87af7eb47787aa15f311b24ad8508b9cd8",
+  "separator_targets_sha256": "1425e5f2af00963698c3a2f63569b592878d581fda956af687adb1c1ff87a325",
+  "separator_rows": 25,
+  "separator_min_baseline_slack_m": 0.0,
+  "adapter_sha256": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+  "solver_sha256": "8a097cb5f4062855fe90da5ac4e33395478769751e0be0c8427f78003697ecf4",
+  "embedded_surface_sha256": "31d7f036c9795b90e761e5713250e6a5ddbf07a71b7d3bec9e344e043d0cb60e",
+  "baseline": {
+    "query_rows": 9320,
+    "inside_pairs": 1030,
+    "inside_nodes": 1028,
+    "edge_bank_groups_with_hits": 8618,
+    "inside_signed_face_distance_min_mm": -13.564265704857801,
+    "inside_nearest_distance_max_mm": 13.564313767272042,
+    "note": "signed/nearest distances are source-query diagnostics, not a certified solid-penetration depth",
+    "mapped_skin_baseline": {
+      "mapped_skin_faces": 108987,
+      "mapped_skin_active_vertices": 54551,
+      "mapped_skin_area_ratio_min": 0.9999999999999998,
+      "mapped_skin_area_ratio_max": 1.0000000000000002,
+      "mapped_skin_normal_cosine_min": 0.9999999999999996,
+      "mapped_skin_nonpositive_normal_faces": 0,
+      "mapped_skin_geometry_pass": true,
+      "mapped_skin_native_shader_parity_qualified": false
+    }
+  },
+  "active_set_passes": 0,
+  "iteration_limit": 1,
+  "physical_steps": 0,
+  "geometry_admitted": false,
+  "scope": "one static connected authoring iteration from original refined-037 baseline; full solid self-crossings and native qualification not covered"
+}

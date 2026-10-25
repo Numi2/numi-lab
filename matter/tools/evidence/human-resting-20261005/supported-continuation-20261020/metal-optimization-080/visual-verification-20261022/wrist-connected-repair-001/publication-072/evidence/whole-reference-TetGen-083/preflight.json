@@ -1,0 +1,76 @@
+{
+  "baseline": {
+    "J_max": 1.0,
+    "J_min": 1.0,
+    "J_outside_0_35_2_5": 0,
+    "current035_nonpositive_F32": 0,
+    "current035_q_min": 0.0020690866910758306,
+    "reference_nonpositive_F32": 0,
+    "reference_q_min": 0.0020690866910758306
+  },
+  "dimensions": {
+    "D_faces": 4777,
+    "I_faces": 4777,
+    "O_faces": 4777,
+    "PLC_facets": 14511,
+    "derived_side_cap_faces": 180,
+    "materials": {
+      "1": 14316,
+      "2": 14316
+    },
+    "points": 7233,
+    "tets": 28632
+  },
+  "inputs": {
+    "/Users/n/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/retessellation-001/volume-cavity-001/oid-cavity-replacement.npz": "0feda312f87a58ac8d7f73b9d27d870911d86040396ac0c65c24feeac682ee2b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-remesh-118/tetgen-v1.6.0/tetgen": "95b1df3923d7405b168ba5a3c4b39498ddfc0e7ba94000dedff7ebf93350de07",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/run-004/source-preflight/compiled-skin-fem-tets.csv": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-all-bank-containment-035/source-preflight-003/initial-skin-fem-nodes.csv": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc"
+  },
+  "limitations": "Preflight is based on reference-geometry PLC and frozen current035 positions. It is not an anatomical/material admission.",
+  "material_components": [
+    {
+      "component_cells": 14316,
+      "material": 1,
+      "seed_tet_row": 0
+    },
+    {
+      "component_cells": 14316,
+      "material": 2,
+      "seed_tet_row": 14316
+    }
+  ],
+  "native_tet_row_identity": {
+    "expected_sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "native_array_sha256": "3e8d97f53d34e92f49c87bbcfd22d85701dd6ce50b2315470c38ceed5d50fe75",
+    "native_csv_sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "native_materials_sha256": "1ac7129a355847f9b8dfcab29bf0f43b848009a378eb5dc6aee492799e7e63c1",
+    "row_for_row_after_global_ids": true
+  },
+  "poly_sha256": "652ebfba116ce79f4ce4ae12c977929355d56b36d9a172a8f2761367b95ec764",
+  "region_seeds": [
+    {
+      "component_cells": 14316,
+      "material": 1,
+      "seed_m": [
+        -0.24928415939211845,
+        -0.9465608298778534,
+        0.177974384278059
+      ],
+      "seed_tet_row": 0
+    },
+    {
+      "component_cells": 14316,
+      "material": 2,
+      "seed_m": [
+        -0.2501833066344261,
+        -0.9440889060497284,
+        0.17549914866685867
+      ],
+      "seed_tet_row": 14316
+    }
+  ],
+  "schema": "numi.whole-reference-tetgen-083.preflight.v1",
+  "status": "READY_FOR_ONE_BOUNDED_TETGEN_TRIAL"
+}

@@ -1,0 +1,2676 @@
+{
+  "builder_sha256": "b8d1847d305fec14a01deb1a40146e24c494189c2fb4328e1879037dcb566cb8",
+  "classification": "bounded_topology_counterfactual_not_admitted",
+  "inputs": {
+    "base_cavity_sha256": "0feda312f87a58ac8d7f73b9d27d870911d86040396ac0c65c24feeac682ee2b",
+    "exact_predicate_sha256": "207236eb886e921b21ff281f44637140ea4bf9438b27561954dfe9528be71d27",
+    "skin294_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "source_star_report_sha256": "756b848e9188aaa491f7b6d030d42257c1009c9ec7e99ee27e434705b06c7976",
+    "source_target_preflight_sha256": "8e8a88d44b3846105506abdd398b7050f9710a8a2061aa07dc5ded0d75043bd4",
+    "whole_layer_fit_sha256": "ac66cfd7a1f3139e8f63030c4889fb83000dab701700dc120bc3bbc69f6867d0"
+  },
+  "limitations": [
+    "This does not prove an outer-surface fold: the unbounded shared-apex certificate is a volume-topology obstruction.",
+    "Exact outer self-pair and fixed side-chain checks do not establish tissue/bone clearance, mass conservation, constitutive response, or native/physical admission.",
+    "The 72-cell previous cavity audit remains separate; this 18-face O1245 cavity is a new diagnostic construction.",
+    "Any target nonpositive cells reject the volume candidate; no acceptance floor was relaxed."
+  ],
+  "output": {
+    "path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/source-star-013-run-003/candidate.npz",
+    "sha256": "c3542826ac1d2d3de425f3af0cf16a6593b94cd63c32a5f68cbddb5099e5364d"
+  },
+  "runtime": {
+    "host": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 3.735029935836792
+  },
+  "schema": "numi.d36.o1245-detailed-source-connected-cavity.v1",
+  "surface": {
+    "annulus_trials": [
+      {
+        "boundary_ok": true,
+        "cost": 273.2945210435586,
+        "exact_pair_count": 17,
+        "global_manifold_ok": true,
+        "min_patch_area_m2": 4.519556851141973e-06,
+        "pairs": [
+          [
+            2384,
+            4779
+          ],
+          [
+            2438,
+            4779
+          ],
+          [
+            2462,
+            4781
+          ],
+          [
+            2491,
+            4781
+          ],
+          [
+            2492,
+            4781
+          ],
+          [
+            2493,
+            4781
+          ],
+          [
+            2493,
+            4787
+          ],
+          [
+            2493,
+            4788
+          ],
+          [
+            2494,
+            4780
+          ],
+          [
+            2494,
+            4781
+          ],
+          [
+            2494,
+            4787
+          ],
+          [
+            2494,
+            4788
+          ],
+          [
+            2502,
+            4779
+          ],
+          [
+            2502,
+            4780
+          ],
+          [
+            2503,
+            4779
+          ],
+          [
+            2555,
+            4779
+          ],
+          [
+            4781,
+            4788
+          ]
+        ],
+        "phase": 0
+      },
+      {
+        "boundary_ok": true,
+        "cost": 304.9845512157088,
+        "exact_pair_count": 13,
+        "global_manifold_ok": true,
+        "min_patch_area_m2": 4.519556851141973e-06,
+        "pairs": [
+          [
+            2384,
+            4778
+          ],
+          [
+            2438,
+            4778
+          ],
+          [
+            2462,
+            4779
+          ],
+          [
+            2462,
+            4780
+          ],
+          [
+            2491,
+            4779
+          ],
+          [
+            2492,
+            4779
+          ],
+          [
+            2493,
+            4779
+          ],
+          [
+            2494,
+            4778
+          ],
+          [
+            2494,
+            4779
+          ],
+          [
+            2502,
+            4778
+          ],
+          [
+            2503,
+            4778
+          ],
+          [
+            4780,
+            4787
+          ],
+          [
+            4780,
+            4788
+          ]
+        ],
+        "phase": 1,
+        "prism_compatibility_trials": [
+          {
+            "exact_pair_count": 13,
+            "phase": 1,
+            "search_nodes_by_layer": {
+              "0": 21,
+              "1": 18
+            },
+            "status": "compatible"
+          },
+          {
+            "exact_pair_count": 17,
+            "phase": 0,
+            "search_nodes_by_layer": {
+              "0": 22,
+              "1": 17
+            },
+            "status": "compatible"
+          },
+          {
+            "exact_pair_count": 17,
+            "phase": 2,
+            "search_nodes_by_layer": {
+              "0": 16,
+              "1": 16
+            },
+            "status": "compatible"
+          },
+          {
+            "exact_pair_count": 19,
+            "phase": 5,
+            "search_nodes_by_layer": {
+              "0": 22,
+              "1": 17
+            },
+            "status": "compatible"
+          },
+          {
+            "exact_pair_count": 20,
+            "phase": 4,
+            "search_nodes_by_layer": {
+              "0": 17,
+              "1": 18
+            },
+            "status": "compatible"
+          },
+          {
+            "exact_pair_count": 23,
+            "phase": 3,
+            "search_nodes_by_layer": {
+              "0": 16,
+              "1": 16
+            },
+            "status": "compatible"
+          }
+        ]
+      },
+      {
+        "boundary_ok": true,
+        "cost": 331.1654876938451,
+        "exact_pair_count": 17,
+        "global_manifold_ok": true,
+        "min_patch_area_m2": 4.519556851141973e-06,
+        "pairs": [
+          [
+            2384,
+            4777
+          ],
+          [
+            2438,
+            4777
+          ],
+          [
+            2462,
+            4777
+          ],
+          [
+            2462,
+            4778
+          ],
+          [
+            2462,
+            4779
+          ],
+          [
+            2491,
+            4777
+          ],
+          [
+            2492,
+            2494
+          ],
+          [
+            2492,
+            2502
+          ],
+          [
+            2492,
+            2503
+          ],
+          [
+            2492,
+            2555
+          ],
+          [
+            2492,
+            4777
+          ],
+          [
+            2493,
+            2503
+          ],
+          [
+            2493,
+            2555
+          ],
+          [
+            2494,
+            2503
+          ],
+          [
+            4779,
+            4786
+          ],
+          [
+            4779,
+            4787
+          ],
+          [
+            4779,
+            4788
+          ]
+        ],
+        "phase": 2
+      },
+      {
+        "boundary_ok": true,
+        "cost": 336.6479192986111,
+        "exact_pair_count": 23,
+        "global_manifold_ok": true,
+        "min_patch_area_m2": 4.519556851141973e-06,
+        "pairs": [
+          [
+            2384,
+            2462
+          ],
+          [
+            2384,
+            2655
+          ],
+          [
+            2384,
+            4788
+          ],
+          [
+            2437,
+            2462
+          ],
+          [
+            2437,
+            4788
+          ],
+          [
+            2438,
+            2462
+          ],
+          [
+            2438,
+            2655
+          ],
+          [
+            2438,
+            4788
+          ],
+          [
+            2462,
+            2655
+          ],
+          [
+            2462,
+            4777
+          ],
+          [
+            2462,
+            4778
+          ],
+          [
+            2491,
+            2493
+          ],
+          [
+            2491,
+            2494
+          ],
+          [
+            2491,
+            2502
+          ],
+          [
+            2491,
+            2503
+          ],
+          [
+            2491,
+            2655
+          ],
+          [
+            2492,
+            2502
+          ],
+          [
+            2492,
+            2503
+          ],
+          [
+            2493,
+            2502
+          ],
+          [
+            4778,
+            4785
+          ],
+          [
+            4778,
+            4786
+          ],
+          [
+            4778,
+            4787
+          ],
+          [
+            4778,
+            4788
+          ]
+        ],
+        "phase": 3
+      },
+      {
+        "boundary_ok": true,
+        "cost": 314.742282047977,
+        "exact_pair_count": 20,
+        "global_manifold_ok": true,
+        "min_patch_area_m2": 4.519556851141973e-06,
+        "pairs": [
+          [
+            2444,
+            4777
+          ],
+          [
+            2446,
+            4777
+          ],
+          [
+            2462,
+            2502
+          ],
+          [
+            2462,
+            2503
+          ],
+          [
+            2462,
+            2555
+          ],
+          [
+            2462,
+            2558
+          ],
+          [
+            2462,
+            2618
+          ],
+          [
+            2491,
+            2494
+          ],
+          [
+            2491,
+            2502
+          ],
+          [
+            2492,
+            2494
+          ],
+          [
+            2618,
+            4788
+          ],
+          [
+            2650,
+            4784
+          ],
+          [
+            2650,
+            4785
+          ],
+          [
+            2650,
+            4786
+          ],
+          [
+            2650,
+            4787
+          ],
+          [
+            2650,
+            4788
+          ],
+          [
+            2655,
+            4782
+          ],
+          [
+            2655,
+            4783
+          ],
+          [
+            2655,
+            4784
+          ],
+          [
+            4777,
+            4782
+          ]
+        ],
+        "phase": 4
+      },
+      {
+        "boundary_ok": true,
+        "cost": 269.78880300733385,
+        "exact_pair_count": 19,
+        "global_manifold_ok": true,
+        "min_patch_area_m2": 4.519556851141973e-06,
+        "pairs": [
+          [
+            2384,
+            4780
+          ],
+          [
+            2438,
+            4780
+          ],
+          [
+            2462,
+            2493
+          ],
+          [
+            2462,
+            2494
+          ],
+          [
+            2462,
+            2502
+          ],
+          [
+            2491,
+            2493
+          ],
+          [
+            2491,
+            2502
+          ],
+          [
+            2491,
+            4782
+          ],
+          [
+            2492,
+            4782
+          ],
+          [
+            2493,
+            4782
+          ],
+          [
+            2494,
+            4782
+          ],
+          [
+            2494,
+            4788
+          ],
+          [
+            2502,
+            4781
+          ],
+          [
+            2502,
+            4782
+          ],
+          [
+            2502,
+            4788
+          ],
+          [
+            2503,
+            4780
+          ],
+          [
+            2503,
+            4781
+          ],
+          [
+            2555,
+            4780
+          ],
+          [
+            2558,
+            4780
+          ]
+        ],
+        "phase": 5
+      }
+    ],
+    "center_column": 1245,
+    "center_source_vertex": 25408,
+    "detail_ring_projection": [
+      {
+        "reference_bary": [
+          0.1942130561555795,
+          0.12635342726574894,
+          0.6794335165786716
+        ],
+        "reference_parent_face": 2502,
+        "reference_projection_residual_m": 5.3208679397978275e-05,
+        "source_vertex_id": 24481,
+        "target_bary": [
+          0.26450764370063706,
+          0.05003738352391118,
+          0.6854549727754518
+        ],
+        "target_parent_face": 2502,
+        "target_projection_residual_m": 0.00013518027427725368
+      },
+      {
+        "reference_bary": [
+          0.19688200090419833,
+          0.7315081865598192,
+          0.07160981253598248
+        ],
+        "reference_parent_face": 2655,
+        "reference_projection_residual_m": 0.0005123564232123099,
+        "source_vertex_id": 25405,
+        "target_bary": [
+          0.19836675516446933,
+          0.7308420554151405,
+          0.07079118942039021
+        ],
+        "target_parent_face": 2655,
+        "target_projection_residual_m": 0.0005412128859777459
+      },
+      {
+        "reference_bary": [
+          0.643124509683272,
+          0.11080764519058399,
+          0.2460678451261441
+        ],
+        "reference_parent_face": 2650,
+        "reference_projection_residual_m": 0.0008746425858513902,
+        "source_vertex_id": 25328,
+        "target_bary": [
+          0.6494912307716141,
+          0.10563954804188785,
+          0.24486922118649807
+        ],
+        "target_parent_face": 2650,
+        "target_projection_residual_m": 0.0009847276305647702
+      },
+      {
+        "reference_bary": [
+          0.5768322555088957,
+          0.2659371293628324,
+          0.15723061512827183
+        ],
+        "reference_parent_face": 2650,
+        "reference_projection_residual_m": 0.00026594781937820704,
+        "source_vertex_id": 25327,
+        "target_bary": [
+          0.5799517276516553,
+          0.263001945989411,
+          0.1570463263589337
+        ],
+        "target_parent_face": 2650,
+        "target_projection_residual_m": 0.00033643106512898076
+      },
+      {
+        "reference_bary": [
+          0.04970619267618803,
+          0.23826524802019963,
+          0.7120285593036123
+        ],
+        "reference_parent_face": 2494,
+        "reference_projection_residual_m": 0.0007627411843470907,
+        "source_vertex_id": 25330,
+        "target_bary": [
+          0.049705306669241334,
+          0.23827018839994665,
+          0.712024504930812
+        ],
+        "target_parent_face": 2494,
+        "target_projection_residual_m": 0.0007627105077865137
+      },
+      {
+        "reference_bary": [
+          0.0005913876806604712,
+          0.2708423409968756,
+          0.7285662713224639
+        ],
+        "reference_parent_face": 2384,
+        "reference_projection_residual_m": 0.00031954608036742043,
+        "source_vertex_id": 24482,
+        "target_bary": [
+          0.0005888823573212409,
+          0.2708445885051525,
+          0.7285665291375263
+        ],
+        "target_parent_face": 2384,
+        "target_projection_residual_m": 0.0003195960048480777
+      }
+    ],
+    "detail_ring_source_vertex_ids": [
+      24481,
+      25405,
+      25328,
+      25327,
+      25330,
+      24482
+    ],
+    "detail_source_face_ids": [
+      99440,
+      99501,
+      99505,
+      100144,
+      100197,
+      100201
+    ],
+    "exact_emitted_float32_local_self_pairs": 13,
+    "exact_pairs": [
+      [
+        2384,
+        4778
+      ],
+      [
+        2438,
+        4778
+      ],
+      [
+        2462,
+        4779
+      ],
+      [
+        2462,
+        4780
+      ],
+      [
+        2491,
+        4779
+      ],
+      [
+        2492,
+        4779
+      ],
+      [
+        2493,
+        4779
+      ],
+      [
+        2494,
+        4778
+      ],
+      [
+        2494,
+        4779
+      ],
+      [
+        2502,
+        4778
+      ],
+      [
+        2503,
+        4778
+      ],
+      [
+        4780,
+        4787
+      ],
+      [
+        4780,
+        4788
+      ]
+    ],
+    "global_boundary_unchanged": true,
+    "global_nonmanifold_edges": 0,
+    "new_corner_ancestry": "Six source-star faces retain exact NHSKIN294 face IDs. Annulus corners have direct NHSKIN294 vertex identities; no parent face is asserted.",
+    "new_faces": 30,
+    "old_face_ids": [
+      2384,
+      2385,
+      2437,
+      2438,
+      2444,
+      2446,
+      2462,
+      2491,
+      2492,
+      2493,
+      2494,
+      2502,
+      2503,
+      2555,
+      2558,
+      2618,
+      2650,
+      2655
+    ],
+    "old_faces": 18,
+    "outside_face_rows_unchanged": true,
+    "selected_phase": 1
+  },
+  "volume": {
+    "added_cells": 72,
+    "added_nodes": 18,
+    "cavity_volume_by_layer": {
+      "0": {
+        "material_id": 1,
+        "new_reference_m3": 1.095617651093862e-06,
+        "new_target_m3": 1.1267176910699965e-06,
+        "old_reference_m3": 1.030973348035841e-06,
+        "old_target_m3": 1.049619841959335e-06,
+        "reference_delta_m3": 6.464430305802098e-08,
+        "target_delta_m3": 7.709784911066147e-08
+      },
+      "1": {
+        "material_id": 2,
+        "new_reference_m3": 9.104728333184816e-07,
+        "new_target_m3": 9.104428793646266e-07,
+        "old_reference_m3": 8.78062459694993e-07,
+        "old_target_m3": 8.78062459694993e-07,
+        "reference_delta_m3": 3.2410373623488604e-08,
+        "target_delta_m3": 3.238041966963366e-08
+      }
+    },
+    "cell_row_map": "Construction row slots only; not conservative material ancestry.",
+    "exact_fixed_side_boundary_preserved": true,
+    "full_reference_nonpositive_cells": 29,
+    "full_target_nonpositive_cells": 155,
+    "local_determinant_lp": {
+      "accepted_any": true,
+      "displacement_by_node_m": {
+        "3656": {
+          "current": [
+            0.00039430236848564393,
+            0.00017671930551113602,
+            0.0009749291337952382
+          ],
+          "reference": [
+            0.00039430236848564393,
+            0.00017671930551113602,
+            0.0009749291337952382
+          ]
+        },
+        "6067": {
+          "current": [
+            0.0015710900958426782,
+            0.00018476894709670844,
+            0.0013556660225373107
+          ],
+          "reference": [
+            0.0015710900958426782,
+            0.00018476894709670844,
+            0.0013556660225373107
+          ]
+        },
+        "7239": {
+          "current": [
+            0.0036930247324203636,
+            0.0033540545418781764,
+            0.004651207960603337
+          ],
+          "reference": [
+            0.0036930247324203566,
+            0.0033540545418781764,
+            0.004651207960603337
+          ]
+        },
+        "7240": {
+          "current": [
+            -0.0011580201230748863,
+            0.003630040941175583,
+            0.0027224765095677783
+          ],
+          "reference": [
+            -0.0011580201230748793,
+            0.003630040941175583,
+            0.0027224765095677783
+          ]
+        },
+        "7241": {
+          "current": [
+            -0.0031777217950468284,
+            0.0022635561712156527,
+            0.0026689960422918713
+          ],
+          "reference": [
+            -0.0031777217950468215,
+            0.0022635561712156527,
+            0.0026689960422918713
+          ]
+        },
+        "7242": {
+          "current": [
+            -0.002097226043105277,
+            -0.0006672785368327105,
+            0.0006650314485757147
+          ],
+          "reference": [
+            -0.002097226043105277,
+            -0.0006672785368327105,
+            0.0006650314485757147
+          ]
+        },
+        "7243": {
+          "current": [
+            0.001028100470700545,
+            -0.0020635069773211057,
+            0.0005197654830010057
+          ],
+          "reference": [
+            0.001028100470700545,
+            -0.0020635069773211057,
+            0.0005197654830010057
+          ]
+        },
+        "7244": {
+          "current": [
+            0.0037261588025001915,
+            -0.0007956322525975446,
+            0.0015342860013792259
+          ],
+          "reference": [
+            0.0037261588025001915,
+            -0.0007956322525975446,
+            0.0015342860013792259
+          ]
+        },
+        "7245": {
+          "current": [
+            -0.00041386818758041427,
+            0.0022500519452430534,
+            0.0015904200042829164
+          ],
+          "reference": [
+            -0.00041386818758040733,
+            0.0022500519452430534,
+            0.0015904200042829164
+          ]
+        },
+        "7246": {
+          "current": [
+            -0.0018748245166520933,
+            0.004259068073083627,
+            0.002833993801243523
+          ],
+          "reference": [
+            -0.0018748245166520933,
+            0.004259068073083627,
+            0.002833993801243523
+          ]
+        },
+        "7247": {
+          "current": [
+            -0.00352130114277982,
+            0.0013657246232254006,
+            -0.00014486375059907797
+          ],
+          "reference": [
+            -0.00352130114277982,
+            0.0013657246232254006,
+            -0.00014486375059907797
+          ]
+        },
+        "7248": {
+          "current": [
+            -0.002226799708363175,
+            -0.0009723666611327619,
+            9.537825022240543e-05
+          ],
+          "reference": [
+            -0.002226799708363175,
+            -0.0009723666611327619,
+            9.537825022240543e-05
+          ]
+        },
+        "7249": {
+          "current": [
+            0.006082392337178381,
+            -0.0029553696122634754,
+            0.0021381196169932004
+          ],
+          "reference": [
+            0.006082392337178381,
+            -0.0029553696122634754,
+            0.0021381196169932004
+          ]
+        },
+        "7250": {
+          "current": [
+            0.00352674849766485,
+            -0.0012142988952684453,
+            0.0024945447707013513
+          ],
+          "reference": [
+            0.00352674849766485,
+            -0.0012142988952684453,
+            0.0024945447707013513
+          ]
+        }
+      },
+      "emitted_f32_global_hinge_after": 1.4788535104439697,
+      "emitted_f32_global_hinge_before": 8.842364862204787,
+      "free_node_ids": [
+        7239,
+        7240,
+        7241,
+        7242,
+        7243,
+        7244,
+        7245,
+        7246,
+        7247,
+        7248,
+        7249,
+        7250,
+        3656,
+        6067
+      ],
+      "steps": [
+        {
+          "delta_m": [
+            -0.002521835684144701,
+            0.0033893955758076528,
+            -2.03586654745665e-06
+          ],
+          "local_hinge_after": 0.5865030166102687,
+          "local_hinge_before": 1.0578597719626166,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7239,
+          "phase1_slack": 0.5865030166092685,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -0.004,
+            0.0038638655937210742,
+            0.000520408732325222
+          ],
+          "local_hinge_after": 0.13304564219832837,
+          "local_hinge_before": 0.834643755242586,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7240,
+          "phase1_slack": 0.13304564219732837,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -0.0037173446632812225,
+            0.0014870320071574783,
+            -0.0005162053785242803
+          ],
+          "local_hinge_after": 0.0021226357548067773,
+          "local_hinge_before": 0.6376801728475603,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7241,
+          "phase1_slack": 0.0021226357538067756,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -0.004,
+            -0.00012315314708771143,
+            -0.00012492248956821186
+          ],
+          "local_hinge_after": 0.703364056169854,
+          "local_hinge_before": 2.5741618939442814,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7242,
+          "phase1_slack": 0.7033640561688541,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.004,
+            -0.0032694440894062023,
+            -0.0010780420771525283
+          ],
+          "local_hinge_after": 0.5863559403320682,
+          "local_hinge_before": 1.467493343260229,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7243,
+          "phase1_slack": 0.5863559403310681,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.004,
+            -0.0021476982080535093,
+            4.719921468991464e-05
+          ],
+          "local_hinge_after": 0.250297076383192,
+          "local_hinge_before": 0.7753637368585654,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7244,
+          "phase1_slack": 0.2502970763821919,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -0.004,
+            0.0017994440931229608,
+            -0.00046151274838340545
+          ],
+          "local_hinge_after": 0.03490799881575505,
+          "local_hinge_before": 0.0571880530061286,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7245,
+          "phase1_slack": 0.03490799881475505,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -0.0036825774787962386,
+            0.003915212648264795,
+            0.00047273058702120333
+          ],
+          "local_hinge_after": 0.009153662613637845,
+          "local_hinge_before": 0.22448726046898038,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7246,
+          "phase1_slack": 0.00915366261263785,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -0.0031274201920794193,
+            0.0013637717877814294,
+            0.00013791002222500416
+          ],
+          "local_hinge_after": 0.0009684416723814392,
+          "local_hinge_before": 0.2519507110761928,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7247,
+          "phase1_slack": 0.0009684416713814257,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -0.0022553189971308858,
+            -0.0010134827393329898,
+            -5.6209261459525014e-05
+          ],
+          "local_hinge_after": 0.006679998129994668,
+          "local_hinge_before": 0.12292031070505623,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7248,
+          "phase1_slack": 0.0066799981289946695,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0021053598664719287,
+            -0.0026889474065044695,
+            -0.0004483148608956043
+          ],
+          "local_hinge_after": 0.07139199365598362,
+          "local_hinge_before": 0.15258072154771954,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7249,
+          "phase1_slack": 0.07139199365498361,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0038030876228396866,
+            -0.0009663215803982216,
+            0.001851766765391873
+          ],
+          "local_hinge_after": 0.011318299574944454,
+          "local_hinge_before": 0.06644896332854017,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7250,
+          "phase1_slack": 0.011318299573944462,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -0.0001018530526669927,
+            0.0005540794793434187,
+            0.0002783284303010201
+          ],
+          "local_hinge_after": 0.5270446543527856,
+          "local_hinge_before": 0.5914349390062521,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 3656,
+          "phase1_slack": 0.5270446543517856,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0006773611710582694,
+            -0.00033607600310955015,
+            0.0002874178625476917
+          ],
+          "local_hinge_after": 0.0026642677098823704,
+          "local_hinge_before": 0.004724140037654204,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 6067,
+          "phase1_slack": 0.0026642677088822113,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0017742248824542653,
+            -0.00227167421584109,
+            0.0015171936678140682
+          ],
+          "local_hinge_after": 0.010823867673954057,
+          "local_hinge_before": 0.07057127499241626,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7239,
+          "phase1_slack": 0.010823867672954051,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_hinge_after": 0.006464008834335319,
+          "local_hinge_before": 0.022990797163452096,
+          "message": "emitted merit 2.1356149604322003 did not improve 1.9759722927253254",
+          "node_id": 7240,
+          "phase1_slack": 0.0064640088333353315,
+          "status": "rejected_emitted_merit"
+        },
+        {
+          "delta_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_hinge_after": 0.12588641143281398,
+          "local_hinge_before": 0.035713204353984715,
+          "message": "emitted merit 2.0239872028026564 did not improve 1.9759722927253254",
+          "node_id": 7241,
+          "phase1_slack": 0.12588641143181395,
+          "status": "rejected_emitted_merit"
+        },
+        {
+          "delta_m": [
+            0.0018745429414679614,
+            -0.0005958388025296931,
+            0.0005875089933567172
+          ],
+          "local_hinge_after": 0.02409772506258088,
+          "local_hinge_before": 0.08575343959487731,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7242,
+          "phase1_slack": 0.024097725061580925,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -0.002619546843462609,
+            0.001036356737289802,
+            0.0014533154327495093
+          ],
+          "local_hinge_after": 0.0413887149834616,
+          "local_hinge_before": 0.1424872006986484,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7243,
+          "phase1_slack": 0.041388714982461584,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_hinge_after": 0.16306036575108335,
+          "local_hinge_before": 0.0983269953846884,
+          "message": "emitted merit 1.9559566174864984 did not improve 1.8511390844190398",
+          "node_id": 7244,
+          "phase1_slack": 0.16306036575008326,
+          "status": "rejected_emitted_merit"
+        },
+        {
+          "delta_m": [
+            0.0035861318124195867,
+            0.00045060785212008316,
+            0.002051932752666322
+          ],
+          "local_hinge_after": 3.489075319867128e-05,
+          "local_hinge_before": 0.009968127686788727,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7245,
+          "phase1_slack": 3.489075219867167e-05,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -0.0,
+            -0.0,
+            3.399655059044665e-05
+          ],
+          "local_hinge_after": 1.0000000027804608e-12,
+          "local_hinge_before": 3.4890753198676605e-05,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7246,
+          "phase1_slack": 0.0,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -0.00039388095070040283,
+            1.9528354439656185e-06,
+            -0.0002827737728240595
+          ],
+          "local_hinge_after": 0.0015668440041118068,
+          "local_hinge_before": 0.02100191217541805,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7247,
+          "phase1_slack": 0.0015668440031118066,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -1.369747867951205e-05,
+            -1.5163075123849004e-05,
+            -4.746271476665496e-05
+          ],
+          "local_hinge_after": 0.0006968943300608297,
+          "local_hinge_before": 0.0007255703934173182,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7248,
+          "phase1_slack": 0.0006968943290608298,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.003977032470706453,
+            -0.0002664222057589993,
+            0.002586434477888802
+          ],
+          "local_hinge_after": 0.04635264259696901,
+          "local_hinge_before": 0.05477315855168289,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7249,
+          "phase1_slack": 0.046352638886886496,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.00015201651557408477,
+            -0.0005016297931603892,
+            -6.790550841576102e-05
+          ],
+          "local_hinge_after": 0.006427066584377364,
+          "local_hinge_before": 0.010771833319457712,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7250,
+          "phase1_slack": 0.006426900721996675,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0003609372358877424,
+            -0.0009596255364656405,
+            -0.00016443998880046203
+          ],
+          "local_hinge_after": 0.45734287343335606,
+          "local_hinge_before": 0.49523795425366424,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 3656,
+          "phase1_slack": 0.45734287343235597,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -0.0,
+            -0.0,
+            -0.0
+          ],
+          "local_hinge_after": 0.0,
+          "local_hinge_before": 0.0,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 6067,
+          "phase1_slack": 0.0,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0004406355341107894,
+            0.0012841132651835018,
+            0.0004987417619870476
+          ],
+          "local_hinge_after": 0.007025294619203271,
+          "local_hinge_before": 0.008663500593874465,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7239,
+          "phase1_slack": 0.007025294618203275,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0024733942004817027,
+            -8.737296704999118e-06,
+            0.0014406721181099977
+          ],
+          "local_hinge_after": 0.0070211810234389336,
+          "local_hinge_before": 0.007286281450771009,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7240,
+          "phase1_slack": 0.007021181022438934,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0005396228682343981,
+            0.0007765241640581767,
+            0.003185201420816153
+          ],
+          "local_hinge_after": 0.06933104369494393,
+          "local_hinge_before": 0.106705775167654,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7241,
+          "phase1_slack": 0.06933104369394391,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            2.971932565232068e-05,
+            3.0095909777811808e-05,
+            0.00021041773821710928
+          ],
+          "local_hinge_after": 0.007826176123603625,
+          "local_hinge_before": 0.007388484218470041,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7242,
+          "phase1_slack": 0.007826176122603624,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_hinge_after": 0.034872685186695826,
+          "local_hinge_before": 0.035182971201758347,
+          "message": "emitted merit 1.7064551821706071 did not improve 1.7058648882228018",
+          "node_id": 7243,
+          "phase1_slack": 0.034872685185695924,
+          "status": "rejected_emitted_merit"
+        },
+        {
+          "delta_m": [
+            -0.0003182707147693582,
+            0.0011588148713894486,
+            0.0011677349917476971
+          ],
+          "local_hinge_after": 0.09525565144570906,
+          "local_hinge_before": 0.12335087454780219,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7244,
+          "phase1_slack": 0.09525565144470914,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_hinge_after": 1.0000000095567244e-12,
+          "local_hinge_before": 0.0,
+          "message": "emitted merit 1.6852598248321879 did not improve 1.6852598248311879",
+          "node_id": 7245,
+          "phase1_slack": 0.0,
+          "status": "rejected_emitted_merit"
+        },
+        {
+          "delta_m": [
+            0.001285259979857728,
+            0.00041203924938126195,
+            0.0016187090244266724
+          ],
+          "local_hinge_after": 0.0005109354303797435,
+          "local_hinge_before": 0.0014452684237633707,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7246,
+          "phase1_slack": 0.0005109354293797439,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_hinge_after": 0.10168852894850697,
+          "local_hinge_before": 0.0016173092946717524,
+          "message": "emitted merit 1.7841361918298566 did not improve 1.6842615927163589",
+          "node_id": 7247,
+          "phase1_slack": 0.1016885289475069,
+          "status": "rejected_emitted_merit"
+        },
+        {
+          "delta_m": [
+            6.825292742395286e-05,
+            0.00010250353741893995,
+            0.0003826512765311055
+          ],
+          "local_hinge_after": 0.0004358245645198223,
+          "local_hinge_before": 0.002056782057694784,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7248,
+          "phase1_slack": 0.00043582456351973936,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_hinge_after": 0.014759697788324928,
+          "local_hinge_before": 0.01838248121956368,
+          "message": "emitted merit 1.6865787526082561 did not improve 1.6826406501052638",
+          "node_id": 7249,
+          "phase1_slack": 0.014759697787324928,
+          "status": "rejected_emitted_merit"
+        },
+        {
+          "delta_m": [
+            -0.0005447189928062302,
+            8.22065093343327e-06,
+            0.0002713273273022007
+          ],
+          "local_hinge_after": 0.0033492078150589156,
+          "local_hinge_before": 0.007114282521472315,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7250,
+          "phase1_slack": 0.003349207814058916,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.00011776370384513492,
+            0.0005987886981875632,
+            0.000774328411745621
+          ],
+          "local_hinge_after": 0.2956330386079245,
+          "local_hinge_before": 0.3918171159277385,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 3656,
+          "phase1_slack": 0.2956330386069243,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -0.0,
+            -0.0,
+            0.00038829249915120473
+          ],
+          "local_hinge_after": 0.0,
+          "local_hinge_before": 3.364316770176195e-06,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 6067,
+          "phase1_slack": 0.0,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.004,
+            0.0009522199167281554,
+            0.0026373083973496468
+          ],
+          "local_hinge_after": 0.006062299648726682,
+          "local_hinge_before": 0.07613991754931917,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7239,
+          "phase1_slack": 0.0060622996477266745,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.00036858567644341495,
+            -0.00022508735584049225,
+            0.0007613956591325426
+          ],
+          "local_hinge_after": 0.009708330998165607,
+          "local_hinge_before": 0.01674916326899996,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7240,
+          "phase1_slack": 0.009708330997165483,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_hinge_after": 0.008548119254694274,
+          "local_hinge_before": 0.011316375115623046,
+          "message": "emitted merit 1.5486729949562024 did not improve 1.5312366603315248",
+          "node_id": 7241,
+          "phase1_slack": 0.008548119253694277,
+          "status": "rejected_emitted_merit"
+        },
+        {
+          "delta_m": [
+            -1.4883102255551887e-06,
+            2.1617503006884453e-05,
+            -7.972793429902198e-06
+          ],
+          "local_hinge_after": 0.006140901654360957,
+          "local_hinge_before": 0.006229875983762038,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7242,
+          "phase1_slack": 0.006140901653360991,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            -0.0003523526858368496,
+            0.00016958037479530226,
+            0.00014449212740402282
+          ],
+          "local_hinge_after": 0.027555233373829577,
+          "local_hinge_before": 0.029639067313267833,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7243,
+          "phase1_slack": 0.027555233372829443,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            4.442951726955129e-05,
+            0.00019325108406653777,
+            0.00031935179494164284
+          ],
+          "local_hinge_after": 0.050365163093494786,
+          "local_hinge_before": 0.07519320390453377,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7244,
+          "phase1_slack": 0.05036516309249478,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_hinge_after": 9.999997791637627e-13,
+          "local_hinge_before": 0.0,
+          "message": "emitted merit 1.5050752717046951 did not improve 1.5050752689189539",
+          "node_id": 7245,
+          "phase1_slack": 0.0,
+          "status": "rejected_emitted_merit"
+        },
+        {
+          "delta_m": [
+            0.0005224929822864171,
+            -6.818382456243269e-05,
+            0.0007085576392051894
+          ],
+          "local_hinge_after": 0.001304675623500353,
+          "local_hinge_before": 0.0044917828608459056,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7246,
+          "phase1_slack": 0.0013046756225003533,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_hinge_after": 0.011597826334882315,
+          "local_hinge_before": 0.002989010162408572,
+          "message": "emitted merit 1.509898726926663 did not improve 1.5018878260302171",
+          "node_id": 7247,
+          "phase1_slack": 0.011597826333882316,
+          "status": "rejected_emitted_merit"
+        },
+        {
+          "delta_m": [
+            -2.6036159976735156e-05,
+            -4.6224384094872346e-05,
+            -0.00018360105008252282
+          ],
+          "local_hinge_after": 0.0006736557047105518,
+          "local_hinge_before": 0.0007494609099716141,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7248,
+          "phase1_slack": 0.0006736557037105517,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_hinge_after": 0.012403767455615722,
+          "local_hinge_before": 0.016391606345542504,
+          "message": "emitted merit 1.5047331776151174 did not improve 1.501812022684595",
+          "node_id": 7249,
+          "phase1_slack": 0.012403767454615721,
+          "status": "rejected_emitted_merit"
+        },
+        {
+          "delta_m": [
+            0.00011636335205731272,
+            0.0002454318273567491,
+            0.0004393561864230451
+          ],
+          "local_hinge_after": 0.0029487264618497273,
+          "local_hinge_before": 0.005517132927949879,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 7250,
+          "phase1_slack": 0.0029487264608497256,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            1.7454481419760365e-05,
+            -1.6523335554186373e-05,
+            8.671228054908351e-05
+          ],
+          "local_hinge_after": 0.19952655094257146,
+          "local_hinge_before": 0.2162875417882109,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 3656,
+          "phase1_slack": 0.19952655094157223,
+          "status": "optimal"
+        },
+        {
+          "delta_m": [
+            0.0008937289247844091,
+            0.0005208449502062703,
+            0.0006799556608384292
+          ],
+          "local_hinge_after": 1.0000016803292128e-12,
+          "local_hinge_before": 0.006715139263608247,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "node_id": 6067,
+          "phase1_slack": 0.0,
+          "status": "optimal"
+        }
+      ],
+      "sweeps": 4
+    },
+    "new_prism_cells_per_layer": {
+      "0": 90,
+      "1": 90
+    },
+    "old_cells_per_material_layer": {
+      "0": 54,
+      "1": 54
+    },
+    "outside_tet_rows_bitwise_unchanged": true,
+    "prism_order_solutions": {
+      "0": {
+        "orders": [
+          [
+            2416,
+            1245,
+            2415
+          ],
+          [
+            2412,
+            2411,
+            1245
+          ],
+          [
+            2411,
+            2416,
+            1245
+          ],
+          [
+            1245,
+            2415,
+            2414
+          ],
+          [
+            2412,
+            2413,
+            1245
+          ],
+          [
+            2413,
+            1245,
+            2414
+          ],
+          [
+            1093,
+            2412,
+            1121
+          ],
+          [
+            2412,
+            1121,
+            1122
+          ],
+          [
+            2412,
+            1122,
+            1161
+          ],
+          [
+            2412,
+            1159,
+            1161
+          ],
+          [
+            2412,
+            1159,
+            2413
+          ],
+          [
+            1159,
+            2413,
+            2414
+          ],
+          [
+            1159,
+            2415,
+            2414
+          ],
+          [
+            1157,
+            1159,
+            2415
+          ],
+          [
+            2416,
+            1157,
+            2415
+          ],
+          [
+            2416,
+            1157,
+            1158
+          ],
+          [
+            1118,
+            2416,
+            1158
+          ],
+          [
+            1118,
+            1160,
+            2416
+          ],
+          [
+            1160,
+            2416,
+            1243
+          ],
+          [
+            2416,
+            1243,
+            1282
+          ],
+          [
+            2416,
+            1247,
+            1282
+          ],
+          [
+            2416,
+            1222,
+            1247
+          ],
+          [
+            1195,
+            2416,
+            1222
+          ],
+          [
+            1194,
+            1195,
+            2416
+          ],
+          [
+            1166,
+            1194,
+            2416
+          ],
+          [
+            1165,
+            1166,
+            2416
+          ],
+          [
+            1131,
+            1165,
+            2416
+          ],
+          [
+            1093,
+            1131,
+            2416
+          ],
+          [
+            1093,
+            2411,
+            2416
+          ],
+          [
+            1093,
+            2412,
+            2411
+          ]
+        ],
+        "reference_determinants": [
+          [
+            -2.2702537859182192e-08,
+            -2.168204909881466e-08,
+            -2.589770302821625e-08
+          ],
+          [
+            -2.0231265998755487e-08,
+            -2.2042146784507807e-08,
+            -1.9226614879226347e-08
+          ],
+          [
+            -1.6296769785394488e-08,
+            -2.1925172256796813e-08,
+            -1.9903556453751895e-08
+          ],
+          [
+            -1.1374737644766396e-08,
+            -1.1798735428354827e-08,
+            -1.219133090059135e-08
+          ],
+          [
+            -1.2657256304581928e-08,
+            -1.478443374961465e-08,
+            -1.4715663795964506e-08
+          ],
+          [
+            -1.1491047029271249e-08,
+            -1.3055170915883315e-08,
+            -1.3209820006510156e-08
+          ],
+          [
+            5.828717153927189e-07,
+            2.686361915012127e-07,
+            5.705218208732363e-07
+          ],
+          [
+            1.5033255136617773e-07,
+            1.4587627740908414e-07,
+            4.283233312421031e-08
+          ],
+          [
+            7.282241481506315e-08,
+            6.488945393347959e-08,
+            2.50028816648478e-08
+          ],
+          [
+            8.532854317527734e-08,
+            6.23589187711177e-08,
+            4.164504321935026e-08
+          ],
+          [
+            7.300009924489891e-08,
+            9.281965155784945e-08,
+            7.067442881008572e-08
+          ],
+          [
+            6.651359930863902e-08,
+            6.598825218831836e-08,
+            8.285853723718733e-08
+          ],
+          [
+            3.1743848246342434e-08,
+            2.819570729110736e-08,
+            3.132645502204405e-08
+          ],
+          [
+            4.489860355918636e-08,
+            5.384567593307866e-08,
+            4.217050015251852e-08
+          ],
+          [
+            -8.978000729974546e-08,
+            -1.0238584992527977e-07,
+            -9.891252122457155e-08
+          ],
+          [
+            3.609011951183142e-08,
+            2.9247076234886135e-08,
+            2.91599498725675e-08
+          ],
+          [
+            -2.949102551456884e-09,
+            1.1943129215039849e-08,
+            1.2154513711506468e-09
+          ],
+          [
+            9.611618393889945e-08,
+            9.755348094776944e-08,
+            1.1239916781224932e-07
+          ],
+          [
+            3.6099980242419663e-07,
+            3.7677504883040696e-07,
+            3.9989575358011156e-07
+          ],
+          [
+            3.7843671510728894e-07,
+            5.288056910052315e-07,
+            4.894948348330186e-07
+          ],
+          [
+            3.202656306689991e-07,
+            2.881047698192267e-07,
+            2.8437228925596223e-07
+          ],
+          [
+            8.824468215244762e-08,
+            7.135519928928335e-08,
+            5.425137690849194e-08
+          ],
+          [
+            3.994760974485961e-08,
+            5.303028519711312e-08,
+            3.513790418599009e-08
+          ],
+          [
+            3.246039104590914e-08,
+            2.301836635705419e-08,
+            2.734811838628411e-08
+          ],
+          [
+            2.09629066539639e-08,
+            1.5368277031029988e-08,
+            2.2031475322083778e-08
+          ],
+          [
+            7.986355699039066e-08,
+            8.433468858551237e-08,
+            1.4079234216247408e-07
+          ],
+          [
+            3.4820145341607005e-08,
+            6.187423117419465e-08,
+            8.099624683946064e-08
+          ],
+          [
+            4.4021195156878125e-08,
+            9.030523181039347e-08,
+            8.892502619661421e-08
+          ],
+          [
+            -1.0604166231547308e-07,
+            -9.617225255083931e-08,
+            -1.9022938822113625e-07
+          ],
+          [
+            -7.3617373829825e-08,
+            -8.248556957272437e-08,
+            -1.0538611240940534e-07
+          ]
+        ],
+        "search_nodes": 21,
+        "target_determinants": [
+          [
+            -2.2703799027267805e-08,
+            -2.1683297995787416e-08,
+            -2.5898931519035274e-08
+          ],
+          [
+            -2.0231739136523128e-08,
+            -2.1849307181001506e-08,
+            -1.903804950707575e-08
+          ],
+          [
+            -1.629753876173489e-08,
+            -2.1925919030417643e-08,
+            -1.8943190008580802e-08
+          ],
+          [
+            -1.1879550520145895e-08,
+            -1.2091993722452573e-08,
+            -1.2547049461154934e-08
+          ],
+          [
+            -1.265783586412738e-08,
+            -1.6279370163713216e-08,
+            -1.5535886982186488e-08
+          ],
+          [
+            -1.2042015473665292e-08,
+            -1.333926467203666e-08,
+            -1.4549950914653402e-08
+          ],
+          [
+            5.828847281507649e-07,
+            2.7524250213862435e-07,
+            5.712987443826461e-07
+          ],
+          [
+            1.5033619532612886e-07,
+            1.45879713783724e-07,
+            4.4226417575024065e-08
+          ],
+          [
+            7.282418765923438e-08,
+            6.489142609613291e-08,
+            2.576474368720414e-08
+          ],
+          [
+            8.533011293759564e-08,
+            6.23604833563423e-08,
+            4.2618192849203515e-08
+          ],
+          [
+            7.82390685325135e-08,
+            9.38411926503918e-08,
+            7.355537200726757e-08
+          ],
+          [
+            6.900030672226233e-08,
+            6.963969575332203e-08,
+            8.3095703639911e-08
+          ],
+          [
+            3.293536172007794e-08,
+            2.7873220141732986e-08,
+            3.127753918735093e-08
+          ],
+          [
+            4.4900279762476644e-08,
+            5.384737439985955e-08,
+            4.217217203586024e-08
+          ],
+          [
+            -8.978361225866888e-08,
+            -1.0238939034148548e-07,
+            -9.891616102943828e-08
+          ],
+          [
+            3.60908588924989e-08,
+            2.9247991485522543e-08,
+            2.9160943988094407e-08
+          ],
+          [
+            -1.7637990045779738e-08,
+            -4.590974199284335e-09,
+            -5.104522985207432e-09
+          ],
+          [
+            1.1296495679071787e-07,
+            1.1427617797027156e-07,
+            1.118920887836307e-07
+          ],
+          [
+            3.610039135199624e-07,
+            3.767804934108191e-07,
+            3.998997470403236e-07
+          ],
+          [
+            5.093945054127404e-07,
+            5.288109631106445e-07,
+            4.895017855184568e-07
+          ],
+          [
+            4.3165767861464494e-07,
+            2.8812071449463856e-07,
+            2.843886066760376e-07
+          ],
+          [
+            8.825063150774388e-08,
+            7.136177112717481e-08,
+            5.425831105678027e-08
+          ],
+          [
+            3.9950334663637004e-08,
+            5.303366974511332e-08,
+            3.514063322626225e-08
+          ],
+          [
+            3.536227013510925e-08,
+            2.4922264796282784e-08,
+            2.7473506836980234e-08
+          ],
+          [
+            3.341997517829823e-08,
+            2.826147662334287e-08,
+            1.2695166320714391e-08
+          ],
+          [
+            5.4126355974352834e-08,
+            3.6029938985369196e-08,
+            1.4079654772511424e-07
+          ],
+          [
+            3.884246278708445e-08,
+            6.827804833792186e-08,
+            7.890369269713849e-08
+          ],
+          [
+            3.96526263869322e-08,
+            8.050891238672812e-08,
+            8.892801462103031e-08
+          ],
+          [
+            -1.0604635217272594e-07,
+            -9.185728862388541e-08,
+            -2.059722200291242e-07
+          ],
+          [
+            -7.320238666064195e-08,
+            -7.352655124360087e-08,
+            -9.191968911301155e-08
+          ]
+        ]
+      },
+      "1": {
+        "orders": [
+          [
+            2416,
+            2415,
+            1245
+          ],
+          [
+            2411,
+            1245,
+            2412
+          ],
+          [
+            2411,
+            2416,
+            1245
+          ],
+          [
+            2415,
+            1245,
+            2414
+          ],
+          [
+            1245,
+            2412,
+            2413
+          ],
+          [
+            1245,
+            2414,
+            2413
+          ],
+          [
+            1093,
+            2412,
+            1121
+          ],
+          [
+            2412,
+            1121,
+            1122
+          ],
+          [
+            2412,
+            1122,
+            1161
+          ],
+          [
+            2412,
+            1159,
+            1161
+          ],
+          [
+            2412,
+            1159,
+            2413
+          ],
+          [
+            1159,
+            2414,
+            2413
+          ],
+          [
+            1159,
+            2415,
+            2414
+          ],
+          [
+            1157,
+            1159,
+            2415
+          ],
+          [
+            2416,
+            1157,
+            2415
+          ],
+          [
+            2416,
+            1157,
+            1158
+          ],
+          [
+            1118,
+            2416,
+            1158
+          ],
+          [
+            1118,
+            1160,
+            2416
+          ],
+          [
+            1160,
+            1243,
+            2416
+          ],
+          [
+            1243,
+            2416,
+            1282
+          ],
+          [
+            2416,
+            1247,
+            1282
+          ],
+          [
+            2416,
+            1222,
+            1247
+          ],
+          [
+            2416,
+            1195,
+            1222
+          ],
+          [
+            2416,
+            1194,
+            1195
+          ],
+          [
+            2416,
+            1166,
+            1194
+          ],
+          [
+            2416,
+            1165,
+            1166
+          ],
+          [
+            1131,
+            2416,
+            1165
+          ],
+          [
+            1093,
+            1131,
+            2416
+          ],
+          [
+            1093,
+            2411,
+            2416
+          ],
+          [
+            1093,
+            2411,
+            2412
+          ]
+        ],
+        "reference_determinants": [
+          [
+            -6.75562073376283e-09,
+            -1.494760004867763e-08,
+            -2.4288402923078908e-08
+          ],
+          [
+            -7.691389458353962e-09,
+            -6.412485131416509e-09,
+            -8.248568657282682e-09
+          ],
+          [
+            -5.262223635895519e-09,
+            -2.3826273959189045e-08,
+            -7.356385671965841e-09
+          ],
+          [
+            -1.0247177684828806e-08,
+            -5.232856919490242e-09,
+            -9.836127140992191e-09
+          ],
+          [
+            -1.055898178097045e-08,
+            -6.21142711552231e-09,
+            -5.7441872524895805e-09
+          ],
+          [
+            -8.053356723437167e-09,
+            -9.916921790048933e-09,
+            -5.082244759576368e-09
+          ],
+          [
+            1.0155830655554753e-06,
+            1.1657111438507672e-07,
+            7.716611888302051e-07
+          ],
+          [
+            2.3446545124123842e-07,
+            1.5053108073927777e-07,
+            7.1301109194902874e-09
+          ],
+          [
+            1.0739836770321121e-07,
+            5.3490662229614516e-08,
+            2.8659926785038675e-11
+          ],
+          [
+            1.45825981331575e-07,
+            7.478759790685547e-08,
+            9.19776401093381e-09
+          ],
+          [
+            5.21165535607957e-08,
+            2.2534734455186792e-07,
+            3.079296858800362e-08
+          ],
+          [
+            3.7221931879333816e-08,
+            4.597054160850281e-08,
+            1.6659861836670607e-07
+          ],
+          [
+            1.7475382124623248e-08,
+            1.4028015586556085e-08,
+            5.53396428390757e-08
+          ],
+          [
+            2.350412266796305e-08,
+            9.333325086921985e-08,
+            2.3141332661137143e-08
+          ],
+          [
+            -5.5749707747610485e-08,
+            -8.357823684510909e-08,
+            -9.369392835755375e-08
+          ],
+          [
+            1.5818915890795143e-08,
+            1.3169049997410587e-08,
+            2.1971595785596946e-08
+          ],
+          [
+            8.220758451701862e-10,
+            1.6633307148473453e-08,
+            3.3872793514624157e-09
+          ],
+          [
+            9.400142552750492e-08,
+            1.00840656811612e-07,
+            1.0779795695077508e-07
+          ],
+          [
+            3.2276072548884113e-07,
+            4.448521747002675e-07,
+            3.2143866557673375e-07
+          ],
+          [
+            3.451179617076357e-07,
+            4.396373288237485e-07,
+            7.026937195858322e-07
+          ],
+          [
+            2.849493551522568e-07,
+            8.712960517465951e-08,
+            3.580056923978523e-07
+          ],
+          [
+            2.8265059725863833e-08,
+            1.750946992227986e-08,
+            1.0566186866952655e-07
+          ],
+          [
+            1.0340063779465464e-08,
+            1.0864138183253551e-08,
+            5.993397323734384e-08
+          ],
+          [
+            6.72868354705619e-09,
+            8.216305970001278e-09,
+            3.6616524118814195e-08
+          ],
+          [
+            4.712913208562588e-09,
+            8.683881234645875e-09,
+            2.1534056485731465e-08
+          ],
+          [
+            3.5579535930533666e-08,
+            4.5638187897087934e-08,
+            8.765672661414246e-08
+          ],
+          [
+            2.2722112745955535e-08,
+            4.131298381678521e-08,
+            3.998045056039685e-08
+          ],
+          [
+            4.433564450690988e-08,
+            4.179067119701047e-08,
+            1.1828050480093759e-07
+          ],
+          [
+            -1.0932736300576142e-07,
+            -3.610697652499964e-08,
+            -2.5920210132676354e-07
+          ],
+          [
+            -2.3536815593396996e-08,
+            -2.4725506329265824e-08,
+            -1.4957080869851604e-07
+          ]
+        ],
+        "search_nodes": 18,
+        "target_determinants": [
+          [
+            -6.7557309310886086e-09,
+            -1.494798729789311e-08,
+            -2.4288726470182806e-08
+          ],
+          [
+            -7.366259796012338e-09,
+            -6.224594019941251e-09,
+            -7.660501387390904e-09
+          ],
+          [
+            -5.761568423594743e-09,
+            -2.484533413036726e-08,
+            -7.459913663946493e-09
+          ],
+          [
+            -1.03523726201369e-08,
+            -5.344868394397349e-09,
+            -9.98433544291621e-09
+          ],
+          [
+            -1.0640397117979939e-08,
+            -6.3442596502518604e-09,
+            -5.911609582813649e-09
+          ],
+          [
+            -8.127299437087599e-09,
+            -1.0053802867314307e-08,
+            -5.218850474927703e-09
+          ],
+          [
+            1.0167826528977434e-06,
+            1.1658801919820268e-07,
+            7.727736641342187e-07
+          ],
+          [
+            2.347350263428712e-07,
+            1.507145233729929e-07,
+            7.117924826091808e-09
+          ],
+          [
+            1.0751888747956525e-07,
+            5.35586224537092e-08,
+            1.4146443496469208e-11
+          ],
+          [
+            1.4597166804384223e-07,
+            7.482384857418703e-08,
+            9.17879437305701e-09
+          ],
+          [
+            5.17528010396459e-08,
+            2.2667731909266326e-07,
+            3.1054007571525046e-08
+          ],
+          [
+            3.694983882051181e-08,
+            4.594157072272684e-08,
+            1.6716599305999757e-07
+          ],
+          [
+            1.743825454770666e-08,
+            1.4002502306426629e-08,
+            5.531407670509002e-08
+          ],
+          [
+            2.350457431543955e-08,
+            9.333432181005956e-08,
+            2.3141777218574167e-08
+          ],
+          [
+            -5.575006509602799e-08,
+            -8.35781132568383e-08,
+            -9.369387594614221e-08
+          ],
+          [
+            1.5818889063409236e-08,
+            1.3169029383034077e-08,
+            2.1971598643471462e-08
+          ],
+          [
+            8.222946688944909e-10,
+            1.6633494446969485e-08,
+            3.387489831804186e-09
+          ],
+          [
+            9.400140566898113e-08,
+            1.0084053537126345e-07,
+            1.0779781770613474e-07
+          ],
+          [
+            3.2275955001125074e-07,
+            4.448497816922642e-07,
+            3.2143673901113396e-07
+          ],
+          [
+            3.4511658670185564e-07,
+            4.3963602011779216e-07,
+            7.026910134089334e-07
+          ],
+          [
+            2.849498119885656e-07,
+            8.713006486865932e-08,
+            3.580067050027389e-07
+          ],
+          [
+            2.8265307637896248e-08,
+            1.7509702032985353e-08,
+            1.0566262874705403e-07
+          ],
+          [
+            1.0340175711153818e-08,
+            1.0864254773696987e-08,
+            5.9934373117944e-08
+          ],
+          [
+            6.7287508400604904e-09,
+            8.216374192851364e-09,
+            3.661674285103852e-08
+          ],
+          [
+            4.712953418685241e-09,
+            8.68391613904545e-09,
+            2.1534182910311273e-08
+          ],
+          [
+            3.557966794353536e-08,
+            4.563839228720859e-08,
+            8.765725938365063e-08
+          ],
+          [
+            2.2722246703983008e-08,
+            4.1313286257292934e-08,
+            3.998063168235615e-08
+          ],
+          [
+            4.4336006093279354e-08,
+            4.179088030239394e-08,
+            1.1828112445099978e-07
+          ],
+          [
+            -1.1940360625248676e-07,
+            -3.8420857743734164e-08,
+            -2.8119963793691723e-07
+          ],
+          [
+            -2.017311965248107e-08,
+            -2.0821069026745893e-08,
+            -1.3099136534643366e-07
+          ]
+        ]
+      }
+    },
+    "reference_float32_min_quality": 2.52824507458971e-06,
+    "reference_float32_nonpositive_cells": 30,
+    "reference_min_quality": 1.6231002567790452e-11,
+    "source_reference_ring": "Exact detailed294 source_current_AP_world_m is used for both reference and current O ring positions; I/D are initialized by barycentric transfer of existing parent-column offsets. This is a construction seed, not new material ancestry.",
+    "target_I_D_offsets": "P1-interpolated existing column offsets; construction seed only, no mass ancestry.",
+    "target_float32_min_quality": 1.1209901617102029e-05,
+    "target_float32_nonpositive_cells": 158,
+    "target_min_quality": 4.967506249362739e-10
+  }
+}

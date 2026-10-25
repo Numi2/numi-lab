@@ -1,0 +1,1065 @@
+{
+  "accepted_flips": [
+    {
+      "adaptive_J_bounds": [
+        0.35,
+        2.5
+      ],
+      "kind": "4to4",
+      "link_or_opposites": [
+        1292,
+        1314,
+        3753,
+        3706
+      ],
+      "new_J_ratios": [
+        1.2998466859340845,
+        1.0538395927264346,
+        1.1968291548785401,
+        1.1653796116042376
+      ],
+      "new_cell_uids": [
+        28632,
+        28633,
+        28634,
+        28635
+      ],
+      "new_current_determinants_f32": [
+        7.959940840125144e-08,
+        2.520944156568949e-07,
+        2.830490638196321e-07,
+        6.81429063639421e-08
+      ],
+      "new_current_q_f32": [
+        0.09951130168222973,
+        0.20453184243233924,
+        0.23411151606964475,
+        0.25365354801521967
+      ],
+      "new_reference_determinants_f32": [
+        6.123753613607932e-08,
+        2.3921516841542306e-07,
+        2.364991382987802e-07,
+        5.847271196905356e-08
+      ],
+      "new_reference_q_f32": [
+        0.08393681731098278,
+        0.19767945256566175,
+        0.20978690669950376,
+        0.2576440685066497
+      ],
+      "new_standard_J_outliers": 0,
+      "old_J_ratios": [
+        -12.284780179011118,
+        -11.592155572976468,
+        1.0738004231254747,
+        1.3032573246918426
+      ],
+      "old_cell_uids": [
+        6436,
+        6437,
+        6440,
+        6441
+      ],
+      "old_current_nonpositive": 2,
+      "old_material_id": 1,
+      "reference_cavity_volume_delta_m3": 0.0,
+      "shared_feature": [
+        1295,
+        3725
+      ],
+      "state_after": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 199,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 124,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "state_before": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 201,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 126,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "sweep": 1
+    },
+    {
+      "adaptive_J_bounds": [
+        0.006493591934590353,
+        2.5
+      ],
+      "kind": "4to4",
+      "link_or_opposites": [
+        1892,
+        2326,
+        1912,
+        4326
+      ],
+      "new_J_ratios": [
+        1.1430341355214517,
+        0.11602454572960898,
+        0.023359532202642926,
+        0.07739496049263249
+      ],
+      "new_cell_uids": [
+        28636,
+        28637,
+        28638,
+        28639
+      ],
+      "new_current_determinants_f32": [
+        2.7671178871538743e-08,
+        5.189083759220265e-10,
+        7.600533964190842e-10,
+        2.9494341835157974e-09
+      ],
+      "new_current_q_f32": [
+        0.07840637212119504,
+        0.005397452317242683,
+        0.007323084964982742,
+        0.01562764012522154
+      ],
+      "new_reference_determinants_f32": [
+        2.4208532371533385e-08,
+        4.472401703095858e-09,
+        3.25371839566672e-08,
+        3.8108866064949604e-08
+      ],
+      "new_reference_q_f32": [
+        0.06853864311510849,
+        0.022110335125747164,
+        0.08743053438734838,
+        0.08576447226508936
+      ],
+      "new_standard_J_outliers": 3,
+      "old_J_ratios": [
+        -0.17569757272084963,
+        0.9999571794438255,
+        0.006493591934590353,
+        0.03852771139046008
+      ],
+      "old_cell_uids": [
+        9359,
+        9360,
+        9542,
+        9543
+      ],
+      "old_current_nonpositive": 1,
+      "old_material_id": 1,
+      "reference_cavity_volume_delta_m3": 3.308722450212111e-24,
+      "shared_feature": [
+        1915,
+        4737
+      ],
+      "state_after": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 199,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 123,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "state_before": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 199,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 124,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "sweep": 1
+    },
+    {
+      "adaptive_J_bounds": [
+        0.11602454572960898,
+        2.5
+      ],
+      "kind": "4to4",
+      "link_or_opposites": [
+        2326,
+        4326,
+        4303,
+        4738
+      ],
+      "new_J_ratios": [
+        1.1431125647999771,
+        0.1842643444097396,
+        0.13029569212243053,
+        1.3618547318889276
+      ],
+      "new_cell_uids": [
+        28640,
+        28641,
+        28642,
+        28643
+      ],
+      "new_current_determinants_f32": [
+        2.1182280492383217e-08,
+        2.2972501499237788e-09,
+        8.309527883219526e-10,
+        1.0616128342407611e-08
+      ],
+      "new_current_q_f32": [
+        0.08629223880624472,
+        0.015044476012294538,
+        0.030630515042651175,
+        0.12814918659124455
+      ],
+      "new_reference_determinants_f32": [
+        1.8530354004191802e-08,
+        1.2467144185070857e-08,
+        6.37743869184224e-09,
+        7.795345636962886e-09
+      ],
+      "new_reference_q_f32": [
+        0.07646848215656288,
+        0.04512739700874961,
+        0.12502202745684143,
+        0.10986989595897478
+      ],
+      "new_standard_J_outliers": 2,
+      "old_J_ratios": [
+        -0.2716694297875175,
+        0.9999543298579612,
+        0.9999571778565024,
+        0.11602454572960898
+      ],
+      "old_cell_uids": [
+        9446,
+        9447,
+        9448,
+        28637
+      ],
+      "old_current_nonpositive": 1,
+      "old_material_id": 1,
+      "reference_cavity_volume_delta_m3": -1.6543612251060553e-24,
+      "shared_feature": [
+        1892,
+        4737
+      ],
+      "state_after": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 199,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 122,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "state_before": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 199,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 123,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "sweep": 1
+    },
+    {
+      "adaptive_J_bounds": [
+        0.35,
+        2.5
+      ],
+      "kind": "4to4",
+      "link_or_opposites": [
+        234,
+        242,
+        2691,
+        2692
+      ],
+      "new_J_ratios": [
+        1.904321150759357,
+        0.7842871579377699,
+        0.9260915067192727,
+        1.4301497206099762
+      ],
+      "new_cell_uids": [
+        28644,
+        28645,
+        28646,
+        28647
+      ],
+      "new_current_determinants_f32": [
+        2.528339822162338e-08,
+        1.2731584177900329e-08,
+        2.0571561563631423e-08,
+        1.70697205499629e-08
+      ],
+      "new_current_q_f32": [
+        0.36144047895865267,
+        0.2244349233911056,
+        0.24727019695338065,
+        0.21391552411693368
+      ],
+      "new_reference_determinants_f32": [
+        1.3276856275813304e-08,
+        1.623331970827773e-08,
+        2.2213314142689042e-08,
+        1.1935617861521838e-08
+      ],
+      "new_reference_q_f32": [
+        0.2912992274813995,
+        0.31960900757502364,
+        0.3164180081631969,
+        0.20591115748344743
+      ],
+      "new_standard_J_outliers": 0,
+      "old_J_ratios": [
+        1.61200954998251,
+        -0.8487625255594886,
+        1.279318712063358,
+        1.00000600449006
+      ],
+      "old_cell_uids": [
+        1668,
+        1675,
+        1678,
+        1682
+      ],
+      "old_current_nonpositive": 1,
+      "old_material_id": 1,
+      "reference_cavity_volume_delta_m3": 0.0,
+      "shared_feature": [
+        279,
+        2690
+      ],
+      "state_after": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 198,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 121,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "state_before": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 199,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 122,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "sweep": 1
+    },
+    {
+      "adaptive_J_bounds": [
+        0.35,
+        2.5
+      ],
+      "kind": "4to4",
+      "link_or_opposites": [
+        15,
+        2427,
+        2424,
+        2429
+      ],
+      "new_J_ratios": [
+        0.8059579255455653,
+        1.6811794989680078,
+        0.3681589807037758,
+        1.4308946631068125
+      ],
+      "new_cell_uids": [
+        28648,
+        28649,
+        28650,
+        28651
+      ],
+      "new_current_determinants_f32": [
+        1.1612638981471393e-08,
+        8.007235746270178e-09,
+        1.3754452175267135e-09,
+        2.1193104897369604e-08
+      ],
+      "new_current_q_f32": [
+        0.7832940130382751,
+        0.6422647339610966,
+        0.12860758950845338,
+        0.6348676876727006
+      ],
+      "new_reference_determinants_f32": [
+        1.4408492817550765e-08,
+        4.762867826538107e-09,
+        3.736008870128337e-09,
+        1.4811086688487842e-08
+      ],
+      "new_reference_q_f32": [
+        0.8621078665717959,
+        0.42469761234456804,
+        0.29681391897125553,
+        0.5310938262119111
+      ],
+      "new_standard_J_outliers": 0,
+      "old_J_ratios": [
+        2.42380547398326,
+        0.9691788783218301,
+        -0.9244218754327723,
+        1.2757534953035874
+      ],
+      "old_cell_uids": [
+        64,
+        65,
+        91,
+        92
+      ],
+      "old_current_nonpositive": 1,
+      "old_material_id": 1,
+      "reference_cavity_volume_delta_m3": 0.0,
+      "shared_feature": [
+        13,
+        2426
+      ],
+      "state_after": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 197,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 120,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "state_before": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 198,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 121,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "sweep": 1
+    },
+    {
+      "adaptive_J_bounds": [
+        0.35,
+        2.5
+      ],
+      "kind": "4to4",
+      "link_or_opposites": [
+        624,
+        651,
+        3063,
+        3061
+      ],
+      "new_J_ratios": [
+        1.792987973643534,
+        1.6538597611447947,
+        0.9486442797098469,
+        0.880836305999496
+      ],
+      "new_cell_uids": [
+        28652,
+        28653,
+        28654,
+        28655
+      ],
+      "new_current_determinants_f32": [
+        3.771570952916212e-09,
+        4.122247604117038e-09,
+        1.4080198641922603e-08,
+        1.4712012561761697e-08
+      ],
+      "new_current_q_f32": [
+        0.19648321356060477,
+        0.20733821200724112,
+        0.62883884706674,
+        0.5968295947530131
+      ],
+      "new_reference_determinants_f32": [
+        2.1035115730597995e-09,
+        2.4925012996649946e-09,
+        1.484244299267707e-08,
+        1.6702323078143097e-08
+      ],
+      "new_reference_q_f32": [
+        0.12606783486409456,
+        0.1373887808121388,
+        0.6657667767291673,
+        0.6369412976365725
+      ],
+      "new_standard_J_outliers": 0,
+      "old_J_ratios": [
+        0.5362783406802839,
+        1.1779453615884838,
+        2.1021905471284232,
+        -70.63639910228963
+      ],
+      "old_cell_uids": [
+        3878,
+        3879,
+        3883,
+        3884
+      ],
+      "old_current_nonpositive": 1,
+      "old_material_id": 1,
+      "reference_cavity_volume_delta_m3": 0.0,
+      "shared_feature": [
+        650,
+        3062
+      ],
+      "state_after": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 196,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 119,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "state_before": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 197,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 120,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "sweep": 1
+    },
+    {
+      "adaptive_J_bounds": [
+        0.35,
+        2.5
+      ],
+      "kind": "4to4",
+      "link_or_opposites": [
+        99,
+        102,
+        2604,
+        106
+      ],
+      "new_J_ratios": [
+        0.36733412685061567,
+        0.7455537105196502,
+        0.7118329617871353,
+        1.05439391312472
+      ],
+      "new_cell_uids": [
+        28656,
+        28657,
+        28658,
+        28659
+      ],
+      "new_current_determinants_f32": [
+        1.6864646613765552e-09,
+        2.3886515843599335e-08,
+        4.484608735704967e-08,
+        2.9281876546058673e-08
+      ],
+      "new_current_q_f32": [
+        0.07261755813627793,
+        0.3606697148592796,
+        0.1141080074675763,
+        0.0848416969717193
+      ],
+      "new_reference_determinants_f32": [
+        4.591091701268454e-09,
+        3.2038625127290235e-08,
+        6.300085801654733e-08,
+        2.777128754402724e-08
+      ],
+      "new_reference_q_f32": [
+        0.1341770580320656,
+        0.434420542274824,
+        0.15089992630489524,
+        0.08687393333656805
+      ],
+      "new_standard_J_outliers": 0,
+      "old_J_ratios": [
+        -0.1667645129527026,
+        0.8211383836152256,
+        0.9881172746444692,
+        1.050935669758618
+      ],
+      "old_cell_uids": [
+        619,
+        621,
+        627,
+        1132
+      ],
+      "old_current_nonpositive": 1,
+      "old_material_id": 1,
+      "reference_cavity_volume_delta_m3": 0.0,
+      "shared_feature": [
+        107,
+        2518
+      ],
+      "state_after": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 195,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 118,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "state_before": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 196,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 119,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "sweep": 1
+    },
+    {
+      "adaptive_J_bounds": [
+        0.35,
+        2.5
+      ],
+      "kind": "3to2",
+      "link_or_opposites": [
+        1118,
+        1157,
+        3656
+      ],
+      "new_J_ratios": [
+        0.6156273887722532,
+        0.6008921773662064
+      ],
+      "new_cell_uids": [
+        28660,
+        28661
+      ],
+      "new_current_determinants_f32": [
+        1.1281874875859946e-08,
+        2.2286543391043023e-08
+      ],
+      "new_current_q_f32": [
+        0.03892310630716737,
+        0.06137620144352735
+      ],
+      "new_reference_determinants_f32": [
+        1.8325817014670855e-08,
+        3.7089088908975365e-08
+      ],
+      "new_reference_q_f32": [
+        0.05298760935572079,
+        0.08474409801055245
+      ],
+      "new_standard_J_outliers": 0,
+      "old_J_ratios": [
+        -5.70091928806297,
+        0.7726228187009492,
+        1.0000269055977629
+      ],
+      "old_cell_uids": [
+        13387,
+        13389,
+        13396
+      ],
+      "old_current_nonpositive": 1,
+      "old_material_id": 1,
+      "reference_cavity_volume_delta_m3": 1.6543612251060553e-24,
+      "shared_feature": [
+        1158,
+        3569
+      ],
+      "state_after": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 194,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28631,
+        "current_nonpositive_f32": 117,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "state_before": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 195,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28632,
+        "current_nonpositive_f32": 118,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "sweep": 1
+    },
+    {
+      "adaptive_J_bounds": [
+        0.35,
+        2.5
+      ],
+      "kind": "3to2",
+      "link_or_opposites": [
+        1118,
+        1157,
+        1245
+      ],
+      "new_J_ratios": [
+        0.5351481859836683,
+        0.6053188584878875
+      ],
+      "new_cell_uids": [
+        28662,
+        28663
+      ],
+      "new_current_determinants_f32": [
+        6.491364602772887e-09,
+        3.5063789254841116e-08
+      ],
+      "new_current_q_f32": [
+        0.026659127025357717,
+        0.05966703746994755
+      ],
+      "new_reference_determinants_f32": [
+        1.2130031966456093e-08,
+        5.7926147125883326e-08
+      ],
+      "new_reference_q_f32": [
+        0.039923769514756964,
+        0.08190412814049396
+      ],
+      "new_standard_J_outliers": 0,
+      "old_J_ratios": [
+        -27.405440528681325,
+        1.0000245156722374,
+        0.6156273887722532
+      ],
+      "old_cell_uids": [
+        13386,
+        13395,
+        28660
+      ],
+      "old_current_nonpositive": 1,
+      "old_material_id": 1,
+      "reference_cavity_volume_delta_m3": -1.6543612251060553e-24,
+      "shared_feature": [
+        1158,
+        3656
+      ],
+      "state_after": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 193,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28630,
+        "current_nonpositive_f32": 116,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "state_before": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 194,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28631,
+        "current_nonpositive_f32": 117,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "sweep": 1
+    },
+    {
+      "adaptive_J_bounds": [
+        0.015742898745955095,
+        2.5
+      ],
+      "kind": "4to4",
+      "link_or_opposites": [
+        181,
+        258,
+        2719,
+        2593
+      ],
+      "new_J_ratios": [
+        0.5620445345872266,
+        1.0000290780741534,
+        0.9999962368477382,
+        0.43438686514907426
+      ],
+      "new_cell_uids": [
+        28664,
+        28665,
+        28666,
+        28667
+      ],
+      "new_current_determinants_f32": [
+        1.2493723916395926e-09,
+        2.921443898515394e-09,
+        3.3793865651079265e-08,
+        1.1341375286621979e-08
+      ],
+      "new_current_q_f32": [
+        0.14557165887396595,
+        0.2741213708338187,
+        0.03692373202332684,
+        0.019630387757959573
+      ],
+      "new_reference_determinants_f32": [
+        2.222906397545791e-09,
+        2.9213589510231873e-09,
+        3.379399282301979e-08,
+        2.6108927770478995e-08
+      ],
+      "new_reference_q_f32": [
+        0.2376047618580892,
+        0.27411929919828637,
+        0.03692389256680326,
+        0.034097071869653536
+      ],
+      "new_standard_J_outliers": 0,
+      "old_J_ratios": [
+        0.711722615322168,
+        0.015742898745955095,
+        1.5607060710382301,
+        -0.008232421486314036
+      ],
+      "old_cell_uids": [
+        1047,
+        1048,
+        1546,
+        1547
+      ],
+      "old_current_nonpositive": 1,
+      "old_material_id": 1,
+      "reference_cavity_volume_delta_m3": 0.0,
+      "shared_feature": [
+        182,
+        2669
+      ],
+      "state_after": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 191,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28630,
+        "current_nonpositive_f32": 115,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "state_before": {
+        "J_above_2.5": 126,
+        "J_above_50": 2,
+        "J_below_0.35": 193,
+        "Jmax": 105.00100868761493,
+        "Jmin": -140.54641684608868,
+        "cells": 28630,
+        "current_nonpositive_f32": 116,
+        "current_q_below_1e-5": 0,
+        "qcur_min": 0.00014246906844333593,
+        "qref_min": 0.002069086691075745,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 0
+      },
+      "sweep": 1
+    }
+  ],
+  "baseline": {
+    "J_above_2.5": 126,
+    "J_above_50": 2,
+    "J_below_0.35": 201,
+    "Jmax": 105.00100868761493,
+    "Jmin": -140.54641684608868,
+    "cells": 28632,
+    "current_nonpositive_f32": 126,
+    "current_q_below_1e-5": 0,
+    "qcur_min": 0.00014246906844333593,
+    "qref_min": 0.002069086691075745,
+    "reference_nonpositive_f32": 0,
+    "reference_q_below_1e-5": 0
+  },
+  "classification": "partial_topology_counterfactual_no_physical_admission",
+  "counts": {
+    "accepted": 10,
+    "added_cells": 36,
+    "candidate_cavities_checked": 2253,
+    "removed_cells": 38
+  },
+  "final": {
+    "J_above_2.5": 126,
+    "J_above_50": 2,
+    "J_below_0.35": 191,
+    "Jmax": 105.00100868761493,
+    "Jmin": -140.54641684608868,
+    "cells": 28630,
+    "current_nonpositive_f32": 115,
+    "current_q_below_1e-5": 0,
+    "qcur_min": 0.00014246906844333593,
+    "qref_min": 0.002069086691075745,
+    "reference_nonpositive_f32": 0,
+    "reference_q_below_1e-5": 0
+  },
+  "invariants": {
+    "candidate_D_faces_bitwise_unchanged": true,
+    "candidate_I_faces_bitwise_unchanged": true,
+    "candidate_O_faces_bitwise_unchanged": true,
+    "reference_points_bitwise_unchanged": true,
+    "target_points_bitwise_unchanged": true
+  },
+  "limits": [
+    "No positions, source bindings, material references, or outer faces were modified.",
+    "This is a local topology counterfactual only; no mass ancestry/conservation, global collision, material constitutive, native runtime, or physical qualification is asserted."
+  ],
+  "method": {
+    "coordinates_and_OID_faces_fixed_bitwise": true,
+    "families": [
+      "3->2",
+      "4->4"
+    ],
+    "hard_J_max": 50.0,
+    "max_seconds": 300.0,
+    "max_sweeps": 4,
+    "orientation": "trusted reference positivity only; current geometry never chooses cell winding",
+    "requirements": [
+      "same material",
+      "exact oriented cavity boundary",
+      "postflip face incidence <=2",
+      "no duplicate cells or forbidden exterior edge",
+      "reference Float32 q>=1e-5",
+      "current Float32 determinant>0 and q>=1e-5",
+      "strict global current nonpositive-cell reduction",
+      "new J within adaptive old-cavity bound and <=50",
+      "global standard J-outlier count nonincreasing"
+    ],
+    "standard_J_bounds": [
+      0.35,
+      2.5
+    ],
+    "starts_from_original_frozen_001_baseline": true
+  },
+  "output": {
+    "path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/bistellar-internal-016/run-001/candidate-tetrahedra.npz",
+    "sha256": "9f7b1d9d3ab1b909b6ed56ed56d6d8f49975b3234719be8be3e825da1f8fb0f9"
+  },
+  "rejections": {
+    "3to2:oriented_boundary_mismatch": 12,
+    "4to4:current_nonpositive": 621,
+    "4to4:individual_J_bound": 96,
+    "4to4:material_mismatch": 380,
+    "4to4:oriented_boundary_mismatch": 1013,
+    "4to4:reference_degenerate": 12,
+    "4to4:reference_quality_floor": 60
+  },
+  "runtime": {
+    "hostname": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 2.97318696975708
+  },
+  "schema": "numi.human.connected-same-material-2-3-3-2-4-4-flips.v1",
+  "source": {
+    "path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/retessellation-001/volume-cavity-001/oid-cavity-replacement.npz",
+    "sha256": "0feda312f87a58ac8d7f73b9d27d870911d86040396ac0c65c24feeac682ee2b"
+  },
+  "sweeps": [
+    {
+      "accepted": 10,
+      "proposals_checked": 2078,
+      "seconds": 2.7062032222747803,
+      "sweep": 1
+    },
+    {
+      "accepted": 0,
+      "proposals_checked": 175,
+      "seconds": 0.24633288383483887,
+      "sweep": 2
+    }
+  ]
+}
