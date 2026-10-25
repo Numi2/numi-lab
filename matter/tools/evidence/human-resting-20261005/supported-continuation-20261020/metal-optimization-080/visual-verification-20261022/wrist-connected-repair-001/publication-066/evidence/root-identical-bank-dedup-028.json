@@ -1,0 +1,26 @@
+{
+  "status": "IDENTICAL_IMMUTABLE_EXPORTS_HARDLINKED_HASH_VERIFIED",
+  "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+  "source_sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+  "paths": [
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-022-query-023/source-preflight/exact-emitted.triangles.csv",
+      "before_inode": 4691725,
+      "after_inode": 4688030,
+      "sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+      "bytes": 146247212
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/exact-emitted.triangles.csv",
+      "before_inode": 4694858,
+      "after_inode": 4688030,
+      "sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+      "bytes": 146247212
+    }
+  ],
+  "free_before_bytes": 6209769472,
+  "free_after_bytes": 6502330368,
+  "free_delta_bytes": 292560896,
+  "all_evidence_paths_and_bytes_preserved": true,
+  "restriction": "Immutable evidence only; do not rerun native writers into existing retained output directories."
+}

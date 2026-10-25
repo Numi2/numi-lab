@@ -1,0 +1,69 @@
+{
+  "status": "SSH_NUMI_RERUN_NUMERICAL_PARITY_PASS_IDENTICAL_DECISIONS",
+  "hostname": "numi.local",
+  "device": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "input_count": 8,
+  "physical_qualification": false,
+  "accepted_physical_steps": 0,
+  "report_sha256": "54140f182d525e28e3ae8d15a9f6702be7b56d25efc7e53b9c4cb38ce009244d",
+  "source_sha256": "595889f7f3051e6d097290cc4961a81cac44599695d71efa34f2159a99124629",
+  "J_violations": {
+    "above_J_max": 71,
+    "below_J_min": 425
+  },
+  "comparison_tolerance": {
+    "absolute": 1e-12,
+    "relative": 1e-12
+  },
+  "nonbitwise_scalar_differences": [
+    {
+      "path": "totals/candidate_mass_kg_if_fixed_density_unchanged",
+      "ssh_numi": 13.542344393978675,
+      "prior": 13.542344393978677,
+      "absolute_difference": 1.7763568394002505e-15
+    },
+    {
+      "path": "totals/mass_delta_kg_if_fixed_density_unchanged",
+      "ssh_numi": -0.3973353466291023,
+      "prior": -0.3973353466291005,
+      "absolute_difference": 1.7763568394002505e-15
+    },
+    {
+      "path": "totals/mass_delta_percent_if_fixed_density_unchanged",
+      "ssh_numi": -2.8503907838830944,
+      "prior": -2.850390783883072,
+      "absolute_difference": 2.220446049250313e-14
+    },
+    {
+      "path": "material_geometry/skin/candidate_027_volume_m3",
+      "ssh_numi": 0.0034498760756996516,
+      "prior": 0.0034498760756996524,
+      "absolute_difference": 8.673617379884035e-19
+    },
+    {
+      "path": "material_geometry/skin/candidate_mass_kg_if_configured_density_unchanged",
+      "ssh_numi": 3.449876210154926,
+      "prior": 3.449876210154927,
+      "absolute_difference": 8.881784197001252e-16
+    },
+    {
+      "path": "material_geometry/skin/candidate_vs_immediate_parent_volume_delta_percent",
+      "ssh_numi": -0.002891012411232463,
+      "prior": -0.0028910124111991564,
+      "absolute_difference": 3.3306690738754696e-14
+    },
+    {
+      "path": "material_geometry/skin/candidate_vs_reference_volume_delta_percent",
+      "ssh_numi": -0.07804520636602863,
+      "prior": -0.07804520636600643,
+      "absolute_difference": 2.220446049250313e-14
+    },
+    {
+      "path": "material_geometry/skin/mass_delta_kg_if_configured_density_unchanged",
+      "ssh_numi": -0.0026945659871735472,
+      "prior": -0.002694565987172659,
+      "absolute_difference": 8.881784197001252e-16
+    }
+  ],
+  "initial_exact_json_comparison": "Failed only on last-bit floating sums, retained source and diagnostics; classified decisions and counts unchanged."
+}

@@ -1,0 +1,259 @@
+{
+  "schema": "numi.human.o12-endpoint-plane-lp.028",
+  "status": "LINEARIZED_FEASIBILITY_ONLY_NOT_GEOMETRY_OR_PHYSICAL_ADMISSION",
+  "source_sha256": "94ae88092890afb5caa45113c54db3e096afc843ca4cc332a419a21a567abc86",
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/baseline-depth-transition-014/candidate.npz": "f5b0e33933ddf0867715a877ade75279659034362ae8f586435ccbf00609f42c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/candidate.npz": "ccfeb27e6e939249e4c5146f77722bf2477d1f8377300bde8cc82086f44bbe1a",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/solver-state.npz": "9694fc0b3b1145d6fb2ce1aa835e47437fb6d6d290c4148de870d0a81d58ef26",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/construction-planes.npz": "9fc4f9b06e26c1ee8af02e4d06434c0da1e9ac56e6f101669bf025aa211aa545",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/report.json": "3dc2a9d1bbcd534fafc7770c2c0a83434d25dc563d858b768e16c3230514e71e",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-027-matched-query-028/route-report.json": "7d9108c9fa03161bd39cb23cfc98e7e587386ebeb5372ac1fdcd5c6705d1b972",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/column_fit_support.py": "2de0857455c25dc04bf28c83429ba751ced58439a03bfb30494e510c1a64bd16"
+  },
+  "prior_plane_rows_preserved": 84,
+  "new_endpoint_plane_rows": [
+    {
+      "node": 233,
+      "h": [
+        -0.3152325590927563,
+        -1.0095547842738726,
+        0.14438219440998779
+      ],
+      "n": [
+        -0.2103618729647274,
+        0.9690287598195051,
+        0.12934892750016805
+      ],
+      "margin": 0.0001,
+      "kind": "027_first_entry_plane_both_endpoints_exterior",
+      "column": 233,
+      "layer": 0,
+      "body": 61,
+      "bone": 97,
+      "triangle": 153,
+      "route_witness": 0,
+      "segment": "O-I",
+      "outside_endpoint": "start",
+      "hit_t": 0.028844492780133953,
+      "hit_barycentric": [
+        0.29909449974407976,
+        0.4055524912100891,
+        0.29535300904583106
+      ],
+      "plane_error_m": -7.177418381854039e-17,
+      "endpoint_signed_distance_m": 3.7061774587261875e-05,
+      "entry_start_signed_distance_m": 3.7061774587261875e-05,
+      "route_mid_signed_distance_m": -0.0006171145755761322
+    },
+    {
+      "node": 2644,
+      "h": [
+        -0.3152325590927563,
+        -1.0095547842738726,
+        0.14438219440998779
+      ],
+      "n": [
+        -0.2103618729647274,
+        0.9690287598195051,
+        0.12934892750016805
+      ],
+      "margin": 0.0001,
+      "kind": "027_first_entry_plane_both_endpoints_exterior",
+      "column": 233,
+      "layer": 1,
+      "body": 61,
+      "bone": 97,
+      "triangle": 153,
+      "route_witness": 0,
+      "segment": "O-I",
+      "outside_endpoint": "end",
+      "hit_t": 0.028844492780133953,
+      "hit_barycentric": [
+        0.29909449974407976,
+        0.4055524912100891,
+        0.29535300904583106
+      ],
+      "plane_error_m": -7.177418381854039e-17,
+      "endpoint_signed_distance_m": -0.0012478203992711634,
+      "entry_start_signed_distance_m": 3.7061774587261875e-05,
+      "route_mid_signed_distance_m": -0.0006171145755761322
+    },
+    {
+      "node": 2617,
+      "h": [
+        -0.3161780466722872,
+        -1.0246946383348918,
+        0.1460207685191076
+      ],
+      "n": [
+        0.8567511541281182,
+        -0.2575224005109344,
+        -0.4468329364932978
+      ],
+      "margin": 0.0001,
+      "kind": "027_first_entry_plane_both_endpoints_exterior",
+      "column": 206,
+      "layer": 1,
+      "body": 61,
+      "bone": 97,
+      "triangle": 63,
+      "route_witness": 1,
+      "segment": "I-D",
+      "outside_endpoint": "start",
+      "hit_t": 0.21056575447794995,
+      "hit_barycentric": [
+        0.09857729625875322,
+        0.2426578472501931,
+        0.6587648564910537
+      ],
+      "plane_error_m": 4.83554168928535e-17,
+      "endpoint_signed_distance_m": 0.0003409641003397833,
+      "entry_start_signed_distance_m": 0.0003409641003397833,
+      "route_mid_signed_distance_m": -0.0002131016744934771
+    },
+    {
+      "node": 5028,
+      "h": [
+        -0.3161780466722872,
+        -1.0246946383348918,
+        0.1460207685191076
+      ],
+      "n": [
+        0.8567511541281182,
+        -0.2575224005109344,
+        -0.4468329364932978
+      ],
+      "margin": 0.0001,
+      "kind": "027_first_entry_plane_both_endpoints_exterior",
+      "column": 206,
+      "layer": 2,
+      "body": 61,
+      "bone": 97,
+      "triangle": 63,
+      "route_witness": 1,
+      "segment": "I-D",
+      "outside_endpoint": "end",
+      "hit_t": 0.21056575447794995,
+      "hit_barycentric": [
+        0.09857729625875322,
+        0.2426578472501931,
+        0.6587648564910537
+      ],
+      "plane_error_m": 4.83554168928535e-17,
+      "endpoint_signed_distance_m": -0.0012783120311715339,
+      "entry_start_signed_distance_m": 0.0003409641003397833,
+      "route_mid_signed_distance_m": -0.0002131016744934771
+    }
+  ],
+  "endpoint_route_groups": [
+    {
+      "column": 233,
+      "segment": "O-I",
+      "body": 61,
+      "bone": 97,
+      "policy": "both endpoints on first-entry triangle exterior halfspace",
+      "entry_triangle": 153,
+      "entry_t": 0.028844492780133953,
+      "entry_barycentric": [
+        0.29909449974407976,
+        0.4055524912100891,
+        0.29535300904583106
+      ],
+      "plane_error_m": -7.177418381854039e-17,
+      "start_signed_distance_m": 3.7061774587261875e-05,
+      "end_signed_distance_m": -0.0012478203992711634,
+      "interior_probe_t": 0.5091333380390404,
+      "interior_signed_distance_m": -0.0006171145755761322,
+      "all_hit_triangles": [
+        153,
+        162
+      ]
+    },
+    {
+      "column": 206,
+      "segment": "I-D",
+      "body": 61,
+      "bone": 97,
+      "policy": "both endpoints on first-entry triangle exterior halfspace",
+      "entry_triangle": 63,
+      "entry_t": 0.21056575447794995,
+      "entry_barycentric": [
+        0.09857729625875322,
+        0.2426578472501931,
+        0.6587648564910537
+      ],
+      "plane_error_m": 4.83554168928535e-17,
+      "start_signed_distance_m": 0.0003409641003397833,
+      "end_signed_distance_m": -0.0012783120311715339,
+      "interior_probe_t": 0.3421688024982663,
+      "interior_signed_distance_m": -0.0002131016744934771,
+      "all_hit_triangles": [
+        63,
+        129
+      ]
+    }
+  ],
+  "derivative_checks": {
+    "plane_max_abs": 1.2684613984181858e-08,
+    "quality_max_abs": 2.1059036221515726e-06
+  },
+  "lp": {
+    "success": true,
+    "status": 0,
+    "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "elapsed_seconds": 0.008826207951642573,
+    "n_variables": 206,
+    "n_plane_rows": 88,
+    "n_linearized_quality_rows": 1200,
+    "minimum_linf_parameter_correction_mm": 0.9789326285878515,
+    "minimum_plane_value_at_start_mm": -1.3782996485402643,
+    "minimum_linearized_quality_value_at_start": -2.099633930030351e-05,
+    "minimum_slack_if_success": -2.842170943040401e-14,
+    "objective_parameter_units": "mm for all 206 variables, L-infinity",
+    "max_abs_parameter_correction_mm": 0.9789326285878516,
+    "min_plane_linearized_mm": -7.032406341284103e-14,
+    "min_quality_linearized": -7.5648849185162454,
+    "emitted_f32_min_global_q": -0.007554255888441016,
+    "emitted_f32_min_plane_slack_m": -1.2411740837672282e-08,
+    "emitted_f32_quality_pass_1e-5": false,
+    "emitted_f32_plane_pass_minus_0.1um": true,
+    "max_node_displacement_mm": 12.830953286462185
+  },
+  "source": {
+    "free_columns": 58,
+    "shape_columns": [
+      203,
+      204,
+      206,
+      207,
+      215,
+      217,
+      218,
+      219,
+      220,
+      231,
+      233,
+      271,
+      337,
+      2187,
+      2261,
+      2262
+    ],
+    "fixed_collar_columns": 86,
+    "affected_tets": 1200,
+    "same_d_bounds_mm": [
+      -8.0,
+      8.0
+    ],
+    "skin_floor_m_min": 0.0001,
+    "fat_floor_m_min": 0.0001,
+    "q_linearization_target": 1.06e-05,
+    "q_scale": 1000.0
+  },
+  "limitations": [
+    "Only a local first-order LP feasibility probe at emitted 027 coordinates; both endpoints are constrained to the exterior halfspace of each first-entry triangle. No nonlinear solve, F32 candidate selection, refreshed route audit, full skin/tet clearance, material/reference rebuild, mass transfer, or physical/native admission."
+  ]
+}

@@ -1,0 +1,192 @@
+{
+  "candidate_physical_admission": "GEOMETRY_CONSTRUCTION_CANDIDATE_NOT_PHYSICALLY_ADMITTED",
+  "configured_limits": {
+    "J_bounds": [
+      0.35,
+      2.5
+    ],
+    "density_bounds": null,
+    "density_bounds_note": "No per-cell density interval is present in pinned artifacts; only fixed material reference densities/debits are available.",
+    "reference_density_kg_m3": {
+      "fat": 900.0000042408084,
+      "skin": 1000.0000389739433
+    }
+  },
+  "donor_capacity": {
+    "available_but_not_substitutable": {
+      "D37_donor_frame_header_prefix": [
+        "row",
+        "donor",
+        "lx",
+        "ly",
+        "lz",
+        "m00",
+        "m01",
+        "m02"
+      ],
+      "D37_donor_mass_allocation_header": [
+        "core_body",
+        "skin_before_kg",
+        "skin_after_kg",
+        "skin_delta_kg",
+        "fat_before_kg",
+        "fat_after_kg",
+        "fat_delta_kg",
+        "total_delta_kg"
+      ],
+      "reason": "D37 donor-mass-allocation is an aggregate donor/frame-weighted node ledger for the older D37 candidate; donor-frames records column transform ownership. Neither is a per-cell parent-origin ledger for candidate 027, so assigning candidate cell volume/mass by node owner would fabricate origin attribution."
+    },
+    "missing_link": "no candidate cell-row to parent-origin donor/source-contribution map; candidate NPZ has only points, tetrahedra, material_ids",
+    "status": "NOT_COMPUTABLE_FROM_PINNED_CANDIDATE"
+  },
+  "limitations": [
+    "This is a read-only geometry-to-reference mass feasibility diagnostic, not a conservative transfer receipt or physical admission.",
+    "Fixed-density candidate mass deficit is aggregate; exact donor-origin capacity is blocked by the missing candidate cell-to-parent-donor contribution map.",
+    "Preserving parent cell masses implies rho0/J values shown above, but no permitted per-cell density range was found; configured J bounds already fail."
+  ],
+  "material_geometry": {
+    "fat": {
+      "J_candidate_over_reference": {
+        "above_configured_max_count": 56,
+        "below_configured_min_count": 373,
+        "configured_bounds": [
+          0.35,
+          2.5
+        ],
+        "max": 425.76070313488634,
+        "max_cell_row": 15521,
+        "median": 0.9999998362225324,
+        "min": 0.005322664338777428,
+        "min_cell_row": 15658,
+        "p01": 0.15256559746553197,
+        "p05": 0.6191073327503964,
+        "p95": 1.0002217464903318,
+        "p99": 1.3637038420834422
+      },
+      "candidate_027_volume_m3": 0.011213853484742162,
+      "candidate_mass_kg_if_configured_density_unchanged": 10.09246818382375,
+      "candidate_vs_immediate_parent_volume_delta_percent": -0.007202735784828107,
+      "candidate_vs_reference_volume_delta_percent": -3.7631036540110463,
+      "cell_count": 14316,
+      "current_density_kg_m3_if_each_parent_cell_mass_is_preserved": {
+        "interpretation": "diagnostic rho0/J; no allowed per-cell density interval was found in the pinned candidate or D37 ledger",
+        "max": 169088.2511008633,
+        "median": 900.0001516405541,
+        "min": 2.1138634862590338,
+        "p01": 659.9684501196947,
+        "p05": 899.8004766442433,
+        "p95": 1453.7059353550712,
+        "p99": 5899.103009648903
+      },
+      "immediate_parent_014_volume_m3": 0.01121466124716096,
+      "mass_delta_kg_if_configured_density_unchanged": -0.39464078064192876,
+      "material_id": 2,
+      "parent_mass_kg_from_reference_volume": 10.487108964465678,
+      "reference_density_kg_m3_from_D37_fixed_debit": 900.0000042408084,
+      "reference_volume_m3": 0.011652343238944804
+    },
+    "skin": {
+      "J_candidate_over_reference": {
+        "above_configured_max_count": 15,
+        "below_configured_min_count": 52,
+        "configured_bounds": [
+          0.35,
+          2.5
+        ],
+        "max": 5.027524214386228,
+        "max_cell_row": 1629,
+        "median": 1.000000021709265,
+        "min": 0.04124549740622201,
+        "min_cell_row": 1161,
+        "p01": 0.8658883393792715,
+        "p05": 0.999972869576039,
+        "p95": 1.0000338419251047,
+        "p99": 1.107307031382889
+      },
+      "candidate_027_volume_m3": 0.0034498760756996516,
+      "candidate_mass_kg_if_configured_density_unchanged": 3.449876210154926,
+      "candidate_vs_immediate_parent_volume_delta_percent": -0.002891012411232463,
+      "candidate_vs_reference_volume_delta_percent": -0.07804520636602863,
+      "cell_count": 14316,
+      "current_density_kg_m3_if_each_parent_cell_mass_is_preserved": {
+        "interpretation": "diagnostic rho0/J; no allowed per-cell density interval was found in the pinned candidate or D37 ledger",
+        "max": 24245.071628669222,
+        "median": 1000.0000172646778,
+        "min": 198.90506665536282,
+        "p01": 903.0980268099933,
+        "p05": 999.9661981927568,
+        "p95": 1000.0271701350417,
+        "p99": 1154.8833648639736
+      },
+      "immediate_parent_014_volume_m3": 0.0034499758149286455,
+      "mass_delta_kg_if_configured_density_unchanged": -0.0026945659871735472,
+      "material_id": 1,
+      "parent_mass_kg_from_reference_volume": 3.4525707761420996,
+      "reference_density_kg_m3_from_D37_fixed_debit": 1000.0000389739433,
+      "reference_volume_m3": 0.003452570641581807
+    }
+  },
+  "pinned_inputs": {
+    "candidate": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/candidate.npz",
+      "sha256": "ccfeb27e6e939249e4c5146f77722bf2477d1f8377300bde8cc82086f44bbe1a"
+    },
+    "candidate-report": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/report.json",
+      "sha256": "3dc2a9d1bbcd534fafc7770c2c0a83434d25dc563d858b768e16c3230514e71e"
+    },
+    "d37-remap-report": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-002/D37-remap-report.json",
+      "sha256": "11494d57ee3ade627cb891a992be214003cfea88f397af21ea73ce86b80e74f5"
+    },
+    "donor-frames-csv": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-002/generated/donor-frames-fullweights.csv",
+      "sha256": "4d531659aecd196cb2b4a99bf8d963aaf3721f9c4307eaf215304d0a3ca8805f"
+    },
+    "donor-mass-csv": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-002/donor-mass-allocation-delta.csv",
+      "sha256": "4d8ee35d7c37fc9fe304fe05cc455c9c4025c4c3b3df12f13bd5d477e93702da"
+    },
+    "immediate-parent": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/baseline-depth-transition-014/candidate.npz",
+      "sha256": "f5b0e33933ddf0867715a877ade75279659034362ae8f586435ccbf00609f42c"
+    },
+    "j-bounds-report": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-004/preflight-report.json",
+      "sha256": "75421c7fef3f4f44ea42b612e4182b6ab627a56894d6e1a4b149e4bfab8f68c2"
+    },
+    "reference-input": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-004/fit-input.npz",
+      "sha256": "b248bf0ee823ca1ab3b6d787fe3d427d8e080dcd528a57421235c7d6e1ed375e"
+    }
+  },
+  "row_mapping": {
+    "candidate_contains_mass_or_donor_ancestry_arrays": false,
+    "candidate_npz_keys": [
+      "points_world_f32",
+      "tetrahedra",
+      "material_ids"
+    ],
+    "candidate_to_reference": "identity by exact tetrahedra and material_ids equality (28,632 rows); parent mass per row reconstructed as configured reference density times F64 owner-reference cell volume"
+  },
+  "schema": "numi.human.o12-outward-027-material-capacity-audit.v1",
+  "source_facts": {
+    "D37_fixed_fat_mass_kg": 10.487108964465744,
+    "D37_fixed_skin_mass_kg": 3.4525707761420956,
+    "D37_reference_fat_volume_m3": 0.011652343238944877,
+    "D37_reference_skin_volume_m3": 0.003452570641581803,
+    "D37_status": "PRIVATE_UNADMITTED_DIAGNOSTIC",
+    "candidate_report_declares_no_mass_closure": true
+  },
+  "status": "READ_ONLY_MASS_FEASIBILITY_FAILS_CONFIGURED_J_BOUNDS; DONOR_ORIGIN_CAPACITY_UNRESOLVED",
+  "totals": {
+    "J_violations": {
+      "above_J_max": 71,
+      "below_J_min": 425
+    },
+    "candidate_mass_kg_if_fixed_density_unchanged": 13.542344393978675,
+    "mass_delta_kg_if_fixed_density_unchanged": -0.3973353466291023,
+    "mass_delta_percent_if_fixed_density_unchanged": -2.8503907838830944,
+    "reference_mass_kg_from_fixed_material_density": 13.939679740607778
+  }
+}

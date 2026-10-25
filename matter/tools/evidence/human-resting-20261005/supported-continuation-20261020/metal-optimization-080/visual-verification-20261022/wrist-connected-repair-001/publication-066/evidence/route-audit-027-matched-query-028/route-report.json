@@ -1,0 +1,228 @@
+{
+  "status": "EXACT_NATIVE_GEOMETRY_ROUTE_WITNESSES_NOT_FULL_TISSUE_CLEARANCE",
+  "counts": {
+    "total_column_bank_pairs": 446035,
+    "total_segment_bank_pairs": 892070,
+    "AABB_candidate_segment_bank_pairs": 1604,
+    "triangle_AABB_candidates": 1255,
+    "exact_candidates": 4,
+    "proper_hits": 4,
+    "boundary_hits": 0,
+    "coplanar_candidates": 0,
+    "hit_segment_bank_pairs": 2
+  },
+  "columns_with_hits": 2,
+  "column_bank_groups_with_hits": 2,
+  "construction_planes": 0,
+  "construction_planes_world": [],
+  "uncertainties": 0,
+  "native_query_frame_max_error_m": 5.553824967135427e-17,
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/candidate.npz": "ccfeb27e6e939249e4c5146f77722bf2477d1f8377300bde8cc82086f44bbe1a",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/canonical-promotion-001/matter/root_exact_segment_witness.py": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-consolidation-019/canonical-promotion-001/matter/tools/human_skin_fat_bone_audit.py": "15b131942fe805746325dbbc4212307ddc785c1f20f66aa641752eb9e517c158",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/exact-emitted.nodes.csv": "4d6b1f5ded1c48e44aea5d622b11f63b93f3502482b2605ace077c2dbce42b93",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/all-bank-containment.csv": "26be1cd0dde9a365caca5471c815b6e383c7a2eaf9dceabdedecd2f92c18f6bd",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/registered-skin-poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+  },
+  "elapsed_seconds": 1.226808917010203,
+  "limitations": [
+    "Exact rational signs certify narrowphase candidates; this is not a layer-triangle/tet clearance test.",
+    "Coplanar and first-boundary feature hits remain explicit unresolved witnesses.",
+    "Endpoint classifications are copied from the hash-pinned matched query; this audit does not rerun endpoint parity.",
+    "This owner never emits construction planes.",
+    "No native physical step or anatomy acceptance."
+  ],
+  "route_witnesses": [
+    {
+      "row": 233,
+      "segment": 0,
+      "segment_name": "O-I",
+      "body": 61,
+      "bone_stable_id": 97,
+      "source_record_index": 39,
+      "triangle_stable_id": 153,
+      "t": 0.028844492780133953,
+      "start_classification": "outside",
+      "end_classification": "outside",
+      "hit_triangle_count": 2,
+      "first_hit_ambiguous": false,
+      "exact_first_hit": {
+        "classification": "proper_interior_hit",
+        "t": 0.028844492780133953,
+        "barycentric": [
+          0.2990944997440708,
+          0.40555249121007847,
+          0.29535300904585066
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      },
+      "hit_reconstruction_error_m": 2.710505431213761e-20,
+      "plane_point_world_m": [
+        -0.3152325590927563,
+        -1.0095547842738726,
+        0.14438219440998779
+      ],
+      "unit_start_side_normal_world": [
+        -0.21036187296472075,
+        0.9690287598195081,
+        0.12934892750015656
+      ],
+      "unit_exterior_normal_world": [
+        -0.21036187296472075,
+        0.9690287598195081,
+        0.12934892750015656
+      ],
+      "normal_orientation_basis": "exterior_toward_outside_start",
+      "segment_start_world_f32_m": [
+        -0.31528082489967346,
+        -1.009521722793579,
+        0.1443425416946411
+      ],
+      "segment_end_world_f32_m": [
+        -0.31360751390457153,
+        -1.0106679201126099,
+        0.14571724832057953
+      ],
+      "segment_start_query_local_m": [
+        -0.0001653271971330675,
+        -0.0022854645101233247,
+        -0.0010253787134532775
+      ],
+      "segment_end_query_local_m": [
+        0.0012095322976072651,
+        -0.0032515815988091983,
+        -0.002808616085250493
+      ],
+      "triangle_body_local_f32_m": [
+        [
+          -0.0040052845142781734,
+          -0.0023803249932825565,
+          0.0007175818900577724
+        ],
+        [
+          0.002939848694950342,
+          -0.0025336877442896366,
+          -0.001650212681852281
+        ],
+        [
+          -0.0004062070220243186,
+          -0.0019429163075983524,
+          -0.0021066053304821253
+        ]
+      ],
+      "all_hits": [
+        {
+          "t": 0.028844492780133953,
+          "triangle_stable_id": 153,
+          "classification": "proper_interior_hit"
+        },
+        {
+          "t": 0.9894221832979468,
+          "triangle_stable_id": 162,
+          "classification": "proper_interior_hit"
+        }
+      ],
+      "is_first_route_hit": true
+    },
+    {
+      "row": 206,
+      "segment": 1,
+      "segment_name": "I-D",
+      "body": 61,
+      "bone_stable_id": 97,
+      "source_record_index": 39,
+      "triangle_stable_id": 63,
+      "t": 0.21056575447794995,
+      "start_classification": "outside",
+      "end_classification": "outside",
+      "hit_triangle_count": 2,
+      "first_hit_ambiguous": false,
+      "exact_first_hit": {
+        "classification": "proper_interior_hit",
+        "t": 0.21056575447794995,
+        "barycentric": [
+          0.09857729625874886,
+          0.2426578472502163,
+          0.6587648564910348
+        ],
+        "arithmetic": "exact rational signs over supplied binary floating-point endpoints/vertices"
+      },
+      "hit_reconstruction_error_m": 2.168404344971009e-19,
+      "plane_point_world_m": [
+        -0.3161780466722872,
+        -1.0246946383348918,
+        0.1460207685191076
+      ],
+      "unit_start_side_normal_world": [
+        0.8567511541281199,
+        -0.257522400510934,
+        -0.4468329364932947
+      ],
+      "unit_exterior_normal_world": [
+        0.8567511541281199,
+        -0.257522400510934,
+        -0.4468329364932947
+      ],
+      "normal_orientation_basis": "exterior_toward_outside_start",
+      "segment_start_world_f32_m": [
+        -0.3162318766117096,
+        -1.0248898267745972,
+        0.14526697993278503
+      ],
+      "segment_end_world_f32_m": [
+        -0.31597623229026794,
+        -1.0239628553390503,
+        0.1488468050956726
+      ],
+      "segment_start_query_local_m": [
+        0.0008430582125664275,
+        -0.01766647351302266,
+        -0.0016131085516962994
+      ],
+      "segment_end_query_local_m": [
+        0.004417056322707989,
+        -0.01669872297647852,
+        -0.0017856626118679256
+      ],
+      "triangle_body_local_f32_m": [
+        [
+          -0.00041076677734963596,
+          -0.019401205703616142,
+          -0.00023996674281079322
+        ],
+        [
+          0.0004419968754518777,
+          -0.013618005439639091,
+          -0.0018196090823039412
+        ],
+        [
+          0.002320794854313135,
+          -0.018588824197649956,
+          -0.0017976745730265975
+        ]
+      ],
+      "all_hits": [
+        {
+          "t": 0.21056575447794995,
+          "triangle_stable_id": 63,
+          "classification": "proper_interior_hit"
+        },
+        {
+          "t": 0.4737718505185827,
+          "triangle_stable_id": 129,
+          "classification": "proper_interior_hit"
+        }
+      ],
+      "is_first_route_hit": true
+    }
+  ],
+  "uncertain_candidates": [],
+  "tetrahedral_edge_audit": null
+}

@@ -411,8 +411,8 @@ def audit_unique_tet_edges(global_node_ids: np.ndarray, tetrahedra: np.ndarray,
                                 "classification": hit["classification"],
                                 "exact_result": hit["exact_result"],
                                 "hit_reconstruction_error_m": hit["hit_reconstruction_error_m"]})
-                counts["proper_hits"] += sum(h["classification"] == "proper_interior_hit" for h in result["hits"])
-                counts["boundary_hits"] += sum(h["classification"] == "boundary_hit" for h in result["hits"])
+                counts["proper_hits"] += int(hit["classification"] == "proper_interior_hit")
+                counts["boundary_hits"] += int(hit["classification"] == "boundary_hit")
             for bad in result["uncertain"]:
                 local_index = int(candidate_rows[bad["bank_local_index"]])
                 uncertain.append({"edge_index": int(edge_index),

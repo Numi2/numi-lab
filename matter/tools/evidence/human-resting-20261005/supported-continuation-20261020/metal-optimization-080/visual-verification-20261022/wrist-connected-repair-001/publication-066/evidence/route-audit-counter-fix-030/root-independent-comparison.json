@@ -1,0 +1,936 @@
+{
+  "status": "48_INDEPENDENT_EXACT_EDGE_WITNESSES_PASS_COMPARISON_RETAINS_CLEARANCE_FAILURE",
+  "changed_nodes": 359,
+  "all_candidate027_crossing_groups": 1787,
+  "groups_with_both_endpoints_unchanged_from_baseline": 731,
+  "baseline_to_027": {
+    "removed": 862,
+    "new": 286,
+    "retained": 1501
+  },
+  "014_to_027": {
+    "removed": 140,
+    "new": 59,
+    "retained": 1728
+  },
+  "groups_by_bank": [
+    {
+      "body": 23,
+      "bone_stable_id": 32,
+      "groups": 197
+    },
+    {
+      "body": 23,
+      "bone_stable_id": 28,
+      "groups": 179
+    },
+    {
+      "body": 23,
+      "bone_stable_id": 29,
+      "groups": 166
+    },
+    {
+      "body": 23,
+      "bone_stable_id": 33,
+      "groups": 87
+    },
+    {
+      "body": 61,
+      "bone_stable_id": 97,
+      "groups": 66
+    },
+    {
+      "body": 91,
+      "bone_stable_id": 13,
+      "groups": 65
+    },
+    {
+      "body": 42,
+      "bone_stable_id": 14,
+      "groups": 47
+    },
+    {
+      "body": 23,
+      "bone_stable_id": 30,
+      "groups": 42
+    },
+    {
+      "body": 109,
+      "bone_stable_id": 114,
+      "groups": 32
+    },
+    {
+      "body": 62,
+      "bone_stable_id": 90,
+      "groups": 30
+    },
+    {
+      "body": 100,
+      "bone_stable_id": 85,
+      "groups": 25
+    },
+    {
+      "body": 150,
+      "bone_stable_id": 21,
+      "groups": 25
+    },
+    {
+      "body": 59,
+      "bone_stable_id": 95,
+      "groups": 25
+    },
+    {
+      "body": 41,
+      "bone_stable_id": 12,
+      "groups": 24
+    },
+    {
+      "body": 150,
+      "bone_stable_id": 5,
+      "groups": 22
+    },
+    {
+      "body": 64,
+      "bone_stable_id": 98,
+      "groups": 21
+    },
+    {
+      "body": 54,
+      "bone_stable_id": 94,
+      "groups": 21
+    },
+    {
+      "body": 23,
+      "bone_stable_id": 35,
+      "groups": 21
+    },
+    {
+      "body": 70,
+      "bone_stable_id": 102,
+      "groups": 21
+    },
+    {
+      "body": 124,
+      "bone_stable_id": 123,
+      "groups": 20
+    },
+    {
+      "body": 57,
+      "bone_stable_id": 89,
+      "groups": 19
+    },
+    {
+      "body": 139,
+      "bone_stable_id": 131,
+      "groups": 18
+    },
+    {
+      "body": 53,
+      "bone_stable_id": 93,
+      "groups": 18
+    },
+    {
+      "body": 114,
+      "bone_stable_id": 117,
+      "groups": 18
+    },
+    {
+      "body": 116,
+      "bone_stable_id": 119,
+      "groups": 18
+    },
+    {
+      "body": 128,
+      "bone_stable_id": 18,
+      "groups": 17
+    },
+    {
+      "body": 152,
+      "bone_stable_id": 7,
+      "groups": 17
+    },
+    {
+      "body": 98,
+      "bone_stable_id": 73,
+      "groups": 16
+    },
+    {
+      "body": 107,
+      "bone_stable_id": 108,
+      "groups": 15
+    },
+    {
+      "body": 138,
+      "bone_stable_id": 126,
+      "groups": 15
+    },
+    {
+      "body": 74,
+      "bone_stable_id": 104,
+      "groups": 15
+    },
+    {
+      "body": 96,
+      "bone_stable_id": 81,
+      "groups": 15
+    },
+    {
+      "body": 43,
+      "bone_stable_id": 16,
+      "groups": 15
+    },
+    {
+      "body": 46,
+      "bone_stable_id": 74,
+      "groups": 15
+    },
+    {
+      "body": 66,
+      "bone_stable_id": 100,
+      "groups": 14
+    },
+    {
+      "body": 23,
+      "bone_stable_id": 31,
+      "groups": 14
+    },
+    {
+      "body": 65,
+      "bone_stable_id": 99,
+      "groups": 14
+    },
+    {
+      "body": 115,
+      "bone_stable_id": 118,
+      "groups": 14
+    },
+    {
+      "body": 142,
+      "bone_stable_id": 24,
+      "groups": 13
+    },
+    {
+      "body": 20,
+      "bone_stable_id": 26,
+      "groups": 12
+    },
+    {
+      "body": 139,
+      "bone_stable_id": 132,
+      "groups": 12
+    },
+    {
+      "body": 97,
+      "bone_stable_id": 83,
+      "groups": 12
+    },
+    {
+      "body": 102,
+      "bone_stable_id": 107,
+      "groups": 12
+    },
+    {
+      "body": 104,
+      "bone_stable_id": 113,
+      "groups": 11
+    },
+    {
+      "body": 136,
+      "bone_stable_id": 20,
+      "groups": 11
+    },
+    {
+      "body": 93,
+      "bone_stable_id": 17,
+      "groups": 11
+    },
+    {
+      "body": 45,
+      "bone_stable_id": 75,
+      "groups": 11
+    },
+    {
+      "body": 112,
+      "bone_stable_id": 109,
+      "groups": 10
+    },
+    {
+      "body": 136,
+      "bone_stable_id": 4,
+      "groups": 10
+    },
+    {
+      "body": 110,
+      "bone_stable_id": 115,
+      "groups": 10
+    },
+    {
+      "body": 128,
+      "bone_stable_id": 19,
+      "groups": 10
+    },
+    {
+      "body": 111,
+      "bone_stable_id": 116,
+      "groups": 9
+    },
+    {
+      "body": 79,
+      "bone_stable_id": 9,
+      "groups": 9
+    },
+    {
+      "body": 153,
+      "bone_stable_id": 160,
+      "groups": 9
+    },
+    {
+      "body": 153,
+      "bone_stable_id": 150,
+      "groups": 8
+    },
+    {
+      "body": 139,
+      "bone_stable_id": 141,
+      "groups": 8
+    },
+    {
+      "body": 67,
+      "bone_stable_id": 91,
+      "groups": 8
+    },
+    {
+      "body": 139,
+      "bone_stable_id": 137,
+      "groups": 7
+    },
+    {
+      "body": 139,
+      "bone_stable_id": 142,
+      "groups": 7
+    },
+    {
+      "body": 156,
+      "bone_stable_id": 25,
+      "groups": 7
+    },
+    {
+      "body": 139,
+      "bone_stable_id": 133,
+      "groups": 7
+    },
+    {
+      "body": 153,
+      "bone_stable_id": 163,
+      "groups": 7
+    },
+    {
+      "body": 47,
+      "bone_stable_id": 76,
+      "groups": 6
+    },
+    {
+      "body": 139,
+      "bone_stable_id": 138,
+      "groups": 6
+    },
+    {
+      "body": 138,
+      "bone_stable_id": 61,
+      "groups": 6
+    },
+    {
+      "body": 69,
+      "bone_stable_id": 101,
+      "groups": 6
+    },
+    {
+      "body": 139,
+      "bone_stable_id": 135,
+      "groups": 5
+    },
+    {
+      "body": 29,
+      "bone_stable_id": 8,
+      "groups": 5
+    },
+    {
+      "body": 153,
+      "bone_stable_id": 157,
+      "groups": 5
+    },
+    {
+      "body": 103,
+      "bone_stable_id": 112,
+      "groups": 5
+    },
+    {
+      "body": 121,
+      "bone_stable_id": 122,
+      "groups": 5
+    },
+    {
+      "body": 138,
+      "bone_stable_id": 6,
+      "groups": 5
+    },
+    {
+      "body": 139,
+      "bone_stable_id": 140,
+      "groups": 5
+    },
+    {
+      "body": 72,
+      "bone_stable_id": 92,
+      "groups": 5
+    },
+    {
+      "body": 92,
+      "bone_stable_id": 15,
+      "groups": 5
+    },
+    {
+      "body": 125,
+      "bone_stable_id": 124,
+      "groups": 4
+    },
+    {
+      "body": 139,
+      "bone_stable_id": 144,
+      "groups": 4
+    },
+    {
+      "body": 120,
+      "bone_stable_id": 121,
+      "groups": 4
+    },
+    {
+      "body": 153,
+      "bone_stable_id": 162,
+      "groups": 4
+    },
+    {
+      "body": 84,
+      "bone_stable_id": 11,
+      "groups": 4
+    },
+    {
+      "body": 20,
+      "bone_stable_id": 27,
+      "groups": 4
+    },
+    {
+      "body": 153,
+      "bone_stable_id": 154,
+      "groups": 3
+    },
+    {
+      "body": 52,
+      "bone_stable_id": 88,
+      "groups": 3
+    },
+    {
+      "body": 71,
+      "bone_stable_id": 103,
+      "groups": 3
+    },
+    {
+      "body": 139,
+      "bone_stable_id": 143,
+      "groups": 3
+    },
+    {
+      "body": 153,
+      "bone_stable_id": 151,
+      "groups": 3
+    },
+    {
+      "body": 117,
+      "bone_stable_id": 110,
+      "groups": 3
+    },
+    {
+      "body": 139,
+      "bone_stable_id": 136,
+      "groups": 2
+    },
+    {
+      "body": 99,
+      "bone_stable_id": 84,
+      "groups": 2
+    },
+    {
+      "body": 138,
+      "bone_stable_id": 127,
+      "groups": 2
+    },
+    {
+      "body": 138,
+      "bone_stable_id": 129,
+      "groups": 2
+    },
+    {
+      "body": 139,
+      "bone_stable_id": 139,
+      "groups": 2
+    },
+    {
+      "body": 138,
+      "bone_stable_id": 60,
+      "groups": 1
+    },
+    {
+      "body": 152,
+      "bone_stable_id": 149,
+      "groups": 1
+    },
+    {
+      "body": 55,
+      "bone_stable_id": 79,
+      "groups": 1
+    },
+    {
+      "body": 138,
+      "bone_stable_id": 130,
+      "groups": 1
+    },
+    {
+      "body": 139,
+      "bone_stable_id": 134,
+      "groups": 1
+    },
+    {
+      "body": 50,
+      "bone_stable_id": 78,
+      "groups": 1
+    },
+    {
+      "body": 152,
+      "bone_stable_id": 146,
+      "groups": 1
+    },
+    {
+      "body": 48,
+      "bone_stable_id": 72,
+      "groups": 1
+    },
+    {
+      "body": 152,
+      "bone_stable_id": 145,
+      "groups": 1
+    },
+    {
+      "body": 137,
+      "bone_stable_id": 22,
+      "groups": 1
+    },
+    {
+      "body": 152,
+      "bone_stable_id": 65,
+      "groups": 1
+    },
+    {
+      "body": 138,
+      "bone_stable_id": 128,
+      "groups": 1
+    }
+  ],
+  "independent_samples": [
+    {
+      "witness_index": 0,
+      "edge_index": 25648,
+      "body": 20,
+      "bone": 26,
+      "triangle": 1945,
+      "t": 0.9933012938460689
+    },
+    {
+      "witness_index": 79,
+      "edge_index": 23066,
+      "body": 23,
+      "bone": 28,
+      "triangle": 1796,
+      "t": 0.42689822304073294
+    },
+    {
+      "witness_index": 158,
+      "edge_index": 23420,
+      "body": 23,
+      "bone": 28,
+      "triangle": 1362,
+      "t": 0.0824170370471302
+    },
+    {
+      "witness_index": 238,
+      "edge_index": 25892,
+      "body": 23,
+      "bone": 28,
+      "triangle": 11319,
+      "t": 0.7892273601365875
+    },
+    {
+      "witness_index": 317,
+      "edge_index": 36418,
+      "body": 23,
+      "bone": 28,
+      "triangle": 2960,
+      "t": 0.9858422342849017
+    },
+    {
+      "witness_index": 396,
+      "edge_index": 37268,
+      "body": 23,
+      "bone": 28,
+      "triangle": 6007,
+      "t": 0.011280609918656901
+    },
+    {
+      "witness_index": 476,
+      "edge_index": 25892,
+      "body": 23,
+      "bone": 29,
+      "triangle": 4162,
+      "t": 0.9630272682008123
+    },
+    {
+      "witness_index": 555,
+      "edge_index": 28340,
+      "body": 23,
+      "bone": 29,
+      "triangle": 11609,
+      "t": 0.9930572810850491
+    },
+    {
+      "witness_index": 635,
+      "edge_index": 37478,
+      "body": 23,
+      "bone": 29,
+      "triangle": 4171,
+      "t": 0.7969278461129462
+    },
+    {
+      "witness_index": 714,
+      "edge_index": 38694,
+      "body": 23,
+      "bone": 29,
+      "triangle": 10974,
+      "t": 0.03666167151769233
+    },
+    {
+      "witness_index": 793,
+      "edge_index": 23143,
+      "body": 23,
+      "bone": 30,
+      "triangle": 524,
+      "t": 0.9666866174640102
+    },
+    {
+      "witness_index": 873,
+      "edge_index": 28735,
+      "body": 23,
+      "bone": 31,
+      "triangle": 4739,
+      "t": 0.8700866901153611
+    },
+    {
+      "witness_index": 952,
+      "edge_index": 23627,
+      "body": 23,
+      "bone": 32,
+      "triangle": 558,
+      "t": 0.1774754266860159
+    },
+    {
+      "witness_index": 1031,
+      "edge_index": 26594,
+      "body": 23,
+      "bone": 32,
+      "triangle": 10731,
+      "t": 0.9493571184057331
+    },
+    {
+      "witness_index": 1111,
+      "edge_index": 36513,
+      "body": 23,
+      "bone": 32,
+      "triangle": 1669,
+      "t": 0.9613062018103481
+    },
+    {
+      "witness_index": 1190,
+      "edge_index": 36841,
+      "body": 23,
+      "bone": 32,
+      "triangle": 2365,
+      "t": 0.8684085143565186
+    },
+    {
+      "witness_index": 1270,
+      "edge_index": 37644,
+      "body": 23,
+      "bone": 32,
+      "triangle": 8785,
+      "t": 0.008179948915101497
+    },
+    {
+      "witness_index": 1349,
+      "edge_index": 24280,
+      "body": 23,
+      "bone": 33,
+      "triangle": 3076,
+      "t": 0.9886934848578188
+    },
+    {
+      "witness_index": 1428,
+      "edge_index": 36810,
+      "body": 23,
+      "bone": 33,
+      "triangle": 1458,
+      "t": 0.012348791812396074
+    },
+    {
+      "witness_index": 1508,
+      "edge_index": 25453,
+      "body": 23,
+      "bone": 35,
+      "triangle": 2631,
+      "t": 0.3119196896175817
+    },
+    {
+      "witness_index": 1587,
+      "edge_index": 21694,
+      "body": 41,
+      "bone": 12,
+      "triangle": 3776,
+      "t": 0.9465792080782843
+    },
+    {
+      "witness_index": 1667,
+      "edge_index": 19529,
+      "body": 42,
+      "bone": 14,
+      "triangle": 387,
+      "t": 0.09958090813842829
+    },
+    {
+      "witness_index": 1746,
+      "edge_index": 34638,
+      "body": 45,
+      "bone": 75,
+      "triangle": 2,
+      "t": 0.4147193796509736
+    },
+    {
+      "witness_index": 1825,
+      "edge_index": 33866,
+      "body": 53,
+      "bone": 93,
+      "triangle": 222,
+      "t": 0.2883755295000878
+    },
+    {
+      "witness_index": 1905,
+      "edge_index": 19000,
+      "body": 57,
+      "bone": 89,
+      "triangle": 476,
+      "t": 0.6430769327653824
+    },
+    {
+      "witness_index": 1984,
+      "edge_index": 1603,
+      "body": 61,
+      "bone": 97,
+      "triangle": 29,
+      "t": 0.25802148596084057
+    },
+    {
+      "witness_index": 2063,
+      "edge_index": 18466,
+      "body": 61,
+      "bone": 97,
+      "triangle": 158,
+      "t": 0.2614583790235146
+    },
+    {
+      "witness_index": 2143,
+      "edge_index": 19301,
+      "body": 62,
+      "bone": 90,
+      "triangle": 532,
+      "t": 0.9746166618161526
+    },
+    {
+      "witness_index": 2222,
+      "edge_index": 19264,
+      "body": 65,
+      "bone": 99,
+      "triangle": 308,
+      "t": 0.2504570609742628
+    },
+    {
+      "witness_index": 2302,
+      "edge_index": 2649,
+      "body": 70,
+      "bone": 102,
+      "triangle": 30,
+      "t": 0.6859134136532561
+    },
+    {
+      "witness_index": 2381,
+      "edge_index": 34758,
+      "body": 74,
+      "bone": 104,
+      "triangle": 69,
+      "t": 0.8970827803306197
+    },
+    {
+      "witness_index": 2460,
+      "edge_index": 30635,
+      "body": 91,
+      "bone": 13,
+      "triangle": 1160,
+      "t": 0.4328344301766479
+    },
+    {
+      "witness_index": 2540,
+      "edge_index": 39770,
+      "body": 91,
+      "bone": 13,
+      "triangle": 2140,
+      "t": 0.9152191141493363
+    },
+    {
+      "witness_index": 2619,
+      "edge_index": 31869,
+      "body": 97,
+      "bone": 83,
+      "triangle": 200,
+      "t": 0.5249894530707732
+    },
+    {
+      "witness_index": 2699,
+      "edge_index": 32879,
+      "body": 100,
+      "bone": 85,
+      "triangle": 278,
+      "t": 0.04305645558005642
+    },
+    {
+      "witness_index": 2778,
+      "edge_index": 40616,
+      "body": 104,
+      "bone": 113,
+      "triangle": 193,
+      "t": 0.013786116131858839
+    },
+    {
+      "witness_index": 2857,
+      "edge_index": 32934,
+      "body": 109,
+      "bone": 114,
+      "triangle": 320,
+      "t": 0.6035576554513006
+    },
+    {
+      "witness_index": 2937,
+      "edge_index": 40290,
+      "body": 112,
+      "bone": 109,
+      "triangle": 195,
+      "t": 0.6180830137294034
+    },
+    {
+      "witness_index": 3016,
+      "edge_index": 16080,
+      "body": 116,
+      "bone": 119,
+      "triangle": 92,
+      "t": 0.647924388504439
+    },
+    {
+      "witness_index": 3095,
+      "edge_index": 32433,
+      "body": 124,
+      "bone": 123,
+      "triangle": 109,
+      "t": 0.31959249901188014
+    },
+    {
+      "witness_index": 3175,
+      "edge_index": 23940,
+      "body": 136,
+      "bone": 4,
+      "triangle": 256,
+      "t": 0.44472447025010153
+    },
+    {
+      "witness_index": 3254,
+      "edge_index": 35849,
+      "body": 138,
+      "bone": 126,
+      "triangle": 289,
+      "t": 0.651727609808196
+    },
+    {
+      "witness_index": 3334,
+      "edge_index": 36018,
+      "body": 139,
+      "bone": 132,
+      "triangle": 0,
+      "t": 0.009707509021296462
+    },
+    {
+      "witness_index": 3413,
+      "edge_index": 21799,
+      "body": 139,
+      "bone": 140,
+      "triangle": 341,
+      "t": 0.8339439759673724
+    },
+    {
+      "witness_index": 3492,
+      "edge_index": 10996,
+      "body": 150,
+      "bone": 5,
+      "triangle": 1460,
+      "t": 0.6790214074191873
+    },
+    {
+      "witness_index": 3572,
+      "edge_index": 38801,
+      "body": 150,
+      "bone": 21,
+      "triangle": 556,
+      "t": 0.7966855666528744
+    },
+    {
+      "witness_index": 3651,
+      "edge_index": 29590,
+      "body": 153,
+      "bone": 151,
+      "triangle": 279,
+      "t": 0.7162477514017579
+    },
+    {
+      "witness_index": 3731,
+      "edge_index": 39076,
+      "body": 156,
+      "bone": 25,
+      "triangle": 254,
+      "t": 0.6474408984322229
+    }
+  ],
+  "accepted_physical_steps": 0,
+  "physical_qualification": false,
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/baseline035/tet-edge-report.json": "613d19fe45e052697ae5cdf8e7b481bfb3ea3fdbc5a4517d8e0e73aa53c40a23",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/candidate014/tet-edge-report.json": "0ad07a3393aa4ba715f17e66fc70bd75f712cf2c39d1f027301ff2788335effe",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/candidate027/tet-edge-report.json": "6325ea1b5c23f31d4b25cc1a22d768e69ff475d08a1cf12d98d7b62ae83e9fa0"
+  },
+  "limitations": [
+    "Exact edge witnesses are genuine crossings, but count is not penetration volume or physiological impact.",
+    "Node containment plus edge screening is not full face/tet solid certification.",
+    "As-run029proper_hitscounterwasinflated; individualwitnesses/uniqueedgegroupsremainunchanged."
+  ]
+}

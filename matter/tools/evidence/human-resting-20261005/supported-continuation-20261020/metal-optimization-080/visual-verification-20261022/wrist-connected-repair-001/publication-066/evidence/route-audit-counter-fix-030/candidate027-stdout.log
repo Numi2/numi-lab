@@ -1,0 +1,58 @@
+{
+  "status": "EXACT_NATIVE_GEOMETRY_ROUTE_WITNESSES_NOT_FULL_TISSUE_CLEARANCE",
+  "counts": {
+    "total_column_bank_pairs": 446035,
+    "total_segment_bank_pairs": 892070,
+    "AABB_candidate_segment_bank_pairs": 1604,
+    "triangle_AABB_candidates": 1255,
+    "exact_candidates": 4,
+    "proper_hits": 4,
+    "boundary_hits": 0,
+    "coplanar_candidates": 0,
+    "hit_segment_bank_pairs": 2
+  },
+  "columns_with_hits": 2,
+  "column_bank_groups_with_hits": 2,
+  "construction_planes": 0,
+  "uncertainties": 0,
+  "native_query_frame_max_error_m": 5.553824967135427e-17,
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/candidate.npz": "ccfeb27e6e939249e4c5146f77722bf2477d1f8377300bde8cc82086f44bbe1a",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/canonical/matter/root_exact_segment_witness.py": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/canonical/matter/tools/human_skin_fat_bone_audit.py": "902269457740f70387267fce437d4198b1545a2e4f8d95fdbbdecc666a23f4c2",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/exact-emitted.nodes.csv": "4d6b1f5ded1c48e44aea5d622b11f63b93f3502482b2605ace077c2dbce42b93",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/all-bank-containment.csv": "26be1cd0dde9a365caca5471c815b6e383c7a2eaf9dceabdedecd2f92c18f6bd",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/registered-skin-poses.json": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+  },
+  "elapsed_seconds": 4.780954208923504,
+  "limitations": [
+    "Exact rational signs certify narrowphase candidates; this is not a layer-triangle/tet clearance test.",
+    "Coplanar and first-boundary feature hits remain explicit unresolved witnesses.",
+    "Endpoint classifications are copied from the hash-pinned matched query; this audit does not rerun endpoint parity.",
+    "This owner never emits construction planes.",
+    "No native physical step or anatomy acceptance."
+  ],
+  "tetrahedral_edge_audit": {
+    "status": "EDGE_WITNESSES_NOT_FULL_SOLID_CERTIFICATION",
+    "counts": {
+      "unique_tetrahedral_edges": 40732,
+      "typed_banks": 185,
+      "broadphase_edge_bank_pairs": 23804,
+      "triangle_aabb_pairs": 885645,
+      "exact_narrowphase_tests": 3732,
+      "proper_hits": 3732,
+      "boundary_hits": 0,
+      "ambiguous": 0
+    },
+    "edges_with_hits": 1533,
+    "edge_bank_groups_with_hits": 1787,
+    "companion_report": "tet-edge-report.json",
+    "companion_report_sha256": "6325ea1b5c23f31d4b25cc1a22d768e69ff475d08a1cf12d98d7b62ae83e9fa0"
+  }
+}

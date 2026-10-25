@@ -1,0 +1,529 @@
+{
+  "files": [
+    {
+      "path": "evidence/o12-outward-repair-025/build_o12_outward_025.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-025/build_o12_outward_025.py",
+      "uncompressed_sha256": "88da524667b50c5054099405a047919ff8b8946277a53900bbdf90630aeff01f",
+      "uncompressed_size_bytes": 24305,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-025/candidate.npz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-025/candidate.npz",
+      "uncompressed_sha256": "0ea6d4032624a1a216b886d5ef33c413373699d091ec9ea657fdcdddab660190",
+      "uncompressed_size_bytes": 213073,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-025/construction-planes.npz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-025/construction-planes.npz",
+      "uncompressed_sha256": "9fc4f9b06e26c1ee8af02e4d06434c0da1e9ac56e6f101669bf025aa211aa545",
+      "uncompressed_size_bytes": 5129,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-025/report.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-025/report.json",
+      "uncompressed_sha256": "0a99677f28c43186bdc2badb8ef5718ed4c1825749f97ef4d760ef2488b197c5",
+      "uncompressed_size_bytes": 32315,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-025/solver-state.npz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-025/solver-state.npz",
+      "uncompressed_sha256": "73e572bf9d6572f8371cbaeec9fac1f038e71493dc3f22513ae07adc04e0da1b",
+      "uncompressed_size_bytes": 9190,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-026-qbuffer/build_o12_outward_026.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-026-qbuffer/build_o12_outward_026.py",
+      "uncompressed_sha256": "f810f0df10f98fde91b34e3a88e7b28f80f223e050e30d939e7346ecdeaf7cad",
+      "uncompressed_size_bytes": 24927,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-026-qbuffer/candidate.npz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-026-qbuffer/candidate.npz",
+      "uncompressed_sha256": "caf05b2b218ba313e45f8d2af9b57404bd8630584f7b6f68427d7bba640013bf",
+      "uncompressed_size_bytes": 213074,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-026-qbuffer/construction-planes.npz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-026-qbuffer/construction-planes.npz",
+      "uncompressed_sha256": "9fc4f9b06e26c1ee8af02e4d06434c0da1e9ac56e6f101669bf025aa211aa545",
+      "uncompressed_size_bytes": 5129,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-026-qbuffer/report.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-026-qbuffer/report.json",
+      "uncompressed_sha256": "9775e5e5dade860fa48dd42adf929f625f231ce895cf7ebdfc5e175a98409c1c",
+      "uncompressed_size_bytes": 32310,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-026-qbuffer/solver-state.npz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-026-qbuffer/solver-state.npz",
+      "uncompressed_sha256": "c6e2757463b64e5044057f4f51c89bd02791c02fd58238fd0d70034b636a0a6d",
+      "uncompressed_size_bytes": 9864,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-027-f32-gated/build_o12_outward_027.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/build_o12_outward_027.py",
+      "uncompressed_sha256": "73d91ec65ca83d19b9a390766d9d2c136a9d8eb16a6ae664727c5ff2bf83b3da",
+      "uncompressed_size_bytes": 26694,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-027-f32-gated/candidate.npz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/candidate.npz",
+      "uncompressed_sha256": "ccfeb27e6e939249e4c5146f77722bf2477d1f8377300bde8cc82086f44bbe1a",
+      "uncompressed_size_bytes": 213069,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-027-f32-gated/construction-planes.npz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/construction-planes.npz",
+      "uncompressed_sha256": "9fc4f9b06e26c1ee8af02e4d06434c0da1e9ac56e6f101669bf025aa211aa545",
+      "uncompressed_size_bytes": 5129,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-027-f32-gated/report.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/report.json",
+      "uncompressed_sha256": "3dc2a9d1bbcd534fafc7770c2c0a83434d25dc563d858b768e16c3230514e71e",
+      "uncompressed_size_bytes": 32664,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-027-f32-gated/solver-state.npz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/solver-state.npz",
+      "uncompressed_sha256": "9694fc0b3b1145d6fb2ce1aa835e47437fb6d6d290c4148de870d0a81d58ef26",
+      "uncompressed_size_bytes": 13545,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-028-same-entry-halfspace-lp-002/build_o12_outward_028_lp_r5.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-028-same-entry-halfspace-lp-002/build_o12_outward_028_lp_r5.py",
+      "uncompressed_sha256": "94ae88092890afb5caa45113c54db3e096afc843ca4cc332a419a21a567abc86",
+      "uncompressed_size_bytes": 18024,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-028-same-entry-halfspace-lp-002/report.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-028-same-entry-halfspace-lp-002/report.json",
+      "uncompressed_sha256": "1a592937ba0ca4ae968f827e4021502af8ce6a08d4f2f8e6f32e472cf2eec087",
+      "uncompressed_size_bytes": 10362,
+      "gzip": false
+    },
+    {
+      "path": "evidence/current-027-detailed-skin-lineage-001/audit_lineage_001.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/current-027-detailed-skin-lineage-001/audit_lineage_001.py",
+      "uncompressed_sha256": "97ed9be1400235a556612f9f1ee05b3e2240b55db074fe9d96733d56e917e040",
+      "uncompressed_size_bytes": 9305,
+      "gzip": false
+    },
+    {
+      "path": "evidence/current-027-detailed-skin-lineage-001/lineage-report.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/current-027-detailed-skin-lineage-001/lineage-report.json",
+      "uncompressed_sha256": "821851cd5e315063a773d6b8a7718a5a6a17f98f8681187339a9de2cedb10027",
+      "uncompressed_size_bytes": 11801,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root_run_geometry_only_native_query_028.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root_run_geometry_only_native_query_028.py",
+      "uncompressed_sha256": "d2ff55121f186ba13c6001ce420ae7e4ac70b8f163414d9d4bd3b52cf32594b1",
+      "uncompressed_size_bytes": 5014,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root_verify_static_query_028.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root_verify_static_query_028.py",
+      "uncompressed_sha256": "6c8c5bbf99e0052c76d2a3a1b65d32e47f5e469ae9b71ac4da6eb7495c2b52c8",
+      "uncompressed_size_bytes": 3098,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root-independent-static-query-028.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root-independent-static-query-028.json",
+      "uncompressed_sha256": "3ac5521916caae88e70f6f5530acab95f86e559ff159aef1ec7b7e26bf8a8f95",
+      "uncompressed_size_bytes": 2690,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root_run_complete_edge_comparison_030.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root_run_complete_edge_comparison_030.py",
+      "uncompressed_sha256": "f8ba8bcbf5e8bda189dda651b9bf4162a28f05211d55de41c5237aacc7bdf5ce",
+      "uncompressed_size_bytes": 2899,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root_verify_edge_comparison_030.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root_verify_edge_comparison_030.py",
+      "uncompressed_sha256": "25238f2b18fd53865a8679b80d0def0bb4dbf1c48d759f5163554b124c9391a2",
+      "uncompressed_size_bytes": 4403,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root-identical-bank-dedup-028.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root-identical-bank-dedup-028.json",
+      "uncompressed_sha256": "8f90967d2cf090ba5aef2c4410731b13de87182a38f29fc01b7ffa831be3b3bc",
+      "uncompressed_size_bytes": 1752,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/comparison.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/comparison.json",
+      "uncompressed_sha256": "ff9a1ba6e0cdc00ab10ceda2f76948aabb9c07f8cfe67bbbc0d01da8cc0e99ea",
+      "uncompressed_size_bytes": 2073,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/root-independent-comparison.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/root-independent-comparison.json",
+      "uncompressed_sha256": "2af56220f2391bcdf7ed98591fc0f2ba4a8198f1a2464908a38e9dd4f2c0ce37",
+      "uncompressed_size_bytes": 17662,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/baseline-035.npz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/baseline-035.npz",
+      "uncompressed_sha256": "452602aea036c15faaafe6c154e6c4676585e1b2cb57c9a1c9128de82050b570",
+      "uncompressed_size_bytes": 224257,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/baseline035/route-report.json.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/baseline035/route-report.json",
+      "uncompressed_sha256": "820c607462bba8a4edaa559f5b72bdf145689d977f7ca5caf49013267139e49e",
+      "uncompressed_size_bytes": 466569,
+      "gzip": true
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/baseline035/tet-edge-report.json.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/baseline035/tet-edge-report.json",
+      "uncompressed_sha256": "613d19fe45e052697ae5cdf8e7b481bfb3ea3fdbc5a4517d8e0e73aa53c40a23",
+      "uncompressed_size_bytes": 3384917,
+      "gzip": true
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/baseline035/source-pins.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/baseline035/source-pins.json",
+      "uncompressed_sha256": "f83666be9c39de9d8cfb30cea54c892377b8c1749f924edd914003fdbd94ad51",
+      "uncompressed_size_bytes": 5005,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/baseline035-command.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/baseline035-command.json",
+      "uncompressed_sha256": "1db2498b8b2a5f5f4c6913ff0266d07639907a1cb0074b960ae44bca9e67d267",
+      "uncompressed_size_bytes": 1888,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/baseline035-stdout.log",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/baseline035-stdout.log",
+      "uncompressed_sha256": "b5d86493fcd4f45ae40a559dde202459386c6756214fde1ca35abe3a338f2344",
+      "uncompressed_size_bytes": 5721,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/candidate014/route-report.json.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/candidate014/route-report.json",
+      "uncompressed_sha256": "2fe7a873954edf058484a1c0fdd2ee68721715f5e247dea37f826a1e7befd88e",
+      "uncompressed_size_bytes": 23059,
+      "gzip": true
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/candidate014/tet-edge-report.json.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/candidate014/tet-edge-report.json",
+      "uncompressed_sha256": "0ad07a3393aa4ba715f17e66fc70bd75f712cf2c39d1f027301ff2788335effe",
+      "uncompressed_size_bytes": 3310333,
+      "gzip": true
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/candidate014/source-pins.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/candidate014/source-pins.json",
+      "uncompressed_sha256": "7a962d0a9dc92d01e38ab0379af370cf420f3c6e5fb7bc2f520f9a602adaf0c1",
+      "uncompressed_size_bytes": 3991,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/candidate014-command.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/candidate014-command.json",
+      "uncompressed_sha256": "f36a663dc24e8069e7a73b37ab4950a4a45976086133e4145cc157730c67c181",
+      "uncompressed_size_bytes": 1974,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/candidate014-stdout.log",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/candidate014-stdout.log",
+      "uncompressed_sha256": "60d975c32d2c7797d1302ba85c52e96b71d9ca139359dd66db947bc5c8c9a60e",
+      "uncompressed_size_bytes": 4506,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/candidate027/route-report.json.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/candidate027/route-report.json",
+      "uncompressed_sha256": "128d7e6af0847b8c647f6dbbc77d7b22636effdc92d64937cbc4615e96dff3c3",
+      "uncompressed_size_bytes": 11203,
+      "gzip": true
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/candidate027/tet-edge-report.json.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/candidate027/tet-edge-report.json",
+      "uncompressed_sha256": "6325ea1b5c23f31d4b25cc1a22d768e69ff475d08a1cf12d98d7b62ae83e9fa0",
+      "uncompressed_size_bytes": 3335160,
+      "gzip": true
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/candidate027/source-pins.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/candidate027/source-pins.json",
+      "uncompressed_sha256": "97bfdc9b851811e272970e415802ce9bad843b497c45e6067e56a53cbbf28aac",
+      "uncompressed_size_bytes": 5476,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/candidate027-command.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/candidate027-command.json",
+      "uncompressed_sha256": "eb9dcf42b8d4bc8f6ff82e38874ca85840446059193c9078293bd856d6896129",
+      "uncompressed_size_bytes": 2279,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/candidate027-stdout.log",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/candidate027-stdout.log",
+      "uncompressed_sha256": "3ff9295418aaa3ebc7ff6c51487c918fe3e12c3d113d63505ce920a404165cae",
+      "uncompressed_size_bytes": 6049,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-027-all-tet-edges-029/tet-edge-report.json.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-027-all-tet-edges-029/tet-edge-report.json",
+      "uncompressed_sha256": "389d776652001910e923370a50960a1bf7eb03135661918d9a92dab51965ad9f",
+      "uncompressed_size_bytes": 3335160,
+      "gzip": true
+    },
+    {
+      "path": "evidence/route-audit-027-all-tet-edges-029/route-report.json.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-027-all-tet-edges-029/route-report.json",
+      "uncompressed_sha256": "0eae76f533d0842e13494d8938f71f4fc579817041eb5351723b8886315b1740",
+      "uncompressed_size_bytes": 11235,
+      "gzip": true
+    },
+    {
+      "path": "evidence/route-audit-027-all-tet-edges-029/source-pins.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-027-all-tet-edges-029/source-pins.json",
+      "uncompressed_sha256": "45456e7ecdc249385fafcc195af18cbf19906f606c2c105c0a842f1e18ca0ac6",
+      "uncompressed_size_bytes": 5501,
+      "gzip": false
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/source-query-report.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-query-report.json",
+      "uncompressed_sha256": "052bb3e9173feb51d20491aa3fa8db757d11089826fffafd43724765b7a0d1f4",
+      "uncompressed_size_bytes": 3134,
+      "gzip": false
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/command.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/command.json",
+      "uncompressed_sha256": "bfe1c462759944faa0a5237f35b81775bae5c8ff17b4ef5257965350b8a6e96f",
+      "uncompressed_size_bytes": 1960,
+      "gzip": false
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/base-launch-manifest.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/base-launch-manifest.json",
+      "uncompressed_sha256": "f728cd51d465e59f95a781ef8442a93af042cacf757aecf85bd30a572963e1c7",
+      "uncompressed_size_bytes": 20164,
+      "gzip": false
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/checked-runner.stdout.txt",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/checked-runner.stdout.txt",
+      "uncompressed_sha256": "264ae67f63debe429ce61d3c8c94c68269313cf982a1ba5c2f4df11770eb4052",
+      "uncompressed_size_bytes": 516,
+      "gzip": false
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/checked-runner.stderr.txt",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/checked-runner.stderr.txt",
+      "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "uncompressed_size_bytes": 0,
+      "gzip": false
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/source-preflight/all-bank-containment.csv.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/all-bank-containment.csv",
+      "uncompressed_sha256": "26be1cd0dde9a365caca5471c815b6e383c7a2eaf9dceabdedecd2f92c18f6bd",
+      "uncompressed_size_bytes": 456045,
+      "gzip": true
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/source-preflight/all-bank-containment.csv.nodes.csv.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/all-bank-containment.csv.nodes.csv",
+      "uncompressed_sha256": "3f4bb4b0038cc674497bf3ea0f3f16f08e0a3ac2ff7c43c774dfeaffd843b9c0",
+      "uncompressed_size_bytes": 263350,
+      "gzip": true
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/source-preflight/all-bank-containment.csv.banks.csv.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/all-bank-containment.csv.banks.csv",
+      "uncompressed_sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+      "uncompressed_size_bytes": 26176,
+      "gzip": true
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/source-preflight/exact-emitted.nodes.csv.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/exact-emitted.nodes.csv",
+      "uncompressed_sha256": "4d6b1f5ded1c48e44aea5d622b11f63b93f3502482b2605ace077c2dbce42b93",
+      "uncompressed_size_bytes": 1056092,
+      "gzip": true
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/source-preflight/exact-emitted.bodies.csv.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/exact-emitted.bodies.csv",
+      "uncompressed_sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+      "uncompressed_size_bytes": 80016,
+      "gzip": true
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/source-preflight/initial-skin-fem-nodes.csv.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/initial-skin-fem-nodes.csv",
+      "uncompressed_sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+      "uncompressed_size_bytes": 694725,
+      "gzip": true
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/source-preflight/execution-receipt.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/execution-receipt.json",
+      "uncompressed_sha256": "e0feaf77054723e0abbd65a8bb147fbb0b77b9275d7f7cbc531e2ecafe7a12bc",
+      "uncompressed_size_bytes": 539,
+      "gzip": false
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/source-preflight/launch-manifest.snapshot.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/launch-manifest.snapshot.json",
+      "uncompressed_sha256": "ff6be11803f3efd9302d7a64a523ed4617fe0d2d72cd22c8bfc7ae0afaec9e63",
+      "uncompressed_size_bytes": 20370,
+      "gzip": false
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/source-preflight/stderr.log.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/stderr.log",
+      "uncompressed_sha256": "bd566bb288941933b68887e1d2a4da95c1003a3df815e08b4597a032eb98ed89",
+      "uncompressed_size_bytes": 77111,
+      "gzip": true
+    },
+    {
+      "path": "evidence/native-source-only-rest-geometry-027-query-028/source-preflight/stdout.log.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-source-only-rest-geometry-027-query-028/source-preflight/stdout.log",
+      "uncompressed_sha256": "238450fc34fb621dda0d845aefeb345cd2e32779ea46512fc6ee5097dfe96567",
+      "uncompressed_size_bytes": 213033,
+      "gzip": true
+    },
+    {
+      "path": "evidence/route-audit-027-matched-query-028/route-report.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-027-matched-query-028/route-report.json",
+      "uncompressed_sha256": "7d9108c9fa03161bd39cb23cfc98e7e587386ebeb5372ac1fdcd5c6705d1b972",
+      "uncompressed_size_bytes": 10675,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-027-matched-query-028/source-pins.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-027-matched-query-028/source-pins.json",
+      "uncompressed_sha256": "3c72727d0ee6692a1621412cb3b114792283258b85e6b23b4ce8286c95625976",
+      "uncompressed_size_bytes": 5146,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/regional-map-031/regional-map.json.gz",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/regional-map-031/regional-map.json",
+      "uncompressed_sha256": "6f7537579d75850a5ab380ea3ad3939bc37fa180e1158d3661c76995c74349d5",
+      "uncompressed_size_bytes": 535093,
+      "gzip": true
+    },
+    {
+      "path": "evidence/source/root_exact_segment_witness.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/canonical/matter/root_exact_segment_witness.py",
+      "uncompressed_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "uncompressed_size_bytes": 2734,
+      "gzip": false
+    },
+    {
+      "path": "evidence/route-audit-counter-fix-030/regional-map-031/map_route_edges_031.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/regional-map-031/map_route_edges_031.py",
+      "uncompressed_sha256": "3b3d997e9659b6ad2b2a28f1491e88333c9e1d90e32821e48b6259e75d6674b3",
+      "uncompressed_size_bytes": 11118,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-027-f32-gated/mass-feasibility-001/root-ssh-numi-report.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/mass-feasibility-001/root-ssh-numi-report.json",
+      "uncompressed_sha256": "54140f182d525e28e3ae8d15a9f6702be7b56d25efc7e53b9c4cb38ce009244d",
+      "uncompressed_size_bytes": 9875,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-027-f32-gated/mass-feasibility-001/root-ssh-numi-command.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/mass-feasibility-001/root-ssh-numi-command.json",
+      "uncompressed_sha256": "6e655c1a7b6acfeb784f02de322abf00033cf37cf152a8ed6b6dbfac43215faa",
+      "uncompressed_size_bytes": 3064,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-027-f32-gated/mass-feasibility-001/audit_mass_027.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/mass-feasibility-001/audit_mass_027.py",
+      "uncompressed_sha256": "595889f7f3051e6d097290cc4961a81cac44599695d71efa34f2159a99124629",
+      "uncompressed_size_bytes": 10621,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-027-f32-gated/mass-feasibility-001/root-ssh-numi-parity.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/mass-feasibility-001/root-ssh-numi-parity.json",
+      "uncompressed_sha256": "659e84e33ed75dde7e87560673784428698545d34dd67642144a0fd9368f40e6",
+      "uncompressed_size_bytes": 2499,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-027-f32-gated/mass-feasibility-001/mass-feasibility-027-manifest.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/mass-feasibility-001/mass-feasibility-027-manifest.json",
+      "uncompressed_sha256": "8996e798d92585b03f7cb691b3038d21fcac085a8dd7bffc422143a60bf64028",
+      "uncompressed_size_bytes": 4572,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-027-f32-gated/mass-feasibility-001/audit-report027-frozen.json",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/mass-feasibility-001/audit-report027-frozen.json",
+      "uncompressed_sha256": "a6a30b9e2d6236532805d3954211978c3038217b21c9df2590a3de0f4964ffb1",
+      "uncompressed_size_bytes": 10228,
+      "gzip": false
+    },
+    {
+      "path": "evidence/o12-outward-repair-027-f32-gated/mass-feasibility-001/root-ssh-numi.log",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/mass-feasibility-001/root-ssh-numi.log",
+      "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "uncompressed_size_bytes": 0,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root_rerun_mass_feasibility_numi_027.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root_rerun_mass_feasibility_numi_027.py",
+      "uncompressed_sha256": "6769baa8b5775c9e2b1de829dfa4b9494db45bcdb701f01bd0d51b43c627013e",
+      "uncompressed_size_bytes": 1638,
+      "gzip": false
+    },
+    {
+      "path": "evidence/root_verify_mass_feasibility_numi_027.py",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root_verify_mass_feasibility_numi_027.py",
+      "uncompressed_sha256": "7042ba0e9e163da6f308e170ed4012acf7b9a4feba77ddf0e40194d9d2030334",
+      "uncompressed_size_bytes": 1886,
+      "gzip": false
+    }
+  ]
+}

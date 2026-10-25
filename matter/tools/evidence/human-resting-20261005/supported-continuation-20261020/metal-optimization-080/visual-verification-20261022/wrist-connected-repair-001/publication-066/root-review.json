@@ -1,0 +1,40 @@
+{
+  "base_origin_main": "2973dc56cf4cd621cf839913b906b21420ce0326",
+  "canonical_paths": [
+    {
+      "path": "matter/tools/human_skin_fat_bone_audit.py",
+      "sha256": "902269457740f70387267fce437d4198b1545a2e4f8d95fdbbdecc666a23f4c2",
+      "size_bytes": 46014
+    },
+    {
+      "path": "matter/tools/test_human_skin_fat_bone_audit.py",
+      "sha256": "2c8335170245f5bffceb5494ca2bdb89127400f8aa6e32aa7c5751df102e2f81",
+      "size_bytes": 12103
+    }
+  ],
+  "focused_tests_passed": 11,
+  "independent_exact_witness_replays": 48,
+  "accepted_physical_steps": 0,
+  "physical_qualification": false,
+  "geometry_candidate_admitted": false,
+  "baseline035_groups": 2363,
+  "candidate014_groups": 1868,
+  "candidate027_groups": 1787,
+  "baseline_to_027_removed_groups": 862,
+  "baseline_to_027_new_groups": 286,
+  "candidate027_native_static_inside_nodes": 0,
+  "candidate027_native_static_ambiguous_banks": 0,
+  "candidate028_emitted_f32_q_min": -0.007554255888441016,
+  "candidate028_geometry_accepted": false,
+  "old029_counter_note": "As-run hit counters summed every hit on a segment once per witness. Unique edges, edge-bank groups and witness coordinates remain unchanged. Corrected030 reports count each witness exactly once.",
+  "mass_feature_parent_commit": "2973dc56cf4cd621cf839913b906b21420ce0326",
+  "limitation": "Complete-edge screening is stronger than node/column checks but is not full surface/tet-solid clearance. No repaired detailed294 physical transfer, reference, mass mapping, accepted step or performance qualification is claimed.",
+  "mass_feasibility": {
+    "ssh_numi_rerun": true,
+    "J_below_min_cells": 425,
+    "J_above_max_cells": 71,
+    "fixed_density_mass_difference_kg": -0.3973353466291023,
+    "fixed_density_mass_difference_percent": -2.8503907838830944,
+    "candidate_cell_origin_mass_ancestry": false
+  }
+}

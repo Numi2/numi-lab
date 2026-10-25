@@ -1,0 +1,54 @@
+{
+  "as_run_report_local_sha256": "ac8c7afc7ee361d9babb8aedfa82f2edb1a0783e91b86608438798ab09aee5a2",
+  "audit_script_sha256": "595889f7f3051e6d097290cc4961a81cac44599695d71efa34f2159a99124629",
+  "evidence_directory": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/mass-feasibility-001",
+  "frozen_report_local_sha256": "a6a30b9e2d6236532805d3954211978c3038217b21c9df2590a3de0f4964ffb1",
+  "inputs": {
+    "candidate": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/candidate.npz",
+      "sha256": "ccfeb27e6e939249e4c5146f77722bf2477d1f8377300bde8cc82086f44bbe1a"
+    },
+    "candidate-report": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/report.json",
+      "sha256": "3dc2a9d1bbcd534fafc7770c2c0a83434d25dc563d858b768e16c3230514e71e"
+    },
+    "d37-remap-report": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-002/D37-remap-report.json",
+      "sha256": "11494d57ee3ade627cb891a992be214003cfea88f397af21ea73ce86b80e74f5"
+    },
+    "donor-frames-csv": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-002/generated/donor-frames-fullweights.csv",
+      "sha256": "4d531659aecd196cb2b4a99bf8d963aaf3721f9c4307eaf215304d0a3ca8805f"
+    },
+    "donor-mass-csv": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-037-candidate020-identity004-002/donor-mass-allocation-delta.csv",
+      "sha256": "4d8ee35d7c37fc9fe304fe05cc455c9c4025c4c3b3df12f13bd5d477e93702da"
+    },
+    "immediate-parent": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/baseline-depth-transition-014/candidate.npz",
+      "sha256": "f5b0e33933ddf0867715a877ade75279659034362ae8f586435ccbf00609f42c"
+    },
+    "j-bounds-report": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-004/preflight-report.json",
+      "sha256": "75421c7fef3f4f44ea42b612e4182b6ab627a56894d6e1a4b149e4bfab8f68c2"
+    },
+    "reference-input": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-004/fit-input.npz",
+      "sha256": "b248bf0ee823ca1ab3b6d787fe3d427d8e080dcd528a57421235c7d6e1ed375e"
+    }
+  },
+  "key_result": {
+    "J_above_max_cells": 71,
+    "J_below_min_cells": 425,
+    "donor_origin_capacity": "NOT_COMPUTABLE_FROM_PINNED_CANDIDATE",
+    "fixed_density_mass_delta_kg": -0.3973353466291005,
+    "fixed_density_mass_delta_percent": -2.850390783883072
+  },
+  "outputs": {
+    "audit-report027-frozen.json": "a6a30b9e2d6236532805d3954211978c3038217b21c9df2590a3de0f4964ffb1",
+    "audit_mass_027.py": "595889f7f3051e6d097290cc4961a81cac44599695d71efa34f2159a99124629"
+  },
+  "schema": "numi.human.o12-outward-027-mass-feasibility-freeze.v1",
+  "status": "FROZEN_READ_ONLY_DIAGNOSTIC_NOT_PHYSICAL_ADMISSION",
+  "summary": "READ_ONLY_MASS_FEASIBILITY_FAILS_CONFIGURED_J_BOUNDS; DONOR_ORIGIN_CAPACITY_UNRESOLVED"
+}

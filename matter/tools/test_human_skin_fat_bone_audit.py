@@ -103,6 +103,17 @@ class RouteAuditConsolidationTests(unittest.TestCase):
         through_edge = [r for r in edge_report["witnesses"] if r["endpoint_local_nodes"] == [0, 1]]
         self.assertEqual([r["triangle_stable_id"] for r in through_edge], [11, 13])
         self.assertEqual(edge_report["counts"]["unique_tetrahedral_edges"], 6)
+        # Each triangle witness counts once, even when an edge has multiple hits.
+        # The old accumulator added the whole edge's hits once per hit.
+        self.assertEqual(edge_report["counts"]["proper_hits"],
+                         sum(r["classification"] == "proper_interior_hit"
+                             for r in edge_report["witnesses"]))
+        self.assertEqual(edge_report["counts"]["boundary_hits"],
+                         sum(r["classification"] == "boundary_hit"
+                             for r in edge_report["witnesses"]))
+        self.assertLessEqual(edge_report["counts"]["proper_hits"] +
+                             edge_report["counts"]["boundary_hits"],
+                             edge_report["counts"]["exact_narrowphase_tests"])
 
     def test_bank_local_hit_triangle_reconstructs_reported_segment_hit(self):
         # The hit index is local to a typed bank, not to the 469k-row global table.

@@ -1,0 +1,19 @@
+[
+  "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+  "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/canonical/matter/tools/human_skin_fat_bone_audit.py",
+  "--evidence-root",
+  "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/canonical/matter",
+  "--bank-export-dir",
+  "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight",
+  "--candidate-npz",
+  "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/baseline-depth-transition-014/candidate.npz",
+  "--candidate-sha256",
+  "f5b0e33933ddf0867715a877ade75279659034362ae8f586435ccbf00609f42c",
+  "--all-tet-edges",
+  "--output-dir",
+  "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/route-audit-counter-fix-030/candidate014",
+  "--node-ids-npz",
+  "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz",
+  "--node-ids-sha256",
+  "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf"
+]

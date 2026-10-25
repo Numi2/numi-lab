@@ -1,0 +1,16 @@
+test_bank_local_hit_triangle_reconstructs_reported_segment_hit (__main__.RouteAuditConsolidationTests.test_bank_local_hit_triangle_reconstructs_reported_segment_hit) ... ok
+test_external_ids_require_exact_topology_identity (__main__.RouteAuditConsolidationTests.test_external_ids_require_exact_topology_identity) ... ok
+test_matched_query_body_frame_mismatch_fails (__main__.RouteAuditConsolidationTests.test_matched_query_body_frame_mismatch_fails) ... ok
+test_matched_query_id_mismatch_fails (__main__.RouteAuditConsolidationTests.test_matched_query_id_mismatch_fails) ... ok
+test_matched_query_position_mismatch_fails (__main__.RouteAuditConsolidationTests.test_matched_query_position_mismatch_fails) ... ok
+test_outside_segment_endpoints_can_cross_two_bank_triangles (__main__.RouteAuditConsolidationTests.test_outside_segment_endpoints_can_cross_two_bank_triangles) ... ok
+test_query_prefers_native_emitted_candidate_nodes (__main__.RouteAuditConsolidationTests.test_query_prefers_native_emitted_candidate_nodes) ... ok
+test_stale_initial_export_is_rejected_and_exact_emitted_export_passes (__main__.RouteAuditConsolidationTests.test_stale_initial_export_is_rejected_and_exact_emitted_export_passes) ... ok
+test_start_side_normal_is_not_mislabeled_exterior_for_inside_start (__main__.RouteAuditConsolidationTests.test_start_side_normal_is_not_mislabeled_exterior_for_inside_start) ... ok
+test_unique_tet_edges_are_sorted_and_deduplicated (__main__.RouteAuditConsolidationTests.test_unique_tet_edges_are_sorted_and_deduplicated) ... ok
+test_unknown_endpoints_are_not_queried_and_never_create_planes (__main__.RouteAuditConsolidationTests.test_unknown_endpoints_are_not_queried_and_never_create_planes) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.008s
+
+OK

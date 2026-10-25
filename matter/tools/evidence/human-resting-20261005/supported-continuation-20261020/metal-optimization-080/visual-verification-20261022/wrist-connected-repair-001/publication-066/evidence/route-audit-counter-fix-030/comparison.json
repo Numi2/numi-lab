@@ -1,0 +1,59 @@
+{
+  "cases": [
+    {
+      "case": "baseline035",
+      "candidate_sha256": "452602aea036c15faaafe6c154e6c4676585e1b2cb57c9a1c9128de82050b570",
+      "report_sha256": "613d19fe45e052697ae5cdf8e7b481bfb3ea3fdbc5a4517d8e0e73aa53c40a23",
+      "counts": {
+        "unique_tetrahedral_edges": 40732,
+        "typed_banks": 185,
+        "broadphase_edge_bank_pairs": 23963,
+        "triangle_aabb_pairs": 879438,
+        "exact_narrowphase_tests": 3789,
+        "proper_hits": 3789,
+        "boundary_hits": 0,
+        "ambiguous": 0
+      },
+      "edges_with_hits": 2087,
+      "edge_bank_groups_with_hits": 2363
+    },
+    {
+      "case": "candidate014",
+      "candidate_sha256": "f5b0e33933ddf0867715a877ade75279659034362ae8f586435ccbf00609f42c",
+      "report_sha256": "0ad07a3393aa4ba715f17e66fc70bd75f712cf2c39d1f027301ff2788335effe",
+      "counts": {
+        "unique_tetrahedral_edges": 40732,
+        "typed_banks": 185,
+        "broadphase_edge_bank_pairs": 23788,
+        "triangle_aabb_pairs": 884332,
+        "exact_narrowphase_tests": 3704,
+        "proper_hits": 3704,
+        "boundary_hits": 0,
+        "ambiguous": 0
+      },
+      "edges_with_hits": 1590,
+      "edge_bank_groups_with_hits": 1868
+    },
+    {
+      "case": "candidate027",
+      "candidate_sha256": "ccfeb27e6e939249e4c5146f77722bf2477d1f8377300bde8cc82086f44bbe1a",
+      "report_sha256": "6325ea1b5c23f31d4b25cc1a22d768e69ff475d08a1cf12d98d7b62ae83e9fa0",
+      "counts": {
+        "unique_tetrahedral_edges": 40732,
+        "typed_banks": 185,
+        "broadphase_edge_bank_pairs": 23804,
+        "triangle_aabb_pairs": 885645,
+        "exact_narrowphase_tests": 3732,
+        "proper_hits": 3732,
+        "boundary_hits": 0,
+        "ambiguous": 0
+      },
+      "edges_with_hits": 1533,
+      "edge_bank_groups_with_hits": 1787
+    }
+  ],
+  "accepted_physical_steps": 0,
+  "physical_qualification": false,
+  "source_sha256": "902269457740f70387267fce437d4198b1545a2e4f8d95fdbbdecc666a23f4c2",
+  "baseline_derived_from": "033 points verified bitwise against native035 baseline nodes"
+}

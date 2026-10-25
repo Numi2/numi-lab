@@ -1,0 +1,26 @@
+{
+  "schema": "numi.human.publication-manifest.v1",
+  "publication": "066",
+  "base_origin_main": "2973dc56cf4cd621cf839913b906b21420ce0326",
+  "native_or_physical_admission": false,
+  "accepted_physical_steps": 0,
+  "status": "REVIEWED_FOR_PUBLICATION_NOT_PHYSICAL_ADMISSION",
+  "payload_file_count": 80,
+  "payload_bytes": 3688160,
+  "payload_file_list_sha256": "660360519f57ba0ad91b7210720e371832b612442ee60f2cea4d3a0396fbeee4",
+  "canonical_paths": [
+    {
+      "path": "matter/tools/human_skin_fat_bone_audit.py",
+      "sha256": "902269457740f70387267fce437d4198b1545a2e4f8d95fdbbdecc666a23f4c2",
+      "size_bytes": 46014
+    },
+    {
+      "path": "matter/tools/test_human_skin_fat_bone_audit.py",
+      "sha256": "2c8335170245f5bffceb5494ca2bdb89127400f8aa6e32aa7c5751df102e2f81",
+      "size_bytes": 12103
+    }
+  ],
+  "focused_tests_passed": 11,
+  "independent_exact_witness_replays": 48,
+  "candidate027_complete_edge_clearance": false
+}

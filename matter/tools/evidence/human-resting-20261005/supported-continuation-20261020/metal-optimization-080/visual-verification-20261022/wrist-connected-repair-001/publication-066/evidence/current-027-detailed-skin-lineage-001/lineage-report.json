@@ -1,0 +1,261 @@
+{
+  "candidate_vs_baseline": {
+    "changed_O_donor_core_counts": {
+      "107": 2,
+      "109": 4,
+      "111": 1,
+      "112": 1,
+      "114": 2,
+      "115": 3,
+      "122": 2,
+      "124": 4,
+      "125": 1,
+      "59": 5,
+      "61": 30,
+      "62": 1,
+      "64": 2
+    },
+    "changed_O_rows_direct_D36_source_vertices": {
+      "120": 940,
+      "121": 941,
+      "122": 943,
+      "134": 974,
+      "142": 985,
+      "200": 1205,
+      "203": 1226,
+      "204": 1227,
+      "205": 1228,
+      "2053": 47993,
+      "206": 1230,
+      "207": 1232,
+      "2084": 48450,
+      "209": 1241,
+      "212": 1249,
+      "214": 1257,
+      "215": 1261,
+      "2156": 48853,
+      "216": 1262,
+      "217": 1265,
+      "218": 1269,
+      "2187": 49300,
+      "2189": 49403,
+      "219": 1271,
+      "220": 1273,
+      "2202": 49807,
+      "2206": 49885,
+      "221": 1274,
+      "222": 1276,
+      "2235": 51029,
+      "2238": 51110,
+      "2245": 51541,
+      "2258": 52158,
+      "2259": 52179,
+      "2261": 52297,
+      "2262": 52310,
+      "2263": 52315,
+      "2266": 52484,
+      "2270": 52555,
+      "2271": 52568,
+      "2282": 52984,
+      "2283": 53110,
+      "229": 1284,
+      "230": 1285,
+      "231": 1288,
+      "232": 1289,
+      "233": 1291,
+      "234": 1292,
+      "271": 1531,
+      "272": 1533,
+      "308": 1668,
+      "311": 1675,
+      "330": 2096,
+      "335": 2478,
+      "336": 2495,
+      "337": 2562,
+      "350": 3150,
+      "357": 3386
+    },
+    "changed_O_rows_local": [
+      120,
+      121,
+      122,
+      134,
+      142,
+      200,
+      203,
+      204,
+      205,
+      206,
+      207,
+      209,
+      212,
+      214,
+      215,
+      216,
+      217,
+      218,
+      219,
+      220,
+      221,
+      222,
+      229,
+      230,
+      231,
+      232,
+      233,
+      234,
+      271,
+      272,
+      308,
+      311,
+      330,
+      335,
+      336,
+      337,
+      350,
+      357,
+      2053,
+      2084,
+      2156,
+      2187,
+      2189,
+      2202,
+      2206,
+      2235,
+      2238,
+      2245,
+      2258,
+      2259,
+      2261,
+      2262,
+      2263,
+      2266,
+      2270,
+      2271,
+      2282,
+      2283
+    ],
+    "changed_rows_by_layer": [
+      58,
+      58,
+      58
+    ],
+    "max_displacement_mm_by_layer": [
+      5.527344703674316,
+      7.374564170837402,
+      11.26953411102295
+    ],
+    "rows_per_layer": 2411,
+    "same_point_and_tet_shapes": true,
+    "same_tetrahedra_exact": true
+  },
+  "current_checkout_observation": {
+    "file_sha256": {
+      "apps/NumiHumanAcceptedFEMSkinTransfer.hpp": "f5f8d4b340b4da570bf158aaaaf5a856c1a5e1a9f98ca9a27ee0a776c1722d4c",
+      "apps/NumiHumanCoarseTissuePreparation.hpp": "93cb05b7108a0b3b36c64dde4177872ec3603c07ba33b23556c67b5cdaa88805",
+      "apps/NumiHumanRestingVisual.hpp": "62e834439879b5e381f353a54537afdd3c753ca0fe5c8c79627a68b202400ebb",
+      "apps/NumiHumanWholeBodySkinEmbeddingConsumer.hpp": "fdcec56d0c7af908995d3b4e4719bd2a59fa5aa835cd0efb081d29b448621efb"
+    },
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "relevant_worktree_status": "M apps/NumiHumanCoarseTissuePreparation.hpp\n M apps/NumiHumanRestingVisual.hpp"
+  },
+  "inputs": {
+    "D36_builder": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/provenance/build_candidate_rebind.py",
+      "sha256": "4b91de03d6eef0d383983e3a617a68567b517d6f87a2786c95cd916a31d713c9"
+    },
+    "D36_inputs": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/provenance/build_candidate_rebind_inputs.json",
+      "sha256": "44d0b41c12a48d41e98cf39562b045649c99e62ea2cc74a5eaf2eae5477cbde0"
+    },
+    "D36_report": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/D36-remap-report.json",
+      "sha256": "e6aa24a7cc475aa828767fadd026169fd08c273e68802e987f04187848352d89"
+    },
+    "base_294_payload": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+    },
+    "baseline_014": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/baseline-depth-transition-014/candidate.npz",
+      "sha256": "f5b0e33933ddf0867715a877ade75279659034362ae8f586435ccbf00609f42c"
+    },
+    "candidate_027": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/o12-outward-repair-027-f32-gated/candidate.npz",
+      "sha256": "ccfeb27e6e939249e4c5146f77722bf2477d1f8377300bde8cc82086f44bbe1a"
+    },
+    "coarse_source_consumer_header_D36": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/source-overlay/apps/NumiHumanWholeBodySkinEmbeddingConsumer.hpp",
+      "sha256": "fdcec56d0c7af908995d3b4e4719bd2a59fa5aa835cd0efb081d29b448621efb"
+    },
+    "embedding_036": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/embedding.csv",
+      "sha256": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847"
+    },
+    "faces_036": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/faces.csv",
+      "sha256": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c"
+    },
+    "lane_ancestry": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/lane-ancestry-core.json",
+      "sha256": "3d2886415b86c1d8f44c30b9aaebd97eed8feecc86f1c76df794e8b428cc87db"
+    },
+    "nodes_036": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/nodes.csv",
+      "sha256": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11"
+    },
+    "physical_preparation_header_D36": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/source-overlay/apps/NumiHumanCoarseTissuePreparation.hpp",
+      "sha256": "0f185acc77dc67a49587ba2a20b7873fb6cfba14cdfc18cff30198d579a18c62"
+    },
+    "registered_128_csv": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/provenance/registered-skin-128-candidate.csv",
+      "sha256": "ba19f07304c36e4c3cdcd13068bbd66589bedbd51f22621f947dd0873858a3d6"
+    },
+    "registered_128_payload": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin",
+      "sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5"
+    },
+    "renderer_transfer_header_D36": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/source-overlay/apps/NumiHumanAcceptedFEMSkinTransfer.hpp",
+      "sha256": "b7f23c1d9f7279e05f995fcc1cb1d417675f3ffac845220e42ffc8204cf2a72d"
+    },
+    "resting_visual_header_D36": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/source-overlay/apps/NumiHumanRestingVisual.hpp",
+      "sha256": "92c3ba5b1cab09aee31871d46ba8eee74277392953872f3cbf037476ca958a1e"
+    }
+  },
+  "physical_owner": {
+    "AcceptedFEMSkinTransfer": "maps accepted coarse O displacement to detailed rows for presentation/rendering; not a physical NHTISS/FEM rest-geometry update",
+    "entrypoint": "NumiHumanCoarseTissuePreparation.hpp buildRegisteredSkinFatCandidateLayers -> appendRegisteredSkinFatFEMFromLayers/appendRegisteredSkinFatFEM",
+    "makeWholeBodySkinSourceConsumerRows": "coarse-row source ancestry consumer; not an inverse detailed-vertex displacement map",
+    "missing_for_transfer": [
+      "a validated detailed294 vertex-to-027-O displacement/prolongation map including anchored outside rows and interface closure",
+      "I/D layer ancestry or an explicit physical layer rebuild policy",
+      "a current-294-bound physical candidate construction and geometry/mass/material gates"
+    ],
+    "requires": "full detailed skin/fat candidate positions and source ancestry/bindings/material/thickness data; this bounded 027-to-D36 map supplies no detailed vertex prolongation and no I/D ancestry"
+  },
+  "qualification": {
+    "native_candidate_admission": false,
+    "physical_qualification": false,
+    "region_labels": "typed donor/joint IDs only; no coordinate-based anatomical region labels"
+  },
+  "schema": "numi.human.current-027-detailed-skin-lineage.v1",
+  "source_lineage_scope": {
+    "027_changes_have_direct_D36_source_vertex_ancestry": true,
+    "027_npz_contains_only_points_tets_material_ids_no_ancestry_or_transfer_rows": true,
+    "D36_base_payload": "294",
+    "D36_candidate_payload_tag": "128",
+    "D36_direct_source_vertex_rows": 2332,
+    "D36_embedding_direction": "coarse O rows to source vertex or source face+barycentric ancestry",
+    "D36_embedding_rows": 2411,
+    "D36_source_face_bary_rows": 79
+  },
+  "status": "BOUNDED_LINEAGE_ONLY_NO_PHYSICAL_TRANSFER",
+  "surface_identity": {
+    "014_tetrahedral_O_boundary_faces": 4777,
+    "D36_generated_O_faces": 4777,
+    "unordered_source_index_face_sets_equal": true
+  }
+}
