@@ -1,0 +1,259 @@
+"""Exact first-entry and O/I/D capacity audit for pinned bone-bank surfaces.
+
+Offline construction diagnostic only. Every bank passed to audit_segment must
+be the complete pinned typed-bank triangle set; endpoint classifications must
+come from the matching exact all-bank query. It emits no fitted geometry.
+"""
+from __future__ import annotations
+from typing import Any, Callable, Mapping
+from dataclasses import dataclass
+import math
+import numpy as np
+
+
+class CapacityAuditError(ValueError):
+    pass
+
+
+def _vec3(x, name):
+    a=np.asarray(x,dtype=np.float64)
+    if a.shape!=(3,) or not np.isfinite(a).all():
+        raise CapacityAuditError(f"{name} must be a finite 3-vector")
+    return a
+
+
+def _status(s, name):
+    if s not in ("inside","outside"):
+        raise CapacityAuditError(f"{name} must be exact inside/outside, got {s!r}")
+    return s
+
+
+def world_to_bank_local(point_world, *, body_position_world, world_to_local, com_offset):
+    p=_vec3(point_world,"world point")
+    c=_vec3(body_position_world,"body position")
+    o=_vec3(com_offset,"COM offset")
+    M=np.asarray(world_to_local,dtype=np.float64)
+    if M.shape!=(3,3) or not np.isfinite(M).all() or abs(float(np.linalg.det(M)))<1e-14:
+        raise CapacityAuditError("world-to-local matrix must be finite and invertible")
+    return M@(p-c)-o
+
+
+def _validate_bank(bank):
+    tri=np.asarray(bank["triangles_local"],dtype=np.float64)
+    ids=np.asarray(bank["triangle_stable_ids"])
+    if tri.ndim!=3 or tri.shape[1:]!=(3,3) or len(tri)==0 or not np.isfinite(tri).all():
+        raise CapacityAuditError("bank must provide complete nonempty finite Fx3x3 triangles")
+    if ids.shape!=(len(tri),) or ids.dtype.kind not in "iu" or len(np.unique(ids))!=len(ids):
+        raise CapacityAuditError("stable triangle IDs must be unique integer rows")
+    if int(bank.get("expected_triangle_count",-1))!=len(tri):
+        raise CapacityAuditError("provided bank rows do not match the pinned complete-bank count")
+    lo=np.asarray(bank["aabb_min_local"],dtype=np.float64)
+    hi=np.asarray(bank["aabb_max_local"],dtype=np.float64)
+    if lo.shape!=(3,) or hi.shape!=(3,) or not np.isfinite(lo).all() or not np.isfinite(hi).all() or np.any(hi<=lo):
+        raise CapacityAuditError("invalid bank AABB")
+    if not np.array_equal(lo,tri.min(axis=(0,1))) or not np.array_equal(hi,tri.max(axis=(0,1))):
+        raise CapacityAuditError("AABB does not exactly bound the complete supplied bank")
+    return tri,ids,lo,hi
+
+
+@dataclass(frozen=True)
+class PreparedBoneBank:
+    triangles: np.ndarray
+    stable_ids: np.ndarray
+    triangle_lo: np.ndarray
+    triangle_hi: np.ndarray
+    aabb_min: np.ndarray
+    aabb_max: np.ndarray
+    world_to_local: np.ndarray
+    body_position_world: np.ndarray
+    com_offset: np.ndarray
+    expected_triangle_count: int
+
+
+def prepare_bone_bank(bank):
+    """Validate/pin full bank data once for repeated column queries."""
+    tri,ids,lo,hi=_validate_bank(bank)
+    M=np.asarray(bank["world_to_local"],dtype=np.float64)
+    if M.shape!=(3,3) or not np.isfinite(M).all() or abs(float(np.linalg.det(M)))<1e-14:
+        raise CapacityAuditError("bank world-to-local matrix must be finite and invertible")
+    pos=_vec3(bank["body_position_world"],"body position")
+    off=_vec3(bank["com_offset"],"COM offset")
+    arrays=[np.array(x,copy=True) for x in (tri,ids,tri.min(axis=1),tri.max(axis=1),lo,hi,M,pos,off)]
+    for x in arrays:x.setflags(write=False)
+    return PreparedBoneBank(*arrays,int(len(tri)))
+
+
+def audit_exact_segment(start_world, end_world, *, start_status, end_status, bank,
+                        exact_classifier: Callable, exact_parameter: Callable,
+                        exact_classifier_sha256: str, exact_parameter_sha256: str):
+    """Return exact ordered intersections and outside→inside first entry.
+
+    Boundary/coplanar/degenerate hits and equal rational parameters fail closed.
+    Endpoint parity must agree with the matching all-bank exact classifications.
+    """
+    sw=_vec3(start_world,"segment start"); ew=_vec3(end_world,"segment end")
+    ss=_status(start_status,"start status"); es=_status(end_status,"end status")
+    if not callable(exact_classifier) or not callable(exact_parameter):
+        raise CapacityAuditError("pinned exact classifier and rational parameter helper are required")
+    for name,value in (("exact_classifier_sha256",exact_classifier_sha256),("exact_parameter_sha256",exact_parameter_sha256)):
+        if not isinstance(value,str) or len(value)!=64 or any(c not in "0123456789abcdef" for c in value.lower()):
+            raise CapacityAuditError(f"{name} must be a SHA-256 pin")
+    if isinstance(bank,PreparedBoneBank):
+        tri,ids,lo,hi=bank.triangles,bank.stable_ids,bank.aabb_min,bank.aabb_max
+        tri_lo,tri_hi=bank.triangle_lo,bank.triangle_hi
+        M,pos,off=bank.world_to_local,bank.body_position_world,bank.com_offset
+    else:
+        tri,ids,lo,hi=_validate_bank(bank)
+        M=np.asarray(bank["world_to_local"],dtype=np.float64)
+        if M.shape!=(3,3) or not np.isfinite(M).all() or abs(float(np.linalg.det(M)))<1e-14:
+            raise CapacityAuditError("bank world-to-local matrix must be finite and invertible")
+        pos=_vec3(bank["body_position_world"],"body position")
+        off=_vec3(bank["com_offset"],"COM offset")
+        tri_lo=tri.min(axis=1);tri_hi=tri.max(axis=1)
+    a=world_to_bank_local(sw,body_position_world=pos,world_to_local=M,com_offset=off)
+    b=world_to_bank_local(ew,body_position_world=pos,world_to_local=M,com_offset=off)
+    d=b-a
+    seg_lo=np.minimum(a,b); seg_hi=np.maximum(a,b)
+    candidate=np.flatnonzero(np.all(tri_hi>=seg_lo,axis=1)&np.all(tri_lo<=seg_hi,axis=1))
+    hits=[]; unresolved=[]; disjoint=0
+    for row0 in candidate:
+        row=int(row0)
+        result=exact_classifier(a,b,tri[row])
+        kind=result.get("classification")
+        if kind in ("disjoint","parallel_disjoint"):
+            disjoint+=1
+            continue
+        if kind!="proper_interior_hit":
+            unresolved.append({"triangle_row":row,"triangle_stable_id":int(ids[row]),
+                               "classification":kind,"exact_result":result})
+            continue
+        t_exact,bary_exact=exact_parameter(a,b,tri[row])
+        if not hasattr(t_exact,"numerator") or not hasattr(t_exact,"denominator"):
+            raise CapacityAuditError("rational parameter helper did not return an exact rational t")
+        if not (0<t_exact<1):
+            raise CapacityAuditError("proper classifier hit has a non-interior rational parameter")
+        t=float(t_exact); bary=np.asarray([float(x) for x in bary_exact],dtype=np.float64)
+        if "t" not in result or float(result["t"])!=t:
+            raise CapacityAuditError("pinned classifier and rational parameter helper disagree on t")
+        callback_bary=np.asarray(result.get("barycentric",[]),dtype=np.float64)
+        if callback_bary.shape!=(3,) or not np.array_equal(callback_bary,bary):
+            raise CapacityAuditError("pinned classifier and rational parameter helper disagree on barycentrics")
+        if bary.shape!=(3,) or not np.isfinite(bary).all() or np.min(bary)<0 or abs(float(bary.sum())-1)>1e-12:
+            raise CapacityAuditError("exact hit produced invalid triangle barycentrics")
+        hit_local=(1.-t)*a+t*b
+        hit_world=sw+np.linalg.solve(M,hit_local-a)
+        reconstructed=bary@tri[row]
+        residual=float(np.linalg.norm(reconstructed-hit_local))
+        if residual>2e-9:
+            raise CapacityAuditError(f"exact barycentric identity residual too large: {residual:.9g} m")
+        hits.append((t_exact,{"triangle_row":row,"triangle_stable_id":int(ids[row]),
+            "t_numerator":str(t_exact.numerator),"t_denominator":str(t_exact.denominator),
+            "t":t,"barycentric":bary.tolist(),"hit_local":hit_local.tolist(),
+            "hit_world":hit_world.tolist(),"barycentric_residual_m":residual}))
+    hits.sort(key=lambda x:(x[0],x[1]["triangle_stable_id"]))
+    tie_groups=[]
+    for i in range(len(hits)-1):
+        if hits[i][0]==hits[i+1][0]:
+            tie_groups.append({"t_numerator":str(hits[i][0].numerator),
+                "t_denominator":str(hits[i][0].denominator),
+                "triangle_stable_ids":[hits[i][1]["triangle_stable_id"],hits[i+1][1]["triangle_stable_id"]]})
+    expected_end=ss if len(hits)%2==0 else ("inside" if ss=="outside" else "outside")
+    result={"status":"REJECT","reason":None,"start_status":ss,"end_status":es,
+        "segment_length_m":float(np.linalg.norm(ew-sw)),"candidate_triangle_count":int(len(candidate)),
+        "disjoint_candidate_count":disjoint,"proper_hit_count":len(hits),
+        "unresolved_witnesses":unresolved,"equal_parameter_groups":tie_groups,
+        "endpoint_parity_status":expected_end,"exact_classifier_sha256":exact_classifier_sha256.lower(),
+        "exact_parameter_sha256":exact_parameter_sha256.lower(),
+        "proper_hits":[h for _,h in hits],"first_entry":None,"first_exit":None}
+    if unresolved:
+        result["reason"]="boundary_coplanar_degenerate_or_nonproper_hit"
+        return result
+    if tie_groups:
+        result["reason"]="nonunique_exact_hit_parameter"
+        return result
+    if expected_end!=es:
+        result["reason"]="exact_hit_parity_disagrees_with_endpoint_classifications"
+        return result
+    state=ss
+    for _,hit in hits:
+        if state=="outside" and result["first_entry"] is None:
+            result["first_entry"]=hit
+        elif state=="inside" and result["first_exit"] is None:
+            result["first_exit"]=hit
+        state="inside" if state=="outside" else "outside"
+    if state!=es:
+        result["reason"]="internal_parity_state_mismatch"
+        return result
+    result["status"]="PASS"
+    result["reason"]="exact_proper_hit_parity_matches_endpoint_classifications"
+    result["scope_limit"]="Uses supplied typed-bank endpoint classifications and complete pinned triangles; does not prove bank watertightness, self-intersection freedom, or tissue admission."
+    return result
+
+
+def audit_layer_paths(outer_world, inner_world, deep_world, *,
+                      endpoint_classes: Mapping[tuple[int,int],tuple[str,str,str]],
+                      banks: Mapping[tuple[int,int],Mapping[str,Any]],
+                      exact_classifier, exact_parameter,
+                      exact_classifier_sha256: str, exact_parameter_sha256: str,
+                      declared_clearance_m: float):
+    """Audit O-I, I-D and O-D for every supplied typed bank; propose only D shortening.
+
+    The O-D scalar capacity is reported along that segment only. Proposed D stays
+    on the original I-D segment. O/I crossings require skin reconstruction and
+    never trigger an arbitrary coordinate clamp.
+    """
+    O=_vec3(outer_world,"outer point"); I=_vec3(inner_world,"inner point"); D=_vec3(deep_world,"deep point")
+    c=float(declared_clearance_m)
+    if not math.isfinite(c) or c<=0: raise CapacityAuditError("declared clearance must be finite and positive")
+    keys=set(banks)
+    if keys!=set(endpoint_classes): raise CapacityAuditError("endpoint classification keys must exactly match complete bank keys")
+    rows=[]; rejected=[]
+    for key in sorted(keys):
+        if len(key)!=2: raise CapacityAuditError("bank key must be (body,bone)")
+        cs=endpoint_classes[key]
+        if not isinstance(cs,(tuple,list)) or len(cs)!=3: raise CapacityAuditError("endpoint classes must be O/I/D triple")
+        os_,is_,ds_=(_status(v,"typed endpoint") for v in cs)
+        b=banks[key]
+        segments={}
+        for name,p0,p1,s0,s1 in (("OI",O,I,os_,is_),("ID",I,D,is_,ds_),("OD",O,D,os_,ds_)):
+            segments[name]=audit_exact_segment(p0,p1,start_status=s0,end_status=s1,bank=b,
+                exact_classifier=exact_classifier,exact_parameter=exact_parameter,
+                exact_classifier_sha256=exact_classifier_sha256,exact_parameter_sha256=exact_parameter_sha256)
+        if any(v["status"]!="PASS" for v in segments.values()):
+            rejected.append({"body":int(key[0]),"bone":int(key[1]),"segments":segments})
+            rows.append({"body":int(key[0]),"bone":int(key[1]),"status":"REJECT","segments":segments,
+                         "proposal":{"status":"WITHHELD","reason":"one or more exact segment audits unresolved"}})
+            continue
+        oi=segments["OI"]; id_=segments["ID"]; od=segments["OD"]
+        # A path is not clear when either authored endpoint is already inside,
+        # even if the whole O-I segment stays inside and has no boundary hits.
+        skin_not_clear=(oi["proper_hit_count"]>0 or os_=="inside" or is_=="inside")
+        od_entry=od["first_entry"]
+        capacity=None if od_entry is None else float(od_entry["t"]*od["segment_length_m"]-c)
+        proposal={"status":"PASS","preserves_O":True,"preserves_I":True,
+            "requires_skin_reconstruction":skin_not_clear,"available_OD_soft_path_m":capacity,
+            "declared_clearance_m":c,"D_action":"unchanged","proposed_D_world":D.tolist(),
+            "basis":"O-D capacity is a scalar on O-D; any D movement is computed only on the original I-D segment"}
+        if skin_not_clear:
+            proposal.update({"status":"REQUIRES_SKIN_RECONSTRUCTION",
+                "reason":"O or I is inside a typed bone bank, or O-I intersects it; retain O and I and do not clamp D to conceal the skin-path penetration"})
+        else:
+            entry=id_["first_entry"]
+            if entry is not None:
+                distance=float(entry["t"]*id_["segment_length_m"])
+                remaining=distance-c
+                if remaining<=0:
+                    proposal.update({"status":"NO_FEASIBLE_D_SHORTENING","D_action":"withheld",
+                        "reason":"declared clearance consumes the entire outside I-to-first-entry segment"})
+                else:
+                    alpha=remaining/id_["segment_length_m"]
+                    proposal.update({"status":"PROPOSED_D_SHORTENING","D_action":"shorten_on_original_I_to_D_segment",
+                        "safe_I_to_entry_distance_m":distance,"proposed_D_parameter_from_I":alpha,
+                        "proposed_D_world":(I+alpha*(D-I)).tolist(),
+                        "reason":"first exact I-D entry precedes D; retain I/skin depth and stop D before entry by declared clearance"})
+        rows.append({"body":int(key[0]),"bone":int(key[1]),"status":"PASS","segments":segments,"proposal":proposal})
+    return {"schema":"connected-reference-capacity-audit-v1","column_points_world_m":{
+        "O":O.tolist(),"I":I.tolist(),"D":D.tolist()},
+        "declared_clearance_m":c,"bank_count":len(keys),"bank_results":rows,
+        "rejected_bank_count":len(rejected),"rejected_bank_keys":[[x["body"],x["bone"]] for x in rejected],
+        "proposal_scope":"reference geometric proposal only; no mesh, mass, topology, biological thickness, or native admission"}

@@ -1,0 +1,72 @@
+{
+  "bad_tet_domain": "The three baseline quality witnesses are rows in connected-layer-remesh-116/run-001/candidate.npz; do not use run-002 row order after its accepted flip.",
+  "classification": "diagnostic correction; original source-edge report retained unchanged",
+  "corrected_bad_tet_boundary_faces": [
+    {
+      "cell_uid": 14023,
+      "marked_boundary_faces": [
+        {
+          "marker": 100717,
+          "ordered_nodes": [
+            2332,
+            344,
+            7318
+          ],
+          "surface_face_row": 14666
+        }
+      ],
+      "material_id": 1,
+      "tet_nodes": [
+        2332,
+        2755,
+        344,
+        7318
+      ],
+      "tet_row": 14022
+    },
+    {
+      "cell_uid": 23440,
+      "marked_boundary_faces": [],
+      "material_id": 1,
+      "tet_nodes": [
+        344,
+        7311,
+        7318,
+        2755
+      ],
+      "tet_row": 23439
+    },
+    {
+      "cell_uid": 30476,
+      "marked_boundary_faces": [
+        {
+          "marker": 304236,
+          "ordered_nodes": [
+            7017,
+            6867,
+            7018
+          ],
+          "surface_face_row": 13450
+        }
+      ],
+      "material_id": 2,
+      "tet_nodes": [
+        4588,
+        7018,
+        6867,
+        7017
+      ],
+      "tet_row": 30475
+    }
+  ],
+  "input_candidate_sha256": "957490efc4df1bc797c32ce8b536e7bab6fc6a1ac1373ed2aa7727e27ed004a2",
+  "limitations": [
+    "Connectivity/topology diagnostic only. Does not admit physical, mass, clearance, or native behavior.",
+    "The long O-edge witness remains verified against the P075 source triangles and run-002 marked output facets."
+  ],
+  "output_edge_facet_domain": "The key O-edge facet rows in the original report are from the run-002 output surface; they are separately pinned there and are not used to classify baseline bad tet boundary faces.",
+  "reason": "Original report used the wrong membership predicate while computing tet_faces_in_boundary. Correct membership checks whether each 3-node surface face is a subset of the input tetrahedron.",
+  "run002_candidate_sha256": "4a08dd79cbf7fcc01f53504dfdbc468a9e0bd3c97a77d8384b0c45e44549ea0d",
+  "supersedes_report": "source-edge-q-witness.json",
+  "supersedes_report_sha256": "327b2402bd38da1b6176dcabdf6730a6d2dddb18853afeadcea31b9ff9977804"
+}

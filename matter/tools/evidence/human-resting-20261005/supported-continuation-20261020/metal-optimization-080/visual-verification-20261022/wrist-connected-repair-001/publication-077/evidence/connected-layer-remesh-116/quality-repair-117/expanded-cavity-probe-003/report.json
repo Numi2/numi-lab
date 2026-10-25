@@ -1,0 +1,66 @@
+{
+  "input_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/candidate.npz",
+  "input_sha256": "957490efc4df1bc797c32ce8b536e7bab6fc6a1ac1373ed2aa7727e27ed004a2",
+  "same_material_face_neighbor_rings": [
+    {
+      "boundary_exact": true,
+      "cells": 2,
+      "delaunay_tets": 3,
+      "global_q_bad": 3,
+      "inside_tets": 2,
+      "local_q_bad": 2,
+      "local_q_min": 7.0142564871903395e-06,
+      "materials": [
+        1
+      ],
+      "rel_volume_delta": -1.1164934729988662e-14,
+      "ring": 0,
+      "status": "boundary_match_q_fail",
+      "vertices": 5,
+      "volume_after": 1.052040605907312e-08,
+      "volume_before": 1.0520406059073237e-08
+    },
+    {
+      "boundary_exact": false,
+      "cells": 7,
+      "delaunay_tets": 18,
+      "global_q_bad": 2,
+      "inside_tets": 4,
+      "local_q_bad": 1,
+      "local_q_min": 2.916232770854365e-09,
+      "materials": [
+        1
+      ],
+      "rel_volume_delta": -0.5762591777467893,
+      "ring": 1,
+      "status": "boundary_mismatch",
+      "vertices": 10,
+      "volume_after": 4.719447237071495e-07,
+      "volume_before": 1.1137579834711652e-06
+    },
+    {
+      "cells": 18,
+      "materials": [
+        1
+      ],
+      "ring": 2,
+      "status": "f32/reference-orientation-conflict",
+      "vertices": 17
+    },
+    {
+      "cells": 35,
+      "materials": [
+        1
+      ],
+      "ring": 3,
+      "status": "f32/reference-orientation-conflict",
+      "vertices": 28
+    }
+  ],
+  "seconds": 0.021198749542236328,
+  "status": "diagnostic_only_no_candidate",
+  "target_bad_rows": [
+    14022,
+    23439
+  ]
+}

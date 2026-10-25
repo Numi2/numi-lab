@@ -1,0 +1,38 @@
+{
+  "iterations": [
+    {
+      "iteration": 1,
+      "crossing_groups": 2364,
+      "inside_nodes": 151,
+      "invalid_cells": 0,
+      "outer_node_count": 2464,
+      "max_outer_component_move_mm": 0.500023365020752,
+      "max_outer_norm_move_mm": 0.8660357623022662,
+      "max_inner_norm_move_mm": 1.7320801276230289,
+      "all_authoring_gates_pass": true,
+      "candidate_sha256": "20a74ad64b735ca792a71e9f9f7f7c0f698e631dea8bd9d297e0b8017775ae91"
+    },
+    {
+      "iteration": 2,
+      "crossing_groups": 2203,
+      "inside_nodes": 146,
+      "invalid_cells": 0,
+      "outer_node_count": 2464,
+      "max_outer_component_move_mm": 0.7500052452087402,
+      "max_outer_norm_move_mm": 1.2990428890642234,
+      "max_inner_norm_move_mm": 3.4641602552460578,
+      "all_authoring_gates_pass": true,
+      "candidate_sha256": "1795546a6b26882ca84d838351b7538157c988f9901e4c12747987302d75607f"
+    }
+  ],
+  "stopped_at": {
+    "iteration": 3,
+    "stage": "validated midpoint query and source-ray exits",
+    "exception_type": "ValueError",
+    "message": "sample 42 exact parity disagrees with actual target query",
+    "traceback": "Traceback (most recent call last):\n  File \"/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run_connected_clearance_113.py\", line 469, in <module>\n    midpoint_contacts,midpoint_qmap,midpoint_report=query_inside_span_midpoints(edge_report,qmap,X,I)\n                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run_connected_clearance_113.py\", line 368, in query_inside_span_midpoints\n    report['collapsed_endpoint_alias_certification']=certify_collapsed_endpoint_aliases(\n                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        samples,Y,query_row_to_node,endpoint_status,target_status,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        certified_inside_exit_sample_ids=target_exit_ids,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        complete_endpoint_query_185=True,complete_sample_query_185=True,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        endpoint_query_identity_valid=True,sample_query_identity_valid=True)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/n/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/human_skin_fat_bone_clearance.py\", line 253, in certify_collapsed_endpoint_aliases\n    raise ValueError(f\"sample {sid} exact parity disagrees with actual target query\")\nValueError: sample 42 exact parity disagrees with actual target query\n"
+  },
+  "geometry_admitted": false,
+  "physical_steps": 0,
+  "comparison": "Starts from original084 current037, not107 drifted shape. Source-relative bounds protect all2464 actual outer rows; this is not a runtime constraint."
+}

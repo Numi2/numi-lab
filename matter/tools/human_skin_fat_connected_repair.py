@@ -10,6 +10,46 @@ from scipy import sparse
 from scipy.optimize import linprog
 from scipy.sparse.csgraph import connected_components
 
+
+def _expand_node_component_values(values, node_count, name, *, positive):
+    """Expand per-node or per-node/axis values to finite (N, 3) arrays."""
+    try:
+        raw=np.asarray(values,dtype=np.float64)
+    except (TypeError,ValueError,OverflowError) as exc:
+        raise ValueError(f"{name} must be a numeric N or Nx3 array") from exc
+    if raw.shape==(node_count,):
+        out=np.repeat(raw[:,None],3,axis=1)
+    elif raw.shape==(node_count,3):
+        out=raw.copy()
+    else:
+        raise ValueError(f"{name} must have shape (N,) or (N,3), including generated nodes")
+    if not np.isfinite(out).all() or (np.any(out<=0.) if positive else np.any(out<0.)):
+        qualifier="finite and positive" if positive else "finite and nonnegative"
+        raise ValueError(f"{name} must be {qualifier}")
+    return out
+
+
+def _reference_envelope_status(points, origin, maximum_displacement):
+    """Check emitted coordinates against an immutable-origin componentwise box."""
+    if maximum_displacement is None:
+        return True, None
+    delta=np.abs(np.asarray(points,dtype=np.float64)-np.asarray(origin,dtype=np.float64))
+    slack=np.asarray(maximum_displacement,dtype=np.float64)-delta
+    return bool(np.all(slack>=0.)),float(np.min(slack))
+
+
+def _validate_reference_envelope(points, origin, maximum_displacement):
+    if maximum_displacement is None:
+        return None
+    if origin is None:
+        raise ValueError("max_reference_displacement_m requires an immutable construction_origin")
+    cap=_expand_node_component_values(maximum_displacement,len(points),
+        "max_reference_displacement_m",positive=True)
+    inside,_=_reference_envelope_status(points,origin,cap)
+    if not inside:
+        raise ValueError("starting emitted mesh is outside its immutable-origin displacement envelope")
+    return cap
+
 def cell_values_gradients(points, reference, tetrahedra):
     """Return J, dJ, signed det/longest-edge-cubed quality, and its gradient.
 
@@ -241,12 +281,20 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
                            *, step_limit_mm=2.,q_min=1e-5,J_bounds=(.35,2.5),time_limit_s=90.,
                            lower_linear_matrix=None,lower_linear_targets=None,max_incremental_gradient=.12,
                            construction_origin=None,cumulative_displacement_weight=.01,
-                           boundary_faces=None,boundary_area_bounds=(.25,4.),boundary_normal_cosine_min=.25,linear_method="highs",embedded_surface=None,dihedral_active_fraction=0.,dihedral_constraint_passes=0,cell_witness_gradient_limit=None,surface_witness_gradient_limit=None):
+                           max_reference_displacement_m=None,reference_l1_weights=None,
+                           boundary_faces=None,boundary_area_bounds=(.25,4.),boundary_normal_cosine_min=.25,linear_method="highs",embedded_surface=None,dihedral_active_fraction=0.,dihedral_constraint_passes=0,cell_witness_gradient_limit=None,surface_witness_gradient_limit=None,backtracking_domain_labels=None):
     """One bounded sparse LP and hard nonlinear Float32 backtracking transaction.
 
     Contact matrix maps absolute xyz metres to normal separation metres. Each row
     may address a vertex or a barycentric point on an edge/face. Slack is explicit
     and reported; the caller must refresh exact collision witnesses.
+
+    ``construction_origin`` is the immutable original coordinate field used for
+    cumulative displacement. Optional ``max_reference_displacement_m`` is a
+    componentwise box about that origin, supplied for every node as (N,) or
+    (N,3), including generated nodes. ``reference_l1_weights`` similarly gives
+    strictly positive per-node/per-axis multipliers for the cumulative L1 term;
+    the existing scalar weight remains its global multiplier.
     """
     if linear_method not in ("highs","highs-ipm","highs-ds"):raise ValueError("unsupported sparse linear method")
     try:dihedral_active_fraction=float(dihedral_active_fraction)
@@ -277,6 +325,13 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
     T=rawT.astype(np.int64,copy=False);F=rawF.astype(np.int64,copy=False)
     if R.dtype.kind not in 'fiu' or not np.isfinite(R).all():raise ValueError('reference coordinates must be finite numeric values')
     if len(np.unique(F))!=len(F) or np.any(F<0) or np.any(F>=len(X)):raise ValueError('invalid free-node IDs')
+    domain_labels=None
+    if backtracking_domain_labels is not None:
+        raw_domain_labels=np.asarray(backtracking_domain_labels)
+        if (raw_domain_labels.dtype.kind not in 'iu' or raw_domain_labels.ndim!=1 or
+            raw_domain_labels.shape!=(len(X),) or np.any(raw_domain_labels<0)):
+            raise ValueError('backtracking domain labels must be a nonnegative integer[N] vector')
+        domain_labels=raw_domain_labels.astype(np.int64,copy=False)
     try: lo,hi=map(float,J_bounds);q_min=float(q_min);step_limit_mm=float(step_limit_mm);time_limit_s=float(time_limit_s)
     except Exception as exc:raise ValueError('J/q/step/time bounds must be numeric') from exc
     if not np.isfinite([lo,hi,q_min,step_limit_mm,time_limit_s]).all() or lo<=0 or hi<=lo or q_min<=0 or step_limit_mm<=0 or time_limit_s<=0:raise ValueError('invalid finite J/q/step/time bounds')
@@ -291,6 +346,11 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
     O=None if construction_origin is None else np.asarray(construction_origin,dtype=float)
     if O is not None and (O.shape!=X.shape or not np.isfinite(O).all()):
         raise ValueError('construction origin must match finite point coordinates')
+    reference_caps=_validate_reference_envelope(X,O,max_reference_displacement_m)
+    l1_weights=(np.ones((len(X),3),dtype=np.float64) if reference_l1_weights is None else
+        _expand_node_component_values(reference_l1_weights,len(X),"reference_l1_weights",positive=True))
+    if reference_l1_weights is not None and O is None:
+        raise ValueError("reference_l1_weights requires an immutable construction_origin")
     cumulative_displacement_weight=float(cumulative_displacement_weight)
     if not np.isfinite(cumulative_displacement_weight) or cumulative_displacement_weight<=0:
         raise ValueError('cumulative displacement weight must be positive and finite')
@@ -400,8 +460,19 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
         DG=sparse.coo_matrix((vv,(rr,cc)),shape=(9*len(active),nd)).tocsr()
         rows += [sparse.hstack([DG,z(DG.shape[0])]),sparse.hstack([-DG,z(DG.shape[0])])]
         bs += [np.full(DG.shape[0],max_incremental_gradient),np.full(DG.shape[0],max_incremental_gradient)]
-    objective=np.r_[np.zeros(nd),np.ones(nc),.01,np.full(nd,cumulative_displacement_weight)]
-    bounds=[(-step_limit_mm,step_limit_mm)]*nd+[(0,None)]*nc+[(0,step_limit_mm)]+[(0,None if O is not None else step_limit_mm)]*nd
+    objective=np.r_[np.zeros(nd),np.ones(nc),.01,
+        cumulative_displacement_weight*l1_weights[F].ravel()]
+    if reference_caps is None:
+        delta_bounds=[(-step_limit_mm,step_limit_mm)]*nd
+    else:
+        anchor_offset=1000*(X[F].astype(float)-O[F])
+        cap_mm=1000*reference_caps[F]
+        lower=np.maximum(-step_limit_mm,(-cap_mm-anchor_offset).ravel())
+        upper=np.minimum(step_limit_mm,(cap_mm-anchor_offset).ravel())
+        if np.any(lower>upper):
+            raise ValueError('immutable-origin displacement envelope has no feasible LP step bounds')
+        delta_bounds=list(zip(lower.tolist(),upper.tolist()))
+    bounds=delta_bounds+[(0,None)]*nc+[(0,step_limit_mm)]+[(0,None if O is not None else step_limit_mm)]*nd
     # Constraint generation fits *all* connected tissues together. A proposed
     # crease adds its starting-state derivative before another solve; it never
     # admits the proposed surface or replaces the full Float32 postcheck.
@@ -562,7 +633,16 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
                           if key not in solved_surface_cap_values}
     report={'linear_method':linear_method,'lp_success':bool(result.success),'lp_status':int(result.status),'lp_message':result.message,
             'free_nodes':len(F),'touched_cells':len(active),'contact_rows':nc,'starting_contact_deficit_l1_mm':float(np.maximum(rhs,0).sum()),
-            'reference_unchanged':True,'geometry_admitted':False,'accepted_physical_steps':0}
+            'reference_unchanged':True,'geometry_admitted':False,'accepted_physical_steps':0,
+            'reference_displacement_envelope_enabled':reference_caps is not None,
+            'reference_displacement_envelope_shape':'axis_aligned_componentwise_box' if reference_caps is not None else None,
+            'reference_displacement_envelope_max_m':None if reference_caps is None else float(reference_caps.max()),
+            'reference_displacement_envelope_initial_min_slack_m':None if reference_caps is None else _reference_envelope_status(X,O,reference_caps)[1],
+            'reference_l1_weights_enabled':reference_l1_weights is not None,
+            'reference_l1_weight_min':float(l1_weights.min()),
+            'reference_l1_weight_max':float(l1_weights.max()),
+            'reference_displacement_envelope_final_float32_pass':True,
+            'reference_displacement_envelope_final_min_slack_m':None if reference_caps is None else _reference_envelope_status(X,O,reference_caps)[1]}
     report.update({'lp_cell_witness_gradient_limit':cell_witness_gradient_limit,
                    'lp_cell_gradient_cap_count':int(len(solved_cell_cap_ids)),
                    'lp_cell_gradient_cap_row_count':int(9*len(solved_cell_cap_ids)),
@@ -661,8 +741,9 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
     best=X.copy();components=[]
     for label in range(count):
         local=np.flatnonzero(labels==label);nodes=F[local]
+        component_start=best.copy()
         original=np.maximum(target-C@best.astype(float).ravel(),0).sum()
-        accepted=False;attempts=[]
+        accepted=False;attempts=[];initial_full_failed=None
         for k in range(15):
             scale=2.**-k;Y=best.copy();Y[nodes]=X[nodes].astype(float)+scale*delta[local]
             jj,_,qq,_=cell_values_gradients(Y,R,T)
@@ -682,7 +763,9 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
                 trial_cosine_min=float(np.min(cosine))
                 surface_pass=bool(trial_area_min>=amin and trial_area_max<=amax and trial_cosine_min>=cmin)
             deficit=np.maximum(target-C@Y.astype(float).ravel(),0).sum()
+            reference_envelope_pass,reference_envelope_slack=_reference_envelope_status(Y,O,reference_caps)
             first_failed = (
+                'reference_displacement_envelope' if not reference_envelope_pass else
                 'cell_quality' if not np.min(qq)>=q_min else
                 'cell_J' if not (np.min(jj)>=lo and np.max(jj)<=hi) else
                 'hard_linear' if not linear_pass else
@@ -696,20 +779,85 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
                 'hard_linear_min_slack_m':None if lower_linear_matrix is None else float(np.min(L@Y.astype(float).ravel()-lt)),
                 'hard_linear_witness_row':None if lower_linear_matrix is None else int(np.argmin(L@Y.astype(float).ravel()-lt)),
                 'contact_deficit_l1_mm':float(deficit*1000),
+                'reference_displacement_envelope_min_slack_m':reference_envelope_slack,
                 'boundary_area_ratio_min':trial_area_min,
                 'boundary_area_ratio_max':trial_area_max,
                 'boundary_normal_cosine_min':trial_cosine_min}
             if trial_dihedral_max is not None:
                 attempt['mapped_skin_dihedral_abs_change_max_degrees']=trial_dihedral_max
             attempts.append(attempt)
+            if k==0:initial_full_failed=first_failed
             if first_failed is None:
                 best=Y;accepted=True;break
-        components.append({'nodes':len(nodes),'applied':accepted,'line_fraction':scale if accepted else 0.,'attempts':attempts})
+        component_report={'nodes':len(nodes),'applied':accepted,'line_fraction':scale if accepted else 0.,'attempts':attempts}
+        if domain_labels is not None:
+            component_report['initial_full_step_first_failed_gate']=initial_full_failed
+        components.append(component_report)
+    domain_attempts=[];domain_accepted=False;domain_candidate=X.copy();domain_selected=False
+    component_full_alpha1_failed=bool(domain_labels is not None and any(
+        c.get('initial_full_step_first_failed_gate') is not None for c in components))
+    if component_full_alpha1_failed:
+        # Try each declared construction domain across the complete node set,
+        # from the original input plus previously accepted domain updates.
+        # Labels do not alter the LP or its coupling graph; every global gate
+        # and the global C deficit is rechecked after each local proposal.
+        for domain_id in np.unique(domain_labels[F]):
+            domain_nodes=F[domain_labels[F]==domain_id];domain_local=lookup[domain_nodes]
+            before=float(np.maximum(target-C@domain_candidate.astype(float).ravel(),0).sum())
+            domain_applied=False;domain_trials=[]
+            for dk in range(15):
+                domain_scale=2.**-dk;Y=domain_candidate.copy()
+                Y[domain_nodes]=X[domain_nodes].astype(float)+domain_scale*delta[domain_local]
+                djj,_,dqq,_=cell_values_gradients(Y,R,T)
+                dlinear=True
+                if lower_linear_matrix is not None:dlinear=bool(np.min(L@Y.astype(float).ravel()-lt)>=-1e-9)
+                dsurface=True;darea_min=darea_max=dcos_min=None;ddihedral_max=None;ddihedral=True
+                if embedded_surface is not None and embedded_surface.max_dihedral_change_degrees is not None:
+                    _,ddelta=embedded_surface.dihedral_change_metrics(Y)
+                    ddihedral_max=float(np.degrees(np.abs(ddelta).max())) if len(ddelta) else 0.
+                    ddihedral=embedded_surface.dihedral_passes(Y)
+                if BF is not None:
+                    _,_,darea,dcos=boundary_face_values_gradients(Y,O,BF)
+                    darea_min=float(np.min(darea));darea_max=float(np.max(darea));dcos_min=float(np.min(dcos))
+                    dsurface=bool(darea_min>=amin and darea_max<=amax and dcos_min>=cmin)
+                ddeficit=float(np.maximum(target-C@Y.astype(float).ravel(),0).sum())
+                dreference_ok,dreference_slack=_reference_envelope_status(Y,O,reference_caps)
+                dfail=(
+                    'reference_displacement_envelope' if not dreference_ok else
+                    'cell_quality' if not np.min(dqq)>=q_min else
+                    'cell_J' if not (np.min(djj)>=lo and np.max(djj)<=hi) else
+                    'hard_linear' if not dlinear else
+                    'coarse_surface' if not dsurface else
+                    'mapped_skin_dihedral' if not ddihedral else
+                    'mapped_skin' if embedded_surface is not None and not embedded_surface.passes(Y) else
+                    'contact_progress' if not ddeficit<before-1e-12 else None)
+                dtrial={'fraction':float(domain_scale),'first_failed_gate':dfail,
+                    'q_min':float(dqq.min()),'q_witness_row':int(dqq.argmin()),
+                    'J_min':float(djj.min()),'J_max':float(djj.max()),
+                    'hard_linear_min_slack_m':None if lower_linear_matrix is None else float(np.min(L@Y.astype(float).ravel()-lt)),
+                    'hard_linear_witness_row':None if lower_linear_matrix is None else int(np.argmin(L@Y.astype(float).ravel()-lt)),
+                    'contact_deficit_l1_mm':float(ddeficit*1000),
+                    'reference_displacement_envelope_min_slack_m':dreference_slack,
+                    'boundary_area_ratio_min':darea_min,'boundary_area_ratio_max':darea_max,
+                    'boundary_normal_cosine_min':dcos_min}
+                if ddihedral_max is not None:dtrial['mapped_skin_dihedral_abs_change_max_degrees']=ddihedral_max
+                domain_trials.append(dtrial)
+                if dfail is None:
+                    domain_candidate=Y;domain_applied=True;domain_accepted=True;break
+            domain_attempts.append({'domain_id':int(domain_id),'nodes':int(len(domain_nodes)),
+                'applied':domain_applied,'line_fraction':float(domain_scale if domain_applied else 0.),
+                'attempts':domain_trials})
+        full_deficit=float(np.maximum(target-C@best.astype(float).ravel(),0).sum())
+        candidate_deficit=float(np.maximum(target-C@domain_candidate.astype(float).ravel(),0).sum())
+        if domain_accepted and candidate_deficit<full_deficit-1e-12:
+            best=domain_candidate;domain_selected=True
     jj,_,qq,_=cell_values_gradients(best,R,T)
     report.update({'step_applied':bool(np.any(best.view(np.uint32)!=X.view(np.uint32))),'components':components,
         'emitted_q_min':float(qq.min()),'emitted_J_min':float(jj.min()),'emitted_J_max':float(jj.max()),
         'contact_deficit_l1_mm':float(np.maximum(target-C@best.astype(float).ravel(),0).sum()*1000),
-        'maximum_step_mm':float(np.linalg.norm((best-X).astype(float),axis=1).max()*1000)})
+        'maximum_step_mm':float(np.linalg.norm((best-X).astype(float),axis=1).max()*1000),
+        'reference_displacement_envelope_final_float32_pass':_reference_envelope_status(best,O,reference_caps)[0],
+        'reference_displacement_envelope_final_min_slack_m':_reference_envelope_status(best,O,reference_caps)[1]})
     if O is not None:
         report['maximum_cumulative_displacement_mm']=float(np.linalg.norm(best.astype(float)-O,axis=1).max()*1000)
         report['cumulative_displacement_l1_mm']=float(np.abs(best.astype(float)-O).sum()*1000)
@@ -719,6 +867,37 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
                        'boundary_area_ratio_max':float(area.max()),'boundary_normal_cosine_min':float(cosine.min())})
     if embedded_surface is not None:report.update(embedded_surface.report(best))
     fixed=np.setdiff1d(np.arange(len(X)),F);assert np.array_equal(best[fixed].view(np.uint32),X[fixed].view(np.uint32))
+    if domain_labels is not None:
+        final_hard_linear=True
+        final_linear_min=None
+        if lower_linear_matrix is not None:
+            final_linear_min=float(np.min(L@best.astype(float).ravel()-lt))
+            final_hard_linear=final_linear_min>=-1e-9
+        final_coarse=True
+        if BF is not None:
+            final_coarse=bool(report['boundary_area_ratio_min']>=amin and
+                report['boundary_area_ratio_max']<=amax and report['boundary_normal_cosine_min']>=cmin)
+        final_dihedral=True
+        if embedded_surface is not None and embedded_surface.max_dihedral_change_degrees is not None:
+            final_dihedral=bool(embedded_surface.dihedral_passes(best))
+        final_detail=True if embedded_surface is None else bool(embedded_surface.passes(best))
+        final_hard=bool(qq.min()>=q_min and jj.min()>=lo and jj.max()<=hi and
+            final_hard_linear and final_coarse and final_dihedral and final_detail)
+        final_deficit=float(np.maximum(target-C@best.astype(float).ravel(),0).sum())
+        report.update({'construction_backtracking_domain_labels_enabled':True,
+            'construction_backtracking_domain_label_count':int(len(np.unique(domain_labels[F]))),
+            'construction_backtracking_partition_is_not_physical_ownership':True,
+            'construction_backtracking_full_component_alpha1_failed':component_full_alpha1_failed,
+            'construction_backtracking_domain_fallback_attempted':component_full_alpha1_failed,
+            'construction_backtracking_domain_fallback_candidate_valid':domain_accepted,
+            'construction_backtracking_domain_fallback_accepted':domain_selected,
+            'construction_backtracking_selected_path':'domain_partition' if domain_selected else 'full_components',
+            'construction_backtracking_domain_attempts':domain_attempts,
+            'construction_backtracking_global_final_hard_gates_pass':final_hard,
+            'construction_backtracking_global_final_contact_deficit_reduced':bool(final_deficit<
+                np.maximum(target-C@X.astype(float).ravel(),0).sum()-1e-12),
+            'construction_backtracking_global_final_contact_deficit_l1_mm':float(final_deficit*1000),
+            'construction_backtracking_global_final_hard_linear_min_slack_m':final_linear_min})
     return best,report
 
 
@@ -741,14 +920,17 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
         *,construction_origin,boundary_faces,lower_linear_matrix=None,lower_linear_targets=None,
         step_limit_mm=2.,q_min=1e-5,J_bounds=(.35,2.5),boundary_area_bounds=(.5,2.),
         boundary_normal_cosine_min=.5,cumulative_displacement_weight=.002,
+        max_reference_displacement_m=None,
         gradient_penalty_mm=2.,max_incremental_gradient=.3,iteration_limit=400,active_set_passes=0,active_set_penalty=100.,embedded_surface=None):
     """Bounded sparse authoring direction with exact emitted-geometry admission.
 
     This is a least-squares direction, not a linear feasibility certificate.
     Current reference/material state is never changed. Cell, boundary and layer
     constraints and any supplied detailed-skin map are mandatory nonlinear
-    backtracking gates; failed directions
-    leave all coordinates unchanged. No simulation state is advanced.
+    backtracking gates; failed directions leave all coordinates unchanged. An
+    optional max_reference_displacement_m applies a componentwise (N,) or (N,3)
+    box about construction_origin, including to exact emitted Float32 trials.
+    No simulation state is advanced.
     """
     from scipy.sparse.linalg import lsmr
     X=np.asarray(points);R=np.asarray(reference);rawT=np.asarray(tetrahedra);rawF=np.asarray(free_nodes)
@@ -760,6 +942,7 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
     J,G,quality,Q=cell_values_gradients(X,R,T)
     O=np.asarray(construction_origin,dtype=float)
     if O.shape!=X.shape or not np.isfinite(O).all():raise ValueError('invalid construction origin')
+    reference_caps=_validate_reference_envelope(X,O,max_reference_displacement_m)
     lo,hi=map(float,J_bounds);amin,amax=map(float,boundary_area_bounds);cmin=float(boundary_normal_cosine_min)
     vals=[lo,hi,amin,amax,cmin,step_limit_mm,q_min,cumulative_displacement_weight,gradient_penalty_mm,max_incremental_gradient]
     if not np.isfinite(vals).all() or lo<=0 or hi<=lo or amin<=0 or amax<=amin or not 0<cmin<=1 or min(vals[5:])<=0:
@@ -788,12 +971,20 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
     rhs=1000*(target-C@X.astype(float).ravel());hot=rhs>1e-8
     report={'algorithm':'sparse_regularized_least_squares_exact_geometry_backtracking','free_nodes':len(F),
             'contact_rows':len(rhs),'active_contact_rows':int(hot.sum()),'starting_contact_deficit_l1_mm':float(np.maximum(rhs,0).sum()),
-            'accepted_physical_steps':0,'geometry_admitted':False,'reference_unchanged':True}
+            'accepted_physical_steps':0,'geometry_admitted':False,'reference_unchanged':True,
+            'reference_displacement_envelope_enabled':reference_caps is not None,
+            'reference_displacement_envelope_shape':'axis_aligned_componentwise_box' if reference_caps is not None else None,
+            'reference_displacement_envelope_max_m':None if reference_caps is None else float(reference_caps.max()),
+            'reference_displacement_envelope_initial_min_slack_m':None if reference_caps is None else _reference_envelope_status(X,O,reference_caps)[1]}
     if embedded_surface is not None:
         report.update(embedded_surface.report(X))
         report['mapped_skin_linearization_face_count']=0
         report['mapped_skin_linearization_face_ids']=[]
-    if not np.any(hot):report['step_applied']=False;return X.copy(),report
+    if not np.any(hot):
+        report['step_applied']=False
+        report['reference_displacement_envelope_final_float32_pass']=True
+        report['reference_displacement_envelope_final_min_slack_m']=None if reference_caps is None else _reference_envelope_status(X,O,reference_caps)[1]
+        return X.copy(),report
     dcols=(3*F[:,None]+np.arange(3)).ravel()
     active=np.flatnonzero(np.isin(T,F).any(axis=1))
     DG=sparse_displacement_gradient(R,T[active],F)
@@ -815,7 +1006,16 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
         av,ag,_,_=boundary_face_values_gradients(X,O,BF)
         AF=sparse_face_jacobian(ag,BF,F,len(X))*.001
         H=sparse.vstack([I,-I,DG,-DG,AJ,-AJ,-AQ,AF,-AF]+([]if L is None else[-L[:,dcols]]),format='csr')
-        h=np.r_[np.full(I.shape[0],step_limit_mm),np.full(I.shape[0],step_limit_mm),
+        if reference_caps is None:
+            delta_upper=np.full(3*len(F),step_limit_mm)
+            delta_lower=np.full(3*len(F),-step_limit_mm)
+        else:
+            anchor_offset=1000*(X[F].astype(float)-O[F])
+            cap_mm=1000*reference_caps[F]
+            delta_upper=np.minimum(step_limit_mm,(cap_mm-anchor_offset).ravel())
+            delta_lower=np.maximum(-step_limit_mm,(-cap_mm-anchor_offset).ravel())
+            if np.any(delta_lower>delta_upper):raise ValueError('immutable-origin displacement envelope has no feasible step bounds')
+        h=np.r_[delta_upper,-delta_lower,
             np.full(DG.shape[0],max_incremental_gradient),np.full(DG.shape[0],max_incremental_gradient),
             hi-J[active],J[active]-lo,quality[active]-q_min,amax-av,av-amin,
             []if L is None else 1000*(L@X.astype(float).ravel()-lt)]
@@ -903,7 +1103,9 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
             jj,_,qq,_=cell_values_gradients(Y,R,T);_,_,ar,co=boundary_face_values_gradients(Y,O,BF)
             layer_ok=L is None or np.min(L@Y.astype(float).ravel()-lt)>=-1e-9
             deficit=np.maximum(target-C@Y.astype(float).ravel(),0).sum()
+            reference_envelope_pass,reference_envelope_slack=_reference_envelope_status(Y,O,reference_caps)
             first_failed = (
+                'reference_displacement_envelope' if not reference_envelope_pass else
                 'cell_J' if not (jj.min()>=lo and jj.max()<=hi) else
                 'cell_quality' if not qq.min()>=q_min else
                 'coarse_surface' if not (ar.min()>=amin and ar.max()<=amax and co.min()>=cmin) else
@@ -915,7 +1117,8 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
                 'J_min':float(jj.min()),'J_max':float(jj.max()),
                 'hard_linear_min_slack_m':None if L is None else float(np.min(L@Y.astype(float).ravel()-lt)),
                 'hard_linear_witness_row':None if L is None else int(np.argmin(L@Y.astype(float).ravel()-lt)),
-                'contact_deficit_l1_mm':float(deficit*1000)})
+                'contact_deficit_l1_mm':float(deficit*1000),
+                'reference_displacement_envelope_min_slack_m':reference_envelope_slack})
             if first_failed is None:
                 best=Y;accepted=True;break
         components.append({'nodes':len(nodes),'applied':accepted,'line_fraction':float(alpha if accepted else 0),
@@ -929,5 +1132,8 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
       'boundary_area_ratio_min':float(ar.min()),'boundary_area_ratio_max':float(ar.max()),'boundary_normal_cosine_min':float(co.min()),
       'maximum_step_mm':float(np.linalg.norm(best.astype(float)-X,axis=1).max()*1000),
       'maximum_cumulative_displacement_mm':float(np.linalg.norm(best.astype(float)-O,axis=1).max()*1000)})
+    final_reference_ok,final_reference_slack=_reference_envelope_status(best,O,reference_caps)
+    report['reference_displacement_envelope_final_float32_pass']=final_reference_ok
+    report['reference_displacement_envelope_final_min_slack_m']=final_reference_slack
     if embedded_surface is not None:report.update(embedded_surface.report(best))
     return best,report

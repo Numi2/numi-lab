@@ -1,0 +1,28 @@
+{
+  "accepted_physical_steps": 0,
+  "canonical_tests_expected": "175 tests plus 11 subtests",
+  "commit_or_push_performed": false,
+  "excluded_active_roots": [
+    "digit-source-diagnosis-110",
+    "connected-boundary-refinement-114"
+  ],
+  "geometry_admitted": false,
+  "inherited_published_evidence": {
+    "artifact_count": 483,
+    "metadata_file": "inherited-source-artifacts-076.json",
+    "payload_copied": false
+  },
+  "native_apps_unchanged_from_076": true,
+  "previous_publication": "publication-076",
+  "published_parent": "8ddec06c6fb890a2193166a1f318a707ad7ed5e4",
+  "retained_roots": [
+    "connected-cell-trust-108",
+    "connected-cell-trust-109",
+    "connected-cell-trust-111",
+    "connected-reference-capacity-112",
+    "connected-source-preservation-113",
+    "connected-capacity-reference-115",
+    "connected-layer-remesh-116"
+  ],
+  "status": "STAGED_UNPUBLISHED"
+}

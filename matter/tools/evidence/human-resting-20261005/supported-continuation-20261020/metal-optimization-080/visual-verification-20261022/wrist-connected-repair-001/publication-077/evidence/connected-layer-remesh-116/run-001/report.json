@@ -1,0 +1,30 @@
+{
+  "host": "numi.local",
+  "input_poly_sha256": "652ebfba116ce79f4ce4ae12c977929355d56b36d9a172a8f2761367b95ec764",
+  "reference_proposal_sha256": "abff4290774cc96a17f6c68a21fe86fc3933a1878e0bd6512733e99589fb6dd9",
+  "output_poly_sha256": "20e005ac365f494361ac56a9699d0a0f3f41d054a55ed2ef77568fd00f392bb1",
+  "point_count": 7233,
+  "PLC_facets": 14511,
+  "exact_surface_self_pairs": 0,
+  "complete_surface_audit": true,
+  "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "self_audit_seconds": 2.3051236669998616,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "source_mass_mapping_reusable": false,
+  "surface_pair_facet_markers": [],
+  "preserved_region_seed_lines": [
+    "1 -0.24928415939211845 -0.94656082987785339 0.17797438427805901 1 -1",
+    "2 -0.25018330663442612 -0.94408890604972839 0.17549914866685867 2 -1"
+  ],
+  "status": "TETGEN_DIAGNOSTIC_EXECUTED",
+  "command": [
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-remesh-118/tetgen-v1.6.0/tetgen",
+    "-pq1.2/10AS512",
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/whole-skin-fat-reference.poly"
+  ],
+  "tetgen_binary_sha256": "95b1df3923d7405b168ba5a3c4b39498ddfc0e7ba94000dedff7ebf93350de07",
+  "tetgen_return_code": 0,
+  "tetgen_timed_out": false,
+  "tetgen_wall_seconds": 0.22550679103005677
+}

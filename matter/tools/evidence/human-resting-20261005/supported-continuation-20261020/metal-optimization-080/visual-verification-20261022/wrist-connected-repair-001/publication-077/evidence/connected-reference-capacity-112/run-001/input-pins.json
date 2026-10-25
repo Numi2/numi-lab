@@ -1,0 +1,16 @@
+{
+  "084_compacted": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "bank_bodies": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+  "bank_inventory": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+  "bank_nodes": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+  "bank_triangles": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+  "candidate": "ddb86fbf07183adce0194c59a1acfc5456c96cb2efc709eb587e5489d3d59163",
+  "helper_sha256": "a5d4acf97f9fe2bd85b41f0d64553ba99a5e509247e9e3f3a7f865842dbace56",
+  "predicate": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+  "query_nodes": "e49ef0e61ed9551bc3782e3bb8def6a45b5b2b32124ce1c7b7dabb9e286badef",
+  "query_pairs": "95023ef49a865473ab8baaca65da37bc45d78d5b4adf9e16ee7effa604bad4eb",
+  "query_points": "f15ea806a61c6a70fb4d051c932df22ac173b1f39e3f60662fad396362a8b58d",
+  "query_receipt": "a6fd88a3b064cd3b0e0c26304f6d276564ce30aad9a07ed2852515a22766fcaf",
+  "ray_parameter_helper": "116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1",
+  "script_sha256": "88ed3ab65560efc325c0f90b98082e9a422023224e094d4bbd94fabc0a89bf4a"
+}

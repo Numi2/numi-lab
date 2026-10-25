@@ -1,0 +1,66 @@
+{
+  "as_run_report": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/run-002/report.json",
+  "as_run_report_sha256": "48f178bf32a49c5f935fd33a55b2f8e8c51544f7265272d7a10ad3879e4da6f4",
+  "candidate_sha256": "4a08dd79cbf7fcc01f53504dfdbc468a9e0bd3c97a77d8384b0c45e44549ea0d",
+  "checks": {
+    "added_cell_uids": [
+      34842,
+      34843,
+      34844,
+      34845
+    ],
+    "cell_count_unchanged": true,
+    "changed_existing_uids": [],
+    "coordinates_and_existing_node_ids_bitwise_equal": true,
+    "global_oriented_tet_boundary_equal": true,
+    "material_counts_after": {
+      "1": 17438,
+      "2": 17403
+    },
+    "material_counts_before": {
+      "1": 17438,
+      "2": 17403
+    },
+    "material_volume_m3": {
+      "1": {
+        "after": 0.0034525709483045628,
+        "before": 0.0034525709483045628,
+        "delta": 0.0
+      },
+      "2": {
+        "after": 0.011237668835972527,
+        "before": 0.011237668835972527,
+        "delta": 0.0
+      }
+    },
+    "removed_cell_uids": [
+      10156,
+      21419,
+      30476,
+      34747
+    ],
+    "surface_faces_and_markers_bitwise_equal": true,
+    "unchanged_cell_uid_connectivity_material_rows": 34837
+  },
+  "classification": "connectivity-only diagnostic, not mass-map or physical/native admission",
+  "input_npz": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/candidate.npz",
+  "input_sha256": "957490efc4df1bc797c32ce8b536e7bab6fc6a1ac1373ed2aa7727e27ed004a2",
+  "quality": {
+    "baseline_bad_rows": [
+      14022,
+      23439,
+      30475
+    ],
+    "final_bad_rows": [
+      14021,
+      23437
+    ],
+    "q_floor": 1e-05,
+    "status": "REJECTED_CANONICAL_Q_FLOOR_REMAINS"
+  },
+  "report_scope_correction": {
+    "invalid_inherited_claim": "run-002 report field invariants.O_I_D_faces_bitwise_unchanged=true is not independently checkable: the 116 input NPZ contains no source_O_faces/source_I_faces/source_D_faces arrays. Do not cite that field.",
+    "verified_replacement": "The input and output node coordinates/IDs and explicit surface_faces_zero_based/surface_face_markers are byte-identical; the complete oriented tet boundary is independently equal. Source O/I/D-specific face arrays were unavailable and therefore were not checked."
+  },
+  "run002_candidate": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/run-002/candidate-tetrahedra.npz"
+}

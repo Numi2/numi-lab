@@ -1,0 +1,14 @@
+{
+  "construction_only": true,
+  "physical_forces_or_locks_added": false,
+  "source_outer_boundary_nodes": 2464,
+  "outer_component_box_m": 0.001,
+  "other_component_box_m": 0.02,
+  "outer_norm_bound_m": 0.0017320508075688772,
+  "L1_scalar_weight": 0.02,
+  "outer_L1_multiplier": 25.0,
+  "inner_skin_L1_multiplier": 5.0,
+  "range_is_construction_guard_not_anatomical_measurement": true,
+  "box_sha256": "c32566801de06cc2dbd6b31c80d518ec69bbbdb759f0e4d9c62f6b2ebdcf5a9d",
+  "weights_sha256": "1129cec91a5bacf322f03798cc45cf4e309f0a95c8e2e79935881c546a42d3be"
+}

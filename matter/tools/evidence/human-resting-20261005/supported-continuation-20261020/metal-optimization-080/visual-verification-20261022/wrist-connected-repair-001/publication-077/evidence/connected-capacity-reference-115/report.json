@@ -1,0 +1,730 @@
+{
+  "source_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "capacity_proposals_sha256": "ec00f14dbec8852e7eb8b3a5e3299e6c2657fa81b1e50aa96d20f51bd6a8b8c9",
+  "candidate_sha256": "abff4290774cc96a17f6c68a21fe86fc3933a1878e0bd6512733e99589fb6dd9",
+  "source_outer_and_inner_skin_points_unchanged": true,
+  "D_original_rows_proposed": 176,
+  "generated_nodes": 127,
+  "generated_parent_choices": 183,
+  "generated_ancestry_disagreements": [
+    {
+      "node": 7233,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7234,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7235,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7236,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7237,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7238,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7239,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7240,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7241,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7242,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7243,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7244,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7245,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7246,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7247,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7248,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7249,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7250,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7251,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7252,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7253,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7254,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7255,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7256,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7257,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7258,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7259,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7260,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7261,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7262,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7263,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7264,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7265,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7266,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7267,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7268,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7269,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7270,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7271,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7272,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7273,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7274,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7275,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7276,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7277,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7278,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7279,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7280,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7281,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7282,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7283,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7284,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7285,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7286,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7287,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7288,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7289,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7290,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7291,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7292,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7293,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7294,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7295,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7296,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7297,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7298,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7299,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7300,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7301,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7302,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7303,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7304,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7305,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7306,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7307,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7308,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7309,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7310,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7311,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7312,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7313,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7314,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7315,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7316,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7317,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7318,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7319,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7320,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7321,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7322,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7323,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7324,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7325,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7326,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7327,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7328,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7329,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7330,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7331,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7332,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7333,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7334,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7335,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7336,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7337,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7338,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7339,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7340,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7341,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7342,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7343,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7344,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7345,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7346,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7347,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7348,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7349,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7350,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7351,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7352,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7353,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7354,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    },
+    {
+      "node": 7355,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7356,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7357,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7358,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 2
+    },
+    {
+      "node": 7359,
+      "max_parent_displacement_disagreement_m": 0.0,
+      "ancestry_choices": 1
+    }
+  ],
+  "invalid_original_connectivity_cells": 63,
+  "subthreshold_original_connectivity_cells": 63,
+  "J_min_relative_to_original_reference": -14.083063680061796,
+  "J_max_relative_to_original_reference": 27.939600126498565,
+  "q_min": -0.07815371947969632,
+  "invalid_cell_uids": [
+    227,
+    260,
+    738,
+    878,
+    1344,
+    2351,
+    2480,
+    2515,
+    2582,
+    5865,
+    5988,
+    6040,
+    6093,
+    6103,
+    6128,
+    7342,
+    8348,
+    8687,
+    8724,
+    9565,
+    10207,
+    10443,
+    10500,
+    10641,
+    10677,
+    11077,
+    11081,
+    11087,
+    11307,
+    11310,
+    11315,
+    11350,
+    11378,
+    11381,
+    11385,
+    11466,
+    11923,
+    12198,
+    12208,
+    15134,
+    16739,
+    16761,
+    16963,
+    18897,
+    19491,
+    20346,
+    21699,
+    21837,
+    22094,
+    22952,
+    25101,
+    28104,
+    28225,
+    28711,
+    29319,
+    29504,
+    30905,
+    30924,
+    31026,
+    31488,
+    32019,
+    32165,
+    32548
+  ],
+  "material_signed_volume_before_after_m3": {
+    "1": [
+      0.0034525709483045628,
+      0.0034525709923942487
+    ],
+    "2": [
+      0.011652342870565699,
+      0.011237668846840802
+    ]
+  },
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "mass_ledger_reusable": false,
+  "interpretation": "Whole-mesh capacity-limited inner-reference proposal, not a force or per-step physics change. O/I stay unchanged, D follows certified source path entries, generated points use every recorded source-parent displacement. Old connectivity/material mass cannot be promoted if invalid, nonmatching ancestry, full surfaces or solid checks fail. Reference change requires remeshing and conservative mass/donor mapping before native admission."
+}

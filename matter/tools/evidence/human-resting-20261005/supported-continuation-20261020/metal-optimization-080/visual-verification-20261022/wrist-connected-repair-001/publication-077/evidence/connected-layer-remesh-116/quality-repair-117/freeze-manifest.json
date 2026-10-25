@@ -1,0 +1,176 @@
+{
+  "classification": "bounded same-material connectivity repair diagnostic; rejected quality gate remains",
+  "correction_sha256": "578c17baf8eae3b6d73879e3069a3bc9c7dc07b6e9bd6892fc6e24a7dec01ba9",
+  "corrections": [
+    "Do not cite run-002 invariants.O_I_D_faces_bitwise_unchanged; unavailable input arrays, see run-002/report-correction.json",
+    "Original tet_faces_in_boundary diagnostic used wrong membership predicate; see source-edge-q-witness-correction.json"
+  ],
+  "input_candidate": "run-001/candidate.npz",
+  "input_candidate_sha256": "957490efc4df1bc797c32ce8b536e7bab6fc6a1ac1373ed2aa7727e27ed004a2",
+  "limitations": [
+    "No mass mapping, physical clearance, stress, native runtime, or physical qualification."
+  ],
+  "output_candidate": "run-002/candidate-tetrahedra.npz",
+  "output_candidate_sha256": "4a08dd79cbf7fcc01f53504dfdbc468a9e0bd3c97a77d8384b0c45e44549ea0d",
+  "pinned_files": [
+    {
+      "bytes": 650306,
+      "path": "run-001/candidate.npz",
+      "sha256": "957490efc4df1bc797c32ce8b536e7bab6fc6a1ac1373ed2aa7727e27ed004a2"
+    },
+    {
+      "bytes": 1564,
+      "path": "run-001/report.json",
+      "sha256": "5f43c8d80762a3f0ed558b18292d2c8fa6f3332a467bcec258bd397096bf27f7"
+    },
+    {
+      "bytes": 1095,
+      "path": "run-001/cell-audit.json",
+      "sha256": "591a61e2748118093c14e20be209306b2c29c31d72ef2e96d3b9f46608fa0b2e"
+    },
+    {
+      "bytes": 918283,
+      "path": "run-001/whole-skin-fat-reference.poly",
+      "sha256": "20e005ac365f494361ac56a9699d0a0f3f41d054a55ed2ef77568fd00f392bb1"
+    },
+    {
+      "bytes": 705754,
+      "path": "run-002/candidate.npz",
+      "sha256": "0d7b641e0b79257f5f68209a901f8baf3e1ed03972a5497cd66de10abc8baf28"
+    },
+    {
+      "bytes": 898,
+      "path": "run-002/report.json",
+      "sha256": "4d0f281e2e00695f09b9b016f52a7fe5464534c8160f5edf7a3b0f23e283457c"
+    },
+    {
+      "bytes": 1096,
+      "path": "run-002/cell-audit.json",
+      "sha256": "52ee77881893e7fdb8173b59cc52664dc6ed2f11173d3183650eca93a4c9a0df"
+    },
+    {
+      "bytes": 918283,
+      "path": "run-002/whole-skin-fat-reference.poly",
+      "sha256": "20e005ac365f494361ac56a9699d0a0f3f41d054a55ed2ef77568fd00f392bb1"
+    },
+    {
+      "bytes": 4046,
+      "path": "build_and_audit_layer_reference_116.py",
+      "sha256": "82abb8031026443bccfbcddeb146c2db9129d0f06901676308a801148fc12813"
+    },
+    {
+      "bytes": 2782,
+      "path": "audit_connected_layer_remesh_116.py",
+      "sha256": "aa305dd7a336c50184930c2aa84e274407e750ebb068806209c77fc0386f8b33"
+    },
+    {
+      "bytes": 1645,
+      "path": "run-001.log",
+      "sha256": "22cbb9f1299a478aca0c1f7416502482194d18fe06014b9917e5edcb2602a515"
+    },
+    {
+      "bytes": 1651,
+      "path": "run-002/tetgen.stdout.log",
+      "sha256": "6a562b1946a94d498350fc3f8e4ee3a1590193e812862aeb9ed53d7f470d9af6"
+    },
+    {
+      "bytes": 0,
+      "path": "run-002/tetgen.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 650297,
+      "path": "quality-repair-117/run-001/candidate-tetrahedra.npz",
+      "sha256": "4a08dd79cbf7fcc01f53504dfdbc468a9e0bd3c97a77d8384b0c45e44549ea0d"
+    },
+    {
+      "bytes": 778,
+      "path": "quality-repair-117/run-001/failure-note.json",
+      "sha256": "dd40355da14ce529556a229daf9fda6a5e657d55ebae07dda7b1bf27657e0107"
+    },
+    {
+      "bytes": 650297,
+      "path": "quality-repair-117/run-002/candidate-tetrahedra.npz",
+      "sha256": "4a08dd79cbf7fcc01f53504dfdbc468a9e0bd3c97a77d8384b0c45e44549ea0d"
+    },
+    {
+      "bytes": 5795,
+      "path": "quality-repair-117/run-002/report.json",
+      "sha256": "48f178bf32a49c5f935fd33a55b2f8e8c51544f7265272d7a10ad3879e4da6f4"
+    },
+    {
+      "bytes": 2469,
+      "path": "quality-repair-117/run-002/report-correction.json",
+      "sha256": "578c17baf8eae3b6d73879e3069a3bc9c7dc07b6e9bd6892fc6e24a7dec01ba9"
+    },
+    {
+      "bytes": 19441,
+      "path": "quality-repair-117/bistellar_connected_116.py",
+      "sha256": "4771e91abf8b35b2d0c0d6673847fd6dcc7f9f39f01ebe1424bb3ea421ca5cf1"
+    },
+    {
+      "bytes": 19441,
+      "path": "quality-repair-117/bistellar_connected_116_run002.py",
+      "sha256": "1d1b0ee4bae5f0cd6ecd0b8979dd480b26d2bfdb8bac674439950c7bcc28fa8b"
+    },
+    {
+      "bytes": 4473,
+      "path": "quality-repair-117/test_bistellar_116.py",
+      "sha256": "0335b987ce2bd8981170e9393f0d256b118ec07c257447572b579faf8d2e8757"
+    },
+    {
+      "bytes": 148,
+      "path": "quality-repair-117/test-bistellar-116.log",
+      "sha256": "b2880ea9d9e67366b28261d1cdb8dccc1646cad558e00c0599c87debac7643bb"
+    },
+    {
+      "bytes": 6141,
+      "path": "quality-repair-117/source-edge-q-witness.json",
+      "sha256": "327b2402bd38da1b6176dcabdf6730a6d2dddb18853afeadcea31b9ff9977804"
+    },
+    {
+      "bytes": 2308,
+      "path": "quality-repair-117/source-edge-q-witness-correction.json",
+      "sha256": "ad0bb69e6bc03e9939d83822cf65cd83df5d6ae17132ad3b455b3f4a85df03f0"
+    },
+    {
+      "bytes": 3523,
+      "path": "quality-repair-117/write_source_edge_report.py",
+      "sha256": "ca525cbc8aa74278fc2b5c13bc51d6472fcc79228f9d4c229ee9a0060feee819"
+    },
+    {
+      "bytes": 3474,
+      "path": "quality-repair-117/expanded_cavity_probe_002.py",
+      "sha256": "219c7391d6ca4100b2f250a9aebecf3578ddd95d42fee74728f68eb2feb5fa67"
+    },
+    {
+      "bytes": 3572,
+      "path": "quality-repair-117/expanded_cavity_probe_003.py",
+      "sha256": "aa0487686e5a637c848d986780a42d3fd251bc7a97d3a0d3c36a382706cb8c69"
+    },
+    {
+      "bytes": 1634,
+      "path": "quality-repair-117/expanded-cavity-probe-003/report.json",
+      "sha256": "89747c794d014dfbc36d27f5653d8bdf0653b8303178743b26271bb8788f7e32"
+    }
+  ],
+  "rejected_or_incomplete_trials": [
+    "run-001 report generation failed after NPZ serialization; see run-001/failure-note.json",
+    "expanded 1-ring cavity fails exact boundary and volume coverage; larger rings fail reference/current Float32 orientation gates",
+    "run-002 search ended with two skin cells still below q floor"
+  ],
+  "result": {
+    "accepted_same_material_4to4_flips": 1,
+    "canonical_q_floor": 1e-05,
+    "material_volume_delta_m3": {
+      "fat": 0.0,
+      "skin": 0.0
+    },
+    "nonpositive_output_cells": 0,
+    "q_bad_input_cells": 3,
+    "q_bad_output_cells": 2
+  },
+  "run002_report_sha256": "48f178bf32a49c5f935fd33a55b2f8e8c51544f7265272d7a10ad3879e4da6f4",
+  "source_edge_correction_sha256": "ad0bb69e6bc03e9939d83822cf65cd83df5d6ae17132ad3b455b3f4a85df03f0",
+  "test": "7 passed; command and exact output retained in test-bistellar-116.log"
+}

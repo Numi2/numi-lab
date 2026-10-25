@@ -1,0 +1,266 @@
+{
+  "bad_tets": [
+    {
+      "cell_uid": 14023,
+      "input_tet_row": 14022,
+      "longest_edges": [
+        {
+          "length_m": 0.1647480799596304,
+          "nodes": [
+            2332,
+            344
+          ],
+          "output_node_ids": [
+            2333,
+            345
+          ],
+          "source_input_rows": [
+            2332,
+            344
+          ]
+        },
+        {
+          "length_m": 0.16294453727126937,
+          "nodes": [
+            2332,
+            2755
+          ],
+          "output_node_ids": [
+            2333,
+            2756
+          ],
+          "source_input_rows": [
+            2332,
+            2755
+          ]
+        },
+        {
+          "length_m": 0.16293363925547583,
+          "nodes": [
+            2332,
+            7318
+          ],
+          "output_node_ids": [
+            2333,
+            7319
+          ],
+          "source_input_rows": [
+            2332,
+            -1
+          ]
+        }
+      ],
+      "material_id": 1,
+      "nodes": [
+        2332,
+        2755,
+        344,
+        7318
+      ],
+      "tet_faces_in_boundary": []
+    },
+    {
+      "cell_uid": 23440,
+      "input_tet_row": 23439,
+      "longest_edges": [
+        {
+          "length_m": 0.15617383096531273,
+          "nodes": [
+            344,
+            7311
+          ],
+          "output_node_ids": [
+            345,
+            7312
+          ],
+          "source_input_rows": [
+            344,
+            -1
+          ]
+        },
+        {
+          "length_m": 0.15436303179083563,
+          "nodes": [
+            7311,
+            7318
+          ],
+          "output_node_ids": [
+            7312,
+            7319
+          ],
+          "source_input_rows": [
+            -1,
+            -1
+          ]
+        },
+        {
+          "length_m": 0.15427510645034911,
+          "nodes": [
+            7311,
+            2755
+          ],
+          "output_node_ids": [
+            7312,
+            2756
+          ],
+          "source_input_rows": [
+            -1,
+            2755
+          ]
+        }
+      ],
+      "material_id": 1,
+      "nodes": [
+        344,
+        7311,
+        7318,
+        2755
+      ],
+      "tet_faces_in_boundary": []
+    },
+    {
+      "cell_uid": 30476,
+      "input_tet_row": 30475,
+      "longest_edges": [
+        {
+          "length_m": 0.055957770043442774,
+          "nodes": [
+            4588,
+            6867
+          ],
+          "output_node_ids": [
+            4589,
+            6868
+          ],
+          "source_input_rows": [
+            4588,
+            6867
+          ]
+        },
+        {
+          "length_m": 0.049365763915605966,
+          "nodes": [
+            6867,
+            7017
+          ],
+          "output_node_ids": [
+            6868,
+            7018
+          ],
+          "source_input_rows": [
+            6867,
+            7017
+          ]
+        },
+        {
+          "length_m": 0.048186471092172216,
+          "nodes": [
+            7018,
+            6867
+          ],
+          "output_node_ids": [
+            7019,
+            6868
+          ],
+          "source_input_rows": [
+            7018,
+            6867
+          ]
+        }
+      ],
+      "material_id": 2,
+      "nodes": [
+        4588,
+        7018,
+        6867,
+        7017
+      ],
+      "tet_faces_in_boundary": []
+    }
+  ],
+  "candidate_run002_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/run-002/candidate-tetrahedra.npz",
+  "candidate_run002_sha256": "4a08dd79cbf7fcc01f53504dfdbc468a9e0bd3c97a77d8384b0c45e44549ea0d",
+  "classification": "diagnostic only; no physical or mass admission",
+  "coarse_faces_075_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-faces.csv",
+  "coarse_faces_075_sha256": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+  "input_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/candidate.npz",
+  "input_poly_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/whole-skin-fat-reference.poly",
+  "input_poly_sha256": "20e005ac365f494361ac56a9699d0a0f3f41d054a55ed2ef77568fd00f392bb1",
+  "input_sha256": "957490efc4df1bc797c32ce8b536e7bab6fc6a1ac1373ed2aa7727e27ed004a2",
+  "key_outer_coarse_edge": {
+    "coarse_face_rows": [
+      {
+        "coarse_face_row": 716,
+        "stable_source_face_id": 8297,
+        "vertices": [
+          344,
+          358,
+          2332
+        ]
+      },
+      {
+        "coarse_face_row": 717,
+        "stable_source_face_id": 8297,
+        "vertices": [
+          344,
+          2332,
+          374
+        ]
+      }
+    ],
+    "interpretation": "Original O-layer coarse edge participates in both source parent facets; it is also a marked boundary edge in the 116 mesh, including a small child facet [2332,344,7318]. This points to a source-boundary refinement trigger based on cell quality as well as bone-hit witnesses; no source boundary point was moved here.",
+    "length_m": 0.1647480799596304,
+    "node_rows": [
+      344,
+      2332
+    ],
+    "output_node_ids": [
+      345,
+      2333
+    ],
+    "output_surface_facets": [
+      {
+        "marker": 100718,
+        "nodes": [
+          374,
+          344,
+          2332
+        ],
+        "row": 1451
+      },
+      {
+        "marker": 100717,
+        "nodes": [
+          2332,
+          344,
+          7318
+        ],
+        "row": 14666
+      }
+    ],
+    "poly_parent_facets": [
+      {
+        "marker": 100717,
+        "one_based_point_ids": [
+          345,
+          2333,
+          359
+        ],
+        "poly_line_1based": 10137
+      },
+      {
+        "marker": 100718,
+        "one_based_point_ids": [
+          345,
+          375,
+          2333
+        ],
+        "poly_line_1based": 10139
+      }
+    ],
+    "source_input_rows": [
+      344,
+      2332
+    ]
+  }
+}

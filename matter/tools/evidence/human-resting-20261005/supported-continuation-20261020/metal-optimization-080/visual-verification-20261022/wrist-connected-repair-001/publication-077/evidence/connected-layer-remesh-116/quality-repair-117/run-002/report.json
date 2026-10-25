@@ -1,0 +1,207 @@
+{
+  "accepted_flips": [
+    {
+      "after": {
+        "J_above_2.5": 0,
+        "J_above_50": 0,
+        "J_below_0.35": 0,
+        "Jmax": 1.0,
+        "Jmin": 1.0,
+        "bad_cell_rows": [
+          14021,
+          23437
+        ],
+        "canonical_q_bad_union": 2,
+        "canonical_q_min_current": 7.014256487190345e-06,
+        "canonical_q_min_reference": 7.014256487190345e-06,
+        "cells": 34841,
+        "current_nonpositive_f32": 0,
+        "current_q_below_1e-5": 2,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 2
+      },
+      "before": {
+        "J_above_2.5": 0,
+        "J_above_50": 0,
+        "J_below_0.35": 0,
+        "Jmax": 1.0,
+        "Jmin": 1.0,
+        "bad_cell_rows": [
+          14022,
+          23439,
+          30475
+        ],
+        "canonical_q_bad_union": 3,
+        "canonical_q_min_current": 7.014256487190345e-06,
+        "canonical_q_min_reference": 7.014256487190345e-06,
+        "cells": 34841,
+        "current_nonpositive_f32": 0,
+        "current_q_below_1e-5": 3,
+        "reference_nonpositive_f32": 0,
+        "reference_q_below_1e-5": 3
+      },
+      "feature": [
+        4588,
+        7018
+      ],
+      "kind": "4to4",
+      "link_or_opposites": [
+        4456,
+        4606,
+        7017,
+        6867
+      ],
+      "material_id": 2,
+      "new_J": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "new_cell_uids": [
+        34842,
+        34843,
+        34844,
+        34845
+      ],
+      "new_current_q": [
+        0.000759532819986443,
+        0.00011636179061913363,
+        0.00010478246997136388,
+        0.0006358768989749382
+      ],
+      "new_ref_q": [
+        0.000759532819986443,
+        0.00011636179061913363,
+        0.00010478246997136388,
+        0.0006358768989749382
+      ],
+      "old_cell_uids": [
+        10156,
+        21419,
+        30476,
+        34747
+      ],
+      "old_q_bad_cells": 1,
+      "reference_cavity_volume_delta_m3": 1.3234889800848443e-23
+    }
+  ],
+  "baseline": {
+    "J_above_2.5": 0,
+    "J_above_50": 0,
+    "J_below_0.35": 0,
+    "Jmax": 1.0,
+    "Jmin": 1.0,
+    "bad_cell_rows": [
+      14022,
+      23439,
+      30475
+    ],
+    "canonical_q_bad_union": 3,
+    "canonical_q_min_current": 7.014256487190345e-06,
+    "canonical_q_min_reference": 7.014256487190345e-06,
+    "cells": 34841,
+    "current_nonpositive_f32": 0,
+    "current_q_below_1e-5": 3,
+    "reference_nonpositive_f32": 0,
+    "reference_q_below_1e-5": 3
+  },
+  "classification": "connectivity_only_no_physical_admission",
+  "collapse_attempt": null,
+  "counts": {
+    "accepted_collapse": false,
+    "accepted_flips": 1,
+    "candidate_cavities_checked": 23
+  },
+  "final": {
+    "J_above_2.5": 0,
+    "J_above_50": 0,
+    "J_below_0.35": 0,
+    "Jmax": 1.0,
+    "Jmin": 1.0,
+    "bad_cell_rows": [
+      14021,
+      23437
+    ],
+    "canonical_q_bad_union": 2,
+    "canonical_q_min_current": 7.014256487190345e-06,
+    "canonical_q_min_reference": 7.014256487190345e-06,
+    "cells": 34841,
+    "current_nonpositive_f32": 0,
+    "current_q_below_1e-5": 2,
+    "reference_nonpositive_f32": 0,
+    "reference_q_below_1e-5": 2
+  },
+  "inputs": {
+    "candidate_npz": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/candidate.npz",
+    "candidate_sha256": "957490efc4df1bc797c32ce8b536e7bab6fc6a1ac1373ed2aa7727e27ed004a2",
+    "canonical_owner": "/Users/numi/Work/numi-human-connected-surface-069/canonical/matter/tools/human_skin_fat_connected_repair.py",
+    "canonical_owner_sha256": "5d8dab03eb64a3cba490c9fd380e3234cc49f14a7bac275a564126f2b5e85c22"
+  },
+  "invariants": {
+    "O_I_D_faces_bitwise_unchanged": true,
+    "all_node_coordinates_bitwise_unchanged": true,
+    "marked_faces_and_markers_bitwise_unchanged": true
+  },
+  "limitations": [
+    "This repairs only internal connectivity/quality; it does not establish material mass transfer, global clearance, stress, native runtime, or physical qualification."
+  ],
+  "method": {
+    "canonical_q": "determinant / longest current edge length cubed",
+    "coordinates_fixed": true,
+    "families": [
+      "2->3",
+      "3->2",
+      "4->4"
+    ],
+    "max_accepted_flips": 10,
+    "max_seconds": 70.0,
+    "outer_interface_and_side_facets_fixed": true,
+    "q_floor": 1e-05,
+    "reference_orientation": "trusted 084 Float32 reference only",
+    "same_material_only": true
+  },
+  "output": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/run-002/candidate-tetrahedra.npz",
+    "sha256": "4a08dd79cbf7fcc01f53504dfdbc468a9e0bd3c97a77d8384b0c45e44549ea0d"
+  },
+  "rejections": {
+    "2to3:canonical_reference_or_current_q_floor": 5,
+    "2to3:oriented_boundary_mismatch": 10,
+    "4to4:canonical_reference_or_current_q_floor": 1,
+    "4to4:oriented_boundary_mismatch": 6
+  },
+  "runtime": {
+    "host": "numi.local",
+    "input_sha256": "957490efc4df1bc797c32ce8b536e7bab6fc6a1ac1373ed2aa7727e27ed004a2",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "script_sha256": "1d1b0ee4bae5f0cd6ecd0b8979dd480b26d2bfdb8bac674439950c7bcc28fa8b",
+    "seconds": 0.7145800590515137,
+    "unit_test_sha256": "0335b987ce2bd8981170e9393f0d256b118ec07c257447572b579faf8d2e8757"
+  },
+  "status": "REJECTED_CANONICAL_Q_FLOOR_REMAINS",
+  "sweeps": [
+    {
+      "accepted": 1,
+      "chosen_kind": "4to4",
+      "proposals_checked": 15,
+      "score": [
+        1.0,
+        0.0,
+        0.00010478246997136388,
+        -1.0
+      ],
+      "seconds": 0.31274914741516113
+    },
+    {
+      "accepted": 0,
+      "proposals_checked": 8,
+      "seconds": 0.6291279792785645,
+      "stalled_on_bad_rows": [
+        14021,
+        23437
+      ]
+    }
+  ]
+}

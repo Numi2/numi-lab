@@ -1,0 +1,26 @@
+{
+  "points": 8257,
+  "cells": 37692,
+  "material_counts": {
+    "1": 19147,
+    "2": 18545
+  },
+  "generated_nodes": 1024,
+  "positive_reference_cells": 37692,
+  "invalid_Float32_cells": 0,
+  "below_quality_floor_1e_minus5": 3,
+  "q_min": 7.014256487190345e-06,
+  "J_min_emitted_vs_new_reference": 0.9993373681537019,
+  "J_max_emitted_vs_new_reference": 1.0002679705554254,
+  "material_volume_m3": {
+    "1": 0.0034525709483045628,
+    "2": 0.011237668835972527
+  },
+  "candidate_sha256": "0d7b641e0b79257f5f68209a901f8baf3e1ed03972a5497cd66de10abc8baf28",
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0,
+  "mass_mapping_regenerated": false,
+  "detail_mapping_regenerated": false,
+  "remaining_gates": "Full solid/bone/surrounding checks, generated ancestry, conservative mass/donor and detailed mapping, source-curve refinement and native qualification.",
+  "construction_status": "Actual whole connected remesh of capacity-limited inner reference. Source O/I coordinates unchanged. New topology removes direct-reference-edit inversions; quality/clearance separately enforced."
+}

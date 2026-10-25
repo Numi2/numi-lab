@@ -1,0 +1,17 @@
+
+==================================== ERRORS ====================================
+_____________ ERROR collecting test_human_skin_fat_outward_exit.py _____________
+test_human_skin_fat_outward_exit.py:17: in <module>
+    assert hashlib.sha256(PREDICATE_PATH.read_bytes()).hexdigest() == PREDICATE_SHA
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_abc.py:625: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/root_exact_segment_witness.py'
+=========================== short test summary info ============================
+ERROR test_human_skin_fat_outward_exit.py - FileNotFoundError: [Errno 2] No s...
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.27s

@@ -1,0 +1,2268 @@
+{
+  "files": [
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/root_exact_segment_witness.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/root_exact_segment_witness.py",
+      "stored_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "uncompressed_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "uncompressed_size_bytes": 2734
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/human_skin_fat_accepted_transfer.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/human_skin_fat_accepted_transfer.py",
+      "stored_sha256": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+      "uncompressed_sha256": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+      "uncompressed_size_bytes": 9944
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/human_skin_fat_bone_clearance.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/human_skin_fat_bone_clearance.py",
+      "stored_sha256": "116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1",
+      "uncompressed_sha256": "116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1",
+      "uncompressed_size_bytes": 55335
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/human_skin_fat_boundary_workset.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/human_skin_fat_boundary_workset.py",
+      "stored_sha256": "2390d551d6178d6a48cd2caab958b244ebbc294d564ce3c6f1e1b4d68b05e9c6",
+      "uncompressed_sha256": "2390d551d6178d6a48cd2caab958b244ebbc294d564ce3c6f1e1b4d68b05e9c6",
+      "uncompressed_size_bytes": 3953
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/human_skin_fat_connected_repair.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/human_skin_fat_connected_repair.py",
+      "stored_sha256": "5ba638a89f3e97a017f084ea4bc7e6693eeec736f14ba68c51715555b00a6883",
+      "uncompressed_sha256": "5ba638a89f3e97a017f084ea4bc7e6693eeec736f14ba68c51715555b00a6883",
+      "uncompressed_size_bytes": 68979
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/human_skin_fat_dihedral_scp_cuts.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/human_skin_fat_dihedral_scp_cuts.py",
+      "stored_sha256": "770b1bcf64c310f5bb09bdf4b0cbdafe133f61065cbe36d9c23aaa93f42f6ab6",
+      "uncompressed_sha256": "770b1bcf64c310f5bb09bdf4b0cbdafe133f61065cbe36d9c23aaa93f42f6ab6",
+      "uncompressed_size_bytes": 7929
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/human_skin_fat_embedded_surface.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/human_skin_fat_embedded_surface.py",
+      "stored_sha256": "76cb4818b03a99ec55ea89fd7347ce9a499ce067df087b8908cf4dc40db53325",
+      "uncompressed_sha256": "76cb4818b03a99ec55ea89fd7347ce9a499ce067df087b8908cf4dc40db53325",
+      "uncompressed_size_bytes": 20892
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/human_skin_fat_generated_layer_constraints.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/human_skin_fat_generated_layer_constraints.py",
+      "stored_sha256": "a627a3b8c491345c42e1de9b8d5cb0cc7d35aa953742b29b2a09662f3eb8e253",
+      "uncompressed_sha256": "a627a3b8c491345c42e1de9b8d5cb0cc7d35aa953742b29b2a09662f3eb8e253",
+      "uncompressed_size_bytes": 14016
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/human_skin_fat_mass_transfer_geometry.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/human_skin_fat_mass_transfer_geometry.py",
+      "stored_sha256": "a00a21552f0c0ec9018123c7a69e3091d233874a7bfebd73964e919a18237652",
+      "uncompressed_sha256": "a00a21552f0c0ec9018123c7a69e3091d233874a7bfebd73964e919a18237652",
+      "uncompressed_size_bytes": 10893
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/human_skin_fat_surface_separation.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/human_skin_fat_surface_separation.py",
+      "stored_sha256": "cafecf587c641b67c709ffa5c4633f5428dfe6fa979e856420662e1d0764a244",
+      "uncompressed_sha256": "cafecf587c641b67c709ffa5c4633f5428dfe6fa979e856420662e1d0764a244",
+      "uncompressed_size_bytes": 17122
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_accepted_transfer.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_accepted_transfer.py",
+      "stored_sha256": "af16339ad23fc3e81b48a80b221a8aa37d653ef9c8896d28f1f04a879b554f2a",
+      "uncompressed_sha256": "af16339ad23fc3e81b48a80b221a8aa37d653ef9c8896d28f1f04a879b554f2a",
+      "uncompressed_size_bytes": 8135
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_bone_clearance.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_bone_clearance.py",
+      "stored_sha256": "3943df1790414cb89390d878d85166b233d12f6147fdd9ebfbb60a5d4b3be535",
+      "uncompressed_sha256": "3943df1790414cb89390d878d85166b233d12f6147fdd9ebfbb60a5d4b3be535",
+      "uncompressed_size_bytes": 12170
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_boundary_workset.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_boundary_workset.py",
+      "stored_sha256": "fc35f4d2d593376526e5f7a0fb43fdb1eb6b91aeb89c500a5fe87286379e074c",
+      "uncompressed_sha256": "fc35f4d2d593376526e5f7a0fb43fdb1eb6b91aeb89c500a5fe87286379e074c",
+      "uncompressed_size_bytes": 3005
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_cell_quality_conventions.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_cell_quality_conventions.py",
+      "stored_sha256": "799ff28a144aa1893b762a0f162f65b7900c6ed7dedd3b204037ee18bad04529",
+      "uncompressed_sha256": "799ff28a144aa1893b762a0f162f65b7900c6ed7dedd3b204037ee18bad04529",
+      "uncompressed_size_bytes": 1612
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_connected_embedded_lp.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_connected_embedded_lp.py",
+      "stored_sha256": "1f8f0c8b3658c881263a885db0c0a1586181a0d942ca8d14ef120f4390a369d6",
+      "uncompressed_sha256": "1f8f0c8b3658c881263a885db0c0a1586181a0d942ca8d14ef120f4390a369d6",
+      "uncompressed_size_bytes": 4715
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_connected_repair.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_connected_repair.py",
+      "stored_sha256": "59c820b42d9608cd22f365f690fb4343ab5e848502f4612108061a0ae15d1612",
+      "uncompressed_sha256": "59c820b42d9608cd22f365f690fb4343ab5e848502f4612108061a0ae15d1612",
+      "uncompressed_size_bytes": 9450
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_connected_repair_inputs.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_connected_repair_inputs.py",
+      "stored_sha256": "058fb0b3e67addff25c94e6b7886027ffc9934cfc7045ab06ccc6c98be803c53",
+      "uncompressed_sha256": "058fb0b3e67addff25c94e6b7886027ffc9934cfc7045ab06ccc6c98be803c53",
+      "uncompressed_size_bytes": 3617
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_connected_repair_scaling.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_connected_repair_scaling.py",
+      "stored_sha256": "0a418b5610c1b4a419cadc854e8ab1d91698d7c3da03f77be45237ff516cd344",
+      "uncompressed_sha256": "0a418b5610c1b4a419cadc854e8ab1d91698d7c3da03f77be45237ff516cd344",
+      "uncompressed_size_bytes": 1993
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_connected_sparse.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_connected_sparse.py",
+      "stored_sha256": "34ad20548d207648f4cceb3f980591e575b281d2fcb250df325be0d6efd44f31",
+      "uncompressed_sha256": "34ad20548d207648f4cceb3f980591e575b281d2fcb250df325be0d6efd44f31",
+      "uncompressed_size_bytes": 3909
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_connected_surface.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_connected_surface.py",
+      "stored_sha256": "ea62df465fc580de50efe332c29d8832da577c3beb8a0be136ea2140751bfd22",
+      "uncompressed_sha256": "ea62df465fc580de50efe332c29d8832da577c3beb8a0be136ea2140751bfd22",
+      "uncompressed_size_bytes": 3525
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_current_cell_gradient_caps.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_current_cell_gradient_caps.py",
+      "stored_sha256": "ba7fa2d31e7b47105397e2f70ef342e68e1e255dc5c2b511c95a552ef0c2d69f",
+      "uncompressed_sha256": "ba7fa2d31e7b47105397e2f70ef342e68e1e255dc5c2b511c95a552ef0c2d69f",
+      "uncompressed_size_bytes": 5864
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_dihedral_constraint.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_dihedral_constraint.py",
+      "stored_sha256": "e7401fefb02edcd41b956266926a6c5501eb78859fe7c02468d471f233ebf4b6",
+      "uncompressed_sha256": "e7401fefb02edcd41b956266926a6c5501eb78859fe7c02468d471f233ebf4b6",
+      "uncompressed_size_bytes": 15158
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_dihedral_scp_cuts.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_dihedral_scp_cuts.py",
+      "stored_sha256": "3e0358d51a5bafe95c000d27da43d1583919d7f4fd910f284b13aef167677cc6",
+      "uncompressed_sha256": "3e0358d51a5bafe95c000d27da43d1583919d7f4fd910f284b13aef167677cc6",
+      "uncompressed_size_bytes": 4160
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_embedded_surface.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_embedded_surface.py",
+      "stored_sha256": "6edaa545da034cc146c3240678359c470791dfda64e0b45fcbcc9bb30aa0be20",
+      "uncompressed_sha256": "6edaa545da034cc146c3240678359c470791dfda64e0b45fcbcc9bb30aa0be20",
+      "uncompressed_size_bytes": 9632
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_generated_layer_constraints.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_generated_layer_constraints.py",
+      "stored_sha256": "5e5a4a796869fb3cf17390f95c997543d6afdc72fc34985867f063778e0cfff6",
+      "uncompressed_sha256": "5e5a4a796869fb3cf17390f95c997543d6afdc72fc34985867f063778e0cfff6",
+      "uncompressed_size_bytes": 4379
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_mass_transfer_geometry.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_mass_transfer_geometry.py",
+      "stored_sha256": "5862840f680c0b27464656951351409a99c260a0841f203649d98f886549aa07",
+      "uncompressed_sha256": "5862840f680c0b27464656951351409a99c260a0841f203649d98f886549aa07",
+      "uncompressed_size_bytes": 3343
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_outward_exit.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_outward_exit.py",
+      "stored_sha256": "bd44c7a248199f5fe2bf0ac8827284e27438b41dc7dbdb2b1cccd8783281fa54",
+      "uncompressed_sha256": "bd44c7a248199f5fe2bf0ac8827284e27438b41dc7dbdb2b1cccd8783281fa54",
+      "uncompressed_size_bytes": 11421
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_parent_mass_partition.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_parent_mass_partition.py",
+      "stored_sha256": "f5b790033963b412243c31e386c135762b511c88b7bb55db83c39cc7ce40c320",
+      "uncompressed_sha256": "f5b790033963b412243c31e386c135762b511c88b7bb55db83c39cc7ce40c320",
+      "uncompressed_size_bytes": 5846
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_reference_outward.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_reference_outward.py",
+      "stored_sha256": "797413ae918bc7f98b7c8566bd0747eac5b54c865e84a69b10c7d32abf340180",
+      "uncompressed_sha256": "797413ae918bc7f98b7c8566bd0747eac5b54c865e84a69b10c7d32abf340180",
+      "uncompressed_size_bytes": 2399
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_surface_gradient_caps.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_surface_gradient_caps.py",
+      "stored_sha256": "0613e9dbb648481fceaa35f9f078dcd0c0e2f5f2ac541e6c70cb9890f86eba97",
+      "uncompressed_sha256": "0613e9dbb648481fceaa35f9f078dcd0c0e2f5f2ac541e6c70cb9890f86eba97",
+      "uncompressed_size_bytes": 7199
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/matter/tools/test_human_skin_fat_surface_separation.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/matter/tools/test_human_skin_fat_surface_separation.py",
+      "stored_sha256": "6a71681c42f4e8f035b555de0deadaf4cdc93d46881df4700085318e233731e5",
+      "uncompressed_sha256": "6a71681c42f4e8f035b555de0deadaf4cdc93d46881df4700085318e233731e5",
+      "uncompressed_size_bytes": 5336
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-108/root-full-pytest.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-108/root-full-pytest.log",
+      "stored_sha256": "de38f241fc8dd121ca5419109b53ec60633780482f8297689737b52a5c54c3de",
+      "uncompressed_sha256": "de38f241fc8dd121ca5419109b53ec60633780482f8297689737b52a5c54c3de",
+      "uncompressed_size_bytes": 269
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/root_exact_segment_witness.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/root_exact_segment_witness.py",
+      "stored_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "uncompressed_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "uncompressed_size_bytes": 2734
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/human_skin_fat_accepted_transfer.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/human_skin_fat_accepted_transfer.py",
+      "stored_sha256": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+      "uncompressed_sha256": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+      "uncompressed_size_bytes": 9944
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/human_skin_fat_bone_clearance.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/human_skin_fat_bone_clearance.py",
+      "stored_sha256": "116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1",
+      "uncompressed_sha256": "116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1",
+      "uncompressed_size_bytes": 55335
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/human_skin_fat_boundary_workset.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/human_skin_fat_boundary_workset.py",
+      "stored_sha256": "2390d551d6178d6a48cd2caab958b244ebbc294d564ce3c6f1e1b4d68b05e9c6",
+      "uncompressed_sha256": "2390d551d6178d6a48cd2caab958b244ebbc294d564ce3c6f1e1b4d68b05e9c6",
+      "uncompressed_size_bytes": 3953
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/human_skin_fat_connected_repair.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/human_skin_fat_connected_repair.py",
+      "stored_sha256": "2e7d60ec3f38e57455cd663006d5206af630d2cae5c892fc4469fa4c07c70d09",
+      "uncompressed_sha256": "2e7d60ec3f38e57455cd663006d5206af630d2cae5c892fc4469fa4c07c70d09",
+      "uncompressed_size_bytes": 70813
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/human_skin_fat_embedded_surface.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/human_skin_fat_embedded_surface.py",
+      "stored_sha256": "76cb4818b03a99ec55ea89fd7347ce9a499ce067df087b8908cf4dc40db53325",
+      "uncompressed_sha256": "76cb4818b03a99ec55ea89fd7347ce9a499ce067df087b8908cf4dc40db53325",
+      "uncompressed_size_bytes": 20892
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/human_skin_fat_generated_layer_constraints.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/human_skin_fat_generated_layer_constraints.py",
+      "stored_sha256": "a627a3b8c491345c42e1de9b8d5cb0cc7d35aa953742b29b2a09662f3eb8e253",
+      "uncompressed_sha256": "a627a3b8c491345c42e1de9b8d5cb0cc7d35aa953742b29b2a09662f3eb8e253",
+      "uncompressed_size_bytes": 14016
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/human_skin_fat_mass_transfer_geometry.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/human_skin_fat_mass_transfer_geometry.py",
+      "stored_sha256": "a00a21552f0c0ec9018123c7a69e3091d233874a7bfebd73964e919a18237652",
+      "uncompressed_sha256": "a00a21552f0c0ec9018123c7a69e3091d233874a7bfebd73964e919a18237652",
+      "uncompressed_size_bytes": 10893
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/human_skin_fat_surface_separation.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/human_skin_fat_surface_separation.py",
+      "stored_sha256": "cafecf587c641b67c709ffa5c4633f5428dfe6fa979e856420662e1d0764a244",
+      "uncompressed_sha256": "cafecf587c641b67c709ffa5c4633f5428dfe6fa979e856420662e1d0764a244",
+      "uncompressed_size_bytes": 17122
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_accepted_transfer.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_accepted_transfer.py",
+      "stored_sha256": "af16339ad23fc3e81b48a80b221a8aa37d653ef9c8896d28f1f04a879b554f2a",
+      "uncompressed_sha256": "af16339ad23fc3e81b48a80b221a8aa37d653ef9c8896d28f1f04a879b554f2a",
+      "uncompressed_size_bytes": 8135
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_bone_clearance.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_bone_clearance.py",
+      "stored_sha256": "3943df1790414cb89390d878d85166b233d12f6147fdd9ebfbb60a5d4b3be535",
+      "uncompressed_sha256": "3943df1790414cb89390d878d85166b233d12f6147fdd9ebfbb60a5d4b3be535",
+      "uncompressed_size_bytes": 12170
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_boundary_workset.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_boundary_workset.py",
+      "stored_sha256": "fc35f4d2d593376526e5f7a0fb43fdb1eb6b91aeb89c500a5fe87286379e074c",
+      "uncompressed_sha256": "fc35f4d2d593376526e5f7a0fb43fdb1eb6b91aeb89c500a5fe87286379e074c",
+      "uncompressed_size_bytes": 3005
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_cell_quality_conventions.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_cell_quality_conventions.py",
+      "stored_sha256": "799ff28a144aa1893b762a0f162f65b7900c6ed7dedd3b204037ee18bad04529",
+      "uncompressed_sha256": "799ff28a144aa1893b762a0f162f65b7900c6ed7dedd3b204037ee18bad04529",
+      "uncompressed_size_bytes": 1612
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_connected_domain_backtracking.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_connected_domain_backtracking.py",
+      "stored_sha256": "3d228f121bc05a47ee8b036066a095a1654113826ba58dd7776134c322b43b62",
+      "uncompressed_sha256": "3d228f121bc05a47ee8b036066a095a1654113826ba58dd7776134c322b43b62",
+      "uncompressed_size_bytes": 5348
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_connected_embedded_lp.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_connected_embedded_lp.py",
+      "stored_sha256": "1f8f0c8b3658c881263a885db0c0a1586181a0d942ca8d14ef120f4390a369d6",
+      "uncompressed_sha256": "1f8f0c8b3658c881263a885db0c0a1586181a0d942ca8d14ef120f4390a369d6",
+      "uncompressed_size_bytes": 4715
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_connected_repair.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_connected_repair.py",
+      "stored_sha256": "59c820b42d9608cd22f365f690fb4343ab5e848502f4612108061a0ae15d1612",
+      "uncompressed_sha256": "59c820b42d9608cd22f365f690fb4343ab5e848502f4612108061a0ae15d1612",
+      "uncompressed_size_bytes": 9450
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_connected_repair_inputs.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_connected_repair_inputs.py",
+      "stored_sha256": "058fb0b3e67addff25c94e6b7886027ffc9934cfc7045ab06ccc6c98be803c53",
+      "uncompressed_sha256": "058fb0b3e67addff25c94e6b7886027ffc9934cfc7045ab06ccc6c98be803c53",
+      "uncompressed_size_bytes": 3617
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_connected_repair_scaling.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_connected_repair_scaling.py",
+      "stored_sha256": "0a418b5610c1b4a419cadc854e8ab1d91698d7c3da03f77be45237ff516cd344",
+      "uncompressed_sha256": "0a418b5610c1b4a419cadc854e8ab1d91698d7c3da03f77be45237ff516cd344",
+      "uncompressed_size_bytes": 1993
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_connected_sparse.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_connected_sparse.py",
+      "stored_sha256": "34ad20548d207648f4cceb3f980591e575b281d2fcb250df325be0d6efd44f31",
+      "uncompressed_sha256": "34ad20548d207648f4cceb3f980591e575b281d2fcb250df325be0d6efd44f31",
+      "uncompressed_size_bytes": 3909
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_connected_surface.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_connected_surface.py",
+      "stored_sha256": "ea62df465fc580de50efe332c29d8832da577c3beb8a0be136ea2140751bfd22",
+      "uncompressed_sha256": "ea62df465fc580de50efe332c29d8832da577c3beb8a0be136ea2140751bfd22",
+      "uncompressed_size_bytes": 3525
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_current_cell_gradient_caps.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_current_cell_gradient_caps.py",
+      "stored_sha256": "ba7fa2d31e7b47105397e2f70ef342e68e1e255dc5c2b511c95a552ef0c2d69f",
+      "uncompressed_sha256": "ba7fa2d31e7b47105397e2f70ef342e68e1e255dc5c2b511c95a552ef0c2d69f",
+      "uncompressed_size_bytes": 5864
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_dihedral_constraint.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_dihedral_constraint.py",
+      "stored_sha256": "928e9519b213be69765453e4858c516cab283e7dbb9f6bf694a258ecab3d35c5",
+      "uncompressed_sha256": "928e9519b213be69765453e4858c516cab283e7dbb9f6bf694a258ecab3d35c5",
+      "uncompressed_size_bytes": 13758
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_embedded_surface.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_embedded_surface.py",
+      "stored_sha256": "6edaa545da034cc146c3240678359c470791dfda64e0b45fcbcc9bb30aa0be20",
+      "uncompressed_sha256": "6edaa545da034cc146c3240678359c470791dfda64e0b45fcbcc9bb30aa0be20",
+      "uncompressed_size_bytes": 9632
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_generated_layer_constraints.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_generated_layer_constraints.py",
+      "stored_sha256": "5e5a4a796869fb3cf17390f95c997543d6afdc72fc34985867f063778e0cfff6",
+      "uncompressed_sha256": "5e5a4a796869fb3cf17390f95c997543d6afdc72fc34985867f063778e0cfff6",
+      "uncompressed_size_bytes": 4379
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_mass_transfer_geometry.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_mass_transfer_geometry.py",
+      "stored_sha256": "5862840f680c0b27464656951351409a99c260a0841f203649d98f886549aa07",
+      "uncompressed_sha256": "5862840f680c0b27464656951351409a99c260a0841f203649d98f886549aa07",
+      "uncompressed_size_bytes": 3343
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_outward_exit.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_outward_exit.py",
+      "stored_sha256": "bd44c7a248199f5fe2bf0ac8827284e27438b41dc7dbdb2b1cccd8783281fa54",
+      "uncompressed_sha256": "bd44c7a248199f5fe2bf0ac8827284e27438b41dc7dbdb2b1cccd8783281fa54",
+      "uncompressed_size_bytes": 11421
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_parent_mass_partition.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_parent_mass_partition.py",
+      "stored_sha256": "f5b790033963b412243c31e386c135762b511c88b7bb55db83c39cc7ce40c320",
+      "uncompressed_sha256": "f5b790033963b412243c31e386c135762b511c88b7bb55db83c39cc7ce40c320",
+      "uncompressed_size_bytes": 5846
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_reference_outward.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_reference_outward.py",
+      "stored_sha256": "797413ae918bc7f98b7c8566bd0747eac5b54c865e84a69b10c7d32abf340180",
+      "uncompressed_sha256": "797413ae918bc7f98b7c8566bd0747eac5b54c865e84a69b10c7d32abf340180",
+      "uncompressed_size_bytes": 2399
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_surface_gradient_caps.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_surface_gradient_caps.py",
+      "stored_sha256": "0613e9dbb648481fceaa35f9f078dcd0c0e2f5f2ac541e6c70cb9890f86eba97",
+      "uncompressed_sha256": "0613e9dbb648481fceaa35f9f078dcd0c0e2f5f2ac541e6c70cb9890f86eba97",
+      "uncompressed_size_bytes": 7199
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/matter/tools/test_human_skin_fat_surface_separation.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/test_human_skin_fat_surface_separation.py",
+      "stored_sha256": "6a71681c42f4e8f035b555de0deadaf4cdc93d46881df4700085318e233731e5",
+      "uncompressed_sha256": "6a71681c42f4e8f035b555de0deadaf4cdc93d46881df4700085318e233731e5",
+      "uncompressed_size_bytes": 5336
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-109/run_connected_clearance_109.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/run_connected_clearance_109.py",
+      "stored_sha256": "20028f59840ee9889bef50c2dcace04ba3810f0b815b614c1fb5c57251f26bba",
+      "uncompressed_sha256": "20028f59840ee9889bef50c2dcace04ba3810f0b815b614c1fb5c57251f26bba",
+      "uncompressed_size_bytes": 41766
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/root_exact_segment_witness.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/root_exact_segment_witness.py",
+      "stored_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "uncompressed_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "uncompressed_size_bytes": 2734
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/human_skin_fat_accepted_transfer.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/human_skin_fat_accepted_transfer.py",
+      "stored_sha256": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+      "uncompressed_sha256": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+      "uncompressed_size_bytes": 9944
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/human_skin_fat_bone_clearance.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/human_skin_fat_bone_clearance.py",
+      "stored_sha256": "116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1",
+      "uncompressed_sha256": "116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1",
+      "uncompressed_size_bytes": 55335
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/human_skin_fat_boundary_workset.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/human_skin_fat_boundary_workset.py",
+      "stored_sha256": "2390d551d6178d6a48cd2caab958b244ebbc294d564ce3c6f1e1b4d68b05e9c6",
+      "uncompressed_sha256": "2390d551d6178d6a48cd2caab958b244ebbc294d564ce3c6f1e1b4d68b05e9c6",
+      "uncompressed_size_bytes": 3953
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/human_skin_fat_connected_repair.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/human_skin_fat_connected_repair.py",
+      "stored_sha256": "305c49eb594e4cd137c902fd838e77fee8661b2beb950ca0a9e2b5eeab6238f9",
+      "uncompressed_sha256": "305c49eb594e4cd137c902fd838e77fee8661b2beb950ca0a9e2b5eeab6238f9",
+      "uncompressed_size_bytes": 77875
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/human_skin_fat_embedded_surface.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/human_skin_fat_embedded_surface.py",
+      "stored_sha256": "76cb4818b03a99ec55ea89fd7347ce9a499ce067df087b8908cf4dc40db53325",
+      "uncompressed_sha256": "76cb4818b03a99ec55ea89fd7347ce9a499ce067df087b8908cf4dc40db53325",
+      "uncompressed_size_bytes": 20892
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/human_skin_fat_generated_layer_constraints.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/human_skin_fat_generated_layer_constraints.py",
+      "stored_sha256": "a627a3b8c491345c42e1de9b8d5cb0cc7d35aa953742b29b2a09662f3eb8e253",
+      "uncompressed_sha256": "a627a3b8c491345c42e1de9b8d5cb0cc7d35aa953742b29b2a09662f3eb8e253",
+      "uncompressed_size_bytes": 14016
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/human_skin_fat_mass_transfer_geometry.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/human_skin_fat_mass_transfer_geometry.py",
+      "stored_sha256": "a00a21552f0c0ec9018123c7a69e3091d233874a7bfebd73964e919a18237652",
+      "uncompressed_sha256": "a00a21552f0c0ec9018123c7a69e3091d233874a7bfebd73964e919a18237652",
+      "uncompressed_size_bytes": 10893
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/human_skin_fat_surface_separation.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/human_skin_fat_surface_separation.py",
+      "stored_sha256": "cafecf587c641b67c709ffa5c4633f5428dfe6fa979e856420662e1d0764a244",
+      "uncompressed_sha256": "cafecf587c641b67c709ffa5c4633f5428dfe6fa979e856420662e1d0764a244",
+      "uncompressed_size_bytes": 17122
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_accepted_transfer.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_accepted_transfer.py",
+      "stored_sha256": "af16339ad23fc3e81b48a80b221a8aa37d653ef9c8896d28f1f04a879b554f2a",
+      "uncompressed_sha256": "af16339ad23fc3e81b48a80b221a8aa37d653ef9c8896d28f1f04a879b554f2a",
+      "uncompressed_size_bytes": 8135
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_bone_clearance.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_bone_clearance.py",
+      "stored_sha256": "3943df1790414cb89390d878d85166b233d12f6147fdd9ebfbb60a5d4b3be535",
+      "uncompressed_sha256": "3943df1790414cb89390d878d85166b233d12f6147fdd9ebfbb60a5d4b3be535",
+      "uncompressed_size_bytes": 12170
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_boundary_workset.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_boundary_workset.py",
+      "stored_sha256": "fc35f4d2d593376526e5f7a0fb43fdb1eb6b91aeb89c500a5fe87286379e074c",
+      "uncompressed_sha256": "fc35f4d2d593376526e5f7a0fb43fdb1eb6b91aeb89c500a5fe87286379e074c",
+      "uncompressed_size_bytes": 3005
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_cell_quality_conventions.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_cell_quality_conventions.py",
+      "stored_sha256": "799ff28a144aa1893b762a0f162f65b7900c6ed7dedd3b204037ee18bad04529",
+      "uncompressed_sha256": "799ff28a144aa1893b762a0f162f65b7900c6ed7dedd3b204037ee18bad04529",
+      "uncompressed_size_bytes": 1612
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_connected_domain_backtracking.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_connected_domain_backtracking.py",
+      "stored_sha256": "3d228f121bc05a47ee8b036066a095a1654113826ba58dd7776134c322b43b62",
+      "uncompressed_sha256": "3d228f121bc05a47ee8b036066a095a1654113826ba58dd7776134c322b43b62",
+      "uncompressed_size_bytes": 5348
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_connected_embedded_lp.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_connected_embedded_lp.py",
+      "stored_sha256": "1f8f0c8b3658c881263a885db0c0a1586181a0d942ca8d14ef120f4390a369d6",
+      "uncompressed_sha256": "1f8f0c8b3658c881263a885db0c0a1586181a0d942ca8d14ef120f4390a369d6",
+      "uncompressed_size_bytes": 4715
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_connected_repair.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_connected_repair.py",
+      "stored_sha256": "59c820b42d9608cd22f365f690fb4343ab5e848502f4612108061a0ae15d1612",
+      "uncompressed_sha256": "59c820b42d9608cd22f365f690fb4343ab5e848502f4612108061a0ae15d1612",
+      "uncompressed_size_bytes": 9450
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_connected_repair_inputs.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_connected_repair_inputs.py",
+      "stored_sha256": "058fb0b3e67addff25c94e6b7886027ffc9934cfc7045ab06ccc6c98be803c53",
+      "uncompressed_sha256": "058fb0b3e67addff25c94e6b7886027ffc9934cfc7045ab06ccc6c98be803c53",
+      "uncompressed_size_bytes": 3617
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_connected_repair_scaling.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_connected_repair_scaling.py",
+      "stored_sha256": "0a418b5610c1b4a419cadc854e8ab1d91698d7c3da03f77be45237ff516cd344",
+      "uncompressed_sha256": "0a418b5610c1b4a419cadc854e8ab1d91698d7c3da03f77be45237ff516cd344",
+      "uncompressed_size_bytes": 1993
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_connected_sparse.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_connected_sparse.py",
+      "stored_sha256": "34ad20548d207648f4cceb3f980591e575b281d2fcb250df325be0d6efd44f31",
+      "uncompressed_sha256": "34ad20548d207648f4cceb3f980591e575b281d2fcb250df325be0d6efd44f31",
+      "uncompressed_size_bytes": 3909
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_connected_surface.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_connected_surface.py",
+      "stored_sha256": "ea62df465fc580de50efe332c29d8832da577c3beb8a0be136ea2140751bfd22",
+      "uncompressed_sha256": "ea62df465fc580de50efe332c29d8832da577c3beb8a0be136ea2140751bfd22",
+      "uncompressed_size_bytes": 3525
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_current_cell_gradient_caps.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_current_cell_gradient_caps.py",
+      "stored_sha256": "ba7fa2d31e7b47105397e2f70ef342e68e1e255dc5c2b511c95a552ef0c2d69f",
+      "uncompressed_sha256": "ba7fa2d31e7b47105397e2f70ef342e68e1e255dc5c2b511c95a552ef0c2d69f",
+      "uncompressed_size_bytes": 5864
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_dihedral_constraint.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_dihedral_constraint.py",
+      "stored_sha256": "928e9519b213be69765453e4858c516cab283e7dbb9f6bf694a258ecab3d35c5",
+      "uncompressed_sha256": "928e9519b213be69765453e4858c516cab283e7dbb9f6bf694a258ecab3d35c5",
+      "uncompressed_size_bytes": 13758
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_embedded_surface.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_embedded_surface.py",
+      "stored_sha256": "6edaa545da034cc146c3240678359c470791dfda64e0b45fcbcc9bb30aa0be20",
+      "uncompressed_sha256": "6edaa545da034cc146c3240678359c470791dfda64e0b45fcbcc9bb30aa0be20",
+      "uncompressed_size_bytes": 9632
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_generated_layer_constraints.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_generated_layer_constraints.py",
+      "stored_sha256": "5e5a4a796869fb3cf17390f95c997543d6afdc72fc34985867f063778e0cfff6",
+      "uncompressed_sha256": "5e5a4a796869fb3cf17390f95c997543d6afdc72fc34985867f063778e0cfff6",
+      "uncompressed_size_bytes": 4379
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_mass_transfer_geometry.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_mass_transfer_geometry.py",
+      "stored_sha256": "5862840f680c0b27464656951351409a99c260a0841f203649d98f886549aa07",
+      "uncompressed_sha256": "5862840f680c0b27464656951351409a99c260a0841f203649d98f886549aa07",
+      "uncompressed_size_bytes": 3343
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_outward_exit.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_outward_exit.py",
+      "stored_sha256": "bd44c7a248199f5fe2bf0ac8827284e27438b41dc7dbdb2b1cccd8783281fa54",
+      "uncompressed_sha256": "bd44c7a248199f5fe2bf0ac8827284e27438b41dc7dbdb2b1cccd8783281fa54",
+      "uncompressed_size_bytes": 11421
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_parent_mass_partition.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_parent_mass_partition.py",
+      "stored_sha256": "f5b790033963b412243c31e386c135762b511c88b7bb55db83c39cc7ce40c320",
+      "uncompressed_sha256": "f5b790033963b412243c31e386c135762b511c88b7bb55db83c39cc7ce40c320",
+      "uncompressed_size_bytes": 5846
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_reference_displacement.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_reference_displacement.py",
+      "stored_sha256": "2f1e65e3afa2f65a9482ab3fda241076912ef4d048d3e589075070ab5101d94a",
+      "uncompressed_sha256": "2f1e65e3afa2f65a9482ab3fda241076912ef4d048d3e589075070ab5101d94a",
+      "uncompressed_size_bytes": 6945
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_reference_outward.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_reference_outward.py",
+      "stored_sha256": "797413ae918bc7f98b7c8566bd0747eac5b54c865e84a69b10c7d32abf340180",
+      "uncompressed_sha256": "797413ae918bc7f98b7c8566bd0747eac5b54c865e84a69b10c7d32abf340180",
+      "uncompressed_size_bytes": 2399
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_surface_gradient_caps.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_surface_gradient_caps.py",
+      "stored_sha256": "0613e9dbb648481fceaa35f9f078dcd0c0e2f5f2ac541e6c70cb9890f86eba97",
+      "uncompressed_sha256": "0613e9dbb648481fceaa35f9f078dcd0c0e2f5f2ac541e6c70cb9890f86eba97",
+      "uncompressed_size_bytes": 7199
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-cell-trust-111/matter/tools/test_human_skin_fat_surface_separation.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-111/matter/tools/test_human_skin_fat_surface_separation.py",
+      "stored_sha256": "6a71681c42f4e8f035b555de0deadaf4cdc93d46881df4700085318e233731e5",
+      "uncompressed_sha256": "6a71681c42f4e8f035b555de0deadaf4cdc93d46881df4700085318e233731e5",
+      "uncompressed_size_bytes": 5336
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/human_skin_fat_reference_capacity.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/human_skin_fat_reference_capacity.py",
+      "stored_sha256": "5d1add3e311b5b77130796bfc4e4cdaba97a37ae53e58017f4f635c1c87e6813",
+      "uncompressed_sha256": "5d1add3e311b5b77130796bfc4e4cdaba97a37ae53e58017f4f635c1c87e6813",
+      "uncompressed_size_bytes": 14913
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/matter/root_exact_segment_witness.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/matter/root_exact_segment_witness.py",
+      "stored_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "uncompressed_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "uncompressed_size_bytes": 2734
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/matter/tools/human_skin_fat_bone_clearance.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/matter/tools/human_skin_fat_bone_clearance.py",
+      "stored_sha256": "116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1",
+      "uncompressed_sha256": "116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1",
+      "uncompressed_size_bytes": 55335
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/matter/tools/human_skin_fat_reference_capacity.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/matter/tools/human_skin_fat_reference_capacity.py",
+      "stored_sha256": "5d1add3e311b5b77130796bfc4e4cdaba97a37ae53e58017f4f635c1c87e6813",
+      "uncompressed_sha256": "5d1add3e311b5b77130796bfc4e4cdaba97a37ae53e58017f4f635c1c87e6813",
+      "uncompressed_size_bytes": 14913
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/matter/tools/test_human_skin_fat_reference_capacity.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/matter/tools/test_human_skin_fat_reference_capacity.py",
+      "stored_sha256": "baff3aac7f3a7d4cbd08af5fae67049171880dc5e5a7eeeaabf28a3cc40c7f5c",
+      "uncompressed_sha256": "baff3aac7f3a7d4cbd08af5fae67049171880dc5e5a7eeeaabf28a3cc40c7f5c",
+      "uncompressed_size_bytes": 7440
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-reference-capacity-112/run-001/column-capacity-proposals.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-001/column-capacity-proposals.csv",
+      "stored_sha256": "bfe3c16afea404a750dcb3c7a4b75ddc5f4d8b1faeb085b3b06cd5a1d3a62e61",
+      "uncompressed_sha256": "ec00f14dbec8852e7eb8b3a5e3299e6c2657fa81b1e50aa96d20f51bd6a8b8c9",
+      "uncompressed_size_bytes": 441834
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/run-001/exact-segment-audits.jsonl.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-001/exact-segment-audits.jsonl.gz",
+      "stored_sha256": "d08aff6853b2807a67345090f73a3a87b9ff4593c2002ba6567ad947373d09a6",
+      "uncompressed_sha256": "d08aff6853b2807a67345090f73a3a87b9ff4593c2002ba6567ad947373d09a6",
+      "uncompressed_size_bytes": 139401
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/run-001/human_skin_fat_reference_capacity.py.as-run",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-001/human_skin_fat_reference_capacity.py.as-run",
+      "stored_sha256": "a5d4acf97f9fe2bd85b41f0d64553ba99a5e509247e9e3f3a7f865842dbace56",
+      "uncompressed_sha256": "a5d4acf97f9fe2bd85b41f0d64553ba99a5e509247e9e3f3a7f865842dbace56",
+      "uncompressed_size_bytes": 14696
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/run-001/input-pins.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-001/input-pins.json",
+      "stored_sha256": "2111c624a54b19921d477498cf9f3304983e3bd4f2df164e55d28568a774ec06",
+      "uncompressed_sha256": "2111c624a54b19921d477498cf9f3304983e3bd4f2df164e55d28568a774ec06",
+      "uncompressed_size_bytes": 1212
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/run-001/interpretation-addendum.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-001/interpretation-addendum.json",
+      "stored_sha256": "4450d37eb158cebedc1f362f48b145f3f505050154ab195202a44bbdab6f4c4d",
+      "uncompressed_sha256": "4450d37eb158cebedc1f362f48b145f3f505050154ab195202a44bbdab6f4c4d",
+      "uncompressed_size_bytes": 25819
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/run-001/report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-001/report.json",
+      "stored_sha256": "3bfd2449332c9f13ab243425e9ef9b74ffdc572c388260f929c2929e6ba86758",
+      "uncompressed_sha256": "3bfd2449332c9f13ab243425e9ef9b74ffdc572c388260f929c2929e6ba86758",
+      "uncompressed_size_bytes": 3315
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/run-001/run_capacity_audit_112.py.as-run",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-001/run_capacity_audit_112.py.as-run",
+      "stored_sha256": "88ed3ab65560efc325c0f90b98082e9a422023224e094d4bbd94fabc0a89bf4a",
+      "uncompressed_sha256": "88ed3ab65560efc325c0f90b98082e9a422023224e094d4bbd94fabc0a89bf4a",
+      "uncompressed_size_bytes": 19352
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/run-001/test_human_skin_fat_reference_capacity.py.as-run",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-001/test_human_skin_fat_reference_capacity.py.as-run",
+      "stored_sha256": "ba00bcd8db8aa14f1093c06f5a9ff08aedec947dc74a111b08aaf57d6be34b82",
+      "uncompressed_sha256": "ba00bcd8db8aa14f1093c06f5a9ff08aedec947dc74a111b08aaf57d6be34b82",
+      "uncompressed_size_bytes": 6837
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-reference-capacity-112/run-002/column-capacity-proposals.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-002/column-capacity-proposals.csv",
+      "stored_sha256": "0d5990de8abf3dfa9096bfea430a952bb002e4a97070dccc06f58ed80fb07531",
+      "uncompressed_sha256": "1925ea2ff2b083e0e233b046c0ebcc3d79b4e513422dd549c2ccac5d51dfe63e",
+      "uncompressed_size_bytes": 451576
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/run-002/exact-segment-audits.jsonl.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-002/exact-segment-audits.jsonl.gz",
+      "stored_sha256": "40aa807d719ad8b46a6504c1d2800b7cce41d01204dc01ee7ee6ae2dc5c4f08f",
+      "uncompressed_sha256": "40aa807d719ad8b46a6504c1d2800b7cce41d01204dc01ee7ee6ae2dc5c4f08f",
+      "uncompressed_size_bytes": 139401
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/run-002/input-pins.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-002/input-pins.json",
+      "stored_sha256": "1a05a3a5a0fb4ffa359ebbb33f50eae7898bb5d3738f3a6b63af681dd9cc71eb",
+      "uncompressed_sha256": "1a05a3a5a0fb4ffa359ebbb33f50eae7898bb5d3738f3a6b63af681dd9cc71eb",
+      "uncompressed_size_bytes": 1212
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/run-002/report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-002/report.json",
+      "stored_sha256": "b2505e18fabd1b37e5094ba404ffafd979ae2cfcf9594b1b24d15675776ce0af",
+      "uncompressed_sha256": "b2505e18fabd1b37e5094ba404ffafd979ae2cfcf9594b1b24d15675776ce0af",
+      "uncompressed_size_bytes": 3315
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/run-002/verified-capacity-summary.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run-002/verified-capacity-summary.json",
+      "stored_sha256": "3296ae3d63dda07165c28e26d28ca1397ece0038031309f31d28b4eff7b8c4c7",
+      "uncompressed_sha256": "3296ae3d63dda07165c28e26d28ca1397ece0038031309f31d28b4eff7b8c4c7",
+      "uncompressed_size_bytes": 38877
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/run_capacity_audit_112.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run_capacity_audit_112.py",
+      "stored_sha256": "88ed3ab65560efc325c0f90b98082e9a422023224e094d4bbd94fabc0a89bf4a",
+      "uncompressed_sha256": "88ed3ab65560efc325c0f90b98082e9a422023224e094d4bbd94fabc0a89bf4a",
+      "uncompressed_size_bytes": 19352
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/run_capacity_audit_112_run002.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/run_capacity_audit_112_run002.py",
+      "stored_sha256": "e6d6c481951a9710b2250bc4be11b59038fbfb1f7e9241bac786507351c9f68e",
+      "uncompressed_sha256": "e6d6c481951a9710b2250bc4be11b59038fbfb1f7e9241bac786507351c9f68e",
+      "uncompressed_size_bytes": 19672
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/summarize_capacity_112.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/summarize_capacity_112.py",
+      "stored_sha256": "705ce549d370c9118c61835cbc5f008216c993d4ca9d56f820ce3e3493439ac5",
+      "uncompressed_sha256": "705ce549d370c9118c61835cbc5f008216c993d4ca9d56f820ce3e3493439ac5",
+      "uncompressed_size_bytes": 10950
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-reference-capacity-112/test_human_skin_fat_reference_capacity.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-reference-capacity-112/test_human_skin_fat_reference_capacity.py",
+      "stored_sha256": "9366ba5a72a7a70cb1df64eca246d7ae7361cd579ef5d149e9c9c6aeee0a8918",
+      "uncompressed_sha256": "9366ba5a72a7a70cb1df64eca246d7ae7361cd579ef5d149e9c9c6aeee0a8918",
+      "uncompressed_size_bytes": 7605
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/root_exact_segment_witness.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/root_exact_segment_witness.py",
+      "stored_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "uncompressed_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "uncompressed_size_bytes": 2734
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/human_skin_fat_accepted_transfer.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/human_skin_fat_accepted_transfer.py",
+      "stored_sha256": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+      "uncompressed_sha256": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+      "uncompressed_size_bytes": 9944
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/human_skin_fat_bone_clearance.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/human_skin_fat_bone_clearance.py",
+      "stored_sha256": "116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1",
+      "uncompressed_sha256": "116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1",
+      "uncompressed_size_bytes": 55335
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/human_skin_fat_boundary_workset.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/human_skin_fat_boundary_workset.py",
+      "stored_sha256": "2390d551d6178d6a48cd2caab958b244ebbc294d564ce3c6f1e1b4d68b05e9c6",
+      "uncompressed_sha256": "2390d551d6178d6a48cd2caab958b244ebbc294d564ce3c6f1e1b4d68b05e9c6",
+      "uncompressed_size_bytes": 3953
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/human_skin_fat_connected_repair.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/human_skin_fat_connected_repair.py",
+      "stored_sha256": "305c49eb594e4cd137c902fd838e77fee8661b2beb950ca0a9e2b5eeab6238f9",
+      "uncompressed_sha256": "305c49eb594e4cd137c902fd838e77fee8661b2beb950ca0a9e2b5eeab6238f9",
+      "uncompressed_size_bytes": 77875
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/human_skin_fat_embedded_surface.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/human_skin_fat_embedded_surface.py",
+      "stored_sha256": "76cb4818b03a99ec55ea89fd7347ce9a499ce067df087b8908cf4dc40db53325",
+      "uncompressed_sha256": "76cb4818b03a99ec55ea89fd7347ce9a499ce067df087b8908cf4dc40db53325",
+      "uncompressed_size_bytes": 20892
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/human_skin_fat_generated_layer_constraints.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/human_skin_fat_generated_layer_constraints.py",
+      "stored_sha256": "a627a3b8c491345c42e1de9b8d5cb0cc7d35aa953742b29b2a09662f3eb8e253",
+      "uncompressed_sha256": "a627a3b8c491345c42e1de9b8d5cb0cc7d35aa953742b29b2a09662f3eb8e253",
+      "uncompressed_size_bytes": 14016
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/human_skin_fat_mass_transfer_geometry.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/human_skin_fat_mass_transfer_geometry.py",
+      "stored_sha256": "a00a21552f0c0ec9018123c7a69e3091d233874a7bfebd73964e919a18237652",
+      "uncompressed_sha256": "a00a21552f0c0ec9018123c7a69e3091d233874a7bfebd73964e919a18237652",
+      "uncompressed_size_bytes": 10893
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/human_skin_fat_surface_separation.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/human_skin_fat_surface_separation.py",
+      "stored_sha256": "cafecf587c641b67c709ffa5c4633f5428dfe6fa979e856420662e1d0764a244",
+      "uncompressed_sha256": "cafecf587c641b67c709ffa5c4633f5428dfe6fa979e856420662e1d0764a244",
+      "uncompressed_size_bytes": 17122
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_accepted_transfer.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_accepted_transfer.py",
+      "stored_sha256": "af16339ad23fc3e81b48a80b221a8aa37d653ef9c8896d28f1f04a879b554f2a",
+      "uncompressed_sha256": "af16339ad23fc3e81b48a80b221a8aa37d653ef9c8896d28f1f04a879b554f2a",
+      "uncompressed_size_bytes": 8135
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_bone_clearance.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_bone_clearance.py",
+      "stored_sha256": "3943df1790414cb89390d878d85166b233d12f6147fdd9ebfbb60a5d4b3be535",
+      "uncompressed_sha256": "3943df1790414cb89390d878d85166b233d12f6147fdd9ebfbb60a5d4b3be535",
+      "uncompressed_size_bytes": 12170
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_boundary_workset.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_boundary_workset.py",
+      "stored_sha256": "fc35f4d2d593376526e5f7a0fb43fdb1eb6b91aeb89c500a5fe87286379e074c",
+      "uncompressed_sha256": "fc35f4d2d593376526e5f7a0fb43fdb1eb6b91aeb89c500a5fe87286379e074c",
+      "uncompressed_size_bytes": 3005
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_cell_quality_conventions.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_cell_quality_conventions.py",
+      "stored_sha256": "799ff28a144aa1893b762a0f162f65b7900c6ed7dedd3b204037ee18bad04529",
+      "uncompressed_sha256": "799ff28a144aa1893b762a0f162f65b7900c6ed7dedd3b204037ee18bad04529",
+      "uncompressed_size_bytes": 1612
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_connected_domain_backtracking.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_connected_domain_backtracking.py",
+      "stored_sha256": "3d228f121bc05a47ee8b036066a095a1654113826ba58dd7776134c322b43b62",
+      "uncompressed_sha256": "3d228f121bc05a47ee8b036066a095a1654113826ba58dd7776134c322b43b62",
+      "uncompressed_size_bytes": 5348
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_connected_embedded_lp.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_connected_embedded_lp.py",
+      "stored_sha256": "1f8f0c8b3658c881263a885db0c0a1586181a0d942ca8d14ef120f4390a369d6",
+      "uncompressed_sha256": "1f8f0c8b3658c881263a885db0c0a1586181a0d942ca8d14ef120f4390a369d6",
+      "uncompressed_size_bytes": 4715
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_connected_repair.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_connected_repair.py",
+      "stored_sha256": "59c820b42d9608cd22f365f690fb4343ab5e848502f4612108061a0ae15d1612",
+      "uncompressed_sha256": "59c820b42d9608cd22f365f690fb4343ab5e848502f4612108061a0ae15d1612",
+      "uncompressed_size_bytes": 9450
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_connected_repair_inputs.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_connected_repair_inputs.py",
+      "stored_sha256": "058fb0b3e67addff25c94e6b7886027ffc9934cfc7045ab06ccc6c98be803c53",
+      "uncompressed_sha256": "058fb0b3e67addff25c94e6b7886027ffc9934cfc7045ab06ccc6c98be803c53",
+      "uncompressed_size_bytes": 3617
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_connected_repair_scaling.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_connected_repair_scaling.py",
+      "stored_sha256": "0a418b5610c1b4a419cadc854e8ab1d91698d7c3da03f77be45237ff516cd344",
+      "uncompressed_sha256": "0a418b5610c1b4a419cadc854e8ab1d91698d7c3da03f77be45237ff516cd344",
+      "uncompressed_size_bytes": 1993
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_connected_sparse.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_connected_sparse.py",
+      "stored_sha256": "34ad20548d207648f4cceb3f980591e575b281d2fcb250df325be0d6efd44f31",
+      "uncompressed_sha256": "34ad20548d207648f4cceb3f980591e575b281d2fcb250df325be0d6efd44f31",
+      "uncompressed_size_bytes": 3909
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_connected_surface.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_connected_surface.py",
+      "stored_sha256": "ea62df465fc580de50efe332c29d8832da577c3beb8a0be136ea2140751bfd22",
+      "uncompressed_sha256": "ea62df465fc580de50efe332c29d8832da577c3beb8a0be136ea2140751bfd22",
+      "uncompressed_size_bytes": 3525
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_current_cell_gradient_caps.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_current_cell_gradient_caps.py",
+      "stored_sha256": "ba7fa2d31e7b47105397e2f70ef342e68e1e255dc5c2b511c95a552ef0c2d69f",
+      "uncompressed_sha256": "ba7fa2d31e7b47105397e2f70ef342e68e1e255dc5c2b511c95a552ef0c2d69f",
+      "uncompressed_size_bytes": 5864
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_dihedral_constraint.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_dihedral_constraint.py",
+      "stored_sha256": "928e9519b213be69765453e4858c516cab283e7dbb9f6bf694a258ecab3d35c5",
+      "uncompressed_sha256": "928e9519b213be69765453e4858c516cab283e7dbb9f6bf694a258ecab3d35c5",
+      "uncompressed_size_bytes": 13758
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_embedded_surface.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_embedded_surface.py",
+      "stored_sha256": "6edaa545da034cc146c3240678359c470791dfda64e0b45fcbcc9bb30aa0be20",
+      "uncompressed_sha256": "6edaa545da034cc146c3240678359c470791dfda64e0b45fcbcc9bb30aa0be20",
+      "uncompressed_size_bytes": 9632
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_generated_layer_constraints.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_generated_layer_constraints.py",
+      "stored_sha256": "5e5a4a796869fb3cf17390f95c997543d6afdc72fc34985867f063778e0cfff6",
+      "uncompressed_sha256": "5e5a4a796869fb3cf17390f95c997543d6afdc72fc34985867f063778e0cfff6",
+      "uncompressed_size_bytes": 4379
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_mass_transfer_geometry.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_mass_transfer_geometry.py",
+      "stored_sha256": "5862840f680c0b27464656951351409a99c260a0841f203649d98f886549aa07",
+      "uncompressed_sha256": "5862840f680c0b27464656951351409a99c260a0841f203649d98f886549aa07",
+      "uncompressed_size_bytes": 3343
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_outward_exit.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_outward_exit.py",
+      "stored_sha256": "bd44c7a248199f5fe2bf0ac8827284e27438b41dc7dbdb2b1cccd8783281fa54",
+      "uncompressed_sha256": "bd44c7a248199f5fe2bf0ac8827284e27438b41dc7dbdb2b1cccd8783281fa54",
+      "uncompressed_size_bytes": 11421
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_parent_mass_partition.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_parent_mass_partition.py",
+      "stored_sha256": "f5b790033963b412243c31e386c135762b511c88b7bb55db83c39cc7ce40c320",
+      "uncompressed_sha256": "f5b790033963b412243c31e386c135762b511c88b7bb55db83c39cc7ce40c320",
+      "uncompressed_size_bytes": 5846
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_reference_displacement.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_reference_displacement.py",
+      "stored_sha256": "2f1e65e3afa2f65a9482ab3fda241076912ef4d048d3e589075070ab5101d94a",
+      "uncompressed_sha256": "2f1e65e3afa2f65a9482ab3fda241076912ef4d048d3e589075070ab5101d94a",
+      "uncompressed_size_bytes": 6945
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_reference_outward.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_reference_outward.py",
+      "stored_sha256": "797413ae918bc7f98b7c8566bd0747eac5b54c865e84a69b10c7d32abf340180",
+      "uncompressed_sha256": "797413ae918bc7f98b7c8566bd0747eac5b54c865e84a69b10c7d32abf340180",
+      "uncompressed_size_bytes": 2399
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_surface_gradient_caps.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_surface_gradient_caps.py",
+      "stored_sha256": "0613e9dbb648481fceaa35f9f078dcd0c0e2f5f2ac541e6c70cb9890f86eba97",
+      "uncompressed_sha256": "0613e9dbb648481fceaa35f9f078dcd0c0e2f5f2ac541e6c70cb9890f86eba97",
+      "uncompressed_size_bytes": 7199
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/matter/tools/test_human_skin_fat_surface_separation.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/matter/tools/test_human_skin_fat_surface_separation.py",
+      "stored_sha256": "6a71681c42f4e8f035b555de0deadaf4cdc93d46881df4700085318e233731e5",
+      "uncompressed_sha256": "6a71681c42f4e8f035b555de0deadaf4cdc93d46881df4700085318e233731e5",
+      "uncompressed_size_bytes": 5336
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/root-full-pytest-missing-fixture.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/root-full-pytest-missing-fixture.log",
+      "stored_sha256": "8ba9d64a59f451f316aed929301c65c6adee1b6af0b951e170ac7b21b62ee4a8",
+      "uncompressed_sha256": "8ba9d64a59f451f316aed929301c65c6adee1b6af0b951e170ac7b21b62ee4a8",
+      "uncompressed_size_bytes": 1262
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/root-full-pytest.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/root-full-pytest.log",
+      "stored_sha256": "06092028cefaa6b8b18e23d47440c48a5fc1bed7d26f8666ebfb156249c58365",
+      "uncompressed_sha256": "06092028cefaa6b8b18e23d47440c48a5fc1bed7d26f8666ebfb156249c58365",
+      "uncompressed_size_bytes": 269
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/baseline/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/baseline/candidate.npz",
+      "stored_sha256": "ddb86fbf07183adce0194c59a1acfc5456c96cb2efc709eb587e5489d3d59163",
+      "uncompressed_sha256": "ddb86fbf07183adce0194c59a1acfc5456c96cb2efc709eb587e5489d3d59163",
+      "uncompressed_size_bytes": 330149
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/baseline/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/baseline/query/nodes.csv",
+      "stored_sha256": "31df5904a7a619cde1b3ff16302819f4945c81419ece2ec1262a4b2752999f7b",
+      "uncompressed_sha256": "e49ef0e61ed9551bc3782e3bb8def6a45b5b2b32124ce1c7b7dabb9e286badef",
+      "uncompressed_size_bytes": 168306
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/baseline/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/baseline/query/pairs.csv",
+      "stored_sha256": "037b83ff9572a937e73e06806be1050baed42e522c134e5d2068fbb3b6a34f4d",
+      "uncompressed_sha256": "95023ef49a865473ab8baaca65da37bc45d78d5b4adf9e16ee7effa604bad4eb",
+      "uncompressed_size_bytes": 436717
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/baseline/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/baseline/query/points.csv",
+      "stored_sha256": "9f77ac0a33db29f51047ce95fd521eeb926e93b42b8415f860da5556df28dc10",
+      "uncompressed_sha256": "f15ea806a61c6a70fb4d051c932df22ac173b1f39e3f60662fad396362a8b58d",
+      "uncompressed_size_bytes": 558101
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/baseline/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/baseline/query/prepare.log",
+      "stored_sha256": "c14f89920172d88ca0268f5841e545a63da133322e2d3b238875172c6be0ac70",
+      "uncompressed_sha256": "c14f89920172d88ca0268f5841e545a63da133322e2d3b238875172c6be0ac70",
+      "uncompressed_size_bytes": 598
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/baseline/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/baseline/query/query-receipt.json",
+      "stored_sha256": "82d51f8b51ee06622a14a508a9ab465576d62df08011e027d0f119e5bfd2e938",
+      "uncompressed_sha256": "82d51f8b51ee06622a14a508a9ab465576d62df08011e027d0f119e5bfd2e938",
+      "uncompressed_size_bytes": 1716
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/baseline/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/baseline/query/query.log",
+      "stored_sha256": "2e3db8da95f0e8041724e4540a173648848a65a20f28915eeb54d1ec3e2771ae",
+      "uncompressed_sha256": "2e3db8da95f0e8041724e4540a173648848a65a20f28915eeb54d1ec3e2771ae",
+      "uncompressed_size_bytes": 134
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/baseline/self-pairs.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/baseline/self-pairs.npy",
+      "stored_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "uncompressed_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "uncompressed_size_bytes": 128
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/baseline/self-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/baseline/self-report.json",
+      "stored_sha256": "4ce7e0d18489a89790160487b0a856e3e5bdf6e3b9bd7a45d5d5cd65fac435db",
+      "uncompressed_sha256": "4ce7e0d18489a89790160487b0a856e3e5bdf6e3b9bd7a45d5d5cd65fac435db",
+      "uncompressed_size_bytes": 321
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/baseline/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/baseline/tet-edge-report.json",
+      "stored_sha256": "5ca7d0966ec087782cf43d4a678f5f5fe2333ae47b257955a24b06972e0c83f6",
+      "uncompressed_sha256": "41c8b9625e99ae6f5a4b4f3d909e847c906c53adc7523b221e0f2373faa7c2ee",
+      "uncompressed_size_bytes": 3077105
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/baseline-self-separator-provenance.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/baseline-self-separator-provenance.json",
+      "stored_sha256": "2dd2a23e9d8d354f7487cc3b129d2d0ad7d5faef4cbc73456326f3097f04d7c5",
+      "uncompressed_sha256": "2dd2a23e9d8d354f7487cc3b129d2d0ad7d5faef4cbc73456326f3097f04d7c5",
+      "uncompressed_size_bytes": 8838
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/boundary-faces.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/boundary-faces.npy",
+      "stored_sha256": "be4c6b73d36b3b72f8322c06c6f53ee9837d90e98e1b1700ab6b9fa35eeb2399",
+      "uncompressed_sha256": "be4c6b73d36b3b72f8322c06c6f53ee9837d90e98e1b1700ab6b9fa35eeb2399",
+      "uncompressed_size_bytes": 118592
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/continuation.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/continuation.json",
+      "stored_sha256": "32ecd0efc8d76c5e0be56f7bfded30397c6a901bbd29fe0d21611dab62ab89c6",
+      "uncompressed_sha256": "32ecd0efc8d76c5e0be56f7bfded30397c6a901bbd29fe0d21611dab62ab89c6",
+      "uncompressed_size_bytes": 9887
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/execution-owner-pins.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/execution-owner-pins.json",
+      "stored_sha256": "2cd32193aa799d3351ab71a5d4719d1208d904bbf91423d9114384c2860e94eb",
+      "uncompressed_sha256": "2cd32193aa799d3351ab71a5d4719d1208d904bbf91423d9114384c2860e94eb",
+      "uncompressed_size_bytes": 2036
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/generated-layer-constraints.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/generated-layer-constraints.json",
+      "stored_sha256": "51303f302c35a3ebdc48dc42080f29ac5d2f3239a15400141fa03517a530e4d8",
+      "uncompressed_sha256": "984a79faddc471f0945c44323b0831f0adad0f32c660e04c57d4a1fdd567840b",
+      "uncompressed_size_bytes": 130121
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/generated-layer-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/generated-layer-rows.npz",
+      "stored_sha256": "0ea27ea1179b9e5937f17527aa90b838de9717f5c761510cb6136838a8163f36",
+      "uncompressed_sha256": "0ea27ea1179b9e5937f17527aa90b838de9717f5c761510cb6136838a8163f36",
+      "uncompressed_size_bytes": 25686
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/generated-layer-targets.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/generated-layer-targets.npy",
+      "stored_sha256": "4fe1cedeba1eba23ef11682b92b59f6660e5d6847053ee464cfcb04edfb1be1f",
+      "uncompressed_sha256": "4fe1cedeba1eba23ef11682b92b59f6660e5d6847053ee464cfcb04edfb1be1f",
+      "uncompressed_size_bytes": 5920
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/input-pins.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/input-pins.json",
+      "stored_sha256": "08802f326d1b42dc5335d86248afb9a3d87b49d21422f72e29e1286b2c47b1b2",
+      "uncompressed_sha256": "08802f326d1b42dc5335d86248afb9a3d87b49d21422f72e29e1286b2c47b1b2",
+      "uncompressed_size_bytes": 3778
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/boundary-workset-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/boundary-workset-report.json",
+      "stored_sha256": "27c1c6ad7734a9e9fd9ee96d68133b67f76dbe69fd436c741b2ec3de36557393",
+      "uncompressed_sha256": "27c1c6ad7734a9e9fd9ee96d68133b67f76dbe69fd436c741b2ec3de36557393",
+      "uncompressed_size_bytes": 610
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/candidate.npz",
+      "stored_sha256": "20a74ad64b735ca792a71e9f9f7f7c0f698e631dea8bd9d297e0b8017775ae91",
+      "uncompressed_sha256": "20a74ad64b735ca792a71e9f9f7f7c0f698e631dea8bd9d297e0b8017775ae91",
+      "uncompressed_size_bytes": 330165
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/construction-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/construction-report.json",
+      "stored_sha256": "59a1dc2d6f05b3975f1cced7e549e487525b34029dc86c2fbcedbd3ab95149a8",
+      "uncompressed_sha256": "bea9b6f28fb30158b7bfe27d7f5f72ec43faeb870b63130c53b222540a357238",
+      "uncompressed_size_bytes": 811556
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/contact-provenance.json",
+      "stored_sha256": "ee9651f2d8050e28bb9848fcf10ca0fff041c4a8d23909ed5c7bdc79f861e75c",
+      "uncompressed_sha256": "c21c3f42f92eb32722dd358e070eb8ddb0751e25c43482148b23c06156e9e10d",
+      "uncompressed_size_bytes": 2827152
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/contact-rows.npz",
+      "stored_sha256": "d88481797c1d74e4ef1b3744fcb9c95c17f95ec37af9c2e9fe0595b5eca31451",
+      "uncompressed_sha256": "d88481797c1d74e4ef1b3744fcb9c95c17f95ec37af9c2e9fe0595b5eca31451",
+      "uncompressed_size_bytes": 151758
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/first-outward-exit-receipts.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/first-outward-exit-receipts.json.gz",
+      "stored_sha256": "f06172fa0b6818a6c3dc213dcc1c5062b91a6637f7595a47564b0ac2a71a0a74",
+      "uncompressed_sha256": "f06172fa0b6818a6c3dc213dcc1c5062b91a6637f7595a47564b0ac2a71a0a74",
+      "uncompressed_size_bytes": 1247303
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/input.npz",
+      "stored_sha256": "a49ff5a365c20e050ca7c78b3a18ceecbb831e9b3091ecbe8e3aabc21231f696",
+      "uncompressed_sha256": "a49ff5a365c20e050ca7c78b3a18ceecbb831e9b3091ecbe8e3aabc21231f696",
+      "uncompressed_size_bytes": 526682
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/inside-edge-span-samples.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/inside-edge-span-samples.json",
+      "stored_sha256": "38e9ab9bf36362c86029f3417d3162e2d3d3b75ec21abd08049ad0166ae60f72",
+      "uncompressed_sha256": "ecc505d71f1c484b59cccc18aacbd01366cd3146a2968359469447b7bcb5a9b0",
+      "uncompressed_size_bytes": 8573246
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/inside-edge-span-samples.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/inside-edge-span-samples.npz",
+      "stored_sha256": "0a0375bf1c358d5ebf4dc4298ea07b55fbd7e973d919fb15da2e7f6db9a5b38a",
+      "uncompressed_sha256": "0a0375bf1c358d5ebf4dc4298ea07b55fbd7e973d919fb15da2e7f6db9a5b38a",
+      "uncompressed_size_bytes": 71521
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/midpoint-query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/midpoint-query/nodes.csv",
+      "stored_sha256": "dd79978f4a39ff24d5f881e45f97fb8994b9ecf79069c28250ea9cba070c0c67",
+      "uncompressed_sha256": "3a075e110dede23bac7cb26c81e395d1cfe902e0f879cac5a73acd26c1efc457",
+      "uncompressed_size_bytes": 148273
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/midpoint-query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/midpoint-query/pairs.csv",
+      "stored_sha256": "c54aae981d6ccea66cd6242493a759a33ce7d5a85e49ccbbdd529049286164e0",
+      "uncompressed_sha256": "ea2533ed4c84d1fab99a5159732a34e0235f7304d9f6331b449969aceac98e11",
+      "uncompressed_size_bytes": 1486703
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/midpoint-query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/midpoint-query/points.csv",
+      "stored_sha256": "2c63f7be759ab41ede7700b3d6968ef721b730e3bbda495e60b0c355368e3320",
+      "uncompressed_sha256": "9f3f30b733f8879dc3395d536c02f35cec61047a7aba9c4c6b39b02621136fba",
+      "uncompressed_size_bytes": 492606
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/midpoint-query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/midpoint-query/prepare.log",
+      "stored_sha256": "25d6be6301370f7a5662ec6de2564ebd47075606aae05f737cc4263440edf8fc",
+      "uncompressed_sha256": "25d6be6301370f7a5662ec6de2564ebd47075606aae05f737cc4263440edf8fc",
+      "uncompressed_size_bytes": 632
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/midpoint-query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/midpoint-query/query-receipt.json",
+      "stored_sha256": "8fc477461572fd9e12b6ee7b78e22ecb2cb1f2b2dfc2f7b17373d8bf3bb80785",
+      "uncompressed_sha256": "8fc477461572fd9e12b6ee7b78e22ecb2cb1f2b2dfc2f7b17373d8bf3bb80785",
+      "uncompressed_size_bytes": 1756
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/midpoint-query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/midpoint-query/query.log",
+      "stored_sha256": "3e4cea2fc9d6dcb431fa621e0a2db2604a52797bd815c7fdcdd1af891f62d668",
+      "uncompressed_sha256": "3e4cea2fc9d6dcb431fa621e0a2db2604a52797bd815c7fdcdd1af891f62d668",
+      "uncompressed_size_bytes": 135
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/midpoint-query-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/midpoint-query-report.json",
+      "stored_sha256": "cd936d175af32e8a71866f6212440fa7b89c1cc8eecf6ab3c92b29f911709178",
+      "uncompressed_sha256": "cd936d175af32e8a71866f6212440fa7b89c1cc8eecf6ab3c92b29f911709178",
+      "uncompressed_size_bytes": 2361
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/query/nodes.csv",
+      "stored_sha256": "632c6b0801d40d80c3dbbf4752cbcaa79ec5e45857ab5991963f9c9bf088087e",
+      "uncompressed_sha256": "369af949af78957c3deca5fddd6de9eddc34f8bf03524b9019f30cdb4db2cf35",
+      "uncompressed_size_bytes": 168306
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/query/pairs.csv",
+      "stored_sha256": "6b0ca214314f7e29715e347dbef70824b64aedf3c52a5e3dea5946ea5d52e685",
+      "uncompressed_sha256": "861195c5fd0051f0c25f657b6b720f7ea350e50d5e0381605685d2a6346b4c21",
+      "uncompressed_size_bytes": 430160
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/query/points.csv",
+      "stored_sha256": "0983b4b0b3f6f7c4d353b0d736a41c1397660c4e0910acc40bba1a41d966ad74",
+      "uncompressed_sha256": "bf7e3ba70b521730ee86dd1ef8f0cc6d902116467fa26201ed641972a6f66a5f",
+      "uncompressed_size_bytes": 558118
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/query/prepare.log",
+      "stored_sha256": "30b49fa5b0697858ec2741bd8913bf1f85a81371b17d00e0a4e648617a97ad1b",
+      "uncompressed_sha256": "30b49fa5b0697858ec2741bd8913bf1f85a81371b17d00e0a4e648617a97ad1b",
+      "uncompressed_size_bytes": 608
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/query/query-receipt.json",
+      "stored_sha256": "2889fb582b1790129453887772b7402b2b97616e22120eea058de6bd5b741049",
+      "uncompressed_sha256": "2889fb582b1790129453887772b7402b2b97616e22120eea058de6bd5b741049",
+      "uncompressed_size_bytes": 1731
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/query/query.log",
+      "stored_sha256": "0049f0f57025f21f2b555e29995157ef2b64d92bac696686644653f77f496132",
+      "uncompressed_sha256": "0049f0f57025f21f2b555e29995157ef2b64d92bac696686644653f77f496132",
+      "uncompressed_size_bytes": 134
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/self-pairs.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/self-pairs.npy",
+      "stored_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "uncompressed_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "uncompressed_size_bytes": 128
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/self-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/self-report.json",
+      "stored_sha256": "6123e3408262810410e5a61e92813c3bb425edefb0458955e4e1ce750b521a65",
+      "uncompressed_sha256": "6123e3408262810410e5a61e92813c3bb425edefb0458955e4e1ce750b521a65",
+      "uncompressed_size_bytes": 321
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-001/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-001/tet-edge-report.json",
+      "stored_sha256": "af950f74eba669c984a9cca788937626f9e39bacbf1c81d8d7290a2339a954ee",
+      "uncompressed_sha256": "67913660c85ae7cad5b9aa06f948f6c2b53d3782217d5487046453167214b105",
+      "uncompressed_size_bytes": 2834350
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/boundary-workset-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/boundary-workset-report.json",
+      "stored_sha256": "36776a066e59bcf7aa127d4236b0a1a4420a431f78dd890c8b168d96e6aba966",
+      "uncompressed_sha256": "36776a066e59bcf7aa127d4236b0a1a4420a431f78dd890c8b168d96e6aba966",
+      "uncompressed_size_bytes": 610
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/candidate.npz",
+      "stored_sha256": "1795546a6b26882ca84d838351b7538157c988f9901e4c12747987302d75607f",
+      "uncompressed_sha256": "1795546a6b26882ca84d838351b7538157c988f9901e4c12747987302d75607f",
+      "uncompressed_size_bytes": 330158
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/construction-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/construction-report.json",
+      "stored_sha256": "e66b09c88f6918d5ed69f2ee74404190ff9df6455eae86c9d0a9cde32bceea2a",
+      "uncompressed_sha256": "746c66495e98b06fd5d6d1ff0a5f1aa130f0ce429a49f29fde752956a658d7fd",
+      "uncompressed_size_bytes": 749772
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/contact-provenance.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/contact-provenance.json",
+      "stored_sha256": "8b02795845d232d249380e990407d74e90cbf43fbb969d33e8a78c06ea373b74",
+      "uncompressed_sha256": "5e18fee8054d438965e854cfd6744a04a68aa3301f982abbdf4925225cddf43a",
+      "uncompressed_size_bytes": 2709905
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/contact-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/contact-rows.npz",
+      "stored_sha256": "1227db249d18a66a77b2d404b71d50692b06419042018b0256b1669defd16559",
+      "uncompressed_sha256": "1227db249d18a66a77b2d404b71d50692b06419042018b0256b1669defd16559",
+      "uncompressed_size_bytes": 145413
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/first-outward-exit-receipts.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/first-outward-exit-receipts.json.gz",
+      "stored_sha256": "07f94e38092d0ff522a41a4fc96d0071f11d192f26d58cb43b2231cb53e8db80",
+      "uncompressed_sha256": "07f94e38092d0ff522a41a4fc96d0071f11d192f26d58cb43b2231cb53e8db80",
+      "uncompressed_size_bytes": 1192207
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/input.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/input.npz",
+      "stored_sha256": "71a730790f9d672e99977ed0b821c07832b92bb56b760961dbdfb34adfcf5732",
+      "uncompressed_sha256": "71a730790f9d672e99977ed0b821c07832b92bb56b760961dbdfb34adfcf5732",
+      "uncompressed_size_bytes": 525358
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/inside-edge-span-samples.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/inside-edge-span-samples.json",
+      "stored_sha256": "7f88be4a16d5f7d2aa6f42ac28afd9600a19ea35d6c163d3ccbedfc8f850e55f",
+      "uncompressed_sha256": "7e78a5664528b3b1bd258a230d321d7d8d81ead150a3ac2e2386c419f118de61",
+      "uncompressed_size_bytes": 7975714
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/inside-edge-span-samples.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/inside-edge-span-samples.npz",
+      "stored_sha256": "697f65cb3fc05c0eb77dc54c9e6fea99716a8f1af244d955d7074db510159575",
+      "uncompressed_sha256": "697f65cb3fc05c0eb77dc54c9e6fea99716a8f1af244d955d7074db510159575",
+      "uncompressed_size_bytes": 66459
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/midpoint-query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/midpoint-query/nodes.csv",
+      "stored_sha256": "499a256b4982c768ad645102b73ffdaea7886c7eca32c2b29705ff8a2464a729",
+      "uncompressed_sha256": "199d055b88f84094c62274ff618c1206e5f1ccae6e33456c83c3e97cfadf547c",
+      "uncompressed_size_bytes": 137923
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/midpoint-query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/midpoint-query/pairs.csv",
+      "stored_sha256": "7f8fb071dc9f2a875271a0819e6f821a08891fd425e646ed0ec854cdc078e4b2",
+      "uncompressed_sha256": "3dfac9197cadd644209ae191805ccfd9c65f3feff340e1ff3f8162b0222b33ec",
+      "uncompressed_size_bytes": 1371060
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/midpoint-query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/midpoint-query/points.csv",
+      "stored_sha256": "4b2f5873a62fba3f13ed85145c6013f98e6b39f5358bc0cc8b246bca571130a8",
+      "uncompressed_sha256": "b35be40cec9dba26af650920161702ef792ec15428a75b970b95ebe3e82f92c8",
+      "uncompressed_size_bytes": 458372
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/midpoint-query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/midpoint-query/prepare.log",
+      "stored_sha256": "a279ffa02fb94a836336f6c6f00d04497f6047088968dc29dffdfd1984ff6ade",
+      "uncompressed_sha256": "a279ffa02fb94a836336f6c6f00d04497f6047088968dc29dffdfd1984ff6ade",
+      "uncompressed_size_bytes": 632
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/midpoint-query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/midpoint-query/query-receipt.json",
+      "stored_sha256": "b76d6c18e5780e65c27ac6d96a48296940660545ff4723d40389113331b33c32",
+      "uncompressed_sha256": "b76d6c18e5780e65c27ac6d96a48296940660545ff4723d40389113331b33c32",
+      "uncompressed_size_bytes": 1756
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/midpoint-query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/midpoint-query/query.log",
+      "stored_sha256": "76020d8a826a4709a3ec3bf01f3ce96098c31020d729cc1410f9b4577e4a99d9",
+      "uncompressed_sha256": "76020d8a826a4709a3ec3bf01f3ce96098c31020d729cc1410f9b4577e4a99d9",
+      "uncompressed_size_bytes": 135
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/midpoint-query-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/midpoint-query-report.json",
+      "stored_sha256": "230bb6607e42beed0bfbc7b730b6b3114e65d0c594d62b777e11dd650a138c13",
+      "uncompressed_sha256": "230bb6607e42beed0bfbc7b730b6b3114e65d0c594d62b777e11dd650a138c13",
+      "uncompressed_size_bytes": 2361
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/query/nodes.csv",
+      "stored_sha256": "7e4d27436dd5daad8a1aa063b4bc561603a679854761d6e1d0883a99b5045e10",
+      "uncompressed_sha256": "d19280b116e5e40fef1fc4b6927e97b9b61e35f66a958dbd6023bf29edf44d88",
+      "uncompressed_size_bytes": 168306
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/query/pairs.csv",
+      "stored_sha256": "d6fa4ad864fecc8986369fdb928b2374ac0269ba5d3da7edaa4f72662b259f42",
+      "uncompressed_sha256": "b7466fe437b639feadc590e1f24f425a845c585b8fb3c658f554ef016a5230b7",
+      "uncompressed_size_bytes": 423357
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/query/points.csv",
+      "stored_sha256": "d0dd680faf697dfa16bd9f1efabfdd1ae8f0ec21f23312114fdcb03c7cdc5549",
+      "uncompressed_sha256": "107e09c71ab98a2ee3275b2516548223654531d1880762f842c834032e0716d7",
+      "uncompressed_size_bytes": 558099
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/query/prepare.log",
+      "stored_sha256": "3eff9070d80420a2b4642b499eccb401dfefa16a7c8285e4d621fee3c4d2ab6b",
+      "uncompressed_sha256": "3eff9070d80420a2b4642b499eccb401dfefa16a7c8285e4d621fee3c4d2ab6b",
+      "uncompressed_size_bytes": 608
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/query/query-receipt.json",
+      "stored_sha256": "85c275d67b3f03a1c2ed53836fbf809e0d4d0aba7120dcafb8c15fd70c7403c0",
+      "uncompressed_sha256": "85c275d67b3f03a1c2ed53836fbf809e0d4d0aba7120dcafb8c15fd70c7403c0",
+      "uncompressed_size_bytes": 1731
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/query/query.log",
+      "stored_sha256": "292dc769f6ddf0a3bc1e6d5228dc5da1613f7548f1e7dd2a407f155fd8e965ac",
+      "uncompressed_sha256": "292dc769f6ddf0a3bc1e6d5228dc5da1613f7548f1e7dd2a407f155fd8e965ac",
+      "uncompressed_size_bytes": 134
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/self-pairs.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/self-pairs.npy",
+      "stored_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "uncompressed_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "uncompressed_size_bytes": 128
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/self-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/self-report.json",
+      "stored_sha256": "fe23ac46c39076aab9ede424b2348267ddf26a5a5e0a903d52e61e3efabfaa08",
+      "uncompressed_sha256": "fe23ac46c39076aab9ede424b2348267ddf26a5a5e0a903d52e61e3efabfaa08",
+      "uncompressed_size_bytes": 321
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-002/tet-edge-report.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-002/tet-edge-report.json",
+      "stored_sha256": "32e0c67a2ecdcbfa18029ed33303fe542a25b5aae1e75c5e926862738b369d38",
+      "uncompressed_sha256": "eb0c21f3d5c395e2d5201f0926024a8a9d825a7e45e44c99f20558510f666ee4",
+      "uncompressed_size_bytes": 2629878
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-003/first-failure.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-003/first-failure.json",
+      "stored_sha256": "208c12a7e7a3cee3fc0afc9795d9da903aabc9dd62aca02e5deafc58005e5a3d",
+      "uncompressed_sha256": "208c12a7e7a3cee3fc0afc9795d9da903aabc9dd62aca02e5deafc58005e5a3d",
+      "uncompressed_size_bytes": 1855
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-003/first-outward-exit-receipts.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-003/first-outward-exit-receipts.json.gz",
+      "stored_sha256": "862ab67d83548e82e7c726e75f6216e83bdcc4d206a3d4cc281ec2a9f06c4ca2",
+      "uncompressed_sha256": "862ab67d83548e82e7c726e75f6216e83bdcc4d206a3d4cc281ec2a9f06c4ca2",
+      "uncompressed_size_bytes": 1070039
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-003/inside-edge-span-samples.json.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-003/inside-edge-span-samples.json",
+      "stored_sha256": "f696d8c222ce4e94f4cce6a4eeecd4cad7a0b857fec912d90c6073172738ee55",
+      "uncompressed_sha256": "52e7446129f7097f11cd43b54eff695e24725c661fd458f6342902304c435cea",
+      "uncompressed_size_bytes": 7418139
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-003/inside-edge-span-samples.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-003/inside-edge-span-samples.npz",
+      "stored_sha256": "251a5b2e48452350ec2f7ed786139c9633e9ad51465d18b499924492ebba5ba4",
+      "uncompressed_sha256": "251a5b2e48452350ec2f7ed786139c9633e9ad51465d18b499924492ebba5ba4",
+      "uncompressed_size_bytes": 61791
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-003/midpoint-query/nodes.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-003/midpoint-query/nodes.csv",
+      "stored_sha256": "3110be146cf7e668d7c399f058bdb5d4a70483a58ea70e98a0280aed2dad16a2",
+      "uncompressed_sha256": "86196bf923fa344fe68e4d95a064a88d469f7021e2c653e5a967ce6c61125f04",
+      "uncompressed_size_bytes": 128148
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-003/midpoint-query/pairs.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-003/midpoint-query/pairs.csv",
+      "stored_sha256": "97794d76445473f1ef7169bbc45d399cc6875e6dd63e7284071a63de68df960f",
+      "uncompressed_sha256": "cabfa7f337ece02355ec32fb6ff213414adbfd6d1f616237f3f16344cc187fb5",
+      "uncompressed_size_bytes": 1268422
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-003/midpoint-query/points.csv.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-003/midpoint-query/points.csv",
+      "stored_sha256": "1c94fe63dd43df165c53e4e2dacbb9dd1265f8e695233471d09be9a46a8fefe9",
+      "uncompressed_sha256": "e89e9ea43cdc5b644a080e94c1b25d52d3a9abf7426d30057b8a24b66d86908b",
+      "uncompressed_size_bytes": 426211
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-003/midpoint-query/prepare.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-003/midpoint-query/prepare.log",
+      "stored_sha256": "db3b837e64f0b2fb7a4acca8604b9576bf23aa4b49b9b5aad9c72d82bab6fe5a",
+      "uncompressed_sha256": "db3b837e64f0b2fb7a4acca8604b9576bf23aa4b49b9b5aad9c72d82bab6fe5a",
+      "uncompressed_size_bytes": 632
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-003/midpoint-query/query-receipt.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-003/midpoint-query/query-receipt.json",
+      "stored_sha256": "110b34ea9be71ec8acd523782137920bbcef0e7e995ac6dcaed3b3af9c91294e",
+      "uncompressed_sha256": "110b34ea9be71ec8acd523782137920bbcef0e7e995ac6dcaed3b3af9c91294e",
+      "uncompressed_size_bytes": 1756
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-003/midpoint-query/query.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-003/midpoint-query/query.log",
+      "stored_sha256": "eb6c45d3d9a0ae9dc7e7ed25c8c2d26b7c054a4eea88740031d846cbbdd69c4f",
+      "uncompressed_sha256": "eb6c45d3d9a0ae9dc7e7ed25c8c2d26b7c054a4eea88740031d846cbbdd69c4f",
+      "uncompressed_size_bytes": 135
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/iteration-003/midpoint-query-report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/iteration-003/midpoint-query-report.json",
+      "stored_sha256": "8c4417d10a5974ed4b8cf479075bbdedc89444aaf267de2c632afa2c2bf23bfc",
+      "uncompressed_sha256": "8c4417d10a5974ed4b8cf479075bbdedc89444aaf267de2c632afa2c2bf23bfc",
+      "uncompressed_size_bytes": 2201
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/layer-rows.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/layer-rows.npz",
+      "stored_sha256": "642ee99afbe9ce845b22ce6325e15ce1d2b2980771cb5119df879ab7d989f84a",
+      "uncompressed_sha256": "642ee99afbe9ce845b22ce6325e15ce1d2b2980771cb5119df879ab7d989f84a",
+      "uncompressed_size_bytes": 238737
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/layer-targets.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/layer-targets.npy",
+      "stored_sha256": "794462db6264749b2146d071c2f5ae8624e85e29b46f13ac8d5db5771f18b5e5",
+      "uncompressed_sha256": "794462db6264749b2146d071c2f5ae8624e85e29b46f13ac8d5db5771f18b5e5",
+      "uncompressed_size_bytes": 83272
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/reference-outward-field-parity.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/reference-outward-field-parity.json",
+      "stored_sha256": "d8677118c3aa3ebe1b685ece10bbf125cbb6325c9443dcd93704925b314e88f9",
+      "uncompressed_sha256": "d8677118c3aa3ebe1b685ece10bbf125cbb6325c9443dcd93704925b314e88f9",
+      "uncompressed_size_bytes": 1385
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/separator-provenance.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/separator-provenance.json",
+      "stored_sha256": "2dd2a23e9d8d354f7487cc3b129d2d0ad7d5faef4cbc73456326f3097f04d7c5",
+      "uncompressed_sha256": "2dd2a23e9d8d354f7487cc3b129d2d0ad7d5faef4cbc73456326f3097f04d7c5",
+      "uncompressed_size_bytes": 8838
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/source-preservation-policy.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/source-preservation-policy.json",
+      "stored_sha256": "3bf7cd77a1e7e0f458bc1315f2ef32f9f439ebb01fc327ece8267f2a1520fde2",
+      "uncompressed_sha256": "3bf7cd77a1e7e0f458bc1315f2ef32f9f439ebb01fc327ece8267f2a1520fde2",
+      "uncompressed_size_bytes": 560
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/source-preservation-summary.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/source-preservation-summary.json",
+      "stored_sha256": "3422116bf3ad4fc69a459638fde637804d1847dd9a86050835d52f434e9af352",
+      "uncompressed_sha256": "3422116bf3ad4fc69a459638fde637804d1847dd9a86050835d52f434e9af352",
+      "uncompressed_size_bytes": 3020
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/source-relative-L1-weights.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/source-relative-L1-weights.npy",
+      "stored_sha256": "1129cec91a5bacf322f03798cc45cf4e309f0a95c8e2e79935881c546a42d3be",
+      "uncompressed_sha256": "1129cec91a5bacf322f03798cc45cf4e309f0a95c8e2e79935881c546a42d3be",
+      "uncompressed_size_bytes": 59008
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run-001/source-relative-component-box-m.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001/source-relative-component-box-m.npy",
+      "stored_sha256": "c32566801de06cc2dbd6b31c80d518ec69bbbdb759f0e4d9c62f6b2ebdcf5a9d",
+      "uncompressed_sha256": "c32566801de06cc2dbd6b31c80d518ec69bbbdb759f0e4d9c62f6b2ebdcf5a9d",
+      "uncompressed_size_bytes": 176768
+    },
+    {
+      "gzip": true,
+      "path": "evidence/connected-source-preservation-113/run-001.log.gz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run-001.log",
+      "stored_sha256": "46b92a76976776822153b48859531fca036e433d21c8011f9acc684be11c86c0",
+      "uncompressed_sha256": "6dbaeb270f2690367310ab55799be9a626f3fd6013b464b4f3e85dd1323a58bc",
+      "uncompressed_size_bytes": 110078
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-source-preservation-113/run_connected_clearance_113.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-preservation-113/run_connected_clearance_113.py",
+      "stored_sha256": "eeda5420ae915db1c86b37cd1ed1553dd283e7f752f42cafdeafdb04011cf723",
+      "uncompressed_sha256": "eeda5420ae915db1c86b37cd1ed1553dd283e7f752f42cafdeafdb04011cf723",
+      "uncompressed_size_bytes": 43024
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-capacity-reference-115/build_capacity_reference_115.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-capacity-reference-115/build_capacity_reference_115.py",
+      "stored_sha256": "c4dfaefe39e2c955fe555b782d7a562028ae69f47322487f1ee4ce5f0b23a26e",
+      "uncompressed_sha256": "c4dfaefe39e2c955fe555b782d7a562028ae69f47322487f1ee4ce5f0b23a26e",
+      "uncompressed_size_bytes": 4426
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-capacity-reference-115/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-capacity-reference-115/candidate.npz",
+      "stored_sha256": "abff4290774cc96a17f6c68a21fe86fc3933a1878e0bd6512733e99589fb6dd9",
+      "uncompressed_sha256": "abff4290774cc96a17f6c68a21fe86fc3933a1878e0bd6512733e99589fb6dd9",
+      "uncompressed_size_bytes": 661909
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-capacity-reference-115/report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-capacity-reference-115/report.json",
+      "stored_sha256": "a36ab99e27a574418b8aa1681644a6c30b7f15e759955312d31acbc978f53d6b",
+      "uncompressed_sha256": "a36ab99e27a574418b8aa1681644a6c30b7f15e759955312d31acbc978f53d6b",
+      "uncompressed_size_bytes": 16656
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/audit_connected_layer_remesh_116.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/audit_connected_layer_remesh_116.py",
+      "stored_sha256": "aa305dd7a336c50184930c2aa84e274407e750ebb068806209c77fc0386f8b33",
+      "uncompressed_sha256": "aa305dd7a336c50184930c2aa84e274407e750ebb068806209c77fc0386f8b33",
+      "uncompressed_size_bytes": 2782
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/build_and_audit_layer_reference_116.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/build_and_audit_layer_reference_116.py",
+      "stored_sha256": "82abb8031026443bccfbcddeb146c2db9129d0f06901676308a801148fc12813",
+      "uncompressed_sha256": "82abb8031026443bccfbcddeb146c2db9129d0f06901676308a801148fc12813",
+      "uncompressed_size_bytes": 4046
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/audit_run002.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/audit_run002.py",
+      "stored_sha256": "92aa3a5193512a9ead6eef3231f013c71409adcc02e26d9f9a73f38413d41dea",
+      "uncompressed_sha256": "92aa3a5193512a9ead6eef3231f013c71409adcc02e26d9f9a73f38413d41dea",
+      "uncompressed_size_bytes": 3658
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/bistellar_connected_116.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/bistellar_connected_116.py",
+      "stored_sha256": "4771e91abf8b35b2d0c0d6673847fd6dcc7f9f39f01ebe1424bb3ea421ca5cf1",
+      "uncompressed_sha256": "4771e91abf8b35b2d0c0d6673847fd6dcc7f9f39f01ebe1424bb3ea421ca5cf1",
+      "uncompressed_size_bytes": 19441
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/bistellar_connected_116_run002.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/bistellar_connected_116_run002.py",
+      "stored_sha256": "1d1b0ee4bae5f0cd6ecd0b8979dd480b26d2bfdb8bac674439950c7bcc28fa8b",
+      "uncompressed_sha256": "1d1b0ee4bae5f0cd6ecd0b8979dd480b26d2bfdb8bac674439950c7bcc28fa8b",
+      "uncompressed_size_bytes": 19441
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/expanded-cavity-probe-003/report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/expanded-cavity-probe-003/report.json",
+      "stored_sha256": "89747c794d014dfbc36d27f5653d8bdf0653b8303178743b26271bb8788f7e32",
+      "uncompressed_sha256": "89747c794d014dfbc36d27f5653d8bdf0653b8303178743b26271bb8788f7e32",
+      "uncompressed_size_bytes": 1634
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/expanded_cavity_probe_002.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/expanded_cavity_probe_002.py",
+      "stored_sha256": "219c7391d6ca4100b2f250a9aebecf3578ddd95d42fee74728f68eb2feb5fa67",
+      "uncompressed_sha256": "219c7391d6ca4100b2f250a9aebecf3578ddd95d42fee74728f68eb2feb5fa67",
+      "uncompressed_size_bytes": 3474
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/expanded_cavity_probe_003.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/expanded_cavity_probe_003.py",
+      "stored_sha256": "aa0487686e5a637c848d986780a42d3fd251bc7a97d3a0d3c36a382706cb8c69",
+      "uncompressed_sha256": "aa0487686e5a637c848d986780a42d3fd251bc7a97d3a0d3c36a382706cb8c69",
+      "uncompressed_size_bytes": 3572
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/run-001/candidate-tetrahedra.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/run-001/candidate-tetrahedra.npz",
+      "stored_sha256": "4a08dd79cbf7fcc01f53504dfdbc468a9e0bd3c97a77d8384b0c45e44549ea0d",
+      "uncompressed_sha256": "4a08dd79cbf7fcc01f53504dfdbc468a9e0bd3c97a77d8384b0c45e44549ea0d",
+      "uncompressed_size_bytes": 650297
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/run-001/failure-note.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/run-001/failure-note.json",
+      "stored_sha256": "dd40355da14ce529556a229daf9fda6a5e657d55ebae07dda7b1bf27657e0107",
+      "uncompressed_sha256": "dd40355da14ce529556a229daf9fda6a5e657d55ebae07dda7b1bf27657e0107",
+      "uncompressed_size_bytes": 778
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/run-002/candidate-tetrahedra.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/run-002/candidate-tetrahedra.npz",
+      "stored_sha256": "4a08dd79cbf7fcc01f53504dfdbc468a9e0bd3c97a77d8384b0c45e44549ea0d",
+      "uncompressed_sha256": "4a08dd79cbf7fcc01f53504dfdbc468a9e0bd3c97a77d8384b0c45e44549ea0d",
+      "uncompressed_size_bytes": 650297
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/run-002/report-correction.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/run-002/report-correction.json",
+      "stored_sha256": "578c17baf8eae3b6d73879e3069a3bc9c7dc07b6e9bd6892fc6e24a7dec01ba9",
+      "uncompressed_sha256": "578c17baf8eae3b6d73879e3069a3bc9c7dc07b6e9bd6892fc6e24a7dec01ba9",
+      "uncompressed_size_bytes": 2469
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/run-002/report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/run-002/report.json",
+      "stored_sha256": "48f178bf32a49c5f935fd33a55b2f8e8c51544f7265272d7a10ad3879e4da6f4",
+      "uncompressed_sha256": "48f178bf32a49c5f935fd33a55b2f8e8c51544f7265272d7a10ad3879e4da6f4",
+      "uncompressed_size_bytes": 5795
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/source-edge-q-witness-correction.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/source-edge-q-witness-correction.json",
+      "stored_sha256": "ad0bb69e6bc03e9939d83822cf65cd83df5d6ae17132ad3b455b3f4a85df03f0",
+      "uncompressed_sha256": "ad0bb69e6bc03e9939d83822cf65cd83df5d6ae17132ad3b455b3f4a85df03f0",
+      "uncompressed_size_bytes": 2308
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/source-edge-q-witness.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/source-edge-q-witness.json",
+      "stored_sha256": "327b2402bd38da1b6176dcabdf6730a6d2dddb18853afeadcea31b9ff9977804",
+      "uncompressed_sha256": "327b2402bd38da1b6176dcabdf6730a6d2dddb18853afeadcea31b9ff9977804",
+      "uncompressed_size_bytes": 6141
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/test_bistellar_116.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/test_bistellar_116.py",
+      "stored_sha256": "0335b987ce2bd8981170e9393f0d256b118ec07c257447572b579faf8d2e8757",
+      "uncompressed_sha256": "0335b987ce2bd8981170e9393f0d256b118ec07c257447572b579faf8d2e8757",
+      "uncompressed_size_bytes": 4473
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/write_source_edge_report.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/write_source_edge_report.py",
+      "stored_sha256": "ca525cbc8aa74278fc2b5c13bc51d6472fcc79228f9d4c229ee9a0060feee819",
+      "uncompressed_sha256": "ca525cbc8aa74278fc2b5c13bc51d6472fcc79228f9d4c229ee9a0060feee819",
+      "uncompressed_size_bytes": 3523
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-001/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/candidate.npz",
+      "stored_sha256": "957490efc4df1bc797c32ce8b536e7bab6fc6a1ac1373ed2aa7727e27ed004a2",
+      "uncompressed_sha256": "957490efc4df1bc797c32ce8b536e7bab6fc6a1ac1373ed2aa7727e27ed004a2",
+      "uncompressed_size_bytes": 650306
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-001/cell-audit.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/cell-audit.json",
+      "stored_sha256": "591a61e2748118093c14e20be209306b2c29c31d72ef2e96d3b9f46608fa0b2e",
+      "uncompressed_sha256": "591a61e2748118093c14e20be209306b2c29c31d72ef2e96d3b9f46608fa0b2e",
+      "uncompressed_size_bytes": 1095
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-001/report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/report.json",
+      "stored_sha256": "5f43c8d80762a3f0ed558b18292d2c8fa6f3332a467bcec258bd397096bf27f7",
+      "uncompressed_sha256": "5f43c8d80762a3f0ed558b18292d2c8fa6f3332a467bcec258bd397096bf27f7",
+      "uncompressed_size_bytes": 1564
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-001/surface-self-pairs.npy",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/surface-self-pairs.npy",
+      "stored_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "uncompressed_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "uncompressed_size_bytes": 128
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-001/tetgen.stderr.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/tetgen.stderr.log",
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "uncompressed_size_bytes": 0
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-001/tetgen.stdout.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/tetgen.stdout.log",
+      "stored_sha256": "dfa101ac1eefd83754b515ec9fdff4688a4bbee5eb0ccba0fff9b38089c34fb7",
+      "uncompressed_sha256": "dfa101ac1eefd83754b515ec9fdff4688a4bbee5eb0ccba0fff9b38089c34fb7",
+      "uncompressed_size_bytes": 1650
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-001/whole-skin-fat-reference.1.edge",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/whole-skin-fat-reference.1.edge",
+      "stored_sha256": "9e618383423f41626ae6faccb93d7adddecc7091316469755b1a1d82a4af38b5",
+      "uncompressed_sha256": "9e618383423f41626ae6faccb93d7adddecc7091316469755b1a1d82a4af38b5",
+      "uncompressed_size_bytes": 512267
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-001/whole-skin-fat-reference.1.ele",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/whole-skin-fat-reference.1.ele",
+      "stored_sha256": "3b418d8f1d52762227991d991d84852b340cbe5cec41305e62f5bb2a9f9b7d9e",
+      "uncompressed_sha256": "3b418d8f1d52762227991d991d84852b340cbe5cec41305e62f5bb2a9f9b7d9e",
+      "uncompressed_size_bytes": 1289545
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-001/whole-skin-fat-reference.1.face",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/whole-skin-fat-reference.1.face",
+      "stored_sha256": "f137caa69006a7c6622a452219d6837779b74ca1e2158ef2a6495e258101640d",
+      "uncompressed_sha256": "f137caa69006a7c6622a452219d6837779b74ca1e2158ef2a6495e258101640d",
+      "uncompressed_size_bytes": 544010
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-001/whole-skin-fat-reference.1.node",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/whole-skin-fat-reference.1.node",
+      "stored_sha256": "395e542f171e6542e1b720c2d3e355b46061f365ba943599b318dec5ce4ae26b",
+      "uncompressed_sha256": "395e542f171e6542e1b720c2d3e355b46061f365ba943599b318dec5ce4ae26b",
+      "uncompressed_size_bytes": 617823
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-001/whole-skin-fat-reference.poly",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001/whole-skin-fat-reference.poly",
+      "stored_sha256": "20e005ac365f494361ac56a9699d0a0f3f41d054a55ed2ef77568fd00f392bb1",
+      "uncompressed_sha256": "20e005ac365f494361ac56a9699d0a0f3f41d054a55ed2ef77568fd00f392bb1",
+      "uncompressed_size_bytes": 918283
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-001.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001.log",
+      "stored_sha256": "22cbb9f1299a478aca0c1f7416502482194d18fe06014b9917e5edcb2602a515",
+      "uncompressed_sha256": "22cbb9f1299a478aca0c1f7416502482194d18fe06014b9917e5edcb2602a515",
+      "uncompressed_size_bytes": 1645
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-002/candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/candidate.npz",
+      "stored_sha256": "0d7b641e0b79257f5f68209a901f8baf3e1ed03972a5497cd66de10abc8baf28",
+      "uncompressed_sha256": "0d7b641e0b79257f5f68209a901f8baf3e1ed03972a5497cd66de10abc8baf28",
+      "uncompressed_size_bytes": 705754
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-002/cell-audit.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/cell-audit.json",
+      "stored_sha256": "52ee77881893e7fdb8173b59cc52664dc6ed2f11173d3183650eca93a4c9a0df",
+      "uncompressed_sha256": "52ee77881893e7fdb8173b59cc52664dc6ed2f11173d3183650eca93a4c9a0df",
+      "uncompressed_size_bytes": 1096
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-002/report.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/report.json",
+      "stored_sha256": "4d0f281e2e00695f09b9b016f52a7fe5464534c8160f5edf7a3b0f23e283457c",
+      "uncompressed_sha256": "4d0f281e2e00695f09b9b016f52a7fe5464534c8160f5edf7a3b0f23e283457c",
+      "uncompressed_size_bytes": 898
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-002/tetgen.stderr.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/tetgen.stderr.log",
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "uncompressed_size_bytes": 0
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-002/tetgen.stdout.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/tetgen.stdout.log",
+      "stored_sha256": "6a562b1946a94d498350fc3f8e4ee3a1590193e812862aeb9ed53d7f470d9af6",
+      "uncompressed_sha256": "6a562b1946a94d498350fc3f8e4ee3a1590193e812862aeb9ed53d7f470d9af6",
+      "uncompressed_size_bytes": 1651
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-002/whole-skin-fat-reference.1.edge",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/whole-skin-fat-reference.1.edge",
+      "stored_sha256": "809f380bf78619e1604cccae69440a6cb7f4cb4e21f64687c9ea2265fe5aa564",
+      "uncompressed_sha256": "809f380bf78619e1604cccae69440a6cb7f4cb4e21f64687c9ea2265fe5aa564",
+      "uncompressed_size_bytes": 524044
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-002/whole-skin-fat-reference.1.ele",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/whole-skin-fat-reference.1.ele",
+      "stored_sha256": "2049894c1284b32e80651968d518e033972a90f7131273ee4fd429ade8c390bc",
+      "uncompressed_sha256": "2049894c1284b32e80651968d518e033972a90f7131273ee4fd429ade8c390bc",
+      "uncompressed_size_bytes": 1395033
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-002/whole-skin-fat-reference.1.face",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/whole-skin-fat-reference.1.face",
+      "stored_sha256": "a22b9ef5bc575aaba046e2aed74cfb4b62e18704cd239afdca9b3f615cbe70a5",
+      "uncompressed_sha256": "a22b9ef5bc575aaba046e2aed74cfb4b62e18704cd239afdca9b3f615cbe70a5",
+      "uncompressed_size_bytes": 579851
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-002/whole-skin-fat-reference.1.node",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/whole-skin-fat-reference.1.node",
+      "stored_sha256": "ae1fbc6906afe1832473f1014566f18b699e353522044be3c74cdf30e2e6b1c0",
+      "uncompressed_sha256": "ae1fbc6906afe1832473f1014566f18b699e353522044be3c74cdf30e2e6b1c0",
+      "uncompressed_size_bytes": 657447
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/run-002/whole-skin-fat-reference.poly",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/whole-skin-fat-reference.poly",
+      "stored_sha256": "20e005ac365f494361ac56a9699d0a0f3f41d054a55ed2ef77568fd00f392bb1",
+      "uncompressed_sha256": "20e005ac365f494361ac56a9699d0a0f3f41d054a55ed2ef77568fd00f392bb1",
+      "uncompressed_size_bytes": 918283
+    },
+    {
+      "gzip": false,
+      "path": "evidence/publication-077/root-canonical-pytest.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-077/evidence/publication-077/root-canonical-pytest.log",
+      "stored_sha256": "3aff3e9e3aaf2913cbd0eef1e83de68abf3f8994d9686995a576ab04196e4c75",
+      "uncompressed_sha256": "3aff3e9e3aaf2913cbd0eef1e83de68abf3f8994d9686995a576ab04196e4c75",
+      "uncompressed_size_bytes": 269
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/freeze-manifest.json",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/freeze-manifest.json",
+      "stored_sha256": "f5d90ce867a25a0b212439301ffb490182f70c4feebecfdeb1f7f9bca4bdfb69",
+      "uncompressed_sha256": "f5d90ce867a25a0b212439301ffb490182f70c4feebecfdeb1f7f9bca4bdfb69",
+      "uncompressed_size_bytes": 6628
+    },
+    {
+      "gzip": false,
+      "path": "evidence/connected-layer-remesh-116/quality-repair-117/test-bistellar-116.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/quality-repair-117/test-bistellar-116.log",
+      "stored_sha256": "b2880ea9d9e67366b28261d1cdb8dccc1646cad558e00c0599c87debac7643bb",
+      "uncompressed_sha256": "b2880ea9d9e67366b28261d1cdb8dccc1646cad558e00c0599c87debac7643bb",
+      "uncompressed_size_bytes": 148
+    }
+  ]
+}

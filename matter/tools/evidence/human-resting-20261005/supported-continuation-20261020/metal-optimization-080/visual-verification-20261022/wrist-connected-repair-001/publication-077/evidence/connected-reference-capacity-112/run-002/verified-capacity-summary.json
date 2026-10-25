@@ -1,0 +1,1456 @@
+{
+  "D_shortening": {
+    "I_to_first_entry_distance_m_min_median_max": [
+      0.00021518403726564732,
+      0.004268928983896626,
+      0.009779096915570084
+    ],
+    "parameter_from_I_min_median_max": [
+      0.016683814057016574,
+      0.4709247826250107,
+      0.9826472387311209
+    ],
+    "proposal_count": 176,
+    "residual_clearance_m_min_max": [
+      4.999999999999883e-05,
+      5.0000000000000565e-05
+    ],
+    "verified_50um_clearance": true,
+    "verified_original_I_D_segment": true
+  },
+  "capacity_status_counts": {
+    "NO_FEASIBLE_D_SHORTENING": 1,
+    "NO_I_TO_D_ENTRY_D_UNCHANGED": 2219,
+    "PROPOSED_D_SHORTENING": 176,
+    "REQUIRES_SKIN_RECONSTRUCTION": 15
+  },
+  "clearance_exhausted_witness": {
+    "bank_body": 104,
+    "barycentric": [
+      0.800973079211887,
+      0.09739085779170058,
+      0.10163606299641247
+    ],
+    "column_row": 2307,
+    "distance_from_I_m": 2.3179411163844704e-05,
+    "donor_body": 104,
+    "exact_t": {
+      "denominator": "9183715341379271849707351805714",
+      "numerator": "57001386285490484489544389683"
+    },
+    "hit_world_m": [
+      0.2047742992655596,
+      -0.9562660558472805,
+      0.17760530944918157
+    ],
+    "remaining_after_50um_m": -2.68205888361553e-05,
+    "source_dominant_body": 104,
+    "stable_bone_id": 113,
+    "triangle_stable_id": 193
+  },
+  "counts_by_donor_body": {
+    "1": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 95
+    },
+    "100": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "102": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "103": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 6
+    },
+    "104": {
+      "NO_FEASIBLE_D_SHORTENING": 1,
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 10
+    },
+    "107": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "109": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "110": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "111": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 9
+    },
+    "112": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "114": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "115": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5
+    },
+    "116": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5
+    },
+    "119": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "120": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 6
+    },
+    "121": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "122": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "124": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "125": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4
+    },
+    "126": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 6
+    },
+    "128": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 290,
+      "PROPOSED_D_SHORTENING": 3
+    },
+    "131": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 23
+    },
+    "136": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 58,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "138": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 32
+    },
+    "139": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 21,
+      "PROPOSED_D_SHORTENING": 6
+    },
+    "142": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "145": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 29
+    },
+    "150": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 56,
+      "PROPOSED_D_SHORTENING": 4
+    },
+    "152": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 39,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "153": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 23,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "156": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 11
+    },
+    "20": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 508,
+      "PROPOSED_D_SHORTENING": 3
+    },
+    "23": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 221,
+      "PROPOSED_D_SHORTENING": 131,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "26": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 14
+    },
+    "29": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "34": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "4": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "41": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 79
+    },
+    "42": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 28
+    },
+    "43": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 19
+    },
+    "46": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "49": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 17,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "50": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "52": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "53": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 8
+    },
+    "54": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "57": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "59": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 42,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "60": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 61
+    },
+    "61": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 197,
+      "REQUIRES_SKIN_RECONSTRUCTION": 8
+    },
+    "62": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "64": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5
+    },
+    "65": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4
+    },
+    "66": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "69": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "70": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3
+    },
+    "71": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7
+    },
+    "72": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "74": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "75": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3
+    },
+    "76": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7
+    },
+    "79": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "84": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "91": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 27,
+      "PROPOSED_D_SHORTENING": 3,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "92": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 38
+    },
+    "93": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 14
+    },
+    "95": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "98": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 9,
+      "PROPOSED_D_SHORTENING": 3
+    },
+    "99": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 115,
+      "PROPOSED_D_SHORTENING": 7
+    }
+  },
+  "counts_by_source_dominant_body": {
+    "1": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 95
+    },
+    "100": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "102": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "103": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 6
+    },
+    "104": {
+      "NO_FEASIBLE_D_SHORTENING": 1,
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 10
+    },
+    "107": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "109": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "110": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "111": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 9
+    },
+    "112": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "114": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "115": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5
+    },
+    "116": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5
+    },
+    "119": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "120": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 6
+    },
+    "121": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "122": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "124": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "125": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4
+    },
+    "126": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 6
+    },
+    "128": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 290,
+      "PROPOSED_D_SHORTENING": 3
+    },
+    "131": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 23
+    },
+    "136": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 58,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "138": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 32
+    },
+    "139": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 21,
+      "PROPOSED_D_SHORTENING": 6
+    },
+    "142": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "145": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 29
+    },
+    "150": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 56,
+      "PROPOSED_D_SHORTENING": 4
+    },
+    "152": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 39,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "153": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 23,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "156": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 11
+    },
+    "20": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 508,
+      "PROPOSED_D_SHORTENING": 3
+    },
+    "23": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 221,
+      "PROPOSED_D_SHORTENING": 131,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "26": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 14
+    },
+    "29": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "34": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "4": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "41": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 79
+    },
+    "42": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 28
+    },
+    "43": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 19
+    },
+    "46": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "49": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 17,
+      "PROPOSED_D_SHORTENING": 1
+    },
+    "50": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "52": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "53": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 8
+    },
+    "54": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "57": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "59": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 42,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "60": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 61
+    },
+    "61": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 197,
+      "REQUIRES_SKIN_RECONSTRUCTION": 8
+    },
+    "62": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "64": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 5
+    },
+    "65": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 4
+    },
+    "66": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3,
+      "PROPOSED_D_SHORTENING": 2
+    },
+    "69": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "70": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3
+    },
+    "71": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7
+    },
+    "72": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "74": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 2
+    },
+    "75": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3
+    },
+    "76": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 7
+    },
+    "79": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "84": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 3,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "91": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 27,
+      "PROPOSED_D_SHORTENING": 3,
+      "REQUIRES_SKIN_RECONSTRUCTION": 1
+    },
+    "92": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 38
+    },
+    "93": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 14
+    },
+    "95": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 1
+    },
+    "98": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 9,
+      "PROPOSED_D_SHORTENING": 3
+    },
+    "99": {
+      "NO_I_TO_D_ENTRY_D_UNCHANGED": 115,
+      "PROPOSED_D_SHORTENING": 7
+    }
+  },
+  "exact_route_bank_audit_counts": {
+    "AABB_disjoint_proofs": {
+      "ID": 445021,
+      "OD": 445009,
+      "OI": 445424
+    },
+    "ID_candidate_segments_PASS": 1014,
+    "OD_candidate_segments_PASS": 1026,
+    "OI_candidate_segments_PASS": 611,
+    "cross_bank_equal_rational_parameter_ties": 0,
+    "nonpass": 0
+  },
+  "interpretation": {
+    "body_groups": "Integer body/source-body IDs from 075 are reported without inferred anatomical names.",
+    "reconstruction": "Any O/I endpoint inside a typed bone bank or a proper O-I crossing requires skin reconstruction; no D clamp is offered for these columns.",
+    "shortening": "D proposals preserve O/I and lie on the original I-D segment, stopping the requested 50 \u00b5m before the first exact entry. These are path-capacity diagnostics only, not tissue-thickness prescriptions."
+  },
+  "limitations": [
+    "The source helper does not prove each bank mesh is watertight or self-intersection-free.",
+    "No mesh, topology, mass, native state, or source geometry was modified.",
+    "No tissue thickness or physiological adequacy is claimed."
+  ],
+  "paired_run_comparison": {
+    "all_2411_capacity_states_and_D_proposals_identical": true,
+    "all_exact_segment_receipts_content_identical": true,
+    "run001_geometry_helper_semantics_preserved": true,
+    "run002_clearer_endpoint_inside_columns_present": true
+  },
+  "run001_original_source_hashes_verified": {
+    "084_compacted": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "bank_bodies": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "bank_inventory": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "bank_nodes": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "bank_triangles": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "candidate": "ddb86fbf07183adce0194c59a1acfc5456c96cb2efc709eb587e5489d3d59163",
+    "helper_sha256": "a5d4acf97f9fe2bd85b41f0d64553ba99a5e509247e9e3f3a7f865842dbace56",
+    "predicate": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+    "query_nodes": "e49ef0e61ed9551bc3782e3bb8def6a45b5b2b32124ce1c7b7dabb9e286badef",
+    "query_pairs": "95023ef49a865473ab8baaca65da37bc45d78d5b4adf9e16ee7effa604bad4eb",
+    "query_points": "f15ea806a61c6a70fb4d051c932df22ac173b1f39e3f60662fad396362a8b58d",
+    "query_receipt": "a6fd88a3b064cd3b0e0c26304f6d276564ce30aad9a07ed2852515a22766fcaf",
+    "ray_parameter_helper": "116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1",
+    "script_sha256": "88ed3ab65560efc325c0f90b98082e9a422023224e094d4bbd94fabc0a89bf4a"
+  },
+  "run001_report_sha256": "3bfd2449332c9f13ab243425e9ef9b74ffdc572c388260f929c2929e6ba86758",
+  "run002_exact_segment_receipts_sha256": "40aa807d719ad8b46a6504c1d2800b7cce41d01204dc01ee7ee6ae2dc5c4f08f",
+  "run002_helper_sha256": "5d1add3e311b5b77130796bfc4e4cdaba97a37ae53e58017f4f635c1c87e6813",
+  "run002_input_pins_sha256": "1a05a3a5a0fb4ffa359ebbb33f50eae7898bb5d3738f3a6b63af681dd9cc71eb",
+  "run002_proposals_sha256": "1925ea2ff2b083e0e233b046c0ebcc3d79b4e513422dd549c2ccac5d51dfe63e",
+  "run002_report_sha256": "b2505e18fabd1b37e5094ba404ffafd979ae2cfcf9594b1b24d15675776ce0af",
+  "run002_source_sha256": "e6d6c481951a9710b2250bc4be11b59038fbfb1f7e9241bac786507351c9f68e",
+  "run002_test_sha256": "9366ba5a72a7a70cb1df64eca246d7ae7361cd579ef5d149e9c9c6aeee0a8918",
+  "schema": "connected-reference-capacity-112-verified-summary-v2",
+  "skin_reconstruction_columns": [
+    {
+      "D_endpoint_inside_banks": [],
+      "I_endpoint_inside_banks": [],
+      "I_to_D_exact_events": [],
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "O_to_D_exact_events": [
+        {
+          "barycentric": [
+            0.15918950459194242,
+            0.17839545656910336,
+            0.6624150388389543
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.0013421235893091097,
+          "event": "exit",
+          "hit_world_m": [
+            -0.31675885136730303,
+            -1.0259309468834448,
+            0.14737065719199174
+          ],
+          "stable_bone_id": 97,
+          "t": 0.229162227651956,
+          "t_denominator": "1089132804123395917938559588",
+          "t_numerator": "249588099601738862000055745",
+          "triangle_stable_id": 125
+        }
+      ],
+      "O_to_I_exact_events": [
+        {
+          "barycentric": [
+            0.1536915039896595,
+            0.1773135053231781,
+            0.6689949906871624
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.0013325808234711564,
+          "event": "exit",
+          "hit_world_m": [
+            -0.31674866568207694,
+            -1.0259327071421618,
+            0.14735715753827588
+          ],
+          "stable_bone_id": 97,
+          "t": 0.5438752526463101,
+          "t_denominator": "2294534439536722105992504593",
+          "t_numerator": "1247940498008694310000278725",
+          "triangle_stable_id": 125
+        }
+      ],
+      "column_row": 204,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "I_endpoint_inside_banks": [],
+      "I_to_D_exact_events": [],
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "O_to_D_exact_events": [
+        {
+          "barycentric": [
+            0.13457814851738753,
+            0.5176702121883702,
+            0.3477516392942423
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.0019289490683123385,
+          "event": "exit",
+          "hit_world_m": [
+            -0.31812214521032933,
+            -1.0217984086939194,
+            0.14827868344878167
+          ],
+          "stable_bone_id": 97,
+          "t": 0.3718848191136555,
+          "t_denominator": "103952508513733374015792911",
+          "t_numerator": "38658359825040468757843858",
+          "triangle_stable_id": 174
+        }
+      ],
+      "O_to_I_exact_events": [
+        {
+          "barycentric": [
+            0.13482356002867044,
+            0.5172185553814113,
+            0.3479578845899183
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.001928985126846911,
+          "event": "exit",
+          "hit_world_m": [
+            -0.31812144261280134,
+            -1.0217974686466,
+            0.14827820497096686
+          ],
+          "stable_bone_id": 97,
+          "t": 0.7872738826146232,
+          "t_denominator": "392832641130192748011869045",
+          "t_numerator": "309266878600323750062750864",
+          "triangle_stable_id": 174
+        }
+      ],
+      "column_row": 215,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "I_endpoint_inside_banks": [],
+      "I_to_D_exact_events": [],
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "O_to_D_exact_events": [
+        {
+          "barycentric": [
+            0.33721144025639527,
+            0.662200789674433,
+            0.0005877700691716964
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.0019809532267112263,
+          "event": "exit",
+          "hit_world_m": [
+            -0.31713111173317665,
+            -1.0206873352618748,
+            0.14767255646769323
+          ],
+          "stable_bone_id": 97,
+          "t": 0.33822068024599067,
+          "t_denominator": "594230693283001374967019240119",
+          "t_numerator": "200981109305223347207675524591",
+          "triangle_stable_id": 172
+        }
+      ],
+      "O_to_I_exact_events": [
+        {
+          "barycentric": [
+            0.3322877583100459,
+            0.667431171392327,
+            0.00028107029762708017
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.001982144746337266,
+          "event": "exit",
+          "hit_world_m": [
+            -0.317119182605231,
+            -1.0206865119685917,
+            0.14766892827215752
+          ],
+          "stable_bone_id": 97,
+          "t": 0.808969822886572,
+          "t_denominator": "248440799173547767324686313303",
+          "t_numerator": "200981109305223347207675524591",
+          "triangle_stable_id": 172
+        }
+      ],
+      "column_row": 217,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "I_endpoint_inside_banks": [],
+      "I_to_D_exact_events": [],
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "O_to_D_exact_events": [
+        {
+          "barycentric": [
+            0.5631643284477347,
+            0.22516810304003854,
+            0.2116675685122268
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.0016833126131097107,
+          "event": "exit",
+          "hit_world_m": [
+            -0.3165298616323098,
+            -1.017507908433509,
+            0.14723601567322847
+          ],
+          "stable_bone_id": 97,
+          "t": 0.4873818762720984,
+          "t_denominator": "170262316425703463505466466617",
+          "t_numerator": "82982767237993068886222147617",
+          "triangle_stable_id": 176
+        }
+      ],
+      "O_to_I_exact_events": [
+        {
+          "barycentric": [
+            0.5633430311307455,
+            0.22495220612462977,
+            0.21170476274462477
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.0016830248250074827,
+          "event": "exit",
+          "hit_world_m": [
+            -0.3165299661860114,
+            -1.0175070753962783,
+            0.1472359859372131
+          ],
+          "stable_bone_id": 97,
+          "t": 0.8326629043715338,
+          "t_denominator": "33219832740767883148433714775",
+          "t_numerator": "27660922412664356295407382539",
+          "triangle_stable_id": 176
+        }
+      ],
+      "column_row": 218,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "I_endpoint_inside_banks": [],
+      "I_to_D_exact_events": [],
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "O_to_D_exact_events": [
+        {
+          "barycentric": [
+            0.07523336877594142,
+            0.42188689724316303,
+            0.5028797339808956
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.001137758864091871,
+          "event": "exit",
+          "hit_world_m": [
+            -0.31515182237541894,
+            -1.0198095534017104,
+            0.14620375634156305
+          ],
+          "stable_bone_id": 97,
+          "t": 0.2985228827552449,
+          "t_denominator": "4048384044017951542166758517",
+          "t_numerator": "1208535275320575181712793309",
+          "triangle_stable_id": 103
+        }
+      ],
+      "O_to_I_exact_events": [
+        {
+          "barycentric": [
+            0.07745347391331346,
+            0.42192917476282554,
+            0.500617351323861
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.0011390503050747842,
+          "event": "exit",
+          "hit_world_m": [
+            -0.3151519333435329,
+            -1.019808859950586,
+            0.14620510444576568
+          ],
+          "stable_bone_id": 97,
+          "t": 0.5632804632555684,
+          "t_denominator": "2145530253855521129472335341",
+          "t_numerator": "1208535275320575181712793309",
+          "triangle_stable_id": 103
+        }
+      ],
+      "column_row": 219,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "I_endpoint_inside_banks": [],
+      "I_to_D_exact_events": [],
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "O_to_D_exact_events": [
+        {
+          "barycentric": [
+            0.025201877262925113,
+            0.9354639524077817,
+            0.03933417032929315
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.0012931616860295733,
+          "event": "exit",
+          "hit_world_m": [
+            -0.31748704298827496,
+            -1.0148761420149124,
+            0.14776914253315943
+          ],
+          "stable_bone_id": 97,
+          "t": 0.4013285517563368,
+          "t_denominator": "2479417068241424185331626872374",
+          "t_numerator": "995060861197273273647022387057",
+          "triangle_stable_id": 167
+        }
+      ],
+      "O_to_I_exact_events": [
+        {
+          "barycentric": [
+            0.025299695630376786,
+            0.9355273727507644,
+            0.03917293161885888
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.0012931707741039838,
+          "event": "exit",
+          "hit_world_m": [
+            -0.3174868439480488,
+            -1.0148759398307756,
+            0.14776906184493188
+          ],
+          "stable_bone_id": 97,
+          "t": 0.527776003422146,
+          "t_denominator": "1885384812392399600298455220981",
+          "t_numerator": "995060861197273273647022387057",
+          "triangle_stable_id": 167
+        }
+      ],
+      "column_row": 231,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "I_endpoint_inside_banks": [],
+      "I_to_D_exact_events": [],
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "O_to_D_exact_events": [
+        {
+          "barycentric": [
+            0.44032848069409947,
+            0.4978343536375428,
+            0.061837165668357716
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.0014518338271903917,
+          "event": "exit",
+          "hit_world_m": [
+            -0.31594890214381277,
+            -1.013995754805527,
+            0.1469115141543853
+          ],
+          "stable_bone_id": 97,
+          "t": 0.45055723762600913,
+          "t_denominator": "177062483410923824697263779377",
+          "t_numerator": "79776783412826903016354294467",
+          "triangle_stable_id": 158
+        }
+      ],
+      "O_to_I_exact_events": [
+        {
+          "barycentric": [
+            0.4404055452428719,
+            0.4975593801244704,
+            0.06203507463265772
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.0014517534464974506,
+          "event": "exit",
+          "hit_world_m": [
+            -0.31594898956504514,
+            -1.0139952767318314,
+            0.1469118761255153
+          ],
+          "stable_bone_id": 97,
+          "t": 0.5925002969167232,
+          "t_denominator": "134644292716767426088012869519",
+          "t_numerator": "79776783412826903016354294467",
+          "triangle_stable_id": 158
+        }
+      ],
+      "column_row": 233,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "I_endpoint_inside_banks": [],
+      "I_to_D_exact_events": [],
+      "O_endpoint_inside_banks": [
+        [
+          61,
+          97
+        ]
+      ],
+      "O_to_D_exact_events": [
+        {
+          "barycentric": [
+            0.47875277607959377,
+            0.2753821008048758,
+            0.24586512311553044
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.0003956776598053647,
+          "event": "exit",
+          "hit_world_m": [
+            -0.31459633427734285,
+            -1.0144181038928581,
+            0.14551440692759254
+          ],
+          "stable_bone_id": 97,
+          "t": 0.12486565274402504,
+          "t_denominator": "1203216114988227097904749823257",
+          "t_numerator": "150240365590134871284199599157",
+          "triangle_stable_id": 98
+        }
+      ],
+      "O_to_I_exact_events": [
+        {
+          "barycentric": [
+            0.47839125536843136,
+            0.27579685071955845,
+            0.24581189391201025
+          ],
+          "body": 61,
+          "distance_from_route_start_m": 0.0003959049471823815,
+          "event": "exit",
+          "hit_world_m": [
+            -0.3145962042688611,
+            -1.014419038168907,
+            0.1455143011936848
+          ],
+          "stable_bone_id": 97,
+          "t": 0.1955218809791555,
+          "t_denominator": "219544833166855831150031980577",
+          "t_numerator": "42925818740038534652628456902",
+          "triangle_stable_id": 98
+        }
+      ],
+      "column_row": 271,
+      "donor_body": 61,
+      "source_dominant_body": 61
+    },
+    {
+      "D_endpoint_inside_banks": [
+        [
+          59,
+          95
+        ]
+      ],
+      "I_endpoint_inside_banks": [
+        [
+          59,
+          95
+        ]
+      ],
+      "I_to_D_exact_events": [],
+      "O_endpoint_inside_banks": [
+        [
+          59,
+          95
+        ]
+      ],
+      "O_to_D_exact_events": [],
+      "O_to_I_exact_events": [],
+      "column_row": 337,
+      "donor_body": 59,
+      "source_dominant_body": 59
+    },
+    {
+      "D_endpoint_inside_banks": [],
+      "I_endpoint_inside_banks": [
+        [
+          23,
+          32
+        ]
+      ],
+      "I_to_D_exact_events": [
+        {
+          "barycentric": [
+            0.16298965153154435,
+            0.7912819134870926,
+            0.04572843498136297
+          ],
+          "body": 23,
+          "distance_from_route_start_m": 0.002690521528178586,
+          "event": "exit",
+          "hit_world_m": [
+            0.00418635426812944,
+            -0.09188071112972138,
+            0.21843611433350757
+          ],
+          "stable_bone_id": 32,
+          "t": 0.6884566046593231,
+          "t_denominator": "36003332857000016589718627",
+          "t_numerator": "24786732295149680442487210",
+          "triangle_stable_id": 10750
+        }
+      ],
+      "O_endpoint_inside_banks": [],
+      "O_to_D_exact_events": [
+        {
+          "barycentric": [
+            0.19734322835273618,
+            0.2182656454994776,
+            0.5843911261477862
+          ],
+          "body": 23,
+          "distance_from_route_start_m": 0.0013467057170606295,
+          "event": "entry",
+          "hit_world_m": [
+            0.005949656101165265,
+            -0.09004157826030672,
+            0.22124792690374046
+          ],
+          "stable_bone_id": 32,
+          "t": 0.21178970330937372,
+          "t_denominator": "13145599114131291459013665",
+          "t_numerator": "2784102536205832214067482",
+          "triangle_stable_id": 10731
+        },
+        {
+          "barycentric": [
+            0.1629874848124435,
+            0.7913222046550682,
+            0.045690310532488364
+          ],
+          "body": 23,
+          "distance_from_route_start_m": 0.005141237018524481,
+          "event": "exit",
+          "hit_world_m": [
+            0.0041864631475027735,
+            -0.09188103259364139,
+            0.2184361612375584
+          ],
+          "stable_bone_id": 32,
+          "t": 0.8085367493449557,
+          "t_denominator": "3083345738528907582090161",
+          "t_numerator": "2492998340536784626972718",
+          "triangle_stable_id": 10750
+        }
+      ],
+      "O_to_I_exact_events": [
+        {
+          "barycentric": [
+            0.1974687184547348,
+            0.21822153956024284,
+            0.5843097419850224
+          ],
+          "body": 23,
+          "distance_from_route_start_m": 0.0013466249069201423,
+          "event": "entry",
+          "hit_world_m": [
+            0.005949443902334426,
+            -0.09004103229450104,
+            0.2212478120284815
+          ],
+          "stable_bone_id": 32,
+          "t": 0.5494980784092733,
+          "t_denominator": "17733199185935435159083713",
+          "t_numerator": "9744358876720412749236187",
+          "triangle_stable_id": 10731
+        }
+      ],
+      "column_row": 1467,
+      "donor_body": 23,
+      "source_dominant_body": 23
+    },
+    {
+      "D_endpoint_inside_banks": [
+        [
+          91,
+          13
+        ]
+      ],
+      "I_endpoint_inside_banks": [
+        [
+          91,
+          13
+        ]
+      ],
+      "I_to_D_exact_events": [],
+      "O_endpoint_inside_banks": [],
+      "O_to_D_exact_events": [
+        {
+          "barycentric": [
+            0.8044469342014443,
+            0.1614976188693285,
+            0.03405544692922712
+          ],
+          "body": 91,
+          "distance_from_route_start_m": 0.0021060815469260575,
+          "event": "entry",
+          "hit_world_m": [
+            0.1463299714714033,
+            -0.3019787781520997,
+            0.08813613393729952
+          ],
+          "stable_bone_id": 13,
+          "t": 0.17050020634239044,
+          "t_denominator": "3324751896911101930652155",
+          "t_numerator": "566870884460596888968574",
+          "triangle_stable_id": 977
+        }
+      ],
+      "O_to_I_exact_events": [
+        {
+          "barycentric": [
+            0.8041720315965158,
+            0.16157678894777594,
+            0.03425117945570827
+          ],
+          "body": 91,
+          "distance_from_route_start_m": 0.0021054384618774003,
+          "event": "entry",
+          "hit_world_m": [
+            0.1463308701857747,
+            -0.301978910119194,
+            0.08813617294543
+          ],
+          "stable_bone_id": 13,
+          "t": 0.8589710354124148,
+          "t_denominator": "659941792086653007433781",
+          "t_numerator": "566870884460596888968574",
+          "triangle_stable_id": 977
+        }
+      ],
+      "column_row": 1990,
+      "donor_body": 84,
+      "source_dominant_body": 84
+    },
+    {
+      "D_endpoint_inside_banks": [
+        [
+          91,
+          13
+        ]
+      ],
+      "I_endpoint_inside_banks": [
+        [
+          91,
+          13
+        ]
+      ],
+      "I_to_D_exact_events": [],
+      "O_endpoint_inside_banks": [],
+      "O_to_D_exact_events": [
+        {
+          "barycentric": [
+            0.35175122414580334,
+            0.14495962763059803,
+            0.5032891482235986
+          ],
+          "body": 91,
+          "distance_from_route_start_m": 0.0010823595531688447,
+          "event": "entry",
+          "hit_world_m": [
+            0.1684889204759132,
+            -0.3114717860500629,
+            0.0893337943023132
+          ],
+          "stable_bone_id": 13,
+          "t": 0.08762773550908641,
+          "t_denominator": "2926093283750172751606439477",
+          "t_numerator": "256406928343374264357070398",
+          "triangle_stable_id": 2222
+        }
+      ],
+      "O_to_I_exact_events": [
+        {
+          "barycentric": [
+            0.35169839782665724,
+            0.1448720965997968,
+            0.5034295055735459
+          ],
+          "body": 91,
+          "distance_from_route_start_m": 0.001082052267694095,
+          "event": "entry",
+          "hit_world_m": [
+            0.16848937495434643,
+            -0.311471724833785,
+            0.08933423656703862
+          ],
+          "stable_bone_id": 13,
+          "t": 0.44147852475073657,
+          "t_denominator": "580791395205790169467868957",
+          "t_numerator": "256406928343374264357070398",
+          "triangle_stable_id": 2222
+        }
+      ],
+      "column_row": 2024,
+      "donor_body": 91,
+      "source_dominant_body": 91
+    },
+    {
+      "D_endpoint_inside_banks": [
+        [
+          124,
+          123
+        ]
+      ],
+      "I_endpoint_inside_banks": [
+        [
+          124,
+          123
+        ]
+      ],
+      "I_to_D_exact_events": [],
+      "O_endpoint_inside_banks": [
+        [
+          124,
+          123
+        ]
+      ],
+      "O_to_D_exact_events": [],
+      "O_to_I_exact_events": [],
+      "column_row": 2187,
+      "donor_body": 124,
+      "source_dominant_body": 124
+    },
+    {
+      "D_endpoint_inside_banks": [
+        [
+          107,
+          108
+        ]
+      ],
+      "I_endpoint_inside_banks": [
+        [
+          109,
+          114
+        ]
+      ],
+      "I_to_D_exact_events": [
+        {
+          "barycentric": [
+            0.7171115764185517,
+            0.08991482856761689,
+            0.19297359501383138
+          ],
+          "body": 107,
+          "distance_from_route_start_m": 0.00350716129972207,
+          "event": "entry",
+          "hit_world_m": [
+            0.2563966887845889,
+            -0.9495441336874344,
+            0.1377609805400323
+          ],
+          "stable_bone_id": 108,
+          "t": 0.46232380861298844,
+          "t_denominator": "52022978805252154156741805",
+          "t_numerator": "24051461696636950939614304",
+          "triangle_stable_id": 638
+        },
+        {
+          "barycentric": [
+            0.15126418290313745,
+            0.06522827843835735,
+            0.7835075386585052
+          ],
+          "body": 109,
+          "distance_from_route_start_m": 0.005341766746806829,
+          "event": "exit",
+          "hit_world_m": [
+            0.2555674468553524,
+            -0.9479266747919021,
+            0.1375120594872212
+          ],
+          "stable_bone_id": 114,
+          "t": 0.7041666282362476,
+          "t_denominator": "15327261835350718316891273729",
+          "t_numerator": "10792946286693036479133021363",
+          "triangle_stable_id": 69
+        }
+      ],
+      "O_endpoint_inside_banks": [
+        [
+          109,
+          114
+        ]
+      ],
+      "O_to_D_exact_events": [
+        {
+          "barycentric": [
+            0.6989512570338041,
+            0.1464059025044302,
+            0.15464284046176568
+          ],
+          "body": 107,
+          "distance_from_route_start_m": 0.004624182204149221,
+          "event": "entry",
+          "hit_world_m": [
+            0.25632112475175456,
+            -0.9496812653231029,
+            0.13780354193721608
+          ],
+          "stable_bone_id": 108,
+          "t": 0.5256179031795742,
+          "t_denominator": "58964107828048234492135309",
+          "t_numerator": "30992590719433031275007808",
+          "triangle_stable_id": 638
+        },
+        {
+          "barycentric": [
+            0.13793617086202703,
+            0.0787987524827436,
+            0.7832650766552294
+          ],
+          "body": 109,
+          "distance_from_route_start_m": 0.00655960888146457,
+          "event": "exit",
+          "hit_world_m": [
+            0.2555011943411763,
+            -0.9479500221139323,
+            0.1375271590582715
+          ],
+          "stable_bone_id": 114,
+          "t": 0.745612459400888,
+          "t_denominator": "8912220185742679285103876159",
+          "t_numerator": "6645062411413838366224749976",
+          "triangle_stable_id": 69
+        }
+      ],
+      "O_to_I_exact_events": [],
+      "column_row": 2261,
+      "donor_body": 109,
+      "source_dominant_body": 109
+    },
+    {
+      "D_endpoint_inside_banks": [
+        [
+          107,
+          108
+        ]
+      ],
+      "I_endpoint_inside_banks": [
+        [
+          107,
+          108
+        ]
+      ],
+      "I_to_D_exact_events": [],
+      "O_endpoint_inside_banks": [
+        [
+          107,
+          108
+        ]
+      ],
+      "O_to_D_exact_events": [],
+      "O_to_I_exact_events": [],
+      "column_row": 2262,
+      "donor_body": 107,
+      "source_dominant_body": 107
+    }
+  ],
+  "summary_generator_sha256": "705ce549d370c9118c61835cbc5f008216c993d4ca9d56f820ce3e3493439ac5"
+}

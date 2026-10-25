@@ -1,0 +1,12 @@
+{
+  "as_run_log": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-001.log",
+  "candidate_sha256": "4a08dd79cbf7fcc01f53504dfdbc468a9e0bd3c97a77d8384b0c45e44549ea0d",
+  "classification": "diagnostic run failure after candidate serialization",
+  "failure": "FileNotFoundError while hashing the sibling test_bistellar_084.py dependency; this run did not produce a complete report. The candidate is retained as partial failed evidence and is not the accepted 117 output.",
+  "failure_phase": "report generation, not geometry proposal",
+  "input_sha256": "957490efc4df1bc797c32ce8b536e7bab6fc6a1ac1373ed2aa7727e27ed004a2",
+  "limitations": [
+    "No result/admission claim is based on this partial run."
+  ],
+  "run": "quality-repair-117/run-001"
+}

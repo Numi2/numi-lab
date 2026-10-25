@@ -1,0 +1,14 @@
+{
+  "source_surface_preflight_sha256": "5f43c8d80762a3f0ed558b18292d2c8fa6f3332a467bcec258bd397096bf27f7",
+  "poly_sha256": "20e005ac365f494361ac56a9699d0a0f3f41d054a55ed2ef77568fd00f392bb1",
+  "command": [
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-remesh-118/tetgen-v1.6.0/tetgen",
+    "-pq1.2/10AS1024",
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-remesh-116/run-002/whole-skin-fat-reference.poly"
+  ],
+  "returncode": 0,
+  "wall_seconds": 0.21130120800808072,
+  "reason": "512 Steiner budget exhausted before all cells met q floor; increase authoring budget once, keep same source/reference and gates.",
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false
+}
