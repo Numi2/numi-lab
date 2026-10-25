@@ -1,0 +1,159 @@
+{
+  "schema": "numi.human.connected-clearance.box-constrained-source-fidelity.v1",
+  "classification": "single_box_constrained_harmonic_candidate_unadmitted_until_exact_audits",
+  "inputs": {
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-004/pass-003/candidate.npz": "d2beb7c9cd71ae7969d140b7783bfc5d4254e2ab8c51f77f9974d7d6e9e056ab",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-072/evidence/run-006-direct-detail-p1-075/direct-detail-p1-075.npz": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-005-source-fidelity-3-node-restore/outside-displacement-bounds-004/support-node-bounds.csv": "e615ab06ac01beae6c41df35896ff0c17de535aa705be2adf6ea1c9a2f1ffcf4",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-005-source-fidelity-3-node-restore/outside-displacement-bounds-004/report.json": "8e19bc302fcbadff766988fda5e1a074f8e1e46e31f96aebd7d34b23df4783d7"
+  },
+  "method": {
+    "objective": "same run005 graph harmonic energy: 0.5*sum_edges ||delta_i-delta_j||^2/edge_length",
+    "optimizer": "SciPy L-BFGS-B with analytic sparse graph-Laplacian gradient; 500 iteration limit/component and 58 s global callback deadline",
+    "hard_pins": "three rows exactly to direct registered Float32 source points",
+    "fixed_zero": "all selected-component boundary nodes and coarse_boundary_anchor_rows",
+    "free_bounds": "per-axis inscribed F32-rounding-safe optimizer boxes from verified 185-bank point distances; emitted F32 displacement is checked against each pinned conservative safe_world_radius_m ball (which includes the rounding envelope); no nearest-plane constraints",
+    "outside_patch": "all nodes outside three selected kind-2 components unchanged bitwise",
+    "geometry_scope": "point outside-classification only; exact surface self and full 185-bank query remain required"
+  },
+  "targets": [
+    {
+      "node": 4863,
+      "source_id": 2860,
+      "component": 2,
+      "detail_row": 2860,
+      "source_f32_world_m": [
+        -0.3012257516384125,
+        -0.91105055809021,
+        0.13072174787521362
+      ],
+      "emitted_matches_source": true
+    },
+    {
+      "node": 6989,
+      "source_id": 49257,
+      "component": 18,
+      "detail_row": 49257,
+      "source_f32_world_m": [
+        0.23301145434379578,
+        -0.9539304375648499,
+        0.0904700979590416
+      ],
+      "emitted_matches_source": true
+    },
+    {
+      "node": 7255,
+      "source_id": 51458,
+      "component": 19,
+      "detail_row": 51458,
+      "source_f32_world_m": [
+        0.2653805613517761,
+        -1.0073707103729248,
+        0.11883749067783356
+      ],
+      "emitted_matches_source": true
+    }
+  ],
+  "components": [
+    {
+      "component": 2,
+      "faces": 3531,
+      "nodes": 1944,
+      "boundary_nodes": 357,
+      "coarse_anchor_nodes": 13,
+      "target_nodes": [
+        4863
+      ],
+      "free_nodes": 1586,
+      "solver": {
+        "success": true,
+        "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+        "iterations": 136,
+        "function_evaluations": 144,
+        "objective_joule_like_harmonic_units": 0.0011023505550734386,
+        "max_abs_gradient_free_m": 0.1584826231191033,
+        "max_abs_projected_gradient_free_m": 1.1128598524448448e-06,
+        "active_lower_coordinates": 7,
+        "active_upper_coordinates": 8,
+        "max_box_violation_after_roundoff_projection_m": 0.0
+      }
+    },
+    {
+      "component": 18,
+      "faces": 419,
+      "nodes": 251,
+      "boundary_nodes": 81,
+      "coarse_anchor_nodes": 1,
+      "target_nodes": [
+        6989
+      ],
+      "free_nodes": 169,
+      "solver": {
+        "success": true,
+        "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+        "iterations": 56,
+        "function_evaluations": 60,
+        "objective_joule_like_harmonic_units": 0.0021247470088391084,
+        "max_abs_gradient_free_m": 1.0363875957137134,
+        "max_abs_projected_gradient_free_m": 2.6240261291093684e-07,
+        "active_lower_coordinates": 17,
+        "active_upper_coordinates": 0,
+        "max_box_violation_after_roundoff_projection_m": 0.0
+      }
+    },
+    {
+      "component": 19,
+      "faces": 2186,
+      "nodes": 1203,
+      "boundary_nodes": 220,
+      "coarse_anchor_nodes": 10,
+      "target_nodes": [
+        7255
+      ],
+      "free_nodes": 982,
+      "solver": {
+        "success": true,
+        "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+        "iterations": 119,
+        "function_evaluations": 124,
+        "objective_joule_like_harmonic_units": 0.0005344967615056956,
+        "max_abs_gradient_free_m": 0.2780373473021815,
+        "max_abs_projected_gradient_free_m": 7.461393896201152e-07,
+        "active_lower_coordinates": 8,
+        "active_upper_coordinates": 5,
+        "max_box_violation_after_roundoff_projection_m": 0.0
+      }
+    }
+  ],
+  "checks": {
+    "all_bound_inputs_pinned": true,
+    "bound_report_complete_185_bank_partition": true,
+    "source_identity_unchanged": true,
+    "faces_and_kind_unchanged": true,
+    "outside_patch_bitwise": true,
+    "coarse_anchors_bitwise": true,
+    "hard_source_pins_exact_f32": true,
+    "safe_box_gate_f32": true,
+    "safe_radius_gate_f32": true,
+    "max_f32_box_excess_m": 3.0507182787736374e-08,
+    "max_f32_safe_radius_excess_m": 0.0,
+    "cumulative_from_points_before_joint_repair_max_m": 0.00449025362269959,
+    "cumulative_6mm_cap_pass": true,
+    "original_candidate_cumulative_max_m": 0.004495302341054525,
+    "changed_node_count": 2575,
+    "changed_support_node_count": 2575,
+    "harmonic_objective": 0.0037615943254182423,
+    "zero_correction_objective": 0.005076191376682973,
+    "all_solver_components_success": true,
+    "total_iterations": 311,
+    "runtime_s": 0.25336545798927546
+  },
+  "candidate": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-006-box-constrained-harmonic-source-fidelity-v3/candidate.npz",
+    "sha256": "94441b89e097c1a6a5406fde062761b511d04dfeb535bf05221fe6c9c5d1e0d3"
+  },
+  "source_script": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-006-box-constrained-harmonic-source-fidelity-v3.py",
+    "sha256": "ca2bee9825d127a8544c9701f041e050893d694dd3ccabe74a599a14a270ea7d"
+  }
+}

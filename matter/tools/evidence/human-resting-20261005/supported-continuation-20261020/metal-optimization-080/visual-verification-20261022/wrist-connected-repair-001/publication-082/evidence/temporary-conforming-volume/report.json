@@ -1,0 +1,108 @@
+{
+  "admission": "none; temporary caps/TetGen are construction-only, not physical skin qualification",
+  "blocked_source_triangle_witnesses": [
+    {
+      "loop": 0,
+      "source_face_rows": [
+        3845
+      ],
+      "triangle": [
+        1362,
+        1440,
+        1441
+      ]
+    },
+    {
+      "loop": 0,
+      "source_face_rows": [
+        3844,
+        3845
+      ],
+      "triangle": [
+        1362,
+        1440,
+        1485
+      ]
+    },
+    {
+      "loop": 0,
+      "source_face_rows": [
+        3845
+      ],
+      "triangle": [
+        1440,
+        1441,
+        1532
+      ]
+    }
+  ],
+  "candidate_npz": "/Users/n/Work/numi-human-connected-surface-069/temporary-outer-solid-159/run-004-interval-dp/interval-dp-capped-solid.npz",
+  "candidate_npz_sha256": "503f171a8f8793d156f5d9388db853565566c7190e078c2415c28d095905db65",
+  "caps_are_temporary_construction_only_not_physical_skin": true,
+  "closed_face_count": 17548,
+  "closed_oriented_topology": {
+    "bad_edge_witnesses": [],
+    "bad_oriented_edge_count": 0,
+    "edge_count": 26322,
+    "edge_incidence_histogram": {
+      "2": 26322
+    }
+  },
+  "elapsed_seconds": 3.2616832500789315,
+  "exact_float32_full_shell_audit_complete": true,
+  "exact_float32_self_pair_count": 0,
+  "exact_pair_sha256": "6bc1204467b114e103fbcb921eb3f37b381c5ade9c9e4f138f6606571c0de355",
+  "exact_source_counters": {
+    "blocked_triangles": 3,
+    "source_aabb_pairs": 610,
+    "unique_tested_triangles": 44
+  },
+  "loop_reports": [
+    {
+      "candidate_triples": 23,
+      "dead_interval_count": 0,
+      "dead_interval_sample": [],
+      "interval_subproblems": 39,
+      "loop": 0,
+      "projected_area_m2": -0.0003260466028509771,
+      "rejections": {
+        "diagonal:source_internal_edge": 1,
+        "exact_source_intersection": 3
+      },
+      "triangulated_projected_area_m2": 0.00032604660285097707,
+      "vertex_count": 21
+    },
+    {
+      "candidate_triples": 23,
+      "dead_interval_count": 0,
+      "dead_interval_sample": [],
+      "interval_subproblems": 45,
+      "loop": 1,
+      "projected_area_m2": 0.00031574245917967945,
+      "rejections": {
+        "diagonal:outside_polygon": 1
+      },
+      "triangulated_projected_area_m2": 0.0003157424591796795,
+      "vertex_count": 24
+    }
+  ],
+  "method": "memoized interval polygon DP with exact complete-source collision blockers",
+  "poly_sha256": "817890cdc33db8dfaafb64e9f3811d8da0636ad9bd0cf03c62bb22640208b226",
+  "signed_volume_m3": 0.06860425724578324,
+  "source_candidate": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-004/pass-003/candidate.npz",
+  "source_exclusion": "all fixed source O triangles checked with exact Float32 predicate",
+  "source_sha256_expected": "d2beb7c9cd71ae7969d140b7783bfc5d4254e2ab8c51f77f9974d7d6e9e056ab",
+  "status": "EXACT_CLOSED_CAP_PASSED_TETGEN_ATTEMPTED",
+  "tetgen_binary_sha256": "95b1df3923d7405b168ba5a3c4b39498ddfc0e7ba94000dedff7ebf93350de07",
+  "tetgen_command": [
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-remesh-118/tetgen-v1.6.0/tetgen",
+    "-pYq1.4S512",
+    "interval-dp-capped-solid.poly"
+  ],
+  "tetgen_executed": true,
+  "tetgen_return_code": 0,
+  "tetgen_stderr": "",
+  "tetgen_stdout": "Opening interval-dp-capped-solid.poly.\nDelaunizing vertices...\nDelaunay seconds:  0.017635\nCreating surface mesh ...\nSurface mesh seconds:  0.002597\nRecovering boundaries...\nBoundary recovery seconds:  0.080332\nRemoving exterior tetrahedra ...\nExterior tets removal seconds:  0.003337\nSuppressing Steiner points ...\nSteiner suppression seconds:  5e-06\nRecovering Delaunayness...\nDelaunay recovery seconds:  0.013704\nRefining mesh...\nRefinement seconds:  0.046671\nSmoothing vertices...\nMesh smoothing seconds:  0.026328\nImproving mesh...\nMesh improvement seconds:  1.06416\nJettisoning redundant points.\n\nWriting interval-dp-capped-solid.1.node.\nWriting interval-dp-capped-solid.1.ele.\nWriting interval-dp-capped-solid.1.face.\nWriting interval-dp-capped-solid.1.edge.\n\nOutput seconds:  0.016199\nTotal running seconds:  1.27116\n\nStatistics:\n\n  Input points: 8776\n  Input facets: 17548\n  Input segments: 26322\n  Input holes: 0\n  Input regions: 0\n\n  Mesh points: 9288\n  Mesh tetrahedra: 31839\n  Mesh faces: 72452\n  Mesh faces on exterior boundary: 17548\n  Mesh faces on input facets: 17548\n  Mesh edges on input segments: 26322\n  Steiner points inside domain: 512\n\n",
+  "tetgen_timed_out": false,
+  "time_limit_seconds": 20.0
+}

@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-006-box-constrained-harmonic-source-fidelity-v3/exact-audit-001/query/points-world.npz",
+  "input_sha256": "fff3ef5a6a1e1986f2ac517c9dc30c8b45d6675c3723bec9f9ea1c1fc71f3b7a",
+  "field": "points_world_f32",
+  "query_count": 8776,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-006-box-constrained-harmonic-source-fidelity-v3/exact-audit-001/query/points.csv",
+  "output_sha256": "72b2b63d3bf97335cde1fb8795edfa88b6c70be21a8426e032881c504f1565c3",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

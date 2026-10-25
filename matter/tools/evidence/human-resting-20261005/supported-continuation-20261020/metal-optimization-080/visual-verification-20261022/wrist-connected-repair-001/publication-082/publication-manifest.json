@@ -1,0 +1,214 @@
+{
+  "publication": "082",
+  "base_commit": "78303e73a9eb447e8833a8328f851a73e3a9ebc2",
+  "status": "tested static construction and failed evidence; no native admission",
+  "canonical_changes": [],
+  "accepted_physical_steps": 0,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2021,
+      "sha256": "7d70c5f3c865c71be0eb03c74cfb1cd9b6e3f381165ff244db5eb0987940c260"
+    },
+    {
+      "path": "evidence/arithmetic-bound-proof/arithmetic-certificate.json",
+      "bytes": 15411,
+      "sha256": "5c7eb702f51b854ec7f806f123559ac3d6231afde0423c7c897fcb4fba9e18cc"
+    },
+    {
+      "path": "evidence/failed-raw-hull-f32/f32-cut-collapse-diagnosis.csv",
+      "bytes": 28492,
+      "sha256": "9a7f7f061c0254580ae67b56eb42e6e6050f42e3ebf067cc817c6ac121d5421f"
+    },
+    {
+      "path": "evidence/failed-raw-hull-f32/f32-cut-collapse-diagnosis.json",
+      "bytes": 111979,
+      "sha256": "a85414b4f7658f1d478661f4d1731b4003f62cd95cff1571679b5c5573b4eba6"
+    },
+    {
+      "path": "evidence/failed-raw-hull-f32/required-f32-failure-witness.json",
+      "bytes": 3371,
+      "sha256": "05048b7ed4729c8b33c48f1ebbc49218217fba73a1484d6a5493e11ceeb5001a"
+    },
+    {
+      "path": "evidence/failed-raw-hull-f32/required-f32-failure-witness.npz",
+      "bytes": 15159,
+      "sha256": "9885e5e39155e5f8185546986205090be55510079a2adfa1c8ae2ece7d6c73ae"
+    },
+    {
+      "path": "evidence/failed-raw-hull-f32/volume-partition-arithmetic-certificate.json",
+      "bytes": 44193,
+      "sha256": "3bd0a7048526c6f1c47a8ba7f91226fd3686a11aac0373cd2474aabf02c3a9f3"
+    },
+    {
+      "path": "evidence/skin-bone-face-audit/independent-witness-localization.json",
+      "bytes": 5895,
+      "sha256": "c831a8b14e80f27103307d6939a873bb136021194aaed40a310d62e38b301884"
+    },
+    {
+      "path": "evidence/skin-bone-face-audit/progress.json",
+      "bytes": 99,
+      "sha256": "d11c6c200676c3878732e21c04bbdd980f5bc6f617016a5000198e9b623fa6ef"
+    },
+    {
+      "path": "evidence/skin-bone-face-audit/report.json",
+      "bytes": 169884,
+      "sha256": "dfd5010edd8394522bcaaa4229662fdfb5117390b05f3cbe481b9253a9cdc3b4"
+    },
+    {
+      "path": "evidence/surface-source-fidelity/candidate.npz",
+      "bytes": 774985,
+      "sha256": "94441b89e097c1a6a5406fde062761b511d04dfeb535bf05221fe6c9c5d1e0d3"
+    },
+    {
+      "path": "evidence/surface-source-fidelity/exact-audit-001/query/nodes.csv",
+      "bytes": 200874,
+      "sha256": "c953c77026e0b601a044580600bc858eb0c413ee484faa020203ece58159b6d8"
+    },
+    {
+      "path": "evidence/surface-source-fidelity/exact-audit-001/query/pairs.csv",
+      "bytes": 601780,
+      "sha256": "145c05d152e2053cb3377bd92f3fa72ecc73ccefd4ea9cf34b76acefee579f2f"
+    },
+    {
+      "path": "evidence/surface-source-fidelity/exact-audit-001/query/points-world.npz",
+      "bytes": 96079,
+      "sha256": "fff3ef5a6a1e1986f2ac517c9dc30c8b45d6675c3723bec9f9ea1c1fc71f3b7a"
+    },
+    {
+      "path": "evidence/surface-source-fidelity/exact-audit-001/query/points.csv",
+      "bytes": 663188,
+      "sha256": "72b2b63d3bf97335cde1fb8795edfa88b6c70be21a8426e032881c504f1565c3"
+    },
+    {
+      "path": "evidence/surface-source-fidelity/exact-audit-001/query/prepare.log",
+      "bytes": 705,
+      "sha256": "120228d5fd11b92b3d58362087876adc43086f85806478a9840987b9785fadcb"
+    },
+    {
+      "path": "evidence/surface-source-fidelity/exact-audit-001/query/query-receipt.json",
+      "bytes": 1686,
+      "sha256": "a64b6199a4cc4153c1bf9da0b00547397f6d1060801a5e4988430831cf49bed2"
+    },
+    {
+      "path": "evidence/surface-source-fidelity/exact-audit-001/query/query.log",
+      "bytes": 133,
+      "sha256": "25845c149a9027be21b0cd7cba8eb72ae7016a28e359dbf4d061e9cbdc10a18e"
+    },
+    {
+      "path": "evidence/surface-source-fidelity/exact-audit-001/summary.json",
+      "bytes": 10762,
+      "sha256": "f6640cdec54ea64a508d032cb9446f56a35d2182853472f74bac87a9248fb1db"
+    },
+    {
+      "path": "evidence/surface-source-fidelity/exact-audit-001/surface-self-pairs.npy",
+      "bytes": 128,
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+    },
+    {
+      "path": "evidence/surface-source-fidelity/fit-report.json",
+      "bytes": 6484,
+      "sha256": "d9e0bdb223513ac8745c7c1e1509799302c0594ee31878044ae5469f68eec9e0"
+    },
+    {
+      "path": "evidence/temporary-conforming-volume/audit_tetgen_foundation.py",
+      "bytes": 5259,
+      "sha256": "33a7ff4847c30c2dd2bc1f17b93021c353c180d2d3f7932fa18ad8a9733f060f"
+    },
+    {
+      "path": "evidence/temporary-conforming-volume/build_interval_dp_caps_159.py",
+      "bytes": 11607,
+      "sha256": "e1b437fe356ed6cfae1b4de0c8a6929536635ff8369e03e36e2410de5756a5ac"
+    },
+    {
+      "path": "evidence/temporary-conforming-volume/exact-self-pairs.npy",
+      "bytes": 128,
+      "sha256": "6bc1204467b114e103fbcb921eb3f37b381c5ade9c9e4f138f6606571c0de355"
+    },
+    {
+      "path": "evidence/temporary-conforming-volume/interval-dp-capped-solid.1.edge",
+      "bytes": 605743,
+      "sha256": "2790751ba9523d9886f43e7ee1cfa309532383174cef9b874a159a9a51271c01"
+    },
+    {
+      "path": "evidence/temporary-conforming-volume/interval-dp-capped-solid.1.ele",
+      "bytes": 1019188,
+      "sha256": "f50712240146265f56eaa8318e32c56e67626728c937745776064b0284cbcbba"
+    },
+    {
+      "path": "evidence/temporary-conforming-volume/interval-dp-capped-solid.1.face",
+      "bytes": 585863,
+      "sha256": "1b9c0f11d3944b50c78c5a27fa759d9eb6cf182290e2cfe106eb14387cb7e772"
+    },
+    {
+      "path": "evidence/temporary-conforming-volume/interval-dp-capped-solid.1.node",
+      "bytes": 666176,
+      "sha256": "952e2bc94efaa9ebbd8b13d1e92fd1e2a2aa59da6e2b0fb8a1f2672bd655979a"
+    },
+    {
+      "path": "evidence/temporary-conforming-volume/interval-dp-capped-solid.npz",
+      "bytes": 304591,
+      "sha256": "503f171a8f8793d156f5d9388db853565566c7190e078c2415c28d095905db65"
+    },
+    {
+      "path": "evidence/temporary-conforming-volume/interval-dp-capped-solid.poly",
+      "bytes": 1039660,
+      "sha256": "817890cdc33db8dfaafb64e9f3811d8da0636ad9bd0cf03c62bb22640208b226"
+    },
+    {
+      "path": "evidence/temporary-conforming-volume/report.json",
+      "bytes": 4692,
+      "sha256": "1bde3e29b50065258ed49e09e673731cf69a424f6344b488a2935eaf3990b1cb"
+    },
+    {
+      "path": "evidence/temporary-conforming-volume/tetgen-foundation-audit.json",
+      "bytes": 1829,
+      "sha256": "9fb1ad8b5bab6982d60685fc3ced0b26885aab65b11d1da17863f8ae59268cb4"
+    },
+    {
+      "path": "tests.log",
+      "bytes": 99,
+      "sha256": "fbac6de7bedce74e268945deffa9771e025bd902e8d3639706cc41285b9a5ce3"
+    },
+    {
+      "path": "tools/audit_connected_material_volume_157.py",
+      "bytes": 4449,
+      "sha256": "205caa392d3551d4a5dda4f8017405c81ada09a8352926e8aff43fd9508fa756"
+    },
+    {
+      "path": "tools/audit_skin_bone_surfaces_159.py",
+      "bytes": 4925,
+      "sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+    },
+    {
+      "path": "tools/coordinate_volume_bound_157.py",
+      "bytes": 20801,
+      "sha256": "7d69aa5b555dbf6ac8238ff52448af690c184327e2e5abc78390e55f6c44c648"
+    },
+    {
+      "path": "tools/run_certify_16_157.py",
+      "bytes": 1952,
+      "sha256": "e16afcec596f23071e62d2de6fd5e2942c4d76b1b1ea59e498c14a8dda3a2006"
+    },
+    {
+      "path": "tools/run_certify_16_157_v2.py",
+      "bytes": 1992,
+      "sha256": "a80276df0afc1df9fc3d3e060317546f8aee9319a718d615640f8fdac4cfc067"
+    },
+    {
+      "path": "tools/test_audit_connected_material_volume_157.py",
+      "bytes": 1612,
+      "sha256": "00cba02829cb6d350576c5206fb9d77f0e86211bfe596d71ac1acbf950ef75b8"
+    },
+    {
+      "path": "tools/test_audit_skin_bone_surfaces_159.py",
+      "bytes": 1678,
+      "sha256": "d6950a4d3337ded473308fed0369d9f9220f947bfda964432e0e57de6e28b110"
+    },
+    {
+      "path": "tools/test_coordinate_volume_bound_157.py",
+      "bytes": 4837,
+      "sha256": "41d0661f8d5d101c4a44fd7bb46496c0be68120d260450a788728dd3f673e12f"
+    }
+  ]
+}

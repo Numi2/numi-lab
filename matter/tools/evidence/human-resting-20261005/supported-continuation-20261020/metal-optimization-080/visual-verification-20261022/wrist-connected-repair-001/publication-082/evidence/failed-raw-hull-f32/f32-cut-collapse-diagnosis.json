@@ -1,0 +1,4279 @@
+{
+  "bad_parent_foundation_rows": [
+    880,
+    3859,
+    7713,
+    24069,
+    24799,
+    25032,
+    32269,
+    32323,
+    32510,
+    32519,
+    32882,
+    32888,
+    32906,
+    33625,
+    33770,
+    33772,
+    35383,
+    35398,
+    35479,
+    35480,
+    35493,
+    35932,
+    36100,
+    36553,
+    66938,
+    66943,
+    67026,
+    69679
+  ],
+  "bad_parent_input_stage_rows": [
+    5404,
+    16767,
+    22590,
+    22593,
+    23455,
+    23538,
+    24449,
+    24836,
+    24908,
+    65768,
+    65771,
+    65772,
+    65773,
+    65774,
+    65776,
+    65787,
+    65789,
+    65979,
+    65985,
+    65986,
+    65987,
+    66009,
+    66012,
+    66016,
+    66017,
+    77688,
+    78990,
+    78995,
+    78999,
+    79004,
+    79005,
+    82493,
+    82516,
+    82727,
+    82884,
+    82886,
+    82890,
+    82891,
+    82892,
+    82943,
+    82950,
+    82951,
+    83001,
+    83002,
+    83009,
+    83010,
+    83173,
+    83178,
+    83251,
+    83252,
+    83292,
+    83293,
+    83312,
+    83315,
+    88809,
+    89875,
+    89890,
+    89891,
+    89895,
+    89896,
+    89898,
+    89899,
+    90150,
+    90152,
+    90169,
+    90170,
+    90172,
+    130320,
+    130325,
+    155651,
+    155652,
+    155726,
+    209833,
+    209837
+  ],
+  "bad_parent_stage_row_count": 74,
+  "bad_required_f32_child_count": 97,
+  "cut_nearest_endpoint_distance_m_range": [
+    7.88077446137732e-10,
+    0.014907407489074567
+  ],
+  "cut_t_range": [
+    1.0497864069081268e-07,
+    0.9999999574314917
+  ],
+  "cut_vertices": [
+    {
+      "cut_output_row": 59625,
+      "cutpoint_coordinate_rounding_error_m": [
+        1.9605837509040214e-09,
+        1.2028657958573774e-08,
+        6.9439758387801476e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.06578627415001392,
+        0.20180739276111126,
+        0.46600233018398285
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 7.126950052127853e-08,
+      "distance_from_positive_endpoint_m": 0.023202884969747456,
+      "f32_endpoint_distance_m": 5.960464477539063e-08,
+      "incident_bad_child_rows": [
+        80038,
+        131618
+      ],
+      "incident_foundation_parent_rows": [
+        33772,
+        35479
+      ],
+      "incident_stage_parent_rows": [
+        65789,
+        90152
+      ],
+      "nearest_endpoint_distance_m": 7.126950052127853e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 1.0436958462235504,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17260,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 0.0007312738472438014,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            9436,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        9436
+      ],
+      "t_from_negative_to_positive": 3.0715698361438726e-06
+    },
+    {
+      "cut_output_row": 59626,
+      "cutpoint_coordinate_rounding_error_m": [
+        5.268115110812488e-09,
+        5.10853581658921e-11,
+        7.4107803782474946e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.1767686102539301,
+        0.0008570700883865356,
+        0.49732905253767967
+      ],
+      "cutpoint_f32_equals_negative_endpoint": true,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 1.2718860573070837e-08,
+      "distance_from_positive_endpoint_m": 0.0208500889481669,
+      "f32_endpoint_distance_m": 0.0,
+      "incident_bad_child_rows": [
+        131642,
+        131648
+      ],
+      "incident_foundation_parent_rows": [
+        35480,
+        35480
+      ],
+      "incident_stage_parent_rows": [
+        90170,
+        90172
+      ],
+      "nearest_endpoint_distance_m": 1.2718860573070837e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.18625950584355774,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17261,
+      "phi_negative_endpoint_m": -4.4608779020302077e-10,
+      "phi_positive_endpoint_m": 0.0007312738472438014,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2668,
+            0.5
+          ]
+        ],
+        [
+          [
+            9436,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17261,
+        9436
+      ],
+      "t_from_negative_to_positive": 6.100143192799834e-07
+    },
+    {
+      "cut_output_row": 59627,
+      "cutpoint_coordinate_rounding_error_m": [
+        8.745607238402897e-09,
+        1.7840453558903846e-08,
+        7.332795121106628e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.2934538833796978,
+        0.29931314289569855,
+        0.4920955505222082
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 6.09779240670614e-08,
+      "distance_from_positive_endpoint_m": 0.02003803896317941,
+      "f32_endpoint_distance_m": 6.143906154658885e-08,
+      "incident_bad_child_rows": [
+        131636,
+        131642
+      ],
+      "incident_foundation_parent_rows": [
+        35383,
+        35480
+      ],
+      "incident_stage_parent_rows": [
+        90169,
+        90170
+      ],
+      "nearest_endpoint_distance_m": 6.09779240670614e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.8929823500183743,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17262,
+      "phi_negative_endpoint_m": -2.2253455635615697e-09,
+      "phi_positive_endpoint_m": 0.0007312738472438014,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2669,
+            0.5
+          ]
+        ],
+        [
+          [
+            9436,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17262,
+        9436
+      ],
+      "t_from_negative_to_positive": 3.0430991070362623e-06
+    },
+    {
+      "cut_output_row": 59715,
+      "cutpoint_coordinate_rounding_error_m": [
+        3.5919716645516075e-09,
+        1.0053014531941074e-08,
+        6.38009603481926e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.24105313792824745,
+        0.1686615962535143,
+        0.428160997107625
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 2.6519063658444216e-08,
+      "distance_from_positive_endpoint_m": 0.014597814326949971,
+      "f32_endpoint_distance_m": 6.322027276634104e-08,
+      "incident_bad_child_rows": [
+        120043,
+        120108
+      ],
+      "incident_foundation_parent_rows": [
+        32888,
+        32888
+      ],
+      "incident_stage_parent_rows": [
+        82493,
+        82516
+      ],
+      "nearest_endpoint_distance_m": 2.6519063658444216e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.41947088327912385,
+      "nearest_endpoint_f32_ulp_norm_m": 6.322027276634104e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 27885,
+      "phi_negative_endpoint_m": -3.362542239304944e-09,
+      "phi_positive_endpoint_m": 0.001850961556298958,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2300,
+            0.5
+          ],
+          [
+            2307,
+            0.5
+          ]
+        ],
+        [
+          [
+            9458,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        27885,
+        9458
+      ],
+      "t_from_negative_to_positive": 1.8166428790156175e-06
+    },
+    {
+      "cut_output_row": 60123,
+      "cutpoint_coordinate_rounding_error_m": [
+        5.388455792676439e-10,
+        2.326518178108472e-08,
+        1.5762030708410535e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.03616131469607353,
+        0.39032498002052307,
+        0.4231087900698185
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 2.460044030085645e-08,
+      "distance_from_positive_endpoint_m": 0.018931522279796803,
+      "f32_endpoint_distance_m": 3.725290298461914e-09,
+      "incident_bad_child_rows": [
+        121290,
+        121297
+      ],
+      "incident_foundation_parent_rows": [
+        3859,
+        24799
+      ],
+      "incident_stage_parent_rows": [
+        83009,
+        83010
+      ],
+      "nearest_endpoint_distance_m": 2.460044030085645e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.39966989396774766,
+      "nearest_endpoint_f32_ulp_norm_m": 6.155189738369847e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        3.725290298461914e-09
+      ],
+      "nearest_endpoint_input_row": 19164,
+      "phi_negative_endpoint_m": -2.841344343757471e-09,
+      "phi_positive_endpoint_m": 0.0021865858162121356,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            790,
+            0.5
+          ],
+          [
+            2332,
+            0.5
+          ]
+        ],
+        [
+          [
+            9596,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        19164,
+        9596
+      ],
+      "t_from_negative_to_positive": 1.2994416366263195e-06
+    },
+    {
+      "cut_output_row": 60124,
+      "cutpoint_coordinate_rounding_error_m": [
+        6.029582055866456e-09,
+        2.1890634416266153e-08,
+        3.2944298677950457e-10
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.4046384021639824,
+        0.36726390197873116,
+        0.08843417838215828
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 3.872391337469033e-08,
+      "distance_from_positive_endpoint_m": 0.03687566769486244,
+      "f32_endpoint_distance_m": 6.188917057900187e-08,
+      "incident_bad_child_rows": [
+        121268,
+        121297
+      ],
+      "incident_foundation_parent_rows": [
+        880,
+        24799
+      ],
+      "incident_stage_parent_rows": [
+        83001,
+        83010
+      ],
+      "nearest_endpoint_distance_m": 3.872391337469033e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.6291262336446846,
+      "nearest_endpoint_f32_ulp_norm_m": 6.155189738369847e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        3.725290298461914e-09
+      ],
+      "nearest_endpoint_input_row": 28030,
+      "phi_negative_endpoint_m": -2.296179706782078e-09,
+      "phi_positive_endpoint_m": 0.0021865858162121356,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2332,
+            0.5
+          ],
+          [
+            2337,
+            0.5
+          ]
+        ],
+        [
+          [
+            9596,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28030,
+        9596
+      ],
+      "t_from_negative_to_positive": 1.0501199075863e-06
+    },
+    {
+      "cut_output_row": 61904,
+      "cutpoint_coordinate_rounding_error_m": [
+        3.0492341013266255e-09,
+        5.846410577881045e-09,
+        2.731100193220648e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.40926127322018147,
+        0.09808649308979511,
+        0.3665620628744364
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.024230322599750057,
+      "distance_from_positive_endpoint_m": 0.002760073849999633,
+      "f32_endpoint_distance_m": 0.0027600716702325194,
+      "incident_bad_child_rows": [
+        111949,
+        122214
+      ],
+      "incident_foundation_parent_rows": [
+        66938,
+        66938
+      ],
+      "incident_stage_parent_rows": [
+        78999,
+        83293
+      ],
+      "nearest_endpoint_distance_m": 0.002760073849999633,
+      "nearest_endpoint_distance_over_ulp_norm": 45599.346385138546,
+      "nearest_endpoint_f32_ulp_norm_m": 6.05288029062447e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        7.450580596923828e-09,
+        5.960464477539063e-08,
+        7.450580596923828e-09
+      ],
+      "nearest_endpoint_input_row": 10638,
+      "phi_negative_endpoint_m": -0.01889003091351874,
+      "phi_positive_endpoint_m": 0.0021517617083078363,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            1832,
+            0.5
+          ],
+          [
+            1981,
+            0.5
+          ]
+        ],
+        [
+          [
+            10638,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        24720,
+        10638
+      ],
+      "t_from_negative_to_positive": 0.8977386695620305
+    },
+    {
+      "cut_output_row": 62240,
+      "cutpoint_coordinate_rounding_error_m": [
+        3.298567918808004e-09,
+        2.6200587255331698e-09,
+        1.8285245748095313e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.2213631458580494,
+        0.043957291170954704,
+        0.49084082804620266
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.026809720957936378,
+      "distance_from_positive_endpoint_m": 0.007950891473981075,
+      "f32_endpoint_distance_m": 0.00795089082909083,
+      "incident_bad_child_rows": [
+        121802
+      ],
+      "incident_foundation_parent_rows": [
+        67026
+      ],
+      "incident_stage_parent_rows": [
+        83178
+      ],
+      "nearest_endpoint_distance_m": 0.007950891473981075,
+      "nearest_endpoint_distance_over_ulp_norm": 129173.78361900515,
+      "nearest_endpoint_f32_ulp_norm_m": 6.155189738369847e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        3.725290298461914e-09
+      ],
+      "nearest_endpoint_input_row": 10809,
+      "phi_negative_endpoint_m": -0.004905067046889273,
+      "phi_positive_endpoint_m": 0.0014546833897900893,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2340,
+            0.5
+          ],
+          [
+            10809,
+            0.5
+          ]
+        ],
+        [
+          [
+            10809,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28060,
+        10809
+      ],
+      "t_from_negative_to_positive": 0.7712672212103926
+    },
+    {
+      "cut_output_row": 63366,
+      "cutpoint_coordinate_rounding_error_m": [
+        5.658887580750616e-09,
+        2.76234851659396e-08,
+        4.992517066426672e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.3797615170478821,
+        0.4634451773017645,
+        0.33504214882850647
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 3.741600168787703e-09,
+      "distance_from_positive_endpoint_m": 0.0017586234117899372,
+      "f32_endpoint_distance_m": 1.4901161193847656e-08,
+      "incident_bad_child_rows": [
+        224541
+      ],
+      "incident_foundation_parent_rows": [
+        32888
+      ],
+      "incident_stage_parent_rows": [
+        155726
+      ],
+      "nearest_endpoint_distance_m": 3.741600168787703e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.059183549913118375,
+      "nearest_endpoint_f32_ulp_norm_m": 6.322027276634104e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 27885,
+      "phi_negative_endpoint_m": -3.362542239304944e-09,
+      "phi_positive_endpoint_m": 0.0015804589594793732,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2300,
+            0.5
+          ],
+          [
+            2307,
+            0.5
+          ]
+        ],
+        [
+          [
+            11119,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        27885,
+        11119
+      ],
+      "t_from_negative_to_positive": 2.127568745180497e-06
+    },
+    {
+      "cut_output_row": 63448,
+      "cutpoint_coordinate_rounding_error_m": [
+        2.8860014378295773e-09,
+        1.235910263019946e-10,
+        7.843914406890917e-11
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.19367627799510956,
+        0.0020735133439302444,
+        0.02105584740638733
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 1.1094398585142267e-08,
+      "distance_from_positive_endpoint_m": 0.009186853066991546,
+      "f32_endpoint_distance_m": 1.666000468656264e-08,
+      "incident_bad_child_rows": [
+        19569,
+        121270
+      ],
+      "incident_foundation_parent_rows": [
+        25032,
+        25032
+      ],
+      "incident_stage_parent_rows": [
+        16767,
+        83002
+      ],
+      "nearest_endpoint_distance_m": 1.1094398585142267e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.18024462375193218,
+      "nearest_endpoint_f32_ulp_norm_m": 6.155189738369847e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        3.725290298461914e-09
+      ],
+      "nearest_endpoint_input_row": 28030,
+      "phi_negative_endpoint_m": -2.296179706782078e-09,
+      "phi_positive_endpoint_m": 0.001901379819548103,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2332,
+            0.5
+          ],
+          [
+            2337,
+            0.5
+          ]
+        ],
+        [
+          [
+            11156,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28030,
+        11156
+      ],
+      "t_from_negative_to_positive": 1.2076371644909045e-06
+    },
+    {
+      "cut_output_row": 64091,
+      "cutpoint_coordinate_rounding_error_m": [
+        3.2391261894915147e-10,
+        2.5866997543921855e-08,
+        5.330849650597713e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.010868703946471214,
+        0.43397620506584644,
+        0.35774726420640945
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 1.5469146245411674e-08,
+      "distance_from_positive_endpoint_m": 0.05037877662641837,
+      "f32_endpoint_distance_m": 6.143906154658885e-08,
+      "incident_bad_child_rows": [
+        80033,
+        131194,
+        131198,
+        224431,
+        224435
+      ],
+      "incident_foundation_parent_rows": [
+        33770,
+        33770,
+        33772,
+        33772,
+        33772
+      ],
+      "incident_stage_parent_rows": [
+        65787,
+        89890,
+        89891,
+        155651,
+        155652
+      ],
+      "nearest_endpoint_distance_m": 1.5469146245411674e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.22653566480573903,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17260,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 0.00731514674310967,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            11849,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        11849
+      ],
+      "t_from_negative_to_positive": 3.070567112795075e-07
+    },
+    {
+      "cut_output_row": 64419,
+      "cutpoint_coordinate_rounding_error_m": [
+        5.863175445153246e-09,
+        6.3625744672890505e-09,
+        9.87847366407113e-10
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.39347104355692863,
+        0.10674628615379333,
+        0.26517325825989246
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 7.248896506262091e-09,
+      "distance_from_positive_endpoint_m": 0.034780763159823466,
+      "f32_endpoint_distance_m": 3.725290298461914e-09,
+      "incident_bad_child_rows": [
+        19569,
+        121268,
+        121270
+      ],
+      "incident_foundation_parent_rows": [
+        25032,
+        880,
+        25032
+      ],
+      "incident_stage_parent_rows": [
+        16767,
+        83001,
+        83002
+      ],
+      "nearest_endpoint_distance_m": 7.248896506262091e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.11776885545987903,
+      "nearest_endpoint_f32_ulp_norm_m": 6.155189738369847e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        3.725290298461914e-09
+      ],
+      "nearest_endpoint_input_row": 28030,
+      "phi_negative_endpoint_m": -2.296179706782078e-09,
+      "phi_positive_endpoint_m": 0.011017246970924058,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2332,
+            0.5
+          ],
+          [
+            2337,
+            0.5
+          ]
+        ],
+        [
+          [
+            12007,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28030,
+        12007
+      ],
+      "t_from_negative_to_positive": 2.08416788161081e-07
+    },
+    {
+      "cut_output_row": 66109,
+      "cutpoint_coordinate_rounding_error_m": [
+        2.4601034820381784e-09,
+        1.184069875481697e-08,
+        2.476573474075039e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.3301895000040531,
+        0.19865396060049534,
+        0.1662000324577093
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.019834755238997366,
+      "distance_from_positive_endpoint_m": 0.011224744399881465,
+      "f32_endpoint_distance_m": 0.011224735911604772,
+      "incident_bad_child_rows": [
+        111975
+      ],
+      "incident_foundation_parent_rows": [
+        7713
+      ],
+      "incident_stage_parent_rows": [
+        79004
+      ],
+      "nearest_endpoint_distance_m": 0.011224744399881465,
+      "nearest_endpoint_distance_over_ulp_norm": 181368.4735935024,
+      "nearest_endpoint_f32_ulp_norm_m": 6.188917057900187e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        7.450580596923828e-09,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 13049,
+      "phi_negative_endpoint_m": -0.017814150059364823,
+      "phi_positive_endpoint_m": 0.01008125780772733,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            1981,
+            0.5
+          ],
+          [
+            10638,
+            0.5
+          ]
+        ],
+        [
+          [
+            13049,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        25560,
+        13049
+      ],
+      "t_from_negative_to_positive": 0.6386051117890248
+    },
+    {
+      "cut_output_row": 66111,
+      "cutpoint_coordinate_rounding_error_m": [
+        2.752216440859989e-09,
+        6.867699187118603e-09,
+        6.989757384001649e-11
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.3693962376564741,
+        0.11522087268531322,
+        0.0046907467767596245
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.01650283524010138,
+      "distance_from_positive_endpoint_m": 0.012012745134983217,
+      "f32_endpoint_distance_m": 0.01201273845621895,
+      "incident_bad_child_rows": [
+        122069
+      ],
+      "incident_foundation_parent_rows": [
+        66943
+      ],
+      "incident_stage_parent_rows": [
+        83252
+      ],
+      "nearest_endpoint_distance_m": 0.012012745134983217,
+      "nearest_endpoint_distance_over_ulp_norm": 194100.92303061136,
+      "nearest_endpoint_f32_ulp_norm_m": 6.188917057900187e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        7.450580596923828e-09,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 13049,
+      "phi_negative_endpoint_m": -0.013849402009655055,
+      "phi_positive_endpoint_m": 0.01008125780772733,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            1981,
+            0.5
+          ],
+          [
+            13049,
+            0.5
+          ]
+        ],
+        [
+          [
+            13049,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        25562,
+        13049
+      ],
+      "t_from_negative_to_positive": 0.5787304702562083
+    },
+    {
+      "cut_output_row": 66114,
+      "cutpoint_coordinate_rounding_error_m": [
+        3.579714802359746e-09,
+        2.28825632886398e-08,
+        2.0766181552112073e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.4804611876606941,
+        0.3839057069271803,
+        0.1393594853579998
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.017546416181599047,
+      "distance_from_positive_endpoint_m": 0.014907407489074567,
+      "f32_endpoint_distance_m": 0.01490738694875404,
+      "incident_bad_child_rows": [
+        122260
+      ],
+      "incident_foundation_parent_rows": [
+        66943
+      ],
+      "incident_stage_parent_rows": [
+        83315
+      ],
+      "nearest_endpoint_distance_m": 0.014907407489074567,
+      "nearest_endpoint_distance_over_ulp_norm": 240872.6332831554,
+      "nearest_endpoint_f32_ulp_norm_m": 6.188917057900187e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        7.450580596923828e-09,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 13049,
+      "phi_negative_endpoint_m": -0.011865909297644084,
+      "phi_positive_endpoint_m": 0.01008125780772733,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2345,
+            0.5
+          ],
+          [
+            13049,
+            0.5
+          ]
+        ],
+        [
+          [
+            13049,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28080,
+        13049
+      ],
+      "t_from_negative_to_positive": 0.5406579008887205
+    },
+    {
+      "cut_output_row": 66117,
+      "cutpoint_coordinate_rounding_error_m": [
+        3.6392588942391058e-09,
+        7.794936918159578e-09,
+        2.1374999409351503e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.48845306038856506,
+        0.13077734038233757,
+        0.14344519283622503
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.020262940028591834,
+      "distance_from_positive_endpoint_m": 0.011850038685982075,
+      "f32_endpoint_distance_m": 0.011850030817144799,
+      "incident_bad_child_rows": [
+        122247
+      ],
+      "incident_foundation_parent_rows": [
+        7713
+      ],
+      "incident_stage_parent_rows": [
+        83312
+      ],
+      "nearest_endpoint_distance_m": 0.011850038685982075,
+      "nearest_endpoint_distance_over_ulp_norm": 191471.92594632425,
+      "nearest_endpoint_f32_ulp_norm_m": 6.188917057900187e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        7.450580596923828e-09,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 13049,
+      "phi_negative_endpoint_m": -0.017238418184440094,
+      "phi_positive_endpoint_m": 0.01008125780772733,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2346,
+            0.5
+          ],
+          [
+            10638,
+            0.5
+          ]
+        ],
+        [
+          [
+            13049,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28086,
+        13049
+      ],
+      "t_from_negative_to_positive": 0.6309891152948652
+    },
+    {
+      "cut_output_row": 67354,
+      "cutpoint_coordinate_rounding_error_m": [
+        9.371228792964814e-10,
+        3.930372138860605e-09,
+        6.856213374817344e-10
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.03144462592899799,
+        0.06594070233404636,
+        0.046011269092559814
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 2.8026345695882078e-08,
+      "distance_from_positive_endpoint_m": 0.04936599396077402,
+      "f32_endpoint_distance_m": 6.143906154658885e-08,
+      "incident_bad_child_rows": [
+        25883,
+        131205,
+        187060,
+        187068
+      ],
+      "incident_foundation_parent_rows": [
+        32519,
+        32519,
+        35493,
+        35493
+      ],
+      "incident_stage_parent_rows": [
+        22593,
+        89895,
+        130320,
+        130325
+      ],
+      "nearest_endpoint_distance_m": 2.8026345695882078e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.4104277478257913,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17260,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 0.003956427226027052,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            13525,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        13525
+      ],
+      "t_from_negative_to_positive": 5.677254216740479e-07
+    },
+    {
+      "cut_output_row": 67378,
+      "cutpoint_coordinate_rounding_error_m": [
+        1.863515508571112e-09,
+        2.6586745138779122e-08,
+        2.7308700301098554e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.06252920441329479,
+        0.4460515659302473,
+        0.1832655854523182
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 1.4168777652884105e-08,
+      "distance_from_positive_endpoint_m": 0.04700531879288455,
+      "f32_endpoint_distance_m": 6.143906154658885e-08,
+      "incident_bad_child_rows": [
+        26973,
+        80032,
+        80033,
+        131192,
+        131194,
+        131213,
+        131217,
+        290999,
+        291006
+      ],
+      "incident_foundation_parent_rows": [
+        33770,
+        33770,
+        33770,
+        33770,
+        33770,
+        32519,
+        33770,
+        32519,
+        32519
+      ],
+      "incident_stage_parent_rows": [
+        23538,
+        65787,
+        65787,
+        89890,
+        89890,
+        89898,
+        89899,
+        209833,
+        209837
+      ],
+      "nearest_endpoint_distance_m": 1.4168777652884105e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.20749260587234042,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17260,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 0.0074517175843613415,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            13532,
+            1.0
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        13532
+      ],
+      "t_from_negative_to_positive": 3.0142915208308807e-07
+    },
+    {
+      "cut_output_row": 68314,
+      "cutpoint_coordinate_rounding_error_m": [
+        4.847621082326725e-09,
+        2.913270946702795e-08,
+        7.836184479081965e-10
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.1626591719686985,
+        0.4887657593935728,
+        0.05258774384856224
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": true,
+      "distance_from_negative_endpoint_m": 0.05577102771374042,
+      "distance_from_positive_endpoint_m": 2.799613825165591e-09,
+      "f32_endpoint_distance_m": 0.0,
+      "incident_bad_child_rows": [
+        28613,
+        28712,
+        79990,
+        79994,
+        129620
+      ],
+      "incident_foundation_parent_rows": [
+        35932,
+        36100,
+        35932,
+        36100,
+        35932
+      ],
+      "incident_stage_parent_rows": [
+        24836,
+        24908,
+        65771,
+        65772,
+        88809
+      ],
+      "nearest_endpoint_distance_m": 2.799613825165591e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.04099853792974126,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17259,
+      "phi_negative_endpoint_m": -0.031772710942115395,
+      "phi_positive_endpoint_m": 1.5949377946842673e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            684,
+            0.5
+          ]
+        ],
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2601,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17253,
+        17259
+      ],
+      "t_from_negative_to_positive": 0.9999999498016484
+    },
+    {
+      "cut_output_row": 68315,
+      "cutpoint_coordinate_rounding_error_m": [
+        7.62423785216626e-09,
+        2.1242468006832382e-08,
+        7.244748384538369e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.25582697056233883,
+        0.35638947412371635,
+        0.4861868340522051
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.05107361124362034,
+      "distance_from_positive_endpoint_m": 0.010035656093322309,
+      "f32_endpoint_distance_m": 0.010035657357013976,
+      "incident_bad_child_rows": [
+        79990,
+        129620
+      ],
+      "incident_foundation_parent_rows": [
+        35932,
+        35932
+      ],
+      "incident_stage_parent_rows": [
+        65771,
+        88809
+      ],
+      "nearest_endpoint_distance_m": 0.010035656093322309,
+      "nearest_endpoint_distance_over_ulp_norm": 146965.70766061905,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 29645,
+      "phi_negative_endpoint_m": -0.031772710942115395,
+      "phi_positive_endpoint_m": 0.006243145773394637,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            684,
+            0.5
+          ]
+        ],
+        [
+          [
+            2601,
+            0.5
+          ],
+          [
+            13525,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17253,
+        29645
+      ],
+      "t_from_negative_to_positive": 0.8357752182170998
+    },
+    {
+      "cut_output_row": 68318,
+      "cutpoint_coordinate_rounding_error_m": [
+        2.186538949899841e-09,
+        2.9773605247918056e-08,
+        2.6934087460350753e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.07336807250976562,
+        0.49951820634305477,
+        0.1807516012340784
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.07324639762915569,
+      "distance_from_positive_endpoint_m": 5.9131556557339355e-09,
+      "f32_endpoint_distance_m": 5.960464477539063e-08,
+      "incident_bad_child_rows": [
+        28098,
+        28712,
+        79986,
+        79994,
+        80006
+      ],
+      "incident_foundation_parent_rows": [
+        35398,
+        36100,
+        35398,
+        36100,
+        35398
+      ],
+      "incident_stage_parent_rows": [
+        24449,
+        24908,
+        65768,
+        65772,
+        65776
+      ],
+      "nearest_endpoint_distance_m": 5.9131556557339355e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.0865943489265819,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17259,
+      "phi_negative_endpoint_m": -0.01975653177983357,
+      "phi_positive_endpoint_m": 1.5949377946842673e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            734,
+            0.5
+          ]
+        ],
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2601,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17256,
+        17259
+      ],
+      "t_from_negative_to_positive": 0.9999999192703616
+    },
+    {
+      "cut_output_row": 68322,
+      "cutpoint_coordinate_rounding_error_m": [
+        1.438816449317315e-08,
+        2.6211121162411644e-08,
+        3.730091513443057e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.4827866870909929,
+        0.4397496413439512,
+        0.25032220408320427
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.00890725622620266,
+      "distance_from_positive_endpoint_m": 0.0063247873008994435,
+      "f32_endpoint_distance_m": 0.006324835274359285,
+      "incident_bad_child_rows": [
+        28098,
+        80006
+      ],
+      "incident_foundation_parent_rows": [
+        35398,
+        35398
+      ],
+      "incident_stage_parent_rows": [
+        24449,
+        65776
+      ],
+      "nearest_endpoint_distance_m": 0.0063247873008994435,
+      "nearest_endpoint_distance_over_ulp_norm": 92622.42875162765,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17259,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 1.5949377946842673e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2601,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        17259
+      ],
+      "t_from_negative_to_positive": 0.5847709278373707
+    },
+    {
+      "cut_output_row": 68323,
+      "cutpoint_coordinate_rounding_error_m": [
+        2.937483700726773e-09,
+        3.4433090823071666e-09,
+        2.168296875382225e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.09856559708714485,
+        0.05776914022862911,
+        0.1455119401216507
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 1.0223860171026099e-07,
+      "distance_from_positive_endpoint_m": 0.0040404053283219716,
+      "f32_endpoint_distance_m": 1.341104507446289e-07,
+      "incident_bad_child_rows": [
+        187058,
+        187060
+      ],
+      "incident_foundation_parent_rows": [
+        35493,
+        35493
+      ],
+      "incident_stage_parent_rows": [
+        130320,
+        130320
+      ],
+      "nearest_endpoint_distance_m": 1.0223860171026099e-07,
+      "nearest_endpoint_distance_over_ulp_norm": 1.497218349339277,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17260,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 8.876705345760381e-05,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            5905,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        17269
+      ],
+      "t_from_negative_to_positive": 2.530340556893627e-05
+    },
+    {
+      "cut_output_row": 68324,
+      "cutpoint_coordinate_rounding_error_m": [
+        1.7720340195204187e-09,
+        2.870863802240109e-08,
+        2.6683663056914497e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.05945959500968456,
+        0.4816510211676359,
+        0.17907103151082993
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 7.504106225920326e-09,
+      "distance_from_positive_endpoint_m": 0.03175926065242621,
+      "f32_endpoint_distance_m": 6.143906154658885e-08,
+      "incident_bad_child_rows": [
+        26973,
+        80032,
+        80033,
+        80036,
+        80038,
+        224430,
+        224431
+      ],
+      "incident_foundation_parent_rows": [
+        33770,
+        33770,
+        33770,
+        33772,
+        33772,
+        33772,
+        33772
+      ],
+      "incident_stage_parent_rows": [
+        23538,
+        65787,
+        65787,
+        65789,
+        65789,
+        155651,
+        155651
+      ],
+      "nearest_endpoint_distance_m": 7.504106225920326e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.10989279341553644,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17260,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 0.009506336415803205,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            11849,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        17277
+      ],
+      "t_from_negative_to_positive": 2.3628083011834516e-07
+    },
+    {
+      "cut_output_row": 68325,
+      "cutpoint_coordinate_rounding_error_m": [
+        8.090431824481215e-09,
+        2.4664680409181017e-08,
+        5.186719026495368e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.27146984450519085,
+        0.4138046707957983,
+        0.34807482175529003
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 5.650649865534211e-09,
+      "distance_from_positive_endpoint_m": 0.0012250783557705388,
+      "f32_endpoint_distance_m": 1.4901161193847656e-08,
+      "incident_bad_child_rows": [
+        131176,
+        131198,
+        131616,
+        131618,
+        224433,
+        224435
+      ],
+      "incident_foundation_parent_rows": [
+        35479,
+        33772,
+        35479,
+        35479,
+        33772,
+        33772
+      ],
+      "incident_stage_parent_rows": [
+        89875,
+        89891,
+        90152,
+        90152,
+        155652,
+        155652
+      ],
+      "nearest_endpoint_distance_m": 5.650649865534211e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.08275012101931202,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17260,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 0.000486975639777124,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            2642,
+            0.5
+          ],
+          [
+            9436,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        29977
+      ],
+      "t_from_negative_to_positive": 4.612459118318841e-06
+    },
+    {
+      "cut_output_row": 68326,
+      "cutpoint_coordinate_rounding_error_m": [
+        7.315539729546572e-09,
+        2.894280637377733e-08,
+        5.205497088933697e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.24546878039836884,
+        0.485579714179039,
+        0.3493349961936474
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 2.4077798429035684e-09,
+      "distance_from_positive_endpoint_m": 0.022935899907433832,
+      "f32_endpoint_distance_m": 6.143906154658885e-08,
+      "incident_bad_child_rows": [
+        79999,
+        131192,
+        131194,
+        131198,
+        131216,
+        131217
+      ],
+      "incident_foundation_parent_rows": [
+        33770,
+        33770,
+        33770,
+        33772,
+        33770,
+        33770
+      ],
+      "incident_stage_parent_rows": [
+        65774,
+        89890,
+        89890,
+        89891,
+        89899,
+        89899
+      ],
+      "nearest_endpoint_distance_m": 2.4077798429035684e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.03526038210284577,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17260,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 0.02139640349556622,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            2642,
+            0.5
+          ],
+          [
+            11849,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        29979
+      ],
+      "t_from_negative_to_positive": 1.0497864069081268e-07
+    },
+    {
+      "cut_output_row": 68327,
+      "cutpoint_coordinate_rounding_error_m": [
+        8.884749047588514e-09,
+        2.096429441156289e-08,
+        5.10076675341864e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.29812270775437355,
+        0.3517224956303835,
+        0.342306662350893
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 9.256846263761214e-09,
+      "distance_from_positive_endpoint_m": 0.025729093800155672,
+      "f32_endpoint_distance_m": 6.143906154658885e-08,
+      "incident_bad_child_rows": [
+        79997,
+        131203,
+        131205,
+        131207,
+        131211,
+        131213,
+        187067,
+        187068,
+        291005,
+        291006
+      ],
+      "incident_foundation_parent_rows": [
+        32519,
+        32519,
+        32519,
+        35493,
+        32519,
+        32519,
+        35493,
+        35493,
+        32519,
+        32519
+      ],
+      "incident_stage_parent_rows": [
+        65773,
+        89895,
+        89895,
+        89896,
+        89898,
+        89898,
+        130325,
+        130325,
+        209837,
+        209837
+      ],
+      "nearest_endpoint_distance_m": 9.256846263761214e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.13556054025849448,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17260,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 0.006243141932291257,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            2642,
+            0.5
+          ],
+          [
+            13525,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        29980
+      ],
+      "t_from_negative_to_positive": 3.5978114972691573e-07
+    },
+    {
+      "cut_output_row": 68328,
+      "cutpoint_coordinate_rounding_error_m": [
+        6.9308996319961125e-09,
+        2.8895518755511773e-08,
+        5.224528948355456e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.23256240040063858,
+        0.4847863595932722,
+        0.3506122026592493
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 2.4592004950274853e-09,
+      "distance_from_positive_endpoint_m": 0.019290807701832745,
+      "f32_endpoint_distance_m": 6.143906154658885e-08,
+      "incident_bad_child_rows": [
+        79997,
+        79999,
+        131211,
+        131213,
+        131216,
+        131217
+      ],
+      "incident_foundation_parent_rows": [
+        32519,
+        33770,
+        32519,
+        32519,
+        33770,
+        33770
+      ],
+      "incident_stage_parent_rows": [
+        65773,
+        65774,
+        89898,
+        89898,
+        89899,
+        89899
+      ],
+      "nearest_endpoint_distance_m": 2.4592004950274853e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.036013404372390305,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17260,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 0.017619689346202054,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            2642,
+            0.5
+          ],
+          [
+            13532,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        29981
+      ],
+      "t_from_negative_to_positive": 1.274804146633918e-07
+    },
+    {
+      "cut_output_row": 68329,
+      "cutpoint_coordinate_rounding_error_m": [
+        6.210472691670077e-10,
+        1.6389682944151218e-09,
+        5.6465360720459046e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.020838888362050056,
+        0.027497325092554092,
+        0.3789326213300228
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 3.222501919129991e-08,
+      "distance_from_positive_endpoint_m": 0.006986509545392439,
+      "f32_endpoint_distance_m": 1.4901161193847656e-08,
+      "incident_bad_child_rows": [
+        131176,
+        131616,
+        131618
+      ],
+      "incident_foundation_parent_rows": [
+        35479,
+        35479,
+        35479
+      ],
+      "incident_stage_parent_rows": [
+        89875,
+        90152,
+        90152
+      ],
+      "nearest_endpoint_distance_m": 3.222501919129991e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.47191461183865413,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17260,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 0.0004869774398549239,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            2668,
+            0.5
+          ],
+          [
+            9436,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        30111
+      ],
+      "t_from_negative_to_positive": 4.612442068767289e-06
+    },
+    {
+      "cut_output_row": 68330,
+      "cutpoint_coordinate_rounding_error_m": [
+        9.636990538908208e-09,
+        1.988304332289914e-08,
+        5.059655444616951e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.3233637437224388,
+        0.33358211256563663,
+        0.33954772911965847
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 1.0434989635052131e-08,
+      "distance_from_positive_endpoint_m": 0.029416098387246674,
+      "f32_endpoint_distance_m": 6.143906154658885e-08,
+      "incident_bad_child_rows": [
+        131207,
+        187058,
+        187060,
+        187067,
+        187068
+      ],
+      "incident_foundation_parent_rows": [
+        35493,
+        35493,
+        35493,
+        35493,
+        35493
+      ],
+      "incident_stage_parent_rows": [
+        89896,
+        130320,
+        130320,
+        130325,
+        130325
+      ],
+      "nearest_endpoint_distance_m": 1.0434989635052131e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.15281368969659134,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17260,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 0.006331911231914476,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            5905,
+            0.5
+          ],
+          [
+            13525,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        42199
+      ],
+      "t_from_negative_to_positive": 3.547372525243629e-07
+    },
+    {
+      "cut_output_row": 68331,
+      "cutpoint_coordinate_rounding_error_m": [
+        2.1812708306256923e-09,
+        2.902719986597191e-08,
+        2.879006727463107e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.07319130375981331,
+        0.48699560202658176,
+        0.19320687092840672
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 7.018954906595699e-09,
+      "distance_from_positive_endpoint_m": 0.03182828616882905,
+      "f32_endpoint_distance_m": 6.143906154658885e-08,
+      "incident_bad_child_rows": [
+        80036,
+        80038,
+        224430,
+        224431,
+        224433,
+        224435
+      ],
+      "incident_foundation_parent_rows": [
+        33772,
+        33772,
+        33772,
+        33772,
+        33772,
+        33772
+      ],
+      "incident_stage_parent_rows": [
+        65789,
+        65789,
+        155651,
+        155651,
+        155652,
+        155652
+      ],
+      "nearest_endpoint_distance_m": 7.018954906595699e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.10278806540333701,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17260,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 0.010185505108520936,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            9436,
+            0.5
+          ],
+          [
+            11849,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        49330
+      ],
+      "t_from_negative_to_positive": 2.2052564611841413e-07
+    },
+    {
+      "cut_output_row": 68332,
+      "cutpoint_coordinate_rounding_error_m": [
+        3.243095791916062e-10,
+        2.102765139788687e-08,
+        3.213220245434911e-10
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.010882023721933365,
+        0.35278544947505,
+        0.021563556045293808
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 1.3364315073710833e-08,
+      "distance_from_positive_endpoint_m": 0.04282756595756532,
+      "f32_endpoint_distance_m": 6.143906154658885e-08,
+      "incident_bad_child_rows": [
+        25883,
+        131203,
+        131205,
+        290999,
+        291005,
+        291006
+      ],
+      "incident_foundation_parent_rows": [
+        32519,
+        32519,
+        32519,
+        32519,
+        32519,
+        32519
+      ],
+      "incident_stage_parent_rows": [
+        22593,
+        89895,
+        89895,
+        209833,
+        209837,
+        209837
+      ],
+      "nearest_endpoint_distance_m": 1.3364315073710833e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.1957117705053976,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17260,
+      "phi_negative_endpoint_m": -2.2461655904361057e-09,
+      "phi_positive_endpoint_m": 0.007198109637018422,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2642,
+            0.5
+          ]
+        ],
+        [
+          [
+            13525,
+            0.5
+          ],
+          [
+            13532,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17260,
+        58397
+      ],
+      "t_from_negative_to_positive": 3.12049274433136e-07
+    },
+    {
+      "cut_output_row": 68333,
+      "cutpoint_coordinate_rounding_error_m": [
+        7.577654836943282e-09,
+        1.0203341505032881e-09,
+        7.00097838035596e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.25426390394568443,
+        0.017118366435170174,
+        0.4698277059942484
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 1.1222173560868361e-09,
+      "distance_from_positive_endpoint_m": 0.0012250828842030482,
+      "f32_endpoint_distance_m": 1.4901161193847656e-08,
+      "incident_bad_child_rows": [
+        131613,
+        131646,
+        131648
+      ],
+      "incident_foundation_parent_rows": [
+        35480,
+        35480,
+        35480
+      ],
+      "incident_stage_parent_rows": [
+        90150,
+        90172,
+        90172
+      ],
+      "nearest_endpoint_distance_m": 1.1222173560868361e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.016434149033472057,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17261,
+      "phi_negative_endpoint_m": -4.4608779020302077e-10,
+      "phi_positive_endpoint_m": 0.0004869774398549239,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2668,
+            0.5
+          ]
+        ],
+        [
+          [
+            2668,
+            0.5
+          ],
+          [
+            9436,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17261,
+        30111
+      ],
+      "t_from_negative_to_positive": 9.160329515568528e-07
+    },
+    {
+      "cut_output_row": 68334,
+      "cutpoint_coordinate_rounding_error_m": [
+        6.030864085904142e-09,
+        6.4673995048281085e-09,
+        7.0961991838203176e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.20236221887171268,
+        0.10850495845079422,
+        0.4762178659439087
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 6.630870041907473e-09,
+      "distance_from_positive_endpoint_m": 0.007238647557019164,
+      "f32_endpoint_distance_m": 1.4901161193847656e-08,
+      "incident_bad_child_rows": [
+        131613,
+        131646,
+        131648
+      ],
+      "incident_foundation_parent_rows": [
+        35480,
+        35480,
+        35480
+      ],
+      "incident_stage_parent_rows": [
+        90150,
+        90172,
+        90172
+      ],
+      "nearest_endpoint_distance_m": 6.630870041907473e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.0971048129840725,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17261,
+      "phi_negative_endpoint_m": -4.4608779020302077e-10,
+      "phi_positive_endpoint_m": 0.00048697566059717587,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2668,
+            0.5
+          ]
+        ],
+        [
+          [
+            2669,
+            0.5
+          ],
+          [
+            9436,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17261,
+        30116
+      ],
+      "t_from_negative_to_positive": 9.16036298453557e-07
+    },
+    {
+      "cut_output_row": 68335,
+      "cutpoint_coordinate_rounding_error_m": [
+        8.084500957572516e-09,
+        5.090020516185234e-09,
+        5.207703074328052e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.27127083763480186,
+        0.08539637364447117,
+        0.3494830373674631
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 5.598273257013891e-09,
+      "distance_from_positive_endpoint_m": 0.0012250784081471473,
+      "f32_endpoint_distance_m": 1.4901161193847656e-08,
+      "incident_bad_child_rows": [
+        131636,
+        131642
+      ],
+      "incident_foundation_parent_rows": [
+        35383,
+        35480
+      ],
+      "incident_stage_parent_rows": [
+        90169,
+        90170
+      ],
+      "nearest_endpoint_distance_m": 5.598273257013891e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.08198309938520343,
+      "nearest_endpoint_f32_ulp_norm_m": 6.828569911354542e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        2.9802322387695312e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 17262,
+      "phi_negative_endpoint_m": -2.2253455635615697e-09,
+      "phi_positive_endpoint_m": 0.00048697566059717587,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            630,
+            0.5
+          ],
+          [
+            2669,
+            0.5
+          ]
+        ],
+        [
+          [
+            2669,
+            0.5
+          ],
+          [
+            9436,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17262,
+        30116
+      ],
+      "t_from_negative_to_positive": 4.5697055817093785e-06
+    },
+    {
+      "cut_output_row": 68406,
+      "cutpoint_coordinate_rounding_error_m": [
+        1.1571045510638811e-09,
+        9.525021882339502e-10,
+        1.5857182233958156e-10
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.07765197195112705,
+        0.01598033495247364,
+        0.01064157485961914
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": true,
+      "distance_from_negative_endpoint_m": 0.023803663059177017,
+      "distance_from_positive_endpoint_m": 1.507082075908046e-09,
+      "f32_endpoint_distance_m": 0.0,
+      "incident_bad_child_rows": [
+        80446,
+        80462,
+        120986,
+        120989
+      ],
+      "incident_foundation_parent_rows": [
+        32882,
+        32882,
+        32882,
+        32882
+      ],
+      "incident_stage_parent_rows": [
+        65979,
+        65985,
+        82890,
+        82891
+      ],
+      "nearest_endpoint_distance_m": 1.507082075908046e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.02383858863561291,
+      "nearest_endpoint_f32_ulp_norm_m": 6.322027276634104e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 28000,
+      "phi_negative_endpoint_m": -0.011046879539292436,
+      "phi_positive_endpoint_m": 6.99411435001549e-10,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            651,
+            0.5
+          ],
+          [
+            729,
+            0.5
+          ]
+        ],
+        [
+          [
+            2321,
+            0.5
+          ],
+          [
+            2327,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17496,
+        28000
+      ],
+      "t_from_negative_to_positive": 0.9999999366869723
+    },
+    {
+      "cut_output_row": 68410,
+      "cutpoint_coordinate_rounding_error_m": [
+        3.966568073998644e-09,
+        3.2369830149647782e-09,
+        7.657267597771522e-10
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.26619187742471695,
+        0.05430756323039532,
+        0.05138705298304558
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.027736592019050828,
+      "distance_from_positive_endpoint_m": 4.816922229983455e-09,
+      "f32_endpoint_distance_m": 1.4901161193847656e-08,
+      "incident_bad_child_rows": [
+        80468,
+        120975
+      ],
+      "incident_foundation_parent_rows": [
+        36553,
+        36553
+      ],
+      "incident_stage_parent_rows": [
+        65987,
+        82884
+      ],
+      "nearest_endpoint_distance_m": 4.816922229983455e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.07619268344169533,
+      "nearest_endpoint_f32_ulp_norm_m": 6.322027276634104e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 27999,
+      "phi_negative_endpoint_m": -0.01695928440124177,
+      "phi_positive_endpoint_m": 2.945262845733785e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            651,
+            0.5
+          ],
+          [
+            2318,
+            0.5
+          ]
+        ],
+        [
+          [
+            2321,
+            0.5
+          ],
+          [
+            2326,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17498,
+        27999
+      ],
+      "t_from_negative_to_positive": 0.9999998263333367
+    },
+    {
+      "cut_output_row": 68412,
+      "cutpoint_coordinate_rounding_error_m": [
+        4.511168605336735e-09,
+        3.5006666454506785e-09,
+        1.7066071333893262e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.3027394004166126,
+        0.05873144045472145,
+        0.11452846601605415
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.02721920610828276,
+      "distance_from_positive_endpoint_m": 4.879274303274232e-09,
+      "f32_endpoint_distance_m": 1.4901161193847656e-08,
+      "incident_bad_child_rows": [
+        80468,
+        120975
+      ],
+      "incident_foundation_parent_rows": [
+        36553,
+        36553
+      ],
+      "incident_stage_parent_rows": [
+        65987,
+        82884
+      ],
+      "nearest_endpoint_distance_m": 4.879274303274232e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.07717895051335488,
+      "nearest_endpoint_f32_ulp_norm_m": 6.322027276634104e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 27999,
+      "phi_negative_endpoint_m": -0.016430254021798422,
+      "phi_positive_endpoint_m": 2.945262845733785e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            651,
+            0.5
+          ],
+          [
+            2321,
+            0.5
+          ]
+        ],
+        [
+          [
+            2321,
+            0.5
+          ],
+          [
+            2326,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17500,
+        27999
+      ],
+      "t_from_negative_to_positive": 0.9999998207415227
+    },
+    {
+      "cut_output_row": 68413,
+      "cutpoint_coordinate_rounding_error_m": [
+        7.426012027522688e-10,
+        2.605546889355992e-10,
+        4.1482151047489424e-11
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.049835123121738434,
+        0.004371382296085358,
+        0.0027838200330734253
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": true,
+      "distance_from_negative_endpoint_m": 0.01851315501776655,
+      "distance_from_positive_endpoint_m": 7.88077446137732e-10,
+      "f32_endpoint_distance_m": 0.0,
+      "incident_bad_child_rows": [
+        80462,
+        80465,
+        120989,
+        120991
+      ],
+      "incident_foundation_parent_rows": [
+        32882,
+        32906,
+        32882,
+        32906
+      ],
+      "incident_stage_parent_rows": [
+        65985,
+        65986,
+        82891,
+        82892
+      ],
+      "nearest_endpoint_distance_m": 7.88077446137732e-10,
+      "nearest_endpoint_distance_over_ulp_norm": 0.012465581239271566,
+      "nearest_endpoint_f32_ulp_norm_m": 6.322027276634104e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 28000,
+      "phi_negative_endpoint_m": -0.016430254021798422,
+      "phi_positive_endpoint_m": 6.99411435001549e-10,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            651,
+            0.5
+          ],
+          [
+            2321,
+            0.5
+          ]
+        ],
+        [
+          [
+            2321,
+            0.5
+          ],
+          [
+            2327,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17500,
+        28000
+      ],
+      "t_from_negative_to_positive": 0.9999999574314917
+    },
+    {
+      "cut_output_row": 68415,
+      "cutpoint_coordinate_rounding_error_m": [
+        1.7853541700585396e-09,
+        2.6898121507912265e-08,
+        1.3257882708339608e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.1198130901902914,
+        0.4512755945324898,
+        0.17794428952038288
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.027915036168452343,
+      "distance_from_positive_endpoint_m": 9.974692163203682e-09,
+      "f32_endpoint_distance_m": 6.006850114687196e-08,
+      "incident_bad_child_rows": [
+        80539
+      ],
+      "incident_foundation_parent_rows": [
+        24069
+      ],
+      "incident_stage_parent_rows": [
+        66016
+      ],
+      "nearest_endpoint_distance_m": 9.974692163203682e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.16117023495202498,
+      "nearest_endpoint_f32_ulp_norm_m": 6.188917057900187e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        7.450580596923828e-09
+      ],
+      "nearest_endpoint_input_row": 17532,
+      "phi_negative_endpoint_m": -0.022681963600785393,
+      "phi_positive_endpoint_m": 8.104793538926163e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            654,
+            0.5
+          ],
+          [
+            751,
+            0.5
+          ]
+        ],
+        [
+          [
+            654,
+            0.5
+          ],
+          [
+            2312,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17526,
+        17532
+      ],
+      "t_from_negative_to_positive": 0.9999996426768518
+    },
+    {
+      "cut_output_row": 68416,
+      "cutpoint_coordinate_rounding_error_m": [
+        1.4484118626700848e-09,
+        2.5873863940262254e-08,
+        2.890004513478317e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.0972012747079134,
+        0.43409140408039093,
+        0.3878898397088051
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": true,
+      "distance_from_negative_endpoint_m": 0.0319122033413043,
+      "distance_from_positive_endpoint_m": 9.763327041112223e-09,
+      "f32_endpoint_distance_m": 0.0,
+      "incident_bad_child_rows": [
+        25875,
+        26842,
+        80527,
+        80531,
+        80542,
+        120501
+      ],
+      "incident_foundation_parent_rows": [
+        32510,
+        33625,
+        32510,
+        33625,
+        32510,
+        32510
+      ],
+      "incident_stage_parent_rows": [
+        22590,
+        23455,
+        66009,
+        66012,
+        66017,
+        82727
+      ],
+      "nearest_endpoint_distance_m": 9.763327041112223e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.15775501513062423,
+      "nearest_endpoint_f32_ulp_norm_m": 6.188917057900187e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        7.450580596923828e-09
+      ],
+      "nearest_endpoint_input_row": 17532,
+      "phi_negative_endpoint_m": -0.026491155998592145,
+      "phi_positive_endpoint_m": 8.104793538926163e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            654,
+            0.5
+          ],
+          [
+            764,
+            0.5
+          ]
+        ],
+        [
+          [
+            654,
+            0.5
+          ],
+          [
+            2312,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17527,
+        17532
+      ],
+      "t_from_negative_to_positive": 0.9999996940567236
+    },
+    {
+      "cut_output_row": 68422,
+      "cutpoint_coordinate_rounding_error_m": [
+        8.406328133592211e-10,
+        2.899901152542128e-08,
+        1.304968133553075e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.056413913145661354,
+        0.4865226801484823,
+        0.1751498579978943
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.024953883539499927,
+      "distance_from_positive_endpoint_m": 8.674530969352403e-09,
+      "f32_endpoint_distance_m": 7.450580596923828e-09,
+      "incident_bad_child_rows": [
+        25875,
+        80539,
+        80542
+      ],
+      "incident_foundation_parent_rows": [
+        32510,
+        24069,
+        32510
+      ],
+      "incident_stage_parent_rows": [
+        22590,
+        66016,
+        66017
+      ],
+      "nearest_endpoint_distance_m": 8.674530969352403e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.1401623400054993,
+      "nearest_endpoint_f32_ulp_norm_m": 6.188917057900187e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        7.450580596923828e-09
+      ],
+      "nearest_endpoint_input_row": 17532,
+      "phi_negative_endpoint_m": -0.023314929072932717,
+      "phi_positive_endpoint_m": 8.104793538926163e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            654,
+            0.5
+          ],
+          [
+            2975,
+            0.5
+          ]
+        ],
+        [
+          [
+            654,
+            0.5
+          ],
+          [
+            2312,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        17534,
+        17532
+      ],
+      "t_from_negative_to_positive": 0.9999996523776377
+    },
+    {
+      "cut_output_row": 68423,
+      "cutpoint_coordinate_rounding_error_m": [
+        5.961052484959595e-10,
+        2.427891554468431e-08,
+        1.4362366157483208e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.04000394605100155,
+        0.4073326103389263,
+        0.19276841543614864
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.03045736040726212,
+      "distance_from_positive_endpoint_m": 1.0204568366263355e-08,
+      "f32_endpoint_distance_m": 7.450580596923828e-09,
+      "incident_bad_child_rows": [
+        80527,
+        120501
+      ],
+      "incident_foundation_parent_rows": [
+        32510,
+        32510
+      ],
+      "incident_stage_parent_rows": [
+        66009,
+        82727
+      ],
+      "nearest_endpoint_distance_m": 1.0204568366263355e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.16488455525893933,
+      "nearest_endpoint_f32_ulp_norm_m": 6.188917057900187e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        7.450580596923828e-09
+      ],
+      "nearest_endpoint_input_row": 17532,
+      "phi_negative_endpoint_m": -0.024190206673872755,
+      "phi_positive_endpoint_m": 8.104793538926163e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2312,
+            0.5
+          ],
+          [
+            2975,
+            0.5
+          ]
+        ],
+        [
+          [
+            654,
+            0.5
+          ],
+          [
+            2312,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        27959,
+        17532
+      ],
+      "t_from_negative_to_positive": 0.9999996649557016
+    },
+    {
+      "cut_output_row": 68733,
+      "cutpoint_coordinate_rounding_error_m": [
+        5.726838253616862e-09,
+        1.7326203805012597e-09,
+        1.8156805919877783e-10
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.3843216095119715,
+        0.02906854636967182,
+        0.04873930476605892
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 3.1862311106629276e-09,
+      "distance_from_positive_endpoint_m": 0.0012259953420481206,
+      "f32_endpoint_distance_m": 3.725290298461914e-09,
+      "incident_bad_child_rows": [
+        121290
+      ],
+      "incident_foundation_parent_rows": [
+        3859
+      ],
+      "incident_stage_parent_rows": [
+        83009
+      ],
+      "nearest_endpoint_distance_m": 3.1862311106629276e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.05176495357731695,
+      "nearest_endpoint_f32_ulp_norm_m": 6.155189738369847e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        3.725290298461914e-09
+      ],
+      "nearest_endpoint_input_row": 19164,
+      "phi_negative_endpoint_m": -2.841344343757471e-09,
+      "phi_positive_endpoint_m": 0.0010932901015437244,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            790,
+            0.5
+          ],
+          [
+            2332,
+            0.5
+          ]
+        ],
+        [
+          [
+            2332,
+            0.5
+          ],
+          [
+            9596,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        19164,
+        28031
+      ],
+      "t_from_negative_to_positive": 2.598886567630913e-06
+    },
+    {
+      "cut_output_row": 70215,
+      "cutpoint_coordinate_rounding_error_m": [
+        3.5005085774475475e-09,
+        6.250510997674041e-09,
+        5.433326566439689e-10
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.23491515405476093,
+        0.10486617311835289,
+        0.07292487472295761
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.02656018967581392,
+      "distance_from_positive_endpoint_m": 8.049646645997399e-09,
+      "f32_endpoint_distance_m": 1.666000468656264e-08,
+      "incident_bad_child_rows": [
+        108795,
+        111934,
+        111948,
+        111949,
+        122212,
+        122214
+      ],
+      "incident_foundation_parent_rows": [
+        66938,
+        66938,
+        66938,
+        66938,
+        66938,
+        66938
+      ],
+      "incident_stage_parent_rows": [
+        77688,
+        78995,
+        78999,
+        78999,
+        83293,
+        83293
+      ],
+      "nearest_endpoint_distance_m": 8.049646645997399e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.13006551179615472,
+      "nearest_endpoint_f32_ulp_norm_m": 6.188917057900187e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        7.450580596923828e-09
+      ],
+      "nearest_endpoint_input_row": 25559,
+      "phi_negative_endpoint_m": -0.01889003091351874,
+      "phi_positive_endpoint_m": 5.72503716941978e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            1832,
+            0.5
+          ],
+          [
+            1981,
+            0.5
+          ]
+        ],
+        [
+          [
+            1981,
+            0.5
+          ],
+          [
+            2346,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        24720,
+        25559
+      ],
+      "t_from_negative_to_positive": 0.9999996969282124
+    },
+    {
+      "cut_output_row": 70422,
+      "cutpoint_coordinate_rounding_error_m": [
+        2.9205907692286814e-09,
+        6.530679774741088e-09,
+        1.803138610645405e-10
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.19599752873182297,
+        0.10956662520766258,
+        0.024201316758990288
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.027079592040866865,
+      "distance_from_positive_endpoint_m": 8.702726245317405e-09,
+      "f32_endpoint_distance_m": 1.666000468656264e-08,
+      "incident_bad_child_rows": [
+        6294,
+        108795,
+        111948,
+        111949,
+        111974,
+        111975
+      ],
+      "incident_foundation_parent_rows": [
+        7713,
+        66938,
+        66938,
+        66938,
+        7713,
+        7713
+      ],
+      "incident_stage_parent_rows": [
+        5404,
+        77688,
+        78999,
+        78999,
+        79004,
+        79004
+      ],
+      "nearest_endpoint_distance_m": 8.702726245317405e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.1406179168972434,
+      "nearest_endpoint_f32_ulp_norm_m": 6.188917057900187e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        7.450580596923828e-09
+      ],
+      "nearest_endpoint_input_row": 25559,
+      "phi_negative_endpoint_m": -0.017814150059364823,
+      "phi_positive_endpoint_m": 5.72503716941978e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            1981,
+            0.5
+          ],
+          [
+            10638,
+            0.5
+          ]
+        ],
+        [
+          [
+            1981,
+            0.5
+          ],
+          [
+            2346,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        25560,
+        25559
+      ],
+      "t_from_negative_to_positive": 0.9999996786242784
+    },
+    {
+      "cut_output_row": 70423,
+      "cutpoint_coordinate_rounding_error_m": [
+        5.6926408031898745e-12,
+        7.937172141758708e-09,
+        1.6457671891956238e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.00038202665746212006,
+        0.13316365145146847,
+        0.22089113295078278
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.029357207725065598,
+      "distance_from_positive_endpoint_m": 1.2135621814428082e-08,
+      "f32_endpoint_distance_m": 1.666000468656264e-08,
+      "incident_bad_child_rows": [
+        6294,
+        111974,
+        111975,
+        111979,
+        122068,
+        122069
+      ],
+      "incident_foundation_parent_rows": [
+        7713,
+        7713,
+        7713,
+        66943,
+        66943,
+        66943
+      ],
+      "incident_stage_parent_rows": [
+        5404,
+        79004,
+        79004,
+        79005,
+        83252,
+        83252
+      ],
+      "nearest_endpoint_distance_m": 1.2135621814428082e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.1960863540566745,
+      "nearest_endpoint_f32_ulp_norm_m": 6.188917057900187e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        7.450580596923828e-09
+      ],
+      "nearest_endpoint_input_row": 25559,
+      "phi_negative_endpoint_m": -0.013849402009655055,
+      "phi_positive_endpoint_m": 5.72503716941978e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            1981,
+            0.5
+          ],
+          [
+            13049,
+            0.5
+          ]
+        ],
+        [
+          [
+            1981,
+            0.5
+          ],
+          [
+            2346,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        25562,
+        25559
+      ],
+      "t_from_negative_to_positive": 0.9999995866222383
+    },
+    {
+      "cut_output_row": 70424,
+      "cutpoint_coordinate_rounding_error_m": [
+        3.221248101592522e-09,
+        5.54645007699861e-09,
+        1.0265843453094448e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.21617430076003075,
+        0.09305399097502232,
+        0.13778581842780113
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.026802886045064714,
+      "distance_from_positive_endpoint_m": 1.2931796041433388e-08,
+      "f32_endpoint_distance_m": 1.666000468656264e-08,
+      "incident_bad_child_rows": [
+        111979,
+        122064,
+        122068,
+        122069,
+        122259,
+        122260
+      ],
+      "incident_foundation_parent_rows": [
+        66943,
+        66943,
+        66943,
+        66943,
+        66943,
+        66943
+      ],
+      "incident_stage_parent_rows": [
+        79005,
+        83251,
+        83252,
+        83252,
+        83315,
+        83315
+      ],
+      "nearest_endpoint_distance_m": 1.2931796041433388e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.20895087008680913,
+      "nearest_endpoint_f32_ulp_norm_m": 6.188917057900187e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        7.450580596923828e-09
+      ],
+      "nearest_endpoint_input_row": 25559,
+      "phi_negative_endpoint_m": -0.011865909297644084,
+      "phi_positive_endpoint_m": 5.72503716941978e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2345,
+            0.5
+          ],
+          [
+            13049,
+            0.5
+          ]
+        ],
+        [
+          [
+            1981,
+            0.5
+          ],
+          [
+            2346,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28080,
+        25559
+      ],
+      "t_from_negative_to_positive": 0.9999995175224871
+    },
+    {
+      "cut_output_row": 70425,
+      "cutpoint_coordinate_rounding_error_m": [
+        1.935068882907842e-09,
+        6.838365984584982e-09,
+        3.1844854669893508e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.1298602744936943,
+        0.11472874321043491,
+        0.42741440422832966
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.02650356818096105,
+      "distance_from_positive_endpoint_m": 8.802078656335705e-09,
+      "f32_endpoint_distance_m": 1.666000468656264e-08,
+      "incident_bad_child_rows": [
+        111926,
+        111934,
+        122206,
+        122212,
+        122214,
+        122245,
+        122247
+      ],
+      "incident_foundation_parent_rows": [
+        7713,
+        66938,
+        7713,
+        66938,
+        66938,
+        7713,
+        7713
+      ],
+      "incident_stage_parent_rows": [
+        78990,
+        78995,
+        83292,
+        83293,
+        83293,
+        83312,
+        83312
+      ],
+      "nearest_endpoint_distance_m": 8.802078656335705e-09,
+      "nearest_endpoint_distance_over_ulp_norm": 0.14222324477753023,
+      "nearest_endpoint_f32_ulp_norm_m": 6.188917057900187e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        7.450580596923828e-09
+      ],
+      "nearest_endpoint_input_row": 25559,
+      "phi_negative_endpoint_m": -0.017238418184440094,
+      "phi_positive_endpoint_m": 5.72503716941978e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2346,
+            0.5
+          ],
+          [
+            10638,
+            0.5
+          ]
+        ],
+        [
+          [
+            1981,
+            0.5
+          ],
+          [
+            2346,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28086,
+        25559
+      ],
+      "t_from_negative_to_positive": 0.9999996678909163
+    },
+    {
+      "cut_output_row": 70426,
+      "cutpoint_coordinate_rounding_error_m": [
+        1.4257074965051686e-09,
+        8.421561892291152e-09,
+        2.172135374345352e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.09567761048674583,
+        0.1412903629243374,
+        0.29153907485306263
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.028515568041249623,
+      "distance_from_positive_endpoint_m": 1.2333834977068057e-08,
+      "f32_endpoint_distance_m": 1.666000468656264e-08,
+      "incident_bad_child_rows": [
+        111926,
+        122064,
+        122245,
+        122247,
+        122259,
+        122260
+      ],
+      "incident_foundation_parent_rows": [
+        7713,
+        66943,
+        7713,
+        7713,
+        66943,
+        66943
+      ],
+      "incident_stage_parent_rows": [
+        78990,
+        83251,
+        83312,
+        83312,
+        83315,
+        83315
+      ],
+      "nearest_endpoint_distance_m": 1.2333834977068057e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.19928906562617202,
+      "nearest_endpoint_f32_ulp_norm_m": 6.188917057900187e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        7.450580596923828e-09
+      ],
+      "nearest_endpoint_input_row": 25559,
+      "phi_negative_endpoint_m": -0.013236165972183734,
+      "phi_positive_endpoint_m": 5.72503716941978e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2346,
+            0.5
+          ],
+          [
+            13049,
+            0.5
+          ]
+        ],
+        [
+          [
+            1981,
+            0.5
+          ],
+          [
+            2346,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28090,
+        25559
+      ],
+      "t_from_negative_to_positive": 0.9999995674703154
+    },
+    {
+      "cut_output_row": 71111,
+      "cutpoint_coordinate_rounding_error_m": [
+        1.6699003291265058e-09,
+        5.369299005408834e-09,
+        6.190804924255389e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.11206511408090591,
+        0.09008188918232918,
+        0.4154578857123852
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 3.0681129124028745e-08,
+      "distance_from_positive_endpoint_m": 0.007220044989325,
+      "f32_endpoint_distance_m": 6.828569911354542e-08,
+      "incident_bad_child_rows": [
+        120106,
+        120108,
+        224540,
+        224541
+      ],
+      "incident_foundation_parent_rows": [
+        32888,
+        32888,
+        32888,
+        32888
+      ],
+      "incident_stage_parent_rows": [
+        82516,
+        82516,
+        155726,
+        155726
+      ],
+      "nearest_endpoint_distance_m": 3.0681129124028745e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.4853052317161721,
+      "nearest_endpoint_f32_ulp_norm_m": 6.322027276634104e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 27885,
+      "phi_negative_endpoint_m": -3.362542239304944e-09,
+      "phi_positive_endpoint_m": 0.0007912911597199503,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2300,
+            0.5
+          ],
+          [
+            2307,
+            0.5
+          ]
+        ],
+        [
+          [
+            2300,
+            0.5
+          ],
+          [
+            9458,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        27885,
+        27890
+      ],
+      "t_from_negative_to_positive": 4.249419330860464e-06
+    },
+    {
+      "cut_output_row": 71114,
+      "cutpoint_coordinate_rounding_error_m": [
+        1.8839060311748312e-09,
+        1.9334040479712655e-08,
+        1.8711083238365234e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.1264267936348915,
+        0.32437137328088284,
+        0.1255679540336132
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 1.508199841404912e-08,
+      "distance_from_positive_endpoint_m": 0.007093594650484376,
+      "f32_endpoint_distance_m": 6.322027276634104e-08,
+      "incident_bad_child_rows": [
+        120043,
+        120106,
+        120108,
+        224540,
+        224541
+      ],
+      "incident_foundation_parent_rows": [
+        32888,
+        32888,
+        32888,
+        32888,
+        32888
+      ],
+      "incident_stage_parent_rows": [
+        82493,
+        82516,
+        82516,
+        155726,
+        155726
+      ],
+      "nearest_endpoint_distance_m": 1.508199841404912e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.23856269127138108,
+      "nearest_endpoint_f32_ulp_norm_m": 6.322027276634104e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 27885,
+      "phi_negative_endpoint_m": -3.362542239304944e-09,
+      "phi_positive_endpoint_m": 0.0015815219542603342,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2300,
+            0.5
+          ],
+          [
+            2307,
+            0.5
+          ]
+        ],
+        [
+          [
+            9458,
+            0.5
+          ],
+          [
+            11119,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        27885,
+        49346
+      ],
+      "t_from_negative_to_positive": 2.126138736813342e-06
+    },
+    {
+      "cut_output_row": 71137,
+      "cutpoint_coordinate_rounding_error_m": [
+        4.856585633650212e-09,
+        2.438277091343366e-08,
+        6.763998278147554e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.3259199447929859,
+        0.4090750142931938,
+        0.45392424054443836
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.00799432341060127,
+      "distance_from_positive_endpoint_m": 7.83301563675599e-08,
+      "f32_endpoint_distance_m": 9.657056180250437e-08,
+      "incident_bad_child_rows": [
+        121064,
+        121089
+      ],
+      "incident_foundation_parent_rows": [
+        32269,
+        32269
+      ],
+      "incident_stage_parent_rows": [
+        82943,
+        82951
+      ],
+      "nearest_endpoint_distance_m": 7.83301563675599e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 1.2390037711014665,
+      "nearest_endpoint_f32_ulp_norm_m": 6.322027276634104e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 27999,
+      "phi_negative_endpoint_m": -0.0003005915577884496,
+      "phi_positive_endpoint_m": 2.945262845733785e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2326,
+            0.5
+          ],
+          [
+            2327,
+            0.5
+          ]
+        ],
+        [
+          [
+            2321,
+            0.5
+          ],
+          [
+            2326,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28014,
+        27999
+      ],
+      "t_from_negative_to_positive": 0.9999902018739004
+    },
+    {
+      "cut_output_row": 71138,
+      "cutpoint_coordinate_rounding_error_m": [
+        4.489939670060394e-09,
+        2.665199594353851e-08,
+        1.0321225263343337e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.3013147506862879,
+        0.44714629277586937,
+        0.06926457025110722
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.011397937565824811,
+      "distance_from_positive_endpoint_m": 1.1167939070841184e-07,
+      "f32_endpoint_distance_m": 1.210576058124894e-07,
+      "incident_bad_child_rows": [
+        120978,
+        121064,
+        121089
+      ],
+      "incident_foundation_parent_rows": [
+        32269,
+        32269,
+        32269
+      ],
+      "incident_stage_parent_rows": [
+        82886,
+        82943,
+        82951
+      ],
+      "nearest_endpoint_distance_m": 1.1167939070841184e-07,
+      "nearest_endpoint_distance_over_ulp_norm": 1.766512319887851,
+      "nearest_endpoint_f32_ulp_norm_m": 6.322027276634104e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 27999,
+      "phi_negative_endpoint_m": -0.00030059191602758984,
+      "phi_positive_endpoint_m": 2.945262845733785e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2327,
+            0.5
+          ],
+          [
+            2947,
+            0.5
+          ]
+        ],
+        [
+          [
+            2321,
+            0.5
+          ],
+          [
+            2326,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28016,
+        27999
+      ],
+      "t_from_negative_to_positive": 0.9999902018855775
+    },
+    {
+      "cut_output_row": 71139,
+      "cutpoint_coordinate_rounding_error_m": [
+        3.937468823211887e-09,
+        2.0582463289287034e-08,
+        4.640765938201952e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.2642390597611666,
+        0.34531643241643906,
+        0.3114365302026272
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.016973640166170225,
+      "distance_from_positive_endpoint_m": 3.949393646069415e-08,
+      "f32_endpoint_distance_m": 5.960464477539063e-08,
+      "incident_bad_child_rows": [
+        120978,
+        120979,
+        121086
+      ],
+      "incident_foundation_parent_rows": [
+        32269,
+        32269,
+        32323
+      ],
+      "incident_stage_parent_rows": [
+        82886,
+        82886,
+        82950
+      ],
+      "nearest_endpoint_distance_m": 3.949393646069415e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.6247036707143254,
+      "nearest_endpoint_f32_ulp_norm_m": 6.322027276634104e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        1.4901161193847656e-08
+      ],
+      "nearest_endpoint_input_row": 28000,
+      "phi_negative_endpoint_m": -0.00030059191602758984,
+      "phi_positive_endpoint_m": 6.99411435001549e-10,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2327,
+            0.5
+          ],
+          [
+            2947,
+            0.5
+          ]
+        ],
+        [
+          [
+            2321,
+            0.5
+          ],
+          [
+            2327,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28016,
+        28000
+      ],
+      "t_from_negative_to_positive": 0.9999976732248262
+    },
+    {
+      "cut_output_row": 71143,
+      "cutpoint_coordinate_rounding_error_m": [
+        2.497858836436606e-09,
+        2.3179411501317304e-08,
+        5.301629066312152e-10
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.16762846894562244,
+        0.3888859935104847,
+        0.14231452159583569
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 3.957815016595202e-08,
+      "distance_from_positive_endpoint_m": 0.01884451800869717,
+      "f32_endpoint_distance_m": 6.143906154658885e-08,
+      "incident_bad_child_rows": [
+        121297
+      ],
+      "incident_foundation_parent_rows": [
+        24799
+      ],
+      "incident_stage_parent_rows": [
+        83010
+      ],
+      "nearest_endpoint_distance_m": 3.957815016595202e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.6430045514150792,
+      "nearest_endpoint_f32_ulp_norm_m": 6.155189738369847e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        1.4901161193847656e-08,
+        5.960464477539063e-08,
+        3.725290298461914e-09
+      ],
+      "nearest_endpoint_input_row": 28030,
+      "phi_negative_endpoint_m": -2.296179706782078e-09,
+      "phi_positive_endpoint_m": 0.0010932901015437244,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2332,
+            0.5
+          ],
+          [
+            2337,
+            0.5
+          ]
+        ],
+        [
+          [
+            2332,
+            0.5
+          ],
+          [
+            9596,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28030,
+        28031
+      ],
+      "t_from_negative_to_positive": 2.1002430013813557e-06
+    },
+    {
+      "cut_output_row": 71149,
+      "cutpoint_coordinate_rounding_error_m": [
+        3.237073512019073e-09,
+        1.8032138004997478e-09,
+        2.6245785406109334e-09
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.43447265215218067,
+        0.030252907425165176,
+        0.3522649686783552
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.02652547885883694,
+      "distance_from_positive_endpoint_m": 1.1806806716521292e-08,
+      "f32_endpoint_distance_m": 2.1073424255447017e-08,
+      "incident_bad_child_rows": [
+        121800,
+        121802
+      ],
+      "incident_foundation_parent_rows": [
+        67026,
+        67026
+      ],
+      "incident_stage_parent_rows": [
+        83178,
+        83178
+      ],
+      "nearest_endpoint_distance_m": 1.1806806716521292e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.19506096518725624,
+      "nearest_endpoint_f32_ulp_norm_m": 6.05288029062447e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        7.450580596923828e-09,
+        5.960464477539063e-08,
+        7.450580596923828e-09
+      ],
+      "nearest_endpoint_input_row": 28065,
+      "phi_negative_endpoint_m": -0.004905067046889273,
+      "phi_positive_endpoint_m": 2.183303793658009e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2340,
+            0.5
+          ],
+          [
+            10809,
+            0.5
+          ]
+        ],
+        [
+          [
+            2341,
+            0.5
+          ],
+          [
+            2364,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28060,
+        28065
+      ],
+      "t_from_negative_to_positive": 0.9999995548882817
+    },
+    {
+      "cut_output_row": 71154,
+      "cutpoint_coordinate_rounding_error_m": [
+        1.125518150901783e-09,
+        1.355149537030087e-08,
+        3.00728719704324e-10
+      ],
+      "cutpoint_coordinate_rounding_error_over_nearest_endpoint_ulp": [
+        0.15106448903679848,
+        0.22735636495053768,
+        0.0403631255030632
+      ],
+      "cutpoint_f32_equals_negative_endpoint": false,
+      "cutpoint_f32_equals_positive_endpoint": false,
+      "distance_from_negative_endpoint_m": 0.02847352626907147,
+      "distance_from_positive_endpoint_m": 2.493266999975675e-08,
+      "f32_endpoint_distance_m": 2.6863450374185958e-08,
+      "incident_bad_child_rows": [
+        121776,
+        121800,
+        121802
+      ],
+      "incident_foundation_parent_rows": [
+        69679,
+        67026,
+        67026
+      ],
+      "incident_stage_parent_rows": [
+        83173,
+        83178,
+        83178
+      ],
+      "nearest_endpoint_distance_m": 2.493266999975675e-08,
+      "nearest_endpoint_distance_over_ulp_norm": 0.41191414339344995,
+      "nearest_endpoint_f32_ulp_norm_m": 6.05288029062447e-08,
+      "nearest_endpoint_f32_ulp_vector_m": [
+        7.450580596923828e-09,
+        5.960464477539063e-08,
+        7.450580596923828e-09
+      ],
+      "nearest_endpoint_input_row": 28065,
+      "phi_negative_endpoint_m": -0.0024933694580077047,
+      "phi_positive_endpoint_m": 2.183303793658009e-09,
+      "source_edge_input_row_ancestry": [
+        [
+          [
+            2341,
+            0.5
+          ],
+          [
+            10809,
+            0.5
+          ]
+        ],
+        [
+          [
+            2341,
+            0.5
+          ],
+          [
+            2364,
+            0.5
+          ]
+        ]
+      ],
+      "source_edge_input_rows": [
+        28066,
+        28065
+      ],
+      "t_from_negative_to_positive": 0.9999991243568518
+    }
+  ],
+  "cutpoint_equals_negative_endpoint_count": 1,
+  "cutpoint_equals_positive_endpoint_count": 4,
+  "interpretation": "F32 collapse witnesses occur where interpolated cutpoints approach source vertices at distances comparable to or below local F32 ULP; strict positivity is not waived. Cutpoint row and endpoint ancestry are explicit.",
+  "nearest_distance_under_0_5_ulp_norm_count": 42,
+  "nearest_distance_under_1_ulp_norm_count": 46,
+  "nearest_endpoint_f32_ulp_norm_m_range": [
+    6.05288029062447e-08,
+    6.828569911354542e-08
+  ],
+  "rounded_cutpoint_equals_one_source_endpoint_count": 5,
+  "source_report_sha256": "140464f6e2dd464b98b863a33acb6e3dab2e6120ae4e9e5112d2d31dcd7f6c03",
+  "status": "DIAGNOSTIC_ONLY",
+  "unique_cut_output_vertex_count": 58,
+  "witness_npz_sha256": "9885e5e39155e5f8185546986205090be55510079a2adfa1c8ae2ece7d6c73ae"
+}
