@@ -1,0 +1,1634 @@
+{
+  "anchor_mapping_audit": {
+    "accepted_csv_direct_anchor_count": 2332,
+    "direct_anchor_max_residual_m": 0.002945988715703289,
+    "direct_anchor_p99_residual_m": 0.0016197091263218091,
+    "direct_anchor_wrong_min_onehot_rows": [
+      {
+        "coarse_row": 0,
+        "csv_direct_detail_row": 156,
+        "csv_residual_m": 2.1237613585686727e-07,
+        "min_onehot_detail_row": 91,
+        "min_onehot_residual_m": 0.0007666440435368962
+      },
+      {
+        "coarse_row": 26,
+        "csv_direct_detail_row": 417,
+        "csv_residual_m": 2.2846550346967752e-07,
+        "min_onehot_detail_row": 196,
+        "min_onehot_residual_m": 0.006918030454505409
+      },
+      {
+        "coarse_row": 366,
+        "csv_direct_detail_row": 3855,
+        "csv_residual_m": 1.0490767061674255e-07,
+        "min_onehot_detail_row": 3845,
+        "min_onehot_residual_m": 0.001921346795081409
+      },
+      {
+        "coarse_row": 677,
+        "csv_direct_detail_row": 7536,
+        "csv_residual_m": 7.073500678285236e-08,
+        "min_onehot_detail_row": 7331,
+        "min_onehot_residual_m": 0.01711078850310781
+      },
+      {
+        "coarse_row": 1202,
+        "csv_direct_detail_row": 23691,
+        "csv_residual_m": 9.008421462358188e-08,
+        "min_onehot_detail_row": 23689,
+        "min_onehot_residual_m": 0.002834360634021827
+      },
+      {
+        "coarse_row": 1244,
+        "csv_direct_detail_row": 25396,
+        "csv_residual_m": 1.731220364112918e-07,
+        "min_onehot_detail_row": 24464,
+        "min_onehot_residual_m": 0.0076182792653923135
+      },
+      {
+        "coarse_row": 1265,
+        "csv_direct_detail_row": 26415,
+        "csv_residual_m": 1.502309500314265e-07,
+        "min_onehot_detail_row": 25616,
+        "min_onehot_residual_m": 0.0018340931208520124
+      },
+      {
+        "coarse_row": 1942,
+        "csv_direct_detail_row": 45749,
+        "csv_residual_m": 0.00060496433270165,
+        "min_onehot_detail_row": 45747,
+        "min_onehot_residual_m": 0.0006191637213382053
+      },
+      {
+        "coarse_row": 2214,
+        "csv_direct_detail_row": 50121,
+        "csv_residual_m": 0.00046978673624745556,
+        "min_onehot_detail_row": 50119,
+        "min_onehot_residual_m": 0.0016435813930142044
+      }
+    ],
+    "onehot_candidate_coarse_rows": 2332,
+    "onehot_candidate_count": 2370,
+    "onehot_duplicate_coarse_rows": 17
+  },
+  "counts": {
+    "direct_anchor_duplicate_rows": 17,
+    "direct_onehot_coarse_rows": 2332,
+    "fine_detail_faces": 108987,
+    "fine_detail_vertices": 61950,
+    "missing_direct_boundary_vertices": [],
+    "nonmanifold_coarse_edge_count": 0,
+    "nonmanifold_coarse_edges": [],
+    "seed_boundary_vertices": 86,
+    "seed_face_components": 3,
+    "seed_source_O_faces": 134,
+    "selected_outer_edges": 146,
+    "subdivided_fine_face_count": 108987,
+    "virtual_anchor_rows": [],
+    "virtual_exact_bary_anchor_count": 0,
+    "virtual_face_crossings": 0
+  },
+  "expansion_ring_diagnostics": [
+    [
+      {
+        "boundary_cycle_error": {},
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 47,
+        "loop_count": 1,
+        "ring": 0
+      },
+      {
+        "boundary_cycle_error": {},
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 70,
+        "loop_count": 1,
+        "ring": 1
+      },
+      {
+        "boundary_cycle_error": {},
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 93,
+        "loop_count": 1,
+        "ring": 2
+      },
+      {
+        "boundary_cycle_error": {},
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 122,
+        "loop_count": 1,
+        "ring": 3
+      },
+      {
+        "boundary_cycle_error": {},
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 152,
+        "loop_count": 1,
+        "ring": 4
+      }
+    ],
+    [
+      {
+        "boundary_cycle_error": {},
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 39,
+        "loop_count": 1,
+        "ring": 0
+      },
+      {
+        "boundary_cycle_error": {
+          "341": 4,
+          "369": 4
+        },
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 63,
+        "loop_count": 0,
+        "ring": 1
+      },
+      {
+        "boundary_cycle_error": {},
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 96,
+        "loop_count": 2,
+        "ring": 2
+      },
+      {
+        "boundary_cycle_error": {},
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 127,
+        "loop_count": 1,
+        "ring": 3
+      },
+      {
+        "boundary_cycle_error": {
+          "304": 4,
+          "654": 4
+        },
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 172,
+        "loop_count": 0,
+        "ring": 4
+      }
+    ],
+    [
+      {
+        "boundary_cycle_error": {},
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 48,
+        "loop_count": 2,
+        "ring": 0
+      },
+      {
+        "boundary_cycle_error": {},
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 72,
+        "loop_count": 1,
+        "ring": 1
+      },
+      {
+        "boundary_cycle_error": {
+          "2298": 4
+        },
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 97,
+        "loop_count": 0,
+        "ring": 2
+      },
+      {
+        "boundary_cycle_error": {},
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 126,
+        "loop_count": 2,
+        "ring": 3
+      },
+      {
+        "boundary_cycle_error": {
+          "2202": 4,
+          "2292": 4
+        },
+        "boundary_missing_count": 0,
+        "boundary_missing_direct": [],
+        "faces": 156,
+        "loop_count": 0,
+        "ring": 4
+      }
+    ]
+  ],
+  "fine_mesh_edge_incidence": {
+    "boundary_edge_count": 115,
+    "edges": 163538,
+    "nonmanifold_edge_count": 0,
+    "nonmanifold_edges": []
+  },
+  "inputs": {
+    "accepted_coarse_reference": "/Users/numi/Work/numi-human-connected-surface-069/publication-071/evidence/exact-transfer-075/run-001/source-preflight/accepted-coarse-reference.csv.gz",
+    "accepted_coarse_reference_sha256": "00b24dd1f09d3f890cf085ceeb1665715a2de7e116275e84165b5c14f43585d4",
+    "builder_source": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/build_source_patch_cut_123_v6_best_reroute.py",
+    "builder_source_sha256": "f02f89e14d8013d3eb06da129c6214c98bf4885992c6758fa1b2917c41ccb2a5",
+    "compact084": "/Users/numi/Work/numi-human-connected-surface-069/publication-072/evidence/whole-reference-TetGen-084/whole-skin-fat-reference-084-candidate.npz",
+    "compact084_sha256": "d3d0abb590f5858de4a27e0362e98bc9b3088831183ea045096cefc4ebba26e1",
+    "direct_detail075": "/Users/numi/Work/numi-human-connected-surface-069/publication-072/evidence/run-006-direct-detail-p1-075/direct-detail-p1-075.npz",
+    "direct_detail075_sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+    "prior_v3_source_status": "unavailable_exact_original_source_hash; this run uses a new targeted derivative",
+    "proposal": "/Users/numi/Work/numi-human-connected-surface-069/connected-boundary-refinement-114/run-002-source-normal-all-146/surface-proposal.npz",
+    "proposal_sha256": "fdcb88d99dd488afb59b5f49ad3b6f5975f37fc46479f74dd8d31e24a0e5d5b8"
+  },
+  "interpretation": "source-topology feasibility only; no TetGen, material remap, capacity, self-intersection, or physical admission",
+  "outputs": {
+    "source_patch_cut_npz": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-016-best-reroute-expanded-cut/source-patch-cut.npz",
+    "source_patch_cut_sha256": "21e2b65d85ba9bac176aaa670b916bc13189975a295c9ab328d1e835bb2e0b78"
+  },
+  "patch_feasibility": {
+    "all_boundary_vertices_have_direct_or_virtual_exact_source_anchor": true,
+    "all_loops_cut_fine_face_graph": true,
+    "all_loops_routed": false,
+    "all_seed_components_have_manifold_boundary": true,
+    "feasible_for_source_patch_extraction": false,
+    "no_detected_path_crossings": true
+  },
+  "patch_loops": [
+    {
+      "anchor_nodes": [
+        940,
+        943,
+        1202,
+        1205,
+        1206,
+        1228,
+        1241,
+        1230,
+        1249,
+        1274,
+        1530,
+        1276,
+        1533,
+        1546,
+        1292,
+        1306,
+        1289,
+        1300,
+        1285,
+        993,
+        1284,
+        986,
+        985,
+        982,
+        1257,
+        974,
+        1226
+      ],
+      "boundary_edge_count": 27,
+      "coarse_faces": [
+        284,
+        287,
+        288,
+        289,
+        310,
+        327,
+        328,
+        329,
+        330,
+        332,
+        345,
+        443,
+        444,
+        449,
+        450,
+        451,
+        452,
+        453,
+        454,
+        455,
+        456,
+        458,
+        459,
+        460,
+        471,
+        472,
+        473,
+        474,
+        475,
+        476,
+        477,
+        478,
+        479,
+        480,
+        481,
+        482,
+        483,
+        484,
+        498,
+        499,
+        500,
+        501,
+        502,
+        503,
+        507,
+        509,
+        510
+      ],
+      "coarse_loop": [
+        120,
+        122,
+        199,
+        200,
+        201,
+        205,
+        209,
+        206,
+        212,
+        221,
+        270,
+        222,
+        272,
+        281,
+        234,
+        242,
+        232,
+        240,
+        230,
+        150,
+        229,
+        143,
+        142,
+        141,
+        214,
+        134,
+        203
+      ],
+      "component": 0,
+      "loop": 0,
+      "path_failure": {
+        "blocking_reserved_edges": [
+          [
+            1289,
+            1304
+          ]
+        ],
+        "blocking_reserved_nodes": [
+          1302,
+          1304
+        ],
+        "end_anchor": 1300,
+        "free_shortest_length_m": 0.0053825650588436875,
+        "reason": "blocked_by_reserved_paths",
+        "segment": 16,
+        "start_anchor": 1289
+      },
+      "status": "path_failure"
+    },
+    {
+      "anchor_nodes": [
+        1453,
+        1675,
+        1672,
+        1668,
+        1783,
+        2096,
+        1780,
+        2478,
+        2048,
+        2495,
+        2407,
+        2690,
+        3028,
+        3014,
+        3065,
+        2756,
+        3312,
+        3627,
+        3678,
+        3543,
+        3930,
+        4677,
+        4662,
+        4862,
+        5737,
+        3792,
+        3194,
+        1715,
+        1457
+      ],
+      "boundary_edge_count": 29,
+      "coarse_faces": [
+        567,
+        572,
+        573,
+        574,
+        575,
+        576,
+        639,
+        640,
+        641,
+        642,
+        648,
+        667,
+        677,
+        679,
+        691,
+        692,
+        693,
+        694,
+        695,
+        696,
+        697,
+        698,
+        709,
+        710,
+        711,
+        723,
+        724,
+        725,
+        733,
+        735,
+        736,
+        740,
+        743,
+        744,
+        748,
+        749,
+        752,
+        754,
+        821
+      ],
+      "coarse_loop": [
+        266,
+        311,
+        309,
+        308,
+        326,
+        330,
+        325,
+        335,
+        329,
+        336,
+        334,
+        340,
+        348,
+        347,
+        349,
+        341,
+        354,
+        360,
+        361,
+        359,
+        368,
+        388,
+        387,
+        391,
+        577,
+        364,
+        351,
+        312,
+        267
+      ],
+      "component": 1,
+      "fine_cut_edge_count": 183,
+      "fine_cut_missing_edges": [],
+      "fine_cut_status": "cut_edges_present",
+      "fine_face_component_areas_m2": [
+        1.8049792997361616,
+        0.010118918046655274
+      ],
+      "fine_face_component_count_after_cut": 2,
+      "fine_face_component_face_counts": [
+        107244,
+        1743
+      ],
+      "fine_ring_edge_count": 183,
+      "fine_ring_length_m": 0.8070942430119517,
+      "fine_ring_node_count": 183,
+      "loop": 0,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "anchor_nodes": [
+        49403,
+        49865,
+        50739,
+        51088,
+        51446,
+        51196,
+        52158,
+        52250,
+        52555,
+        52836,
+        52823,
+        53833,
+        53110,
+        53878,
+        52984,
+        53253,
+        53304,
+        52540,
+        53618,
+        54346,
+        53630,
+        52797,
+        51333,
+        49885,
+        49404
+      ],
+      "boundary_edge_count": 25,
+      "coarse_faces": [
+        4542,
+        4543,
+        4544,
+        4545,
+        4575,
+        4576,
+        4577,
+        4580,
+        4581,
+        4625,
+        4626,
+        4627,
+        4629,
+        4632,
+        4633,
+        4634,
+        4635,
+        4636,
+        4637,
+        4638,
+        4639,
+        4642,
+        4643,
+        4651,
+        4653,
+        4655,
+        4666,
+        4667,
+        4668,
+        4669,
+        4670,
+        4671,
+        4673,
+        4674,
+        4675,
+        4676,
+        4677,
+        4678,
+        4679,
+        4680,
+        4688,
+        4691,
+        4693,
+        4694,
+        4702,
+        4713,
+        4714,
+        4735
+      ],
+      "coarse_loop": [
+        2189,
+        2204,
+        2226,
+        2237,
+        2242,
+        2240,
+        2258,
+        2260,
+        2270,
+        2278,
+        2277,
+        2299,
+        2283,
+        2301,
+        2282,
+        2286,
+        2287,
+        2268,
+        2294,
+        2310,
+        2296,
+        2276,
+        2241,
+        2206,
+        2190
+      ],
+      "component": 2,
+      "fine_cut_edge_count": 172,
+      "fine_cut_missing_edges": [],
+      "fine_cut_status": "cut_edges_present",
+      "fine_face_component_areas_m2": [
+        1.802589002953517,
+        0.012509214829299595
+      ],
+      "fine_face_component_count_after_cut": 2,
+      "fine_face_component_face_counts": [
+        106665,
+        2322
+      ],
+      "fine_ring_edge_count": 172,
+      "fine_ring_length_m": 0.7953041116528826,
+      "fine_ring_node_count": 172,
+      "loop": 0,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "anchor_nodes": [
+        51694,
+        51715,
+        51761,
+        52442,
+        52411
+      ],
+      "boundary_edge_count": 5,
+      "coarse_faces": [
+        4542,
+        4543,
+        4544,
+        4545,
+        4575,
+        4576,
+        4577,
+        4580,
+        4581,
+        4625,
+        4626,
+        4627,
+        4629,
+        4632,
+        4633,
+        4634,
+        4635,
+        4636,
+        4637,
+        4638,
+        4639,
+        4642,
+        4643,
+        4651,
+        4653,
+        4655,
+        4666,
+        4667,
+        4668,
+        4669,
+        4670,
+        4671,
+        4673,
+        4674,
+        4675,
+        4676,
+        4677,
+        4678,
+        4679,
+        4680,
+        4688,
+        4691,
+        4693,
+        4694,
+        4702,
+        4713,
+        4714,
+        4735
+      ],
+      "coarse_loop": [
+        2250,
+        2251,
+        2252,
+        2265,
+        2264
+      ],
+      "component": 2,
+      "fine_cut_edge_count": 34,
+      "fine_cut_missing_edges": [],
+      "fine_cut_status": "cut_edges_present",
+      "fine_face_component_areas_m2": [
+        1.8148037489675901,
+        0.00029446881522651367
+      ],
+      "fine_face_component_count_after_cut": 2,
+      "fine_face_component_face_counts": [
+        108677,
+        310
+      ],
+      "fine_ring_edge_count": 34,
+      "fine_ring_length_m": 0.07213914881770088,
+      "fine_ring_node_count": 34,
+      "loop": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    }
+  ],
+  "route_attempts": [
+    {
+      "attempt": 1,
+      "failed_loops": [
+        {
+          "component": 2,
+          "failure": {
+            "blocking_reserved_edges": [],
+            "blocking_reserved_nodes": [
+              52556
+            ],
+            "end_anchor": 52555,
+            "free_shortest_length_m": 0.011442627394445464,
+            "reason": "blocked_by_reserved_paths",
+            "segment": 7,
+            "start_anchor": 52250
+          },
+          "loop": 0
+        },
+        {
+          "component": 0,
+          "failure": {
+            "blocking_reserved_edges": [],
+            "blocking_reserved_nodes": [
+              944
+            ],
+            "end_anchor": 1202,
+            "free_shortest_length_m": 0.0031031407794581936,
+            "reason": "blocked_by_reserved_paths",
+            "segment": 1,
+            "start_anchor": 943
+          },
+          "loop": 0
+        }
+      ],
+      "policy": "longest_loops_longest_edges",
+      "routed_loops": 2,
+      "total_loops": 4
+    },
+    {
+      "attempt": 2,
+      "failed_loops": [
+        {
+          "component": 0,
+          "failure": {
+            "blocking_reserved_edges": [
+              [
+                1289,
+                1304
+              ]
+            ],
+            "blocking_reserved_nodes": [
+              1302,
+              1304
+            ],
+            "end_anchor": 1300,
+            "free_shortest_length_m": 0.0053825650588436875,
+            "reason": "blocked_by_reserved_paths",
+            "segment": 16,
+            "start_anchor": 1289
+          },
+          "loop": 0
+        }
+      ],
+      "policy": "shortest_loops_shortest_edges",
+      "routed_loops": 3,
+      "total_loops": 4
+    },
+    {
+      "attempt": 3,
+      "failed_loops": [
+        {
+          "component": 1,
+          "failure": {
+            "blocking_reserved_edges": [
+              [
+                3627,
+                3629
+              ],
+              [
+                3631,
+                3674
+              ],
+              [
+                3674,
+                3676
+              ],
+              [
+                3675,
+                3676
+              ],
+              [
+                3675,
+                3678
+              ]
+            ],
+            "blocking_reserved_nodes": [
+              3629,
+              3631,
+              3674,
+              3675,
+              3676
+            ],
+            "end_anchor": 3678,
+            "free_shortest_length_m": 0.023958884857627115,
+            "reason": "blocked_by_reserved_paths",
+            "segment": 17,
+            "start_anchor": 3627
+          },
+          "loop": 0
+        },
+        {
+          "component": 0,
+          "failure": {
+            "blocking_reserved_edges": [
+              [
+                993,
+                995
+              ]
+            ],
+            "blocking_reserved_nodes": [
+              995
+            ],
+            "end_anchor": 993,
+            "free_shortest_length_m": 0.0032556874489291926,
+            "reason": "blocked_by_reserved_paths",
+            "segment": 18,
+            "start_anchor": 1285
+          },
+          "loop": 0
+        },
+        {
+          "component": 2,
+          "failure": {
+            "blocking_reserved_edges": [
+              [
+                52540,
+                52726
+              ],
+              [
+                52726,
+                52730
+              ],
+              [
+                52730,
+                52931
+              ],
+              [
+                52931,
+                52958
+              ],
+              [
+                53277,
+                53278
+              ],
+              [
+                53278,
+                53304
+              ]
+            ],
+            "blocking_reserved_nodes": [
+              52726,
+              52730,
+              52931,
+              52958,
+              53277,
+              53278
+            ],
+            "end_anchor": 52540,
+            "free_shortest_length_m": 0.028467357167549015,
+            "reason": "blocked_by_reserved_paths",
+            "segment": 16,
+            "start_anchor": 53304
+          },
+          "loop": 0
+        }
+      ],
+      "policy": "alternating_loops_edges",
+      "routed_loops": 1,
+      "total_loops": 4
+    },
+    {
+      "attempt": 4,
+      "failed_loops": [
+        {
+          "component": 2,
+          "failure": {
+            "blocking_reserved_edges": [],
+            "blocking_reserved_nodes": [
+              52557
+            ],
+            "end_anchor": 52555,
+            "free_shortest_length_m": 0.011442627394445464,
+            "reason": "blocked_by_reserved_paths",
+            "segment": 7,
+            "start_anchor": 52250
+          },
+          "loop": 0
+        },
+        {
+          "component": 0,
+          "failure": {
+            "blocking_reserved_edges": [],
+            "blocking_reserved_nodes": [
+              944
+            ],
+            "end_anchor": 1202,
+            "free_shortest_length_m": 0.0031031407794581936,
+            "reason": "blocked_by_reserved_paths",
+            "segment": 1,
+            "start_anchor": 943
+          },
+          "loop": 0
+        }
+      ],
+      "policy": "failed_loop_and_edge_first",
+      "routed_loops": 2,
+      "total_loops": 4
+    }
+  ],
+  "routed_segment_count": 59,
+  "routed_segments": [
+    {
+      "coarse_end": 2251,
+      "coarse_start": 2250,
+      "component": 2,
+      "end_anchor": 51715,
+      "length_m": 0.007076063199778736,
+      "loop": 1,
+      "path_edge_count": 4,
+      "segment": 0,
+      "start_anchor": 51694
+    },
+    {
+      "coarse_end": 2252,
+      "coarse_start": 2251,
+      "component": 2,
+      "end_anchor": 51761,
+      "length_m": 0.022033493262595773,
+      "loop": 1,
+      "path_edge_count": 6,
+      "segment": 1,
+      "start_anchor": 51715
+    },
+    {
+      "coarse_end": 2265,
+      "coarse_start": 2252,
+      "component": 2,
+      "end_anchor": 52442,
+      "length_m": 0.018718877889955608,
+      "loop": 1,
+      "path_edge_count": 7,
+      "segment": 2,
+      "start_anchor": 51761
+    },
+    {
+      "coarse_end": 2264,
+      "coarse_start": 2265,
+      "component": 2,
+      "end_anchor": 52411,
+      "length_m": 0.007908109391742565,
+      "loop": 1,
+      "path_edge_count": 2,
+      "segment": 3,
+      "start_anchor": 52442
+    },
+    {
+      "coarse_end": 2250,
+      "coarse_start": 2264,
+      "component": 2,
+      "end_anchor": 51694,
+      "length_m": 0.0164026050736282,
+      "loop": 1,
+      "path_edge_count": 15,
+      "segment": 4,
+      "start_anchor": 52411
+    },
+    {
+      "coarse_end": 2204,
+      "coarse_start": 2189,
+      "component": 2,
+      "end_anchor": 49865,
+      "length_m": 0.03180854024521108,
+      "loop": 0,
+      "path_edge_count": 3,
+      "segment": 0,
+      "start_anchor": 49403
+    },
+    {
+      "coarse_end": 2226,
+      "coarse_start": 2204,
+      "component": 2,
+      "end_anchor": 50739,
+      "length_m": 0.02112488873553066,
+      "loop": 0,
+      "path_edge_count": 6,
+      "segment": 1,
+      "start_anchor": 49865
+    },
+    {
+      "coarse_end": 2237,
+      "coarse_start": 2226,
+      "component": 2,
+      "end_anchor": 51088,
+      "length_m": 0.007436843565670788,
+      "loop": 0,
+      "path_edge_count": 5,
+      "segment": 2,
+      "start_anchor": 50739
+    },
+    {
+      "coarse_end": 2242,
+      "coarse_start": 2237,
+      "component": 2,
+      "end_anchor": 51446,
+      "length_m": 0.05178628089978998,
+      "loop": 0,
+      "path_edge_count": 9,
+      "segment": 3,
+      "start_anchor": 51088
+    },
+    {
+      "coarse_end": 2240,
+      "coarse_start": 2242,
+      "component": 2,
+      "end_anchor": 51196,
+      "length_m": 0.03485932898132399,
+      "loop": 0,
+      "path_edge_count": 7,
+      "segment": 4,
+      "start_anchor": 51446
+    },
+    {
+      "coarse_end": 2258,
+      "coarse_start": 2240,
+      "component": 2,
+      "end_anchor": 52158,
+      "length_m": 0.035908987187458254,
+      "loop": 0,
+      "path_edge_count": 8,
+      "segment": 5,
+      "start_anchor": 51196
+    },
+    {
+      "coarse_end": 2260,
+      "coarse_start": 2258,
+      "component": 2,
+      "end_anchor": 52250,
+      "length_m": 0.04963443856084093,
+      "loop": 0,
+      "path_edge_count": 10,
+      "segment": 6,
+      "start_anchor": 52158
+    },
+    {
+      "coarse_end": 2270,
+      "coarse_start": 2260,
+      "component": 2,
+      "end_anchor": 52555,
+      "length_m": 0.011442627394445464,
+      "loop": 0,
+      "path_edge_count": 3,
+      "segment": 7,
+      "start_anchor": 52250
+    },
+    {
+      "coarse_end": 2278,
+      "coarse_start": 2270,
+      "component": 2,
+      "end_anchor": 52836,
+      "length_m": 0.029924632342531173,
+      "loop": 0,
+      "path_edge_count": 4,
+      "segment": 8,
+      "start_anchor": 52555
+    },
+    {
+      "coarse_end": 2277,
+      "coarse_start": 2278,
+      "component": 2,
+      "end_anchor": 52823,
+      "length_m": 0.019956568653761754,
+      "loop": 0,
+      "path_edge_count": 4,
+      "segment": 9,
+      "start_anchor": 52836
+    },
+    {
+      "coarse_end": 2299,
+      "coarse_start": 2277,
+      "component": 2,
+      "end_anchor": 53833,
+      "length_m": 0.02110322132151345,
+      "loop": 0,
+      "path_edge_count": 11,
+      "segment": 10,
+      "start_anchor": 52823
+    },
+    {
+      "coarse_end": 2283,
+      "coarse_start": 2299,
+      "component": 2,
+      "end_anchor": 53110,
+      "length_m": 0.010937426743773038,
+      "loop": 0,
+      "path_edge_count": 6,
+      "segment": 11,
+      "start_anchor": 53833
+    },
+    {
+      "coarse_end": 2301,
+      "coarse_start": 2283,
+      "component": 2,
+      "end_anchor": 53878,
+      "length_m": 0.0341483326924032,
+      "loop": 0,
+      "path_edge_count": 10,
+      "segment": 12,
+      "start_anchor": 53110
+    },
+    {
+      "coarse_end": 2282,
+      "coarse_start": 2301,
+      "component": 2,
+      "end_anchor": 52984,
+      "length_m": 0.054284459854371525,
+      "loop": 0,
+      "path_edge_count": 7,
+      "segment": 13,
+      "start_anchor": 53878
+    },
+    {
+      "coarse_end": 2286,
+      "coarse_start": 2282,
+      "component": 2,
+      "end_anchor": 53253,
+      "length_m": 0.027451484912235903,
+      "loop": 0,
+      "path_edge_count": 10,
+      "segment": 14,
+      "start_anchor": 52984
+    },
+    {
+      "coarse_end": 2287,
+      "coarse_start": 2286,
+      "component": 2,
+      "end_anchor": 53304,
+      "length_m": 0.019747372145384523,
+      "loop": 0,
+      "path_edge_count": 3,
+      "segment": 15,
+      "start_anchor": 53253
+    },
+    {
+      "coarse_end": 2268,
+      "coarse_start": 2287,
+      "component": 2,
+      "end_anchor": 52540,
+      "length_m": 0.03100446071992561,
+      "loop": 0,
+      "path_edge_count": 10,
+      "segment": 16,
+      "start_anchor": 53304
+    },
+    {
+      "coarse_end": 2294,
+      "coarse_start": 2268,
+      "component": 2,
+      "end_anchor": 53618,
+      "length_m": 0.04922852166715472,
+      "loop": 0,
+      "path_edge_count": 11,
+      "segment": 17,
+      "start_anchor": 52540
+    },
+    {
+      "coarse_end": 2310,
+      "coarse_start": 2294,
+      "component": 2,
+      "end_anchor": 54346,
+      "length_m": 0.03841834155382935,
+      "loop": 0,
+      "path_edge_count": 11,
+      "segment": 18,
+      "start_anchor": 53618
+    },
+    {
+      "coarse_end": 2296,
+      "coarse_start": 2310,
+      "component": 2,
+      "end_anchor": 53630,
+      "length_m": 0.03935987339147903,
+      "loop": 0,
+      "path_edge_count": 9,
+      "segment": 19,
+      "start_anchor": 54346
+    },
+    {
+      "coarse_end": 2276,
+      "coarse_start": 2296,
+      "component": 2,
+      "end_anchor": 52797,
+      "length_m": 0.05771055865897641,
+      "loop": 0,
+      "path_edge_count": 7,
+      "segment": 20,
+      "start_anchor": 53630
+    },
+    {
+      "coarse_end": 2241,
+      "coarse_start": 2276,
+      "component": 2,
+      "end_anchor": 51333,
+      "length_m": 0.058701642408486354,
+      "loop": 0,
+      "path_edge_count": 11,
+      "segment": 21,
+      "start_anchor": 52797
+    },
+    {
+      "coarse_end": 2206,
+      "coarse_start": 2241,
+      "component": 2,
+      "end_anchor": 49885,
+      "length_m": 0.04376576508081847,
+      "loop": 0,
+      "path_edge_count": 5,
+      "segment": 22,
+      "start_anchor": 51333
+    },
+    {
+      "coarse_end": 2190,
+      "coarse_start": 2206,
+      "component": 2,
+      "end_anchor": 49404,
+      "length_m": 0.007478561410205883,
+      "loop": 0,
+      "path_edge_count": 1,
+      "segment": 23,
+      "start_anchor": 49885
+    },
+    {
+      "coarse_end": 2189,
+      "coarse_start": 2190,
+      "component": 2,
+      "end_anchor": 49403,
+      "length_m": 0.008080952525761085,
+      "loop": 0,
+      "path_edge_count": 1,
+      "segment": 24,
+      "start_anchor": 49404
+    },
+    {
+      "coarse_end": 311,
+      "coarse_start": 266,
+      "component": 1,
+      "end_anchor": 1675,
+      "length_m": 0.013693910040539764,
+      "loop": 0,
+      "path_edge_count": 4,
+      "segment": 0,
+      "start_anchor": 1453
+    },
+    {
+      "coarse_end": 309,
+      "coarse_start": 311,
+      "component": 1,
+      "end_anchor": 1672,
+      "length_m": 0.008155043321472981,
+      "loop": 0,
+      "path_edge_count": 1,
+      "segment": 1,
+      "start_anchor": 1675
+    },
+    {
+      "coarse_end": 308,
+      "coarse_start": 309,
+      "component": 1,
+      "end_anchor": 1668,
+      "length_m": 0.014162993885974928,
+      "loop": 0,
+      "path_edge_count": 2,
+      "segment": 2,
+      "start_anchor": 1672
+    },
+    {
+      "coarse_end": 326,
+      "coarse_start": 308,
+      "component": 1,
+      "end_anchor": 1783,
+      "length_m": 0.01951997772371197,
+      "loop": 0,
+      "path_edge_count": 7,
+      "segment": 3,
+      "start_anchor": 1668
+    },
+    {
+      "coarse_end": 330,
+      "coarse_start": 326,
+      "component": 1,
+      "end_anchor": 2096,
+      "length_m": 0.0036450874760098296,
+      "loop": 0,
+      "path_edge_count": 2,
+      "segment": 4,
+      "start_anchor": 1783
+    },
+    {
+      "coarse_end": 325,
+      "coarse_start": 330,
+      "component": 1,
+      "end_anchor": 1780,
+      "length_m": 0.005514893246857189,
+      "loop": 0,
+      "path_edge_count": 3,
+      "segment": 5,
+      "start_anchor": 2096
+    },
+    {
+      "coarse_end": 335,
+      "coarse_start": 325,
+      "component": 1,
+      "end_anchor": 2478,
+      "length_m": 0.032231244260556416,
+      "loop": 0,
+      "path_edge_count": 11,
+      "segment": 6,
+      "start_anchor": 1780
+    },
+    {
+      "coarse_end": 329,
+      "coarse_start": 335,
+      "component": 1,
+      "end_anchor": 2048,
+      "length_m": 0.032806268012831215,
+      "loop": 0,
+      "path_edge_count": 7,
+      "segment": 7,
+      "start_anchor": 2478
+    },
+    {
+      "coarse_end": 336,
+      "coarse_start": 329,
+      "component": 1,
+      "end_anchor": 2495,
+      "length_m": 0.02526620671825315,
+      "loop": 0,
+      "path_edge_count": 5,
+      "segment": 8,
+      "start_anchor": 2048
+    },
+    {
+      "coarse_end": 334,
+      "coarse_start": 336,
+      "component": 1,
+      "end_anchor": 2407,
+      "length_m": 0.04699338260642645,
+      "loop": 0,
+      "path_edge_count": 9,
+      "segment": 9,
+      "start_anchor": 2495
+    },
+    {
+      "coarse_end": 340,
+      "coarse_start": 334,
+      "component": 1,
+      "end_anchor": 2690,
+      "length_m": 0.026679461687213687,
+      "loop": 0,
+      "path_edge_count": 10,
+      "segment": 10,
+      "start_anchor": 2407
+    },
+    {
+      "coarse_end": 348,
+      "coarse_start": 340,
+      "component": 1,
+      "end_anchor": 3028,
+      "length_m": 0.018561063350713693,
+      "loop": 0,
+      "path_edge_count": 7,
+      "segment": 11,
+      "start_anchor": 2690
+    },
+    {
+      "coarse_end": 347,
+      "coarse_start": 348,
+      "component": 1,
+      "end_anchor": 3014,
+      "length_m": 0.010077486774744578,
+      "loop": 0,
+      "path_edge_count": 5,
+      "segment": 12,
+      "start_anchor": 3028
+    },
+    {
+      "coarse_end": 349,
+      "coarse_start": 347,
+      "component": 1,
+      "end_anchor": 3065,
+      "length_m": 0.024066791516920913,
+      "loop": 0,
+      "path_edge_count": 4,
+      "segment": 13,
+      "start_anchor": 3014
+    },
+    {
+      "coarse_end": 341,
+      "coarse_start": 349,
+      "component": 1,
+      "end_anchor": 2756,
+      "length_m": 0.014107507558551457,
+      "loop": 0,
+      "path_edge_count": 4,
+      "segment": 14,
+      "start_anchor": 3065
+    },
+    {
+      "coarse_end": 354,
+      "coarse_start": 341,
+      "component": 1,
+      "end_anchor": 3312,
+      "length_m": 0.03851384922002144,
+      "loop": 0,
+      "path_edge_count": 9,
+      "segment": 15,
+      "start_anchor": 2756
+    },
+    {
+      "coarse_end": 360,
+      "coarse_start": 354,
+      "component": 1,
+      "end_anchor": 3627,
+      "length_m": 0.017676287171306787,
+      "loop": 0,
+      "path_edge_count": 7,
+      "segment": 16,
+      "start_anchor": 3312
+    },
+    {
+      "coarse_end": 361,
+      "coarse_start": 360,
+      "component": 1,
+      "end_anchor": 3678,
+      "length_m": 0.02696033276930909,
+      "loop": 0,
+      "path_edge_count": 6,
+      "segment": 17,
+      "start_anchor": 3627
+    },
+    {
+      "coarse_end": 359,
+      "coarse_start": 361,
+      "component": 1,
+      "end_anchor": 3543,
+      "length_m": 0.059406424652135255,
+      "loop": 0,
+      "path_edge_count": 15,
+      "segment": 18,
+      "start_anchor": 3678
+    },
+    {
+      "coarse_end": 368,
+      "coarse_start": 359,
+      "component": 1,
+      "end_anchor": 3930,
+      "length_m": 0.019102698036226523,
+      "loop": 0,
+      "path_edge_count": 5,
+      "segment": 19,
+      "start_anchor": 3543
+    },
+    {
+      "coarse_end": 388,
+      "coarse_start": 368,
+      "component": 1,
+      "end_anchor": 4677,
+      "length_m": 0.01891673944965075,
+      "loop": 0,
+      "path_edge_count": 9,
+      "segment": 20,
+      "start_anchor": 3930
+    },
+    {
+      "coarse_end": 387,
+      "coarse_start": 388,
+      "component": 1,
+      "end_anchor": 4662,
+      "length_m": 0.011004122825379383,
+      "loop": 0,
+      "path_edge_count": 5,
+      "segment": 21,
+      "start_anchor": 4677
+    },
+    {
+      "coarse_end": 391,
+      "coarse_start": 387,
+      "component": 1,
+      "end_anchor": 4862,
+      "length_m": 0.07390344460060129,
+      "loop": 0,
+      "path_edge_count": 13,
+      "segment": 22,
+      "start_anchor": 4662
+    },
+    {
+      "coarse_end": 577,
+      "coarse_start": 391,
+      "component": 1,
+      "end_anchor": 5737,
+      "length_m": 0.04329431418295412,
+      "loop": 0,
+      "path_edge_count": 5,
+      "segment": 23,
+      "start_anchor": 4862
+    },
+    {
+      "coarse_end": 364,
+      "coarse_start": 577,
+      "component": 1,
+      "end_anchor": 3792,
+      "length_m": 0.06700779195615073,
+      "loop": 0,
+      "path_edge_count": 9,
+      "segment": 24,
+      "start_anchor": 5737
+    },
+    {
+      "coarse_end": 351,
+      "coarse_start": 364,
+      "component": 1,
+      "end_anchor": 3194,
+      "length_m": 0.0365561484469973,
+      "loop": 0,
+      "path_edge_count": 4,
+      "segment": 25,
+      "start_anchor": 3792
+    },
+    {
+      "coarse_end": 312,
+      "coarse_start": 351,
+      "component": 1,
+      "end_anchor": 1715,
+      "length_m": 0.04552184105471452,
+      "loop": 0,
+      "path_edge_count": 4,
+      "segment": 26,
+      "start_anchor": 3194
+    },
+    {
+      "coarse_end": 267,
+      "coarse_start": 312,
+      "component": 1,
+      "end_anchor": 1457,
+      "length_m": 0.03071256331711347,
+      "loop": 0,
+      "path_edge_count": 7,
+      "segment": 27,
+      "start_anchor": 1715
+    },
+    {
+      "coarse_end": 266,
+      "coarse_start": 267,
+      "component": 1,
+      "end_anchor": 1453,
+      "length_m": 0.023036367148612763,
+      "loop": 0,
+      "path_edge_count": 4,
+      "segment": 28,
+      "start_anchor": 1457
+    }
+  ],
+  "selected_best_route_attempt": 2,
+  "selected_best_routed_loops": 3,
+  "source_path_intersection_witnesses": [],
+  "status": "completed_topology_cut_feasibility",
+  "target_expansion": {
+    "expanded_component_original_sources": [
+      [
+        1
+      ],
+      [
+        2,
+        7
+      ],
+      [
+        31
+      ]
+    ],
+    "expanded_face_count_after_touched_component_merge": 134,
+    "one_ring_plus_touched_seed_face_count": 134,
+    "original_seed_component_ids": [
+      1,
+      2,
+      7,
+      31
+    ],
+    "touched_original_component_ids": [
+      1,
+      2,
+      7,
+      31
+    ]
+  },
+  "virtual_anchors": []
+}

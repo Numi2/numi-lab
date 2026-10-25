@@ -1,0 +1,17 @@
+{
+  "files": {
+    "focused-tests.log": "e0394e0de3b0d1707069051db4dc6c724532b76239950836a9b897a8b5b4e23d",
+    "human_skin_fat_layer_reconstruction.py": "2a7f7ed02a5c90af11e09ffd8b8d2a34b2f3ff9c3b08ecb08514cccb29dc565e",
+    "test_human_skin_fat_layer_reconstruction.py": "6a491ecc3e160ac8f91a83db1f052dd14c9a9e485d9d9657831b087767e87b7c"
+  },
+  "purpose": "Construction-only O/I/D layer reconstruction with scalar or per-node depth inputs.",
+  "scope_limits": [
+    "No volume cells, material map, source ancestry transfer, native runtime state, or physical step is created or admitted.",
+    "Active patch graph uses only induced active-active surface edges; caller supplies its exact interface boundary.",
+    "Outside-patch layer positions remain exactly the input baseline offsets."
+  ],
+  "status": "FOCUSED_TESTS_PASS",
+  "test_command": "PYTHONDONTWRITEBYTECODE=1 /Users/numi/numi-human-prep-venv-20261005/bin/python -m pytest -q -p no:cacheprovider test_human_skin_fat_layer_reconstruction.py",
+  "test_count": 20,
+  "test_output": "....................                                                     [100%]\n20 passed in 0.09s"
+}

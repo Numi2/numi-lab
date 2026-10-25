@@ -1,0 +1,24 @@
+{
+  "status": "COMPLETED_CONSTRUCTION_ONLY",
+  "source_script": "../assemble_layers_128.py",
+  "source_sha256": "14df3352918e1656767c50831d1328f828b6d8e8e3527d288bea9c5c6f68078f",
+  "argv": [
+    "--outer-npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-017-expanded-target-hybrid/hybrid-O-surface-128.npz",
+    "--expected-outer-sha256",
+    "541eb6eabf442c74592853d40aecea1c9c4cb6aac20a31d4d3aa0017cd32afb7",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/coupled-layer-trial-128/run-002"
+  ],
+  "output_sha256": {
+    "D-self-pairs.npy": "5a18fd48f4905b3f6540ee3768670fb73b6e7fdb08cba48d2c53302ec23ce665",
+    "I-self-pairs.npy": "7a66fe40da40a7ae0a34ac2bba1862e0ad2c2866d71ff8edf75d0680468f6f82",
+    "O-self-pairs.npy": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "README.txt": "f925a17637fe5ea616793866f4febaaab9c410bec63865a5cd128d76fce48164",
+    "fat_shell-self-pairs.npy": "f298a871a8536cd9ef3e3877b2f68e97b03e0381ed2218803ee60c106a75449c",
+    "layer-candidate.npz": "78b7da468976e87b35d6ba6d082704ab1f880b37ae338e9e6b6712f680b0d4eb",
+    "report.json": "5c6ecae38479489b417aa6a5fa97962ab9f8cf4a76a5548d289acce8c72e3783",
+    "skin_shell-self-pairs.npy": "fe396845114255c1f5195cc3a8c6708bde8b8a56b15543df1c548ce73e55ab64"
+  },
+  "posture": "diagnostic only; O source path is run-017 partial hybrid; no TetGen/native/mass admission"
+}

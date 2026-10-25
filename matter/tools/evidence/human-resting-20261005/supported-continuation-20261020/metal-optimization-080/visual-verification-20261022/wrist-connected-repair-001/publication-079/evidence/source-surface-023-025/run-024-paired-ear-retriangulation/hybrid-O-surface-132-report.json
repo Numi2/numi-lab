@@ -1,0 +1,83 @@
+{
+  "boundary_edge_count_before_after": [
+    45,
+    45
+  ],
+  "boundary_edge_set_unchanged": true,
+  "collinear_vertex": {
+    "edge_endpoint_rows": [
+      2879,
+      2878
+    ],
+    "output_node_row": 2321,
+    "parameter_t": 0.6088847580469341,
+    "residual_m": 1.1188630228279524e-16
+  },
+  "face_rows": {
+    "ear": 10678,
+    "paired_neighbor": 10677
+  },
+  "faces_changed": 2,
+  "input_candidate": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-023-merged-hybrid/hybrid-O-surface-131.npz",
+  "input_report_sha256": "895224a41a5ae955dfc26d875a15cc0f4faeb54e3fbfadbc454aaadee6d1f9d3",
+  "input_sha256": "e70b2fb26447d824abfb20732b2820a3ed079c8fdecad27f580ca14e59f3ea3e",
+  "limits": [
+    "No exact whole-mesh self-intersection or bone-containment audit in this step.",
+    "Original seed coverage remains partial: 160/187 seed faces, 34/35 groups; omitted component 1 is unresolved.",
+    "No I/D layer conformity, tetrahedral quality, mass transfer, or native acceptance claimed."
+  ],
+  "new_normals_dot_original_neighbor_normal": [
+    1.0,
+    1.0000000000000002
+  ],
+  "new_pair_areas_m2": [
+    2.0325921981891094e-05,
+    3.164321601536982e-05
+  ],
+  "nonmanifold_edge_count_after": 0,
+  "old_pair_areas_m2": [
+    5.1969137997260656e-05,
+    2.5265306875860957e-19
+  ],
+  "original_faces": [
+    [
+      5808,
+      2878,
+      2879
+    ],
+    [
+      2879,
+      2878,
+      2321
+    ]
+  ],
+  "output_candidate": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-024-paired-ear-retriangulation/hybrid-O-surface-132.npz",
+  "output_candidate_sha256": "c7ac01f2a8b11763055038680a07b6ac452f0b317816721e601b1cbeca71262d",
+  "output_min_triangle_area_m2": 7.66693758113894e-12,
+  "replacement_faces": [
+    [
+      5808,
+      2878,
+      2321
+    ],
+    [
+      5808,
+      2321,
+      2879
+    ]
+  ],
+  "selected_coarse_face_rows_sha256": "5894983ea64428fd0e2b75be1cacb56be9bf44cf8ad112ff0296a844e8a58c56",
+  "singular_parent_fields_for_replacement_rows": "-1; use face_source_ancestry_indptr/face_source_ancestry_face_rows",
+  "source_face_ancestry_rows_for_each_replacement": [
+    [
+      14642,
+      14650
+    ],
+    [
+      14642,
+      14650
+    ]
+  ],
+  "status": "paired-ear-retriangulation-geometry-only",
+  "vertices_changed": 0
+}

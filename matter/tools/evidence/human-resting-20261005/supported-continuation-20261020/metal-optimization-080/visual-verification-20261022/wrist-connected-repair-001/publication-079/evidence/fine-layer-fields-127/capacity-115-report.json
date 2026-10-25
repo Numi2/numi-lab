@@ -1,0 +1,124 @@
+{
+  "checks": {
+    "O_and_I_source_rows_bitwise_unchanged": true,
+    "W_active_row_sum_error_max": 2.9802322387695312e-08,
+    "W_rows_sum_to_one_active_and_zero_inactive": true,
+    "W_support_is_candidate_O_surface_only": true,
+    "active_mask_matches_W": true,
+    "all_changed_rows_are_D": true,
+    "candidate115_ancestry_disagreements_zero": true,
+    "changed_hfat_columns": 176,
+    "changed_hskin_columns": 0,
+    "generated_O_parent_field_disagreement_max": 0.0,
+    "generated_O_parent_nonO_barycentric_l1_max": 1.7763568394002505e-14,
+    "generated_O_parent_position_max_residual_m": 5.067293260069208e-16,
+    "modified_D_rows_exactly_match_changed_source_rows": true
+  },
+  "classification": "The 115 D-shortened values are a geometric construction counterfactual. Euclidean layer lengths are inferred from candidate reference coordinates, not measured anatomy; no geometry, material, native, or physical acceptance is claimed.",
+  "counts": {
+    "W_support_nodes": 2461,
+    "active_detail_rows": 54551,
+    "candidate_O_surface_nodes": 2464,
+    "fine_detail_rows": 61950,
+    "generated_O_surface_nodes": 53,
+    "inactive_detail_rows": 7399,
+    "modified_D_rows": 176,
+    "source_columns": 2411,
+    "source_layer_nodes": 7233,
+    "verified_changed_D_rows": 176
+  },
+  "field_semantics": {
+    "fine_interpolation": "The exact pinned Wnew CSR is reused from 075->084 and acts only as a field interpolator over candidate O surface nodes. Generated O nodes use their frozen source-tetra parent barycentrics, checked to lie on the source O layer. W is not used as geometric correspondence.",
+    "inactive_rows": "Inactive W rows remain NaN for interpolated fields; they do not represent zero thickness.",
+    "input": "The original 084 O/I/D source coordinates are changed only at the exact 176 modified_D_rows listed in the pinned 115 report; original O and I remain bitwise identical.",
+    "offsets": "I-O, D-I, D-O in metres.",
+    "shared_provenance": "Detail-row/source IDs, selected face row/stable ID, source face vertices/barycentrics, and coarse direct/virtual source anchor data are copied from the immutable 084 field asset and remain shared across fieldsets.",
+    "signed_projection": "Offset dot the area-weighted coarse O face-winding normal. This sign diagnostic is not thickness and is not clamped.",
+    "thickness": "hskin=norm(I-O), hfat=norm(D-I), Euclidean and inferred, not measured."
+  },
+  "input_sha256": {
+    "Wnew": "55329313bf9c2c3b613fcd7eb52dd9b7b453520dd1b4a14e0e0d6ac457ce8519",
+    "baseline_field_asset": "ff5d936d9c5f14df7e78a596134a03c5a6fd4f5c09a517203643ded28da8f5c1",
+    "capacity_115_candidate": "abff4290774cc96a17f6c68a21fe86fc3933a1878e0bd6512733e99589fb6dd9",
+    "capacity_115_report": "a36ab99e27a574418b8aa1681644a6c30b7f15e759955312d31acbc978f53d6b",
+    "compact_084": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "sidecar": "050875e760a1b3e3ddbbf18da5aff145b1405eeb4d3aa5d6dc31a09b15908f5d",
+    "source_084": "d3d0abb590f5858de4a27e0362e98bc9b3088831183ea045096cefc4ebba26e1",
+    "transfer_report": "5452f7c24b9201734e0823a40a02d7cabcee6f945fd4755ea7acc5ee09fe8413",
+    "transfer_rows": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14"
+  },
+  "output": {
+    "asset_bytes": 6677372,
+    "asset_path": "/Users/n/Work/numi-human-connected-surface-069/fine-layer-fields-127/capacity-115-coarse-to-detail-layer-fields.npz",
+    "asset_sha256": "4278c32fc30f2ec2ce67131e6883782f5f266d6f04877deaec4743cf3a196145"
+  },
+  "ranges_mm": {
+    "coarse_fat_signed_projection_on_O_winding": {
+      "max_m": 0.009900590219362744,
+      "min_m": 4.110621184554568e-05,
+      "negative_count": 0
+    },
+    "coarse_hfat_euclidean": {
+      "count": 2411,
+      "max": 9.933762505155315,
+      "median": 9.040912238688305,
+      "min": 0.16518403726564326,
+      "p01": 0.5495625667632773,
+      "p99": 9.903232790189213,
+      "positive_count": 2411
+    },
+    "coarse_hskin_euclidean": {
+      "count": 2411,
+      "max": 2.499801122454758,
+      "median": 2.450779207380451,
+      "min": 0.5002264353692146,
+      "p01": 0.5494416363795968,
+      "p99": 2.4535425420385613,
+      "positive_count": 2411
+    },
+    "coarse_skin_signed_projection_on_O_winding": {
+      "max_m": 0.0024507900867390474,
+      "min_m": 5.5143818182548795e-05,
+      "negative_count": 0
+    },
+    "fine_active_hfat_euclidean": {
+      "count": 54551,
+      "max": 9.933762505155315,
+      "median": 8.282545917906576,
+      "min": 0.16518403726564326,
+      "p01": 0.5590260468705526,
+      "p99": 9.903909142609123,
+      "positive_count": 54551
+    },
+    "fine_active_hskin_euclidean": {
+      "count": 54551,
+      "max": 2.499801122454758,
+      "median": 2.4508023458092008,
+      "min": 0.5002264353692146,
+      "p01": 0.9407024878824022,
+      "p99": 2.458649023310116,
+      "positive_count": 54551
+    },
+    "fine_fat_signed_projection_on_O_winding": {
+      "max_m": 0.009900590219362744,
+      "min_m": 4.110621184554568e-05,
+      "negative_count": 0
+    },
+    "fine_skin_signed_projection_on_O_winding": {
+      "max_m": 0.0024507900867390474,
+      "min_m": 5.5143818182548795e-05,
+      "negative_count": 0
+    }
+  },
+  "runtime": {
+    "builder_sha256": "da6980d4cd60d14f34a6e9b0fa8fc4af41c42ca9b81545eb078a09904e19667b",
+    "host": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "scipy": "1.17.1",
+    "seconds": 0.46449899673461914
+  },
+  "schema": "capacity_115_column_layer_fields_interpolated_to_075_detail_v1",
+  "shared_084_field_asset_sha256": "ff5d936d9c5f14df7e78a596134a03c5a6fd4f5c09a517203643ded28da8f5c1",
+  "status": "FIELD_INTERPOLATION_DIAGNOSTIC_ONLY"
+}

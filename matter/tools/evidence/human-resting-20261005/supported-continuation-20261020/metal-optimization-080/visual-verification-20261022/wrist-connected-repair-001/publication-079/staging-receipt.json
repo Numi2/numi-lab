@@ -1,0 +1,47 @@
+{
+  "accepted_physical_steps": 0,
+  "canonical_tests": {
+    "canonical_suite": "235 passed; 11 subtests passed",
+    "python": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "surface_gradient_141": "9 passed"
+  },
+  "canonical_tests_expected": "235 tests plus 11 subtests; 141 focused tests",
+  "canonical_tests_run": true,
+  "commit_or_push_performed": false,
+  "focused_127_tests": "20 passed; capacity-115 focused tests 6 passed",
+  "geometry_admitted": false,
+  "inherited_published_evidence": {
+    "artifact_count": 212,
+    "payload_copied": false,
+    "publication": "publication-078"
+  },
+  "limits": [
+    "All layer lengths are inferred Euclidean reference-coordinate lengths, not measured anatomy.",
+    "127/115 field prolongation is construction-only; no volume, material/mass ancestry, native, or physical admission.",
+    "116 and routing evidence are incomplete source-boundary proposals.",
+    "023\u2013025 outer surface remains partial (34/35 seed groups; 160/187 seed faces) and the 025 exact surface gate reports 19 PLC pairs.",
+    "Outer clearance reports are construction diagnostics: run 132 has 12 inside nodes (13 node/bank pairs), and run 140 has 57 inside nodes; no full edge/tet/solid admission.",
+    "142 O/I/D surface self-pairs are zero but the skin and fat shells retain 587 and 3 exact pairs respectively.",
+    "133 run 003 gradient-caps-004 returned LP_NO_PRIMAL_SOLUTION after about 56 seconds; this is not a proof of infeasibility and emitted no candidate.",
+    "Run 136 source is retained but its attempt failed before producing an output; run 138 report reuses the retained run 131 builder hash.",
+    "P079 canonical tests were rerun from the 143 source snapshot; all evidence remains software/construction-only."
+  ],
+  "previous_publication": "publication-078",
+  "publication": "publication-079",
+  "published_parent": "71471f27c9b78ca5b67ea9486e3cbeb49c2affc9",
+  "retained_roots": [
+    "connected-layer-reconstruction-127",
+    "fine-layer-fields-127",
+    "source-anchor-correction-116",
+    "connected-source-routing-016",
+    "coupled-layer-trial-128",
+    "root-clearance-129-140",
+    "surface-gradient-guard-141",
+    "nonmatching-layer-comparison-142",
+    "source-surface-023-025",
+    "coupled-layer-clearance-133",
+    "canonical-source-hardening-143"
+  ],
+  "source_anchor_116_tests": "3 passed",
+  "status": "STAGED_UNPUBLISHED"
+}

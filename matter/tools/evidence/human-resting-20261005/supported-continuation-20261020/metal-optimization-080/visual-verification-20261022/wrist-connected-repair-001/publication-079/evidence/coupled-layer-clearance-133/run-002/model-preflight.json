@@ -1,0 +1,908 @@
+{
+  "D_D_separators": [
+    {
+      "axis_source": "edge_cross_1_2",
+      "baseline_min_gap_m": 0.0031004338997836483,
+      "candidate_violation_m": 0.0017895170120107926,
+      "face_a": 4826,
+      "face_b": 7028,
+      "margin_m": 0.0015502169498918241,
+      "normal": [
+        -0.9385103457545281,
+        -0.29365966346587663,
+        0.18155531654243615
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_1_2",
+      "baseline_min_gap_m": 0.0031350453783115196,
+      "candidate_violation_m": 0.0018630999890176401,
+      "face_a": 4826,
+      "face_b": 7034,
+      "margin_m": 0.0015675226891557598,
+      "normal": [
+        -0.9148570601862577,
+        -0.3722292271999744,
+        0.15646712704420723
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_1_0",
+      "baseline_min_gap_m": 0.004683365249992383,
+      "candidate_violation_m": 0.0026372599248580715,
+      "face_a": 4826,
+      "face_b": 7035,
+      "margin_m": 0.0023416826249961914,
+      "normal": [
+        -0.9148570601862577,
+        -0.3722292271999744,
+        0.15646712704420723
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "triangle_normal_a",
+      "baseline_min_gap_m": 0.004798084871962157,
+      "candidate_violation_m": 0.0025885205907652835,
+      "face_a": 4826,
+      "face_b": 7040,
+      "margin_m": 0.0023990424359810786,
+      "normal": [
+        -0.9663040223148059,
+        -0.1095175645874564,
+        0.23294299625672252
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_2",
+      "baseline_min_gap_m": 0.001800421422996599,
+      "candidate_violation_m": 0.002570396563733449,
+      "face_a": 6825,
+      "face_b": 6840,
+      "margin_m": 0.0009002107114982995,
+      "normal": [
+        -0.8573297387882299,
+        -0.3913328900609911,
+        0.3344312906200882
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_0",
+      "baseline_min_gap_m": 0.0018369588543860626,
+      "candidate_violation_m": 0.0027133442137298324,
+      "face_a": 6825,
+      "face_b": 7077,
+      "margin_m": 0.0009184794271930313,
+      "normal": [
+        -0.7604578348701125,
+        -0.5220451422329615,
+        0.3862288840255578
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_2",
+      "baseline_min_gap_m": 0.0028551076962349854,
+      "candidate_violation_m": 0.002497513857783453,
+      "face_a": 6826,
+      "face_b": 7076,
+      "margin_m": 0.0014275538481174927,
+      "normal": [
+        -0.7250389057996729,
+        -0.49541266299578557,
+        0.478419145123016
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_2",
+      "baseline_min_gap_m": 0.0028551076962349854,
+      "candidate_violation_m": 0.002497513857783453,
+      "face_a": 6827,
+      "face_b": 7076,
+      "margin_m": 0.0014275538481174927,
+      "normal": [
+        -0.7250389057996729,
+        -0.49541266299578557,
+        0.478419145123016
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_0_0",
+      "baseline_min_gap_m": 0.0022181537123102165,
+      "candidate_violation_m": 0.0022028558642892913,
+      "face_a": 6827,
+      "face_b": 7077,
+      "margin_m": 0.0011090768561551083,
+      "normal": [
+        -0.8677066308278085,
+        -0.3343344366397868,
+        -0.3678392139158218
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_0",
+      "baseline_min_gap_m": 1.6940658945086007e-21,
+      "candidate_violation_m": 0.002715740955276278,
+      "face_a": 6834,
+      "face_b": 6836,
+      "margin_m": 0.0,
+      "normal": [
+        0.8146178641003052,
+        0.5784903962401993,
+        0.041792307264780164
+      ],
+      "shared_vertex_ids": [
+        3616
+      ]
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_0_0",
+      "baseline_min_gap_m": 0.0014482890281699336,
+      "candidate_violation_m": 0.002638045635313455,
+      "face_a": 6836,
+      "face_b": 6840,
+      "margin_m": 0.0007241445140849668,
+      "normal": [
+        -0.8146178641003052,
+        -0.5784903962401993,
+        -0.041792307264780164
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_0_0",
+      "baseline_min_gap_m": 0.0009396262397900806,
+      "candidate_violation_m": 0.002541817229183723,
+      "face_a": 6836,
+      "face_b": 6841,
+      "margin_m": 0.0004698131198950403,
+      "normal": [
+        -0.8146178641003052,
+        -0.5784903962401993,
+        -0.041792307264780164
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_0",
+      "baseline_min_gap_m": 0.0014069939599376828,
+      "candidate_violation_m": 0.001339657838567204,
+      "face_a": 7028,
+      "face_b": 7031,
+      "margin_m": 0.0007034969799688414,
+      "normal": [
+        0.8343476652060252,
+        0.5429726248213116,
+        -0.09510363957236323
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_2_0",
+      "baseline_min_gap_m": 0.002359977362586827,
+      "candidate_violation_m": 0.0017412022592498458,
+      "face_a": 7028,
+      "face_b": 7068,
+      "margin_m": 0.0011799886812934135,
+      "normal": [
+        0.9304654449032448,
+        0.36469422906256116,
+        -0.03510235219285092
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_0_2",
+      "baseline_min_gap_m": 0.0017686834542334203,
+      "candidate_violation_m": 0.0013335585489165748,
+      "face_a": 7028,
+      "face_b": 7071,
+      "margin_m": 0.0008843417271167101,
+      "normal": [
+        0.9317275037607964,
+        0.24869663318446217,
+        -0.2646390813511644
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_2_2",
+      "baseline_min_gap_m": 0.0030567987846572132,
+      "candidate_violation_m": 0.0020896129702850388,
+      "face_a": 7028,
+      "face_b": 7073,
+      "margin_m": 0.0015283993923286066,
+      "normal": [
+        0.9304654449032448,
+        0.36469422906256116,
+        -0.03510235219285092
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_2_0",
+      "baseline_min_gap_m": 0.003096516596949428,
+      "candidate_violation_m": 0.0022464634652835723,
+      "face_a": 7028,
+      "face_b": 7074,
+      "margin_m": 0.001548258298474714,
+      "normal": [
+        0.9355642598858573,
+        0.26766339218200597,
+        -0.23038190925037885
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_0",
+      "baseline_min_gap_m": 0.0014069939599376828,
+      "candidate_violation_m": 0.0022660425706476435,
+      "face_a": 7030,
+      "face_b": 7031,
+      "margin_m": 0.0007034969799688414,
+      "normal": [
+        0.8343476652060252,
+        0.5429726248213116,
+        -0.09510363957236323
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_1_2",
+      "baseline_min_gap_m": 0.00228262993119504,
+      "candidate_violation_m": 0.002421831565771401,
+      "face_a": 7030,
+      "face_b": 7068,
+      "margin_m": 0.00114131496559752,
+      "normal": [
+        0.976269218096721,
+        0.21267562215412994,
+        0.04083495485696969
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_1",
+      "baseline_min_gap_m": 0.002109312234950964,
+      "candidate_violation_m": 0.001663824002827611,
+      "face_a": 7030,
+      "face_b": 7071,
+      "margin_m": 0.001054656117475482,
+      "normal": [
+        0.9886267641635984,
+        -0.02721127519917553,
+        -0.14790763226232573
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_2",
+      "baseline_min_gap_m": 0.0012824759794780967,
+      "candidate_violation_m": 0.002415372382776739,
+      "face_a": 7031,
+      "face_b": 7072,
+      "margin_m": 0.0006412379897390483,
+      "normal": [
+        -0.8929343210161592,
+        -0.34167114185631947,
+        0.2931367073124919
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_2",
+      "baseline_min_gap_m": 2.710505431213761e-20,
+      "candidate_violation_m": 0.0018970435212661797,
+      "face_a": 7032,
+      "face_b": 7072,
+      "margin_m": 0.0,
+      "normal": [
+        -0.8929343210161592,
+        -0.34167114185631947,
+        0.2931367073124919
+      ],
+      "shared_vertex_ids": [
+        3731
+      ]
+    },
+    {
+      "axis_source": "edge_cross_2_2",
+      "baseline_min_gap_m": 0.003804817129489709,
+      "candidate_violation_m": 0.0031829251649187354,
+      "face_a": 7036,
+      "face_b": 7068,
+      "margin_m": 0.0019024085647448546,
+      "normal": [
+        0.976269218096721,
+        0.21267562215412994,
+        0.04083495485696969
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_2_1",
+      "baseline_min_gap_m": 0.003823500774837576,
+      "candidate_violation_m": 0.003167477453621244,
+      "face_a": 7036,
+      "face_b": 7073,
+      "margin_m": 0.001911750387418788,
+      "normal": [
+        0.9729013288065274,
+        0.22081071437266886,
+        0.06859761529911086
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "triangle_normal_b",
+      "baseline_min_gap_m": 0.0035547293821392993,
+      "candidate_violation_m": 0.00217122932851761,
+      "face_a": 7037,
+      "face_b": 7073,
+      "margin_m": 0.0017773646910696497,
+      "normal": [
+        0.607475247214595,
+        0.22591783765362877,
+        -0.761534605025586
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "triangle_normal_b",
+      "baseline_min_gap_m": 0.004339110807818897,
+      "candidate_violation_m": 0.0027818807775594626,
+      "face_a": 7037,
+      "face_b": 7074,
+      "margin_m": 0.0021695554039094485,
+      "normal": [
+        0.8030201730503399,
+        0.24777824956827904,
+        -0.5420004988144216
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_0_2",
+      "baseline_min_gap_m": 0.004349213421631659,
+      "candidate_violation_m": 0.002453539130237466,
+      "face_a": 7040,
+      "face_b": 7074,
+      "margin_m": 0.0021746067108158293,
+      "normal": [
+        0.7986898207623851,
+        0.3337725873370415,
+        -0.5006899541162034
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_0_2",
+      "baseline_min_gap_m": 0.003750251809754179,
+      "candidate_violation_m": 0.0029795822932783458,
+      "face_a": 7068,
+      "face_b": 7081,
+      "margin_m": 0.0018751259048770895,
+      "normal": [
+        -0.9636568188577208,
+        -0.20841506156691053,
+        -0.16711881276827895
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_0_2",
+      "baseline_min_gap_m": 0.0026824808126698022,
+      "candidate_violation_m": 0.0022925636407836727,
+      "face_a": 7070,
+      "face_b": 7076,
+      "margin_m": 0.0013412404063349011,
+      "normal": [
+        -0.7633310952065759,
+        -0.5396438638879841,
+        -0.3551198942030364
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_0_1",
+      "baseline_min_gap_m": 0.002669656744270883,
+      "candidate_violation_m": 0.0022694610204231345,
+      "face_a": 7070,
+      "face_b": 7081,
+      "margin_m": 0.0013348283721354415,
+      "normal": [
+        -0.7601504387171579,
+        -0.5389814897126709,
+        -0.36286397487932376
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_0_1",
+      "baseline_min_gap_m": 0.0013335084121337808,
+      "candidate_violation_m": 0.0020562779283866328,
+      "face_a": 7323,
+      "face_b": 7347,
+      "margin_m": 0.0006667542060668904,
+      "normal": [
+        0.2164985144864993,
+        -0.21889821640141596,
+        0.9514262788474039
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_0",
+      "baseline_min_gap_m": 0.001352014499132906,
+      "candidate_violation_m": 0.0014866543956080266,
+      "face_a": 7324,
+      "face_b": 7347,
+      "margin_m": 0.000676007249566453,
+      "normal": [
+        0.5393335607572866,
+        -0.10234224926805562,
+        0.8358500907792147
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_2",
+      "baseline_min_gap_m": 0.001375401192786582,
+      "candidate_violation_m": 0.0014754866480252633,
+      "face_a": 7324,
+      "face_b": 7759,
+      "margin_m": 0.000687700596393291,
+      "normal": [
+        0.541989475708662,
+        -0.012353833370925434,
+        0.8402944668520037
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_0",
+      "baseline_min_gap_m": 0.0,
+      "candidate_violation_m": 0.0019450592416462732,
+      "face_a": 7335,
+      "face_b": 7347,
+      "margin_m": 0.0,
+      "normal": [
+        0.5393335607572866,
+        -0.10234224926805562,
+        0.8358500907792147
+      ],
+      "shared_vertex_ids": [
+        3876
+      ]
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_0_1",
+      "baseline_min_gap_m": 0.001363039145808687,
+      "candidate_violation_m": 0.001465079571690207,
+      "face_a": 7349,
+      "face_b": 7759,
+      "margin_m": 0.0006815195729043435,
+      "normal": [
+        0.15269404381669416,
+        -0.23267524793589908,
+        0.9604929765390652
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_0_1",
+      "baseline_min_gap_m": 4.336808689942018e-19,
+      "candidate_violation_m": 0.0025945677365307286,
+      "face_a": 7350,
+      "face_b": 7759,
+      "margin_m": 0.0,
+      "normal": [
+        0.3602940131425526,
+        -0.4220921931033946,
+        0.8318812442980071
+      ],
+      "shared_vertex_ids": [
+        4085
+      ]
+    },
+    {
+      "axis_source": "triangle_normal_a",
+      "baseline_min_gap_m": 0.0005884435273237306,
+      "candidate_violation_m": 0.0010073485295814953,
+      "face_a": 7505,
+      "face_b": 7854,
+      "margin_m": 0.0002942217636618653,
+      "normal": [
+        -0.1486343301605823,
+        -0.963896464062634,
+        0.22093311762899273
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_2",
+      "baseline_min_gap_m": 5.421010862427522e-20,
+      "candidate_violation_m": 0.002072588865637338,
+      "face_a": 7505,
+      "face_b": 7855,
+      "margin_m": 0.0,
+      "normal": [
+        -0.9024354735800086,
+        -0.36711172828456046,
+        0.22547548642889886
+      ],
+      "shared_vertex_ids": [
+        3953
+      ]
+    },
+    {
+      "axis_source": "edge_cross_1_0",
+      "baseline_min_gap_m": 0.0007795598732030006,
+      "candidate_violation_m": 0.00186639821214788,
+      "face_a": 7506,
+      "face_b": 7854,
+      "margin_m": 0.0003897799366015003,
+      "normal": [
+        -0.5986099894038033,
+        -0.5629309054155381,
+        0.5698902318113735
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_0",
+      "baseline_min_gap_m": 0.0006308956590809658,
+      "candidate_violation_m": 0.0018424771063457275,
+      "face_a": 7507,
+      "face_b": 7854,
+      "margin_m": 0.0003154478295404829,
+      "normal": [
+        -0.6469621630764606,
+        -0.7556085422350234,
+        -0.10244847704524516
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_0_0",
+      "baseline_min_gap_m": 0.0015245025566697184,
+      "candidate_violation_m": 0.0015062370852501601,
+      "face_a": 7511,
+      "face_b": 7534,
+      "margin_m": 0.0007622512783348592,
+      "normal": [
+        0.9054594242284392,
+        0.34115864239764837,
+        -0.2524955678686199
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_0",
+      "baseline_min_gap_m": 0.0006055845237406286,
+      "candidate_violation_m": 0.0007810827733212547,
+      "face_a": 7513,
+      "face_b": 7533,
+      "margin_m": 0.0,
+      "normal": [
+        0.570188915462927,
+        0.20124243062572308,
+        -0.796483574720196
+      ],
+      "shared_vertex_ids": [
+        3964
+      ]
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_1",
+      "baseline_min_gap_m": 0.0005965571906357094,
+      "candidate_violation_m": 0.0005716106389446576,
+      "face_a": 7513,
+      "face_b": 7534,
+      "margin_m": 0.0002982785953178547,
+      "normal": [
+        0.487127604426029,
+        0.3525968635211486,
+        -0.7989882031927672
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_2",
+      "baseline_min_gap_m": 0.0019256244232090864,
+      "candidate_violation_m": 0.0016917021003260203,
+      "face_a": 7533,
+      "face_b": 7854,
+      "margin_m": 0.0009628122116045432,
+      "normal": [
+        -0.8990580098491239,
+        -0.4116017219696955,
+        -0.1492605687973688
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_2",
+      "baseline_min_gap_m": 0.0019461264887344167,
+      "candidate_violation_m": 0.001692228114920751,
+      "face_a": 7534,
+      "face_b": 7854,
+      "margin_m": 0.0009730632443672084,
+      "normal": [
+        -0.8990580098491239,
+        -0.4116017219696955,
+        -0.1492605687973688
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "in_plane_normal_cross_edge_1_2",
+      "baseline_min_gap_m": 0.0022327513960053126,
+      "candidate_violation_m": 0.0018708176786552887,
+      "face_a": 7534,
+      "face_b": 7855,
+      "margin_m": 0.0011163756980026563,
+      "normal": [
+        -0.9024354735800086,
+        -0.36711172828456046,
+        0.22547548642889886
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_1_2",
+      "baseline_min_gap_m": 0.0019396250721305664,
+      "candidate_violation_m": 0.003987947048561528,
+      "face_a": 7913,
+      "face_b": 8052,
+      "margin_m": 0.0009698125360652832,
+      "normal": [
+        -0.5441277121533024,
+        0.4359029003834177,
+        0.716877740137143
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_1_2",
+      "baseline_min_gap_m": 0.004061699747232831,
+      "candidate_violation_m": 0.0031632384908312555,
+      "face_a": 7913,
+      "face_b": 8054,
+      "margin_m": 0.0020308498736164157,
+      "normal": [
+        -0.3604143983864065,
+        0.6213230661994577,
+        0.6957435654350453
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_0_2",
+      "baseline_min_gap_m": 2.710505431213761e-19,
+      "candidate_violation_m": 0.004930775917197684,
+      "face_a": 8045,
+      "face_b": 8052,
+      "margin_m": 0.0,
+      "normal": [
+        -0.8435776392156191,
+        0.3425264757128474,
+        0.4135847918518509
+      ],
+      "shared_vertex_ids": [
+        4202
+      ]
+    },
+    {
+      "axis_source": "edge_cross_0_2",
+      "baseline_min_gap_m": 0.002922147081872378,
+      "candidate_violation_m": 0.003931605916023418,
+      "face_a": 8045,
+      "face_b": 8054,
+      "margin_m": 0.001461073540936189,
+      "normal": [
+        -0.6371839217237115,
+        0.6132836610740452,
+        0.46677596441591424
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_0_0",
+      "baseline_min_gap_m": 0.003346150827725748,
+      "candidate_violation_m": 0.00487818995007082,
+      "face_a": 8045,
+      "face_b": 8204,
+      "margin_m": 0.001673075413862874,
+      "normal": [
+        -0.8833156482301194,
+        0.25996355874440197,
+        0.39009282705113896
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_0_2",
+      "baseline_min_gap_m": 0.0032140735249259053,
+      "candidate_violation_m": 0.004445592137820847,
+      "face_a": 8045,
+      "face_b": 8210,
+      "margin_m": 0.0016070367624629526,
+      "normal": [
+        -0.780376784935984,
+        0.4456290050818946,
+        0.4386648645181169
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "triangle_normal_a",
+      "baseline_min_gap_m": 0.0,
+      "candidate_violation_m": 0.004930775917197685,
+      "face_a": 8046,
+      "face_b": 8054,
+      "margin_m": 0.0,
+      "normal": [
+        -0.8435776392156192,
+        0.34252647571284744,
+        0.41358479185185093
+      ],
+      "shared_vertex_ids": [
+        4206
+      ]
+    },
+    {
+      "axis_source": "edge_cross_2_0",
+      "baseline_min_gap_m": 0.003346150827725748,
+      "candidate_violation_m": 0.00487818995007082,
+      "face_a": 8046,
+      "face_b": 8204,
+      "margin_m": 0.001673075413862874,
+      "normal": [
+        -0.8833156482301194,
+        0.25996355874440197,
+        0.39009282705113896
+      ],
+      "shared_vertex_ids": []
+    },
+    {
+      "axis_source": "edge_cross_1_2",
+      "baseline_min_gap_m": 0.0027062506739142372,
+      "candidate_violation_m": 0.0022827367095356746,
+      "face_a": 8046,
+      "face_b": 8210,
+      "margin_m": 0.0013531253369571186,
+      "normal": [
+        -0.4891612730586567,
+        0.4429226506479009,
+        0.7513592845521189
+      ],
+      "shared_vertex_ids": []
+    }
+  ],
+  "cap_D_separators": [
+    {
+      "cap_face": 82,
+      "cap_vertices": [
+        [
+          "I",
+          1556
+        ],
+        [
+          "I",
+          1510
+        ],
+        [
+          "D",
+          1510
+        ]
+      ],
+      "d_face": 3310,
+      "d_vertices": [
+        1510,
+        1556,
+        1504
+      ],
+      "normal": [
+        -0.6297104212580135,
+        0.4739056155843949,
+        -0.6155308707746759
+      ],
+      "normal_alignment": 0.8234767489556791
+    },
+    {
+      "cap_face": 82,
+      "cap_vertices": [
+        [
+          "I",
+          1556
+        ],
+        [
+          "I",
+          1510
+        ],
+        [
+          "D",
+          1510
+        ]
+      ],
+      "d_face": 3312,
+      "d_vertices": [
+        1504,
+        1556,
+        1554
+      ],
+      "normal": [
+        -0.8430141645999154,
+        -0.31605382281114286,
+        -0.4352437241022202
+      ],
+      "normal_alignment": 0.9975879327109489
+    },
+    {
+      "cap_face": 83,
+      "cap_vertices": [
+        [
+          "I",
+          1556
+        ],
+        [
+          "D",
+          1510
+        ],
+        [
+          "D",
+          1556
+        ]
+      ],
+      "d_face": 3312,
+      "d_vertices": [
+        1504,
+        1556,
+        1554
+      ],
+      "normal": [
+        -0.8430141645999154,
+        -0.31605382281114286,
+        -0.4352437241022202
+      ],
+      "normal_alignment": 0.9975879327109489
+    }
+  ],
+  "choices": {
+    "cap_D_separator": "fixed baseline-D-face plane oriented outward by O-face normal; zero margin; all 9 pairs retained",
+    "column_ordering_m": 5e-05,
+    "displacement_l1": "unit weight per I/D node coordinate, mm units",
+    "pair_margin_m": 5e-05,
+    "same_layer_D_separator": "human_skin_fat_surface_separation.select_baseline_separator on O faces",
+    "smoothness_graph": "all unique edges of the indexed outer topology",
+    "smoothness_weight_per_mm": 0.05
+  },
+  "counts": {
+    "D_D_pairs": 55,
+    "I_D_pairs": 216,
+    "LP_nnz": 618819,
+    "LP_rows": 220786,
+    "LP_variables": 132360,
+    "O_D_pairs": 150,
+    "O_I_pairs": 428,
+    "affected_one_ring_nodes": 725,
+    "cap_D_pairs": 3,
+    "faces": 8797,
+    "geometric_nnz": 36867,
+    "geometric_rows": 9118,
+    "mesh_edges": 13218,
+    "nodes": 4421
+  },
+  "input_sha256": "a420a94e7485a226bfc605736da600b2787b80fe1c42a3303e7c09c88676a7b5",
+  "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "run003_report_sha256": "856fe3b0f68116b277c12c1492421ae74054777fd7e380b2fb97018294c87c54",
+  "separation_helper_sha256": "cafecf587c641b67c709ffa5c4633f5428dfe6fa979e856420662e1d0764a244"
+}

@@ -220,7 +220,17 @@ def sparse_triangle_displacement_gradient(points,faces,free_nodes,node_count,ver
         if np.any(np.abs(sums[active]-1.)>1e-6):raise ValueError('active vertex-map rows must sum to one')
     V=X[T]
     E=np.stack((V[:,1]-V[:,0],V[:,2]-V[:,0]),axis=2)
-    try:pinv=np.linalg.pinv(E)
+    # A pseudoinverse silently accepts rank-one triangles. Such rows cannot
+    # bound an injective surface map, even though their coefficients are finite.
+    try:
+        singular=np.linalg.svd(E,compute_uv=False)
+        rank_bad=(~np.isfinite(singular).all(axis=1) |
+                  (singular[:,0]<=0.) |
+                  (singular[:,1]<=64.*np.finfo(np.float64).eps*singular[:,0]))
+        if np.any(rank_bad):
+            raise ValueError('triangle P1 reference is numerically rank deficient at face rows '+
+                             str(np.flatnonzero(rank_bad)[:16].tolist()))
+        pinv=np.linalg.pinv(E)
     except np.linalg.LinAlgError as exc:raise ValueError('triangle P1 pseudoinverse failed') from exc
     shape=np.stack((-pinv[:,0,:]-pinv[:,1,:],pinv[:,0,:],pinv[:,1,:]),axis=1)
     if not np.isfinite(shape).all():raise ValueError('nonfinite triangle P1 shape gradients')

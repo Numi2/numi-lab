@@ -1,0 +1,634 @@
+{
+  "attempts": [
+    {
+      "failed": {
+        "attempt_pops": 54425,
+        "coarse_edge": [
+          150,
+          229
+        ],
+        "end_row": 1284,
+        "end_source_id": 1284,
+        "free_pops": 5,
+        "free_shortest_length_m": 0.0033674584997447775,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 19,
+        "start_row": 993,
+        "start_source_id": 993
+      },
+      "reverse_order": false,
+      "segments_routed": 19,
+      "start_offset": 0
+    },
+    {
+      "failed": {
+        "attempt_pops": 3,
+        "coarse_edge": [
+          142,
+          141
+        ],
+        "end_row": 982,
+        "end_source_id": 982,
+        "free_pops": 6,
+        "free_shortest_length_m": 0.00329347728518469,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 22,
+        "start_row": 985,
+        "start_source_id": 985
+      },
+      "reverse_order": false,
+      "segments_routed": 15,
+      "start_offset": 7
+    },
+    {
+      "failed": {
+        "attempt_pops": 3,
+        "coarse_edge": [
+          142,
+          141
+        ],
+        "end_row": 982,
+        "end_source_id": 982,
+        "free_pops": 6,
+        "free_shortest_length_m": 0.00329347728518469,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 22,
+        "start_row": 985,
+        "start_source_id": 985
+      },
+      "reverse_order": false,
+      "segments_routed": 8,
+      "start_offset": 14
+    },
+    {
+      "failed": {
+        "attempt_pops": 54422,
+        "coarse_edge": [
+          150,
+          229
+        ],
+        "end_row": 1284,
+        "end_source_id": 1284,
+        "free_pops": 5,
+        "free_shortest_length_m": 0.0033674584997447775,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 19,
+        "start_row": 993,
+        "start_source_id": 993
+      },
+      "reverse_order": false,
+      "segments_routed": 25,
+      "start_offset": 21
+    },
+    {
+      "failed": {
+        "attempt_pops": 54459,
+        "coarse_edge": [
+          232,
+          240
+        ],
+        "end_row": 1300,
+        "end_source_id": 1300,
+        "free_pops": 7,
+        "free_shortest_length_m": 0.0053825650588436875,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 16,
+        "start_row": 1289,
+        "start_source_id": 1289
+      },
+      "reverse_order": true,
+      "segments_routed": 10,
+      "start_offset": 0
+    },
+    {
+      "failed": {
+        "attempt_pops": 54456,
+        "coarse_edge": [
+          232,
+          240
+        ],
+        "end_row": 1300,
+        "end_source_id": 1300,
+        "free_pops": 7,
+        "free_shortest_length_m": 0.0053825650588436875,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 16,
+        "start_row": 1289,
+        "start_source_id": 1289
+      },
+      "reverse_order": true,
+      "segments_routed": 17,
+      "start_offset": 7
+    },
+    {
+      "failed": {
+        "attempt_pops": 54453,
+        "coarse_edge": [
+          232,
+          240
+        ],
+        "end_row": 1300,
+        "end_source_id": 1300,
+        "free_pops": 7,
+        "free_shortest_length_m": 0.0053825650588436875,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 16,
+        "start_row": 1289,
+        "start_source_id": 1289
+      },
+      "reverse_order": true,
+      "segments_routed": 24,
+      "start_offset": 14
+    },
+    {
+      "failed": {
+        "attempt_pops": 54461,
+        "coarse_edge": [
+          232,
+          240
+        ],
+        "end_row": 1300,
+        "end_source_id": 1300,
+        "free_pops": 7,
+        "free_shortest_length_m": 0.0053825650588436875,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 16,
+        "start_row": 1289,
+        "start_source_id": 1289
+      },
+      "reverse_order": true,
+      "segments_routed": 4,
+      "start_offset": 21
+    }
+  ],
+  "best_partial_attempt": {
+    "attempt": {
+      "failed": {
+        "attempt_pops": 54422,
+        "coarse_edge": [
+          150,
+          229
+        ],
+        "end_row": 1284,
+        "end_source_id": 1284,
+        "free_pops": 5,
+        "free_shortest_length_m": 0.0033674584997447775,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 19,
+        "start_row": 993,
+        "start_source_id": 993
+      },
+      "reverse_order": false,
+      "segments_routed": 25,
+      "start_offset": 21
+    },
+    "segments_routed": 25
+  },
+  "best_partial_paths": [
+    {
+      "coarse_edge": [
+        120,
+        122
+      ],
+      "detail_rows": [
+        940,
+        943
+      ],
+      "detail_source_vertex_ids": [
+        940,
+        943
+      ],
+      "length_m": 0.0017166275740046065,
+      "segment": 0
+    },
+    {
+      "coarse_edge": [
+        122,
+        199
+      ],
+      "detail_rows": [
+        943,
+        944,
+        1202
+      ],
+      "detail_source_vertex_ids": [
+        943,
+        944,
+        1202
+      ],
+      "length_m": 0.0031031407794581936,
+      "segment": 1
+    },
+    {
+      "coarse_edge": [
+        199,
+        200
+      ],
+      "detail_rows": [
+        1202,
+        1205
+      ],
+      "detail_source_vertex_ids": [
+        1202,
+        1205
+      ],
+      "length_m": 0.0031649466947695523,
+      "segment": 2
+    },
+    {
+      "coarse_edge": [
+        200,
+        201
+      ],
+      "detail_rows": [
+        1205,
+        1206
+      ],
+      "detail_source_vertex_ids": [
+        1205,
+        1206
+      ],
+      "length_m": 0.0024368641543282363,
+      "segment": 3
+    },
+    {
+      "coarse_edge": [
+        201,
+        205
+      ],
+      "detail_rows": [
+        1206,
+        1228
+      ],
+      "detail_source_vertex_ids": [
+        1206,
+        1228
+      ],
+      "length_m": 0.0017066041981979652,
+      "segment": 4
+    },
+    {
+      "coarse_edge": [
+        205,
+        209
+      ],
+      "detail_rows": [
+        1228,
+        1225,
+        1241
+      ],
+      "detail_source_vertex_ids": [
+        1228,
+        1225,
+        1241
+      ],
+      "length_m": 0.0029936115812640935,
+      "segment": 5
+    },
+    {
+      "coarse_edge": [
+        209,
+        206
+      ],
+      "detail_rows": [
+        1241,
+        1245,
+        1230
+      ],
+      "detail_source_vertex_ids": [
+        1241,
+        1245,
+        1230
+      ],
+      "length_m": 0.0038873037939044317,
+      "segment": 6
+    },
+    {
+      "coarse_edge": [
+        206,
+        212
+      ],
+      "detail_rows": [
+        1230,
+        1249
+      ],
+      "detail_source_vertex_ids": [
+        1230,
+        1249
+      ],
+      "length_m": 0.002070701218483551,
+      "segment": 7
+    },
+    {
+      "coarse_edge": [
+        212,
+        221
+      ],
+      "detail_rows": [
+        1249,
+        1250,
+        1274
+      ],
+      "detail_source_vertex_ids": [
+        1249,
+        1250,
+        1274
+      ],
+      "length_m": 0.004068842026772046,
+      "segment": 8
+    },
+    {
+      "coarse_edge": [
+        221,
+        270
+      ],
+      "detail_rows": [
+        1274,
+        1530
+      ],
+      "detail_source_vertex_ids": [
+        1274,
+        1530
+      ],
+      "length_m": 0.004487198139452122,
+      "segment": 9
+    },
+    {
+      "coarse_edge": [
+        270,
+        222
+      ],
+      "detail_rows": [
+        1530,
+        1276
+      ],
+      "detail_source_vertex_ids": [
+        1530,
+        1276
+      ],
+      "length_m": 0.0034851963941829917,
+      "segment": 10
+    },
+    {
+      "coarse_edge": [
+        222,
+        272
+      ],
+      "detail_rows": [
+        1276,
+        1533
+      ],
+      "detail_source_vertex_ids": [
+        1276,
+        1533
+      ],
+      "length_m": 0.009935379890495411,
+      "segment": 11
+    },
+    {
+      "coarse_edge": [
+        272,
+        281
+      ],
+      "detail_rows": [
+        1533,
+        1546
+      ],
+      "detail_source_vertex_ids": [
+        1533,
+        1546
+      ],
+      "length_m": 0.006640280835644112,
+      "segment": 12
+    },
+    {
+      "coarse_edge": [
+        281,
+        234
+      ],
+      "detail_rows": [
+        1546,
+        1544,
+        1542,
+        1292
+      ],
+      "detail_source_vertex_ids": [
+        1546,
+        1544,
+        1542,
+        1292
+      ],
+      "length_m": 0.00909140739235707,
+      "segment": 13
+    },
+    {
+      "coarse_edge": [
+        234,
+        242
+      ],
+      "detail_rows": [
+        1292,
+        1305,
+        1306
+      ],
+      "detail_source_vertex_ids": [
+        1292,
+        1305,
+        1306
+      ],
+      "length_m": 0.003357250463554581,
+      "segment": 14
+    },
+    {
+      "coarse_edge": [
+        242,
+        232
+      ],
+      "detail_rows": [
+        1306,
+        1304,
+        1289
+      ],
+      "detail_source_vertex_ids": [
+        1306,
+        1304,
+        1289
+      ],
+      "length_m": 0.004448161094473519,
+      "segment": 15
+    },
+    {
+      "coarse_edge": [
+        232,
+        240
+      ],
+      "detail_rows": [
+        1289,
+        1287,
+        1302,
+        1300
+      ],
+      "detail_source_vertex_ids": [
+        1289,
+        1287,
+        1302,
+        1300
+      ],
+      "length_m": 0.02163607411400435,
+      "segment": 16
+    },
+    {
+      "coarse_edge": [
+        240,
+        230
+      ],
+      "detail_rows": [
+        1300,
+        1285
+      ],
+      "detail_source_vertex_ids": [
+        1300,
+        1285
+      ],
+      "length_m": 0.010365433046440352,
+      "segment": 17
+    },
+    {
+      "coarse_edge": [
+        230,
+        150
+      ],
+      "detail_rows": [
+        1285,
+        995,
+        993
+      ],
+      "detail_source_vertex_ids": [
+        1285,
+        995,
+        993
+      ],
+      "length_m": 0.0032556874489291926,
+      "segment": 18
+    },
+    {
+      "coarse_edge": [
+        143,
+        142
+      ],
+      "detail_rows": [
+        986,
+        985
+      ],
+      "detail_source_vertex_ids": [
+        986,
+        985
+      ],
+      "length_m": 0.0022799026756788352,
+      "segment": 21
+    },
+    {
+      "coarse_edge": [
+        142,
+        141
+      ],
+      "detail_rows": [
+        985,
+        984,
+        982
+      ],
+      "detail_source_vertex_ids": [
+        985,
+        984,
+        982
+      ],
+      "length_m": 0.00329347728518469,
+      "segment": 22
+    },
+    {
+      "coarse_edge": [
+        141,
+        214
+      ],
+      "detail_rows": [
+        982,
+        971,
+        973,
+        1257
+      ],
+      "detail_source_vertex_ids": [
+        982,
+        971,
+        973,
+        1257
+      ],
+      "length_m": 0.008170379904452917,
+      "segment": 23
+    },
+    {
+      "coarse_edge": [
+        214,
+        134
+      ],
+      "detail_rows": [
+        1257,
+        974
+      ],
+      "detail_source_vertex_ids": [
+        1257,
+        974
+      ],
+      "length_m": 0.0036787196225126144,
+      "segment": 24
+    },
+    {
+      "coarse_edge": [
+        134,
+        203
+      ],
+      "detail_rows": [
+        974,
+        1226
+      ],
+      "detail_source_vertex_ids": [
+        974,
+        1226
+      ],
+      "length_m": 0.0026625669825730397,
+      "segment": 25
+    },
+    {
+      "coarse_edge": [
+        203,
+        120
+      ],
+      "detail_rows": [
+        1226,
+        940
+      ],
+      "detail_source_vertex_ids": [
+        1226,
+        940
+      ],
+      "length_m": 0.006085052573356765,
+      "segment": 26
+    }
+  ],
+  "elapsed_seconds": 0.569598913192749,
+  "input_sha256": {
+    "cut_npz": "21e2b65d85ba9bac176aaa670b916bc13189975a295c9ab328d1e835bb2e0b78",
+    "cut_report": "d9f22dc8fda1ae6a3db5950c313b096871db2c9814fa09ad27987a2f9d7f8684",
+    "detail": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4"
+  },
+  "reserved_other_loop_edges": 389,
+  "reserved_other_loop_internal_nodes": 330,
+  "schema": "source_fine_graph_reroute_probe_v1",
+  "scope": "Bounded graph-only search; no geometry changed and no proof of global infeasibility.",
+  "status": "NO_SIMPLE_CYCLE_WITH_OTHER_LOOPS_UNRESERVED",
+  "target": {
+    "anchor_count": 27,
+    "boundary_edges": 27,
+    "component": 0,
+    "loop": 0
+  }
+}

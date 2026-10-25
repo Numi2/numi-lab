@@ -1,0 +1,132 @@
+{
+  "checks": {
+    "W_active_mask_matches_transfer_table": true,
+    "W_active_row_sum_error_max": 2.9802322387695312e-08,
+    "W_max_weight": 1.0,
+    "W_min_weight": 5.237653871945955e-19,
+    "accepted_075_O_reference_max_abs_delta_from_source_O_m": 5.953906057065694e-08,
+    "accepted_075_O_reference_within_1e-7m_csv_precision_bound": true,
+    "active_W_rows_have_positive_nonnegative_support": true,
+    "all_W_support_columns_are_candidate_O_surface_nodes": true,
+    "all_W_support_columns_have_defined_fields": true,
+    "candidate_O_faces_bitwise_match_accepted_075_faces": true,
+    "candidate_source_prefix_bitwise_matches_source_reference": true,
+    "generated_O_parent_field_disagreement_max": 0.0,
+    "generated_O_parent_nonO_barycentric_l1_max": 1.7763568394002505e-14,
+    "generated_O_parent_position_max_residual_m": 5.067293260069208e-16,
+    "inactive_W_rows_are_zero": true,
+    "source_initial_node_order_and_positions_match_layer_blocks": true
+  },
+  "classification": "Euclidean O-I and I-D lengths are inferred geometric fields from the pinned baseline reference mesh; they are not measured anatomical thicknesses and do not qualify geometry, materials, or native physics.",
+  "counts": {
+    "W_support_generated_O_nodes": 52,
+    "W_support_nodes": 2461,
+    "W_support_original_O_nodes": 2409,
+    "active_detail_rows": 54551,
+    "candidate_O_surface_nodes": 2464,
+    "candidate_output_nodes": 7360,
+    "coarse_direct_source_anchors": 2411,
+    "coarse_virtual_source_anchors": 0,
+    "detail_rows": 61950,
+    "generated_O_surface_nodes": 53,
+    "inactive_detail_rows": 7399,
+    "source_columns": 2411,
+    "source_layer_nodes": 7233
+  },
+  "field_semantics": {
+    "W_use": "The exact pinned Wnew CSR is used only to interpolate these scalar/vector fields from candidate O surface nodes to active detailed rows. It is not used as a geometric anchor or position transfer here.",
+    "coarse_source": "084 baseline reference_points_m, with original 7233 source rows ordered as O[0:2411], I[2411:4822], D[4822:7233].",
+    "generated_O_rows": "For the 53 generated O surface nodes, field values are P1 interpolations from frozen source tetrahedron ancestry. Parent barycentrics place each supported point on its O parent face within the checked residual; no nearest-anchor substitution.",
+    "inactive_rows": "The 7,399 inactive detail rows have no W support; their fine fields are NaN in the asset, not zero thickness.",
+    "offsets": "I-O, D-I, and D-O retained as vector fields in metres.",
+    "signed_projection": "Diagnostic dot product of each offset with the area-weighted source O face-winding normal. Sign is relative to that winding only; negative values are retained and are not clamped or used as thickness.",
+    "source_provenance": "Each active detail row carries its detail source vertex ID and exact selected coarse source face row/stable ID, coarse vertex rows, and face barycentrics. Coarse vertices carry direct source IDs or explicit source-face vertex IDs and barycentrics for virtual anchors.",
+    "thickness": "hskin = norm(I-O); hfat = norm(D-I), both Euclidean and positive by construction."
+  },
+  "input_sha256": {
+    "Wnew_npz": "55329313bf9c2c3b613fcd7eb52dd9b7b453520dd1b4a14e0e0d6ac457ce8519",
+    "accepted_coarse_faces_csv": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+    "accepted_coarse_reference_csv": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2",
+    "accepted_transfer_rows_csv": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+    "candidate_compacted_npz": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "facet_marker_map_csv_gz": "d8ed6e05c6fd2c605f305156e390a4f6c727a110e8beb4063d159b31b6fa7f8d",
+    "facet_marker_map_csv_uncompressed_sha256": "8e7ac9430c037d29e74d4c2f7f9f838995f6541c0f5fdf29a7b7095d9a6d8ff7",
+    "initial_skin_fem_nodes_csv": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b",
+    "source_084_candidate_npz": "d3d0abb590f5858de4a27e0362e98bc9b3088831183ea045096cefc4ebba26e1",
+    "transfer_report_json": "5452f7c24b9201734e0823a40a02d7cabcee6f945fd4755ea7acc5ee09fe8413",
+    "transfer_sidecar_npz": "050875e760a1b3e3ddbbf18da5aff145b1405eeb4d3aa5d6dc31a09b15908f5d"
+  },
+  "output": {
+    "asset_bytes": 6620341,
+    "asset_path": "/Users/n/Work/numi-human-connected-surface-069/fine-layer-fields-127/baseline-coarse-to-detail-layer-fields.npz",
+    "asset_sha256": "ff5d936d9c5f14df7e78a596134a03c5a6fd4f5c09a517203643ded28da8f5c1"
+  },
+  "ranges_mm": {
+    "coarse_fat_signed_projection_on_O_winding": {
+      "max_m": 0.009900590219362744,
+      "min_m": 4.110621184554568e-05,
+      "negative_count": 0
+    },
+    "coarse_hfat_euclidean": {
+      "count": 2411,
+      "max": 9.933762505155315,
+      "median": 9.818526039404736,
+      "min": 0.5050744682764339,
+      "p01": 0.5496401533767092,
+      "p99": 9.903232790189213,
+      "positive_count": 2411
+    },
+    "coarse_hskin_euclidean": {
+      "count": 2411,
+      "max": 2.499801122454758,
+      "median": 2.450779207380451,
+      "min": 0.5002264353692146,
+      "p01": 0.5494416363795968,
+      "p99": 2.4535425420385613,
+      "positive_count": 2411
+    },
+    "coarse_skin_signed_projection_on_O_winding": {
+      "max_m": 0.0024507900867390474,
+      "min_m": 5.5143818182548795e-05,
+      "negative_count": 0
+    },
+    "fine_active_hfat_euclidean": {
+      "count": 54551,
+      "max": 9.933762505155315,
+      "median": 9.035572236033762,
+      "min": 0.5050744682764339,
+      "p01": 0.5610762297143922,
+      "p99": 9.903909142609123,
+      "positive_count": 54551
+    },
+    "fine_active_hskin_euclidean": {
+      "count": 54551,
+      "max": 2.499801122454758,
+      "median": 2.4508023458092008,
+      "min": 0.5002264353692146,
+      "p01": 0.9407024878824022,
+      "p99": 2.458649023310116,
+      "positive_count": 54551
+    },
+    "fine_fat_signed_projection_on_O_winding": {
+      "max_m": 0.009900590219362744,
+      "min_m": 4.110621184554568e-05,
+      "negative_count": 0
+    },
+    "fine_skin_signed_projection_on_O_winding": {
+      "max_m": 0.0024507900867390474,
+      "min_m": 5.5143818182548795e-05,
+      "negative_count": 0
+    }
+  },
+  "runtime": {
+    "builder_sha256": "a09d96bd218eeaa0586c768bbb470aeb9eb53f210ecc63c30cb2ccaf2d80764d",
+    "host": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "scipy": "1.17.1",
+    "seconds": 0.6819629669189453
+  },
+  "schema": "baseline_084_column_layer_fields_interpolated_to_075_detail_v1",
+  "status": "FIELD_INTERPOLATION_DIAGNOSTIC_ONLY"
+}

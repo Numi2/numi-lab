@@ -1,0 +1,8 @@
+host=numi.local
+python=3.13.16
+executable=/Users/n/numi-human-prep-venv-20261005/bin/python
+command=/Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q test_capacity_115_fields_127.py
+exit_code=0
+
+......                                                                   [100%]
+6 passed in 0.06s

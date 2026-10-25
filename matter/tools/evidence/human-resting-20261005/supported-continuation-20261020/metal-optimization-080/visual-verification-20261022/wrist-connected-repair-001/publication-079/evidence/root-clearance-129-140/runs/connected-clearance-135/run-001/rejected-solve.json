@@ -1,0 +1,15 @@
+{
+  "status": "REJECTED_AT_DISPLACEMENT_GATE",
+  "maximum_allowed_m": 0.005,
+  "solver": {
+    "free_nodes": 962,
+    "constraints": 165,
+    "bone_constraints": 140,
+    "surface_rows": 25,
+    "minimum_constraint_slack_m": -1.1712844546259843e-09,
+    "max_translation_m": 0.042054903795544295,
+    "dual_success": true,
+    "dual_message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+    "dual_iterations": 65
+  }
+}

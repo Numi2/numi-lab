@@ -1,0 +1,802 @@
+{
+  "anchor_mapping": {
+    "accepted_direct_rows": 2332,
+    "direct_residual_max_m": 0.002945988715703289,
+    "direct_residual_p99_m": 0.0016197091263218091,
+    "rule": "accepted_csv source_direct_id -> detailed vertex row; otherwise explicit CSV source face+barycentric virtual anchor",
+    "virtual_anchor_rows": [
+      2339,
+      2345,
+      2332,
+      2369
+    ]
+  },
+  "inputs": {
+    "accepted_coarse_csv_gz": "/Users/numi/Work/numi-human-connected-surface-069/publication-071/evidence/exact-transfer-075/run-001/source-preflight/accepted-coarse-reference.csv.gz",
+    "accepted_coarse_csv_gz_sha256": "00b24dd1f09d3f890cf085ceeb1665715a2de7e116275e84165b5c14f43585d4",
+    "coarse084": "/Users/numi/Work/numi-human-connected-surface-069/publication-072/evidence/whole-reference-TetGen-084/whole-skin-fat-reference-084-candidate.npz",
+    "coarse084_sha256": "d3d0abb590f5858de4a27e0362e98bc9b3088831183ea045096cefc4ebba26e1",
+    "cut_npz": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-022-merged-source-cut/merged-source-patch-cut.npz",
+    "cut_npz_sha256": "891cd8f84d19cd4a7a3947cbe63002dab43e9a20650b596795082f78058d579b",
+    "cut_report": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-022-merged-source-cut/merged-source-patch-cut-report.json",
+    "cut_report_sha256": "518edf762fcaf5eaa9dc977d4d8ad6768794a683ee7ec83ea0cbb9ac7ab6f2d9",
+    "direct_detail075": "/Users/numi/Work/numi-human-connected-surface-069/publication-072/evidence/run-006-direct-detail-p1-075/direct-detail-p1-075.npz",
+    "direct_detail075_sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4"
+  },
+  "interpretation": "coarse boundary vertices remain fixed; fine boundary paths are mapped by normalized source arclength to original straight coarse edges; selected source-patch interiors use positive inverse-edge-length harmonic displacement; outside collar is an exact parent-face partition. No exact self-intersection, bone clearance, I/D conformity, tetrahedron, material-transfer, mass, or native admission gate run.",
+  "outputs": {
+    "candidate_npz": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-023-merged-hybrid/hybrid-O-surface-131.npz",
+    "candidate_sha256": "e70b2fb26447d824abfb20732b2820a3ed079c8fdecad27f580ca14e59f3ea3e"
+  },
+  "patch_loop_outcomes": [
+    {
+      "component": 0,
+      "loop": 0,
+      "selected_side": 17,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 1,
+      "loop": 0,
+      "selected_side": 0,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 2,
+      "loop": 0,
+      "selected_side": 9,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 3,
+      "loop": 0,
+      "selected_side": 21,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 4,
+      "loop": 0,
+      "selected_side": 20,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 4,
+      "loop": 1,
+      "selected_side": 20,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 5,
+      "loop": 0,
+      "selected_side": 10,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 6,
+      "loop": 0,
+      "selected_side": 29,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 7,
+      "loop": 0,
+      "selected_side": 14,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 8,
+      "loop": 0,
+      "selected_side": 2,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 8,
+      "loop": 1,
+      "selected_side": 2,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 9,
+      "loop": 0,
+      "selected_side": 23,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 10,
+      "loop": 0,
+      "selected_side": 3,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 11,
+      "loop": 0,
+      "selected_side": 13,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 12,
+      "loop": 0,
+      "selected_side": 16,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 13,
+      "loop": 0,
+      "selected_side": 11,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 14,
+      "loop": 0,
+      "selected_side": 26,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 15,
+      "loop": 0,
+      "selected_side": 19,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 16,
+      "loop": 0,
+      "selected_side": 28,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 17,
+      "loop": 0,
+      "selected_side": 12,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 18,
+      "loop": 0,
+      "selected_side": 5,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 19,
+      "loop": 0,
+      "selected_side": 6,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 20,
+      "loop": 0,
+      "selected_side": 18,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 21,
+      "loop": 0,
+      "selected_side": 24,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 22,
+      "loop": 0,
+      "selected_side": 8,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 23,
+      "loop": 0,
+      "selected_side": 15,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 24,
+      "loop": 0,
+      "selected_side": 27,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 25,
+      "loop": 0,
+      "selected_side": 30,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 26,
+      "loop": 0,
+      "selected_side": 25,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    },
+    {
+      "component": 27,
+      "loop": 0,
+      "selected_side": 7,
+      "side_candidates": 1,
+      "status": "closed_disjoint_source_edge_cycle"
+    }
+  ],
+  "status": "hybrid_O_surface_emitted_merged_full_fan_source_patch_topology_only",
+  "topology": {
+    "arclength_boundary_samples": 1489,
+    "boundary_edge_count": 45,
+    "coarse_O_faces_input": 4777,
+    "coarse_descendant_normal_cos_min": 0.9999999999999996,
+    "coarse_descendant_normal_cos_p01": 0.9999999999999998,
+    "collar_centroid_nodes": 19,
+    "collar_faces": 1721,
+    "component_side_selection": [
+      {
+        "coarse_component": 0,
+        "fine_side_candidates": [
+          17
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.004899049708215903,
+        "selected_face_count": 240
+      },
+      {
+        "coarse_component": 1,
+        "fine_side_candidates": [
+          0
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.0013837260843111011,
+        "selected_face_count": 769
+      },
+      {
+        "coarse_component": 2,
+        "fine_side_candidates": [
+          9
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.0005984401164219619,
+        "selected_face_count": 481
+      },
+      {
+        "coarse_component": 3,
+        "fine_side_candidates": [
+          21
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.0036528808652219282,
+        "selected_face_count": 331
+      },
+      {
+        "coarse_component": 4,
+        "fine_side_candidates": [
+          20
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.015478769629204045,
+        "selected_face_count": 2186
+      },
+      {
+        "coarse_component": 4,
+        "fine_side_candidates": [
+          20
+        ],
+        "loop": 1,
+        "selected_area_m2": 0.015478769629204045,
+        "selected_face_count": 2186
+      },
+      {
+        "coarse_component": 5,
+        "fine_side_candidates": [
+          10
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.0029828524135406126,
+        "selected_face_count": 50
+      },
+      {
+        "coarse_component": 6,
+        "fine_side_candidates": [
+          29
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.001178068601793543,
+        "selected_face_count": 50
+      },
+      {
+        "coarse_component": 7,
+        "fine_side_candidates": [
+          14
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.002087509712230766,
+        "selected_face_count": 105
+      },
+      {
+        "coarse_component": 8,
+        "fine_side_candidates": [
+          2
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.023118257358779957,
+        "selected_face_count": 3531
+      },
+      {
+        "coarse_component": 8,
+        "fine_side_candidates": [
+          2
+        ],
+        "loop": 1,
+        "selected_area_m2": 0.023118257358779957,
+        "selected_face_count": 3531
+      },
+      {
+        "coarse_component": 9,
+        "fine_side_candidates": [
+          23
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.0002781698323543483,
+        "selected_face_count": 80
+      },
+      {
+        "coarse_component": 10,
+        "fine_side_candidates": [
+          3
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.002546804520697785,
+        "selected_face_count": 120
+      },
+      {
+        "coarse_component": 11,
+        "fine_side_candidates": [
+          13
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.0017836889715375733,
+        "selected_face_count": 107
+      },
+      {
+        "coarse_component": 12,
+        "fine_side_candidates": [
+          16
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.0025648639107457975,
+        "selected_face_count": 116
+      },
+      {
+        "coarse_component": 13,
+        "fine_side_candidates": [
+          11
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.005506561915230323,
+        "selected_face_count": 450
+      },
+      {
+        "coarse_component": 14,
+        "fine_side_candidates": [
+          26
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.0016532100290741535,
+        "selected_face_count": 231
+      },
+      {
+        "coarse_component": 15,
+        "fine_side_candidates": [
+          19
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.0014036470907238033,
+        "selected_face_count": 419
+      },
+      {
+        "coarse_component": 16,
+        "fine_side_candidates": [
+          28
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.0019352440379973679,
+        "selected_face_count": 207
+      },
+      {
+        "coarse_component": 17,
+        "fine_side_candidates": [
+          12
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.0011060692609367007,
+        "selected_face_count": 193
+      },
+      {
+        "coarse_component": 18,
+        "fine_side_candidates": [
+          5
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.002178476122026272,
+        "selected_face_count": 68
+      },
+      {
+        "coarse_component": 19,
+        "fine_side_candidates": [
+          6
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.0026077222739177204,
+        "selected_face_count": 55
+      },
+      {
+        "coarse_component": 20,
+        "fine_side_candidates": [
+          18
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.0003474705650109118,
+        "selected_face_count": 268
+      },
+      {
+        "coarse_component": 21,
+        "fine_side_candidates": [
+          24
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.004322079014504625,
+        "selected_face_count": 287
+      },
+      {
+        "coarse_component": 22,
+        "fine_side_candidates": [
+          8
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.003907711586167141,
+        "selected_face_count": 232
+      },
+      {
+        "coarse_component": 23,
+        "fine_side_candidates": [
+          15
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.006914746382158535,
+        "selected_face_count": 139
+      },
+      {
+        "coarse_component": 24,
+        "fine_side_candidates": [
+          27
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.003336086203102188,
+        "selected_face_count": 266
+      },
+      {
+        "coarse_component": 25,
+        "fine_side_candidates": [
+          30
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.001595890117381901,
+        "selected_face_count": 119
+      },
+      {
+        "coarse_component": 26,
+        "fine_side_candidates": [
+          25
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.0021855764087051746,
+        "selected_face_count": 195
+      },
+      {
+        "coarse_component": 27,
+        "fine_side_candidates": [
+          7
+        ],
+        "loop": 0,
+        "selected_area_m2": 0.000312403606950642,
+        "selected_face_count": 33
+      }
+    ],
+    "fine_patch_output_vs_reversed_source_normal_cos_min": -0.9951255175215092,
+    "fine_patch_output_vs_reversed_source_normal_cos_p01": 0.5232979819701044,
+    "harmonic_components": [
+      {
+        "boundary_nodes": 71,
+        "fine_component": 0,
+        "interior_nodes": 350,
+        "max_boundary_displacement_m": 0.009345102265966075,
+        "max_interior_harmonic_displacement_m": 0.0084908015381901,
+        "patch_faces": 769,
+        "patch_nodes": 421
+      },
+      {
+        "boundary_nodes": 357,
+        "fine_component": 2,
+        "interior_nodes": 1587,
+        "max_boundary_displacement_m": 0.02238108388433574,
+        "max_interior_harmonic_displacement_m": 0.013798546798629347,
+        "patch_faces": 3531,
+        "patch_nodes": 1944
+      },
+      {
+        "boundary_nodes": 42,
+        "fine_component": 3,
+        "interior_nodes": 40,
+        "max_boundary_displacement_m": 0.00742528835690154,
+        "max_interior_harmonic_displacement_m": 0.005577786654165886,
+        "patch_faces": 120,
+        "patch_nodes": 82
+      },
+      {
+        "boundary_nodes": 32,
+        "fine_component": 5,
+        "interior_nodes": 19,
+        "max_boundary_displacement_m": 0.008330988755038408,
+        "max_interior_harmonic_displacement_m": 0.006659295084217913,
+        "patch_faces": 68,
+        "patch_nodes": 51
+      },
+      {
+        "boundary_nodes": 29,
+        "fine_component": 6,
+        "interior_nodes": 14,
+        "max_boundary_displacement_m": 0.015402245002553676,
+        "max_interior_harmonic_displacement_m": 0.008211716018657377,
+        "patch_faces": 55,
+        "patch_nodes": 43
+      },
+      {
+        "boundary_nodes": 27,
+        "fine_component": 7,
+        "interior_nodes": 4,
+        "max_boundary_displacement_m": 0.01125073229016867,
+        "max_interior_harmonic_displacement_m": 0.004252890039074756,
+        "patch_faces": 33,
+        "patch_nodes": 31
+      },
+      {
+        "boundary_nodes": 44,
+        "fine_component": 8,
+        "interior_nodes": 95,
+        "max_boundary_displacement_m": 0.01452232552030351,
+        "max_interior_harmonic_displacement_m": 0.006484270017985169,
+        "patch_faces": 232,
+        "patch_nodes": 139
+      },
+      {
+        "boundary_nodes": 51,
+        "fine_component": 9,
+        "interior_nodes": 216,
+        "max_boundary_displacement_m": 0.00671337564427702,
+        "max_interior_harmonic_displacement_m": 0.004950053504400325,
+        "patch_faces": 481,
+        "patch_nodes": 267
+      },
+      {
+        "boundary_nodes": 22,
+        "fine_component": 10,
+        "interior_nodes": 15,
+        "max_boundary_displacement_m": 0.011596362311650649,
+        "max_interior_harmonic_displacement_m": 0.007450481078391383,
+        "patch_faces": 50,
+        "patch_nodes": 37
+      },
+      {
+        "boundary_nodes": 74,
+        "fine_component": 11,
+        "interior_nodes": 189,
+        "max_boundary_displacement_m": 0.00916135297057441,
+        "max_interior_harmonic_displacement_m": 0.007795087741615177,
+        "patch_faces": 450,
+        "patch_nodes": 263
+      },
+      {
+        "boundary_nodes": 41,
+        "fine_component": 12,
+        "interior_nodes": 77,
+        "max_boundary_displacement_m": 0.006405301435032348,
+        "max_interior_harmonic_displacement_m": 0.004406785975667808,
+        "patch_faces": 193,
+        "patch_nodes": 118
+      },
+      {
+        "boundary_nodes": 39,
+        "fine_component": 13,
+        "interior_nodes": 35,
+        "max_boundary_displacement_m": 0.007733562045292519,
+        "max_interior_harmonic_displacement_m": 0.0064856908299939404,
+        "patch_faces": 107,
+        "patch_nodes": 74
+      },
+      {
+        "boundary_nodes": 43,
+        "fine_component": 14,
+        "interior_nodes": 32,
+        "max_boundary_displacement_m": 0.010065117982393852,
+        "max_interior_harmonic_displacement_m": 0.007595583163883423,
+        "patch_faces": 105,
+        "patch_nodes": 75
+      },
+      {
+        "boundary_nodes": 37,
+        "fine_component": 15,
+        "interior_nodes": 52,
+        "max_boundary_displacement_m": 0.022206578716313517,
+        "max_interior_harmonic_displacement_m": 0.01308792307044136,
+        "patch_faces": 139,
+        "patch_nodes": 89
+      },
+      {
+        "boundary_nodes": 32,
+        "fine_component": 16,
+        "interior_nodes": 43,
+        "max_boundary_displacement_m": 0.03630687183420593,
+        "max_interior_harmonic_displacement_m": 0.013502292699620787,
+        "patch_faces": 116,
+        "patch_nodes": 75
+      },
+      {
+        "boundary_nodes": 58,
+        "fine_component": 17,
+        "interior_nodes": 92,
+        "max_boundary_displacement_m": 0.009472331061891208,
+        "max_interior_harmonic_displacement_m": 0.005855326519882181,
+        "patch_faces": 240,
+        "patch_nodes": 150
+      },
+      {
+        "boundary_nodes": 38,
+        "fine_component": 18,
+        "interior_nodes": 116,
+        "max_boundary_displacement_m": 0.0042403899786672555,
+        "max_interior_harmonic_displacement_m": 0.003460407728943607,
+        "patch_faces": 268,
+        "patch_nodes": 154
+      },
+      {
+        "boundary_nodes": 81,
+        "fine_component": 19,
+        "interior_nodes": 170,
+        "max_boundary_displacement_m": 0.010379187121800946,
+        "max_interior_harmonic_displacement_m": 0.006185516011874808,
+        "patch_faces": 419,
+        "patch_nodes": 251
+      },
+      {
+        "boundary_nodes": 220,
+        "fine_component": 20,
+        "interior_nodes": 983,
+        "max_boundary_displacement_m": 0.01693104659249738,
+        "max_interior_harmonic_displacement_m": 0.012161010949119052,
+        "patch_faces": 2186,
+        "patch_nodes": 1203
+      },
+      {
+        "boundary_nodes": 63,
+        "fine_component": 21,
+        "interior_nodes": 135,
+        "max_boundary_displacement_m": 0.0086716641580827,
+        "max_interior_harmonic_displacement_m": 0.0073331045216190405,
+        "patch_faces": 331,
+        "patch_nodes": 198
+      },
+      {
+        "boundary_nodes": 32,
+        "fine_component": 23,
+        "interior_nodes": 25,
+        "max_boundary_displacement_m": 0.004442920495787499,
+        "max_interior_harmonic_displacement_m": 0.003090826709396821,
+        "patch_faces": 80,
+        "patch_nodes": 57
+      },
+      {
+        "boundary_nodes": 55,
+        "fine_component": 24,
+        "interior_nodes": 117,
+        "max_boundary_displacement_m": 0.006342438969328801,
+        "max_interior_harmonic_displacement_m": 0.004238273445047088,
+        "patch_faces": 287,
+        "patch_nodes": 172
+      },
+      {
+        "boundary_nodes": 37,
+        "fine_component": 25,
+        "interior_nodes": 80,
+        "max_boundary_displacement_m": 0.005259167248852574,
+        "max_interior_harmonic_displacement_m": 0.003990326963690562,
+        "patch_faces": 195,
+        "patch_nodes": 117
+      },
+      {
+        "boundary_nodes": 39,
+        "fine_component": 26,
+        "interior_nodes": 97,
+        "max_boundary_displacement_m": 0.008530725530971362,
+        "max_interior_harmonic_displacement_m": 0.005800232580345295,
+        "patch_faces": 231,
+        "patch_nodes": 136
+      },
+      {
+        "boundary_nodes": 46,
+        "fine_component": 27,
+        "interior_nodes": 111,
+        "max_boundary_displacement_m": 0.008168891961138094,
+        "max_interior_harmonic_displacement_m": 0.006106334215245585,
+        "patch_faces": 266,
+        "patch_nodes": 157
+      },
+      {
+        "boundary_nodes": 35,
+        "fine_component": 28,
+        "interior_nodes": 87,
+        "max_boundary_displacement_m": 0.0038502365961865753,
+        "max_interior_harmonic_displacement_m": 0.0034359897893228354,
+        "patch_faces": 207,
+        "patch_nodes": 122
+      },
+      {
+        "boundary_nodes": 26,
+        "fine_component": 29,
+        "interior_nodes": 13,
+        "max_boundary_displacement_m": 0.01136271305327124,
+        "max_interior_harmonic_displacement_m": 0.0030197972719343547,
+        "patch_faces": 50,
+        "patch_nodes": 39
+      },
+      {
+        "boundary_nodes": 31,
+        "fine_component": 30,
+        "interior_nodes": 45,
+        "max_boundary_displacement_m": 0.007853346052204398,
+        "max_interior_harmonic_displacement_m": 0.004301270802028186,
+        "patch_faces": 119,
+        "patch_nodes": 76
+      }
+    ],
+    "harmonic_detail_interior_nodes": 4839,
+    "max_detail_node_displacement_m": 0.03630687183420593,
+    "max_source_path_target_displacement_m": 0.03630687183420593,
+    "min_face_area_m2": 2.5265306875860957e-19,
+    "nonmanifold_edge_count": 0,
+    "nonmanifold_edge_witnesses": [],
+    "output_O_faces": 17423,
+    "output_O_nodes": 8734,
+    "patch_boundary_exact_path_match": true,
+    "path_target_min_segment_m": 0.0003942550895926634,
+    "path_target_sample_count": 1489,
+    "routed_loops": 30,
+    "seed_coarse_components": 28,
+    "selected_fine_faces": 11328,
+    "selected_source_patch_components": 28,
+    "source_fine_nodes_in_output": 4839,
+    "unchanged_coarse_boundary_node_count": 209,
+    "untouched_coarse_faces": 4374,
+    "untouched_seed_components": [],
+    "virtual_anchor_nodes_in_output": 1489,
+    "zero_or_tiny_face_count": 1
+  }
+}

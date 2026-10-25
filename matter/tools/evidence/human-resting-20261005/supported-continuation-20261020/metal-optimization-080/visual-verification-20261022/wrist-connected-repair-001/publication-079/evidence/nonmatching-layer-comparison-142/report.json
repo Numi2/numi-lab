@@ -1,0 +1,49 @@
+{
+  "outer_sha256": "541eb6eabf442c74592853d40aecea1c9c4cb6aac20a31d4d3aa0017cd32afb7",
+  "script_sha256": "cf7436e6eb8e0e78960c1d624374fdd9cef671ec1c24de0cb462745b3c8ba1f4",
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "point_count": 9243,
+  "outer_node_count": 4421,
+  "inner_node_count": 2411,
+  "skin_topology": {
+    "edge_incidence_histogram": {
+      "2": 20496
+    },
+    "edge_count": 20496,
+    "bad_oriented_edge_count": 0,
+    "bad_edge_witnesses": []
+  },
+  "fat_topology": {
+    "edge_incidence_histogram": {
+      "2": 14466
+    },
+    "edge_count": 14466,
+    "bad_oriented_edge_count": 0,
+    "bad_edge_witnesses": []
+  },
+  "audits": {
+    "O": {
+      "pairs": 0,
+      "complete": true
+    },
+    "I": {
+      "pairs": 0,
+      "complete": true
+    },
+    "D": {
+      "pairs": 0,
+      "complete": true
+    },
+    "skin_shell": {
+      "pairs": 587,
+      "complete": true
+    },
+    "fat_shell": {
+      "pairs": 3,
+      "complete": true
+    }
+  },
+  "skin_volume_m3": 0.0034680345158324597,
+  "fat_volume_m3": 0.011237669730134967
+}

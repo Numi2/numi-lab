@@ -1,0 +1,131 @@
+{
+  "status": "UNADMITTED_CONNECTED_OUTER_CLEARANCE_TRIALS",
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "native_scene_changed": false,
+  "findings": [
+    {
+      "trial": 131,
+      "report.json": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-clearance-131/run-001/report.json",
+        "sha256": "a25938c43406a91396642dfb4a84c846090ec56547a3a26c8f4714ea9ba60801"
+      },
+      "candidate_sha256": "dd64064120d938b4ae057e8a7a69a5f3d687fe8b5adeb4f8607d69b0cbb894a4",
+      "audit": {
+        "candidate_sha256": "dd64064120d938b4ae057e8a7a69a5f3d687fe8b5adeb4f8607d69b0cbb894a4",
+        "points": 4421,
+        "faces": 8797,
+        "accepted_physical_steps": 0,
+        "geometry_admitted": false,
+        "exact_PLC_surface_pairs": 3,
+        "complete_surface_audit": true,
+        "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "status": "STOPPED_AT_SURFACE_GATE",
+        "wall_seconds": 0.822498207911849
+      }
+    },
+    {
+      "trial": 132,
+      "report.json": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-clearance-132/run-001/report.json",
+        "sha256": "1a9727c287d78df30f0dac3f00c36a1f33e48f6767838fdba33c2f44d4691b91"
+      },
+      "candidate_sha256": "67b782af00744bf27b1c4462c712ce0cc8540d88a7a966fa425b5da1e0194b6f",
+      "audit": {
+        "candidate_sha256": "67b782af00744bf27b1c4462c712ce0cc8540d88a7a966fa425b5da1e0194b6f",
+        "points": 4421,
+        "faces": 8797,
+        "accepted_physical_steps": 0,
+        "geometry_admitted": false,
+        "exact_PLC_surface_pairs": 0,
+        "complete_surface_audit": true,
+        "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "inside_node_bank_pairs": 13,
+        "inside_nodes": 12,
+        "query_pair_count": 1058,
+        "wall_seconds": 2.0667759589850903,
+        "status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC",
+        "edge_and_solid_clearance_certified": false
+      }
+    },
+    {
+      "trial": 134,
+      "report.json": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-clearance-134/run-001/report.json",
+        "sha256": "e65e27f20d7e24ed105807c1df1e416f1f43c947b9b346e8e823ba715e1c9b3b"
+      },
+      "rejected-displacement-gate.json": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-clearance-134/run-001/rejected-displacement-gate.json",
+        "sha256": "24a16bd26586c00a245237c9e87e2297ea723edee137a9f71c5cdc0d016d8774"
+      },
+      "candidate_sha256": "57ab1492f47047dcb5276e56e960e4b15bfbdda27555151421c794c44e3db473"
+    },
+    {
+      "trial": 135,
+      "rejected-solve.json": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-clearance-135/run-001/rejected-solve.json",
+        "sha256": "2a06fed43974f5ccc336be9bbd5ee6890057d45eedf0c14cb5b5a9554e180fa5"
+      }
+    },
+    {
+      "trial": 137,
+      "rejected-solve.json": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-clearance-137/run-001/rejected-solve.json",
+        "sha256": "f7eafd71c71534cc66719682c01423491620fb1c681039c8c9b984bf0e7458a7"
+      }
+    },
+    {
+      "trial": 138,
+      "report.json": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-clearance-138/run-001/report.json",
+        "sha256": "ea71911b0c322fb11515eee21f184061a2ef301fcad5e68ca3b17e217bd3752a"
+      },
+      "candidate_sha256": "dbbd6b6e5619ad998658b35412e868c1b0b4a32b1cdfc63418c27f1041212688"
+    },
+    {
+      "trial": 139,
+      "report.json": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-clearance-139/run-001/report.json",
+        "sha256": "fcc43125681665c76c9fd13a253993929240a47c0b6782649ec130f3de757b1f"
+      },
+      "candidate_sha256": "11b250215b31d3b4753957e3e7b7bc4c6be0cdae58cc856457f3002850fd38f3",
+      "audit": {
+        "candidate_sha256": "11b250215b31d3b4753957e3e7b7bc4c6be0cdae58cc856457f3002850fd38f3",
+        "points": 4421,
+        "faces": 8797,
+        "accepted_physical_steps": 0,
+        "geometry_admitted": false,
+        "exact_PLC_surface_pairs": 23,
+        "complete_surface_audit": true,
+        "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "status": "STOPPED_AT_SURFACE_GATE",
+        "wall_seconds": 0.8110824160976335
+      }
+    },
+    {
+      "trial": 140,
+      "report.json": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-clearance-140/run-001/report.json",
+        "sha256": "08f9ee830f47990cd7637f4abf0c94b78b083146e379517dcceb7eba6139ae26"
+      },
+      "candidate_sha256": "618220f1efdbd51cbf965952ea85d70dacf6dc1d0a4ab3fb518cf7cfdfc89e36",
+      "audit": {
+        "candidate_sha256": "618220f1efdbd51cbf965952ea85d70dacf6dc1d0a4ab3fb518cf7cfdfc89e36",
+        "points": 4421,
+        "faces": 8797,
+        "accepted_physical_steps": 0,
+        "geometry_admitted": false,
+        "exact_PLC_surface_pairs": 0,
+        "complete_surface_audit": true,
+        "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "inside_node_bank_pairs": 57,
+        "inside_nodes": 57,
+        "query_pair_count": 1006,
+        "wall_seconds": 2.0668956669978797,
+        "status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC",
+        "edge_and_solid_clearance_certified": false
+      }
+    }
+  ],
+  "method_limit": "Static plane feasibility is insufficient: neighboring bone constraints and surface crossings must be tested together. Trial 132 retained 12 inside-bone nodes despite zero surface pairs; trial 140 retained 57. No trial meets full geometric or mechanical admission."
+}

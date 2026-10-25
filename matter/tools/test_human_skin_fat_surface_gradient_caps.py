@@ -137,3 +137,19 @@ def test_surface_gradient_caps_require_generation_passes_and_surface():
     kw=_surface_cap_fixture();kw['boundary_faces']=None;kw['embedded_surface']=None
     with pytest.raises(ValueError,match='surface witness gradient limit'):
         repair.coupled_clearance_step(**kw)
+
+
+@pytest.mark.parametrize("third",[(2.,0.,0.),(2.,1e-16,0.)])
+def test_surface_gradient_refuses_rank_deficient_triangle(third):
+    X=np.array([[0.,0.,0.],[1.,0.,0.],third])
+    with pytest.raises(ValueError,match="numerically rank deficient.*0"):
+        repair.sparse_triangle_displacement_gradient(X,np.array([[0,1,2]]),np.arange(3),3)
+
+
+def test_surface_gradient_retains_resolved_thin_triangle_and_mm_units():
+    X=np.array([[0.,0.,0.],[.01,0.,0.],[.01,1e-7,0.]])
+    G=repair.sparse_triangle_displacement_gradient(X,np.array([[0,1,2]]),np.arange(3),3)
+    # U_mm gives a ten-percent affine expansion in y in SI, despite anisotropy.
+    U_mm=np.zeros_like(X);U_mm[:,1]=1000.*.1*X[:,1]
+    expected=np.zeros((3,3));expected[1,1]=.1
+    np.testing.assert_allclose((G@U_mm.ravel()).reshape(3,3),expected,atol=1e-12)

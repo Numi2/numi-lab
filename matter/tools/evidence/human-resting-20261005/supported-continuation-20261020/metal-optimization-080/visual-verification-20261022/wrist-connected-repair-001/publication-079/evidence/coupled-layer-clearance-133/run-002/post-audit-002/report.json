@@ -1,0 +1,289 @@
+{
+  "affected_column_ordering_f32_mm": {
+    "below_0_05mm": 3,
+    "below_0_05mm_ID": 17,
+    "count": 725,
+    "min_ID": 0.04996877035530305,
+    "min_OI": 0.0499948836026015
+  },
+  "all_cross_layer_pairs_zero": false,
+  "all_layer_and_shell_self_pairs_zero": false,
+  "attempt_source_sha256": "2b5ea6695e5821a806d61dfb48b100e4994ca6b8857acfe675bac7652dab2c40",
+  "audits": {
+    "D": {
+      "aabb_candidates": 73013,
+      "allowed_shared": 58658,
+      "complete": true,
+      "count": 64,
+      "pairs_file": "D-pairs.npy",
+      "pairs_sha256": "7a63711edbf9ef147be1a05be82d522419cb2db8014a02dfbb32b603f653e7cc",
+      "seconds": 0.9214645409956574
+    },
+    "I": {
+      "aabb_candidates": 69683,
+      "allowed_shared": 58672,
+      "complete": true,
+      "count": 33,
+      "pairs_file": "I-pairs.npy",
+      "pairs_sha256": "1df3dff5d5ab7e9b906b2eed406a65becc9b4d739b05e7b0bd696a62787e44ef",
+      "seconds": 0.8688823749544099
+    },
+    "I_D": {
+      "aabb_candidates": 55380,
+      "count": 275,
+      "pairs_file": "I_D-pairs.npy",
+      "pairs_sha256": "0886c9fa786b4f35f95006c25167d824cf495aaee3d1991fc7a32deeb1bb0258",
+      "seconds": 0.6582480419892818
+    },
+    "O": {
+      "aabb_candidates": 68530,
+      "allowed_shared": 58684,
+      "complete": true,
+      "count": 0,
+      "pairs_file": "O-pairs.npy",
+      "pairs_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "seconds": 0.852259665960446
+    },
+    "O_D": {
+      "aabb_candidates": 43388,
+      "count": 19,
+      "pairs_file": "O_D-pairs.npy",
+      "pairs_sha256": "d4d218cf52b9d43d5a6a4057e68f7ed060e7ccfaa5d45f6bb816cb3124d271de",
+      "seconds": 0.524767541908659
+    },
+    "O_I": {
+      "aabb_candidates": 70611,
+      "count": 45,
+      "pairs_file": "O_I-pairs.npy",
+      "pairs_sha256": "788a18e1140126c7cb5d122772418660f606e79238e9b847c38cb5e0805974c0",
+      "seconds": 0.7841504589887336
+    },
+    "fat_shell": {
+      "aabb_candidates": 199240,
+      "allowed_shared": 118134,
+      "complete": true,
+      "count": 372,
+      "pairs_file": "fat_shell-pairs.npy",
+      "pairs_sha256": "82a4ba2de2e1cc2bc6cd1c2a8aaad275cc25a1dabb2101f2b848bbaafc9620db",
+      "seconds": 2.436706417007372
+    },
+    "skin_shell": {
+      "aabb_candidates": 209875,
+      "allowed_shared": 118158,
+      "complete": true,
+      "count": 81,
+      "pairs_file": "skin_shell-pairs.npy",
+      "pairs_sha256": "05fab21818996b6b7cf14c23378b3bb2dec1deffac5f377c8cf36f16a7bd3100",
+      "seconds": 2.4726362909423187
+    }
+  },
+  "candidate_sha256": "bc04bc25eadcf10ede4ec2b0a8495e4385450b9685649e9a05a5317fda433fe9",
+  "construction_geometry_gates_pass": false,
+  "input_sha256": "a420a94e7485a226bfc605736da600b2787b80fe1c42a3303e7c09c88676a7b5",
+  "limits": [
+    "This post-audit reuses one emitted LP candidate and does not re-solve.",
+    "The optimality/termination status was not serialized; primal feasibility is recomputed from retained x and A/b.",
+    "Static geometric construction only; no TetGen, volume-mesh quality, mass transfer, bone query, native physics, or physical admission."
+  ],
+  "lp_primal": {
+    "emitted_F32_geometric_feasible_at_1e-7": false,
+    "feasible_at_1e-7": true,
+    "max_emitted_F32_geometric_violation_mm": 5.02395852635118e-05,
+    "max_full_model_violation_mm": 9.71445146547012e-16,
+    "min_emitted_F32_geometric_slack_mm": -5.02395852635118e-05,
+    "min_full_model_slack_mm": -9.71445146547012e-16,
+    "objective_value": 670.492361487423
+  },
+  "model_sha256": {
+    "A_ub": "62c2c38ec27dfa59271d3ee957274188df6cfd372a72c8d5dc3f078a7e30e446",
+    "inputs": "9ab61f027432a59c6afc575b1479903b6bb4121aceab56d9f25f6b313983a916",
+    "witness_rows": "b8f179f129d1cf5cd293cb78078e5c10a2f9e0dda93a2bb86132ab19c5f8c7f7"
+  },
+  "solver_completion_status": "not serialized by as-run solver; primal x and full sparse model retained",
+  "status": "POST_AUDIT_OF_FROZEN_LP_CANDIDATE",
+  "surface": {
+    "D": {
+      "flipped_vs_baseline": 92,
+      "min_area_m2": 1.591597521743741e-08,
+      "min_orientation_cosine_vs_baseline": -0.9947759220215883,
+      "nonpositive_area": 0
+    },
+    "I": {
+      "flipped_vs_baseline": 40,
+      "min_area_m2": 3.120743586773457e-08,
+      "min_orientation_cosine_vs_baseline": -0.9979097140752143,
+      "nonpositive_area": 0
+    },
+    "O": {
+      "flipped_vs_baseline": 0,
+      "min_area_m2": 7.148321147123523e-08,
+      "min_orientation_cosine_vs_baseline": 0.9999999999999996,
+      "nonpositive_area": 0
+    },
+    "max_D_move_mm": 12.05025383258947,
+    "max_I_move_mm": 10.457423385019998
+  },
+  "wall_seconds": 9.539978833054192,
+  "worst_emitted_geometry_rows": [
+    {
+      "meta": {
+        "baseline_gap_m": -0.0037775383892092117,
+        "corner_a": 0,
+        "corner_b": 0,
+        "face_a": 7444,
+        "face_b": 7439,
+        "kind": "I_D",
+        "margin_m": 5e-05,
+        "rhs_mm": -3.827538389209212,
+        "row": 4725,
+        "status": "variable"
+      },
+      "row": 4725,
+      "slack_mm": -5.02395852635118e-05
+    },
+    {
+      "meta": {
+        "baseline_gap_m": -0.0001660431105545321,
+        "corner_a": 0,
+        "corner_b": 2,
+        "face_a": 5698,
+        "face_b": 5698,
+        "kind": "O_I",
+        "margin_m": 5e-05,
+        "rhs_mm": -0.2160431105545321,
+        "row": 1181,
+        "status": "variable"
+      },
+      "row": 1181,
+      "slack_mm": -4.692719306823023e-05
+    },
+    {
+      "meta": {
+        "baseline_gap_m": -0.0001660431105545321,
+        "corner_a": 0,
+        "corner_b": 1,
+        "face_a": 5698,
+        "face_b": 5679,
+        "kind": "O_I",
+        "margin_m": 5e-05,
+        "rhs_mm": -0.2160431105545321,
+        "row": 1171,
+        "status": "variable"
+      },
+      "row": 1171,
+      "slack_mm": -4.692719306823023e-05
+    },
+    {
+      "meta": {
+        "baseline_gap_m": -0.00016604311055453178,
+        "corner_a": 1,
+        "corner_b": 2,
+        "face_a": 5698,
+        "face_b": 5698,
+        "kind": "O_I",
+        "margin_m": 5e-05,
+        "rhs_mm": -0.21604311055453176,
+        "row": 1184,
+        "status": "variable"
+      },
+      "row": 1184,
+      "slack_mm": -4.6927193067897166e-05
+    },
+    {
+      "meta": {
+        "baseline_gap_m": -0.00016604311055453178,
+        "corner_a": 1,
+        "corner_b": 1,
+        "face_a": 5698,
+        "face_b": 5679,
+        "kind": "O_I",
+        "margin_m": 5e-05,
+        "rhs_mm": -0.21604311055453176,
+        "row": 1174,
+        "status": "variable"
+      },
+      "row": 1174,
+      "slack_mm": -4.6927193067897166e-05
+    },
+    {
+      "meta": {
+        "baseline_gap_m": -0.00016604311055453156,
+        "corner_a": 2,
+        "corner_b": 1,
+        "face_a": 5698,
+        "face_b": 5679,
+        "kind": "O_I",
+        "margin_m": 5e-05,
+        "rhs_mm": -0.21604311055453157,
+        "row": 1177,
+        "status": "variable"
+      },
+      "row": 1177,
+      "slack_mm": -4.692719306770288e-05
+    },
+    {
+      "meta": {
+        "baseline_gap_m": -0.00016604311055453156,
+        "corner_a": 2,
+        "corner_b": 2,
+        "face_a": 5698,
+        "face_b": 5698,
+        "kind": "O_I",
+        "margin_m": 5e-05,
+        "rhs_mm": -0.21604311055453157,
+        "row": 1187,
+        "status": "variable"
+      },
+      "row": 1187,
+      "slack_mm": -4.692719306770288e-05
+    },
+    {
+      "meta": {
+        "baseline_gap_m": -0.00038771644382334567,
+        "corner_a": 0,
+        "corner_b": 1,
+        "face_a": 5549,
+        "face_b": 5549,
+        "kind": "O_I",
+        "margin_m": 5e-05,
+        "rhs_mm": -0.4377164438233457,
+        "row": 865,
+        "status": "variable"
+      },
+      "row": 865,
+      "slack_mm": -4.2287041496225086e-05
+    },
+    {
+      "meta": {
+        "baseline_gap_m": -0.00038771644382334567,
+        "corner_a": 0,
+        "corner_b": 1,
+        "face_a": 5549,
+        "face_b": 5545,
+        "kind": "O_I",
+        "margin_m": 5e-05,
+        "rhs_mm": -0.4377164438233457,
+        "row": 847,
+        "status": "variable"
+      },
+      "row": 847,
+      "slack_mm": -4.2287041496225086e-05
+    },
+    {
+      "meta": {
+        "baseline_gap_m": -0.00038771644382334567,
+        "corner_a": 0,
+        "corner_b": 2,
+        "face_a": 5549,
+        "face_b": 5544,
+        "kind": "O_I",
+        "margin_m": 5e-05,
+        "rhs_mm": -0.4377164438233457,
+        "row": 839,
+        "status": "variable"
+      },
+      "row": 839,
+      "slack_mm": -4.2287041496225086e-05
+    }
+  ]
+}

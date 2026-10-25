@@ -1,0 +1,11 @@
+{
+  "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "branch": "numi-human-aortic-contact-perf",
+  "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+  "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+  "index_sha256": "900932a2b704bbf6ab7fd5c2cd200b11502352e71129e795a5bafe3fa7a7ac71",
+  "status_sha256": "0461138edb6659da543c6f8f4354fcd8fdaa5dfa62d395b5f5f73193233abf92",
+  "status_rows": 41126,
+  "remote_main": "71471f27c9b78ca5b67ea9486e3cbeb49c2affc9",
+  "host": "numi.local"
+}

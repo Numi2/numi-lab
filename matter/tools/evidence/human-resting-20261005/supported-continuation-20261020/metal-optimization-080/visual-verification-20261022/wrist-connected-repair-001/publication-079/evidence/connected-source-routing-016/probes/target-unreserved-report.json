@@ -1,0 +1,204 @@
+{
+  "attempts": [
+    {
+      "failed": {
+        "attempt_pops": 54425,
+        "coarse_edge": [
+          150,
+          229
+        ],
+        "end_row": 1284,
+        "end_source_id": 1284,
+        "free_pops": 5,
+        "free_shortest_length_m": 0.0033674584997447775,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 19,
+        "start_row": 993,
+        "start_source_id": 993
+      },
+      "reverse_order": false,
+      "segments_routed": 19,
+      "start_offset": 0
+    },
+    {
+      "failed": {
+        "attempt_pops": 3,
+        "coarse_edge": [
+          142,
+          141
+        ],
+        "end_row": 982,
+        "end_source_id": 982,
+        "free_pops": 6,
+        "free_shortest_length_m": 0.00329347728518469,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 22,
+        "start_row": 985,
+        "start_source_id": 985
+      },
+      "reverse_order": false,
+      "segments_routed": 15,
+      "start_offset": 7
+    },
+    {
+      "failed": {
+        "attempt_pops": 3,
+        "coarse_edge": [
+          142,
+          141
+        ],
+        "end_row": 982,
+        "end_source_id": 982,
+        "free_pops": 6,
+        "free_shortest_length_m": 0.00329347728518469,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 22,
+        "start_row": 985,
+        "start_source_id": 985
+      },
+      "reverse_order": false,
+      "segments_routed": 8,
+      "start_offset": 14
+    },
+    {
+      "failed": {
+        "attempt_pops": 54422,
+        "coarse_edge": [
+          150,
+          229
+        ],
+        "end_row": 1284,
+        "end_source_id": 1284,
+        "free_pops": 5,
+        "free_shortest_length_m": 0.0033674584997447775,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 19,
+        "start_row": 993,
+        "start_source_id": 993
+      },
+      "reverse_order": false,
+      "segments_routed": 25,
+      "start_offset": 21
+    },
+    {
+      "failed": {
+        "attempt_pops": 54459,
+        "coarse_edge": [
+          232,
+          240
+        ],
+        "end_row": 1300,
+        "end_source_id": 1300,
+        "free_pops": 7,
+        "free_shortest_length_m": 0.0053825650588436875,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 16,
+        "start_row": 1289,
+        "start_source_id": 1289
+      },
+      "reverse_order": true,
+      "segments_routed": 10,
+      "start_offset": 0
+    },
+    {
+      "failed": {
+        "attempt_pops": 54456,
+        "coarse_edge": [
+          232,
+          240
+        ],
+        "end_row": 1300,
+        "end_source_id": 1300,
+        "free_pops": 7,
+        "free_shortest_length_m": 0.0053825650588436875,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 16,
+        "start_row": 1289,
+        "start_source_id": 1289
+      },
+      "reverse_order": true,
+      "segments_routed": 17,
+      "start_offset": 7
+    },
+    {
+      "failed": {
+        "attempt_pops": 54453,
+        "coarse_edge": [
+          232,
+          240
+        ],
+        "end_row": 1300,
+        "end_source_id": 1300,
+        "free_pops": 7,
+        "free_shortest_length_m": 0.0053825650588436875,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 16,
+        "start_row": 1289,
+        "start_source_id": 1289
+      },
+      "reverse_order": true,
+      "segments_routed": 24,
+      "start_offset": 14
+    },
+    {
+      "failed": {
+        "attempt_pops": 54461,
+        "coarse_edge": [
+          232,
+          240
+        ],
+        "end_row": 1300,
+        "end_source_id": 1300,
+        "free_pops": 7,
+        "free_shortest_length_m": 0.0053825650588436875,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 16,
+        "start_row": 1289,
+        "start_source_id": 1289
+      },
+      "reverse_order": true,
+      "segments_routed": 4,
+      "start_offset": 21
+    }
+  ],
+  "best_partial_attempt": {
+    "attempt": {
+      "failed": {
+        "attempt_pops": 54422,
+        "coarse_edge": [
+          150,
+          229
+        ],
+        "end_row": 1284,
+        "end_source_id": 1284,
+        "free_pops": 5,
+        "free_shortest_length_m": 0.0033674584997447775,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 19,
+        "start_row": 993,
+        "start_source_id": 993
+      },
+      "reverse_order": false,
+      "segments_routed": 25,
+      "start_offset": 21
+    },
+    "segments_routed": 25
+  },
+  "elapsed_seconds": 0.5721390247344971,
+  "input_sha256": {
+    "cut_npz": "21e2b65d85ba9bac176aaa670b916bc13189975a295c9ab328d1e835bb2e0b78",
+    "cut_report": "d9f22dc8fda1ae6a3db5950c313b096871db2c9814fa09ad27987a2f9d7f8684",
+    "detail": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4"
+  },
+  "reserved_other_loop_edges": 389,
+  "reserved_other_loop_internal_nodes": 330,
+  "schema": "source_fine_graph_reroute_probe_v1",
+  "scope": "Bounded graph-only search; no geometry changed and no proof of global infeasibility.",
+  "status": "NO_SIMPLE_CYCLE_WITH_OTHER_LOOPS_UNRESERVED",
+  "target": {
+    "anchor_count": 27,
+    "boundary_edges": 27,
+    "component": 0,
+    "loop": 0
+  }
+}

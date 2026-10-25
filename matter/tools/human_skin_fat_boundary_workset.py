@@ -66,3 +66,48 @@ def select_boundary_witness_workset(node_count, proposed_free_nodes, outer_faces
         'runtime_constraints_added':False,'geometry_admitted':False}
     if len(unaddressed):raise ValueError('witness workset leaves contact rows without any free node')
     return chosen,report
+
+
+def close_selected_boundary_fans(outer_faces, selected_face_rows):
+    """Grow pinched patch boundaries to complete source vertex fans.
+
+    Face rows remain source identities. This changes only the selected domain,
+    not source coordinates, connectivity, or physical state.
+    """
+    from collections import defaultdict
+    T=np.asarray(outer_faces);raw=np.asarray(selected_face_rows)
+    if T.ndim!=2 or T.shape[1]!=3 or T.dtype.kind not in "iu":
+        raise ValueError("integer Mx3 outer faces required")
+    if T.size and (T.min()<0 or np.any(np.diff(np.sort(T,axis=1),axis=1)==0)):
+        raise ValueError("invalid outer face vertices")
+    if raw.ndim!=1 or raw.dtype.kind not in "iu" or len(np.unique(raw))!=len(raw):
+        raise ValueError("selected face rows must be unique integers")
+    if raw.size and (raw.min()<0 or raw.max()>=len(T)):
+        raise ValueError("selected face row out of range")
+    incident=defaultdict(set);global_edges=defaultdict(list)
+    for fi,face in enumerate(T):
+        for v in face:incident[int(v)].add(fi)
+        for a,b in zip(face,np.roll(face,-1)):
+            global_edges[tuple(sorted((int(a),int(b))))].append((int(a),int(b)))
+    if any(len(v)>2 or (len(v)==2 and v[0]==v[1]) for v in global_edges.values()):
+        raise ValueError("outer surface has nonmanifold or inconsistent edges")
+    selected=set(map(int,raw));records=[]
+    while selected:
+        counts=defaultdict(int)
+        for face in T[sorted(selected)]:
+            for a,b in zip(face,np.roll(face,-1)):
+                counts[tuple(sorted((int(a),int(b))))]+=1
+        degree=defaultdict(int)
+        for (a,b),count in counts.items():
+            if count==1:degree[a]+=1;degree[b]+=1
+        bad=sorted(v for v,d in degree.items() if d!=2)
+        if not bad:break
+        added=set().union(*(incident[v] for v in bad))-selected
+        if not added:
+            raise ValueError("source vertex fan itself has a nonmanifold boundary")
+        records.append(dict(boundary_vertices=bad,added_source_face_rows=sorted(added)))
+        selected.update(added)
+    return np.array(sorted(selected),dtype=np.int64),dict(
+        initial_face_count=int(len(raw)),final_face_count=int(len(selected)),
+        closure_rounds=records,source_coordinates_or_connectivity_changed=False,
+        physical_or_native_admission=False)

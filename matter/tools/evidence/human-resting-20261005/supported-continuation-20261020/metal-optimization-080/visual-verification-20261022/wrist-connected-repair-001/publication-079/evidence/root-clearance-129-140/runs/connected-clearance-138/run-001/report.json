@@ -1,0 +1,177 @@
+{
+  "status": "CONNECTED_OUTER_CLEARANCE_CONSTRUCTION_ONLY",
+  "input_sha256": "67b782af00744bf27b1c4462c712ce0cc8540d88a7a966fa425b5da1e0194b6f",
+  "query_summary_sha256": "eb375eae50442fa94e3d0009388326fdb26aa912e2284d34d2e2a23e44b9e114",
+  "script_sha256": "a1274c5cbe11e0320b3f8be378258c7eab9bb286e904d9eb7ba8844fd66693d8",
+  "candidate_sha256": "dbbd6b6e5619ad998658b35412e868c1b0b4a32b1cdfc63418c27f1041212688",
+  "clearance_m": 5e-05,
+  "solver": {
+    "free_nodes": 350,
+    "constraints": 13,
+    "minimum_constraint_slack_m": -1.4383843400210539e-09,
+    "max_translation_m": 0.016683259822871555,
+    "dual_success": true,
+    "dual_message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+    "dual_iterations": 17
+  },
+  "constraints": [
+    {
+      "node": 206,
+      "body": 61,
+      "bone": 97,
+      "normal_world": [
+        0.8567511541281116,
+        -0.25752240051096426,
+        -0.44683293649329275
+      ],
+      "plane_minimum_world_m": -0.07220097212858756,
+      "nearest_distance_local_m": 5.9407006554241005e-05
+    },
+    {
+      "node": 217,
+      "body": 61,
+      "bone": 97,
+      "normal_world": [
+        -0.9076885504488367,
+        -0.16022859513737742,
+        -0.3878508639727286
+      ],
+      "plane_minimum_world_m": 0.39676506868116024,
+      "nearest_distance_local_m": 7.477547031743074e-05
+    },
+    {
+      "node": 2921,
+      "body": 57,
+      "bone": 89,
+      "normal_world": [
+        -0.9429211635219019,
+        0.17041254255315513,
+        -0.28611054633318195
+      ],
+      "plane_minimum_world_m": 0.09244389361110872,
+      "nearest_distance_local_m": 0.00031030850816841265
+    },
+    {
+      "node": 2924,
+      "body": 57,
+      "bone": 89,
+      "normal_world": [
+        -0.4843426190043523,
+        0.09994009151980181,
+        -0.8691514284191325
+      ],
+      "plane_minimum_world_m": -0.05757422061257122,
+      "nearest_distance_local_m": 0.0007386871947893617
+    },
+    {
+      "node": 2976,
+      "body": 57,
+      "bone": 89,
+      "normal_world": [
+        -0.8803661355359821,
+        0.32174484022607847,
+        -0.3484762907133513
+      ],
+      "plane_minimum_world_m": -0.07394299191729112,
+      "nearest_distance_local_m": 0.00020325456305791745
+    },
+    {
+      "node": 3027,
+      "body": 64,
+      "bone": 98,
+      "normal_world": [
+        0.6368153604080351,
+        0.6578195372827337,
+        0.40216868739064543
+      ],
+      "plane_minimum_world_m": -0.7948657848104659,
+      "nearest_distance_local_m": 2.1180514495295228e-05
+    },
+    {
+      "node": 3666,
+      "body": 115,
+      "bone": 118,
+      "normal_world": [
+        -0.9547270052032064,
+        -0.05449820139755853,
+        -0.2924487845420936
+      ],
+      "plane_minimum_world_m": -0.23346142377224469,
+      "nearest_distance_local_m": 0.0003268478403797967
+    },
+    {
+      "node": 3685,
+      "body": 114,
+      "bone": 117,
+      "normal_world": [
+        0.2958483898784202,
+        -0.9543322092613927,
+        -0.04151824385274099
+      ],
+      "plane_minimum_world_m": 1.017375102119646,
+      "nearest_distance_local_m": 1.1795626036168897e-05
+    },
+    {
+      "node": 3685,
+      "body": 115,
+      "bone": 118,
+      "normal_world": [
+        -0.2049895657602639,
+        0.9749623593708749,
+        0.08618396451426082
+      ],
+      "plane_minimum_world_m": -1.0068377987102326,
+      "nearest_distance_local_m": 0.0016099976314700212
+    },
+    {
+      "node": 3686,
+      "body": 115,
+      "bone": 118,
+      "normal_world": [
+        -0.20498956576026373,
+        0.974962359370875,
+        0.08618396451426019
+      ],
+      "plane_minimum_world_m": -1.0068377987102326,
+      "nearest_distance_local_m": 0.001122363662415612
+    },
+    {
+      "node": 3687,
+      "body": 115,
+      "bone": 118,
+      "normal_world": [
+        -0.4155644920159522,
+        0.9095535051206586,
+        0.004309790974942309
+      ],
+      "plane_minimum_world_m": -1.007404223862894,
+      "nearest_distance_local_m": 0.0015639471276714635
+    },
+    {
+      "node": 4134,
+      "body": 109,
+      "bone": 114,
+      "normal_world": [
+        -0.9677490976088453,
+        -0.24485337453506947,
+        -0.05923266882434635
+      ],
+      "plane_minimum_world_m": -0.019803880146801636,
+      "nearest_distance_local_m": 5.484518207547733e-05
+    },
+    {
+      "node": 4148,
+      "body": 107,
+      "bone": 108,
+      "normal_world": [
+        -0.06134528139175324,
+        0.16061641337969024,
+        -0.9851086864930241
+      ],
+      "plane_minimum_world_m": -0.2953056005373857,
+      "nearest_distance_local_m": 1.836647689755827e-07
+    }
+  ],
+  "material_and_native_admission": false,
+  "accepted_physical_steps": 0
+}

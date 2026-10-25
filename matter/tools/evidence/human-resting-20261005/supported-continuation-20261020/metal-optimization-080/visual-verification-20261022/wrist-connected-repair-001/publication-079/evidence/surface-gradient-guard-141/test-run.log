@@ -1,0 +1,6 @@
+command=/Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q -p no:cacheprovider /Users/n/Work/numi-human-connected-surface-069/publication-079/evidence/surface-gradient-guard-141
+python=Python 3.13.16
+host=numi.local
+exit_code=0
+.........                                                                [100%]
+9 passed in 0.07s

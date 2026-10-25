@@ -1,0 +1,144 @@
+{
+  "status": "CONSTRUCTION_ONLY",
+  "geometry_admitted": false,
+  "tetgen_run": false,
+  "material_or_mass_mapping_created": false,
+  "inputs": {
+    "outer_npz": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-017-expanded-target-hybrid/hybrid-O-surface-128.npz",
+    "outer_sha256": "541eb6eabf442c74592853d40aecea1c9c4cb6aac20a31d4d3aa0017cd32afb7",
+    "baseline115_npz": "/Users/numi/Work/numi-human-connected-surface-069/connected-capacity-reference-115/candidate.npz",
+    "baseline115_sha256": "abff4290774cc96a17f6c68a21fe86fc3933a1878e0bd6512733e99589fb6dd9",
+    "capacity_fields_npz": "/Users/numi/Work/numi-human-connected-surface-069/fine-layer-fields-127/capacity-115-coarse-to-detail-layer-fields.npz",
+    "capacity_fields_sha256": "4278c32fc30f2ec2ce67131e6883782f5f266d6f04877deaec4743cf3a196145",
+    "coarse_faces_gz": "/Users/numi/Work/numi-human-connected-surface-069/publication-071/evidence/exact-transfer-075/run-001/source-preflight/accepted-coarse-faces.csv.gz",
+    "coarse_face_csv_content_sha256": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+    "helper": "/Users/numi/Work/numi-human-connected-surface-069/connected-layer-reconstruction-127/matter/tools/human_skin_fat_layer_reconstruction.py",
+    "helper_sha256": "2a7f7ed02a5c90af11e09ffd8b8d2a34b2f3ff9c3b08ecb08514cccb29dc565e",
+    "predicate_module": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+    "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d"
+  },
+  "counts": {
+    "nodes": 4421,
+    "outer_faces": 8797,
+    "node_kind": {
+      "0": 2396,
+      "1": 1684,
+      "2": 330,
+      "5": 11
+    },
+    "active_patch_vertices": 2073,
+    "fixed_patch_interface_vertices": 389,
+    "patch_transition_edges": 389,
+    "open_outer_boundary_edges": 45,
+    "closed_skin_shell_faces": 17684,
+    "closed_fat_shell_faces": 17684
+  },
+  "field_mapping": {
+    "kind0_direct_max_position_residual_m": 0.0,
+    "kind1_fine_detail_rows": 1684,
+    "kind2_coarse_edge_rows": 330,
+    "kind5_coarse_face_centroid_rows": 11,
+    "orientation_sign": -1,
+    "orientation_basis": "chosen from capacity-115 signed I-O versus emitted O winding; inward raw winding requires -1",
+    "hskin_min_m": 0.0005002264353692146,
+    "hskin_max_m": 0.002499801122454758,
+    "hfat_min_m": 0.00016518403726564326,
+    "hfat_max_m": 0.009933762505155314
+  },
+  "reconstruction": {
+    "status": "CONSTRUCTION_ONLY",
+    "physical_or_native_admission": false,
+    "vertex_count": 4421,
+    "outer_face_count": 8797,
+    "active_vertex_count": 2073,
+    "fixed_boundary_count": 389,
+    "active_graph_component_count": 2,
+    "outside_patch_preserved_from_baseline_offsets": true,
+    "outer_boundary_exact": true,
+    "inner_boundary_exact": true,
+    "deep_boundary_exact": true,
+    "max_inner_displacement_from_baseline_m": 0.0037129056062938934,
+    "max_deep_displacement_from_baseline_m": 0.012601556644584266,
+    "active_skin_normal_depth_min_m": -0.0006799304179633519,
+    "active_skin_normal_depth_max_m": 0.004369971297916671,
+    "active_fat_normal_depth_min_m": -0.0020992389401724115,
+    "active_fat_normal_depth_max_m": 0.011832690550183916,
+    "requested_skin_depth_min_m": 0.0005002264353692146,
+    "requested_skin_depth_max_m": 0.002499801122454758,
+    "requested_fat_depth_min_m": 0.00016518403726564326,
+    "requested_fat_depth_max_m": 0.009933762505155314,
+    "source_ancestry_modified": false,
+    "volume_mesh_or_material_map_created": false
+  },
+  "shell_topology": {
+    "skin": {
+      "edge_incidence_histogram": {
+        "2": 26526
+      },
+      "edge_count": 26526,
+      "bad_oriented_edge_count": 0,
+      "bad_edge_witnesses": []
+    },
+    "fat": {
+      "edge_incidence_histogram": {
+        "2": 26526
+      },
+      "edge_count": 26526,
+      "bad_oriented_edge_count": 0,
+      "bad_edge_witnesses": []
+    }
+  },
+  "shell_signed_volume_m3": {
+    "skin": 0.003463130924825225,
+    "fat": 0.011260643007084773
+  },
+  "face_area_f32": {
+    "outer": {
+      "min_m2": 7.148321147123523e-08,
+      "nonpositive": 0,
+      "count": 8797
+    },
+    "inner": {
+      "min_m2": 3.93579188232255e-08,
+      "nonpositive": 0,
+      "count": 8797
+    },
+    "deep": {
+      "min_m2": 2.2911936775341106e-09,
+      "nonpositive": 0,
+      "count": 8797
+    }
+  },
+  "exact_self_audit_float32": {
+    "O": {
+      "pairs": 0,
+      "complete": true,
+      "wall_seconds": 0.8132405410287902
+    },
+    "I": {
+      "pairs": 144,
+      "complete": true,
+      "wall_seconds": 0.8412967909825966
+    },
+    "D": {
+      "pairs": 1790,
+      "complete": true,
+      "wall_seconds": 1.1132678329013288
+    },
+    "skin_shell": {
+      "pairs": 372,
+      "complete": true,
+      "wall_seconds": 2.4734436250291765
+    },
+    "fat_shell": {
+      "pairs": 2460,
+      "complete": true,
+      "wall_seconds": 2.6328957499936223
+    }
+  },
+  "limits": [
+    "Inferred geometric thickness fields; not measured anatomy.",
+    "Harmonic layer construction is not a volume mesh, conservative map, mass transfer, or physical/native admission.",
+    "No all-bank bone clearance or volume-cell quality check was run."
+  ]
+}

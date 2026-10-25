@@ -60,3 +60,26 @@ def test_node_count_is_a_typed_integer(count):
     with pytest.raises(ValueError,match='integer node count'):
         select_boundary_witness_workset(count,np.arange(10),FACES,
             np.empty((0,2),dtype=np.int64),np.empty(0,dtype=np.int64),matrix(((0,7),)))
+
+
+def test_pinched_source_patch_closes_connected_vertex_fan():
+    from human_skin_fat_boundary_workset import close_selected_boundary_fans
+    F=np.array([[4,1,5],[4,5,7],[4,7,3],[4,3,1]])
+    ids,report=close_selected_boundary_fans(F,np.array([0,2]))
+    assert ids.tolist()==[0,1,2,3]
+    assert report["closure_rounds"]==[dict(boundary_vertices=[4],added_source_face_rows=[1,3])]
+    assert not report["source_coordinates_or_connectivity_changed"]
+    for rows in ([0],[0,1],[0,1,2,3],[]):
+        out,_=close_selected_boundary_fans(F,np.array(rows,dtype=np.int64))
+        assert out.tolist()==rows
+
+
+def test_fan_closure_refuses_nonmanifold_source_and_invalid_selection():
+    from human_skin_fat_boundary_workset import close_selected_boundary_fans
+    F=np.array([[0,1,2],[0,3,4]])
+    with pytest.raises(ValueError,match="fan itself"):
+        close_selected_boundary_fans(F,np.array([0,1]))
+    for rows in (np.array([0,0]),np.array([2]),np.array([0.])):
+        with pytest.raises(ValueError):close_selected_boundary_fans(F,rows)
+    with pytest.raises(ValueError,match="inconsistent edges"):
+        close_selected_boundary_fans(np.array([[0,1,2],[0,1,3]]),np.array([0]))

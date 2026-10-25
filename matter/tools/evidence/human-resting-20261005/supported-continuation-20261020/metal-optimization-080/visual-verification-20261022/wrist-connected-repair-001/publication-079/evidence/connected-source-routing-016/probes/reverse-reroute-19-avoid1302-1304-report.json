@@ -1,0 +1,133 @@
+{
+  "attempts": [
+    {
+      "failed": {
+        "attempt_pops": 1,
+        "blocking_local_segments": [
+          {
+            "coarse_edge": [
+              234,
+              242
+            ],
+            "edges": [
+              [
+                1305,
+                1306
+              ]
+            ],
+            "nodes": [
+              1305
+            ],
+            "segment": 14
+          }
+        ],
+        "coarse_edge": [
+          242,
+          232
+        ],
+        "end_row": 1289,
+        "end_source_id": 1289,
+        "free_pops": 6,
+        "free_shortest_length_m": 0.0038024695539326412,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 15,
+        "start_row": 1306,
+        "start_source_id": 1306
+      },
+      "reverse_order": false,
+      "segments_routed": 18,
+      "start_offset": 0
+    },
+    {
+      "failed": {
+        "attempt_pops": 1,
+        "blocking_local_segments": [
+          {
+            "coarse_edge": [
+              150,
+              229
+            ],
+            "edges": [],
+            "nodes": [
+              944
+            ],
+            "segment": 19
+          }
+        ],
+        "coarse_edge": [
+          122,
+          199
+        ],
+        "end_row": 1202,
+        "end_source_id": 1202,
+        "free_pops": 5,
+        "free_shortest_length_m": 0.0031031407794581936,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 1,
+        "start_row": 943,
+        "start_source_id": 943
+      },
+      "reverse_order": true,
+      "segments_routed": 18,
+      "start_offset": 0
+    }
+  ],
+  "best_partial_attempt": {
+    "attempt": {
+      "failed": {
+        "attempt_pops": 1,
+        "blocking_local_segments": [
+          {
+            "coarse_edge": [
+              234,
+              242
+            ],
+            "edges": [
+              [
+                1305,
+                1306
+              ]
+            ],
+            "nodes": [
+              1305
+            ],
+            "segment": 14
+          }
+        ],
+        "coarse_edge": [
+          242,
+          232
+        ],
+        "end_row": 1289,
+        "end_source_id": 1289,
+        "free_pops": 6,
+        "free_shortest_length_m": 0.0038024695539326412,
+        "reason": "blocked_by_reserved_routes",
+        "segment": 15,
+        "start_row": 1306,
+        "start_source_id": 1306
+      },
+      "reverse_order": false,
+      "segments_routed": 18,
+      "start_offset": 0
+    },
+    "segments_routed": 18
+  },
+  "elapsed_seconds": 0.24855899810791016,
+  "input_sha256": {
+    "cut_npz": "21e2b65d85ba9bac176aaa670b916bc13189975a295c9ab328d1e835bb2e0b78",
+    "cut_report": "d9f22dc8fda1ae6a3db5950c313b096871db2c9814fa09ad27987a2f9d7f8684",
+    "detail": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4"
+  },
+  "reserved_other_loop_edges": 389,
+  "reserved_other_loop_internal_nodes": 330,
+  "schema": "source_fine_graph_reroute_probe_v1",
+  "scope": "Bounded graph-only search; no geometry changed and no proof of global infeasibility.",
+  "status": "NO_SIMPLE_CYCLE_WITH_OTHER_LOOPS_UNRESERVED",
+  "target": {
+    "anchor_count": 27,
+    "boundary_edges": 27,
+    "component": 0,
+    "loop": 0
+  }
+}
