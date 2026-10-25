@@ -320,6 +320,23 @@ class MappedSkinSurface:
         value,grad,_,_=boundary_face_values_gradients(Y,self.detail_origin,self.faces[ids])
         return value,self._compose_face_jacobian(grad,ids,F)
 
+    def triangle_gradient_linearization(self, points, free_nodes, face_ids):
+        """P1 displacement-gradient Jacobian for mapped detailed triangles.
+
+        The map composes detailed face shape gradients through the existing
+        sparse coarse-to-detail displacement weights. Variables are free coarse
+        xyz millimetres; rows are face-major 3x3 gradient entries.
+        """
+        from human_skin_fat_connected_repair import sparse_triangle_displacement_gradient
+        F=self._validated_free_nodes(free_nodes)
+        ids=self._validated_face_ids(face_ids)
+        if not len(ids):
+            return ids,sparse.csr_matrix((0,3*len(F)))
+        Y=self.positions(points)
+        J=sparse_triangle_displacement_gradient(
+            Y,self.faces[ids],F,len(self.coarse_origin),self.weights)
+        return ids,J
+
     def area_cosine_linearization(self, points, free_nodes, face_ids=None):
         """True area-ratio and oriented-normal-cosine Jacobians through W."""
         from human_skin_fat_connected_repair import boundary_area_cosine_values_gradients

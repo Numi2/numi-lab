@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/tmp/generic-query-overlay-build-042-work/matter/numi-matter-human-skin-fat-static-query",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+    "/Users/n/Work/numi-human-connected-surface-069/connected-cell-trust-107/run-001/iteration-005/midpoint-query/points.csv",
+    "/Users/n/Work/numi-human-connected-surface-069/connected-cell-trust-107/run-001/iteration-005/midpoint-query/pairs.csv",
+    "/Users/n/Work/numi-human-connected-surface-069/connected-cell-trust-107/run-001/iteration-005/midpoint-query/nodes.csv",
+    "185"
+  ],
+  "binary_sha256": "5dc7b5ce2a96f58bd03ccc85e38645d9da2ec8be105a532c461a3e0cc6d25460",
+  "points_sha256": "6f59f702ef3324df4dd7c936f7de3e22f3990ab8a0a9802c0ae858e42b9b86c8",
+  "pairs_sha256": "006fc33deaa9930c2f4f7207090a67501db44aff6aed01c1ba150db7a3c03493",
+  "nodes_sha256": "06bae45558f3d31b55ac6af90e7334d75021662036ac0a0458da250898cf9a44",
+  "triangles_sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+  "bodies_sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+  "query_rows": 2348,
+  "identity_domain": "sample_query_row",
+  "physical_steps": 0
+}

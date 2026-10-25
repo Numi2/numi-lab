@@ -1,0 +1,17 @@
+{
+  "proposed_free_nodes": 4019,
+  "selected_free_nodes": 3082,
+  "outer_boundary_nodes": 2464,
+  "outer_patch_seed_nodes": 28,
+  "outer_patch_nodes": 282,
+  "selected_free_outer_nodes": 282,
+  "anchored_proposed_outer_nodes": 937,
+  "crossing_boundary_edge_witnesses": 36,
+  "all_outer_contact_rows": 18,
+  "unaddressed_contact_row_ids": [],
+  "patch_rings": 2,
+  "runtime_constraints_added": false,
+  "geometry_admitted": false,
+  "owner_sha256": "2390d551d6178d6a48cd2caab958b244ebbc294d564ce3c6f1e1b4d68b05e9c6",
+  "source": "exact all-tet-edge and all-185-bank current witnesses; not nearest points"
+}

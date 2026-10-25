@@ -1,0 +1,9 @@
+{
+  "input": "/Users/n/Work/numi-human-connected-surface-069/connected-cell-trust-107/run-001/iteration-003/inside-edge-span-samples.npz",
+  "input_sha256": "a951af568b925aaa5644c6d48948edfedf8c155a2843cda3b14f533c4f81d97d",
+  "field": "points_world_f32",
+  "query_count": 2438,
+  "output": "/Users/n/Work/numi-human-connected-surface-069/connected-cell-trust-107/run-001/iteration-003/midpoint-query/points.csv",
+  "output_sha256": "6c4d15796fb2129b1d72be43256563d54bc12386dfde97b4dbc663d3e5efbacd",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

@@ -8,6 +8,7 @@ from human_skin_fat_bone_clearance import (
     closest_point_barycentric,
     nearest_exit_contact,
     validate_sample_points_csv,
+    certify_collapsed_endpoint_aliases,
 )
 
 
@@ -129,6 +130,73 @@ class ClosestExit093Tests(unittest.TestCase):
         self.assertEqual(len(samples), 3)
         self.assertTrue(samples[1]["f32_collapsed_span"])
         self.assertEqual(report["f32_collapsed_sample_query_rows"], [0, 1])
+
+
+class CollapsedEndpointAlias107Tests(unittest.TestCase):
+    def _sample(self, points, node_a, node_b, query_a, query_b, *, expected=True, query_row=0):
+        endpoint_node = node_b
+        bits = points[endpoint_node].view(np.uint32).copy()
+        values = points[endpoint_node].copy()
+        return {
+            "sample_id": 0, "sample_query_row": query_row, "source_domain": "mechanics_node_row",
+            "edge_index": 3, "mechanics_node_a": node_a, "mechanics_node_b": node_b,
+            "endpoint_query_rows": [query_a, query_b], "body": 4, "bone_stable_id": 7,
+            "expected_inside_by_exact_parity": expected, "point_world_f32": values.tolist(),
+            "point_world_f32_bits": bits.tolist(), "f32_collapsed_span": True,
+        }
+
+    def _certify(self, sample, points, endpoint_classes, actual, exit_ids=(0,), **overrides):
+        args = dict(
+            samples=[sample], mechanics_points_f32=points,
+            query_row_to_mechanics_node=np.arange(len(points), dtype=np.int64),
+            endpoint_classification=endpoint_classes,
+            sample_target_classification={0: actual},
+            certified_inside_exit_sample_ids=exit_ids,
+            complete_endpoint_query_185=True, complete_sample_query_185=True,
+            endpoint_query_identity_valid=True, sample_query_identity_valid=True,
+        )
+        args.update(overrides)
+        return certify_collapsed_endpoint_aliases(**args)
+
+    def test_inside_endpoint_alias_requires_matching_parity_and_exit_receipt(self):
+        points = np.array([[0., 0., 0.], [1., 0., 0.]], dtype=np.float32)
+        sample = self._sample(points, 0, 1, 0, 1)
+        report = self._certify(sample, points, {(0,4,7): "outside", (1,4,7): "inside"}, "inside")
+        self.assertEqual(report["certified_endpoint_alias_sample_ids"], [0])
+        self.assertEqual(report["endpoint_alias_exception_count"], 1)
+
+    def test_outside_aabb_endpoint_alias_is_explicitly_supported(self):
+        points = np.array([[0., 0., 0.], [1., 0., 0.]], dtype=np.float32)
+        sample = self._sample(points, 0, 1, 0, 1, expected=False)
+        sample["point_world_f32"] = points[0].tolist()
+        sample["point_world_f32_bits"] = points[0].view(np.uint32).tolist()
+        report = self._certify(sample, points, {(0,4,7): "outside_aabb_proven", (1,4,7): "inside"},
+                               "outside_aabb_proven", exit_ids=())
+        self.assertEqual(report["certified_endpoint_alias_sample_ids"], [0])
+
+    def test_nonendpoint_collapse_and_missing_inside_exit_fail_closed(self):
+        points = np.array([[0., 0., 0.], [1., 0., 0.]], dtype=np.float32)
+        sample = self._sample(points, 0, 1, 0, 1)
+        sample["point_world_f32"] = [0.5, 0., 0.]
+        sample["point_world_f32_bits"] = np.asarray(sample["point_world_f32"], np.float32).view(np.uint32).tolist()
+        with self.assertRaisesRegex(ValueError, "uncertified collapsed"):
+            self._certify(sample, points, {(0,4,7): "outside", (1,4,7): "inside"}, "inside")
+        sample["point_world_f32"] = points[1].tolist()
+        sample["point_world_f32_bits"] = points[1].view(np.uint32).tolist()
+        with self.assertRaisesRegex(ValueError, "uncertified collapsed"):
+            self._certify(sample, points, {(0,4,7): "outside", (1,4,7): "inside"}, "inside", exit_ids=())
+
+    def test_class_or_query_validation_mismatch_fails(self):
+        points = np.array([[0., 0., 0.], [1., 0., 0.]], dtype=np.float32)
+        sample = self._sample(points, 0, 1, 0, 1)
+        with self.assertRaisesRegex(ValueError, "endpoint_class_differs"):
+            self._certify(sample, points, {(0,4,7): "outside", (1,4,7): "outside"}, "inside")
+        with self.assertRaisesRegex(ValueError, "complete 185-bank"):
+            self._certify(sample, points, {(0,4,7): "outside", (1,4,7): "inside"}, "inside",
+                          complete_sample_query_185=False)
+        with self.assertRaisesRegex(ValueError, "query identities"):
+            self._certify(sample, points, {(0,4,7): "outside", (1,4,7): "inside"}, "inside",
+                          endpoint_query_identity_valid=False)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,9 @@
+{
+  "input": "/Users/n/Work/numi-human-connected-surface-069/connected-cell-trust-107/run-001/iteration-010/candidate.npz",
+  "input_sha256": "ef36a693d5f23e3990db5d77deaa5158e079c5670a7226f92b0b91f1b11cb8f8",
+  "field": "points_world_f32",
+  "query_count": 7360,
+  "output": "/Users/n/Work/numi-human-connected-surface-069/connected-cell-trust-107/run-001/iteration-010/query/points.csv",
+  "output_sha256": "2b4c0af6153d3f9a70fbe95b97c71c41768a7ed727df30d89aabcf3a42726372",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

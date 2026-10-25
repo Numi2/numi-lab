@@ -177,6 +177,151 @@ def build_edge_span_midpoint_samples(
         "sample_query_row_domain": "separate from mechanics_node_row; each sample maps to edge endpoint nodes",
     }
 
+
+def certify_collapsed_endpoint_aliases(
+    samples,
+    mechanics_points_f32,
+    query_row_to_mechanics_node,
+    endpoint_classification,
+    sample_target_classification,
+    *,
+    certified_inside_exit_sample_ids,
+    complete_endpoint_query_185,
+    complete_sample_query_185,
+    endpoint_query_identity_valid,
+    sample_query_identity_valid,
+):
+    """Certify only F32-collapsed midpoints that alias a classified endpoint.
+
+    Call after both native queries pass complete 185-bank/AABB-partition checks,
+    point-bit checks, and local-frame identity checks. endpoint_classification
+    must contain an explicit class for every referenced endpoint target bank,
+    including outside_aabb_proven when the validated AABB candidate set omits
+    that bank. sample_target_classification is the output of
+    validate_sample_query_rows. An inside alias also needs the sample ID of a
+    PASS strict first-outward-exit receipt.
+
+    This does not certify a non-endpoint collapsed span or waive any query,
+    parity, first-exit, or downstream geometry gate.
+    """
+    if complete_endpoint_query_185 is not True or complete_sample_query_185 is not True:
+        raise ValueError("endpoint-alias certification requires both complete 185-bank queries")
+    if endpoint_query_identity_valid is not True or sample_query_identity_valid is not True:
+        raise ValueError("endpoint-alias certification requires validated query identities")
+    points = np.asarray(mechanics_points_f32)
+    if points.dtype != np.float32 or points.ndim != 2 or points.shape[1] != 3:
+        raise ValueError("mechanics points must be an Nx3 Float32 array")
+    if not np.isfinite(points).all():
+        raise ValueError("mechanics points contain nonfinite values")
+    qrow_to_node = np.asarray(query_row_to_mechanics_node)
+    if qrow_to_node.ndim != 1 or not np.issubdtype(qrow_to_node.dtype, np.integer):
+        raise ValueError("query-row to mechanics-node map must be a 1D integer array")
+    if len(qrow_to_node) == 0 or np.any(qrow_to_node < 0) or np.any(qrow_to_node >= len(points)):
+        raise ValueError("query-row to mechanics-node mapping is out of range")
+    exit_ids = set()
+    for raw_id in certified_inside_exit_sample_ids:
+        sid = int(raw_id)
+        if sid < 0:
+            raise ValueError("first-exit sample IDs must be nonnegative")
+        exit_ids.add(sid)
+
+    def inside_class(value, where):
+        if value == "inside":
+            return True
+        if value in ("outside", "outside_aabb_proven", "outside_AABB_proven"):
+            return False
+        raise ValueError(f"{where} has unresolved classification {value!r}")
+
+    collapsed = []
+    certified = []
+    details = []
+    seen_sample_ids = set()
+    for sample in samples:
+        sid = int(sample["sample_id"])
+        if sid in seen_sample_ids:
+            raise ValueError(f"duplicate sample ID {sid}")
+        seen_sample_ids.add(sid)
+        expected_value = sample.get("expected_inside_by_exact_parity")
+        if not isinstance(expected_value, (bool, np.bool_)):
+            raise ValueError(f"sample {sid} lacks a boolean exact-parity class")
+        expected_inside = bool(expected_value)
+        if sid not in sample_target_classification:
+            raise ValueError(f"sample {sid} lacks a validated target classification")
+        actual_target = sample_target_classification[sid]
+        actual_inside = inside_class(actual_target, f"sample {sid} target")
+        if actual_inside != expected_inside:
+            raise ValueError(f"sample {sid} exact parity disagrees with actual target query")
+        if not bool(sample.get("f32_collapsed_span", False)):
+            continue
+        collapsed.append(sid)
+        bits = np.asarray(sample.get("point_world_f32_bits", []), dtype=np.uint32)
+        values = np.asarray(sample.get("point_world_f32", []), dtype=np.float32)
+        if bits.shape != (3,) or values.shape != (3,) or not np.array_equal(values.view(np.uint32), bits):
+            raise ValueError(f"collapsed sample {sid} has malformed Float32 identity")
+        query_rows = tuple(map(int, sample.get("endpoint_query_rows", [])))
+        mechanics_nodes = (int(sample["mechanics_node_a"]), int(sample["mechanics_node_b"]))
+        if len(query_rows) != 2:
+            raise ValueError(f"collapsed sample {sid} lacks two endpoint query rows")
+        if any(q < 0 or q >= len(qrow_to_node) for q in query_rows):
+            raise ValueError(f"collapsed sample {sid} endpoint query row is out of range")
+        mapped = tuple(int(qrow_to_node[q]) for q in query_rows)
+        if mapped != mechanics_nodes:
+            raise ValueError(f"collapsed sample {sid} endpoint query/node identity mismatch")
+        if min(mechanics_nodes) < 0 or max(mechanics_nodes) >= len(points):
+            raise ValueError(f"collapsed sample {sid} mechanics endpoint is out of range")
+        alias_rows = [
+            i for i, node in enumerate(mechanics_nodes)
+            if np.array_equal(points[node].view(np.uint32), bits)
+        ]
+        if len(alias_rows) != 1:
+            details.append({"sample_id": sid, "status": "rejected",
+                            "reason": "not_exactly_one_endpoint_alias"})
+            continue
+        alias_row = alias_rows[0]
+        endpoint_key = (query_rows[alias_row], int(sample["body"]), int(sample["bone_stable_id"]))
+        if endpoint_key not in endpoint_classification:
+            raise ValueError(f"collapsed sample {sid} lacks explicit validated endpoint target class {endpoint_key}")
+        endpoint_value = endpoint_classification[endpoint_key]
+        endpoint_inside = inside_class(endpoint_value, f"sample {sid} endpoint")
+        reasons = []
+        if endpoint_inside != expected_inside:
+            reasons.append("endpoint_class_differs_from_exact_parity")
+        if actual_inside != expected_inside:
+            reasons.append("actual_sample_class_differs_from_exact_parity")
+        if expected_inside and sid not in exit_ids:
+            reasons.append("missing_pass_first_outward_exit_certificate")
+        record = {
+            "sample_id": sid,
+            "sample_query_row": int(sample["sample_query_row"]),
+            "aliased_endpoint": "a" if alias_row == 0 else "b",
+            "endpoint_query_row": query_rows[alias_row],
+            "endpoint_classification": endpoint_value,
+            "expected_classification": "inside" if expected_inside else "outside",
+            "actual_target_classification": actual_target,
+            "first_exit_certificate_required": expected_inside,
+            "first_exit_certificate_present": sid in exit_ids,
+            "status": "certified" if not reasons else "rejected",
+            "reasons": reasons,
+        }
+        details.append(record)
+        if not reasons:
+            certified.append(sid)
+    rejected = [r for r in details if r["status"] != "certified"]
+    report = {
+        "collapsed_sample_ids": collapsed,
+        "certified_endpoint_alias_sample_ids": certified,
+        "rejected_collapsed_samples": rejected,
+        "endpoint_alias_exception_count": len(certified),
+        "complete_endpoint_query_185_bank": True,
+        "complete_sample_query_185_bank": True,
+        "endpoint_query_identity_valid": True,
+        "sample_query_identity_valid": True,
+        "interpretation": "only exact F32 endpoint aliases with matching endpoint, exact-span parity, and actual target classifications are certified; inside aliases require a PASS first-outward-exit receipt",
+    }
+    if rejected:
+        raise ValueError(f"uncertified collapsed Float32 span(s): {rejected!r}")
+    return report
+
 def validate_sample_query_rows(samples, queried_points_f32, node_rows, pair_rows, *, expected_bank_count=185, aabb_candidate_keys=None):
     """Fail closed on row-domain, output partition, ambiguity, or missing queries."""
     points = np.asarray(queried_points_f32)

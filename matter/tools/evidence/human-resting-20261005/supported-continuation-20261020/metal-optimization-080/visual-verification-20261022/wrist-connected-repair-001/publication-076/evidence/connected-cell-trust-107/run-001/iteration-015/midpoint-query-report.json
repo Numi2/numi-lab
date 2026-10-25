@@ -1,0 +1,49 @@
+{
+  "sample_build": {
+    "edge_bank_groups": 782,
+    "span_midpoint_samples": 2116,
+    "endpoint_parity_contradiction_count": 0,
+    "endpoint_parity_contradictions": [],
+    "identical_t_duplicate_witnesses_coalesced": 0,
+    "f32_collapsed_sample_query_rows": [],
+    "mechanics_query_row_mapping_count": 7360,
+    "sample_query_row_domain": "separate from mechanics_node_row; each sample maps to edge endpoint nodes",
+    "crossing_barycentric_identity": {
+      "witnesses": 1334,
+      "max_edge_to_triangle_residual_m": 5.561946577567963e-17,
+      "tolerance_m": 5e-09,
+      "passed": true
+    }
+  },
+  "sample_query_rows": 2116,
+  "target_inside_midpoints": 808,
+  "target_outside_midpoints": 874,
+  "target_aabb_outside_midpoints": 434,
+  "actual_inside_bank_first_outward_ray_exit_constraints": 882,
+  "sample_query_pairs": 2200,
+  "aabb_coverage": "complete over all 185 banks",
+  "sample_points_csv_identity": {
+    "rows": 2116,
+    "max_decimal_roundtrip_error_m": 0.0,
+    "bitwise_sample_identity": true
+  },
+  "max_query_local_transform_residual_m": 4.336808689942018e-17,
+  "certified_first_outward_ray_exits": 882,
+  "expected_actual_classification_disagreements": [],
+  "f32_collapsed_sample_query_rows": [],
+  "query_receipt_sha256": "be597420994a25d692aff07becc8696cc100c87e890cdf3994c356af416ab05f",
+  "sample_mapping_sha256": "405674dcc225474f21ea3f11e58b4323ec12ac395dce16ce209e8aa0acf98ec0",
+  "sample_npz_sha256": "e3d2c3400fb7fdc0c7c55c8aed829a281a610be58edb7f979a845549a39d73f9",
+  "interpretation": "every nonzero exact-hit interval is queried; actual inside pairs receive 098 source O-D first-exit planes against complete bank AABBs and exact segment classification; no nearest-point fallback; outside intervals receive no plane",
+  "collapsed_endpoint_alias_certification": {
+    "collapsed_sample_ids": [],
+    "certified_endpoint_alias_sample_ids": [],
+    "rejected_collapsed_samples": [],
+    "endpoint_alias_exception_count": 0,
+    "complete_endpoint_query_185_bank": true,
+    "complete_sample_query_185_bank": true,
+    "endpoint_query_identity_valid": true,
+    "sample_query_identity_valid": true,
+    "interpretation": "only exact F32 endpoint aliases with matching endpoint, exact-span parity, and actual target classifications are certified; inside aliases require a PASS first-outward-exit receipt"
+  }
+}
