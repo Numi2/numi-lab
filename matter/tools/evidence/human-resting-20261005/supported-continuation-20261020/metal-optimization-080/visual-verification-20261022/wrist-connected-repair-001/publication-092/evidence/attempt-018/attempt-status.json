@@ -1,0 +1,14 @@
+{
+  "attempt": "018",
+  "status": "REJECTED_BEFORE_REPORT_OR_CANDIDATE",
+  "evidence_type": "post-run status receipt; runner emitted no report or candidate",
+  "runner_source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/run-005-common-field-gauge-018.py",
+  "runner_source_sha256": "8aa9403bc6dfee6b43b1adc278f4e46866c77a8acc65b96aa8aaede8234e1ef9",
+  "input_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/output-012/common-field-gauge-candidate.npz",
+  "input_candidate_sha256": "7868b248efad2ff0e14f6d9e5499d7f53d44126638f9a22f2d109e1e01bc7998",
+  "target_row": 15278,
+  "target_scalar_delta_um": 105.0,
+  "measured_max_cutpoint_motion_fraction_hskin": 23.5475789,
+  "configured_construction_ceiling_fraction_hskin": 0.1,
+  "reason": "Pre-report construction ceiling rejection: measured cutpoint motion was 23.54757890% of local hskin, above the configured 10% ceiling. The runner stopped before writing a candidate or report."
+}

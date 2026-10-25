@@ -1,0 +1,62 @@
+{
+  "format": "numi.source-pins.v1",
+  "note": "The 34,437,132-byte original joint-facet input is SHA-256 pinned but not duplicated to keep the package below 60 MB.",
+  "inputs": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-extraction-164/run-015-nonzero-sign-regularized/run-001-joint-unsnapped/joint-interface-facets.npz",
+      "exists": true,
+      "bytes": 34437132,
+      "sha256": "f8a70c2f9b4edd6f08993d868e95d2c706a08a23a4da5da1f276fa9907a7d99c",
+      "bundled": false
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/output-012/common-field-gauge-candidate.npz",
+      "exists": true,
+      "bytes": 2871811,
+      "sha256": "7868b248efad2ff0e14f6d9e5499d7f53d44126638f9a22f2d109e1e01bc7998",
+      "bundled": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-volume-extraction-157/true-o-foundation-159/run-029-closed-volume-field-repair/run-003-nonzero-regularization/output-002/regularized-foundation-checkpoint.npz",
+      "exists": true,
+      "bytes": 21046424,
+      "sha256": "ab88a36f1b3a433624854f8d878686f790b012dc92ad85af7fa4e7376745e39d",
+      "bundled": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-volume-extraction-157/true-o-foundation-159/run-029-closed-volume-field-repair/run-003-nonzero-regularization/output-002/regularized-registered-levelsets.npz",
+      "exists": true,
+      "bytes": 5768393,
+      "sha256": "7b1e7bb9cf2f5d71918a1769f23538f8d9c1ab8e6f307072cee36539e32fda13",
+      "bundled": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/run-004-global-short-edge-batch/output-001/localization-003.json",
+      "exists": true,
+      "bytes": 256474,
+      "sha256": "a7f3d305760386c28b196e6de738f429c89b0ba083d3f63ff108ef9a768948fc",
+      "bundled": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-extraction-164/canonical/matter/tools/human_skin_fat_layer_reconstruction.py",
+      "exists": true,
+      "bytes": 59844,
+      "sha256": "598d1c061ce9ff8315ba5473ed12b386e4d78797d5e890787eabf40b153cbf75",
+      "bundled": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-085/canonical/matter/tools/human_skin_fat_layer_reconstruction.py",
+      "exists": true,
+      "bytes": 61968,
+      "sha256": "ec98203c904ac10e931e1e79a803762aaf9db35c0cc115a482400eea1ad8b4ef",
+      "bundled": true
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+      "exists": true,
+      "bytes": 63212,
+      "sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "bundled": true
+    }
+  ]
+}

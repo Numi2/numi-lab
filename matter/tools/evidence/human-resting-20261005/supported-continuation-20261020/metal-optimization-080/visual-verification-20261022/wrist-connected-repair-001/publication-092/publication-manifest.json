@@ -1,0 +1,220 @@
+{
+  "format": "numi.publication-manifest.v1",
+  "publication": "092",
+  "base_commit": "88b7ee5cd3a41c9ff3d160f4799db7e47ca7d278",
+  "base_tree": "26014a4161e574ab66a8f4f9eb2abbe2854f8ba6",
+  "scope": "joint-interface-facet-contraction-165 attempts 015-020; bounded common-field gauge construction and full interface audit",
+  "canonical_changes": [],
+  "summary": {
+    "classification": "construction_progress_only",
+    "accepted_physical_steps": 0,
+    "geometry_admitted": false,
+    "native_admission": false,
+    "source_tets": 461669,
+    "source_tet_q_below_1e-5": 191,
+    "source_tet_q_min": 3.316e-06,
+    "final_interface_facets": 624902,
+    "final_global_exact_self_pairs": 0,
+    "final_skin_facet_q_min": 1.0236998195739106e-05,
+    "final_skin_facet_q_below_1e-5": 0,
+    "final_fat_facet_q_min": 1.2189648262852507e-05,
+    "final_fat_facet_q_below_1e-5": 0,
+    "outer_zero_set_unchanged": true,
+    "max_cutpoint_motion_mm": 0.58030497,
+    "max_cutpoint_motion_fraction_hskin": 0.2354757893163281
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "kind": "publication-summary",
+      "bytes": 2928,
+      "sha256": "aa872131832a2b5de29c76902add46b175e8b45c7df4f6ac3caa778d82c43899"
+    },
+    {
+      "path": "evidence/attempt-016/attempt-status.json",
+      "kind": "post-run-status-receipt",
+      "bytes": 1042,
+      "sha256": "1e20edabd5464d8d34b6399d2c475ce38a407c367c7be2a81c98f7eeb8a26591"
+    },
+    {
+      "path": "evidence/attempt-017/common-field-gauge-candidate.npz",
+      "kind": "candidate-npz",
+      "bytes": 2871826,
+      "sha256": "f0f66452f3c3a3f3512b2cf12000d95f616882edc4b5c093d1515c811c534f98",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/output-017/common-field-gauge-candidate.npz"
+    },
+    {
+      "path": "evidence/attempt-017/report.json",
+      "kind": "audit-report",
+      "bytes": 33715,
+      "sha256": "e119d3b3dd04acdbf39fb97c4ed7b95a66a7943630e9f7fb67e9b5d78ebe365e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/output-017/report.json"
+    },
+    {
+      "path": "evidence/attempt-018/attempt-status.json",
+      "kind": "post-run-status-receipt",
+      "bytes": 1042,
+      "sha256": "30afe5c5c817094280beffd29ffbf1e332f9633cc30a2d37aa9dea2d32f5a822"
+    },
+    {
+      "path": "evidence/attempt-019/common-field-gauge-candidate.npz",
+      "kind": "candidate-npz",
+      "bytes": 2871825,
+      "sha256": "d4c38c49b3a4ea3c242ec2c643c11524de38d41a591c12450d7df04cd052ff24",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/output-019/common-field-gauge-candidate.npz"
+    },
+    {
+      "path": "evidence/attempt-019/report.json",
+      "kind": "audit-report",
+      "bytes": 33725,
+      "sha256": "f8640044edcbbc9f34e7740d0df96b44ec8acc34e697d4ad7f9017e14244d57b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/output-019/report.json"
+    },
+    {
+      "path": "evidence/attempt-019/root-independent-field-check-174.json",
+      "kind": "independent-field-check",
+      "bytes": 619,
+      "sha256": "202916b14db8c5d7ecd64f01950aa95cfa8f041cb94c05b77cf09b4a8f0d33f9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/root-independent-field-check-174.json"
+    },
+    {
+      "path": "evidence/attempt-020/full-after-facets.npz",
+      "kind": "facets-npz",
+      "bytes": 9719596,
+      "sha256": "e6050f13aa33fdb510641c29e2e80498ce0bc6438dc439d6b1082349a3a7066e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/output-020/full-after-facets.npz"
+    },
+    {
+      "path": "evidence/attempt-020/report.json",
+      "kind": "audit-report",
+      "bytes": 1566,
+      "sha256": "07fdd55c3be839ff1c6b5755b7b39578c78f1c0e203d823ee91edd1b749d9f01",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/output-020/report.json"
+    },
+    {
+      "path": "evidence/baseline-015/full-after-facets.npz",
+      "kind": "facets-npz",
+      "bytes": 9719579,
+      "sha256": "4af193e7c46309e2a6762abd24cd4aae90c4781aa03218f78dc3b14e67926288",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/output-015/full-after-facets.npz"
+    },
+    {
+      "path": "evidence/baseline-015/input-candidate-012.npz",
+      "kind": "candidate-npz",
+      "bytes": 2871811,
+      "sha256": "7868b248efad2ff0e14f6d9e5499d7f53d44126638f9a22f2d109e1e01bc7998",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/output-012/common-field-gauge-candidate.npz"
+    },
+    {
+      "path": "evidence/baseline-015/report.json",
+      "kind": "audit-report",
+      "bytes": 1564,
+      "sha256": "0a12eb207ed6daf6746098617c52f8e221ab90e6fc1b57c69eb5549748838aed",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/output-015/report.json"
+    },
+    {
+      "path": "evidence/inputs/regularized-foundation-checkpoint.npz",
+      "kind": "input-npz",
+      "bytes": 21046424,
+      "sha256": "ab88a36f1b3a433624854f8d878686f790b012dc92ad85af7fa4e7376745e39d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-volume-extraction-157/true-o-foundation-159/run-029-closed-volume-field-repair/run-003-nonzero-regularization/output-002/regularized-foundation-checkpoint.npz"
+    },
+    {
+      "path": "evidence/inputs/regularized-registered-levelsets.npz",
+      "kind": "input-npz",
+      "bytes": 5768393,
+      "sha256": "7b1e7bb9cf2f5d71918a1769f23538f8d9c1ab8e6f307072cee36539e32fda13",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-volume-extraction-157/true-o-foundation-159/run-029-closed-volume-field-repair/run-003-nonzero-regularization/output-002/regularized-registered-levelsets.npz"
+    },
+    {
+      "path": "evidence/source-dependencies/cardiac-cavity-intersections-predicate.py",
+      "kind": "source-dependency",
+      "bytes": 63212,
+      "sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py"
+    },
+    {
+      "path": "evidence/source-dependencies/joint-facet-cutter-164.py",
+      "kind": "source-dependency",
+      "bytes": 59844,
+      "sha256": "598d1c061ce9ff8315ba5473ed12b386e4d78797d5e890787eabf40b153cbf75",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-extraction-164/canonical/matter/tools/human_skin_fat_layer_reconstruction.py"
+    },
+    {
+      "path": "evidence/source-dependencies/localization-003.json",
+      "kind": "source-dependency",
+      "bytes": 256474,
+      "sha256": "a7f3d305760386c28b196e6de738f429c89b0ba083d3f63ff108ef9a768948fc",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/run-004-global-short-edge-batch/output-001/localization-003.json"
+    },
+    {
+      "path": "evidence/source-dependencies/quality-helper-publication-085.py",
+      "kind": "source-dependency",
+      "bytes": 61968,
+      "sha256": "ec98203c904ac10e931e1e79a803762aaf9db35c0cc115a482400eea1ad8b4ef",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-085/canonical/matter/tools/human_skin_fat_layer_reconstruction.py"
+    },
+    {
+      "path": "evidence/source-dependencies/source-tet-quality-run-013.json",
+      "kind": "source-dependency",
+      "bytes": 2780,
+      "sha256": "5c15b621d461d97499d92e94e30acabb2dca35be0407fb6961fae687b7fda5a2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-volume-extraction-157/true-o-foundation-159/run-013-conforming-field-refinement/report.json"
+    },
+    {
+      "path": "evidence/source-pins.json",
+      "kind": "source-pins",
+      "bytes": 3100,
+      "sha256": "8c61f974fdd4adc32b917f37a4319f4f0ae6313d345ac7a83ea4da6a3c473764"
+    },
+    {
+      "path": "evidence/source-runners/run-012.py",
+      "kind": "as-run-source",
+      "bytes": 17406,
+      "sha256": "3d495487d09f94490415067b0641eff085576433ae51f31466d38561b15fea50",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/run-005-common-field-gauge-012.py"
+    },
+    {
+      "path": "evidence/source-runners/run-015.py",
+      "kind": "as-run-source",
+      "bytes": 4693,
+      "sha256": "a36c9c992d1be2b389ea4c002baddb5b443ee25a0a376f056bf2b43dd3c7d19e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/run-005-common-field-gauge-015.py"
+    },
+    {
+      "path": "evidence/source-runners/run-016.py",
+      "kind": "as-run-source",
+      "bytes": 17499,
+      "sha256": "e2bbe6f31584a8d6046bae41b67ff3df07b8deb880873a31a4a606cd42dc7418",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/run-005-common-field-gauge-016.py"
+    },
+    {
+      "path": "evidence/source-runners/run-017.py",
+      "kind": "as-run-source",
+      "bytes": 17498,
+      "sha256": "0c55fc537ebf98d25809bec19c0c5aff8edb365fee9f37a4318d6fe528283e85",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/run-005-common-field-gauge-017.py"
+    },
+    {
+      "path": "evidence/source-runners/run-018.py",
+      "kind": "as-run-source",
+      "bytes": 17499,
+      "sha256": "8aa9403bc6dfee6b43b1adc278f4e46866c77a8acc65b96aa8aaede8234e1ef9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/run-005-common-field-gauge-018.py"
+    },
+    {
+      "path": "evidence/source-runners/run-019.py",
+      "kind": "as-run-source",
+      "bytes": 17499,
+      "sha256": "458e15591207a9df9c131b7650c21034d9471c53bf0aaf6742382b94339a823d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/run-005-common-field-gauge-019.py"
+    },
+    {
+      "path": "evidence/source-runners/run-020.py",
+      "kind": "as-run-source",
+      "bytes": 4693,
+      "sha256": "bb769aa0be3c57afb055bf4ab0c985b207be24516edc338c12d3b1f802ed4015",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/run-005-common-field-gauge-020.py"
+    }
+  ]
+}

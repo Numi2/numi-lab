@@ -1,0 +1,43 @@
+{
+  "construction_only": true,
+  "exact_global_self": {
+    "complete_surface_pair_audit": true,
+    "count": 0,
+    "examples": []
+  },
+  "inputs": {
+    "candidate_fields_path": "/Users/n/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/output-019/common-field-gauge-candidate.npz",
+    "candidate_fields_sha256": "d4c38c49b3a4ea3c242ec2c643c11524de38d41a591c12450d7df04cd052ff24",
+    "checkpoint_sha256": "ab88a36f1b3a433624854f8d878686f790b012dc92ad85af7fa4e7376745e39d",
+    "cutter_sha256": "598d1c061ce9ff8315ba5473ed12b386e4d78797d5e890787eabf40b153cbf75",
+    "exact_self_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "source_tet_count": 461669
+  },
+  "output": {
+    "facet_count": 624902,
+    "interface_counts": {
+      "fat": 240106,
+      "skin": 384796
+    },
+    "path": "/Users/n/Work/numi-human-connected-surface-069/joint-interface-facet-contraction-165/output-020/full-after-facets.npz",
+    "sha256": "e6050f13aa33fdb510641c29e2e80498ce0bc6438dc439d6b1082349a3a7066e"
+  },
+  "passed_surface_gates": true,
+  "physical_or_native_admission": false,
+  "quality_by_interface": {
+    "fat": {
+      "facet_count": 240106,
+      "q_below_1e-5": 0,
+      "q_min": 1.2189648262852507e-05,
+      "q_nonpositive_or_nonfinite": 0
+    },
+    "skin": {
+      "facet_count": 384796,
+      "q_below_1e-5": 0,
+      "q_min": 1.0236998195739106e-05,
+      "q_nonpositive_or_nonfinite": 0
+    }
+  },
+  "runtime_seconds": 312.20043483399786,
+  "status": "FULL_AFTER_SURFACE_AUDIT_COMPLETE"
+}

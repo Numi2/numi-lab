@@ -1,0 +1,16 @@
+{
+  "publication": "092",
+  "status": "prepared_for_review_uncommitted",
+  "base_commit": "88b7ee5cd3a41c9ff3d160f4799db7e47ca7d278",
+  "base_tree": "26014a4161e574ab66a8f4f9eb2abbe2854f8ba6",
+  "manifest_path": "publication-manifest.json",
+  "manifest_sha256": "5b077c1668e5313a166a00cfeb8a63c2a4e5d0205ea87506a9bded6886b2247e",
+  "worktree_head_before": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "shared_index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+  "shared_index_sha256_before": "900932a2b704bbf6ab7fd5c2cd200b11502352e71129e795a5bafe3fa7a7ac71",
+  "commit_created": false,
+  "push_performed": false,
+  "payload_bytes": 55489820,
+  "manifest_bytes": 10884,
+  "origin_main_verified": "88b7ee5cd3a41c9ff3d160f4799db7e47ca7d278"
+}

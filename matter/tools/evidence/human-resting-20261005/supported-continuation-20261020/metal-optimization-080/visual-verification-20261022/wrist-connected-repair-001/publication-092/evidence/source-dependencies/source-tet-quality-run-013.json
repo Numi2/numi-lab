@@ -1,0 +1,79 @@
+{
+  "ancestry": {
+    "all_point_coordinate_errors_within_derived_bound": true,
+    "max_derived_interpolation_roundoff_bound_m": 1.0694508995368393e-07,
+    "max_emitted_reference_roundoff_m": 6.188917057900187e-08,
+    "row_sum_error_max": 1.1102230246251565e-16
+  },
+  "counts": {
+    "boundary_faces_preserved": 17548,
+    "input_points": 9288,
+    "input_tets": 31839,
+    "new_edge_midpoints": 11180,
+    "new_face_centers": 26305,
+    "new_points": 120238,
+    "new_tet_centers": 82753,
+    "output_points": 129526,
+    "output_tets": 461669,
+    "source_ancestry_nnz": 441575
+  },
+  "geometry_admitted": false,
+  "input_pins": {
+    "fields": "8530e57f83de88862da6f3c258b0ee68befe9b83096316556b808d42750e2e81",
+    "foundation": "f4f50a725d51b0dd5d0433c6078e6913c64fe0e9cf4ea676aa0f01fe8ce76ddb",
+    "outer": "d2beb7c9cd71ae7969d140b7783bfc5d4254e2ab8c51f77f9974d7d6e9e056ab",
+    "sample": "591c0d8cfc23f98e1bd940e3c41050e328c9cd306adffbacfcca793e2de30e4b",
+    "sample_report": "64ab4ab7ebf5d02b0a20378b7b6894fe15db515e900f2820f0d40f67ff76a6fc"
+  },
+  "limitations": [
+    "Construction-only TetGen domain; temporary caps are not anatomical skin.",
+    "Registered level sets are geometric field estimates, not measured anatomy or validated material identity.",
+    "No mass normalization, parent mass transfer, physical acceptance, native build, or simulation claim."
+  ],
+  "pass_reports": [
+    {
+      "bad_initial_internal_edges": 11180,
+      "bad_initial_internal_faces": 26305,
+      "bad_initial_tet_centroids": 15274,
+      "f32_nonpositive": 0,
+      "f32_q_below_1e5": 191,
+      "f64_nonpositive": 0,
+      "input_tets": 31839,
+      "new_points": 120238,
+      "output_tets": 461669,
+      "pass": 1,
+      "post_refinement_centroid_audit": {
+        "bad_centroid_cells": 82753,
+        "centroid_query_candidates": 3614002,
+        "input_cells": 213410,
+        "max_normalized_error_phiD": 1.9820207867999946,
+        "max_normalized_error_phiI": 1.9519839257235845,
+        "new_centroid_nodes": 82753,
+        "q_phiD_sign_mismatch": 13496,
+        "q_phiI_sign_mismatch": 13486
+      },
+      "split_operations": {
+        "edge_midpoint": 11180,
+        "face_centroid": 26305,
+        "tet_centroid": 82753
+      }
+    }
+  ],
+  "physical_or_native_admission": false,
+  "quality": {
+    "f32_nonpositive": 0,
+    "f32_q_below_1e5": 191,
+    "f64_nonpositive": 0,
+    "max_original_prefix_displacement_m": 0.0,
+    "min_f32_det_m3": 5.169701556956504e-13,
+    "min_f32_q": 3.3162137098932413e-06
+  },
+  "sample_threshold": 0.25,
+  "split_operations": {
+    "edge_midpoint": 11180,
+    "face_centroid": 26305,
+    "tet_centroid": 82753
+  },
+  "status": "ADAPTIVE_ENTITY_REFINEMENT_COMPLETE_CONSTRUCTION_ONLY",
+  "wall_seconds": 16.525661874911748
+}

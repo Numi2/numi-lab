@@ -1,0 +1,19 @@
+{
+  "status": "PASS_INDEPENDENT_FIELD_IDENTITIES",
+  "baseline_sha256": "7b1e7bb9cf2f5d71918a1769f23538f8d9c1ab8e6f307072cee36539e32fda13",
+  "candidate_sha256": "d4c38c49b3a4ea3c242ec2c643c11524de38d41a591c12450d7df04cd052ff24",
+  "changed_source_rows": [
+    10056,
+    15094,
+    15278,
+    15880,
+    18012,
+    25615,
+    31041
+  ],
+  "outer_zero_source_rows_bitwise_unchanged": true,
+  "hskin_max_abs_residual_m": 8.673617379884035e-19,
+  "hfat_max_abs_residual_m": 8.673617379884035e-19,
+  "scope": "field identities only; does not certify geometry, mass or physical mechanics",
+  "accepted_physical_steps": 0
+}
