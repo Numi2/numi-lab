@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-face-first-union-175/run-002/build_targets.py"
+  ],
+  "host": "numi.local",
+  "python_executable": "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+  "python_version": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "status": "completed",
+  "returncode": 0,
+  "geometry_slot_wrapper": "/tmp/numi-human-geometry-slot.py",
+  "runner_sha256": "2afede34d0e7b09e3adb2366c6dd0337c4bd342e31a1cd10c4a118cd0caceb4d",
+  "report_sha256": "4a8bfbd74f579c856efc4feca589cbe12d0cadf2bdcdd6ecd53b7dca16f3dac2",
+  "targets_npz_sha256": "6f73d632a32512b1b10c1b67eea5696f8a64a3050084775dc78b1bf6562513ab",
+  "target_records_jsonl_sha256": "a0d14ca7df01a5e809e8132d71fa501ef25f2d1d1784746ae2f311a89e918d0a",
+  "elapsed_seconds": 16.115250500035472,
+  "candidate_sha256": "e6eb52fc8a6c37a6cfee01f09004bd76975be6fd3ba33e06877dad7877c9cd16",
+  "matched_surface_pairs": 3658,
+  "certified_targets": 3532,
+  "limitations": "Construction targets only; no geometry fit, physical step, or admission."
+}

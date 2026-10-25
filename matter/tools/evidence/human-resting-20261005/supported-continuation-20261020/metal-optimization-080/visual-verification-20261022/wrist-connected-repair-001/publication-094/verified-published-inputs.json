@@ -1,0 +1,56 @@
+{
+  "schema": "numi.verified-published-inputs.v1",
+  "commit": "37eabf9ab930ff7911964ada5aeac1831cfc760c",
+  "tree": "96c4fcb95dd023fd5fe22b29fefd45b25684ca59",
+  "verification": "Each dependency was read from the exact published commit with git show and independently SHA-256 checked.",
+  "dependencies": [
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-093/publication-manifest.json",
+      "sha256": "d1d75c93864988dbcf0b3fbac8772688eea628d2829bd688d72bb9702d8053e7",
+      "bytes": 41361,
+      "note": "P093 manifest"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-093/evidence/170/005/posthoc-alpha-0p125-candidate.npz",
+      "sha256": "e6eb52fc8a6c37a6cfee01f09004bd76975be6fd3ba33e06877dad7877c9cd16",
+      "bytes": 1477865,
+      "note": "selected 005 candidate used as lineage"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-093/evidence/170/005/posthoc-alpha-0p125/audit-159-report.json",
+      "sha256": "5f2fc9d361737dfd33107396ca2159c5f9bf38a44e0f0190d373733f8325767e",
+      "bytes": 279538,
+      "note": "complete 185-bank surface audit"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-093/evidence/170/005/posthoc-alpha-0p125/audit-130-summary.json",
+      "sha256": "8db4d7c4fac99f49edcf44cb75a2b64ea3b7c4afcb8b1106836c02c895aab116",
+      "bytes": 15842,
+      "note": "point audit summary"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-093/evidence/virtual-point-targets/172-corrected/run002-round001-certified-inside-face-rows.npz",
+      "sha256": "cd8213406ee11bd0adf759b9ff7e55aca9722887642aa4961ca239927ccff0d6",
+      "bytes": 298039,
+      "note": "corrected 172 virtual-point source rows"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-093/evidence/virtual-point-targets/172-corrected/run002-round001-certified-inside-face-summary.json",
+      "sha256": "04d5e3e4c787d3d84c73efb7c83a059c658e57e84038c6704ab94d5c358eb6df",
+      "bytes": 2097,
+      "note": "corrected 172 target summary"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-093/canonical/matter/tools/human_skin_fat_bone_audit.py",
+      "sha256": "37c040a442f1fdf312745c1cc1fb6c543383f1cd0782db46c81ca1eadf0d8324",
+      "bytes": 61909,
+      "note": "P093 exact route audit owner"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-093/canonical/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root_exact_segment_witness.py",
+      "sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "bytes": 2734,
+      "note": "P093 exact segment predicate dependency"
+    }
+  ]
+}

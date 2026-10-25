@@ -1,0 +1,16 @@
+{
+  "candidate_sha256": "931529f21497521436aa15d52ebebf71a1e243c5a32d9b301d3f0a99e3035cc7",
+  "point_sha256": "3257c9b17400e196b126df61ab862212f52fde49feaac7b892b05eff554f74e0",
+  "surface_sha256": "17036a56d8f4b7c38b8e91f3350f354954508fa157411285b1406c1b2c467f3b",
+  "driver_sha256": "4b8e802fc5f058a8a28406760aaaef4ebfb88ebad90014ed2ec26690986cd87b",
+  "bary_targets_sha256": "5d85413cf263885a4ce0a45460d042da4241beb54a476364dd90981973e21790",
+  "raw_bary_targets_sha256": "336eb88733767a9c0522f8105ff550ee1c41614f79bb4896dddf2006f7b3fc35",
+  "bary_scope": "coherent source-outward first-empty-union targets; all endpoints exactly outside185; final all185 exact candidate audit mandatory",
+  "best_prior_surface_pairs": 3626,
+  "starting_surface_pairs": 3626,
+  "fixed_target_scope": "fresh matched face-interior samples and full-union endpoint certificates; soft construction only",
+  "retained_soft_rows": 3501,
+  "coherent_target_report_sha256": "4c6d1f49228ffe41d3c1f7fb06b63e45384cbf263630cfe140774e91cb051720",
+  "native_admission": false,
+  "not_launched_reason": "Source outward normals are not transported current face normals;421of3501opposed. Await current-normal proposal and explicit baseline-feasible barrier fraction fix. No fit started."
+}

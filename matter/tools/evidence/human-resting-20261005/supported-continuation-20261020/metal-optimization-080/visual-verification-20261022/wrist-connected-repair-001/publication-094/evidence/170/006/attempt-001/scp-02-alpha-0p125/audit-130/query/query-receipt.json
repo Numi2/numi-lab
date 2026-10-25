@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/tmp/generic-query-overlay-build-042-work/matter/numi-matter-human-skin-fat-static-query",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-006-rebased-soft/attempt-001/scp-02-alpha-0p125/audit-130/query/points.csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-006-rebased-soft/attempt-001/scp-02-alpha-0p125/audit-130/query/pairs.csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-006-rebased-soft/attempt-001/scp-02-alpha-0p125/audit-130/query/nodes.csv",
+    "185"
+  ],
+  "binary_sha256": "5dc7b5ce2a96f58bd03ccc85e38645d9da2ec8be105a532c461a3e0cc6d25460",
+  "points_sha256": "e6e03848cc0fa25d5fca7b8e767293fbe636450378d0eed87da6fb01e82fbd84",
+  "pairs_sha256": "f2eb3b1a41ac33f3d5a4c6f1ec1f70a97029a02dc08027ed2e7d24305472dfeb",
+  "nodes_sha256": "b5b204973ed90492f7bf2be2eccc83feedee53b9a69ff52f3297a33d21b38da5",
+  "query_rows": 13518,
+  "identity_domain": "mechanics_node_row",
+  "physical_steps": 0
+}

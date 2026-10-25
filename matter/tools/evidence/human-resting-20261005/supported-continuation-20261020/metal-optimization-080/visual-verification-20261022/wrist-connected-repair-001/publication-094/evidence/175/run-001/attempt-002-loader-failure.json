@@ -1,0 +1,1 @@
+{"attempt":2,"source_sha256":"cc6d587a72798432c9a6d084f98e0567a7f90febd0fa96cf5da35bded100bb2f","status":"FAILED_BEFORE_TARGET_WORK","error":"NameError: E was undefined while inserting exact owner package path; no geometry or target computation started","geometry_slot_released":true,"candidate_or_source_mutated":false}

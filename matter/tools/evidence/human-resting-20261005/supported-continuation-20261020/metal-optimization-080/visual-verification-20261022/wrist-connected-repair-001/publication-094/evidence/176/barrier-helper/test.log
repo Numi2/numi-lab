@@ -1,0 +1,11 @@
+test_common_vertex_wedge_retains_requested_fraction (Work.numi-human-connected-surface-069.D.joint-clearance-barrier-176.test_self_separation_176.PairMarginTests.test_common_vertex_wedge_retains_requested_fraction) ... ok
+test_projection_relaxation_remains_below_capped_barrier (Work.numi-human-connected-surface-069.D.joint-clearance-barrier-176.test_self_separation_176.PairMarginTests.test_projection_relaxation_remains_below_capped_barrier) ... ok
+test_repeated_threat_fractions_are_capped_only_for_disjoint_midplane (Work.numi-human-connected-surface-069.D.joint-clearance-barrier-176.test_self_separation_176.PairMarginTests.test_repeated_threat_fractions_are_capped_only_for_disjoint_midplane) ... ok
+test_reported_007_violation_is_fixed_by_fraction_cap (Work.numi-human-connected-surface-069.D.joint-clearance-barrier-176.test_self_separation_176.PairMarginTests.test_reported_007_violation_is_fixed_by_fraction_cap) ... ok
+test_rows_are_translation_invariant_for_small_separations (Work.numi-human-connected-surface-069.D.joint-clearance-barrier-176.test_self_separation_176.PairMarginTests.test_rows_are_translation_invariant_for_small_separations) ... ok
+test_sub_half_fraction_keeps_existing_margin (Work.numi-human-connected-surface-069.D.joint-clearance-barrier-176.test_self_separation_176.PairMarginTests.test_sub_half_fraction_keeps_existing_margin) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.004s
+
+OK

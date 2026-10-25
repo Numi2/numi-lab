@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-007-rebased-soft/attempt-001/scp-03-alpha-0p125/audit-130/query/points-world.npz",
+  "input_sha256": "e90479e52e8370e2674484ec0bcf769087350a2c8a5bf7e0d42b3debae0052f8",
+  "field": "points_world_f32",
+  "query_count": 13518,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-007-rebased-soft/attempt-001/scp-03-alpha-0p125/audit-130/query/points.csv",
+  "output_sha256": "250fc071678a551578f8bc8b2da8ca61face7a48c58a35144a61504769b55f9a",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

@@ -1,0 +1,16 @@
+{
+  "candidate_sha256": "931529f21497521436aa15d52ebebf71a1e243c5a32d9b301d3f0a99e3035cc7",
+  "source_targets_sha256": "336eb88733767a9c0522f8105ff550ee1c41614f79bb4896dddf2006f7b3fc35",
+  "rows": 3501,
+  "cosine_quantiles": {
+    "min": -0.9786975929516986,
+    "p01": -0.8745356976188716,
+    "p10": -0.10989344349506214,
+    "p50": 0.8232265327869985,
+    "p90": 0.9914571985567997,
+    "max": 1.0000000000000002
+  },
+  "opposed_count": 421,
+  "decision": "Do not use static raw source normals as transported current normals. Deferred008beforefit. Establish connected winding orientation and use current face normal for subsequent ray proposals.",
+  "native_admission": false
+}

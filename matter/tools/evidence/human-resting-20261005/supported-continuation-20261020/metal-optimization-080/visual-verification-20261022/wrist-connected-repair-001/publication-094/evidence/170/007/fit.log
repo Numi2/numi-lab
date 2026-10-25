@@ -1,0 +1,13 @@
+waiting_for_human_geometry_slot pid=72177
+acquired_human_geometry_slot pid=72177
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-007-rebased-soft/run_connected_barycentric_fit.py", line 688, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-007-rebased-soft/run_connected_barycentric_fit.py", line 438, in main
+    pair_rows, meta = build_pair_rows(cur_mm, F, [pair], margin_fraction=self_pair_margin_fraction[tuple(pair)])
+                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-007-rebased-soft/self_separation_026.py", line 184, in build_pair_rows
+    if max(violations,default=0.0)>2e-8: raise ValueError(f"self-separation baseline infeasible: {max(violations)} mm")
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: self-separation baseline infeasible: 4.263383146962953e-07 mm

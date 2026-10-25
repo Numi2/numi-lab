@@ -1,0 +1,14 @@
+{
+  "candidate_sha256": "e6eb52fc8a6c37a6cfee01f09004bd76975be6fd3ba33e06877dad7877c9cd16",
+  "point_sha256": "8db4d7c4fac99f49edcf44cb75a2b64ea3b7c4afcb8b1106836c02c895aab116",
+  "surface_sha256": "5f2fc9d361737dfd33107396ca2159c5f9bf38a44e0f0190d373733f8325767e",
+  "driver_sha256": "951dcc9d2d3dfe38345a11037444778af637eecc018642c912fc2d8e3601ce6b",
+  "bary_targets_sha256": "0a4cb4278c266695dae38483f04409e3858300222af65e2ddf22859b2612a977",
+  "raw_bary_targets_sha256": "cd8213406ee11bd0adf759b9ff7e55aca9722887642aa4961ca239927ccff0d6",
+  "bary_scope": "per implicated closed bank only; final all185 exact audit mandatory",
+  "best_prior_surface_pairs": 3658,
+  "starting_surface_pairs": 3658,
+  "fixed_target_scope": "original per-bank soft proposals; original inside classifications are stale after rebase",
+  "retained_soft_rows": 3723,
+  "native_admission": false
+}

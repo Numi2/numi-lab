@@ -1,0 +1,13 @@
+{
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-006-rebased-soft/attempt-001/candidate.npz",
+  "candidate_sha256": "931529f21497521436aa15d52ebebf71a1e243c5a32d9b301d3f0a99e3035cc7",
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-006-rebased-soft/attempt-001/scp-02-alpha-0p125/audit-130/summary.json",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-006-rebased-soft/attempt-001/scp-02-alpha-0p125/audit-159/report.json",
+  "parent_fit": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-006-rebased-soft/attempt-001/fit-report.json",
+  "before_surface_pairs": 3658,
+  "after_surface_pairs": 3626,
+  "inside_pairs_before": 18,
+  "inside_pairs_after": 13,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}
