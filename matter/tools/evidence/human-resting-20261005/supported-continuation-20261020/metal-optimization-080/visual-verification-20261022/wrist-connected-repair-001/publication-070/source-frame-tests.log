@@ -1,0 +1,9 @@
+test_blended_bodies_require_weighted_jacobian (test_reference_frame_mapping.ReferenceFrameMappingTests.test_blended_bodies_require_weighted_jacobian) ... ok
+test_one_binding_rotated_scaled_roundtrip (test_reference_frame_mapping.ReferenceFrameMappingTests.test_one_binding_rotated_scaled_roundtrip) ... ok
+test_shape_and_nonfinite_fail_closed (test_reference_frame_mapping.ReferenceFrameMappingTests.test_shape_and_nonfinite_fail_closed) ... ok
+test_singular_blend_fails_closed (test_reference_frame_mapping.ReferenceFrameMappingTests.test_singular_blend_fails_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.005s
+
+OK

@@ -1,0 +1,11 @@
+Undefined symbols for architecture arm64:
+  "metalrobo::validateConstraintIR(metalrobo::ConstraintIR const&)", referenced from:
+      metalrobo::EngineModel::valid(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>*) const in EngineModel-a901c5.o
+  "metalrobo::packOpenSimSpatialTransformGPU(metalrobo::CompiledOpenSimSpatialTransform const&, MROpenSimSpatialTransformGPU&)", referenced from:
+      metalrobo::(anonymous namespace)::validFunctionBasedPrograms(std::__1::vector<MRJointDescriptorGPU, std::__1::allocator<MRJointDescriptorGPU>> const&, std::__1::vector<metalrobo::FunctionBasedJointProgram, std::__1::allocator<metalrobo::FunctionBasedJointProgram>> const&, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>*) in EngineModel-a901c5.o
+  "metalrobo::evaluateOpenSimSpatialTransform(metalrobo::CompiledOpenSimSpatialTransform const&, std::__1::vector<double, std::__1::allocator<double>> const&, std::__1::vector<double, std::__1::allocator<double>> const&)", referenced from:
+      metalrobo::(anonymous namespace)::buildKinematics(metalrobo::EngineModel const&, metalrobo::(anonymous namespace)::Topology const&, std::__1::span<double const, 18446744073709551615ul>, std::__1::span<double const, 18446744073709551615ul>, std::__1::span<double const, 18446744073709551615ul>, bool, std::__1::vector<metalrobo::(anonymous namespace)::BodyKinematics, std::__1::allocator<metalrobo::(anonymous namespace)::BodyKinematics>>&) in ArticulatedDynamics-0300c9.o
+  "metalrobo::unpackOpenSimSpatialTransformGPU(MROpenSimSpatialTransformGPU const&)", referenced from:
+      metalrobo::(anonymous namespace)::validFunctionBasedPrograms(std::__1::vector<MRJointDescriptorGPU, std::__1::allocator<MRJointDescriptorGPU>> const&, std::__1::vector<metalrobo::FunctionBasedJointProgram, std::__1::allocator<metalrobo::FunctionBasedJointProgram>> const&, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>*) in EngineModel-a901c5.o
+ld: symbol(s) not found for architecture arm64
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)

@@ -1,0 +1,1046 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 08043c4d..f2c937c4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -6378,6 +6378,11 @@ target_link_libraries(numi_human_tissue_mass_probe PRIVATE metalrobo)
+ target_compile_options(numi_human_tissue_mass_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+ set_target_properties(numi_human_tissue_mass_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+ add_test(NAME numi_human_tissue_mass_partition COMMAND numi_human_tissue_mass_probe)
++add_executable(numi_human_whole_body_mass_reference_check tests/whole_body_mass_reference.cpp)
++target_include_directories(numi_human_whole_body_mass_reference_check PRIVATE apps include)
++target_link_libraries(numi_human_whole_body_mass_reference_check PRIVATE metalrobo)
++target_compile_options(numi_human_whole_body_mass_reference_check PRIVATE -Wall -Wextra -Wpedantic -Werror)
++add_test(NAME numi_human_whole_body_mass_reference COMMAND numi_human_whole_body_mass_reference_check)
+ add_executable(numi_human_tissue_binding_check apps/numi_human_tissue_binding_check.cpp)
+ target_link_libraries(numi_human_tissue_binding_check PRIVATE metalrobo)
+ target_compile_options(numi_human_tissue_binding_check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+diff --git a/apps/NumiHumanCoarseTissuePreparation.hpp b/apps/NumiHumanCoarseTissuePreparation.hpp
+index 56f1059f..02b32630 100644
+--- a/apps/NumiHumanCoarseTissuePreparation.hpp
++++ b/apps/NumiHumanCoarseTissuePreparation.hpp
+@@ -186,7 +186,11 @@ struct PreparedOrganicFEM {
+     // Complete geometric ancestry; scalar tetParentTetrahedron remains only the dominant-overlap donor label.
+     std::vector<std::uint32_t> tetParentAncestryOffsets, tetParentAncestryTetrahedra;
+     std::vector<double> tetParentAncestryVolumeFractions;
++    // donorMassNodes is the unique physical node/frame table. Explicit source
++    // contributions preserve split rigid-body debit moments when available;
++    // empty means the legacy one-node/one-source interpretation.
+     std::vector<NumiHumanTissueMassNode> donorMassNodes;
++    std::vector<NumiHumanTissueMassContribution> donorMassContributions;
+ };
+ 
+ // Optional topology emitted by a candidate that refines an existing paired
+diff --git a/apps/NumiHumanUnpairedSkinFatVolume.hpp b/apps/NumiHumanUnpairedSkinFatVolume.hpp
+index 95cdd373..47bc8b49 100644
+--- a/apps/NumiHumanUnpairedSkinFatVolume.hpp
++++ b/apps/NumiHumanUnpairedSkinFatVolume.hpp
+@@ -30,6 +30,16 @@ enum class VolumeAncestryVerificationKind : std::uint8_t {
+ // order when constructing ObjectSource; surface rows remain separate in the
+ // SkinBoundaryNodeMap. CSR fractions are caller-supplied ancestry bookkeeping;
+ // they establish neither geometric overlap nor conservative pullback by themselves.
++struct ExplicitUnpairedVolumeSourceMassContribution {
++    // Source-domain node/material row. This is independent of a child node's
++    // single registered frame owner and is used only for rigid mass debit.
++    std::uint32_t parentNodeIndex=NM_INVALID_INDEX;
++    std::uint32_t materialIndex=NM_INVALID_INDEX;
++    std::uint32_t donorBodyIndex=NM_INVALID_INDEX;
++    double massKg=0.0;
++    V3 donorLocalPosition{};
++};
++
+ struct ExplicitUnpairedVolumeTopology {
+     // Optional independent I/D registered boundaries. Both must be present
+     // together; null keeps the legacy matched O/I/D face topology. The outer
+@@ -62,6 +72,10 @@ struct ExplicitUnpairedVolumeTopology {
+     // may carry a distinct pulled-back measure with its own pinned receipt.
+     std::span<const double> parentTetrahedronMassKg;
+     std::span<const double> childAncestryMeasureVolumeM3;
++    // Optional cooked source ledger in the original parent-node domain. Multiple
++    // source donors may contribute to one node/material row; these records never
++    // replace the unique per-child-node frame owner.
++    std::span<const ExplicitUnpairedVolumeSourceMassContribution> parentNodeSourceMassContributions;
+     // Exact current RegisteredSurface row/stable ID for each tet facet, flattened
+     // child*4+omitted-corner. Unmatched interior facets use INVALID in both.
+     std::span<const std::uint32_t> childRegisteredLayerFacetSurfaceFaces;
+@@ -121,6 +135,14 @@ struct ExplicitUnpairedVolumeNodeOwnerMass {
+     double nodeFrameOwnerMassKg=0.0;
+ };
+ 
++struct ExplicitUnpairedVolumeSourceMassClosure {
++    std::uint32_t materialIndex=NM_INVALID_INDEX;
++    std::uint32_t donorBodyIndex=NM_INVALID_INDEX;
++    double inputSourceMassKg=0.0;
++    double cookedParentMassKg=0.0;
++    double childSourceMassKg=0.0;
++};
++
+ struct ExplicitUnpairedVolumeReport {
+     std::vector<std::uint32_t> inputVolumeRowToObjectLocalNode;
+     std::uint32_t volumeNodeCount=0;
+@@ -131,6 +153,10 @@ struct ExplicitUnpairedVolumeReport {
+     // material default. These fields report mass divided by emitted geometric
+     // volume and its per-child extrema; they do not replace the density field.
+     bool usesPerChildMassLedger=false;
++    bool usesParentNodeSourceMassContributions=false;
++    double maximumSourceNodeCookRoundingErrorKg=0.0;
++    double maximumSourceNodeCookRoundingRelativeError=0.0;
++    double maximumOutputSourceNodeMassClosureErrorKg=0.0;
+     double skinParentMassKg=0.0, fatParentMassKg=0.0;
+     double skinChildMassKg=0.0, fatChildMassKg=0.0;
+     double skinMeanImpliedDensityKgM3=0.0, fatMeanImpliedDensityKgM3=0.0;
+@@ -138,9 +164,10 @@ struct ExplicitUnpairedVolumeReport {
+     double fatMinimumChildDensityKgM3=0.0, fatMaximumChildDensityKgM3=0.0;
+     double maximumDonorMassClosureErrorKg=0.0;
+     std::vector<ExplicitUnpairedVolumeDonorMassClosure> donorMassClosure;
+-    // These compare mass source (parent ancestry) with the single frame/attachment
+-    // owner carried by donorMassNodes. A mismatch is reported and rejects emission:
+-    // the current rigid-body debit consumer cannot represent split source mass at one node.
++    std::vector<ExplicitUnpairedVolumeSourceMassClosure> sourceMassClosure;
++    // Legacy diagnostic comparing geometric dominant-parent attribution with the
++    // single node/frame owner. With an explicit source ledger, split mass is emitted
++    // separately and this diagnostic mismatch is retained without rejecting it.
+     bool parentAncestryMatchesNodeFrameMassOwnership=false;
+     std::vector<ExplicitUnpairedVolumeNodeOwnerMass> nodeOwnerMassByDonor;
+     std::vector<ExplicitUnpairedVolumeNodeMassAttribution> nodeMassAttributionMismatches;
+@@ -237,6 +264,9 @@ struct ExplicitUnpairedVolumeReport {
+        (topology.parentTetrahedronMassKg.size()!=topology.parentTetrahedra.size()||
+         topology.childAncestryMeasureVolumeM3.size()!=nt))
+         return fail("unpaired skin/fat per-child mass ledger requires one parent mass and one child ancestry measure per row");
++    const bool hasParentNodeSourceMassLedger=!topology.parentNodeSourceMassContributions.empty();
++    if(hasParentNodeSourceMassLedger&&!hasPerChildMassLedger)
++        return fail("unpaired source-mass contributions require the authoritative per-child parent-mass ledger");
+     if(topology.retainedOriginalNodeCount>n||
+        topology.volumeNodeParentTetrahedra.size()!=n||
+        topology.volumeNodeParentBarycentric.size()!=n||
+@@ -530,8 +560,31 @@ struct ExplicitUnpairedVolumeReport {
+     std::map<std::uint32_t,double> parentMassByMaterialKg,childMassByMaterialKg;
+     std::map<std::pair<std::uint32_t,std::uint32_t>,double> parentMassByDonorKg,childMassByDonorKg;
+     using NodeDonorKey=std::tuple<std::uint32_t,std::uint32_t,std::uint32_t>;
++    using NodeMaterialKey=std::pair<std::uint32_t,std::uint32_t>;
++    using MaterialDonorKey=std::pair<std::uint32_t,std::uint32_t>;
+     std::map<NodeDonorKey,double> ancestryMassByNodeDonorKg,nodeOwnerMassByNodeDonorKg;
+-    std::map<std::pair<std::uint32_t,std::uint32_t>,double> nodeOwnerMassByDonorKg;
++    std::map<MaterialDonorKey,double> nodeOwnerMassByDonorKg;
++    std::map<NodeMaterialKey,std::vector<std::size_t>> sourceRowsByNodeMaterial;
++    std::map<NodeMaterialKey,double> rawSourceMassByNodeMaterial,cookedParentMassByNodeMaterial;
++    std::map<MaterialDonorKey,double> rawSourceMassByMaterialDonor,cookedParentSourceMassByMaterialDonor,
++        childSourceMassByMaterialDonor;
++    bool parentAncestryMatchesNodeFrameMassOwnership=true;
++    std::map<std::pair<std::uint32_t,std::size_t>,double> childSourceMassByOutputNodeRow;
++    if(hasParentNodeSourceMassLedger){
++        for(std::size_t row=0;row<topology.parentNodeSourceMassContributions.size();++row){
++            const auto& source=topology.parentNodeSourceMassContributions[row];
++            if(source.parentNodeIndex>=topology.parentReferenceWorldPoints.size()||
++               (source.materialIndex!=skinMaterialIndex&&source.materialIndex!=fatMaterialIndex)||
++               source.donorBodyIndex==invalid||source.donorBodyIndex>=sourceBodyCount||
++               !std::isfinite(source.massKg)||source.massKg<=0.0||
++               !finitePoint(source.donorLocalPosition))
++                return fail("unpaired parent-node source-mass ledger has an invalid node, material, donor, mass, or local point at row "+std::to_string(row));
++            const NodeMaterialKey key{source.parentNodeIndex,source.materialIndex};
++            sourceRowsByNodeMaterial[key].push_back(row);
++            rawSourceMassByNodeMaterial[key]+=source.massKg;
++            rawSourceMassByMaterialDonor[{source.materialIndex,source.donorBodyIndex}]+=source.massKg;
++        }
++    }
+     for(std::size_t p=0;p<topology.parentTetrahedra.size();++p){
+         const auto tet=topology.parentTetrahedra[p];
+         for(auto node:tet)if(node>=topology.parentReferenceWorldPoints.size())
+@@ -545,8 +598,44 @@ struct ExplicitUnpairedVolumeReport {
+             const double mass=topology.parentTetrahedronMassKg[p];
+             if(!std::isfinite(mass)||mass<0.0)
+                 return fail("unpaired skin/fat parent mass ledger contains a negative or nonfinite mass");
+-            parentMassByMaterialKg[topology.parentMaterialIndices[p]]+=mass;
+-            parentMassByDonorKg[{topology.parentMaterialIndices[p],topology.parentDonorBodyIndices[p]}]+=mass;
++            const auto material=topology.parentMaterialIndices[p];
++            parentMassByMaterialKg[material]+=mass;
++            parentMassByDonorKg[{material,topology.parentDonorBodyIndices[p]}]+=mass;
++            if(hasParentNodeSourceMassLedger){
++                for(auto node:tet){
++                    const NodeMaterialKey key{node,material};
++                    const auto found=sourceRowsByNodeMaterial.find(key);
++                    if(found==sourceRowsByNodeMaterial.end()||found->second.empty()||
++                       !std::isfinite(rawSourceMassByNodeMaterial[key])||rawSourceMassByNodeMaterial[key]<=0.0)
++                        return fail("unpaired parent-node source-mass ledger omits a material corner contribution");
++                    cookedParentMassByNodeMaterial[key]+=mass*0.25;
++                    for(auto sourceRow:found->second){
++                        const auto& source=topology.parentNodeSourceMassContributions[sourceRow];
++                        cookedParentSourceMassByMaterialDonor[{material,source.donorBodyIndex}]+=
++                            mass*0.25*(source.massKg/rawSourceMassByNodeMaterial[key]);
++                    }
++                }
++            }
++        }
++    }
++    double maximumSourceCookErrorKg=0.0,maximumSourceCookRelativeError=0.0;
++    if(hasParentNodeSourceMassLedger){
++        std::set<NodeMaterialKey> sourceKeys;
++        for(const auto& [key,value]:rawSourceMassByNodeMaterial){(void)value;sourceKeys.insert(key);}
++        for(const auto& [key,value]:cookedParentMassByNodeMaterial){(void)value;sourceKeys.insert(key);}
++        for(const auto& key:sourceKeys){
++            const double raw=rawSourceMassByNodeMaterial[key],cooked=cookedParentMassByNodeMaterial[key];
++            if(!(raw>0.0&&cooked>0.0&&std::isfinite(raw)&&std::isfinite(cooked)))
++                return fail("unpaired parent-node source ledger does not exactly cover the active parent material-node domain");
++            const double errorKg=std::abs(raw-cooked);
++            const double relative=errorKg/std::max({raw,cooked,1.0e-12});
++            maximumSourceCookErrorKg=std::max(maximumSourceCookErrorKg,errorKg);
++            maximumSourceCookRelativeError=std::max(maximumSourceCookRelativeError,relative);
++            // The source contribution CSV and the compiled F32 cell ledger use
++            // different accumulation paths. Permit only the measured sub-5e-4
++            // per-node/material rounding range; retain the exact error in report.
++            if(errorKg>std::max(1.0e-10,5.0e-4*std::max(raw,cooked)))
++                return fail("unpaired raw source-node mass differs from cooked parent-corner mass beyond the declared Float32 cook-rounding bound");
+         }
+     }
+     double skinVolume=0.0,fatVolume=0.0;
+@@ -604,6 +693,25 @@ struct ExplicitUnpairedVolumeReport {
+                     ancestryMassByNodeDonorKg[{material,node,sourceDonor}]+=nodeShare;
+                     nodeOwnerMassByNodeDonorKg[{material,node,topology.volumeNodeDonorBodyIndices[node]}]+=nodeShare;
+                 }
++                if(hasParentNodeSourceMassLedger){
++                    // Lump child mass to each child corner, then distribute that
++                    // corner mass evenly over the four source-parent corners. This
++                    // preserves parent source-mass moments without changing the
++                    // child node's independent frame owner.
++                    const auto parentTet=topology.parentTetrahedra[parent];
++                    const double childCornerMass=transferred*0.25;
++                    for(auto childNode:ids)for(auto parentNode:parentTet){
++                        const NodeMaterialKey sourceKey{parentNode,material};
++                        const auto& sourceRows=sourceRowsByNodeMaterial[sourceKey];
++                        for(auto sourceRow:sourceRows){
++                            const auto& source=topology.parentNodeSourceMassContributions[sourceRow];
++                            const double amount=childCornerMass*0.25*
++                                (source.massKg/rawSourceMassByNodeMaterial[sourceKey]);
++                            childSourceMassByOutputNodeRow[{childNode,sourceRow}]+=amount;
++                            childSourceMassByMaterialDonor[{material,source.donorBodyIndex}]+=amount;
++                        }
++                    }
++                }
+             }
+         }
+         if(!std::isfinite(sum)||std::abs(sum-1.0)>1.0e-6)
+@@ -654,7 +762,11 @@ struct ExplicitUnpairedVolumeReport {
+             }
+         }
+         report={};report.usesPerChildMassLedger=true;
+-        report.parentAncestryMatchesNodeFrameMassOwnership=attributionMismatches.empty();
++        report.usesParentNodeSourceMassContributions=hasParentNodeSourceMassLedger;
++        report.maximumSourceNodeCookRoundingErrorKg=maximumSourceCookErrorKg;
++        report.maximumSourceNodeCookRoundingRelativeError=maximumSourceCookRelativeError;
++        parentAncestryMatchesNodeFrameMassOwnership=attributionMismatches.empty();
++        report.parentAncestryMatchesNodeFrameMassOwnership=parentAncestryMatchesNodeFrameMassOwnership;
+         report.nodeMassAttributionMismatches=attributionMismatches;
+         report.skinParentMassKg=parentMassByMaterialKg[skinMaterialIndex];
+         report.fatParentMassKg=parentMassByMaterialKg[fatMaterialIndex];
+@@ -671,8 +783,24 @@ struct ExplicitUnpairedVolumeReport {
+             report.nodeOwnerMassByDonor.push_back({.materialIndex=key.first,.donorBodyIndex=key.second,
+                 .parentAncestryMassKg=childMassByDonorKg[key],
+                 .nodeFrameOwnerMassKg=nodeOwnerMassByDonorKg[key]});
+-        if(!attributionMismatches.empty())
++        if(!attributionMismatches.empty()&&!hasParentNodeSourceMassLedger)
+             return fail("unpaired skin/fat parent-ancestry mass is assigned to a different rigid-body debit donor than node frame ownership; source-contribution mass-moment consumer is required");
++        if(hasParentNodeSourceMassLedger){
++            std::set<MaterialDonorKey> sourceKeys;
++            for(const auto& [key,value]:rawSourceMassByMaterialDonor){(void)value;sourceKeys.insert(key);}
++            for(const auto& [key,value]:cookedParentSourceMassByMaterialDonor){(void)value;sourceKeys.insert(key);}
++            for(const auto& [key,value]:childSourceMassByMaterialDonor){(void)value;sourceKeys.insert(key);}
++            for(const auto& key:sourceKeys){
++                const double raw=rawSourceMassByMaterialDonor[key];
++                const double cooked=cookedParentSourceMassByMaterialDonor[key];
++                const double child=childSourceMassByMaterialDonor[key];
++                if(!std::isfinite(raw)||!std::isfinite(cooked)||!std::isfinite(child)||
++                   std::abs(cooked-child)>1.0e-6*std::max({std::abs(cooked),std::abs(child),1.0e-12}))
++                    return fail("unpaired source-donor mass does not close through the child ancestry CSR");
++                report.sourceMassClosure.push_back({.materialIndex=key.first,.donorBodyIndex=key.second,
++                    .inputSourceMassKg=raw,.cookedParentMassKg=cooked,.childSourceMassKg=child});
++            }
++        }
+     }
+ 
+     auto densityFor=[&](std::uint32_t index,double debit,double volume,double& density)->bool{
+@@ -780,12 +908,33 @@ struct ExplicitUnpairedVolumeReport {
+     nextFat.materialName=std::string(fatMaterialName);nextFat.materialProvenance=std::string(fatMaterialProvenance);nextFat.materialIndex=fatMaterialIndex;nextFat.firstGlobalFEMNode=static_cast<std::uint32_t>(firstGlobal);nextFat.volumeM3=fatVolume;nextFat.massDebitKg=fatDonorDebitKg;nextFat.densityKgM3=rhoFat;
+     nextSkin.tetSourceFace.reserve(nt);nextFat.tetSourceFace.reserve(nt);
+     nextSkin.tetParentAncestryOffsets.push_back(0u);nextFat.tetParentAncestryOffsets.push_back(0u);
+-    nextSkin.donorMassNodes.reserve(n);nextFat.donorMassNodes.reserve(n);
++    nextSkin.donorMassNodes.reserve(n);
+     for(std::size_t node=0;node<n;++node){
+         if(!std::isfinite(nodalMass[node])||nodalMass[node]<=0.0)return fail("unpaired skin/fat node has nonpositive combined density*volume mass");
+         const auto body=topology.volumeNodeDonorBodyIndices[node];
+-        if(skinNodeMass[node]>0.0)nextSkin.donorMassNodes.push_back({.nodeIndex=static_cast<std::uint32_t>(firstGlobal+node),.donorBody=body,.massKg=skinNodeMass[node],.localPosition=topology.volumeNodeDonorLocalPoints[node]});
+-        if(fatNodeMass[node]>0.0)nextFat.donorMassNodes.push_back({.nodeIndex=static_cast<std::uint32_t>(firstGlobal+node),.donorBody=body,.massKg=fatNodeMass[node],.localPosition=topology.volumeNodeDonorLocalPoints[node]});
++        // Exactly one frame/attachment row per compiled node, independent of
++        // which source bodies contributed its skin and fat mass.
++        nextSkin.donorMassNodes.push_back({.nodeIndex=static_cast<std::uint32_t>(firstGlobal+node),
++            .donorBody=body,.massKg=nodalMass[node],.localPosition=topology.volumeNodeDonorLocalPoints[node]});
++    }
++    if(hasParentNodeSourceMassLedger){
++        std::vector<double> explicitMassByNode(n,0.0);
++        nextSkin.donorMassContributions.reserve(childSourceMassByOutputNodeRow.size());
++        for(const auto& [key,mass]:childSourceMassByOutputNodeRow){
++            const auto [node,sourceRow]=key;
++            const auto& source=topology.parentNodeSourceMassContributions[sourceRow];
++            explicitMassByNode[node]+=mass;
++            nextSkin.donorMassContributions.push_back({static_cast<std::uint32_t>(firstGlobal+node),
++                source.donorBodyIndex,mass,source.donorLocalPosition});
++        }
++        double maximumClosure=0.0;
++        for(std::size_t node=0;node<n;++node){
++            const double errorKg=std::abs(explicitMassByNode[node]-nodalMass[node]);
++            maximumClosure=std::max(maximumClosure,errorKg);
++            if(errorKg>1.0e-9*std::max({explicitMassByNode[node],nodalMass[node],1.0e-12}))
++                return fail("unpaired source contributions do not close the unique compiled node/frame mass");
++        }
++        report.maximumOutputSourceNodeMassClosureErrorKg=maximumClosure;
+     }
+     // Store per-material tet ancestry using the same exact child row order.
+     for(std::size_t child=0;child<nt;++child){
+@@ -814,7 +963,21 @@ struct ExplicitUnpairedVolumeReport {
+         setDensity(skinMaterialIndex,rhoSkin);setDensity(fatMaterialIndex,rhoFat);
+     }
+     world.objects.push_back(std::move(object));
++    // Preserve ledger details assembled during validation; the final common
++    // report initialization must not erase the source/cooked reconciliation.
++    const bool usesSourceMassContributions=report.usesParentNodeSourceMassContributions;
++    const double preservedSourceCookErrorKg=report.maximumSourceNodeCookRoundingErrorKg;
++    const double preservedSourceCookRelativeError=report.maximumSourceNodeCookRoundingRelativeError;
++    const double maximumOutputSourceClosureErrorKg=report.maximumOutputSourceNodeMassClosureErrorKg;
++    auto sourceMassClosure=std::move(report.sourceMassClosure);
++    auto nodeMassAttributionMismatches=std::move(report.nodeMassAttributionMismatches);
+     report={};report.volumeNodeCount=static_cast<std::uint32_t>(n);report.tetrahedronCount=static_cast<std::uint32_t>(nt);
++    report.usesParentNodeSourceMassContributions=usesSourceMassContributions;
++    report.maximumSourceNodeCookRoundingErrorKg=preservedSourceCookErrorKg;
++    report.maximumSourceNodeCookRoundingRelativeError=preservedSourceCookRelativeError;
++    report.maximumOutputSourceNodeMassClosureErrorKg=maximumOutputSourceClosureErrorKg;
++    report.sourceMassClosure=std::move(sourceMassClosure);
++    report.nodeMassAttributionMismatches=std::move(nodeMassAttributionMismatches);
+     report.skinVolumeM3=skinVolume;report.fatVolumeM3=fatVolume;report.skinDensityKgM3=rhoSkin;report.fatDensityKgM3=rhoFat;
+     report.usesPerChildMassLedger=hasPerChildMassLedger;
+     if(hasPerChildMassLedger){
+@@ -829,7 +992,7 @@ struct ExplicitUnpairedVolumeReport {
+         report.fatMinimumChildDensityKgM3=fatMinChildDensity;
+         report.fatMaximumChildDensityKgM3=fatMaxChildDensity;
+         report.maximumDonorMassClosureErrorKg=maximumDonorMassClosureErrorKg;
+-        report.parentAncestryMatchesNodeFrameMassOwnership=true;
++        report.parentAncestryMatchesNodeFrameMassOwnership=parentAncestryMatchesNodeFrameMassOwnership;
+         std::set<std::pair<std::uint32_t,std::uint32_t>> ownerKeys;
+         for(const auto& [key,parentMass]:parentMassByDonorKg){
+             ownerKeys.insert(key);
+diff --git a/apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp b/apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp
+index ec7e6831..82da3ddd 100644
+--- a/apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp
++++ b/apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp
+@@ -30,6 +30,7 @@ struct Fixture {
+     std::vector<std::uint32_t> nodeDonor,childMaterial,dominant,parentSurface,childStable,childDonor;
+     std::vector<std::array<std::uint32_t,4>> children,parentTets;
+     std::vector<std::uint32_t> parentMaterial,parentStable,parentDonor;
++    std::vector<ExplicitUnpairedVolumeSourceMassContribution> sourceMassContributions;
+     std::vector<std::uint32_t> parentOffsets,parentRows;
+     std::vector<double> parentFractions;
+     std::vector<std::uint32_t> facetRows,facetStable,sourceVertex,sourceFace,nodeParent;
+@@ -281,7 +282,8 @@ numi::matter::WorldSource worldFor() {
+     return world;
+ }
+ 
+-bool emit(Fixture& f,numi::matter::WorldSource& world,ExplicitUnpairedVolumeReport& report,std::string& error) {
++bool emit(Fixture& f,numi::matter::WorldSource& world,ExplicitUnpairedVolumeReport& report,std::string& error,
++          PreparedOrganicFEM* skinOutput=nullptr,PreparedOrganicFEM* fatOutput=nullptr) {
+     double skinVolume=0.0,fatVolume=0.0;
+     for(std::size_t i=0;i<f.children.size();++i) {
+         const auto tet=f.children[i];
+@@ -289,18 +291,23 @@ bool emit(Fixture& f,numi::matter::WorldSource& world,ExplicitUnpairedVolumeRepo
+         (f.childMaterial[i]==0u?skinVolume:fatVolume)+=v;
+     }
+     PreparedOrganicFEM skin,fat;
+-    return appendRegisteredSkinFatUnpairedVolume(world,f.surface,f.boundary,f.topology,
++    if(!appendRegisteredSkinFatUnpairedVolume(world,f.surface,f.boundary,f.topology,
+         0u,"skin","test skin material",skinVolume*1000.0,1u,"fat","test fat material",
+-        fatVolume*900.0,1u,"unpaired test shell",skin,fat,report,error);
++        fatVolume*900.0,1u,"unpaired test shell",skin,fat,report,error))return false;
++    if(skinOutput)*skinOutput=skin;
++    if(fatOutput)*fatOutput=fat;
++    return true;
+ }
+ 
+ bool emitMassLedger(Fixture& f,const std::vector<double>& parentMass,
+                     const std::vector<double>& childMeasure,numi::matter::WorldSource& world,
+                     PreparedOrganicFEM& skin,PreparedOrganicFEM& fat,
+                     ExplicitUnpairedVolumeReport& report,std::string& error,
+-                    double skinDebitScale=1.0,double fatDebitScale=1.0) {
++                    double skinDebitScale=1.0,double fatDebitScale=1.0,
++                    std::span<const ExplicitUnpairedVolumeSourceMassContribution> sourceContributions={}) {
+     f.topology.parentTetrahedronMassKg=parentMass;
+     f.topology.childAncestryMeasureVolumeM3=childMeasure;
++    f.topology.parentNodeSourceMassContributions=sourceContributions;
+     double skinDebit=0.0,fatDebit=0.0;
+     for(std::size_t p=0;p<parentMass.size();++p)
+         (f.parentMaterial[p]==0u?skinDebit:fatDebit)+=parentMass[p];
+@@ -314,11 +321,51 @@ double sumDonorMass(const PreparedOrganicFEM& prepared) {
+     for(const auto& row:prepared.donorMassNodes)total+=row.massKg;
+     return total;
+ }
++
++std::vector<ExplicitUnpairedVolumeSourceMassContribution> sourceContributionFixture(
++        const Fixture& fixture,const std::vector<double>& parentMass,double rawCookScale) {
++    using Key=std::pair<std::uint32_t,std::uint32_t>;
++    std::map<Key,double> cookedByNodeMaterial;
++    for(std::size_t parent=0;parent<fixture.parentTets.size();++parent)
++        for(const auto node:fixture.parentTets[parent])
++            cookedByNodeMaterial[{node,fixture.parentMaterial[parent]}]+=parentMass[parent]*0.25;
++    std::vector<ExplicitUnpairedVolumeSourceMassContribution> rows;
++    const auto splitKey=Key{fixture.parentTets.front()[0],fixture.parentMaterial.front()};
++    for(const auto& [key,cookedMass]:cookedByNodeMaterial) {
++        const auto [node,material]=key;
++        const double rawMass=cookedMass*rawCookScale;
++        if(key==splitKey) {
++            V3 localForSecondDonor=fixture.parentPoints[node];
++            localForSecondDonor[0]-=fixture.bodyOrigins[1][0];
++            rows.push_back({node,material,0u,rawMass*0.65,fixture.parentPoints[node]});
++            rows.push_back({node,material,1u,rawMass*0.35,localForSecondDonor});
++        } else {
++            rows.push_back({node,material,0u,rawMass,fixture.parentPoints[node]});
++        }
++    }
++    return rows;
++}
++
++struct SourceMoments {
++    double mass=0.0;
++    std::array<double,3> first{};
++    std::array<double,9> second{};
++};
++
++void accumulateSourceMoments(SourceMoments& moments,double mass,const V3& position) {
++    moments.mass+=mass;
++    for(unsigned row=0;row<3u;++row) {
++        moments.first[row]+=mass*position[row];
++        for(unsigned column=0;column<3u;++column)
++            moments.second[3u*row+column]+=mass*position[row]*position[column];
++    }
++}
+ }
+ 
+ int main() {
+     Fixture f;auto world=worldFor();ExplicitUnpairedVolumeReport report;std::string error;
+-    if(!emit(f,world,report,error)){std::cerr<<error;return 1;}
++    PreparedOrganicFEM legacySkin,legacyFat;
++    if(!emit(f,world,report,error,&legacySkin,&legacyFat)){std::cerr<<error;return 1;}
+     assert(world.objects.size()==1u&&report.volumeNodeCount==19u);
+     assert(report.inputVolumeRowToObjectLocalNode.size()==19u&&report.inputVolumeRowToObjectLocalNode[18]==18u);
+     assert(!world.objects.front().deformableSelfContact); // legacy paired rows retain the old contact owner.
+@@ -327,6 +374,128 @@ int main() {
+         world.objects.front().femTetrahedronMassSourceIdentity.end(),
+         [](auto word){return word==0u;}));
+     assert(report.ancestryVerificationKind==VolumeAncestryVerificationKind::conservativeReferencePullback);
++    assert(legacySkin.donorMassNodes.size()==report.volumeNodeCount);
++    assert(legacyFat.donorMassNodes.empty());
++    assert(legacySkin.donorMassContributions.empty()&&legacyFat.donorMassContributions.empty());
++    assert(std::abs(sumDonorMass(legacySkin)-legacySkin.massDebitKg-legacyFat.massDebitKg)<1.0e-10);
++    {
++        Fixture splitSource;
++        splitSource.bodyRotations.push_back(kIdentity);
++        splitSource.bodyOrigins.push_back({0.25,0.0,0.0});
++        splitSource.topology.registeredBodyLocalToWorldLinear=splitSource.bodyRotations;
++        splitSource.topology.registeredBodyOriginWorld=splitSource.bodyOrigins;
++        std::vector<double> parentMass(splitSource.parentTets.size(),0.0);
++        for(std::size_t p=0;p<parentMass.size();++p) {
++            const auto tet=splitSource.parentTets[p];
++            const double volume=tetVolume(splitSource.parentPoints[tet[0]],splitSource.parentPoints[tet[1]],
++                                          splitSource.parentPoints[tet[2]],splitSource.parentPoints[tet[3]]);
++            parentMass[p]=volume*(splitSource.parentMaterial[p]==0u?1000.0:900.0);
++        }
++        std::vector<double> childMeasure(splitSource.children.size(),0.0);
++        for(std::size_t c=0;c<childMeasure.size();++c) {
++            const auto tet=splitSource.children[c];
++            childMeasure[c]=tetVolume(splitSource.reference[tet[0]],splitSource.reference[tet[1]],
++                                      splitSource.reference[tet[2]],splitSource.reference[tet[3]]);
++        }
++        const auto rawContributions=sourceContributionFixture(splitSource,parentMass,1.0+1.0e-5);
++        splitSource.sourceMassContributions=rawContributions;
++        auto splitWorld=worldFor();PreparedOrganicFEM splitSkin,splitFat;
++        assert(emitMassLedger(splitSource,parentMass,childMeasure,splitWorld,splitSkin,splitFat,
++                              report,error,1.0,1.0,splitSource.sourceMassContributions));
++        assert(report.usesPerChildMassLedger&&report.usesParentNodeSourceMassContributions);
++        assert(report.maximumSourceNodeCookRoundingErrorKg>0.0);
++        assert(report.maximumSourceNodeCookRoundingRelativeError<5.0e-4);
++        assert(report.maximumOutputSourceNodeMassClosureErrorKg<1.0e-12);
++        assert(splitSkin.donorMassNodes.size()==splitSource.current.size());
++        assert(splitFat.donorMassNodes.empty());
++        assert(splitSkin.donorMassContributions.size()>splitSkin.donorMassNodes.size());
++        std::map<std::uint32_t,double> frameMass,sourceMassByNode;
++        std::map<std::uint32_t,std::uint32_t> frameBodyByNode;
++        using MomentKey=std::tuple<std::uint32_t,std::uint32_t,V3>;
++        std::map<MomentKey,SourceMoments> expectedMoments,actualMoments;
++        for(const auto& node:splitSkin.donorMassNodes) {
++            assert(frameBodyByNode.emplace(node.nodeIndex,node.donorBody).second);
++            assert(node.donorBody==0u);
++            frameMass[node.nodeIndex]+=node.massKg;
++        }
++        for(const auto& contribution:splitSkin.donorMassContributions) {
++            sourceMassByNode[contribution.nodeIndex]+=contribution.massKg;
++            accumulateSourceMoments(actualMoments[{contribution.nodeIndex,contribution.donorBody,
++                                    contribution.localPosition}],contribution.massKg,contribution.localPosition);
++        }
++        for(std::size_t child=0;child<splitSource.children.size();++child) {
++            const auto parent=splitSource.dominant[child];
++            const auto material=splitSource.childMaterial[child];
++            const double childMass=splitWorld.objects.front().femTetrahedronMassesKg[child];
++            for(const auto childNode:splitSource.children[child])
++                for(const auto parentNode:splitSource.parentTets[parent]) {
++                    double rawNodeMaterial=0.0;
++                    for(const auto& row:rawContributions)
++                        if(row.parentNodeIndex==parentNode&&row.materialIndex==material)
++                            rawNodeMaterial+=row.massKg;
++                    for(const auto& row:rawContributions) {
++                        if(row.parentNodeIndex!=parentNode||row.materialIndex!=material)continue;
++                        const double amount=childMass/16.0*(row.massKg/rawNodeMaterial);
++                        accumulateSourceMoments(expectedMoments[{childNode,row.donorBodyIndex,
++                                                row.donorLocalPosition}],amount,row.donorLocalPosition);
++                    }
++                }
++        }
++        assert(frameMass.size()==splitSource.current.size());
++        assert(sourceMassByNode.size()==splitSource.current.size());
++        for(const auto& [node,mass]:frameMass)
++            assert(std::abs(mass-sourceMassByNode[node])<=
++                1.0e-9*std::max({std::abs(mass),std::abs(sourceMassByNode[node]),1.0e-12}));
++        assert(expectedMoments.size()==actualMoments.size());
++        for(const auto& [key,expected]:expectedMoments) {
++            const auto& actual=actualMoments.at(key);
++            assert(std::abs(actual.mass-expected.mass)<=1.0e-10*std::max(expected.mass,1.0e-12));
++            for(unsigned axis=0;axis<3u;++axis)
++                assert(std::abs(actual.first[axis]-expected.first[axis])<=1.0e-10*std::max(std::abs(expected.first[axis]),1.0e-12));
++            for(unsigned component=0;component<9u;++component)
++                assert(std::abs(actual.second[component]-expected.second[component])<=
++                    1.0e-10*std::max(std::abs(expected.second[component]),1.0e-12));
++        }
++        bool secondDonorSeen=false,rawCookDifferenceSeen=false;
++        for(const auto& [key,moments]:actualMoments) {
++            if(std::get<1>(key)==1u)secondDonorSeen=true;
++            (void)moments;
++        }
++        for(const auto& closure:report.sourceMassClosure) {
++            if(closure.materialIndex==0u&&closure.donorBodyIndex==1u) {
++                assert(std::abs(closure.childSourceMassKg-closure.cookedParentMassKg)<1.0e-10);
++                assert(std::abs(closure.inputSourceMassKg-closure.cookedParentMassKg)>0.0);
++                rawCookDifferenceSeen=true;
++            }
++        }
++        assert(secondDonorSeen&&rawCookDifferenceSeen);
++    }
++    {
++        Fixture badRawCook;
++        badRawCook.bodyRotations.push_back(kIdentity);
++        badRawCook.bodyOrigins.push_back({0.25,0.0,0.0});
++        badRawCook.topology.registeredBodyLocalToWorldLinear=badRawCook.bodyRotations;
++        badRawCook.topology.registeredBodyOriginWorld=badRawCook.bodyOrigins;
++        std::vector<double> parentMass(badRawCook.parentTets.size(),0.0);
++        for(std::size_t p=0;p<parentMass.size();++p) {
++            const auto tet=badRawCook.parentTets[p];
++            parentMass[p]=tetVolume(badRawCook.parentPoints[tet[0]],badRawCook.parentPoints[tet[1]],
++                badRawCook.parentPoints[tet[2]],badRawCook.parentPoints[tet[3]])*
++                (badRawCook.parentMaterial[p]==0u?1000.0:900.0);
++        }
++        std::vector<double> childMeasure(badRawCook.children.size(),0.0);
++        for(std::size_t c=0;c<childMeasure.size();++c) {
++            const auto tet=badRawCook.children[c];
++            childMeasure[c]=tetVolume(badRawCook.reference[tet[0]],badRawCook.reference[tet[1]],
++                badRawCook.reference[tet[2]],badRawCook.reference[tet[3]]);
++        }
++        badRawCook.sourceMassContributions=sourceContributionFixture(badRawCook,parentMass,1.001);
++        auto badRawWorld=worldFor();PreparedOrganicFEM a,b;
++        assert(!emitMassLedger(badRawCook,parentMass,childMeasure,badRawWorld,a,b,report,error,
++            1.0,1.0,badRawCook.sourceMassContributions));
++        assert(error.find("cook-rounding bound")!=std::string::npos);
++        assert(badRawWorld.objects.empty());
++    }
+     {
+         Fixture ledger;
+         std::vector<double> parentMass(ledger.parentTets.size(),0.0);
+@@ -405,8 +574,10 @@ int main() {
+         assert(report.nodeOwnerMassByDonor.size()==2u);
+         assert(std::abs(report.skinParentMassKg-report.skinChildMassKg)<1.0e-10);
+         assert(std::abs(report.fatParentMassKg-report.fatChildMassKg)<1.0e-10);
+-        assert(std::abs(sumDonorMass(ledgerSkin)-report.skinChildMassKg)<1.0e-10);
+-        assert(std::abs(sumDonorMass(ledgerFat)-report.fatChildMassKg)<1.0e-10);
++        assert(ledgerSkin.donorMassNodes.size()==report.volumeNodeCount);
++        assert(ledgerFat.donorMassNodes.empty());
++        assert(std::abs(sumDonorMass(ledgerSkin)-report.skinChildMassKg-report.fatChildMassKg)<1.0e-10);
++        assert(ledgerSkin.donorMassContributions.empty()&&ledgerFat.donorMassContributions.empty());
+         assert(report.donorMassClosure.size()==2u);
+         for(const auto& closure:report.donorMassClosure)
+             assert(std::abs(closure.parentMassKg-closure.childMassKg)<1.0e-10);
+@@ -534,6 +705,33 @@ int main() {
+         assert(ownerBodyOne->parentAncestryMassKg>ownerBodyOne->nodeFrameOwnerMassKg);
+         assert(crossedWorld.objects.empty());
+     }
++    {
++        Fixture badSource;
++        badSource.bodyRotations.push_back(kIdentity);
++        badSource.bodyOrigins.push_back({0.25,0.0,0.0});
++        badSource.topology.registeredBodyLocalToWorldLinear=badSource.bodyRotations;
++        badSource.topology.registeredBodyOriginWorld=badSource.bodyOrigins;
++        std::vector<double> parentMass(badSource.parentTets.size(),0.0);
++        for(std::size_t p=0;p<parentMass.size();++p) {
++            const auto tet=badSource.parentTets[p];
++            parentMass[p]=tetVolume(badSource.parentPoints[tet[0]],badSource.parentPoints[tet[1]],
++                badSource.parentPoints[tet[2]],badSource.parentPoints[tet[3]])*
++                (badSource.parentMaterial[p]==0u?1000.0:900.0);
++        }
++        std::vector<double> measure(badSource.children.size(),0.0);
++        for(std::size_t c=0;c<measure.size();++c) {
++            const auto tet=badSource.children[c];
++            measure[c]=tetVolume(badSource.reference[tet[0]],badSource.reference[tet[1]],
++                                 badSource.reference[tet[2]],badSource.reference[tet[3]]);
++        }
++        badSource.sourceMassContributions=sourceContributionFixture(badSource,parentMass,1.0);
++        badSource.sourceMassContributions.front().donorBodyIndex=2u;
++        auto badSourceWorld=worldFor();PreparedOrganicFEM a,b;
++        assert(!emitMassLedger(badSource,parentMass,measure,badSourceWorld,a,b,report,error,1.0,1.0,
++                               badSource.sourceMassContributions));
++        assert(error.find("invalid node, material, donor")!=std::string::npos);
++        assert(badSourceWorld.objects.empty());
++    }
+     {
+         Fixture badMass;
+         std::vector<double> parentMass(badMass.parentTets.size(),0.0);
+@@ -632,8 +830,11 @@ int main() {
+         auto legacyWorld=worldFor();
+         legacyWorld.materials[0].parameters[0].defaultValue=1050.0;
+         legacyWorld.materials[1].parameters[0].defaultValue=925.0;
+-        assert(emit(legacyDensity,legacyWorld,report,error));
++        PreparedOrganicFEM legacyDensitySkin,legacyDensityFat;
++        assert(emit(legacyDensity,legacyWorld,report,error,&legacyDensitySkin,&legacyDensityFat));
+         assert(!report.usesPerChildMassLedger);
++        assert(legacyDensitySkin.donorMassNodes.size()==report.volumeNodeCount);
++        assert(legacyDensityFat.donorMassNodes.empty());
+         assert(std::abs(legacyWorld.materials[0].parameters[0].defaultValue-1000.0)<1.0e-9);
+         assert(std::abs(legacyWorld.materials[1].parameters[0].defaultValue-900.0)<1.0e-9);
+     }
+diff --git a/apps/NumiHumanWholeBodyMassReference.hpp b/apps/NumiHumanWholeBodyMassReference.hpp
+index 011a3f58..0fe4ed70 100644
+--- a/apps/NumiHumanWholeBodyMassReference.hpp
++++ b/apps/NumiHumanWholeBodyMassReference.hpp
+@@ -16,6 +16,7 @@ namespace metalrobo::human {
+ struct WholeBodyMassReference {
+     EngineModel model;
+     std::vector<NumiHumanTissueMassNode> nodes;
++    std::vector<NumiHumanTissueMassContribution> contributions;
+     std::vector<std::array<double, 3>> offsets;
+     double originalMassKg = 0.0;
+     double tissueMassKg = 0.0;
+@@ -196,4 +197,58 @@ inline bool packBody(MRBodyPropertiesGPU& b,double mass,const M&s,std::string&er
+     out.originalMassKg=originalMass;out.tissueMassKg=tissueMass;out.residualScale=scale;
+     return out;
+ }
++
++// Explicit source-mass path. The first span remains one row per actual FEM node
++// and owns its registered frame/anchor; the second span carries source-body
++// moments independently, including multiple source bodies for one FEM node.
++[[nodiscard]] inline WholeBodyMassReference prepareWholeBodyMassReference(
++    const EngineModel& source,
++    std::span<const NumiHumanTissueMassNode> nodeFrames,
++    std::span<const NumiHumanTissueMassContribution> contributions) {
++    WholeBodyMassReference out;
++    const auto fail=[&](std::string why){out.error=std::move(why);return out;};
++    if(nodeFrames.empty()||contributions.empty())
++        return fail("explicit whole-body reference requires node frames and source contributions");
++    std::map<std::uint32_t,double> massByNode;
++    for(const auto& node:nodeFrames){
++        if(node.nodeIndex==MR_INVALID_INDEX||node.donorBody>=source.bodies.size()||
++           !std::isfinite(node.massKg)||node.massKg<=0.0||
++           !std::all_of(node.localPosition.begin(),node.localPosition.end(),[](double x){return std::isfinite(x);})||
++           !massByNode.emplace(node.nodeIndex,node.massKg).second)
++            return fail("explicit whole-body reference has an invalid or duplicate node/frame row");
++    }
++    std::map<std::uint32_t,double> attributed;
++    std::vector<NumiHumanTissueMassNode> sourceRows;sourceRows.reserve(contributions.size());
++    for(std::size_t i=0;i<contributions.size();++i){
++        const auto& c=contributions[i];
++        if(!massByNode.contains(c.nodeIndex)||c.donorBody>=source.bodies.size()||
++           !std::isfinite(c.massKg)||c.massKg<=0.0||
++           !std::all_of(c.localPosition.begin(),c.localPosition.end(),[](double x){return std::isfinite(x);}))
++            return fail("explicit whole-body reference has an invalid source contribution");
++        if(i>=std::numeric_limits<std::uint32_t>::max())
++            return fail("explicit whole-body source-contribution count exceeds index range");
++        attributed[c.nodeIndex]+=c.massKg;
++        sourceRows.push_back({static_cast<std::uint32_t>(i),c.donorBody,c.massKg,c.localPosition});
++    }
++    const auto close=[](double a,double b){
++        return std::isfinite(a)&&std::isfinite(b)&&
++            std::abs(a-b)<=1.0e-9*std::max({std::abs(a),std::abs(b),1.0e-12});
++    };
++    for(const auto& [node,mass]:massByNode){
++        const auto it=attributed.find(node);
++        if(it==attributed.end()||!close(mass,it->second))
++            return fail("explicit whole-body source contributions do not close a FEM node mass");
++    }
++    if(attributed.size()!=massByNode.size())
++        return fail("explicit whole-body source contributions contain an unknown FEM node");
++    out=prepareWholeBodyMassReference(source,sourceRows);
++    if(!out.succeeded())return out;
++    out.nodes.assign(nodeFrames.begin(),nodeFrames.end());
++    out.contributions.assign(contributions.begin(),contributions.end());
++    for(auto& node:out.nodes)for(size_t axis=0;axis<3;++axis)
++        node.localPosition[axis]-=out.offsets[node.donorBody][axis];
++    for(auto& c:out.contributions)for(size_t axis=0;axis<3;++axis)
++        c.localPosition[axis]-=out.offsets[c.donorBody][axis];
++    return out;
++}
+ } // namespace metalrobo::human
+diff --git a/apps/numi_human_tissue_mass_probe.cpp b/apps/numi_human_tissue_mass_probe.cpp
+index 7af847fa..ff216e5b 100644
+--- a/apps/numi_human_tissue_mass_probe.cpp
++++ b/apps/numi_human_tissue_mass_probe.cpp
+@@ -70,6 +70,42 @@ int main() {
+             }
+         }
+         require(maxError<2e-6,"rigid-motion invariants changed after tissue partition");
++
++        // One physical FEM node can hold mass from multiple original rigid
++        // sources while retaining exactly one frame/anchor row.
++        auto splitBodies=std::vector<MRBodyPropertiesGPU>{donor(),donor(),donor()};
++        splitBodies[2].motionType=MR_MOTION_KINEMATIC;
++        const std::vector<metalrobo::NumiHumanTissueMassNode> splitFrames{
++            {31u,2u,.6,{.4,.2,-.1}}, {47u,2u,.4,{-.3,.1,.2}}};
++        const std::vector<metalrobo::NumiHumanTissueMassContribution> splitSources{
++            {31u,0u,.25,{.10,.02,0}}, {31u,1u,.35,{-.20,.03,.01}},
++            {47u,0u,.15,{0,.11,.02}}, {47u,1u,.25,{.04,-.05,.10}}};
++        const auto split=metalrobo::compileNumiHumanTissueMassPartition(splitBodies,splitFrames,splitSources);
++        require(split.succeeded()&&split.partitions.size()==2,
++                "split source/frame mass partition failed");
++        for(const auto& expected:std::array<std::array<double,4>,2>{{
++                {0.0,.4,.025,.0215}, {1.0,.6,-.06,-.002}}}) {
++            const auto donorIndex=static_cast<std::uint32_t>(expected[0]);
++            const auto it=std::find_if(split.partitions.begin(),split.partitions.end(),
++                [&](const auto& p){return p.donorBody==donorIndex;});
++            require(it!=split.partitions.end()&&it->nodeCount==2u,
++                    "split contributions lost distinct FEM node ownership");
++            require(std::abs(it->tissueMassKg-expected[1])<1e-14&&
++                    std::abs(it->tissueFirstMomentKgM[0]-expected[2])<1e-14&&
++                    std::abs(it->tissueFirstMomentKgM[1]-expected[3])<1e-14,
++                    "source-local contribution moments were replaced by the node frame point");
++        }
++        auto badContributions=splitSources;badContributions[0].massKg=.20;
++        const auto badSplit=metalrobo::compileNumiHumanTissueMassPartition(splitBodies,splitFrames,badContributions);
++        require(!badSplit.succeeded()&&badSplit.partitions.empty(),
++                "mismatched per-node source contributions were accepted");
++        badContributions=splitSources;badContributions[0].nodeIndex=999u;
++        require(!metalrobo::compileNumiHumanTissueMassPartition(splitBodies,splitFrames,badContributions).succeeded(),
++                "source contribution without a physical FEM node was accepted");
++        badContributions=splitSources;badContributions[0].donorBody=2u;
++        require(!metalrobo::compileNumiHumanTissueMassPartition(splitBodies,splitFrames,badContributions).succeeded(),
++                "static frame owner was accepted as a rigid mass debit source");
++
+         auto reject=[&](auto b, auto n) {
+             auto r=metalrobo::compileNumiHumanTissueMassPartition(b,n);
+             require(!r.succeeded()&&r.partitions.empty(),"invalid partition published partial output");
+diff --git a/apps/numilab_human_myosim_visual_probe.mm b/apps/numilab_human_myosim_visual_probe.mm
+index ee4df4d7..a8d507a3 100644
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -97,6 +97,7 @@
+ #include <iostream>
+ #include <limits>
+ #include <map>
++#include <set>
+ #include <memory>
+ #include <numbers>
+ #include <numeric>
+@@ -25333,6 +25334,39 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+     }
+     require(massNodes.size()==totalNodeCount,
+             "resting fascia/ACL/skin-fat/aortic/organ/optic-nerve mass map does not cover every compiled FEM node");
++
++    // Keep one node/frame row per compiled FEM node, and build a separate
++    // source-mass ledger. Legacy tissues contribute one row; reconstructed
++    // volume tissues may split a node's mass across several original donors.
++    std::vector<metalrobo::NumiHumanTissueMassContribution> massContributions;
++    const auto appendContributions=[&](const auto& prepared){
++        massContributions.insert(massContributions.end(),prepared.donorMassContributions.begin(),
++                                 prepared.donorMassContributions.end());
++    };
++    if(skin!=nullptr)appendContributions(preparedSkin);
++    if(includeProstate)appendContributions(preparedProstate);
++    for(const auto& organ:preparedOrganBatch)appendContributions(organ);
++    if(includeOpticNerves){appendContributions(preparedLeftOpticNerve);appendContributions(preparedRightOpticNerve);}
++    std::map<std::uint32_t,double> massByNode,explicitContributionMassByNode;
++    for(const auto& node:massNodes)
++        require(massByNode.emplace(node.nodeIndex,node.massKg).second,
++                "physical FEM mass/frame map repeats a node index");
++    for(const auto& contribution:massContributions){
++        require(massByNode.contains(contribution.nodeIndex),
++                "explicit source-mass contribution references an absent FEM node");
++        explicitContributionMassByNode[contribution.nodeIndex]+=contribution.massKg;
++    }
++    for(const auto& node:massNodes){
++        const auto explicitIt=explicitContributionMassByNode.find(node.nodeIndex);
++        if(explicitIt==explicitContributionMassByNode.end()){
++            massContributions.push_back({node.nodeIndex,node.donorBody,node.massKg,node.localPosition});
++        }else{
++            require(std::isfinite(explicitIt->second)&&
++                        std::abs(explicitIt->second-node.massKg)<=
++                            1e-9*std::max({std::abs(explicitIt->second),std::abs(node.massKg),1e-12}),
++                    "explicit source contributions do not close the physical FEM node mass");
++        }
++    }
+     double initialPhysicalMass=0.0; for(const auto& b:model.bodies)initialPhysicalMass+=b.massAndInverseMass.x;
+     std::vector<std::array<double,3>> wholeBodyReferenceOffsets(model.bodies.size());
+     if(enableWholeBodySkinFat) {
+@@ -25343,7 +25377,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+         for(const auto& joint:model.joints)if(joint.childBody<parent.size())parent[joint.childBody]=joint.parentBody;
+         const auto pose=std::span<const MRBodyStateGPU>(bodies);
+         std::size_t rerouted=0u;double reroutedMass=0.0;
+-        for(auto& node:massNodes) {
++        for(auto& node:massContributions) {
+             const auto original=node.donorBody;auto donor=original;
+             for(std::size_t depth=0;depth<model.bodies.size();++depth) {
+                 require(donor<model.bodies.size(),"whole-body tissue has no dynamic mass ancestor");
+@@ -25374,12 +25408,15 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+             }
+             for(const auto& n:massNodes)out<<"node "<<n.nodeIndex<<" "<<n.donorBody<<" "<<n.massKg<<" "
+                 <<n.localPosition[0]<<" "<<n.localPosition[1]<<" "<<n.localPosition[2]<<"\n";
++            for(const auto& c:massContributions)out<<"source "<<c.nodeIndex<<" "<<c.donorBody<<" "<<c.massKg<<" "
++                <<c.localPosition[0]<<" "<<c.localPosition[1]<<" "<<c.localPosition[2]<<"\n";
+             require(bool(out),"tissue mass preparation dump write failed");
+         }
+-        auto reference=metalrobo::human::prepareWholeBodyMassReference(model,massNodes);
++        auto reference=metalrobo::human::prepareWholeBodyMassReference(model,massNodes,massContributions);
+         require(reference.succeeded(),"whole-body inferred mass reference rejected: "+reference.error);
+         wholeBodyReferenceOffsets=std::move(reference.offsets);
+         model=std::move(reference.model);massNodes=std::move(reference.nodes);
++        massContributions=std::move(reference.contributions);
+         std::cout<<"whole_body_tissue_mass_reference=inferred"
+             <<" original_total_kg="<<reference.originalMassKg<<" cooked_tissue_kg="<<reference.tissueMassKg
+             <<" residual_rigid_scale="<<reference.residualScale
+@@ -25388,10 +25425,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+             <<" geometry_and_force_owners=unchanged"
+             <<" reference=global_mass_budget_with_cooked_tissue_moments_not_measured_subject"<<std::endl;
+     }
+-    const auto mass=metalrobo::compileNumiHumanTissueMassPartition(model.bodies,massNodes);
++    const auto mass=metalrobo::compileNumiHumanTissueMassPartition(model.bodies,massNodes,massContributions);
+     if(!mass.succeeded()) {
+         std::map<std::uint32_t,std::vector<metalrobo::NumiHumanTissueMassNode>> diagnosticDonors;
+-        for(const auto& node:massNodes)diagnosticDonors[node.donorBody].push_back(node);
++        std::uint32_t diagnosticRow=0u;
++        for(const auto& contribution:massContributions)
++            diagnosticDonors[contribution.donorBody].push_back({diagnosticRow++,contribution.donorBody,
++                contribution.massKg,contribution.localPosition});
+         for(const auto& [donor,donorNodes]:diagnosticDonors) {
+             const auto check=metalrobo::compileNumiHumanTissueMassPartition(model.bodies,donorNodes);
+             if(check.succeeded())continue;
+diff --git a/include/metalrobo/NumiHumanTissueMass.hpp b/include/metalrobo/NumiHumanTissueMass.hpp
+index 2c63be78..8eee8aa1 100644
+--- a/include/metalrobo/NumiHumanTissueMass.hpp
++++ b/include/metalrobo/NumiHumanTissueMass.hpp
+@@ -14,6 +14,19 @@ namespace metalrobo {
+ // expressed in the donor's original COM frame. Never use source mesh volume
+ // or the pre-cook payload mass as a substitute for this discrete mass measure.
+ struct NumiHumanTissueMassNode {
++    // One unique FEM-node row. In the legacy API donorBody/localPosition also
++    // describe the mass source; with explicit contributions they instead name
++    // the node's single registered frame owner and anchor point.
++    std::uint32_t nodeIndex = MR_INVALID_INDEX;
++    std::uint32_t donorBody = MR_INVALID_INDEX;
++    double massKg = 0.0;
++    std::array<double, 3> localPosition{};
++};
++
++// A piece of a FEM node's authoritative lumped mass, attributed to its actual
++// source rigid body and source-local point for rigid mass/inertia debit. Several
++// contributions may share a nodeIndex while the node/frame table stays unique.
++struct NumiHumanTissueMassContribution {
+     std::uint32_t nodeIndex = MR_INVALID_INDEX;
+     std::uint32_t donorBody = MR_INVALID_INDEX;
+     double massKg = 0.0;
+@@ -48,6 +61,14 @@ struct NumiHumanTissueMassResult {
+     std::span<const MRBodyPropertiesGPU> bodies,
+     std::span<const NumiHumanTissueMassNode> nodes);
+ 
++// Explicit source-mass path. The node span is the unique physical FEM-node/frame
++// table; contributions may split one node's mass across original donors and
++// source-local points. Their mass must sum to each node's mass.
++[[nodiscard]] NumiHumanTissueMassResult compileNumiHumanTissueMassPartition(
++    std::span<const MRBodyPropertiesGPU> bodies,
++    std::span<const NumiHumanTissueMassNode> nodes,
++    std::span<const NumiHumanTissueMassContribution> contributions);
++
+ // Rebase canonical mechanics atomically. External muscle/sensor/attachment
+ // packs must consume the same offsets before composing a CompiledRun. Spatial
+ // ConstraintIR rows need their own recompilation and are rejected here.
+diff --git a/src/core/NumiHumanTissueMass.cpp b/src/core/NumiHumanTissueMass.cpp
+index 0450e1bd..8c6b5bbf 100644
+--- a/src/core/NumiHumanTissueMass.cpp
++++ b/src/core/NumiHumanTissueMass.cpp
+@@ -180,6 +180,62 @@ NumiHumanTissueMassResult compileNumiHumanTissueMassPartition(
+     return result;
+ }
+ 
++NumiHumanTissueMassResult compileNumiHumanTissueMassPartition(
++    const std::span<const MRBodyPropertiesGPU> bodies,
++    const std::span<const NumiHumanTissueMassNode> nodes,
++    const std::span<const NumiHumanTissueMassContribution> contributions) {
++    if (nodes.empty() || contributions.empty())
++        return fail("explicit tissue mass source requires node rows and source contributions");
++    std::map<std::uint32_t, double> nodeMass;
++    for (const auto& node : nodes) {
++        if (node.nodeIndex == MR_INVALID_INDEX || node.donorBody >= bodies.size() ||
++            !std::isfinite(node.massKg) || node.massKg <= 0.0 ||
++            !std::all_of(node.localPosition.begin(), node.localPosition.end(),
++                         [](double value) { return std::isfinite(value); }) ||
++            !nodeMass.emplace(node.nodeIndex, node.massKg).second)
++            return fail("invalid or duplicate explicit tissue node/frame row");
++    }
++    std::map<std::uint32_t, double> attributedMass;
++    std::map<std::uint32_t, std::set<std::uint32_t>> donorNodes;
++    std::vector<NumiHumanTissueMassNode> sourceRows;
++    sourceRows.reserve(contributions.size());
++    for (std::size_t i = 0; i < contributions.size(); ++i) {
++        const auto& contribution = contributions[i];
++        if (!nodeMass.contains(contribution.nodeIndex) ||
++            contribution.donorBody >= bodies.size() ||
++            bodies[contribution.donorBody].motionType != MR_MOTION_DYNAMIC ||
++            !std::isfinite(contribution.massKg) || contribution.massKg <= 0.0 ||
++            !std::all_of(contribution.localPosition.begin(), contribution.localPosition.end(),
++                         [](double value) { return std::isfinite(value); }))
++            return fail("invalid explicit tissue source-mass contribution");
++        if (i >= std::numeric_limits<std::uint32_t>::max())
++            return fail("explicit tissue source-contribution count exceeds index range");
++        attributedMass[contribution.nodeIndex] += contribution.massKg;
++        donorNodes[contribution.donorBody].insert(contribution.nodeIndex);
++        // Reuse the existing exact mass/first/second-moment kernel with a
++        // private unique row index; the physical FEM node identity stays intact
++        // in the authoritative node table above.
++        sourceRows.push_back({static_cast<std::uint32_t>(i), contribution.donorBody,
++                              contribution.massKg, contribution.localPosition});
++    }
++    const auto closeMass = [](double a, double b) {
++        return std::isfinite(a) && std::isfinite(b) &&
++            std::abs(a - b) <= 1.0e-9 * std::max({std::abs(a), std::abs(b), 1.0e-12});
++    };
++    for (const auto& [index, mass] : nodeMass) {
++        const auto found = attributedMass.find(index);
++        if (found == attributedMass.end() || !closeMass(mass, found->second))
++            return fail("explicit source contributions do not close a unique FEM node mass");
++    }
++    if (attributedMass.size() != nodeMass.size())
++        return fail("explicit source contributions contain an unknown FEM node");
++    auto result = compileNumiHumanTissueMassPartition(bodies, sourceRows);
++    if (!result.succeeded()) return result;
++    for (auto& partition : result.partitions)
++        partition.nodeCount = static_cast<std::uint32_t>(donorNodes[partition.donorBody].size());
++    return result;
++}
++
+ bool rebaseNumiHumanTissueMassPartition(
+     const EngineModel& source, const std::span<const NumiHumanTissueMassPartition> partitions,
+     EngineModel& result, std::string& error) {
+diff --git a/tests/whole_body_mass_reference.cpp b/tests/whole_body_mass_reference.cpp
+index af3f10d9..030c5344 100644
+--- a/tests/whole_body_mass_reference.cpp
++++ b/tests/whole_body_mass_reference.cpp
+@@ -90,6 +90,105 @@ try{
+               "per-donor composed mass does not close");
+     }
+ 
++    const std::vector<NumiHumanTissueMassNode> splitFrames{
++        {15u,0u,.6,{.03,.01,-.02}}, {19u,0u,.4,{-.04,.02,.01}}};
++    const std::vector<NumiHumanTissueMassContribution> splitSources{
++        {15u,1u,.2,{.010,.002,0}}, {15u,2u,.4,{-.006,.003,0}},
++        {19u,1u,.2,{.001,-.004,.005}}, {19u,2u,.2,{.003,0,-.007}}};
++    const auto splitReference=prepareWholeBodyMassReference(source,splitFrames,splitSources);
++    check(splitReference.succeeded(),"split-source whole-body reference failed: "+splitReference.error);
++    check(splitReference.nodes.size()==2&&splitReference.contributions.size()==4,
++          "split-source reference lost unique frame rows or source contributions");
++    check(splitReference.nodes[0].donorBody==0&&splitReference.nodes[0].localPosition==splitFrames[0].localPosition,
++          "static registered frame owner or anchor was rewritten by source-mass rebase");
++    for(std::size_t i=0;i<splitSources.size();++i) {
++        const auto donor=splitSources[i].donorBody;
++        for(std::size_t axis=0;axis<3;++axis)
++            check(near(splitReference.contributions[i].localPosition[axis],
++                       splitSources[i].localPosition[axis]-splitReference.offsets[donor][axis],1e-12),
++                  "source-mass contribution did not rebase in its own donor frame");
++    }
++    const auto splitCompiled=compileNumiHumanTissueMassPartition(
++        splitReference.model.bodies,splitReference.nodes,splitReference.contributions);
++    check(splitCompiled.succeeded(),"split-source compiler rejected rebased reference: "+splitCompiled.error);
++    for(const auto& part:splitCompiled.partitions) {
++        for(std::size_t axis=0;axis<3;++axis)
++            check(std::abs(splitReference.offsets[part.donorBody][axis]+part.remainingCOMOffsetM[axis])<2e-7,
++                  "split-source reference and stock COM offsets do not cancel");
++        double mass=0.0;V first{};M secondMoment{};
++        for(const auto& contribution:splitReference.contributions)if(contribution.donorBody==part.donorBody) {
++            mass+=contribution.massKg;
++            for(std::size_t r=0;r<3;++r) {
++                first[r]+=contribution.massKg*contribution.localPosition[r];
++                for(std::size_t c=0;c<3;++c)
++                    secondMoment[3*r+c]+=contribution.massKg*
++                        contribution.localPosition[r]*contribution.localPosition[c];
++            }
++        }
++        check(near(part.tissueMassKg,mass,1e-12),
++              "split-source donor debit does not equal its contribution mass");
++        for(std::size_t r=0;r<3;++r) {
++            check(near(part.tissueFirstMomentKgM[r],first[r],1e-12),
++                  "split-source donor first moment lost a source-local contribution");
++            for(std::size_t c=0;c<3;++c)
++                check(near(part.tissueSecondMomentKgM2[3*r+c],secondMoment[3*r+c],1e-12),
++                      "split-source donor second moment lost a source-local contribution");
++        }
++    }
++    auto badSplitSources=splitSources;badSplitSources[0].massKg+=.01;
++    check(!prepareWholeBodyMassReference(source,splitFrames,badSplitSources).succeeded(),
++          "whole-body reference accepted a source ledger that does not close node mass");
++
++    std::vector<NumiHumanTissueMassContribution> oneToOneSources;
++    for(const auto& node:result.nodes)
++        oneToOneSources.push_back({node.nodeIndex,node.donorBody,node.massKg,node.localPosition});
++    const auto legacyCompile=compileNumiHumanTissueMassPartition(result.model.bodies,result.nodes);
++    const auto explicitLegacyEquivalent=compileNumiHumanTissueMassPartition(
++        result.model.bodies,result.nodes,oneToOneSources);
++    check(legacyCompile.succeeded()&&explicitLegacyEquivalent.succeeded(),
++          "legacy-equivalent explicit mass partition failed: legacy="+legacyCompile.error+
++          " explicit="+explicitLegacyEquivalent.error);
++    check(legacyCompile.partitions.size()==explicitLegacyEquivalent.partitions.size(),
++          "legacy and explicit one-to-one paths return different donor partitions");
++    for(std::size_t i=0;i<legacyCompile.partitions.size();++i) {
++        const auto& a=legacyCompile.partitions[i];const auto& b=explicitLegacyEquivalent.partitions[i];
++        check(a.donorBody==b.donorBody&&a.nodeCount==b.nodeCount&&near(a.tissueMassKg,b.tissueMassKg,1e-14),
++              "legacy and explicit one-to-one partition identity/mass differ");
++        for(std::size_t k=0;k<3;++k)check(near(a.tissueFirstMomentKgM[k],b.tissueFirstMomentKgM[k],1e-14)&&
++            near(a.remainingCOMOffsetM[k],b.remainingCOMOffsetM[k],1e-14),
++            "legacy and explicit one-to-one first moment/COM differ");
++        for(std::size_t k=0;k<9;++k)check(near(a.tissueSecondMomentKgM2[k],b.tissueSecondMomentKgM2[k],1e-14),
++            "legacy and explicit one-to-one second moment differ");
++        check(near(a.remainingBody.massAndInverseMass.x,b.remainingBody.massAndInverseMass.x,1e-7f),
++              "legacy and explicit one-to-one cooked remaining mass differs");
++    }
++    auto expectExplicitReject=[&](auto frames,auto contributions,const std::string& label) {
++        check(!compileNumiHumanTissueMassPartition(source.bodies,frames,contributions).succeeded(),
++              "explicit compiler accepted "+label);
++        check(!prepareWholeBodyMassReference(source,frames,contributions).succeeded(),
++              "whole-body rebase accepted "+label);
++    };
++    auto duplicateFrames=splitFrames;duplicateFrames.push_back(splitFrames.front());
++    expectExplicitReject(duplicateFrames,splitSources,"duplicate physical frame binding");
++    auto badFrame=splitFrames;badFrame[0].donorBody=static_cast<std::uint32_t>(source.bodies.size());
++    expectExplicitReject(badFrame,splitSources,"out-of-range node-frame owner");
++    badFrame=splitFrames;badFrame[0].massKg=0.0;
++    expectExplicitReject(badFrame,splitSources,"nonpositive physical frame mass");
++    badFrame=splitFrames;badFrame[0].localPosition[2]=std::numeric_limits<double>::infinity();
++    expectExplicitReject(badFrame,splitSources,"nonfinite node-frame anchor");
++    auto missingFrameSource=splitSources;missingFrameSource[0].nodeIndex=999u;
++    expectExplicitReject(splitFrames,missingFrameSource,"contribution without a registered frame row");
++    auto missingNodeContribution=splitSources;missingNodeContribution.pop_back();
++    expectExplicitReject(splitFrames,missingNodeContribution,"missing contribution mass for a physical node");
++    auto badDonorSources=splitSources;badDonorSources[0].donorBody=static_cast<std::uint32_t>(source.bodies.size());
++    expectExplicitReject(splitFrames,badDonorSources,"out-of-range source donor");
++    auto staticDonorSources=splitSources;staticDonorSources[0].donorBody=0u;
++    expectExplicitReject(splitFrames,staticDonorSources,"static source mass donor");
++    auto negativeSources=splitSources;negativeSources[0].massKg=-.2;
++    expectExplicitReject(splitFrames,negativeSources,"negative source contribution");
++    auto nanSources=splitSources;nanSources[0].localPosition[1]=std::numeric_limits<double>::quiet_NaN();
++    expectExplicitReject(splitFrames,nanSources,"nonfinite source-local position");
++
+     const auto stock=compileNumiHumanTissueMassPartition(result.model.bodies,result.nodes);
+     check(stock.succeeded(),"stock compiler rejected reference: "+stock.error);
+     EngineModel finalModel;std::string error;

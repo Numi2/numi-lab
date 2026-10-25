@@ -1,0 +1,1 @@
+cd /Users/numi/Work/unpaired-skin-fat-mass-ownership-070 && /usr/bin/clang++ -std=c++23 -Wall -Wextra -Wpedantic -Werror -UNDEBUG -Imatter/include -Iinclude -Iapps -DNUMI_TEST_MATERIAL_PATH=\"/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter\" -fsyntax-only apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp

@@ -1,0 +1,7 @@
+waiting_for_human_geometry_slot pid=98630
+acquired_human_geometry_slot pid=98630
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/run_source_layer_feasibility_009.py", line 12, in <module>
+    k=int(where[0]);node=int(T[row,k]);assert node<4822 and node-2411 in T[row]
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

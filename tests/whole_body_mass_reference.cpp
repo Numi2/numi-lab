@@ -90,6 +90,105 @@ try{
               "per-donor composed mass does not close");
     }
 
+    const std::vector<NumiHumanTissueMassNode> splitFrames{
+        {15u,0u,.6,{.03,.01,-.02}}, {19u,0u,.4,{-.04,.02,.01}}};
+    const std::vector<NumiHumanTissueMassContribution> splitSources{
+        {15u,1u,.2,{.010,.002,0}}, {15u,2u,.4,{-.006,.003,0}},
+        {19u,1u,.2,{.001,-.004,.005}}, {19u,2u,.2,{.003,0,-.007}}};
+    const auto splitReference=prepareWholeBodyMassReference(source,splitFrames,splitSources);
+    check(splitReference.succeeded(),"split-source whole-body reference failed: "+splitReference.error);
+    check(splitReference.nodes.size()==2&&splitReference.contributions.size()==4,
+          "split-source reference lost unique frame rows or source contributions");
+    check(splitReference.nodes[0].donorBody==0&&splitReference.nodes[0].localPosition==splitFrames[0].localPosition,
+          "static registered frame owner or anchor was rewritten by source-mass rebase");
+    for(std::size_t i=0;i<splitSources.size();++i) {
+        const auto donor=splitSources[i].donorBody;
+        for(std::size_t axis=0;axis<3;++axis)
+            check(near(splitReference.contributions[i].localPosition[axis],
+                       splitSources[i].localPosition[axis]-splitReference.offsets[donor][axis],1e-12),
+                  "source-mass contribution did not rebase in its own donor frame");
+    }
+    const auto splitCompiled=compileNumiHumanTissueMassPartition(
+        splitReference.model.bodies,splitReference.nodes,splitReference.contributions);
+    check(splitCompiled.succeeded(),"split-source compiler rejected rebased reference: "+splitCompiled.error);
+    for(const auto& part:splitCompiled.partitions) {
+        for(std::size_t axis=0;axis<3;++axis)
+            check(std::abs(splitReference.offsets[part.donorBody][axis]+part.remainingCOMOffsetM[axis])<2e-7,
+                  "split-source reference and stock COM offsets do not cancel");
+        double mass=0.0;V first{};M secondMoment{};
+        for(const auto& contribution:splitReference.contributions)if(contribution.donorBody==part.donorBody) {
+            mass+=contribution.massKg;
+            for(std::size_t r=0;r<3;++r) {
+                first[r]+=contribution.massKg*contribution.localPosition[r];
+                for(std::size_t c=0;c<3;++c)
+                    secondMoment[3*r+c]+=contribution.massKg*
+                        contribution.localPosition[r]*contribution.localPosition[c];
+            }
+        }
+        check(near(part.tissueMassKg,mass,1e-12),
+              "split-source donor debit does not equal its contribution mass");
+        for(std::size_t r=0;r<3;++r) {
+            check(near(part.tissueFirstMomentKgM[r],first[r],1e-12),
+                  "split-source donor first moment lost a source-local contribution");
+            for(std::size_t c=0;c<3;++c)
+                check(near(part.tissueSecondMomentKgM2[3*r+c],secondMoment[3*r+c],1e-12),
+                      "split-source donor second moment lost a source-local contribution");
+        }
+    }
+    auto badSplitSources=splitSources;badSplitSources[0].massKg+=.01;
+    check(!prepareWholeBodyMassReference(source,splitFrames,badSplitSources).succeeded(),
+          "whole-body reference accepted a source ledger that does not close node mass");
+
+    std::vector<NumiHumanTissueMassContribution> oneToOneSources;
+    for(const auto& node:result.nodes)
+        oneToOneSources.push_back({node.nodeIndex,node.donorBody,node.massKg,node.localPosition});
+    const auto legacyCompile=compileNumiHumanTissueMassPartition(result.model.bodies,result.nodes);
+    const auto explicitLegacyEquivalent=compileNumiHumanTissueMassPartition(
+        result.model.bodies,result.nodes,oneToOneSources);
+    check(legacyCompile.succeeded()&&explicitLegacyEquivalent.succeeded(),
+          "legacy-equivalent explicit mass partition failed: legacy="+legacyCompile.error+
+          " explicit="+explicitLegacyEquivalent.error);
+    check(legacyCompile.partitions.size()==explicitLegacyEquivalent.partitions.size(),
+          "legacy and explicit one-to-one paths return different donor partitions");
+    for(std::size_t i=0;i<legacyCompile.partitions.size();++i) {
+        const auto& a=legacyCompile.partitions[i];const auto& b=explicitLegacyEquivalent.partitions[i];
+        check(a.donorBody==b.donorBody&&a.nodeCount==b.nodeCount&&near(a.tissueMassKg,b.tissueMassKg,1e-14),
+              "legacy and explicit one-to-one partition identity/mass differ");
+        for(std::size_t k=0;k<3;++k)check(near(a.tissueFirstMomentKgM[k],b.tissueFirstMomentKgM[k],1e-14)&&
+            near(a.remainingCOMOffsetM[k],b.remainingCOMOffsetM[k],1e-14),
+            "legacy and explicit one-to-one first moment/COM differ");
+        for(std::size_t k=0;k<9;++k)check(near(a.tissueSecondMomentKgM2[k],b.tissueSecondMomentKgM2[k],1e-14),
+            "legacy and explicit one-to-one second moment differ");
+        check(near(a.remainingBody.massAndInverseMass.x,b.remainingBody.massAndInverseMass.x,1e-7f),
+              "legacy and explicit one-to-one cooked remaining mass differs");
+    }
+    auto expectExplicitReject=[&](auto frames,auto contributions,const std::string& label) {
+        check(!compileNumiHumanTissueMassPartition(source.bodies,frames,contributions).succeeded(),
+              "explicit compiler accepted "+label);
+        check(!prepareWholeBodyMassReference(source,frames,contributions).succeeded(),
+              "whole-body rebase accepted "+label);
+    };
+    auto duplicateFrames=splitFrames;duplicateFrames.push_back(splitFrames.front());
+    expectExplicitReject(duplicateFrames,splitSources,"duplicate physical frame binding");
+    auto badFrame=splitFrames;badFrame[0].donorBody=static_cast<std::uint32_t>(source.bodies.size());
+    expectExplicitReject(badFrame,splitSources,"out-of-range node-frame owner");
+    badFrame=splitFrames;badFrame[0].massKg=0.0;
+    expectExplicitReject(badFrame,splitSources,"nonpositive physical frame mass");
+    badFrame=splitFrames;badFrame[0].localPosition[2]=std::numeric_limits<double>::infinity();
+    expectExplicitReject(badFrame,splitSources,"nonfinite node-frame anchor");
+    auto missingFrameSource=splitSources;missingFrameSource[0].nodeIndex=999u;
+    expectExplicitReject(splitFrames,missingFrameSource,"contribution without a registered frame row");
+    auto missingNodeContribution=splitSources;missingNodeContribution.pop_back();
+    expectExplicitReject(splitFrames,missingNodeContribution,"missing contribution mass for a physical node");
+    auto badDonorSources=splitSources;badDonorSources[0].donorBody=static_cast<std::uint32_t>(source.bodies.size());
+    expectExplicitReject(splitFrames,badDonorSources,"out-of-range source donor");
+    auto staticDonorSources=splitSources;staticDonorSources[0].donorBody=0u;
+    expectExplicitReject(splitFrames,staticDonorSources,"static source mass donor");
+    auto negativeSources=splitSources;negativeSources[0].massKg=-.2;
+    expectExplicitReject(splitFrames,negativeSources,"negative source contribution");
+    auto nanSources=splitSources;nanSources[0].localPosition[1]=std::numeric_limits<double>::quiet_NaN();
+    expectExplicitReject(splitFrames,nanSources,"nonfinite source-local position");
+
     const auto stock=compileNumiHumanTissueMassPartition(result.model.bodies,result.nodes);
     check(stock.succeeded(),"stock compiler rejected reference: "+stock.error);
     EngineModel finalModel;std::string error;

@@ -1,0 +1,66 @@
+Typed source/mass ownership overlay checks
+Overlay: /Users/numi/Work/unpaired-skin-fat-mass-ownership-070
+All commands were run on SSH host numi. Source edits were frozen before final checks.
+
+PASS: unpaired volume owner focused C++ runtime test
+Exact command file: /tmp/typed-source-mass-070-checks/unpaired-volume-owner-direct.command.txt
+stdout: /tmp/typed-source-mass-070-checks/unpaired-volume-owner-direct.stdout.txt
+stderr: /tmp/typed-source-mass-070-checks/unpaired-volume-owner-direct.stderr.txt
+exit: /tmp/typed-source-mass-070-checks/unpaired-volume-owner-direct.exit.txt (0)
+Output: unpaired skin/fat volume owner tests passed; one existing matter/src/constitutive_impl.cpp unused-variable warning.
+
+PASS: unpaired volume owner test translation-unit strict syntax
+Exact command file: /tmp/typed-source-mass-070-checks/unpaired-volume-owner-syntax.command.txt
+stdout: /tmp/typed-source-mass-070-checks/unpaired-volume-owner-syntax.stdout.txt
+stderr: /tmp/typed-source-mass-070-checks/unpaired-volume-owner-syntax.stderr.txt (empty)
+exit: /tmp/typed-source-mass-070-checks/unpaired-volume-owner-syntax.exit.txt (0)
+
+PASS: updated whole_body_mass_reference test, compiled from source
+Exact command file: /tmp/typed-source-mass-070-checks/whole-body-reference-direct-003.command.txt
+stdout: /tmp/typed-source-mass-070-checks/whole-body-reference-direct-003.stdout.txt
+stderr: /tmp/typed-source-mass-070-checks/whole-body-reference-direct-003.stderr.txt (empty)
+exit: /tmp/typed-source-mass-070-checks/whole-body-reference-direct-003.exit.txt (0)
+Output: whole_body_mass_reference=PASS; mass and first/second moments closed; stock compile/rebase PASS; gross negative rejected.
+
+PASS: tissue mass probe, compiled from current source
+Exact command file: /tmp/typed-source-mass-070-checks/tissue-mass-probe-direct.command.txt
+stdout: /tmp/typed-source-mass-070-checks/tissue-mass-probe-direct.stdout.txt
+stderr: /tmp/typed-source-mass-070-checks/tissue-mass-probe-direct.stderr.txt (empty)
+exit: /tmp/typed-source-mass-070-checks/tissue-mass-probe-direct.exit.txt (0)
+Output: 64 rigid-motion cases, 11 negative cases, rotating floating-root rebase PASS; max relative invariant error 3.83045e-08.
+
+PASS: full resting-scene Objective-C++ syntax check for numilab_human_myosim_visual_probe.mm
+Exact command: /tmp/typed-source-mass-070-checks/resting-app-syntax.command.txt
+stdout: /tmp/typed-source-mass-070-checks/resting-app-syntax.stdout.txt (empty)
+stderr: /tmp/typed-source-mass-070-checks/resting-app-syntax.stderr.txt (empty)
+exit: /tmp/typed-source-mass-070-checks/resting-app-syntax.exit.txt (0)
+
+PASS: git diff --check
+Exact command: /tmp/typed-source-mass-070-checks/diff-check.command.txt
+stdout: /tmp/typed-source-mass-070-checks/diff-check.stdout.txt (empty)
+stderr: /tmp/typed-source-mass-070-checks/diff-check.stderr.txt (empty)
+exit: /tmp/typed-source-mass-070-checks/diff-check.exit.txt (0)
+
+PASS: independent source-to-cooked-to-child donor/moment audit (mechanical worker)
+Directory: /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/native-parent-transfer-073/source-cooked-child-moments-074
+Script SHA-256: f6c2eda8671bd6ce4d9d25cd668c2b44f67ca0bb75338be077cb876639d3509c
+Report SHA-256: 34e31f4887938f5a1d3e034bdfa9095c2055ed7c64a5229bd74d5adf924a2b2a
+Summary SHA-256: 09233b65acaf965498f8d18faeaa950109503f79cd86de588f13747feda849c4
+Manifest SHA-256: e8732f12d1f4c45fcaaf6277ef22a8bd73d40b9df18f0dd55c8f6664933094fe
+Result: 18,640 child node/material entries pass; source-to-cooked raw discrepancy retained explicitly; cooked-to-child donor/material mass, first and second moments close to <=4.84e-15 relative.
+
+Preserved nonpassing/setup attempts (not counted as tests):
+mass-target-build.command.txt with mass-target-build.exit.txt exits 1 because retained generated build directory has no build.ninja; no CMake reconfigure was run.
+whole-body-reference-direct.command.txt and whole-body-reference-direct-002.command.txt with their matching log files are failed incomplete direct-link attempts. The final source command whole-body-reference-direct-003.command.txt passes.
+full-app-syntax.command.txt and matching logs are the earlier wrong-target/non-resting syntax attempt; corrected resting-scene syntax command resting-app-syntax.command.txt passes.
+
+Frozen edited source SHA-256:
+apps/NumiHumanUnpairedSkinFatVolume.hpp f3b39b990ffb780227a876bae7ec6ea63cf923776db96bb0e6e115b64c2ce754
+apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp 5e927a9f1128d76a903736e33dda2080d4149ecb53eb6256069748106aa78d8a
+apps/numi_human_tissue_mass_probe.cpp 928d81ca90a0ac3577500850ccc86c3d8ed05b1a010a51f499fd2b1eac659801
+apps/numilab_human_myosim_visual_probe.mm 5875da5d34975c76793430a3d6cad5df67c489e477b5c4cb195a18d7e5d34627
+tests/whole_body_mass_reference.cpp 6a6da99012f0c26256f2658f0707c43d6272feff0f44893bb1bc3c5a41b2b50b
+src/core/NumiHumanTissueMass.cpp a7bf1478cea3f1916df8b908ce91e81e9784c845c0a49087b94f02973c97a2
+include/metalrobo/NumiHumanTissueMass.hpp 9b78d4363ef0f1d9a4d99d40eba0df78b37636e78d59c8a14efe4d5985bca761
+apps/NumiHumanWholeBodyMassReference.hpp 89cf3c615d438eb7a85acb388618ab0c8a18ddab195b703f866358e3da9f355f
+apps/NumiHumanCoarseTissuePreparation.hpp 27b3069cc96719ff86057b1f74b8c9ce1e47464d4f359d94bddd9abe4b3cb70c

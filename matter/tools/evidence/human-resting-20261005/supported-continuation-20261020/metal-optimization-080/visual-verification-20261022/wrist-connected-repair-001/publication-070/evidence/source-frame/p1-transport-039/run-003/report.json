@@ -1,0 +1,134 @@
+{
+  "checks": {
+    "D36_bary_anchor_delta_parity_max_m": 2.6020852139652106e-18,
+    "D36_direct_anchor_delta_parity_max_m": 3.878959614448864e-18,
+    "P1_face_gradient_det": {
+      "count": 4777,
+      "max": 2.4608364905983118,
+      "median": 0.9999987709985249,
+      "p95": 1.2435011307397588,
+      "p99": 1.6896806915000566
+    },
+    "P1_nodal_area_weighted_max_singular": {
+      "count": 2411,
+      "max": 1.7410994988865358,
+      "median": 1.000994728450204,
+      "p95": 1.2940941581525225,
+      "p99": 1.4599363407589365
+    },
+    "P1_nodal_area_weighted_min_singular": {
+      "count": 2411,
+      "max": 1.0417982215929167,
+      "median": 0.9979945569273359,
+      "p95": 0.9999991848743526,
+      "p99": 0.9999997967613248
+    },
+    "P1_nodal_det": {
+      "count": 2411,
+      "max": 2.3238780889108033,
+      "median": 0.9999987982641941,
+      "p95": 1.1562992205328817,
+      "p99": 1.4551124696454236
+    },
+    "bary_offset_correction_m": {
+      "count": 79,
+      "max": 0.005423808355902239,
+      "median": 7.333159886612607e-06,
+      "p95": 0.001786515779104708,
+      "p99": 0.003095910429479308
+    },
+    "direct_offset_correction_m": {
+      "count": 2332,
+      "max": 0.000619691826838312,
+      "median": 1.5805708857746635e-09,
+      "p95": 1.665374114775421e-05,
+      "p99": 0.00018169079315947473
+    },
+    "legacy_vs_P1_transported_position_m": {
+      "count": 2411,
+      "max": 0.005423808355902239,
+      "median": 1.7971758818236229e-09,
+      "p95": 4.7886423008760515e-05,
+      "p99": 0.0003243624846104543
+    },
+    "legacy_vs_transported_correction_m": {
+      "count": 2411,
+      "max": 0.005423808355902239,
+      "median": 1.7971758818236229e-09,
+      "p95": 4.7886423008760515e-05,
+      "p99": 0.0003243624846104543
+    },
+    "outer_faces_exact_boundary_tets": 4777,
+    "outer_faces_unique_skin_material_tets": 4777,
+    "source_offset_m": {
+      "count": 2411,
+      "max": 0.011597999881430303,
+      "median": 6.720007398888609e-08,
+      "p95": 0.0012635319530984563,
+      "p99": 0.002931145168176182
+    }
+  },
+  "classification": "bounded_anchor_level_transport_experiment_no_harmonic_rerun_no_NHSKIN_mutation_no_admission",
+  "frame": {
+    "AP_vs_repair_reference_max_m": 6.064084820716452e-08,
+    "common_rigid_rotation": [
+      [
+        0.9999919579254425,
+        0.004010091058458769,
+        -5.704509512336146e-05
+      ],
+      [
+        1.2464988393676784e-05,
+        0.011116127222207376,
+        0.999938213871339
+      ],
+      [
+        0.004010477410991484,
+        -0.9999301730047366,
+        0.011115987839744962
+      ]
+    ],
+    "common_rigid_translation_m": [
+      -0.0006683030606407792,
+      -2.152077192044122,
+      0.27292564606876923
+    ],
+    "saved_delta_axis_conversion": "D36 row vectors rotate by R.T into AP before comparison"
+  },
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-039/iteration-005/candidate.npz": "72f9a409ca1eb067c9667e9c150963e4b8638848be50451b81a41463025fba38",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-039/iteration-005/repair-input.npz": "c322e0c19696edc3ff0fe91f390b97ea98ba7d65469f70d4274ac7487eb080b8",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/current-294-skin-displacement-prolongation-001/run-002/prolongation.npz": "0d9b78169dc3282259401f42f064ed8e1a12a5e0362cf80291d91f3dc6ac8ac4",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-024-final080-candidate-source-frames-001/native-source-only-024/common-rigid-transfer-row-diagnostic-005.json": "caf9a865dc329dc8fbe9f45aee27872514e6768654ff6e1cd725d67cf51bedae",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/embedding.csv": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/faces.csv": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/nodes.csv": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/native-step-001/registered-skin.csv": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327"
+  },
+  "limitations": [
+    "This tests co-deforming the existing coarse-to-detail source offset; it does not repair the 294 source correspondence residuals or change the coarse P1 candidate.",
+    "The P1 gradient at a mesh vertex is not unique. The explicitly reported area-weighted incident boundary-cell average is a nodal reconstruction, not a cellwise exact gradient for every detailed transfer row.",
+    "No full 61,950-vertex detail prolongation, harmonic solve, geometry/collision/mass/native/physical gate, or NHSKIN mutation was performed."
+  ],
+  "method": {
+    "gradient": "Exact constant P1 gradient from the unique material-1 tetrahedron incident to each outer O face; for each O vertex use reference-area-weighted average of incident outer-face gradients because vertex gradients are discontinuous.",
+    "owner_observation": "AcceptedFEMSkinTransfer::makeCurrentCoarseBaseline rotates coarse-source rest offsets with donor rigid pose; applyReference adds interpolated coarse world Delta only.",
+    "proposed_equation": "u_detail = u_coarse + (F_P1 - I) * (x_detail_current - x_coarse_baseline_current), so x_detail_new = x_coarse_accepted + F_P1 * offset.",
+    "scope": "2411 exact D36 O-to-294 direct/bary source anchors only; no extension to other detailed vertices and no re-solve of the harmonic prolongation."
+  },
+  "outputs": {
+    "npz": {
+      "path": "/Users/n/Work/294-source-frame-audit-001/p1-transport-039/run-003/anchor-offset-transport.npz",
+      "sha256": "e9456f8ec652024bc5e3c638a10c5fa5e8774e33a74d8cfa6fabe4b936bcd929"
+    }
+  },
+  "runtime": {
+    "hostname": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 0.26545000076293945
+  },
+  "schema": "numi.human.current294-anchor-offset-p1-transport.v1"
+}\n

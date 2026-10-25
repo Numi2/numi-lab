@@ -1,0 +1,309 @@
+{
+  "checks": {
+    "D36_to_AP_placement": {
+      "max_layer_parity_m": {
+        "D": 1.2363561647022014e-07,
+        "I": 1.2306294933653262e-07,
+        "O": 1.242432046475145e-07
+      },
+      "rotation": [
+        [
+          0.9999919579254425,
+          0.004010091058458769,
+          -5.704509512336146e-05
+        ],
+        [
+          1.2464988393676784e-05,
+          0.011116127222207376,
+          0.999938213871339
+        ],
+        [
+          0.004010477410991484,
+          -0.9999301730047366,
+          0.011115987839744962
+        ]
+      ],
+      "translation_m": [
+        -0.0006683030606407792,
+        -2.152077192044122,
+        0.27292564606876923
+      ]
+    },
+    "bary_target_delta_m": {
+      "count": 79,
+      "max": 0.011597999881430303,
+      "median": 0.0012303573354203292,
+      "min": 8.92247261912928e-08,
+      "p95": 0.0069391293451262735,
+      "p99": 0.010691878147079259
+    },
+    "barycentric_anchors": 79,
+    "barycentric_weight_sum_max_error": 2.220446049250313e-16,
+    "changed_OID_nodes": 7233,
+    "detail_vertices": 61950,
+    "direct_anchors": 2332,
+    "direct_target_delta_m": {
+      "count": 2332,
+      "max": 0.0029461638787854493,
+      "median": 6.632147685950169e-08,
+      "min": 2.0876827203011818e-08,
+      "p95": 0.0010915206044128417,
+      "p99": 0.0016199416617630926
+    },
+    "full_weighted_lbs_reconstruction_max_m": 2.251908669110367e-06,
+    "full_weighted_lbs_reconstruction_p95_m": 8.004914505401873e-07,
+    "layer_displacement_parity_m": {
+      "count": 7233,
+      "max": 2.7755575615628914e-17,
+      "median": 0.0,
+      "min": 0.0,
+      "p95": 0.0,
+      "p99": 2.168404344971009e-19
+    },
+    "materials": {
+      "1": {
+        "baseline_abs_volume_m3": 0.0034525709483045628,
+        "baseline_orientation_nonpositive": 0,
+        "baseline_signed_volume_m3": 0.0034525709483045628,
+        "counterfactual_abs_volume_m3": 0.0036048933161522204,
+        "counterfactual_orientation_nonpositive": 206,
+        "counterfactual_quality": {
+          "count": 14316,
+          "max": 0.9420000203327723,
+          "median": 0.17590253495863242,
+          "min": 0.0004269262902805976,
+          "p95": 0.7665341305398983,
+          "p99": 0.8444267691384089
+        },
+        "counterfactual_signed_volume_m3": 0.0034544048897543387,
+        "determinant_ratio": {
+          "count": 14316,
+          "max": 171.08512205228627,
+          "median": 0.9999999872286177,
+          "min": -143.6017765115273,
+          "p95": 1.296037937544632,
+          "p99": 2.3983986929954018
+        },
+        "float32_counterfactual_abs_volume_m3": 0.0036048933479921686,
+        "float32_counterfactual_quality": {
+          "count": 14316,
+          "max": 0.9419977670317217,
+          "median": 0.1759021764903378,
+          "min": 0.00043112249038525734,
+          "p95": 0.7665348489323709,
+          "p99": 0.8444274432171848
+        },
+        "float32_counterfactual_signed_volume_m3": 0.003454404844670878,
+        "float32_determinant_ratio": {
+          "count": 14316,
+          "max": 171.08336211955339,
+          "median": 1.0,
+          "min": -143.60136793272343,
+          "p95": 1.2960378969151003,
+          "p99": 2.3984041041285207
+        },
+        "float32_orientation_nonpositive": 206,
+        "tet_count": 14316
+      },
+      "2": {
+        "baseline_abs_volume_m3": 0.011652342870565699,
+        "baseline_orientation_nonpositive": 0,
+        "baseline_signed_volume_m3": 0.011652342870565699,
+        "counterfactual_abs_volume_m3": 0.011726593065393106,
+        "counterfactual_orientation_nonpositive": 251,
+        "counterfactual_quality": {
+          "count": 14316,
+          "max": 0.9476739556430465,
+          "median": 0.2958647750032476,
+          "min": 0.0006159687947496537,
+          "p95": 0.6772731182310032,
+          "p99": 0.8033022173876625
+        },
+        "counterfactual_signed_volume_m3": 0.011658970071713034,
+        "determinant_ratio": {
+          "count": 14316,
+          "max": 1080.990389006429,
+          "median": 0.9999999878932248,
+          "min": -1603.0301538085907,
+          "p95": 1.3497155830113432,
+          "p99": 2.410185709661481
+        },
+        "float32_counterfactual_abs_volume_m3": 0.011726593179750666,
+        "float32_counterfactual_quality": {
+          "count": 14316,
+          "max": 0.9476714193883042,
+          "median": 0.2958643701210673,
+          "min": 0.0006194839003496977,
+          "p95": 0.6772733333848786,
+          "p99": 0.8033018454389709
+        },
+        "float32_counterfactual_signed_volume_m3": 0.011658970180233895,
+        "float32_determinant_ratio": {
+          "count": 14316,
+          "max": 1080.9585381201841,
+          "median": 1.0,
+          "min": -1603.025147940134,
+          "p95": 1.3497217927488596,
+          "p99": 2.410185485693938
+        },
+        "float32_orientation_nonpositive": 251,
+        "tet_count": 14316
+      }
+    },
+    "target_delta_m": {
+      "count": 2411,
+      "max": 0.011597999881430303,
+      "median": 6.720007398888609e-08,
+      "min": 2.0876827203011818e-08,
+      "p95": 0.0012635319530984563,
+      "p99": 0.002931145168176182
+    },
+    "thickness_m": {
+      "baseline_fat": {
+        "count": 2411,
+        "max": 0.009933762505155314,
+        "median": 0.009818526039404736,
+        "min": 0.0005050744682764339,
+        "p95": 0.009901970314253281,
+        "p99": 0.009903232790189212
+      },
+      "baseline_skin": {
+        "count": 2411,
+        "max": 0.002499801122454758,
+        "median": 0.002450779207380451,
+        "min": 0.0005002264353692146,
+        "p95": 0.0024517600133718317,
+        "p99": 0.0024535425420385616
+      },
+      "counterfactual_fat": {
+        "count": 2411,
+        "max": 0.009933762505155314,
+        "median": 0.009818526039404736,
+        "min": 0.0005050744682764339,
+        "p95": 0.009901970314253281,
+        "p99": 0.009903232790189212
+      },
+      "counterfactual_skin": {
+        "count": 2411,
+        "max": 0.002499801122454758,
+        "median": 0.002450779207380451,
+        "min": 0.0005002264353692146,
+        "p95": 0.0024517600133718317,
+        "p99": 0.0024535425420385616
+      },
+      "fat_change_m": {
+        "count": 2411,
+        "max": 6.938893903907228e-18,
+        "median": 0.0,
+        "min": -6.938893903907228e-18,
+        "p95": 0.0,
+        "p99": 0.0
+      },
+      "float32_counterfactual_fat": {
+        "count": 2411,
+        "max": 0.0099337627098512,
+        "median": 0.009818526039404736,
+        "min": 0.0005050744682764339,
+        "p95": 0.009901970314253281,
+        "p99": 0.009903232790189212
+      },
+      "float32_counterfactual_skin": {
+        "count": 2411,
+        "max": 0.002499801122454758,
+        "median": 0.002450779207380451,
+        "min": 0.0005002264353692146,
+        "p95": 0.0024517600133718317,
+        "p99": 0.0024535425420385616
+      },
+      "skin_change_m": {
+        "count": 2411,
+        "max": 1.5178830414797062e-17,
+        "median": 0.0,
+        "min": -6.071532165918825e-18,
+        "p95": 0.0,
+        "p99": 0.0
+      },
+      "source_metadata_fat": {
+        "count": 2411,
+        "max": 0.009933773113702658,
+        "median": 0.009818523061855315,
+        "min": 0.0005050804237096453,
+        "p95": 0.009901977043404866,
+        "p99": 0.00990323101842694
+      },
+      "source_metadata_skin": {
+        "count": 2411,
+        "max": 0.0024998107482138644,
+        "median": 0.0024507803677068308,
+        "min": 0.0005002063838721457,
+        "p95": 0.0024517572432181216,
+        "p99": 0.0024535439772274724
+      }
+    },
+    "unique_bary_source_faces": 79,
+    "whole_mesh": {
+      "baseline_quality": {
+        "count": 28632,
+        "max": 0.9817481355484435,
+        "median": 0.2458697161204602,
+        "min": 0.002069086691075745,
+        "p95": 0.7459462074828539,
+        "p99": 0.8403399089805681
+      },
+      "baseline_signed_det_min": 2.8270609957271546e-12,
+      "counterfactual_nonpositive_det_count": 457,
+      "counterfactual_quality": {
+        "count": 28632,
+        "max": 0.9476739556430465,
+        "median": 0.24257197919669354,
+        "min": 0.0004269262902805976,
+        "p95": 0.7390656613869317,
+        "p99": 0.83051435073103
+      },
+      "counterfactual_quality_below_1e-5": 0,
+      "counterfactual_signed_det_min": -2.1082205517480962e-05,
+      "float32_counterfactual_nonpositive_det_count": 457,
+      "float32_counterfactual_quality": {
+        "count": 28632,
+        "max": 0.9476714193883042,
+        "median": 0.242571734269233,
+        "min": 0.00043112249038525734,
+        "p95": 0.7390651170986383,
+        "p99": 0.830513905088888
+      },
+      "float32_quality_below_1e-5": 0,
+      "tet_count": 28632
+    }
+  },
+  "classification": "single_geometry_counterfactual_only_no_harmonic_solve_no_render_promotion_no_NHSKIN_mutation",
+  "construction": "For every O row, map the current native 294 detailed position through exact direct or barycentric D36 ancestry and the pinned rigid placement into AP frame. Compute delta=target_AP-original_AP_O, then add that same delta to corresponding O, I, and D nodes for all 2411 columns.",
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-024-final080-candidate-source-frames-001/native-source-only-024/common-rigid-transfer-row-diagnostic-005.json": "caf9a865dc329dc8fbe9f45aee27872514e6768654ff6e1cd725d67cf51bedae",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/embedding.csv": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/nodes.csv": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/native-step-001/registered-skin.csv": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/final074-neutral-reference-002/body-frames.json": "0abeef83c47ffcf304ef62be9321ed6d0169d942f3c20c05dd94e4df59c15db8"
+  },
+  "limitations": [
+    "This applies one exact-ancestry outer-source correction uniformly to each column's O/I/D nodes; it is a counterfactual, not a fitted or admitted mesh.",
+    "The 79 barycentric source anchors use the frozen source-face IDs and weights; their source-to-O residuals can be large and are not hidden.",
+    "No bone/tissue collision, boundary continuity, anatomy, mass remap, FEM response, native runtime, or physical acceptance gate was run.",
+    "Float32 metrics model coordinate rounding only and do not establish ABI serialization or downstream runtime parity."
+  ],
+  "outputs": {
+    "npz": {
+      "path": "/Users/n/Work/294-source-frame-audit-001/reference-fit-layer-counterfactual-001/run-001/whole-layer-reference-fit.npz",
+      "sha256": "ac66cfd7a1f3139e8f63030c4889fb83000dab701700dc120bc3bbc69f6867d0"
+    }
+  },
+  "runtime": {
+    "hostname": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 0.2563199996948242
+  },
+  "schema": "numi.human.current294-whole-layer-reference-fit-counterfactual.v1",
+  "source_position_semantics": "native registered-skin.csv world positions are checked against full ABI5 86-binding weighted LBS reconstruction using pinned body poses; reported anchors are composed by source vertex or source face barycentrics, then AP placement."
+}

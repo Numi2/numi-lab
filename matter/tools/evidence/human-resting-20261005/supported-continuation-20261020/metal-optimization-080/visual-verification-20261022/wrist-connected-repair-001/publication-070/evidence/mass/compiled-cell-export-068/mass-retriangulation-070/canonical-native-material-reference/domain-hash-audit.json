@@ -1,0 +1,54 @@
+{
+  "domain_hashes": {
+    "canonical_native_material_reference_points_f64_sha256": "94a8d69873b61ab88b44dbccbd01a496f0bdd6857e949cb65edbf087de046d17",
+    "emitted_current_points_f32_sha256": "854c7b973a366f5a82fa9b7229676dd051c05a998249f05ad8315e056485442a",
+    "emitted_reference_points_f32_sha256": "854c7b973a366f5a82fa9b7229676dd051c05a998249f05ad8315e056485442a",
+    "original_native_rest_points_f32_sha256": "4304020368dc52c4cf24bf1ba9f2fd9a050088ca46235abafec27af4d1f6aa62"
+  },
+  "limitations": [
+    "Canonical material preimage is an ancestry construction from original native F32 rest points promoted to F64; it is distinct from emitted F32 reference/current geometry.",
+    "Strict boundary closure was measured in the material-reference preimage. Emitted F32 geometry remains subject to its own strict material-boundary/contact and native checks.",
+    "Compiled source cells do not contain anatomical donor-region IDs; no per-region donor ledger or physical admission is claimed."
+  ],
+  "parent_mass_csr": {
+    "changed_child_coverage_max_error": 7.918110611626616e-13,
+    "changed_parent_coverage_max_error": 2.2521984277545926e-12,
+    "child_count": 37935,
+    "cross_material_overlap_entries": 0,
+    "max_child_mass_reconstruction_error_kg": 0.0,
+    "max_parent_fraction_closure_error": 4.772996486934744e-08,
+    "parent_count": 28632,
+    "status": "bounded_material_reference_parent_transfer_audit",
+    "total_mass_kg": 13.939679738153739
+  },
+  "pins": {
+    "native_nodes_csv_sha256": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+    "native_parent_ledger_sha256": "ef276f8bd6348b333d6fc8ad76d869c3ea723e1ab89d6f149fa34b778ce1056e",
+    "native_tets_csv_sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "refinement_candidate_sha256": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+    "transfer_csr_sha256": "cab4f2e04173c53de694fe47c6f721adbe6675fc0318e3090192fca983aad56e",
+    "transfer_report_sha256": "39901792127afd0d123eff72674664e63305e4ccd8ba38c495995176cb82962c",
+    "transfer_script_sha256": "6247419fcc2ce4c396306ee358edaf8b666b47afef1702a87853440a877919bd"
+  },
+  "schema": "numi.material-domain-hash-audit-070.v1",
+  "scope": "independent ancestry reconstruction and parent-ledger CSR arithmetic check; no geometry or native admission",
+  "source_ancestry_reconstruction": {
+    "definition": "Original compiled F32 rest positions promoted exactly to F64, weighted by run-006 source ancestry CSR keyed by original global node ID.",
+    "max_abs_reconstruction_error_m": 0.0,
+    "max_new_node_emission_offset_m": 6.188917057900187e-08,
+    "max_source_weight_row_sum_error": 0.0,
+    "p50_new_node_emission_offset_m": 7.679882693323606e-09,
+    "p95_new_node_emission_offset_m": 6.006850114687196e-08,
+    "rows": 9320
+  },
+  "volume_and_quality_domains": {
+    "emitted_reference_min_q_from_asrun_report": 1.3677444096974807e-05,
+    "emitted_reference_min_signed_volume_m3": 4.711768326211924e-13,
+    "emitted_vs_material_total_relative_volume_drift": 6.089149184873577e-09,
+    "material_preimage_relative_volume_drift": 2.220446049250313e-16,
+    "max_per_child_emitted_vs_material_relative_volume_difference": 0.028868063744235905,
+    "native_material_preimage_volume_m3": 0.01510491381887026,
+    "refined_emitted_f32_reference_volume_m3": 0.015104913910846337,
+    "refined_material_preimage_volume_m3": 0.015104913818870263
+  }
+}

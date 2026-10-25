@@ -97,6 +97,7 @@
 #include <iostream>
 #include <limits>
 #include <map>
+#include <set>
 #include <memory>
 #include <numbers>
 #include <numeric>
@@ -25333,6 +25334,39 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     }
     require(massNodes.size()==totalNodeCount,
             "resting fascia/ACL/skin-fat/aortic/organ/optic-nerve mass map does not cover every compiled FEM node");
+
+    // Keep one node/frame row per compiled FEM node, and build a separate
+    // source-mass ledger. Legacy tissues contribute one row; reconstructed
+    // volume tissues may split a node's mass across several original donors.
+    std::vector<metalrobo::NumiHumanTissueMassContribution> massContributions;
+    const auto appendContributions=[&](const auto& prepared){
+        massContributions.insert(massContributions.end(),prepared.donorMassContributions.begin(),
+                                 prepared.donorMassContributions.end());
+    };
+    if(skin!=nullptr)appendContributions(preparedSkin);
+    if(includeProstate)appendContributions(preparedProstate);
+    for(const auto& organ:preparedOrganBatch)appendContributions(organ);
+    if(includeOpticNerves){appendContributions(preparedLeftOpticNerve);appendContributions(preparedRightOpticNerve);}
+    std::map<std::uint32_t,double> massByNode,explicitContributionMassByNode;
+    for(const auto& node:massNodes)
+        require(massByNode.emplace(node.nodeIndex,node.massKg).second,
+                "physical FEM mass/frame map repeats a node index");
+    for(const auto& contribution:massContributions){
+        require(massByNode.contains(contribution.nodeIndex),
+                "explicit source-mass contribution references an absent FEM node");
+        explicitContributionMassByNode[contribution.nodeIndex]+=contribution.massKg;
+    }
+    for(const auto& node:massNodes){
+        const auto explicitIt=explicitContributionMassByNode.find(node.nodeIndex);
+        if(explicitIt==explicitContributionMassByNode.end()){
+            massContributions.push_back({node.nodeIndex,node.donorBody,node.massKg,node.localPosition});
+        }else{
+            require(std::isfinite(explicitIt->second)&&
+                        std::abs(explicitIt->second-node.massKg)<=
+                            1e-9*std::max({std::abs(explicitIt->second),std::abs(node.massKg),1e-12}),
+                    "explicit source contributions do not close the physical FEM node mass");
+        }
+    }
     double initialPhysicalMass=0.0; for(const auto& b:model.bodies)initialPhysicalMass+=b.massAndInverseMass.x;
     std::vector<std::array<double,3>> wholeBodyReferenceOffsets(model.bodies.size());
     if(enableWholeBodySkinFat) {
@@ -25343,7 +25377,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         for(const auto& joint:model.joints)if(joint.childBody<parent.size())parent[joint.childBody]=joint.parentBody;
         const auto pose=std::span<const MRBodyStateGPU>(bodies);
         std::size_t rerouted=0u;double reroutedMass=0.0;
-        for(auto& node:massNodes) {
+        for(auto& node:massContributions) {
             const auto original=node.donorBody;auto donor=original;
             for(std::size_t depth=0;depth<model.bodies.size();++depth) {
                 require(donor<model.bodies.size(),"whole-body tissue has no dynamic mass ancestor");
@@ -25374,12 +25408,15 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             }
             for(const auto& n:massNodes)out<<"node "<<n.nodeIndex<<" "<<n.donorBody<<" "<<n.massKg<<" "
                 <<n.localPosition[0]<<" "<<n.localPosition[1]<<" "<<n.localPosition[2]<<"\n";
+            for(const auto& c:massContributions)out<<"source "<<c.nodeIndex<<" "<<c.donorBody<<" "<<c.massKg<<" "
+                <<c.localPosition[0]<<" "<<c.localPosition[1]<<" "<<c.localPosition[2]<<"\n";
             require(bool(out),"tissue mass preparation dump write failed");
         }
-        auto reference=metalrobo::human::prepareWholeBodyMassReference(model,massNodes);
+        auto reference=metalrobo::human::prepareWholeBodyMassReference(model,massNodes,massContributions);
         require(reference.succeeded(),"whole-body inferred mass reference rejected: "+reference.error);
         wholeBodyReferenceOffsets=std::move(reference.offsets);
         model=std::move(reference.model);massNodes=std::move(reference.nodes);
+        massContributions=std::move(reference.contributions);
         std::cout<<"whole_body_tissue_mass_reference=inferred"
             <<" original_total_kg="<<reference.originalMassKg<<" cooked_tissue_kg="<<reference.tissueMassKg
             <<" residual_rigid_scale="<<reference.residualScale
@@ -25388,10 +25425,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             <<" geometry_and_force_owners=unchanged"
             <<" reference=global_mass_budget_with_cooked_tissue_moments_not_measured_subject"<<std::endl;
     }
-    const auto mass=metalrobo::compileNumiHumanTissueMassPartition(model.bodies,massNodes);
+    const auto mass=metalrobo::compileNumiHumanTissueMassPartition(model.bodies,massNodes,massContributions);
     if(!mass.succeeded()) {
         std::map<std::uint32_t,std::vector<metalrobo::NumiHumanTissueMassNode>> diagnosticDonors;
-        for(const auto& node:massNodes)diagnosticDonors[node.donorBody].push_back(node);
+        std::uint32_t diagnosticRow=0u;
+        for(const auto& contribution:massContributions)
+            diagnosticDonors[contribution.donorBody].push_back({diagnosticRow++,contribution.donorBody,
+                contribution.massKg,contribution.localPosition});
         for(const auto& [donor,donorNodes]:diagnosticDonors) {
             const auto check=metalrobo::compileNumiHumanTissueMassPartition(model.bodies,donorNodes);
             if(check.succeeded())continue;

@@ -1,0 +1,11 @@
+test_face_area_and_normal (test_connected_interior_reference_fit.ConnectedInteriorFitTests.test_face_area_and_normal) ... ok
+test_fixed_boundary_gradient_extension_transports_constant_shift (test_connected_interior_reference_fit.ConnectedInteriorFitTests.test_fixed_boundary_gradient_extension_transports_constant_shift) ... ok
+test_tet_quality_and_orientation (test_connected_interior_reference_fit.ConnectedInteriorFitTests.test_tet_quality_and_orientation) ... ok
+test_all_hexagon_triangulations_preserve_directed_boundary (test_retriangulate_outer_target_patches.RetriangulationTests.test_all_hexagon_triangulations_preserve_directed_boundary) ... ok
+test_hexagon_has_fourteen_unique_triangulations (test_retriangulate_outer_target_patches.RetriangulationTests.test_hexagon_has_fourteen_unique_triangulations) ... ok
+test_point_triangle_distance_inside_and_outside (test_retriangulate_outer_target_patches.RetriangulationTests.test_point_triangle_distance_inside_and_outside) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.067s
+
+OK

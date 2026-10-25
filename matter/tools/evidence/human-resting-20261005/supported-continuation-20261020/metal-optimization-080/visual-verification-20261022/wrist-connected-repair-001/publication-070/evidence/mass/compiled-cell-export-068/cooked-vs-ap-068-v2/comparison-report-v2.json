@@ -1,0 +1,671 @@
+{
+  "compiled": {
+    "active_cell_count": 28632,
+    "all_rows_active": true,
+    "authored_material_equals_compiled_material": true,
+    "compiled_global_tet_range": [
+      3315,
+      31946
+    ],
+    "material_density_table": {
+      "15": {
+        "active_tets": 14316,
+        "authored_material_ids": [
+          15
+        ],
+        "bulk_x_decimal": 1000.0000610351562,
+        "bulk_x_f32_hex": "0x447a0001",
+        "cooked_volume_m3": 0.003452570947980847,
+        "mass_kg": 3.4525711587090546
+      },
+      "16": {
+        "active_tets": 14316,
+        "authored_material_ids": [
+          16
+        ],
+        "bulk_x_decimal": 900.0,
+        "bulk_x_f32_hex": "0x44610000",
+        "cooked_volume_m3": 0.011652342866067665,
+        "mass_kg": 10.487108579460898
+      }
+    },
+    "source_nodes_equal_global_local_nodes": true,
+    "source_rows_identity": true
+  },
+  "connectivity": {
+    "AP_rows": 28632,
+    "AP_unmatched_rows": [
+      11787,
+      11788,
+      11789,
+      11884,
+      11885,
+      14310,
+      14311,
+      26103,
+      26104,
+      26105,
+      26200,
+      26201,
+      28626,
+      28627
+    ],
+    "AP_unmatched_witnesses": [
+      {
+        "ap_row": 11787,
+        "changed_tet_row": true,
+        "material": 1,
+        "nodes": [
+          2262,
+          2245,
+          2261,
+          4672
+        ]
+      },
+      {
+        "ap_row": 11788,
+        "changed_tet_row": true,
+        "material": 1,
+        "nodes": [
+          2245,
+          2262,
+          4656,
+          4672
+        ]
+      },
+      {
+        "ap_row": 11789,
+        "changed_tet_row": true,
+        "material": 1,
+        "nodes": [
+          2262,
+          4673,
+          4656,
+          4672
+        ]
+      },
+      {
+        "ap_row": 11884,
+        "changed_tet_row": true,
+        "material": 1,
+        "nodes": [
+          2261,
+          2262,
+          4672,
+          4693
+        ]
+      },
+      {
+        "ap_row": 11885,
+        "changed_tet_row": true,
+        "material": 1,
+        "nodes": [
+          2262,
+          4673,
+          4672,
+          4693
+        ]
+      },
+      {
+        "ap_row": 14310,
+        "changed_tet_row": true,
+        "material": 1,
+        "nodes": [
+          2262,
+          2238,
+          2245,
+          4656
+        ]
+      },
+      {
+        "ap_row": 14311,
+        "changed_tet_row": true,
+        "material": 1,
+        "nodes": [
+          2238,
+          2262,
+          4673,
+          4656
+        ]
+      },
+      {
+        "ap_row": 26103,
+        "changed_tet_row": true,
+        "material": 2,
+        "nodes": [
+          4673,
+          4656,
+          4672,
+          7083
+        ]
+      },
+      {
+        "ap_row": 26104,
+        "changed_tet_row": true,
+        "material": 2,
+        "nodes": [
+          4656,
+          4673,
+          7067,
+          7083
+        ]
+      },
+      {
+        "ap_row": 26105,
+        "changed_tet_row": true,
+        "material": 2,
+        "nodes": [
+          4673,
+          7084,
+          7067,
+          7083
+        ]
+      },
+      {
+        "ap_row": 26200,
+        "changed_tet_row": true,
+        "material": 2,
+        "nodes": [
+          4672,
+          4673,
+          7083,
+          7104
+        ]
+      },
+      {
+        "ap_row": 26201,
+        "changed_tet_row": true,
+        "material": 2,
+        "nodes": [
+          4673,
+          7084,
+          7083,
+          7104
+        ]
+      },
+      {
+        "ap_row": 28626,
+        "changed_tet_row": true,
+        "material": 2,
+        "nodes": [
+          4673,
+          4649,
+          4656,
+          7067
+        ]
+      },
+      {
+        "ap_row": 28627,
+        "changed_tet_row": true,
+        "material": 2,
+        "nodes": [
+          4649,
+          4673,
+          7084,
+          7067
+        ]
+      }
+    ],
+    "compiled_rows": 28632,
+    "compiled_unmatched_rows": [
+      11787,
+      11788,
+      11789,
+      11884,
+      11885,
+      14310,
+      14311,
+      26103,
+      26104,
+      26105,
+      26200,
+      26201,
+      28626,
+      28627
+    ],
+    "compiled_unmatched_witnesses": [
+      {
+        "compiled_row": 11787,
+        "material": 15,
+        "nodes_global": [
+          3911,
+          3927,
+          3928,
+          6339
+        ],
+        "nodes_local": [
+          2245,
+          2261,
+          2262,
+          4673
+        ],
+        "source_row": 11787
+      },
+      {
+        "compiled_row": 11788,
+        "material": 15,
+        "nodes_global": [
+          3927,
+          3911,
+          6338,
+          6339
+        ],
+        "nodes_local": [
+          2261,
+          2245,
+          4672,
+          4673
+        ],
+        "source_row": 11788
+      },
+      {
+        "compiled_row": 11789,
+        "material": 15,
+        "nodes_global": [
+          3911,
+          6322,
+          6338,
+          6339
+        ],
+        "nodes_local": [
+          2245,
+          4656,
+          4672,
+          4673
+        ],
+        "source_row": 11789
+      },
+      {
+        "compiled_row": 11884,
+        "material": 15,
+        "nodes_global": [
+          3927,
+          3928,
+          6339,
+          6359
+        ],
+        "nodes_local": [
+          2261,
+          2262,
+          4673,
+          4693
+        ],
+        "source_row": 11884
+      },
+      {
+        "compiled_row": 11885,
+        "material": 15,
+        "nodes_global": [
+          6338,
+          3927,
+          6339,
+          6359
+        ],
+        "nodes_local": [
+          4672,
+          2261,
+          4673,
+          4693
+        ],
+        "source_row": 11885
+      },
+      {
+        "compiled_row": 14310,
+        "material": 15,
+        "nodes_global": [
+          3904,
+          3911,
+          3928,
+          6339
+        ],
+        "nodes_local": [
+          2238,
+          2245,
+          2262,
+          4673
+        ],
+        "source_row": 14310
+      },
+      {
+        "compiled_row": 14311,
+        "material": 15,
+        "nodes_global": [
+          3911,
+          3904,
+          6322,
+          6339
+        ],
+        "nodes_local": [
+          2245,
+          2238,
+          4656,
+          4673
+        ],
+        "source_row": 14311
+      },
+      {
+        "compiled_row": 26103,
+        "material": 16,
+        "nodes_global": [
+          6322,
+          6338,
+          6339,
+          8750
+        ],
+        "nodes_local": [
+          4656,
+          4672,
+          4673,
+          7084
+        ],
+        "source_row": 26103
+      },
+      {
+        "compiled_row": 26104,
+        "material": 16,
+        "nodes_global": [
+          6338,
+          6322,
+          8749,
+          8750
+        ],
+        "nodes_local": [
+          4672,
+          4656,
+          7083,
+          7084
+        ],
+        "source_row": 26104
+      },
+      {
+        "compiled_row": 26105,
+        "material": 16,
+        "nodes_global": [
+          6322,
+          8733,
+          8749,
+          8750
+        ],
+        "nodes_local": [
+          4656,
+          7067,
+          7083,
+          7084
+        ],
+        "source_row": 26105
+      },
+      {
+        "compiled_row": 26200,
+        "material": 16,
+        "nodes_global": [
+          6338,
+          6339,
+          8750,
+          8770
+        ],
+        "nodes_local": [
+          4672,
+          4673,
+          7084,
+          7104
+        ],
+        "source_row": 26200
+      },
+      {
+        "compiled_row": 26201,
+        "material": 16,
+        "nodes_global": [
+          8749,
+          6338,
+          8750,
+          8770
+        ],
+        "nodes_local": [
+          7083,
+          4672,
+          7084,
+          7104
+        ],
+        "source_row": 26201
+      },
+      {
+        "compiled_row": 28626,
+        "material": 16,
+        "nodes_global": [
+          6315,
+          6322,
+          6339,
+          8750
+        ],
+        "nodes_local": [
+          4649,
+          4656,
+          4673,
+          7084
+        ],
+        "source_row": 28626
+      },
+      {
+        "compiled_row": 28627,
+        "material": 16,
+        "nodes_global": [
+          6322,
+          6315,
+          8733,
+          8750
+        ],
+        "nodes_local": [
+          4656,
+          4649,
+          7067,
+          7084
+        ],
+        "source_row": 28627
+      }
+    ],
+    "matched_exact_unordered_node_sets": 28618,
+    "material_crosswalk_from_exactmatchedcells": {
+      "1": 15,
+      "2": 16
+    },
+    "old_candidate_topology": {
+      "compiled_unmatched": 0,
+      "matched": 28632,
+      "old_candidate_unmatched": 0,
+      "ordered_equal": true
+    },
+    "ordered_tet_rows_equal": false
+  },
+  "native_recipe": "The compiled node mass is rebuilt as sum over active cooked tet corners of bulk.x * inverseRestRow0.w / 4, accumulated in F64 then cast to F32. AP fit comparison uses the actual 030 source-preflight-006 initial-skin-fem-nodes.csv points, matching the 033 producer script; it does not use candidate.npz points_world_f32.",
+  "nodal_mass": {
+    "AP_T_difference_witnesses_top20": [
+      {
+        "ap_mass_kg": 0.000697047624271363,
+        "compiled_mass_kg": 0.0005330925923772156,
+        "delta_g": 0.1639550318941474,
+        "global_node": 8733,
+        "local_node": 7067
+      },
+      {
+        "ap_mass_kg": 0.0006988290697336197,
+        "compiled_mass_kg": 0.0008302970672957599,
+        "delta_g": -0.13146799756214023,
+        "global_node": 6322,
+        "local_node": 4656
+      },
+      {
+        "ap_mass_kg": 0.0005026659928262234,
+        "compiled_mass_kg": 0.0004206504672765732,
+        "delta_g": 0.08201552554965019,
+        "global_node": 8749,
+        "local_node": 7083
+      },
+      {
+        "ap_mass_kg": 0.0007317594136111438,
+        "compiled_mass_kg": 0.0008135464740917087,
+        "delta_g": -0.08178706048056483,
+        "global_node": 8750,
+        "local_node": 7084
+      },
+      {
+        "ap_mass_kg": 0.00077168142888695,
+        "compiled_mass_kg": 0.0008152060909196734,
+        "delta_g": -0.04352466203272343,
+        "global_node": 6338,
+        "local_node": 4672
+      },
+      {
+        "ap_mass_kg": 0.0007881003548391163,
+        "compiled_mass_kg": 0.0007623404962942004,
+        "delta_g": 0.025759858544915915,
+        "global_node": 6339,
+        "local_node": 4673
+      },
+      {
+        "ap_mass_kg": 0.00012161080667283386,
+        "compiled_mass_kg": 0.00014099609688855708,
+        "delta_g": -0.019385290215723217,
+        "global_node": 3911,
+        "local_node": 2245
+      },
+      {
+        "ap_mass_kg": 9.875009709503502e-05,
+        "compiled_mass_kg": 8.309237455250695e-05,
+        "delta_g": 0.015657722542528063,
+        "global_node": 3928,
+        "local_node": 2262
+      },
+      {
+        "ap_mass_kg": 0.00014736680896021426,
+        "compiled_mass_kg": 0.00015786364383529872,
+        "delta_g": -0.01049683487508446,
+        "global_node": 3927,
+        "local_node": 2261
+      },
+      {
+        "ap_mass_kg": 0.000600842759013176,
+        "compiled_mass_kg": 0.0006024044123478234,
+        "delta_g": -0.001561653334647417,
+        "global_node": 8770,
+        "local_node": 7104
+      },
+      {
+        "ap_mass_kg": 0.0005641625029966235,
+        "compiled_mass_kg": 0.0005633373511955142,
+        "delta_g": 0.000825151801109314,
+        "global_node": 6315,
+        "local_node": 4649
+      },
+      {
+        "ap_mass_kg": 0.0001188194946735166,
+        "compiled_mass_kg": 0.00011879309022333473,
+        "delta_g": 2.6404450181871653e-05,
+        "global_node": 3904,
+        "local_node": 2238
+      },
+      {
+        "ap_mass_kg": 0.0015492610400542617,
+        "compiled_mass_kg": 0.0015492772217839956,
+        "delta_g": -1.618172973394394e-05,
+        "global_node": 6359,
+        "local_node": 4693
+      },
+      {
+        "ap_mass_kg": 0.041566167026758194,
+        "compiled_mass_kg": 0.041566163301467896,
+        "delta_g": 3.725290298461914e-06,
+        "global_node": 5862,
+        "local_node": 4196
+      },
+      {
+        "ap_mass_kg": 0.015682891011238098,
+        "compiled_mass_kg": 0.015682892873883247,
+        "delta_g": -1.862645149230957e-06,
+        "global_node": 4780,
+        "local_node": 3114
+      },
+      {
+        "ap_mass_kg": 0.018208937719464302,
+        "compiled_mass_kg": 0.018208935856819153,
+        "delta_g": 1.862645149230957e-06,
+        "global_node": 4787,
+        "local_node": 3121
+      },
+      {
+        "ap_mass_kg": 0.018360113725066185,
+        "compiled_mass_kg": 0.018360115587711334,
+        "delta_g": -1.862645149230957e-06,
+        "global_node": 5228,
+        "local_node": 3562
+      },
+      {
+        "ap_mass_kg": 0.017431756481528282,
+        "compiled_mass_kg": 0.017431754618883133,
+        "delta_g": 1.862645149230957e-06,
+        "global_node": 8368,
+        "local_node": 6702
+      },
+      {
+        "ap_mass_kg": 0.02588193118572235,
+        "compiled_mass_kg": 0.025881929323077202,
+        "delta_g": 1.862645149230957e-06,
+        "global_node": 4808,
+        "local_node": 3142
+      },
+      {
+        "ap_mass_kg": 0.01824016496539116,
+        "compiled_mass_kg": 0.01824016310274601,
+        "delta_g": 1.862645149230957e-06,
+        "global_node": 5801,
+        "local_node": 4135
+      }
+    ],
+    "AP_T_plus_actual030F32points_max_node_mass_difference_g": 0.1639550318941474,
+    "AP_T_plus_actual030F32points_nodes_nonzero_difference": 1155,
+    "F64nodal_accum_nonzero_error_count": 0,
+    "F64nodal_accum_then_F32_max_error_g": 0.0,
+    "compiled_nodal_mass_sum_kg": 13.939680099487305,
+    "cooked_cell_corner_contribution_sum_times4_kg": 13.939679738169954,
+    "cooked_cell_rho_times_row0w_sum_kg": 13.939679738169954,
+    "sequential_F32corner_accum_max_error_g": 3.725290298461914e-06
+  },
+  "pins": {
+    "AP_fit_points_csv_sha256": "fc0bd3cbf3269050fc97e341fbb3805eff36ebd1eff0ce5f98bcd85260ec8880",
+    "AP_npz_sha256": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+    "compile_command_sha256": "caaa11b6fe6ca6e1a403668ff3ea15d1baa5d2c2c4733b4ca0a15386bd6fa56c",
+    "compiled_nodes_sha256": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+    "compiled_tets_sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "exporter_binary_sha256": "3aa0053a8d71b1e785acfb5edf2a27bd14b376e81af014db98fae69636637956",
+    "exporter_source_sha256": "6a211071ada0642fe0a994ae8f2bec8c4628d291b0029c8fbd52bcec31d8a4cc",
+    "link_command_sha256": "64bc47c228bbb70dcb81fbc2af54ac7b9382fb0eaae08ae74dd13907864528ab",
+    "runtime_sha256": "b7cba8777b071eb1df0dbdadc24f9a4963eb92b2e85bf1121a97d29328d5c26b"
+  },
+  "point_input": {
+    "all_7233_F32_fit_points_equal_compiled_current_positions": true,
+    "candidate_npz_points_equal_actual_fit_csv": false,
+    "different_rows": 0
+  },
+  "scope": "Read-only comparison: exact active frozen-039 compiled cells/operator and node masses vs AP026 candidate connectivity plus actual AP030 source-preflight-006 F32 fit points. AP NPZ points are only a separate counterfactual; no simulation/native admission.",
+  "volume_mass": {
+    "AP_actual_fit_F32_geometry_volume_by_AP_material_m3": {
+      "1": 0.0034525711089372635,
+      "2": 0.011652342975139618
+    },
+    "AP_candidate_NPZ_points_volume_total_m3_not_used_by_fit": 0.015104914084076881,
+    "AP_current_mass_by_material_kg_using_density_crosswalk": {
+      "1": 3.4525711651683633,
+      "2": 10.48710858089423
+    },
+    "compiled_parent_mass_by_material_kg": {
+      "15": 3.4525711587090546,
+      "16": 10.487108579460898
+    },
+    "compiled_rest_volume_by_material_m3": {
+      "15": 0.003452570947980847,
+      "16": 0.011652342866067665
+    },
+    "compiled_rest_volume_m3": 0.015104913814048512,
+    "matched_cell_count_for_AP_vs_cooked_row0w": 28618,
+    "matched_cell_row0w_vs_AP_F32current_volume_absdiff_max_m3": 4.547473508864641e-12
+  }
+}

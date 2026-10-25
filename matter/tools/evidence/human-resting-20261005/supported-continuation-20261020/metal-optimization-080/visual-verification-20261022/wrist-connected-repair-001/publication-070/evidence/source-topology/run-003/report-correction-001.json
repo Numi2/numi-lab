@@ -1,0 +1,179 @@
+{
+  "checks": {
+    "donor20": {
+      "distinct_anchor_source_vertex_ids": [
+        44179,
+        44754,
+        44765,
+        45304,
+        55368,
+        55386
+      ],
+      "one_ring_detailed_exact_self_pairs": 0,
+      "one_ring_detailed_face_count": 41,
+      "one_ring_detailed_self_pair_witnesses": [],
+      "outer_faces": [
+        {
+          "direct_source_vertex_ids": [
+            44765,
+            44179,
+            55368
+          ],
+          "exact_triangle_exists_in_294": false,
+          "outer_face_id": 3908,
+          "stable_source_face_label": 73814
+        },
+        {
+          "direct_source_vertex_ids": [
+            55368,
+            44179,
+            55386
+          ],
+          "exact_triangle_exists_in_294": false,
+          "outer_face_id": 3910,
+          "stable_source_face_label": 72769
+        },
+        {
+          "direct_source_vertex_ids": [
+            45304,
+            44754,
+            55386
+          ],
+          "exact_triangle_exists_in_294": false,
+          "outer_face_id": 3945,
+          "stable_source_face_label": 74836
+        },
+        {
+          "direct_source_vertex_ids": [
+            44754,
+            55368,
+            55386
+          ],
+          "exact_triangle_exists_in_294": false,
+          "outer_face_id": 3946,
+          "stable_source_face_label": 74833
+        }
+      ]
+    },
+    "donor23": {
+      "distinct_anchor_source_vertex_ids": [
+        31512,
+        32246,
+        32921,
+        32940,
+        32946,
+        32986
+      ],
+      "one_ring_detailed_exact_self_pairs": 0,
+      "one_ring_detailed_face_count": 32,
+      "one_ring_detailed_self_pair_witnesses": [],
+      "outer_faces": [
+        {
+          "direct_source_vertex_ids": [
+            32246,
+            31512,
+            32940
+          ],
+          "exact_triangle_exists_in_294": false,
+          "outer_face_id": 3019,
+          "stable_source_face_label": 104734
+        },
+        {
+          "direct_source_vertex_ids": [
+            31512,
+            32921,
+            32946
+          ],
+          "exact_triangle_exists_in_294": false,
+          "outer_face_id": 3020,
+          "stable_source_face_label": 105136
+        },
+        {
+          "direct_source_vertex_ids": [
+            32940,
+            31512,
+            32946
+          ],
+          "exact_triangle_exists_in_294": false,
+          "outer_face_id": 3021,
+          "stable_source_face_label": 105134
+        },
+        {
+          "direct_source_vertex_ids": [
+            32246,
+            32940,
+            32986
+          ],
+          "exact_triangle_exists_in_294": false,
+          "outer_face_id": 3105,
+          "stable_source_face_label": 104726
+        }
+      ]
+    },
+    "donor99": {
+      "distinct_anchor_source_vertex_ids": [
+        52504,
+        52692,
+        52693,
+        52884,
+        53192,
+        53529
+      ],
+      "one_ring_detailed_exact_self_pairs": 0,
+      "one_ring_detailed_face_count": 39,
+      "one_ring_detailed_self_pair_witnesses": [],
+      "outer_faces": [
+        {
+          "direct_source_vertex_ids": [
+            52504,
+            52692,
+            52884
+          ],
+          "exact_triangle_exists_in_294": false,
+          "outer_face_id": 4682,
+          "stable_source_face_label": 90292
+        },
+        {
+          "direct_source_vertex_ids": [
+            52504,
+            52884,
+            53529
+          ],
+          "exact_triangle_exists_in_294": false,
+          "outer_face_id": 4683,
+          "stable_source_face_label": 90667
+        },
+        {
+          "direct_source_vertex_ids": [
+            52692,
+            52693,
+            53192
+          ],
+          "exact_triangle_exists_in_294": false,
+          "outer_face_id": 4697,
+          "stable_source_face_label": 90687
+        },
+        {
+          "direct_source_vertex_ids": [
+            52884,
+            52692,
+            53192
+          ],
+          "exact_triangle_exists_in_294": false,
+          "outer_face_id": 4698,
+          "stable_source_face_label": 90689
+        }
+      ]
+    }
+  },
+  "inputs": {
+    "detail_current_csv_sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327",
+    "detail_skin_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "outer_npz_sha256": "8e8a88d44b3846105506abdd398b7050f9710a8a2061aa07dc5ded0d75043bd4",
+    "placement_sha256": "caf9a865dc329dc8fbe9f45aee27872514e6768654ff6e1cd725d67cf51bedae"
+  },
+  "interpretation": "The D36 stable_source_face field is not treated as a demonstrated detailed294 face row. Exact direct source-vertex IDs provide verified vertex ancestry. The following only tests exact face-triple identity and local source-star geometry.",
+  "original_report_sha256": "f7dbede0f2d4b3f54a7807a0d119a437d15e5af17b5b132c89751d9633580381",
+  "schema": "numi.human.d36-source-ancestry-report-correction.v1",
+  "supersedes_scope_only": "run-003/report.json ancestry wording; original report bytes are unchanged"
+}

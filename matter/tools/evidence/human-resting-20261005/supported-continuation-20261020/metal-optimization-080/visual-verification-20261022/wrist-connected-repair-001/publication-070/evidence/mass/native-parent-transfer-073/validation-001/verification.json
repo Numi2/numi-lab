@@ -1,0 +1,29 @@
+{
+  "admission": "No current-geometry, bone-clearance, native-emission, or physical/native qualification is implied.",
+  "children": 37935,
+  "map_sha256": "4421ee7534961fa6f85b2fe3c5bde728117a24c43ff69e6250c9498f45b1a55c",
+  "max_child_coverage_relative_error": 7.765722463541501e-12,
+  "max_child_mass_recompute_error_kg": 0.0,
+  "max_parent_coverage_relative_error": 6.12955960219129e-12,
+  "max_parent_fraction_closure_error": 6.129541318955489e-12,
+  "nonzeros": 38105,
+  "parents": 28632,
+  "per_material_density_bounds_pass": true,
+  "per_material_mass_kg": {
+    "15": {
+      "child_mass_kg": 3.4525711587090546,
+      "parent_mass_kg": 3.4525711587090546
+    },
+    "16": {
+      "child_mass_kg": 10.487108579460898,
+      "parent_mass_kg": 10.487108579460898
+    }
+  },
+  "source_export_sha256": {
+    "compiled_nodes": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+    "compiled_tets": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "premerge_contributions": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f"
+  },
+  "source_provenance_rows": 114528,
+  "status": "PASS_ARITHMETIC_AND_CSR_ONLY"
+}

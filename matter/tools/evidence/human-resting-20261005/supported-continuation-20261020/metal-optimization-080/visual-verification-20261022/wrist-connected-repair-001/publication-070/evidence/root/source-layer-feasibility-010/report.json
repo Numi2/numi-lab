@@ -1,0 +1,670 @@
+{
+  "input_sha256": "0feda312f87a58ac8d7f73b9d27d870911d86040396ac0c65c24feeac682ee2b",
+  "fixed_O_face_tets": 4777,
+  "tested_I_nodes": 36,
+  "infeasible_star_nodes": 1,
+  "minimum_altitude_margin_m": -0.0,
+  "results": [
+    {
+      "I_node": 2475,
+      "O_node": 64,
+      "incident_tet_rows": [
+        66,
+        96,
+        135
+      ],
+      "maximum_positive_altitude_m": 0.008918962286942538,
+      "displacement_m": [
+        -0.02,
+        0.02,
+        0.003949157963245631
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 2485,
+      "O_node": 74,
+      "incident_tet_rows": [
+        393,
+        396,
+        432
+      ],
+      "maximum_positive_altitude_m": 0.004858308693714421,
+      "displacement_m": [
+        0.02,
+        -0.02,
+        0.003497755069452877
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 2488,
+      "O_node": 77,
+      "incident_tet_rows": [
+        138,
+        408
+      ],
+      "maximum_positive_altitude_m": 0.0019388810524993288,
+      "displacement_m": [
+        0.02,
+        -0.02,
+        0.002133110931748162
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 2493,
+      "O_node": 82,
+      "incident_tet_rows": [
+        360,
+        411,
+        417,
+        465
+      ],
+      "maximum_positive_altitude_m": 0.007601610820326035,
+      "displacement_m": [
+        -0.02,
+        0.02,
+        -0.00242615142185648
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 2567,
+      "O_node": 156,
+      "incident_tet_rows": [
+        873,
+        876,
+        879,
+        927
+      ],
+      "maximum_positive_altitude_m": 0.012056172062200861,
+      "displacement_m": [
+        0.02,
+        -0.02,
+        0.0060642078259416825
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 2645,
+      "O_node": 234,
+      "incident_tet_rows": [
+        1362
+      ],
+      "maximum_positive_altitude_m": 0.02724680164917315,
+      "displacement_m": [
+        0.02,
+        -0.02,
+        -0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 2683,
+      "O_node": 272,
+      "incident_tet_rows": [
+        1296,
+        1626,
+        1629
+      ],
+      "maximum_positive_altitude_m": 0.016932085242343027,
+      "displacement_m": [
+        0.02,
+        -0.02,
+        0.015186608754857714
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 2719,
+      "O_node": 308,
+      "incident_tet_rows": [
+        1449,
+        1545,
+        1551,
+        1554,
+        1557,
+        1569,
+        1572,
+        1581,
+        1584,
+        1767
+      ],
+      "maximum_positive_altitude_m": 0.0027847159281226943,
+      "displacement_m": [
+        0.01712863948862974,
+        0.02,
+        0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 3086,
+      "O_node": 675,
+      "incident_tet_rows": [
+        4057,
+        4058,
+        4074,
+        4075
+      ],
+      "maximum_positive_altitude_m": 0.013995896443081742,
+      "displacement_m": [
+        -0.0014682605074290503,
+        0.02,
+        -0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 3088,
+      "O_node": 677,
+      "incident_tet_rows": [
+        3934,
+        3935,
+        4022,
+        4023,
+        4063,
+        4064,
+        4080,
+        4081,
+        4082,
+        4083
+      ],
+      "maximum_positive_altitude_m": 0.01554821598161812,
+      "displacement_m": [
+        -0.02,
+        0.02,
+        0.005608301264417038
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 3093,
+      "O_node": 682,
+      "incident_tet_rows": [
+        3731,
+        3734,
+        3735,
+        4007,
+        4008,
+        4009,
+        4010
+      ],
+      "maximum_positive_altitude_m": 0.0005884673687934217,
+      "displacement_m": [
+        0.006384097940714499,
+        0.02,
+        -0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 3176,
+      "O_node": 765,
+      "incident_tet_rows": [
+        4590,
+        4593,
+        4594,
+        4599,
+        4600,
+        4601,
+        4602,
+        4709,
+        4710,
+        4711,
+        4712
+      ],
+      "maximum_positive_altitude_m": 0.02235891956187413,
+      "displacement_m": [
+        0.02,
+        0.02,
+        -0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 3184,
+      "O_node": 773,
+      "incident_tet_rows": [
+        4286,
+        4287,
+        4398,
+        4399
+      ],
+      "maximum_positive_altitude_m": 0.013321245401813451,
+      "displacement_m": [
+        -0.02,
+        0.02,
+        0.01937322337176971
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 3464,
+      "O_node": 1053,
+      "incident_tet_rows": [
+        13032
+      ],
+      "maximum_positive_altitude_m": 0.019631934468459997,
+      "displacement_m": [
+        0.02,
+        -0.02,
+        -0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 3575,
+      "O_node": 1164,
+      "incident_tet_rows": [
+        13308,
+        13323,
+        13356
+      ],
+      "maximum_positive_altitude_m": 0.014443168745432645,
+      "displacement_m": [
+        -0.02,
+        0.02,
+        -0.0018328787461574698
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 3580,
+      "O_node": 1169,
+      "incident_tet_rows": [
+        13419
+      ],
+      "maximum_positive_altitude_m": 0.03070968086561924,
+      "displacement_m": [
+        0.02,
+        -0.02,
+        0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 3656,
+      "O_node": 1245,
+      "incident_tet_rows": [
+        13257,
+        13260,
+        13293,
+        13311,
+        13329,
+        13386,
+        13392,
+        13395,
+        13398,
+        13404,
+        13413,
+        13416,
+        13485,
+        13545,
+        13554
+      ],
+      "maximum_positive_altitude_m": -0.0,
+      "displacement_m": [
+        0.0008606822573850964,
+        0.0010013895722686959,
+        0.002060754945586607
+      ],
+      "no_positive_fixed_outer_star_within_20mm": true
+    },
+    {
+      "I_node": 3658,
+      "O_node": 1247,
+      "incident_tet_rows": [
+        13494,
+        13497,
+        13500,
+        13566,
+        13569,
+        13572,
+        13620,
+        13626
+      ],
+      "maximum_positive_altitude_m": 0.00431560313722912,
+      "displacement_m": [
+        0.007939004307410773,
+        -0.02,
+        -0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 3725,
+      "O_node": 1314,
+      "incident_tet_rows": [
+        6295,
+        6340,
+        6346,
+        6436
+      ],
+      "maximum_positive_altitude_m": 0.001011402507492283,
+      "displacement_m": [
+        0.02,
+        -0.006020956333715486,
+        0.0008791510279670705
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 3840,
+      "O_node": 1429,
+      "incident_tet_rows": [
+        13764,
+        13800,
+        13860,
+        13869
+      ],
+      "maximum_positive_altitude_m": 0.0026481739021500797,
+      "displacement_m": [
+        -0.02,
+        0.02,
+        -0.0028365293724065023
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 3879,
+      "O_node": 1468,
+      "incident_tet_rows": [
+        13851,
+        13854,
+        13893
+      ],
+      "maximum_positive_altitude_m": 0.012813198539032187,
+      "displacement_m": [
+        -0.02,
+        -0.02,
+        -0.004906940938798007
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 3971,
+      "O_node": 1560,
+      "incident_tet_rows": [
+        13950,
+        13983,
+        13995,
+        13998
+      ],
+      "maximum_positive_altitude_m": 0.019480732527594875,
+      "displacement_m": [
+        -0.01385255315699322,
+        -0.02,
+        -0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 3972,
+      "O_node": 1561,
+      "incident_tet_rows": [
+        14037
+      ],
+      "maximum_positive_altitude_m": 0.03217404644726344,
+      "displacement_m": [
+        0.02,
+        -0.02,
+        -0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 4047,
+      "O_node": 1636,
+      "incident_tet_rows": [
+        7834,
+        7969
+      ],
+      "maximum_positive_altitude_m": 0.02313218654825342,
+      "displacement_m": [
+        0.02,
+        0.02,
+        -0.017022580582107143
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 4340,
+      "O_node": 1929,
+      "incident_tet_rows": [
+        9356,
+        9650,
+        9653,
+        9665
+      ],
+      "maximum_positive_altitude_m": 0.025222908879720028,
+      "displacement_m": [
+        0.02,
+        0.02,
+        0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 4438,
+      "O_node": 2027,
+      "incident_tet_rows": [
+        10255,
+        10258,
+        10394,
+        10397
+      ],
+      "maximum_positive_altitude_m": 0.005621894274166521,
+      "displacement_m": [
+        0.02,
+        0.02,
+        0.0046331733125859285
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 4553,
+      "O_node": 2142,
+      "incident_tet_rows": [
+        10264,
+        10265,
+        10266,
+        10267,
+        10276,
+        10277,
+        10278,
+        10279,
+        10288,
+        10289,
+        10290,
+        10291,
+        10463,
+        10464,
+        10489,
+        10490
+      ],
+      "maximum_positive_altitude_m": 0.024820960538279185,
+      "displacement_m": [
+        0.02,
+        0.02,
+        -0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 4627,
+      "O_node": 2216,
+      "incident_tet_rows": [
+        11505,
+        11508,
+        11511
+      ],
+      "maximum_positive_altitude_m": 0.0018182854421809815,
+      "displacement_m": [
+        0.02,
+        -0.02,
+        -0.011230000991563687
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 4703,
+      "O_node": 2292,
+      "incident_tet_rows": [
+        11838,
+        11843,
+        11907,
+        11943
+      ],
+      "maximum_positive_altitude_m": 0.0252982886409062,
+      "displacement_m": [
+        0.02,
+        0.02,
+        0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 4728,
+      "O_node": 2317,
+      "incident_tet_rows": [
+        13905,
+        13908
+      ],
+      "maximum_positive_altitude_m": 0.028740326244994386,
+      "displacement_m": [
+        -0.02,
+        0.02,
+        0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 4733,
+      "O_node": 2322,
+      "incident_tet_rows": [
+        4665,
+        4666,
+        4786,
+        4787,
+        4788,
+        4789,
+        4804,
+        4805,
+        4806,
+        4807,
+        4816,
+        4817
+      ],
+      "maximum_positive_altitude_m": 0.008370749790081962,
+      "displacement_m": [
+        -0.00692406590108186,
+        0.011666831435169504,
+        0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 4734,
+      "O_node": 2323,
+      "incident_tet_rows": [
+        9040,
+        9041,
+        9776,
+        10216,
+        10217,
+        10222
+      ],
+      "maximum_positive_altitude_m": 0.012443635948123194,
+      "displacement_m": [
+        -0.007737339174749717,
+        0.02,
+        0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 4735,
+      "O_node": 2324,
+      "incident_tet_rows": [
+        9004,
+        9005,
+        9006,
+        9007,
+        9016,
+        9017,
+        9018,
+        9019,
+        10034,
+        10035,
+        10040,
+        10041,
+        10133,
+        10134
+      ],
+      "maximum_positive_altitude_m": 0.010689899233587638,
+      "displacement_m": [
+        0.00996384209686496,
+        0.02,
+        0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 4737,
+      "O_node": 2326,
+      "incident_tet_rows": [
+        9359,
+        9542,
+        9545
+      ],
+      "maximum_positive_altitude_m": 0.002379191428256539,
+      "displacement_m": [
+        -0.02,
+        0.02,
+        0.018102427264046015
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 4738,
+      "O_node": 2327,
+      "incident_tet_rows": [
+        9361,
+        9548
+      ],
+      "maximum_positive_altitude_m": 0.00768891353640302,
+      "displacement_m": [
+        -0.02,
+        -0.02,
+        0.018549739077943776
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    },
+    {
+      "I_node": 4739,
+      "O_node": 2328,
+      "incident_tet_rows": [
+        9350,
+        9353,
+        9539,
+        9668,
+        9683,
+        9695
+      ],
+      "maximum_positive_altitude_m": 0.005072356294468275,
+      "displacement_m": [
+        -0.019210455889885788,
+        0.009554166764638734,
+        0.02
+      ],
+      "no_positive_fixed_outer_star_within_20mm": false
+    }
+  ],
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0,
+  "limitations": [
+    "Necessary affine fixed-outer-star feasibility in a 20 mm coordinate box only. Does not establish full tetrahedral feasibility, skin/fat closure, contact or native physics."
+  ]
+}

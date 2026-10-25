@@ -1,0 +1,227 @@
+{
+  "ancestry": {
+    "changed_cavity_oriented_boundary_by_material": {
+      "1": {
+        "input_faces": 12,
+        "input_rows": [
+          11787,
+          11788,
+          11789,
+          11884,
+          11885,
+          14310,
+          14311
+        ],
+        "native_faces": 12,
+        "native_material_id": 15,
+        "native_rows": [
+          11787,
+          11788,
+          11789,
+          11884,
+          11885,
+          14310,
+          14311
+        ],
+        "oriented_boundary_equal": true
+      },
+      "2": {
+        "input_faces": 12,
+        "input_rows": [
+          26103,
+          26104,
+          26105,
+          26200,
+          26201,
+          28626,
+          28627
+        ],
+        "native_faces": 12,
+        "native_material_id": 16,
+        "native_rows": [
+          26103,
+          26104,
+          26105,
+          26200,
+          26201,
+          28626,
+          28627
+        ],
+        "oriented_boundary_equal": true
+      }
+    },
+    "changed_input_rows": [
+      11787,
+      11788,
+      11789,
+      11884,
+      11885,
+      14310,
+      14311,
+      26103,
+      26104,
+      26105,
+      26200,
+      26201,
+      28626,
+      28627
+    ],
+    "changed_native_rows": [
+      11787,
+      11788,
+      11789,
+      11884,
+      11885,
+      14310,
+      14311,
+      26103,
+      26104,
+      26105,
+      26200,
+      26201,
+      28626,
+      28627
+    ],
+    "changed_parent_descendant_child_count": 92,
+    "direct_method": "raw canonical material-reference child volume / exact matched native parent material-reference volume",
+    "native_parent_count": 28632,
+    "refined_child_count": 37935,
+    "retet_method": "actual local tetra intersection between descendants of the 14 retessellated input parents and actual active native parent cells; no composition through an AP parent mixture",
+    "retriangulated_input_and_native_parent_count": 14,
+    "same_node_set_input_parent_count": 28618,
+    "unchanged_parent_fraction_closure_max_error": 1.2945200467129325e-13
+  },
+  "artifacts": {
+    "csr": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/mass-retriangulation-070/canonical-native-material-reference/refined-child-native-parent-csr.npz",
+    "ledger": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/mass-retriangulation-069/native-active-parent-ledger.npz",
+    "report": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/mass-retriangulation-070/canonical-native-material-reference/transfer-report.json"
+  },
+  "changed_overlap": {
+    "candidate_pairs": 4972,
+    "changed_child_coverage_min_max": [
+      0.9999999999992082,
+      1.0000000000006495
+    ],
+    "changed_child_max_abs_coverage_error": 7.918110611626616e-13,
+    "changed_parent_coverage_min_max": [
+      0.9999999999997667,
+      1.0000000000022522
+    ],
+    "changed_parent_max_abs_coverage_error": 2.2521984277545926e-12,
+    "clipper": "Retained Float64 clipping construction on dyadic material-reference coordinates, with AABB pruning; not an exact-rational predicate",
+    "cross_material_entries": 0,
+    "stored_intersection_entries": 262,
+    "subthreshold_positive_intersection_candidates": 0
+  },
+  "limitations": [
+    "This is a declared material-reference pullback ledger; its node coordinates are reconstructed from original compiled F32 source nodes and ancestry weights, not the emitted refined F32 midpoint positions.",
+    "Maximum new-node emission offset is separately recorded; emitted F32 geometry/current quality and physical boundary gates remain independent.",
+    "Cooked identity supplies active source_tet_row and node tuple but no anatomical donor-region ID.",
+    "No native build, bone-clearance pass, or physical admission is claimed."
+  ],
+  "mass": {
+    "child_total_kg": 13.939679738153739,
+    "delta_kg": -1.6214585230045486e-11,
+    "delta_relative": -1.1631963957999935e-12,
+    "density_formula": "child mass=sum(actual native parent mass * raw parent mass fraction); child density=child mass / emitted compiler row0.w",
+    "max_parent_fraction_closure_error": 4.772996486934744e-08,
+    "no_density_rescaling": true,
+    "no_fraction_normalization": true,
+    "parent_fraction_sum_min_max": [
+      0.9999999558686644,
+      1.0000000477299649
+    ],
+    "parent_total_kg": 13.939679738169954,
+    "per_material": {
+      "1": {
+        "bounds_kg_m3": [
+          900.0,
+          1100.0
+        ],
+        "child_mass_kg": 3.452571158712464,
+        "children": 16298,
+        "mass_delta_kg": 3.4092728640189307e-12,
+        "max_kg_m3": 1003.8182781453015,
+        "min_kg_m3": 999.4524381898162,
+        "native_material_id": 15,
+        "parent_mass_kg": 3.4525711587090546,
+        "within_bounds": true
+      },
+      "2": {
+        "bounds_kg_m3": [
+          850.0,
+          950.0
+        ],
+        "child_mass_kg": 10.487108579441276,
+        "children": 21637,
+        "mass_delta_kg": -1.9621637648015167e-11,
+        "max_kg_m3": 926.7536175757512,
+        "min_kg_m3": 881.9597578153518,
+        "native_material_id": 16,
+        "parent_mass_kg": 10.487108579460898,
+        "within_bounds": true
+      }
+    }
+  },
+  "pins": {
+    "native_nodes_csv_sha256": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+    "native_parent_ledger_sha256": "ef276f8bd6348b333d6fc8ad76d869c3ea723e1ab89d6f149fa34b778ce1056e",
+    "overlap_helper_sha256": "82ea2fb8ea96ed2f4bdba0124bbd37a05e28ead7e3568da24fad7e9c7c071ef2",
+    "refinement_candidate_sha256": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+    "refinement_input_sha256": "3df28e930e5b27229633bf2e3a91f0d40fd6e57d94489c3ba7de6ae2828a0e1d",
+    "refinement_manifest_sha256": "d667839662805800b450138009abdbc2cfbb4b6bf9ad111170762412d59b3f53",
+    "report_sha256": "95432a6d6b77f4cc5b9e1ad2260349129ab24206f92e895322fe11a02b504a8e",
+    "transfer_csr_sha256": "cab4f2e04173c53de694fe47c6f721adbe6675fc0318e3090192fca983aad56e"
+  },
+  "quality": {
+    "current_f32": {
+      "cells": 37935,
+      "min_q": 1.3677444096974807e-05,
+      "min_signed_volume_m3": 4.711768326211486e-13,
+      "nonpositive": 0,
+      "q_below_1e-5": 0
+    },
+    "emitted_reference_f32": {
+      "cells": 37935,
+      "min_q": 1.3677444096974807e-05,
+      "min_signed_volume_m3": 4.711768326211486e-13,
+      "nonpositive": 0,
+      "q_below_1e-5": 0
+    },
+    "material_reference_f64": {
+      "cells": 37935,
+      "min_q": 1.3678742286243934e-05,
+      "min_signed_volume_m3": 4.711768326211486e-13,
+      "nonpositive": 0,
+      "q_below_1e-5": 0
+    },
+    "native_reference_f32": {
+      "cells": 28632,
+      "min_q": 2.6016244143891342e-05,
+      "min_signed_volume_m3": 4.711768326211486e-13,
+      "nonpositive": 0,
+      "q_below_1e-5": 0
+    }
+  },
+  "reference_domain": {
+    "definition": "Original native compiled F32 rest coordinates promoted exactly to F64; every refined point reconstructed by run-006 source-vertex CSR weights over those original global node IDs.",
+    "f32_emission_domain_is_separate": true,
+    "max_material_vs_run_canonical_f64_offset_m": 6.064084820716452e-08,
+    "max_new_node_emission_offset_m": 6.188917057900187e-08,
+    "original_prefix_exact": true,
+    "p50_new_node_emission_offset_m": 7.679882693323606e-09,
+    "p95_new_node_emission_offset_m": 6.006850114687196e-08,
+    "source_csr_row_sums_max_error": 0.0
+  },
+  "schema": "numi.refined-child-native-parent-material-reference-transfer-070.v1",
+  "status": "bounded_material_reference_parent_transfer_audit",
+  "volume": {
+    "emitted_compiled_total_volume_relative_drift": 6.1165709952004284e-09,
+    "material_reference_total_volume_relative_drift": 1.1484497672602756e-16,
+    "max_compiled_emitted_vs_material_child_volume_relative_difference": 0.028868065595667597,
+    "native_compiled_row0w_sum_m3": 0.015104913814048512,
+    "native_material_reference_geometric_volume_m3": 0.01510491381887026,
+    "refined_compiled_emitted_volume_m3": 0.01510491390643879,
+    "refined_material_reference_geometric_volume_m3": 0.015104913818870263
+  }
+}

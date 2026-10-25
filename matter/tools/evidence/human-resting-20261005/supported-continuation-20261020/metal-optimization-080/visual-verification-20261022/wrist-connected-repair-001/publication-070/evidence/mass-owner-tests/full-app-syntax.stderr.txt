@@ -1,0 +1,63 @@
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9387:46: error: unknown type name 'NumiHumanRestingCoupling'
+ 9387 |                 auto& coupled = *static_cast<NumiHumanRestingCoupling*>(
+      |                                              ^
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9387:33: error: ISO C++ does not allow indirection on operand of type 'void *' [-Wvoid-ptr-dereference]
+ 9387 |                 auto& coupled = *static_cast<NumiHumanRestingCoupling*>(
+      |                                 ^
+ 9388 |                     restingCouplingContext);
+      |                     ~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9387:21: error: cannot form a reference to 'void'
+ 9387 |                 auto& coupled = *static_cast<NumiHumanRestingCoupling*>(
+      |                     ^
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9389:30: error: no member named 'transaction_probe' in namespace 'numi::human'
+ 9389 |                 numi::human::transaction_probe::PhysicalSnapshot physicalSnapshot(
+      |                 ~~~~~~~~~~~~~^
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9392:34: error: no member named 'transaction_probe' in namespace 'numi::human'
+ 9392 |                     numi::human::transaction_probe::observePhysicalState(
+      |                     ~~~~~~~~~~~~~^
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9393:34: error: use of undeclared identifier 'physicalSnapshot'
+ 9393 |                         context, physicalSnapshot, eventFingerprint,
+      |                                  ^~~~~~~~~~~~~~~~
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9397:34: error: no member named 'transaction_probe' in namespace 'numi::human'
+ 9397 |                     numi::human::transaction_probe::captureCouplingMemory(coupled);
+      |                     ~~~~~~~~~~~~~^
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9419:34: error: no member named 'transaction_probe' in namespace 'numi::human'
+ 9419 |                     numi::human::transaction_probe::observePhysicalState(
+      |                     ~~~~~~~~~~~~~^
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9420:34: error: use of undeclared identifier 'physicalSnapshot'
+ 9420 |                         context, physicalSnapshot, eventFingerprint,
+      |                                  ^~~~~~~~~~~~~~~~
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9424:34: error: no member named 'transaction_probe' in namespace 'numi::human'
+ 9424 |                     numi::human::transaction_probe::captureCouplingMemory(coupled);
+      |                     ~~~~~~~~~~~~~^
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9426:34: error: no member named 'transaction_probe' in namespace 'numi::human'
+ 9426 |                     numi::human::transaction_probe::samePhysicalState(
+      |                     ~~~~~~~~~~~~~^
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9429:34: error: no member named 'transaction_probe' in namespace 'numi::human'
+ 9429 |                     numi::human::transaction_probe::sameMatterAcceptedState(
+      |                     ~~~~~~~~~~~~~^
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9431:34: error: no member named 'transaction_probe' in namespace 'numi::human'
+ 9431 |                     numi::human::transaction_probe::sameMatterCirculation(
+      |                     ~~~~~~~~~~~~~^
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9434:34: error: no member named 'transaction_probe' in namespace 'numi::human'
+ 9434 |                     numi::human::transaction_probe::sameAcceptedCouplingMemory(
+      |                     ~~~~~~~~~~~~~^
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9546:46: error: unknown type name 'NumiHumanRestingCoupling'
+ 9546 |                 auto& coupled = *static_cast<NumiHumanRestingCoupling*>(
+      |                                              ^
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9546:33: error: ISO C++ does not allow indirection on operand of type 'void *' [-Wvoid-ptr-dereference]
+ 9546 |                 auto& coupled = *static_cast<NumiHumanRestingCoupling*>(
+      |                                 ^
+ 9547 |                     restingCouplingContext);
+      |                     ~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9546:21: error: cannot form a reference to 'void'
+ 9546 |                 auto& coupled = *static_cast<NumiHumanRestingCoupling*>(
+      |                     ^
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9553:30: error: no member named 'transaction_probe' in namespace 'numi::human'
+ 9553 |                 numi::human::transaction_probe::PhysicalSnapshot physicalSnapshot(
+      |                 ~~~~~~~~~~~~~^
+/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:9556:34: error: no member named 'transaction_probe' in namespace 'numi::human'
+ 9556 |                     numi::human::transaction_probe::observePhysicalState(
+      |                     ~~~~~~~~~~~~~^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.

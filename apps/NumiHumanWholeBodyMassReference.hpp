@@ -16,6 +16,7 @@ namespace metalrobo::human {
 struct WholeBodyMassReference {
     EngineModel model;
     std::vector<NumiHumanTissueMassNode> nodes;
+    std::vector<NumiHumanTissueMassContribution> contributions;
     std::vector<std::array<double, 3>> offsets;
     double originalMassKg = 0.0;
     double tissueMassKg = 0.0;
@@ -194,6 +195,60 @@ inline bool packBody(MRBodyPropertiesGPU& b,double mass,const M&s,std::string&er
     out.nodes.assign(nodes.begin(),nodes.end());
     for(auto& n:out.nodes)for(size_t k=0;k<3;++k)n.localPosition[k]-=out.offsets[n.donorBody][k];
     out.originalMassKg=originalMass;out.tissueMassKg=tissueMass;out.residualScale=scale;
+    return out;
+}
+
+// Explicit source-mass path. The first span remains one row per actual FEM node
+// and owns its registered frame/anchor; the second span carries source-body
+// moments independently, including multiple source bodies for one FEM node.
+[[nodiscard]] inline WholeBodyMassReference prepareWholeBodyMassReference(
+    const EngineModel& source,
+    std::span<const NumiHumanTissueMassNode> nodeFrames,
+    std::span<const NumiHumanTissueMassContribution> contributions) {
+    WholeBodyMassReference out;
+    const auto fail=[&](std::string why){out.error=std::move(why);return out;};
+    if(nodeFrames.empty()||contributions.empty())
+        return fail("explicit whole-body reference requires node frames and source contributions");
+    std::map<std::uint32_t,double> massByNode;
+    for(const auto& node:nodeFrames){
+        if(node.nodeIndex==MR_INVALID_INDEX||node.donorBody>=source.bodies.size()||
+           !std::isfinite(node.massKg)||node.massKg<=0.0||
+           !std::all_of(node.localPosition.begin(),node.localPosition.end(),[](double x){return std::isfinite(x);})||
+           !massByNode.emplace(node.nodeIndex,node.massKg).second)
+            return fail("explicit whole-body reference has an invalid or duplicate node/frame row");
+    }
+    std::map<std::uint32_t,double> attributed;
+    std::vector<NumiHumanTissueMassNode> sourceRows;sourceRows.reserve(contributions.size());
+    for(std::size_t i=0;i<contributions.size();++i){
+        const auto& c=contributions[i];
+        if(!massByNode.contains(c.nodeIndex)||c.donorBody>=source.bodies.size()||
+           !std::isfinite(c.massKg)||c.massKg<=0.0||
+           !std::all_of(c.localPosition.begin(),c.localPosition.end(),[](double x){return std::isfinite(x);}))
+            return fail("explicit whole-body reference has an invalid source contribution");
+        if(i>=std::numeric_limits<std::uint32_t>::max())
+            return fail("explicit whole-body source-contribution count exceeds index range");
+        attributed[c.nodeIndex]+=c.massKg;
+        sourceRows.push_back({static_cast<std::uint32_t>(i),c.donorBody,c.massKg,c.localPosition});
+    }
+    const auto close=[](double a,double b){
+        return std::isfinite(a)&&std::isfinite(b)&&
+            std::abs(a-b)<=1.0e-9*std::max({std::abs(a),std::abs(b),1.0e-12});
+    };
+    for(const auto& [node,mass]:massByNode){
+        const auto it=attributed.find(node);
+        if(it==attributed.end()||!close(mass,it->second))
+            return fail("explicit whole-body source contributions do not close a FEM node mass");
+    }
+    if(attributed.size()!=massByNode.size())
+        return fail("explicit whole-body source contributions contain an unknown FEM node");
+    out=prepareWholeBodyMassReference(source,sourceRows);
+    if(!out.succeeded())return out;
+    out.nodes.assign(nodeFrames.begin(),nodeFrames.end());
+    out.contributions.assign(contributions.begin(),contributions.end());
+    for(auto& node:out.nodes)for(size_t axis=0;axis<3;++axis)
+        node.localPosition[axis]-=out.offsets[node.donorBody][axis];
+    for(auto& c:out.contributions)for(size_t axis=0;axis<3;++axis)
+        c.localPosition[axis]-=out.offsets[c.donorBody][axis];
     return out;
 }
 } // namespace metalrobo::human

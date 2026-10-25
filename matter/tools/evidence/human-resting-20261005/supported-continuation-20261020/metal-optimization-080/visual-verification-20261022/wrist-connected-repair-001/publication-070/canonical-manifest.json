@@ -1,0 +1,57 @@
+{
+  "parent_main": "4e6651b16594c8d2ebfb345402ef8bf45c68fa96",
+  "canonical_paths": [
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "346e30c8c50eec5698c23ea2e1dae7fbf67c52d2d76d0b7d0f32feb392082515",
+      "size_bytes": 258667
+    },
+    {
+      "path": "apps/NumiHumanCoarseTissuePreparation.hpp",
+      "sha256": "27b3069cc96719ff86057b1f74b8c9ce1e47464d4f359d94bddd9abe4b3cb70c",
+      "size_bytes": 145840
+    },
+    {
+      "path": "apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "sha256": "f3b39b990ffb780227a876bae7ec6ea63cf923776db96bb0e6e115b64c2ce754",
+      "size_bytes": 72864
+    },
+    {
+      "path": "apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp",
+      "sha256": "5e927a9f1128d76a903736e33dda2080d4149ecb53eb6256069748106aa78d8a",
+      "size_bytes": 60659
+    },
+    {
+      "path": "apps/NumiHumanWholeBodyMassReference.hpp",
+      "sha256": "89cf3c615d438eb7a85acb388618ab0c8a18ddab195b703f866358e3da9f355f",
+      "size_bytes": 14251
+    },
+    {
+      "path": "apps/numi_human_tissue_mass_probe.cpp",
+      "sha256": "928d81ca90a0ac3577500850ccc86c3d8ed05b1a010a51f499fd2b1eac659801",
+      "size_bytes": 10084
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "5875da5d34975c76793430a3d6cad5df67c489e477b5c4cb195a18d7e5d34627",
+      "size_bytes": 2374148
+    },
+    {
+      "path": "include/metalrobo/NumiHumanTissueMass.hpp",
+      "sha256": "9b78d4363ef0f1d9a4d99d40eba0df78b37636e78d59c8a14efe4d5985bca761",
+      "size_bytes": 3476
+    },
+    {
+      "path": "src/core/NumiHumanTissueMass.cpp",
+      "sha256": "a7bf1478cea3f1916df8b908ce91e81e9784c845c0cae49087b94f02973c97a2",
+      "size_bytes": 15892
+    },
+    {
+      "path": "tests/whole_body_mass_reference.cpp",
+      "sha256": "6a6da99012f0c26256f2658f0707c43d6272feff0f44893bb1bc3c5a41b2b50b",
+      "size_bytes": 14456
+    }
+  ],
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false
+}

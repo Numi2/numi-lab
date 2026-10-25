@@ -1,0 +1,116 @@
+{
+  "admission": {
+    "bone_clearance": false,
+    "native_emission": false,
+    "native_physics": false,
+    "physical_mass_transfer": false
+  },
+  "candidate_refinement_manifest_sha256": "d667839662805800b450138009abdbc2cfbb4b6bf9ad111170762412d59b3f53",
+  "candidate_sha256": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+  "coverage": {
+    "all_children_covered": true,
+    "all_native_parents_covered": true,
+    "candidate_child_max_abs_relative_error": 7.765722463541501e-12,
+    "cross_material_overlap_pairs": 0,
+    "local_aabb_pairs_tested": 4972,
+    "local_intersection_seconds": 1.9312448501586914,
+    "material_boundary_preserved_in_reference_measure": true,
+    "native_parent_max_abs_relative_error": 6.12955960219129e-12,
+    "positive_local_overlap_pairs": 262
+  },
+  "dimensions": {
+    "candidate_children": 37935,
+    "candidate_nodes": 9320,
+    "changed_native_geometric_rows": 14,
+    "descendants_of_changed_baseline_rows": 92,
+    "native_active_parents": 28632,
+    "native_nodes": 7233,
+    "orientation_only_rows": 2,
+    "overlap_nonzeros": 38105
+  },
+  "inputs_sha256": {
+    "baseline-035.npz": "452602aea036c15faaafe6c154e6c4676585e1b2cb57c9a1c9128de82050b570",
+    "candidate.npz": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+    "compiled-skin-fem-nodes.csv": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+    "compiled-skin-fem-tets.csv": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "premerge-layer-contributions.csv": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f"
+  },
+  "limitations": [
+    "Reference pullback ledger only. It does not prove current-emitted geometry overlap or material/contact admission.",
+    "Compiled row source identity and density fields are pinned to frozen 039 source-only export.",
+    "The 14-row changed retet patch is mapped by geometric overlap; all other rows use exact identity/refinement connectivity.",
+    "Source corner donor/body/local point provenance is retained; no claim that per-corner cell mass equals the original premerge nodal contribution mass."
+  ],
+  "mass": {
+    "candidate_child_mass_total_kg": 13.939679738169952,
+    "effective_child_density_bounds_kg_m3": {
+      "15": [
+        900,
+        1100
+      ],
+      "16": [
+        850,
+        950
+      ]
+    },
+    "effective_child_density_violations": 0,
+    "max_abs_parent_mass_closure_relative_error": 6.129457716992849e-12,
+    "maximum_child_effective_density_by_material": {
+      "15": 1000.000119907899,
+      "16": 900.0000531669879
+    },
+    "minimum_child_effective_density_by_material": {
+      "15": 1000.000001670322,
+      "16": 899.9999468281187
+    },
+    "native_parent_mass_formula": "inverse_rest_w_m3 * compiled_bulk_x; compiled bulk_density_corner_mass_kg equals this value / 4 exactly for all active rows",
+    "native_parent_mass_total_kg": 13.939679738169954,
+    "parent_corner_source_provenance": "one premerge row keyed by (combined_source_global_node_index, native material_index) found for every native parent corner; native cell corner mass is parent cell mass / 4. Exported premerge row mass is source-layer nodal mass, not used as cell mass.",
+    "per_material": {
+      "15": {
+        "child_mass_kg": 3.4525711587090546,
+        "parent_mass_kg": 3.4525711587090546,
+        "relative_difference": 0.0
+      },
+      "16": {
+        "child_mass_kg": 10.487108579460898,
+        "parent_mass_kg": 10.487108579460898,
+        "relative_difference": 0.0
+      }
+    },
+    "relative_total_mass_error": -1.2743168227432006e-16
+  },
+  "method": "identity/refinement parent measure for 28,618 exact baseline/native source-cell matches; native-F32-promoted-F64 tetra intersection for descendants of the 14 geometrically retetrahedralized rows",
+  "native_reference_domain": {
+    "candidate_new_vertices": "source_vertex_ancestry CSR interpolation of original native global-node IDs",
+    "candidate_reference_f64_retained_as_native_material_domain": false,
+    "max_native_inverseRest_volume_vs_F64_tet_geometry_relative_error": 5.936483408856219e-08,
+    "max_reconstructed_candidate_reference_vs_candidate_canonical_f64_abs_m": 5.9600791857405966e-08,
+    "vertices": "compiled native rest_x/rest_y/rest_z F32 promoted exactly to F64"
+  },
+  "native_vs_baseline": {
+    "actual_source_row_domain": "compiled-skin-fem-tets.csv source_tet_row (dense 0..28631)",
+    "exact_ordered_source_row_matches": 28616,
+    "geometric_changed_rows": [
+      11787,
+      11788,
+      11789,
+      11884,
+      11885,
+      14310,
+      14311,
+      26103,
+      26104,
+      26105,
+      26200,
+      26201,
+      28626,
+      28627
+    ],
+    "orientation_only_rows": [
+      14312,
+      28628
+    ]
+  },
+  "status": "CANDIDATE_NATIVE_PARENT_MASS_ANCESTRY_BUILT"
+}

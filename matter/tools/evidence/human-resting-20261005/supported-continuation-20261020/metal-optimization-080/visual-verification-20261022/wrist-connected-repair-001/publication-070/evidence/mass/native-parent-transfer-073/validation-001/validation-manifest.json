@@ -1,0 +1,61 @@
+{
+  "compiled_density_exact": {
+    "material_15_skin": {
+      "float32_bits": "0x447a0001",
+      "value": 1000.0000610351562
+    },
+    "material_16_fat": {
+      "float32_bits": "0x44610000",
+      "value": 900.0
+    }
+  },
+  "files": {
+    "map": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/native-parent-transfer-073/native-parent-transfer-073.npz",
+      "sha256": "4421ee7534961fa6f85b2fe3c5bde728117a24c43ff69e6250c9498f45b1a55c"
+    },
+    "source_contributions": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/premerge-layer-contributions.csv",
+      "sha256": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f"
+    },
+    "source_launch_manifest": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/launch-manifest.json",
+      "sha256": "e30ebe8c52719e91c7a8e38b689b2a5930c90b1d23a017d6b4a59ea5854485d3"
+    },
+    "source_nodes": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-nodes.csv",
+      "sha256": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9"
+    },
+    "source_run_summary": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/run-summary.json",
+      "sha256": "5efbf3121eb6e154f69d73578f6c4ad7618c3ab7bfa567ef3bdc3d5ea3842ef8"
+    },
+    "source_tets": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-tets.csv",
+      "sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461"
+    },
+    "transfer_builder": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/native-parent-transfer-073/build_native_parent_transfer_073.py",
+      "sha256": "167c176edef02cbb2360d68e3c011809722030bd00009e20afa80d2b8ad59586"
+    },
+    "transfer_manifest": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/native-parent-transfer-073/manifest.json",
+      "sha256": "4a94741c507501d516db624a3820d1e95de6436c4f788921ed37e909e2f4680e"
+    },
+    "transfer_report": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/native-parent-transfer-073/report.json",
+      "sha256": "1ec35eb2e9856ab8248796b70a3e6362e27b9c6cd360ef4f1f64acd373c128a3"
+    },
+    "verification_report": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/native-parent-transfer-073/validation-001/verification.json",
+      "sha256": "f6fe67f4fa95a7ee5cb16f4eed5edde34485db3d164723f5bea76264dfe8a365"
+    },
+    "verification_script": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/native-parent-transfer-073/validation-001/verify_native_parent_transfer_073.py",
+      "sha256": "af376ab4d6427c7bd6b43b38831378617126edda3aaae67246f818e944262a1a"
+    }
+  },
+  "host": "Numi SSH",
+  "scope": "Source cell mass and reference-pullback parent transfer only; no current-geometry/native admission.",
+  "status": "FROZEN_REFERENCE_LEDGER_ARITHMETIC_CHECKED"
+}

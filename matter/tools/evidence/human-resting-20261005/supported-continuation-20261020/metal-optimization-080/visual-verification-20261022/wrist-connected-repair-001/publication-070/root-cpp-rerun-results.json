@@ -1,0 +1,23 @@
+[
+  {
+    "name": "whole-body-reference",
+    "binary": "/tmp/numi-whole-body-mass-reference-070",
+    "binary_sha256": "ef9adce9519327cea83c16ef0ad174b990331ddd8e4d49cfa56a2f32b5de6b41",
+    "exit": 0,
+    "output": "whole_body_mass_reference=PASS mass_and_first_second_moments=closed planar_floor=reported stock_compile_rebase=PASS net_offsets=zero donor_tissue_exceeds_original=accepted gross_negative=REJECTED\n"
+  },
+  {
+    "name": "tissue-mass-probe",
+    "binary": "/tmp/numi-tissue-mass-probe-070",
+    "binary_sha256": "eb9ee5ca6547329b536e03423984259240fb0204abdd6706e1af55ebb29d674f",
+    "exit": 0,
+    "output": "{\"status\":\"passed\",\"rigid_motion_cases\":64,\"negative_cases\":11,\"rotating_floating_root_rebase\":true,\"maximum_relative_invariant_error\":3.83045e-08}\n"
+  },
+  {
+    "name": "unpaired-volume-owner",
+    "binary": "/tmp/numi-unpaired-volume-owner-check",
+    "binary_sha256": "c47aff96e811a4d71b20634ab61b620b5fdb8c3ba2069e3167e476c75cb5675f",
+    "exit": 0,
+    "output": "unpaired skin/fat volume owner tests passed\n"
+  }
+]

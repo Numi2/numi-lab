@@ -1,0 +1,16 @@
+{
+  "base_owner_header": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp",
+  "base_owner_header_sha256": "72f8c9325c31e0259a09abfbf61a01c0239995e3cafbd32fbc80beeabedcba7b",
+  "overlay_owner_header": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp",
+  "overlay_owner_header_sha256": "60dcc49f6734e6459ac77d054182ed0e636fbc5e1ee60452772fbf14f39e51fc",
+  "app_source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm",
+  "app_source_sha256": "6a211071ada0642fe0a994ae8f2bec8c4628d291b0029c8fbd52bcec31d8a4cc",
+  "compile_command_sha256": "e95c9ae894aaea4197d59ddf2762e4163b8543b9f4261bd3b842be88c47de4fc",
+  "link_command_sha256": "c712e9aa1b12e8043735e3753ae19d6e007e533855a2a55b60344be28a80c818",
+  "scope": "pre-merge skin/fat layer-lumped nodal contribution export; source-only compiled FEM preflight; no accepted simulation step",
+  "build_driver": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/build-001/build-driver.py",
+  "build_driver_sha256": "63f0d08a531d460eceb7d298de1eb9dcdf87efc17512ffc76f39bb31ee97b003",
+  "patched_include_root": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/apps-overlay",
+  "patched_include_root_semantics": "symlink mirror of apps-008, with only the owner header replaced, ensuring one TU identity",
+  "patched_include_root_header_sha256": "60dcc49f6734e6459ac77d054182ed0e636fbc5e1ee60452772fbf14f39e51fc"
+}

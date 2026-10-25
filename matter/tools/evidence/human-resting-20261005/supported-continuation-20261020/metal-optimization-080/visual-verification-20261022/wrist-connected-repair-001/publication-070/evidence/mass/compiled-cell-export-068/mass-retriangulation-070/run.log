@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/mass-retriangulation-070/build_transfer_070.py", line 160, in <module>
+    assert not cross, f"cross-material overlaps: {cross[:5]}"
+           ^^^^^^^^^
+AssertionError: cross-material overlaps: [(34147, 14312, 6.446166919926571e-13), (34148, 14312, 8.694399436815153e-18), (34199, 26100, 3.36645172696251e-19), (34199, 26103, 4.405377465740154e-19), (34199, 26104, 5.393564208164886e-22)]

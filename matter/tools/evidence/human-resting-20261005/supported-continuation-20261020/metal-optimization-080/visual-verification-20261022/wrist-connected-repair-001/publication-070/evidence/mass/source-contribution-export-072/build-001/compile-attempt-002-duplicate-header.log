@@ -1,0 +1,154 @@
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:25:11: error: redefinition of 'add'
+   25 | inline V3 add(V3 a,V3 b){return {a[0]+b[0],a[1]+b[1],a[2]+b[2]};}
+      |           ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:22:11: note: previous definition is here
+   22 | inline V3 add(V3 a,V3 b){return {a[0]+b[0],a[1]+b[1],a[2]+b[2]};}
+      |           ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:26:11: error: redefinition of 'sub'
+   26 | inline V3 sub(V3 a,V3 b){return {a[0]-b[0],a[1]-b[1],a[2]-b[2]};}
+      |           ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:23:11: note: previous definition is here
+   23 | inline V3 sub(V3 a,V3 b){return {a[0]-b[0],a[1]-b[1],a[2]-b[2]};}
+      |           ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:27:11: error: redefinition of 'mul'
+   27 | inline V3 mul(V3 a,double s){return {a[0]*s,a[1]*s,a[2]*s};}
+      |           ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:24:11: note: previous definition is here
+   24 | inline V3 mul(V3 a,double s){return {a[0]*s,a[1]*s,a[2]*s};}
+      |           ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:28:15: error: redefinition of 'dot'
+   28 | inline double dot(V3 a,V3 b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
+      |               ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:25:15: note: previous definition is here
+   25 | inline double dot(V3 a,V3 b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
+      |               ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:29:11: error: redefinition of 'cross'
+   29 | inline V3 cross(V3 a,V3 b){return {a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};}
+      |           ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:26:11: note: previous definition is here
+   26 | inline V3 cross(V3 a,V3 b){return {a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};}
+      |           ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:30:15: error: redefinition of 'norm'
+   30 | inline double norm(V3 a){return std::sqrt(dot(a,a));}
+      |               ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:27:15: note: previous definition is here
+   27 | inline double norm(V3 a){return std::sqrt(dot(a,a));}
+      |               ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:31:15: error: redefinition of 'tetVolume'
+   31 | inline double tetVolume(V3 a,V3 b,V3 c,V3 d){return dot(sub(b,a),cross(sub(c,a),sub(d,a)))/6.0;}
+      |               ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:28:15: note: previous definition is here
+   28 | inline double tetVolume(V3 a,V3 b,V3 c,V3 d){return dot(sub(b,a),cross(sub(c,a),sub(d,a)))/6.0;}
+      |               ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:32:13: error: redefinition of 'coplanarTriangleOverlap'
+   32 | inline bool coplanarTriangleOverlap(const std::array<V3,3>& a,const Face& ia,
+      |             ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:29:13: note: previous definition is here
+   29 | inline bool coplanarTriangleOverlap(const std::array<V3,3>& a,const Face& ia,
+      |             ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:61:8: error: redefinition of 'RegisteredSurface'
+   61 | struct RegisteredSurface {
+      |        ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:58:8: note: previous definition is here
+   58 | struct RegisteredSurface {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:87:16: error: redefinition of default argument
+   87 |         double tolerance=1.0e-8) {
+      |                ^         ~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:84:16: note: previous definition is here
+   84 |         double tolerance=1.0e-8) {
+      |                ^         ~~~~~~
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:101:13: error: redefinition of 'validateRegisteredSourceEmbedding'
+  101 | inline bool validateRegisteredSourceEmbedding(const RegisteredSurface& surface,
+      |             ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:98:13: note: previous definition is here
+   98 | inline bool validateRegisteredSourceEmbedding(const RegisteredSurface& surface,
+      |             ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:147:13: error: redefinition of 'interpolateSourceTrianglePoint'
+  147 | inline bool interpolateSourceTrianglePoint(std::span<const Face> sourceFaces,
+      |             ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:144:13: note: previous definition is here
+  144 | inline bool interpolateSourceTrianglePoint(std::span<const Face> sourceFaces,
+      |             ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:168:8: error: redefinition of 'GeometryAudit'
+  168 | struct GeometryAudit { double volumeM3=0, minFaceAreaM2=0; std::uint64_t testedPairs=0; std::uint32_t boundaryEdgeCount=0,boundaryLoopCount=0; };
+      |        ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:165:8: note: previous definition is here
+  165 | struct GeometryAudit { double volumeM3=0, minFaceAreaM2=0; std::uint64_t testedPairs=0; std::uint32_t boundaryEdgeCount=0,boundaryLoopCount=0; };
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:169:8: error: redefinition of 'PreparedOrganicFEM'
+  169 | struct PreparedOrganicFEM {
+      |        ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:166:8: note: previous definition is here
+  166 | struct PreparedOrganicFEM {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:201:8: error: redefinition of 'ExplicitPairedLayerTopology'
+  201 | struct ExplicitPairedLayerTopology {
+      |        ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:198:8: note: previous definition is here
+  198 | struct ExplicitPairedLayerTopology {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:225:13: error: redefinition of 'validateExplicitRegisteredLayerFacetAncestry'
+  225 | inline bool validateExplicitRegisteredLayerFacetAncestry(
+      |             ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:222:13: note: previous definition is here
+  222 | inline bool validateExplicitRegisteredLayerFacetAncestry(
+      |             ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:286:8: error: redefinition of 'ExplicitPairedLayerTetrahedra'
+  286 | struct ExplicitPairedLayerTetrahedra {
+      |        ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:283:8: note: previous definition is here
+  283 | struct ExplicitPairedLayerTetrahedra {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:303:13: error: redefinition of 'filterExplicitChildVolumeAncestry'
+  303 | inline bool filterExplicitChildVolumeAncestry(
+      |             ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:300:13: note: previous definition is here
+  300 | inline bool filterExplicitChildVolumeAncestry(
+      |             ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/compiled-cell-export-068/apps/numilab_human_myosim_visual_probe.mm:9:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-mechanical-source-024/apps/NumiHumanSkinFEMIntegration.wholebody.hpp:5:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/owner-overlay/NumiHumanCoarseTissuePreparation.hpp:344:22: error: redefinition of 'explicitBoundaryFacetOwnerFace'
+  344 | inline std::uint32_t explicitBoundaryFacetOwnerFace(
+      |                      ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/apps-008/NumiHumanCoarseTissuePreparation.hpp:341:22: note: previous definition is here
+  341 | inline std::uint32_t explicitBoundaryFacetOwnerFace(
+      |                      ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.

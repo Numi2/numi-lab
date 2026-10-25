@@ -1,0 +1,55 @@
+{
+  "checks": {
+    "baseline_boundary_edges": 45,
+    "baseline_full_exact_self_pairs": 9,
+    "candidate_boundary_edges": 45,
+    "candidate_full_exact_self_pairs": 0,
+    "candidate_full_pair_witnesses": [],
+    "candidate_nonmanifold_edges": [],
+    "changed_face_rows": [
+      3019,
+      3020,
+      3021,
+      3105,
+      3908,
+      3910,
+      3945,
+      3946,
+      4682,
+      4683,
+      4697,
+      4698
+    ],
+    "complete_surface_exact_audit": true,
+    "global_directed_boundary_undirected_set_unchanged": true,
+    "minimum_candidate_area_m2": 2.3276533010042437e-07,
+    "outer_vertex_positions_bitwise_unchanged": true,
+    "outside_patch_faces_bitwise_unchanged": true,
+    "zero_area_candidate_faces": 0
+  },
+  "classification": "connectivity_only_outer_surface_counterfactual_no_volume_or_physical_admission",
+  "inputs": {
+    "baseline_npz": {
+      "path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/run-003/outer-target-preflight.npz",
+      "sha256": "8e8a88d44b3846105506abdd398b7050f9710a8a2061aa07dc5ded0d75043bd4"
+    },
+    "exact_predicate": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/exact-plane-filter-owner-264/src/numilab_human/cardiac_cavity_intersections.py",
+      "sha256": "207236eb886e921b21ff281f44637140ea4bf9438b27561954dfe9528be71d27"
+    },
+    "patch_npz": {
+      "path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/retessellation-001/replacement-patches.npz",
+      "sha256": "506d38935be5a3f872fe7f70eb3600a229f2fa1842c6b351600f87da22990ca6"
+    }
+  },
+  "limitations": [
+    "This gate covers the 4,777-face D36 O surface only. It does not rebuild/validate connected I/D topology, material layers, bones, mass, FEM, native runtime, or physical acceptance."
+  ],
+  "runtime": {
+    "hostname": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 4.0657758712768555
+  },
+  "schema": "numi.human.d36-retessellation-full-exact-gate.v1"
+}

@@ -1,0 +1,121 @@
+{
+  "compiled_object": {
+    "all_active": true,
+    "all_material_ids_match_authored": true,
+    "all_source_to_global_node_rows_match": true,
+    "authored_source_material_ids": {
+      "15": 14316,
+      "16": 14316
+    },
+    "compiled_global_tet_range": [
+      3315,
+      31946
+    ],
+    "identity_material_ids": {
+      "15": 14316,
+      "16": 14316
+    },
+    "identity_object_ids_unique": [
+      15
+    ],
+    "object_index": 15,
+    "source_rows": 28632
+  },
+  "nodal_mass_reconstruction": {
+    "AP_geometry_volume_corner_assembly_then_f32": {
+      "available": false,
+      "max_abs_node_error_g": null,
+      "max_abs_node_error_kg": null,
+      "nodes_nonzero_error": null,
+      "sum_abs_node_error_kg": null,
+      "sum_signed_node_error_kg": null
+    },
+    "compiled_node_mass_total_kg": 13.9396797269631,
+    "cooked_corner_assembly_then_f32": {
+      "max_abs_node_error_g": 0.0,
+      "max_abs_node_error_kg": 0.0,
+      "max_compiled_node_kg": 6.98897274560295e-05,
+      "max_error_node_global_id": 1666,
+      "max_expected_node_kg": 6.98897274560295e-05,
+      "nodes_nonzero_error": 0,
+      "sum_abs_node_error_kg": 0.0,
+      "sum_signed_node_error_kg": 0.0
+    },
+    "from_cooked_w_bulk_cell_corner_mass_total_kg": 3.4849199345424884
+  },
+  "node_domain": {
+    "AP_npz_points_equal_AP_node_csv_F32_bits": false,
+    "AP_world_points_equal_compiled_position_F32_bits": false,
+    "compiled_rest_nodes_exported": true,
+    "global_node_range": [
+      1666,
+      8898
+    ],
+    "node_count": 7233,
+    "rest_position_f32_bit_columns_exported": true
+  },
+  "pins": {
+    "AP_candidate_npz_sha256": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+    "AP_node_csv_sha256": "fc0bd3cbf3269050fc97e341fbb3805eff36ebd1eff0ce5f98bcd85260ec8880",
+    "compile_command_sha256": "caaa11b6fe6ca6e1a403668ff3ea15d1baa5d2c2c4733b4ca0a15386bd6fa56c",
+    "compiled_nodes_csv_sha256": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+    "compiled_tets_csv_sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "link_command_sha256": "64bc47c228bbb70dcb81fbc2af54ac7b9382fb0eaae08ae74dd13907864528ab",
+    "linked_dylibs": [
+      {
+        "path": "/tmp/numi-human-selector6-fixed-001/lib/libmetalrobo.dylib",
+        "sha256": "d21a5920b65b36babe9f76c9a3a1eac8fcb379bfc15f32aab08827e6161d0bdf"
+      }
+    ],
+    "loaded_libmetalrobo_lines": [
+      "dyld[91572]: <8FB38DAE-0F2A-3A7C-942E-FA84E7C166A8> /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/build-runtime-004/libmetalrobo.dylib"
+    ],
+    "metallib_path": "/tmp/numi-human-joint-owner-build-033/matter/shaders/NumiMatter.metallib",
+    "metallib_sha256": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125",
+    "overlay_binary_sha256": "3aa0053a8d71b1e785acfb5edf2a27bd14b376e81af014db98fae69636637956",
+    "overlay_source_sha256": "6a211071ada0642fe0a994ae8f2bec8c4628d291b0029c8fbd52bcec31d8a4cc",
+    "runtime_lib_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-app-main-header-integration-151/build-runtime-004/libmetalrobo.dylib",
+    "runtime_lib_sha256": "b7cba8777b071eb1df0dbdadc24f9a4963eb92b2e85bf1121a97d29328d5c26b"
+  },
+  "reference_operator": {
+    "AP_F32_geometry_signed_volume_by_material_id_m3": {
+      "1": 0.003452570643275976,
+      "2": 0.011652342975139618
+    },
+    "cooked_f32_volume_by_compiled_material_m3": {
+      "15": 0.003452570947980847,
+      "16": 0.011652342866067665
+    },
+    "cooked_f32_volume_total_m3": 0.015104913814048512,
+    "inverse_row0w_volume_formula": {
+      "max_abs_abs_det_over6": 4.547473508864641e-12,
+      "max_abs_signed_det_over6": 4.547473508864641e-12
+    },
+    "max_abs_inverse_coeff_error_vs_inverse_of_exported_rest_nodes_after_f32_cast": 2.859375,
+    "max_abs_inverse_coeff_error_vs_transposed_alternative": 1271349.892578125,
+    "max_abs_w_minus_abs_det_compiled_rest_f32_m3": 4.547473508864641e-12
+  },
+  "sample_cell_matches": [],
+  "scope": "source-only compiled 039 object export compared with AP 026/030 candidate; no simulation/native admission",
+  "tetrahedra_comparison": {
+    "AP_material_ids": {
+      "1": 14316,
+      "2": 14316
+    },
+    "AP_rows": 28632,
+    "AP_to_compiled_material_crosswalk": null,
+    "compiled_global_material_ids": {
+      "15": 14316,
+      "16": 14316
+    },
+    "compiled_rows": 28632,
+    "matched_cells": 28618,
+    "max_difference_source_vs_global_local_node_id": 0,
+    "orientation_parity_of_corresponding_rows": {},
+    "row_map_unique": false,
+    "same_node_set_per_cell": false,
+    "same_node_set_per_cell_with_row_reordering": false,
+    "same_source_row_order_and_node_order": false,
+    "source_rows_identity_order": true
+  }
+}

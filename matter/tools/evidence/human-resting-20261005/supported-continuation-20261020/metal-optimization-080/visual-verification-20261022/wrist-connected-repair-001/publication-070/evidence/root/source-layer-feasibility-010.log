@@ -1,0 +1,14 @@
+waiting_for_human_geometry_slot pid=98827
+acquired_human_geometry_slot pid=98827
+{
+  "input_sha256": "0feda312f87a58ac8d7f73b9d27d870911d86040396ac0c65c24feeac682ee2b",
+  "fixed_O_face_tets": 4777,
+  "tested_I_nodes": 36,
+  "infeasible_star_nodes": 1,
+  "minimum_altitude_margin_m": -0.0,
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0,
+  "limitations": [
+    "Necessary affine fixed-outer-star feasibility in a 20 mm coordinate box only. Does not establish full tetrahedral feasibility, skin/fat closure, contact or native physics."
+  ]
+}

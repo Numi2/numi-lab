@@ -1,0 +1,15 @@
+{
+  "builder_sha256": "6247419fcc2ce4c396306ee358edaf8b666b47afef1702a87853440a877919bd",
+  "pins": {
+    "native_nodes_csv_sha256": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+    "native_parent_ledger_sha256": "ef276f8bd6348b333d6fc8ad76d869c3ea723e1ab89d6f149fa34b778ce1056e",
+    "overlap_helper_sha256": "82ea2fb8ea96ed2f4bdba0124bbd37a05e28ead7e3568da24fad7e9c7c071ef2",
+    "refinement_candidate_sha256": "52c81dbe323eab2240bc315f7b7bde605a201fa8e928206f27000de7e5d7a492",
+    "refinement_input_sha256": "3df28e930e5b27229633bf2e3a91f0d40fd6e57d94489c3ba7de6ae2828a0e1d",
+    "refinement_manifest_sha256": "d667839662805800b450138009abdbc2cfbb4b6bf9ad111170762412d59b3f53",
+    "report_sha256": "95432a6d6b77f4cc5b9e1ad2260349129ab24206f92e895322fe11a02b504a8e",
+    "transfer_csr_sha256": "cab4f2e04173c53de694fe47c6f721adbe6675fc0318e3090192fca983aad56e"
+  },
+  "report_sha256": "39901792127afd0d123eff72674664e63305e4ccd8ba38c495995176cb82962c",
+  "transfer_csr_sha256": "cab4f2e04173c53de694fe47c6f721adbe6675fc0318e3090192fca983aad56e"
+}

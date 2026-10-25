@@ -1,0 +1,552 @@
+{
+  "classification": "reference-cap-domain-audit_not_conservative_mass_ancestry",
+  "input": {
+    "npz_sha256": "0feda312f87a58ac8d7f73b9d27d870911d86040396ac0c65c24feeac682ee2b",
+    "report_sha256": "3950f7b57b79051889661422f984919852d1e2eacc54fc3a0e076a23ed38c2d0"
+  },
+  "interpretation": [
+    "All six cavities preserve the exact oriented side boundary chain. The lower/upper cap triangles are replaced by alternate diagonals over the same six vertices; because those vertices need not be coplanar, cap re-triangulation changes the cavity domain and signed volume.",
+    "The output-row to inherited-old-row mapping is deterministic bookkeeping only. No conservative material-parent or mass transfer map is established.",
+    "Target geometry retains the known fixed-I/D inverted-cell failure and is diagnostic only."
+  ],
+  "reference": {
+    "cavities": [
+      {
+        "cap_delta_m3": -1.6772235659975639e-09,
+        "cap_triangle_sets_equal": false,
+        "cap_vertex_sets_equal": true,
+        "delta_m3": -1.677223566001799e-09,
+        "layer": 0,
+        "material_id": 1,
+        "new_cap_signed_volume_m3": 2.4376425988210493e-07,
+        "new_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "new_side_signed_volume_m3": -1.9567152199716617e-07,
+        "new_signed_volume_m3": 4.809273788493858e-08,
+        "new_tet_nonpositive": 0,
+        "old_cap_signed_volume_m3": 2.454414834481025e-07,
+        "old_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "old_side_signed_volume_m3": -1.9567152199716617e-07,
+        "old_signed_volume_m3": 4.976996145094038e-08,
+        "old_tet_nonpositive": 0,
+        "patch": "donor23",
+        "side_chain_exactly_preserved": true,
+        "side_delta_m3": 0.0,
+        "tet_rows": [
+          13953,
+          13954,
+          13955,
+          13959,
+          13960,
+          13961,
+          13986,
+          13987,
+          13988,
+          13989,
+          13990,
+          13991
+        ]
+      },
+      {
+        "cap_delta_m3": -4.0748612911883946e-09,
+        "cap_triangle_sets_equal": false,
+        "cap_vertex_sets_equal": true,
+        "delta_m3": -4.0748612911885335e-09,
+        "layer": 1,
+        "material_id": 2,
+        "new_cap_signed_volume_m3": 1.9844678497286553e-07,
+        "new_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "new_side_signed_volume_m3": -1.5653034828897715e-07,
+        "new_signed_volume_m3": 4.191643668388533e-08,
+        "new_tet_nonpositive": 0,
+        "old_cap_signed_volume_m3": 2.0252164626405392e-07,
+        "old_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "old_side_signed_volume_m3": -1.5653034828897715e-07,
+        "old_signed_volume_m3": 4.5991297975073866e-08,
+        "old_tet_nonpositive": 0,
+        "patch": "donor23",
+        "side_chain_exactly_preserved": true,
+        "side_delta_m3": 0.0,
+        "tet_rows": [
+          28269,
+          28270,
+          28271,
+          28275,
+          28276,
+          28277,
+          28302,
+          28303,
+          28304,
+          28305,
+          28306,
+          28307
+        ]
+      },
+      {
+        "cap_delta_m3": -9.879707736998579e-10,
+        "cap_triangle_sets_equal": false,
+        "cap_vertex_sets_equal": true,
+        "delta_m3": -9.879707737018299e-10,
+        "layer": 0,
+        "material_id": 1,
+        "new_cap_signed_volume_m3": 5.260292306965034e-07,
+        "new_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "new_side_signed_volume_m3": -4.88121155524237e-07,
+        "new_signed_volume_m3": 3.790807517226854e-08,
+        "new_tet_nonpositive": 0,
+        "old_cap_signed_volume_m3": 5.270172014702033e-07,
+        "old_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "old_side_signed_volume_m3": -4.88121155524237e-07,
+        "old_signed_volume_m3": 3.889604594597037e-08,
+        "old_tet_nonpositive": 0,
+        "patch": "donor20",
+        "side_chain_exactly_preserved": true,
+        "side_delta_m3": 0.0,
+        "tet_rows": [
+          9359,
+          9360,
+          9361,
+          9446,
+          9447,
+          9448,
+          9545,
+          9546,
+          9547,
+          9548,
+          9549,
+          9550
+        ]
+      },
+      {
+        "cap_delta_m3": 9.433273787007706e-09,
+        "cap_triangle_sets_equal": false,
+        "cap_vertex_sets_equal": true,
+        "delta_m3": 9.433273787006052e-09,
+        "layer": 1,
+        "material_id": 2,
+        "new_cap_signed_volume_m3": 1.767546104852273e-06,
+        "new_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "new_side_signed_volume_m3": -1.6551668721920295e-06,
+        "new_signed_volume_m3": 1.1237923266025098e-07,
+        "new_tet_nonpositive": 0,
+        "old_cap_signed_volume_m3": 1.7581128310652654e-06,
+        "old_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "old_side_signed_volume_m3": -1.6551668721920295e-06,
+        "old_signed_volume_m3": 1.0294595887324493e-07,
+        "old_tet_nonpositive": 0,
+        "patch": "donor20",
+        "side_chain_exactly_preserved": true,
+        "side_delta_m3": 0.0,
+        "tet_rows": [
+          23675,
+          23676,
+          23677,
+          23762,
+          23763,
+          23764,
+          23861,
+          23862,
+          23863,
+          23864,
+          23865,
+          23866
+        ]
+      },
+      {
+        "cap_delta_m3": 1.242761689290941e-09,
+        "cap_triangle_sets_equal": false,
+        "cap_vertex_sets_equal": true,
+        "delta_m3": 1.2427616892929527e-09,
+        "layer": 0,
+        "material_id": 1,
+        "new_cap_signed_volume_m3": -1.6631380118137273e-06,
+        "new_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "new_side_signed_volume_m3": 2.2729038319631094e-06,
+        "new_signed_volume_m3": 6.09765820149386e-07,
+        "new_tet_nonpositive": 0,
+        "old_cap_signed_volume_m3": -1.6643807735030183e-06,
+        "old_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "old_side_signed_volume_m3": 2.2729038319631094e-06,
+        "old_signed_volume_m3": 6.08523058460093e-07,
+        "old_tet_nonpositive": 0,
+        "patch": "donor99",
+        "side_chain_exactly_preserved": true,
+        "side_delta_m3": 0.0,
+        "tet_rows": [
+          11841,
+          11842,
+          11843,
+          11856,
+          11857,
+          11858,
+          11859,
+          11860,
+          11861,
+          11862,
+          11863,
+          11864
+        ]
+      },
+      {
+        "cap_delta_m3": 3.135894531365108e-08,
+        "cap_triangle_sets_equal": false,
+        "cap_vertex_sets_equal": true,
+        "delta_m3": 3.135894531363986e-08,
+        "layer": 1,
+        "material_id": 2,
+        "new_cap_signed_volume_m3": -1.5751534870923687e-05,
+        "new_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "new_side_signed_volume_m3": 1.7267319586345007e-05,
+        "new_signed_volume_m3": 1.5157847154212884e-06,
+        "new_tet_nonpositive": 0,
+        "old_cap_signed_volume_m3": -1.578289381623734e-05,
+        "old_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "old_side_signed_volume_m3": 1.7267319586345007e-05,
+        "old_signed_volume_m3": 1.4844257701076486e-06,
+        "old_tet_nonpositive": 0,
+        "patch": "donor99",
+        "side_chain_exactly_preserved": true,
+        "side_delta_m3": 0.0,
+        "tet_rows": [
+          26157,
+          26158,
+          26159,
+          26172,
+          26173,
+          26174,
+          26175,
+          26176,
+          26177,
+          26178,
+          26179,
+          26180
+        ]
+      }
+    ],
+    "geometry": "AP original reference geometry",
+    "summed_cavity_delta_by_material_m3": {
+      "1": -1.4224326504106762e-09,
+      "2": 3.6717357809457376e-08
+    }
+  },
+  "runtime": {
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 0.43944597244262695
+  },
+  "schema": "numi.d36.connected-oid-cavity-volume-audit.v1",
+  "target": {
+    "cavities": [
+      {
+        "cap_delta_m3": 3.860545023265032e-09,
+        "cap_triangle_sets_equal": false,
+        "cap_vertex_sets_equal": true,
+        "delta_m3": 3.860545023293897e-09,
+        "layer": 0,
+        "material_id": 1,
+        "new_cap_signed_volume_m3": 1.0664297103371624e-07,
+        "new_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "new_side_signed_volume_m3": -6.777341739083369e-08,
+        "new_signed_volume_m3": 3.886955364288202e-08,
+        "new_tet_nonpositive": 1,
+        "old_cap_signed_volume_m3": 1.027824260104512e-07,
+        "old_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "old_side_signed_volume_m3": -6.777341739083369e-08,
+        "old_signed_volume_m3": 3.5009008619588125e-08,
+        "old_tet_nonpositive": 3,
+        "patch": "donor23",
+        "side_chain_exactly_preserved": true,
+        "side_delta_m3": 0.0,
+        "tet_rows": [
+          13953,
+          13954,
+          13955,
+          13959,
+          13960,
+          13961,
+          13986,
+          13987,
+          13988,
+          13989,
+          13990,
+          13991
+        ]
+      },
+      {
+        "cap_delta_m3": -4.0748612911883946e-09,
+        "cap_triangle_sets_equal": false,
+        "cap_vertex_sets_equal": true,
+        "delta_m3": -4.0748612911885335e-09,
+        "layer": 1,
+        "material_id": 2,
+        "new_cap_signed_volume_m3": 1.9844678497286553e-07,
+        "new_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "new_side_signed_volume_m3": -1.5653034828897715e-07,
+        "new_signed_volume_m3": 4.191643668388533e-08,
+        "new_tet_nonpositive": 0,
+        "old_cap_signed_volume_m3": 2.0252164626405392e-07,
+        "old_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "old_side_signed_volume_m3": -1.5653034828897715e-07,
+        "old_signed_volume_m3": 4.5991297975073866e-08,
+        "old_tet_nonpositive": 0,
+        "patch": "donor23",
+        "side_chain_exactly_preserved": true,
+        "side_delta_m3": 0.0,
+        "tet_rows": [
+          28269,
+          28270,
+          28271,
+          28275,
+          28276,
+          28277,
+          28302,
+          28303,
+          28304,
+          28305,
+          28306,
+          28307
+        ]
+      },
+      {
+        "cap_delta_m3": -1.7687969135155263e-09,
+        "cap_triangle_sets_equal": false,
+        "cap_vertex_sets_equal": true,
+        "delta_m3": -1.768796913519821e-09,
+        "layer": 0,
+        "material_id": 1,
+        "new_cap_signed_volume_m3": 1.1360103501483693e-06,
+        "new_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "new_side_signed_volume_m3": -1.10304305504834e-06,
+        "new_signed_volume_m3": 3.296729510003751e-08,
+        "new_tet_nonpositive": 3,
+        "old_cap_signed_volume_m3": 1.1377791470618849e-06,
+        "old_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "old_side_signed_volume_m3": -1.10304305504834e-06,
+        "old_signed_volume_m3": 3.473609201355733e-08,
+        "old_tet_nonpositive": 3,
+        "patch": "donor20",
+        "side_chain_exactly_preserved": true,
+        "side_delta_m3": 0.0,
+        "tet_rows": [
+          9359,
+          9360,
+          9361,
+          9446,
+          9447,
+          9448,
+          9545,
+          9546,
+          9547,
+          9548,
+          9549,
+          9550
+        ]
+      },
+      {
+        "cap_delta_m3": 9.433273787007706e-09,
+        "cap_triangle_sets_equal": false,
+        "cap_vertex_sets_equal": true,
+        "delta_m3": 9.433273787006052e-09,
+        "layer": 1,
+        "material_id": 2,
+        "new_cap_signed_volume_m3": 1.767546104852273e-06,
+        "new_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "new_side_signed_volume_m3": -1.6551668721920295e-06,
+        "new_signed_volume_m3": 1.1237923266025098e-07,
+        "new_tet_nonpositive": 0,
+        "old_cap_signed_volume_m3": 1.7581128310652654e-06,
+        "old_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "old_side_signed_volume_m3": -1.6551668721920295e-06,
+        "old_signed_volume_m3": 1.0294595887324493e-07,
+        "old_tet_nonpositive": 0,
+        "patch": "donor20",
+        "side_chain_exactly_preserved": true,
+        "side_delta_m3": 0.0,
+        "tet_rows": [
+          23675,
+          23676,
+          23677,
+          23762,
+          23763,
+          23764,
+          23861,
+          23862,
+          23863,
+          23864,
+          23865,
+          23866
+        ]
+      },
+      {
+        "cap_delta_m3": 7.106152193248641e-09,
+        "cap_triangle_sets_equal": false,
+        "cap_vertex_sets_equal": true,
+        "delta_m3": 7.106152192182968e-09,
+        "layer": 0,
+        "material_id": 1,
+        "new_cap_signed_volume_m3": -2.1897241157379037e-06,
+        "new_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "new_side_signed_volume_m3": 2.8613532145807954e-06,
+        "new_signed_volume_m3": 6.716290988409773e-07,
+        "new_tet_nonpositive": 0,
+        "old_cap_signed_volume_m3": -2.1968302679311523e-06,
+        "old_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "old_side_signed_volume_m3": 2.8613532145807954e-06,
+        "old_signed_volume_m3": 6.645229466487944e-07,
+        "old_tet_nonpositive": 1,
+        "patch": "donor99",
+        "side_chain_exactly_preserved": true,
+        "side_delta_m3": 0.0,
+        "tet_rows": [
+          11841,
+          11842,
+          11843,
+          11856,
+          11857,
+          11858,
+          11859,
+          11860,
+          11861,
+          11862,
+          11863,
+          11864
+        ]
+      },
+      {
+        "cap_delta_m3": 3.135894531365108e-08,
+        "cap_triangle_sets_equal": false,
+        "cap_vertex_sets_equal": true,
+        "delta_m3": 3.135894531363986e-08,
+        "layer": 1,
+        "material_id": 2,
+        "new_cap_signed_volume_m3": -1.5751534870923687e-05,
+        "new_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "new_side_signed_volume_m3": 1.7267319586345007e-05,
+        "new_signed_volume_m3": 1.5157847154212884e-06,
+        "new_tet_nonpositive": 0,
+        "old_cap_signed_volume_m3": -1.578289381623734e-05,
+        "old_oriented_boundary": {
+          "cap_triangle_count": 8,
+          "side_triangle_count": 12,
+          "total_triangle_count": 20
+        },
+        "old_side_signed_volume_m3": 1.7267319586345007e-05,
+        "old_signed_volume_m3": 1.4844257701076486e-06,
+        "old_tet_nonpositive": 0,
+        "patch": "donor99",
+        "side_chain_exactly_preserved": true,
+        "side_delta_m3": 0.0,
+        "tet_rows": [
+          26157,
+          26158,
+          26159,
+          26172,
+          26173,
+          26174,
+          26175,
+          26176,
+          26177,
+          26178,
+          26179,
+          26180
+        ]
+      }
+    ],
+    "geometry": "target O with original AP I/D fixed",
+    "summed_cavity_delta_by_material_m3": {
+      "1": 9.197900301957044e-09,
+      "2": 3.6717357809457376e-08
+    }
+  }
+}

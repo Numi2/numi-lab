@@ -30,6 +30,16 @@ enum class VolumeAncestryVerificationKind : std::uint8_t {
 // order when constructing ObjectSource; surface rows remain separate in the
 // SkinBoundaryNodeMap. CSR fractions are caller-supplied ancestry bookkeeping;
 // they establish neither geometric overlap nor conservative pullback by themselves.
+struct ExplicitUnpairedVolumeSourceMassContribution {
+    // Source-domain node/material row. This is independent of a child node's
+    // single registered frame owner and is used only for rigid mass debit.
+    std::uint32_t parentNodeIndex=NM_INVALID_INDEX;
+    std::uint32_t materialIndex=NM_INVALID_INDEX;
+    std::uint32_t donorBodyIndex=NM_INVALID_INDEX;
+    double massKg=0.0;
+    V3 donorLocalPosition{};
+};
+
 struct ExplicitUnpairedVolumeTopology {
     // Optional independent I/D registered boundaries. Both must be present
     // together; null keeps the legacy matched O/I/D face topology. The outer
@@ -62,6 +72,10 @@ struct ExplicitUnpairedVolumeTopology {
     // may carry a distinct pulled-back measure with its own pinned receipt.
     std::span<const double> parentTetrahedronMassKg;
     std::span<const double> childAncestryMeasureVolumeM3;
+    // Optional cooked source ledger in the original parent-node domain. Multiple
+    // source donors may contribute to one node/material row; these records never
+    // replace the unique per-child-node frame owner.
+    std::span<const ExplicitUnpairedVolumeSourceMassContribution> parentNodeSourceMassContributions;
     // Exact current RegisteredSurface row/stable ID for each tet facet, flattened
     // child*4+omitted-corner. Unmatched interior facets use INVALID in both.
     std::span<const std::uint32_t> childRegisteredLayerFacetSurfaceFaces;
@@ -121,6 +135,14 @@ struct ExplicitUnpairedVolumeNodeOwnerMass {
     double nodeFrameOwnerMassKg=0.0;
 };
 
+struct ExplicitUnpairedVolumeSourceMassClosure {
+    std::uint32_t materialIndex=NM_INVALID_INDEX;
+    std::uint32_t donorBodyIndex=NM_INVALID_INDEX;
+    double inputSourceMassKg=0.0;
+    double cookedParentMassKg=0.0;
+    double childSourceMassKg=0.0;
+};
+
 struct ExplicitUnpairedVolumeReport {
     std::vector<std::uint32_t> inputVolumeRowToObjectLocalNode;
     std::uint32_t volumeNodeCount=0;
@@ -131,6 +153,10 @@ struct ExplicitUnpairedVolumeReport {
     // material default. These fields report mass divided by emitted geometric
     // volume and its per-child extrema; they do not replace the density field.
     bool usesPerChildMassLedger=false;
+    bool usesParentNodeSourceMassContributions=false;
+    double maximumSourceNodeCookRoundingErrorKg=0.0;
+    double maximumSourceNodeCookRoundingRelativeError=0.0;
+    double maximumOutputSourceNodeMassClosureErrorKg=0.0;
     double skinParentMassKg=0.0, fatParentMassKg=0.0;
     double skinChildMassKg=0.0, fatChildMassKg=0.0;
     double skinMeanImpliedDensityKgM3=0.0, fatMeanImpliedDensityKgM3=0.0;
@@ -138,9 +164,10 @@ struct ExplicitUnpairedVolumeReport {
     double fatMinimumChildDensityKgM3=0.0, fatMaximumChildDensityKgM3=0.0;
     double maximumDonorMassClosureErrorKg=0.0;
     std::vector<ExplicitUnpairedVolumeDonorMassClosure> donorMassClosure;
-    // These compare mass source (parent ancestry) with the single frame/attachment
-    // owner carried by donorMassNodes. A mismatch is reported and rejects emission:
-    // the current rigid-body debit consumer cannot represent split source mass at one node.
+    std::vector<ExplicitUnpairedVolumeSourceMassClosure> sourceMassClosure;
+    // Legacy diagnostic comparing geometric dominant-parent attribution with the
+    // single node/frame owner. With an explicit source ledger, split mass is emitted
+    // separately and this diagnostic mismatch is retained without rejecting it.
     bool parentAncestryMatchesNodeFrameMassOwnership=false;
     std::vector<ExplicitUnpairedVolumeNodeOwnerMass> nodeOwnerMassByDonor;
     std::vector<ExplicitUnpairedVolumeNodeMassAttribution> nodeMassAttributionMismatches;
@@ -237,6 +264,9 @@ struct ExplicitUnpairedVolumeReport {
        (topology.parentTetrahedronMassKg.size()!=topology.parentTetrahedra.size()||
         topology.childAncestryMeasureVolumeM3.size()!=nt))
         return fail("unpaired skin/fat per-child mass ledger requires one parent mass and one child ancestry measure per row");
+    const bool hasParentNodeSourceMassLedger=!topology.parentNodeSourceMassContributions.empty();
+    if(hasParentNodeSourceMassLedger&&!hasPerChildMassLedger)
+        return fail("unpaired source-mass contributions require the authoritative per-child parent-mass ledger");
     if(topology.retainedOriginalNodeCount>n||
        topology.volumeNodeParentTetrahedra.size()!=n||
        topology.volumeNodeParentBarycentric.size()!=n||
@@ -530,8 +560,31 @@ struct ExplicitUnpairedVolumeReport {
     std::map<std::uint32_t,double> parentMassByMaterialKg,childMassByMaterialKg;
     std::map<std::pair<std::uint32_t,std::uint32_t>,double> parentMassByDonorKg,childMassByDonorKg;
     using NodeDonorKey=std::tuple<std::uint32_t,std::uint32_t,std::uint32_t>;
+    using NodeMaterialKey=std::pair<std::uint32_t,std::uint32_t>;
+    using MaterialDonorKey=std::pair<std::uint32_t,std::uint32_t>;
     std::map<NodeDonorKey,double> ancestryMassByNodeDonorKg,nodeOwnerMassByNodeDonorKg;
-    std::map<std::pair<std::uint32_t,std::uint32_t>,double> nodeOwnerMassByDonorKg;
+    std::map<MaterialDonorKey,double> nodeOwnerMassByDonorKg;
+    std::map<NodeMaterialKey,std::vector<std::size_t>> sourceRowsByNodeMaterial;
+    std::map<NodeMaterialKey,double> rawSourceMassByNodeMaterial,cookedParentMassByNodeMaterial;
+    std::map<MaterialDonorKey,double> rawSourceMassByMaterialDonor,cookedParentSourceMassByMaterialDonor,
+        childSourceMassByMaterialDonor;
+    bool parentAncestryMatchesNodeFrameMassOwnership=true;
+    std::map<std::pair<std::uint32_t,std::size_t>,double> childSourceMassByOutputNodeRow;
+    if(hasParentNodeSourceMassLedger){
+        for(std::size_t row=0;row<topology.parentNodeSourceMassContributions.size();++row){
+            const auto& source=topology.parentNodeSourceMassContributions[row];
+            if(source.parentNodeIndex>=topology.parentReferenceWorldPoints.size()||
+               (source.materialIndex!=skinMaterialIndex&&source.materialIndex!=fatMaterialIndex)||
+               source.donorBodyIndex==invalid||source.donorBodyIndex>=sourceBodyCount||
+               !std::isfinite(source.massKg)||source.massKg<=0.0||
+               !finitePoint(source.donorLocalPosition))
+                return fail("unpaired parent-node source-mass ledger has an invalid node, material, donor, mass, or local point at row "+std::to_string(row));
+            const NodeMaterialKey key{source.parentNodeIndex,source.materialIndex};
+            sourceRowsByNodeMaterial[key].push_back(row);
+            rawSourceMassByNodeMaterial[key]+=source.massKg;
+            rawSourceMassByMaterialDonor[{source.materialIndex,source.donorBodyIndex}]+=source.massKg;
+        }
+    }
     for(std::size_t p=0;p<topology.parentTetrahedra.size();++p){
         const auto tet=topology.parentTetrahedra[p];
         for(auto node:tet)if(node>=topology.parentReferenceWorldPoints.size())
@@ -545,8 +598,44 @@ struct ExplicitUnpairedVolumeReport {
             const double mass=topology.parentTetrahedronMassKg[p];
             if(!std::isfinite(mass)||mass<0.0)
                 return fail("unpaired skin/fat parent mass ledger contains a negative or nonfinite mass");
-            parentMassByMaterialKg[topology.parentMaterialIndices[p]]+=mass;
-            parentMassByDonorKg[{topology.parentMaterialIndices[p],topology.parentDonorBodyIndices[p]}]+=mass;
+            const auto material=topology.parentMaterialIndices[p];
+            parentMassByMaterialKg[material]+=mass;
+            parentMassByDonorKg[{material,topology.parentDonorBodyIndices[p]}]+=mass;
+            if(hasParentNodeSourceMassLedger){
+                for(auto node:tet){
+                    const NodeMaterialKey key{node,material};
+                    const auto found=sourceRowsByNodeMaterial.find(key);
+                    if(found==sourceRowsByNodeMaterial.end()||found->second.empty()||
+                       !std::isfinite(rawSourceMassByNodeMaterial[key])||rawSourceMassByNodeMaterial[key]<=0.0)
+                        return fail("unpaired parent-node source-mass ledger omits a material corner contribution");
+                    cookedParentMassByNodeMaterial[key]+=mass*0.25;
+                    for(auto sourceRow:found->second){
+                        const auto& source=topology.parentNodeSourceMassContributions[sourceRow];
+                        cookedParentSourceMassByMaterialDonor[{material,source.donorBodyIndex}]+=
+                            mass*0.25*(source.massKg/rawSourceMassByNodeMaterial[key]);
+                    }
+                }
+            }
+        }
+    }
+    double maximumSourceCookErrorKg=0.0,maximumSourceCookRelativeError=0.0;
+    if(hasParentNodeSourceMassLedger){
+        std::set<NodeMaterialKey> sourceKeys;
+        for(const auto& [key,value]:rawSourceMassByNodeMaterial){(void)value;sourceKeys.insert(key);}
+        for(const auto& [key,value]:cookedParentMassByNodeMaterial){(void)value;sourceKeys.insert(key);}
+        for(const auto& key:sourceKeys){
+            const double raw=rawSourceMassByNodeMaterial[key],cooked=cookedParentMassByNodeMaterial[key];
+            if(!(raw>0.0&&cooked>0.0&&std::isfinite(raw)&&std::isfinite(cooked)))
+                return fail("unpaired parent-node source ledger does not exactly cover the active parent material-node domain");
+            const double errorKg=std::abs(raw-cooked);
+            const double relative=errorKg/std::max({raw,cooked,1.0e-12});
+            maximumSourceCookErrorKg=std::max(maximumSourceCookErrorKg,errorKg);
+            maximumSourceCookRelativeError=std::max(maximumSourceCookRelativeError,relative);
+            // The source contribution CSV and the compiled F32 cell ledger use
+            // different accumulation paths. Permit only the measured sub-5e-4
+            // per-node/material rounding range; retain the exact error in report.
+            if(errorKg>std::max(1.0e-10,5.0e-4*std::max(raw,cooked)))
+                return fail("unpaired raw source-node mass differs from cooked parent-corner mass beyond the declared Float32 cook-rounding bound");
         }
     }
     double skinVolume=0.0,fatVolume=0.0;
@@ -604,6 +693,25 @@ struct ExplicitUnpairedVolumeReport {
                     ancestryMassByNodeDonorKg[{material,node,sourceDonor}]+=nodeShare;
                     nodeOwnerMassByNodeDonorKg[{material,node,topology.volumeNodeDonorBodyIndices[node]}]+=nodeShare;
                 }
+                if(hasParentNodeSourceMassLedger){
+                    // Lump child mass to each child corner, then distribute that
+                    // corner mass evenly over the four source-parent corners. This
+                    // preserves parent source-mass moments without changing the
+                    // child node's independent frame owner.
+                    const auto parentTet=topology.parentTetrahedra[parent];
+                    const double childCornerMass=transferred*0.25;
+                    for(auto childNode:ids)for(auto parentNode:parentTet){
+                        const NodeMaterialKey sourceKey{parentNode,material};
+                        const auto& sourceRows=sourceRowsByNodeMaterial[sourceKey];
+                        for(auto sourceRow:sourceRows){
+                            const auto& source=topology.parentNodeSourceMassContributions[sourceRow];
+                            const double amount=childCornerMass*0.25*
+                                (source.massKg/rawSourceMassByNodeMaterial[sourceKey]);
+                            childSourceMassByOutputNodeRow[{childNode,sourceRow}]+=amount;
+                            childSourceMassByMaterialDonor[{material,source.donorBodyIndex}]+=amount;
+                        }
+                    }
+                }
             }
         }
         if(!std::isfinite(sum)||std::abs(sum-1.0)>1.0e-6)
@@ -654,7 +762,11 @@ struct ExplicitUnpairedVolumeReport {
             }
         }
         report={};report.usesPerChildMassLedger=true;
-        report.parentAncestryMatchesNodeFrameMassOwnership=attributionMismatches.empty();
+        report.usesParentNodeSourceMassContributions=hasParentNodeSourceMassLedger;
+        report.maximumSourceNodeCookRoundingErrorKg=maximumSourceCookErrorKg;
+        report.maximumSourceNodeCookRoundingRelativeError=maximumSourceCookRelativeError;
+        parentAncestryMatchesNodeFrameMassOwnership=attributionMismatches.empty();
+        report.parentAncestryMatchesNodeFrameMassOwnership=parentAncestryMatchesNodeFrameMassOwnership;
         report.nodeMassAttributionMismatches=attributionMismatches;
         report.skinParentMassKg=parentMassByMaterialKg[skinMaterialIndex];
         report.fatParentMassKg=parentMassByMaterialKg[fatMaterialIndex];
@@ -671,8 +783,24 @@ struct ExplicitUnpairedVolumeReport {
             report.nodeOwnerMassByDonor.push_back({.materialIndex=key.first,.donorBodyIndex=key.second,
                 .parentAncestryMassKg=childMassByDonorKg[key],
                 .nodeFrameOwnerMassKg=nodeOwnerMassByDonorKg[key]});
-        if(!attributionMismatches.empty())
+        if(!attributionMismatches.empty()&&!hasParentNodeSourceMassLedger)
             return fail("unpaired skin/fat parent-ancestry mass is assigned to a different rigid-body debit donor than node frame ownership; source-contribution mass-moment consumer is required");
+        if(hasParentNodeSourceMassLedger){
+            std::set<MaterialDonorKey> sourceKeys;
+            for(const auto& [key,value]:rawSourceMassByMaterialDonor){(void)value;sourceKeys.insert(key);}
+            for(const auto& [key,value]:cookedParentSourceMassByMaterialDonor){(void)value;sourceKeys.insert(key);}
+            for(const auto& [key,value]:childSourceMassByMaterialDonor){(void)value;sourceKeys.insert(key);}
+            for(const auto& key:sourceKeys){
+                const double raw=rawSourceMassByMaterialDonor[key];
+                const double cooked=cookedParentSourceMassByMaterialDonor[key];
+                const double child=childSourceMassByMaterialDonor[key];
+                if(!std::isfinite(raw)||!std::isfinite(cooked)||!std::isfinite(child)||
+                   std::abs(cooked-child)>1.0e-6*std::max({std::abs(cooked),std::abs(child),1.0e-12}))
+                    return fail("unpaired source-donor mass does not close through the child ancestry CSR");
+                report.sourceMassClosure.push_back({.materialIndex=key.first,.donorBodyIndex=key.second,
+                    .inputSourceMassKg=raw,.cookedParentMassKg=cooked,.childSourceMassKg=child});
+            }
+        }
     }
 
     auto densityFor=[&](std::uint32_t index,double debit,double volume,double& density)->bool{
@@ -780,12 +908,33 @@ struct ExplicitUnpairedVolumeReport {
     nextFat.materialName=std::string(fatMaterialName);nextFat.materialProvenance=std::string(fatMaterialProvenance);nextFat.materialIndex=fatMaterialIndex;nextFat.firstGlobalFEMNode=static_cast<std::uint32_t>(firstGlobal);nextFat.volumeM3=fatVolume;nextFat.massDebitKg=fatDonorDebitKg;nextFat.densityKgM3=rhoFat;
     nextSkin.tetSourceFace.reserve(nt);nextFat.tetSourceFace.reserve(nt);
     nextSkin.tetParentAncestryOffsets.push_back(0u);nextFat.tetParentAncestryOffsets.push_back(0u);
-    nextSkin.donorMassNodes.reserve(n);nextFat.donorMassNodes.reserve(n);
+    nextSkin.donorMassNodes.reserve(n);
     for(std::size_t node=0;node<n;++node){
         if(!std::isfinite(nodalMass[node])||nodalMass[node]<=0.0)return fail("unpaired skin/fat node has nonpositive combined density*volume mass");
         const auto body=topology.volumeNodeDonorBodyIndices[node];
-        if(skinNodeMass[node]>0.0)nextSkin.donorMassNodes.push_back({.nodeIndex=static_cast<std::uint32_t>(firstGlobal+node),.donorBody=body,.massKg=skinNodeMass[node],.localPosition=topology.volumeNodeDonorLocalPoints[node]});
-        if(fatNodeMass[node]>0.0)nextFat.donorMassNodes.push_back({.nodeIndex=static_cast<std::uint32_t>(firstGlobal+node),.donorBody=body,.massKg=fatNodeMass[node],.localPosition=topology.volumeNodeDonorLocalPoints[node]});
+        // Exactly one frame/attachment row per compiled node, independent of
+        // which source bodies contributed its skin and fat mass.
+        nextSkin.donorMassNodes.push_back({.nodeIndex=static_cast<std::uint32_t>(firstGlobal+node),
+            .donorBody=body,.massKg=nodalMass[node],.localPosition=topology.volumeNodeDonorLocalPoints[node]});
+    }
+    if(hasParentNodeSourceMassLedger){
+        std::vector<double> explicitMassByNode(n,0.0);
+        nextSkin.donorMassContributions.reserve(childSourceMassByOutputNodeRow.size());
+        for(const auto& [key,mass]:childSourceMassByOutputNodeRow){
+            const auto [node,sourceRow]=key;
+            const auto& source=topology.parentNodeSourceMassContributions[sourceRow];
+            explicitMassByNode[node]+=mass;
+            nextSkin.donorMassContributions.push_back({static_cast<std::uint32_t>(firstGlobal+node),
+                source.donorBodyIndex,mass,source.donorLocalPosition});
+        }
+        double maximumClosure=0.0;
+        for(std::size_t node=0;node<n;++node){
+            const double errorKg=std::abs(explicitMassByNode[node]-nodalMass[node]);
+            maximumClosure=std::max(maximumClosure,errorKg);
+            if(errorKg>1.0e-9*std::max({explicitMassByNode[node],nodalMass[node],1.0e-12}))
+                return fail("unpaired source contributions do not close the unique compiled node/frame mass");
+        }
+        report.maximumOutputSourceNodeMassClosureErrorKg=maximumClosure;
     }
     // Store per-material tet ancestry using the same exact child row order.
     for(std::size_t child=0;child<nt;++child){
@@ -814,7 +963,21 @@ struct ExplicitUnpairedVolumeReport {
         setDensity(skinMaterialIndex,rhoSkin);setDensity(fatMaterialIndex,rhoFat);
     }
     world.objects.push_back(std::move(object));
+    // Preserve ledger details assembled during validation; the final common
+    // report initialization must not erase the source/cooked reconciliation.
+    const bool usesSourceMassContributions=report.usesParentNodeSourceMassContributions;
+    const double preservedSourceCookErrorKg=report.maximumSourceNodeCookRoundingErrorKg;
+    const double preservedSourceCookRelativeError=report.maximumSourceNodeCookRoundingRelativeError;
+    const double maximumOutputSourceClosureErrorKg=report.maximumOutputSourceNodeMassClosureErrorKg;
+    auto sourceMassClosure=std::move(report.sourceMassClosure);
+    auto nodeMassAttributionMismatches=std::move(report.nodeMassAttributionMismatches);
     report={};report.volumeNodeCount=static_cast<std::uint32_t>(n);report.tetrahedronCount=static_cast<std::uint32_t>(nt);
+    report.usesParentNodeSourceMassContributions=usesSourceMassContributions;
+    report.maximumSourceNodeCookRoundingErrorKg=preservedSourceCookErrorKg;
+    report.maximumSourceNodeCookRoundingRelativeError=preservedSourceCookRelativeError;
+    report.maximumOutputSourceNodeMassClosureErrorKg=maximumOutputSourceClosureErrorKg;
+    report.sourceMassClosure=std::move(sourceMassClosure);
+    report.nodeMassAttributionMismatches=std::move(nodeMassAttributionMismatches);
     report.skinVolumeM3=skinVolume;report.fatVolumeM3=fatVolume;report.skinDensityKgM3=rhoSkin;report.fatDensityKgM3=rhoFat;
     report.usesPerChildMassLedger=hasPerChildMassLedger;
     if(hasPerChildMassLedger){
@@ -829,7 +992,7 @@ struct ExplicitUnpairedVolumeReport {
         report.fatMinimumChildDensityKgM3=fatMinChildDensity;
         report.fatMaximumChildDensityKgM3=fatMaxChildDensity;
         report.maximumDonorMassClosureErrorKg=maximumDonorMassClosureErrorKg;
-        report.parentAncestryMatchesNodeFrameMassOwnership=true;
+        report.parentAncestryMatchesNodeFrameMassOwnership=parentAncestryMatchesNodeFrameMassOwnership;
         std::set<std::pair<std::uint32_t,std::uint32_t>> ownerKeys;
         for(const auto& [key,parentMass]:parentMassByDonorKg){
             ownerKeys.insert(key);

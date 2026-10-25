@@ -1,0 +1,673 @@
+{
+  "classification": "stopped_outer_target_surface_failed_exact_geometry_preflight",
+  "fit": null,
+  "inputs": {
+    "/Users/n/Work/numi-human-connected-surface-069/canonical/matter/tools/human_skin_fat_connected_repair.py": "3907a29c8363d5f1d0a90e52f637e0f8fce03c23b47296189e4e02884ee9dd2f",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-024-final080-candidate-source-frames-001/native-source-only-024/common-rigid-transfer-row-diagnostic-005.json": "caf9a865dc329dc8fbe9f45aee27872514e6768654ff6e1cd725d67cf51bedae",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/exact-plane-filter-owner-264/src/numilab_human/cardiac_cavity_intersections.py": "207236eb886e921b21ff281f44637140ea4bf9438b27561954dfe9528be71d27",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/embedding.csv": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/nodes.csv": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/native-step-001/registered-skin.csv": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/final074-neutral-reference-002/body-frames.json": "0abeef83c47ffcf304ef62be9321ed6d0169d942f3c20c05dd94e4df59c15db8",
+    "/Users/numi/Work/294-source-frame-audit-001/reference-fit-layer-counterfactual-001/run-001/whole-layer-reference-fit.npz": "ac66cfd7a1f3139e8f63030c4889fb83000dab701700dc120bc3bbc69f6867d0"
+  },
+  "limitations": [
+    "Outer target coordinates are the exact source-ancestry and pinned-placement positions from the preceding bounded reference-fit run.",
+    "The least-squares displacement-gradient extension is a construction counterfactual; no material constitutive model, collision gate, or physical acceptance is inferred.",
+    "No bone audit, whole-body external-surface audit, native runtime, or NHSKIN mutation was performed."
+  ],
+  "outer_target_preflight": {
+    "ancestry_domain": "D36 O-face rows with per-vertex direct source vertex IDs or barycentric source face IDs; stable_source_face_id points to detailed294 face ancestry; ring_id is a construction-region label, not an anatomical region name",
+    "baseline_area_m2": {
+      "count": 4777,
+      "max": 0.006677830894201885,
+      "median": 6.720020143609097e-05,
+      "min": 2.327703735125035e-07,
+      "p95": 0.0017041617463857725,
+      "p99": 0.0030996742787309612
+    },
+    "baseline_exact_self_pairs": 0,
+    "exact_target_surface_valid_for_interior_fit": false,
+    "face_normal_cosine_vs_baseline": {
+      "count": 4777,
+      "max": 1.0000000000000004,
+      "median": 0.9999999999988035,
+      "min": -0.6797020905735488,
+      "p95": 0.999999999999998,
+      "p99": 0.9999999999999998
+    },
+    "normal_cosine_negative_count_diagnostic_only": 5,
+    "outer_faces": 4777,
+    "source_target_npz_sha256": "ac66cfd7a1f3139e8f63030c4889fb83000dab701700dc120bc3bbc69f6867d0",
+    "target_area_m2": {
+      "count": 4777,
+      "max": 0.0066778305118743745,
+      "median": 6.694535829012305e-05,
+      "min": 2.3276533010042437e-07,
+      "p95": 0.0017041609893509442,
+      "p99": 0.003099674616495145
+    },
+    "target_area_zero_faces": 0,
+    "target_exact_self_pairs": 9,
+    "target_self_pair_witnesses": [
+      {
+        "face_pair": [
+          3019,
+          3020
+        ],
+        "source_faces": [
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 1470,
+                "ring_id": 4294967295,
+                "source_vertex_id": 32246
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1429,
+                "ring_id": 4294967295,
+                "source_vertex_id": 31512
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1510,
+                "ring_id": 4294967295,
+                "source_vertex_id": 32940
+              }
+            ],
+            "outer_face_id": 3019,
+            "outer_rows": [
+              1470,
+              1429,
+              1510
+            ],
+            "stable_source_face_id": 104734
+          },
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 1429,
+                "ring_id": 4294967295,
+                "source_vertex_id": 31512
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1509,
+                "ring_id": 4294967295,
+                "source_vertex_id": 32921
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1511,
+                "ring_id": 4294967295,
+                "source_vertex_id": 32946
+              }
+            ],
+            "outer_face_id": 3020,
+            "outer_rows": [
+              1429,
+              1509,
+              1511
+            ],
+            "stable_source_face_id": 105136
+          }
+        ]
+      },
+      {
+        "face_pair": [
+          3020,
+          3105
+        ],
+        "source_faces": [
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 1429,
+                "ring_id": 4294967295,
+                "source_vertex_id": 31512
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1509,
+                "ring_id": 4294967295,
+                "source_vertex_id": 32921
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1511,
+                "ring_id": 4294967295,
+                "source_vertex_id": 32946
+              }
+            ],
+            "outer_face_id": 3020,
+            "outer_rows": [
+              1429,
+              1509,
+              1511
+            ],
+            "stable_source_face_id": 105136
+          },
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 1470,
+                "ring_id": 4294967295,
+                "source_vertex_id": 32246
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1510,
+                "ring_id": 4294967295,
+                "source_vertex_id": 32940
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1516,
+                "ring_id": 4294967295,
+                "source_vertex_id": 32986
+              }
+            ],
+            "outer_face_id": 3105,
+            "outer_rows": [
+              1470,
+              1510,
+              1516
+            ],
+            "stable_source_face_id": 104726
+          }
+        ]
+      },
+      {
+        "face_pair": [
+          3021,
+          3105
+        ],
+        "source_faces": [
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 1510,
+                "ring_id": 4294967295,
+                "source_vertex_id": 32940
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1429,
+                "ring_id": 4294967295,
+                "source_vertex_id": 31512
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1511,
+                "ring_id": 4294967295,
+                "source_vertex_id": 32946
+              }
+            ],
+            "outer_face_id": 3021,
+            "outer_rows": [
+              1510,
+              1429,
+              1511
+            ],
+            "stable_source_face_id": 105134
+          },
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 1470,
+                "ring_id": 4294967295,
+                "source_vertex_id": 32246
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1510,
+                "ring_id": 4294967295,
+                "source_vertex_id": 32940
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1516,
+                "ring_id": 4294967295,
+                "source_vertex_id": 32986
+              }
+            ],
+            "outer_face_id": 3105,
+            "outer_rows": [
+              1470,
+              1510,
+              1516
+            ],
+            "stable_source_face_id": 104726
+          }
+        ]
+      },
+      {
+        "face_pair": [
+          3908,
+          3945
+        ],
+        "source_faces": [
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 1915,
+                "ring_id": 4294967295,
+                "source_vertex_id": 44765
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1892,
+                "ring_id": 4294967295,
+                "source_vertex_id": 44179
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2326,
+                "ring_id": 4294967295,
+                "source_vertex_id": 55368
+              }
+            ],
+            "outer_face_id": 3908,
+            "outer_rows": [
+              1915,
+              1892,
+              2326
+            ],
+            "stable_source_face_id": 73814
+          },
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 1932,
+                "ring_id": 4294967295,
+                "source_vertex_id": 45304
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1912,
+                "ring_id": 4294967295,
+                "source_vertex_id": 44754
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2327,
+                "ring_id": 4294967295,
+                "source_vertex_id": 55386
+              }
+            ],
+            "outer_face_id": 3945,
+            "outer_rows": [
+              1932,
+              1912,
+              2327
+            ],
+            "stable_source_face_id": 74836
+          }
+        ]
+      },
+      {
+        "face_pair": [
+          3908,
+          3946
+        ],
+        "source_faces": [
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 1915,
+                "ring_id": 4294967295,
+                "source_vertex_id": 44765
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1892,
+                "ring_id": 4294967295,
+                "source_vertex_id": 44179
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2326,
+                "ring_id": 4294967295,
+                "source_vertex_id": 55368
+              }
+            ],
+            "outer_face_id": 3908,
+            "outer_rows": [
+              1915,
+              1892,
+              2326
+            ],
+            "stable_source_face_id": 73814
+          },
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 1912,
+                "ring_id": 4294967295,
+                "source_vertex_id": 44754
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2326,
+                "ring_id": 4294967295,
+                "source_vertex_id": 55368
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2327,
+                "ring_id": 4294967295,
+                "source_vertex_id": 55386
+              }
+            ],
+            "outer_face_id": 3946,
+            "outer_rows": [
+              1912,
+              2326,
+              2327
+            ],
+            "stable_source_face_id": 74833
+          }
+        ]
+      },
+      {
+        "face_pair": [
+          3910,
+          3945
+        ],
+        "source_faces": [
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 2326,
+                "ring_id": 4294967295,
+                "source_vertex_id": 55368
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1892,
+                "ring_id": 4294967295,
+                "source_vertex_id": 44179
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2327,
+                "ring_id": 4294967295,
+                "source_vertex_id": 55386
+              }
+            ],
+            "outer_face_id": 3910,
+            "outer_rows": [
+              2326,
+              1892,
+              2327
+            ],
+            "stable_source_face_id": 72769
+          },
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 1932,
+                "ring_id": 4294967295,
+                "source_vertex_id": 45304
+              },
+              {
+                "kind": "direct",
+                "outer_row": 1912,
+                "ring_id": 4294967295,
+                "source_vertex_id": 44754
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2327,
+                "ring_id": 4294967295,
+                "source_vertex_id": 55386
+              }
+            ],
+            "outer_face_id": 3945,
+            "outer_rows": [
+              1932,
+              1912,
+              2327
+            ],
+            "stable_source_face_id": 74836
+          }
+        ]
+      },
+      {
+        "face_pair": [
+          4682,
+          4697
+        ],
+        "source_faces": [
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 2267,
+                "ring_id": 4294967295,
+                "source_vertex_id": 52504
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2274,
+                "ring_id": 4294967295,
+                "source_vertex_id": 52692
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2280,
+                "ring_id": 4294967295,
+                "source_vertex_id": 52884
+              }
+            ],
+            "outer_face_id": 4682,
+            "outer_rows": [
+              2267,
+              2274,
+              2280
+            ],
+            "stable_source_face_id": 90292
+          },
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 2274,
+                "ring_id": 4294967295,
+                "source_vertex_id": 52692
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2275,
+                "ring_id": 4294967295,
+                "source_vertex_id": 52693
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2284,
+                "ring_id": 4294967295,
+                "source_vertex_id": 53192
+              }
+            ],
+            "outer_face_id": 4697,
+            "outer_rows": [
+              2274,
+              2275,
+              2284
+            ],
+            "stable_source_face_id": 90687
+          }
+        ]
+      },
+      {
+        "face_pair": [
+          4683,
+          4697
+        ],
+        "source_faces": [
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 2267,
+                "ring_id": 4294967295,
+                "source_vertex_id": 52504
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2280,
+                "ring_id": 4294967295,
+                "source_vertex_id": 52884
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2292,
+                "ring_id": 4294967295,
+                "source_vertex_id": 53529
+              }
+            ],
+            "outer_face_id": 4683,
+            "outer_rows": [
+              2267,
+              2280,
+              2292
+            ],
+            "stable_source_face_id": 90667
+          },
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 2274,
+                "ring_id": 4294967295,
+                "source_vertex_id": 52692
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2275,
+                "ring_id": 4294967295,
+                "source_vertex_id": 52693
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2284,
+                "ring_id": 4294967295,
+                "source_vertex_id": 53192
+              }
+            ],
+            "outer_face_id": 4697,
+            "outer_rows": [
+              2274,
+              2275,
+              2284
+            ],
+            "stable_source_face_id": 90687
+          }
+        ]
+      },
+      {
+        "face_pair": [
+          4683,
+          4698
+        ],
+        "source_faces": [
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 2267,
+                "ring_id": 4294967295,
+                "source_vertex_id": 52504
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2280,
+                "ring_id": 4294967295,
+                "source_vertex_id": 52884
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2292,
+                "ring_id": 4294967295,
+                "source_vertex_id": 53529
+              }
+            ],
+            "outer_face_id": 4683,
+            "outer_rows": [
+              2267,
+              2280,
+              2292
+            ],
+            "stable_source_face_id": 90667
+          },
+          {
+            "anchor_vertices": [
+              {
+                "kind": "direct",
+                "outer_row": 2280,
+                "ring_id": 4294967295,
+                "source_vertex_id": 52884
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2274,
+                "ring_id": 4294967295,
+                "source_vertex_id": 52692
+              },
+              {
+                "kind": "direct",
+                "outer_row": 2284,
+                "ring_id": 4294967295,
+                "source_vertex_id": 53192
+              }
+            ],
+            "outer_face_id": 4698,
+            "outer_rows": [
+              2280,
+              2274,
+              2284
+            ],
+            "stable_source_face_id": 90689
+          }
+        ]
+      }
+    ],
+    "target_to_baseline_face_area_ratio": {
+      "count": 4777,
+      "max": 2.502643021621842,
+      "median": 1.0000000060110603,
+      "min": 0.0932412886021606,
+      "p95": 1.244222672312601,
+      "p99": 1.5735185058826378
+    },
+    "zero_area_face_witnesses": []
+  },
+  "outputs": {
+    "npz": {
+      "path": "run-003/outer-target-preflight.npz",
+      "sha256": "8e8a88d44b3846105506abdd398b7050f9710a8a2061aa07dc5ded0d75043bd4"
+    }
+  },
+  "runtime": {
+    "hostname": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 3.656949043273926
+  },
+  "schema": "numi.human.current294-outer-target-connected-interior-fit.v1"
+}

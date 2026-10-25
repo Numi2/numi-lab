@@ -30,6 +30,7 @@ struct Fixture {
     std::vector<std::uint32_t> nodeDonor,childMaterial,dominant,parentSurface,childStable,childDonor;
     std::vector<std::array<std::uint32_t,4>> children,parentTets;
     std::vector<std::uint32_t> parentMaterial,parentStable,parentDonor;
+    std::vector<ExplicitUnpairedVolumeSourceMassContribution> sourceMassContributions;
     std::vector<std::uint32_t> parentOffsets,parentRows;
     std::vector<double> parentFractions;
     std::vector<std::uint32_t> facetRows,facetStable,sourceVertex,sourceFace,nodeParent;
@@ -281,7 +282,8 @@ numi::matter::WorldSource worldFor() {
     return world;
 }
 
-bool emit(Fixture& f,numi::matter::WorldSource& world,ExplicitUnpairedVolumeReport& report,std::string& error) {
+bool emit(Fixture& f,numi::matter::WorldSource& world,ExplicitUnpairedVolumeReport& report,std::string& error,
+          PreparedOrganicFEM* skinOutput=nullptr,PreparedOrganicFEM* fatOutput=nullptr) {
     double skinVolume=0.0,fatVolume=0.0;
     for(std::size_t i=0;i<f.children.size();++i) {
         const auto tet=f.children[i];
@@ -289,18 +291,23 @@ bool emit(Fixture& f,numi::matter::WorldSource& world,ExplicitUnpairedVolumeRepo
         (f.childMaterial[i]==0u?skinVolume:fatVolume)+=v;
     }
     PreparedOrganicFEM skin,fat;
-    return appendRegisteredSkinFatUnpairedVolume(world,f.surface,f.boundary,f.topology,
+    if(!appendRegisteredSkinFatUnpairedVolume(world,f.surface,f.boundary,f.topology,
         0u,"skin","test skin material",skinVolume*1000.0,1u,"fat","test fat material",
-        fatVolume*900.0,1u,"unpaired test shell",skin,fat,report,error);
+        fatVolume*900.0,1u,"unpaired test shell",skin,fat,report,error))return false;
+    if(skinOutput)*skinOutput=skin;
+    if(fatOutput)*fatOutput=fat;
+    return true;
 }
 
 bool emitMassLedger(Fixture& f,const std::vector<double>& parentMass,
                     const std::vector<double>& childMeasure,numi::matter::WorldSource& world,
                     PreparedOrganicFEM& skin,PreparedOrganicFEM& fat,
                     ExplicitUnpairedVolumeReport& report,std::string& error,
-                    double skinDebitScale=1.0,double fatDebitScale=1.0) {
+                    double skinDebitScale=1.0,double fatDebitScale=1.0,
+                    std::span<const ExplicitUnpairedVolumeSourceMassContribution> sourceContributions={}) {
     f.topology.parentTetrahedronMassKg=parentMass;
     f.topology.childAncestryMeasureVolumeM3=childMeasure;
+    f.topology.parentNodeSourceMassContributions=sourceContributions;
     double skinDebit=0.0,fatDebit=0.0;
     for(std::size_t p=0;p<parentMass.size();++p)
         (f.parentMaterial[p]==0u?skinDebit:fatDebit)+=parentMass[p];
@@ -314,11 +321,51 @@ double sumDonorMass(const PreparedOrganicFEM& prepared) {
     for(const auto& row:prepared.donorMassNodes)total+=row.massKg;
     return total;
 }
+
+std::vector<ExplicitUnpairedVolumeSourceMassContribution> sourceContributionFixture(
+        const Fixture& fixture,const std::vector<double>& parentMass,double rawCookScale) {
+    using Key=std::pair<std::uint32_t,std::uint32_t>;
+    std::map<Key,double> cookedByNodeMaterial;
+    for(std::size_t parent=0;parent<fixture.parentTets.size();++parent)
+        for(const auto node:fixture.parentTets[parent])
+            cookedByNodeMaterial[{node,fixture.parentMaterial[parent]}]+=parentMass[parent]*0.25;
+    std::vector<ExplicitUnpairedVolumeSourceMassContribution> rows;
+    const auto splitKey=Key{fixture.parentTets.front()[0],fixture.parentMaterial.front()};
+    for(const auto& [key,cookedMass]:cookedByNodeMaterial) {
+        const auto [node,material]=key;
+        const double rawMass=cookedMass*rawCookScale;
+        if(key==splitKey) {
+            V3 localForSecondDonor=fixture.parentPoints[node];
+            localForSecondDonor[0]-=fixture.bodyOrigins[1][0];
+            rows.push_back({node,material,0u,rawMass*0.65,fixture.parentPoints[node]});
+            rows.push_back({node,material,1u,rawMass*0.35,localForSecondDonor});
+        } else {
+            rows.push_back({node,material,0u,rawMass,fixture.parentPoints[node]});
+        }
+    }
+    return rows;
+}
+
+struct SourceMoments {
+    double mass=0.0;
+    std::array<double,3> first{};
+    std::array<double,9> second{};
+};
+
+void accumulateSourceMoments(SourceMoments& moments,double mass,const V3& position) {
+    moments.mass+=mass;
+    for(unsigned row=0;row<3u;++row) {
+        moments.first[row]+=mass*position[row];
+        for(unsigned column=0;column<3u;++column)
+            moments.second[3u*row+column]+=mass*position[row]*position[column];
+    }
+}
 }
 
 int main() {
     Fixture f;auto world=worldFor();ExplicitUnpairedVolumeReport report;std::string error;
-    if(!emit(f,world,report,error)){std::cerr<<error;return 1;}
+    PreparedOrganicFEM legacySkin,legacyFat;
+    if(!emit(f,world,report,error,&legacySkin,&legacyFat)){std::cerr<<error;return 1;}
     assert(world.objects.size()==1u&&report.volumeNodeCount==19u);
     assert(report.inputVolumeRowToObjectLocalNode.size()==19u&&report.inputVolumeRowToObjectLocalNode[18]==18u);
     assert(!world.objects.front().deformableSelfContact); // legacy paired rows retain the old contact owner.
@@ -327,6 +374,128 @@ int main() {
         world.objects.front().femTetrahedronMassSourceIdentity.end(),
         [](auto word){return word==0u;}));
     assert(report.ancestryVerificationKind==VolumeAncestryVerificationKind::conservativeReferencePullback);
+    assert(legacySkin.donorMassNodes.size()==report.volumeNodeCount);
+    assert(legacyFat.donorMassNodes.empty());
+    assert(legacySkin.donorMassContributions.empty()&&legacyFat.donorMassContributions.empty());
+    assert(std::abs(sumDonorMass(legacySkin)-legacySkin.massDebitKg-legacyFat.massDebitKg)<1.0e-10);
+    {
+        Fixture splitSource;
+        splitSource.bodyRotations.push_back(kIdentity);
+        splitSource.bodyOrigins.push_back({0.25,0.0,0.0});
+        splitSource.topology.registeredBodyLocalToWorldLinear=splitSource.bodyRotations;
+        splitSource.topology.registeredBodyOriginWorld=splitSource.bodyOrigins;
+        std::vector<double> parentMass(splitSource.parentTets.size(),0.0);
+        for(std::size_t p=0;p<parentMass.size();++p) {
+            const auto tet=splitSource.parentTets[p];
+            const double volume=tetVolume(splitSource.parentPoints[tet[0]],splitSource.parentPoints[tet[1]],
+                                          splitSource.parentPoints[tet[2]],splitSource.parentPoints[tet[3]]);
+            parentMass[p]=volume*(splitSource.parentMaterial[p]==0u?1000.0:900.0);
+        }
+        std::vector<double> childMeasure(splitSource.children.size(),0.0);
+        for(std::size_t c=0;c<childMeasure.size();++c) {
+            const auto tet=splitSource.children[c];
+            childMeasure[c]=tetVolume(splitSource.reference[tet[0]],splitSource.reference[tet[1]],
+                                      splitSource.reference[tet[2]],splitSource.reference[tet[3]]);
+        }
+        const auto rawContributions=sourceContributionFixture(splitSource,parentMass,1.0+1.0e-5);
+        splitSource.sourceMassContributions=rawContributions;
+        auto splitWorld=worldFor();PreparedOrganicFEM splitSkin,splitFat;
+        assert(emitMassLedger(splitSource,parentMass,childMeasure,splitWorld,splitSkin,splitFat,
+                              report,error,1.0,1.0,splitSource.sourceMassContributions));
+        assert(report.usesPerChildMassLedger&&report.usesParentNodeSourceMassContributions);
+        assert(report.maximumSourceNodeCookRoundingErrorKg>0.0);
+        assert(report.maximumSourceNodeCookRoundingRelativeError<5.0e-4);
+        assert(report.maximumOutputSourceNodeMassClosureErrorKg<1.0e-12);
+        assert(splitSkin.donorMassNodes.size()==splitSource.current.size());
+        assert(splitFat.donorMassNodes.empty());
+        assert(splitSkin.donorMassContributions.size()>splitSkin.donorMassNodes.size());
+        std::map<std::uint32_t,double> frameMass,sourceMassByNode;
+        std::map<std::uint32_t,std::uint32_t> frameBodyByNode;
+        using MomentKey=std::tuple<std::uint32_t,std::uint32_t,V3>;
+        std::map<MomentKey,SourceMoments> expectedMoments,actualMoments;
+        for(const auto& node:splitSkin.donorMassNodes) {
+            assert(frameBodyByNode.emplace(node.nodeIndex,node.donorBody).second);
+            assert(node.donorBody==0u);
+            frameMass[node.nodeIndex]+=node.massKg;
+        }
+        for(const auto& contribution:splitSkin.donorMassContributions) {
+            sourceMassByNode[contribution.nodeIndex]+=contribution.massKg;
+            accumulateSourceMoments(actualMoments[{contribution.nodeIndex,contribution.donorBody,
+                                    contribution.localPosition}],contribution.massKg,contribution.localPosition);
+        }
+        for(std::size_t child=0;child<splitSource.children.size();++child) {
+            const auto parent=splitSource.dominant[child];
+            const auto material=splitSource.childMaterial[child];
+            const double childMass=splitWorld.objects.front().femTetrahedronMassesKg[child];
+            for(const auto childNode:splitSource.children[child])
+                for(const auto parentNode:splitSource.parentTets[parent]) {
+                    double rawNodeMaterial=0.0;
+                    for(const auto& row:rawContributions)
+                        if(row.parentNodeIndex==parentNode&&row.materialIndex==material)
+                            rawNodeMaterial+=row.massKg;
+                    for(const auto& row:rawContributions) {
+                        if(row.parentNodeIndex!=parentNode||row.materialIndex!=material)continue;
+                        const double amount=childMass/16.0*(row.massKg/rawNodeMaterial);
+                        accumulateSourceMoments(expectedMoments[{childNode,row.donorBodyIndex,
+                                                row.donorLocalPosition}],amount,row.donorLocalPosition);
+                    }
+                }
+        }
+        assert(frameMass.size()==splitSource.current.size());
+        assert(sourceMassByNode.size()==splitSource.current.size());
+        for(const auto& [node,mass]:frameMass)
+            assert(std::abs(mass-sourceMassByNode[node])<=
+                1.0e-9*std::max({std::abs(mass),std::abs(sourceMassByNode[node]),1.0e-12}));
+        assert(expectedMoments.size()==actualMoments.size());
+        for(const auto& [key,expected]:expectedMoments) {
+            const auto& actual=actualMoments.at(key);
+            assert(std::abs(actual.mass-expected.mass)<=1.0e-10*std::max(expected.mass,1.0e-12));
+            for(unsigned axis=0;axis<3u;++axis)
+                assert(std::abs(actual.first[axis]-expected.first[axis])<=1.0e-10*std::max(std::abs(expected.first[axis]),1.0e-12));
+            for(unsigned component=0;component<9u;++component)
+                assert(std::abs(actual.second[component]-expected.second[component])<=
+                    1.0e-10*std::max(std::abs(expected.second[component]),1.0e-12));
+        }
+        bool secondDonorSeen=false,rawCookDifferenceSeen=false;
+        for(const auto& [key,moments]:actualMoments) {
+            if(std::get<1>(key)==1u)secondDonorSeen=true;
+            (void)moments;
+        }
+        for(const auto& closure:report.sourceMassClosure) {
+            if(closure.materialIndex==0u&&closure.donorBodyIndex==1u) {
+                assert(std::abs(closure.childSourceMassKg-closure.cookedParentMassKg)<1.0e-10);
+                assert(std::abs(closure.inputSourceMassKg-closure.cookedParentMassKg)>0.0);
+                rawCookDifferenceSeen=true;
+            }
+        }
+        assert(secondDonorSeen&&rawCookDifferenceSeen);
+    }
+    {
+        Fixture badRawCook;
+        badRawCook.bodyRotations.push_back(kIdentity);
+        badRawCook.bodyOrigins.push_back({0.25,0.0,0.0});
+        badRawCook.topology.registeredBodyLocalToWorldLinear=badRawCook.bodyRotations;
+        badRawCook.topology.registeredBodyOriginWorld=badRawCook.bodyOrigins;
+        std::vector<double> parentMass(badRawCook.parentTets.size(),0.0);
+        for(std::size_t p=0;p<parentMass.size();++p) {
+            const auto tet=badRawCook.parentTets[p];
+            parentMass[p]=tetVolume(badRawCook.parentPoints[tet[0]],badRawCook.parentPoints[tet[1]],
+                badRawCook.parentPoints[tet[2]],badRawCook.parentPoints[tet[3]])*
+                (badRawCook.parentMaterial[p]==0u?1000.0:900.0);
+        }
+        std::vector<double> childMeasure(badRawCook.children.size(),0.0);
+        for(std::size_t c=0;c<childMeasure.size();++c) {
+            const auto tet=badRawCook.children[c];
+            childMeasure[c]=tetVolume(badRawCook.reference[tet[0]],badRawCook.reference[tet[1]],
+                badRawCook.reference[tet[2]],badRawCook.reference[tet[3]]);
+        }
+        badRawCook.sourceMassContributions=sourceContributionFixture(badRawCook,parentMass,1.001);
+        auto badRawWorld=worldFor();PreparedOrganicFEM a,b;
+        assert(!emitMassLedger(badRawCook,parentMass,childMeasure,badRawWorld,a,b,report,error,
+            1.0,1.0,badRawCook.sourceMassContributions));
+        assert(error.find("cook-rounding bound")!=std::string::npos);
+        assert(badRawWorld.objects.empty());
+    }
     {
         Fixture ledger;
         std::vector<double> parentMass(ledger.parentTets.size(),0.0);
@@ -405,8 +574,10 @@ int main() {
         assert(report.nodeOwnerMassByDonor.size()==2u);
         assert(std::abs(report.skinParentMassKg-report.skinChildMassKg)<1.0e-10);
         assert(std::abs(report.fatParentMassKg-report.fatChildMassKg)<1.0e-10);
-        assert(std::abs(sumDonorMass(ledgerSkin)-report.skinChildMassKg)<1.0e-10);
-        assert(std::abs(sumDonorMass(ledgerFat)-report.fatChildMassKg)<1.0e-10);
+        assert(ledgerSkin.donorMassNodes.size()==report.volumeNodeCount);
+        assert(ledgerFat.donorMassNodes.empty());
+        assert(std::abs(sumDonorMass(ledgerSkin)-report.skinChildMassKg-report.fatChildMassKg)<1.0e-10);
+        assert(ledgerSkin.donorMassContributions.empty()&&ledgerFat.donorMassContributions.empty());
         assert(report.donorMassClosure.size()==2u);
         for(const auto& closure:report.donorMassClosure)
             assert(std::abs(closure.parentMassKg-closure.childMassKg)<1.0e-10);
@@ -535,6 +706,33 @@ int main() {
         assert(crossedWorld.objects.empty());
     }
     {
+        Fixture badSource;
+        badSource.bodyRotations.push_back(kIdentity);
+        badSource.bodyOrigins.push_back({0.25,0.0,0.0});
+        badSource.topology.registeredBodyLocalToWorldLinear=badSource.bodyRotations;
+        badSource.topology.registeredBodyOriginWorld=badSource.bodyOrigins;
+        std::vector<double> parentMass(badSource.parentTets.size(),0.0);
+        for(std::size_t p=0;p<parentMass.size();++p) {
+            const auto tet=badSource.parentTets[p];
+            parentMass[p]=tetVolume(badSource.parentPoints[tet[0]],badSource.parentPoints[tet[1]],
+                badSource.parentPoints[tet[2]],badSource.parentPoints[tet[3]])*
+                (badSource.parentMaterial[p]==0u?1000.0:900.0);
+        }
+        std::vector<double> measure(badSource.children.size(),0.0);
+        for(std::size_t c=0;c<measure.size();++c) {
+            const auto tet=badSource.children[c];
+            measure[c]=tetVolume(badSource.reference[tet[0]],badSource.reference[tet[1]],
+                                 badSource.reference[tet[2]],badSource.reference[tet[3]]);
+        }
+        badSource.sourceMassContributions=sourceContributionFixture(badSource,parentMass,1.0);
+        badSource.sourceMassContributions.front().donorBodyIndex=2u;
+        auto badSourceWorld=worldFor();PreparedOrganicFEM a,b;
+        assert(!emitMassLedger(badSource,parentMass,measure,badSourceWorld,a,b,report,error,1.0,1.0,
+                               badSource.sourceMassContributions));
+        assert(error.find("invalid node, material, donor")!=std::string::npos);
+        assert(badSourceWorld.objects.empty());
+    }
+    {
         Fixture badMass;
         std::vector<double> parentMass(badMass.parentTets.size(),0.0);
         for(std::size_t p=0;p<parentMass.size();++p){
@@ -632,8 +830,11 @@ int main() {
         auto legacyWorld=worldFor();
         legacyWorld.materials[0].parameters[0].defaultValue=1050.0;
         legacyWorld.materials[1].parameters[0].defaultValue=925.0;
-        assert(emit(legacyDensity,legacyWorld,report,error));
+        PreparedOrganicFEM legacyDensitySkin,legacyDensityFat;
+        assert(emit(legacyDensity,legacyWorld,report,error,&legacyDensitySkin,&legacyDensityFat));
         assert(!report.usesPerChildMassLedger);
+        assert(legacyDensitySkin.donorMassNodes.size()==report.volumeNodeCount);
+        assert(legacyDensityFat.donorMassNodes.empty());
         assert(std::abs(legacyWorld.materials[0].parameters[0].defaultValue-1000.0)<1.0e-9);
         assert(std::abs(legacyWorld.materials[1].parameters[0].defaultValue-900.0)<1.0e-9);
     }

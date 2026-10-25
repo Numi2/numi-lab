@@ -1,0 +1,73 @@
+{
+  "checked_child_node_material_entries": 18640,
+  "cooked_to_child_max_per_donor_material": {
+    "max_abs_child_node_material_closure_kg": 7.806255641895632e-18,
+    "max_abs_group_mass_delta_kg": 2.220446049250313e-16,
+    "max_abs_group_mass_delta_relative": 4.163274399008462e-15,
+    "max_abs_source_row_mass_closure_kg": 7.806255641895632e-18,
+    "max_child_cell_mass_parent_CSR_recompute_relative_error": 2.053477093499603e-16,
+    "max_relative_child_node_material_closure": 2.765742835148386e-15,
+    "max_relative_source_row_mass_closure": 3.914446591867758e-14
+  },
+  "cooked_vs_child_material_mass_kg": {
+    "15": {
+      "child": 3.4525711587090546,
+      "cooked": 3.4525711587090546,
+      "delta": 0.0
+    },
+    "16": {
+      "child": 10.487108579460898,
+      "cooked": 10.487108579460898,
+      "delta": 0.0
+    }
+  },
+  "dimensions": {
+    "child_nodes": 9320,
+    "child_parent_csr_nnz": 38105,
+    "child_tets": 37935,
+    "donor_material_groups": 138,
+    "native_active_parent_tets": 28632,
+    "node_material_groups": 9644,
+    "source_rows": 9644
+  },
+  "max_donor_material_moment_deltas": {
+    "cooked_to_child": {
+      "first_moment_norm_relative_abs_scale": 4.598403116394408e-15,
+      "groups": 138,
+      "mass_relative": 4.163274399008462e-15,
+      "second_moment_fro_relative_abs_scale": 4.837819878664829e-15
+    },
+    "raw_to_cooked": {
+      "first_moment_norm_relative_abs_scale": 1.1486887023840702e-05,
+      "groups": 138,
+      "mass_relative": 1.1517923699085063e-05,
+      "second_moment_fro_relative_abs_scale": 1.1384462478939649e-05
+    }
+  },
+  "moment_convention": "Per donor body/material, first moment=sum(m*x); second moment is full raw tensor sum(m*x*x^T), where x is the original donor-local source point.",
+  "raw_source_vs_cooked_parent_mass_kg": {
+    "15": {
+      "cooked": 3.4525711587090546,
+      "delta_cooked_minus_raw": 3.8256695855665157e-07,
+      "raw": 3.452570776142096,
+      "relative": 1.1080640582381689e-07
+    },
+    "16": {
+      "cooked": 10.487108579460898,
+      "delta_cooked_minus_raw": -3.8500484222936393e-07,
+      "raw": 10.48710896446574,
+      "relative": -3.6712200048068996e-08
+    }
+  },
+  "raw_to_cooked_max_per_donor_material": {
+    "max_abs_group_mass_delta_kg": 1.8893747336795608e-07,
+    "max_abs_group_mass_delta_relative": 1.1517923699085063e-05,
+    "max_compiled_node_mass_closure_abs_kg": 1.7278734554260211e-09,
+    "max_compiled_node_mass_closure_relative": 5.849199338767243e-08
+  },
+  "scope": [
+    "Source-layer contribution rows are source mass/frame provenance; compiled parent cell mass is authoritative cooked mass.",
+    "This is a reference-pullback ledger audit, not current geometry, native mass activation, bone clearance, or physical qualification."
+  ],
+  "status": "PASS_SOURCE_COOKED_CHILD_MASS_AND_MOMENTS"
+}

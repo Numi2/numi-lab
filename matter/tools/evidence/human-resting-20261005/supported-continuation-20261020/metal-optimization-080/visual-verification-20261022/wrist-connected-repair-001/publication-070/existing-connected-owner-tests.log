@@ -1,0 +1,28 @@
+test_backtracking_keeps_fixed_nodes_and_shared_cells_valid (test_human_skin_fat_connected_repair.ConnectedVolumeRepairTests.test_backtracking_keeps_fixed_nodes_and_shared_cells_valid) ... ok
+test_cell_j_gradients_match_central_finite_differences (test_human_skin_fat_connected_repair.ConnectedVolumeRepairTests.test_cell_j_gradients_match_central_finite_differences) ... ok
+test_sparse_cell_jacobian_couples_shared_tet_nodes (test_human_skin_fat_connected_repair.ConnectedVolumeRepairTests.test_sparse_cell_jacobian_couples_shared_tet_nodes) ... ok
+test_bad_layer_rows_and_targets_fail_closed (test_human_skin_fat_connected_repair_inputs.InputValidation037Tests.test_bad_layer_rows_and_targets_fail_closed) ... ok
+test_empty_or_float_free_node_ids_fail_closed (test_human_skin_fat_connected_repair_inputs.InputValidation037Tests.test_empty_or_float_free_node_ids_fail_closed) ... ok
+test_empty_or_zero_contact_domain_fails_closed (test_human_skin_fat_connected_repair_inputs.InputValidation037Tests.test_empty_or_zero_contact_domain_fails_closed) ... ok
+test_empty_tet_domain_fails_closed_in_both_owners (test_human_skin_fat_connected_repair_inputs.InputValidation037Tests.test_empty_tet_domain_fails_closed_in_both_owners) ... ok
+test_float_and_repeated_tet_ids_fail_instead_of_truncating (test_human_skin_fat_connected_repair_inputs.InputValidation037Tests.test_float_and_repeated_tet_ids_fail_instead_of_truncating) ... ok
+test_nonfinite_and_reversed_physical_bounds_fail_closed (test_human_skin_fat_connected_repair_inputs.InputValidation037Tests.test_nonfinite_and_reversed_physical_bounds_fail_closed) ... ok
+test_sparse_jacobian_rejects_empty_or_noninteger_ids (test_human_skin_fat_connected_repair_inputs.InputValidation037Tests.test_sparse_jacobian_rejects_empty_or_noninteger_ids) ... ok
+test_active_set_enforces_connected_local_bounds (test_human_skin_fat_connected_sparse.SparseConnected.test_active_set_enforces_connected_local_bounds) ... ok
+test_empty_or_satisfied_work (test_human_skin_fat_connected_sparse.SparseConnected.test_empty_or_satisfied_work) ... ok
+test_gradient_translation_and_affine (test_human_skin_fat_connected_sparse.SparseConnected.test_gradient_translation_and_affine) ... ok
+test_invalid_bound_rejected (test_human_skin_fat_connected_sparse.SparseConnected.test_invalid_bound_rejected) ... ok
+test_invalid_method_and_active_budget (test_human_skin_fat_connected_sparse.SparseConnected.test_invalid_method_and_active_budget) ... ok
+test_outside_nodes_are_bitwise_anchored (test_human_skin_fat_connected_sparse.SparseConnected.test_outside_nodes_are_bitwise_anchored) ... ok
+test_sparse_direction_preserves_hard_gates (test_human_skin_fat_connected_sparse.SparseConnected.test_sparse_direction_preserves_hard_gates) ... ok
+test_anchor_does_not_change_legacy_default (test_human_skin_fat_connected_surface.ConnectedSurface.test_anchor_does_not_change_legacy_default) ... ok
+test_boundary_gradient (test_human_skin_fat_connected_surface.ConnectedSurface.test_boundary_gradient) ... ok
+test_cumulative_anchor_and_surface (test_human_skin_fat_connected_surface.ConnectedSurface.test_cumulative_anchor_and_surface) ... ok
+test_rejects_invalid_faces (test_human_skin_fat_connected_surface.ConnectedSurface.test_rejects_invalid_faces) ... ok
+test_rejects_origin_free_surface_gate (test_human_skin_fat_connected_surface.ConnectedSurface.test_rejects_origin_free_surface_gate) ... ok
+test_rejects_positive_volume_rotated_surface (test_human_skin_fat_connected_surface.ConnectedSurface.test_rejects_positive_volume_rotated_surface) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.021s
+
+OK

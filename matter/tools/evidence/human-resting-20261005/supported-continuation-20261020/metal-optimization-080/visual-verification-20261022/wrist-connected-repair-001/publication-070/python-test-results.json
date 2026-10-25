@@ -1,0 +1,47 @@
+[
+  {
+    "name": "existing-connected-owner",
+    "command": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "/Users/numi/Work/numi-human-connected-surface-069/canonical/matter/tools",
+      "-p",
+      "test_*.py",
+      "-v"
+    ],
+    "status": 0
+  },
+  {
+    "name": "source-frame",
+    "command": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "/Users/n/Work/294-source-frame-audit-001",
+      "-p",
+      "test_*.py",
+      "-v"
+    ],
+    "status": 0
+  },
+  {
+    "name": "connected-source-topology",
+    "command": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "/Users/n/Work/294-source-frame-audit-001/connected-interior-reference-fit-001",
+      "-p",
+      "test_*.py",
+      "-v"
+    ],
+    "status": 0
+  }
+]

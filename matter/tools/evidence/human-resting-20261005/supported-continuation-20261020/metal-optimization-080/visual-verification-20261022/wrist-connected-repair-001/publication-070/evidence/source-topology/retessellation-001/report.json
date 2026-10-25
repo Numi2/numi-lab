@@ -1,0 +1,2463 @@
+{
+  "candidate_topology": {
+    "all_vertex_positions_bitwise_unchanged": true,
+    "changed_face_rows": [
+      3019,
+      3020,
+      3021,
+      3105,
+      3908,
+      3910,
+      3945,
+      3946,
+      4682,
+      4683,
+      4697,
+      4698
+    ],
+    "combined_changed_patch_pair_count": 0,
+    "combined_changed_patch_pairs": [],
+    "faces_with_ancestry": "Each replacement face belongs to its original four-face D36 patch; each corner retains its exact direct NHSKIN294 vertex ID. No one-to-one parent face identity is asserted.",
+    "global_boundary_edge_count": 45,
+    "global_boundary_edges_unchanged": true,
+    "nonmanifold_edges_after": [],
+    "outer_faces": 4777,
+    "outer_vertices": 2411,
+    "patches": {
+      "donor20": {
+        "boundary_cycle_outer_rows": [
+          1892,
+          2327,
+          1932,
+          1912,
+          2326,
+          1915
+        ],
+        "boundary_cycle_source_vertex_ids": [
+          44179,
+          55386,
+          45304,
+          44754,
+          55368,
+          44765
+        ],
+        "candidate_count": 14,
+        "candidates": [
+          {
+            "absolute_normal_agreement_mean": 0.9320908466467422,
+            "faces": [
+              [
+                1932,
+                1912,
+                2326
+              ],
+              [
+                2327,
+                1932,
+                2326
+              ],
+              [
+                1892,
+                2327,
+                2326
+              ],
+              [
+                1892,
+                2326,
+                1915
+              ]
+            ],
+            "maximum_edge_m": 0.016659110712810607,
+            "minimum_altitude_m": 0.0021454824847510073,
+            "minimum_triangle_area_m2": 9.805804795738935e-06,
+            "option": 9,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              4.780178761054757e-05,
+              0.00028394344441889946,
+              0.00026743622570885126,
+              9.022551094062454e-05
+            ],
+            "source_distance_max_m": 0.00028394344441889946,
+            "source_distance_mean_m": 0.0001723517421697307,
+            "source_neighborhood_faces": 107
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9674629327683996,
+            "faces": [
+              [
+                2327,
+                1932,
+                1912
+              ],
+              [
+                2327,
+                1912,
+                2326
+              ],
+              [
+                2327,
+                2326,
+                1915
+              ],
+              [
+                1892,
+                2327,
+                1915
+              ]
+            ],
+            "maximum_edge_m": 0.019068655350505708,
+            "minimum_altitude_m": 0.0014773292801973604,
+            "minimum_triangle_area_m2": 4.412488607363568e-06,
+            "option": 4,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              8.067027863998734e-05,
+              0.00024386994519523376,
+              0.000304834222227245,
+              0.00019264960708582806
+            ],
+            "source_distance_max_m": 0.000304834222227245,
+            "source_distance_mean_m": 0.00020550601328707353,
+            "source_neighborhood_faces": 107
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9641950691718079,
+            "faces": [
+              [
+                1932,
+                1912,
+                2326
+              ],
+              [
+                2327,
+                1932,
+                2326
+              ],
+              [
+                2327,
+                2326,
+                1915
+              ],
+              [
+                1892,
+                2327,
+                1915
+              ]
+            ],
+            "maximum_edge_m": 0.019068655350505708,
+            "minimum_altitude_m": 0.00162130612646787,
+            "minimum_triangle_area_m2": 9.805804795738935e-06,
+            "option": 3,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              4.780178761054757e-05,
+              0.00028394344441889946,
+              0.000304834222227245,
+              0.00019264960708582806
+            ],
+            "source_distance_max_m": 0.000304834222227245,
+            "source_distance_mean_m": 0.00020730726533563,
+            "source_neighborhood_faces": 107
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9757771355649945,
+            "faces": [
+              [
+                1932,
+                1912,
+                2326
+              ],
+              [
+                1932,
+                2326,
+                1915
+              ],
+              [
+                2327,
+                1932,
+                1915
+              ],
+              [
+                1892,
+                2327,
+                1915
+              ]
+            ],
+            "maximum_edge_m": 0.019068655350505708,
+            "minimum_altitude_m": 0.00162130612646787,
+            "minimum_triangle_area_m2": 9.805804795738935e-06,
+            "option": 1,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              4.780178761054757e-05,
+              0.0004018531017663355,
+              0.0002757521009364653,
+              0.00019264960708582806
+            ],
+            "source_distance_max_m": 0.0004018531017663355,
+            "source_distance_mean_m": 0.00022951414934979409,
+            "source_neighborhood_faces": 107
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9355778121679124,
+            "faces": [
+              [
+                1892,
+                2327,
+                1932
+              ],
+              [
+                1932,
+                1912,
+                2326
+              ],
+              [
+                1892,
+                1932,
+                2326
+              ],
+              [
+                1892,
+                2326,
+                1915
+              ]
+            ],
+            "maximum_edge_m": 0.016659110712810607,
+            "minimum_altitude_m": 0.0021454824847510073,
+            "minimum_triangle_area_m2": 9.805804795738935e-06,
+            "option": 11,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.00042719688533706724,
+              4.780178761054757e-05,
+              0.0006119029512758521,
+              9.022551094062454e-05
+            ],
+            "source_distance_max_m": 0.0006119029512758521,
+            "source_distance_mean_m": 0.00029428178379102283,
+            "source_neighborhood_faces": 107
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9422557059576706,
+            "faces": [
+              [
+                1892,
+                2327,
+                1932
+              ],
+              [
+                1892,
+                1932,
+                1912
+              ],
+              [
+                1892,
+                1912,
+                2326
+              ],
+              [
+                1892,
+                2326,
+                1915
+              ]
+            ],
+            "maximum_edge_m": 0.016659110712810607,
+            "minimum_altitude_m": 0.0012587872776425946,
+            "minimum_triangle_area_m2": 4.750045241515363e-06,
+            "option": 13,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.00042719688533706724,
+              0.0005968943531769946,
+              9.548497202672243e-05,
+              9.022551094062454e-05
+            ],
+            "source_distance_max_m": 0.0005968943531769946,
+            "source_distance_mean_m": 0.0003024504303703522,
+            "source_neighborhood_faces": 107
+          },
+          {
+            "absolute_normal_agreement_mean": 0.8058396183858509,
+            "faces": [
+              [
+                1892,
+                2327,
+                1932
+              ],
+              [
+                1932,
+                1912,
+                2326
+              ],
+              [
+                1932,
+                2326,
+                1915
+              ],
+              [
+                1892,
+                1932,
+                1915
+              ]
+            ],
+            "maximum_edge_m": 0.018319440468387134,
+            "minimum_altitude_m": 0.00167608590872536,
+            "minimum_triangle_area_m2": 9.805804795738935e-06,
+            "option": 6,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.00042719688533706724,
+              4.780178761054757e-05,
+              0.0004018531017663355,
+              0.0007299634323471079
+            ],
+            "source_distance_max_m": 0.0007299634323471079,
+            "source_distance_mean_m": 0.00040170380176526453,
+            "source_neighborhood_faces": 107
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9820638051110772,
+            "faces": [
+              [
+                2327,
+                1932,
+                1912
+              ],
+              [
+                1892,
+                2327,
+                1912
+              ],
+              [
+                1912,
+                2326,
+                1915
+              ],
+              [
+                1892,
+                1912,
+                1915
+              ]
+            ],
+            "maximum_edge_m": 0.016659110712810607,
+            "minimum_altitude_m": 0.0001551000049124962,
+            "minimum_triangle_area_m2": 1.2919140766973716e-06,
+            "option": 7,
+            "pair_count": 1,
+            "pairs": [
+              [
+                3943,
+                3945
+              ]
+            ],
+            "source_distance_m": [
+              8.067027863998734e-05,
+              0.00023972388289682846,
+              1.6034115560481766e-05,
+              4.707427581098718e-05
+            ],
+            "source_distance_max_m": 0.00023972388289682846,
+            "source_distance_mean_m": 9.58756382270712e-05,
+            "source_neighborhood_faces": 107
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9667257011510778,
+            "faces": [
+              [
+                2327,
+                1932,
+                1912
+              ],
+              [
+                1912,
+                2326,
+                1915
+              ],
+              [
+                2327,
+                1912,
+                1915
+              ],
+              [
+                1892,
+                2327,
+                1915
+              ]
+            ],
+            "maximum_edge_m": 0.019068655350505708,
+            "minimum_altitude_m": 0.0001551000049124962,
+            "minimum_triangle_area_m2": 1.2919140766973716e-06,
+            "option": 2,
+            "pair_count": 1,
+            "pairs": [
+              [
+                3910,
+                3943
+              ]
+            ],
+            "source_distance_m": [
+              8.067027863998734e-05,
+              1.6034115560481766e-05,
+              0.00028261470342157824,
+              0.00019264960708582806
+            ],
+            "source_distance_max_m": 0.00028261470342157824,
+            "source_distance_mean_m": 0.00014299217617696886,
+            "source_neighborhood_faces": 107
+          },
+          {
+            "absolute_normal_agreement_mean": 0.981266877914586,
+            "faces": [
+              [
+                1912,
+                2326,
+                1915
+              ],
+              [
+                1932,
+                1912,
+                1915
+              ],
+              [
+                2327,
+                1932,
+                1915
+              ],
+              [
+                1892,
+                2327,
+                1915
+              ]
+            ],
+            "maximum_edge_m": 0.019068655350505708,
+            "minimum_altitude_m": 0.0001551000049124962,
+            "minimum_triangle_area_m2": 1.2919140766973716e-06,
+            "option": 0,
+            "pair_count": 1,
+            "pairs": [
+              [
+                3908,
+                3943
+              ]
+            ],
+            "source_distance_m": [
+              1.6034115560481766e-05,
+              0.0004295654445783628,
+              0.0002757521009364653,
+              0.00019264960708582806
+            ],
+            "source_distance_max_m": 0.0004295654445783628,
+            "source_distance_mean_m": 0.00022850031704028446,
+            "source_neighborhood_faces": 107
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9848869547095369,
+            "faces": [
+              [
+                1892,
+                2327,
+                1932
+              ],
+              [
+                1892,
+                1932,
+                1912
+              ],
+              [
+                1912,
+                2326,
+                1915
+              ],
+              [
+                1892,
+                1912,
+                1915
+              ]
+            ],
+            "maximum_edge_m": 0.016659110712810607,
+            "minimum_altitude_m": 0.0001551000049124962,
+            "minimum_triangle_area_m2": 1.2919140766973716e-06,
+            "option": 8,
+            "pair_count": 1,
+            "pairs": [
+              [
+                3943,
+                3945
+              ]
+            ],
+            "source_distance_m": [
+              0.00042719688533706724,
+              0.0005968943531769946,
+              1.6034115560481766e-05,
+              4.707427581098718e-05
+            ],
+            "source_distance_max_m": 0.0005968943531769946,
+            "source_distance_mean_m": 0.0002717999074713827,
+            "source_neighborhood_faces": 107
+          },
+          {
+            "absolute_normal_agreement_mean": 0.8113293607354425,
+            "faces": [
+              [
+                1892,
+                2327,
+                1932
+              ],
+              [
+                1912,
+                2326,
+                1915
+              ],
+              [
+                1932,
+                1912,
+                1915
+              ],
+              [
+                1892,
+                1932,
+                1915
+              ]
+            ],
+            "maximum_edge_m": 0.018319440468387134,
+            "minimum_altitude_m": 0.0001551000049124962,
+            "minimum_triangle_area_m2": 1.2919140766973716e-06,
+            "option": 5,
+            "pair_count": 1,
+            "pairs": [
+              [
+                3910,
+                3943
+              ]
+            ],
+            "source_distance_m": [
+              0.00042719688533706724,
+              1.6034115560481766e-05,
+              0.0004295654445783628,
+              0.0007299634323471079
+            ],
+            "source_distance_max_m": 0.0007299634323471079,
+            "source_distance_mean_m": 0.0004006899694557549,
+            "source_neighborhood_faces": 107
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9394325563592107,
+            "faces": [
+              [
+                2327,
+                1932,
+                1912
+              ],
+              [
+                1892,
+                2327,
+                1912
+              ],
+              [
+                1892,
+                1912,
+                2326
+              ],
+              [
+                1892,
+                2326,
+                1915
+              ]
+            ],
+            "maximum_edge_m": 0.016659110712810607,
+            "minimum_altitude_m": 0.0012587872776425946,
+            "minimum_triangle_area_m2": 4.750045241515363e-06,
+            "option": 12,
+            "pair_count": 3,
+            "pairs": [
+              [
+                3908,
+                3945
+              ],
+              [
+                3908,
+                3946
+              ],
+              [
+                3910,
+                3946
+              ]
+            ],
+            "source_distance_m": [
+              8.067027863998734e-05,
+              0.00023972388289682846,
+              9.548497202672243e-05,
+              9.022551094062454e-05
+            ],
+            "source_distance_max_m": 0.00023972388289682846,
+            "source_distance_mean_m": 0.0001265261611260407,
+            "source_neighborhood_faces": 107
+          },
+          {
+            "absolute_normal_agreement_mean": 0.935358710243334,
+            "faces": [
+              [
+                2327,
+                1932,
+                1912
+              ],
+              [
+                2327,
+                1912,
+                2326
+              ],
+              [
+                1892,
+                2327,
+                2326
+              ],
+              [
+                1892,
+                2326,
+                1915
+              ]
+            ],
+            "maximum_edge_m": 0.016659110712810607,
+            "minimum_altitude_m": 0.0014773292801973604,
+            "minimum_triangle_area_m2": 4.412488607363568e-06,
+            "option": 10,
+            "pair_count": 3,
+            "pairs": [
+              [
+                3908,
+                3945
+              ],
+              [
+                3908,
+                3946
+              ],
+              [
+                3910,
+                3946
+              ]
+            ],
+            "source_distance_m": [
+              8.067027863998734e-05,
+              0.00024386994519523376,
+              0.00026743622570885126,
+              9.022551094062454e-05
+            ],
+            "source_distance_max_m": 0.00026743622570885126,
+            "source_distance_mean_m": 0.00017055049012117422,
+            "source_neighborhood_faces": 107
+          }
+        ],
+        "detailed_source_neighborhood_face_ids": [
+          70393,
+          70394,
+          70395,
+          71576,
+          71577,
+          71612,
+          71613,
+          72749,
+          72751,
+          72752,
+          72753,
+          72754,
+          72755,
+          72756,
+          72757,
+          72758,
+          72759,
+          72760,
+          72761,
+          72762,
+          72763,
+          72764,
+          72765,
+          72766,
+          72767,
+          72768,
+          72769,
+          72772,
+          72778,
+          72779,
+          72780,
+          73811,
+          73812,
+          73813,
+          73814,
+          73820,
+          73821,
+          73824,
+          73825,
+          74812,
+          74813,
+          74814,
+          74815,
+          74816,
+          74817,
+          74818,
+          74819,
+          74820,
+          74821,
+          74822,
+          74823,
+          74824,
+          74825,
+          74826,
+          74827,
+          74828,
+          74829,
+          74830,
+          74831,
+          74832,
+          74833,
+          74834,
+          74835,
+          74836,
+          74837,
+          74838,
+          74839,
+          74840,
+          74841,
+          74842,
+          74843,
+          74844,
+          74845,
+          74846,
+          74847,
+          74849,
+          74850,
+          74852,
+          74853,
+          74855,
+          74856,
+          75826,
+          75827,
+          75829,
+          75834,
+          75835,
+          75836,
+          75837,
+          75838,
+          75840,
+          75841,
+          75842,
+          75843,
+          75844,
+          75845,
+          75849,
+          75852,
+          75854,
+          75855,
+          75856,
+          75875,
+          76947,
+          76948,
+          76949,
+          76950,
+          76951,
+          76952
+        ],
+        "directed_boundary_edge_count": 6,
+        "old_face_ids": [
+          3908,
+          3910,
+          3945,
+          3946
+        ],
+        "selected": {
+          "absolute_normal_agreement_mean": 0.9320908466467422,
+          "faces": [
+            [
+              1932,
+              1912,
+              2326
+            ],
+            [
+              2327,
+              1932,
+              2326
+            ],
+            [
+              1892,
+              2327,
+              2326
+            ],
+            [
+              1892,
+              2326,
+              1915
+            ]
+          ],
+          "maximum_edge_m": 0.016659110712810607,
+          "minimum_altitude_m": 0.0021454824847510073,
+          "minimum_triangle_area_m2": 9.805804795738935e-06,
+          "option": 9,
+          "pair_count": 0,
+          "pairs": [],
+          "source_distance_m": [
+            4.780178761054757e-05,
+            0.00028394344441889946,
+            0.00026743622570885126,
+            9.022551094062454e-05
+          ],
+          "source_distance_max_m": 0.00028394344441889946,
+          "source_distance_mean_m": 0.0001723517421697307,
+          "source_neighborhood_faces": 107
+        },
+        "selected_option": 9
+      },
+      "donor23": {
+        "boundary_cycle_outer_rows": [
+          1429,
+          1509,
+          1511,
+          1510,
+          1516,
+          1470
+        ],
+        "boundary_cycle_source_vertex_ids": [
+          31512,
+          32921,
+          32946,
+          32940,
+          32986,
+          32246
+        ],
+        "candidate_count": 14,
+        "candidates": [
+          {
+            "absolute_normal_agreement_mean": 0.8337479649628841,
+            "faces": [
+              [
+                1509,
+                1511,
+                1510
+              ],
+              [
+                1429,
+                1509,
+                1510
+              ],
+              [
+                1510,
+                1516,
+                1470
+              ],
+              [
+                1429,
+                1510,
+                1470
+              ]
+            ],
+            "maximum_edge_m": 0.01825751808572016,
+            "minimum_altitude_m": 0.0024697374135989477,
+            "minimum_triangle_area_m2": 1.0791873124467555e-05,
+            "option": 7,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              3.420285534522906e-05,
+              0.00019829155567794278,
+              0.00025348620401188077,
+              0.0004934378539520241
+            ],
+            "source_distance_max_m": 0.0004934378539520241,
+            "source_distance_mean_m": 0.0002448546172467692,
+            "source_neighborhood_faces": 102
+          },
+          {
+            "absolute_normal_agreement_mean": 0.7418716577018591,
+            "faces": [
+              [
+                1509,
+                1511,
+                1510
+              ],
+              [
+                1510,
+                1516,
+                1470
+              ],
+              [
+                1509,
+                1510,
+                1470
+              ],
+              [
+                1429,
+                1509,
+                1470
+              ]
+            ],
+            "maximum_edge_m": 0.01825751808572016,
+            "minimum_altitude_m": 0.002927585807329979,
+            "minimum_triangle_area_m2": 2.435279827926946e-05,
+            "option": 2,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              3.420285534522906e-05,
+              0.00025348620401188077,
+              0.0009903641955359456,
+              0.0010757529047004698
+            ],
+            "source_distance_max_m": 0.0010757529047004698,
+            "source_distance_mean_m": 0.0005884515398983812,
+            "source_neighborhood_faces": 102
+          },
+          {
+            "absolute_normal_agreement_mean": 0.7094151477638857,
+            "faces": [
+              [
+                1509,
+                1511,
+                1510
+              ],
+              [
+                1429,
+                1509,
+                1510
+              ],
+              [
+                1429,
+                1510,
+                1516
+              ],
+              [
+                1429,
+                1516,
+                1470
+              ]
+            ],
+            "maximum_edge_m": 0.01825751808572016,
+            "minimum_altitude_m": 0.0024641534750751066,
+            "minimum_triangle_area_m2": 2.0490591195455423e-05,
+            "option": 12,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              3.420285534522906e-05,
+              0.00019829155567794278,
+              0.0008231769591378652,
+              0.0020214083087980806
+            ],
+            "source_distance_max_m": 0.0020214083087980806,
+            "source_distance_mean_m": 0.0007692699197397794,
+            "source_neighborhood_faces": 102
+          },
+          {
+            "absolute_normal_agreement_mean": 0.557791821067968,
+            "faces": [
+              [
+                1510,
+                1516,
+                1470
+              ],
+              [
+                1511,
+                1510,
+                1470
+              ],
+              [
+                1509,
+                1511,
+                1470
+              ],
+              [
+                1429,
+                1509,
+                1470
+              ]
+            ],
+            "maximum_edge_m": 0.01825751808572016,
+            "minimum_altitude_m": 0.0016428147755403507,
+            "minimum_triangle_area_m2": 7.940321900048914e-06,
+            "option": 0,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.00025348620401188077,
+              0.0011647698690356264,
+              0.0011600659592268337,
+              0.0010757529047004698
+            ],
+            "source_distance_max_m": 0.0011647698690356264,
+            "source_distance_mean_m": 0.0009135187342437026,
+            "source_neighborhood_faces": 102
+          },
+          {
+            "absolute_normal_agreement_mean": 0.7630712753274906,
+            "faces": [
+              [
+                1429,
+                1509,
+                1511
+              ],
+              [
+                1511,
+                1510,
+                1516
+              ],
+              [
+                1511,
+                1516,
+                1470
+              ],
+              [
+                1429,
+                1511,
+                1470
+              ]
+            ],
+            "maximum_edge_m": 0.01825751808572016,
+            "minimum_altitude_m": 0.002205458225635102,
+            "minimum_triangle_area_m2": 1.4460438995685671e-05,
+            "option": 6,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.0004852802705528296,
+              0.0016276512860473676,
+              0.0007343949313411381,
+              0.000895916963550464
+            ],
+            "source_distance_max_m": 0.0016276512860473676,
+            "source_distance_mean_m": 0.0009358108628729498,
+            "source_neighborhood_faces": 102
+          },
+          {
+            "absolute_normal_agreement_mean": 0.5563740511215842,
+            "faces": [
+              [
+                1429,
+                1509,
+                1511
+              ],
+              [
+                1429,
+                1511,
+                1510
+              ],
+              [
+                1429,
+                1510,
+                1516
+              ],
+              [
+                1429,
+                1516,
+                1470
+              ]
+            ],
+            "maximum_edge_m": 0.01825751808572016,
+            "minimum_altitude_m": 0.0006908197202656137,
+            "minimum_triangle_area_m2": 4.529469797162389e-06,
+            "option": 13,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.0004852802705528296,
+              0.0004730278510945986,
+              0.0008231769591378652,
+              0.0020214083087980806
+            ],
+            "source_distance_max_m": 0.0020214083087980806,
+            "source_distance_mean_m": 0.0009507233473958435,
+            "source_neighborhood_faces": 102
+          },
+          {
+            "absolute_normal_agreement_mean": 0.6784420919187824,
+            "faces": [
+              [
+                1429,
+                1509,
+                1511
+              ],
+              [
+                1511,
+                1510,
+                1516
+              ],
+              [
+                1429,
+                1511,
+                1516
+              ],
+              [
+                1429,
+                1516,
+                1470
+              ]
+            ],
+            "maximum_edge_m": 0.01825751808572016,
+            "minimum_altitude_m": 0.0024641534750751066,
+            "minimum_triangle_area_m2": 2.0490591195455423e-05,
+            "option": 11,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.0004852802705528296,
+              0.0016276512860473676,
+              9.423801707853596e-05,
+              0.0020214083087980806
+            ],
+            "source_distance_max_m": 0.0020214083087980806,
+            "source_distance_mean_m": 0.0010571444706192034,
+            "source_neighborhood_faces": 102
+          },
+          {
+            "absolute_normal_agreement_mean": 0.6914781150097171,
+            "faces": [
+              [
+                1511,
+                1510,
+                1516
+              ],
+              [
+                1511,
+                1516,
+                1470
+              ],
+              [
+                1509,
+                1511,
+                1470
+              ],
+              [
+                1429,
+                1509,
+                1470
+              ]
+            ],
+            "maximum_edge_m": 0.01825751808572016,
+            "minimum_altitude_m": 0.002927585807329979,
+            "minimum_triangle_area_m2": 2.182441883286368e-05,
+            "option": 1,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.0016276512860473676,
+              0.0007343949313411381,
+              0.0011600659592268337,
+              0.0010757529047004698
+            ],
+            "source_distance_max_m": 0.0016276512860473676,
+            "source_distance_mean_m": 0.0011494662703289524,
+            "source_neighborhood_faces": 102
+          },
+          {
+            "absolute_normal_agreement_mean": 0.8391304734218211,
+            "faces": [
+              [
+                1509,
+                1511,
+                1510
+              ],
+              [
+                1509,
+                1510,
+                1516
+              ],
+              [
+                1429,
+                1509,
+                1516
+              ],
+              [
+                1429,
+                1516,
+                1470
+              ]
+            ],
+            "maximum_edge_m": 0.019934363914898754,
+            "minimum_altitude_m": 0.0024641534750751066,
+            "minimum_triangle_area_m2": 2.0490591195455423e-05,
+            "option": 10,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              3.420285534522906e-05,
+              0.0017072708859910252,
+              0.002296679568017922,
+              0.0020214083087980806
+            ],
+            "source_distance_max_m": 0.002296679568017922,
+            "source_distance_mean_m": 0.0015148904045380641,
+            "source_neighborhood_faces": 102
+          },
+          {
+            "absolute_normal_agreement_mean": 0.7235871252194035,
+            "faces": [
+              [
+                1511,
+                1510,
+                1516
+              ],
+              [
+                1509,
+                1511,
+                1516
+              ],
+              [
+                1429,
+                1509,
+                1516
+              ],
+              [
+                1429,
+                1516,
+                1470
+              ]
+            ],
+            "maximum_edge_m": 0.019934363914898754,
+            "minimum_altitude_m": 0.0024641534750751066,
+            "minimum_triangle_area_m2": 2.0490591195455423e-05,
+            "option": 9,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.0016276512860473676,
+              0.0017131927022997315,
+              0.002296679568017922,
+              0.0020214083087980806
+            ],
+            "source_distance_max_m": 0.002296679568017922,
+            "source_distance_mean_m": 0.0019147329662907754,
+            "source_neighborhood_faces": 102
+          },
+          {
+            "absolute_normal_agreement_mean": 0.8593171701750808,
+            "faces": [
+              [
+                1509,
+                1511,
+                1510
+              ],
+              [
+                1509,
+                1510,
+                1516
+              ],
+              [
+                1509,
+                1516,
+                1470
+              ],
+              [
+                1429,
+                1509,
+                1470
+              ]
+            ],
+            "maximum_edge_m": 0.019934363914898754,
+            "minimum_altitude_m": 0.002927585807329979,
+            "minimum_triangle_area_m2": 2.435279827926946e-05,
+            "option": 4,
+            "pair_count": 1,
+            "pairs": [
+              [
+                3021,
+                3106
+              ]
+            ],
+            "source_distance_m": [
+              3.420285534522906e-05,
+              0.0017072708859910252,
+              0.0028126058890982656,
+              0.0010757529047004698
+            ],
+            "source_distance_max_m": 0.0028126058890982656,
+            "source_distance_mean_m": 0.0014074581337837474,
+            "source_neighborhood_faces": 102
+          },
+          {
+            "absolute_normal_agreement_mean": 0.7437738219726633,
+            "faces": [
+              [
+                1511,
+                1510,
+                1516
+              ],
+              [
+                1509,
+                1511,
+                1516
+              ],
+              [
+                1509,
+                1516,
+                1470
+              ],
+              [
+                1429,
+                1509,
+                1470
+              ]
+            ],
+            "maximum_edge_m": 0.019934363914898754,
+            "minimum_altitude_m": 0.002927585807329979,
+            "minimum_triangle_area_m2": 2.182441883286368e-05,
+            "option": 3,
+            "pair_count": 1,
+            "pairs": [
+              [
+                3021,
+                3106
+              ]
+            ],
+            "source_distance_m": [
+              0.0016276512860473676,
+              0.0017131927022997315,
+              0.0028126058890982656,
+              0.0010757529047004698
+            ],
+            "source_distance_max_m": 0.0028126058890982656,
+            "source_distance_mean_m": 0.0018073006955364587,
+            "source_neighborhood_faces": 102
+          },
+          {
+            "absolute_normal_agreement_mean": 0.6807068683205825,
+            "faces": [
+              [
+                1429,
+                1509,
+                1511
+              ],
+              [
+                1429,
+                1511,
+                1510
+              ],
+              [
+                1510,
+                1516,
+                1470
+              ],
+              [
+                1429,
+                1510,
+                1470
+              ]
+            ],
+            "maximum_edge_m": 0.01825751808572016,
+            "minimum_altitude_m": 0.0006908197202656137,
+            "minimum_triangle_area_m2": 4.529469797162389e-06,
+            "option": 8,
+            "pair_count": 3,
+            "pairs": [
+              [
+                3019,
+                3021
+              ],
+              [
+                3019,
+                3105
+              ],
+              [
+                3020,
+                3021
+              ]
+            ],
+            "source_distance_m": [
+              0.0004852802705528296,
+              0.0004730278510945986,
+              0.00025348620401188077,
+              0.0004934378539520241
+            ],
+            "source_distance_max_m": 0.0004934378539520241,
+            "source_distance_mean_m": 0.00042630804490283327,
+            "source_neighborhood_faces": 102
+          },
+          {
+            "absolute_normal_agreement_mean": 0.6293849813857415,
+            "faces": [
+              [
+                1429,
+                1509,
+                1511
+              ],
+              [
+                1510,
+                1516,
+                1470
+              ],
+              [
+                1511,
+                1510,
+                1470
+              ],
+              [
+                1429,
+                1511,
+                1470
+              ]
+            ],
+            "maximum_edge_m": 0.01825751808572016,
+            "minimum_altitude_m": 0.0016428147755403507,
+            "minimum_triangle_area_m2": 7.940321900048914e-06,
+            "option": 5,
+            "pair_count": 3,
+            "pairs": [
+              [
+                3019,
+                3020
+              ],
+              [
+                3019,
+                3021
+              ],
+              [
+                3020,
+                3105
+              ]
+            ],
+            "source_distance_m": [
+              0.0004852802705528296,
+              0.00025348620401188077,
+              0.0011647698690356264,
+              0.000895916963550464
+            ],
+            "source_distance_max_m": 0.0011647698690356264,
+            "source_distance_mean_m": 0.0006998633267877002,
+            "source_neighborhood_faces": 102
+          }
+        ],
+        "detailed_source_neighborhood_face_ids": [
+          103732,
+          103735,
+          104191,
+          104192,
+          104193,
+          104194,
+          104195,
+          104197,
+          104198,
+          104201,
+          104205,
+          104206,
+          104209,
+          104210,
+          104211,
+          104238,
+          104240,
+          104241,
+          104242,
+          104243,
+          104244,
+          104245,
+          104246,
+          104247,
+          104248,
+          104249,
+          104250,
+          104251,
+          104253,
+          104254,
+          104581,
+          104582,
+          104583,
+          104584,
+          104635,
+          104688,
+          104690,
+          104691,
+          104692,
+          104694,
+          104695,
+          104696,
+          104697,
+          104698,
+          104726,
+          104727,
+          104729,
+          104730,
+          104731,
+          104732,
+          104733,
+          104734,
+          105016,
+          105095,
+          105096,
+          105097,
+          105098,
+          105099,
+          105100,
+          105101,
+          105124,
+          105126,
+          105127,
+          105128,
+          105129,
+          105130,
+          105131,
+          105132,
+          105133,
+          105134,
+          105135,
+          105136,
+          105137,
+          105138,
+          105139,
+          105149,
+          105156,
+          105157,
+          105160,
+          105161,
+          105162,
+          105179,
+          105180,
+          105181,
+          105182,
+          105183,
+          105184,
+          105502,
+          105503,
+          105505,
+          105559,
+          105560,
+          105561,
+          105562,
+          105563,
+          105564,
+          105567,
+          105598,
+          105602,
+          105650,
+          105651,
+          105652
+        ],
+        "directed_boundary_edge_count": 6,
+        "old_face_ids": [
+          3019,
+          3020,
+          3021,
+          3105
+        ],
+        "selected": {
+          "absolute_normal_agreement_mean": 0.8337479649628841,
+          "faces": [
+            [
+              1509,
+              1511,
+              1510
+            ],
+            [
+              1429,
+              1509,
+              1510
+            ],
+            [
+              1510,
+              1516,
+              1470
+            ],
+            [
+              1429,
+              1510,
+              1470
+            ]
+          ],
+          "maximum_edge_m": 0.01825751808572016,
+          "minimum_altitude_m": 0.0024697374135989477,
+          "minimum_triangle_area_m2": 1.0791873124467555e-05,
+          "option": 7,
+          "pair_count": 0,
+          "pairs": [],
+          "source_distance_m": [
+            3.420285534522906e-05,
+            0.00019829155567794278,
+            0.00025348620401188077,
+            0.0004934378539520241
+          ],
+          "source_distance_max_m": 0.0004934378539520241,
+          "source_distance_mean_m": 0.0002448546172467692,
+          "source_neighborhood_faces": 102
+        },
+        "selected_option": 7
+      },
+      "donor99": {
+        "boundary_cycle_outer_rows": [
+          2267,
+          2274,
+          2275,
+          2284,
+          2280,
+          2292
+        ],
+        "boundary_cycle_source_vertex_ids": [
+          52504,
+          52692,
+          52693,
+          53192,
+          52884,
+          53529
+        ],
+        "candidate_count": 14,
+        "candidates": [
+          {
+            "absolute_normal_agreement_mean": 0.9175063044085348,
+            "faces": [
+              [
+                2275,
+                2284,
+                2280
+              ],
+              [
+                2274,
+                2275,
+                2280
+              ],
+              [
+                2267,
+                2274,
+                2280
+              ],
+              [
+                2267,
+                2280,
+                2292
+              ]
+            ],
+            "maximum_edge_m": 0.03411515809141744,
+            "minimum_altitude_m": 0.0017897210947506168,
+            "minimum_triangle_area_m2": 1.4726755915102424e-05,
+            "option": 9,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.000935728792134767,
+              0.0007544861747376389,
+              0.0008674804579532574,
+              0.00612562784120772
+            ],
+            "source_distance_max_m": 0.00612562784120772,
+            "source_distance_mean_m": 0.0021708308165083456,
+            "source_neighborhood_faces": 133
+          },
+          {
+            "absolute_normal_agreement_mean": 0.7012715221823422,
+            "faces": [
+              [
+                2267,
+                2274,
+                2275
+              ],
+              [
+                2275,
+                2284,
+                2280
+              ],
+              [
+                2275,
+                2280,
+                2292
+              ],
+              [
+                2267,
+                2275,
+                2292
+              ]
+            ],
+            "maximum_edge_m": 0.035890196877851964,
+            "minimum_altitude_m": 0.0023064580179515074,
+            "minimum_triangle_area_m2": 1.4797267832353612e-05,
+            "option": 6,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.0015948081848014607,
+              0.000935728792134767,
+              0.002355372964787003,
+              0.004909402619945518
+            ],
+            "source_distance_max_m": 0.004909402619945518,
+            "source_distance_mean_m": 0.002448828140417187,
+            "source_neighborhood_faces": 133
+          },
+          {
+            "absolute_normal_agreement_mean": 0.899227753827958,
+            "faces": [
+              [
+                2267,
+                2274,
+                2275
+              ],
+              [
+                2275,
+                2284,
+                2280
+              ],
+              [
+                2267,
+                2275,
+                2280
+              ],
+              [
+                2267,
+                2280,
+                2292
+              ]
+            ],
+            "maximum_edge_m": 0.03411515809141744,
+            "minimum_altitude_m": 0.0028409713079948764,
+            "minimum_triangle_area_m2": 1.4797267832353612e-05,
+            "option": 11,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.0015948081848014607,
+              0.000935728792134767,
+              0.001750185493183529,
+              0.00612562784120772
+            ],
+            "source_distance_max_m": 0.00612562784120772,
+            "source_distance_mean_m": 0.002601587577831869,
+            "source_neighborhood_faces": 133
+          },
+          {
+            "absolute_normal_agreement_mean": 0.919912599986503,
+            "faces": [
+              [
+                2267,
+                2274,
+                2275
+              ],
+              [
+                2267,
+                2275,
+                2284
+              ],
+              [
+                2267,
+                2284,
+                2280
+              ],
+              [
+                2267,
+                2280,
+                2292
+              ]
+            ],
+            "maximum_edge_m": 0.03411515809141744,
+            "minimum_altitude_m": 0.0026923723718209414,
+            "minimum_triangle_area_m2": 2.830820402109874e-05,
+            "option": 13,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.0015948081848014607,
+              0.0020692342304956895,
+              0.0012067598382125794,
+              0.00612562784120772
+            ],
+            "source_distance_max_m": 0.00612562784120772,
+            "source_distance_mean_m": 0.0027491075236793622,
+            "source_neighborhood_faces": 133
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9619941095897007,
+            "faces": [
+              [
+                2274,
+                2275,
+                2284
+              ],
+              [
+                2274,
+                2284,
+                2280
+              ],
+              [
+                2274,
+                2280,
+                2292
+              ],
+              [
+                2267,
+                2274,
+                2292
+              ]
+            ],
+            "maximum_edge_m": 0.03411515809141744,
+            "minimum_altitude_m": 0.0008192708501610026,
+            "minimum_triangle_area_m2": 4.252194085401762e-06,
+            "option": 4,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.0009967028634160343,
+              0.00018681463981632776,
+              0.0039304645897723966,
+              0.006616347937004051
+            ],
+            "source_distance_max_m": 0.006616347937004051,
+            "source_distance_mean_m": 0.002932582507502202,
+            "source_neighborhood_faces": 133
+          },
+          {
+            "absolute_normal_agreement_mean": 0.7185618688447046,
+            "faces": [
+              [
+                2275,
+                2284,
+                2280
+              ],
+              [
+                2275,
+                2280,
+                2292
+              ],
+              [
+                2274,
+                2275,
+                2292
+              ],
+              [
+                2267,
+                2274,
+                2292
+              ]
+            ],
+            "maximum_edge_m": 0.035890196877851964,
+            "minimum_altitude_m": 0.0023064580179515074,
+            "minimum_triangle_area_m2": 1.4797267832353612e-05,
+            "option": 1,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.000935728792134767,
+              0.002355372964787003,
+              0.0021835132054492234,
+              0.006616347937004051
+            ],
+            "source_distance_max_m": 0.006616347937004051,
+            "source_distance_mean_m": 0.003022740724843761,
+            "source_neighborhood_faces": 133
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9510189457549036,
+            "faces": [
+              [
+                2275,
+                2284,
+                2280
+              ],
+              [
+                2274,
+                2275,
+                2280
+              ],
+              [
+                2274,
+                2280,
+                2292
+              ],
+              [
+                2267,
+                2274,
+                2292
+              ]
+            ],
+            "maximum_edge_m": 0.03411515809141744,
+            "minimum_altitude_m": 0.0028409713079948764,
+            "minimum_triangle_area_m2": 1.4797267832353612e-05,
+            "option": 3,
+            "pair_count": 0,
+            "pairs": [],
+            "source_distance_m": [
+              0.000935728792134767,
+              0.0007544861747376389,
+              0.0039304645897723966,
+              0.006616347937004051
+            ],
+            "source_distance_max_m": 0.006616347937004051,
+            "source_distance_mean_m": 0.003059256873412213,
+            "source_neighborhood_faces": 133
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9583507640912327,
+            "faces": [
+              [
+                2274,
+                2275,
+                2284
+              ],
+              [
+                2267,
+                2274,
+                2284
+              ],
+              [
+                2284,
+                2280,
+                2292
+              ],
+              [
+                2267,
+                2284,
+                2292
+              ]
+            ],
+            "maximum_edge_m": 0.03411515809141744,
+            "minimum_altitude_m": 0.003688631782716522,
+            "minimum_triangle_area_m2": 3.243382236612321e-05,
+            "option": 7,
+            "pair_count": 2,
+            "pairs": [
+              [
+                4698,
+                4709
+              ],
+              [
+                4698,
+                4710
+              ]
+            ],
+            "source_distance_m": [
+              0.0009967028634160343,
+              0.0011302919282749212,
+              0.004914054047548864,
+              0.006221308068560241
+            ],
+            "source_distance_max_m": 0.006221308068560241,
+            "source_distance_mean_m": 0.003315589226950015,
+            "source_neighborhood_faces": 133
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9201504593727762,
+            "faces": [
+              [
+                2267,
+                2274,
+                2275
+              ],
+              [
+                2284,
+                2280,
+                2292
+              ],
+              [
+                2275,
+                2284,
+                2292
+              ],
+              [
+                2267,
+                2275,
+                2292
+              ]
+            ],
+            "maximum_edge_m": 0.035890196877851964,
+            "minimum_altitude_m": 0.003687100088498631,
+            "minimum_triangle_area_m2": 3.091702072027919e-05,
+            "option": 5,
+            "pair_count": 2,
+            "pairs": [
+              [
+                4697,
+                4709
+              ],
+              [
+                4697,
+                4710
+              ]
+            ],
+            "source_distance_m": [
+              0.0015948081848014607,
+              0.004914054047548864,
+              0.0031077244083735373,
+              0.004909402619945518
+            ],
+            "source_distance_max_m": 0.004914054047548864,
+            "source_distance_mean_m": 0.0036314973151673454,
+            "source_neighborhood_faces": 133
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9330813706820024,
+            "faces": [
+              [
+                2267,
+                2274,
+                2275
+              ],
+              [
+                2267,
+                2275,
+                2284
+              ],
+              [
+                2284,
+                2280,
+                2292
+              ],
+              [
+                2267,
+                2284,
+                2292
+              ]
+            ],
+            "maximum_edge_m": 0.03411515809141744,
+            "minimum_altitude_m": 0.003687100088498631,
+            "minimum_triangle_area_m2": 3.091702072027919e-05,
+            "option": 8,
+            "pair_count": 2,
+            "pairs": [
+              [
+                4698,
+                4709
+              ],
+              [
+                4698,
+                4710
+              ]
+            ],
+            "source_distance_m": [
+              0.0015948081848014607,
+              0.0020692342304956895,
+              0.004914054047548864,
+              0.006221308068560241
+            ],
+            "source_distance_max_m": 0.006221308068560241,
+            "source_distance_mean_m": 0.003699851132851564,
+            "source_neighborhood_faces": 133
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9374408060351387,
+            "faces": [
+              [
+                2284,
+                2280,
+                2292
+              ],
+              [
+                2275,
+                2284,
+                2292
+              ],
+              [
+                2274,
+                2275,
+                2292
+              ],
+              [
+                2267,
+                2274,
+                2292
+              ]
+            ],
+            "maximum_edge_m": 0.035890196877851964,
+            "minimum_altitude_m": 0.004515880913937634,
+            "minimum_triangle_area_m2": 6.781136935097147e-05,
+            "option": 0,
+            "pair_count": 2,
+            "pairs": [
+              [
+                4683,
+                4709
+              ],
+              [
+                4683,
+                4710
+              ]
+            ],
+            "source_distance_m": [
+              0.004914054047548864,
+              0.0031077244083735373,
+              0.0021835132054492234,
+              0.006616347937004051
+            ],
+            "source_distance_max_m": 0.006616347937004051,
+            "source_distance_mean_m": 0.004205409899593919,
+            "source_neighborhood_faces": 133
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9734784277389841,
+            "faces": [
+              [
+                2274,
+                2275,
+                2284
+              ],
+              [
+                2284,
+                2280,
+                2292
+              ],
+              [
+                2274,
+                2284,
+                2292
+              ],
+              [
+                2267,
+                2274,
+                2292
+              ]
+            ],
+            "maximum_edge_m": 0.03411515809141744,
+            "minimum_altitude_m": 0.004515880913937634,
+            "minimum_triangle_area_m2": 3.243382236612321e-05,
+            "option": 2,
+            "pair_count": 2,
+            "pairs": [
+              [
+                4697,
+                4709
+              ],
+              [
+                4697,
+                4710
+              ]
+            ],
+            "source_distance_m": [
+              0.0009967028634160343,
+              0.004914054047548864,
+              0.004667624408999579,
+              0.006616347937004051
+            ],
+            "source_distance_max_m": 0.006616347937004051,
+            "source_distance_mean_m": 0.004298682314242132,
+            "source_neighborhood_faces": 133
+          },
+          {
+            "absolute_normal_agreement_mean": 0.928481468243332,
+            "faces": [
+              [
+                2274,
+                2275,
+                2284
+              ],
+              [
+                2274,
+                2284,
+                2280
+              ],
+              [
+                2267,
+                2274,
+                2280
+              ],
+              [
+                2267,
+                2280,
+                2292
+              ]
+            ],
+            "maximum_edge_m": 0.03411515809141744,
+            "minimum_altitude_m": 0.0008192708501610026,
+            "minimum_triangle_area_m2": 4.252194085401762e-06,
+            "option": 10,
+            "pair_count": 3,
+            "pairs": [
+              [
+                4682,
+                4697
+              ],
+              [
+                4682,
+                4698
+              ],
+              [
+                4683,
+                4698
+              ]
+            ],
+            "source_distance_m": [
+              0.0009967028634160343,
+              0.00018681463981632776,
+              0.0008674804579532574,
+              0.00612562784120772
+            ],
+            "source_distance_max_m": 0.00612562784120772,
+            "source_distance_mean_m": 0.002044156450598335,
+            "source_neighborhood_faces": 133
+          },
+          {
+            "absolute_normal_agreement_mean": 0.9451819933957333,
+            "faces": [
+              [
+                2274,
+                2275,
+                2284
+              ],
+              [
+                2267,
+                2274,
+                2284
+              ],
+              [
+                2267,
+                2284,
+                2280
+              ],
+              [
+                2267,
+                2280,
+                2292
+              ]
+            ],
+            "maximum_edge_m": 0.03411515809141744,
+            "minimum_altitude_m": 0.0026923723718209414,
+            "minimum_triangle_area_m2": 2.830820402109874e-05,
+            "option": 12,
+            "pair_count": 3,
+            "pairs": [
+              [
+                4682,
+                4697
+              ],
+              [
+                4682,
+                4698
+              ],
+              [
+                4683,
+                4698
+              ]
+            ],
+            "source_distance_m": [
+              0.0009967028634160343,
+              0.0011302919282749212,
+              0.0012067598382125794,
+              0.00612562784120772
+            ],
+            "source_distance_max_m": 0.00612562784120772,
+            "source_distance_mean_m": 0.0023648456177778137,
+            "source_neighborhood_faces": 133
+          }
+        ],
+        "detailed_source_neighborhood_face_ids": [
+          89323,
+          89324,
+          89325,
+          89326,
+          89907,
+          89911,
+          89917,
+          89918,
+          89920,
+          89922,
+          89923,
+          89924,
+          89928,
+          89929,
+          89930,
+          89931,
+          89932,
+          89933,
+          89934,
+          89935,
+          89936,
+          89937,
+          89938,
+          89939,
+          89940,
+          89942,
+          89943,
+          90259,
+          90270,
+          90272,
+          90273,
+          90285,
+          90286,
+          90287,
+          90288,
+          90289,
+          90290,
+          90292,
+          90294,
+          90295,
+          90296,
+          90297,
+          90298,
+          90299,
+          90300,
+          90301,
+          90302,
+          90362,
+          90672,
+          90674,
+          90675,
+          90676,
+          90677,
+          90679,
+          90680,
+          90684,
+          90685,
+          90686,
+          90687,
+          90688,
+          90689,
+          90690,
+          90691,
+          90692,
+          90693,
+          90694,
+          90695,
+          90696,
+          90697,
+          90698,
+          90699,
+          90700,
+          90701,
+          90702,
+          90758,
+          90759,
+          90762,
+          90763,
+          91189,
+          91192,
+          91207,
+          91208,
+          91209,
+          91210,
+          91211,
+          91212,
+          91213,
+          91214,
+          91216,
+          91217,
+          91218,
+          91219,
+          91220,
+          91223,
+          91287,
+          91288,
+          91289,
+          91291,
+          91294,
+          91296,
+          91299,
+          91304,
+          91305,
+          91307,
+          91308,
+          91309,
+          91311,
+          91312,
+          91313,
+          91314,
+          91315,
+          91316,
+          91318,
+          91319,
+          91320,
+          91321,
+          91322,
+          91323,
+          91964,
+          92014,
+          92015,
+          92016,
+          92017,
+          92018,
+          92019,
+          92020,
+          92023,
+          92024,
+          92644,
+          92646,
+          92648,
+          92650,
+          92674
+        ],
+        "directed_boundary_edge_count": 6,
+        "old_face_ids": [
+          4682,
+          4683,
+          4697,
+          4698
+        ],
+        "selected": {
+          "absolute_normal_agreement_mean": 0.9175063044085348,
+          "faces": [
+            [
+              2275,
+              2284,
+              2280
+            ],
+            [
+              2274,
+              2275,
+              2280
+            ],
+            [
+              2267,
+              2274,
+              2280
+            ],
+            [
+              2267,
+              2280,
+              2292
+            ]
+          ],
+          "maximum_edge_m": 0.03411515809141744,
+          "minimum_altitude_m": 0.0017897210947506168,
+          "minimum_triangle_area_m2": 1.4726755915102424e-05,
+          "option": 9,
+          "pair_count": 0,
+          "pairs": [],
+          "source_distance_m": [
+            0.000935728792134767,
+            0.0007544861747376389,
+            0.0008674804579532574,
+            0.00612562784120772
+          ],
+          "source_distance_max_m": 0.00612562784120772,
+          "source_distance_mean_m": 0.0021708308165083456,
+          "source_neighborhood_faces": 133
+        },
+        "selected_option": 9
+      }
+    }
+  },
+  "classification": "bounded_connectivity_only_counterfactual_exact_self_gate_pending_volume_and_physical_acceptance",
+  "inputs": {
+    "detail_current_csv": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/native-step-001/registered-skin.csv",
+      "sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327"
+    },
+    "detail_skin": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+    },
+    "exact_predicate": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/exact-plane-filter-owner-264/src/numilab_human/cardiac_cavity_intersections.py",
+      "sha256": "207236eb886e921b21ff281f44637140ea4bf9438b27561954dfe9528be71d27"
+    },
+    "placement": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-024-final080-candidate-source-frames-001/native-source-only-024/common-rigid-transfer-row-diagnostic-005.json",
+      "sha256": "caf9a865dc329dc8fbe9f45aee27872514e6768654ff6e1cd725d67cf51bedae"
+    },
+    "target_npz": {
+      "path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/run-003/outer-target-preflight.npz",
+      "sha256": "8e8a88d44b3846105506abdd398b7050f9710a8a2061aa07dc5ded0d75043bd4"
+    }
+  },
+  "limits": [
+    "The detailed source surface is used only as a local ranking guide; no tissue/bone/tendon clearance, volumetric I/D rebuild, mass, constitutive, or native runtime gate was run.",
+    "A zero exact self-pair result on the coarse D36 O surface would only qualify this outer connectivity counterfactual; it does not qualify the connected skin-fat volume.",
+    "The run-003 stable_source_face column is retained in its original report but is not treated here as a verified detailed294 face ID mapping; direct source vertex IDs and incident source-face neighborhoods are the demonstrated ancestry."
+  ],
+  "outputs": {
+    "patch_npz": {
+      "path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/retessellation-001/replacement-patches.npz",
+      "sha256": "506d38935be5a3f872fe7f70eb3600a229f2fa1842c6b351600f87da22990ca6"
+    }
+  },
+  "runtime": {
+    "hostname": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 4.966773986816406
+  },
+  "schema": "numi.human.d36-outer-target-local-retessellation.v1"
+}

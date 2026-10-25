@@ -1,0 +1,976 @@
+{
+  "classification": "reference-positive-volume-topology_counterfactual_current_state_may_fail_fixed_ID_no_admission",
+  "domain": {
+    "changed_cell_count": 72,
+    "columns_per_layer": 2411,
+    "current_geometry": "same AP points with only O replaced by exact current294 source-target positions; I/D deliberately held at original AP positions",
+    "face_patch_count_per_region": 4,
+    "old_cells_per_patch_per_layer": 12,
+    "prism_tets_per_face_per_layer": 3,
+    "reference_geometry": "AP 033 full O/I/D point array",
+    "uses_actual_native_026_old_tetrahedra": true
+  },
+  "full_volume_gates": {
+    "current_candidate_below_1e-5": 0,
+    "current_candidate_min_det": -1.6755210315426798e-05,
+    "current_candidate_min_quality": 0.00013820504386647162,
+    "current_candidate_nonpositive_with_target_O_fixed_ID": 126,
+    "current_old_nonpositive_with_target_O_fixed_ID": 129,
+    "nonpositive_current_tet_rows": [
+      91,
+      101,
+      135,
+      138,
+      139,
+      142,
+      328,
+      332,
+      371,
+      386,
+      396,
+      398,
+      410,
+      411,
+      412,
+      431,
+      433,
+      455,
+      619,
+      873,
+      874,
+      875,
+      876,
+      886,
+      889,
+      941,
+      1337,
+      1342,
+      1360,
+      1362,
+      1364,
+      1547,
+      1557,
+      1559,
+      1629,
+      1631,
+      1675,
+      3884,
+      3934,
+      4008,
+      4075,
+      4082,
+      4115,
+      4398,
+      4601,
+      4665,
+      4786,
+      4790,
+      4791,
+      4977,
+      6436,
+      6437,
+      7834,
+      8343,
+      9004,
+      9016,
+      9020,
+      9021,
+      9040,
+      9350,
+      9351,
+      9353,
+      9359,
+      9361,
+      9446,
+      9653,
+      9765,
+      10264,
+      10266,
+      10288,
+      10397,
+      10463,
+      11508,
+      11510,
+      11943,
+      13003,
+      13004,
+      13007,
+      13012,
+      13013,
+      13024,
+      13025,
+      13028,
+      13032,
+      13034,
+      13037,
+      13172,
+      13190,
+      13193,
+      13199,
+      13202,
+      13304,
+      13336,
+      13337,
+      13339,
+      13340,
+      13343,
+      13345,
+      13346,
+      13356,
+      13386,
+      13387,
+      13388,
+      13419,
+      13421,
+      13423,
+      13427,
+      13430,
+      13436,
+      13500,
+      13501,
+      13764,
+      13801,
+      13802,
+      13851,
+      13868,
+      13871,
+      13905,
+      13950,
+      13963,
+      13988,
+      13998,
+      14037,
+      14038,
+      14044,
+      14048
+    ],
+    "outside_cavity_old_connectivity_bitwise_unchanged": true,
+    "reference_candidate_min_quality": 0.002069086691075745,
+    "reference_candidate_nonpositive": 0,
+    "reference_old_nonpositive": 0
+  },
+  "inputs": {
+    "AP_reference_npz": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz",
+      "sha256": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf"
+    },
+    "native_026_candidate_npz": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz",
+      "sha256": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc"
+    },
+    "surface_candidate_npz": {
+      "path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/retessellation-001/replacement-patches.npz",
+      "sha256": "506d38935be5a3f872fe7f70eb3600a229f2fa1842c6b351600f87da22990ca6"
+    }
+  },
+  "limits": [
+    "Reference positivity and exact cavity boundary preservation are topology-construction checks only.",
+    "The current-state test applies target O with baseline I/D, not an optimized interior state; failures are retained for the parent connected-volume solver.",
+    "No mass remapping, constitutive, collision, full anatomy, native runtime, or physical admission is asserted. Cell-to-old-row pairing is deterministic bookkeeping, not conservative mass ancestry."
+  ],
+  "output": {
+    "npz_path": "/Users/numi/Work/294-source-frame-audit-001/connected-interior-reference-fit-001/retessellation-001/volume-cavity-001/oid-cavity-replacement.npz",
+    "npz_sha256": "0feda312f87a58ac8d7f73b9d27d870911d86040396ac0c65c24feeac682ee2b"
+  },
+  "patches": {
+    "donor20": {
+      "boundary_cycle_columns": [
+        1892,
+        2327,
+        1932,
+        1912,
+        2326,
+        1915
+      ],
+      "candidate_faces_columns": [
+        [
+          1932,
+          1912,
+          2326
+        ],
+        [
+          2327,
+          1932,
+          2326
+        ],
+        [
+          1892,
+          2327,
+          2326
+        ],
+        [
+          1892,
+          2326,
+          1915
+        ]
+      ],
+      "layers": {
+        "0": {
+          "candidate_tets": [
+            [
+              1912,
+              1932,
+              4737,
+              2326
+            ],
+            [
+              1912,
+              1932,
+              4343,
+              4737
+            ],
+            [
+              1912,
+              4323,
+              4737,
+              4343
+            ],
+            [
+              1932,
+              2326,
+              2327,
+              4738
+            ],
+            [
+              1932,
+              2326,
+              4738,
+              4737
+            ],
+            [
+              1932,
+              4343,
+              4737,
+              4738
+            ],
+            [
+              1892,
+              2326,
+              4738,
+              2327
+            ],
+            [
+              1892,
+              2326,
+              4737,
+              4738
+            ],
+            [
+              1892,
+              4303,
+              4738,
+              4737
+            ],
+            [
+              1892,
+              1915,
+              4737,
+              2326
+            ],
+            [
+              1892,
+              1915,
+              4326,
+              4737
+            ],
+            [
+              1892,
+              4303,
+              4737,
+              4326
+            ]
+          ],
+          "enumeration": {
+            "boundary_rejections": 1294,
+            "current_positive_assignments": 0,
+            "reference_feasible_assignments": 2,
+            "reference_rejections": 0
+          },
+          "material_id": 1,
+          "old_boundary_side_triangle_count": 12,
+          "old_cap_orientation_relative_to_surface": [
+            -1,
+            1
+          ],
+          "old_tet_count": 12,
+          "old_tet_rows": [
+            9359,
+            9360,
+            9361,
+            9446,
+            9447,
+            9448,
+            9545,
+            9546,
+            9547,
+            9548,
+            9549,
+            9550
+          ],
+          "selected_current_min_det": -1.1588443733497233e-08,
+          "selected_current_nonpositive_cells": 3,
+          "selected_permutation_indices": [
+            2,
+            3,
+            1,
+            1
+          ],
+          "selected_reference_min_det": 8.860032023439842e-11
+        },
+        "1": {
+          "candidate_tets": [
+            [
+              4323,
+              4343,
+              7148,
+              4737
+            ],
+            [
+              4323,
+              4343,
+              6754,
+              7148
+            ],
+            [
+              4323,
+              6734,
+              7148,
+              6754
+            ],
+            [
+              4343,
+              4737,
+              4738,
+              7149
+            ],
+            [
+              4343,
+              4737,
+              7149,
+              7148
+            ],
+            [
+              4343,
+              6754,
+              7148,
+              7149
+            ],
+            [
+              4303,
+              4737,
+              7149,
+              4738
+            ],
+            [
+              4303,
+              4737,
+              7148,
+              7149
+            ],
+            [
+              4303,
+              6714,
+              7149,
+              7148
+            ],
+            [
+              4303,
+              4326,
+              7148,
+              4737
+            ],
+            [
+              4303,
+              4326,
+              6737,
+              7148
+            ],
+            [
+              4303,
+              6714,
+              7148,
+              6737
+            ]
+          ],
+          "enumeration": {
+            "boundary_rejections": 1294,
+            "current_positive_assignments": 2,
+            "reference_feasible_assignments": 2,
+            "reference_rejections": 0
+          },
+          "material_id": 2,
+          "old_boundary_side_triangle_count": 12,
+          "old_cap_orientation_relative_to_surface": [
+            -1,
+            1
+          ],
+          "old_tet_count": 12,
+          "old_tet_rows": [
+            23675,
+            23676,
+            23677,
+            23762,
+            23763,
+            23764,
+            23861,
+            23862,
+            23863,
+            23864,
+            23865,
+            23866
+          ],
+          "selected_current_min_det": 3.000721562427648e-09,
+          "selected_current_nonpositive_cells": 0,
+          "selected_permutation_indices": [
+            2,
+            3,
+            1,
+            1
+          ],
+          "selected_reference_min_det": 3.000721562427648e-09
+        }
+      },
+      "old_face_ids": [
+        3908,
+        3910,
+        3945,
+        3946
+      ]
+    },
+    "donor23": {
+      "boundary_cycle_columns": [
+        1429,
+        1509,
+        1511,
+        1510,
+        1516,
+        1470
+      ],
+      "candidate_faces_columns": [
+        [
+          1509,
+          1511,
+          1510
+        ],
+        [
+          1429,
+          1509,
+          1510
+        ],
+        [
+          1510,
+          1516,
+          1470
+        ],
+        [
+          1429,
+          1510,
+          1470
+        ]
+      ],
+      "layers": {
+        "0": {
+          "candidate_tets": [
+            [
+              1510,
+              1509,
+              1511,
+              3922
+            ],
+            [
+              1510,
+              1509,
+              3922,
+              3920
+            ],
+            [
+              1510,
+              3921,
+              3920,
+              3922
+            ],
+            [
+              1510,
+              1429,
+              1509,
+              3920
+            ],
+            [
+              1510,
+              1429,
+              3920,
+              3840
+            ],
+            [
+              1510,
+              3921,
+              3840,
+              3920
+            ],
+            [
+              1510,
+              1470,
+              3927,
+              1516
+            ],
+            [
+              1510,
+              1470,
+              3881,
+              3927
+            ],
+            [
+              1510,
+              3921,
+              3927,
+              3881
+            ],
+            [
+              1510,
+              1429,
+              3881,
+              1470
+            ],
+            [
+              1510,
+              1429,
+              3840,
+              3881
+            ],
+            [
+              1510,
+              3921,
+              3881,
+              3840
+            ]
+          ],
+          "enumeration": {
+            "boundary_rejections": 1291,
+            "current_positive_assignments": 0,
+            "reference_feasible_assignments": 5,
+            "reference_rejections": 0
+          },
+          "material_id": 1,
+          "old_boundary_side_triangle_count": 12,
+          "old_cap_orientation_relative_to_surface": [
+            -1,
+            1
+          ],
+          "old_tet_count": 12,
+          "old_tet_rows": [
+            13953,
+            13954,
+            13955,
+            13959,
+            13960,
+            13961,
+            13986,
+            13987,
+            13988,
+            13989,
+            13990,
+            13991
+          ],
+          "selected_current_min_det": -8.33769858443312e-09,
+          "selected_current_nonpositive_cells": 1,
+          "selected_permutation_indices": [
+            4,
+            4,
+            1,
+            2
+          ],
+          "selected_reference_min_det": 7.25338165270247e-10
+        },
+        "1": {
+          "candidate_tets": [
+            [
+              3920,
+              3921,
+              6333,
+              3922
+            ],
+            [
+              3920,
+              3921,
+              6332,
+              6333
+            ],
+            [
+              3920,
+              6331,
+              6333,
+              6332
+            ],
+            [
+              3840,
+              3920,
+              3921,
+              6332
+            ],
+            [
+              3840,
+              3920,
+              6332,
+              6331
+            ],
+            [
+              3840,
+              6251,
+              6331,
+              6332
+            ],
+            [
+              3881,
+              3921,
+              3927,
+              6338
+            ],
+            [
+              3881,
+              3921,
+              6338,
+              6332
+            ],
+            [
+              3881,
+              6292,
+              6332,
+              6338
+            ],
+            [
+              3840,
+              3881,
+              6332,
+              3921
+            ],
+            [
+              3840,
+              3881,
+              6292,
+              6332
+            ],
+            [
+              3840,
+              6251,
+              6332,
+              6292
+            ]
+          ],
+          "enumeration": {
+            "boundary_rejections": 1294,
+            "current_positive_assignments": 2,
+            "reference_feasible_assignments": 2,
+            "reference_rejections": 0
+          },
+          "material_id": 2,
+          "old_boundary_side_triangle_count": 12,
+          "old_cap_orientation_relative_to_surface": [
+            -1,
+            1
+          ],
+          "old_tet_count": 12,
+          "old_tet_rows": [
+            28269,
+            28270,
+            28271,
+            28275,
+            28276,
+            28277,
+            28302,
+            28303,
+            28304,
+            28305,
+            28306,
+            28307
+          ],
+          "selected_current_min_det": 1.0942246308842503e-10,
+          "selected_current_nonpositive_cells": 0,
+          "selected_permutation_indices": [
+            1,
+            0,
+            4,
+            1
+          ],
+          "selected_reference_min_det": 1.0942246308842503e-10
+        }
+      },
+      "old_face_ids": [
+        3019,
+        3020,
+        3021,
+        3105
+      ]
+    },
+    "donor99": {
+      "boundary_cycle_columns": [
+        2267,
+        2274,
+        2275,
+        2284,
+        2280,
+        2292
+      ],
+      "candidate_faces_columns": [
+        [
+          2275,
+          2284,
+          2280
+        ],
+        [
+          2274,
+          2275,
+          2280
+        ],
+        [
+          2267,
+          2274,
+          2280
+        ],
+        [
+          2267,
+          2280,
+          2292
+        ]
+      ],
+      "layers": {
+        "0": {
+          "candidate_tets": [
+            [
+              2275,
+              2280,
+              4695,
+              2284
+            ],
+            [
+              2275,
+              2280,
+              4691,
+              4695
+            ],
+            [
+              2275,
+              4686,
+              4695,
+              4691
+            ],
+            [
+              2274,
+              2275,
+              2280,
+              4691
+            ],
+            [
+              2274,
+              2275,
+              4691,
+              4686
+            ],
+            [
+              2274,
+              4685,
+              4686,
+              4691
+            ],
+            [
+              2267,
+              2274,
+              2280,
+              4691
+            ],
+            [
+              2267,
+              2274,
+              4691,
+              4685
+            ],
+            [
+              2267,
+              4678,
+              4685,
+              4691
+            ],
+            [
+              2267,
+              2280,
+              2292,
+              4703
+            ],
+            [
+              2267,
+              2280,
+              4703,
+              4691
+            ],
+            [
+              2267,
+              4678,
+              4691,
+              4703
+            ]
+          ],
+          "enumeration": {
+            "boundary_rejections": 1292,
+            "current_positive_assignments": 4,
+            "reference_feasible_assignments": 4,
+            "reference_rejections": 0
+          },
+          "material_id": 1,
+          "old_boundary_side_triangle_count": 12,
+          "old_cap_orientation_relative_to_surface": [
+            -1,
+            1
+          ],
+          "old_tet_count": 12,
+          "old_tet_rows": [
+            11841,
+            11842,
+            11843,
+            11856,
+            11857,
+            11858,
+            11859,
+            11860,
+            11861,
+            11862,
+            11863,
+            11864
+          ],
+          "selected_current_min_det": 4.050910595849797e-08,
+          "selected_current_nonpositive_cells": 0,
+          "selected_permutation_indices": [
+            1,
+            0,
+            0,
+            0
+          ],
+          "selected_reference_min_det": 5.601484257606489e-08
+        },
+        "1": {
+          "candidate_tets": [
+            [
+              4691,
+              4686,
+              4695,
+              7106
+            ],
+            [
+              4691,
+              4686,
+              7106,
+              7097
+            ],
+            [
+              4691,
+              7102,
+              7097,
+              7106
+            ],
+            [
+              4685,
+              4691,
+              7097,
+              4686
+            ],
+            [
+              4685,
+              4691,
+              7102,
+              7097
+            ],
+            [
+              4685,
+              7096,
+              7097,
+              7102
+            ],
+            [
+              4678,
+              4685,
+              4691,
+              7102
+            ],
+            [
+              4678,
+              4685,
+              7102,
+              7096
+            ],
+            [
+              4678,
+              7089,
+              7096,
+              7102
+            ],
+            [
+              4678,
+              4691,
+              4703,
+              7114
+            ],
+            [
+              4678,
+              4691,
+              7114,
+              7102
+            ],
+            [
+              4678,
+              7089,
+              7102,
+              7114
+            ]
+          ],
+          "enumeration": {
+            "boundary_rejections": 1292,
+            "current_positive_assignments": 4,
+            "reference_feasible_assignments": 4,
+            "reference_rejections": 0
+          },
+          "material_id": 2,
+          "old_boundary_side_triangle_count": 12,
+          "old_cap_orientation_relative_to_surface": [
+            -1,
+            1
+          ],
+          "old_tet_count": 12,
+          "old_tet_rows": [
+            26157,
+            26158,
+            26159,
+            26172,
+            26173,
+            26174,
+            26175,
+            26176,
+            26177,
+            26178,
+            26179,
+            26180
+          ],
+          "selected_current_min_det": 6.89320699134311e-08,
+          "selected_current_nonpositive_cells": 0,
+          "selected_permutation_indices": [
+            4,
+            1,
+            0,
+            0
+          ],
+          "selected_reference_min_det": 6.89320699134311e-08
+        }
+      },
+      "old_face_ids": [
+        4682,
+        4683,
+        4697,
+        4698
+      ]
+    }
+  },
+  "runtime": {
+    "hostname": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 0.9207291603088379
+  },
+  "schema": "numi.human.d36-connected-oid-cavity-retessellation.v1"
+}

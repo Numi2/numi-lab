@@ -70,6 +70,42 @@ int main() {
             }
         }
         require(maxError<2e-6,"rigid-motion invariants changed after tissue partition");
+
+        // One physical FEM node can hold mass from multiple original rigid
+        // sources while retaining exactly one frame/anchor row.
+        auto splitBodies=std::vector<MRBodyPropertiesGPU>{donor(),donor(),donor()};
+        splitBodies[2].motionType=MR_MOTION_KINEMATIC;
+        const std::vector<metalrobo::NumiHumanTissueMassNode> splitFrames{
+            {31u,2u,.6,{.4,.2,-.1}}, {47u,2u,.4,{-.3,.1,.2}}};
+        const std::vector<metalrobo::NumiHumanTissueMassContribution> splitSources{
+            {31u,0u,.25,{.10,.02,0}}, {31u,1u,.35,{-.20,.03,.01}},
+            {47u,0u,.15,{0,.11,.02}}, {47u,1u,.25,{.04,-.05,.10}}};
+        const auto split=metalrobo::compileNumiHumanTissueMassPartition(splitBodies,splitFrames,splitSources);
+        require(split.succeeded()&&split.partitions.size()==2,
+                "split source/frame mass partition failed");
+        for(const auto& expected:std::array<std::array<double,4>,2>{{
+                {0.0,.4,.025,.0215}, {1.0,.6,-.06,-.002}}}) {
+            const auto donorIndex=static_cast<std::uint32_t>(expected[0]);
+            const auto it=std::find_if(split.partitions.begin(),split.partitions.end(),
+                [&](const auto& p){return p.donorBody==donorIndex;});
+            require(it!=split.partitions.end()&&it->nodeCount==2u,
+                    "split contributions lost distinct FEM node ownership");
+            require(std::abs(it->tissueMassKg-expected[1])<1e-14&&
+                    std::abs(it->tissueFirstMomentKgM[0]-expected[2])<1e-14&&
+                    std::abs(it->tissueFirstMomentKgM[1]-expected[3])<1e-14,
+                    "source-local contribution moments were replaced by the node frame point");
+        }
+        auto badContributions=splitSources;badContributions[0].massKg=.20;
+        const auto badSplit=metalrobo::compileNumiHumanTissueMassPartition(splitBodies,splitFrames,badContributions);
+        require(!badSplit.succeeded()&&badSplit.partitions.empty(),
+                "mismatched per-node source contributions were accepted");
+        badContributions=splitSources;badContributions[0].nodeIndex=999u;
+        require(!metalrobo::compileNumiHumanTissueMassPartition(splitBodies,splitFrames,badContributions).succeeded(),
+                "source contribution without a physical FEM node was accepted");
+        badContributions=splitSources;badContributions[0].donorBody=2u;
+        require(!metalrobo::compileNumiHumanTissueMassPartition(splitBodies,splitFrames,badContributions).succeeded(),
+                "static frame owner was accepted as a rigid mass debit source");
+
         auto reject=[&](auto b, auto n) {
             auto r=metalrobo::compileNumiHumanTissueMassPartition(b,n);
             require(!r.succeeded()&&r.partitions.empty(),"invalid partition published partial output");

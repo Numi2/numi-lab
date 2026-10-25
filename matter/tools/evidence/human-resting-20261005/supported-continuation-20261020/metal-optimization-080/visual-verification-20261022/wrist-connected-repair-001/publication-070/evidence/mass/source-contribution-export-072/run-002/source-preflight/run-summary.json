@@ -1,0 +1,27 @@
+{
+  "returncode": 0,
+  "elapsed_seconds": 5.8116960525512695,
+  "launch_manifest_sha256": "f88180e70cce44c2524a8f19d6a4b72b1e18dd88cced1c976159d450465124b2",
+  "outputs": {
+    "premerge-layer-contributions.csv": {
+      "bytes": 1542836,
+      "sha256": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f"
+    },
+    "compiled-skin-fem-nodes.csv": {
+      "bytes": 694725,
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b"
+    },
+    "compiled-skin-fem-tets.csv": {
+      "bytes": 12664621,
+      "sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461"
+    },
+    "stdout.txt": {
+      "bytes": 203026,
+      "sha256": "b79569b188ee883d3ee9413cea8904a5924b6c6e6459116505315188a007181a"
+    },
+    "stderr.txt": {
+      "bytes": 74083,
+      "sha256": "0d397d9a68c3e091120e3c7eafe77bacb3ba4218c60e25530a4b92f14d4c99bd"
+    }
+  }
+}

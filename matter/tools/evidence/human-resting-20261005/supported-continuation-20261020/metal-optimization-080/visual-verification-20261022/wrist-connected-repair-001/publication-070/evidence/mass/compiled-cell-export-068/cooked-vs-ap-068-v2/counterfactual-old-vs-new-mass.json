@@ -1,0 +1,112 @@
+{
+  "scope": "Counterfactual: rebuild node masses on old (pre-retriangulation) versus AP candidate retessellated T from identical actual AP fit-input F32 points and compiler material densities; compare to actual source-only cooked 039 node mass.",
+  "old_tetrahedra_ordered_equal_to_cooked": true,
+  "old_cells": 28632,
+  "candidate_cells": 28632,
+  "new_candidate_unmatched_cell_rows": [
+    11787,
+    11788,
+    11789,
+    11884,
+    11885,
+    14310,
+    14311,
+    26103,
+    26104,
+    26105,
+    26200,
+    26201,
+    28626,
+    28627
+  ],
+  "compiled_row0w_vs_old_fit_F32_volume_max_abs_m3": 4.547473508864641e-12,
+  "old_fit_F32_volume_total_m3": 0.015104914084076881,
+  "compiled_row0w_total_m3": 0.015104913814048512,
+  "density_crosswalk": {
+    "AP1_to_compiled15": 1000.0000610351562,
+    "AP2_to_compiled16": 900.0
+  },
+  "oldT_fit_input_mass_vs_compiled_node_mass": {
+    "max_abs_g": 3.725290298461914e-06,
+    "nonzero_f32_nodes": 1318,
+    "sum_abs_g": 0.00020475601658631604,
+    "worst_global_nodes": [
+      {
+        "global_node": 5862,
+        "delta_g": 3.725290298461914e-06
+      },
+      {
+        "global_node": 5466,
+        "delta_g": 1.862645149230957e-06
+      },
+      {
+        "global_node": 5730,
+        "delta_g": -1.862645149230957e-06
+      },
+      {
+        "global_node": 4780,
+        "delta_g": -1.862645149230957e-06
+      },
+      {
+        "global_node": 5801,
+        "delta_g": 1.862645149230957e-06
+      },
+      {
+        "global_node": 8458,
+        "delta_g": -1.862645149230957e-06
+      },
+      {
+        "global_node": 5574,
+        "delta_g": -1.862645149230957e-06
+      },
+      {
+        "global_node": 4787,
+        "delta_g": 1.862645149230957e-06
+      }
+    ]
+  },
+  "newT_fit_input_mass_vs_compiled_node_mass": {
+    "max_abs_g": 0.1639550318941474,
+    "nonzero_f32_nodes": 1330,
+    "sum_abs_g": 0.576684123753779,
+    "worst_global_nodes": [
+      {
+        "global_node": 8733,
+        "delta_g": 0.1639550318941474
+      },
+      {
+        "global_node": 6322,
+        "delta_g": -0.13146799756214023
+      },
+      {
+        "global_node": 8749,
+        "delta_g": 0.08201552554965019
+      },
+      {
+        "global_node": 8750,
+        "delta_g": -0.08178706048056483
+      },
+      {
+        "global_node": 6338,
+        "delta_g": -0.04352466203272343
+      },
+      {
+        "global_node": 6339,
+        "delta_g": 0.025759858544915915
+      },
+      {
+        "global_node": 3911,
+        "delta_g": -0.01938529749168083
+      },
+      {
+        "global_node": 3928,
+        "delta_g": 0.015657722542528063
+      }
+    ]
+  },
+  "old_vs_new_node_mass_reallocation": {
+    "max_abs_g": 0.1639550318941474,
+    "sum_signed_g": -7.275957614183426e-09,
+    "sum_abs_g": 0.5764793968410231
+  }
+}

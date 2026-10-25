@@ -1,0 +1,31 @@
+{
+  "returncode": 0,
+  "elapsed_seconds": 6.07212495803833,
+  "launch_manifest_sha256": "e30ebe8c52719e91c7a8e38b689b2a5930c90b1d23a017d6b4a59ea5854485d3",
+  "outputs": {
+    "premerge-layer-contributions.csv": {
+      "bytes": 1542836,
+      "sha256": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f"
+    },
+    "initial-skin-fem-nodes.csv": {
+      "bytes": 694725,
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b"
+    },
+    "compiled-skin-fem-nodes.csv": {
+      "bytes": 1731845,
+      "sha256": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9"
+    },
+    "compiled-skin-fem-tets.csv": {
+      "bytes": 12664621,
+      "sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461"
+    },
+    "stdout.txt": {
+      "bytes": 203159,
+      "sha256": "c6c4e7957afa9b63bcb965dc1c31630e07773adedbfbf44b5f0466c878fe5dd1"
+    },
+    "stderr.txt": {
+      "bytes": 74083,
+      "sha256": "4102905292a3b4dadf9aa414f1e683210cc149c9193ae269d95e71f7dae777e7"
+    }
+  }
+}

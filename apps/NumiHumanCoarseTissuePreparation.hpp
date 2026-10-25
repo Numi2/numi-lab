@@ -186,7 +186,11 @@ struct PreparedOrganicFEM {
     // Complete geometric ancestry; scalar tetParentTetrahedron remains only the dominant-overlap donor label.
     std::vector<std::uint32_t> tetParentAncestryOffsets, tetParentAncestryTetrahedra;
     std::vector<double> tetParentAncestryVolumeFractions;
+    // donorMassNodes is the unique physical node/frame table. Explicit source
+    // contributions preserve split rigid-body debit moments when available;
+    // empty means the legacy one-node/one-source interpretation.
     std::vector<NumiHumanTissueMassNode> donorMassNodes;
+    std::vector<NumiHumanTissueMassContribution> donorMassContributions;
 };
 
 // Optional topology emitted by a candidate that refines an existing paired

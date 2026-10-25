@@ -180,6 +180,62 @@ NumiHumanTissueMassResult compileNumiHumanTissueMassPartition(
     return result;
 }
 
+NumiHumanTissueMassResult compileNumiHumanTissueMassPartition(
+    const std::span<const MRBodyPropertiesGPU> bodies,
+    const std::span<const NumiHumanTissueMassNode> nodes,
+    const std::span<const NumiHumanTissueMassContribution> contributions) {
+    if (nodes.empty() || contributions.empty())
+        return fail("explicit tissue mass source requires node rows and source contributions");
+    std::map<std::uint32_t, double> nodeMass;
+    for (const auto& node : nodes) {
+        if (node.nodeIndex == MR_INVALID_INDEX || node.donorBody >= bodies.size() ||
+            !std::isfinite(node.massKg) || node.massKg <= 0.0 ||
+            !std::all_of(node.localPosition.begin(), node.localPosition.end(),
+                         [](double value) { return std::isfinite(value); }) ||
+            !nodeMass.emplace(node.nodeIndex, node.massKg).second)
+            return fail("invalid or duplicate explicit tissue node/frame row");
+    }
+    std::map<std::uint32_t, double> attributedMass;
+    std::map<std::uint32_t, std::set<std::uint32_t>> donorNodes;
+    std::vector<NumiHumanTissueMassNode> sourceRows;
+    sourceRows.reserve(contributions.size());
+    for (std::size_t i = 0; i < contributions.size(); ++i) {
+        const auto& contribution = contributions[i];
+        if (!nodeMass.contains(contribution.nodeIndex) ||
+            contribution.donorBody >= bodies.size() ||
+            bodies[contribution.donorBody].motionType != MR_MOTION_DYNAMIC ||
+            !std::isfinite(contribution.massKg) || contribution.massKg <= 0.0 ||
+            !std::all_of(contribution.localPosition.begin(), contribution.localPosition.end(),
+                         [](double value) { return std::isfinite(value); }))
+            return fail("invalid explicit tissue source-mass contribution");
+        if (i >= std::numeric_limits<std::uint32_t>::max())
+            return fail("explicit tissue source-contribution count exceeds index range");
+        attributedMass[contribution.nodeIndex] += contribution.massKg;
+        donorNodes[contribution.donorBody].insert(contribution.nodeIndex);
+        // Reuse the existing exact mass/first/second-moment kernel with a
+        // private unique row index; the physical FEM node identity stays intact
+        // in the authoritative node table above.
+        sourceRows.push_back({static_cast<std::uint32_t>(i), contribution.donorBody,
+                              contribution.massKg, contribution.localPosition});
+    }
+    const auto closeMass = [](double a, double b) {
+        return std::isfinite(a) && std::isfinite(b) &&
+            std::abs(a - b) <= 1.0e-9 * std::max({std::abs(a), std::abs(b), 1.0e-12});
+    };
+    for (const auto& [index, mass] : nodeMass) {
+        const auto found = attributedMass.find(index);
+        if (found == attributedMass.end() || !closeMass(mass, found->second))
+            return fail("explicit source contributions do not close a unique FEM node mass");
+    }
+    if (attributedMass.size() != nodeMass.size())
+        return fail("explicit source contributions contain an unknown FEM node");
+    auto result = compileNumiHumanTissueMassPartition(bodies, sourceRows);
+    if (!result.succeeded()) return result;
+    for (auto& partition : result.partitions)
+        partition.nodeCount = static_cast<std::uint32_t>(donorNodes[partition.donorBody].size());
+    return result;
+}
+
 bool rebaseNumiHumanTissueMassPartition(
     const EngineModel& source, const std::span<const NumiHumanTissueMassPartition> partitions,
     EngineModel& result, std::string& error) {
