@@ -1,0 +1,26 @@
+{
+  "commit": "8fac0a031357b26cd2a20f381ec649187272d245",
+  "dependencies": [
+    {
+      "bytes": 14123,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-095/publication-manifest.json",
+      "note": "P095 manifest",
+      "sha256": "6ea55267f9abf0dc5992366516292a2d002fdd284d6891c612dda72e86b52b73"
+    },
+    {
+      "bytes": 2726,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-095/verified-published-inputs.json",
+      "note": "P095 verified dependency map",
+      "sha256": "3dbe72ca5dad9459a436444f796d7d6da18b3e056bd8429dd8779df93f0c6fa2"
+    },
+    {
+      "bytes": 1883,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-095/README.md",
+      "note": "P095 evidence summary",
+      "sha256": "1bcedec932801b42393123830a9716369f1f94d547308e6f5090a9404e0a64ab"
+    }
+  ],
+  "schema": "numi.verified-published-inputs.v1",
+  "tree": "bbca40c6f5fc8038f8c4362fe8ccf715aacf536e",
+  "verification": "Each dependency was read with git show from exact P095 commit and SHA-256 checked."
+}

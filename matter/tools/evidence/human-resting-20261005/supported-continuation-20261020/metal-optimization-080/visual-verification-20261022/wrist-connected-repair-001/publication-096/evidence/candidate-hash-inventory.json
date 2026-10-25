@@ -1,0 +1,207 @@
+{
+  "candidates": [
+    {
+      "bytes": 1477893,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "931529f21497521436aa15d52ebebf71a1e243c5a32d9b301d3f0a99e3035cc7",
+      "source_path": "barycentric-connected-clearance-170/joint-fit-010-capped-current-normal-soft/attempt-001/candidate.npz"
+    },
+    {
+      "bytes": 1477903,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "88d5402b76a46ecc1669647fb46e4cb141c75de625a828b33365ed613d4b02d8",
+      "source_path": "barycentric-connected-clearance-170/joint-fit-010-capped-current-normal-soft/attempt-001/scp-01-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 1477877,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "789366d5a67dd79f3847792ce3267c97ef961fba7f47a885372c936078ee6734",
+      "source_path": "barycentric-connected-clearance-170/joint-fit-010-capped-current-normal-soft/attempt-001/scp-01-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 1477968,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "dcc2f217db6db1e2e0321bf51b509e058f176abe66e33a2c0d03c3aea2208028",
+      "source_path": "barycentric-connected-clearance-170/joint-fit-010-capped-current-normal-soft/attempt-001/scp-01-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477892,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "4e2b025d2966da4b789b6943459f2f4f4ce05d3b43bd436d1102bb672f133446",
+      "source_path": "barycentric-connected-clearance-170/joint-fit-010-capped-current-normal-soft/attempt-001/scp-02-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 1477894,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "79e4630c658af297e43ca17459f8db3e7282784812f0f0f6d6843d5f3b845d2d",
+      "source_path": "barycentric-connected-clearance-170/joint-fit-010-capped-current-normal-soft/attempt-001/scp-02-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 1477931,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "94d6ec5e46aaf3f306eb1f20b994de5ba3b08659d8b4acaada95a69b68f2714e",
+      "source_path": "barycentric-connected-clearance-170/joint-fit-010-capped-current-normal-soft/attempt-001/scp-02-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477846,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "e9e702ab54ace36db9ee4674193b1e6019f619c14b577e91e1e628ee589d380c",
+      "source_path": "barycentric-connected-clearance-170/joint-fit-010-capped-current-normal-soft/attempt-001/scp-03-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 1477902,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "2cb142ac60fedc451fe726e657e91635ebc236dfcc72ac399794081704316792",
+      "source_path": "barycentric-connected-clearance-170/joint-fit-010-capped-current-normal-soft/attempt-001/scp-03-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 1477936,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "101bd740c9142329f459f7ee4f3807c658db07cf01f6f9c0dac1b2e81769210d",
+      "source_path": "barycentric-connected-clearance-170/joint-fit-010-capped-current-normal-soft/attempt-001/scp-03-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477897,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "39cae72bff315c4a0bf3df311e86705cb1a5c61d214909dc8631fb83fc3af67d",
+      "source_path": "barycentric-connected-clearance-170/joint-fit-010-capped-current-normal-soft/attempt-001/scp-04-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 1477911,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "86eded7295e4be9aa4140e43c263caf21d97670ac4f9952b563ddc9308ac645a",
+      "source_path": "barycentric-connected-clearance-170/joint-fit-010-capped-current-normal-soft/attempt-001/scp-04-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 1477909,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "2019b6b64c4eec1547199a991627b1958904111b216dc231084e1ffca80a034f",
+      "source_path": "barycentric-connected-clearance-170/joint-fit-010-capped-current-normal-soft/attempt-001/scp-04-alpha-0p25/candidate.npz"
+    },
+    {
+      "bundle_path": "evidence/refinement-037/refined-baseline.npz",
+      "bytes": 2172503,
+      "disposition": "same-bytes-as-bundled-refined-baseline",
+      "sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/candidate.npz"
+    },
+    {
+      "bytes": 2172664,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "0af42923110768bc1b4446e057dfe7e3a6c63baa6499c633a3e60f90d425624d",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-01-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172582,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "f3effb2033a401c2e74ea17e0bfe22faeadac5ba596044c1077ed001ab446f1a",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-01-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 2172616,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "2d8ead33cb50989562049f0424526176a180097aa882b7204abb2d8dd75abbfe",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-01-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 2172705,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "ac0fd8c207ac23559005569f984db2d929b3e25a9dcd153477bb02b3bcc6d005",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-01-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 2172690,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "1831f0364efab1c7d3d0bbab12b95bd93867ab5f5bae77d73603fd62ae4be42e",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-02-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172641,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "3fc6c11903f92f672aef2ff2b4611b04082a3690a9892bdf42d028aa71ed0ce0",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-02-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 2172626,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "05a395b7b0e563427ed2e05ecd554f792d3f4a412f3fd5a94100c8f1309e5c94",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-02-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 2172619,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "d812c9dc273475da1a07fa4c1c80f9826fb6d0abfe974d6a7824564a391abec2",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-02-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 2172682,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "a6ffaec37d86fb008ce27831ce0217791f5145220cceddebf8ceb5398d65caf0",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-03-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172631,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "d71252683373c844982eb8d42c4308c8463fe08d600c5572a19e58c4050a6f8f",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-03-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 2172613,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "8b43b853d7a11eb29849c19fa2c47a6064a13daea2fc1dbb4ffa2ffd19f7625b",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-03-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 2172622,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "464674da15596da237e60e008adadcbce3a0c23e248fbfcbcd0fdf7ba81c2eed",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-03-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 2172654,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "d59f26737aa496fa0255224aa7a64627f6a945de4d08e3a4a1ef01cf1247bc64",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-04-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172635,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "f14bccee23e310c71cdbfb4e2128fc02c6a81217b71d21a56da478c89a1c3a62",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-04-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 2172615,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "446ea06638fa908ab4ae04f02f35a4b3f83389fa81990063c5722df425ad11ae",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-04-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 2172672,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "e7acb189070b5fe5cf6539f9c3732d0368f5b7122c6dfe9fab783409a45c998a",
+      "source_path": "barycentric-connected-clearance-170/refined-point-178-run001/round-001/fit/attempt-001/scp-04-alpha-1p0/candidate.npz"
+    },
+    {
+      "bundle_path": "evidence/fit-180/selected-beta-0p125.npz",
+      "bytes": 2172606,
+      "disposition": "bundled",
+      "sha256": "91a35a505c9812fa5f1f48a431e23fea5cb72f22e8bcc30693f63a4f18d56f39",
+      "source_path": "barycentric-connected-clearance-170/refined-point-180-saved-substeps/beta-0p125/candidate.npz"
+    },
+    {
+      "bytes": 2172556,
+      "disposition": "hash-only; rejected/unselected trial",
+      "sha256": "58c0f4fdb5fedd9081e3bb50c0796c920fc674902f1c426d1090645abaf030e2",
+      "source_path": "barycentric-connected-clearance-170/refined-point-180-saved-substeps/beta-0p25/candidate.npz"
+    },
+    {
+      "bundle_path": "evidence/refinement-037/refined-baseline.npz",
+      "bytes": 2172503,
+      "disposition": "bundled",
+      "sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+      "source_path": "full-connected-clearance-150/run-037-local-refinement-006-prep/run-001/refined-candidate.npz"
+    }
+  ],
+  "policy": "Candidate geometry NPZ files other than the two named bundle files are represented by path, byte length, and SHA-256 only.",
+  "schema": "numi.candidate-hash-inventory.v1"
+}

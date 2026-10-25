@@ -1,0 +1,21 @@
+{
+  "candidate_sha256": "931529f21497521436aa15d52ebebf71a1e243c5a32d9b301d3f0a99e3035cc7",
+  "point_sha256": "3257c9b17400e196b126df61ab862212f52fde49feaac7b892b05eff554f74e0",
+  "surface_sha256": "17036a56d8f4b7c38b8e91f3350f354954508fa157411285b1406c1b2c467f3b",
+  "driver_sha256": "6b78d8434e5b78288b58a4fdcc3dc1c072651d06f6dee024bc5b2da68ae4299a",
+  "self_helper_sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+  "bary_targets_sha256": "5f7d54a23cfa1dc6519cf4fcb327a1cc56d983ba6de130ab42f5e4f5167e4609",
+  "raw_bary_targets_sha256": "67a58f17b25123dd9dce512bdb9b90fb38a8fe4176b8863aecf3e99a673e95b1",
+  "bary_scope": "coherent orientation-verified direction first-empty-union targets; actual direction array recorded; raw endpoints exactly outside185; clipped progress targets NOT clearance-certified; final all185 exact candidate audit mandatory",
+  "best_prior_surface_pairs": 3626,
+  "starting_surface_pairs": 3626,
+  "fixed_target_scope": "fresh matched face-interior samples and full-union endpoint certificates; soft construction only",
+  "retained_soft_rows": 3626,
+  "coherent_target_report_sha256": "49a5440f74280bdc1b7d29ace0297de5be8feca5cc4e96fb0e744dc9ae8fb00f",
+  "target_direction_array": "current_outward_world_unit",
+  "soft_progress_cap_mm": 2.0,
+  "local_trust_step_mm": 1.0,
+  "clipped_proposal_rows": 1311,
+  "progress_target_endpoint_clearance_certified": false,
+  "native_admission": false
+}

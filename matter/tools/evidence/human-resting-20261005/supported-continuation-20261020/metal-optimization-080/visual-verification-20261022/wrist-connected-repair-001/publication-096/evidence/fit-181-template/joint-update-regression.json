@@ -1,0 +1,16 @@
+{
+  "actual_source_tail_test": true,
+  "old_skips_area_when_self_constraints_change": true,
+  "results": [
+    {
+      "version": "178",
+      "learned_pair": true,
+      "learned_area": false
+    },
+    {
+      "version": "181",
+      "learned_pair": true,
+      "learned_area": true
+    }
+  ]
+}

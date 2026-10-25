@@ -1,0 +1,23 @@
+{
+  "active_181_outputs_included": false,
+  "base_commit": "8fac0a031357b26cd2a20f381ec649187272d245",
+  "base_tree": "bbca40c6f5fc8038f8c4362fe8ccf715aacf536e",
+  "bundled_geometry_candidate_npz_count": 2,
+  "candidate_inventory_count": 33,
+  "canonical_changes": [],
+  "commit_created": false,
+  "files": 54,
+  "publication_manifest_sha256": "1826ccb9f923df83d7777dfe82978c7b461b18e2a8f02d2f4038ab5455efae5a",
+  "push_performed": false,
+  "retired_reconstructible_cache": {
+    "bytes": 23400895,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-095/root-alternate.index",
+    "published_commit": "8fac0a031357b26cd2a20f381ec649187272d245",
+    "published_commit_tree": "bbca40c6f5fc8038f8c4362fe8ccf715aacf536e",
+    "retired_as_reconstructible_after_exact_tree_match": true,
+    "sha256": "c59b7a04bdb76a9ab8bdb4b38a06ee4b6e1c16fa38ad7c0b11791d84d6e071d3",
+    "verified_index_tree": "bbca40c6f5fc8038f8c4362fe8ccf715aacf536e"
+  },
+  "status": "staged_pending_root_review",
+  "root_review_correction": "Clarify original/refined topology crossing counts and selected matched decrease"
+}
