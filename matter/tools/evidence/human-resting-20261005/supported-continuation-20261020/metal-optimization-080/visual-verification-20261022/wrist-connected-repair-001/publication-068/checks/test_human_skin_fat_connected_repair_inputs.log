@@ -1,0 +1,12 @@
+test_bad_layer_rows_and_targets_fail_closed (__main__.InputValidation037Tests.test_bad_layer_rows_and_targets_fail_closed) ... ok
+test_empty_or_float_free_node_ids_fail_closed (__main__.InputValidation037Tests.test_empty_or_float_free_node_ids_fail_closed) ... ok
+test_empty_or_zero_contact_domain_fails_closed (__main__.InputValidation037Tests.test_empty_or_zero_contact_domain_fails_closed) ... ok
+test_empty_tet_domain_fails_closed_in_both_owners (__main__.InputValidation037Tests.test_empty_tet_domain_fails_closed_in_both_owners) ... ok
+test_float_and_repeated_tet_ids_fail_instead_of_truncating (__main__.InputValidation037Tests.test_float_and_repeated_tet_ids_fail_instead_of_truncating) ... ok
+test_nonfinite_and_reversed_physical_bounds_fail_closed (__main__.InputValidation037Tests.test_nonfinite_and_reversed_physical_bounds_fail_closed) ... ok
+test_sparse_jacobian_rejects_empty_or_noninteger_ids (__main__.InputValidation037Tests.test_sparse_jacobian_rejects_empty_or_noninteger_ids) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.003s
+
+OK

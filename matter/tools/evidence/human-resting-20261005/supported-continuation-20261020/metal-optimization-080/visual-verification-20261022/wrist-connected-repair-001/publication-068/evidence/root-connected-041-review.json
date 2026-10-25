@@ -1,0 +1,73 @@
+{
+  "status": "STATIC_CONNECTED_CANDIDATE_NOT_ADMITTED",
+  "accepted_physical_steps": 0,
+  "anatomy_qualified": false,
+  "physical_qualification": false,
+  "candidate_sha256": "52abbef77d1122a507da685622a664a4d6258ee15d2b5cddde25ef2fb0c57f8e",
+  "original_reference_sha256": "b248bf0ee823ca1ab3b6d787fe3d427d8e080dcd528a57421235c7d6e1ed375e",
+  "baseline_sha256": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+  "script_sha256": "64997c70b8e3b5d18a87a9f241bd02ea5adb532ba0616956fe850238f7f38e2d",
+  "nodes": 7233,
+  "cells": 28632,
+  "nonfinite_current_coordinates": 0,
+  "minimum_emitted_quality": 1.989420946222513e-05,
+  "nonpositive_cells": 0,
+  "quality_below_1e_5": 0,
+  "J_authored_reference_range": [
+    0.3634965188318466,
+    2.481475968131999
+  ],
+  "J_cast_F32_reference_range": [
+    0.3632811320779985,
+    2.4815093898463325
+  ],
+  "J_cast_F32_reference_outside_035_25": 0,
+  "thickness": [
+    {
+      "layer": 0,
+      "projected_thickness_ratio_percentiles": [
+        0.500000127794715,
+        0.5049594820302485,
+        1.0,
+        1.2810722227355495,
+        1.4965813871780642
+      ],
+      "violations_with_1um_tolerance": 0
+    },
+    {
+      "layer": 1,
+      "projected_thickness_ratio_percentiles": [
+        0.5000028104599332,
+        0.5743173476796408,
+        1.0,
+        1.3583966110732923,
+        1.499999594751979
+      ],
+      "violations_with_1um_tolerance": 0
+    }
+  ],
+  "tet_faces_incidence_gt2": 0,
+  "boundary_triangles": 9734,
+  "boundary_edges_not_incidence2": 0,
+  "edge_bank_crossing_groups": 437,
+  "crossing_edges": 389,
+  "contained_nodes": 15,
+  "ambiguous_queries": 0,
+  "cumulative_displacement_mm_percentiles": [
+    0.0,
+    0.0,
+    8.214849409078683,
+    12.945428785577898,
+    19.461275935131027,
+    29.28498259243136
+  ],
+  "unchanged_original_reference": true,
+  "unchanged_material_ids": true,
+  "unchanged_tetrahedra": true,
+  "mass_note": "Current deformation does not reauthor rest geometry or assign rho times deformed volume. Actual compiled per-cell and donor mass admission remain separate.",
+  "limitations": [
+    "Exact edge/bank and contained-node audits do not certify full tet-solid or surface clearance.",
+    "Zero cell inversions here is static Float32 geometric consistency; no physical step, full material response, detailed294 transfer, supported-pose sweep or viewer confirmation is admitted.",
+    "Cast-F32 reference determinant ratio is diagnostic; compiled inverseRest arithmetic remains a separate native check."
+  ]
+}

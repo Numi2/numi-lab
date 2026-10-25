@@ -1,0 +1,81 @@
+{
+  "admission": {
+    "bone_clearance": false,
+    "native_emission": false,
+    "native_physics": false,
+    "physical_mass_transfer": false,
+    "purpose": "Conforming P1 support refinement only; downstream reclip, mass/ancestry and physical gates remain required"
+  },
+  "helper_report": {
+    "all_output_reference_volumes_positive": true,
+    "input_node_count": 7233,
+    "input_tetrahedron_count": 28632,
+    "material_ids_propagated": true,
+    "maximum_midpoint_off_edge_distance_m": 6.149987701113601e-08,
+    "maximum_midpoint_rounding_displacement_m": 6.188917057900187e-08,
+    "maximum_parent_fraction_sum_error": 4.440892098500626e-16,
+    "maximum_parent_reference_volume_relative_drift": 0.015601450815358823,
+    "minimum_input_reference_normalized_quality": 2.6016244143891342e-05,
+    "minimum_parent_fraction_sum": 0.9999999999999997,
+    "minimum_reference_normalized_quality": 1.3677444096974807e-05,
+    "normalized_quality_floor": null,
+    "normalized_quality_floor_pass": true,
+    "output_node_count": 9320,
+    "output_tetrahedron_count": 37935,
+    "parent_cell_ids_propagated": true,
+    "parent_reference_volume_closure_pass": "NOT_EVALUATED_DIAGNOSTIC_ONLY",
+    "parent_reference_volume_relative_drift_limit": null,
+    "refinement_is_physical_admission": false,
+    "selected_unique_edge_count": 2087,
+    "source_ancestry_appended_rows": 2087,
+    "total_reference_volume_relative_drift": 6.089149343310063e-09,
+    "touched_input_tetrahedron_count": 2860
+  },
+  "input_equivalence": {
+    "current_points_tetrahedra_materials_global_ids_match_repair_input": true,
+    "global_node_id_prefix_exact": true,
+    "reference": "repair-input.reference_points_m F64 retained; cast to F32 for orientation/refinement quality, with canonical F64 midpoint field retained"
+  },
+  "input_sha256": {
+    "baseline_035": "452602aea036c15faaafe6c154e6c4676585e1b2cb57c9a1c9128de82050b570",
+    "edge_witness": "613d19fe45e052697ae5cdf8e7b481bfb3ea3fdbc5a4517d8e0e73aa53c40a23",
+    "helper": "11bfc32686d3e7faa29bd5f9afc00bf0f2eec154a0cb8275333eff98804dd70c",
+    "refinement_input": "3df28e930e5b27229633bf2e3a91f0d40fd6e57d94489c3ba7de6ae2828a0e1d"
+  },
+  "marked_edges": {
+    "edge_bank_witness_groups": 2363,
+    "edge_witness_rows": 3789,
+    "uncertain_edges_used": 0,
+    "unique_exact_proper_hit_edges": 2087
+  },
+  "mesh": {
+    "bad_face_incidence": 0,
+    "child_parent_row_is_dense_baseline_source_row": true,
+    "input_nodes": 7233,
+    "input_tetrahedra": 28632,
+    "materials_inherited_from_parent": true,
+    "new_nodes": 2087,
+    "output_nodes": 9320,
+    "output_tetrahedra": 37935,
+    "source_ancestry_ids_are_baseline_global_node_ids": true,
+    "touched_input_parent_rows": 2860
+  },
+  "quality": {
+    "all_emitted_cells_positive_f64ref_f32ref_f32current": true,
+    "min_current_f32_normalized_quality": 1.3677444096974875e-05,
+    "min_reference_f32_normalized_quality": 1.3677444096974875e-05,
+    "min_reference_f64_normalized_quality": 1.3679444991083626e-05,
+    "quality_floor_required": false
+  },
+  "reference_volume_transfer": {
+    "helper_f32_drift_limit": null,
+    "helper_f32_parent_relative_drift": 0.015601450815358823,
+    "max_parent_raw_f64_relative_drift": 1.1449584975729966e-11,
+    "max_total_f64_relative_drift": 0.0,
+    "midpoint_off_edge_m_in_refined_f32": 6.149987701113601e-08,
+    "normalized_fraction_is_bookkeeping_not_exact_overlap": true,
+    "primary_frame": "canonical reference_points_m F64",
+    "raw_child_fraction_field": "child_reference_volume_fraction_of_input_parent_f64"
+  },
+  "status": "CONFORMING_REFINEMENT_CONSTRUCTED"
+}

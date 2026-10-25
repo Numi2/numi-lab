@@ -1,0 +1,4265 @@
+[
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 1941,
+    "body": 57,
+    "bone": 89,
+    "triangle": 68,
+    "t": 0.6958640259159408,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 1942,
+    "body": 57,
+    "bone": 89,
+    "triangle": 184,
+    "t": 0.5628538793273884,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 1943,
+    "body": 62,
+    "bone": 90,
+    "triangle": 296,
+    "t": 0.6722982302981474,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 1951,
+    "body": 57,
+    "bone": 89,
+    "triangle": 58,
+    "t": 0.7303136744987545,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 1952,
+    "body": 57,
+    "bone": 89,
+    "triangle": 186,
+    "t": 0.5650756787515565,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 1953,
+    "body": 62,
+    "bone": 90,
+    "triangle": 300,
+    "t": 0.6988306289477875,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 1953,
+    "body": 67,
+    "bone": 91,
+    "triangle": 195,
+    "t": 0.889453379598411,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2380,
+    "body": 60,
+    "bone": 96,
+    "triangle": 261,
+    "t": 0.7712833638268553,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2386,
+    "body": 60,
+    "bone": 96,
+    "triangle": 261,
+    "t": 0.7558192009472535,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2400,
+    "body": 59,
+    "bone": 95,
+    "triangle": 266,
+    "t": 0.7691733792493299,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2404,
+    "body": 59,
+    "bone": 95,
+    "triangle": 254,
+    "t": 0.9992611677434217,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2405,
+    "body": 59,
+    "bone": 95,
+    "triangle": 88,
+    "t": 0.790831923411661,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2408,
+    "body": 59,
+    "bone": 95,
+    "triangle": 88,
+    "t": 0.7812365459885415,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2447,
+    "body": 59,
+    "bone": 95,
+    "triangle": 254,
+    "t": 0.9998024572520572,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2499,
+    "body": 59,
+    "bone": 95,
+    "triangle": 253,
+    "t": 0.8697120442384974,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2529,
+    "body": 64,
+    "bone": 98,
+    "triangle": 119,
+    "t": 0.8710898595119193,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2535,
+    "body": 64,
+    "bone": 98,
+    "triangle": 107,
+    "t": 0.8794652822019017,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2549,
+    "body": 64,
+    "bone": 98,
+    "triangle": 108,
+    "t": 0.8704189144890482,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2550,
+    "body": 62,
+    "bone": 90,
+    "triangle": 671,
+    "t": 0.440946015702435,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2552,
+    "body": 64,
+    "bone": 98,
+    "triangle": 101,
+    "t": 0.8818026487094082,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2553,
+    "body": 62,
+    "bone": 90,
+    "triangle": 664,
+    "t": 0.4455718788104195,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2594,
+    "body": 64,
+    "bone": 98,
+    "triangle": 457,
+    "t": 0.37853473704624496,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2595,
+    "body": 62,
+    "bone": 90,
+    "triangle": 481,
+    "t": 0.2523560643454712,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2595,
+    "body": 64,
+    "bone": 98,
+    "triangle": 263,
+    "t": 0.0328306277091552,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2597,
+    "body": 64,
+    "bone": 98,
+    "triangle": 457,
+    "t": 0.41498173258623405,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2598,
+    "body": 62,
+    "bone": 90,
+    "triangle": 481,
+    "t": 0.2649440985583702,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2598,
+    "body": 64,
+    "bone": 98,
+    "triangle": 263,
+    "t": 0.03080963610389562,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2608,
+    "body": 42,
+    "bone": 14,
+    "triangle": 336,
+    "t": 0.7315134629510631,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2611,
+    "body": 48,
+    "bone": 72,
+    "triangle": 69,
+    "t": 0.5777049664044325,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2748,
+    "body": 42,
+    "bone": 14,
+    "triangle": 181,
+    "t": 0.5992543278101108,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2755,
+    "body": 42,
+    "bone": 14,
+    "triangle": 181,
+    "t": 0.6114451195487391,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2756,
+    "body": 42,
+    "bone": 14,
+    "triangle": 171,
+    "t": 0.6803035128062774,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2803,
+    "body": 69,
+    "bone": 101,
+    "triangle": 114,
+    "t": 0.6137456569522766,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2807,
+    "body": 69,
+    "bone": 101,
+    "triangle": 110,
+    "t": 0.59443665814453,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2808,
+    "body": 70,
+    "bone": 102,
+    "triangle": 176,
+    "t": 0.16682519447528948,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2810,
+    "body": 70,
+    "bone": 102,
+    "triangle": 176,
+    "t": 0.15913987801988616,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2813,
+    "body": 75,
+    "bone": 105,
+    "triangle": 31,
+    "t": 0.7424004419460665,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2820,
+    "body": 75,
+    "bone": 105,
+    "triangle": 33,
+    "t": 0.7607997125268764,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 2821,
+    "body": 74,
+    "bone": 104,
+    "triangle": 220,
+    "t": 0.75169104714281,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 15661,
+    "body": 124,
+    "bone": 123,
+    "triangle": 208,
+    "t": 0.5470784396743298,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 15783,
+    "body": 114,
+    "bone": 117,
+    "triangle": 130,
+    "t": 0.9327096555480281,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 15789,
+    "body": 114,
+    "bone": 117,
+    "triangle": 130,
+    "t": 0.9300507287042392,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 15977,
+    "body": 96,
+    "bone": 81,
+    "triangle": 201,
+    "t": 0.7601049318969098,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 15980,
+    "body": 93,
+    "bone": 17,
+    "triangle": 74,
+    "t": 0.8602113153031982,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 15981,
+    "body": 96,
+    "bone": 81,
+    "triangle": 203,
+    "t": 0.782056700665499,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 15985,
+    "body": 114,
+    "bone": 117,
+    "triangle": 327,
+    "t": 0.8539239613020037,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 15990,
+    "body": 114,
+    "bone": 117,
+    "triangle": 327,
+    "t": 0.857401359074595,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 15991,
+    "body": 114,
+    "bone": 117,
+    "triangle": 130,
+    "t": 0.9247175966398726,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 15994,
+    "body": 114,
+    "bone": 117,
+    "triangle": 130,
+    "t": 0.9217999416217351,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16025,
+    "body": 115,
+    "bone": 118,
+    "triangle": 223,
+    "t": 0.8858721637534451,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16025,
+    "body": 116,
+    "bone": 119,
+    "triangle": 9,
+    "t": 0.877862399230287,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16028,
+    "body": 114,
+    "bone": 117,
+    "triangle": 329,
+    "t": 0.8792763120761122,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16032,
+    "body": 114,
+    "bone": 117,
+    "triangle": 328,
+    "t": 0.8865464288872014,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16033,
+    "body": 115,
+    "bone": 118,
+    "triangle": 116,
+    "t": 0.8554308180775232,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16042,
+    "body": 114,
+    "bone": 117,
+    "triangle": 379,
+    "t": 0.19659497729657235,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16043,
+    "body": 114,
+    "bone": 117,
+    "triangle": 332,
+    "t": 0.006682561120616586,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16044,
+    "body": 114,
+    "bone": 117,
+    "triangle": 332,
+    "t": 0.010408214181122722,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16046,
+    "body": 114,
+    "bone": 117,
+    "triangle": 377,
+    "t": 0.14183822385757727,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16047,
+    "body": 114,
+    "bone": 117,
+    "triangle": 332,
+    "t": 0.006944373552647267,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16088,
+    "body": 115,
+    "bone": 118,
+    "triangle": 241,
+    "t": 0.37236465374803673,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16092,
+    "body": 115,
+    "bone": 118,
+    "triangle": 241,
+    "t": 0.3366140342605428,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16111,
+    "body": 96,
+    "bone": 81,
+    "triangle": 217,
+    "t": 0.7077050990434829,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16156,
+    "body": 109,
+    "bone": 114,
+    "triangle": 225,
+    "t": 0.5681792246506887,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16156,
+    "body": 110,
+    "bone": 115,
+    "triangle": 82,
+    "t": 0.7281312422798745,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16162,
+    "body": 109,
+    "bone": 114,
+    "triangle": 225,
+    "t": 0.5699957884958545,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16162,
+    "body": 110,
+    "bone": 115,
+    "triangle": 109,
+    "t": 0.7337248785704333,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16165,
+    "body": 114,
+    "bone": 117,
+    "triangle": 326,
+    "t": 0.970993961773526,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16224,
+    "body": 109,
+    "bone": 114,
+    "triangle": 272,
+    "t": 0.4611327537050153,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16224,
+    "body": 110,
+    "bone": 115,
+    "triangle": 38,
+    "t": 0.5878197061175918,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 16228,
+    "body": 110,
+    "bone": 115,
+    "triangle": 39,
+    "t": 0.5950987292563688,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 17506,
+    "body": 54,
+    "bone": 94,
+    "triangle": 232,
+    "t": 0.5859593605487008,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 17617,
+    "body": 52,
+    "bone": 88,
+    "triangle": 525,
+    "t": 0.6123259146492323,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 18713,
+    "body": 57,
+    "bone": 89,
+    "triangle": 58,
+    "t": 0.7174988548813183,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 18714,
+    "body": 57,
+    "bone": 89,
+    "triangle": 186,
+    "t": 0.5553608897258356,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 18715,
+    "body": 62,
+    "bone": 90,
+    "triangle": 168,
+    "t": 0.6928401136316743,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 18715,
+    "body": 67,
+    "bone": 91,
+    "triangle": 195,
+    "t": 0.8864330148327138,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 18723,
+    "body": 57,
+    "bone": 89,
+    "triangle": 57,
+    "t": 0.7582381795695057,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 18724,
+    "body": 57,
+    "bone": 89,
+    "triangle": 294,
+    "t": 0.5599225234611318,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 18724,
+    "body": 62,
+    "bone": 90,
+    "triangle": 560,
+    "t": 0.8882846678309657,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 18725,
+    "body": 67,
+    "bone": 91,
+    "triangle": 190,
+    "t": 0.9228019806700911,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19003,
+    "body": 57,
+    "bone": 89,
+    "triangle": 162,
+    "t": 0.8898397139454474,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19152,
+    "body": 60,
+    "bone": 96,
+    "triangle": 244,
+    "t": 0.751514690608837,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19161,
+    "body": 66,
+    "bone": 100,
+    "triangle": 26,
+    "t": 0.8701014323415284,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19172,
+    "body": 59,
+    "bone": 95,
+    "triangle": 254,
+    "t": 0.9994764485205081,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19177,
+    "body": 59,
+    "bone": 95,
+    "triangle": 88,
+    "t": 0.7725070063172083,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19180,
+    "body": 59,
+    "bone": 95,
+    "triangle": 69,
+    "t": 0.7056123470594349,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19181,
+    "body": 57,
+    "bone": 89,
+    "triangle": 226,
+    "t": 0.8757135270244965,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19206,
+    "body": 66,
+    "bone": 100,
+    "triangle": 142,
+    "t": 0.7452583845992484,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19215,
+    "body": 59,
+    "bone": 95,
+    "triangle": 254,
+    "t": 0.9998183715712852,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19263,
+    "body": 66,
+    "bone": 100,
+    "triangle": 138,
+    "t": 0.686168969244996,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19264,
+    "body": 66,
+    "bone": 100,
+    "triangle": 137,
+    "t": 0.20988134223068144,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19270,
+    "body": 59,
+    "bone": 95,
+    "triangle": 253,
+    "t": 0.011937559803913221,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19271,
+    "body": 59,
+    "bone": 95,
+    "triangle": 254,
+    "t": 0.0012179190556515264,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19272,
+    "body": 59,
+    "bone": 95,
+    "triangle": 345,
+    "t": 0.37391200011558073,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19301,
+    "body": 64,
+    "bone": 98,
+    "triangle": 107,
+    "t": 0.875102480483172,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19307,
+    "body": 62,
+    "bone": 90,
+    "triangle": 270,
+    "t": 0.9986280178386049,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19308,
+    "body": 64,
+    "bone": 98,
+    "triangle": 440,
+    "t": 0.9555556668632774,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19313,
+    "body": 46,
+    "bone": 74,
+    "triangle": 201,
+    "t": 0.7798747988766704,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19321,
+    "body": 64,
+    "bone": 98,
+    "triangle": 100,
+    "t": 0.8806585981133137,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19322,
+    "body": 62,
+    "bone": 90,
+    "triangle": 664,
+    "t": 0.43093653129021636,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19324,
+    "body": 62,
+    "bone": 90,
+    "triangle": 473,
+    "t": 0.7408012257658068,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19325,
+    "body": 62,
+    "bone": 90,
+    "triangle": 528,
+    "t": 0.44401152167221014,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19325,
+    "body": 67,
+    "bone": 91,
+    "triangle": 195,
+    "t": 0.8659187761780012,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19355,
+    "body": 64,
+    "bone": 98,
+    "triangle": 439,
+    "t": 0.982222652578375,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19366,
+    "body": 64,
+    "bone": 98,
+    "triangle": 457,
+    "t": 0.42357899810094335,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19367,
+    "body": 62,
+    "bone": 90,
+    "triangle": 340,
+    "t": 0.2633347663577407,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19367,
+    "body": 64,
+    "bone": 98,
+    "triangle": 98,
+    "t": 0.008671999184765276,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19368,
+    "body": 62,
+    "bone": 90,
+    "triangle": 338,
+    "t": 0.7710508997966408,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19368,
+    "body": 64,
+    "bone": 98,
+    "triangle": 97,
+    "t": 0.04172717912211577,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19370,
+    "body": 62,
+    "bone": 90,
+    "triangle": 621,
+    "t": 0.2720649947825081,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19370,
+    "body": 64,
+    "bone": 98,
+    "triangle": 98,
+    "t": 0.007634445180347515,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19370,
+    "body": 67,
+    "bone": 91,
+    "triangle": 194,
+    "t": 0.8127346292709422,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19373,
+    "body": 42,
+    "bone": 14,
+    "triangle": 338,
+    "t": 0.7200261211565753,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19376,
+    "body": 48,
+    "bone": 72,
+    "triangle": 69,
+    "t": 0.5693583550829278,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19380,
+    "body": 42,
+    "bone": 14,
+    "triangle": 347,
+    "t": 0.8399802804160224,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19399,
+    "body": 41,
+    "bone": 12,
+    "triangle": 761,
+    "t": 0.9735860462645936,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19520,
+    "body": 42,
+    "bone": 14,
+    "triangle": 179,
+    "t": 0.6048901567530922,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19521,
+    "body": 42,
+    "bone": 14,
+    "triangle": 174,
+    "t": 0.6728573584232712,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19525,
+    "body": 42,
+    "bone": 14,
+    "triangle": 374,
+    "t": 0.7074307611898958,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19527,
+    "body": 42,
+    "bone": 14,
+    "triangle": 393,
+    "t": 0.6296203789825281,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19528,
+    "body": 42,
+    "bone": 14,
+    "triangle": 387,
+    "t": 0.695795357468535,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19529,
+    "body": 42,
+    "bone": 14,
+    "triangle": 392,
+    "t": 0.7261529857863558,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19575,
+    "body": 69,
+    "bone": 101,
+    "triangle": 109,
+    "t": 0.5814706440902089,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19579,
+    "body": 64,
+    "bone": 98,
+    "triangle": 424,
+    "t": 0.9991925824570652,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19580,
+    "body": 70,
+    "bone": 102,
+    "triangle": 175,
+    "t": 0.11954730684089244,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19582,
+    "body": 64,
+    "bone": 98,
+    "triangle": 424,
+    "t": 0.9989854853905846,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19582,
+    "body": 70,
+    "bone": 102,
+    "triangle": 172,
+    "t": 0.10994805309694577,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19585,
+    "body": 75,
+    "bone": 105,
+    "triangle": 34,
+    "t": 0.7775241446795031,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19586,
+    "body": 74,
+    "bone": 104,
+    "triangle": 220,
+    "t": 0.7404624544056793,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19591,
+    "body": 64,
+    "bone": 98,
+    "triangle": 424,
+    "t": 0.998544605409947,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19592,
+    "body": 74,
+    "bone": 104,
+    "triangle": 128,
+    "t": 0.6494657165942466,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19592,
+    "body": 75,
+    "bone": 105,
+    "triangle": 36,
+    "t": 0.8142068912663767,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19593,
+    "body": 74,
+    "bone": 104,
+    "triangle": 118,
+    "t": 0.8207321291899294,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19595,
+    "body": 74,
+    "bone": 104,
+    "triangle": 225,
+    "t": 0.6090382917175374,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19601,
+    "body": 74,
+    "bone": 104,
+    "triangle": 63,
+    "t": 0.9929340332483632,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19608,
+    "body": 64,
+    "bone": 98,
+    "triangle": 424,
+    "t": 0.9889795283191971,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19609,
+    "body": 69,
+    "bone": 101,
+    "triangle": 320,
+    "t": 0.43860444441318247,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 19610,
+    "body": 67,
+    "bone": 91,
+    "triangle": 250,
+    "t": 0.6245124081620491,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 20173,
+    "body": 47,
+    "bone": 76,
+    "triangle": 161,
+    "t": 0.5243031889958313,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 20185,
+    "body": 67,
+    "bone": 91,
+    "triangle": 184,
+    "t": 0.7418175196349863,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 20944,
+    "body": 74,
+    "bone": 104,
+    "triangle": 64,
+    "t": 0.966886969650766,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 21461,
+    "body": 41,
+    "bone": 12,
+    "triangle": 2940,
+    "t": 0.8102603123110319,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 21816,
+    "body": 139,
+    "bone": 142,
+    "triangle": 113,
+    "t": 0.6624233710573546,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 22582,
+    "body": 139,
+    "bone": 131,
+    "triangle": 242,
+    "t": 0.8273907473215447,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23058,
+    "body": 23,
+    "bone": 28,
+    "triangle": 82,
+    "t": 0.8033425967269969,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23058,
+    "body": 23,
+    "bone": 30,
+    "triangle": 169,
+    "t": 0.6604410349964691,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23060,
+    "body": 23,
+    "bone": 30,
+    "triangle": 166,
+    "t": 0.8624190672134882,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23063,
+    "body": 23,
+    "bone": 30,
+    "triangle": 530,
+    "t": 0.6919254100543402,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23065,
+    "body": 23,
+    "bone": 30,
+    "triangle": 632,
+    "t": 0.7398316183265241,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23066,
+    "body": 23,
+    "bone": 28,
+    "triangle": 850,
+    "t": 0.6576224904890005,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23066,
+    "body": 23,
+    "bone": 33,
+    "triangle": 131,
+    "t": 0.866461205241164,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23067,
+    "body": 23,
+    "bone": 30,
+    "triangle": 625,
+    "t": 0.407422474632277,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23073,
+    "body": 23,
+    "bone": 28,
+    "triangle": 34,
+    "t": 0.8865412651352337,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23075,
+    "body": 23,
+    "bone": 30,
+    "triangle": 82,
+    "t": 0.8805991660649866,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23140,
+    "body": 23,
+    "bone": 28,
+    "triangle": 185,
+    "t": 0.9224548512025372,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23141,
+    "body": 23,
+    "bone": 30,
+    "triangle": 350,
+    "t": 0.8918379002309029,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23143,
+    "body": 23,
+    "bone": 30,
+    "triangle": 477,
+    "t": 0.9070100475632092,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23145,
+    "body": 23,
+    "bone": 28,
+    "triangle": 492,
+    "t": 0.6733814873514488,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23145,
+    "body": 23,
+    "bone": 28,
+    "triangle": 2784,
+    "t": 0.8522658567297972,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23145,
+    "body": 23,
+    "bone": 32,
+    "triangle": 280,
+    "t": 0.7913440374379772,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23145,
+    "body": 23,
+    "bone": 32,
+    "triangle": 897,
+    "t": 0.9211429764606008,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23146,
+    "body": 23,
+    "bone": 28,
+    "triangle": 1149,
+    "t": 0.9755109220960632,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23151,
+    "body": 23,
+    "bone": 30,
+    "triangle": 350,
+    "t": 0.9056682796694526,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23152,
+    "body": 23,
+    "bone": 30,
+    "triangle": 599,
+    "t": 0.9192117861792903,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23155,
+    "body": 23,
+    "bone": 30,
+    "triangle": 805,
+    "t": 0.7509264886603428,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23162,
+    "body": 23,
+    "bone": 28,
+    "triangle": 1543,
+    "t": 0.9926109441161677,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23164,
+    "body": 23,
+    "bone": 30,
+    "triangle": 599,
+    "t": 0.9265436421564446,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23281,
+    "body": 23,
+    "bone": 32,
+    "triangle": 2213,
+    "t": 0.9919069442586874,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23329,
+    "body": 23,
+    "bone": 32,
+    "triangle": 2213,
+    "t": 0.9910885042324572,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23362,
+    "body": 23,
+    "bone": 28,
+    "triangle": 2014,
+    "t": 0.7695969488161246,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23362,
+    "body": 23,
+    "bone": 32,
+    "triangle": 883,
+    "t": 0.8935677258890454,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23396,
+    "body": 23,
+    "bone": 28,
+    "triangle": 1621,
+    "t": 0.9912766329041187,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23616,
+    "body": 23,
+    "bone": 32,
+    "triangle": 560,
+    "t": 0.6844041816333916,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23618,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1834,
+    "t": 0.9603895885783544,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23620,
+    "body": 23,
+    "bone": 32,
+    "triangle": 138,
+    "t": 0.9358843622368505,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23621,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1381,
+    "t": 0.9755150446415868,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23624,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1105,
+    "t": 0.9815959062876438,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23657,
+    "body": 23,
+    "bone": 32,
+    "triangle": 2213,
+    "t": 0.9912480815246347,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23661,
+    "body": 23,
+    "bone": 32,
+    "triangle": 2213,
+    "t": 0.9864828475267158,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23664,
+    "body": 23,
+    "bone": 32,
+    "triangle": 2213,
+    "t": 0.9873937389848126,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23794,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1381,
+    "t": 0.9937547392396167,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23802,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1381,
+    "t": 0.9938768136773095,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23858,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1474,
+    "t": 0.9754886859017913,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23861,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1102,
+    "t": 0.9535988341665144,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23915,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1474,
+    "t": 0.9840959373491025,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 23916,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1474,
+    "t": 0.9772378709197789,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 24916,
+    "body": 23,
+    "bone": 28,
+    "triangle": 6827,
+    "t": 0.6112255433977412,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 24916,
+    "body": 23,
+    "bone": 29,
+    "triangle": 2490,
+    "t": 0.8363538350245797,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 26128,
+    "body": 23,
+    "bone": 29,
+    "triangle": 7321,
+    "t": 0.9848711879824594,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 26277,
+    "body": 23,
+    "bone": 29,
+    "triangle": 7471,
+    "t": 0.9941839029235573,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 26899,
+    "body": 23,
+    "bone": 29,
+    "triangle": 7471,
+    "t": 0.985981737121957,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 27193,
+    "body": 23,
+    "bone": 29,
+    "triangle": 7471,
+    "t": 0.9947499900629008,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 27746,
+    "body": 23,
+    "bone": 29,
+    "triangle": 7471,
+    "t": 0.9944926343983136,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 29649,
+    "body": 150,
+    "bone": 21,
+    "triangle": 278,
+    "t": 0.8083421399947784,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 29652,
+    "body": 150,
+    "bone": 21,
+    "triangle": 778,
+    "t": 0.7471368488917118,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 29656,
+    "body": 150,
+    "bone": 21,
+    "triangle": 817,
+    "t": 0.8440600316763195,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 29671,
+    "body": 150,
+    "bone": 21,
+    "triangle": 224,
+    "t": 0.7922781834762391,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 29673,
+    "body": 150,
+    "bone": 21,
+    "triangle": 230,
+    "t": 0.6972156162491879,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 29923,
+    "body": 150,
+    "bone": 21,
+    "triangle": 274,
+    "t": 0.5832872531545574,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32527,
+    "body": 121,
+    "bone": 122,
+    "triangle": 146,
+    "t": 0.8258426528027448,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32555,
+    "body": 114,
+    "bone": 117,
+    "triangle": 130,
+    "t": 0.9262200781358076,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32561,
+    "body": 114,
+    "bone": 117,
+    "triangle": 130,
+    "t": 0.9296918303842832,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32749,
+    "body": 96,
+    "bone": 81,
+    "triangle": 193,
+    "t": 0.7927379872241057,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32749,
+    "body": 99,
+    "bone": 84,
+    "triangle": 321,
+    "t": 0.7094595656988412,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32752,
+    "body": 93,
+    "bone": 17,
+    "triangle": 74,
+    "t": 0.8693483941790405,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32753,
+    "body": 96,
+    "bone": 81,
+    "triangle": 131,
+    "t": 0.8431309701420573,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32753,
+    "body": 99,
+    "bone": 84,
+    "triangle": 321,
+    "t": 0.717127059569492,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32757,
+    "body": 114,
+    "bone": 117,
+    "triangle": 327,
+    "t": 0.8600561873856758,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32762,
+    "body": 114,
+    "bone": 117,
+    "triangle": 172,
+    "t": 0.8560259283384796,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32763,
+    "body": 114,
+    "bone": 117,
+    "triangle": 130,
+    "t": 0.9169841139365071,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32766,
+    "body": 114,
+    "bone": 117,
+    "triangle": 129,
+    "t": 0.9199655127795867,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32791,
+    "body": 115,
+    "bone": 118,
+    "triangle": 219,
+    "t": 0.875182843023673,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32791,
+    "body": 116,
+    "bone": 119,
+    "triangle": 72,
+    "t": 0.9288982310755488,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32800,
+    "body": 114,
+    "bone": 117,
+    "triangle": 328,
+    "t": 0.8906575193266997,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32801,
+    "body": 115,
+    "bone": 118,
+    "triangle": 116,
+    "t": 0.8567847873229579,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32804,
+    "body": 114,
+    "bone": 117,
+    "triangle": 327,
+    "t": 0.8905436209041541,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32814,
+    "body": 114,
+    "bone": 117,
+    "triangle": 376,
+    "t": 0.14944436508792328,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32815,
+    "body": 114,
+    "bone": 117,
+    "triangle": 332,
+    "t": 0.02121784227187624,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32816,
+    "body": 114,
+    "bone": 117,
+    "triangle": 326,
+    "t": 0.03103502532159767,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32818,
+    "body": 114,
+    "bone": 117,
+    "triangle": 370,
+    "t": 0.11885039648486759,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32819,
+    "body": 114,
+    "bone": 117,
+    "triangle": 332,
+    "t": 0.032598035809887405,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32826,
+    "body": 96,
+    "bone": 81,
+    "triangle": 41,
+    "t": 0.8131660283685307,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32858,
+    "body": 116,
+    "bone": 119,
+    "triangle": 75,
+    "t": 0.8798674575153063,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32860,
+    "body": 115,
+    "bone": 118,
+    "triangle": 239,
+    "t": 0.229744243296422,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32860,
+    "body": 116,
+    "bone": 119,
+    "triangle": 49,
+    "t": 0.045989201922710804,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32862,
+    "body": 116,
+    "bone": 119,
+    "triangle": 170,
+    "t": 0.4855175179014512,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32863,
+    "body": 116,
+    "bone": 119,
+    "triangle": 98,
+    "t": 0.5217635153857376,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32864,
+    "body": 115,
+    "bone": 118,
+    "triangle": 239,
+    "t": 0.175528443442937,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32864,
+    "body": 116,
+    "bone": 119,
+    "triangle": 49,
+    "t": 0.03632171515690433,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32865,
+    "body": 116,
+    "bone": 119,
+    "triangle": 180,
+    "t": 0.6528068343878106,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32866,
+    "body": 116,
+    "bone": 119,
+    "triangle": 48,
+    "t": 0.4589688223675623,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32876,
+    "body": 96,
+    "bone": 81,
+    "triangle": 217,
+    "t": 0.7063683343746194,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32883,
+    "body": 96,
+    "bone": 81,
+    "triangle": 224,
+    "t": 0.7033419851940985,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32928,
+    "body": 109,
+    "bone": 114,
+    "triangle": 225,
+    "t": 0.5746815827214256,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32928,
+    "body": 110,
+    "bone": 115,
+    "triangle": 101,
+    "t": 0.7382885526970534,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32934,
+    "body": 109,
+    "bone": 114,
+    "triangle": 208,
+    "t": 0.6657275016297419,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32937,
+    "body": 114,
+    "bone": 117,
+    "triangle": 255,
+    "t": 0.935750136379909,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32949,
+    "body": 107,
+    "bone": 108,
+    "triangle": 448,
+    "t": 0.8632422200599437,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32978,
+    "body": 107,
+    "bone": 108,
+    "triangle": 624,
+    "t": 0.8030865680958923,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 32996,
+    "body": 110,
+    "bone": 115,
+    "triangle": 39,
+    "t": 0.6089232318139601,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 33067,
+    "body": 110,
+    "bone": 115,
+    "triangle": 223,
+    "t": 0.753380804163851,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 33113,
+    "body": 102,
+    "bone": 107,
+    "triangle": 133,
+    "t": 0.6428606046307437,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 33911,
+    "body": 52,
+    "bone": 88,
+    "triangle": 547,
+    "t": 0.49304009089417195,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34384,
+    "body": 57,
+    "bone": 89,
+    "triangle": 39,
+    "t": 0.7270128123204584,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34385,
+    "body": 57,
+    "bone": 89,
+    "triangle": 299,
+    "t": 0.525352542690223,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34385,
+    "body": 62,
+    "bone": 90,
+    "triangle": 560,
+    "t": 0.8529474823414367,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34386,
+    "body": 67,
+    "bone": 91,
+    "triangle": 190,
+    "t": 0.917680062770138,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34501,
+    "body": 46,
+    "bone": 74,
+    "triangle": 245,
+    "t": 0.5655306959832598,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34503,
+    "body": 57,
+    "bone": 89,
+    "triangle": 110,
+    "t": 0.8454916463324498,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34570,
+    "body": 66,
+    "bone": 100,
+    "triangle": 27,
+    "t": 0.813352637460775,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34578,
+    "body": 59,
+    "bone": 95,
+    "triangle": 69,
+    "t": 0.7038071629096573,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34579,
+    "body": 57,
+    "bone": 89,
+    "triangle": 226,
+    "t": 0.872331945763752,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34590,
+    "body": 66,
+    "bone": 100,
+    "triangle": 142,
+    "t": 0.6126739421266572,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34596,
+    "body": 59,
+    "bone": 95,
+    "triangle": 377,
+    "t": 0.8063577615600135,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34618,
+    "body": 59,
+    "bone": 95,
+    "triangle": 305,
+    "t": 0.5608943257435688,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34633,
+    "body": 62,
+    "bone": 90,
+    "triangle": 270,
+    "t": 0.9985669536092081,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34634,
+    "body": 64,
+    "bone": 98,
+    "triangle": 336,
+    "t": 0.9300788186283946,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34635,
+    "body": 46,
+    "bone": 74,
+    "triangle": 203,
+    "t": 0.7789421398989251,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34639,
+    "body": 43,
+    "bone": 16,
+    "triangle": 59,
+    "t": 0.16439614184378598,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34640,
+    "body": 62,
+    "bone": 90,
+    "triangle": 483,
+    "t": 0.7558383658791976,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34641,
+    "body": 62,
+    "bone": 90,
+    "triangle": 641,
+    "t": 0.37079774521610953,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34641,
+    "body": 67,
+    "bone": 91,
+    "triangle": 194,
+    "t": 0.8616409353259025,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34653,
+    "body": 64,
+    "bone": 98,
+    "triangle": 439,
+    "t": 0.9799330212774965,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34658,
+    "body": 62,
+    "bone": 90,
+    "triangle": 262,
+    "t": 0.11335794697674612,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34658,
+    "body": 64,
+    "bone": 98,
+    "triangle": 258,
+    "t": 0.8573852556765633,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34659,
+    "body": 62,
+    "bone": 90,
+    "triangle": 171,
+    "t": 0.24020450776924848,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34659,
+    "body": 67,
+    "bone": 91,
+    "triangle": 189,
+    "t": 0.8298169514632021,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34662,
+    "body": 42,
+    "bone": 14,
+    "triangle": 348,
+    "t": 0.8344449653587396,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34663,
+    "body": 56,
+    "bone": 80,
+    "triangle": 478,
+    "t": 0.34118010360325235,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34663,
+    "body": 67,
+    "bone": 91,
+    "triangle": 311,
+    "t": 0.7318371086321325,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34665,
+    "body": 45,
+    "bone": 75,
+    "triangle": 307,
+    "t": 0.7667889296423293,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34672,
+    "body": 41,
+    "bone": 12,
+    "triangle": 763,
+    "t": 0.9661488715410222,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34687,
+    "body": 42,
+    "bone": 14,
+    "triangle": 187,
+    "t": 0.8020092601671642,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34726,
+    "body": 42,
+    "bone": 14,
+    "triangle": 370,
+    "t": 0.8605870616883031,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34727,
+    "body": 42,
+    "bone": 14,
+    "triangle": 598,
+    "t": 0.6737400758334378,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34728,
+    "body": 42,
+    "bone": 14,
+    "triangle": 181,
+    "t": 0.7729707711299865,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34729,
+    "body": 42,
+    "bone": 14,
+    "triangle": 393,
+    "t": 0.594721431230093,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34730,
+    "body": 42,
+    "bone": 14,
+    "triangle": 389,
+    "t": 0.6645174400610757,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34731,
+    "body": 42,
+    "bone": 14,
+    "triangle": 393,
+    "t": 0.7077067649558964,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34753,
+    "body": 64,
+    "bone": 98,
+    "triangle": 424,
+    "t": 0.9991031327038127,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34754,
+    "body": 64,
+    "bone": 98,
+    "triangle": 424,
+    "t": 0.9988937377639824,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34756,
+    "body": 64,
+    "bone": 98,
+    "triangle": 424,
+    "t": 0.9981996199732264,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34756,
+    "body": 69,
+    "bone": 101,
+    "triangle": 37,
+    "t": 0.6672294842268265,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34757,
+    "body": 74,
+    "bone": 104,
+    "triangle": 127,
+    "t": 0.6990901672649525,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34758,
+    "body": 74,
+    "bone": 104,
+    "triangle": 67,
+    "t": 0.7871197837494461,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34760,
+    "body": 74,
+    "bone": 104,
+    "triangle": 219,
+    "t": 0.6065312504550101,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34761,
+    "body": 74,
+    "bone": 104,
+    "triangle": 63,
+    "t": 0.993732650820091,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34765,
+    "body": 64,
+    "bone": 98,
+    "triangle": 424,
+    "t": 0.000720417818811343,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34765,
+    "body": 69,
+    "bone": 101,
+    "triangle": 155,
+    "t": 0.42182118984546224,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34766,
+    "body": 64,
+    "bone": 98,
+    "triangle": 424,
+    "t": 0.002174816186006521,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34766,
+    "body": 67,
+    "bone": 91,
+    "triangle": 227,
+    "t": 0.6036321045509561,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34767,
+    "body": 64,
+    "bone": 98,
+    "triangle": 424,
+    "t": 0.0012247450039291985,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 34767,
+    "body": 67,
+    "bone": 91,
+    "triangle": 348,
+    "t": 0.5011378709626217,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35011,
+    "body": 43,
+    "bone": 16,
+    "triangle": 389,
+    "t": 0.42583741046515666,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35011,
+    "body": 43,
+    "bone": 16,
+    "triangle": 281,
+    "t": 0.5557608130787102,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35013,
+    "body": 47,
+    "bone": 76,
+    "triangle": 164,
+    "t": 0.29993541341806873,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35016,
+    "body": 43,
+    "bone": 16,
+    "triangle": 383,
+    "t": 0.5815477904590405,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35017,
+    "body": 67,
+    "bone": 91,
+    "triangle": 176,
+    "t": 0.6824373907436856,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35341,
+    "body": 72,
+    "bone": 92,
+    "triangle": 409,
+    "t": 0.4187252600056911,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35341,
+    "body": 74,
+    "bone": 104,
+    "triangle": 62,
+    "t": 0.0166341107693799,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35342,
+    "body": 74,
+    "bone": 104,
+    "triangle": 64,
+    "t": 0.013066102184039603,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35343,
+    "body": 74,
+    "bone": 104,
+    "triangle": 63,
+    "t": 0.0055686992022200696,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35352,
+    "body": 72,
+    "bone": 92,
+    "triangle": 207,
+    "t": 0.4244507386489645,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35490,
+    "body": 72,
+    "bone": 92,
+    "triangle": 402,
+    "t": 0.6652573783062898,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35492,
+    "body": 48,
+    "bone": 72,
+    "triangle": 148,
+    "t": 0.6859429861588169,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35541,
+    "body": 42,
+    "bone": 14,
+    "triangle": 4,
+    "t": 0.7413887281166414,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35555,
+    "body": 41,
+    "bone": 12,
+    "triangle": 2645,
+    "t": 0.7492278059145471,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35674,
+    "body": 41,
+    "bone": 12,
+    "triangle": 1845,
+    "t": 0.5903971058941234,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35703,
+    "body": 139,
+    "bone": 140,
+    "triangle": 109,
+    "t": 0.4568171851189766,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35703,
+    "body": 139,
+    "bone": 141,
+    "triangle": 45,
+    "t": 0.3761390310046473,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35814,
+    "body": 139,
+    "bone": 138,
+    "triangle": 89,
+    "t": 0.4330763598230696,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35815,
+    "body": 139,
+    "bone": 138,
+    "triangle": 127,
+    "t": 0.26429488161028464,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35818,
+    "body": 139,
+    "bone": 138,
+    "triangle": 77,
+    "t": 0.504816484046295,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35834,
+    "body": 128,
+    "bone": 18,
+    "triangle": 1949,
+    "t": 0.49853605298060044,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35847,
+    "body": 139,
+    "bone": 139,
+    "triangle": 57,
+    "t": 0.7796701288435205,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35847,
+    "body": 139,
+    "bone": 140,
+    "triangle": 141,
+    "t": 0.5764545319303167,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 35895,
+    "body": 138,
+    "bone": 128,
+    "triangle": 13,
+    "t": 0.8188285791158008,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36055,
+    "body": 139,
+    "bone": 131,
+    "triangle": 193,
+    "t": 0.808273746325151,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36058,
+    "body": 139,
+    "bone": 131,
+    "triangle": 297,
+    "t": 0.67366336074068,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36088,
+    "body": 139,
+    "bone": 131,
+    "triangle": 457,
+    "t": 0.8572275602150299,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36109,
+    "body": 139,
+    "bone": 131,
+    "triangle": 296,
+    "t": 0.8326326370700149,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36177,
+    "body": 138,
+    "bone": 61,
+    "triangle": 847,
+    "t": 0.6777292871247704,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36259,
+    "body": 23,
+    "bone": 28,
+    "triangle": 318,
+    "t": 0.6556700890362251,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36260,
+    "body": 23,
+    "bone": 28,
+    "triangle": 704,
+    "t": 0.21309665314476045,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36260,
+    "body": 23,
+    "bone": 30,
+    "triangle": 604,
+    "t": 0.9130509517865297,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36261,
+    "body": 23,
+    "bone": 28,
+    "triangle": 438,
+    "t": 0.6447613187636108,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36262,
+    "body": 23,
+    "bone": 28,
+    "triangle": 839,
+    "t": 0.6841863642798922,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36263,
+    "body": 23,
+    "bone": 30,
+    "triangle": 1154,
+    "t": 0.7094142846069844,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36264,
+    "body": 23,
+    "bone": 28,
+    "triangle": 962,
+    "t": 0.031428286152805386,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36264,
+    "body": 23,
+    "bone": 30,
+    "triangle": 604,
+    "t": 0.18068807700299716,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36265,
+    "body": 23,
+    "bone": 30,
+    "triangle": 611,
+    "t": 0.3802701425582612,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36265,
+    "body": 23,
+    "bone": 30,
+    "triangle": 1193,
+    "t": 0.7384984894671791,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36266,
+    "body": 23,
+    "bone": 28,
+    "triangle": 1773,
+    "t": 0.5235980766994336,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36266,
+    "body": 23,
+    "bone": 28,
+    "triangle": 2443,
+    "t": 0.8128015316941277,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36266,
+    "body": 23,
+    "bone": 33,
+    "triangle": 159,
+    "t": 0.9047727916634039,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36267,
+    "body": 23,
+    "bone": 30,
+    "triangle": 834,
+    "t": 0.2243350826773256,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36267,
+    "body": 23,
+    "bone": 30,
+    "triangle": 1478,
+    "t": 0.4496367148973526,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36268,
+    "body": 23,
+    "bone": 28,
+    "triangle": 14,
+    "t": 0.5697921695256674,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36270,
+    "body": 23,
+    "bone": 28,
+    "triangle": 14,
+    "t": 0.4022499120388086,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36270,
+    "body": 23,
+    "bone": 30,
+    "triangle": 523,
+    "t": 0.8498448117267579,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36297,
+    "body": 23,
+    "bone": 28,
+    "triangle": 532,
+    "t": 0.4634815042258949,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36297,
+    "body": 23,
+    "bone": 30,
+    "triangle": 504,
+    "t": 0.9867532561551895,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36298,
+    "body": 23,
+    "bone": 28,
+    "triangle": 189,
+    "t": 0.21687234876679262,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36299,
+    "body": 23,
+    "bone": 28,
+    "triangle": 554,
+    "t": 0.278281590239255,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36299,
+    "body": 23,
+    "bone": 30,
+    "triangle": 791,
+    "t": 0.8637944967220459,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36300,
+    "body": 23,
+    "bone": 28,
+    "triangle": 888,
+    "t": 0.1728350594967971,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36300,
+    "body": 23,
+    "bone": 30,
+    "triangle": 495,
+    "t": 0.4396119058953026,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36301,
+    "body": 23,
+    "bone": 28,
+    "triangle": 892,
+    "t": 0.11174227155049903,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36301,
+    "body": 23,
+    "bone": 32,
+    "triangle": 960,
+    "t": 0.8959486786278825,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36302,
+    "body": 23,
+    "bone": 28,
+    "triangle": 1544,
+    "t": 0.499271060916501,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36304,
+    "body": 23,
+    "bone": 30,
+    "triangle": 587,
+    "t": 0.21711521572660028,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36305,
+    "body": 23,
+    "bone": 30,
+    "triangle": 599,
+    "t": 0.22042436831892107,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36306,
+    "body": 23,
+    "bone": 30,
+    "triangle": 1707,
+    "t": 0.4492891002458553,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36309,
+    "body": 23,
+    "bone": 28,
+    "triangle": 1149,
+    "t": 0.962837234356569,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36310,
+    "body": 23,
+    "bone": 30,
+    "triangle": 1707,
+    "t": 0.4148107999938283,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36361,
+    "body": 23,
+    "bone": 32,
+    "triangle": 2202,
+    "t": 0.9877045615442439,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36380,
+    "body": 23,
+    "bone": 30,
+    "triangle": 1924,
+    "t": 0.26132238715294165,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36381,
+    "body": 23,
+    "bone": 32,
+    "triangle": 2213,
+    "t": 0.9813170339144491,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36395,
+    "body": 23,
+    "bone": 28,
+    "triangle": 3256,
+    "t": 0.7019627802161266,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36395,
+    "body": 23,
+    "bone": 30,
+    "triangle": 1630,
+    "t": 0.5344022500251107,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36395,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1187,
+    "t": 0.8762687235046542,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36395,
+    "body": 23,
+    "bone": 34,
+    "triangle": 1,
+    "t": 0.6387927610569808,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36396,
+    "body": 23,
+    "bone": 30,
+    "triangle": 1601,
+    "t": 0.5295298552024532,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36407,
+    "body": 23,
+    "bone": 30,
+    "triangle": 764,
+    "t": 0.25041034435951937,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36409,
+    "body": 23,
+    "bone": 28,
+    "triangle": 1696,
+    "t": 0.9445899367010195,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36504,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1509,
+    "t": 0.6104144368509241,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36505,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1855,
+    "t": 0.7365658705908988,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36506,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1535,
+    "t": 0.5746478830580316,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36507,
+    "body": 23,
+    "bone": 32,
+    "triangle": 651,
+    "t": 0.7789218533238674,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36508,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1482,
+    "t": 0.7467216316965261,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36509,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1112,
+    "t": 0.7237914290714078,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36510,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1512,
+    "t": 0.5034722983404087,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36511,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1111,
+    "t": 0.7186480444436574,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36512,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1466,
+    "t": 0.7964641754743103,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36513,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1468,
+    "t": 0.809983809889033,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36514,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1826,
+    "t": 0.7998771514191678,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36526,
+    "body": 23,
+    "bone": 32,
+    "triangle": 2187,
+    "t": 0.9870354717155045,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36527,
+    "body": 23,
+    "bone": 32,
+    "triangle": 2187,
+    "t": 0.9445941071416866,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36529,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1828,
+    "t": 0.09460229283655942,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36539,
+    "body": 23,
+    "bone": 32,
+    "triangle": 157,
+    "t": 0.3592417798924269,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36540,
+    "body": 23,
+    "bone": 30,
+    "triangle": 2126,
+    "t": 0.11254025368740408,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36574,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1416,
+    "t": 0.8430912025766353,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36583,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1381,
+    "t": 0.9355103836455467,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36587,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1381,
+    "t": 0.286267411827458,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36588,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1381,
+    "t": 0.1223146505592432,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36589,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1381,
+    "t": 0.17607973667701676,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36590,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1650,
+    "t": 0.38688671508946,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36608,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1097,
+    "t": 0.6301479341985261,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36613,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1474,
+    "t": 0.8984947823434868,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36614,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1064,
+    "t": 0.5452730276636057,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36636,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1474,
+    "t": 0.9389415652045325,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36710,
+    "body": 23,
+    "bone": 32,
+    "triangle": 2370,
+    "t": 0.43670417515320975,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36739,
+    "body": 23,
+    "bone": 32,
+    "triangle": 2362,
+    "t": 0.518769536506352,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36754,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1652,
+    "t": 0.5162177711258664,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36755,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1651,
+    "t": 0.24951021740123944,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36756,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1651,
+    "t": 0.29166033498206745,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36757,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1651,
+    "t": 0.2997468048231311,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36758,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1669,
+    "t": 0.30354341961489345,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36759,
+    "body": 23,
+    "bone": 32,
+    "triangle": 1651,
+    "t": 0.2671220268007607,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36791,
+    "body": 23,
+    "bone": 33,
+    "triangle": 813,
+    "t": 0.4787595837093839,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36792,
+    "body": 23,
+    "bone": 33,
+    "triangle": 807,
+    "t": 0.2998277194012132,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36792,
+    "body": 23,
+    "bone": 33,
+    "triangle": 381,
+    "t": 0.6331143732351394,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36924,
+    "body": 23,
+    "bone": 32,
+    "triangle": 2586,
+    "t": 0.3808364270427036,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 36926,
+    "body": 23,
+    "bone": 32,
+    "triangle": 2623,
+    "t": 0.23881162470100775,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37066,
+    "body": 23,
+    "bone": 28,
+    "triangle": 5834,
+    "t": 0.33103950818026695,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37066,
+    "body": 23,
+    "bone": 29,
+    "triangle": 821,
+    "t": 0.633921295277607,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37066,
+    "body": 23,
+    "bone": 29,
+    "triangle": 6699,
+    "t": 0.9332377877685055,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37270,
+    "body": 23,
+    "bone": 28,
+    "triangle": 6984,
+    "t": 0.7444569192403562,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37292,
+    "body": 23,
+    "bone": 35,
+    "triangle": 2714,
+    "t": 0.696819514861295,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37374,
+    "body": 20,
+    "bone": 26,
+    "triangle": 1954,
+    "t": 0.9061892962119577,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37478,
+    "body": 23,
+    "bone": 28,
+    "triangle": 9229,
+    "t": 0.7657099119619132,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37478,
+    "body": 23,
+    "bone": 29,
+    "triangle": 4396,
+    "t": 0.8668680569256297,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37478,
+    "body": 23,
+    "bone": 33,
+    "triangle": 4984,
+    "t": 0.5539244524877904,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37556,
+    "body": 20,
+    "bone": 27,
+    "triangle": 1561,
+    "t": 0.31669873190219267,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37580,
+    "body": 23,
+    "bone": 29,
+    "triangle": 6492,
+    "t": 0.8033798507608474,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37637,
+    "body": 23,
+    "bone": 35,
+    "triangle": 3770,
+    "t": 0.8159845034858212,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37644,
+    "body": 23,
+    "bone": 29,
+    "triangle": 7114,
+    "t": 0.936125307999532,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37715,
+    "body": 23,
+    "bone": 29,
+    "triangle": 6056,
+    "t": 0.4920750634889549,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37909,
+    "body": 23,
+    "bone": 29,
+    "triangle": 7061,
+    "t": 0.7417432369113973,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 37909,
+    "body": 23,
+    "bone": 32,
+    "triangle": 9920,
+    "t": 0.4054056864307486,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 38037,
+    "body": 23,
+    "bone": 29,
+    "triangle": 7321,
+    "t": 0.9381950400084659,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 38268,
+    "body": 23,
+    "bone": 32,
+    "triangle": 11489,
+    "t": 0.8172618007975037,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 38273,
+    "body": 23,
+    "bone": 29,
+    "triangle": 8405,
+    "t": 0.44987442725126103,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 38274,
+    "body": 23,
+    "bone": 29,
+    "triangle": 7471,
+    "t": 0.017788108600669778,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 38496,
+    "body": 79,
+    "bone": 9,
+    "triangle": 598,
+    "t": 0.11450863949496916,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 38498,
+    "body": 79,
+    "bone": 9,
+    "triangle": 714,
+    "t": 0.25001066976556297,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 39088,
+    "body": 150,
+    "bone": 21,
+    "triangle": 768,
+    "t": 0.7482886567899141,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 39089,
+    "body": 150,
+    "bone": 21,
+    "triangle": 816,
+    "t": 0.8562137673125185,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 39091,
+    "body": 150,
+    "bone": 21,
+    "triangle": 722,
+    "t": 0.544435532372828,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 39092,
+    "body": 150,
+    "bone": 21,
+    "triangle": 24,
+    "t": 0.6648692745813433,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 39096,
+    "body": 150,
+    "bone": 21,
+    "triangle": 223,
+    "t": 0.4352018731372025,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 39127,
+    "body": 150,
+    "bone": 21,
+    "triangle": 1030,
+    "t": 0.7340764160165432,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 39202,
+    "body": 150,
+    "bone": 21,
+    "triangle": 556,
+    "t": 0.39319675641024127,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 39203,
+    "body": 150,
+    "bone": 21,
+    "triangle": 556,
+    "t": 0.14910257814241268,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40322,
+    "body": 121,
+    "bone": 122,
+    "triangle": 146,
+    "t": 0.8268599271196635,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40337,
+    "body": 114,
+    "bone": 117,
+    "triangle": 130,
+    "t": 0.9276125575929272,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40363,
+    "body": 121,
+    "bone": 122,
+    "triangle": 79,
+    "t": 0.6888901891401829,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40395,
+    "body": 119,
+    "bone": 120,
+    "triangle": 319,
+    "t": 0.1033274767364719,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40403,
+    "body": 120,
+    "bone": 121,
+    "triangle": 323,
+    "t": 0.354854446917369,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40418,
+    "body": 96,
+    "bone": 81,
+    "triangle": 129,
+    "t": 0.8477724519438607,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40418,
+    "body": 99,
+    "bone": 84,
+    "triangle": 321,
+    "t": 0.7173043747065776,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40422,
+    "body": 114,
+    "bone": 117,
+    "triangle": 172,
+    "t": 0.8565181445688764,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40423,
+    "body": 114,
+    "bone": 117,
+    "triangle": 129,
+    "t": 0.9011977159005413,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40439,
+    "body": 114,
+    "bone": 117,
+    "triangle": 327,
+    "t": 0.892362889420029,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40445,
+    "body": 114,
+    "bone": 117,
+    "triangle": 366,
+    "t": 0.13141209747376525,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40446,
+    "body": 114,
+    "bone": 117,
+    "triangle": 326,
+    "t": 0.07063227812574127,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40447,
+    "body": 114,
+    "bone": 117,
+    "triangle": 248,
+    "t": 0.14366412057389172,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40450,
+    "body": 96,
+    "bone": 81,
+    "triangle": 41,
+    "t": 0.8114733580446338,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40460,
+    "body": 116,
+    "bone": 119,
+    "triangle": 125,
+    "t": 0.9536580403255872,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40463,
+    "body": 116,
+    "bone": 119,
+    "triangle": 140,
+    "t": 0.9496196205517271,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40466,
+    "body": 116,
+    "bone": 119,
+    "triangle": 194,
+    "t": 0.08534271616614804,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40466,
+    "body": 116,
+    "bone": 119,
+    "triangle": 257,
+    "t": 0.7637571918186795,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40467,
+    "body": 116,
+    "bone": 119,
+    "triangle": 194,
+    "t": 0.0832385133338023,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40472,
+    "body": 96,
+    "bone": 81,
+    "triangle": 224,
+    "t": 0.6972829403177836,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40502,
+    "body": 107,
+    "bone": 108,
+    "triangle": 447,
+    "t": 0.8611152937525538,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40503,
+    "body": 107,
+    "bone": 108,
+    "triangle": 448,
+    "t": 0.5690641599496593,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40514,
+    "body": 107,
+    "bone": 108,
+    "triangle": 499,
+    "t": 0.7312211673446853,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40515,
+    "body": 107,
+    "bone": 108,
+    "triangle": 621,
+    "t": 0.9024908524343093,
+    "normal_side_proven_at_baseline": "outside"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40533,
+    "body": 102,
+    "bone": 107,
+    "triangle": 414,
+    "t": 0.7415210730604946,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40553,
+    "body": 109,
+    "bone": 114,
+    "triangle": 302,
+    "t": 0.49538190969714313,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40572,
+    "body": 102,
+    "bone": 107,
+    "triangle": 133,
+    "t": 0.6398167297039055,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40585,
+    "body": 103,
+    "bone": 112,
+    "triangle": 161,
+    "t": 0.6086675646444416,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "exact_bone_intrusion_segment",
+    "edge": 40605,
+    "body": 102,
+    "bone": 107,
+    "triangle": 27,
+    "t": 0.6044417503988203,
+    "normal_side_proven_at_baseline": "outside_AABB_proven"
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 363,
+    "body": 64,
+    "bone": 98
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 2245,
+    "body": 114,
+    "bone": 117
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 2761,
+    "body": 59,
+    "bone": 95
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 2774,
+    "body": 64,
+    "bone": 98
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 4656,
+    "body": 114,
+    "bone": 117
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 5185,
+    "body": 62,
+    "bone": 90
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 5213,
+    "body": 64,
+    "bone": 98
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 5396,
+    "body": 74,
+    "bone": 104
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 5683,
+    "body": 23,
+    "bone": 28
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 5684,
+    "body": 23,
+    "bone": 30
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 5686,
+    "body": 23,
+    "bone": 30
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 5749,
+    "body": 23,
+    "bone": 32
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 5768,
+    "body": 23,
+    "bone": 32
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 5786,
+    "body": 23,
+    "bone": 32
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 6342,
+    "body": 23,
+    "bone": 29
+  },
+  {
+    "kind": "native_inside_vertex_exit",
+    "node": 7067,
+    "body": 114,
+    "bone": 117
+  }
+]

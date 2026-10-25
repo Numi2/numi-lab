@@ -2410,3 +2410,17 @@ if(BUILD_TESTING)
     set_tests_properties(matter.compiler.explicit_fem_tet_mass_multiobject PROPERTIES
         TIMEOUT 30 LABELS "matter;compiler;fem;mass;cpu;synthetic")
 endif()
+
+
+add_executable(numi-matter-parent-reference-mass-transfer-check
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apps/NumiHumanParentReferenceMassTransferCheck.cpp")
+target_include_directories(numi-matter-parent-reference-mass-transfer-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apps")
+target_compile_options(numi-matter-parent-reference-mass-transfer-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.parent_reference_mass_transfer
+        COMMAND numi-matter-parent-reference-mass-transfer-check)
+    set_tests_properties(matter.compiler.parent_reference_mass_transfer PROPERTIES
+        TIMEOUT 30 LABELS "matter;compiler;human;mass;cpu;synthetic")
+endif()

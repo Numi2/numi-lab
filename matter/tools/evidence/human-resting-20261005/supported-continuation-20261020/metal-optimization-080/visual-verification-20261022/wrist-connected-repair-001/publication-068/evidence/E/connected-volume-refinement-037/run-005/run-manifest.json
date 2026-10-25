@@ -1,0 +1,11 @@
+{
+  "builder_sha256": "465dd7d541d4a4f97b4e6160c20fc466404a886f337af7f2ae4ed64a83f9602a",
+  "candidate_sha256": "399461399261c2ebbf3fd39bd264e8ed6cb52a99cb3688e744871a5f0b61984b",
+  "input_sha256": {
+    "baseline_035": "452602aea036c15faaafe6c154e6c4676585e1b2cb57c9a1c9128de82050b570",
+    "edge_witness": "613d19fe45e052697ae5cdf8e7b481bfb3ea3fdbc5a4517d8e0e73aa53c40a23",
+    "helper": "11bfc32686d3e7faa29bd5f9afc00bf0f2eec154a0cb8275333eff98804dd70c",
+    "refinement_input": "3df28e930e5b27229633bf2e3a91f0d40fd6e57d94489c3ba7de6ae2828a0e1d"
+  },
+  "report_sha256": "080bbdf7ae38c473130cb121ca0bcf3fb0b64ab8898db7de924db19b89791b87"
+}

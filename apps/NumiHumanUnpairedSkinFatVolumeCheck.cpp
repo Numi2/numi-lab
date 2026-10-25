@@ -1,4 +1,5 @@
 #include "NumiHumanSkinFatReductionLabels.hpp"
+#include "NumiHumanParentReferenceMassTransfer.hpp"
 
 #include <algorithm>
 #include <array>
@@ -274,8 +275,8 @@ numi::matter::WorldSource worldFor() {
     for(std::uint32_t i=0;i<2u;++i) {
         world.materials[i].name=i==0u?"skin":"fat";
         world.materials[i].supportedRepresentations={Representation::fem};
-        numi::matter::Parameter density;density.name="density";density.defaultValue=1000.0;
-        density.lower=1.0;density.upper=5000.0;world.materials[i].parameters.push_back(density);
+        numi::matter::Parameter density;density.name="density";density.defaultValue=i==0u?1000.0:900.0;
+        density.lower=i==0u?900.0:850.0;density.upper=i==0u?1100.0:950.0;world.materials[i].parameters.push_back(density);
     }
     return world;
 }
@@ -290,7 +291,7 @@ bool emit(Fixture& f,numi::matter::WorldSource& world,ExplicitUnpairedVolumeRepo
     PreparedOrganicFEM skin,fat;
     return appendRegisteredSkinFatUnpairedVolume(world,f.surface,f.boundary,f.topology,
         0u,"skin","test skin material",skinVolume*1000.0,1u,"fat","test fat material",
-        fatVolume*1000.0,1u,"unpaired test shell",skin,fat,report,error);
+        fatVolume*900.0,1u,"unpaired test shell",skin,fat,report,error);
 }
 
 bool emitMassLedger(Fixture& f,const std::vector<double>& parentMass,
@@ -345,13 +346,51 @@ int main() {
         // Move only the appended interior reference point. The child geometric
         // volumes change, while the supplied reference-pullback measures stay
         // tied to the original parent material and still close its CSR columns.
+        // Derive owner ancestry measures from this exact single-parent
+        // barycentric refinement. The helper computes a conservative
+        // parent-reference pullback, not a spatial overlap certificate.
+        std::vector<double> parentReferenceVolumes(ledger.parentTets.size());
+        for(std::size_t p=0;p<parentReferenceVolumes.size();++p)
+            parentReferenceVolumes[p]=parentReferenceTetVolumeM3(ledger.parentTets[p],ledger.parentPoints);
+        std::vector<double> childGeometricVolumes(ledger.children.size());
+        for(std::size_t c=0;c<childGeometricVolumes.size();++c){
+            const auto tet=ledger.children[c];
+            childGeometricVolumes[c]=tetVolume(ledger.reference[tet[0]],ledger.reference[tet[1]],
+                                               ledger.reference[tet[2]],ledger.reference[tet[3]]);
+        }
+        std::vector<std::uint32_t> transferOffsets,transferParents;
+        std::vector<double> transferMeasures;
+        assert(deriveSingleParentRefinementMeasures(ledger.parentPoints,ledger.parentTets,
+            ledger.parentMaterial,ledger.children,ledger.childMaterial,ledger.dominant,
+            ledger.nodeParent,ledger.nodeParentBary,transferOffsets,transferParents,transferMeasures,error));
+        const std::array<double,2> densityLower{900.0,850.0},densityUpper{1100.0,950.0};
+        ParentReferenceMassTransferInput transferInput{
+            parentReferenceVolumes,parentMass,ledger.parentMaterial,ledger.parentDonor,
+            childGeometricVolumes,ledger.childMaterial,transferOffsets,transferParents,transferMeasures,
+            densityLower,densityUpper};
+        ParentReferenceMassTransferResult transfer;
+        assert(assembleParentReferenceMassTransfer(transferInput,transfer,error));
+        assert(transfer.maximumParentMeasureClosureErrorM3<1.0e-14);
+        assert(transfer.maximumParentMassClosureErrorKg<1.0e-14);
+        ledger.topology.childParentAncestryOffsets=transfer.childParentOffsets;
+        ledger.topology.childParentAncestryTetrahedra=transfer.childParentRows;
+        ledger.topology.childParentAncestryVolumeFractions=transfer.childParentVolumeFractions;
+        pulledMeasure=transfer.childAncestryMeasureVolumeM3;
+        double transferSkinMass=0.0,transferFatMass=0.0;
+        for(std::size_t c=0;c<transfer.childMassKg.size();++c)
+            (ledger.childMaterial[c]==0u?transferSkinMass:transferFatMass)+=transfer.childMassKg[c];
+        double expectedSkinMass=0.0,expectedFatMass=0.0;
+        for(std::size_t p=0;p<parentMass.size();++p)
+            (ledger.parentMaterial[p]==0u?expectedSkinMass:expectedFatMass)+=parentMass[p];
+        assert(std::abs(transferSkinMass-expectedSkinMass)<1.0e-12);
+        assert(std::abs(transferFatMass-expectedFatMass)<1.0e-12);
         ledger.reference[18][0]+=0.02;
         ledger.nodeParentResidual[18][0]=0.02;
         ledger.topology.referenceWorldPoints=ledger.reference;
         ledger.topology.volumeNodeParentResidualWorldM=ledger.nodeParentResidual;
         auto ledgerWorld=worldFor();
-        ledgerWorld.materials[0].parameters[0].defaultValue=1234.0;
-        ledgerWorld.materials[1].parameters[0].defaultValue=987.0;
+        ledgerWorld.materials[0].parameters[0].defaultValue=1050.0;
+        ledgerWorld.materials[1].parameters[0].defaultValue=925.0;
         PreparedOrganicFEM ledgerSkin,ledgerFat;
         assert(emitMassLedger(ledger,parentMass,pulledMeasure,ledgerWorld,ledgerSkin,ledgerFat,report,error));
         assert(report.usesPerChildMassLedger);
@@ -373,8 +412,8 @@ int main() {
             assert(std::abs(closure.parentMassKg-closure.childMassKg)<1.0e-10);
         assert(report.skinMinimumChildDensityKgM3>=1.0&&report.skinMaximumChildDensityKgM3<=5000.0);
         assert(report.fatMinimumChildDensityKgM3>=1.0&&report.fatMaximumChildDensityKgM3<=5000.0);
-        assert(ledgerWorld.materials[0].parameters[0].defaultValue==1234.0);
-        assert(ledgerWorld.materials[1].parameters[0].defaultValue==987.0);
+        assert(ledgerWorld.materials[0].parameters[0].defaultValue==1050.0);
+        assert(ledgerWorld.materials[1].parameters[0].defaultValue==925.0);
         assert(std::abs(report.skinMeanImpliedDensityKgM3-report.skinChildMassKg/report.skinVolumeM3)<1.0e-10);
 
         // Exercise the production owner-to-compiler seam: the ancestry ledger's
@@ -438,8 +477,8 @@ int main() {
             else assert(std::abs(double(state.velocityAndInverseMass.w)-1.0/actual)<=
                 std::max(1.0e-5,2.0e-6/actual));
         }
-        assert(std::abs(ledgerWorld.materials[0].parameters[0].defaultValue-1234.0)<1.0e-12);
-        assert(std::abs(ledgerWorld.materials[1].parameters[0].defaultValue-987.0)<1.0e-12);
+        assert(std::abs(ledgerWorld.materials[0].parameters[0].defaultValue-1050.0)<1.0e-12);
+        assert(std::abs(ledgerWorld.materials[1].parameters[0].defaultValue-925.0)<1.0e-12);
         const auto ledgerPackagePath=std::filesystem::temp_directory_path()/
             "numi-owner-emitted-explicit-mass-ledger.nmpkg";
         std::string ledgerPackageError;
@@ -591,12 +630,12 @@ int main() {
     {
         Fixture legacyDensity;
         auto legacyWorld=worldFor();
-        legacyWorld.materials[0].parameters[0].defaultValue=1234.0;
-        legacyWorld.materials[1].parameters[0].defaultValue=987.0;
+        legacyWorld.materials[0].parameters[0].defaultValue=1050.0;
+        legacyWorld.materials[1].parameters[0].defaultValue=925.0;
         assert(emit(legacyDensity,legacyWorld,report,error));
         assert(!report.usesPerChildMassLedger);
         assert(std::abs(legacyWorld.materials[0].parameters[0].defaultValue-1000.0)<1.0e-9);
-        assert(std::abs(legacyWorld.materials[1].parameters[0].defaultValue-1000.0)<1.0e-9);
+        assert(std::abs(legacyWorld.materials[1].parameters[0].defaultValue-900.0)<1.0e-9);
     }
     RegisteredSkinFatReductionSourceLabels labels;
     assert(buildRegisteredSkinFatUnpairedReductionSourceLabels(f.surface,world.objects.front(),f.boundary,f.topology,1u,

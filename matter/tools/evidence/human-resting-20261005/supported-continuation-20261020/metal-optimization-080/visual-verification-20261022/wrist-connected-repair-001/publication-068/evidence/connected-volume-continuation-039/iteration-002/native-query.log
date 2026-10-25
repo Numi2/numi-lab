@@ -1,0 +1,21 @@
+{
+  "schema": "numi.human.040-candidate-source-query.v1",
+  "scope": "connected continuation static geometry STATIC source query ONLY: no reference/material/mass admission, no physical steps",
+  "source_only": true,
+  "physical_qualification": false,
+  "runner_returncode": 0,
+  "elapsed_s": 9.758308125077747,
+  "candidate_sha256": "0143e9b56070047cfbfcf733e442fdcb5e2319e1d47d795e375cc02e1825d2a9",
+  "candidate_report_sha256": "cf76ff35b8730eab02cabf16398ae50d20ca350db48753042d650628dbd3e2d2",
+  "wrapper_sha256": "4720a4c544cc8cd4b459846b753d974f13c77d5b7eccf394e19092c495aea9f3",
+  "original_runner_sha256": "920b1a1d3f4c90f8972e3c1467fba9e06899edca2bc3cf22dd8e5c2adf2c1ae6",
+  "native_app_sha256": "dc463fb9c341448e0a7d4accd52ba392c4bd757c8226541de0890462bd04b6ab",
+  "runtime_sha256": "b7cba8777b071eb1df0dbdadc24f9a4963eb92b2e85bf1121a97d29328d5c26b",
+  "metallib_sha256": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125",
+  "override_csv_sha256": "0edd60f64833525c0ae52bf26f5da97a14d722c6d6ef1cd61f716e0edec40953",
+  "input_global_id_owner": "035 baseline + AP exact row identity; mass CSV retained ONLY for static query metadata",
+  "minimum_q_f32": 2.5951792498717715e-05,
+  "nonpositive_tets": 0,
+  "accepted_physical_steps": 0,
+  "status": "SOURCE_QUERY_PASS_BANKS_IDENTICAL_TO_039_NOT_PHYSICAL_ADMISSION"
+}

@@ -1,0 +1,8 @@
+test_bad_reference_dtype_fails_closed (__main__.CanonicalFloat64ReferenceTests.test_bad_reference_dtype_fails_closed) ... ok
+test_emitted_f32_quality_failure_is_not_hidden_by_f64_closure (__main__.CanonicalFloat64ReferenceTests.test_emitted_f32_quality_failure_is_not_hidden_by_f64_closure) ... ok
+test_f64_midpoint_closure_and_prefix_preservation (__main__.CanonicalFloat64ReferenceTests.test_f64_midpoint_closure_and_prefix_preservation) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.006s
+
+OK

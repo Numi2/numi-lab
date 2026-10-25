@@ -1,0 +1,16 @@
+Test project /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/build/cmake
+    Start 1: parent_reference_mass_transfer
+1/2 Test #1: parent_reference_mass_transfer ..............   Passed    0.10 sec
+    Start 2: owner_parent_mass_compiles_to_fem_inertia
+2/2 Test #2: owner_parent_mass_compiles_to_fem_inertia ...   Passed    0.19 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+cpu          =   0.28 sec*proc (2 tests)
+human        =   0.28 sec*proc (2 tests)
+mass         =   0.28 sec*proc (2 tests)
+matter       =   0.28 sec*proc (2 tests)
+synthetic    =   0.28 sec*proc (2 tests)
+
+Total Test time (real) =   0.28 sec

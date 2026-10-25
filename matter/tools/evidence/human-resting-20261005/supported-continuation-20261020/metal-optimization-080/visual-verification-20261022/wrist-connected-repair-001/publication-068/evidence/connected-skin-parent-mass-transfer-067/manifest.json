@@ -1,0 +1,90 @@
+{
+  "schema": "numi.human.connected-skin-parent-reference-mass-transfer.v1",
+  "host": "numi.local (SSH alias numi; user numi)",
+  "repository": "/Users/n/numi-human-aortic-contact-opt-20261019",
+  "repositoryHeadDuringRun": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "canonicalSourceCommit": "2973dc56cf4cd621cf839913b906b21420ce0326",
+  "scope": "isolated evidence overlay only; no canonical checkout or index edits",
+  "overlay": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067",
+  "inputs": {
+    "ownerCopy": {
+      "path": "apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "sha256": "f22a3cb423da75bda39634551e1b0b6c714f6e8f36813bc94e41686b682d76d7"
+    },
+    "reductionLabelCopy": {
+      "path": "apps/NumiHumanSkinFatReductionLabels.hpp",
+      "sha256": "4bcd7ca033a08ff3be041b5a47cd1fa9cbe1e460a1f1e5f356884e95cdd7efc0"
+    },
+    "compilerSource": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-007-owner-per-child-mass/compiler-integration-main79/matter/src/compiler_impl.cpp",
+      "sha256": "a12fb24d1bf8e0deeb010a85b6186cd1aec25996afebda6d17160f1657a23ddd"
+    },
+    "compilerValidationSource": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-007-owner-per-child-mass/compiler-integration-main79/matter/src/validation_impl.cpp",
+      "sha256": "f16bc732555a72cfef6d22e9405c20531629f404065bc2e17f75ba24d2bb6dd5"
+    },
+    "matterHeader": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-007-owner-per-child-mass/compiler-integration-main79/matter/include/numi/matter/matter.hpp",
+      "sha256": "b7e5b336edf592e9a080a979ee12ee7e7b18612dbd04725c56064ffdd172c23b"
+    }
+  },
+  "outputs": {
+    "helper": {
+      "path": "apps/NumiHumanParentReferenceMassTransfer.hpp",
+      "sha256": "f9bbaf5c4e4d19e470235517e2e14a99e0fa5aaf134d63499034fe326da270be"
+    },
+    "pureTest": {
+      "path": "tests/ParentReferenceMassTransferCheck.cpp",
+      "sha256": "8863cb88a34aab12f84b6f44eb438d5596c5b13f71fbc349a4fb4d7dddd90161"
+    },
+    "ownerCompilerIntegrationTest": {
+      "path": "tests/NumiHumanUnpairedSkinFatVolumeCheck.cpp",
+      "sha256": "f36aa1eec4a7d675e044c0ae50332abd016f8b05ac119d538237bcdfe94a34ab"
+    },
+    "cmakeHarness": {
+      "path": "CMakeLists.txt",
+      "sha256": "d4f6946762e0b2c2f2e93dbd8886da85e57f13cda50f7e75dfe9f74ca08bae42"
+    },
+    "readme": {
+      "path": "README.md",
+      "sha256": "79ca034836350c7cb09e506512537858401e0b36549158bd814597965de5a84d"
+    }
+  },
+  "validation": {
+    "configure": "cmake -S <overlay> -B <overlay>/build/cmake",
+    "build": "cmake --build <overlay>/build/cmake --target parent-reference-mass-transfer-check unpaired-owner-parent-mass-integration -j4",
+    "test": "ctest --test-dir <overlay>/build/cmake --output-on-failure -R \"parent_reference_mass_transfer|owner_parent_mass_compiles_to_fem_inertia\"",
+    "result": "2/2 passed",
+    "logs": {
+      "configure": {
+        "path": "build/configure-final.log",
+        "sha256": "eab2cd8e64c2f73e8e62b3e7c333d3f307a42e6f3c470e09a17dc2ea1bfa42df"
+      },
+      "build": {
+        "path": "build/build-final.log",
+        "sha256": "07407f9c30e17dcb3afb1979e8bc777e2b41b1a3987aa4037329e26f9ee5dbd2"
+      },
+      "tests": {
+        "path": "build/ctest-final.log",
+        "sha256": "3fe244f97bebfedc79bb5b42e1bb5236e40fda9fe5cb94216089455152544374"
+      }
+    },
+    "testsCover": [
+      "identity parent rows",
+      "single-parent barycentric center split",
+      "shared midpoint remapping across adjacent parent cells",
+      "explicit mixed-parent measures and donor closure",
+      "parent measure/mass closure failure",
+      "cross-material ancestry rejection",
+      "density bounds for skin 900-1100 kg/m^3 and fat 850-950 kg/m^3",
+      "owner-emitted per-child mass compiled into nodal FEM inertia; material density defaults unchanged"
+    ]
+  },
+  "limitations": [
+    "Synthetic fixture only; no current connected-skin candidate was mass-qualified.",
+    "Parent mass must be authoritative per-tet input; node/frame donor masses cannot substitute.",
+    "Single-parent refinement derives pullback measure but does not certify source ancestry or geometric overlap.",
+    "Cross-parent cells require an independently computed complete overlap/pullback measure CSR and pinned verification receipt.",
+    "Detailed source-face ancestry remains separate from volume-cell mass ancestry."
+  ]
+}

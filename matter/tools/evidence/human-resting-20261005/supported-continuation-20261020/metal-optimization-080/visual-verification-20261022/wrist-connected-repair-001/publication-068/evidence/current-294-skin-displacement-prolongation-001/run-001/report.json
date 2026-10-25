@@ -1,0 +1,119 @@
+{
+  "abi128": {
+    "bindings": 86,
+    "faces": 108987,
+    "indices": 326961,
+    "magic": "NHSKIN1\u0000",
+    "version": 5,
+    "vertices": 61950
+  },
+  "abi294": {
+    "bindings": 86,
+    "faces": 108987,
+    "indices": 326961,
+    "magic": "NHSKIN1\u0000",
+    "version": 5,
+    "vertices": 61950
+  },
+  "checks": {
+    "affected_face_area_ratio_min": 0.05780676376597991,
+    "affected_face_area_ratio_p01": 0.3674789889656763,
+    "affected_face_count": 16947,
+    "affected_face_f32_degenerate_after_count": 0,
+    "affected_face_min_altitude_after_mm": 0.009666868433080332,
+    "affected_face_min_altitude_before_mm": 0.009666868433080332,
+    "affected_face_negative_normal_dot_count": 531,
+    "bary_anchor_reproduction_max_m": 2.0616953151650202e-17,
+    "bary_source_anchor_position_residual_m": {
+      "count": 79,
+      "max": 0.011598011451600906,
+      "median": 0.0012303486391249503,
+      "p95": 0.006939110514840517
+    },
+    "changed_surface_vertex_count": 5531,
+    "coarse_O_displacement_nonzero_count": 767,
+    "direct_anchor_displacement_max_mm": 17.213961162560807,
+    "direct_anchor_displacement_nonzero_count": 751,
+    "direct_anchor_reproduction_max_m": 0.0,
+    "direct_source_anchor_position_residual_m": {
+      "count": 2332,
+      "max": 0.0029461144892161235,
+      "median": 0.0,
+      "p95": 0.0010914694008214464
+    },
+    "donor_local_world_roundtrip_max_m": 3.576224061345498e-18,
+    "exact_collision_or_material_gate_run": false,
+    "frame_coarse_to_ap_max_residual_m": 1.242432046475145e-07,
+    "max_surface_displacement_mm": 23.134445547633263,
+    "outside_patch_nonzero_rows": 0,
+    "same_128_294_face_indices": true,
+    "source_payload_mutated": false,
+    "support": {
+      "bary_anchor_count": 79,
+      "bary_max_residual_m": 2.0616953151650202e-17,
+      "collar_expansion_rings": 0,
+      "collar_vertices": 9469,
+      "direct_anchor_count": 2332,
+      "direct_max_residual_m": 0.0,
+      "free_vertices": 4937,
+      "outside_nonzero_vertices": 0,
+      "support_faces": 20804,
+      "support_vertices": 15281
+    },
+    "weights_bindings_normals_material_thickness_mutated": false
+  },
+  "classification": "diagnostic_prolongation_only_not_physical_or_native_admission",
+  "inputs": {
+    "ap_basis_npz": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz",
+      "sha256": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf"
+    },
+    "candidate_npz": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-039/iteration-005/candidate.npz",
+      "sha256": "72f9a409ca1eb067c9667e9c150963e4b8638848be50451b81a41463025fba38"
+    },
+    "coarse_nodes_csv": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/nodes.csv",
+      "sha256": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11"
+    },
+    "embedding_csv": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/embedding.csv",
+      "sha256": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847"
+    },
+    "placement_diagnostic": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-024-final080-candidate-source-frames-001/native-source-only-024/common-rigid-transfer-row-diagnostic-005.json",
+      "sha256": "caf9a865dc329dc8fbe9f45aee27872514e6768654ff6e1cd725d67cf51bedae"
+    },
+    "registered294_csv": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/native-step-001/registered-skin.csv",
+      "sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327"
+    },
+    "skin128_nhskin": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin",
+      "sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5"
+    },
+    "skin294_nhskin": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+    }
+  },
+  "limitations": [
+    "Detailed 294 source positions and D36 coarse anchors have large correspondence residuals; displacement transfer is diagnostic only.",
+    "No exact bone, soft-tissue, self-intersection, layer, volume, mass, native, or physical acceptance gate was run.",
+    "The generated NPZ is an auxiliary displacement map; no NHSKIN payload was modified or emitted."
+  ],
+  "outputs": {
+    "prolongation_npz": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/current-294-skin-displacement-prolongation-001/run-001/prolongation.npz",
+      "sha256": "0d9b78169dc3282259401f42f064ed8e1a12a5e0362cf80291d91f3dc6ac8ac4"
+    }
+  },
+  "runtime": {
+    "hostname": "numi.local",
+    "numpy": "2.5.3",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "seconds": 0.653285026550293
+  },
+  "schema": "current294-skin-displacement-prolongation-001",
+  "solver": "inverse-edge-length graph-harmonic minimizer with exact direct-vertex Dirichlet anchors, exact barycentric equality rows, and fixed one-ring collar"
+}

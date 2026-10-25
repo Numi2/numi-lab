@@ -1,0 +1,7 @@
+[ 50%] Building CXX object CMakeFiles/parent-reference-mass-transfer-check.dir/tests/ParentReferenceMassTransferCheck.cpp.o
+[100%] Linking CXX executable parent-reference-mass-transfer-check
+[100%] Built target parent-reference-mass-transfer-check
+[ 83%] Built target numi_matter_compiler
+[ 91%] Building CXX object CMakeFiles/unpaired-owner-parent-mass-integration.dir/tests/NumiHumanUnpairedSkinFatVolumeCheck.cpp.o
+[100%] Linking CXX executable unpaired-owner-parent-mass-integration
+[100%] Built target unpaired-owner-parent-mass-integration

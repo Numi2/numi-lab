@@ -1,0 +1,97 @@
+{
+  "audit_script": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/audit_actual_039_identity.py",
+    "sha256": "82788b309f74d0687c40d159c7b504c92883edc5c3b5af0c4a40bf77dd1fb14f"
+  },
+  "host": "numi.local via SSH alias numi; all calculation executed remotely",
+  "identity_receipt": {
+    "f64_reference_volume_m3": 0.015104913880526679,
+    "nodes": 7233,
+    "receipt_sha256": "88cbdd4e909bfa1b7b8b6e7d0aa2464aca1e938d7498abfcf919031f730be348",
+    "source_mass_debit_kg": 13.93967974060784,
+    "source_world_mutated": "0",
+    "tets": 28632
+  },
+  "inputs": {
+    "compiled_node_csv": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-039/iteration-005/native-query/source-preflight/initial-skin-fem-nodes.csv",
+      "sha256": "53318beccf8c2021b3f3a21a781feb4cf8343513bd599d39fe35221de92aaa4b"
+    },
+    "compiler_impl": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/compiler_impl.cpp",
+      "sha256": "d21579661186b0a89f8f8c586235d419744d2309e302c50638ab72f878474f5f"
+    },
+    "fit_input_npz": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-004/fit-input.npz",
+      "sha256": "b248bf0ee823ca1ab3b6d787fe3d427d8e080dcd528a57421235c7d6e1ed375e"
+    },
+    "owner_helper": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/apps/NumiHumanParentReferenceMassTransfer.hpp",
+      "sha256": "f9bbaf5c4e4d19e470235517e2e14a99e0fa5aaf134d63499034fe326da270be"
+    },
+    "repair_input_npz": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-039/iteration-005/repair-input.npz",
+      "sha256": "c322e0c19696edc3ff0fe91f390b97ea98ba7d65469f70d4274ac7487eb080b8"
+    },
+    "source_preflight_log": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-039/iteration-005/native-query/source-preflight/stdout.log",
+      "sha256": "4adc64041aa395033754531c843c8b5c248d6ffe507b3770f2833c0f844e71f7"
+    }
+  },
+  "limits": [
+    "No donor/origin IDs are present in this identity input; only material-level closure is reported.",
+    "The identity case verifies row identity and algebraic F64 pullback fractions, not source ancestry for changed topology.",
+    "No new refined child candidate is mass-qualified by this receipt.",
+    "This does not qualify geometry, anatomy, native evolution, or physical admission."
+  ],
+  "parent_child_identity": {
+    "cell_mass_sha256_le_f64": "4e42e0861b04e540cc2a3553141d5b78fd1a503f20051228d438f172f9016e77",
+    "cell_volume_sha256_le_f32": "46859391d6522041d2bfe2d7bb057548971627c86dab51e0a017b4a0d5cafc4a",
+    "child_emitted_f32_volume_equals_parent_compiled_f32_volume": true,
+    "child_implied_density_kg_m3_by_material": {
+      "fat": 900.0000000000006,
+      "skin": 1000.0000610351569
+    },
+    "compiled_f32_parent_volume_m3_by_material": {
+      "fat": 0.011652342866019646,
+      "skin": 0.0034525709479825127
+    },
+    "compiler_f32_bulk_density_kg_m3_by_material": {
+      "fat": 900.0,
+      "skin": 1000.0000610351562
+    },
+    "density_bounds_kg_m3_by_material": {
+      "fat": [
+        850.0,
+        950.0
+      ],
+      "skin": [
+        900.0,
+        1100.0
+      ]
+    },
+    "f64_reference_volume_m3_by_material": {
+      "fat": 0.011652343238944877,
+      "skin": 0.0034525706415818023
+    },
+    "parent_compiler_mass_kg_by_material": {
+      "fat": 10.487108579417688,
+      "skin": 3.452571158710722
+    },
+    "parent_mass_formula": "double(F32 bulk.x) * double(F32 compiler rest volume); child identity mass uses F64 pullback fraction=1",
+    "pullback_fraction_each_child_to_parent": 1.0,
+    "topology_and_material_rows_byte_equal": true
+  },
+  "precision_crosscheck": {
+    "compiled_node_csv_total_kg": 13.9396797269631,
+    "direct_per_tet_runtime_mass_export_present": false,
+    "formula_minus_source_identity_mass_kg": -2.4794299946506726e-09,
+    "formula_nodal_lump_max_abs_difference_kg": 0.00016395500846222433,
+    "formula_nodal_lump_rms_difference_kg": 2.901035244828706e-06,
+    "formula_parent_mass_total_kg": 13.93967973812841,
+    "interpretation": "Per-tet masses are reconstructed from the pinned compiler formula, source material density inputs, and F32 reference coordinates. The available runtime CSV is nodal only and does not match this reconstructed nodal lumping at every node, so it is not accepted as direct per-cell compiler verification.",
+    "source_identity_mass_total_kg": 13.93967974060784
+  },
+  "schema": "numi.human.actual-039-identity-parent-mass-formula-receipt.v1",
+  "status": "identity-formula-reconstruction-only; donor attribution and exact per-cell runtime export are unavailable"
+}

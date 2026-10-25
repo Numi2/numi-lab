@@ -1,0 +1,9 @@
+{
+  "status": "FAILED_PER_PARENT_F32_REFERENCE_VOLUME_GATE_NO_CANDIDATE",
+  "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/build_refinement_037_retry1.py",
+  "source_sha256": "734995f0f0a66014238a6e93c52aeeb99fc087891bd655f6654840b333e1f8e7",
+  "error": "row 25570 raw Float32-reference per-parent volume drift 0.015601450815358823 exceeds 0.0001",
+  "helper_sha256": "11bfc32686d3e7faa29bd5f9afc00bf0f2eec154a0cb8275333eff98804dd70c",
+  "candidate_written": false,
+  "followup": "separate diagnostic run disables only the Float32 parent-volume rejection; raw F32 and canonical F64 ratios remain distinct"
+}

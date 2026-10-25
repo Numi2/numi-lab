@@ -1,0 +1,8 @@
+{
+  "status": "FAILED_DIAGNOSTIC_F64_CLOSURE_ASSERTION_NO_CANDIDATE",
+  "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/build_refinement_037_diagnostic_retry1.py",
+  "source_sha256": "4cae84b35e68aa8f538549bc47869c1755c1878bde69321bb746d8066c6a2616",
+  "error": "canonical F64 reference parent relative drift 1.1449584975729966e-11 exceeded an unnecessarily strict 1e-12 numerical assertion; project gate is 1e-4",
+  "candidate_written": false,
+  "corrected_source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/build_refinement_037_diagnostic_retry2.py"
+}

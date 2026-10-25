@@ -1,0 +1,70 @@
+{"lp_success": true, "lp_status": 0, "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)", "free_nodes": 2641, "touched_cells": 13251, "contact_rows": 542, "starting_contact_deficit_l1_mm": 870.166990412351, "reference_unchanged": true, "geometry_admitted": false, "accepted_physical_steps": 0, "lp_predicted_contact_deficit_l1_mm": 546.5268644647529, "step_applied": true, "components": [{"nodes": 1606, "applied": true, "line_fraction": 0.5}, {"nodes": 63, "applied": true, "line_fraction": 1.0}, {"nodes": 215, "applied": true, "line_fraction": 0.5}, {"nodes": 230, "applied": true, "line_fraction": 1.0}, {"nodes": 527, "applied": true, "line_fraction": 0.5}], "emitted_q_min": 1.781287693293346e-05, "emitted_J_min": 0.3643631791981384, "emitted_J_max": 2.4796816371727153, "contact_deficit_l1_mm": 683.9958288183641, "maximum_step_mm": 3.2582710235212518, "iteration": 0}
+{
+  "status": "CONNECTED_STATIC_CONSTRUCTION_NOT_PHYSICAL_ADMISSION",
+  "source_sha256": "e2e95113ff2c5c25ececa535d7208b5ff6611ac00d469cd919ac7d96279d02e3",
+  "solver_source_sha256": "620561ecc2003460a88217e8ae8679bd090f07a32dfff4ee0b01e0b9302da110",
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-feasibility-033/world-bone-clearance-constraints.npz": "39d110a33b5c997575e75f2447ab14a2416a7d52d30bb369414b82d0416220cf",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-004/fit-input.npz": "b248bf0ee823ca1ab3b6d787fe3d427d8e080dcd528a57421235c7d6e1ed375e"
+  },
+  "history": [
+    {
+      "lp_success": true,
+      "lp_status": 0,
+      "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "free_nodes": 2641,
+      "touched_cells": 13251,
+      "contact_rows": 542,
+      "starting_contact_deficit_l1_mm": 870.166990412351,
+      "reference_unchanged": true,
+      "geometry_admitted": false,
+      "accepted_physical_steps": 0,
+      "lp_predicted_contact_deficit_l1_mm": 546.5268644647529,
+      "step_applied": true,
+      "components": [
+        {
+          "nodes": 1606,
+          "applied": true,
+          "line_fraction": 0.5
+        },
+        {
+          "nodes": 63,
+          "applied": true,
+          "line_fraction": 1.0
+        },
+        {
+          "nodes": 215,
+          "applied": true,
+          "line_fraction": 0.5
+        },
+        {
+          "nodes": 230,
+          "applied": true,
+          "line_fraction": 1.0
+        },
+        {
+          "nodes": 527,
+          "applied": true,
+          "line_fraction": 0.5
+        }
+      ],
+      "emitted_q_min": 1.781287693293346e-05,
+      "emitted_J_min": 0.3643631791981384,
+      "emitted_J_max": 2.4796816371727153,
+      "contact_deficit_l1_mm": 683.9958288183641,
+      "maximum_step_mm": 3.2582710235212518,
+      "iteration": 0
+    }
+  ],
+  "elapsed_s": 59.502782374969684,
+  "changed_nodes": 1358,
+  "candidate_sha256": "bd9dfc2c72b5383b1e71fa4b4e2d710ee8857c45e824c52925ea6d782b2b3b26",
+  "retained_reference_sha256": "9c752f99ea85e48d16213dd4ebad313b058456bef3706b7aeb85515991bb86d7",
+  "accepted_physical_steps": 0,
+  "physical_qualification": false,
+  "clearance_qualified": false,
+  "limitations": [
+    "Static asset construction; no simulation state advanced.",
+    "Actual exact-edge, containment, surface, mass and detailed-source gates remain mandatory."
+  ]
+}

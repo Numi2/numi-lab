@@ -1,0 +1,306 @@
+{
+  "history": [
+    {
+      "candidate_sha256": "7ea9a95322526df1d95fb840d04db3ba1482794b5185ae93b857c588cc9d0def",
+      "edge_bank_groups": 549,
+      "edges": 469,
+      "inside_nodes": 17,
+      "inside_pairs": 17,
+      "ambiguous": 0
+    },
+    {
+      "candidate_sha256": "e8591e5ec1d9be5d59816b140dce631a468c835d9e758c44a74452e1283e0741",
+      "edge_bank_groups": 516,
+      "edges": 441,
+      "inside_nodes": 16,
+      "inside_pairs": 16,
+      "ambiguous": 0,
+      "iteration": 1,
+      "quality": {
+        "lp_success": true,
+        "lp_status": 0,
+        "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "free_nodes": 2764,
+        "touched_cells": 13937,
+        "contact_rows": 580,
+        "starting_contact_deficit_l1_mm": 1022.2383286325332,
+        "reference_unchanged": true,
+        "geometry_admitted": false,
+        "accepted_physical_steps": 0,
+        "lp_predicted_contact_deficit_l1_mm": 589.4369397173787,
+        "step_applied": true,
+        "components": [
+          {
+            "nodes": 1748,
+            "applied": true,
+            "line_fraction": 0.5
+          },
+          {
+            "nodes": 63,
+            "applied": true,
+            "line_fraction": 0.5
+          },
+          {
+            "nodes": 168,
+            "applied": true,
+            "line_fraction": 0.5
+          },
+          {
+            "nodes": 240,
+            "applied": true,
+            "line_fraction": 0.125
+          },
+          {
+            "nodes": 545,
+            "applied": true,
+            "line_fraction": 0.5
+          }
+        ],
+        "emitted_q_min": 1.7244065148632565e-05,
+        "emitted_J_min": 0.36345289042455775,
+        "emitted_J_max": 2.484262919827954,
+        "contact_deficit_l1_mm": 785.5794520612175,
+        "maximum_step_mm": 1.7320543176701635,
+        "iteration": 0
+      },
+      "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-001/candidate.npz",
+      "query_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-001/native-query/source-preflight",
+      "audit_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-001/exact-audit",
+      "composite_improvement_fraction": 0.05996758508914102
+    },
+    {
+      "candidate_sha256": "bd9dfc2c72b5383b1e71fa4b4e2d710ee8857c45e824c52925ea6d782b2b3b26",
+      "edge_bank_groups": 472,
+      "edges": 407,
+      "inside_nodes": 16,
+      "inside_pairs": 16,
+      "ambiguous": 0,
+      "iteration": 2,
+      "quality": {
+        "lp_success": true,
+        "lp_status": 0,
+        "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "free_nodes": 2641,
+        "touched_cells": 13251,
+        "contact_rows": 542,
+        "starting_contact_deficit_l1_mm": 870.166990412351,
+        "reference_unchanged": true,
+        "geometry_admitted": false,
+        "accepted_physical_steps": 0,
+        "lp_predicted_contact_deficit_l1_mm": 546.5268644647529,
+        "step_applied": true,
+        "components": [
+          {
+            "nodes": 1606,
+            "applied": true,
+            "line_fraction": 0.5
+          },
+          {
+            "nodes": 63,
+            "applied": true,
+            "line_fraction": 1.0
+          },
+          {
+            "nodes": 215,
+            "applied": true,
+            "line_fraction": 0.5
+          },
+          {
+            "nodes": 230,
+            "applied": true,
+            "line_fraction": 1.0
+          },
+          {
+            "nodes": 527,
+            "applied": true,
+            "line_fraction": 0.5
+          }
+        ],
+        "emitted_q_min": 1.781287693293346e-05,
+        "emitted_J_min": 0.3643631791981384,
+        "emitted_J_max": 2.4796816371727153,
+        "contact_deficit_l1_mm": 683.9958288183641,
+        "maximum_step_mm": 3.2582710235212518,
+        "iteration": 0
+      },
+      "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-002/candidate.npz",
+      "query_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-002/native-query/source-preflight",
+      "audit_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-002/exact-audit",
+      "composite_improvement_fraction": 0.07586206896551728
+    },
+    {
+      "candidate_sha256": "797d5765832c3cb3c8b4252f824bdb7d8e1198e97cb42a82d07cbb84c9818fd2",
+      "edge_bank_groups": 454,
+      "edges": 399,
+      "inside_nodes": 16,
+      "inside_pairs": 16,
+      "ambiguous": 0,
+      "iteration": 3,
+      "quality": {
+        "lp_success": true,
+        "lp_status": 0,
+        "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "free_nodes": 2492,
+        "touched_cells": 12874,
+        "contact_rows": 494,
+        "starting_contact_deficit_l1_mm": 786.8651632419298,
+        "reference_unchanged": true,
+        "geometry_admitted": false,
+        "accepted_physical_steps": 0,
+        "lp_predicted_contact_deficit_l1_mm": 510.590506139155,
+        "step_applied": true,
+        "components": [
+          {
+            "nodes": 1495,
+            "applied": true,
+            "line_fraction": 0.5
+          },
+          {
+            "nodes": 63,
+            "applied": true,
+            "line_fraction": 1.0
+          },
+          {
+            "nodes": 184,
+            "applied": true,
+            "line_fraction": 0.5
+          },
+          {
+            "nodes": 221,
+            "applied": true,
+            "line_fraction": 1.0
+          },
+          {
+            "nodes": 529,
+            "applied": true,
+            "line_fraction": 0.5
+          }
+        ],
+        "emitted_q_min": 2.199027680003289e-05,
+        "emitted_J_min": 0.363907807031575,
+        "emitted_J_max": 2.4808660269772984,
+        "contact_deficit_l1_mm": 631.2753219585658,
+        "maximum_step_mm": 3.4640871274362013,
+        "iteration": 0
+      },
+      "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-003/candidate.npz",
+      "query_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-003/native-query/source-preflight",
+      "audit_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-003/exact-audit",
+      "composite_improvement_fraction": 0.03358208955223885
+    },
+    {
+      "candidate_sha256": "a75ec9a5b566a8568e8f64dc9fe7b2af3cab15125b3243a58c6719f014055c56",
+      "edge_bank_groups": 430,
+      "edges": 379,
+      "inside_nodes": 17,
+      "inside_pairs": 17,
+      "ambiguous": 0,
+      "iteration": 4,
+      "quality": {
+        "lp_success": true,
+        "lp_status": 0,
+        "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "free_nodes": 2366,
+        "touched_cells": 12110,
+        "contact_rows": 479,
+        "starting_contact_deficit_l1_mm": 728.8092966111158,
+        "reference_unchanged": true,
+        "geometry_admitted": false,
+        "accepted_physical_steps": 0,
+        "lp_predicted_contact_deficit_l1_mm": 490.4075893502022,
+        "step_applied": true,
+        "components": [
+          {
+            "nodes": 1574,
+            "applied": true,
+            "line_fraction": 0.5
+          },
+          {
+            "nodes": 164,
+            "applied": true,
+            "line_fraction": 0.5
+          },
+          {
+            "nodes": 148,
+            "applied": true,
+            "line_fraction": 1.0
+          },
+          {
+            "nodes": 480,
+            "applied": true,
+            "line_fraction": 0.5
+          }
+        ],
+        "emitted_q_min": 2.200083135477186e-05,
+        "emitted_J_min": 0.36348019607398196,
+        "emitted_J_max": 2.4856893778213567,
+        "contact_deficit_l1_mm": 596.5514229689626,
+        "maximum_step_mm": 3.247986930615112,
+        "iteration": 0
+      },
+      "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-004/candidate.npz",
+      "query_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-004/native-query/source-preflight",
+      "audit_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-004/exact-audit",
+      "composite_improvement_fraction": 0.038610038610038644
+    },
+    {
+      "candidate_sha256": "52abbef77d1122a507da685622a664a4d6258ee15d2b5cddde25ef2fb0c57f8e",
+      "edge_bank_groups": 437,
+      "edges": 389,
+      "inside_nodes": 15,
+      "inside_pairs": 15,
+      "ambiguous": 0,
+      "iteration": 5,
+      "quality": {
+        "lp_success": true,
+        "lp_status": 0,
+        "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "free_nodes": 2252,
+        "touched_cells": 11738,
+        "contact_rows": 464,
+        "starting_contact_deficit_l1_mm": 673.9622111972235,
+        "reference_unchanged": true,
+        "geometry_admitted": false,
+        "accepted_physical_steps": 0,
+        "lp_predicted_contact_deficit_l1_mm": 454.5903984276646,
+        "step_applied": true,
+        "components": [
+          {
+            "nodes": 1468,
+            "applied": true,
+            "line_fraction": 0.5
+          },
+          {
+            "nodes": 166,
+            "applied": true,
+            "line_fraction": 0.25
+          },
+          {
+            "nodes": 167,
+            "applied": true,
+            "line_fraction": 1.0
+          },
+          {
+            "nodes": 451,
+            "applied": true,
+            "line_fraction": 0.5
+          }
+        ],
+        "emitted_q_min": 1.989420946222513e-05,
+        "emitted_J_min": 0.3634965188318466,
+        "emitted_J_max": 2.481475968131999,
+        "contact_deficit_l1_mm": 550.7835610719893,
+        "maximum_step_mm": 2.8511775982089054,
+        "iteration": 0
+      },
+      "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-005/candidate.npz",
+      "query_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-005/native-query/source-preflight",
+      "audit_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-volume-continuation-041/iteration-005/exact-audit",
+      "composite_improvement_fraction": 0.002008032128514081
+    }
+  ],
+  "elapsed_s": 401.7795650830958,
+  "accepted_physical_steps": 0,
+  "physical_qualification": false,
+  "geometry_admitted": false
+}

@@ -1,0 +1,66 @@
+{
+  "classification": "diagnostic-only-not-admitted",
+  "explicit_limitations": [
+    "Large coarse-to-detailed position residuals up to 11.598 mm.",
+    "Maximum prolongated displacement 23.134 mm.",
+    "Minimum affected area ratio 0.0578 and 531 nonpositive old/new normal-dot faces.",
+    "No exact self/collision, nearby-tissue, bone, layer, volume, mass, native or physical gate."
+  ],
+  "files": [
+    {
+      "bytes": 1552,
+      "path": "README.md",
+      "sha256": "3ac483bb364b152c965f5872030eab92c454f37d97b8fb996858f5d3cb611133"
+    },
+    {
+      "bytes": 13206,
+      "path": "build_current294_prolongation.py",
+      "sha256": "4092f126a256bdff9bdd2e90837c4ce8f08c70f9e0845d00942c80183ce25913"
+    },
+    {
+      "bytes": 2258214,
+      "path": "run-001/prolongation.npz",
+      "sha256": "0d9b78169dc3282259401f42f064ed8e1a12a5e0362cf80291d91f3dc6ac8ac4"
+    },
+    {
+      "bytes": 6564,
+      "path": "run-001/report.json",
+      "sha256": "afd7875930f25d916290663b7d2697c6801beb9d1503df1d788a54dbb43272c6"
+    },
+    {
+      "bytes": 2258214,
+      "path": "run-002/prolongation.npz",
+      "sha256": "0d9b78169dc3282259401f42f064ed8e1a12a5e0362cf80291d91f3dc6ac8ac4"
+    },
+    {
+      "bytes": 6856,
+      "path": "run-002/report.json",
+      "sha256": "53f104e38ce78f14236a4ead55cb2070565a14c7d244caa6950212a6a472f4e0"
+    },
+    {
+      "bytes": 11362,
+      "path": "surface_displacement_prolongation.py",
+      "sha256": "346a00b07a9b5e9387de0ddaf6f8c2e490c7d77a6330c7ce98a67470c778b0dc"
+    },
+    {
+      "bytes": 2532,
+      "path": "test_surface_displacement_prolongation.py",
+      "sha256": "84db42c5f13f4f7a76a439142da32f02e7e6dafbfccc5dddd7daf5c5ad7d8b22"
+    },
+    {
+      "bytes": 828,
+      "path": "tests.log",
+      "sha256": "676e85a7825783872fbac23a58c042fa32a09b866f0d85e372a08373d33dab4a"
+    }
+  ],
+  "latest_run": "run-002/report.json",
+  "purpose": "exact-anchor displacement prolongation onto the detailed 294 source surface; no NHSKIN mutation",
+  "root": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/current-294-skin-displacement-prolongation-001",
+  "schema": "current-294-skin-displacement-prolongation-tree-001",
+  "tests": {
+    "command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m unittest -v",
+    "host": "numi.local",
+    "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "result": "5 passed"
+  }
+}

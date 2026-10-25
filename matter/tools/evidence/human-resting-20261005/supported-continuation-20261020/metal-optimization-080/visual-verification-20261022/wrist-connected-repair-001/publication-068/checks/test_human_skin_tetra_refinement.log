@@ -1,0 +1,11 @@
+test_float32_collapsed_midpoint_and_quality_floor_are_reported (__main__.HumanSkinTetraRefinementTests.test_float32_collapsed_midpoint_and_quality_floor_are_reported) ... ok
+test_float32_midpoint_parent_volume_drift_fails_closed_before_normalization (__main__.HumanSkinTetraRefinementTests.test_float32_midpoint_parent_volume_drift_fails_closed_before_normalization) ... ok
+test_missing_or_invalid_edges_fail_closed (__main__.HumanSkinTetraRefinementTests.test_missing_or_invalid_edges_fail_closed) ... ok
+test_multiple_marked_edges_in_one_cell_update_incidence (__main__.HumanSkinTetraRefinementTests.test_multiple_marked_edges_in_one_cell_update_incidence) ... ok
+test_parent_and_material_arrays_must_match_input_domain (__main__.HumanSkinTetraRefinementTests.test_parent_and_material_arrays_must_match_input_domain) ... ok
+test_shared_internal_edge_is_split_once_and_conformingly (__main__.HumanSkinTetraRefinementTests.test_shared_internal_edge_is_split_once_and_conformingly) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.007s
+
+OK

@@ -1,0 +1,10 @@
+test_barycentric_anchor_exact (test_surface_displacement_prolongation.ProlongationTests.test_barycentric_anchor_exact) ... ok
+test_conflicting_duplicate_direct_anchor_rejected (test_surface_displacement_prolongation.ProlongationTests.test_conflicting_duplicate_direct_anchor_rejected) ... ok
+test_direct_anchor_exact_and_boundary_fixed (test_surface_displacement_prolongation.ProlongationTests.test_direct_anchor_exact_and_boundary_fixed) ... ok
+test_invalid_barycentric_weights_rejected (test_surface_displacement_prolongation.ProlongationTests.test_invalid_barycentric_weights_rejected) ... ok
+test_out_of_range_anchor_rejected (test_surface_displacement_prolongation.ProlongationTests.test_out_of_range_anchor_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.002s
+
+OK

@@ -1,0 +1,8 @@
+{
+  "status": "FAILED_DIAGNOSTIC_RUNNER_ASSERTION_NO_CANDIDATE",
+  "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/build_refinement_037_diagnostic.py",
+  "source_sha256": "947ffa0d70ad338fed3d1b7af0651ab7366843e0aadde739de951c7ae3d9e1d8",
+  "error": "assumed original tetrahedron rows remain a prefix; helper emits only live child rows, so verify material by child_parent_rows instead",
+  "candidate_written": false,
+  "corrected_source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/build_refinement_037_diagnostic_retry1.py"
+}

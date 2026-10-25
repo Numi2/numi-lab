@@ -1,0 +1,12 @@
+[
+  {
+    "path": "apps/NumiHumanUnpairedSkinFatVolume.hpp",
+    "sha256": "f22a3cb423da75bda39634551e1b0b6c714f6e8f36813bc94e41686b682d76d7",
+    "matches_parent_main": true
+  },
+  {
+    "path": "apps/NumiHumanSkinFatReductionLabels.hpp",
+    "sha256": "4bcd7ca033a08ff3be041b5a47cd1fa9cbe1e460a1f1e5f356884e95cdd7efc0",
+    "matches_parent_main": true
+  }
+]

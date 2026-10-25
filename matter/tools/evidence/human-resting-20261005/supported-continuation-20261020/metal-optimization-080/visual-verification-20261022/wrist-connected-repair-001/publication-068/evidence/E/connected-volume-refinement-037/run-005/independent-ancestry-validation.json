@@ -1,0 +1,13 @@
+{
+  "candidate_sha256": "399461399261c2ebbf3fd39bd264e8ed6cb52a99cb3688e744871a5f0b61984b",
+  "child_parent_rows": 37935,
+  "material_parent_inheritance_exact": true,
+  "max_raw_F64_parent_fraction_sum_error": 1.1449508008354314e-11,
+  "midpoint_ancestry_checks": "each appended source CSR row is exactly the two endpoint global IDs with 0.5 weights",
+  "midpoint_rows_checked": 2087,
+  "node_prefix_exact": true,
+  "original_source_csr_identity_rows": 7233,
+  "physical_mass_admission": false,
+  "report_sha256": "080bbdf7ae38c473130cb121ca0bcf3fb0b64ab8898db7de924db19b89791b87",
+  "status": "PASS_INDEPENDENT_SOURCE_PARENT_MATERIAL_CHECKS"
+}

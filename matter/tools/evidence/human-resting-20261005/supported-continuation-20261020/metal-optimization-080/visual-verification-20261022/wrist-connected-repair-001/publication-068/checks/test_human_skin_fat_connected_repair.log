@@ -1,0 +1,8 @@
+test_backtracking_keeps_fixed_nodes_and_shared_cells_valid (__main__.ConnectedVolumeRepairTests.test_backtracking_keeps_fixed_nodes_and_shared_cells_valid) ... ok
+test_cell_j_gradients_match_central_finite_differences (__main__.ConnectedVolumeRepairTests.test_cell_j_gradients_match_central_finite_differences) ... ok
+test_sparse_cell_jacobian_couples_shared_tet_nodes (__main__.ConnectedVolumeRepairTests.test_sparse_cell_jacobian_couples_shared_tet_nodes) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.006s
+
+OK

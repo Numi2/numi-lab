@@ -1,0 +1,46 @@
+{
+  "lp_success": true,
+  "lp_status": 0,
+  "lp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+  "free_nodes": 2897,
+  "touched_cells": 14958,
+  "contact_rows": 2561,
+  "starting_contact_deficit_l1_mm": 5931.765930625354,
+  "reference_unchanged": true,
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0,
+  "lp_predicted_contact_deficit_l1_mm": 2493.2836242186568,
+  "step_applied": true,
+  "components": [
+    {
+      "nodes": 1548,
+      "applied": true,
+      "line_fraction": 0.0625
+    },
+    {
+      "nodes": 254,
+      "applied": true,
+      "line_fraction": 0.125
+    },
+    {
+      "nodes": 791,
+      "applied": true,
+      "line_fraction": 0.125
+    },
+    {
+      "nodes": 304,
+      "applied": true,
+      "line_fraction": 0.125
+    }
+  ],
+  "emitted_q_min": 2.6016244143916926e-05,
+  "emitted_J_min": 0.5084654172239029,
+  "emitted_J_max": 2.136840810472785,
+  "contact_deficit_l1_mm": 5580.300248780185,
+  "maximum_step_mm": 0.43300927834630487,
+  "elapsed_s": 2.9620074999984354,
+  "candidate_sha256": "68d1bb7b3591659c7be0e60d0a083ad71c77f22f820d6dd2f050e041d67b6366",
+  "source_sha256": "7a7fd95909aa3333d6cb327183b211f7ff139b7af1a3c9a511854af9d8891c2d",
+  "status": "CONNECTED_STATIC_CONSTRUCTION_NOT_PHYSICAL_ADMISSION",
+  "physical_qualification": false
+}

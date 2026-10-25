@@ -1,0 +1,8 @@
+{
+  "status": "FAILED_PREFLIGHT_NO_MESH_WORK",
+  "attempt_source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/build_refinement_037.py",
+  "attempt_source_sha256": "bf09437e09032febdec172a88db03057fd164312d0b52e59abb851a906101c98",
+  "failure": "FileNotFoundError: helper path omitted nested E evidence directory",
+  "candidate_emitted": false,
+  "corrected_source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/E/connected-volume-refinement-037/build_refinement_037_retry1.py"
+}
