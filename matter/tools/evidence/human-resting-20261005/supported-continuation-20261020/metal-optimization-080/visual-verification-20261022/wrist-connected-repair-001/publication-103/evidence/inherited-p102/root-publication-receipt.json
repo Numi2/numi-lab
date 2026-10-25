@@ -1,0 +1,13 @@
+{
+  "commit": "4a2858239f93533de94910782a6187e64e56fca6",
+  "parent": "3ce10f720d1331f7fbedf6784ee3b26c278a5c25",
+  "tree": "6c642a5bd85ec4d5b0e1ff13e41263e4e3385c79",
+  "paths": 173,
+  "canonical_paths": [],
+  "shared_head_preserved": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "normal_index_tree_preserved": "b8d44c114ef552130634d80d7e94488ee5136201",
+  "normal_index_sha256_preserved": "900932a2b704bbf6ab7fd5c2cd200b11502352e71129e795a5bafe3fa7a7ac71",
+  "publication_manifest_sha256": "3f77104772434a9cf2feaa70d02feb3390fc9fd194341f1b4bdeaf6b9b323a2a",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}
