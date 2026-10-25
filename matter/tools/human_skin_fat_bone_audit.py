@@ -877,6 +877,78 @@ def summarize_surface_crossing_report(report, expected_banks=185, *, expected_ba
             "per_bank":per_bank}
 
 
+def assess_point_clearance_construction_progress(before, after):
+    """Compare complete, same-topology point audits during mesh construction.
+
+    This is a proposal merit function, never an anatomical admission gate.
+    Newly exposed shallow pairs may accompany net improvement; preserve their
+    identities instead of requiring an invariant inside-pair set. Final
+    admission still requires zero erroneous point and surface intersections.
+    """
+    import math
+
+    def read(report):
+        if not isinstance(report, dict) or report.get("complete_surface_audit") is not True:
+            raise ValueError("incomplete exact surface audit")
+        if type(report.get("exact_PLC_surface_pairs")) is not int or report["exact_PLC_surface_pairs"] != 0:
+            raise ValueError("proposal has unresolved surface self intersections")
+        for name in ("points", "faces", "inside_node_bank_pairs", "inside_nodes"):
+            if type(report.get(name)) is not int or report[name] < 0:
+                raise ValueError("missing or invalid audit count: " + name)
+        rows = report.get("inside_witnesses")
+        if not isinstance(rows, list):
+            raise ValueError("missing typed inside witnesses")
+        values = {}
+        def identity(value):
+            # Existing query reports retain CSV identities as decimal strings.
+            if type(value) is int and value >= 0:
+                return value
+            if isinstance(value, str) and value.isascii() and value.isdecimal():
+                return int(value)
+            raise ValueError("invalid typed point/bank identity")
+        for row in rows:
+            if not isinstance(row, dict) or row.get("classification") != "inside":
+                raise ValueError("witness is not an explicit inside classification")
+            key = tuple(identity(row.get(k)) for k in ("query_row", "bank_body", "bank_stable_id"))
+            if key[0] >= report["points"] or key in values:
+                raise ValueError("duplicate or out of range typed inside witness")
+            if isinstance(row.get("nearest_distance_m"), bool):
+                raise ValueError("invalid penetration distance")
+            try:
+                distance = float(row["nearest_distance_m"])
+            except (KeyError, TypeError, ValueError):
+                raise ValueError("missing penetration distance") from None
+            if not math.isfinite(distance) or distance < 0 or not math.isfinite(distance * distance):
+                raise ValueError("nonfinite, negative or unrepresentable penetration distance")
+            values[key] = distance
+        if len(values) != report["inside_node_bank_pairs"] or len({k[0] for k in values}) != report["inside_nodes"]:
+            raise ValueError("typed inside counts disagree")
+        return values
+
+    old, new = read(before), read(after)
+    if (before["points"], before["faces"]) != (after["points"], after["faces"]):
+        raise ValueError("point merit requires matching topology")
+    maximum_old, maximum_new = max(old.values(), default=0.0), max(new.values(), default=0.0)
+    squared_old = math.fsum(v*v for v in old.values())
+    squared_new = math.fsum(v*v for v in new.values())
+    introduced = sorted(new.keys() - old.keys())
+    removed = sorted(old.keys() - new.keys())
+    count_improved = len(new) < len(old)
+    depth_nonincreasing = maximum_new <= maximum_old and squared_new <= squared_old
+    return {
+        "construction_progress": count_improved and depth_nonincreasing,
+        "strict_pair_count_reduction": count_improved,
+        "maximum_depth_nonincreasing": maximum_new <= maximum_old,
+        "squared_depth_nonincreasing": squared_new <= squared_old,
+        "before_inside_pairs": len(old), "after_inside_pairs": len(new),
+        "before_maximum_depth_m": maximum_old, "after_maximum_depth_m": maximum_new,
+        "before_squared_depth_m2": squared_old, "after_squared_depth_m2": squared_new,
+        "introduced_typed_pairs": [list(k) for k in introduced],
+        "introduced_depths_m": [new[k] for k in introduced],
+        "removed_typed_pairs": [list(k) for k in removed],
+        "geometry_admitted": False, "accepted_physical_steps": 0,
+    }
+
 if __name__ == "__main__":
     main()
 

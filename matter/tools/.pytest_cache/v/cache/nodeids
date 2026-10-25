@@ -1,0 +1,23 @@
+[
+  "test_human_skin_point_construction_merit.py::test_actual_refined_trial_improves_despite_two_shallow_new_pairs",
+  "test_human_skin_point_construction_merit.py::test_count_reduction_cannot_conceal_deeper_penetration",
+  "test_human_skin_point_construction_merit.py::test_different_topology_rejected",
+  "test_human_skin_point_construction_merit.py::test_incomplete_or_malformed_witnesses_rejected[<lambda>0]",
+  "test_human_skin_point_construction_merit.py::test_incomplete_or_malformed_witnesses_rejected[<lambda>10]",
+  "test_human_skin_point_construction_merit.py::test_incomplete_or_malformed_witnesses_rejected[<lambda>11]",
+  "test_human_skin_point_construction_merit.py::test_incomplete_or_malformed_witnesses_rejected[<lambda>12]",
+  "test_human_skin_point_construction_merit.py::test_incomplete_or_malformed_witnesses_rejected[<lambda>13]",
+  "test_human_skin_point_construction_merit.py::test_incomplete_or_malformed_witnesses_rejected[<lambda>1]",
+  "test_human_skin_point_construction_merit.py::test_incomplete_or_malformed_witnesses_rejected[<lambda>2]",
+  "test_human_skin_point_construction_merit.py::test_incomplete_or_malformed_witnesses_rejected[<lambda>3]",
+  "test_human_skin_point_construction_merit.py::test_incomplete_or_malformed_witnesses_rejected[<lambda>4]",
+  "test_human_skin_point_construction_merit.py::test_incomplete_or_malformed_witnesses_rejected[<lambda>5]",
+  "test_human_skin_point_construction_merit.py::test_incomplete_or_malformed_witnesses_rejected[<lambda>6]",
+  "test_human_skin_point_construction_merit.py::test_incomplete_or_malformed_witnesses_rejected[<lambda>7]",
+  "test_human_skin_point_construction_merit.py::test_incomplete_or_malformed_witnesses_rejected[<lambda>8]",
+  "test_human_skin_point_construction_merit.py::test_incomplete_or_malformed_witnesses_rejected[<lambda>9]",
+  "test_human_skin_point_construction_merit.py::test_same_count_is_not_progress",
+  "test_human_skin_point_construction_merit.py::test_shallow_new_pair_can_reduce_count_and_penetration",
+  "test_human_skin_point_construction_merit.py::test_squared_depth_cannot_increase_even_if_maximum_drops",
+  "test_human_skin_point_construction_merit.py::test_zero_is_construction_progress_not_admission"
+]

@@ -1,0 +1,43 @@
+{
+  "candidate_sha256": "92f27fd1242ba830faf1becbf3f8269e92292c03e3f1c1d6fffc7e541b090358",
+  "audit130_sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9",
+  "audit159_sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+  "commands": {
+    "audit130": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "/Users/n/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+      "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-029-affine-crossed-face-refinement/refined-candidate.npz",
+      "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-029-affine-crossed-face-refinement/post-audits-002/exact-point-self-audit-130"
+    ],
+    "audit159": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "/Users/n/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+      "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-029-affine-crossed-face-refinement/refined-candidate.npz",
+      "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-029-affine-crossed-face-refinement/post-audits-002/all-bank-face-audit-159"
+    ]
+  },
+  "status": "COMPLETE_DIAGNOSTICS_UNADMITTED",
+  "physical_steps": 0,
+  "geometry_admitted": false,
+  "audit130": {
+    "summary_sha256": "ed2237bd8af1955d32e4ef2b7bc5949daef4d6f4aa40def5097d37368aa3c664",
+    "complete_surface_audit": true,
+    "exact_PLC_surface_pairs": 0,
+    "inside_node_bank_pairs": 1419,
+    "inside_nodes": 1417,
+    "query_pair_count": 7229,
+    "status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC"
+  },
+  "audit159": {
+    "report_sha256": "7dcd764a119b22b81c52cc340aba99e01629455b7a5b1d262d8dd83e656d08f5",
+    "status": "COMPLETE_TYPED_BANK_SURFACE_CROSSING_AUDIT",
+    "complete": true,
+    "bank_count": 185,
+    "expected_bank_count": 185,
+    "crossing_pair_count": 4331,
+    "nonzero_bank_count": 32,
+    "wall_seconds": 23.753030415973626,
+    "canonical_count_receipt_sha256": "6dbe026d14ad0e5c6e9bb611c5a02fe6c01ff1855cd00b88f3c61c52bb2a6a4e"
+  },
+  "elapsed_seconds": 28.82954816694837
+}

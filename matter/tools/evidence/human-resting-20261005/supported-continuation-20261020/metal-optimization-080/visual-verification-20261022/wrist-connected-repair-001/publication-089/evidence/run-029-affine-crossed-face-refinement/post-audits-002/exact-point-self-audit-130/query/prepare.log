@@ -1,0 +1,9 @@
+{
+  "input": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-029-affine-crossed-face-refinement/post-audits-002/exact-point-self-audit-130/query/points-world.npz",
+  "input_sha256": "24ef733cb3c1acf40fd032a1cd358515352bb450640732b38768c28666275107",
+  "field": "points_world_f32",
+  "query_count": 13518,
+  "output": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-029-affine-crossed-face-refinement/post-audits-002/exact-point-self-audit-130/query/points.csv",
+  "output_sha256": "4f6e47b8d67cd052773dd4ed367984e0fb6c1845a0b7f30e780fc31b6384d0bb",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

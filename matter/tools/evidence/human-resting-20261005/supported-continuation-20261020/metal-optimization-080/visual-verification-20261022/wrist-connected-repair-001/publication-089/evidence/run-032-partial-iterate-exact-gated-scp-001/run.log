@@ -1,0 +1,12 @@
+waiting_for_human_geometry_slot pid=65959
+acquired_human_geometry_slot pid=65959
+{
+  "candidate": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-032-partial-iterate-exact-gated-scp-001/attempt-001/candidate.npz",
+  "sha256": "92f27fd1242ba830faf1becbf3f8269e92292c03e3f1c1d6fffc7e541b090358",
+  "report": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-032-partial-iterate-exact-gated-scp-001/attempt-001/fit-report.json",
+  "report_sha256": "bc7f7a9a79553fde80066bb76915f17ed5aeec0a663b4066bdf9c66a46fc9aac",
+  "stop_reason": "max_scp_iterations",
+  "accepted_steps": 0,
+  "allface_nonpositive": 0,
+  "max_source_displacement_mm": 5.968212575750183
+}

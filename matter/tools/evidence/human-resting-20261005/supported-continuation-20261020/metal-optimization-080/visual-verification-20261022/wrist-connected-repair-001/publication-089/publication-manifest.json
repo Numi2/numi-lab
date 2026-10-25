@@ -1,0 +1,503 @@
+{
+  "base_commit": "e81bfbbd1747f5582ce5edfd722ef7611a56d53c",
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "tests": 46,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "ef46b5cb2ca82ccdcd90c69e640cd3d2b52f68143d4c6552daccd1d99a2652de",
+      "bytes": 1715
+    },
+    {
+      "path": "canonical/matter/tools/fixtures/human_skin_point_merit_032.json",
+      "sha256": "9242ebd32c3919bc2c9a6d7561e3dbad01eb02b26a2bf7e8fb9de80d604bbefa",
+      "bytes": 526638
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_bone_audit.py",
+      "sha256": "6081aa3de64a4500e3bfb453e33aa9cc183a1f93765cceda091fc62ea524bfed",
+      "bytes": 56171
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_point_construction_merit.py",
+      "sha256": "5c88728854a94e1f99e8d03f14c5d1e8922c242bf2a341497df18935441472c0",
+      "bytes": 3171
+    },
+    {
+      "path": "construction-progress.json",
+      "sha256": "8b0b9e86acfa06a541134440277877e2f55cab7c4f3757d0eb46dfa1f7ad695e",
+      "bytes": 8939
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/exact-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "bytes": 128
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/all-bank-face-audit-159/canonical-count-receipt.json",
+      "sha256": "6dbe026d14ad0e5c6e9bb611c5a02fe6c01ff1855cd00b88f3c61c52bb2a6a4e",
+      "bytes": 14454
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/all-bank-face-audit-159/progress.json",
+      "sha256": "e3d1d405a87121cb329a921c4db8674bc8dec446dd440083c78cc29f3333b8f3",
+      "bytes": 98
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/all-bank-face-audit-159/report.json",
+      "sha256": "7dcd764a119b22b81c52cc340aba99e01629455b7a5b1d262d8dd83e656d08f5",
+      "bytes": 319809
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/audit-130.log",
+      "sha256": "61dec8a60026a8d0771ce1e30f81c53d44112ecbd757cc14df61471804401ddc",
+      "bytes": 573
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/audit-159.log",
+      "sha256": "eba3a30ffbbe25d6ab7de82b4795eb804ae9640de24b2b9d2a2e749bc9927df1",
+      "bytes": 857
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/exact-point-self-audit-130/query/nodes.csv",
+      "sha256": "1c6bc531764bcf5eff4c403f8356500d75debad0abde6f261f8d2b97947ffd74",
+      "bytes": 313458
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/exact-point-self-audit-130/query/pairs.csv",
+      "sha256": "b47ad45ad46803dc5f8c65f3ecd52e5757cf1ae0a75eae361edf3ec0ef41cc61",
+      "bytes": 1519862
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/exact-point-self-audit-130/query/points-world.npz",
+      "sha256": "24ef733cb3c1acf40fd032a1cd358515352bb450640732b38768c28666275107",
+      "bytes": 146920
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/exact-point-self-audit-130/query/points.csv",
+      "sha256": "4f6e47b8d67cd052773dd4ed367984e0fb6c1845a0b7f30e780fc31b6384d0bb",
+      "bytes": 1023035
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/exact-point-self-audit-130/query/prepare.log",
+      "sha256": "6ed621ffb54f3f696832b42ef6619722597c0b5d9e7f53aef68c23c532c4a0d1",
+      "bytes": 728
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/exact-point-self-audit-130/query/query-receipt.json",
+      "sha256": "4d53b2b11ab67c95e0ff342c2a0fb40cba1b6b91bc3923c1e7b7f7a6a0e65a77",
+      "bytes": 1720
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/exact-point-self-audit-130/query/query.log",
+      "sha256": "392e873e722f47e4a455d0cff276500e0f0d7b267eca775fc981010287ec7033",
+      "bytes": 136
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/exact-point-self-audit-130/summary.json",
+      "sha256": "ed2237bd8af1955d32e4ef2b7bc5949daef4d6f4aa40def5097d37368aa3c664",
+      "bytes": 1201868
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/exact-point-self-audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "bytes": 128
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/post-audits-002/manifest.json",
+      "sha256": "cc9ce8e400877582658f1801f9fee84db36aee83b35c0cfb9025cef109aaf45b",
+      "bytes": 2178
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/refine_conforming_029.py",
+      "sha256": "588ab0ab844a9708ab37b0fe8658f5adda86e6be7769f3082ccdc0c9d6931718",
+      "bytes": 27292
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/refined-candidate.npz",
+      "sha256": "92f27fd1242ba830faf1becbf3f8269e92292c03e3f1c1d6fffc7e541b090358",
+      "bytes": 1477796
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/refinement-report.json",
+      "sha256": "abd4f11ecb10958414c6804c4763794355ad2ee4512cdc208b65ae18ae24538b",
+      "bytes": 29596
+    },
+    {
+      "path": "evidence/run-029-affine-crossed-face-refinement/run_post_audits_029.py",
+      "sha256": "976aea8888a7ea9efcad8de9d86e6b43549c5ab8f8ff3193ffa04f93ad67080a",
+      "bytes": 4865
+    },
+    {
+      "path": "evidence/run-030-current-point-exit-targets-001/build_run029_first_union_exits.py",
+      "sha256": "f2cb14213cca86679f829656e5c859d426cbdb918ca876dbc6d6e60b1f4a72fa",
+      "bytes": 20130
+    },
+    {
+      "path": "evidence/run-030-current-point-exit-targets-001/nearest-union-exits-run029.json",
+      "sha256": "a26ce5a021ba07b94cec43816217d809991042b1baa57a11c8e44957d2e09dd8",
+      "bytes": 3564483
+    },
+    {
+      "path": "evidence/run-030-current-point-exit-targets-001/nearest-union-exits-run029.npz",
+      "sha256": "f6e2b9743e0fcf9cddeb59b460879da762280546d4de4a3fef49fb53a8aede24",
+      "bytes": 52748
+    },
+    {
+      "path": "evidence/run-031-refined-global-connected-scp-001/area_scp_support_023.py",
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+      "bytes": 16549
+    },
+    {
+      "path": "evidence/run-031-refined-global-connected-scp-001/candidate.npz",
+      "sha256": "92f27fd1242ba830faf1becbf3f8269e92292c03e3f1c1d6fffc7e541b090358",
+      "bytes": 1477796
+    },
+    {
+      "path": "evidence/run-031-refined-global-connected-scp-001/fit-report.json",
+      "sha256": "55d81309f94d851bfc54dd350c20beaa88b4f0ee86cdaf42673f2a735486da13",
+      "bytes": 44801
+    },
+    {
+      "path": "evidence/run-031-refined-global-connected-scp-001/run031_refined_connected_scp.py",
+      "sha256": "09adb7bf23c9711643006af4fa8e9ed9a846d172ad4932d4edfc1e217de6156f",
+      "bytes": 42455
+    },
+    {
+      "path": "evidence/run-031-refined-global-connected-scp-001/self_separation_026.py",
+      "sha256": "ec647128549c31d38d02f1722de1ee584c1ff442b9275be92a2d3a25b0f52ee4",
+      "bytes": 11249
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/area_scp_support_023.py",
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+      "bytes": 16549
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/candidate.npz",
+      "sha256": "92f27fd1242ba830faf1becbf3f8269e92292c03e3f1c1d6fffc7e541b090358",
+      "bytes": 1477796
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/fit-report.json",
+      "sha256": "bc7f7a9a79553fde80066bb76915f17ed5aeec0a663b4066bdf9c66a46fc9aac",
+      "bytes": 575007
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-01-alpha-0p25/candidate.npz",
+      "sha256": "0d3c42ff075fbe326b472abba3b629cc5992d31e9773c9e7e69e78a729a9027a",
+      "bytes": 1477883
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-01-alpha-0p5/candidate.npz",
+      "sha256": "73f271839706e3ab5bb2e2d723d6a9bfdae9e4ee9e547538b3dccc8fc895e69a",
+      "bytes": 1477890
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-01-alpha-0p75/candidate.npz",
+      "sha256": "89466420ba91cb4c6a9155291ba2009afe15ba8de591b0dab9a5a8ccbeeda867",
+      "bytes": 1477900
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-01-alpha-1p0/candidate.npz",
+      "sha256": "bee706d9eda811057ccc25e3ed3e87ae85598610c30341e3f107376e3952d91f",
+      "bytes": 1477931
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p25/audit-130/query/nodes.csv",
+      "sha256": "8543cc415d643fb2f41dc4620042d9515bab00051513496a7b648ad9cd1fca20",
+      "bytes": 313458
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p25/audit-130/query/pairs.csv",
+      "sha256": "e8c080a9013f95ec6037e0bd6ea2407c38481595520bfbd93528bfca4f516cfe",
+      "bytes": 1510275
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p25/audit-130/query/points-world.npz",
+      "sha256": "68fe63442fc588cc718b31aa8474e9446eb4d077311921c7acc3b43b0d7fc7cc",
+      "bytes": 146980
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p25/audit-130/query/points.csv",
+      "sha256": "e89ea0f39001c8907b16260bf4ed47cc39f24c5ebd1226543a9fc8001f9388d1",
+      "bytes": 1023028
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p25/audit-130/query/prepare.log",
+      "sha256": "b43b101dd4329c73b39a4bf8d52b1411dd45555e80d9666d8c6dc9530bdac9a8",
+      "bytes": 732
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p25/audit-130/query/query-receipt.json",
+      "sha256": "cdced578d72ae4a8765e3d96ae2f41ff2694c9b526182ed2856a17932e6f94a3",
+      "bytes": 1726
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p25/audit-130/query/query.log",
+      "sha256": "12c361976261eb71014e62610067d3326a19214d0ffb065eba84ae41b78bfb32",
+      "bytes": 136
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p25/audit-130/summary.json",
+      "sha256": "4c22b843756cc350ca926b8780fef6f93c466759b2bef8730a544f377bc0fa20",
+      "bytes": 1052032
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p25/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "bytes": 128
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p25/audit-130.log",
+      "sha256": "cc4a79d7c089e47b3b3ca7602c600730454e8df1e05d009780f84ccbc4c5f12b",
+      "bytes": 573
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p25/audit-159/progress.json",
+      "sha256": "529045d19f31c59413c57b851cd6688cb149eecabecc7b85ea42b8d0dd8752e2",
+      "bytes": 99
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p25/audit-159/report.json",
+      "sha256": "8a6403e2e6af105ce5d5f4365136451ebe1d528278db6124b69cd3b9a3bb6b71",
+      "bytes": 309410
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p25/audit-159.log",
+      "sha256": "991fe2a2d190c0e1b97ea3bea6246746d624eb846647b4c5f7d85418699b990a",
+      "bytes": 938
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p25/candidate.npz",
+      "sha256": "60ef3652e34a43ee9b5631767529f3b061ba8a5d8604666de1a17b429b73559b",
+      "bytes": 1477856
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p5/candidate.npz",
+      "sha256": "f49708006e9e3b184ea0832fd73aefa4b18df86c493f4659829000db2520338c",
+      "bytes": 1477906
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-0p75/candidate.npz",
+      "sha256": "bfebacb9e837c0956696829319b0260cd8d613b0ba23caea49215609fe81ed04",
+      "bytes": 1477900
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-02-alpha-1p0/candidate.npz",
+      "sha256": "8847aa33a1b06893e5c4d46ee8722ac1f0c2c45936c5581a50a449dcd23d1c10",
+      "bytes": 1477937
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-03-alpha-0p25/audit-130/query/nodes.csv",
+      "sha256": "8543cc415d643fb2f41dc4620042d9515bab00051513496a7b648ad9cd1fca20",
+      "bytes": 313458
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-03-alpha-0p25/audit-130/query/pairs.csv",
+      "sha256": "d1b0fdeabdb6692982337c7b58aa31bacbfe34108d2be6ae099189507f858665",
+      "bytes": 1510225
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-03-alpha-0p25/audit-130/query/points-world.npz",
+      "sha256": "d626f4b4998eec0f9b5df6aca5c34801d54764a23ae639076de700f7b7e86908",
+      "bytes": 146992
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-03-alpha-0p25/audit-130/query/points.csv",
+      "sha256": "d488bc7004f53f30fa03116701e13ed91070ab03c141426e965580999b067a86",
+      "bytes": 1023037
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-03-alpha-0p25/audit-130/query/prepare.log",
+      "sha256": "6f55c62d1f6987dce21fd4a53e7136100a81d948ded46b0fe61cebb86c797eec",
+      "bytes": 732
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-03-alpha-0p25/audit-130/query/query-receipt.json",
+      "sha256": "2e5820bfabfb71d81dd3d95c03e1e2b312e303ab8b5cf8ed682ff83feeb74cec",
+      "bytes": 1726
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-03-alpha-0p25/audit-130/query/query.log",
+      "sha256": "12c361976261eb71014e62610067d3326a19214d0ffb065eba84ae41b78bfb32",
+      "bytes": 136
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-03-alpha-0p25/audit-130/summary.json",
+      "sha256": "80d4c7f3bd6541d368abee6e5d541287dca475343165933845dfd74caeaca354",
+      "bytes": 1052032
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-03-alpha-0p25/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "bytes": 128
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-03-alpha-0p25/audit-130.log",
+      "sha256": "a19b5268e179d0e2d26499a0a5145ad9e84ab6865f187540a83a42a6b87c35bc",
+      "bytes": 573
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-03-alpha-0p25/candidate.npz",
+      "sha256": "492fc19a1627b1a7a64e32cc171d8e8e8bd481415bced7cd9c82ba431a42fdba",
+      "bytes": 1477868
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-03-alpha-0p5/candidate.npz",
+      "sha256": "acd5646f7b1fad376711cb23da760f1ace8068bcbdefcbc3c7f026e1f333c24b",
+      "bytes": 1477945
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-03-alpha-0p75/candidate.npz",
+      "sha256": "72996082d70b368b8a53a4c9734b126328792c97167b8aca916d180de536a44b",
+      "bytes": 1477917
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-03-alpha-1p0/candidate.npz",
+      "sha256": "faeb1c4e7732ef87c5184ba9c6db39cad9765401ce072d034ad95abd75b903b4",
+      "bytes": 1477903
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p25/audit-130/query/nodes.csv",
+      "sha256": "8543cc415d643fb2f41dc4620042d9515bab00051513496a7b648ad9cd1fca20",
+      "bytes": 313458
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p25/audit-130/query/pairs.csv",
+      "sha256": "a733870f9cd364599bc5fd3e6871dfa49be7d81914ea5cd384864ef6644cdd79",
+      "bytes": 1510150
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p25/audit-130/query/points-world.npz",
+      "sha256": "7e2545e20074c2799518887160a075f19d6bf715d108bcc77c048aabf0d96cd0",
+      "bytes": 146989
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p25/audit-130/query/points.csv",
+      "sha256": "3d2edbc7efa6a1424c3f3488b246ab7bd1d848609e4ee447f31c77c99cb5dfd6",
+      "bytes": 1022999
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p25/audit-130/query/prepare.log",
+      "sha256": "8da6e20c817c3be0d752990935f4f9866dfbfc17e5f2473a598b7fe2ec6dd44c",
+      "bytes": 732
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p25/audit-130/query/query-receipt.json",
+      "sha256": "d6a0d14d6dc7f327331ade2004d8a0935321bd3b2c692aa3c9753c61a287bec6",
+      "bytes": 1726
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p25/audit-130/query/query.log",
+      "sha256": "12c361976261eb71014e62610067d3326a19214d0ffb065eba84ae41b78bfb32",
+      "bytes": 136
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p25/audit-130/summary.json",
+      "sha256": "c2d1cbca26859bfebac7c3f5701c016b51a1bc9adb034e490d8373d874e46789",
+      "bytes": 1051966
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p25/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "bytes": 128
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p25/audit-130.log",
+      "sha256": "5710bb74f78580e0b3bd6cbe0b9375cc10aeff484c0f229e2a8a2390c156cad2",
+      "bytes": 573
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p25/candidate.npz",
+      "sha256": "34d3fe29ed12f4d73816f1488d81fbb1cb84cf5095f7141da8793fc280844d04",
+      "bytes": 1477865
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p5/candidate.npz",
+      "sha256": "ddfb82e8697ba4f4cfa796197bf99c20b173e21c239d5352e67ca9578fb275b3",
+      "bytes": 1477931
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p75/candidate.npz",
+      "sha256": "332a443eb549d0589de32c71dd3ece888a8afbe9e642d395e6b1ad61180c3a42",
+      "bytes": 1477921
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-1p0/candidate.npz",
+      "sha256": "d3a5705349814ca9244cc50893b715ff6a12805cebeb2de55ee7febea05199bd",
+      "bytes": 1477927
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/run.log",
+      "sha256": "c3673cdd3819103524ab810d89c05d341ccd82716be78b2b1e223672f4de42af",
+      "bytes": 719
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/run032_partial_exact_gated_scp.py",
+      "sha256": "b15ead2fb58e20db6d267015b8d453b68db3c09f5259b5d352ba59350aad7ed5",
+      "bytes": 42878
+    },
+    {
+      "path": "evidence/run-032-partial-iterate-exact-gated-scp-001/self_separation_026.py",
+      "sha256": "ec647128549c31d38d02f1722de1ee584c1ff442b9275be92a2d3a25b0f52ee4",
+      "bytes": 11249
+    },
+    {
+      "path": "verification/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root_exact_segment_witness.py",
+      "sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+      "bytes": 2734
+    },
+    {
+      "path": "verification/tools/fixtures/human_skin_fat_surface_counts_027.json",
+      "sha256": "170cd9c8b85015ce1059f477f2d546c20aa26b3fb8d67cccd8cbfa8b117419a9",
+      "bytes": 199413
+    },
+    {
+      "path": "verification/tools/human_skin_fat_bone_audit.py",
+      "sha256": "6081aa3de64a4500e3bfb453e33aa9cc183a1f93765cceda091fc62ea524bfed",
+      "bytes": 56171
+    },
+    {
+      "path": "verification/tools/test_human_skin_fat_bone_audit.py",
+      "sha256": "b6dc5dfa103de8f003ef704d0180b0b8d85d307d5c9595e5ecd92290173c68ad",
+      "bytes": 15455
+    },
+    {
+      "path": "verification/tools/test_human_skin_fat_surface_count_summary.py",
+      "sha256": "8452c91bb0df2b5872ce2d29c9cee5007fb7d08184c8e9a21ac7a7a6ab6dc75b",
+      "bytes": 3169
+    }
+  ],
+  "canonical_changes": [
+    {
+      "path": "canonical/matter/tools/.pytest_cache/.gitignore",
+      "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+    },
+    {
+      "path": "canonical/matter/tools/.pytest_cache/CACHEDIR.TAG",
+      "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+    },
+    {
+      "path": "canonical/matter/tools/.pytest_cache/README.md",
+      "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+    },
+    {
+      "path": "canonical/matter/tools/.pytest_cache/v/cache/nodeids",
+      "sha256": "02564fb8d9962ea3531a13179ccd7848b21344f340c4a3558ade6584897a4f66"
+    },
+    {
+      "path": "canonical/matter/tools/fixtures/human_skin_point_merit_032.json",
+      "sha256": "9242ebd32c3919bc2c9a6d7561e3dbad01eb02b26a2bf7e8fb9de80d604bbefa"
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_bone_audit.py",
+      "sha256": "6081aa3de64a4500e3bfb453e33aa9cc183a1f93765cceda091fc62ea524bfed"
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_point_construction_merit.py",
+      "sha256": "5c88728854a94e1f99e8d03f14c5d1e8922c242bf2a341497df18935441472c0"
+    }
+  ]
+}

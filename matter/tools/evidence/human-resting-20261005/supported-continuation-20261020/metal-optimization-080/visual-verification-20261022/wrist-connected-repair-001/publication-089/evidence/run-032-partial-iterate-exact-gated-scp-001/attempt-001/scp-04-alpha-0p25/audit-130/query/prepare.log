@@ -1,0 +1,9 @@
+{
+  "input": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p25/audit-130/query/points-world.npz",
+  "input_sha256": "7e2545e20074c2799518887160a075f19d6bf715d108bcc77c048aabf0d96cd0",
+  "field": "points_world_f32",
+  "query_count": 13518,
+  "output": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-032-partial-iterate-exact-gated-scp-001/attempt-001/scp-04-alpha-0p25/audit-130/query/points.csv",
+  "output_sha256": "3d2edbc7efa6a1424c3f3488b246ab7bd1d848609e4ee447f31c77c99cb5dfd6",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}
