@@ -1,0 +1,26 @@
+{
+  "iteration": 25,
+  "candidate_sha256": "fd2075104dc5b38e7aed4d372339e8fc0bd11ab8a7cbd77f89adb0ebe3833c8d",
+  "emitted_points_sha256": "85adea3914e46a8a8d932576b33469b16f09500e6bb971c1559e9fe77e76086a",
+  "minimum_allface_oriented_area_ratio": 0.10252667081721589,
+  "minimum_fixed_reference_area_magnitude_ratio": 0.1444308738887191,
+  "bad_area_faces": 0,
+  "anchors_bitwise_unchanged": true,
+  "nonzero_step_nodes": 18184,
+  "maximum_step_m": 0.0005000368878326269,
+  "maximum_source_displacement_mm": 7.017132126178332,
+  "source_cap_pass": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "point_summary_sha256": "7a937354d84a59d22cb3417f4a0cbe6c7d33f186bb1488e7e1d6157e9d29196d",
+  "exact_self_pairs": 73,
+  "scale_update": {
+    "status": "PROPOSAL_SCALES_REDUCED_ONLY",
+    "construction_only": true,
+    "geometry_certified": false,
+    "unaffected_scales_bitwise_unchanged": true,
+    "max_halvings": 32,
+    "factor": 0.5,
+    "zero_below": 0.0078125
+  }
+}

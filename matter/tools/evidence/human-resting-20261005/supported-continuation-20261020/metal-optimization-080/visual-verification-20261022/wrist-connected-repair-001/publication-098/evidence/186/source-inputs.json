@@ -1,0 +1,11 @@
+{
+  "start": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-184-run001/pass-006/candidate.npz",
+  "start_sha256": "f0e3129826db621399cc03f889baf7a43abc1526b17f338562c84f062f9b398a",
+  "trial": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-185-run001/round-001/proposal/round-001/fit/attempt-001/scp-01-alpha-1p0/candidate.npz",
+  "trial_sha256": "b7d3f88f31f19bcdb939653226336981f275b18ee738b5493464434342d05090",
+  "helper_sha256": "a644de24e2f23e90807eb75578309618d89c1a3f9d95d4f6a6f045f4d935c31a",
+  "source_point_summary_sha256": "0416e84ca78650883bfae2e2fbb053cbd1a545b9909acf428af3951ba34ff123",
+  "source_surface_report_sha256": "f0b6f6546df4b232131454a500c0e4ce0a65d769a47c61d63334325e56ec38fa",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

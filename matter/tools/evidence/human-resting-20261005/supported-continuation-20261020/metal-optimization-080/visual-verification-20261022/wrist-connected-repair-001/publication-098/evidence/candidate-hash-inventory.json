@@ -1,0 +1,77 @@
+{
+  "bundled_geometry_candidate_count": 1,
+  "candidate_count": 10,
+  "entries": [
+    {
+      "bytes": 2172624,
+      "disposition": "hash-only unselected/rejected trial",
+      "run": "185",
+      "sha256": "f0e3129826db621399cc03f889baf7a43abc1526b17f338562c84f062f9b398a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-185-run001/round-001/proposal/round-001/fit/attempt-001/candidate.npz"
+    },
+    {
+      "bytes": 2172673,
+      "disposition": "hash-only unselected/rejected trial",
+      "run": "185",
+      "sha256": "b7d3f88f31f19bcdb939653226336981f275b18ee738b5493464434342d05090",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-185-run001/round-001/proposal/round-001/fit/attempt-001/scp-01-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 2172204,
+      "disposition": "hash-only unselected/rejected trial",
+      "run": "186",
+      "sha256": "1069de571418f650a8ad2aef53c6589c231fcfc7a236a5ce230e1f46539199dd",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-186-run001/pass-010/candidate.npz"
+    },
+    {
+      "bytes": 2172204,
+      "disposition": "hash-only unselected/rejected trial",
+      "run": "186",
+      "sha256": "d544b2355777a10fab338d08efbaf78e96edbe96d24925ab023c3be586c7968d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-186-run001/pass-020/candidate.npz"
+    },
+    {
+      "bytes": 2172213,
+      "disposition": "hash-only unselected/rejected trial",
+      "run": "186",
+      "sha256": "e3e420c61dbbcfdcc6cdde9772f6e5682c6e6038eaa36778f3220df27351b35d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-186-run001/pass-023/candidate.npz"
+    },
+    {
+      "bytes": 2172224,
+      "disposition": "hash-only unselected/rejected trial",
+      "run": "186",
+      "sha256": "fd2075104dc5b38e7aed4d372339e8fc0bd11ab8a7cbd77f89adb0ebe3833c8d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-186-run001/pass-025/candidate.npz"
+    },
+    {
+      "bytes": 2172226,
+      "disposition": "hash-only unselected/rejected trial",
+      "run": "186",
+      "sha256": "7fbb08bc93c4c391e7057f1aade6b03a80e99555badb00a29ce02827d4dc4fff",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-186-run001/pass-027/candidate.npz"
+    },
+    {
+      "bytes": 2172224,
+      "disposition": "hash-only unselected/rejected trial",
+      "run": "186",
+      "sha256": "e8fba8f2c6f1ca42d5ce4ff1fbc51b3e3f674dc161141fcb1f94e9d4ea951281",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-186-run001/pass-028/candidate.npz"
+    },
+    {
+      "bytes": 2172230,
+      "disposition": "hash-only unselected/rejected trial",
+      "run": "186",
+      "sha256": "d8bdfc739d94edb41a1d36cabaad15bb54190245b294cb52f66132a351078855",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-186-run001/pass-029/candidate.npz"
+    },
+    {
+      "bytes": 2172230,
+      "disposition": "bundled selected geometry",
+      "run": "186",
+      "sha256": "5cf00286e56475740ae965c7e6b2d58b81357fc3d260a3e4d90cc879ac14cb77",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-186-run001/pass-030/candidate.npz"
+    }
+  ],
+  "schema": "numi.connected-clearance-candidate-inventory.v1"
+}

@@ -1,0 +1,8 @@
+{
+  "old_trial": "185",
+  "old_gate": "Fixed source normal dot product rejects already accepted starting geometry (16 faces); not invariant to local rigid rotation",
+  "before_minimum_fixed_oriented_ratio": -3.8901260247692826,
+  "before_minimum_fixed_area_magnitude_ratio": 0.410806422309081,
+  "new_gate": "Oriented area ratio versus current accepted start plus fixed-source area magnitude ratio; exact global self audit unchanged",
+  "physical_admission": false
+}

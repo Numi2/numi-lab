@@ -1,0 +1,22 @@
+{
+  "schema": "numi.publication-prepared-receipt.v1",
+  "publication": "098",
+  "base_commit": "7b5b01d6e70de19c5c6bceb5a370d4117bcc3bc8",
+  "manifest_sha256": "7c06e2e8bd74613499dee4dadc6f9e1c2c6ff1014e09356a26af1646434e8747",
+  "file_count": 126,
+  "total_bytes": 8068489,
+  "excluded_active_runs": [
+    "187",
+    "188",
+    "189"
+  ],
+  "suite_result": "56 passed, 10 subtests passed",
+  "bank_surface_result": "6,161 candidate-to-bone triangle crossing pairs across 30 of 185 banks",
+  "self_surface_result": "0 exact PLC candidate self-pairs",
+  "status": "ready_for_review",
+  "publication_manifest_sha256": "7c06e2e8bd74613499dee4dadc6f9e1c2c6ff1014e09356a26af1646434e8747",
+  "canonical_changes": [
+    "matter/tools/human_skin_fat_surface_fit_constraints.py",
+    "matter/tools/test_human_skin_fat_local_witness_backtracking_183.py"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "schema": "numi.p098.source-pins.v1",
+  "base_commit": "7b5b01d6e70de19c5c6bceb5a370d4117bcc3bc8",
+  "base_tree": "2d52a213d9e77b3a876ff826b143a41ad87b0032",
+  "canonical_changes": [
+    {
+      "path": "canonical/matter/tools/human_skin_fat_surface_fit_constraints.py",
+      "sha256": "05b1beb2105a184deb885974db892fa0f8e519fc3e1fdfde5aa441c180c97b34",
+      "prior_sha256": "9175186e4a916dbfd8b2ce4d10f4bd7bb09938cecf442b291bc093823a1336e7"
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_local_witness_backtracking_183.py",
+      "sha256": "686acc7c91e397aa3d4ffcc6423ef87cf4e1209556541faf91e71da385a2628d",
+      "role": "new regression test"
+    }
+  ],
+  "canonical_support_files": [
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_surface_fit_constraints.py",
+      "sha256": "330b3caf15e98b0c6caf823df2ce42ef6a5ae73aafd92b132e990b038f8f65da"
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_batched_node_projection.py",
+      "sha256": "1f3a88912ea1e51d4aecdfedb887bea0bf7a0cb1e1969503de19fc003704d868"
+    },
+    {
+      "path": "canonical/matter/tools/fixtures/human_skin_fat_surface_fit_constraints.npz",
+      "sha256": "d93fb71ba2ee18bf7743e20c7932ff47aa6f58e27db284de8e2060653ea58494"
+    },
+    {
+      "path": "canonical/matter/tools/fixtures/run032_node_projection_reference.py",
+      "sha256": "0feb02a0257e138413fc6b2c4a9243b0613eca853aef810d62a2fd77d4679049"
+    }
+  ],
+  "selected_geometry": {
+    "input_sha256": "f0e3129826db621399cc03f889baf7a43abc1526b17f338562c84f062f9b398a",
+    "candidate_sha256": "5cf00286e56475740ae965c7e6b2d58b81357fc3d260a3e4d90cc879ac14cb77",
+    "full_surface_report_sha256": "6060fb148d4d8585f48ce844dc5af9922f90275bca46a1421118a3f80363c1e8",
+    "candidate_result_sha256": "44bd16f976885a9d7877c8f10260205d9d163ffb6a65d8f155f5859448ed42b8",
+    "complete_typed_bank_surface_report_sha256": "6060fb148d4d8585f48ce844dc5af9922f90275bca46a1421118a3f80363c1e8",
+    "candidate_to_bone_triangle_crossing_pairs": 6161,
+    "banks_with_crossings": 30,
+    "exact_plc_self_surface_pairs": 0,
+    "exact_plc_self_summary_sha256": "7d26f2d4a5dc647e3a846d8f67270318634a5518c0d3ab84b0a9a79bb5bb96be"
+  },
+  "tests": {
+    "command": "python -m pytest -q -p no:cacheprovider test_human_skin_fat_surface_fit_constraints.py test_human_skin_batched_node_projection.py test_human_skin_fat_local_witness_backtracking_183.py",
+    "result": "56 passed, 10 subtests passed",
+    "log": "evidence/owner-tests/fresh-run-002.log"
+  }
+}
