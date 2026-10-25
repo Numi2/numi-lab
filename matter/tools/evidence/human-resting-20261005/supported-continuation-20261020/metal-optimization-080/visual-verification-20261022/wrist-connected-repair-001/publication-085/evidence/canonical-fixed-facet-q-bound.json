@@ -1,0 +1,22 @@
+{
+  "status": "NECESSARY_FIXED_FACET_QUALITY_BOUND_ONLY",
+  "physical_or_native_admission": false,
+  "source_sha256": "f62be2ab6e71df1497be6cb5ced0b216a07d4c3b733ca67bd69d728c750272aa",
+  "formula": "q_tet=abs(det)/L_tet_max^3 <= norm(cross(b-a,c-a))/L_face_max^2",
+  "quality_floor": 1e-05,
+  "inner": {
+    "facet_count": 385340,
+    "minimum_bound": 4.432502488042514e-06,
+    "impossible_fixed_facet_count": 2,
+    "witness_rows": [
+      172287,
+      347557
+    ]
+  },
+  "deep": {
+    "facet_count": 240158,
+    "minimum_bound": 2.2009670254409295e-05,
+    "impossible_fixed_facet_count": 0,
+    "witness_rows": []
+  }
+}

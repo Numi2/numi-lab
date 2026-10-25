@@ -1,0 +1,29 @@
+{
+  "candidate_path": "/Users/n/Work/numi-human-connected-surface-069/joint-interface-facet-extraction-164/run-013-joint-facets/run-003/joint-interface-facets.npz",
+  "candidate_sha256": "f62be2ab6e71df1497be6cb5ced0b216a07d4c3b733ca67bd69d728c750272aa",
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/run_joint_facet_extraction_164.py"
+  ],
+  "helper_path": "/Users/n/Work/numi-human-connected-surface-069/joint-interface-facet-extraction-164/canonical/matter/tools/human_skin_fat_layer_reconstruction.py",
+  "helper_sha256": "598d1c061ce9ff8315ba5473ed12b386e4d78797d5e890787eabf40b153cbf75",
+  "integrity_check_path": "/Users/n/Work/numi-human-connected-surface-069/joint-interface-facet-extraction-164/run-013-joint-facets/run-003/output-integrity-check.json",
+  "integrity_check_sha256": "205156cb9a57a375cd5c1a3fb4ae0065a5e4fd8ee561a5c0fb7740bdf3843941",
+  "physical_or_native_admission": false,
+  "point_weights_path": "/Users/n/Work/numi-human-connected-surface-069/joint-interface-facet-extraction-164/run-013-joint-facets/run-003/point-interpolation-weights.npz",
+  "point_weights_sha256": "167d7c71d6cfb90b7e996a1c452dd91900e802146c14f83db95177f7dfb338a6",
+  "python_executable": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "python_version": "3.13.16",
+  "report_path": "/Users/n/Work/numi-human-connected-surface-069/joint-interface-facet-extraction-164/run-013-joint-facets/run-003/run-report.json",
+  "report_sha256": "21eae8779fedb3d7947d2bbc29bd2067fefca1cf2d4505d7eacb31c568f25dc2",
+  "runner_path": "/tmp/run_joint_facet_extraction_164.py",
+  "runner_sha256": "41c44c24a6d4efb66c248aff30b002d14a817eb01f5db1006aab0ab3e4dec402",
+  "slot_wrapper_path": "/tmp/numi-human-geometry-slot.py",
+  "slot_wrapper_sha256": "716fbdeea6fac8f3426e2c083ed4573e8554017ea75f4d4d20318400fa74c8e1",
+  "status": "FROZEN_RUN_MANIFEST",
+  "tests_path": "/Users/n/Work/numi-human-connected-surface-069/joint-interface-facet-extraction-164/canonical/matter/tools/test_human_skin_fat_layer_reconstruction.py",
+  "tests_sha256": "c021d55bc570fee7cfc8ad5e4e4743b8d1ab3dccd9a16654af9b4311ae59a40e",
+  "tetgen_run": false
+}

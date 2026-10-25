@@ -1,0 +1,420 @@
+{
+  "candidate_sha256": "f62be2ab6e71df1497be6cb5ced0b216a07d4c3b733ca67bd69d728c750272aa",
+  "formula": "r=norm(cross(b-a,c-a))/max_edge_length_squared; every incident tetra q=det/Lmax^3 <= r",
+  "foundation_sha256": "cf51ebb33721a351be149f822f49f0737af136e66eb95a39924f10bbe6e3f179",
+  "interfaces": {
+    "deep": {
+      "at_or_above_1e_5_count": 240158,
+      "below_1e_5_count": 0,
+      "facet_count": 240158,
+      "interface_id": 2,
+      "max": 0.8639538187738859,
+      "min": 2.2009670254409295e-05,
+      "quantiles": {
+        "0": 2.2009670254409295e-05,
+        "0.001": 0.0005594897715335594,
+        "0.01": 0.004099040351943966,
+        "0.05": 0.017523192734590992,
+        "0.1": 0.032232948506483325,
+        "0.25": 0.07532210277279837,
+        "0.5": 0.16200311523223915,
+        "0.75": 0.3046890654982525,
+        "0.9": 0.472789179795462,
+        "0.95": 0.5736872804355798,
+        "0.99": 0.7289013683255057,
+        "0.999": 0.8235926695006502,
+        "1": 0.8639538187738859
+      },
+      "ten_smallest_witnesses": [
+        {
+          "facet_point_rows": [
+            346075,
+            416780,
+            416777
+          ],
+          "facet_row": 454299,
+          "interface_id": 2,
+          "parent_foundation_tet_row": 19448,
+          "parent_input_tet_row": 283299,
+          "parent_tet_vertex_rows": [
+            39517,
+            1740,
+            19343,
+            70069
+          ],
+          "r": 2.2009670254409295e-05
+        },
+        {
+          "facet_point_rows": [
+            15094,
+            408741,
+            408732
+          ],
+          "facet_row": 385371,
+          "interface_id": 2,
+          "parent_foundation_tet_row": 26539,
+          "parent_input_tet_row": 372173,
+          "parent_tet_vertex_rows": [
+            15093,
+            37721,
+            15094,
+            99694
+          ],
+          "r": 2.225393112331042e-05
+        },
+        {
+          "facet_point_rows": [
+            417712,
+            417746,
+            444230
+          ],
+          "facet_row": 613741,
+          "interface_id": 2,
+          "parent_foundation_tet_row": 9220,
+          "parent_input_tet_row": 210265,
+          "parent_tet_vertex_rows": [
+            19847,
+            46438,
+            19836,
+            128901
+          ],
+          "r": 3.465930546000105e-05
+        },
+        {
+          "facet_point_rows": [
+            391927,
+            412348,
+            412345
+          ],
+          "facet_row": 581984,
+          "interface_id": 2,
+          "parent_foundation_tet_row": 30142,
+          "parent_input_tet_row": 103535,
+          "parent_tet_vertex_rows": [
+            46433,
+            8808,
+            27212,
+            16786
+          ],
+          "r": 3.8043768368004464e-05
+        },
+        {
+          "facet_point_rows": [
+            427987,
+            427988,
+            427991
+          ],
+          "facet_row": 620616,
+          "interface_id": 2,
+          "parent_foundation_tet_row": 23647,
+          "parent_input_tet_row": 184573,
+          "parent_tet_vertex_rows": [
+            27075,
+            42640,
+            27074,
+            117915
+          ],
+          "r": 3.853092336513971e-05
+        },
+        {
+          "facet_point_rows": [
+            416766,
+            417013,
+            417009
+          ],
+          "facet_row": 613165,
+          "interface_id": 2,
+          "parent_foundation_tet_row": 17727,
+          "parent_input_tet_row": 163720,
+          "parent_tet_vertex_rows": [
+            19469,
+            39517,
+            19342,
+            106801
+          ],
+          "r": 3.965533359336464e-05
+        },
+        {
+          "facet_point_rows": [
+            417713,
+            417828,
+            444226
+          ],
+          "facet_row": 613747,
+          "interface_id": 2,
+          "parent_foundation_tet_row": 9220,
+          "parent_input_tet_row": 74443,
+          "parent_tet_vertex_rows": [
+            19939,
+            46438,
+            19836,
+            70497
+          ],
+          "r": 3.994673461997711e-05
+        },
+        {
+          "facet_point_rows": [
+            347248,
+            347811,
+            347810
+          ],
+          "facet_row": 457799,
+          "interface_id": 2,
+          "parent_foundation_tet_row": 19423,
+          "parent_input_tet_row": 19423,
+          "parent_tet_vertex_rows": [
+            19994,
+            1819,
+            1800,
+            19993
+          ],
+          "r": 4.381925277811615e-05
+        },
+        {
+          "facet_point_rows": [
+            346640,
+            417736,
+            417741
+          ],
+          "facet_row": 456019,
+          "interface_id": 2,
+          "parent_foundation_tet_row": 24130,
+          "parent_input_tet_row": 284152,
+          "parent_tet_vertex_rows": [
+            19841,
+            1766,
+            39579,
+            70353
+          ],
+          "r": 5.0243924816766076e-05
+        },
+        {
+          "facet_point_rows": [
+            347853,
+            416777,
+            416786
+          ],
+          "facet_row": 459796,
+          "interface_id": 2,
+          "parent_foundation_tet_row": 19448,
+          "parent_input_tet_row": 393501,
+          "parent_tet_vertex_rows": [
+            1819,
+            39517,
+            19343,
+            106803
+          ],
+          "r": 5.542136303301351e-05
+        }
+      ]
+    },
+    "inner": {
+      "at_or_above_1e_5_count": 385338,
+      "below_1e_5_count": 2,
+      "facet_count": 385340,
+      "interface_id": 1,
+      "max": 0.8648429159697746,
+      "min": 4.432502488042514e-06,
+      "quantiles": {
+        "0": 4.432502488042514e-06,
+        "0.001": 0.000498792877192506,
+        "0.01": 0.0036661102342388256,
+        "0.05": 0.015462170401699088,
+        "0.1": 0.028802522606810644,
+        "0.25": 0.06872653612039328,
+        "0.5": 0.15183657422365093,
+        "0.75": 0.29429979116892035,
+        "0.9": 0.46640841134957906,
+        "0.95": 0.5698739690253586,
+        "0.99": 0.7256309103203388,
+        "0.999": 0.8241466340177773,
+        "1": 0.8648429159697746
+      },
+      "ten_smallest_witnesses": [
+        {
+          "facet_point_rows": [
+            201387,
+            282594,
+            282606
+          ],
+          "facet_row": 172287,
+          "interface_id": 1,
+          "parent_foundation_tet_row": 14814,
+          "parent_input_tet_row": 348143,
+          "parent_tet_vertex_rows": [
+            10056,
+            2481,
+            10059,
+            91684
+          ],
+          "r": 4.432502488042514e-06
+        },
+        {
+          "facet_point_rows": [
+            274450,
+            290144,
+            290128
+          ],
+          "facet_row": 347557,
+          "interface_id": 1,
+          "parent_foundation_tet_row": 20995,
+          "parent_input_tet_row": 152000,
+          "parent_tet_vertex_rows": [
+            15283,
+            8712,
+            15278,
+            99931
+          ],
+          "r": 7.41746189682803e-06
+        },
+        {
+          "facet_point_rows": [
+            201409,
+            282598,
+            282608
+          ],
+          "facet_row": 172435,
+          "interface_id": 1,
+          "parent_foundation_tet_row": 14814,
+          "parent_input_tet_row": 349983,
+          "parent_tet_vertex_rows": [
+            2481,
+            36055,
+            10056,
+            92297
+          ],
+          "r": 1.5853935005982665e-05
+        },
+        {
+          "facet_point_rows": [
+            236677,
+            303169,
+            303159
+          ],
+          "facet_row": 259594,
+          "interface_id": 1,
+          "parent_foundation_tet_row": 6234,
+          "parent_input_tet_row": 415632,
+          "parent_tet_vertex_rows": [
+            41342,
+            4531,
+            24276,
+            114180
+          ],
+          "r": 1.916237909911117e-05
+        },
+        {
+          "facet_point_rows": [
+            274461,
+            290146,
+            290133
+          ],
+          "facet_row": 347609,
+          "interface_id": 1,
+          "parent_foundation_tet_row": 20995,
+          "parent_input_tet_row": 458742,
+          "parent_tet_vertex_rows": [
+            46249,
+            8712,
+            15278,
+            128550
+          ],
+          "r": 2.045822113643874e-05
+        },
+        {
+          "facet_point_rows": [
+            236610,
+            303163,
+            303156
+          ],
+          "facet_row": 259378,
+          "interface_id": 1,
+          "parent_foundation_tet_row": 6234,
+          "parent_input_tet_row": 306434,
+          "parent_tet_vertex_rows": [
+            24276,
+            24282,
+            4530,
+            77781
+          ],
+          "r": 2.2417317927931637e-05
+        },
+        {
+          "facet_point_rows": [
+            201386,
+            282605,
+            282593
+          ],
+          "facet_row": 172277,
+          "interface_id": 1,
+          "parent_foundation_tet_row": 14814,
+          "parent_input_tet_row": 139023,
+          "parent_tet_vertex_rows": [
+            10058,
+            2481,
+            10056,
+            91682
+          ],
+          "r": 2.3336090286213992e-05
+        },
+        {
+          "facet_point_rows": [
+            274449,
+            290127,
+            290143
+          ],
+          "facet_row": 347541,
+          "interface_id": 1,
+          "parent_foundation_tet_row": 20995,
+          "parent_input_tet_row": 372878,
+          "parent_tet_vertex_rows": [
+            15278,
+            8712,
+            15279,
+            99929
+          ],
+          "r": 3.1058850188184766e-05
+        },
+        {
+          "facet_point_rows": [
+            132252,
+            282593,
+            282601
+          ],
+          "facet_row": 8134,
+          "interface_id": 1,
+          "parent_foundation_tet_row": 14814,
+          "parent_input_tet_row": 231863,
+          "parent_tet_vertex_rows": [
+            10056,
+            190,
+            10058,
+            52924
+          ],
+          "r": 3.7061203623340164e-05
+        },
+        {
+          "facet_point_rows": [
+            236675,
+            303157,
+            303174
+          ],
+          "facet_row": 259587,
+          "interface_id": 1,
+          "parent_foundation_tet_row": 6234,
+          "parent_input_tet_row": 415946,
+          "parent_tet_vertex_rows": [
+            24276,
+            4531,
+            24331,
+            114285
+          ],
+          "r": 3.8790050816798665e-05
+        }
+      ]
+    }
+  },
+  "q_gate": 1e-05,
+  "status": "STATIC_FACET_Q_UPPER_BOUND_AUDIT",
+  "tetgen_run": false
+}

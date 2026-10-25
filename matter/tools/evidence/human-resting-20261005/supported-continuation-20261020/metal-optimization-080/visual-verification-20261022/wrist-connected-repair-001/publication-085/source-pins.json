@@ -1,0 +1,9 @@
+{
+  "canonical_source_owner_sha256": "598d1c061ce9ff8315ba5473ed12b386e4d78797d5e890787eabf40b153cbf75",
+  "owner_tests_source_sha256": "c021d55bc570fee7cfc8ad5e4e4743b8d1ab3dccd9a16654af9b4311ae59a40e",
+  "extra_test_source_sha256": "6eba0411c262c47ad300b44b74d2e6a7a079ed3961f2b7c262edcb2f396e6e67",
+  "preparation_only": true,
+  "published_canonical_owner_sha256": "ec98203c904ac10e931e1e79a803762aaf9db35c0cc115a482400eea1ad8b4ef",
+  "published_canonical_tests_sha256": "35cf09416ccc015d418e11fe96e1fcdc7bf5b22e85a29cbc84a61305f9593363",
+  "additional_change": "Necessary fixed-facet tetrahedral-quality bound and diagnostics; no equations, material, mass, contact or state-owner change"
+}

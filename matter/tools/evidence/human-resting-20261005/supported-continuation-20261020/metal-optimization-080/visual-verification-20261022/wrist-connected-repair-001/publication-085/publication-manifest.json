@@ -1,0 +1,128 @@
+{
+  "publication": "085",
+  "base_commit": "942d24ce82b739ce928c990d4304f652396a48e0",
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "canonical_changes": [
+    {
+      "path": "canonical/matter/tools/human_skin_fat_layer_reconstruction.py",
+      "sha256": "ec98203c904ac10e931e1e79a803762aaf9db35c0cc115a482400eea1ad8b4ef"
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_layer_reconstruction.py",
+      "sha256": "35cf09416ccc015d418e11fe96e1fcdc7bf5b22e85a29cbc84a61305f9593363"
+    }
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "ea832bffbba3abc60aaff006a2329078a4b19dadd34e1fa77a8ef01f470068b7",
+      "bytes": 2886
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_layer_reconstruction.py",
+      "sha256": "ec98203c904ac10e931e1e79a803762aaf9db35c0cc115a482400eea1ad8b4ef",
+      "bytes": 61968
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_layer_reconstruction.py",
+      "sha256": "35cf09416ccc015d418e11fe96e1fcdc7bf5b22e85a29cbc84a61305f9593363",
+      "bytes": 33201
+    },
+    {
+      "path": "evidence/as-run-owner/human_skin_fat_layer_reconstruction.py",
+      "sha256": "598d1c061ce9ff8315ba5473ed12b386e4d78797d5e890787eabf40b153cbf75",
+      "bytes": 59844
+    },
+    {
+      "path": "evidence/canonical-fixed-facet-q-bound.json",
+      "sha256": "64ac5296e62d8e41a233d1b726dd308c6700fb08f03e826d054a0834671fc92d",
+      "bytes": 627
+    },
+    {
+      "path": "evidence/joint-interface-facets/run-001/run-report.json",
+      "sha256": "13cd0fcaba6f5dacff0d97430867b2cfc8194f9ae09b7316ea98f005f66f69b5",
+      "bytes": 2565
+    },
+    {
+      "path": "evidence/joint-interface-facets/run-002/collapsed-facet-witnesses.npz",
+      "sha256": "af6fb4e9ba4f3592728d0562181582ff88e9b5c2f754a33fb2f4e33de2f07036",
+      "bytes": 1967442
+    },
+    {
+      "path": "evidence/joint-interface-facets/run-002/run-report.json",
+      "sha256": "a1da3ded204ab791fc928465d801704622543896490cf75abc7b98210f65e0fe",
+      "bytes": 3201
+    },
+    {
+      "path": "evidence/joint-interface-facets/run-003/deep-scalar-snap-ledger.npz",
+      "sha256": "b87926a6e27340e4d2b4d58a07f61db90bb307caa97b4824264fdc116d4fb3d6",
+      "bytes": 8357256
+    },
+    {
+      "path": "evidence/joint-interface-facets/run-003/facet-q-upper-bound-audit.json",
+      "sha256": "d8ebafb094c40f46302a01caddc9ec7d87b039a8321f2cd8e0c779c1b99e3606",
+      "bytes": 10627
+    },
+    {
+      "path": "evidence/joint-interface-facets/run-003/inner-scalar-snap-ledger.npz",
+      "sha256": "6b3144790fcd411c639ac8c770bf637ac341fd935cc91ae0c35ad55e040fba71",
+      "bytes": 11021952
+    },
+    {
+      "path": "evidence/joint-interface-facets/run-003/joint-interface-facets.npz",
+      "sha256": "f62be2ab6e71df1497be6cb5ced0b216a07d4c3b733ca67bd69d728c750272aa",
+      "bytes": 34453796
+    },
+    {
+      "path": "evidence/joint-interface-facets/run-003/launch-manifest.json",
+      "sha256": "2cc1e7de9ff01f6a3dac5008e8f95d6f31fa722747df70c7badba65725e48d50",
+      "bytes": 2256
+    },
+    {
+      "path": "evidence/joint-interface-facets/run-003/old-culled-deep-facet-q-bound.json",
+      "sha256": "cd9c65141a1c5e11b7365f316df4f1973ba612d79852a0573b6f5243eff931be",
+      "bytes": 3449
+    },
+    {
+      "path": "evidence/joint-interface-facets/run-003/output-integrity-check.json",
+      "sha256": "205156cb9a57a375cd5c1a3fb4ae0065a5e4fd8ee561a5c0fb7740bdf3843941",
+      "bytes": 452
+    },
+    {
+      "path": "evidence/joint-interface-facets/run-003/point-interpolation-weights.npz",
+      "sha256": "167d7c71d6cfb90b7e996a1c452dd91900e802146c14f83db95177f7dfb338a6",
+      "bytes": 6203676
+    },
+    {
+      "path": "evidence/joint-interface-facets/run-003/run-report.json",
+      "sha256": "21eae8779fedb3d7947d2bbc29bd2067fefca1cf2d4505d7eacb31c568f25dc2",
+      "bytes": 4801
+    },
+    {
+      "path": "evidence/source-orientation-diagnostic.json",
+      "sha256": "a75e01300b2a106eb46cf49da7e5c11845aa9fb64ca6ac4318765544ad7da496",
+      "bytes": 323
+    },
+    {
+      "path": "runners/numi-human-geometry-slot.py",
+      "sha256": "716fbdeea6fac8f3426e2c083ed4573e8554017ea75f4d4d20318400fa74c8e1",
+      "bytes": 692
+    },
+    {
+      "path": "runners/run_joint_facet_extraction_164.py",
+      "sha256": "41c44c24a6d4efb66c248aff30b002d14a817eb01f5db1006aab0ab3e4dec402",
+      "bytes": 11536
+    },
+    {
+      "path": "source-pins.json",
+      "sha256": "8cb70767c4cdce86bd866a220ffae1f4ff4f19ec7d09d1d7f638b67ab2a13c7a",
+      "bytes": 694
+    },
+    {
+      "path": "tests.log",
+      "sha256": "6b9a9f16ecf3a5615b52976f13b2a04d74efb8ef2e171da5a3becfa6628d14b5",
+      "bytes": 99
+    }
+  ]
+}

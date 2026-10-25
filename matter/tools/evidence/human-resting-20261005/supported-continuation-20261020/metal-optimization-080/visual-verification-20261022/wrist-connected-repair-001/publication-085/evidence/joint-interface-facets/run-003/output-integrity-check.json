@@ -1,0 +1,14 @@
+{
+  "f32_noncollapsed_facet_count": 625498,
+  "facet_count": 625498,
+  "facet_parent_incidence_count": 625498,
+  "hfat_min_m": 0.0005050744682764338,
+  "input_prefix_bitwise": true,
+  "interface_1_facets": 385340,
+  "interface_2_facets": 240158,
+  "minimum_f32_facet_area_m2": 1.5204787043439074e-14,
+  "parent_mapping_exact": true,
+  "point_weight_rows_sum_to_one": true,
+  "status": "PASS_OUTPUT_INTEGRITY",
+  "tetgen_or_physical_admission": false
+}

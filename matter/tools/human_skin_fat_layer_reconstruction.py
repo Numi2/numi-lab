@@ -897,3 +897,319 @@ def snap_shared_scalar_interface_vertices(points, tets, values, hskin, *, fracti
       "crossing_snapped_b":snapped[b],"crossing_projected_interface_displacement_a_m":endpoint_move[:,0],
       "crossing_projected_interface_displacement_b_m":endpoint_move[:,1]}
     return out,stats,ledger
+
+@dataclass(frozen=True)
+class JointInterfaceFacetSet:
+    """Two zero-level surfaces extracted from one unchanged affine tetrahedral field.
+
+    ``facets`` indexes ``points_float32``. ``interface_ids`` uses 1 for
+    ``phi_inner`` and 2 for ``phi_deep``. Parent-tet and point-edge ancestry
+    are explicit CSR/edge tables; no child tetrahedra are constructed here.
+    """
+    points_float64: np.ndarray
+    points_float32: np.ndarray
+    facets: np.ndarray
+    interface_ids: np.ndarray
+    facet_parent_indptr: np.ndarray
+    facet_parent_tet_rows: np.ndarray
+    facet_parent_local_rows: np.ndarray
+    point_interpolation_weights: sparse.csr_matrix
+    point_interface_ids: np.ndarray
+    point_source_edge_global_ids: np.ndarray
+    point_edge_parameter_from_low_global_id: np.ndarray
+    point_scalar_values_m: np.ndarray
+    diagnostics: dict
+
+
+def facet_incident_tetrahedron_quality_upper_bound(points, facets):
+    """Necessary bound on det(tet) / max_edge(tet)**3 for each fixed facet.
+
+    Uses emitted Float32 coordinates, evaluated in Float64 like admission.
+    For any fourth vertex, |det| <= |cross(b-a,c-a)| * max_edge(tet)
+    and max_edge(tet) >= max_edge(facet). Thus a bound below the skin/fat
+    quality floor proves that fixed facet cannot have an admissible incident
+    cell. Passing this bound does not certify a tetrahedron or a whole mesh.
+    Collapsed facets return zero; malformed coordinates/indices fail closed.
+    """
+    raw = _finite_points(points, "points")
+    with np.errstate(over="ignore", invalid="ignore"):
+        p32 = raw.astype(np.float32)
+    if not np.isfinite(p32).all():
+        raise ValueError("facet points must be finite in emitted Float32")
+    f = np.asarray(facets)
+    if f.ndim != 2 or f.shape[1] != 3 or f.dtype.kind not in "iu":
+        raise ValueError("facets must be an integer Mx3 array")
+    f = f.astype(np.int64, copy=False)
+    if f.min(initial=0) < 0 or (len(f) and f.max() >= len(p32)):
+        raise ValueError("facets contain out-of-range point rows")
+    x = p32[f].astype(np.float64)
+    ab, ac, bc = x[:,1]-x[:,0], x[:,2]-x[:,0], x[:,2]-x[:,1]
+    longest2 = np.maximum.reduce((np.einsum("ij,ij->i",ab,ab),
+                                  np.einsum("ij,ij->i",ac,ac),
+                                  np.einsum("ij,ij->i",bc,bc)))
+    cross_norm = np.linalg.norm(np.cross(ab, ac), axis=1)
+    bound = np.zeros(len(f), dtype=np.float64)
+    np.divide(cross_norm, longest2, out=bound, where=longest2 > 0.0)
+    return bound
+
+
+def extract_joint_zero_level_facets(
+    points,
+    tetrahedra,
+    phi_inner,
+    phi_deep,
+    *,
+    global_vertex_ids=None,
+    parent_tet_ids=None,
+):
+    """Extract both affine zero surfaces directly from a shared F32 foundation.
+
+    The foundation tets are not split or emitted. Each interface gets one
+    shared intersection vertex per strict-crossing global edge, and each cut
+    polygon is triangulated with the owner's deterministic global pulling fan.
+    A positive ``phi_deep - phi_inner`` at every foundation vertex is required;
+    affine interpolation then keeps the two zero surfaces ordered and disjoint
+    inside every parent tetrahedron. F32-collapsed triangles fail closed.
+    """
+    Praw = _finite_points(points, "points")
+    if len(Praw) == 0:
+        raise ValueError("points must be nonempty")
+    with np.errstate(over="ignore", invalid="ignore"):
+        P32 = Praw.astype(np.float32)
+    if not np.isfinite(P32).all():
+        raise ValueError("foundation points must be finite in emitted Float32")
+    P = P32.astype(np.float64)
+    n = len(P)
+
+    raw_T = np.asarray(tetrahedra)
+    if raw_T.ndim != 2 or raw_T.shape[1] != 4 or raw_T.dtype.kind not in "iu" or len(raw_T) == 0:
+        raise ValueError("tetrahedra must be a nonempty integer Mx4 array")
+    T = raw_T.astype(np.int64, copy=False)
+    m = len(T)
+    if T.min(initial=0) < 0 or T.max(initial=0) >= n:
+        raise ValueError("tetrahedra contain out-of-range point rows")
+    if np.any(np.sort(T, axis=1)[:, 1:] == np.sort(T, axis=1)[:, :-1]):
+        raise ValueError("tetrahedra contain repeated vertex rows")
+    if len({tuple(sorted(map(int, row))) for row in T}) != m:
+        raise ValueError("duplicate source tetrahedra are not allowed")
+    if global_vertex_ids is None:
+        gids = np.arange(n, dtype=np.int64)
+    else:
+        g0 = np.asarray(global_vertex_ids)
+        if g0.ndim != 1 or g0.shape != (n,) or g0.dtype.kind not in "iu":
+            raise ValueError(f"global_vertex_ids must be an integer vector of shape ({n},)")
+        gids = g0.astype(np.int64, copy=False)
+        if len(np.unique(gids)) != n:
+            raise ValueError("global_vertex_ids must be unique")
+    if parent_tet_ids is None:
+        parent_ids = np.arange(m, dtype=np.int64)
+    else:
+        p0 = np.asarray(parent_tet_ids)
+        if p0.ndim != 1 or p0.shape != (m,) or p0.dtype.kind not in "iu":
+            raise ValueError(f"parent_tet_ids must be an integer vector of shape ({m},)")
+        parent_ids = p0.astype(np.int64, copy=False)
+        if len(np.unique(parent_ids)) != m:
+            raise ValueError("parent_tet_ids must be unique")
+
+    phiI = np.asarray(phi_inner, dtype=np.float64)
+    phiD = np.asarray(phi_deep, dtype=np.float64)
+    if phiI.shape != (n,) or phiD.shape != (n,) or not np.isfinite(phiI).all() or not np.isfinite(phiD).all():
+        raise ValueError(f"phi_inner and phi_deep must be finite vectors of shape ({n},)")
+    hfat = phiD - phiI
+    if not np.isfinite(hfat).all() or np.any(hfat <= 0.0):
+        bad = np.flatnonzero(~np.isfinite(hfat) | (hfat <= 0.0))[:16].tolist()
+        raise ValueError(f"phi_deep - phi_inner must be strictly positive at every foundation vertex; rows {bad}")
+    if np.any(np.all(phiI[T] == 0.0, axis=1)) or np.any(np.all(phiD[T] == 0.0, axis=1)):
+        raise ValueError("a parent tetrahedron has an identically zero interface field")
+
+    # The common input is the emitted-F32 foundation. Preserve that positivity
+    # diagnostic independently from any downstream layer/TetGen quality gate.
+    XT = P[T]
+    det_foundation = np.einsum("ij,ij->i", XT[:, 1] - XT[:, 0],
+                               np.cross(XT[:, 2] - XT[:, 0], XT[:, 3] - XT[:, 0]))
+    if not np.isfinite(det_foundation).all() or np.any(det_foundation <= 0.0):
+        bad = np.flatnonzero(~np.isfinite(det_foundation) | (det_foundation <= 0.0))[:16].tolist()
+        raise ValueError(f"foundation must be positive in emitted Float32; parent rows {bad}")
+
+    fields = (phiI, phiD)
+    # Stable edge row keys are global endpoint IDs, with a separate field ID.
+    edge_pairs = np.concatenate((T[:, [0, 1]], T[:, [0, 2]], T[:, [0, 3]],
+                                 T[:, [1, 2]], T[:, [1, 3]], T[:, [2, 3]]), axis=0)
+    edge_gids = gids[edge_pairs]
+    edge_order = np.argsort(edge_gids, axis=1)
+    edge_pairs = np.take_along_axis(edge_pairs, edge_order, axis=1)
+    edge_gids = np.take_along_axis(edge_gids, edge_order, axis=1)
+    unique_edges, first_rows = np.unique(edge_gids, axis=0, return_index=True)
+    # Recover source rows for globally sorted edges, independent of T traversal.
+    unique_edge_rows = edge_pairs[first_rows]
+    gid_to_row = {int(g): i for i, g in enumerate(gids)}
+
+    crossing_keys = []
+    for field_id, phi in ((1, phiI), (2, phiD)):
+        a = unique_edge_rows[:, 0]
+        b = unique_edge_rows[:, 1]
+        cross = ((phi[a] < 0.0) & (phi[b] > 0.0)) | ((phi[a] > 0.0) & (phi[b] < 0.0))
+        crossing_keys.extend((field_id, int(unique_edges[i, 0]), int(unique_edges[i, 1]))
+                             for i in np.flatnonzero(cross))
+    crossing_keys.sort()
+
+    out_points = [row.copy() for row in P]
+    order_keys = [(0, int(g)) for g in gids]
+    W_rows = list(range(n))
+    W_cols = list(range(n))
+    W_data = [1.0] * n
+    point_interface = [0] * n
+    point_edge_ids = [(-1, -1)] * n
+    point_t = [np.nan] * n
+    cut_row = {}
+    for field_id, ga, gb in crossing_keys:
+        a, b = gid_to_row[ga], gid_to_row[gb]
+        phi = fields[field_id - 1]
+        va, vb = float(phi[a]), float(phi[b])
+        if not ((va < 0.0 < vb) or (vb < 0.0 < va)):
+            raise RuntimeError("crossing edge lost its strict sign change")
+        scale = max(abs(va), abs(vb))
+        aa, bb = abs(va) / scale, abs(vb) / scale
+        t = aa / (aa + bb)
+        if not np.isfinite(t) or not 0.0 < t < 1.0:
+            raise ValueError(f"interface {field_id} edge {(ga, gb)} has collapsed scalar intersection")
+        point = P[a] + t * (P[b] - P[a])
+        if not np.isfinite(point).all():
+            raise ValueError(f"interface {field_id} edge {(ga, gb)} produced nonfinite intersection")
+        row = len(out_points)
+        cut_row[(field_id, ga, gb)] = row
+        out_points.append(point)
+        order_keys.append((1, field_id, ga, gb))
+        point_interface.append(field_id)
+        point_edge_ids.append((ga, gb))
+        point_t.append(t)
+        W_rows.extend((row, row))
+        W_cols.extend((a, b))
+        W_data.extend((1.0 - t, t))
+
+    Pout = np.asarray(out_points, dtype=np.float64)
+    Pout32 = Pout.astype(np.float32)
+    if not np.isfinite(Pout32).all():
+        raise ValueError("generated interface points are not finite in emitted Float32")
+    W = sparse.csr_matrix((np.asarray(W_data, dtype=np.float64),
+                           (np.asarray(W_rows, dtype=np.int64), np.asarray(W_cols, dtype=np.int64))),
+                          shape=(len(Pout), n), dtype=np.float64)
+    W.sum_duplicates()
+    W.sort_indices()
+
+    def intersection_row(field_id, a, b):
+        a, b = int(a), int(b)
+        phi = fields[field_id - 1]
+        if phi[a] == 0.0:
+            return a
+        if phi[b] == 0.0:
+            return b
+        ga, gb = int(gids[a]), int(gids[b])
+        if ga > gb:
+            ga, gb = gb, ga
+        try:
+            return cut_row[(field_id, ga, gb)]
+        except KeyError as exc:
+            raise ValueError(f"missing interface {field_id} intersection on global edge {(ga, gb)}") from exc
+
+    # Canonical face key -> orientation and all source-parent rows. Exact-zero
+    # shared faces are represented once while retaining both adjacent parents.
+    face_data = {}
+    for parent, tet in enumerate(T):
+        for field_id, phi in ((1, phiI), (2, phiD)):
+            vals = phi[tet]
+            if np.all(vals == 0.0):
+                raise ValueError(f"parent {parent} has an identically zero interface field")
+            rows = [int(tet[k]) for k in range(4) if vals[k] == 0.0]
+            for la, lb in ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)):
+                a, b = int(tet[la]), int(tet[lb])
+                if (phi[a] < 0.0 < phi[b]) or (phi[b] < 0.0 < phi[a]):
+                    rows.append(intersection_row(field_id, a, b))
+            rows = list(dict.fromkeys(rows))
+            if len(rows) < 3:
+                continue
+            poly = _ordered_cut_polygon(rows, Pout, phi, tet, +1, order_keys)
+            area = float(np.linalg.norm(_polygon_area_vector(Pout, poly)))
+            if not np.isfinite(area) or area <= 0.0:
+                raise ValueError(f"parent {parent} interface {field_id} polygon is degenerate")
+            for tri in _pulling_polygon_triangles(poly, order_keys):
+                tri = tuple(map(int, tri))
+                tri_area = _polygon_area_vector(Pout, tri)
+                if float(np.dot(tri_area, _polygon_area_vector(Pout, poly))) <= 0.0:
+                    raise ValueError(f"parent {parent} interface {field_id} has inconsistent triangle winding")
+                key = (field_id, tuple(sorted(tri)))
+                entry = face_data.get(key)
+                if entry is None:
+                    face_data[key] = {"tri": tri, "parents": {parent}}
+                else:
+                    old_area = _polygon_area_vector(Pout, entry["tri"])
+                    if float(np.dot(old_area, tri_area)) <= 0.0:
+                        raise ValueError(f"shared zero facet has inconsistent winding: {key}")
+                    entry["parents"].add(parent)
+
+    if not face_data:
+        raise ValueError("neither interface produced any facets")
+    ordered_face_items = sorted(face_data.items(), key=lambda item: (item[0][0], item[0][1]))
+    facets = np.asarray([entry["tri"] for _, entry in ordered_face_items], dtype=np.int64)
+    interface_ids = np.asarray([key[0] for key, _ in ordered_face_items], dtype=np.int8)
+    parent_indptr = [0]
+    parent_ids_out = []
+    parent_local_out = []
+    for _, entry in ordered_face_items:
+        local_rows = sorted(entry["parents"], key=lambda r: int(parent_ids[r]))
+        parent_local_out.extend(local_rows)
+        parent_ids_out.extend(int(parent_ids[r]) for r in local_rows)
+        parent_indptr.append(len(parent_ids_out))
+
+    # Check every emitted triangle after one F32 conversion. No degeneracy is
+    # silently omitted or assigned a fabricated quality.
+    tri32 = Pout32[facets].astype(np.float64)
+    area2_32 = np.linalg.norm(np.cross(tri32[:, 1] - tri32[:, 0], tri32[:, 2] - tri32[:, 0]), axis=1)
+    collapsed = (~np.isfinite(area2_32)) | (area2_32 <= 0.0) | (facets[:, 0] == facets[:, 1]) | (facets[:, 1] == facets[:, 2]) | (facets[:, 2] == facets[:, 0])
+    if np.any(collapsed):
+        bad = np.flatnonzero(collapsed)[:16].tolist()
+        raise ValueError(f"Float32 emission contains collapsed interface facets at rows {bad}")
+
+    # This necessary fixed-facet test is separate from cell admission.
+    facet_q_bound = facet_incident_tetrahedron_quality_upper_bound(Pout32, facets)
+    Wphi = np.column_stack((W @ phiI, W @ phiD))
+    diagnostics = {
+        "status": "STATIC_JOINT_ZERO_INTERFACE_FACETS",
+        "construction_only": True,
+        "tetrahedra_split_or_emitted": False,
+        "physical_or_native_admission": False,
+        "source_vertex_count": int(n),
+        "source_tetrahedron_count": int(m),
+        "output_point_count": int(len(Pout)),
+        "output_facet_count": int(len(facets)),
+        "inner_facet_count": int(np.count_nonzero(interface_ids == 1)),
+        "deep_facet_count": int(np.count_nonzero(interface_ids == 2)),
+        "inner_crossing_edge_count": int(sum(k[0] == 1 for k in crossing_keys)),
+        "deep_crossing_edge_count": int(sum(k[0] == 2 for k in crossing_keys)),
+        "unique_shared_edge_cut_count": int(len(crossing_keys)),
+        "hfat_min_m": float(np.min(hfat)),
+        "hfat_max_m": float(np.max(hfat)),
+        "foundation_f32_min_det_m3": float(np.min(det_foundation)),
+        "foundation_f32_nonpositive_count": int(np.count_nonzero(det_foundation <= 0.0)),
+        "float32_facet_min_area_m2": float(np.min(area2_32) * 0.5),
+        "float32_collapsed_facet_count": int(np.count_nonzero(collapsed)),
+        "fixed_facet_tet_q_upper_bound_min": float(np.min(facet_q_bound)),
+        "fixed_inner_facets_forcing_q_below_1e_5": int(np.count_nonzero((interface_ids == 1) & (facet_q_bound < 1e-5))),
+        "fixed_deep_facets_forcing_q_below_1e_5": int(np.count_nonzero((interface_ids == 2) & (facet_q_bound < 1e-5))),
+        "facets_with_multiple_source_parent_tets": int(sum(len(x["parents"]) > 1 for x in face_data.values())),
+    }
+    return JointInterfaceFacetSet(
+        points_float64=Pout,
+        points_float32=Pout32,
+        facets=facets,
+        interface_ids=interface_ids,
+        facet_parent_indptr=np.asarray(parent_indptr, dtype=np.int64),
+        facet_parent_tet_rows=np.asarray(parent_ids_out, dtype=np.int64),
+        facet_parent_local_rows=np.asarray(parent_local_out, dtype=np.int64),
+        point_interpolation_weights=W,
+        point_interface_ids=np.asarray(point_interface, dtype=np.int8),
+        point_source_edge_global_ids=np.asarray(point_edge_ids, dtype=np.int64),
+        point_edge_parameter_from_low_global_id=np.asarray(point_t, dtype=np.float64),
+        point_scalar_values_m=np.asarray(Wphi, dtype=np.float64),
+        diagnostics=diagnostics,
+    )

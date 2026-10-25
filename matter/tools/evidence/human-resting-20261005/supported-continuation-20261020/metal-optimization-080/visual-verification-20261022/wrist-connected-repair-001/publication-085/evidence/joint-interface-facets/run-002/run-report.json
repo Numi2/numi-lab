@@ -1,0 +1,52 @@
+{
+  "collapsed_facet_witnesses": {
+    "facets_interface_1": 385662,
+    "facets_interface_2": 240362,
+    "failed_facet_rows": [
+      538505,
+      624603
+    ],
+    "input_parent_foundation_tet_rows": [
+      13313,
+      13313
+    ],
+    "input_parent_tet_rows": [
+      333637,
+      333635
+    ],
+    "interface_ids": [
+      2,
+      2
+    ],
+    "path": "/Users/n/Work/numi-human-connected-surface-069/joint-interface-facet-extraction-164/run-013-joint-facets/run-002/collapsed-facet-witnesses.npz",
+    "sha256": "af6fb4e9ba4f3592728d0562181582ff88e9b5c2f754a33fb2f4e33de2f07036",
+    "total_facets_before_f32_gate": 626024
+  },
+  "construction_only": true,
+  "elapsed_seconds": 45.34397729195189,
+  "error": "Float32 emission contains collapsed interface facets at rows [538505, 624603]",
+  "error_type": "ValueError",
+  "field_semantics": {
+    "facet_winding": "outward from the positive scalar half-space, i.e. -gradient(phi)",
+    "hfat": "phi_deep - phi_inner, required strictly positive at every foundation vertex",
+    "phi_deep": "registered_levelsets_m[:,2] (total_levelset_m)",
+    "phi_inner": "registered_levelsets_m[:,1] (skin_levelset_m)"
+  },
+  "input_checkpoint": "/Users/n/Work/numi-human-connected-surface-069/connected-volume-extraction-157/true-o-foundation-159/run-013-conforming-field-refinement/refined-foundation-checkpoint.npz",
+  "input_checkpoint_sha256": "cf51ebb33721a351be149f822f49f0737af136e66eb95a39924f10bbe6e3f179",
+  "input_f32_min_quality": 3.3162137098932413e-06,
+  "input_f32_nonpositive_quality_count": 0,
+  "input_f32_quality_below_1e_5_count": 191,
+  "input_point_count": 129526,
+  "input_registered_fields": "/Users/n/Work/numi-human-connected-surface-069/connected-volume-extraction-157/true-o-foundation-159/run-013-conforming-field-refinement/registered-levelsets.npz",
+  "input_registered_fields_sha256": "67ad75b444382ba864f244dc57b1ac073664379a409963eb6813972fa6091769",
+  "input_tetrahedron_count": 461669,
+  "owner_source": "/Users/n/Work/numi-human-connected-surface-069/joint-interface-facet-extraction-164/canonical/matter/tools/human_skin_fat_layer_reconstruction.py",
+  "owner_source_sha256": "598d1c061ce9ff8315ba5473ed12b386e4d78797d5e890787eabf40b153cbf75",
+  "parent_foundation_tet_id_unique_count": 31839,
+  "physical_or_native_admission": false,
+  "status": "FAILED_STATIC_FACET_EXTRACTION",
+  "test_source_sha256": "c021d55bc570fee7cfc8ad5e4e4743b8d1ab3dccd9a16654af9b4311ae59a40e",
+  "tetgen_run": false,
+  "traceback": "Traceback (most recent call last):\n  File \"/tmp/run_joint_facet_extraction_164.py\", line 66, in <module>\n    result=extract_joint_zero_level_facets(\n        P,T,levels[:,1],levels[:,2],\n        global_vertex_ids=np.arange(len(P),dtype=np.int64),\n        parent_tet_ids=np.arange(len(T),dtype=np.int64))\n  File \"/Users/n/Work/numi-human-connected-surface-069/joint-interface-facet-extraction-164/canonical/matter/tools/human_skin_fat_layer_reconstruction.py\", line 1139, in extract_joint_zero_level_facets\n    raise ValueError(f\"Float32 emission contains collapsed interface facets at rows {bad}\")\nValueError: Float32 emission contains collapsed interface facets at rows [538505, 624603]\n"
+}

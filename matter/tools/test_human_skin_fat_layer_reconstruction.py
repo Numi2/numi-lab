@@ -1,6 +1,9 @@
 import numpy as np
 import pytest
-from human_skin_fat_layer_reconstruction import reconstruct_connected_layers, split_tetrahedra_by_linear_scalar_field
+from human_skin_fat_layer_reconstruction import (
+    reconstruct_connected_layers, split_tetrahedra_by_linear_scalar_field,
+    extract_joint_zero_level_facets,
+)
 
 
 def grid_mesh():
@@ -506,3 +509,148 @@ def test_shared_interface_snap_zero_budget_is_exact_identity():
     phi=np.array([1.e-9,1.,-1.,-1.])
     out,stats,ledger=snap_shared_scalar_interface_vertices(P,np.array([[0,1,2,3]]),phi,.001,fraction=0.)
     assert np.array_equal(out,phi) and stats["snapped_vertex_count"]==0
+
+
+def _joint_tet_points():
+    return np.asarray([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [0., 0., 1.]], dtype=np.float32)
+
+
+def test_joint_zero_facets_1_to_3_and_2_to_2_use_stable_triangles():
+    P = _joint_tet_points()
+    T = np.asarray([[0, 1, 2, 3]], dtype=np.int32)
+    one_three = extract_joint_zero_level_facets(P, T, [-1., 1., 1., 1.], [-.5, 2., 2., 2.])
+    assert np.count_nonzero(one_three.interface_ids == 1) == 1
+    assert np.count_nonzero(one_three.interface_ids == 2) == 1
+    two_two = extract_joint_zero_level_facets(P, T, [-1., -1., 1., 1.], [-.5, -.5, 2., 2.])
+    assert np.count_nonzero(two_two.interface_ids == 1) == 2
+    assert np.count_nonzero(two_two.interface_ids == 2) == 2
+    again = extract_joint_zero_level_facets(P, T, [-1., -1., 1., 1.], [-.5, -.5, 2., 2.])
+    assert np.array_equal(two_two.facets, again.facets)
+    assert np.array_equal(two_two.interface_ids, again.interface_ids)
+    assert np.array_equal(two_two.points_float32, again.points_float32)
+
+
+def test_joint_facet_intersections_are_shared_across_parent_tets():
+    P = np.asarray([[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [0.,0.,1.], [0.,0.,-1.]], dtype=np.float32)
+    T = np.asarray([[0,1,2,3], [0,2,1,4]], dtype=np.int32)
+    gids = np.asarray([40, 10, 30, 20, 50], dtype=np.int64)
+    phiI = np.asarray([-1., 1., 1., 1., -1.])
+    phiD = phiI + 0.25
+    out = extract_joint_zero_level_facets(P, T, phiI, phiD, global_vertex_ids=gids,
+                                          parent_tet_ids=np.asarray([700, 701]))
+    rows = np.flatnonzero((out.point_interface_ids == 1) &
+                          np.all(out.point_source_edge_global_ids == [10, 40], axis=1))
+    assert len(rows) == 1
+    Wrow = out.point_interpolation_weights.getrow(int(rows[0]))
+    assert Wrow.nnz == 2
+    assert np.isclose(Wrow.data.sum(), 1.)
+    assert 700 in out.facet_parent_tet_rows and 701 in out.facet_parent_tet_rows
+
+
+def test_joint_zero_vertices_are_reused_and_shared_facet_keeps_both_parents():
+    P = np.asarray([[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [0.,0.,1.], [0.,0.,-1.]], dtype=np.float32)
+    T = np.asarray([[0,1,2,3], [0,2,1,4]], dtype=np.int32)
+    phiI = np.asarray([0., 0., 0., 1., -1.])
+    phiD = phiI + 2.0
+    out = extract_joint_zero_level_facets(P, T, phiI, phiD)
+    inner = out.facets[out.interface_ids == 1]
+    assert len(inner) == 1
+    assert set(map(int, inner[0])) == {0, 1, 2}
+    row = int(np.flatnonzero(out.interface_ids == 1)[0])
+    lo, hi = out.facet_parent_indptr[row:row + 2]
+    assert set(map(int, out.facet_parent_local_rows[lo:hi])) == {0, 1}
+    assert len(out.points_float64) == len(P)
+
+
+def test_joint_interface_winding_is_outward_from_positive_field_and_deterministic():
+    P = _joint_tet_points()
+    T = np.asarray([[0, 1, 2, 3]], dtype=np.int32)
+    phiI = np.asarray([-1., 1., 1., 1.])
+    phiD = np.asarray([-.5, 2., 2., 2.])
+    out = extract_joint_zero_level_facets(P, T, phiI, phiD)
+    for fi, tri in enumerate(out.facets):
+        parent = int(out.facet_parent_local_rows[out.facet_parent_indptr[fi]])
+        phi = phiI if out.interface_ids[fi] == 1 else phiD
+        tet = T[parent]
+        x = P[tet].astype(np.float64)
+        dv = phi[tet]
+        grad = np.linalg.solve(x[1:] - x[0], dv[1:] - dv[0])
+        q = out.points_float32[tri].astype(np.float64)
+        area = np.cross(q[1] - q[0], q[2] - q[0])
+        assert np.dot(area, -grad) > 0.
+        assert np.allclose(out.point_scalar_values_m[tri, out.interface_ids[fi] - 1], 0., atol=1e-15)
+
+
+def test_joint_fields_reject_crossing_or_nonpositive_fat_order():
+    P = _joint_tet_points()
+    T = np.asarray([[0, 1, 2, 3]], dtype=np.int32)
+    with pytest.raises(ValueError, match="strictly positive"):
+        extract_joint_zero_level_facets(P, T, [-1., 1., 1., 1.], [-2., 1., 1., 1.])
+
+
+def test_joint_extraction_rejects_float32_collapsed_facet_instead_of_dropping():
+    P = np.asarray([[1.,1.,1.], [1.01,1.,1.], [1.,1.01,1.], [1.,1.,1.01]], dtype=np.float32)
+    T = np.asarray([[0, 1, 2, 3]], dtype=np.int32)
+    with pytest.raises(ValueError, match="collapsed interface facets"):
+        extract_joint_zero_level_facets(P, T, [-1e-9, 1., 1., 1.], [-0.5e-9, 2., 2., 2.])
+
+
+import numpy as np
+from human_skin_fat_layer_reconstruction import extract_joint_zero_level_facets
+
+
+def test_strict_nodal_hfat_orders_affine_zero_surfaces_everywhere_in_tet():
+    points=np.asarray([[0.,0.,0.],[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]],dtype=np.float32)
+    tets=np.asarray([[0,1,2,3]],dtype=np.int32)
+    phi_i=np.asarray([-1.,1.,1.,1.])
+    phi_d=phi_i+0.2
+    hfat=phi_d-phi_i
+    assert np.all(hfat>0.)
+    out=extract_joint_zero_level_facets(points,tets,phi_i,phi_d)
+    inner_rows=set(map(int,out.facets[out.interface_ids==1].ravel()))
+    deep_rows=set(map(int,out.facets[out.interface_ids==2].ravel()))
+    assert inner_rows.isdisjoint(deep_rows)
+    # Positive affine weights span the entire tetrahedron; the ordered level
+    # fields therefore cannot be simultaneously zero anywhere in its interior.
+    weights=np.asarray([[1.,0.,0.,0.],[0.,1.,0.,0.],[0.,0.,1.,0.],[0.,0.,0.,1.],
+                        [.25,.25,.25,.25],[.1,.2,.3,.4],[.4,.3,.2,.1]])
+    vi=weights@phi_i
+    vd=weights@phi_d
+    assert np.all(vd-vi>0.)
+    assert not np.any((np.abs(vi)<1e-14)&(np.abs(vd)<1e-14))
+
+
+from human_skin_fat_layer_reconstruction import facet_incident_tetrahedron_quality_upper_bound
+
+def test_fixed_facet_quality_bound_limits_random_incident_cells():
+    rng=np.random.default_rng(481)
+    p=rng.normal(size=(400,4,3)).astype(np.float32).astype(float)
+    f=np.arange(1200).reshape(-1,3)
+    bound=facet_incident_tetrahedron_quality_upper_bound(p[:,:3].reshape(-1,3),f)
+    edges=np.stack([p[:,b]-p[:,a] for a,b in [(0,1),(0,2),(0,3),(1,2),(1,3),(2,3)]],axis=1)
+    longest=np.linalg.norm(edges,axis=2).max(axis=1)
+    det=np.abs(np.einsum("ij,ij->i",p[:,1]-p[:,0],np.cross(p[:,2]-p[:,0],p[:,3]-p[:,0])))
+    assert np.all(det/longest**3 <= bound*(1+1e-14))
+
+def test_fixed_facet_quality_obstruction_is_scale_independent():
+    p=np.array([[0.,0.,0.],[1.,0.,0.],[.5,1e-6,0.]],dtype=np.float32)
+    f=np.array([[0,1,2]],dtype=np.int32)
+    a=facet_incident_tetrahedron_quality_upper_bound(p,f)
+    b=facet_incident_tetrahedron_quality_upper_bound(p*1024,f)
+    assert a[0]<1e-5 and np.array_equal(a,b)
+    p[2]=[0.,1.,0.]
+    assert facet_incident_tetrahedron_quality_upper_bound(p,f)[0]>1e-5
+
+def test_fixed_facet_quality_empty_and_collapsed_are_explicit():
+    p=np.zeros((3,3),dtype=np.float32)
+    assert facet_incident_tetrahedron_quality_upper_bound(p,np.empty((0,3),dtype=int)).shape==(0,)
+    assert np.array_equal(facet_incident_tetrahedron_quality_upper_bound(p,np.array([[0,1,2]])),[0.])
+
+@pytest.mark.parametrize("facets", [np.array([[0.,1.,2.]]),np.array([[-1,1,2]]),np.array([[0,1,3]])])
+def test_fixed_facet_quality_rejects_bad_indices(facets):
+    with pytest.raises(ValueError):
+        facet_incident_tetrahedron_quality_upper_bound(np.zeros((3,3)),facets)
+
+def test_fixed_facet_quality_rejects_float32_coordinate_overflow():
+    with pytest.raises(ValueError,match="Float32"):
+        facet_incident_tetrahedron_quality_upper_bound(np.full((3,3),1e100),np.array([[0,1,2]]))

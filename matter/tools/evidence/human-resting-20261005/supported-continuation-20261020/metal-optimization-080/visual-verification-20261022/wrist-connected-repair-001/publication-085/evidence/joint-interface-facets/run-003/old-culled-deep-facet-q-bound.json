@@ -1,0 +1,131 @@
+{
+  "below_1e_5_count": 0,
+  "criterion": "q_tet <= r_face = norm(cross(b-a,c-a))/max_face_edge_length^2",
+  "culled_deep_facet_count": 239875,
+  "min": 2.2009670254409295e-05,
+  "nearzero_threshold_sensitivity_counts": {
+    "1e-14": 239875,
+    "1e-15": 239875,
+    "1e-16": 239875
+  },
+  "nearzero_vertex_count": 121329,
+  "old_checkpoint_sha256": "cb8f5637b8b51a28c4d4a392f3292072fa0cbc32cd1200fbad648b7ad3e30243",
+  "old_extraction_report_sha256": "c109a123673a090193c2e82c69d84b9a22a7dcea480de253b487854e75da4b8a",
+  "old_retained_checkpoint": "/Users/n/Work/numi-human-connected-surface-069/connected-volume-extraction-157/true-o-foundation-159/run-020-refined-snap-layer-extraction/deep-positive-retained-checkpoint.npz",
+  "old_surface_derivation": "retained positive deep-domain tetrahedra with exactly three vertices satisfying abs(total_levelset_m)<1e-15; this captures each cut-face triangle from the culled deep-positive submesh",
+  "quantiles": {
+    "0": 2.2009670254409295e-05,
+    "0.001": 0.0005600999373439599,
+    "0.01": 0.004099809898422828,
+    "0.05": 0.017528809117056246,
+    "0.1": 0.03223310103354026,
+    "0.25": 0.0753049971464711,
+    "0.5": 0.16199050682706054,
+    "0.9": 0.4726974451449926,
+    "0.99": 0.7289233498084658,
+    "1": 0.8639538187738859
+  },
+  "status": "STATIC_CULLED_DEEP_FACET_Q_UPPER_BOUND_COMPARISON",
+  "ten_smallest_witnesses": [
+    {
+      "facet_point_rows": [
+        152499,
+        223204,
+        223201
+      ],
+      "foundation_parent_tet_row": 19448,
+      "r": 2.2009670254409295e-05,
+      "retained_tet_row": 379607
+    },
+    {
+      "facet_point_rows": [
+        224136,
+        224170,
+        250654
+      ],
+      "foundation_parent_tet_row": 9220,
+      "r": 3.465930546000105e-05,
+      "retained_tet_row": 276385
+    },
+    {
+      "facet_point_rows": [
+        198351,
+        218772,
+        218769
+      ],
+      "foundation_parent_tet_row": 30142,
+      "r": 3.8043768368004464e-05,
+      "retained_tet_row": 142474
+    },
+    {
+      "facet_point_rows": [
+        234411,
+        234412,
+        234415
+      ],
+      "foundation_parent_tet_row": 23647,
+      "r": 3.853092336513971e-05,
+      "retained_tet_row": 245325
+    },
+    {
+      "facet_point_rows": [
+        223190,
+        223437,
+        223433
+      ],
+      "foundation_parent_tet_row": 17727,
+      "r": 3.965533359336464e-05,
+      "retained_tet_row": 220194
+    },
+    {
+      "facet_point_rows": [
+        224137,
+        224252,
+        250650
+      ],
+      "foundation_parent_tet_row": 9220,
+      "r": 3.994673461997711e-05,
+      "retained_tet_row": 102365
+    },
+    {
+      "facet_point_rows": [
+        153672,
+        154235,
+        154234
+      ],
+      "foundation_parent_tet_row": 19423,
+      "r": 4.381925277811615e-05,
+      "retained_tet_row": 24539
+    },
+    {
+      "facet_point_rows": [
+        153064,
+        224160,
+        224165
+      ],
+      "foundation_parent_tet_row": 24130,
+      "r": 5.0243924816766076e-05,
+      "retained_tet_row": 380826
+    },
+    {
+      "facet_point_rows": [
+        154277,
+        223201,
+        223210
+      ],
+      "foundation_parent_tet_row": 19448,
+      "r": 5.542136303301351e-05,
+      "retained_tet_row": 527855
+    },
+    {
+      "facet_point_rows": [
+        198347,
+        218768,
+        218772
+      ],
+      "foundation_parent_tet_row": 30142,
+      "r": 5.77056350950485e-05,
+      "retained_tet_row": 84077
+    }
+  ]
+}

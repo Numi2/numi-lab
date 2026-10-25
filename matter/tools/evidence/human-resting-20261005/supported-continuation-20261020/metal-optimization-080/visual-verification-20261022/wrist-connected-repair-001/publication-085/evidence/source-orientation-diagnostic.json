@@ -1,0 +1,13 @@
+{
+  "coarse_rows": 2368,
+  "candidate_face_normal_points_toward_inner_layer": 2368,
+  "opposes_inner_layer": 0,
+  "cosine_quantiles": [
+    0.08197794508913474,
+    0.6315581243877857,
+    0.948413905205411,
+    0.9987179107495796,
+    0.9999978314288243
+  ],
+  "source_faces_signed_volume_open_m3": -0.06858795595027634
+}
