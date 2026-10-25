@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_whole_connected_joint_220.py", line 28, in <module>
+    z=np.load(state['candidate']);a=np.load(rawlp);support=a['local_witness_cluster_212_lp_support_rows'];delta=a['local_witness_cluster_212_lp_delta_mm_f64']
+                                                           ~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/numi-human-prep-venv-20261005/lib/python3.13/site-packages/numpy/lib/_npyio_impl.py", line 243, in __getitem__
+    raise KeyError(f"{key} is not a file in the archive") from None
+KeyError: 'local_witness_cluster_212_lp_support_rows is not a file in the archive'

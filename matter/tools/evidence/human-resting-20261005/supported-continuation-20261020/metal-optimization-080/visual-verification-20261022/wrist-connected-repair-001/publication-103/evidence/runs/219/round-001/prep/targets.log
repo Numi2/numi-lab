@@ -1,0 +1,13 @@
+waiting_for_human_geometry_slot pid=45966
+acquired_human_geometry_slot pid=45966
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-continuation-219-run001/round-001/prep/targets/report.json",
+  "report_sha256": "3ec0a8379c4f1d46d32e2b2a15dcb3eb8beea870d5cc7107e2356b4bac49152f",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-continuation-219-run001/round-001/prep/targets/targets.npz",
+  "npz_sha256": "6888217c40bf02b291b2f475161772eb3c87a9fad38e59ee252632162128bb95",
+  "rows": 3209,
+  "pairs": 3209,
+  "targets": 3209,
+  "failures": {},
+  "elapsed_seconds": 16.17459395795595
+}

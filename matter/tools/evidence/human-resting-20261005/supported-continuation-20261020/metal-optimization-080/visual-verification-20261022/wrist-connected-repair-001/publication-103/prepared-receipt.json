@@ -1,0 +1,11 @@
+{
+  "accepted_physical_steps": 0,
+  "base_commit": "4a2858239f93533de94910782a6187e64e56fca6",
+  "base_tree": "6c642a5bd85ec4d5b0e1ff13e41263e4e3385c79",
+  "canonical_changes": [],
+  "native_admission": false,
+  "physical_or_mass_qualification": false,
+  "publication": "P103",
+  "schema": "numi.human.connected-clearance.prepared-receipt.v1",
+  "status": "prepared_not_published"
+}

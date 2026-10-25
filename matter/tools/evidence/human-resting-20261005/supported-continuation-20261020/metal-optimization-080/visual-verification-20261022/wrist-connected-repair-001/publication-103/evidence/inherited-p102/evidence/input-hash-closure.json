@@ -1,0 +1,189 @@
+{
+  "published_parent": {
+    "commit": "3ce10f720d1331f7fbedf6784ee3b26c278a5c25",
+    "tree": "483e65086c80cccb36b5dc5e58969c0f4ba8a1a1",
+    "publication_manifest_sha256": "ea320bdbd5ee6331d745011608280fb36f544e4486b789579f22e1a4f1a2d83b"
+  },
+  "matched_198_inputs": {
+    "report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/198/matched-189/report.json",
+      "sha256": "2b3e1e50046b0b9a30be14fc0ba5a3e3a076a27b3966a1d4aed935345aab0dda",
+      "bytes": 3470
+    },
+    "targets": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/198/matched-189/targets.npz",
+      "sha256": "d84d03a327e285ed8daade101f77a31a9fbc62f495555ff4f906ec891086eb8b",
+      "bytes": 569167
+    },
+    "target_records": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/198/matched-189/target-records.jsonl",
+      "sha256": "45026bf01e21120755eaa12eaa2e96509db4a4ab9a463235973453f7f0aa85c5",
+      "bytes": 6856778
+    },
+    "source_pins": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/198/source/source-pins-and-run-config.json",
+      "sha256": "08621a10b9b8e50378a72d36a86759d096a84de3a65555f7a15c31cef8fb8ce8",
+      "bytes": 5719
+    }
+  },
+  "204_target_build": {
+    "target_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-connected-204-run001/targets/report.json",
+      "sha256": "af2ce4c1bb9d92b4e976c85d7aa8ebdebbd36c4182743b51bd4101d36f0f20ed",
+      "bytes": 3473
+    },
+    "target_records": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-connected-204-run001/targets/target-records.jsonl",
+      "sha256": "1f61e9becab883fd11e08f316dd68a74bf1e5c4e69171b02d0a93869c4e98694",
+      "bytes": 5320503
+    },
+    "targets_npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-connected-204-run001/targets/targets.npz",
+      "sha256": "c3c0330a6d4d0d34eef3311ae4611a593e3a22e8f69b0d3bd676b6e9cf905552",
+      "bytes": 442203
+    },
+    "nearest_union_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-connected-204-run001/proposal/targets/nearest-union-exits.json",
+      "sha256": "24964d997c1d927824b195dff5771a7a92eb50d7ed6ee9d2ab137d44494a0ed3",
+      "bytes": 710061
+    },
+    "nearest_union_npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-connected-204-run001/proposal/targets/nearest-union-exits.npz",
+      "sha256": "345abe1b5dfb22c6459c3476147633b2807a9f80d531dc55b06b8a7f85a54f85",
+      "bytes": 13604
+    },
+    "source_inputs": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-connected-204-run001/proposal/source-inputs.json",
+      "sha256": "6afcc74aa6d14db0222f706a9ccb798e9b695f69badda1e32eb956bb4e024369",
+      "bytes": 565
+    },
+    "fit_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-connected-204-run001/proposal/fit/attempt-001/fit-report.json",
+      "sha256": "14dcf6f2e835ed857d3fb2d79887e6697c1848e78ee93c6c104dcc0354c85996",
+      "bytes": 45779
+    }
+  },
+  "207_replay": {
+    "completed": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-replay-207-run001/completed.json",
+      "sha256": "8a2704609e5c409b6833720a0cf49c27f7106e1cfb6d8df66923dbd8fa6846c4",
+      "bytes": 117
+    },
+    "input_pins": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-replay-207-run001/input-pins.json",
+      "sha256": "88bd1dcead998b360acfd3ce693f1601c3c1acf8ca7974e712d68b90f3806fda",
+      "bytes": 2488
+    },
+    "selected_result": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-replay-207-run001/selected-result.json",
+      "sha256": "437aa7585a1f8a5ebf58de55943a27768ba81e7d999e8cc55608716874bd4eba",
+      "bytes": 3315
+    }
+  },
+  "213_raw_lp": {
+    "report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-scp-213-run001/joint-001/proposal/report.json",
+      "sha256": "31f99d8995e91ab6fd0512e5bed0ca40f2a14c72d2b9ac69bd8cd12ac62442bc",
+      "bytes": 28258
+    },
+    "raw_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-scp-213-run001/joint-001/proposal/raw-lp-candidate.npz",
+      "sha256": "060024d037b46d8da5dfd0f316a93417f8930edff4973d461a2c323b6dfa27e9",
+      "bytes": 2500684
+    },
+    "full_f32_gate": "failed oriented-area floor on 5 faces; no accepted candidate"
+  },
+  "215_preparation": {
+    "config": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-prep/config.json",
+      "sha256": "7b39f3233097c05bac753d575fa249b703528b0b400d8d2c0d310eb1778fac41",
+      "bytes": 3048
+    },
+    "provenance": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-prep/provenance.json",
+      "sha256": "68e1902b2847f2de272c49de7302832cbb630d47ee734209db7cb008089656e9",
+      "bytes": 249
+    },
+    "execution": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-prep/execution.log",
+      "sha256": "52a740f10ada8632879bd85447b1713ab901074c20475d35cf759decef551f9a",
+      "bytes": 10510
+    }
+  },
+  "215_selected": {
+    "candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/pass-013/candidate.npz",
+      "sha256": "f5b82d77ec9896496ec4d5e9f37b99d4c26564a97b9669c0de1a16bd979d461a",
+      "bytes": 2421025
+    },
+    "selected_result": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/selected-result.json",
+      "sha256": "ea501b28a3272952784ba0bb8ad37e7cc4ad27a36f2d5dacee25d55111b43212",
+      "bytes": 7216
+    },
+    "source_inputs": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/source-inputs.json",
+      "sha256": "7f7ef183ce4d63862f09a26e98c02fb3dce5f79c0c13348f297edb2849d3bf92",
+      "bytes": 812
+    }
+  },
+  "source_files": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-102/evidence/sources/205/propose_all_witness_clusters_205.py",
+      "sha256": "019a4d54e8303303b0aa0ad13204a1dcda67af1e5d03d955b20bda1e0f2639c4",
+      "bytes": 36497
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-102/evidence/sources/209/propose_all_witness_clusters_209.py",
+      "sha256": "8c97fce319c8559e74af3c388d8cae5ac9519c6a1a3ee03f8c987b572932b03d",
+      "bytes": 44027
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-102/evidence/sources/211/run_local_witness_backtracking_211.py",
+      "sha256": "92df5a68cc57b2283c4b66270247c8ce0d84b75dfdadac023defbe896f51ee3d",
+      "bytes": 8656
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-102/evidence/sources/211/human_skin_fat_surface_fit_constraints.py",
+      "sha256": "05b1beb2105a184deb885974db892fa0f8e519fc3e1fdfde5aa441c180c97b34",
+      "bytes": 27751
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-102/evidence/sources/212/propose_all_witness_clusters_212.py",
+      "sha256": "bc68d710505f6491248a2b7c7c24940263cb157cf6565e225b8ba890230e594a",
+      "bytes": 50428
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-102/evidence/sources/214/propose_all_witness_clusters_214.py",
+      "sha256": "bde46af1559e5884dd0c6f2521c82f3ead688a42c4c072aa0829b39424fdd53a",
+      "bytes": 54984
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-102/evidence/sources/207/run_whole_witness_replay_207.py",
+      "sha256": "c40c98ede0158b141651659c37ac51921905646c809dc493aab79da60abbf60a",
+      "bytes": 4014
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-102/evidence/sources/210/run_whole_witness_local_210.py",
+      "sha256": "fdf8fd579664eb7feba99e20c2a2471bfd20c6f2fc9afdcf97ae0ed2130712cc",
+      "bytes": 2930
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-102/evidence/sources/213/run_whole_witness_scp_213.py",
+      "sha256": "638432e6bf634ac7dd32c7c8da7eadf521a164357f448fe72c8977b767d0384f",
+      "bytes": 3998
+    }
+  ],
+  "self_tests": [
+    {
+      "script": "sources/212/propose_all_witness_clusters_212.py",
+      "sha256": "bc68d710505f6491248a2b7c7c24940263cb157cf6565e225b8ba890230e594a",
+      "exit_code": 0
+    },
+    {
+      "script": "sources/214/propose_all_witness_clusters_214.py",
+      "sha256": "bde46af1559e5884dd0c6f2521c82f3ead688a42c4c072aa0829b39424fdd53a",
+      "exit_code": 0
+    }
+  ]
+}

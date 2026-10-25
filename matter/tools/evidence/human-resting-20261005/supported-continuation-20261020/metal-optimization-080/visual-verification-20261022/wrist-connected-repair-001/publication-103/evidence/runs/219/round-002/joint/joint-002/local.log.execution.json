@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_local_witness_backtracking_211.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-continuation-219-run001/round-002/joint/joint-002/local-config.json"
+  ],
+  "returncode": 0,
+  "wall_seconds": 57.65788262500428,
+  "log_sha256": "256b419299f9fe0b06751536ce3a6f69fa28be3eae9ac4ded48604c28a1db692"
+}

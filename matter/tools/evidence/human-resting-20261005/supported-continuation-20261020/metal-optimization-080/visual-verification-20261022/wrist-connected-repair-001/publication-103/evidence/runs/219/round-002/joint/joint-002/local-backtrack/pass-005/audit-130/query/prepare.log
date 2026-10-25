@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-continuation-219-run001/round-002/joint/joint-002/local-backtrack/pass-005/audit-130/query/points-world.npz",
+  "input_sha256": "d9b475e80e24b2abb710848ec813bc510ad767c696b9d0e12888bbfee5533b1e",
+  "field": "points_world_f32",
+  "query_count": 18430,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-continuation-219-run001/round-002/joint/joint-002/local-backtrack/pass-005/audit-130/query/points.csv",
+  "output_sha256": "9cff6b4e5fd999d61311e8e75caff5e951a3d12b52851c75cf1118773c0b5ed2",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

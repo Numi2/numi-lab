@@ -1,0 +1,1119 @@
+{
+  "status": "COMPLETE_EXPLICIT_PER_BANK_COUNT_SUM",
+  "bank_count": 185,
+  "expected_bank_count": 185,
+  "total_crossing_pairs": 3146,
+  "nonzero_bank_count": 21,
+  "per_bank": [
+    {
+      "body": 1,
+      "stable_bone_id": 1,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 4,
+      "stable_bone_id": 168,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 10,
+      "stable_bone_id": 167,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 13,
+      "stable_bone_id": 166,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 16,
+      "stable_bone_id": 165,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 19,
+      "stable_bone_id": 164,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 26,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 27,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 36,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 37,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 38,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 39,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 40,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 41,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 42,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 43,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 44,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 45,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 46,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 47,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 48,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 49,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 50,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 51,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 52,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 53,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 54,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 55,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 56,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 57,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 58,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 59,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 169,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 170,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 171,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 172,
+      "count": 0,
+      "count_source": "aabb_disjoint_no_narrowphase"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 173,
+      "count": 0,
+      "count_source": "aabb_disjoint_no_narrowphase"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 174,
+      "count": 0,
+      "count_source": "aabb_disjoint_no_narrowphase"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 175,
+      "count": 0,
+      "count_source": "aabb_disjoint_no_narrowphase"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 176,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 177,
+      "count": 0,
+      "count_source": "aabb_disjoint_no_narrowphase"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 178,
+      "count": 0,
+      "count_source": "aabb_disjoint_no_narrowphase"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 179,
+      "count": 0,
+      "count_source": "aabb_disjoint_no_narrowphase"
+    },
+    {
+      "body": 20,
+      "stable_bone_id": 180,
+      "count": 0,
+      "count_source": "aabb_disjoint_no_narrowphase"
+    },
+    {
+      "body": 23,
+      "stable_bone_id": 28,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 23,
+      "stable_bone_id": 29,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 23,
+      "stable_bone_id": 30,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 23,
+      "stable_bone_id": 31,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 23,
+      "stable_bone_id": 32,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 23,
+      "stable_bone_id": 33,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 23,
+      "stable_bone_id": 34,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 23,
+      "stable_bone_id": 35,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 26,
+      "stable_bone_id": 70,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 26,
+      "stable_bone_id": 71,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 26,
+      "stable_bone_id": 181,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 26,
+      "stable_bone_id": 182,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 26,
+      "stable_bone_id": 183,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 26,
+      "stable_bone_id": 184,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 26,
+      "stable_bone_id": 185,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 29,
+      "stable_bone_id": 8,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 34,
+      "stable_bone_id": 10,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 41,
+      "stable_bone_id": 12,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 42,
+      "stable_bone_id": 14,
+      "count": 57,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 43,
+      "stable_bone_id": 16,
+      "count": 390,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 45,
+      "stable_bone_id": 75,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 46,
+      "stable_bone_id": 74,
+      "count": 65,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 47,
+      "stable_bone_id": 76,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 48,
+      "stable_bone_id": 72,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 49,
+      "stable_bone_id": 77,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 50,
+      "stable_bone_id": 78,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 52,
+      "stable_bone_id": 88,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 53,
+      "stable_bone_id": 93,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 54,
+      "stable_bone_id": 94,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 55,
+      "stable_bone_id": 79,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 56,
+      "stable_bone_id": 80,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 57,
+      "stable_bone_id": 89,
+      "count": 172,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 59,
+      "stable_bone_id": 95,
+      "count": 221,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 60,
+      "stable_bone_id": 96,
+      "count": 0,
+      "count_source": "aabb_disjoint_no_narrowphase"
+    },
+    {
+      "body": 61,
+      "stable_bone_id": 97,
+      "count": 161,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 62,
+      "stable_bone_id": 90,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 64,
+      "stable_bone_id": 98,
+      "count": 176,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 65,
+      "stable_bone_id": 99,
+      "count": 233,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 66,
+      "stable_bone_id": 100,
+      "count": 23,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 67,
+      "stable_bone_id": 91,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 69,
+      "stable_bone_id": 101,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 70,
+      "stable_bone_id": 102,
+      "count": 8,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 71,
+      "stable_bone_id": 103,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 72,
+      "stable_bone_id": 92,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 74,
+      "stable_bone_id": 104,
+      "count": 127,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 75,
+      "stable_bone_id": 105,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 76,
+      "stable_bone_id": 106,
+      "count": 0,
+      "count_source": "aabb_disjoint_no_narrowphase"
+    },
+    {
+      "body": 79,
+      "stable_bone_id": 9,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 84,
+      "stable_bone_id": 11,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 91,
+      "stable_bone_id": 13,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 92,
+      "stable_bone_id": 15,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 93,
+      "stable_bone_id": 17,
+      "count": 112,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 95,
+      "stable_bone_id": 82,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 96,
+      "stable_bone_id": 81,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 97,
+      "stable_bone_id": 83,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 98,
+      "stable_bone_id": 73,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 99,
+      "stable_bone_id": 84,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 100,
+      "stable_bone_id": 85,
+      "count": 87,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 102,
+      "stable_bone_id": 107,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 103,
+      "stable_bone_id": 112,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 104,
+      "stable_bone_id": 113,
+      "count": 93,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 105,
+      "stable_bone_id": 86,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 106,
+      "stable_bone_id": 87,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 107,
+      "stable_bone_id": 108,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 109,
+      "stable_bone_id": 114,
+      "count": 314,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 110,
+      "stable_bone_id": 115,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 111,
+      "stable_bone_id": 116,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 112,
+      "stable_bone_id": 109,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 114,
+      "stable_bone_id": 117,
+      "count": 322,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 115,
+      "stable_bone_id": 118,
+      "count": 357,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 116,
+      "stable_bone_id": 119,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 117,
+      "stable_bone_id": 110,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 119,
+      "stable_bone_id": 120,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 120,
+      "stable_bone_id": 121,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 121,
+      "stable_bone_id": 122,
+      "count": 24,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 122,
+      "stable_bone_id": 111,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 124,
+      "stable_bone_id": 123,
+      "count": 176,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 125,
+      "stable_bone_id": 124,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 126,
+      "stable_bone_id": 125,
+      "count": 0,
+      "count_source": "aabb_disjoint_no_narrowphase"
+    },
+    {
+      "body": 128,
+      "stable_bone_id": 18,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 128,
+      "stable_bone_id": 19,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 131,
+      "stable_bone_id": 2,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 136,
+      "stable_bone_id": 4,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 136,
+      "stable_bone_id": 20,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 137,
+      "stable_bone_id": 22,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 138,
+      "stable_bone_id": 6,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 138,
+      "stable_bone_id": 60,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 138,
+      "stable_bone_id": 61,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 138,
+      "stable_bone_id": 62,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 138,
+      "stable_bone_id": 63,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 138,
+      "stable_bone_id": 64,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 138,
+      "stable_bone_id": 126,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 138,
+      "stable_bone_id": 127,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 138,
+      "stable_bone_id": 128,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 138,
+      "stable_bone_id": 129,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 138,
+      "stable_bone_id": 130,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 139,
+      "stable_bone_id": 131,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 139,
+      "stable_bone_id": 132,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 139,
+      "stable_bone_id": 133,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 139,
+      "stable_bone_id": 134,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 139,
+      "stable_bone_id": 135,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 139,
+      "stable_bone_id": 136,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 139,
+      "stable_bone_id": 137,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 139,
+      "stable_bone_id": 138,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 139,
+      "stable_bone_id": 139,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 139,
+      "stable_bone_id": 140,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 139,
+      "stable_bone_id": 141,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 139,
+      "stable_bone_id": 142,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 139,
+      "stable_bone_id": 143,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 139,
+      "stable_bone_id": 144,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 142,
+      "stable_bone_id": 24,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 145,
+      "stable_bone_id": 3,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 150,
+      "stable_bone_id": 5,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 150,
+      "stable_bone_id": 21,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 151,
+      "stable_bone_id": 23,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 152,
+      "stable_bone_id": 7,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 152,
+      "stable_bone_id": 65,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 152,
+      "stable_bone_id": 66,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 152,
+      "stable_bone_id": 67,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 152,
+      "stable_bone_id": 68,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 152,
+      "stable_bone_id": 69,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 152,
+      "stable_bone_id": 145,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 152,
+      "stable_bone_id": 146,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 152,
+      "stable_bone_id": 147,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 152,
+      "stable_bone_id": 148,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 152,
+      "stable_bone_id": 149,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 153,
+      "stable_bone_id": 150,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 153,
+      "stable_bone_id": 151,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 153,
+      "stable_bone_id": 152,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 153,
+      "stable_bone_id": 153,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 153,
+      "stable_bone_id": 154,
+      "count": 14,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 153,
+      "stable_bone_id": 155,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 153,
+      "stable_bone_id": 156,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 153,
+      "stable_bone_id": 157,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 153,
+      "stable_bone_id": 158,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 153,
+      "stable_bone_id": 159,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 153,
+      "stable_bone_id": 160,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 153,
+      "stable_bone_id": 161,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 153,
+      "stable_bone_id": 162,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 153,
+      "stable_bone_id": 163,
+      "count": 14,
+      "count_source": "exact_narrowphase_count"
+    },
+    {
+      "body": 156,
+      "stable_bone_id": 25,
+      "count": 0,
+      "count_source": "exact_narrowphase_count"
+    }
+  ]
+}

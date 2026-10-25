@@ -1,0 +1,7 @@
+{
+  "base_sha256": "c52d48df11395b3c5da5c413acfb981a125b2d1573fbefe146a47980043251dc",
+  "raw_sha256": "56ff3abe6405200a35b9485ab75931a835094fe8ab66229eb94c69628a610ea7",
+  "alpha": 0.5,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

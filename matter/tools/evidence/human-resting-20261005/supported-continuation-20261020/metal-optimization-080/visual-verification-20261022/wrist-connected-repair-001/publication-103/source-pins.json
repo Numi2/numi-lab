@@ -1,0 +1,157 @@
+{
+  "base_commit": "4a2858239f93533de94910782a6187e64e56fca6",
+  "base_tree": "6c642a5bd85ec4d5b0e1ff13e41263e4e3385c79",
+  "excluded_active_runs": [
+    "222",
+    "225",
+    "226"
+  ],
+  "origin_main": "4a2858239f93533de94910782a6187e64e56fca6",
+  "raw_lp_220": {
+    "bytes": 2503875,
+    "sha256": "56ff3abe6405200a35b9485ab75931a835094fe8ab66229eb94c69628a610ea7",
+    "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-halfstep-220-run001/joint-001/proposal/raw-lp-candidate.npz"
+  },
+  "run_inputs": [
+    {
+      "bytes": 7216,
+      "sha256": "ea501b28a3272952784ba0bb8ad37e7cc4ad27a36f2d5dacee25d55111b43212",
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-216-run001/input-state.json"
+    },
+    {
+      "bytes": 8578,
+      "sha256": "73f38d52f3d71f67b9d5512420f31c9763f6f5d8c2149ac1925e4bc484a3bec1",
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-216-run001/prepared.json"
+    },
+    {
+      "bytes": 565,
+      "sha256": "1f620fa71888b352e766b6f9d00e489d4b0c78f9d29615c1abb70582ff0a5130",
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-216-run001/proposal/source-inputs.json"
+    },
+    {
+      "bytes": 8400,
+      "sha256": "e13841d791d68f37e9425bc0d03dd1c1958e46c846b110a0c8ca026b963a2a2c",
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-joint-217-run001/input-pins.json"
+    },
+    {
+      "bytes": 8892,
+      "sha256": "a7032646fd0745ae33e2b270fc32abb7a2e754bfb27910c11d97961d881ef7be",
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-continuation-219-run001/round-001/joint/input-pins.json"
+    },
+    {
+      "bytes": 9030,
+      "sha256": "4f212650855e541da211e416294c8998f93b0a593da05f63d752ed4cb994a11f",
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-continuation-219-run001/round-002/joint/input-pins.json"
+    },
+    {
+      "bytes": 9030,
+      "sha256": "4f212650855e541da211e416294c8998f93b0a593da05f63d752ed4cb994a11f",
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-halfstep-220-run001/input-pins.json"
+    },
+    {
+      "bytes": 879,
+      "sha256": "2e28790431815827bc36c6a0b974e0b57ef234e569230cb1c82be1a5b7347114",
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-halfstep-223-run001/source-inputs.json"
+    }
+  ],
+  "schema": "numi.human.connected-clearance.p103-source-pins.v1",
+  "selected_candidates": {
+    "217": {
+      "bytes": 2421064,
+      "sha256": "0e0c5d2a285f75ee82800439eb21c0ea2bb0727b43c4c3ef40710630340f666d",
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-joint-217-run001/joint-001/local-backtrack/pass-017/candidate.npz"
+    },
+    "219": {
+      "bytes": 2421048,
+      "sha256": "c52d48df11395b3c5da5c413acfb981a125b2d1573fbefe146a47980043251dc",
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-continuation-219-run001/round-001/joint/joint-001/local-backtrack/pass-019/candidate.npz"
+    },
+    "223": {
+      "bytes": 2421085,
+      "sha256": "c73d46812745766d3c733407382913eecbdf82b97fcb0b5ae3229b807ebe4ac5",
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-halfstep-223-run001/pass-023/candidate.npz"
+    }
+  },
+  "source_files": [
+    {
+      "bytes": 16549,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-216-run001/proposal/fit/area_scp_support_023.py",
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd"
+    },
+    {
+      "bytes": 52968,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-216-run001/proposal/fit/run_connected_fit.py",
+      "sha256": "b3603a7d52f48b0d142cc04cbfc0cc193a6e369638b42394926830ba51e6937d"
+    },
+    {
+      "bytes": 13276,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-216-run001/proposal/fit/self_separation_026.py",
+      "sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3"
+    },
+    {
+      "bytes": 47775,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected_barycentric_driver_template.py",
+      "sha256": "7d556651b84aaee2ffa74dbeaa7e906dbc0d1d85bf4f5f8b99be219c1aea33a6"
+    },
+    {
+      "bytes": 2801,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/human_skin_fat_barycentric_constraints.py",
+      "sha256": "965a166e86952d79c019302c98e7684f2f8ef3a9d63b328430ac9c8c8edbaff2"
+    },
+    {
+      "bytes": 48023,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint_merit_barycentric_driver_template.py",
+      "sha256": "def83d3e849f715ec9a33643092e2ded06fa97feafbf887c3447cbe631e9d30d"
+    },
+    {
+      "bytes": 4344,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/prepare_joint_merit_soft.py",
+      "sha256": "55ce2257f8089baa103b7502f3adda962d493117e8283e720e02a6874d5ebbf6"
+    },
+    {
+      "bytes": 4014,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/prepare_rebased_soft.py",
+      "sha256": "3d72060306639a47ba8030933c537ec7363ce9c91bf2314077708d7aab8bc13e"
+    },
+    {
+      "bytes": 1438,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_prepared_joint_fit.py",
+      "sha256": "89cd011356b2b5c40c6f1ef029e7d2cd7bbca248183dc72113d154ae636faac0"
+    },
+    {
+      "bytes": 1729,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_whole_connected_continuation_219.py",
+      "sha256": "fe5c8293f23063db0f4c72a819dbb62df114fc042518e7c2161f681460d1dea4"
+    },
+    {
+      "bytes": 3332,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_whole_connected_joint_217.py",
+      "sha256": "9ca61fb56d6da9d0a3c2e8f92a1c3558f1502f29e2f9485f0035575325df94d5"
+    },
+    {
+      "bytes": 4447,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_whole_connected_joint_220.py",
+      "sha256": "da48bbd3cdb911b48ade2540c19ea8c50f3d80aa158066a228748fc7e9fd9c72"
+    },
+    {
+      "bytes": 4238,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_whole_connected_joint_224.py",
+      "sha256": "c105910686e38d180cf0c1b5d4de7096625b0fc15e5447b49ad049e58db69ba4"
+    },
+    {
+      "bytes": 2251,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_whole_connected_prep_216.py",
+      "sha256": "33f0c82c1b9a3c2864a788a67aac37c0e954712bcc048b3872f948b9f2a14d05"
+    },
+    {
+      "bytes": 2196,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_whole_connected_prep_218.py",
+      "sha256": "252bd96cce1a021acbbde2fbaafe41520a5827cb16f8c463a205c4930cbce46b"
+    },
+    {
+      "bytes": 47725,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/soft_barycentric_driver_template.py",
+      "sha256": "b54c51f6d84d7e0cb7d2a503f7522cc0dae13f03987274777095e10cfefb9059"
+    }
+  ]
+}

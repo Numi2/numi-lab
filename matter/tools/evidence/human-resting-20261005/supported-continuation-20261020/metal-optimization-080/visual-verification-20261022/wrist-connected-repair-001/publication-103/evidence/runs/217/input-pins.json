@@ -1,0 +1,343 @@
+{
+  "prepared_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-216-run001/prepared.json",
+  "prepared_sha256": "73f38d52f3d71f67b9d5512420f31c9763f6f5d8c2149ac1925e4bc484a3bec1",
+  "solver": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-214/propose_all_witness_clusters_214.py",
+  "solver_sha256": "bde46af1559e5884dd0c6f2521c82f3ead688a42c4c072aa0829b39424fdd53a",
+  "state": {
+    "iteration": 13,
+    "candidate_sha256": "f5b82d77ec9896496ec4d5e9f37b99d4c26564a97b9669c0de1a16bd979d461a",
+    "emitted_points_sha256": "41c0acbd7cd0e13e9468f16dae7b3d3f3e3a199a6f067eb4c0f3d60dc6ffb2ff",
+    "minimum_allface_oriented_area_ratio": 0.32579328417350417,
+    "minimum_fixed_reference_area_magnitude_ratio": 0.10004228214575374,
+    "bad_area_faces": 0,
+    "anchors_bitwise_unchanged": true,
+    "nonzero_step_nodes": 3297,
+    "nonzero_construction_scale_nodes": 18149,
+    "maximum_step_m": 0.0004250365512298674,
+    "maximum_source_displacement_mm": 8.792274904697235,
+    "source_cap_pass": true,
+    "native_admission": false,
+    "accepted_physical_steps": 0,
+    "point_summary_sha256": "4d91f6ebc5733db1c05226acbebef92b047d5ce53764cdb98d8f805be37089d3",
+    "point_merit": {
+      "construction_progress": true,
+      "strict_pair_count_reduction": true,
+      "maximum_depth_nonincreasing": true,
+      "squared_depth_nonincreasing": true,
+      "before_inside_pairs": 300,
+      "after_inside_pairs": 256,
+      "before_maximum_depth_m": 0.003212867036337457,
+      "after_maximum_depth_m": 0.003212867036337457,
+      "before_squared_depth_m2": 0.00017585132718298031,
+      "after_squared_depth_m2": 0.0001281252326537192,
+      "introduced_typed_pairs": [
+        [
+          14231,
+          64,
+          98
+        ]
+      ],
+      "introduced_depths_m": [
+        4.13566589521955e-05
+      ],
+      "removed_typed_pairs": [
+        [
+          13608,
+          57,
+          89
+        ],
+        [
+          13820,
+          114,
+          117
+        ],
+        [
+          13928,
+          100,
+          85
+        ],
+        [
+          14072,
+          61,
+          97
+        ],
+        [
+          14119,
+          59,
+          95
+        ],
+        [
+          14375,
+          114,
+          117
+        ],
+        [
+          14412,
+          115,
+          118
+        ],
+        [
+          14438,
+          109,
+          114
+        ],
+        [
+          14446,
+          109,
+          114
+        ],
+        [
+          14509,
+          100,
+          85
+        ],
+        [
+          14728,
+          65,
+          99
+        ],
+        [
+          15013,
+          115,
+          118
+        ],
+        [
+          15016,
+          115,
+          118
+        ],
+        [
+          15018,
+          115,
+          118
+        ],
+        [
+          15020,
+          115,
+          118
+        ],
+        [
+          15022,
+          115,
+          118
+        ],
+        [
+          15175,
+          114,
+          117
+        ],
+        [
+          15348,
+          59,
+          95
+        ],
+        [
+          15666,
+          109,
+          114
+        ],
+        [
+          16003,
+          115,
+          118
+        ],
+        [
+          16027,
+          115,
+          118
+        ],
+        [
+          16386,
+          61,
+          97
+        ],
+        [
+          16570,
+          59,
+          95
+        ],
+        [
+          16589,
+          59,
+          95
+        ],
+        [
+          16631,
+          57,
+          89
+        ],
+        [
+          16640,
+          57,
+          89
+        ],
+        [
+          16641,
+          57,
+          89
+        ],
+        [
+          16794,
+          65,
+          99
+        ],
+        [
+          17061,
+          43,
+          16
+        ],
+        [
+          17070,
+          43,
+          16
+        ],
+        [
+          17166,
+          43,
+          16
+        ],
+        [
+          17240,
+          74,
+          104
+        ],
+        [
+          17406,
+          124,
+          123
+        ],
+        [
+          17422,
+          124,
+          123
+        ],
+        [
+          17429,
+          124,
+          123
+        ],
+        [
+          17609,
+          115,
+          118
+        ],
+        [
+          17735,
+          100,
+          85
+        ],
+        [
+          17757,
+          115,
+          118
+        ],
+        [
+          17771,
+          115,
+          118
+        ],
+        [
+          17810,
+          115,
+          118
+        ],
+        [
+          17819,
+          115,
+          118
+        ],
+        [
+          17962,
+          109,
+          114
+        ],
+        [
+          18014,
+          109,
+          114
+        ],
+        [
+          18342,
+          114,
+          117
+        ],
+        [
+          18355,
+          114,
+          117
+        ]
+      ],
+      "geometry_admitted": false,
+      "accepted_physical_steps": 0
+    },
+    "joint_merit": {
+      "classification": "JOINT_CLEARANCE_CONSTRUCTION_PROGRESS",
+      "construction_progress": true,
+      "strict_surface_pair_reduction": true,
+      "strict_total_pair_reduction": true,
+      "maximum_depth_nonincreasing": true,
+      "squared_depth_nonincreasing": true,
+      "topology_points": 18430,
+      "topology_faces": 36815,
+      "typed_bank_count": 185,
+      "before_candidate_sha256": "7b543e2e06d3b47a44b48ea03dae26f77940926c7be6cb49a12dea0fdfd61f12",
+      "after_candidate_sha256": "f5b82d77ec9896496ec4d5e9f37b99d4c26564a97b9669c0de1a16bd979d461a",
+      "before_point_pairs": 300,
+      "after_point_pairs": 256,
+      "before_surface_pairs": 3412,
+      "after_surface_pairs": 3281,
+      "before_total_pairs": 3712,
+      "after_total_pairs": 3537,
+      "before_maximum_point_depth_m": 0.003212867036337457,
+      "after_maximum_point_depth_m": 0.003212867036337457,
+      "before_squared_point_depth_m2": 0.00017585132718298031,
+      "after_squared_point_depth_m2": 0.0001281252326537192,
+      "final_zero_clearance_unchanged": false,
+      "geometry_admitted": false,
+      "accepted_physical_steps": 0,
+      "native_admission": false
+    },
+    "depth_merit": {
+      "classification": "NO_CONSTRUCTION_DEPTH_PROGRESS",
+      "construction_progress": false,
+      "point_pair_count_nonincreasing": true,
+      "surface_pair_count_nonincreasing": false,
+      "same_query_coverage": false,
+      "no_introduced_typed_pairs": false,
+      "introduced_point_pairs": [
+        [
+          14231,
+          64,
+          98
+        ]
+      ],
+      "introduced_surface_pair_count": 282,
+      "maximum_depth_nonincreasing": true,
+      "strict_squared_depth_progress": true,
+      "before_point_pairs": 300,
+      "after_point_pairs": 256,
+      "before_surface_pairs": 3412,
+      "after_surface_pairs": 3281,
+      "before_maximum_depth_m": 0.003212867036337457,
+      "after_maximum_depth_m": 0.003212867036337457,
+      "before_squared_depth_m2": 0.00017585132718298031,
+      "after_squared_depth_m2": 0.0001281252326537192,
+      "squared_depth_improvement_m2": 4.7726094529261124e-05,
+      "squared_depth_roundoff_threshold_m2": 2.498997662072786e-18,
+      "typed_bank_count": 185,
+      "topology_points": 18430,
+      "topology_faces": 36815,
+      "before_candidate_sha256": "7b543e2e06d3b47a44b48ea03dae26f77940926c7be6cb49a12dea0fdfd61f12",
+      "after_candidate_sha256": "f5b82d77ec9896496ec4d5e9f37b99d4c26564a97b9669c0de1a16bd979d461a",
+      "geometry_admitted": false,
+      "native_admission": false,
+      "accepted_physical_steps": 0
+    },
+    "status": "CONSTRUCTION_PROGRESS_ONLY",
+    "candidate": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/pass-013/candidate.npz",
+    "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/pass-013/audit-130/summary.json",
+    "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/pass-013/audit-159/report.json",
+    "parent_fit": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-connected-204-run001/proposal/fit/attempt-001/fit-report.json"
+  },
+  "native_admission": false
+}

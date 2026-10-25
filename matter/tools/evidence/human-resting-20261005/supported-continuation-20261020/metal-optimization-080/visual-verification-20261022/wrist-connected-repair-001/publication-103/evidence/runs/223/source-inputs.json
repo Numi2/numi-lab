@@ -1,0 +1,11 @@
+{
+  "start": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-continuation-219-run001/round-001/joint/joint-001/local-backtrack/pass-019/candidate.npz",
+  "start_sha256": "c52d48df11395b3c5da5c413acfb981a125b2d1573fbefe146a47980043251dc",
+  "trial": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-halfstep-223-prep/candidate.npz",
+  "trial_sha256": "3a2735750c978796ff2e6c7317b9791c40fd8d1a95c69647ed682089f417264d",
+  "helper_sha256": "05b1beb2105a184deb885974db892fa0f8e519fc3e1fdfde5aa441c180c97b34",
+  "source_point_summary_sha256": "5e1e49f46f9959c1631da7ac56c37700b07795978928d85be11295a851dd2f02",
+  "source_surface_report_sha256": "30ead868c27151d19ccbc0065542d59bfa277db3db0eae93caf99f5c4faf5a22",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

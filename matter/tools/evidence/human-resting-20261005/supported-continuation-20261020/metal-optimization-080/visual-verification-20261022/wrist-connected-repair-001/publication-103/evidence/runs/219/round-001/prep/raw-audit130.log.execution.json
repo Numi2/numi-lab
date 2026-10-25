@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-continuation-219-run001/round-001/prep/proposal/fit/attempt-001/scp-01-alpha-1p0/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-continuation-219-run001/round-001/prep/raw-audit130"
+  ],
+  "returncode": 0,
+  "wall_seconds": 5.908716459060088,
+  "log_sha256": "fd50da1f780079c270a87463ee9f9009143059a4a6782dbd13296d40a8ffb207"
+}

@@ -1,0 +1,11 @@
+{
+  "start": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-witness-halfstep-215-run001/pass-013/candidate.npz",
+  "start_sha256": "f5b82d77ec9896496ec4d5e9f37b99d4c26564a97b9669c0de1a16bd979d461a",
+  "trial": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-joint-217-run001/joint-001/proposal/candidate.npz",
+  "trial_sha256": "801e9e82e956c1977acd8a07a577bd029229a9b05bc9fb8135f725d112e96dee",
+  "helper_sha256": "05b1beb2105a184deb885974db892fa0f8e519fc3e1fdfde5aa441c180c97b34",
+  "source_point_summary_sha256": "4d91f6ebc5733db1c05226acbebef92b047d5ce53764cdb98d8f805be37089d3",
+  "source_surface_report_sha256": "7e5a6c115f32a490c32ac9691cbf10e3846aee59bd25888a1450d5900540ba95",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

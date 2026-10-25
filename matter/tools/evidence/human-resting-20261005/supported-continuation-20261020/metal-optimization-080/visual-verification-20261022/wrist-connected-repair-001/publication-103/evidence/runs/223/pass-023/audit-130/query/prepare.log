@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-halfstep-223-run001/pass-023/audit-130/query/points-world.npz",
+  "input_sha256": "1871c5c79cef10881eb07cf16b398d691a0e89241b268b569bd505485079d329",
+  "field": "points_world_f32",
+  "query_count": 18430,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-halfstep-223-run001/pass-023/audit-130/query/points.csv",
+  "output_sha256": "46e75e8a4deb5beb0e71229e594d2eaa2cfcaadd456bfdec541bd3caa8d4eb5c",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}
