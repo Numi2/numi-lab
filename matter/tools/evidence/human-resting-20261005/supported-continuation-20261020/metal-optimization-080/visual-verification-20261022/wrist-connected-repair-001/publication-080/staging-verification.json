@@ -1,0 +1,571 @@
+{
+  "inherited_git_pins": 12,
+  "inherited_git_pins_passed": 12,
+  "inherited_pin_checks": [
+    {
+      "actual_sha256": "78d7d3567cd4b2cacd2e8104830a17028745310ad9cac5679c2c136dd85f24ca",
+      "expected_sha256": "78d7d3567cd4b2cacd2e8104830a17028745310ad9cac5679c2c136dd85f24ca",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/publication-manifest.json",
+      "verified": true
+    },
+    {
+      "actual_sha256": "9561217b4ee7da10a782a1f45af8ce248970f6c79cd462626cafbe6b4a2dc9de",
+      "expected_sha256": "9561217b4ee7da10a782a1f45af8ce248970f6c79cd462626cafbe6b4a2dc9de",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/verified-published-inputs.json",
+      "verified": true
+    },
+    {
+      "actual_sha256": "00b24dd1f09d3f890cf085ceeb1665715a2de7e116275e84165b5c14f43585d4",
+      "expected_sha256": "00b24dd1f09d3f890cf085ceeb1665715a2de7e116275e84165b5c14f43585d4",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/accepted-coarse-reference.csv.gz",
+      "verified": true
+    },
+    {
+      "actual_sha256": "d3d0abb590f5858de4a27e0362e98bc9b3088831183ea045096cefc4ebba26e1",
+      "expected_sha256": "d3d0abb590f5858de4a27e0362e98bc9b3088831183ea045096cefc4ebba26e1",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-072/evidence/whole-reference-TetGen-084/whole-skin-fat-reference-084-candidate.npz",
+      "verified": true
+    },
+    {
+      "actual_sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+      "expected_sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-072/evidence/run-006-direct-detail-p1-075/direct-detail-p1-075.npz",
+      "verified": true
+    },
+    {
+      "actual_sha256": "ff5d936d9c5f14df7e78a596134a03c5a6fd4f5c09a517203643ded28da8f5c1",
+      "expected_sha256": "ff5d936d9c5f14df7e78a596134a03c5a6fd4f5c09a517203643ded28da8f5c1",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/evidence/fine-layer-fields-127/baseline-coarse-to-detail-layer-fields.npz",
+      "verified": true
+    },
+    {
+      "actual_sha256": "4278c32fc30f2ec2ce67131e6883782f5f266d6f04877deaec4743cf3a196145",
+      "expected_sha256": "4278c32fc30f2ec2ce67131e6883782f5f266d6f04877deaec4743cf3a196145",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/evidence/fine-layer-fields-127/capacity-115-coarse-to-detail-layer-fields.npz",
+      "verified": true
+    },
+    {
+      "actual_sha256": "24e26288c7eb47608d24c06fa6a849ab8efcf38cf136544440af9c037b904a06",
+      "expected_sha256": "24e26288c7eb47608d24c06fa6a849ab8efcf38cf136544440af9c037b904a06",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/evidence/source-anchor-correction-116/batch-146-corrected-source-anchors.json",
+      "verified": true
+    },
+    {
+      "actual_sha256": "21e2b65d85ba9bac176aaa670b916bc13189975a295c9ab328d1e835bb2e0b78",
+      "expected_sha256": "21e2b65d85ba9bac176aaa670b916bc13189975a295c9ab328d1e835bb2e0b78",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/evidence/connected-source-routing-016/run-016/source-patch-cut.npz",
+      "verified": true
+    },
+    {
+      "actual_sha256": "4a065fea7f347e5c2c7c9a1c82f2a598af509a4cce8fde1cf4ec32068abc2b61",
+      "expected_sha256": "4a065fea7f347e5c2c7c9a1c82f2a598af509a4cce8fde1cf4ec32068abc2b61",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/evidence/source-surface-023-025/run-019-route-harmonized-old-input/source-patch-cut.npz",
+      "verified": true
+    },
+    {
+      "actual_sha256": "292d68c19d326a4c39570e2d2cb8c109c6e42ea8dffb91fd83f0d9d0d11d1646",
+      "expected_sha256": "292d68c19d326a4c39570e2d2cb8c109c6e42ea8dffb91fd83f0d9d0d11d1646",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/evidence/source-surface-023-025/run-019-route-harmonized-old-input/source-patch-cut-report.json",
+      "verified": true
+    },
+    {
+      "actual_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "expected_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+      "verified": true
+    }
+  ],
+  "json_documents_parsed": 31,
+  "live_origin_main": "36e053fa4cba0321d76650b33cb4bce15a0c881b",
+  "normal_checkout_head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "normal_index_clean": true,
+  "parent_commit": "36e053fa4cba0321d76650b33cb4bce15a0c881b",
+  "payload_bytes_excluding_manifests": 16731777,
+  "payload_file_count_excluding_manifests": 99,
+  "readme_sha256": "f66a14cfa4b3c5bfe478d5ff35c2ea2357bdea597a04616af9c8e85eadba2424",
+  "source_checks": [
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+      "staged_path": "evidence/all35-source-surface/audit_connected_outer_geometry_130.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/build_merged_source_cut_133.py",
+      "staged_path": "evidence/all35-source-surface/build_merged_source_cut_133.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/emit_hybrid_O_surface_133.py",
+      "staged_path": "evidence/all35-source-surface/emit_hybrid_O_surface_133.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-026-global-seed-closure-source-cut/merged-source-patch-cut-report.json",
+      "staged_path": "evidence/all35-source-surface/run-026-global-seed-closure-source-cut/merged-source-patch-cut-report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-026-global-seed-closure-source-cut/merged-source-patch-cut.npz",
+      "staged_path": "evidence/all35-source-surface/run-026-global-seed-closure-source-cut/merged-source-patch-cut.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-027-global-hybrid/hybrid-O-surface-133-report.json",
+      "staged_path": "evidence/all35-source-surface/run-027-global-hybrid/hybrid-O-surface-133-report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-027-global-hybrid/hybrid-O-surface-133.npz",
+      "staged_path": "evidence/all35-source-surface/run-027-global-hybrid/hybrid-O-surface-133.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-028-paired-ear-retriangulation/build_028.py",
+      "staged_path": "evidence/all35-source-surface/run-028-paired-ear-retriangulation/build_028.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-028-paired-ear-retriangulation/build_028_apply.py",
+      "staged_path": "evidence/all35-source-surface/run-028-paired-ear-retriangulation/build_028_apply.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-028-paired-ear-retriangulation/fan-closure-rowsets-131-133.json",
+      "staged_path": "evidence/all35-source-surface/run-028-paired-ear-retriangulation/fan-closure-rowsets-131-133.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-028-paired-ear-retriangulation/generate_028_v2.py",
+      "staged_path": "evidence/all35-source-surface/run-028-paired-ear-retriangulation/generate_028_v2.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-028-paired-ear-retriangulation/hybrid-O-surface-134-report.json",
+      "staged_path": "evidence/all35-source-surface/run-028-paired-ear-retriangulation/hybrid-O-surface-134-report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-028-paired-ear-retriangulation/hybrid-O-surface-134.npz",
+      "staged_path": "evidence/all35-source-surface/run-028-paired-ear-retriangulation/hybrid-O-surface-134.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-029-whole-seed-outer-audit/summary.json",
+      "staged_path": "evidence/all35-source-surface/run-029-whole-seed-outer-audit/summary.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-029-whole-seed-outer-audit/surface-self-pairs.npy",
+      "staged_path": "evidence/all35-source-surface/run-029-whole-seed-outer-audit/surface-self-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-030-fine-parent-metadata-correction/correct_parent_metadata_135.py",
+      "staged_path": "evidence/all35-source-surface/run-030-fine-parent-metadata-correction/correct_parent_metadata_135.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-030-fine-parent-metadata-correction/hybrid-O-surface-135.npz",
+      "staged_path": "evidence/all35-source-surface/run-030-fine-parent-metadata-correction/hybrid-O-surface-135.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-030-fine-parent-metadata-correction/metadata-correction-report.json",
+      "staged_path": "evidence/all35-source-surface/run-030-fine-parent-metadata-correction/metadata-correction-report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-031-fixed-coordinate-edge-flips/build_edge_flips_031.py",
+      "staged_path": "evidence/all35-source-surface/run-031-fixed-coordinate-edge-flips/build_edge_flips_031.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-031-fixed-coordinate-edge-flips/candidate.npz",
+      "staged_path": "evidence/all35-source-surface/run-031-fixed-coordinate-edge-flips/candidate.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-031-fixed-coordinate-edge-flips/flip-report.json",
+      "staged_path": "evidence/all35-source-surface/run-031-fixed-coordinate-edge-flips/flip-report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-032-fixed-edge-flips-exact-self/audit_self_032.py",
+      "staged_path": "evidence/all35-source-surface/run-032-fixed-edge-flips-exact-self/audit_self_032.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-033-fixed-edge-flips-exact-self/audit-stdout-stderr.log",
+      "staged_path": "evidence/all35-source-surface/run-033-fixed-edge-flips-exact-self/audit-stdout-stderr.log",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-033-fixed-edge-flips-exact-self/audit_self_033.py",
+      "staged_path": "evidence/all35-source-surface/run-033-fixed-edge-flips-exact-self/audit_self_033.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-034-fixed-edge-flips-exact-self/audit-stdout-stderr.log",
+      "staged_path": "evidence/all35-source-surface/run-034-fixed-edge-flips-exact-self/audit-stdout-stderr.log",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-034-fixed-edge-flips-exact-self/audit_self_034.py",
+      "staged_path": "evidence/all35-source-surface/run-034-fixed-edge-flips-exact-self/audit_self_034.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-034-fixed-edge-flips-exact-self/results/summary.json",
+      "staged_path": "evidence/all35-source-surface/run-034-fixed-edge-flips-exact-self/results/summary.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-034-fixed-edge-flips-exact-self/results/surface-self-pairs.npy",
+      "staged_path": "evidence/all35-source-surface/run-034-fixed-edge-flips-exact-self/results/surface-self-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/fit_full_connected_outer_clearance_149.py",
+      "staged_path": "evidence/connected-trial-149/fit_full_connected_outer_clearance_149.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-149/run-001/candidate.npz",
+      "staged_path": "evidence/connected-trial-149/run-001/candidate.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-149/run-001/exact-audit/summary.json",
+      "staged_path": "evidence/connected-trial-149/run-001/exact-audit/summary.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-149/run-001/exact-audit/surface-self-pairs.npy",
+      "staged_path": "evidence/connected-trial-149/run-001/exact-audit/surface-self-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-149/run-001/report.json",
+      "staged_path": "evidence/connected-trial-149/run-001/report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-clearance-133/run-003-gradient-caps-005-reduced-domain/O-D-exact-pairs.npy",
+      "staged_path": "evidence/coupled-clearance-133/run-005-reduced-domain/O-D-exact-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-clearance-133/run-003-gradient-caps-006-reduced-domain/O-D-exact-pairs.npy",
+      "staged_path": "evidence/coupled-clearance-133/run-006-reduced-domain/O-D-exact-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-clearance-133/run-003-gradient-caps-006-reduced-domain/attempt-manifest.json",
+      "staged_path": "evidence/coupled-clearance-133/run-006-reduced-domain/attempt-manifest.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-clearance-133/run-003-gradient-caps-006-reduced-domain/geometric-witness-rows.json",
+      "staged_path": "evidence/coupled-clearance-133/run-006-reduced-domain/geometric-witness-rows.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-clearance-133/run-003-gradient-caps-006-reduced-domain/joint-lp-A-ub.npz",
+      "staged_path": "evidence/coupled-clearance-133/run-006-reduced-domain/joint-lp-A-ub.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-clearance-133/run-003-gradient-caps-006-reduced-domain/joint-lp-inputs.npz",
+      "staged_path": "evidence/coupled-clearance-133/run-006-reduced-domain/joint-lp-inputs.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-clearance-133/run-003-gradient-caps-006-reduced-domain/model-preflight.json",
+      "staged_path": "evidence/coupled-clearance-133/run-006-reduced-domain/model-preflight.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-clearance-133/run-003-gradient-caps-006-reduced-domain/report.json",
+      "staged_path": "evidence/coupled-clearance-133/run-006-reduced-domain/report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-clearance-133/run_joint_clearance_133_gradient_caps_004_reduced.py",
+      "staged_path": "evidence/coupled-clearance-133/run_joint_clearance_133_gradient_caps_004_reduced.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-clearance-133/run_joint_clearance_133_gradient_caps_005_reduced.py",
+      "staged_path": "evidence/coupled-clearance-133/run_joint_clearance_133_gradient_caps_005_reduced.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-trial-128/run-004-full146-baseline-offset/D-self-pairs.npy",
+      "staged_path": "evidence/layers-128-142/D-self-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-trial-128/run-004-full146-baseline-offset/I-self-pairs.npy",
+      "staged_path": "evidence/layers-128-142/I-self-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-trial-128/run-004-full146-baseline-offset/O-self-pairs.npy",
+      "staged_path": "evidence/layers-128-142/O-self-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-trial-128/run-004-full146-baseline-offset/README.txt",
+      "staged_path": "evidence/layers-128-142/README.txt",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/build_baseline084_full146_v2.py",
+      "staged_path": "evidence/layers-128-142/build_baseline084_full146_v2.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/diagnose_fat_shell_pair_witnesses_v2.py",
+      "staged_path": "evidence/layers-128-142/diagnose_fat_shell_pair_witnesses_v2.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-trial-128/run-004-full146-baseline-offset/fat_shell-self-pairs.npy",
+      "staged_path": "evidence/layers-128-142/fat_shell-self-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-trial-128/run-004-full146-baseline-offset/layer-candidate.npz",
+      "staged_path": "evidence/layers-128-142/layer-candidate.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-trial-128/run-004-full146-baseline-offset/report.json",
+      "staged_path": "evidence/layers-128-142/report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-003-full146/D-pairs.npy",
+      "staged_path": "evidence/layers-128-142/run-003-full146/D-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-003-full146/I-pairs.npy",
+      "staged_path": "evidence/layers-128-142/run-003-full146/I-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-003-full146/O-pairs.npy",
+      "staged_path": "evidence/layers-128-142/run-003-full146/O-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-003-full146/candidate.npz",
+      "staged_path": "evidence/layers-128-142/run-003-full146/candidate.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-003-full146/fat_shell-pairs.npy",
+      "staged_path": "evidence/layers-128-142/run-003-full146/fat_shell-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-003-full146/report.json",
+      "staged_path": "evidence/layers-128-142/run-003-full146/report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-003-full146/skin_shell-pairs.npy",
+      "staged_path": "evidence/layers-128-142/run-003-full146/skin_shell-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-005-full146-baseline084/D-pairs.npy",
+      "staged_path": "evidence/layers-128-142/run-005-full146-baseline084/D-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-005-full146-baseline084/I-pairs.npy",
+      "staged_path": "evidence/layers-128-142/run-005-full146-baseline084/I-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-005-full146-baseline084/O-pairs.npy",
+      "staged_path": "evidence/layers-128-142/run-005-full146-baseline084/O-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-005-full146-baseline084/alternate-cap-diagonal-edge-1516-1562/alternate-fat-shell-faces.npy",
+      "staged_path": "evidence/layers-128-142/run-005-full146-baseline084/alternate-cap-diagonal-edge-1516-1562/alternate-fat-shell-faces.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-005-full146-baseline084/alternate-cap-diagonal-edge-1516-1562/candidate-topology-only.npz",
+      "staged_path": "evidence/layers-128-142/run-005-full146-baseline084/alternate-cap-diagonal-edge-1516-1562/candidate-topology-only.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-005-full146-baseline084/alternate-cap-diagonal-edge-1516-1562/fat-shell-pairs.npy",
+      "staged_path": "evidence/layers-128-142/run-005-full146-baseline084/alternate-cap-diagonal-edge-1516-1562/fat-shell-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-005-full146-baseline084/alternate-cap-diagonal-edge-1516-1562/report.json",
+      "staged_path": "evidence/layers-128-142/run-005-full146-baseline084/alternate-cap-diagonal-edge-1516-1562/report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-005-full146-baseline084/candidate.npz",
+      "staged_path": "evidence/layers-128-142/run-005-full146-baseline084/candidate.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-005-full146-baseline084/fat_shell-pairs.npy",
+      "staged_path": "evidence/layers-128-142/run-005-full146-baseline084/fat_shell-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-005-full146-baseline084/fat_shell_pair_witnesses.json",
+      "staged_path": "evidence/layers-128-142/run-005-full146-baseline084/fat_shell_pair_witnesses.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-005-full146-baseline084/fat_shell_pair_witnesses_exact_unique.json",
+      "staged_path": "evidence/layers-128-142/run-005-full146-baseline084/fat_shell_pair_witnesses_exact_unique.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-005-full146-baseline084/report.json",
+      "staged_path": "evidence/layers-128-142/run-005-full146-baseline084/report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/run-005-full146-baseline084/skin_shell-pairs.npy",
+      "staged_path": "evidence/layers-128-142/run-005-full146-baseline084/skin_shell-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/coupled-layer-trial-128/run-004-full146-baseline-offset/skin_shell-self-pairs.npy",
+      "staged_path": "evidence/layers-128-142/skin_shell-self-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/try_alternate_cap_diagonal_001.py",
+      "staged_path": "evidence/layers-128-142/try_alternate_cap_diagonal_001.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-145/accumulated-pairs-003.npy",
+      "staged_path": "evidence/source-surface-145-146/145/accumulated-pairs-003.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-145/run-001/report.json",
+      "staged_path": "evidence/source-surface-145-146/145/run-001/report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-145/run-002/candidate.npz",
+      "staged_path": "evidence/source-surface-145-146/145/run-002/candidate.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-145/run-002/report.json",
+      "staged_path": "evidence/source-surface-145-146/145/run-002/report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-145/run-002-audit/summary.json",
+      "staged_path": "evidence/source-surface-145-146/145/run-002-audit/summary.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-145/run-002-audit/surface-self-pairs.npy",
+      "staged_path": "evidence/source-surface-145-146/145/run-002-audit/surface-self-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-001/candidate.npz",
+      "staged_path": "evidence/source-surface-145-146/146/run-001/candidate.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-001/report.json",
+      "staged_path": "evidence/source-surface-145-146/146/run-001/report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-001-audit/query/nodes.csv",
+      "staged_path": "evidence/source-surface-145-146/146/run-001-audit/query/nodes.csv",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-001-audit/query/pairs.csv",
+      "staged_path": "evidence/source-surface-145-146/146/run-001-audit/query/pairs.csv",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-001-audit/query/points-world.npz",
+      "staged_path": "evidence/source-surface-145-146/146/run-001-audit/query/points-world.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-001-audit/query/points.csv",
+      "staged_path": "evidence/source-surface-145-146/146/run-001-audit/query/points.csv",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-001-audit/query/prepare.log",
+      "staged_path": "evidence/source-surface-145-146/146/run-001-audit/query/prepare.log",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-001-audit/query/query-receipt.json",
+      "staged_path": "evidence/source-surface-145-146/146/run-001-audit/query/query-receipt.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-001-audit/query/query.log",
+      "staged_path": "evidence/source-surface-145-146/146/run-001-audit/query/query.log",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-001-audit/summary.json",
+      "staged_path": "evidence/source-surface-145-146/146/run-001-audit/summary.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-001-audit/surface-self-pairs.npy",
+      "staged_path": "evidence/source-surface-145-146/146/run-001-audit/surface-self-pairs.npy",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-002-corrected-metadata/candidate.npz",
+      "staged_path": "evidence/source-surface-145-146/146/run-002-corrected-metadata/candidate.npz",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-002-corrected-metadata/report.json",
+      "staged_path": "evidence/source-surface-145-146/146/run-002-corrected-metadata/report.json",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/unfold_connected_source_patch_145.py",
+      "staged_path": "evidence/source-surface-145-146/unfold_connected_source_patch_145.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/unfold_connected_source_patch_145b.py",
+      "staged_path": "evidence/source-surface-145-146/unfold_connected_source_patch_145b.py",
+      "verified": true
+    },
+    {
+      "source_path": "/Users/n/Work/numi-human-connected-surface-069/unfold_connected_source_patch_146.py",
+      "staged_path": "evidence/source-surface-145-146/unfold_connected_source_patch_146.py",
+      "verified": true
+    }
+  ],
+  "source_file_checks": 96,
+  "source_file_checks_passed": 96,
+  "status": "VERIFIED_STAGING_INPUTS"
+}

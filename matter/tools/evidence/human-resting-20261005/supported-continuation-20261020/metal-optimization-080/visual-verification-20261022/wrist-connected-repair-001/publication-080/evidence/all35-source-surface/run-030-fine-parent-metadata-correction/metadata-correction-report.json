@@ -1,0 +1,54 @@
+{
+  "face_count": 17507,
+  "fine_faces": 11459,
+  "fine_subface_ancestry_by_face": {
+    "10761": [
+      14646,
+      14655
+    ],
+    "10762": [
+      14646,
+      14655
+    ]
+  },
+  "geometry_identical_to_134": {
+    "points_world_m": true,
+    "source_O_faces": true
+  },
+  "inputs": {
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-026-global-seed-closure-source-cut/merged-source-patch-cut.npz": "627bb87bcf81b5e84b3d68cb0c5666621b0979a214b34924be1a51ab8276e095",
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-027-global-hybrid/hybrid-O-surface-133.npz": "cc11c68d58ec492922c3c86247197e8d83bbaf1fec9f55cc1a6fc3fedbad5273",
+    "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-028-paired-ear-retriangulation/hybrid-O-surface-134.npz": "41dfcbaea73d0385f0df50a091bb5dd39c1411b62b5d014805e29bb586b55ee0"
+  },
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-030-fine-parent-metadata-correction/hybrid-O-surface-135.npz",
+  "output_sha256": "ab0636b80faf999a4f7e8d237775f2bbbb6531cc600d3e759ed51a124702187d",
+  "paired_detail_face_ancestry": [
+    14642,
+    14650
+  ],
+  "paired_subface_detail_rows": [
+    14642,
+    14650
+  ],
+  "paired_subface_rows": [
+    14646,
+    14655
+  ],
+  "retriangulation_face_rows": [
+    10761,
+    10762
+  ],
+  "semantics": "parent_fine_detail_face_row now names original NHSKIN face rows; parent_fine_subface_row separately names run-026 fine subfaces. Retriangulated faces carry both source and subface ancestry in CSR. No geometry/self/bone/mass/native admission implied.",
+  "source_ancestry_by_face": {
+    "10761": [
+      14642,
+      14650
+    ],
+    "10762": [
+      14642,
+      14650
+    ]
+  },
+  "status": "METADATA_CORRECTED_GEOMETRY_UNCHANGED",
+  "unique_detail_parent_faces": 11457
+}

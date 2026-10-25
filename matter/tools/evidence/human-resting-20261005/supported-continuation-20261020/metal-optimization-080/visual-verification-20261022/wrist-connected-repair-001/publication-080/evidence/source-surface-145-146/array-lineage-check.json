@@ -1,0 +1,35 @@
+{
+  "array_sha256": {
+    "points_world_m": {
+      "031_flipped": "041c850241bfb92c3a5d5ff7774c501ddca2a2c231cb47776b121633337e741b",
+      "146_corrected": "041c850241bfb92c3a5d5ff7774c501ddca2a2c231cb47776b121633337e741b",
+      "146_run001": "041c850241bfb92c3a5d5ff7774c501ddca2a2c231cb47776b121633337e741b"
+    },
+    "source_O_faces": {
+      "031_flipped": "f2f95b1b89207f675cf8886908fb168a7ae23b322c9b32ac26f738c923cd4354",
+      "146_corrected": "c386b18cbb8d31bf6a1a80922449d7d69332ae5961a8fa6ae82b654927364c6a",
+      "146_run001": "c386b18cbb8d31bf6a1a80922449d7d69332ae5961a8fa6ae82b654927364c6a"
+    }
+  },
+  "npz_sha256": {
+    "031_flipped": "bae1b03ce4042d8c4cde2e5124af9a65618b131f3bff351411b387dbb6a8cf42",
+    "146_corrected": "4a393af65cc12181e00f2b578f73ad209f87e5f2107f4808e9ce083f46a2b3da",
+    "146_run001": "459bc3fb9dccc0515ab09a4fa9ea0c8e8e89e6f258706143754c86cd6818577b"
+  },
+  "observations": {
+    "146_run001_to_corrected_faces_bitwise_equal": true,
+    "146_run001_to_corrected_points_bitwise_equal": true,
+    "changed_face_row_count": 4,
+    "corrected146_to_031_faces_bitwise_equal": false,
+    "corrected146_to_031_points_bitwise_equal": true,
+    "face_count": 17507,
+    "face_rows_changed_in_031": [
+      9185,
+      9186,
+      10677,
+      10678
+    ],
+    "point_count": 8776
+  },
+  "scope": "read-only array identity check supporting P080 lineage; no new geometry gate"
+}

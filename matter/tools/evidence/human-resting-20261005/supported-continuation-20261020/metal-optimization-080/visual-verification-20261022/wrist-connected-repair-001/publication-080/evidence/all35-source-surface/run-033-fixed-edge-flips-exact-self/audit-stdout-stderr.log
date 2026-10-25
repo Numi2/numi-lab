@@ -1,0 +1,13 @@
+waiting_for_human_geometry_slot pid=42913
+acquired_human_geometry_slot pid=42913
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-033-fixed-edge-flips-exact-self/audit_self_033.py", line 37, in <module>
+    if __name__=="__main__": main()
+                             ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-033-fixed-edge-flips-exact-self/audit_self_033.py", line 12, in main
+    OUT.mkdir(parents=True, exist_ok=False)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py", line 722, in mkdir
+    os.mkdir(self, mode)
+    ~~~~~~~~^^^^^^^^^^^^
+FileExistsError: [Errno 17] File exists: '/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-033-fixed-edge-flips-exact-self'

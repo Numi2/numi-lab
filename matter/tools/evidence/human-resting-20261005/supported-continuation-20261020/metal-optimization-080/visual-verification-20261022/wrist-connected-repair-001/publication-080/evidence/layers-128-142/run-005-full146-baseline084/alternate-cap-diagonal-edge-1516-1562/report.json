@@ -1,0 +1,60 @@
+{
+  "input_candidate_sha256": "637306607f31ea19d7ff23ab24339eca04b26ec6d72091b528a548b03698e12d",
+  "original_fat_pairs_sha256": "de11fc93a2449e6f7d8ecae886d1d274f9c431d2c6a88c830b7378cf8835b8ab",
+  "assembler_sha256": "9d169a15458d272048a917c3e5cc3d91a45d5aabe0fd211746f972cb2390cde9",
+  "boundary_edge_row": 41,
+  "coarse_edge": [
+    1516,
+    1562
+  ],
+  "alternate_diagonal_global_ids": [
+    10292,
+    12749
+  ],
+  "face_rows_replaced": [
+    9636,
+    9637
+  ],
+  "old_face_rows": [
+    [
+      10338,
+      10292,
+      12703
+    ],
+    [
+      10338,
+      12703,
+      12749
+    ]
+  ],
+  "new_face_rows": [
+    [
+      10338,
+      10292,
+      12749
+    ],
+    [
+      10292,
+      12703,
+      12749
+    ]
+  ],
+  "topology": {
+    "edge_incidence_histogram": {
+      "2": 14466
+    },
+    "edge_count": 14466,
+    "bad_oriented_edge_count": 0,
+    "bad_edge_witnesses": []
+  },
+  "exact_audit": {
+    "pairs": 0,
+    "complete": true
+  },
+  "pairs": [],
+  "geometry_changed": false,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "source_script_sha256": "725b5f5a841caae686332649b541b4fec2eba390980179c432c09ae4889e5a08",
+  "output_sha256": "73f061d53e52f1db469b0a5fbc9d8fa1794edceebd0700228e03b4cb1a010bb5"
+}

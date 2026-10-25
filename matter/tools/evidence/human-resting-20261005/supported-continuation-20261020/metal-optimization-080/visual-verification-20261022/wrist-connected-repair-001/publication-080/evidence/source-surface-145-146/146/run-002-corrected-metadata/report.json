@@ -1,0 +1,9 @@
+{
+  "input_geometry_sha256": "459bc3fb9dccc0515ab09a4fa9ea0c8e8e89e6f258706143754c86cd6818577b",
+  "input_metadata_sha256": "ab0636b80faf999a4f7e8d237775f2bbbb6531cc600d3e759ed51a124702187d",
+  "candidate_sha256": "4a393af65cc12181e00f2b578f73ad209f87e5f2107f4808e9ce083f46a2b3da",
+  "points_and_faces_unchanged": true,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "geometry_audit_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-001-audit/summary.json"
+}

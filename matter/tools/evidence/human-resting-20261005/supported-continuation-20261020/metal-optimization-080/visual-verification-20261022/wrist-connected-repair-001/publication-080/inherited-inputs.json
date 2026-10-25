@@ -1,0 +1,73 @@
+{
+  "status": "PINS_TO_ALREADY_PUBLISHED_PARENT_INPUTS",
+  "parent_commit": "36e053fa4cba0321d76650b33cb4bce15a0c881b",
+  "parent_publication": "P079",
+  "parent_publication_manifest": {
+    "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/publication-manifest.json",
+    "sha256": "78d7d3567cd4b2cacd2e8104830a17028745310ad9cac5679c2c136dd85f24ca",
+    "bytes": 77772
+  },
+  "verified_published_inputs_manifest": {
+    "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/verified-published-inputs.json",
+    "sha256": "9561217b4ee7da10a782a1f45af8ce248970f6c79cd462626cafbe6b4a2dc9de",
+    "bytes": 41914
+  },
+  "inputs": [
+    {
+      "role": "accepted coarse reference CSV used by source-cut and unfold runs",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/accepted-coarse-reference.csv.gz",
+      "sha256": "00b24dd1f09d3f890cf085ceeb1665715a2de7e116275e84165b5c14f43585d4"
+    },
+    {
+      "role": "084 coarse reference mesh",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-072/evidence/whole-reference-TetGen-084/whole-skin-fat-reference-084-candidate.npz",
+      "sha256": "d3d0abb590f5858de4a27e0362e98bc9b3088831183ea045096cefc4ebba26e1",
+      "bytes": 1000563
+    },
+    {
+      "role": "075 direct detailed-surface source",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-072/evidence/run-006-direct-detail-p1-075/direct-detail-p1-075.npz",
+      "sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+      "bytes": 5652587
+    },
+    {
+      "role": "baseline coarse-to-detail layer fields for 142 baseline-084 comparison",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/evidence/fine-layer-fields-127/baseline-coarse-to-detail-layer-fields.npz",
+      "sha256": "ff5d936d9c5f14df7e78a596134a03c5a6fd4f5c09a517203643ded28da8f5c1",
+      "bytes": 6620341
+    },
+    {
+      "role": "capacity-115 coarse-to-detail fields for 142 comparison",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/evidence/fine-layer-fields-127/capacity-115-coarse-to-detail-layer-fields.npz",
+      "sha256": "4278c32fc30f2ec2ce67131e6883782f5f266d6f04877deaec4743cf3a196145",
+      "bytes": 6677372
+    },
+    {
+      "role": "146 corrected source-anchor batch metadata",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/evidence/source-anchor-correction-116/batch-146-corrected-source-anchors.json",
+      "sha256": "24e26288c7eb47608d24c06fa6a849ab8efcf38cf136544440af9c037b904a06",
+      "bytes": 1134775
+    },
+    {
+      "role": "run 016 expanded source cut used by all-35 merged source cut",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/evidence/connected-source-routing-016/run-016/source-patch-cut.npz",
+      "sha256": "21e2b65d85ba9bac176aaa670b916bc13189975a295c9ab328d1e835bb2e0b78",
+      "bytes": 589391
+    },
+    {
+      "role": "run 019 old source cut used by all-35 merged source cut",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/evidence/source-surface-023-025/run-019-route-harmonized-old-input/source-patch-cut.npz",
+      "sha256": "4a065fea7f347e5c2c7c9a1c82f2a598af509a4cce8fde1cf4ec32068abc2b61"
+    },
+    {
+      "role": "run 019 source-cut report",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-079/evidence/source-surface-023-025/run-019-route-harmonized-old-input/source-patch-cut-report.json",
+      "sha256": "292d68c19d326a4c39570e2d2cb8c109c6e42ea8dffb91fd83f0d9d0d11d1646"
+    },
+    {
+      "role": "exact segment-predicate owner used by run 034",
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+      "sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-001-audit/query/points-world.npz",
+  "input_sha256": "75f3b14264d272f3a4e56c84d00d31978adee702b8cd724fd31eb955c77dd3b0",
+  "field": "points_world_f32",
+  "query_count": 8776,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-001-audit/query/points.csv",
+  "output_sha256": "53be6ee314c1c1ce74d693c6051c0e64e311b764209a03a86ea7257ae54d05ce",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

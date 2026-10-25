@@ -1,0 +1,146 @@
+{
+  "bone_inside_191_unresolved": true,
+  "boundary_edge_count": 45,
+  "changed_face_rows": [
+    9185,
+    9186,
+    10677,
+    10678
+  ],
+  "directed_winding_conflicts_after": 0,
+  "directed_winding_conflicts_before": 0,
+  "exact_self_gate_required": true,
+  "face_count": 17507,
+  "geometry_audit_status": "NOT_RUN",
+  "global_min_area_m2": 7.579669218377168e-08,
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-002-corrected-metadata/candidate.npz",
+  "input_sha256": "4a393af65cc12181e00f2b578f73ad209f87e5f2107f4808e9ce083f46a2b3da",
+  "nonmanifold_edge_count": 0,
+  "operations": [
+    {
+      "face_rows": [
+        9185,
+        9186
+      ],
+      "fine_subface_ancestry_rows": [
+        7560,
+        7563
+      ],
+      "new_areas_m2": [
+        1.2186323134692777e-05,
+        2.7295400061724137e-05
+      ],
+      "new_diagonal": [
+        2289,
+        5910
+      ],
+      "new_faces": [
+        [
+          2645,
+          5910,
+          2289
+        ],
+        [
+          5910,
+          2644,
+          2289
+        ]
+      ],
+      "new_normal_dot_neighbor": [
+        [
+          0.9999999999998941,
+          0.9999999999999805
+        ]
+      ],
+      "old_areas_m2": [
+        7.66693758113894e-12,
+        3.948173080956704e-05
+      ],
+      "old_faces": [
+        [
+          2645,
+          2644,
+          2289
+        ],
+        [
+          2644,
+          2645,
+          5910
+        ]
+      ],
+      "shared_edge": [
+        2644,
+        2645
+      ],
+      "source_detail_ancestry_rows": [
+        7559,
+        7561
+      ]
+    },
+    {
+      "face_rows": [
+        10677,
+        10678
+      ],
+      "fine_subface_ancestry_rows": [
+        13864,
+        13868
+      ],
+      "new_areas_m2": [
+        1.0387468077199614e-05,
+        6.5361956909004075e-06
+      ],
+      "new_diagonal": [
+        2296,
+        5844
+      ],
+      "new_faces": [
+        [
+          2862,
+          5844,
+          2296
+        ],
+        [
+          5844,
+          2855,
+          2296
+        ]
+      ],
+      "new_normal_dot_neighbor": [
+        [
+          0.9999999999999848,
+          0.9999999999968368
+        ]
+      ],
+      "old_areas_m2": [
+        2.1437327647040182e-11,
+        1.692365136415946e-05
+      ],
+      "old_faces": [
+        [
+          2862,
+          2855,
+          2296
+        ],
+        [
+          2855,
+          2862,
+          5844
+        ]
+      ],
+      "shared_edge": [
+        2855,
+        2862
+      ],
+      "source_detail_ancestry_rows": [
+        13862,
+        13864
+      ]
+    }
+  ],
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-031-fixed-coordinate-edge-flips/candidate.npz",
+  "output_sha256": "bae1b03ce4042d8c4cde2e5124af9a65618b131f3bff351411b387dbb6a8cf42",
+  "source_rows_unchanged": true,
+  "status": "FIXED_COORDINATE_PAIRED_EDGE_FLIPS_EMITTED",
+  "vertex_count": 8776
+}

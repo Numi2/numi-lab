@@ -1,0 +1,3470 @@
+{
+  "status": "STATIC_SOURCE_PATCH_UNFOLD_ONLY",
+  "input_sha256": "8ac446df4c88c002e30e77323f12c51a83726898a1c54668e2cbd92ed6c77ede",
+  "pairs_sha256": "854f43295ad3df78868b91b41ab657432ade6a9f94103d7fcfaab55325b0009a",
+  "source_detail_sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+  "source_script_sha256": "3e94bc9af590b20952021e2dd80358caf3975e16509376a1fde4c56d70578aa0",
+  "free_nodes": 122,
+  "constraints": 268,
+  "maximum_displacement_m": 0.000347776698120294,
+  "minimum_plane_slack_m": 0.0,
+  "dual_displacement_unit": "millimetres",
+  "optimization_success": true,
+  "optimization_iterations": 34,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "surface_separators": [
+    {
+      "pair_id": [
+        7443,
+        7454
+      ],
+      "axis_source": "triangle_normal_a",
+      "normal": [
+        0.10571375550152935,
+        0.04594868553082382,
+        -0.9933344452880674
+      ],
+      "baseline_min_nonshared_gap_m": 0.00013164817137213702,
+      "margin_m": 6.582408568606851e-05,
+      "candidate_min_nonshared_gap_m": 0.000234857622511422,
+      "candidate_margin_violation_m": 0.0,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 6.582408568606851e-05,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4462,
+          "vertex_b": 4451,
+          "baseline_gap_m": 0.0005386768077972679,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.582408568607306e-05,
+          "baseline_slack_m": 0.00047285272211119935
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4462,
+          "vertex_b": 4470,
+          "baseline_gap_m": 0.00013164817137213707,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.582408568605341e-05,
+          "baseline_slack_m": 6.582408568606856e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4462,
+          "vertex_b": 4471,
+          "baseline_gap_m": 0.0008225011516539284,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.5824085686071e-05,
+          "baseline_slack_m": 0.0007566770659678598
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4465,
+          "vertex_b": 4451,
+          "baseline_gap_m": 0.0005386768077972677,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.582408568607577e-05,
+          "baseline_slack_m": 0.00047285272211119924
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4465,
+          "vertex_b": 4470,
+          "baseline_gap_m": 0.00013164817137213707,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.582408568605341e-05,
+          "baseline_slack_m": 6.582408568606856e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4465,
+          "vertex_b": 4471,
+          "baseline_gap_m": 0.0008225011516539285,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.58240856860709e-05,
+          "baseline_slack_m": 0.00075667706596786
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4451,
+          "baseline_gap_m": 0.000538676807797268,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.582408568606612e-05,
+          "baseline_slack_m": 0.00047285272211119945
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4470,
+          "baseline_gap_m": 0.00013164817137213702,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.582408568605848e-05,
+          "baseline_slack_m": 6.582408568606851e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4471,
+          "baseline_gap_m": 0.0008225011516539284,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.582408568605919e-05,
+          "baseline_slack_m": 0.0007566770659678598
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7443,
+        7455
+      ],
+      "axis_source": "triangle_normal_a",
+      "normal": [
+        0.10571375550152935,
+        0.04594868553082382,
+        -0.9933344452880674
+      ],
+      "baseline_min_nonshared_gap_m": 0.00013164817137213702,
+      "margin_m": 6.582408568606851e-05,
+      "candidate_min_nonshared_gap_m": 6.582408178480606e-05,
+      "candidate_margin_violation_m": 3.901262451110055e-12,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 6.582408568606851e-05,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4462,
+          "vertex_b": 4470,
+          "baseline_gap_m": 0.00013164817137213707,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.582408568605341e-05,
+          "baseline_slack_m": 6.582408568606856e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4462,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.00023199117108526517,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.582408568604731e-05,
+          "baseline_slack_m": 0.00016616708539919666
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4462,
+          "vertex_b": 4471,
+          "baseline_gap_m": 0.0008225011516539284,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.5824085686071e-05,
+          "baseline_slack_m": 0.0007566770659678598
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4465,
+          "vertex_b": 4470,
+          "baseline_gap_m": 0.00013164817137213707,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.582408568605341e-05,
+          "baseline_slack_m": 6.582408568606856e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4465,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.00023199117108526528,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.58240856860472e-05,
+          "baseline_slack_m": 0.00016616708539919677
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4465,
+          "vertex_b": 4471,
+          "baseline_gap_m": 0.0008225011516539285,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.58240856860709e-05,
+          "baseline_slack_m": 0.00075667706596786
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4470,
+          "baseline_gap_m": 0.00013164817137213702,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.582408568605848e-05,
+          "baseline_slack_m": 6.582408568606851e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.00023199117108526517,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.582408568605143e-05,
+          "baseline_slack_m": 0.00016616708539919666
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4471,
+          "baseline_gap_m": 0.0008225011516539284,
+          "margin_m": 6.582408568606851e-05,
+          "target": 6.582408568605919e-05,
+          "baseline_slack_m": 0.0007566770659678598
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7452,
+        7454
+      ],
+      "axis_source": "edge_cross_1_0",
+      "normal": [
+        0.06337254117367233,
+        0.12448893095452909,
+        -0.9901951459661825
+      ],
+      "baseline_min_nonshared_gap_m": 0.0,
+      "margin_m": 0.0,
+      "candidate_min_nonshared_gap_m": -6.443957587787979e-05,
+      "candidate_margin_violation_m": 6.443957587787979e-05,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [
+        4470
+      ],
+      "constraint_row_count": 8,
+      "baseline_min_slack_m": 0.0,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4462,
+          "vertex_b": 4451,
+          "baseline_gap_m": 0.00017812523054138758,
+          "margin_m": 0.0,
+          "target": 2.0383000842727483e-17,
+          "baseline_slack_m": 0.00017812523054138758
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4462,
+          "vertex_b": 4470,
+          "baseline_gap_m": 0.00017812523054138758,
+          "margin_m": 0.0,
+          "target": -7.860465750519907e-18,
+          "baseline_slack_m": 0.00017812523054138758
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4462,
+          "vertex_b": 4471,
+          "baseline_gap_m": 0.0007291313423565559,
+          "margin_m": 0.0,
+          "target": 2.8189256484623115e-18,
+          "baseline_slack_m": 0.0007291313423565559
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4451,
+          "baseline_gap_m": 0.0,
+          "margin_m": 0.0,
+          "target": -2.6397123365412678e-17,
+          "baseline_slack_m": 0.0
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4470,
+          "baseline_gap_m": 0.0,
+          "margin_m": 0.0,
+          "target": -2.6397123365412678e-17,
+          "baseline_slack_m": 0.0
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4471,
+          "baseline_gap_m": 0.0005510061118151686,
+          "margin_m": 0.0,
+          "target": -6.179952383167375e-18,
+          "baseline_slack_m": 0.0005510061118151686
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4451,
+          "baseline_gap_m": 0.0,
+          "margin_m": 0.0,
+          "target": 1.3007673212747477e-17,
+          "baseline_slack_m": 0.0
+        },
+        {
+          "status": "omitted_shared_identity_zero_row",
+          "vertex_a": 4470,
+          "vertex_b": 4470,
+          "baseline_gap_m": 0.0,
+          "margin_m": 0.0,
+          "target": 0.0
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4471,
+          "baseline_gap_m": 0.0005510061118151683,
+          "margin_m": 0.0,
+          "target": -2.2768245622195593e-18,
+          "baseline_slack_m": 0.0005510061118151683
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06
+      ]
+    },
+    {
+      "pair_id": [
+        7453,
+        7467
+      ],
+      "axis_source": "triangle_normal_b",
+      "normal": [
+        -0.2250349733725419,
+        0.9186794947034007,
+        0.3246340197371862
+      ],
+      "baseline_min_nonshared_gap_m": 0.00040836085166919266,
+      "margin_m": 0.00020418042583459633,
+      "candidate_min_nonshared_gap_m": -0.00020804663916033992,
+      "candidate_margin_violation_m": 0.0004122270649949362,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.00020418042583459633,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4478,
+          "baseline_gap_m": 0.005989658611132253,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583460888,
+          "baseline_slack_m": 0.005785478185297656
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.005989658611132253,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583460715,
+          "baseline_slack_m": 0.005785478185297656
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4477,
+          "baseline_gap_m": 0.005989658611132252,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.0002041804258346375,
+          "baseline_slack_m": 0.005785478185297655
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4478,
+          "baseline_gap_m": 0.0014251734799125314,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.0002041804258346247,
+          "baseline_slack_m": 0.0012209930540779351
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.0014251734799125319,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583462428,
+          "baseline_slack_m": 0.0012209930540779356
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4477,
+          "baseline_gap_m": 0.0014251734799125317,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.0002041804258346245,
+          "baseline_slack_m": 0.0012209930540779354
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4478,
+          "baseline_gap_m": 0.0004083608516691928,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.0002041804258345935,
+          "baseline_slack_m": 0.0002041804258345965
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.00040836085166919277,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583452271,
+          "baseline_slack_m": 0.00020418042583459644
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4477,
+          "baseline_gap_m": 0.00040836085166919266,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583459367,
+          "baseline_slack_m": 0.00020418042583459633
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7453,
+        7472
+      ],
+      "axis_source": "edge_cross_0_2",
+      "normal": [
+        -0.080352383008471,
+        -0.10079319013296463,
+        0.9916573134746095
+      ],
+      "baseline_min_nonshared_gap_m": 0.0,
+      "margin_m": 0.0,
+      "candidate_min_nonshared_gap_m": -3.255823112683666e-06,
+      "candidate_margin_violation_m": 3.255823112683666e-06,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [
+        4488
+      ],
+      "constraint_row_count": 8,
+      "baseline_min_slack_m": 0.0,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.0,
+          "margin_m": 0.0,
+          "target": -3.100585279248048e-17,
+          "baseline_slack_m": 0.0
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4484,
+          "baseline_gap_m": 9.789185761393073e-05,
+          "margin_m": 0.0,
+          "target": -2.505862271157122e-17,
+          "baseline_slack_m": 9.789185761393073e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0,
+          "margin_m": 0.0,
+          "target": -2.6200843332221195e-17,
+          "baseline_slack_m": 0.0
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.0,
+          "margin_m": 0.0,
+          "target": -2.931030789903663e-17,
+          "baseline_slack_m": 0.0
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4484,
+          "baseline_gap_m": 9.789185761393081e-05,
+          "margin_m": 0.0,
+          "target": -1.9203930980149497e-17,
+          "baseline_slack_m": 9.789185761393081e-05
+        },
+        {
+          "status": "omitted_shared_identity_zero_row",
+          "vertex_a": 4488,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0,
+          "margin_m": 0.0,
+          "target": 0.0
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.00036702326707585943,
+          "margin_m": 0.0,
+          "target": -3.4206578541917665e-17,
+          "baseline_slack_m": 0.00036702326707585943
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.0004649151246897903,
+          "margin_m": 0.0,
+          "target": -1.3010426069826053e-18,
+          "baseline_slack_m": 0.0004649151246897903
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0003670232670758595,
+          "margin_m": 0.0,
+          "target": -2.3852447794681098e-18,
+          "baseline_slack_m": 0.0003670232670758595
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06
+      ]
+    },
+    {
+      "pair_id": [
+        7453,
+        7473
+      ],
+      "axis_source": "triangle_normal_a",
+      "normal": [
+        -0.14947155565794307,
+        -0.0024230776659997354,
+        0.9887630569270978
+      ],
+      "baseline_min_nonshared_gap_m": 5.881871371812126e-05,
+      "margin_m": 2.940935685906063e-05,
+      "candidate_min_nonshared_gap_m": 2.779301234126551e-05,
+      "candidate_margin_violation_m": 1.6163445177951171e-06,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 2.940935685906063e-05,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.00029273877683556795,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.940935685905293e-05,
+          "baseline_slack_m": 0.0002633294199765073
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4479,
+          "baseline_gap_m": 5.881871371812126e-05,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.9409356859047794e-05,
+          "baseline_slack_m": 2.940935685906063e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.0002007608386808365,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.940935685904843e-05,
+          "baseline_slack_m": 0.00017135148182177587
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.00029273877683556795,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.9409356859054774e-05,
+          "baseline_slack_m": 0.0002633294199765073
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4479,
+          "baseline_gap_m": 5.8818713718121474e-05,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.9409356859074723e-05,
+          "baseline_slack_m": 2.9409356859060845e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.0002007608386808365,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.9409356859072555e-05,
+          "baseline_slack_m": 0.00017135148182177587
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.00029273877683556806,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.9409356859034716e-05,
+          "baseline_slack_m": 0.00026332941997650743
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4479,
+          "baseline_gap_m": 5.8818713718121474e-05,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.9409356859054787e-05,
+          "baseline_slack_m": 2.9409356859060845e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.0002007608386808365,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.940935685904843e-05,
+          "baseline_slack_m": 0.00017135148182177587
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7453,
+        7475
+      ],
+      "axis_source": "triangle_normal_a",
+      "normal": [
+        -0.14947155565794307,
+        -0.0024230776659997354,
+        0.9887630569270978
+      ],
+      "baseline_min_nonshared_gap_m": 5.881871371812126e-05,
+      "margin_m": 2.940935685906063e-05,
+      "candidate_min_nonshared_gap_m": 2.779301234126551e-05,
+      "candidate_margin_violation_m": 1.6163445177951171e-06,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 2.940935685906063e-05,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4479,
+          "baseline_gap_m": 5.881871371812126e-05,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.9409356859047794e-05,
+          "baseline_slack_m": 2.940935685906063e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4485,
+          "baseline_gap_m": 0.00021082814578887417,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.940935685906716e-05,
+          "baseline_slack_m": 0.00018141878892981354
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.0002007608386808365,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.940935685904843e-05,
+          "baseline_slack_m": 0.00017135148182177587
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4479,
+          "baseline_gap_m": 5.8818713718121474e-05,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.9409356859074723e-05,
+          "baseline_slack_m": 2.9409356859060845e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4485,
+          "baseline_gap_m": 0.00021082814578887428,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.940935685907071e-05,
+          "baseline_slack_m": 0.00018141878892981365
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.0002007608386808365,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.9409356859072555e-05,
+          "baseline_slack_m": 0.00017135148182177587
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4479,
+          "baseline_gap_m": 5.8818713718121474e-05,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.9409356859054787e-05,
+          "baseline_slack_m": 2.9409356859060845e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4485,
+          "baseline_gap_m": 0.00021082814578887423,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.9409356859067107e-05,
+          "baseline_slack_m": 0.0001814187889298136
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.0002007608386808365,
+          "margin_m": 2.940935685906063e-05,
+          "target": 2.940935685904843e-05,
+          "baseline_slack_m": 0.00017135148182177587
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7453,
+        7487
+      ],
+      "axis_source": "edge_cross_1_2",
+      "normal": [
+        -0.11046464274799077,
+        0.553101517970042,
+        0.8257579993689398
+      ],
+      "baseline_min_nonshared_gap_m": 0.00022621362436186327,
+      "margin_m": 0.00011310681218093164,
+      "candidate_min_nonshared_gap_m": 0.00011310680732975998,
+      "candidate_margin_violation_m": 4.851171656224118e-12,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.00011310681218093164,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4485,
+          "baseline_gap_m": 0.004142734961139188,
+          "margin_m": 0.00011310681218093164,
+          "target": 0.00011310681218096395,
+          "baseline_slack_m": 0.004029628148958256
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4494,
+          "baseline_gap_m": 0.0073228947314598735,
+          "margin_m": 0.00011310681218093164,
+          "target": 0.00011310681218096308,
+          "baseline_slack_m": 0.007209787919278942
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.004142734961139188,
+          "margin_m": 0.00011310681218093164,
+          "target": 0.00011310681218091711,
+          "baseline_slack_m": 0.004029628148958256
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4485,
+          "baseline_gap_m": 0.00022621362436186336,
+          "margin_m": 0.00011310681218093164,
+          "target": 0.00011310681218095191,
+          "baseline_slack_m": 0.00011310681218093172
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4494,
+          "baseline_gap_m": 0.00340637339468255,
+          "margin_m": 0.00011310681218093164,
+          "target": 0.00011310681218089586,
+          "baseline_slack_m": 0.0032932665825016185
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4488,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.00022621362436186336,
+          "margin_m": 0.00011310681218093164,
+          "target": 0.00011310681218100742,
+          "baseline_slack_m": 0.00011310681218093172
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4485,
+          "baseline_gap_m": 0.0002262136243618633,
+          "margin_m": 0.00011310681218093164,
+          "target": 0.00011310681218095384,
+          "baseline_slack_m": 0.00011310681218093166
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4494,
+          "baseline_gap_m": 0.0034063733946825495,
+          "margin_m": 0.00011310681218093164,
+          "target": 0.00011310681218095224,
+          "baseline_slack_m": 0.0032932665825016177
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.00022621362436186327,
+          "margin_m": 0.00011310681218093164,
+          "target": 0.00011310681218090656,
+          "baseline_slack_m": 0.00011310681218093164
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7455,
+        7467
+      ],
+      "axis_source": "triangle_normal_b",
+      "normal": [
+        -0.2250349733725419,
+        0.9186794947034007,
+        0.3246340197371862
+      ],
+      "baseline_min_nonshared_gap_m": 0.00040836085166919266,
+      "margin_m": 0.00020418042583459633,
+      "candidate_min_nonshared_gap_m": -0.00020804663916033992,
+      "candidate_margin_violation_m": 0.0004122270649949362,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.00020418042583459633,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4478,
+          "baseline_gap_m": 0.005989658611132253,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583460888,
+          "baseline_slack_m": 0.005785478185297656
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.005989658611132253,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583460715,
+          "baseline_slack_m": 0.005785478185297656
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4477,
+          "baseline_gap_m": 0.005989658611132252,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.0002041804258346375,
+          "baseline_slack_m": 0.005785478185297655
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4478,
+          "baseline_gap_m": 0.0004083608516691928,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.0002041804258345935,
+          "baseline_slack_m": 0.0002041804258345965
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.00040836085166919277,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583452271,
+          "baseline_slack_m": 0.00020418042583459644
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4477,
+          "baseline_gap_m": 0.00040836085166919266,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583459367,
+          "baseline_slack_m": 0.00020418042583459633
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4478,
+          "baseline_gap_m": 0.0072586387607010815,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583466786,
+          "baseline_slack_m": 0.007054458334866485
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.0072586387607010815,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583466613,
+          "baseline_slack_m": 0.007054458334866485
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4477,
+          "baseline_gap_m": 0.007258638760701081,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583469648,
+          "baseline_slack_m": 0.007054458334866484
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7455,
+        7472
+      ],
+      "axis_source": "edge_cross_0_2",
+      "normal": [
+        -0.11514751687518819,
+        -0.025288591314061228,
+        0.9930264530750571
+      ],
+      "baseline_min_nonshared_gap_m": 0.0001810118701879997,
+      "margin_m": 9.050593509399985e-05,
+      "candidate_min_nonshared_gap_m": 0.0002035142467154132,
+      "candidate_margin_violation_m": 0.0,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 9.050593509399985e-05,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.00018101187018799977,
+          "margin_m": 9.050593509399985e-05,
+          "target": 9.050593509400145e-05,
+          "baseline_slack_m": 9.050593509399993e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.00033432069691838795,
+          "margin_m": 9.050593509399985e-05,
+          "target": 9.050593509399003e-05,
+          "baseline_slack_m": 0.0002438147618243881
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0001810118701879998,
+          "margin_m": 9.050593509399985e-05,
+          "target": 9.050593509399765e-05,
+          "baseline_slack_m": 9.050593509399995e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.0001810118701879997,
+          "margin_m": 9.050593509399985e-05,
+          "target": 9.05059350940064e-05,
+          "baseline_slack_m": 9.050593509399985e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.00033432069691838805,
+          "margin_m": 9.050593509399985e-05,
+          "target": 9.050593509398993e-05,
+          "baseline_slack_m": 0.0002438147618243882
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0001810118701879998,
+          "margin_m": 9.050593509399985e-05,
+          "target": 9.050593509399765e-05,
+          "baseline_slack_m": 9.050593509399995e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.0009047898400838019,
+          "margin_m": 9.050593509399985e-05,
+          "target": 9.050593509398819e-05,
+          "baseline_slack_m": 0.0008142839049898021
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.0010580986668141902,
+          "margin_m": 9.050593509399985e-05,
+          "target": 9.050593509399925e-05,
+          "baseline_slack_m": 0.0009675927317201903
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0009047898400838022,
+          "margin_m": 9.050593509399985e-05,
+          "target": 9.050593509400662e-05,
+          "baseline_slack_m": 0.0008142839049898023
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7455,
+        7473
+      ],
+      "axis_source": "edge_cross_0_1",
+      "normal": [
+        -0.1643145364893347,
+        0.0075194986284491195,
+        0.986379333846098
+      ],
+      "baseline_min_nonshared_gap_m": 0.00014258516157777262,
+      "margin_m": 7.129258078888631e-05,
+      "candidate_min_nonshared_gap_m": 0.00010971438989150711,
+      "candidate_margin_violation_m": 0.0,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 7.129258078888631e-05,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.00034115751866387484,
+          "margin_m": 7.129258078888631e-05,
+          "target": 7.129258078890214e-05,
+          "baseline_slack_m": 0.00026986493787498853
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4479,
+          "baseline_gap_m": 0.00014258516157777268,
+          "margin_m": 7.129258078888631e-05,
+          "target": 7.12925807888952e-05,
+          "baseline_slack_m": 7.129258078888637e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4470,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.00014258516157777262,
+          "margin_m": 7.129258078888631e-05,
+          "target": 7.129258078888227e-05,
+          "baseline_slack_m": 7.129258078888631e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.0003411575186638747,
+          "margin_m": 7.129258078888631e-05,
+          "target": 7.1292580788879e-05,
+          "baseline_slack_m": 0.00026986493787498837
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4479,
+          "baseline_gap_m": 0.00014258516157777262,
+          "margin_m": 7.129258078888631e-05,
+          "target": 7.129258078889016e-05,
+          "baseline_slack_m": 7.129258078888631e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.00014258516157777262,
+          "margin_m": 7.129258078888631e-05,
+          "target": 7.129258078888227e-05,
+          "baseline_slack_m": 7.129258078888631e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.0011795157714137197,
+          "margin_m": 7.129258078888631e-05,
+          "target": 7.12925807888965e-05,
+          "baseline_slack_m": 0.0011082231906248334
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4479,
+          "baseline_gap_m": 0.0009809434143276175,
+          "margin_m": 7.129258078888631e-05,
+          "target": 7.129258078888263e-05,
+          "baseline_slack_m": 0.0009096508335387312
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.0009809434143276173,
+          "margin_m": 7.129258078888631e-05,
+          "target": 7.129258078886983e-05,
+          "baseline_slack_m": 0.000909650833538731
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7456,
+        7467
+      ],
+      "axis_source": "triangle_normal_b",
+      "normal": [
+        -0.2250349733725419,
+        0.9186794947034007,
+        0.3246340197371862
+      ],
+      "baseline_min_nonshared_gap_m": 0.00040836085166919266,
+      "margin_m": 0.00020418042583459633,
+      "candidate_min_nonshared_gap_m": -0.00020804663916033992,
+      "candidate_margin_violation_m": 0.0004122270649949362,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.00020418042583459633,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4478,
+          "baseline_gap_m": 0.0072586387607010815,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583466786,
+          "baseline_slack_m": 0.007054458334866485
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.0072586387607010815,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583466613,
+          "baseline_slack_m": 0.007054458334866485
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4477,
+          "baseline_gap_m": 0.007258638760701081,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583469648,
+          "baseline_slack_m": 0.007054458334866484
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4478,
+          "baseline_gap_m": 0.0004083608516691928,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.0002041804258345935,
+          "baseline_slack_m": 0.0002041804258345965
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.00040836085166919277,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583452271,
+          "baseline_slack_m": 0.00020418042583459644
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4477,
+          "baseline_gap_m": 0.00040836085166919266,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583459367,
+          "baseline_slack_m": 0.00020418042583459633
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4473,
+          "vertex_b": 4478,
+          "baseline_gap_m": 0.004625142521714816,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.0002041804258345898,
+          "baseline_slack_m": 0.004420962095880219
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4473,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.004625142521714816,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583458806,
+          "baseline_slack_m": 0.004420962095880219
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4473,
+          "vertex_b": 4477,
+          "baseline_gap_m": 0.004625142521714816,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583461755,
+          "baseline_slack_m": 0.004420962095880219
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7456,
+        7473
+      ],
+      "axis_source": "edge_cross_0_1",
+      "normal": [
+        -0.1456354758746627,
+        -0.10777910849009516,
+        0.9834500353042044
+      ],
+      "baseline_min_nonshared_gap_m": 0.000210451491713787,
+      "margin_m": 0.0001052257458568935,
+      "candidate_min_nonshared_gap_m": 0.00016742969664273913,
+      "candidate_margin_violation_m": 0.0,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.0001052257458568935,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.0008641006973291233,
+          "margin_m": 0.0001052257458568935,
+          "target": 0.00010522574585687965,
+          "baseline_slack_m": 0.0007588749514722298
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4479,
+          "baseline_gap_m": 0.000210451491713787,
+          "margin_m": 0.0001052257458568935,
+          "target": 0.00010522574585688002,
+          "baseline_slack_m": 0.0001052257458568935
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4471,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.00021045149171378705,
+          "margin_m": 0.0001052257458568935,
+          "target": 0.00010522574585688713,
+          "baseline_slack_m": 0.00010522574585689355
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.0008641006973291232,
+          "margin_m": 0.0001052257458568935,
+          "target": 0.00010522574585686121,
+          "baseline_slack_m": 0.0007588749514722297
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4479,
+          "baseline_gap_m": 0.00021045149171378705,
+          "margin_m": 0.0001052257458568935,
+          "target": 0.00010522574585686081,
+          "baseline_slack_m": 0.00010522574585689355
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.00021045149171378705,
+          "margin_m": 0.0001052257458568935,
+          "target": 0.00010522574585688713,
+          "baseline_slack_m": 0.00010522574585689355
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4473,
+          "vertex_b": 4465,
+          "baseline_gap_m": 0.0013437549734503927,
+          "margin_m": 0.0001052257458568935,
+          "target": 0.00010522574585689081,
+          "baseline_slack_m": 0.0012385292275934993
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4473,
+          "vertex_b": 4479,
+          "baseline_gap_m": 0.0006901057678350566,
+          "margin_m": 0.0001052257458568935,
+          "target": 0.00010522574585689894,
+          "baseline_slack_m": 0.0005848800219781631
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4473,
+          "vertex_b": 4484,
+          "baseline_gap_m": 0.0006901057678350567,
+          "margin_m": 0.0001052257458568935,
+          "target": 0.00010522574585690599,
+          "baseline_slack_m": 0.0005848800219781632
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7467,
+        7478
+      ],
+      "axis_source": "triangle_normal_a",
+      "normal": [
+        0.2250349733725419,
+        -0.9186794947034007,
+        -0.3246340197371862
+      ],
+      "baseline_min_nonshared_gap_m": 0.00040836085166919266,
+      "margin_m": 0.00020418042583459633,
+      "candidate_min_nonshared_gap_m": -0.00020804663916033992,
+      "candidate_margin_violation_m": 0.0004122270649949362,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.00020418042583459633,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4478,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.004625142521714816,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.0002041804258345898,
+          "baseline_slack_m": 0.004420962095880219
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4478,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0004083608516691928,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.0002041804258345935,
+          "baseline_slack_m": 0.0002041804258345965
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4478,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.002685354453242818,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583469171,
+          "baseline_slack_m": 0.0024811740274082216
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.004625142521714816,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583458806,
+          "baseline_slack_m": 0.004420962095880219
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.00040836085166919277,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583452271,
+          "baseline_slack_m": 0.00020418042583459644
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.0026853544532428183,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583452648,
+          "baseline_slack_m": 0.002481174027408222
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4477,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.004625142521714816,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583461755,
+          "baseline_slack_m": 0.004420962095880219
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4477,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.00040836085166919266,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583459367,
+          "baseline_slack_m": 0.00020418042583459633
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4477,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.002685354453242818,
+          "margin_m": 0.00020418042583459633,
+          "target": 0.00020418042583469171,
+          "baseline_slack_m": 0.0024811740274082216
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7467,
+        7492
+      ],
+      "axis_source": "edge_cross_2_1",
+      "normal": [
+        0.310200975566513,
+        -0.8265366517128607,
+        -0.4696940686583949
+      ],
+      "baseline_min_nonshared_gap_m": 0.0002707317019348886,
+      "margin_m": 0.0001353658509674443,
+      "candidate_min_nonshared_gap_m": -0.00026441415609187893,
+      "candidate_margin_violation_m": 0.00039978000705932326,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.0001353658509674443,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4478,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0022360283383332136,
+          "margin_m": 0.0001353658509674443,
+          "target": 0.00013536585096756868,
+          "baseline_slack_m": 0.0021006624873657694
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4478,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.0009094083506898786,
+          "margin_m": 0.0001353658509674443,
+          "target": 0.00013536585096756825,
+          "baseline_slack_m": 0.0007740424997224343
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4478,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0009094083506898786,
+          "margin_m": 0.0001353658509674443,
+          "target": 0.00013536585096749203,
+          "baseline_slack_m": 0.0007740424997224343
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0015973516895782234,
+          "margin_m": 0.0001353658509674443,
+          "target": 0.0001353658509675045,
+          "baseline_slack_m": 0.0014619858386107792
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.0002707317019348886,
+          "margin_m": 0.0001353658509674443,
+          "target": 0.00013536585096750388,
+          "baseline_slack_m": 0.0001353658509674443
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.00027073170193488865,
+          "margin_m": 0.0001353658509674443,
+          "target": 0.00013536585096748252,
+          "baseline_slack_m": 0.00013536585096744435
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4477,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0022360283383332136,
+          "margin_m": 0.0001353658509674443,
+          "target": 0.00013536585096745766,
+          "baseline_slack_m": 0.0021006624873657694
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4477,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.0009094083506898785,
+          "margin_m": 0.0001353658509674443,
+          "target": 0.00013536585096745734,
+          "baseline_slack_m": 0.0007740424997224342
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4477,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0009094083506898784,
+          "margin_m": 0.0001353658509674443,
+          "target": 0.00013536585096738123,
+          "baseline_slack_m": 0.0007740424997224341
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7468,
+        7478
+      ],
+      "axis_source": "triangle_normal_a",
+      "normal": [
+        0.037176133001715725,
+        -0.92214073075672,
+        0.38506416064663984
+      ],
+      "baseline_min_nonshared_gap_m": 0.0004900675926694281,
+      "margin_m": 0.00024503379633471407,
+      "candidate_min_nonshared_gap_m": -0.0001711971497602097,
+      "candidate_margin_violation_m": 0.0004162309460949238,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.00024503379633471407,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4478,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.00408491974458842,
+          "margin_m": 0.00024503379633471407,
+          "target": 0.0002450337963347156,
+          "baseline_slack_m": 0.003839885948253706
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4478,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0004900675926694281,
+          "margin_m": 0.00024503379633471407,
+          "target": 0.0002450337963346949,
+          "baseline_slack_m": 0.00024503379633471407
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4478,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.0011772418737857713,
+          "margin_m": 0.00024503379633471407,
+          "target": 0.00024503379633479387,
+          "baseline_slack_m": 0.0009322080774510572
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4487,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.004084919744588421,
+          "margin_m": 0.00024503379633471407,
+          "target": 0.0002450337963347234,
+          "baseline_slack_m": 0.003839885948253707
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4487,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0004900675926694281,
+          "margin_m": 0.00024503379633471407,
+          "target": 0.0002450337963348122,
+          "baseline_slack_m": 0.00024503379633471407
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4487,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.0011772418737857713,
+          "margin_m": 0.00024503379633471407,
+          "target": 0.00024503379633466745,
+          "baseline_slack_m": 0.0009322080774510572
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.004084919744588421,
+          "margin_m": 0.00024503379633471407,
+          "target": 0.0002450337963347624,
+          "baseline_slack_m": 0.003839885948253707
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0004900675926694281,
+          "margin_m": 0.00024503379633471407,
+          "target": 0.0002450337963348512,
+          "baseline_slack_m": 0.00024503379633471407
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.0011772418737857713,
+          "margin_m": 0.00024503379633471407,
+          "target": 0.0002450337963347067,
+          "baseline_slack_m": 0.0009322080774510572
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7468,
+        7492
+      ],
+      "axis_source": "edge_cross_1_1",
+      "normal": [
+        0.3185903118999168,
+        -0.9048865784283082,
+        -0.28227733409507577
+      ],
+      "baseline_min_nonshared_gap_m": 0.0002712566230863101,
+      "margin_m": 0.00013562831154315504,
+      "candidate_min_nonshared_gap_m": -0.0005261009964051213,
+      "candidate_margin_violation_m": 0.0006617293079482764,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.00013562831154315504,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4478,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0029217258775450653,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154325956,
+          "baseline_slack_m": 0.0027860975660019102
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4478,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.0013979229156660569,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154321033,
+          "baseline_slack_m": 0.0012622946041229018
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4478,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0013979229156660573,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154323505,
+          "baseline_slack_m": 0.0012622946041229023
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4487,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0017950595849653178,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.0001356283115431596,
+          "baseline_slack_m": 0.0016594312734221628
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4487,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.0002712566230863104,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154310907,
+          "baseline_slack_m": 0.00013562831154315536
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4487,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0002712566230863102,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154318784,
+          "baseline_slack_m": 0.00013562831154315515
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0017950595849653178,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154327062,
+          "baseline_slack_m": 0.0016594312734221628
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.0002712566230863101,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154322042,
+          "baseline_slack_m": 0.00013562831154315504
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0002712566230863102,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154311232,
+          "baseline_slack_m": 0.00013562831154315515
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7473,
+        7478
+      ],
+      "axis_source": "edge_cross_1_0",
+      "normal": [
+        0.12590734409455995,
+        0.2166941655045294,
+        -0.9680862458166367
+      ],
+      "baseline_min_nonshared_gap_m": 0.0002726825894008223,
+      "margin_m": 0.00013634129470041116,
+      "candidate_min_nonshared_gap_m": 0.00015318851258619483,
+      "candidate_margin_violation_m": 0.0,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.00013634129470041116,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4465,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.0013532976696262263,
+          "margin_m": 0.00013634129470041116,
+          "target": 0.0001363412947003983,
+          "baseline_slack_m": 0.0012169563749258152
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4465,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0013532976696262265,
+          "margin_m": 0.00013634129470041116,
+          "target": 0.00013634129470038985,
+          "baseline_slack_m": 0.0012169563749258154
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4465,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.002384260277824777,
+          "margin_m": 0.00013634129470041116,
+          "target": 0.00013634129470038118,
+          "baseline_slack_m": 0.002247918983124366
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4479,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.00027268258940082237,
+          "margin_m": 0.00013634129470041116,
+          "target": 0.00013634129470034724,
+          "baseline_slack_m": 0.0001363412947004112
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4479,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0002726825894008223,
+          "margin_m": 0.00013634129470041116,
+          "target": 0.00013634129470040525,
+          "baseline_slack_m": 0.00013634129470041116
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4479,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.0013036451975993728,
+          "margin_m": 0.00013634129470041116,
+          "target": 0.0001363412947003968,
+          "baseline_slack_m": 0.0011673039028989617
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4484,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.0002726825894008224,
+          "margin_m": 0.00013634129470041116,
+          "target": 0.0001363412947003633,
+          "baseline_slack_m": 0.00013634129470041127
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4484,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.00027268258940082237,
+          "margin_m": 0.00013634129470041116,
+          "target": 0.00013634129470041885,
+          "baseline_slack_m": 0.0001363412947004112
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4484,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.0013036451975993728,
+          "margin_m": 0.00013634129470041116,
+          "target": 0.000136341294700384,
+          "baseline_slack_m": 0.0011673039028989617
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7474,
+        7478
+      ],
+      "axis_source": "edge_cross_0_2",
+      "normal": [
+        0.2150597443717404,
+        -0.25089764663857383,
+        -0.943821846145758
+      ],
+      "baseline_min_nonshared_gap_m": 5.0775797338830026e-05,
+      "margin_m": 2.5387898669415013e-05,
+      "candidate_min_nonshared_gap_m": -1.4447609658224951e-05,
+      "candidate_margin_violation_m": 3.9835508327639964e-05,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 2.5387898669415013e-05,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4477,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.0020124859363932083,
+          "margin_m": 2.5387898669415013e-05,
+          "target": 2.538789866942618e-05,
+          "baseline_slack_m": 0.0019870980377237933
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4477,
+          "vertex_b": 4480,
+          "baseline_gap_m": 5.0775797338830026e-05,
+          "margin_m": 2.5387898669415013e-05,
+          "target": 2.5387898669410385e-05,
+          "baseline_slack_m": 2.5387898669415013e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4477,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.0020124859363932083,
+          "margin_m": 2.5387898669415013e-05,
+          "target": 2.5387898669402328e-05,
+          "baseline_slack_m": 0.0019870980377237933
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.0020124859363932083,
+          "margin_m": 2.5387898669415013e-05,
+          "target": 2.538789866942618e-05,
+          "baseline_slack_m": 0.0019870980377237933
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4480,
+          "baseline_gap_m": 5.077579733883008e-05,
+          "margin_m": 2.5387898669415013e-05,
+          "target": 2.5387898669419777e-05,
+          "baseline_slack_m": 2.5387898669415067e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.0020124859363932083,
+          "margin_m": 2.5387898669415013e-05,
+          "target": 2.538789866942618e-05,
+          "baseline_slack_m": 0.0019870980377237933
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4479,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.0020813824641019605,
+          "margin_m": 2.5387898669415013e-05,
+          "target": 2.5387898669418374e-05,
+          "baseline_slack_m": 0.0020559945654325456
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4479,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.00011967232504758263,
+          "margin_m": 2.5387898669415013e-05,
+          "target": 2.5387898669408318e-05,
+          "baseline_slack_m": 9.428442637816762e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4479,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.0020813824641019605,
+          "margin_m": 2.5387898669415013e-05,
+          "target": 2.5387898669400593e-05,
+          "baseline_slack_m": 0.0020559945654325456
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7475,
+        7478
+      ],
+      "axis_source": "edge_cross_2_2",
+      "normal": [
+        0.189246215666294,
+        -0.1895242402895978,
+        -0.963465843815253
+      ],
+      "baseline_min_nonshared_gap_m": 3.134966737910485e-05,
+      "margin_m": 1.5674833689552424e-05,
+      "candidate_min_nonshared_gap_m": -6.81648773814842e-05,
+      "candidate_margin_violation_m": 8.383971107103663e-05,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 1.5674833689552424e-05,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4479,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.001761134434697512,
+          "margin_m": 1.5674833689552424e-05,
+          "target": 1.5674833689533884e-05,
+          "baseline_slack_m": 0.0017454596010079595
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4479,
+          "vertex_b": 4480,
+          "baseline_gap_m": 3.134966737910485e-05,
+          "margin_m": 1.5674833689552424e-05,
+          "target": 1.5674833689527548e-05,
+          "baseline_slack_m": 1.5674833689552424e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4479,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.001761134434697512,
+          "margin_m": 1.5674833689552424e-05,
+          "target": 1.5674833689534968e-05,
+          "baseline_slack_m": 0.0017454596010079595
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.0018459030020083803,
+          "margin_m": 1.5674833689552424e-05,
+          "target": 1.5674833689542558e-05,
+          "baseline_slack_m": 0.0018302281683188278
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0001161182346899732,
+          "margin_m": 1.5674833689552424e-05,
+          "target": 1.5674833689548087e-05,
+          "baseline_slack_m": 0.00010044340100042078
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.00184590300200838,
+          "margin_m": 1.5674833689552424e-05,
+          "target": 1.5674833689556435e-05,
+          "baseline_slack_m": 0.0018302281683188278
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4484,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.001761134434697512,
+          "margin_m": 1.5674833689552424e-05,
+          "target": 1.5674833689536703e-05,
+          "baseline_slack_m": 0.0017454596010079595
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4484,
+          "vertex_b": 4480,
+          "baseline_gap_m": 3.1349667379105065e-05,
+          "margin_m": 1.5674833689552424e-05,
+          "target": 1.5674833689556056e-05,
+          "baseline_slack_m": 1.567483368955264e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4484,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.001761134434697512,
+          "margin_m": 1.5674833689552424e-05,
+          "target": 1.567483368955058e-05,
+          "baseline_slack_m": 0.0017454596010079595
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7476,
+        7478
+      ],
+      "axis_source": "triangle_normal_a",
+      "normal": [
+        0.21159017997569898,
+        -0.17575047811598643,
+        -0.9614267341715923
+      ],
+      "baseline_min_nonshared_gap_m": 6.547730497966862e-05,
+      "margin_m": 3.273865248983431e-05,
+      "candidate_min_nonshared_gap_m": 3.273864400320101e-05,
+      "candidate_margin_violation_m": 8.486633298237026e-12,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 3.273865248983431e-05,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4477,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.0017199991367892649,
+          "margin_m": 3.273865248983431e-05,
+          "target": 3.2738652489835854e-05,
+          "baseline_slack_m": 0.0016872604842994305
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4477,
+          "vertex_b": 4480,
+          "baseline_gap_m": 6.547730497966867e-05,
+          "margin_m": 3.273865248983431e-05,
+          "target": 3.2738652489830216e-05,
+          "baseline_slack_m": 3.2738652489834363e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4477,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.001965760714906102,
+          "margin_m": 3.273865248983431e-05,
+          "target": 3.273865248982653e-05,
+          "baseline_slack_m": 0.0019330220624162679
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.001719999136789265,
+          "margin_m": 3.273865248983431e-05,
+          "target": 3.2738652489837155e-05,
+          "baseline_slack_m": 0.0016872604842994307
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4480,
+          "baseline_gap_m": 6.547730497966862e-05,
+          "margin_m": 3.273865248983431e-05,
+          "target": 3.273865248983419e-05,
+          "baseline_slack_m": 3.273865248983431e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.001965760714906102,
+          "margin_m": 3.273865248983431e-05,
+          "target": 3.2738652489843444e-05,
+          "baseline_slack_m": 0.0019330220624162679
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4473,
+          "baseline_gap_m": 0.001719999136789265,
+          "margin_m": 3.273865248983431e-05,
+          "target": 3.27386524898313e-05,
+          "baseline_slack_m": 0.0016872604842994307
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4480,
+          "baseline_gap_m": 6.547730497966862e-05,
+          "margin_m": 3.273865248983431e-05,
+          "target": 3.273865248982825e-05,
+          "baseline_slack_m": 3.273865248983431e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4481,
+          "baseline_gap_m": 0.001965760714906102,
+          "margin_m": 3.273865248983431e-05,
+          "target": 3.273865248983737e-05,
+          "baseline_slack_m": 0.0019330220624162679
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7478,
+        7488
+      ],
+      "axis_source": "in_plane_normal_cross_edge_0_1",
+      "normal": [
+        0.06321854230290312,
+        0.9701214700196147,
+        0.23423865888464687
+      ],
+      "baseline_min_nonshared_gap_m": 0.0002990509767149898,
+      "margin_m": 0.0001495254883574949,
+      "candidate_min_nonshared_gap_m": -5.6656688104819795e-05,
+      "candidate_margin_violation_m": 0.0002061821764623147,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.0001495254883574949,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4473,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.005301907193454365,
+          "margin_m": 0.0001495254883574949,
+          "target": 0.00014952548835756377,
+          "baseline_slack_m": 0.00515238170509687
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4473,
+          "vertex_b": 4494,
+          "baseline_gap_m": 0.010820364525776806,
+          "margin_m": 0.0001495254883574949,
+          "target": 0.0001495254883576401,
+          "baseline_slack_m": 0.010670839037419312
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4473,
+          "vertex_b": 4485,
+          "baseline_gap_m": 0.0048133825659387895,
+          "margin_m": 0.0001495254883574949,
+          "target": 0.0001495254883576028,
+          "baseline_slack_m": 0.004663857077581294
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.0007875756042305653,
+          "margin_m": 0.0001495254883574949,
+          "target": 0.00014952548835748907,
+          "baseline_slack_m": 0.0006380501158730704
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4494,
+          "baseline_gap_m": 0.006306032936553008,
+          "margin_m": 0.0001495254883574949,
+          "target": 0.00014952548835756464,
+          "baseline_slack_m": 0.006156507448195513
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4485,
+          "baseline_gap_m": 0.0002990509767149898,
+          "margin_m": 0.0001495254883574949,
+          "target": 0.00014952548835752802,
+          "baseline_slack_m": 0.0001495254883574949
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4481,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.0007875756042305653,
+          "margin_m": 0.0001495254883574949,
+          "target": 0.00014952548835748907,
+          "baseline_slack_m": 0.0006380501158730704
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4481,
+          "vertex_b": 4494,
+          "baseline_gap_m": 0.006306032936553008,
+          "margin_m": 0.0001495254883574949,
+          "target": 0.00014952548835756464,
+          "baseline_slack_m": 0.006156507448195513
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4481,
+          "vertex_b": 4485,
+          "baseline_gap_m": 0.0002990509767149898,
+          "margin_m": 0.0001495254883574949,
+          "target": 0.00014952548835752802,
+          "baseline_slack_m": 0.0001495254883574949
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7478,
+        7490
+      ],
+      "axis_source": "edge_cross_1_2",
+      "normal": [
+        0.04212225870735361,
+        0.8459389499941676,
+        -0.5316135891831172
+      ],
+      "baseline_min_nonshared_gap_m": 0.0005062157686346779,
+      "margin_m": 0.00025310788431733895,
+      "candidate_min_nonshared_gap_m": -6.0289285448515944e-05,
+      "candidate_margin_violation_m": 0.0003133971697658549,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.00025310788431733895,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4473,
+          "vertex_b": 4487,
+          "baseline_gap_m": 0.0036608396727265606,
+          "margin_m": 0.00025310788431733895,
+          "target": 0.00025310788431740167,
+          "baseline_slack_m": 0.003407731788409222
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4473,
+          "vertex_b": 4648,
+          "baseline_gap_m": 0.011063356251959594,
+          "margin_m": 0.00025310788431733895,
+          "target": 0.0002531078843173735,
+          "baseline_slack_m": 0.010810248367642255
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4473,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.003660839672726561,
+          "margin_m": 0.00025310788431733895,
+          "target": 0.000253107884317419,
+          "baseline_slack_m": 0.0034077317884092222
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4487,
+          "baseline_gap_m": 0.000506215768634678,
+          "margin_m": 0.00025310788431733895,
+          "target": 0.00025310788431734903,
+          "baseline_slack_m": 0.00025310788431733906
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4648,
+          "baseline_gap_m": 0.00790873234786771,
+          "margin_m": 0.00025310788431733895,
+          "target": 0.00025310788431732144,
+          "baseline_slack_m": 0.0076556244635503715
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.0005062157686346779,
+          "margin_m": 0.00025310788431733895,
+          "target": 0.0002531078843173668,
+          "baseline_slack_m": 0.00025310788431733895
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4481,
+          "vertex_b": 4487,
+          "baseline_gap_m": 0.000506215768634678,
+          "margin_m": 0.00025310788431733895,
+          "target": 0.00025310788431734903,
+          "baseline_slack_m": 0.00025310788431733906
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4481,
+          "vertex_b": 4648,
+          "baseline_gap_m": 0.00790873234786771,
+          "margin_m": 0.00025310788431733895,
+          "target": 0.00025310788431732144,
+          "baseline_slack_m": 0.0076556244635503715
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4481,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.000506215768634678,
+          "margin_m": 0.00025310788431733895,
+          "target": 0.0002531078843173667,
+          "baseline_slack_m": 0.00025310788431733906
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7479,
+        7488
+      ],
+      "axis_source": "edge_cross_0_2",
+      "normal": [
+        -0.10142718607602245,
+        0.32489619858109353,
+        0.9402951590177707
+      ],
+      "baseline_min_nonshared_gap_m": 0.0003008702418498992,
+      "margin_m": 0.0001504351209249496,
+      "candidate_min_nonshared_gap_m": 0.00015043510982295857,
+      "candidate_margin_violation_m": 1.110199104414726e-11,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.0001504351209249496,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.00030087024184989933,
+          "margin_m": 0.0001504351209249496,
+          "target": 0.00015043512092495818,
+          "baseline_slack_m": 0.00015043512092494972
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4494,
+          "baseline_gap_m": 0.002128904036846278,
+          "margin_m": 0.0001504351209249496,
+          "target": 0.00015043512092496273,
+          "baseline_slack_m": 0.001978468915921328
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4485,
+          "baseline_gap_m": 0.0003008702418498993,
+          "margin_m": 0.0001504351209249496,
+          "target": 0.00015043512092495238,
+          "baseline_slack_m": 0.00015043512092494967
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4490,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.0003008702418498992,
+          "margin_m": 0.0001504351209249496,
+          "target": 0.00015043512092497411,
+          "baseline_slack_m": 0.0001504351209249496
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4490,
+          "vertex_b": 4494,
+          "baseline_gap_m": 0.002128904036846278,
+          "margin_m": 0.0001504351209249496,
+          "target": 0.00015043512092493497,
+          "baseline_slack_m": 0.001978468915921328
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4490,
+          "vertex_b": 4485,
+          "baseline_gap_m": 0.00030087024184989933,
+          "margin_m": 0.0001504351209249496,
+          "target": 0.00015043512092494625,
+          "baseline_slack_m": 0.00015043512092494972
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4481,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.0013954521684340462,
+          "margin_m": 0.0001504351209249496,
+          "target": 0.00015043512092493736,
+          "baseline_slack_m": 0.0012450170475090967
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4481,
+          "vertex_b": 4494,
+          "baseline_gap_m": 0.0032234859634304247,
+          "margin_m": 0.0001504351209249496,
+          "target": 0.0001504351209249419,
+          "baseline_slack_m": 0.003073050842505475
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4481,
+          "vertex_b": 4485,
+          "baseline_gap_m": 0.0013954521684340464,
+          "margin_m": 0.0001504351209249496,
+          "target": 0.0001504351209249315,
+          "baseline_slack_m": 0.0012450170475090967
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7479,
+        7490
+      ],
+      "axis_source": "edge_cross_0_2",
+      "normal": [
+        -0.2916281605471386,
+        0.9345216762858626,
+        0.20401532424735608
+      ],
+      "baseline_min_nonshared_gap_m": 0.00030793000386554047,
+      "margin_m": 0.00015396500193277024,
+      "candidate_min_nonshared_gap_m": -0.0004958607536604073,
+      "candidate_margin_violation_m": 0.0006498257555931776,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.00015396500193277024,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4487,
+          "baseline_gap_m": 0.0003079300038655408,
+          "margin_m": 0.00015396500193277024,
+          "target": 0.00015396500193279116,
+          "baseline_slack_m": 0.00015396500193277056
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4648,
+          "baseline_gap_m": 0.007637422014463369,
+          "margin_m": 0.00015396500193277024,
+          "target": 0.00015396500193281572,
+          "baseline_slack_m": 0.007483457012530599
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4480,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.0003079300038655408,
+          "margin_m": 0.00015396500193277024,
+          "target": 0.00015396500193274687,
+          "baseline_slack_m": 0.00015396500193277056
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4490,
+          "vertex_b": 4487,
+          "baseline_gap_m": 0.00030793000386554047,
+          "margin_m": 0.00015396500193277024,
+          "target": 0.00015396500193273196,
+          "baseline_slack_m": 0.00015396500193277024
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4490,
+          "vertex_b": 4648,
+          "baseline_gap_m": 0.0076374220144633685,
+          "margin_m": 0.00015396500193277024,
+          "target": 0.00015396500193281659,
+          "baseline_slack_m": 0.007483457012530598
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4490,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.00030793000386554063,
+          "margin_m": 0.00015396500193277024,
+          "target": 0.0001539650019327318,
+          "baseline_slack_m": 0.0001539650019327704
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4481,
+          "vertex_b": 4487,
+          "baseline_gap_m": 0.0031045125836703944,
+          "margin_m": 0.00015396500193277024,
+          "target": 0.0001539650019328001,
+          "baseline_slack_m": 0.002950547581737624
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4481,
+          "vertex_b": 4648,
+          "baseline_gap_m": 0.010434004594268222,
+          "margin_m": 0.00015396500193277024,
+          "target": 0.00015396500193282613,
+          "baseline_slack_m": 0.010280039592335451
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4481,
+          "vertex_b": 4486,
+          "baseline_gap_m": 0.0031045125836703944,
+          "margin_m": 0.00015396500193277024,
+          "target": 0.00015396500193275587,
+          "baseline_slack_m": 0.002950547581737624
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7487,
+        7491
+      ],
+      "axis_source": "edge_cross_0_0",
+      "normal": [
+        0.09667196285346762,
+        -0.020095461950143206,
+        -0.9951134126354986
+      ],
+      "baseline_min_nonshared_gap_m": 0.00033099381919791536,
+      "margin_m": 0.00016549690959895768,
+      "candidate_min_nonshared_gap_m": 0.00034316918068802384,
+      "candidate_margin_violation_m": 0.0,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.00016549690959895768,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.00033099381919791536,
+          "margin_m": 0.00016549690959895768,
+          "target": 0.00016549690959895183,
+          "baseline_slack_m": 0.00016549690959895768
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.00033099381919791536,
+          "margin_m": 0.00016549690959895768,
+          "target": 0.0001654969095989464,
+          "baseline_slack_m": 0.00016549690959895768
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4490,
+          "baseline_gap_m": 0.0011287287768899051,
+          "margin_m": 0.00016549690959895768,
+          "target": 0.0001654969095989529,
+          "baseline_slack_m": 0.0009632318672909474
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4494,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.00033099381919791536,
+          "margin_m": 0.00016549690959895768,
+          "target": 0.0001654969095989483,
+          "baseline_slack_m": 0.00016549690959895768
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4494,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.00033099381919791536,
+          "margin_m": 0.00016549690959895768,
+          "target": 0.0001654969095989483,
+          "baseline_slack_m": 0.00016549690959895768
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4494,
+          "vertex_b": 4490,
+          "baseline_gap_m": 0.0011287287768899051,
+          "margin_m": 0.00016549690959895768,
+          "target": 0.00016549690959893426,
+          "baseline_slack_m": 0.0009632318672909474
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4484,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.00040646280800691286,
+          "margin_m": 0.00016549690959895768,
+          "target": 0.00016549690959896608,
+          "baseline_slack_m": 0.00024096589840795517
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4484,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.0004064628080069128,
+          "margin_m": 0.00016549690959895768,
+          "target": 0.00016549690959895107,
+          "baseline_slack_m": 0.00024096589840795512
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4484,
+          "vertex_b": 4490,
+          "baseline_gap_m": 0.0012041977656989029,
+          "margin_m": 0.00016549690959895768,
+          "target": 0.00016549690959895714,
+          "baseline_slack_m": 0.0010387008560999453
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7487,
+        7492
+      ],
+      "axis_source": "triangle_normal_b",
+      "normal": [
+        0.14299852009613145,
+        -0.16872352609533658,
+        -0.9752352511021495
+      ],
+      "baseline_min_nonshared_gap_m": 0.00021606166524984483,
+      "margin_m": 0.00010803083262492241,
+      "candidate_min_nonshared_gap_m": 0.00020891714186421848,
+      "candidate_margin_violation_m": 0.0,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.00010803083262492241,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.00022339964101666498,
+          "margin_m": 0.00010803083262492241,
+          "target": 0.00010803083262491268,
+          "baseline_slack_m": 0.00011536880839174257
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.00022339964101666498,
+          "margin_m": 0.00010803083262492241,
+          "target": 0.00010803083262493423,
+          "baseline_slack_m": 0.00011536880839174257
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.00022339964101666493,
+          "margin_m": 0.00010803083262492241,
+          "target": 0.00010803083262491564,
+          "baseline_slack_m": 0.00011536880839174251
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4494,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0010263688374285273,
+          "margin_m": 0.00010803083262492241,
+          "target": 0.00010803083262493694,
+          "baseline_slack_m": 0.0009183380048036049
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4494,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.0010263688374285273,
+          "margin_m": 0.00010803083262492241,
+          "target": 0.00010803083262493694,
+          "baseline_slack_m": 0.0009183380048036049
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4494,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.001026368837428527,
+          "margin_m": 0.00010803083262492241,
+          "target": 0.00010803083262493716,
+          "baseline_slack_m": 0.0009183380048036047
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4484,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.00021606166524984493,
+          "margin_m": 0.00010803083262492241,
+          "target": 0.00010803083262490813,
+          "baseline_slack_m": 0.00010803083262492252
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4484,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.0002160616652498449,
+          "margin_m": 0.00010803083262492241,
+          "target": 0.00010803083262490195,
+          "baseline_slack_m": 0.0001080308326249225
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4484,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.00021606166524984483,
+          "margin_m": 0.00010803083262492241,
+          "target": 0.00010803083262493426,
+          "baseline_slack_m": 0.00010803083262492241
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7488,
+        7491
+      ],
+      "axis_source": "edge_cross_2_0",
+      "normal": [
+        0.16474689326703254,
+        -0.24115721793853895,
+        -0.9564003645937224
+      ],
+      "baseline_min_nonshared_gap_m": 0.00016779602785341137,
+      "margin_m": 8.389801392670568e-05,
+      "candidate_min_nonshared_gap_m": 8.554194911561321e-05,
+      "candidate_margin_violation_m": 0.0,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 8.389801392670568e-05,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0001677960278534114,
+          "margin_m": 8.389801392670568e-05,
+          "target": 8.389801392672037e-05,
+          "baseline_slack_m": 8.389801392670571e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.00016779602785341142,
+          "margin_m": 8.389801392670568e-05,
+          "target": 8.389801392670273e-05,
+          "baseline_slack_m": 8.389801392670574e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4490,
+          "baseline_gap_m": 0.0009575325038799767,
+          "margin_m": 8.389801392670568e-05,
+          "target": 8.389801392671666e-05,
+          "baseline_slack_m": 0.000873634489953271
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4494,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.001363086485843703,
+          "margin_m": 8.389801392670568e-05,
+          "target": 8.389801392670875e-05,
+          "baseline_slack_m": 0.0012791884719169973
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4494,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.0013630864858437033,
+          "margin_m": 8.389801392670568e-05,
+          "target": 8.389801392670853e-05,
+          "baseline_slack_m": 0.0012791884719169976
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4494,
+          "vertex_b": 4490,
+          "baseline_gap_m": 0.0021528229618702683,
+          "margin_m": 8.389801392670568e-05,
+          "target": 8.389801392669422e-05,
+          "baseline_slack_m": 0.002068924947943563
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.00016779602785341137,
+          "margin_m": 8.389801392670568e-05,
+          "target": 8.389801392672403e-05,
+          "baseline_slack_m": 8.389801392670568e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.00016779602785341137,
+          "margin_m": 8.389801392670568e-05,
+          "target": 8.389801392670278e-05,
+          "baseline_slack_m": 8.389801392670568e-05
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4485,
+          "vertex_b": 4490,
+          "baseline_gap_m": 0.0009575325038799765,
+          "margin_m": 8.389801392670568e-05,
+          "target": 8.389801392671688e-05,
+          "baseline_slack_m": 0.0008736344899532707
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7490,
+        7491
+      ],
+      "axis_source": "edge_cross_2_0",
+      "normal": [
+        0.3185903118999168,
+        -0.9048865784283082,
+        -0.28227733409507577
+      ],
+      "baseline_min_nonshared_gap_m": 0.0002712566230863101,
+      "margin_m": 0.00013562831154315504,
+      "candidate_min_nonshared_gap_m": -0.0005261009964051213,
+      "candidate_margin_violation_m": 0.0006617293079482764,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.00013562831154315504,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4487,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0002712566230863102,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154318784,
+          "baseline_slack_m": 0.00013562831154315515
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4487,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.0002712566230863104,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154310907,
+          "baseline_slack_m": 0.00013562831154315536
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4487,
+          "vertex_b": 4490,
+          "baseline_gap_m": 0.0005909151391018977,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.0001356283115431209,
+          "baseline_slack_m": 0.0004552868275587426
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4648,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0072774965747862234,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154310517,
+          "baseline_slack_m": 0.007141868263243069
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4648,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.007277496574786224,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154310517,
+          "baseline_slack_m": 0.007141868263243069
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4648,
+          "vertex_b": 4490,
+          "baseline_gap_m": 0.007597155090801812,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.0001356283115431919,
+          "baseline_slack_m": 0.007461526779258657
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0002712566230863102,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154311232,
+          "baseline_slack_m": 0.00013562831154315515
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.0002712566230863101,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154322042,
+          "baseline_slack_m": 0.00013562831154315504
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4490,
+          "baseline_gap_m": 0.0005909151391018978,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.0001356283115432318,
+          "baseline_slack_m": 0.00045528682755874273
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pair_id": [
+        7490,
+        7492
+      ],
+      "axis_source": "edge_cross_2_1",
+      "normal": [
+        0.3185903118999168,
+        -0.9048865784283082,
+        -0.28227733409507577
+      ],
+      "baseline_min_nonshared_gap_m": 0.0002712566230863101,
+      "margin_m": 0.00013562831154315504,
+      "candidate_min_nonshared_gap_m": -0.0005261009964051213,
+      "candidate_margin_violation_m": 0.0006617293079482764,
+      "projection_sensitivity": 1.4142135623730951,
+      "shared_vertex_ids": [],
+      "constraint_row_count": 9,
+      "baseline_min_slack_m": 0.00013562831154315504,
+      "vertex_pair_provenance": [
+        {
+          "status": "constraint",
+          "vertex_a": 4487,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0017950595849653178,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.0001356283115431596,
+          "baseline_slack_m": 0.0016594312734221628
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4487,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.0002712566230863104,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154310907,
+          "baseline_slack_m": 0.00013562831154315536
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4487,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0002712566230863102,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154318784,
+          "baseline_slack_m": 0.00013562831154315515
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4648,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.008801299536665232,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154313552,
+          "baseline_slack_m": 0.008665671225122077
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4648,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.007277496574786224,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154310517,
+          "baseline_slack_m": 0.007141868263243069
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4648,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0072774965747862234,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154310517,
+          "baseline_slack_m": 0.007141868263243069
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4488,
+          "baseline_gap_m": 0.0017950595849653178,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154327062,
+          "baseline_slack_m": 0.0016594312734221628
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4489,
+          "baseline_gap_m": 0.0002712566230863101,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154322042,
+          "baseline_slack_m": 0.00013562831154315504
+        },
+        {
+          "status": "constraint",
+          "vertex_a": 4486,
+          "vertex_b": 4480,
+          "baseline_gap_m": 0.0002712566230863102,
+          "margin_m": 0.00013562831154315504,
+          "target": 0.00013562831154311232,
+          "baseline_slack_m": 0.00013562831154315515
+        }
+      ],
+      "additional_quantization_margin_m": 1e-06,
+      "row_margin_adjustments_m": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "minimum_emitted_face_area_m2": 2.1408085400617652e-11,
+  "candidate_sha256": "459bc3fb9dccc0515ab09a4fa9ea0c8e8e89e6f258706143754c86cd6818577b"
+}

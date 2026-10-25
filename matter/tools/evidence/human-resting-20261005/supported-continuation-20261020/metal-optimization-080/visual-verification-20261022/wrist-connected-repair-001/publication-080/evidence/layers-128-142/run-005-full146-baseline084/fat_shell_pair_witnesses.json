@@ -1,0 +1,400 @@
+{
+  "candidate_sha256": "637306607f31ea19d7ff23ab24339eca04b26ec6d72091b528a548b03698e12d",
+  "pair_file_sha256": "de11fc93a2449e6f7d8ecae886d1d274f9c431d2c6a88c830b7378cf8835b8ab",
+  "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "coarse_face_csv_sha256": "8270d42f41289b6a077e33aae6ffb6af9ddfa40d90ceeb7a5bd93d4f8d4cb79a",
+  "classification": "Exact Float32 predicate witnesses. These are not waived as seams; source IDs and exact intersection coordinates are retained.",
+  "witnesses": [
+    {
+      "pair": [
+        7962,
+        9636
+      ],
+      "same_indexed_vertices": [
+        12703
+      ],
+      "coincident_distinct_ids": [],
+      "exact_intersection_point_count": 5,
+      "exact_intersection_points_world_m": [
+        [
+          1.2439371509757797e+43,
+          -1.022771822900712e+44,
+          1.4741592537538077e+44
+        ],
+        [
+          1.2912972096484325e+43,
+          -1.032374141428275e+44,
+          1.461921191813685e+44
+        ],
+        [
+          1.2439371509757797e+43,
+          -1.022771822900712e+44,
+          1.4741592537538077e+44
+        ],
+        [
+          1.2439371509757797e+43,
+          -1.022771822900712e+44,
+          1.4741592537538077e+44
+        ],
+        [
+          1.2439371509757797e+43,
+          -1.022771822900712e+44,
+          1.4741592537538077e+44
+        ]
+      ],
+      "intersection_only_at_common_indexed_vertex": false,
+      "triangle_areas_m2": [
+        5.839124596594752e-06,
+        1.0424217827228522e-06
+      ],
+      "triangle_vertex_min_distance_m": 0.0,
+      "face_a": {
+        "shell_face": 7962,
+        "kind": "D",
+        "coarse_face_row": 3185,
+        "stable_source_face_id": 105650,
+        "modified_by_capacity115": false,
+        "point_ids": [
+          12703,
+          12697,
+          12749
+        ],
+        "point_layer_rows": [
+          {
+            "layer": "D",
+            "row": 1516
+          },
+          {
+            "layer": "D",
+            "row": 1510
+          },
+          {
+            "layer": "D",
+            "row": 1562
+          }
+        ],
+        "vertices_world_f32_m": [
+          [
+            0.017431272193789482,
+            -0.14332085847854614,
+            0.2065737098455429
+          ],
+          [
+            0.011580333113670349,
+            -0.14068712294101715,
+            0.21458718180656433
+          ],
+          [
+            0.01922593265771866,
+            -0.14535728096961975,
+            0.2031698375940323
+          ]
+        ]
+      },
+      "face_b": {
+        "shell_face": 9636,
+        "kind": "cap",
+        "cap_boundary_edge_row": 41,
+        "cap_triangle_in_quad": 0,
+        "coarse_boundary_directed_edge": [
+          1516,
+          1562
+        ],
+        "stable_adjacent_face_ids": [
+          105650
+        ],
+        "point_ids": [
+          10338,
+          10292,
+          12703
+        ],
+        "point_layer_rows": [
+          {
+            "layer": "I",
+            "row": 1562
+          },
+          {
+            "layer": "I",
+            "row": 1516
+          },
+          {
+            "layer": "D",
+            "row": 1516
+          }
+        ],
+        "vertices_world_f32_m": [
+          [
+            0.01866391859948635,
+            -0.14563189446926117,
+            0.20361113548278809
+          ],
+          [
+            0.01698923669755459,
+            -0.14357617497444153,
+            0.20635345578193665
+          ],
+          [
+            0.017431272193789482,
+            -0.14332085847854614,
+            0.2065737098455429
+          ]
+        ]
+      }
+    },
+    {
+      "pair": [
+        7964,
+        9636
+      ],
+      "same_indexed_vertices": [],
+      "coincident_distinct_ids": [],
+      "exact_intersection_point_count": 2,
+      "exact_intersection_points_world_m": [
+        [
+          1.2912972096484325e+43,
+          -1.032374141428275e+44,
+          1.461921191813685e+44
+        ],
+        [
+          1.2988488151173636e+43,
+          -1.033066975797338e+44,
+          1.4609616418798584e+44
+        ]
+      ],
+      "intersection_only_at_common_indexed_vertex": false,
+      "triangle_areas_m2": [
+        7.26316743331361e-05,
+        1.0424217827228522e-06
+      ],
+      "triangle_vertex_min_distance_m": 0.0007655169511228212,
+      "face_a": {
+        "shell_face": 7964,
+        "kind": "D",
+        "coarse_face_row": 3187,
+        "stable_source_face_id": 105651,
+        "modified_by_capacity115": false,
+        "point_ids": [
+          12697,
+          12747,
+          12749
+        ],
+        "point_layer_rows": [
+          {
+            "layer": "D",
+            "row": 1510
+          },
+          {
+            "layer": "D",
+            "row": 1560
+          },
+          {
+            "layer": "D",
+            "row": 1562
+          }
+        ],
+        "vertices_world_f32_m": [
+          [
+            0.011580333113670349,
+            -0.14068712294101715,
+            0.21458718180656433
+          ],
+          [
+            0.0190733689814806,
+            -0.15353354811668396,
+            0.20940256118774414
+          ],
+          [
+            0.01922593265771866,
+            -0.14535728096961975,
+            0.2031698375940323
+          ]
+        ]
+      },
+      "face_b": {
+        "shell_face": 9636,
+        "kind": "cap",
+        "cap_boundary_edge_row": 41,
+        "cap_triangle_in_quad": 0,
+        "coarse_boundary_directed_edge": [
+          1516,
+          1562
+        ],
+        "stable_adjacent_face_ids": [
+          105650
+        ],
+        "point_ids": [
+          10338,
+          10292,
+          12703
+        ],
+        "point_layer_rows": [
+          {
+            "layer": "I",
+            "row": 1562
+          },
+          {
+            "layer": "I",
+            "row": 1516
+          },
+          {
+            "layer": "D",
+            "row": 1516
+          }
+        ],
+        "vertices_world_f32_m": [
+          [
+            0.01866391859948635,
+            -0.14563189446926117,
+            0.20361113548278809
+          ],
+          [
+            0.01698923669755459,
+            -0.14357617497444153,
+            0.20635345578193665
+          ],
+          [
+            0.017431272193789482,
+            -0.14332085847854614,
+            0.2065737098455429
+          ]
+        ]
+      }
+    },
+    {
+      "pair": [
+        7964,
+        9637
+      ],
+      "same_indexed_vertices": [
+        12749
+      ],
+      "coincident_distinct_ids": [],
+      "exact_intersection_point_count": 5,
+      "exact_intersection_points_world_m": [
+        [
+          1.2988488151173636e+43,
+          -1.033066975797338e+44,
+          1.4609616418798584e+44
+        ],
+        [
+          1.372008401292456e+43,
+          -1.0373042194095086e+44,
+          1.4498684096676358e+44
+        ],
+        [
+          1.372008401292456e+43,
+          -1.0373042194095086e+44,
+          1.4498684096676358e+44
+        ],
+        [
+          1.372008401292456e+43,
+          -1.0373042194095086e+44,
+          1.4498684096676358e+44
+        ],
+        [
+          1.372008401292456e+43,
+          -1.0373042194095086e+44,
+          1.4498684096676358e+44
+        ]
+      ],
+      "intersection_only_at_common_indexed_vertex": false,
+      "triangle_areas_m2": [
+        7.26316743331361e-05,
+        1.35083601821502e-06
+      ],
+      "triangle_vertex_min_distance_m": 0.0,
+      "face_a": {
+        "shell_face": 7964,
+        "kind": "D",
+        "coarse_face_row": 3187,
+        "stable_source_face_id": 105651,
+        "modified_by_capacity115": false,
+        "point_ids": [
+          12697,
+          12747,
+          12749
+        ],
+        "point_layer_rows": [
+          {
+            "layer": "D",
+            "row": 1510
+          },
+          {
+            "layer": "D",
+            "row": 1560
+          },
+          {
+            "layer": "D",
+            "row": 1562
+          }
+        ],
+        "vertices_world_f32_m": [
+          [
+            0.011580333113670349,
+            -0.14068712294101715,
+            0.21458718180656433
+          ],
+          [
+            0.0190733689814806,
+            -0.15353354811668396,
+            0.20940256118774414
+          ],
+          [
+            0.01922593265771866,
+            -0.14535728096961975,
+            0.2031698375940323
+          ]
+        ]
+      },
+      "face_b": {
+        "shell_face": 9637,
+        "kind": "cap",
+        "cap_boundary_edge_row": 41,
+        "cap_triangle_in_quad": 1,
+        "coarse_boundary_directed_edge": [
+          1516,
+          1562
+        ],
+        "stable_adjacent_face_ids": [
+          105650
+        ],
+        "point_ids": [
+          10338,
+          12703,
+          12749
+        ],
+        "point_layer_rows": [
+          {
+            "layer": "I",
+            "row": 1562
+          },
+          {
+            "layer": "D",
+            "row": 1516
+          },
+          {
+            "layer": "D",
+            "row": 1562
+          }
+        ],
+        "vertices_world_f32_m": [
+          [
+            0.01866391859948635,
+            -0.14563189446926117,
+            0.20361113548278809
+          ],
+          [
+            0.017431272193789482,
+            -0.14332085847854614,
+            0.2065737098455429
+          ],
+          [
+            0.01922593265771866,
+            -0.14535728096961975,
+            0.2031698375940323
+          ]
+        ]
+      }
+    }
+  ]
+}

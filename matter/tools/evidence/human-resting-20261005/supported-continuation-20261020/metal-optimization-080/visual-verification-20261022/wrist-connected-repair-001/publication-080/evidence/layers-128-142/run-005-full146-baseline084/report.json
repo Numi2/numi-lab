@@ -1,0 +1,62 @@
+{
+  "candidate_input": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-002-corrected-metadata/candidate.npz",
+  "candidate_sha256": "4a393af65cc12181e00f2b578f73ad209f87e5f2107f4808e9ce083f46a2b3da",
+  "baseline084_fields_input": "/Users/numi/Work/numi-human-connected-surface-069/fine-layer-fields-127/baseline-coarse-to-detail-layer-fields.npz",
+  "baseline084_fields_sha256": "ff5d936d9c5f14df7e78a596134a03c5a6fd4f5c09a517203643ded28da8f5c1",
+  "capacity115_fields_comparison_input": "/Users/numi/Work/numi-human-connected-surface-069/fine-layer-fields-127/capacity-115-coarse-to-detail-layer-fields.npz",
+  "capacity115_fields_sha256": "4278c32fc30f2ec2ce67131e6883782f5f266d6f04877deaec4743cf3a196145",
+  "assembler_source": "/Users/numi/Work/numi-human-connected-surface-069/coupled-layer-trial-128/assemble_layers_128.py",
+  "assembler_sha256": "9d169a15458d272048a917c3e5cc3d91a45d5aabe0fd211746f972cb2390cde9",
+  "builder_source": "/Users/numi/Work/numi-human-connected-surface-069/nonmatching-layer-comparison-142/build_baseline084_full146_v2.py",
+  "builder_sha256": "b325196c4b0fd569996a8f94b8f2caea6b4f76ca69ecf55b17e04f6f0b08a2d6",
+  "method": "full O from corrected run-002; independent baseline-084 coarse I/D fields; exact coarse-row identity crosscheck against 115 field export; no geometry optimization",
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "bone_clearance_audited": false,
+  "point_count": 13598,
+  "outer_node_count": 8776,
+  "inner_node_count": 2411,
+  "baseline084_skin_volume_m3": 0.0035948511329208697,
+  "baseline084_fat_volume_m3": 0.011652343764728132,
+  "max_I_shift_vs_capacity115_m": 0.0,
+  "max_D_shift_vs_capacity115_m": 0.009735671768315409,
+  "skin_topology": {
+    "edge_incidence_histogram": {
+      "2": 33561
+    },
+    "edge_count": 33561,
+    "bad_oriented_edge_count": 0,
+    "bad_edge_witnesses": []
+  },
+  "fat_topology": {
+    "edge_incidence_histogram": {
+      "2": 14466
+    },
+    "edge_count": 14466,
+    "bad_oriented_edge_count": 0,
+    "bad_edge_witnesses": []
+  },
+  "audits": {
+    "O": {
+      "pairs": 0,
+      "complete": true
+    },
+    "I": {
+      "pairs": 0,
+      "complete": true
+    },
+    "D": {
+      "pairs": 0,
+      "complete": true
+    },
+    "skin_shell": {
+      "pairs": 1098,
+      "complete": true
+    },
+    "fat_shell": {
+      "pairs": 3,
+      "complete": true
+    }
+  },
+  "output_candidate_sha256": "637306607f31ea19d7ff23ab24339eca04b26ec6d72091b528a548b03698e12d"
+}

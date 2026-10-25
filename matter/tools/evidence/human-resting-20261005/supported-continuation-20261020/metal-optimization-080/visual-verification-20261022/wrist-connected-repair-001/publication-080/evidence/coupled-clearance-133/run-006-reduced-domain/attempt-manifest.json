@@ -1,0 +1,113 @@
+{
+  "artifacts": [
+    {
+      "path": "report.json",
+      "sha256": "ff1744e0ac82a497845f26116c81919b3b8c5a03c8e3e62a6b2a67122d0eb7f8"
+    },
+    {
+      "path": "model-preflight.json",
+      "sha256": "8e69db9852b4d9cfd855c5b946af1a08c059c4c53eb055c2c8c5a33bb77a121c"
+    },
+    {
+      "path": "joint-lp-A-ub.npz",
+      "sha256": "358d4ebaa8b089421386f2d3bd2ea59fd83e0af6a61e16a365f93cf4d68ab6df"
+    },
+    {
+      "path": "joint-lp-inputs.npz",
+      "sha256": "81fa78124ad9879ecee78d6e226097ecfc2205dde42844bed65a4a7b03a19b1b"
+    },
+    {
+      "path": "geometric-witness-rows.json",
+      "sha256": "4de5bb8ec81c77c84afe72edb35699e8d4dd8ad3b00d4be1e11fc58846596909"
+    },
+    {
+      "path": "O-D-exact-pairs.npy",
+      "sha256": "506fd39faa09b41f687a5780bbbaee1e892bb593c471794efd89e5946e301713"
+    }
+  ],
+  "attempt_004_full_counts": {
+    "LP_nnz": 1275462,
+    "LP_rows": 436213,
+    "LP_variables": 132360
+  },
+  "baseline": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/coupled-layer-trial-128/run-003/layer-candidate.npz",
+    "sha256": "a420a94e7485a226bfc605736da600b2787b80fe1c42a3303e7c09c88676a7b5"
+  },
+  "candidate": {
+    "post_audit": "not run",
+    "present": false
+  },
+  "command": "python3 /tmp/numi-human-geometry-slot.py /Users/numi/numi-human-prep-venv-20261005/bin/python /Users/numi/Work/numi-human-connected-surface-069/coupled-layer-clearance-133/run_joint_clearance_133_gradient_caps_005_reduced.py",
+  "gradient_helper": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/connected_face_gradient_guard_141.py",
+    "sha256": "737d43722894140419dfa703a0ec3ed8704665a390d3357e2e110b89f2606205"
+  },
+  "host": "SSH Numi",
+  "interpretation": "HiGHS returned infeasible for the reduced model; this does not establish infeasibility of the full formulation. No candidate exists and no post-solve geometry audit ran.",
+  "lp_result": {
+    "iterations": 449,
+    "max_inequality_violation_mm": null,
+    "message": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)",
+    "objective": null,
+    "status": 2,
+    "success": false,
+    "time_limit_seconds": 60.0,
+    "wall_seconds": 0.2102582089137286
+  },
+  "reduced_counts": {
+    "LP_nnz": 468414,
+    "LP_rows": 171829,
+    "LP_variables": 46518,
+    "abs_aux_variables": 8604,
+    "displacement_variables": 8604,
+    "free_nodes_per_layer": 1434,
+    "geometric_rows_fixed_only": 50,
+    "geometric_rows_retained": 13417,
+    "gradient_faces_incident_to_free_nodes_per_layer": 3441,
+    "gradient_rows_dropped_zero": 128544,
+    "gradient_rows_retained": 82584,
+    "original_one_ring_nodes": 899,
+    "smooth_aux_variables": 29310,
+    "smooth_edges_retained": 4885,
+    "smooth_edges_total": 13218,
+    "two_ring_free_nodes": 1434
+  },
+  "reduction_rules": {
+    "elimination": "I/D displacement columns outside free domain fixed exactly at baseline; all geometric inequality rows retained, fixed-only violated rows reject before solve; zero gradient rows dropped; fixed-fixed smoothness edges omitted",
+    "fixed_geometric_row_count": 50,
+    "fixed_geometric_violation_count": 0,
+    "free_domain": "all geometric witness vertices plus two indexed edge-neighbor rings, shared by I and D",
+    "free_global_dof_sha256": "bcdcfed871f0fd3770bd8ff9f5c78f62993d332f2949581b2c1c817cef402c07",
+    "free_rows_sha256": "40ca68ddba9ef33efc53a28ae3cc4482afdb94bda162b816194d22edb0f3c517",
+    "full_attempt_004_counts": {
+      "LP_nnz": 1275462,
+      "LP_rows": 436213,
+      "LP_variables": 132360
+    },
+    "outer_layer": "fixed; not a variable block",
+    "reduced_model_counts": {
+      "LP_nnz": 468414,
+      "LP_rows": 171829,
+      "LP_variables": 46518,
+      "abs_aux_variables": 8604,
+      "displacement_variables": 8604,
+      "free_nodes_per_layer": 1434,
+      "geometric_rows_fixed_only": 50,
+      "geometric_rows_retained": 13417,
+      "gradient_faces_incident_to_free_nodes_per_layer": 3441,
+      "gradient_rows_dropped_zero": 128544,
+      "gradient_rows_retained": 82584,
+      "original_one_ring_nodes": 899,
+      "smooth_aux_variables": 29310,
+      "smooth_edges_retained": 4885,
+      "smooth_edges_total": 13218,
+      "two_ring_free_nodes": 1434
+    }
+  },
+  "runner": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/coupled-layer-clearance-133/run_joint_clearance_133_gradient_caps_005_reduced.py",
+    "sha256": "2ebf89f11497c9474d59c1e6afe75ea0c6485d9f2b2f7aa24b56d7b18e87157d"
+  },
+  "status": "LP_NO_PRIMAL_SOLUTION"
+}
