@@ -1,0 +1,7 @@
+{
+  "base_commit": "12c69e923b602c420041aec3bcfe63e45948ff2f",
+  "selected_candidate_sha256": "4267c5f6ccd3bbf8a1b53e49d01ce13c5b7d2ce13c2f628bb474663689fda971",
+  "candidate_source_reference_assembly": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

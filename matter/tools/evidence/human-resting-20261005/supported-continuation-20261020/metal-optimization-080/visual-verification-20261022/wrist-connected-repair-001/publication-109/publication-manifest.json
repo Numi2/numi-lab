@@ -1,0 +1,236 @@
+{
+  "base_commit": "12c69e923b602c420041aec3bcfe63e45948ff2f",
+  "canonical_changes": [],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "ee34cc19ac7c92f91bb51cc0589b2d31537da8febf66e68b54de5a18f085c7ec",
+      "bytes": 2355
+    },
+    {
+      "path": "evidence/archive-manifest.json",
+      "sha256": "ba836a7703537fe8514a20b018a81f9a0ccd80be6558428d939a477f9cd49de9",
+      "bytes": 219528
+    },
+    {
+      "path": "evidence/bounded-connected-trials-265-277.tar.xz",
+      "sha256": "516d80b8f1ff024c82c66bb13b6c9e093cf205ec529d1bc70a5e5f50b4bc7aa9",
+      "bytes": 15346684
+    },
+    {
+      "path": "evidence/coherent-global-276-config.json",
+      "sha256": "58651211949954a1b058969714ad21fabdacfd8f2a3568543fe98efb397c81a5",
+      "bytes": 5258
+    },
+    {
+      "path": "evidence/coherent-global-276-input-pins.json",
+      "sha256": "8dedd07f10376608cd6d0f3bb969a8bde99745c506ec4d82e71e32e86c30e9e6",
+      "bytes": 499
+    },
+    {
+      "path": "evidence/coherent-global-276.log",
+      "sha256": "530eca51f6a7a63d23abadb9bc7a6a866ed0817485e91aac2ae5cbfa8b812e88",
+      "bytes": 4227
+    },
+    {
+      "path": "evidence/fixed-parent-refined-283.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "evidence/outward-clearance-265-method-change.json",
+      "sha256": "4792ff50e3db67dfcd5f7f247adf4fec2b954d6b70a4420a1d9a04c445a2bc57",
+      "bytes": 618
+    },
+    {
+      "path": "evidence/outward-nearest-277.log",
+      "sha256": "569e2627b4cdafa9635d350be667874e67ffbc1d276681b9a1ff404effe4b02f",
+      "bytes": 982
+    },
+    {
+      "path": "evidence/outward-nearest-targets-289/report.json",
+      "sha256": "326f0fc80f655298ebcbc911488a09f15ec506f48fd178224becfbc1a3a2e967",
+      "bytes": 4510
+    },
+    {
+      "path": "evidence/outward-nearest-targets-289/target-records.jsonl",
+      "sha256": "97b62def368cb403bc2977c831c0eb0b2e4dfba6b65db70d1ae32c829f40aa71",
+      "bytes": 10139673
+    },
+    {
+      "path": "evidence/outward-nearest-targets-289/targets.npz",
+      "sha256": "eab863d3e4239f8a7485dd9418b4456be09202402e1d58c6cb847a2ef464175a",
+      "bytes": 666335
+    },
+    {
+      "path": "evidence/outward-nearest-targets-289.log",
+      "sha256": "850bd34704676028721f00c4e7c16c16882744974d5231a57c1759b796c1cb3b",
+      "bytes": 695
+    },
+    {
+      "path": "evidence/p108-remote-recovery-verification.json",
+      "sha256": "e55342bbc02e155c455fc8856a0858d970c85c3b03e26987eca68eda66072d5e",
+      "bytes": 371
+    },
+    {
+      "path": "evidence/p108-root-publication-receipt.json",
+      "sha256": "0242d88d2dfb72f50cb361d5e5fb4950ae49cf1c3f8370ba9ab19bf761c2c139",
+      "bytes": 622
+    },
+    {
+      "path": "evidence/p108-verified-local-retirement.json",
+      "sha256": "db14a985c9f16fcda6dd0b1e6e37e1d464d1f41b38d7314985171cebf448c05f",
+      "bytes": 528
+    },
+    {
+      "path": "evidence/refined-archive-manifest.json",
+      "sha256": "5ae843674b403ea8468cb9a0837ab309c5b1ffcc0270229e8a82146c13cc95d2",
+      "bytes": 138575
+    },
+    {
+      "path": "evidence/refined-connected-trials-278-286.tar.xz",
+      "sha256": "fdd6e6695d2913b7082f41446bcd5ac3d63492b41e8cc7fee21926960cd10881",
+      "bytes": 13380732
+    },
+    {
+      "path": "evidence/refined-selected-283/candidate.npz",
+      "sha256": "4267c5f6ccd3bbf8a1b53e49d01ce13c5b7d2ce13c2f628bb474663689fda971",
+      "bytes": 3394984
+    },
+    {
+      "path": "evidence/refined-selected-283/matched-refined-baseline-state.json",
+      "sha256": "f45269eb8e988c09a3343dee1b578b87444864663b84e93b45ad041bbf57fec5",
+      "bytes": 746
+    },
+    {
+      "path": "evidence/refined-selected-283/matched-refinement-report.json",
+      "sha256": "e4d31827fc3d5f83a8d61d1436294736cc223a2361e934e2a2b948a11febc9c1",
+      "bytes": 4512
+    },
+    {
+      "path": "evidence/refined-selected-283/point-summary.json",
+      "sha256": "a44d018039a9d1ac985ff50dcd5db586b2bf09933bedd693b8fe205724194a7e",
+      "bytes": 613510
+    },
+    {
+      "path": "evidence/refined-selected-283/selected-result.json",
+      "sha256": "650fe1fd8a160549ba3045b50ff578b691b0c92dffbf2d1419d7089f89cbb2d9",
+      "bytes": 11693
+    },
+    {
+      "path": "evidence/refined-selected-283/surface-report.json",
+      "sha256": "04066ea03bc15ccff6d0b63a80221cd89f883fc1ffb15fa38712e59d7d5d93c9",
+      "bytes": 300946
+    },
+    {
+      "path": "source-pins.json",
+      "sha256": "a0d3e7c0cf8db52625328b0ef1caa92a387d2cc4618984da7b6bbe7e3e4230c0",
+      "bytes": 271
+    },
+    {
+      "path": "sources/backtracker-preflight-285/test.log",
+      "sha256": "ba07904fa145eaf428d74f17c2fc5560cd10af051a56e79e8969dd71e43ca809",
+      "bytes": 1460
+    },
+    {
+      "path": "sources/backtracker-preflight-285/test_preflight_285.py",
+      "sha256": "4ff38e3c6a2c26dc31f7012dd361e53dab3c95c4a60776eed146d23a96b02a6b",
+      "bytes": 2964
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-274/propose_joint_clearance_witnesses_274.py",
+      "sha256": "373e834c5a79b6d17eb8b203bd252286154dc18820efa45448e25c5d33ca1bbe",
+      "bytes": 97832
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-274/test_face_direction_274.py",
+      "sha256": "3527af0e110de6164584fcedc22b9000e4c68607d45d5082ef3e612ed6054826",
+      "bytes": 3071
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-274/test_propose_joint_clearance_witnesses_274.py",
+      "sha256": "f8e1145645ea4c8d73824f8ae1727ac1c772c53f99dcc16fa3f7d3dc1e834609",
+      "bytes": 2356
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-279/propose_joint_clearance_witnesses_279.py",
+      "sha256": "fdfd30358d139607feb7ad8416ab307d12cf0ac9e54accdd3cdc7609454693be",
+      "bytes": 102817
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-279/root-test-verification.json",
+      "sha256": "4e178eb8b09f9968d5900a299494b617a837073fe96c73f7ab556b70f29f9395",
+      "bytes": 576
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-279/test_propose_joint_clearance_witnesses_279.py",
+      "sha256": "da49c20b22d6507ff09fdb6570a254dde2001c2dc01232d21d17b7c51789f5f0",
+      "bytes": 4661
+    },
+    {
+      "path": "sources/connected-refinement-270/connected_refinement_270.py",
+      "sha256": "70e391867c4aa5680dacdcba1244ec15962a5dc74dc9d67c31467cdaffb608db",
+      "bytes": 19390
+    },
+    {
+      "path": "sources/connected-refinement-270/test_connected_refinement_270.py",
+      "sha256": "489e7013f2af9c51fbf229be8dd9606e73522c8984f4350e7b75e7ff4460c612",
+      "bytes": 11516
+    },
+    {
+      "path": "sources/global_step_backtracking_275.py",
+      "sha256": "18891b1f700592563e139edfc8bd1361d230ff6fd5af2ae5ee036c9625c1826a",
+      "bytes": 994
+    },
+    {
+      "path": "sources/root-verification-284-287.json",
+      "sha256": "405b24f88cd949cda0778c6fac2a4ee11b56cdc82fdb864e2fde8d182f67d218",
+      "bytes": 1102
+    },
+    {
+      "path": "sources/run_connected_clearance_277.py",
+      "sha256": "b88ff94e740ce64acd2d7cfc43580dcd1abca2d4930b7d6a7f1177f0a2492f9e",
+      "bytes": 8640
+    },
+    {
+      "path": "sources/run_fixed_parent_refined_283.py",
+      "sha256": "a5e8d62733406f9ebe3c3deadc50a018f02c19d5577d473c8d187584804afb02",
+      "bytes": 4337
+    },
+    {
+      "path": "sources/run_local_witness_backtracking_282.py",
+      "sha256": "6a408325c0a65dafec3ab422bec0d08f02fbc5fed898adee2ee04ef3dac6884b",
+      "bytes": 11229
+    },
+    {
+      "path": "sources/run_local_witness_backtracking_287.py",
+      "sha256": "b1c7e0ca0f2704a1c4628d5c61816e8131fe33c78eabaaac697dd6f717a82d12",
+      "bytes": 12733
+    },
+    {
+      "path": "sources/source-outward-proposal-272/build_outward_nearest_union_targets_272.py",
+      "sha256": "bf2f10a02cbc9dfeaff4a9619ec0e7c615a9207e93c38068d8994084756705b1",
+      "bytes": 48478
+    },
+    {
+      "path": "sources/source-outward-proposal-272/test_outward_nearest_union_targets_272.py",
+      "sha256": "acfc7536467f5b63edcb2334600dc42e38a98d4adf32d4aa599988b98c35ee7b",
+      "bytes": 13962
+    },
+    {
+      "path": "sources/source-outward-proposal-284/build_outward_nearest_union_targets_284.py",
+      "sha256": "56b780e41065200dc1144e5ec2621222fca34ac8c98e53ae0e4810d9c4683801",
+      "bytes": 49802
+    },
+    {
+      "path": "sources/source-outward-proposal-284/test_outward_nearest_union_targets_284.py",
+      "sha256": "2b09ed3be8ca855a20ae26ef43a1371710cc8b47bbb7fd9908c0ef10782cdd8c",
+      "bytes": 15992
+    },
+    {
+      "path": "sources/test_global_step_backtracking_275.py",
+      "sha256": "f6676d0d810aa95cc74265ab44d233144c742a68e09af5b2d93c62af28c25cdf",
+      "bytes": 1094
+    }
+  ]
+}

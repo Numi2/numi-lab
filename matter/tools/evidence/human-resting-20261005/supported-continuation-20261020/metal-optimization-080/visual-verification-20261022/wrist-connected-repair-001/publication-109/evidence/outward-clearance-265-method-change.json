@@ -1,0 +1,16 @@
+{
+  "reason": "Local node-scale damping oscillates new self-pairs through59passes (148to267to4to58); stop orchestrator before next LP, preserve current bounded child output; test coherent global scaling of same correction",
+  "stopped_parent_pids": [
+    88256,
+    88270
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "second_lp_already_active_at_parent_stop": true,
+  "second_lp_completed_status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED",
+  "terminated_parent_pids": [
+    88270,
+    88256
+  ],
+  "preserved_raw_lp_sha256": "05f6613d8547e9e74e6ff676a120b8818098e664afdc2a36388322bc3089fab5"
+}

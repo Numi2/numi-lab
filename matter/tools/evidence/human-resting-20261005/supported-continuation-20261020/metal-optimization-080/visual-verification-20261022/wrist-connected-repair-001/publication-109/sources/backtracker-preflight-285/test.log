@@ -1,0 +1,11 @@
+test_actual_278_matched_reference_and_fixed_prefix (Work.numi-human-connected-surface-069.barycentric-connected-clearance-170.backtracker-preflight-285.test_preflight_285.Preflight285Tests.test_actual_278_matched_reference_and_fixed_prefix) ... ok
+test_changed_fixed_prefix_rejected (Work.numi-human-connected-surface-069.barycentric-connected-clearance-170.backtracker-preflight-285.test_preflight_285.Preflight285Tests.test_changed_fixed_prefix_rejected) ... ok
+test_degenerate_current_face_rejected (Work.numi-human-connected-surface-069.barycentric-connected-clearance-170.backtracker-preflight-285.test_preflight_285.Preflight285Tests.test_degenerate_current_face_rejected) ... ok
+test_degenerate_reference_face_rejected (Work.numi-human-connected-surface-069.barycentric-connected-clearance-170.backtracker-preflight-285.test_preflight_285.Preflight285Tests.test_degenerate_reference_face_rejected) ... ok
+test_mismatched_reference_topology_rejected (Work.numi-human-connected-surface-069.barycentric-connected-clearance-170.backtracker-preflight-285.test_preflight_285.Preflight285Tests.test_mismatched_reference_topology_rejected) ... ok
+test_wrong_reference_hash_rejected (Work.numi-human-connected-surface-069.barycentric-connected-clearance-170.backtracker-preflight-285.test_preflight_285.Preflight285Tests.test_wrong_reference_hash_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.014s
+
+OK

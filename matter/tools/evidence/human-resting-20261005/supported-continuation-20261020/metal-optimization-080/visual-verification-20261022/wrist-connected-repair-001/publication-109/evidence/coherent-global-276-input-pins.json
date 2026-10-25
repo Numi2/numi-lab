@@ -1,0 +1,9 @@
+{
+  "base_sha256": "5a7239e62cbc0cf461440a48a8c4747d7d733eec630d63cf9e08682009593cc6",
+  "raw_lp_sha256": "05f6613d8547e9e74e6ff676a120b8818098e664afdc2a36388322bc3089fab5",
+  "trial_sha256": "d165269134443819dcefd0135c5a1a755bc149f70146d3fa81eb7039ab3fbab6",
+  "helper_sha256": "18891b1f700592563e139edfc8bd1361d230ff6fd5af2ae5ee036c9625c1826a",
+  "reason": "Coherent global scale instead of spatially discontinuous local node damping",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

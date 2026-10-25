@@ -1,0 +1,79 @@
+{
+  "schema": "numi.human.nearest-complete-bank-first-union-targets.284.v1",
+  "runner_sha256": "56b780e41065200dc1144e5ec2621222fca34ac8c98e53ae0e4810d9c4683801",
+  "classification": "construction_target_proposals_only_no_fit_or_clearance_admission",
+  "direction_mode": "outward-nearest",
+  "inputs": {
+    "candidate_sha256": "4267c5f6ccd3bbf8a1b53e49d01ce13c5b7d2ce13c2f628bb474663689fda971",
+    "surface_report_sha256": "04066ea03bc15ccff6d0b63a80221cd89f883fc1ffb15fa38712e59d7d5d93c9",
+    "query_receipt_sha256": "d96b6687d14788a4505ece5f702e4338be04f3f4f172afac76d71fc14c03bb16",
+    "detail_source_sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+    "exact_bank_triangle_export_sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "exact_bank_body_export_sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "exact_bank_node_export_sha256": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "exact_bank_inventory_sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "bank_reader_sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+    "exact_predicate_sha256": "6f04ec7b129f47e810e75262f9f3ad3be0159bbe13dc2611a96e27141132b0fc",
+    "exact_segment_classifier_sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2",
+    "virtual_sample_helper_sha256": "0e97159845d6902875c015bc96ae283a2ed43206e85f14637e29cfc611d7589f",
+    "source_orientation_report_sha256": "e43908188f134182635ac36a9a1602abad1918df374a04f3f7cc9eb1812d7497",
+    "coarse_source_candidate_sha256": "2f93d0159f5e1ece1fa377da71e52e4edb7ee60f4b61e483a0390733ca404c11"
+  },
+  "candidate_points": 20889,
+  "candidate_faces": 41733,
+  "matched_surface_bank_triangle_pairs": 4002,
+  "banks": 185,
+  "matched_159_complete": true,
+  "crossing_pairs": 4002,
+  "inside_samples_certified_for_implicated_bank": 3949,
+  "inside_sample_numeric_policy": "F64 barycentric evaluation over emitted F32 parent vertices is authoritative for interior classification; F32-rounded sample is diagnostic only. Final target remains emitted F32 and is exactly checked outside all185 banks.",
+  "strict_interior_sample_inward_fractions": [
+    0.5,
+    0.25,
+    0.125,
+    0.0625,
+    0.03125,
+    0.015625,
+    0.0078125,
+    0.00390625,
+    0.001953125,
+    0.0009765625,
+    0.00048828125
+  ],
+  "nearest_boundary_first_union_targets": 3949,
+  "passing_targets": 3949,
+  "failure_counts": {
+    "NEAREST_COMPLETE_BANK_TRIANGLE_FAILED": 53
+  },
+  "initial_inside_union_count_histogram": {
+    "1": 4002
+  },
+  "minimum_source_hemisphere_dot": -2.808864252301646e-14,
+  "source_orientation": {
+    "fine_outward_sign": 1,
+    "fine_to_coarse_winding_parity": -1,
+    "coarse_outward_sign": -1,
+    "fine_anchor_count": 2315,
+    "fine_anchor_agreement": 0.9969762419006479,
+    "parity_anchor_count": 2300,
+    "parity_anchor_agreement": 0.9982608695652174
+  },
+  "source_orientation_input_pins": {
+    "detail_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "accepted_rows_sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+    "compact_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "W_sha256": "55329313bf9c2c3b613fcd7eb52dd9b7b453520dd1b4a14e0e0d6ac457ce8519",
+    "batch_report_sha256": "e4c6c76d497e176e40ad802cb3159a4a143279cc131ae632fe515498aa38fafa",
+    "batch_runner_sha256": "b2504d9e3a43c7ae8b07d8913dca55878c933b482b91875aa3b2ad1792a403f0"
+  },
+  "direction_method": "Nearest point on initially containing complete bank triangles clipped to the source-normal hemisphere, using same-body local relative coordinates for stable displacement signs; deterministic stable-ID ties; exact first-union ray plus all185 endpoint classification unchanged.",
+  "full_union_endpoint_classification": "Exact point-location for every target against all185 complete banks; target accepted only if outside every complete bank; event-parity endpoint also required.",
+  "limitations": [
+    "The selected direction is a construction proposal, not clearance admission.",
+    "Only banks in the exact initial inside-union set are searched for the nearest complete triangle diagnostic; the subsequent ray and target checks cover all 185 banks.",
+    "No fit or native physical step was run."
+  ],
+  "elapsed_seconds": 33.95721387502272,
+  "result_rows": 4002,
+  "output_sha256_pending": true
+}

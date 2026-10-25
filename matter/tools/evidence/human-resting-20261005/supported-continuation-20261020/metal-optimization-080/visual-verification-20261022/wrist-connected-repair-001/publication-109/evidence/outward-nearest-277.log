@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_connected_clearance_277.py", line 85, in <module>
+    run([PY,runner,solver,sha(solver),json.dumps(extra)],rd/'joint.log',False)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_connected_clearance_277.py", line 25, in run
+    write(str(log)+'.execution.json',dict(command=cmd,returncode=r.returncode,wall_seconds=time.monotonic()-st,log_sha256=sha(log)));assert r.returncode==0,(log,r.returncode)
+                                                                                                                                            ^^^^^^^^^^^^^^^
+AssertionError: (PosixPath('/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/outward-nearest-277-run001/round-001/joint.log'), 1)

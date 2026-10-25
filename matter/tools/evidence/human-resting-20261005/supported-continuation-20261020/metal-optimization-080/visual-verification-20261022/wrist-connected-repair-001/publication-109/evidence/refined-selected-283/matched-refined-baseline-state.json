@@ -1,0 +1,9 @@
+{
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-refined-278/candidate.npz",
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-refined-278/audit-130/summary.json",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-refined-278/audit-159/report.json",
+  "parent_fit": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-225-run001/proposal/fit/attempt-001/fit-report.json",
+  "status": "MATCHED_REFINED_BASELINE_ONLY_NOT_PROGRESS",
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0
+}
