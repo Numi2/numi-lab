@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "candidate_sha256": "2346d174df8b363bca2200c24589a36cf1ad6a4642a4b73a9a156a48e6826b25",
+  "pairs": 11321,
+  "rows": 64434,
+  "records": 11321,
+  "maximum_baseline_lower_mm": -2.022089730772253e-06,
+  "seconds": 2.699747125036083,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-338/test_propose_joint_clearance_witnesses_338.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/local-witness-backtracking-339/test_local_witness_backtracking_339.py"
+  ],
+  "returncode": 0,
+  "stdout": "........................................                                 [100%]\n40 passed in 0.16s\n",
+  "stderr": "",
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-338/test_propose_joint_clearance_witnesses_338.py": "d8eaad8543b8a32710e73b65bdac472182bf81ee3de452a72d35e3a42597d191",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/local-witness-backtracking-339/test_local_witness_backtracking_339.py": "2dc7617e9de0efa00fdd43749993a0ec1050b408e869e6f2880dc8e5a6abea61"
+  },
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

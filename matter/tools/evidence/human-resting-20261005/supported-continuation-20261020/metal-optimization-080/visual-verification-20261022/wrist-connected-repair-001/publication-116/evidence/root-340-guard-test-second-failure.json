@@ -1,0 +1,8 @@
+{
+  "status": "TEST_FIXTURE_FAILED_BEFORE_GEOMETRY_RUN",
+  "passed": 4,
+  "failed": 1,
+  "error": "AttributeError: mod.module missing in testline56; implementation guard passed",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

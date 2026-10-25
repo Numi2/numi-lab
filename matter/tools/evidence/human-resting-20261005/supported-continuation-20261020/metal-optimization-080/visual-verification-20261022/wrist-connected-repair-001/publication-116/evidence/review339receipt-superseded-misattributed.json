@@ -1,0 +1,314 @@
+{
+  "337_smoke": {
+    "raw_bad_current_faces": 177,
+    "raw_bad_fixed037_faces": 5,
+    "scope": "Area-only exact-F32 replay of archived 337 raw LP delta; source/clearance/gradient were not included in this smoke and no physical claim is made.",
+    "selected_alpha": 0.0625,
+    "status": "ACCEPTED"
+  },
+  "assessment": {
+    "area_failure_context": "337 unbacktracked proposals have 177 or 166 current-orientation area failures and 5 fixed-037 magnitude failures. 338 emitted-F32 backtracking restores area; exact retained output remains construction-only.",
+    "initial_f32_bound_basis": "The base is stored as F32 (20889x3); both reports show exact base area pass, source displacement 11.55798736 mm under 12 mm, zero-step trust/edge bounds, fixed anchors/prefix accounting, and first-SCP zero-delta max RHS violation < 0. The recorded max violation includes pair, linearized-area, and edge-gradient rows.",
+    "initial_f32_bounds_hold": true,
+    "next_algorithm_if_341_stalls": "Keep the same strict emitted-F32 area/source/trust/anchor and exact geometry gates. Replace the single global alpha with witness-local damping: expose the failing clearance row IDs and limiting area faces, scale only their incident support nodes (plus existing edge-gradient coupling via the 339 helper), emit F32, and recheck all rows and the full area gate after each update. This avoids shrinking unrelated regions to satisfy one quantization-sensitive row. Do not treat the LP or partial construction as admitted geometry.",
+    "primary_bottleneck": "Global scalar F32 backtracking intersects the strict full-area gate with the all-4089-row no-regression clearance gate. At alpha=0.0625, area is pass but clearance is fail; other larger tested alpha values fail area and/or clearance. Only alpha=1/65536 passes both, yielding at most 0.00001666 mm (16.66 nm) motion and weighted unmet target fraction about 0.9999986. Edge-gradient, trust, source-cap and anchor checks pass at that selected point; they do not explain the tiny alpha.",
+    "report_limit": "Per-alpha report records identify pass/fail and minimum progress but omit the index/typed identity of the clearance row setting the no-regression minimum. The serialized area-SCP iteration entries also omit the nested per-iteration F32 backtrack receipt, limiting attribution of the inner step.",
+    "selected_alpha_is_useful": false
+  },
+  "attempts": [
+    {
+      "accepted_physical_steps": 0,
+      "alpha_grid": [
+        {
+          "alpha": 1.0,
+          "area_pass": false,
+          "edge_gradient_pass": false,
+          "min_progress_mm": -1.8367126998356247e-05,
+          "no_regression_pass": true
+        },
+        {
+          "alpha": 0.5,
+          "area_pass": false,
+          "edge_gradient_pass": true,
+          "min_progress_mm": -3.93588464088689e-05,
+          "no_regression_pass": false
+        },
+        {
+          "alpha": 0.25,
+          "area_pass": false,
+          "edge_gradient_pass": true,
+          "min_progress_mm": -1.86701841306297e-05,
+          "no_regression_pass": true
+        },
+        {
+          "alpha": 0.125,
+          "area_pass": false,
+          "edge_gradient_pass": true,
+          "min_progress_mm": -4.331805489270824e-05,
+          "no_regression_pass": false
+        },
+        {
+          "alpha": 0.0625,
+          "area_pass": true,
+          "edge_gradient_pass": true,
+          "min_progress_mm": -4.031689452078034e-05,
+          "no_regression_pass": false
+        },
+        {
+          "alpha": 0.03125,
+          "area_pass": true,
+          "edge_gradient_pass": true,
+          "min_progress_mm": -2.5423428858492454e-05,
+          "no_regression_pass": false
+        },
+        {
+          "alpha": 1.52587890625e-05,
+          "area_pass": true,
+          "edge_gradient_pass": true,
+          "min_progress_mm": -8.828888670690076e-06,
+          "no_regression_pass": true
+        }
+      ],
+      "area_scp_iteration_inner_backtrack_details_present": false,
+      "attempt": 1,
+      "candidate_sha256": "d1027b21d95cd36bd38458719b451955779c2c09cf440464504cdc3d08d4fc99",
+      "full_surface_bone_audit": "NOT_RUN",
+      "global_exact_self_audit": "NOT_RUN_REQUIRED",
+      "initial": {
+        "base_f32_area_pass": true,
+        "base_min_current_ratio": 0.9998144420606091,
+        "base_min_fixed037_ratio": 0.10003977287040827,
+        "base_zero_delta_max_violation_mm": -6.042105740649201e-06,
+        "edge_gradient": {
+          "active_edges": 13866,
+          "enabled": true,
+          "inequality_rows": 83196,
+          "max_component_gradient": 0.5,
+          "maximum_reference_edge_length_mm": 134.08999911632756,
+          "minimum_reference_edge_length_mm": 0.010448891436015493,
+          "semantics": "componentwise |d_i-d_j| <= cap * reference_edge_length; nonsupport displacement is zero",
+          "unique_mesh_edges": 62622
+        },
+        "fixed_anchor_count": 237,
+        "fixed_prefix_nodes": 0,
+        "source_cap_mm": 12.0,
+        "source_displacement_max_mm": 11.557987360908363,
+        "trust_mm": 1.0
+      },
+      "native_admission": false,
+      "outer_alpha_failure_count": 16,
+      "point_query": "NOT_RUN",
+      "raw_lp_area": {
+        "bad_current_faces": 177,
+        "bad_fixed037_faces": 5,
+        "min_current_ratio": 0.01687851333737807,
+        "min_fixed037_ratio": 0.08882315492687531,
+        "pass": false
+      },
+      "raw_lp_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-337/round-001/attempt-001/proposal/raw-lp-candidate.npz",
+      "raw_lp_sha256": "29ef0dcff4229dc84090cc814dfdcb87365c34669cce2dcbe7e936e140047116",
+      "report_path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-337/round-001/attempt-001/proposal/report.json",
+      "report_sha256": "5ee3e7193f03d36a3402f7aa35a0a1916b2fef12eababf68ea9e54e9d5ff96ed",
+      "reported_area_scp_iterations": 4,
+      "selected_f32": {
+        "alpha": 1.52587890625e-05,
+        "anchors_unchanged": true,
+        "area_pass": true,
+        "bad_current_faces": 0,
+        "bad_fixed037_faces": 0,
+        "changed_nodes": 271,
+        "clearance_progress": {
+          "by_kind": {
+            "face": {
+              "mean_progress_fraction": 2.2706105256960166e-06,
+              "minimum_progress_fraction": -2.2188650422121495e-05,
+              "rows": 3600,
+              "weighted_unmet_fraction": 0.9999977293894744
+            },
+            "point": {
+              "mean_progress_fraction": 4.553300615953811e-07,
+              "minimum_progress_fraction": -1.7665863011027734e-05,
+              "rows": 489,
+              "weighted_unmet_fraction": 0.9999995446699383
+            }
+          },
+          "minimum_absolute_projected_progress_mm": -8.828888670690076e-06,
+          "minimum_progress_fraction": -2.2188650422121495e-05,
+          "row_count": 4089,
+          "weighted_unmet_fraction": 0.9999986370297065
+        },
+        "edge_gradient_pass": true,
+        "max_node_step_mm": 1.666000468656264e-05,
+        "min_current_ratio": 0.9998144420606091,
+        "min_fixed037_ratio": 0.10003977287040827,
+        "minimum_edge_gradient_slack_mm": 0.0036942409951442987,
+        "outside_support_unchanged": true,
+        "source_cap_pass": true,
+        "trust_pass": true
+      }
+    },
+    {
+      "accepted_physical_steps": 0,
+      "alpha_grid": [
+        {
+          "alpha": 1.0,
+          "area_pass": false,
+          "edge_gradient_pass": false,
+          "min_progress_mm": -2.2166055590779343e-05,
+          "no_regression_pass": false
+        },
+        {
+          "alpha": 0.5,
+          "area_pass": false,
+          "edge_gradient_pass": true,
+          "min_progress_mm": -3.93588464088689e-05,
+          "no_regression_pass": false
+        },
+        {
+          "alpha": 0.25,
+          "area_pass": false,
+          "edge_gradient_pass": true,
+          "min_progress_mm": -4.033430653719057e-05,
+          "no_regression_pass": false
+        },
+        {
+          "alpha": 0.125,
+          "area_pass": false,
+          "edge_gradient_pass": true,
+          "min_progress_mm": -2.021742559744527e-05,
+          "no_regression_pass": false
+        },
+        {
+          "alpha": 0.0625,
+          "area_pass": true,
+          "edge_gradient_pass": true,
+          "min_progress_mm": -2.0099146045291636e-05,
+          "no_regression_pass": false
+        },
+        {
+          "alpha": 0.03125,
+          "area_pass": true,
+          "edge_gradient_pass": true,
+          "min_progress_mm": -4.189659204860679e-05,
+          "no_regression_pass": false
+        },
+        {
+          "alpha": 1.52587890625e-05,
+          "area_pass": true,
+          "edge_gradient_pass": true,
+          "min_progress_mm": -8.828888670690076e-06,
+          "no_regression_pass": true
+        }
+      ],
+      "area_scp_iteration_inner_backtrack_details_present": false,
+      "attempt": 2,
+      "candidate_sha256": "b907becc72cc1de9851e5f4315af1c76168a8cf63f75bb373a2c93427c03dc20",
+      "full_surface_bone_audit": "NOT_RUN",
+      "global_exact_self_audit": "NOT_RUN_REQUIRED",
+      "initial": {
+        "base_f32_area_pass": true,
+        "base_min_current_ratio": 0.9998144420606091,
+        "base_min_fixed037_ratio": 0.10003977287040827,
+        "base_zero_delta_max_violation_mm": -1.7257688319383958e-06,
+        "edge_gradient": {
+          "active_edges": 14740,
+          "enabled": true,
+          "inequality_rows": 88440,
+          "max_component_gradient": 0.5,
+          "maximum_reference_edge_length_mm": 134.08999911632756,
+          "minimum_reference_edge_length_mm": 0.010448891436015493,
+          "semantics": "componentwise |d_i-d_j| <= cap * reference_edge_length; nonsupport displacement is zero",
+          "unique_mesh_edges": 62622
+        },
+        "fixed_anchor_count": 237,
+        "fixed_prefix_nodes": 0,
+        "source_cap_mm": 12.0,
+        "source_displacement_max_mm": 11.557987360908363,
+        "trust_mm": 1.0
+      },
+      "native_admission": false,
+      "outer_alpha_failure_count": 16,
+      "point_query": "NOT_RUN",
+      "raw_lp_area": {
+        "bad_current_faces": 166,
+        "bad_fixed037_faces": 5,
+        "min_current_ratio": -0.11048557172829082,
+        "min_fixed037_ratio": 0.09959294659706139,
+        "pass": false
+      },
+      "raw_lp_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-337/round-001/attempt-002/proposal/raw-lp-candidate.npz",
+      "raw_lp_sha256": "5122823731d2586304f26c92a64c50b9cab2080593bd9e1d67302f24a1c4123e",
+      "report_path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-337/round-001/attempt-002/proposal/report.json",
+      "report_sha256": "09d70a46e2fcbd55f46860b91029d890526c00f94b5619c5aedd856e8ed74022",
+      "reported_area_scp_iterations": 4,
+      "selected_f32": {
+        "alpha": 1.52587890625e-05,
+        "anchors_unchanged": true,
+        "area_pass": true,
+        "bad_current_faces": 0,
+        "bad_fixed037_faces": 0,
+        "changed_nodes": 263,
+        "clearance_progress": {
+          "by_kind": {
+            "face": {
+              "mean_progress_fraction": 2.136771720664408e-06,
+              "minimum_progress_fraction": -2.2501712822769073e-05,
+              "rows": 3600,
+              "weighted_unmet_fraction": 0.9999978632282795
+            },
+            "point": {
+              "mean_progress_fraction": 4.0875298480168834e-07,
+              "minimum_progress_fraction": -1.7665863011027734e-05,
+              "rows": 489,
+              "weighted_unmet_fraction": 0.9999995912470152
+            }
+          },
+          "minimum_absolute_projected_progress_mm": -8.828888670690076e-06,
+          "minimum_progress_fraction": -2.2501712822769073e-05,
+          "row_count": 4089,
+          "weighted_unmet_fraction": 0.9999987272376472
+        },
+        "edge_gradient_pass": true,
+        "max_node_step_mm": 1.666000468656264e-05,
+        "min_current_ratio": 0.9998144420606091,
+        "min_fixed037_ratio": 0.10003977287040827,
+        "minimum_edge_gradient_slack_mm": 0.0036942409951442987,
+        "outside_support_unchanged": true,
+        "source_cap_pass": true,
+        "trust_pass": true
+      }
+    }
+  ],
+  "host": "numi.local",
+  "limitations": [
+    "No exact self audit, complete point audit, or 159 surface-bone audit was run by these 338 reports.",
+    "No geometry admission or physical step is claimed."
+  ],
+  "pins": {
+    "337_area_only_smoke": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-338/smoke-337-area-backtrack.json",
+      "sha256": "26489b1beb23572e2df6f483f59696c55743f73dde44ba47a1ea031df75d6487"
+    },
+    "base_candidate": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/global-275/backtrack/pass-002/candidate.npz",
+      "sha256": "2346d174df8b363bca2200c24589a36cf1ad6a4642a4b73a9a156a48e6826b25"
+    },
+    "fitter_source": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-338/propose_joint_clearance_witnesses_338.py",
+      "sha256": "08b745c4e11d11ca0c76045bc4c5b34b5bbe960f9bf7cc76ddc7b41719265ae6"
+    },
+    "fitter_test": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-338/test_propose_joint_clearance_witnesses_338.py",
+      "sha256": "d8eaad8543b8a32710e73b65bdac472182bf81ee3de452a72d35e3a42597d191"
+    }
+  },
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "python": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "reviewer": "read-only source and retained-report review",
+  "schema": "numi.human.review-338-after-337-area-failure.v1",
+  "scope": {
+    "no_geometry_run": true,
+    "no_source_edits": true,
+    "read_only_report_and_small_candidate_header_checks": true
+  }
+}

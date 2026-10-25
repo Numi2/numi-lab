@@ -1,0 +1,35 @@
+{
+  "corrections": [
+    "The previous receipt incorrectly attributed measurements from coherent-support-continuation-337 to the 338 source. The 337 configuration explicitly selected the 315 solver, whose pinned SHA is recorded above; all 337 attempt results belong to that configured run lineage.",
+    "No 338 tiny-progress or selected-alpha result is established. Do not report any 337 alpha or area outcome as a 338 execution result.",
+    "The previous claim that 338 omits nested F32 backtracking receipts is incorrect. In 338 source, area_scp_records.append(record) is at line 1546, record[exact_f32_area_backtrack] is set at line 1563, and the same records are serialized as area_scp_iterations at lines 1605, 1644, 1792, and 1911.",
+    "This is source inspection only. The 338 source and tests are pinned above; no runtime, geometry, acceptance, or physical-admission result is claimed."
+  ],
+  "provenance_correction": {
+    "337_attempt_reports": [
+      {
+        "path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-337/round-001/attempt-001/proposal/report.json",
+        "sha256": "5ee3e7193f03d36a3402f7aa35a0a1916b2fef12eababf68ea9e54e9d5ff96ed"
+      },
+      {
+        "path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-337/round-001/attempt-002/proposal/report.json",
+        "sha256": "09d70a46e2fcbd55f46860b91029d890526c00f94b5619c5aedd856e8ed74022"
+      }
+    ],
+    "337_configuration_path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-337/configuration.json",
+    "337_configuration_sha256": "8260b1919101819f7eaca3d9836f0dadb083a7fe50adee315e8895bd1c412e3e",
+    "337_configured_solver_path": "/Users/n/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-315/propose_joint_clearance_witnesses_315.py",
+    "337_configured_solver_sha256": "b248fbbd190ed8f139ac7b5a1682b343616ab900e416441f5a28353b62d667a9",
+    "338_execution_status": "NOT_RUN_FOR_THIS_REVIEW",
+    "338_source_path": "/Users/n/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-338/propose_joint_clearance_witnesses_338.py",
+    "338_source_sha256": "08b745c4e11d11ca0c76045bc4c5b34b5bbe960f9bf7cc76ddc7b41719265ae6",
+    "338_test_path": "/Users/n/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-338/test_propose_joint_clearance_witnesses_338.py",
+    "338_test_sha256": "d8eaad8543b8a32710e73b65bdac472182bf81ee3de452a72d35e3a42597d191"
+  },
+  "status": "CORRECTED_SOURCE_REVIEW_ONLY",
+  "supersedes_receipt": {
+    "path": "/Users/n/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-338/review339receipt.json",
+    "preserved_as": "/Users/n/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-338/review339receipt-superseded-misattributed.json",
+    "sha256": "adcd42256511db72682b725f7ec29047e3fea388085c26071ee81e2717f476bc"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "status": "FAILED_BEFORE_GEOMETRY_RUN",
+  "passed": 3,
+  "failed": 2,
+  "error": "NameError: require_pinned_sha is not defined at emit_gradient_checked_trial line604",
+  "tests": [
+    "test_initial_trial_gradient_guard_reduces_unsafe_f32_emission",
+    "test_initial_trial_gradient_guard_preserves_passing_raw_f32_bytes"
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}
