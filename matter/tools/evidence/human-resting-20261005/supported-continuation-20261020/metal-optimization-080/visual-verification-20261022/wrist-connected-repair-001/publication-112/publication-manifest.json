@@ -1,0 +1,93 @@
+{
+  "base_commit": "12f29b83ecdbcc80595aea3719ec20dffab8c98e",
+  "canonical_changes": [],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "9dc9981c7d8c5b6bf93d2c8f6035d629de8546e84a3adce7575e7302a347ed6f",
+      "bytes": 1286
+    },
+    {
+      "path": "evidence/archive-manifest.json",
+      "sha256": "6ff66d1e19b295e174ddd3374fd25f4cabd62dd7c4434d991e680375dd7cdfee",
+      "bytes": 109120
+    },
+    {
+      "path": "evidence/coherent-connected-trials-309.tar.xz",
+      "sha256": "772f33abe7d9b358219555840e6590ffd729afd00a28a4229662620e0cc8f930",
+      "bytes": 24559768
+    },
+    {
+      "path": "evidence/p111-remote-recovery-verification.json",
+      "sha256": "763964de326737f89646c5e7f1f63cabbac17ae989005bac40b87e29a730a804",
+      "bytes": 371
+    },
+    {
+      "path": "evidence/p111-root-publication-receipt.json",
+      "sha256": "be3501408cab37dfc4eab4bd06460ade0e8292d054fb9048caa94afe147974a1",
+      "bytes": 622
+    },
+    {
+      "path": "evidence/p111-verified-local-retirement.json",
+      "sha256": "c25af64b9d5ba4493ff202637abb1ec3e49a61897c94e36ed6c885ac2cd2c694",
+      "bytes": 531
+    },
+    {
+      "path": "evidence/refined-309-independent-prefix.json",
+      "sha256": "921a447b74e69b83a8f71ae516ab79bba032059a89756aef145108595a16be06",
+      "bytes": 589
+    },
+    {
+      "path": "evidence/selected-candidate.npz",
+      "sha256": "c1a62013fcce1d3454da824f22bee920455818b59933b24c99167328d04e9340",
+      "bytes": 3395003
+    },
+    {
+      "path": "evidence/selected-point-summary.json",
+      "sha256": "25d06cc07c4cad0a6a4ea54c526392df82f1fef192ae2bcbaa08037991d0d6c7",
+      "bytes": 434159
+    },
+    {
+      "path": "evidence/selected-result.json",
+      "sha256": "deb4a7f2b67a3baafb78fe62ec59874107a6cdd569b0b12e836d79dd0a7f1efa",
+      "bytes": 9135
+    },
+    {
+      "path": "evidence/selected-surface-report.json",
+      "sha256": "6a6af7fdeaf800bc5a03ee20c94741b821e0255f70e7a68466a5ac3f80a49443",
+      "bytes": 281023
+    },
+    {
+      "path": "evidence/verified-inactive-proposal-retirement-310.json",
+      "sha256": "1e270b3dffdd0af457fe89e429eebd17ffdaaee2e1e3cd9a0c202a86b4906601",
+      "bytes": 22263
+    },
+    {
+      "path": "sources/308-preflight-only.log",
+      "sha256": "1b98f42c4dd6e5e5a26a74d972a210914790dbae81a0ee8ad15634c245d083a6",
+      "bytes": 3756
+    },
+    {
+      "path": "sources/308-self-test.log",
+      "sha256": "b62896616b865021ee9efeb6f3cc828ae350bfa64e7d40aec74ce35efd05f99c",
+      "bytes": 143
+    },
+    {
+      "path": "sources/coherent-clearance-308-regression-tests/test_run_coherent_clearance_308.py",
+      "sha256": "ea475593d24d6576375e3634a41d731031a769a9d20af984cbacf56be252b10c",
+      "bytes": 11352
+    },
+    {
+      "path": "sources/continuation-308-launch.json",
+      "sha256": "0ce73cb3c4d1db59b5e6f9f4c38a90fac50df32af5a4d2062805e642187effca",
+      "bytes": 561
+    },
+    {
+      "path": "sources/run_coherent_clearance_308.py",
+      "sha256": "41ed66594bb14f5e856e983aa9979f2159bde232b2c0d129fd72a9a7d322c9c7",
+      "bytes": 42910
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

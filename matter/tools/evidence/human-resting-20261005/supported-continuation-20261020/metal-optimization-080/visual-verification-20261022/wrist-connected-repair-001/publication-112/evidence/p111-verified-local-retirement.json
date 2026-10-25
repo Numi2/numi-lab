@@ -1,0 +1,14 @@
+{
+  "commit": "12f29b83ecdbcc80595aea3719ec20dffab8c98e",
+  "remote_blob_oid": "8767203605bca58decf9ecaa60a7824c43266761",
+  "archive_sha256": "3a21be4df38d368fc53e7ea1f694416f7a7ee3c602cfee2cc42bfb7e036866df",
+  "independent_source": "GitHub REST git/blobs API",
+  "verified_members": 471,
+  "verified_bytes": 264921630,
+  "bytes_hash_mode_owner_mtime_verified": true,
+  "retired_files": 38,
+  "retired_logical_bytes": 131266167,
+  "free_bytes_before": 146124800,
+  "free_bytes_after": 277348352,
+  "free_bytes_gain": 131223552
+}

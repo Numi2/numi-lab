@@ -1,0 +1,16 @@
+{
+  "pid": 91991,
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_coherent_clearance_308.py",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-source-outward-309",
+    "--rounds",
+    "1",
+    "--attempts-per-round",
+    "4"
+  ],
+  "source_sha256": "41ed66594bb14f5e856e983aa9979f2159bde232b2c0d129fd72a9a7d322c9c7",
+  "construction_only": true,
+  "accepted_physical_steps": 0
+}

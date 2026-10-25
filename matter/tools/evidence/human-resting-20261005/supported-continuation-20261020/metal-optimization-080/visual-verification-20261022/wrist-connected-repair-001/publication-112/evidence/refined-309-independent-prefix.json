@@ -1,0 +1,16 @@
+{
+  "candidate_sha256": "c1a62013fcce1d3454da824f22bee920455818b59933b24c99167328d04e9340",
+  "old_node_prefix_18430_bitwise_unchanged": true,
+  "native_anchor_identities": {
+    "coarse_boundary_anchor_rows": true,
+    "coarse_boundary_anchor_source_nodes": true,
+    "typed_coarse_anchor_output_rows_018": true,
+    "typed_coarse_anchor_source_ids_018": true
+  },
+  "all_noncoordinate_refined_arrays_bitwise_unchanged": true,
+  "new_node_count": 2459,
+  "moved_nodes": 1526,
+  "maximum_new_node_step_mm": 2.1060213783850537,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}
