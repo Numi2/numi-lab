@@ -1,0 +1,48 @@
+{
+  "files": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-104/evidence/failed-unselected-candidates.tar.xz",
+      "sha256": "61c4800bffc2e05dbdf342ceec7067e5f99c8d2e21844a09c1aef3fdbaa5bdf9",
+      "bytes": 5707316,
+      "remote_commit": "9531d582b91ca59de256e2a749e7c9a86f843155",
+      "remote_blob_oid": "c5a4c752db8cb60e5ba4694d28f5d8ccd3920933",
+      "receipt": "/Users/numi/Work/numi-human-connected-surface-069/publication-104/remote-recovery-verification.json"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-105/evidence/construction-trials-225-229.tar.xz",
+      "sha256": "38607a88b0878bbbc7dc1da7884ddf405a4a4b08cd4c9617d5252865cdc5865c",
+      "bytes": 22943340,
+      "remote_commit": "82ea3e582775ab76d216b3e558d257e1bcebaa51",
+      "remote_blob_oid": "3ac7859b149e6d9aea7fb14e074a0f9590c1d18b",
+      "receipt": "/Users/numi/Work/numi-human-connected-surface-069/publication-105/remote-recovery-verification.json"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-106/evidence/construction-continuation-232-234.tar.xz",
+      "sha256": "6689e0a9b0a3113e6baf839c2451a27ff3a97b813a3fd055063f9ae93573480b",
+      "bytes": 40890960,
+      "remote_commit": "52735cf73d0e795c9e624296760c95ebeb363100",
+      "remote_blob_oid": "1523090a0352c89c0815c28e779cdc407705f53e",
+      "receipt": "/Users/numi/Work/numi-human-connected-surface-069/publication-106/remote-recovery-verification.json"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-107/evidence/construction-continuation-239-247.tar.xz",
+      "sha256": "84055f6d96773be88843c7880129339a7b80b97aa5b8695672ecab7a09a72bab",
+      "bytes": 23917044,
+      "remote_commit": "77314417a1266f68e42556c69ab5c9ac087cf68b",
+      "remote_blob_oid": "ce27ea371e03216bc9f93a82f7cfab0b041e0f88",
+      "receipt": "/Users/numi/Work/numi-human-connected-surface-069/publication-107/remote-recovery-verification.json"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-108/evidence/outward-connected-trials-248-260.tar.xz",
+      "sha256": "ab7571362f37f4434c1321df8e9297de0549ad7ae46dacd40afd0bfc9111c731",
+      "bytes": 12328500,
+      "remote_commit": "12c69e923b602c420041aec3bcfe63e45948ff2f",
+      "remote_blob_oid": "aaf516e9f92d57f2241dcbc63f51b6b8fed33a8c",
+      "receipt": "/Users/numi/Work/numi-human-connected-surface-069/publication-108/remote-recovery-verification.json"
+    }
+  ],
+  "classification": "Redundant local recovery archives retired after independent remote byte and restore verification; current112 archive retained",
+  "free_bytes_before": 331325440,
+  "free_bytes_after": 437092352,
+  "gain": 105766912
+}

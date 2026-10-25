@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-109/evidence/bounded-connected-trials-265-277.tar.xz",
+      "sha256": "516d80b8f1ff024c82c66bb13b6c9e093cf205ec529d1bc70a5e5f50b4bc7aa9",
+      "bytes": 15346684,
+      "remote_commit": "6263fba8125815dba9c5c1c6e16d0447c2b2f46e",
+      "remote_blob_oid": "c7ce87780cf56806832328f8db66cbcf780702ac",
+      "receipt": "/Users/numi/Work/numi-human-connected-surface-069/publication-109/remote-recovery-verification.json"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-109/evidence/refined-connected-trials-278-286.tar.xz",
+      "sha256": "fdd6e6695d2913b7082f41446bcd5ac3d63492b41e8cc7fee21926960cd10881",
+      "bytes": 13380732,
+      "remote_commit": "6263fba8125815dba9c5c1c6e16d0447c2b2f46e",
+      "remote_blob_oid": "1a05585b6915877d43cf0c2c5ad7cff352de8e1a",
+      "receipt": "/Users/numi/Work/numi-human-connected-surface-069/publication-109/refined-remote-recovery-verification.json"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-110/evidence/connected-trials-291-299.tar.xz",
+      "sha256": "b089b7d9cdc5bd1aa89cc6748abf4fb42aa6b2fb50924421567e8393488dd222",
+      "bytes": 16519608,
+      "remote_commit": "4b624548e9648c24f5d069e14c7f337610ce6c24",
+      "remote_blob_oid": "b2bf416ad15a85d0a7260b0a2e8be15c2a9dcdde",
+      "receipt": "/Users/numi/Work/numi-human-connected-surface-069/publication-110/remote-recovery-verification.json"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-111/evidence/connected-trials-304.tar.xz",
+      "sha256": "3a21be4df38d368fc53e7ea1f694416f7a7ee3c602cfee2cc42bfb7e036866df",
+      "bytes": 37916224,
+      "remote_commit": "12f29b83ecdbcc80595aea3719ec20dffab8c98e",
+      "remote_blob_oid": "8767203605bca58decf9ecaa60a7824c43266761",
+      "receipt": "/Users/numi/Work/numi-human-connected-surface-069/publication-111/remote-recovery-verification.json"
+    }
+  ],
+  "classification": "Redundant local recovery archives retired after independent remote byte and restore verification; current112 archive retained",
+  "free_bytes_before": 296775680,
+  "free_bytes_after": 379928576,
+  "gain": 83152896
+}

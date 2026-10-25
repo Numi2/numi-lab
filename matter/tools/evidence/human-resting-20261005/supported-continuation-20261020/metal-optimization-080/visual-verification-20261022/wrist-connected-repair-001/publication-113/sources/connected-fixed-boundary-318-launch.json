@@ -1,0 +1,15 @@
+{
+  "pid": 92879,
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/run_connected_fixed_boundary_316.py",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-fixed-boundary-318",
+    "--rounds",
+    "1",
+    "--attempts-per-round",
+    "4"
+  ],
+  "source_sha256": "409f17b9fc271a054a9247d91e752c7039e9239f59f5f5f70cb9c0d3d746ba5b",
+  "native_admission": false
+}

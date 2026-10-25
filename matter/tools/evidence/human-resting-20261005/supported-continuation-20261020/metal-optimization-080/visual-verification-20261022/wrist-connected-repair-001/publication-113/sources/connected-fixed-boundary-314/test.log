@@ -1,0 +1,14 @@
+test_empty_barrier_arrays_keep_shapes (Work.numi-human-connected-surface-069.D.connected-fixed-boundary-314.test_emit_introduced_skin_bone_barriers_314.Barrier314Tests.test_empty_barrier_arrays_keep_shapes) ... ok
+test_face_array_identity_gate (Work.numi-human-connected-surface-069.D.connected-fixed-boundary-314.test_emit_introduced_skin_bone_barriers_314.Barrier314Tests.test_face_array_identity_gate) ... ok
+test_incomplete_or_wrong_hash_rejected (Work.numi-human-connected-surface-069.D.connected-fixed-boundary-314.test_emit_introduced_skin_bone_barriers_314.Barrier314Tests.test_incomplete_or_wrong_hash_rejected) ... ok
+test_missing_bank_rejected (Work.numi-human-connected-surface-069.D.connected-fixed-boundary-314.test_emit_introduced_skin_bone_barriers_314.Barrier314Tests.test_missing_bank_rejected) ... ok
+test_missing_stable_triangle_rejected (Work.numi-human-connected-surface-069.D.connected-fixed-boundary-314.test_emit_introduced_skin_bone_barriers_314.Barrier314Tests.test_missing_stable_triangle_rejected) ... ok
+test_nonorthonormal_affine_roundtrip_and_mm (Work.numi-human-connected-surface-069.D.connected-fixed-boundary-314.test_emit_introduced_skin_bone_barriers_314.Barrier314Tests.test_nonorthonormal_affine_roundtrip_and_mm) ... ok
+test_stable_triangle_id_not_row_index (Work.numi-human-connected-surface-069.D.connected-fixed-boundary-314.test_emit_introduced_skin_bone_barriers_314.Barrier314Tests.test_stable_triangle_id_not_row_index) ... ok
+test_union_minus_base_is_typed_deterministic (Work.numi-human-connected-surface-069.D.connected-fixed-boundary-314.test_emit_introduced_skin_bone_barriers_314.Barrier314Tests.test_union_minus_base_is_typed_deterministic) ... ok
+test_wrong_predicate_owner_rejected (Work.numi-human-connected-surface-069.D.connected-fixed-boundary-314.test_emit_introduced_skin_bone_barriers_314.Barrier314Tests.test_wrong_predicate_owner_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.006s
+
+OK

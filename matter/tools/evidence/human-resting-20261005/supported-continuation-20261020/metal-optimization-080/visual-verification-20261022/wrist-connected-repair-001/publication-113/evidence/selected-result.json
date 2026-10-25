@@ -1,0 +1,214 @@
+{
+  "accepted_physical_steps": 0,
+  "anchors_bitwise_unchanged": true,
+  "bad_area_faces": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-fixed-boundary-318/round-001/attempt-004/local-183-fallback/backtrack/pass-011/candidate.npz",
+  "candidate_sha256": "7ab587a3e0a1d8aca1f0b283fd7fa1719c44b5037b181825eb9da75613fd1ffd",
+  "depth_merit": {
+    "accepted_physical_steps": 0,
+    "after_candidate_sha256": "7ab587a3e0a1d8aca1f0b283fd7fa1719c44b5037b181825eb9da75613fd1ffd",
+    "after_maximum_depth_m": 0.0029546323188433445,
+    "after_point_pairs": 509,
+    "after_squared_depth_m2": 0.00034456500664712433,
+    "after_surface_pairs": 3649,
+    "before_candidate_sha256": "c1a62013fcce1d3454da824f22bee920455818b59933b24c99167328d04e9340",
+    "before_maximum_depth_m": 0.0029546323188433445,
+    "before_point_pairs": 512,
+    "before_squared_depth_m2": 0.00044706223329343456,
+    "before_surface_pairs": 3669,
+    "classification": "NO_CONSTRUCTION_DEPTH_PROGRESS",
+    "construction_progress": false,
+    "geometry_admitted": false,
+    "introduced_point_pairs": [
+      [
+        18464,
+        65,
+        99
+      ],
+      [
+        18961,
+        59,
+        95
+      ],
+      [
+        19507,
+        74,
+        104
+      ],
+      [
+        20556,
+        115,
+        118
+      ],
+      [
+        20560,
+        115,
+        118
+      ],
+      [
+        20585,
+        115,
+        118
+      ]
+    ],
+    "introduced_surface_pair_count": 41,
+    "maximum_depth_nonincreasing": true,
+    "native_admission": false,
+    "no_introduced_typed_pairs": false,
+    "point_pair_count_nonincreasing": true,
+    "same_query_coverage": true,
+    "squared_depth_improvement_m2": 0.00010249722664631023,
+    "squared_depth_roundoff_threshold_m2": 6.353136445986743e-18,
+    "strict_squared_depth_progress": true,
+    "surface_pair_count_nonincreasing": false,
+    "topology_faces": 41733,
+    "topology_points": 20889,
+    "typed_bank_count": 185
+  },
+  "emitted_points_sha256": "2f8cd329b85fe569591784e417e0ee1ead52ee74aca9452751e54c7a9ee5a2d3",
+  "iteration": 11,
+  "joint_merit": {
+    "accepted_physical_steps": 0,
+    "after_candidate_sha256": "7ab587a3e0a1d8aca1f0b283fd7fa1719c44b5037b181825eb9da75613fd1ffd",
+    "after_maximum_point_depth_m": 0.0029546323188433445,
+    "after_point_pairs": 509,
+    "after_squared_point_depth_m2": 0.00034456500664712433,
+    "after_surface_pairs": 3649,
+    "after_total_pairs": 4158,
+    "before_candidate_sha256": "c1a62013fcce1d3454da824f22bee920455818b59933b24c99167328d04e9340",
+    "before_maximum_point_depth_m": 0.0029546323188433445,
+    "before_point_pairs": 512,
+    "before_squared_point_depth_m2": 0.00044706223329343456,
+    "before_surface_pairs": 3669,
+    "before_total_pairs": 4181,
+    "classification": "JOINT_CLEARANCE_CONSTRUCTION_PROGRESS",
+    "construction_progress": true,
+    "final_zero_clearance_unchanged": false,
+    "geometry_admitted": false,
+    "maximum_depth_nonincreasing": true,
+    "native_admission": false,
+    "squared_depth_nonincreasing": true,
+    "strict_surface_pair_reduction": true,
+    "strict_total_pair_reduction": true,
+    "topology_faces": 41733,
+    "topology_points": 20889,
+    "typed_bank_count": 185
+  },
+  "maximum_source_displacement_mm": 11.557987360908363,
+  "maximum_step_m": 0.0008450028423063244,
+  "minimum_allface_oriented_area_ratio": 0.10004448627137383,
+  "minimum_fixed_reference_area_magnitude_ratio": 0.10003977287040829,
+  "native_admission": false,
+  "nonzero_construction_scale_nodes": 2459,
+  "nonzero_step_nodes": 955,
+  "parent_fit": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-connected-prep-225-run001/proposal/fit/attempt-001/fit-report.json",
+  "point_merit": {
+    "accepted_physical_steps": 0,
+    "after_inside_pairs": 509,
+    "after_maximum_depth_m": 0.0029546323188433445,
+    "after_squared_depth_m2": 0.00034456500664712433,
+    "before_inside_pairs": 512,
+    "before_maximum_depth_m": 0.0029546323188433445,
+    "before_squared_depth_m2": 0.00044706223329343456,
+    "construction_progress": true,
+    "geometry_admitted": false,
+    "introduced_depths_m": [
+      1.5901184299494915e-05,
+      1.2577010260043581e-05,
+      1.4103777822718486e-06,
+      6.623279141377234e-05,
+      1.794832100298796e-05,
+      4.3867618758704835e-07
+    ],
+    "introduced_typed_pairs": [
+      [
+        18464,
+        65,
+        99
+      ],
+      [
+        18961,
+        59,
+        95
+      ],
+      [
+        19507,
+        74,
+        104
+      ],
+      [
+        20556,
+        115,
+        118
+      ],
+      [
+        20560,
+        115,
+        118
+      ],
+      [
+        20585,
+        115,
+        118
+      ]
+    ],
+    "maximum_depth_nonincreasing": true,
+    "removed_typed_pairs": [
+      [
+        18547,
+        109,
+        114
+      ],
+      [
+        18810,
+        115,
+        118
+      ],
+      [
+        19112,
+        124,
+        123
+      ],
+      [
+        19135,
+        115,
+        118
+      ],
+      [
+        19807,
+        59,
+        95
+      ],
+      [
+        20322,
+        74,
+        104
+      ],
+      [
+        20521,
+        115,
+        118
+      ],
+      [
+        20643,
+        109,
+        114
+      ],
+      [
+        20863,
+        114,
+        117
+      ]
+    ],
+    "squared_depth_nonincreasing": true,
+    "strict_pair_count_reduction": true
+  },
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-fixed-boundary-318/round-001/attempt-004/local-183-fallback/backtrack/pass-011/audit-130/summary.json",
+  "point_summary_sha256": "3a3791d660d16c7d92b2b80a14f45ac2af6128f50aeb56494692188a686ebb90",
+  "selected_backtracker": "local-183-fallback",
+  "selected_backtracker_result": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-fixed-boundary-318/round-001/attempt-004/local-183-fallback/backtrack/selected-result.json",
+  "selected_backtracker_result_sha256": "caeacc2dbd3d9b3ec976775f6b9431bff2ec745fbefbec30e3efd944c0fed4af",
+  "source_cap_pass": true,
+  "status": "CONSTRUCTION_PROGRESS_ONLY",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-fixed-boundary-318/round-001/attempt-004/local-183-fallback/backtrack/pass-011/audit-159/report.json"
+}

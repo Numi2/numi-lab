@@ -1,0 +1,149 @@
+{
+  "classification": "verified archived inactive construction proposals and duplicate logs retired",
+  "archives": [
+    {
+      "publication": "publication-112",
+      "manifest": "archive-manifest.json",
+      "verified_remote_receipt": "remote-recovery-verification.json",
+      "archive_sha256": "772f33abe7d9b358219555840e6590ffd729afd00a28a4229662620e0cc8f930"
+    }
+  ],
+  "files": [
+    {
+      "archive_path": "barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-001/fit.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-001/fit.log",
+      "sha256": "553de46987cb1fae3f2eb72634cffb8e1df4e6eda0474b33d38546ab09cec7ab",
+      "bytes": 4177364,
+      "mode": 420,
+      "uid": 501,
+      "gid": 20,
+      "mtime_ns": 1792959890724346748,
+      "source_device": 16777231,
+      "source_inode": 5020518,
+      "retire_after_remote_verification": false
+    },
+    {
+      "archive_path": "barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-001/proposal/raw-lp-candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-001/proposal/raw-lp-candidate.npz",
+      "sha256": "7ee8151e2471799d25111653e778a973832e454dfe1c8a2580673a60f9923a32",
+      "bytes": 3428477,
+      "mode": 420,
+      "uid": 501,
+      "gid": 20,
+      "mtime_ns": 1792959890233713401,
+      "source_device": 16777231,
+      "source_inode": 5020663,
+      "retire_after_remote_verification": false
+    },
+    {
+      "archive_path": "barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-001/trial-halfstep.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-001/trial-halfstep.npz",
+      "sha256": "bfacd5ba99f223ff9af2166d88d707d11ac15428036e615ba345513faef95f38",
+      "bytes": 3395012,
+      "mode": 420,
+      "uid": 501,
+      "gid": 20,
+      "mtime_ns": 1792959891091859653,
+      "source_device": 16777231,
+      "source_inode": 5020668,
+      "retire_after_remote_verification": false
+    },
+    {
+      "archive_path": "barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-002/fit.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-002/fit.log",
+      "sha256": "f14c54084710d96df221dfbb33a674f0a8fe4a412ef15c223a8777148f89ee07",
+      "bytes": 5013864,
+      "mode": 420,
+      "uid": 501,
+      "gid": 20,
+      "mtime_ns": 1792959916549885409,
+      "source_device": 16777231,
+      "source_inode": 5020696,
+      "retire_after_remote_verification": false
+    },
+    {
+      "archive_path": "barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-002/proposal/raw-lp-candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-002/proposal/raw-lp-candidate.npz",
+      "sha256": "3a71cf1655c60710432090a66f1b21714528bcbd5901a91ceccfdca0c134914c",
+      "bytes": 3429826,
+      "mode": 420,
+      "uid": 501,
+      "gid": 20,
+      "mtime_ns": 1792959916052967599,
+      "source_device": 16777231,
+      "source_inode": 5020698,
+      "retire_after_remote_verification": false
+    },
+    {
+      "archive_path": "barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-002/trial-halfstep.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-002/trial-halfstep.npz",
+      "sha256": "ff60be18ddef8c13e0e680d1e41bda15d84f398fab06e2f351b7a4106bb6f51b",
+      "bytes": 3395026,
+      "mode": 420,
+      "uid": 501,
+      "gid": 20,
+      "mtime_ns": 1792959916890326534,
+      "source_device": 16777231,
+      "source_inode": 5020703,
+      "retire_after_remote_verification": false
+    },
+    {
+      "archive_path": "barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-003/fit.log",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-003/fit.log",
+      "sha256": "3c268cdaf64f3784f5e0866d735a0b1ee4151e9558399ba21aaf1f8eba530ffa",
+      "bytes": 5055483,
+      "mode": 420,
+      "uid": 501,
+      "gid": 20,
+      "mtime_ns": 1792959942301125913,
+      "source_device": 16777231,
+      "source_inode": 5020731,
+      "retire_after_remote_verification": false
+    },
+    {
+      "archive_path": "barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-003/proposal/raw-lp-candidate.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-003/proposal/raw-lp-candidate.npz",
+      "sha256": "28f4414dd5052eda37255f8c8473da7aa35272a218ddda83f3b93e8eab71f8b9",
+      "bytes": 3429925,
+      "mode": 420,
+      "uid": 501,
+      "gid": 20,
+      "mtime_ns": 1792959941797044650,
+      "source_device": 16777231,
+      "source_inode": 5020733,
+      "retire_after_remote_verification": false
+    },
+    {
+      "archive_path": "barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-003/trial-halfstep.npz",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-source-outward-309/round-001/attempt-003/trial-halfstep.npz",
+      "sha256": "65287435bec6cd48b1865ef3b9b68c53f06877c4991f25dbafb7a4fa61173488",
+      "bytes": 3395027,
+      "mode": 420,
+      "uid": 501,
+      "gid": 20,
+      "mtime_ns": 1792959942683814154,
+      "source_device": 16777231,
+      "source_inode": 5020738,
+      "retire_after_remote_verification": false
+    },
+    {
+      "archive_path": "barycentric-connected-clearance-170/coherent-source-outward-309/round-001/face-targets/target-records.jsonl",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-source-outward-309/round-001/face-targets/target-records.jsonl",
+      "sha256": "ef790041b80c1998b2b201979e0410d900a8111805045e0c02503006d3f9bb5e",
+      "bytes": 9773794,
+      "mode": 420,
+      "uid": 501,
+      "gid": 20,
+      "mtime_ns": 1792959869930939819,
+      "source_device": 16777231,
+      "source_inode": 5020503,
+      "retire_after_remote_verification": false
+    }
+  ],
+  "files_retired": 10,
+  "logical_bytes": 44493798,
+  "free_bytes_before": 285048832,
+  "free_bytes_after": 329592832,
+  "free_bytes_gain": 44544000,
+  "preserved": "selected candidates, baseline/refinement/source inputs, exact summaries/self-pair arrays, target NPZs and active293cache"
+}
