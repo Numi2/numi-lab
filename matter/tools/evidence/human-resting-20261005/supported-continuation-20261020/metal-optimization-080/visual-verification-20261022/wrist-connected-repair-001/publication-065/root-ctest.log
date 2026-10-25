@@ -1,0 +1,38 @@
+UpdateCTestConfiguration  from :/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-007-owner-per-child-mass/build/DartConfiguration.tcl
+Test project /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-007-owner-per-child-mass/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: explicit_fem_tetrahedron_mass
+
+1: Test command: /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-007-owner-per-child-mass/build/numi-matter-explicit-fem-tet-mass-check
+1: Working Directory: /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-007-owner-per-child-mass/build
+1: Test timeout computed to be: 10000000
+1: denied=mass identity missing diagnostics=explicit FEM tetrahedron masses require exact per-tetrahedron values/source identity and explicit non-mixed FEM without nodal fields or object identification; 
+1: denied=identity without masses diagnostics=explicit FEM tetrahedron masses require exact per-tetrahedron values/source identity and explicit non-mixed FEM without nodal fields or object identification; 
+1: denied=partial mass vector diagnostics=explicit FEM tetrahedron masses require exact per-tetrahedron values/source identity and explicit non-mixed FEM without nodal fields or object identification; 
+1: denied=zero mass diagnostics=explicit FEM tetrahedron masses must be finite, positive, and representable as FP32; 
+1: denied=negative mass diagnostics=explicit FEM tetrahedron masses must be finite, positive, and representable as FP32; 
+1: denied=NaN mass diagnostics=explicit FEM tetrahedron masses must be finite, positive, and representable as FP32; 
+1: denied=infinite mass diagnostics=explicit FEM tetrahedron masses must be finite, positive, and representable as FP32; 
+1: denied=non-FEM representation diagnostics=explicit FEM tetrahedron masses require exact per-tetrahedron values/source identity and explicit non-mixed FEM without nodal fields or object identification; 
+1: denied=mixed FEM diagnostics=explicit FEM tetrahedron masses require exact per-tetrahedron values/source identity and explicit non-mixed FEM without nodal fields or object identification; 
+1: denied=adaptive explicit-mass object diagnostics=authored FEM material fields require an immutable world until field transfer is supported; 
+1: PASS explicit_fem_tetrahedron_mass_compiler checks=47 human_admission=not_tested
+1/2 Test #1: explicit_fem_tetrahedron_mass ................   Passed    0.05 sec
+test 2
+    Start 2: owner_emitted_mass_compiles_to_fem_inertia
+
+2: Test command: /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-007-owner-per-child-mass/build/numi-human-unpaired-owner-compiler-integration-check
+2: Working Directory: /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-007-owner-per-child-mass/build
+2: Test timeout computed to be: 10000000
+2: unpaired skin/fat volume owner tests passed
+2/2 Test #2: owner_emitted_mass_compiles_to_fem_inertia ...   Passed    0.02 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   0.07 sec

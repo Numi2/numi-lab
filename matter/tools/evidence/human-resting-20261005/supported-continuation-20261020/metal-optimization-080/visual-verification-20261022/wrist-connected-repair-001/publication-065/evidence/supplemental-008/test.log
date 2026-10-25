@@ -1,0 +1,15 @@
+Test project /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-007-owner-per-child-mass/supplemental-008/build
+    Start 1: explicit_fem_tetrahedron_mass_multiobject
+1/1 Test #1: explicit_fem_tetrahedron_mass_multiobject ...   Passed    0.01 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+compiler     =   0.01 sec*proc (1 test)
+cpu          =   0.01 sec*proc (1 test)
+fem          =   0.01 sec*proc (1 test)
+mass         =   0.01 sec*proc (1 test)
+matter       =   0.01 sec*proc (1 test)
+synthetic    =   0.01 sec*proc (1 test)
+
+Total Test time (real) =   0.02 sec

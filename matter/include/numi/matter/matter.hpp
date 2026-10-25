@@ -669,6 +669,14 @@ struct ObjectSource {
     // name a unique exterior face on an explicit immutable FEM object.
     // Empty preserves the legacy all-exterior-face contact eligibility.
     std::vector<std::uint32_t> femDisabledContactSurfaceFaces;
+    // Optional authored per-tetrahedron lumped mass contributions, in kilograms.
+    // Empty preserves density*reference-volume assembly. When present, the
+    // compiler adds one quarter of each positive finite cell mass to each of its
+    // four nodes while retaining the authored material and tetrahedron identity.
+    std::vector<double> femTetrahedronMassesKg;
+    // SHA256 of the verified source ancestry/mass ledger used to derive the
+    // per-tetrahedron masses. Required with femTetrahedronMassesKg, zero without.
+    std::array<std::uint64_t, 4> femTetrahedronMassSourceIdentity{};
 };
 
 // Vascular laws share the existing Matter transaction and conservative transport.
@@ -978,6 +986,17 @@ struct CompiledWorld {
     std::uint64_t physicsFingerprint = 0u;
     // Exact cooked-package identity, including all arena capacities.
     std::uint64_t fingerprint = 0u;
+    // Optional per-object SHA256 source identities for authored per-tet masses.
+    // Empty for legacy worlds; when present, indexed by world.objects and zero
+    // for objects without an explicit mass ledger. Host/package metadata only.
+    // Appended to keep all pre-existing host member offsets stable; the host
+    // C++ type still changes size, so producer/runtime builds must be rebuilt.
+    std::vector<std::array<std::uint64_t, 4>> femTetrahedronMassSourceIdentities;
+    // Optional host/package ledger aligned to global FEM tetrahedron rows.
+    // Explicit-mass cells store their authoritative kilograms; legacy and
+    // dormant rows store zero. Empty exactly when no explicit source ledger
+    // is present. Appended to preserve all prior host member offsets.
+    std::vector<double> femTetrahedronMassesKg;
 };
 
 struct ParseResult {

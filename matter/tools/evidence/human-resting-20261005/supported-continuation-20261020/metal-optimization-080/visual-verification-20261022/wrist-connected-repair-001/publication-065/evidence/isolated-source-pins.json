@@ -1,0 +1,1190 @@
+{
+  "baseline-v19/package_impl_v19.cpp": {
+    "sha256": "02aa83df6568dad36a3260ff74973c6b7c7de4c659fa87f36188d0c492188d3c",
+    "bytes": 38954
+  },
+  "include/metalrobo/ArticulatedActuation.hpp": {
+    "sha256": "3ccc86f6da999506ad335e9c6f3f4253a03801174051bbe199d6af1ba17bf835",
+    "bytes": 5837
+  },
+  "include/metalrobo/ArticulatedCollision.hpp": {
+    "sha256": "bd7dae13cd0f8c37098ab099de5a893786f853b8066968d54af3f83870736ca4",
+    "bytes": 4442
+  },
+  "include/metalrobo/ArticulatedContact.hpp": {
+    "sha256": "96a8c8ae3872dadce767d9fa61debfc574a7f4b7d1c7ee4049bd9e02687f219d",
+    "bytes": 6456
+  },
+  "include/metalrobo/ArticulatedDynamics.hpp": {
+    "sha256": "a302c825886aec58ee9aaa8f55b303f5654ba7e75fac5bb4185a07f5de83c876",
+    "bytes": 9900
+  },
+  "include/metalrobo/ArticulatedJointLimits.hpp": {
+    "sha256": "9fc9991b33e8649d85bca98b303f2d37e21a5858ff80fdb49fa17b4f9a5b4a2e",
+    "bytes": 6656
+  },
+  "include/metalrobo/ArticulatedMixedConstraints.hpp": {
+    "sha256": "b666abd0201d8504d52c4852f48dcc03c12b20f09ee2f8d6ded6eb0c6ea2b125",
+    "bytes": 4019
+  },
+  "include/metalrobo/ArticulatedRigidCollision.hpp": {
+    "sha256": "50d93b65fc35247afc427e0507f7ae745fa9cc63a31c50905031dd65a244c2b2",
+    "bytes": 11502
+  },
+  "include/metalrobo/ArticulatedRigidWorld.hpp": {
+    "sha256": "2869b6d2bb2df6339555b0a54ff3fc610b8cb68cbcd7a37537802e7a38c152a9",
+    "bytes": 8764
+  },
+  "include/metalrobo/ArticulatedWorld.hpp": {
+    "sha256": "3de610859ff20cac95aeac978f7df0e87f78a2da585a7bd9eabf50764c022ddb",
+    "bytes": 7533
+  },
+  "include/metalrobo/Collision.hpp": {
+    "sha256": "dad1688d6d8a8871aa22c98757ddea2f0da8c6e993980c962f0cd1d5a27ba929",
+    "bytes": 3626
+  },
+  "include/metalrobo/ConstraintIR.hpp": {
+    "sha256": "6610aaa7a447a50a6899a2be48e2a3e840fd41a8e82471ba2b4c7d13f813f582",
+    "bytes": 15428
+  },
+  "include/metalrobo/ConstraintSolver.hpp": {
+    "sha256": "b72032893f0e2803c067f9c4f14bda8b47259ed8f8d56dde61f2382abf0d97a7",
+    "bytes": 3571
+  },
+  "include/metalrobo/CoupledArticulatedRigidContact.hpp": {
+    "sha256": "347032dc7f3162162bbdc3d8db529f0f62c3a75433f1dceb0e032b8bbf1590dc",
+    "bytes": 8468
+  },
+  "include/metalrobo/DiscreteElasticRod.hpp": {
+    "sha256": "386cfb5a316fed5b4420cd5f6eb32b3dce54424d2b5f3386cd2694f7511484fd",
+    "bytes": 8398
+  },
+  "include/metalrobo/EmbodiedTactile.hpp": {
+    "sha256": "693a24a65b5221448aa1ec6d2a684488a7af4ea3a1adb6590976fc513546972a",
+    "bytes": 1329
+  },
+  "include/metalrobo/EngineModel.hpp": {
+    "sha256": "04096227fc3ca3360c55fd199553e6c950f4a2620ef8f2c1d39af78a6f1d432e",
+    "bytes": 4044
+  },
+  "include/metalrobo/EngineModelComposer.hpp": {
+    "sha256": "ed780b96d5f649e3a4ce2da3822c7b047da3305acbc32a98ef88aacbd55be4b6",
+    "bytes": 2591
+  },
+  "include/metalrobo/EpisodeTwinCompiler.hpp": {
+    "sha256": "ba5bcd36dc18790d77efd224076fd23b2b697de58adb0db0529410996c587636",
+    "bytes": 8729
+  },
+  "include/metalrobo/Franka.hpp": {
+    "sha256": "52317292ae627ee3770eb4ae5f762323dae38780fcb49dd40e080815de82dcab",
+    "bytes": 1314
+  },
+  "include/metalrobo/FrankaWorld.hpp": {
+    "sha256": "8fd22506ce94e6aeccd5adfd2ef1c3a6648735223452281aeb813002fef73c96",
+    "bytes": 1919
+  },
+  "include/metalrobo/FreeBodyDynamics.hpp": {
+    "sha256": "80fb21672731d34cdcb7f7643d821ccfa92bb55b743451e046ba15621ca47ec4",
+    "bytes": 2695
+  },
+  "include/metalrobo/G1.hpp": {
+    "sha256": "d4e2fc09fb0beea53a831e7611ed7d250fd7b6183ed70a7da3c4e224c6e5b7a5",
+    "bytes": 3967
+  },
+  "include/metalrobo/GeometryCooker.hpp": {
+    "sha256": "39ddd22642948a2865d1d28b5ce9002d1dde112c2dfc4c4197340c5e69030815",
+    "bytes": 2394
+  },
+  "include/metalrobo/HeterogeneousWorld.hpp": {
+    "sha256": "5551c99a142f3e0d7a270b9c440a0bba8e94fa23d1e1df8204bfbad220cb34c0",
+    "bytes": 7687
+  },
+  "include/metalrobo/HumanBehaviorAcceptedStateRoot.hpp": {
+    "sha256": "b9d5aa34995bfff40a512deb44f205641a1a7b6d1d735177e323c36c993e8c58",
+    "bytes": 3230
+  },
+  "include/metalrobo/HumanBehaviorNativeAudit.hpp": {
+    "sha256": "766ca7450baf77e19b4d92dae9db11836ef0ea14077bf5b7980b945277a422ca",
+    "bytes": 1755
+  },
+  "include/metalrobo/HumanBehaviorProgram.hpp": {
+    "sha256": "55bd9e846d8558c6d205b2051e659d395f8a01255fac132056ed6db72511df2e",
+    "bytes": 2277
+  },
+  "include/metalrobo/HumanBehaviorStateComponents.hpp": {
+    "sha256": "673373298d3c74afadbf0601e947fd6c2ea4d5ec72a45d18317c67dfa69d1ef5",
+    "bytes": 1467
+  },
+  "include/metalrobo/HumanBehaviorTrial.hpp": {
+    "sha256": "51879283a026330968aa2c3075b3f679d57d979d7c82b50dd4d044228d4d25a5",
+    "bytes": 6791
+  },
+  "include/metalrobo/HyperPolicyPacks.hpp": {
+    "sha256": "8ca4f314d787d8baf711ffdc776100824a40c0807b010b8e943774df7def2ae4",
+    "bytes": 492
+  },
+  "include/metalrobo/HyperPolicyProgram.hpp": {
+    "sha256": "9105805f77f79b05c33384fd6e13ddd8a9f2a2a270a58ec8ab87e4a8c09380bf",
+    "bytes": 5857
+  },
+  "include/metalrobo/InteractionPack.hpp": {
+    "sha256": "375329b1c224cbbe04fda12c93b31350183d974b45a5742689b4d4135b15358d",
+    "bytes": 3067
+  },
+  "include/metalrobo/LearningPacks.hpp": {
+    "sha256": "9dc59891d95ccd5f2df5d1c8f4e2c4b1fc7107f6909902007f4d4641645a2242",
+    "bytes": 7726
+  },
+  "include/metalrobo/LocomotionWorld.hpp": {
+    "sha256": "d477ff8d57ad46030e0e857ca7b5c9a113b297fc2fd66f38025eabb780ab99e6",
+    "bytes": 7298
+  },
+  "include/metalrobo/MatterSnapshotArchive.hpp": {
+    "sha256": "c4da585de196d3ba6112f869761c48c123524d8bfe06e3779894a7e185278242",
+    "bytes": 1763
+  },
+  "include/metalrobo/MetalArticulatedABA.hpp": {
+    "sha256": "e18b88174e1c03549c474e7e573dedfae1986712ae93cad9148b8539e9a1e804",
+    "bytes": 7711
+  },
+  "include/metalrobo/MetalArticulatedInverseMass.hpp": {
+    "sha256": "125d96c2f520bd6e70e5c498d3bba333a88fdd6a0602afa0c060b389f46f3118",
+    "bytes": 6567
+  },
+  "include/metalrobo/MetalArticulatedOperator.hpp": {
+    "sha256": "24fa2fe421b9b2c84498cf0d9740f0384af7f5902393a8643d4f468cf621a295",
+    "bytes": 134241
+  },
+  "include/metalrobo/MetalDiscreteElasticRod.hpp": {
+    "sha256": "04aa88d2fe723b73bff417eb8ed42d209f455e181ef74da2eca39344041f7374",
+    "bytes": 4962
+  },
+  "include/metalrobo/MetalHumanBehaviorTelemetry.hpp": {
+    "sha256": "635b73f15f40626634edb13cefd1fbdc72f510eb4f484a97176f8e02b701ea26",
+    "bytes": 7803
+  },
+  "include/metalrobo/MetalHybridRenderer.hpp": {
+    "sha256": "4a507ea9189b3dd421d76295e235565e8514b5175b62ff8c095fee3419948904",
+    "bytes": 18110
+  },
+  "include/metalrobo/MetalHyperPolicy.hpp": {
+    "sha256": "ed08d6da902b32476c77be727769d42b0d4aa4e260ee1b9a2533e5a740f58f89",
+    "bytes": 3214
+  },
+  "include/metalrobo/MetalMultiArticulatedABA.hpp": {
+    "sha256": "c7e0b791023450fba6a4a5112dfa274ea0b09a3d8ad8b589e51e8c94e83aa59d",
+    "bytes": 3121
+  },
+  "include/metalrobo/MetalMultiArticulatedConstraints.hpp": {
+    "sha256": "b542b8d92348b742512e51e3b8ced217d421474ac246950a728e72a6c24d91be",
+    "bytes": 10103
+  },
+  "include/metalrobo/MetalMultiArticulatedContact.hpp": {
+    "sha256": "f10a49be9c3ab7d496cc007f8cef7d9d5c5a2b11e0bf3c605582bc584fe74277",
+    "bytes": 7416
+  },
+  "include/metalrobo/MetalMultiArticulatedInverseMass.hpp": {
+    "sha256": "2d3ca165a14bf33a8eb940c98af3a87577ec062de23ac4baa466415e971f1730",
+    "bytes": 3389
+  },
+  "include/metalrobo/MetalNeuronCulture.hpp": {
+    "sha256": "b0d04c3ef4c402105095e25bbca5f63f06bb051f64ca5eab0257c69a785bdba4",
+    "bytes": 5205
+  },
+  "include/metalrobo/MetalNumanXCoupledHuman.hpp": {
+    "sha256": "f29019d7f930158f0f6c0f82465a282cabc33725123e5de50e36d435994575fd",
+    "bytes": 18918
+  },
+  "include/metalrobo/MetalNumanXHumanIO.hpp": {
+    "sha256": "b8728578e6e37f235e7e82f23a40c0020a8f699e5a3fcebf23ff3ae6d05eb0fe",
+    "bytes": 31204
+  },
+  "include/metalrobo/MetalNumanXHumanMatter.hpp": {
+    "sha256": "a992d24a91f6aac820628321b473bb8fc4fea404dae755f477bf77434520a1d4",
+    "bytes": 19435
+  },
+  "include/metalrobo/MetalQualityContactSolver.hpp": {
+    "sha256": "dc4c02eeb659750c33d0d77bcf6dff9480cc7174fdbc94ec1101c94af5c34c5c",
+    "bytes": 2408
+  },
+  "include/metalrobo/MetalRunInspector.hpp": {
+    "sha256": "d707863ed2b7f090007df7f4c47066c11eb070f459c19f0771684a2894cd64b1",
+    "bytes": 2716
+  },
+  "include/metalrobo/MetalTactile.hpp": {
+    "sha256": "040e62d92f9f956bf89b5c1bccc3eaebe726ffe8b948c4bff22cc59b30949989",
+    "bytes": 5337
+  },
+  "include/metalrobo/MetalUnifiedQualitySolver.hpp": {
+    "sha256": "85f130afebc115a108d73fb188bbab9b1a941e1e4651f160b4e20664e79b913d",
+    "bytes": 3047
+  },
+  "include/metalrobo/MetalWorld.hpp": {
+    "sha256": "5db1e4f174e4ec41d884df40dd44d0264ce14af8813ea327e26a6652304be378",
+    "bytes": 50222
+  },
+  "include/metalrobo/MetalWorldCapacity.hpp": {
+    "sha256": "dc5a48c9c1bce091901a789441ba39a678dfb803a0a82c698897c3ab45854143",
+    "bytes": 1739
+  },
+  "include/metalrobo/MetalWorldFamily.hpp": {
+    "sha256": "27c39a296099c63e09b71ffebf9b1fa90b5fcc0bf50d2e7b1d700dda8005ba1a",
+    "bytes": 6657
+  },
+  "include/metalrobo/MillardMuscleReference.hpp": {
+    "sha256": "a3dc8b7a5dd75cc4670dbd4293e61c054285bb83006c0c1132739ad4166c318f",
+    "bytes": 8084
+  },
+  "include/metalrobo/Model.hpp": {
+    "sha256": "56019f25ec98624e45fa840187f356f8f3bdd92952c8df1eb6322125fc1cd4f7",
+    "bytes": 948
+  },
+  "include/metalrobo/MotionCompiler.hpp": {
+    "sha256": "37aa7d8f4dec6a175d652c31797fedc539c75513b94d2988a42e21156b7c804e",
+    "bytes": 1464
+  },
+  "include/metalrobo/MujocoMuscleReference.hpp": {
+    "sha256": "02fc069c43d4fcbf8f68b6d7f9c38ca21f96c51d0756472aa278721d2ef75765",
+    "bytes": 8400
+  },
+  "include/metalrobo/MultiArticulatedContact.hpp": {
+    "sha256": "74e1ff34f44e032ad95f4e6c0fb61e9c869973a6cc6acc5c06835135002dd194",
+    "bytes": 11942
+  },
+  "include/metalrobo/MultiArticulatedWorld.hpp": {
+    "sha256": "d0c7e6da7abd34df94775ee21239ecc382ca0ad37044a9bbeb151de91a112264",
+    "bytes": 3665
+  },
+  "include/metalrobo/Multicopter.hpp": {
+    "sha256": "ea202a185deed840741dfa8aa93205987e39ba6111940046eb338ffdc0355b13",
+    "bytes": 1089
+  },
+  "include/metalrobo/NeuronCulture.hpp": {
+    "sha256": "ed78487abf721711e5e6d9341300be9ed23645dc6069a15d2ba82df6ce1db09a",
+    "bytes": 7710
+  },
+  "include/metalrobo/NeuronCultureArtifacts.hpp": {
+    "sha256": "68e5e42f03ba7fa76911ed5223e1eeaa13594098df0a4544c71649402be3d7d6",
+    "bytes": 3499
+  },
+  "include/metalrobo/NeuronCultureEmbodiment.hpp": {
+    "sha256": "173ac8e4acbfad9327b956d6cf2a8a40ccbd9cb8ff2f863bbb30a77c6f765916",
+    "bytes": 817
+  },
+  "include/metalrobo/NeuronCultureProtocol.hpp": {
+    "sha256": "bbcc220b15ae47b07455fa0f594c2ef8b52b00e68e668b26e4626e87fd65c304",
+    "bytes": 7663
+  },
+  "include/metalrobo/NumanXExactTransaction.hpp": {
+    "sha256": "58f0a1675fb5a1e3cc50e47372ba11cac48e234e7493ff3d100394c571e579c6",
+    "bytes": 4361
+  },
+  "include/metalrobo/NumiBrainHumanStandingABI.h": {
+    "sha256": "3bf9b36d0f6107435d8e74407e5beccc6b13e146358932ad1617fe9725b1207b",
+    "bytes": 4775
+  },
+  "include/metalrobo/NumiHumanCartilage.hpp": {
+    "sha256": "d865470b3ba51e4844cbd7e60eedb2479e727aa3ec68b5858d7d3bec6e0fb923",
+    "bytes": 2416
+  },
+  "include/metalrobo/NumiHumanCompliantEquilibrium.hpp": {
+    "sha256": "6009bef9feefe8aed809d033a441d699c5e65b04afaf1f432a90649e8d89d3c7",
+    "bytes": 2869
+  },
+  "include/metalrobo/NumiHumanContinuumMap.hpp": {
+    "sha256": "69d248812b25b688992bac3ddcf672e17ac90d50718df19ef1d2f32d314d118c",
+    "bytes": 4109
+  },
+  "include/metalrobo/NumiHumanExtensorHoodMetal.hpp": {
+    "sha256": "996dc44814a626863c233ef3edc0528b0688235e1f947485d3adb0b877828aac",
+    "bytes": 3780
+  },
+  "include/metalrobo/NumiHumanForceParity.hpp": {
+    "sha256": "5c47311ceca62caeab48bdc2c7eddf49e1fc11f764e3ec15b5e54ea8a64ca760",
+    "bytes": 2085
+  },
+  "include/metalrobo/NumiHumanInitialState.hpp": {
+    "sha256": "0b96f1a4f68d4477c814b99f5502f08e14c533a75773f2aecb29ca546271e0b9",
+    "bytes": 6000
+  },
+  "include/metalrobo/NumiHumanJointEquality.hpp": {
+    "sha256": "409a87f909c0b5036d3626270b254857e2f2c387a506378c72167639a67b02ec",
+    "bytes": 2130
+  },
+  "include/metalrobo/NumiHumanKnee.hpp": {
+    "sha256": "19f42917d3da02a3cc2fb59e08ef0e98802f15521d50849e48053eedab38862e",
+    "bytes": 3981
+  },
+  "include/metalrobo/NumiHumanKneeContact.hpp": {
+    "sha256": "d1ffa2b3bcdbd3add0dfd40068dbb5081668f3bfcafcc8ebfbc0701dc69a47d7",
+    "bytes": 4378
+  },
+  "include/metalrobo/NumiHumanLoadedKnee.hpp": {
+    "sha256": "c2e5feb72cd57448f8328a4d4e23185deaf2758ca380c322cd7527128844d042",
+    "bytes": 25998
+  },
+  "include/metalrobo/NumiHumanLoadedKneeBinding.hpp": {
+    "sha256": "52929e239c8b139a7351c1a962772e04dd9e1dac311188a9dbb3d9dcd4e38532",
+    "bytes": 2689
+  },
+  "include/metalrobo/NumiHumanLoadedKneeNumanX.hpp": {
+    "sha256": "1495b5dc49d3c2875b67abf5c0b27ad21e901288f626d21993ff76747e1a0e54",
+    "bytes": 3980
+  },
+  "include/metalrobo/NumiHumanMuscleEquilibrium.hpp": {
+    "sha256": "95a77c217eaaa618ccbad023640ed25bd462998f92812224464561bc150cf88d",
+    "bytes": 19185
+  },
+  "include/metalrobo/NumiHumanPassiveJoint.hpp": {
+    "sha256": "a2053759e8f80d2c669ce9061b0d2596becd53048b36e1aa5cdec22aeb1e889a",
+    "bytes": 9093
+  },
+  "include/metalrobo/NumiHumanProductionOwnerEvidenceWriter.hpp": {
+    "sha256": "af16ab32c690b555f7e18f1d5c3cfe716bb09c13594dd93f7e459fc4c8d979b4",
+    "bytes": 797
+  },
+  "include/metalrobo/NumiHumanProductionOwnerSnapshot.hpp": {
+    "sha256": "b0deef974523fbf6529adc3f9e470b71fcb08a320ca69d8d389c772fad48e20c",
+    "bytes": 13435
+  },
+  "include/metalrobo/NumiHumanRestingHandReduction.hpp": {
+    "sha256": "befd877124534ddb83c0c68fce2a35777169f42ff8c8362f636b12c0795d06da",
+    "bytes": 27885
+  },
+  "include/metalrobo/NumiHumanRuntimeIdentity.hpp": {
+    "sha256": "2a5839d04811d55e73363ceb6ebbb31bd74659edb3032be37b39570a9123f2c9",
+    "bytes": 1620
+  },
+  "include/metalrobo/NumiHumanSourceConstraints.hpp": {
+    "sha256": "887c384b1572cb4097ab9c3a76745e35560d2971adbaa0f966b07c43468067d1",
+    "bytes": 3295
+  },
+  "include/metalrobo/NumiHumanSupport.hpp": {
+    "sha256": "489fcf7061e8859aa9f2b7841d8102d5a366e7343e53e62e2ea3bcb5d62ee29b",
+    "bytes": 2136
+  },
+  "include/metalrobo/NumiHumanSurfaceFrameRebase.hpp": {
+    "sha256": "73d1033fc9c793f254d88be50494515f68ac14bdca6de0a03e06cec750fda659",
+    "bytes": 3290
+  },
+  "include/metalrobo/NumiHumanTendon.hpp": {
+    "sha256": "6995e7bbeec5d713d6b38233674928474a696f6e926424c15f3fe4c624badeca",
+    "bytes": 7557
+  },
+  "include/metalrobo/NumiHumanTendonMetal.hpp": {
+    "sha256": "c9117db2e70b8345646700b8d4cd222d5b84f7e96fbcb3739830d5d67907210d",
+    "bytes": 2263
+  },
+  "include/metalrobo/NumiHumanTensionNetwork.hpp": {
+    "sha256": "f9846b267e35ca542284baadbd0820b1b7cbb963eb6710bcd75d0483a507cbde",
+    "bytes": 2543
+  },
+  "include/metalrobo/NumiHumanTissueBinding.hpp": {
+    "sha256": "d3b3c36e9d5f09335ab167dc5a5b72ad799c848a68950a68cf32367a82af6673",
+    "bytes": 1798
+  },
+  "include/metalrobo/NumiHumanTissueMass.hpp": {
+    "sha256": "d311f341c2bc94e76c5d552f43d55864cd334e24a5ffa8bc436b6922967aa4ee",
+    "bytes": 2330
+  },
+  "include/metalrobo/OpenSimFunction.hpp": {
+    "sha256": "c76d2aea6040ae9476ff1ccb4b3dc2e70344d95a390a7debad9dc93fd0a68246",
+    "bytes": 2937
+  },
+  "include/metalrobo/OpenSimMobileRoot.hpp": {
+    "sha256": "43fc9c120bba549fa889c1d370c204224104bab0934996e40b822fa25ed1b64f",
+    "bytes": 1735
+  },
+  "include/metalrobo/OpenSimSpatialTransform.hpp": {
+    "sha256": "8c1e2c43d6543e096fc26f4cdf68b96f0b6ed9eb3038233c87069f009c307046",
+    "bytes": 5285
+  },
+  "include/metalrobo/PX4X500.hpp": {
+    "sha256": "d9370e385356428bc948312c1b0f02766e017720173e4c0c5a60ef5884cca165",
+    "bytes": 562
+  },
+  "include/metalrobo/ParallelABASchedule.hpp": {
+    "sha256": "9d4acf751386b1e26e6cadb6b5bfd6f6446f9315fdb6ef0581a57830cb7d5ffa",
+    "bytes": 1993
+  },
+  "include/metalrobo/PolicyProgram.hpp": {
+    "sha256": "92534552269a34f17daeb4c81f9dd1152f2cdb0f918954daeca4bed996d86562",
+    "bytes": 5444
+  },
+  "include/metalrobo/QualityContactSolver.hpp": {
+    "sha256": "2684c9d56aca57c5dac0e5d55d2a0cc951cec5ef758604ae0527588f3ac1fc9d",
+    "bytes": 3389
+  },
+  "include/metalrobo/R2S2R.hpp": {
+    "sha256": "adaf7e4d2ff1ae86ba56bf2969593a9be3e7a78fc8b0a7ce0cd20d83c6f7a1da",
+    "bytes": 11901
+  },
+  "include/metalrobo/ReferenceConicSolver.hpp": {
+    "sha256": "bd0d350b76afb4a86a30ce2689009fa2d3a1a73dc0c91dbc607075d880632b9a",
+    "bytes": 3113
+  },
+  "include/metalrobo/RigidBodyWorld.hpp": {
+    "sha256": "1d63b4ad2af0577cb54c176984bb0aff63a27894899539c1948d554f57949d0c",
+    "bytes": 3855
+  },
+  "include/metalrobo/RobotDescriptionCooker.hpp": {
+    "sha256": "56896725724d2ec96bcd81ac7531bd99b4367cf37b5bbbd65a2a42a87b05cfc8",
+    "bytes": 4424
+  },
+  "include/metalrobo/RunProgram.hpp": {
+    "sha256": "05b0eb31eef585f66edb7114299ce9e97028ffb89ffc81b98eefe45aefe34450",
+    "bytes": 10573
+  },
+  "include/metalrobo/RuntimeAbi.hpp": {
+    "sha256": "80bbbbd179a9dd395206a10d38983709da4536b55a742dff7fd83b49d61d6f4c",
+    "bytes": 8160
+  },
+  "include/metalrobo/SurgicalAssets.hpp": {
+    "sha256": "7ea8a96ef847cb18e0e0dafe093f67b286bbd408246858a89d5fd5e61eff95e8",
+    "bytes": 8013
+  },
+  "include/metalrobo/SurgicalKnot.hpp": {
+    "sha256": "87bb0d91b989a7f41314ba88672287f2ee16aca609ce0825f8c623e9d4e05933",
+    "bytes": 8692
+  },
+  "include/metalrobo/SurgicalPSM.hpp": {
+    "sha256": "e9d93b368649474cc85a6587b970d63aee793e7688faeea303100dcfa0be7d2c",
+    "bytes": 9700
+  },
+  "include/metalrobo/SurgicalThreadTargeting.hpp": {
+    "sha256": "5eed9d1a59bbff7623ad942ac083a0dbe1e57e35d654860697fbbc378f7bf51b",
+    "bytes": 6706
+  },
+  "include/metalrobo/SurgicalVisual.hpp": {
+    "sha256": "7e4f46c76901f40b4b5ec526d72b003860b2a0c64700430eb083d6d24ad94199",
+    "bytes": 3568
+  },
+  "include/metalrobo/SurgicalWorld.hpp": {
+    "sha256": "c47f458a954ca9a9c75e1acd4190d2c4103f235f6ca66f6a3c7c2621047e3a42",
+    "bytes": 8219
+  },
+  "include/metalrobo/Tactile.hpp": {
+    "sha256": "ad1997a279688ccaa31d0ed1bf68668e7810fe3a424a19d0f8ea1647ac2492a5",
+    "bytes": 10245
+  },
+  "include/metalrobo/TactileDebug.hpp": {
+    "sha256": "24cdfa4949db0c41e420ff60e9e6012fd23f4e5adde56c9c162164aa005189df",
+    "bytes": 1226
+  },
+  "include/metalrobo/TaskProgram.hpp": {
+    "sha256": "186d4f02f516ef50a518b0fc37a7afcddcf86aa04c221117b69ff74e628d7877",
+    "bytes": 26754
+  },
+  "include/metalrobo/VisualPlatform.hpp": {
+    "sha256": "5cc1c4bb1536434dc4b832e74e56337f8aaa3cd429da0cb1825cbc99c9f0bebd",
+    "bytes": 11850
+  },
+  "include/metalrobo/VisualPresentation.hpp": {
+    "sha256": "aa2d4cdb2dea0829e683b89a93a2ea38013158ed4266bd94ff2bc13307235a67",
+    "bytes": 12981
+  },
+  "include/metalrobo/Wave.hpp": {
+    "sha256": "58494799d2cda8a01b877d45bb8274a7b236c0ed4ce6766e0bd6c3f88cd99244",
+    "bytes": 4362
+  },
+  "include/metalrobo/WorldCompiler.hpp": {
+    "sha256": "8bf4460377b299a51d8e8ed3b82936699b878aae70820e805b005f2713dca130",
+    "bytes": 8438
+  },
+  "include/metalrobo/WorldPack.hpp": {
+    "sha256": "ca4b4acaa3547c5e99082a20ae3378de9c3fa6c96114d823217d1f6730974291",
+    "bytes": 1659
+  },
+  "include/metalrobo/c_api.h": {
+    "sha256": "a6117b74230faa32d16c56252326c6809ad3cb11325e2cfceabffd628e47e4ec",
+    "bytes": 36129
+  },
+  "include/metalrobo/compensated_geometry_gpu.h": {
+    "sha256": "b047b4f1e6351d12ac9bc9853bb8975410d7beacc3954f565a944d8a0234b649",
+    "bytes": 6955
+  },
+  "include/metalrobo/compensated_translation_gpu.h": {
+    "sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+    "bytes": 7828
+  },
+  "include/metalrobo/constraint_ir_shared.h": {
+    "sha256": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f",
+    "bytes": 10182
+  },
+  "include/metalrobo/engine_types.h": {
+    "sha256": "2f438bdc889275dd1133906ef73404df828fdf984e98c5b270f58e58fb669824",
+    "bytes": 65630
+  },
+  "include/metalrobo/generalized_constraint_shared.h": {
+    "sha256": "8a2a07facd9219301b9721181e44315345406455fc44d8d5b57114aca8ca4fcb",
+    "bytes": 1708
+  },
+  "include/metalrobo/gpu_types.h": {
+    "sha256": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8",
+    "bytes": 3809
+  },
+  "include/metalrobo/human_behavior_gpu.h": {
+    "sha256": "ad6525972db33e59ce88c004c3ae87adf307311c7e4423276b3c2a2e2c52fadb",
+    "bytes": 7594
+  },
+  "include/metalrobo/hybrid_renderer_types.h": {
+    "sha256": "a6e649d2b9c76abde86beab68607bd38945d45f030531c7833f6c6dc9cb23595",
+    "bytes": 8703
+  },
+  "include/metalrobo/hyper_policy_program_types.h": {
+    "sha256": "a88d94ca86912b1f0ae22720c7da2bc09f2101a6bcc1a6ffbdd972903ed5c235",
+    "bytes": 5327
+  },
+  "include/metalrobo/millard_muscle_gpu.h": {
+    "sha256": "c20317582a89332036e1855b7d1fdb71dccacea50aa0ce9c789ecba0886b83f6",
+    "bytes": 5899
+  },
+  "include/metalrobo/module.modulemap": {
+    "sha256": "727de2b3c914050757c4f41548e806ad6303baf3314abffd43ce6fa1e4ec745a",
+    "bytes": 52
+  },
+  "include/metalrobo/mrnx_bridge_v1.h": {
+    "sha256": "c96770de78dd87927fb0079a172a18ca853eed1c0298ce6d07972f5e0e39a2a8",
+    "bytes": 82544
+  },
+  "include/metalrobo/mrnx_human_behavior_v1.h": {
+    "sha256": "84c6537520b30e952c22a701a650820be3ee8463975e1c7a4b1bd6e760b4d0ac",
+    "bytes": 17594
+  },
+  "include/metalrobo/mujoco_muscle_gpu.h": {
+    "sha256": "520d2fe314ec6b67973ea3d9a7f9b2cd055d0e2634ea44eacbf28b0a4285bd53",
+    "bytes": 7778
+  },
+  "include/metalrobo/multi_contact_shared.h": {
+    "sha256": "c55c60d62c3ab364c5569ccc1781f5a5496b44aea4dc78d26c2308c144cdcc18",
+    "bytes": 4293
+  },
+  "include/metalrobo/multicopter_types.h": {
+    "sha256": "4eb86846416a436667461463119838983ccc88b278fe985b09b705f50b0ca51d",
+    "bytes": 3856
+  },
+  "include/metalrobo/neuron_culture_gpu.h": {
+    "sha256": "81fde5a5f9ebeda47dbbe2a4b5be0cbe0faf6c39f3d68a155abd95641d702f7e",
+    "bytes": 4019
+  },
+  "include/metalrobo/numanx_coupled_human_gpu.h": {
+    "sha256": "7a2fce9d22fdb29688f936a4e842dfda1d77988f810b33c68348039a5143b851",
+    "bytes": 12222
+  },
+  "include/metalrobo/numanx_human_io_gpu.h": {
+    "sha256": "4fea7b67afd07ac486f6c299616e6a10019658d9181eced0647818ac62c4ec53",
+    "bytes": 30680
+  },
+  "include/metalrobo/numanx_human_matter_adapter_gpu.h": {
+    "sha256": "f359e69a9ffaf482ba8f99fc43439ada4c97ae8be7bb69cc0edfb8da2295d060",
+    "bytes": 13033
+  },
+  "include/metalrobo/numanx_human_matter_gpu.h": {
+    "sha256": "d399a63829f10e42b79160a48e054134e7fd0e4565346277cc0c8bcbb6708f7e",
+    "bytes": 27361
+  },
+  "include/metalrobo/numi_human_accepted_force_observer.hpp": {
+    "sha256": "9bf84d65716c3de8f066952ddc50ec55d829a8f249afe353f2b30113adf70180",
+    "bytes": 3504
+  },
+  "include/metalrobo/numi_human_bilateral.h": {
+    "sha256": "2b534b057553146ab26a5e18b22bcc68ea3182fbbe28f1d9f40cb6d1faec5161",
+    "bytes": 5817
+  },
+  "include/metalrobo/numi_human_constraint_projection.h": {
+    "sha256": "5daca0e2ef265af0bf0ddace87ae5ceeadea673d009dea6601fd50049005eab5",
+    "bytes": 7307
+  },
+  "include/metalrobo/numi_human_extensor_hood_gpu.h": {
+    "sha256": "eb085f779ad594ddca759833e2ae36db1e4202b79bd8ac31dd2c492694b3fa20",
+    "bytes": 4786
+  },
+  "include/metalrobo/numi_human_friction.h": {
+    "sha256": "a3dec7149c4128f5e0485790716e55cf68e9573fa58d30f288dee85557304706",
+    "bytes": 12410
+  },
+  "include/metalrobo/numi_human_joint_equality_gpu.h": {
+    "sha256": "361bc7ba42ce4a2429464fd1962deae70ef08b029e388ca3d2f902a2c099a54c",
+    "bytes": 1084
+  },
+  "include/metalrobo/numi_human_motion_observer.hpp": {
+    "sha256": "c146d5ce095200cf9df95d8df6f7c7dff76e49d2fdff99b18126c8f15ae8f90b",
+    "bytes": 9602
+  },
+  "include/metalrobo/numi_human_passive_joint.h": {
+    "sha256": "14e4b1e183af1452609d6990faf94b970d7ae1a3d3947413a923c65f2bfe8337",
+    "bytes": 3056
+  },
+  "include/metalrobo/numi_human_resting_bed_gpu.h": {
+    "sha256": "7bb95ca969c5fe844f41971a0296f0fbaee472d70ea8ae99ff87bcece1f8001a",
+    "bytes": 497
+  },
+  "include/metalrobo/numi_human_resting_common_attachment.hpp": {
+    "sha256": "84f8b829b875c0f50269872659beb41cd4b421dd97a9bb9104ea5357dd903ee9",
+    "bytes": 2024
+  },
+  "include/metalrobo/numi_human_resting_common_field_math.hpp": {
+    "sha256": "e36629c82825d4e0eb55ceeebffe1b86de2281ebee8e6a2b89baa23e724489b7",
+    "bytes": 2017
+  },
+  "include/metalrobo/numi_human_resting_rope_gpu.h": {
+    "sha256": "7f8f959dadf099ba336f82b2179632ef3bdb540050e8f7761c825af5d2ece9fe",
+    "bytes": 671
+  },
+  "include/metalrobo/numi_human_resting_rope_visual_gpu.h": {
+    "sha256": "6a9700d3d8f59da85e93f38e3534ccac78bbfb88482ab8019c56c542afb13d77",
+    "bytes": 775
+  },
+  "include/metalrobo/numi_human_resting_visual_gpu.h": {
+    "sha256": "7ee91806911a97ddaeedfbc12a74514e0b92d63b8c97d95a674a839449fbba93",
+    "bytes": 8867
+  },
+  "include/metalrobo/numi_human_stand_cpu_finish_gpu.h": {
+    "sha256": "69a9050552c99915887832b0134e13e9de0c79142b6dc40a9a7a5864aa977d68",
+    "bytes": 1548
+  },
+  "include/metalrobo/numi_human_stand_gpu.h": {
+    "sha256": "8791de7156e7784ab9981e5b69d44dc2d607cb3c77f70c682c197d6172722034",
+    "bytes": 16729
+  },
+  "include/metalrobo/numi_human_support_geometry_gpu.h": {
+    "sha256": "30e58505965f066019ea4834dc70096c5bc10de3ead74bd4573d976184f30706",
+    "bytes": 4286
+  },
+  "include/metalrobo/numi_human_tendon_gpu.h": {
+    "sha256": "1ab91d0618a17981e598d1b16774efc94c05b53d3800d00da67437fa93318058",
+    "bytes": 2594
+  },
+  "include/metalrobo/numi_human_timed_root_force.h": {
+    "sha256": "7588072673196c9e9005d91cb23be106941a7b271e9cc1f8681a5fa1548163ef",
+    "bytes": 2419
+  },
+  "include/metalrobo/opensim_spatial_transform_gpu.h": {
+    "sha256": "8e4c21a87be3c2b93db02cc3953f81bf36c7eba7318c5db575afb7cd1c51caf0",
+    "bytes": 4622
+  },
+  "include/metalrobo/parallel_aba_shared.h": {
+    "sha256": "017a29c5a992df98541274975f7604a24e260d33b141aff30a51c0695e52b00d",
+    "bytes": 3245
+  },
+  "include/metalrobo/policy_program_types.h": {
+    "sha256": "4ad0a0ebec2627f0cd059dd58b6d6dd9c24719e9004ffdf85ec43e91c5fff605",
+    "bytes": 3248
+  },
+  "include/metalrobo/quality_solver_shared.h": {
+    "sha256": "bd7b4d7a81b3ec2e6d194e82d2e103e89056cdb6af196d8f10f2238a00482768",
+    "bytes": 1682
+  },
+  "include/metalrobo/r2s2r_types.h": {
+    "sha256": "10f51ee3602102d9e8f2b5d97ea211850fd32f82a7448880d298e17ec3b7536f",
+    "bytes": 4670
+  },
+  "include/metalrobo/rod_gpu_shared.h": {
+    "sha256": "0e8a2fc59a2969ca2493aaa0ee9d6e51cac723a22a63cb2e6d03b00807fd373d",
+    "bytes": 9612
+  },
+  "include/metalrobo/scene_query_types.h": {
+    "sha256": "12390a5b34b1db90be109f5373beb4ce23a07d1225435fec4b823b8bca1b63df",
+    "bytes": 2103
+  },
+  "include/metalrobo/tactile_types.h": {
+    "sha256": "edbf8a209e527fb6f74190a63d41b092d196cc8635a7ba3d9586893ab26e1abb",
+    "bytes": 8890
+  },
+  "include/metalrobo/task_program_types.h": {
+    "sha256": "3327c53929de854ae300b8a2a2d06f27c2fbd31dabfa7430f621a67d82747c95",
+    "bytes": 32074
+  },
+  "include/metalrobo/unified_quality_shared.h": {
+    "sha256": "22d658c8dd27daf4136945f3e953620add0c65040c051cfccf684eee37f8a4b9",
+    "bytes": 5293
+  },
+  "include/metalrobo/visual_platform_types.h": {
+    "sha256": "0e4dbb0fce94713c26fb33e1eef206213d962568e22e79f8efd8f41108886601",
+    "bytes": 12043
+  },
+  "include/metalrobo/world_compiler_types.h": {
+    "sha256": "f8cee3f615b509b8338f2bcdff6e6359101f469ea72e86142df2155ad9274c0d",
+    "bytes": 9698
+  },
+  "matter/CMakeLists.txt": {
+    "sha256": "ec85cbec31bb9fc52093db596d933a5465c9bcfc2141835edaf4b06e9e2dd0a2",
+    "bytes": 2843
+  },
+  "matter/include/numi/matter/accepted_state_apply_gpu.h": {
+    "sha256": "4f369f557838368895c6a62375866863b0681bc230085c263babf9aa58a50ba7",
+    "bytes": 12505
+  },
+  "matter/include/numi/matter/accepted_state_proof_gpu.h": {
+    "sha256": "d0b17b52cbdd54c5116a3e400435e60a833c92b5b6e309d1fbc74f3062e1c24e",
+    "bytes": 5313
+  },
+  "matter/include/numi/matter/accepted_z0_recycle_admission.hpp": {
+    "sha256": "8074f11efba49a84f1eb076533b32f4992c333502dcb4571ee0366aa845a873b",
+    "bytes": 4320
+  },
+  "matter/include/numi/matter/cavity_pressure_mode.hpp": {
+    "sha256": "75be4126b59d1fef7dbcba7cb996a2c81e56c107dc04071c61d9920b6f3e5fc8",
+    "bytes": 8972
+  },
+  "matter/include/numi/matter/compiled_world_partitioned_reduction.hpp": {
+    "sha256": "7fe39418a3ea658d0282140772f2c0201c205e3b83b6c6deae8516f6e9da4d1d",
+    "bytes": 49782
+  },
+  "matter/include/numi/matter/compiler.hpp": {
+    "sha256": "0acddd3e8d8cd62abac2b3883d0694ed6ddd8816cb2313b132fd5b54327e7c46",
+    "bytes": 913
+  },
+  "matter/include/numi/matter/deformable_contact_trial_policy.h": {
+    "sha256": "f1dafb01e5c1df7891d1e0cc5d8833b19f10ea5912ff21562e2122c8b2933fbd",
+    "bytes": 770
+  },
+  "matter/include/numi/matter/deformable_limit_trace_json.hpp": {
+    "sha256": "5de552386011745b8c42c93a23d89b29ee614a38eec69288a259898c23b604e1",
+    "bytes": 740
+  },
+  "matter/include/numi/matter/detail/fem_primary_operator_cache_mode.hpp": {
+    "sha256": "769731040b0f57270c499f6fd84a5bb857b73357589b0d395205930e5b7aed40",
+    "bytes": 506
+  },
+  "matter/include/numi/matter/detail/free_box_true_residual_proxy_admission.hpp": {
+    "sha256": "cce79f4954bb6865b7ef239399ce95d64d2c7162fba5987bc00373e222b034ba",
+    "bytes": 8005
+  },
+  "matter/include/numi/matter/detail/full_contact_armijo_scratch_budget.hpp": {
+    "sha256": "7312cb38cd8f328cba3c3a69ecb90488dab650af8df73958c984bf66688432bb",
+    "bytes": 7777
+  },
+  "matter/include/numi/matter/detail/gravity_scale.hpp": {
+    "sha256": "4baee6b3d0bd1fd479b43a7457c3fff743d1eb13e22fe6192e76e7a33a6c9ef3",
+    "bytes": 662
+  },
+  "matter/include/numi/matter/detail/human_implicit_spring_owner_proof.hpp": {
+    "sha256": "23efef6085a892a88354599caf29876b770831f7435eeaa38644b57df64a3ab6",
+    "bytes": 2012
+  },
+  "matter/include/numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp": {
+    "sha256": "3d12ada4682bfa14699e0655a48a666529c91dc0d596b859555fe10000f36ae6",
+    "bytes": 9314
+  },
+  "matter/include/numi/matter/detail/pure_fem_cgls_best_of_policy.hpp": {
+    "sha256": "5be2d83c8e468bb10ea1544e812c1d970a013ec22e38beff023a28e1b2e27ee1",
+    "bytes": 1835
+  },
+  "matter/include/numi/matter/detail/shipping_contact_page_plan.hpp": {
+    "sha256": "a8d6df3752a1f2dd90857532190b5ffae79c0168e684e789b240939b791ad0d6",
+    "bytes": 26221
+  },
+  "matter/include/numi/matter/detail/true_residual_arena_plan.hpp": {
+    "sha256": "3581a68f8140ba79c043d695a53f3d90d50c36dc027d00917530bba55efae72e",
+    "bytes": 6723
+  },
+  "matter/include/numi/matter/detail.hpp": {
+    "sha256": "57da33da4978f9a32503ff8a0b9823e6e47756c27825cf74c2aa846acc5aa577",
+    "bytes": 5859
+  },
+  "matter/include/numi/matter/fem_body_contact_sample_grouping.hpp": {
+    "sha256": "5fda1e049877bbb1527f463279774d1866e553b7b59e681eceb8636aaf905969",
+    "bytes": 5095
+  },
+  "matter/include/numi/matter/fem_body_contact_static_bvh.hpp": {
+    "sha256": "b2e3bc466341526d287e22d9995a33f79040fcb4d07f856eeb8b4a6b1ee83236",
+    "bytes": 38188
+  },
+  "matter/include/numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp": {
+    "sha256": "617e86a4508b7fdd69539d904c43518ec6bb3d2d4939bbcf625051592fdda5a0",
+    "bytes": 21806
+  },
+  "matter/include/numi/matter/fem_body_triangle_contact_sample.hpp": {
+    "sha256": "bd0f0871003023a798af1c52b67a9fdaac54bb13cf48e31bb5e08fc18dc7fe4d",
+    "bytes": 4063
+  },
+  "matter/include/numi/matter/fem_compensated_deformation.h": {
+    "sha256": "bafca18e85ebf1c644e77f3114abf4dc5050b3362b2379ca6aef46fa0df1e96f",
+    "bytes": 2359
+  },
+  "matter/include/numi/matter/fiber_exp_linear.h": {
+    "sha256": "26ca19f47c8ece392409fe233708cc87d96b31eb010359cb987b1eed38dee49c",
+    "bytes": 3404
+  },
+  "matter/include/numi/matter/fixed_convex_contact_step.h": {
+    "sha256": "63e72ae0b56edec25e6398bdae36ae9eace5ab03d8d1f533fed6639520891890",
+    "bytes": 2388
+  },
+  "matter/include/numi/matter/full_contact_armijo_admission.hpp": {
+    "sha256": "31e7bf651713c41ad02e5023f44e797d6decada288099256d75016c2cca4a0c0",
+    "bytes": 1103
+  },
+  "matter/include/numi/matter/hill_compensated_stress.h": {
+    "sha256": "0e91167d26aaf14d7124a5036128c68fb26f0f6d5edd994c167e0c731446be74",
+    "bytes": 13462
+  },
+  "matter/include/numi/matter/hill_compensated_system.h": {
+    "sha256": "f552c75f3aa6a71f0893674b06e64aa68684c34c5836dabc85c08028135bfb06",
+    "bytes": 13016
+  },
+  "matter/include/numi/matter/hill_scalar_initializer.h": {
+    "sha256": "aa47b464d4d9157df57a7f223b1ac77122249d8a0c00f45e9a03723f2a58bd49",
+    "bytes": 13511
+  },
+  "matter/include/numi/matter/human_equality_gpu.h": {
+    "sha256": "7bf03f512c0fbdf9be0382a8bd655fb8f0d90b1703ddaf74302e60a38656f519",
+    "bytes": 1084
+  },
+  "matter/include/numi/matter/human_limits_gpu.h": {
+    "sha256": "adff1dd6bb8e7d67767bca38e959b03880376ec973f0d8a556564e4a87921dd9",
+    "bytes": 899
+  },
+  "matter/include/numi/matter/human_physiology.hpp": {
+    "sha256": "8e0a7b8fef90710ca26a0c6e08c5e86182968fdfad131418995051a2afcff5ad",
+    "bytes": 543
+  },
+  "matter/include/numi/matter/human_respiration.h": {
+    "sha256": "32bed7858addb8788ee4264d9cbe6aabdef40fa6629acdc1308dcc886be32c47",
+    "bytes": 10085
+  },
+  "matter/include/numi/matter/human_support_precision_gpu.h": {
+    "sha256": "d84b419be157c7feba0fe9eb9bfe2379262e38bc5fa4f2bd4641a6b0d8b671a1",
+    "bytes": 643
+  },
+  "matter/include/numi/matter/ir.hpp": {
+    "sha256": "a4ff0e4e65d6141ef08aa44295ff8a822ebdd0c48736f75ddc13c61a57f41ae7",
+    "bytes": 223
+  },
+  "matter/include/numi/matter/language.hpp": {
+    "sha256": "581fb8d499ec7967f8f7a90d0a6711ab7bb5276dd99c39ba2002b092d0a186d3",
+    "bytes": 504
+  },
+  "matter/include/numi/matter/matter.hpp": {
+    "sha256": "b7e5b336edf592e9a080a979ee12ee7e7b18612dbd04725c56064ffdd172c23b",
+    "bytes": 126115
+  },
+  "matter/include/numi/matter/metal_world.hpp": {
+    "sha256": "e405793a532702f8eb5e57d5871c42db089b73752d59f05ba2a392cea1a694be",
+    "bytes": 988
+  },
+  "matter/include/numi/matter/mortar_shared_edge_guard.h": {
+    "sha256": "b4953028b1e3ffd8fba0100b34cc3aad28f7eac812fb1cfd711aaf7cf7b5bbaa",
+    "bytes": 37885
+  },
+  "matter/include/numi/matter/numi_human.hpp": {
+    "sha256": "09bc0b2c689c0e6a99641ed6d78eb23f30769b83ca620d0509db7bca3c8150bd",
+    "bytes": 26106
+  },
+  "matter/include/numi/matter/numi_human_shared.h": {
+    "sha256": "77c02b404f54d808beb229fc98f44a5e59ac45c15ba65268e8726ca114d69dba",
+    "bytes": 21274
+  },
+  "matter/include/numi/matter/paper_compensated_bytecode.h": {
+    "sha256": "0b8cd0b8a267d4b0fd3cf018484b2a343d97d20d9f02b5f88327732370cf11cd",
+    "bytes": 18394
+  },
+  "matter/include/numi/matter/partitioned_reduction_basis.hpp": {
+    "sha256": "3329c4f3bb6a373b4d6437bfe8d9342085c7e82aa766c5aa5ebd22bd592ea863",
+    "bytes": 23616
+  },
+  "matter/include/numi/matter/partitioned_reduction_fem_tangent.h": {
+    "sha256": "89690576275b175f07804910bcf4753a4130bb8a8f2a3acd7e1301ac1f2a28ba",
+    "bytes": 7960
+  },
+  "matter/include/numi/matter/partitioned_reduction_hybrid_gs.hpp": {
+    "sha256": "4a4c0db27ccd0ccca0a82a5a4c6bf5ad34ab5551844ff1029f03b4b3f7902de5",
+    "bytes": 6433
+  },
+  "matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp": {
+    "sha256": "f361c3ed40d56f32d9470bab89f712d5fa2c8853cbef9965283c320d60a0eb0d",
+    "bytes": 14410
+  },
+  "matter/include/numi/matter/partitioned_reduction_projection.h": {
+    "sha256": "a34c7341fd1464880de173f8b58e7355bd2e2ee137babade02809e9c5fe2efca",
+    "bytes": 3645
+  },
+  "matter/include/numi/matter/partitioned_reduction_sparse_support.hpp": {
+    "sha256": "ff34ee8ceca13de1b59d2e69912957baa03c97c22bf6ac1b65e02ef4234aa0c3",
+    "bytes": 19298
+  },
+  "matter/include/numi/matter/physical_state_digest_gpu.h": {
+    "sha256": "28f2d77c4619b7c2b1e37dfc8c823358b3ba392e07627fc21f7a5985bfbde916",
+    "bytes": 12443
+  },
+  "matter/include/numi/matter/regional_consumer_capture.hpp": {
+    "sha256": "f97bdbd1e6729861d1f232f6262ef08c405bbe0410a7c5172add180044c662e9",
+    "bytes": 4606
+  },
+  "matter/include/numi/matter/regional_galerkin_bending_basis.hpp": {
+    "sha256": "0a22b181b93cb2c4fc66575d0a0c60d66870716dab63b498c30ac24b652866a7",
+    "bytes": 3127
+  },
+  "matter/include/numi/matter/regional_restart_augmentation_admission.hpp": {
+    "sha256": "3e40f0fa41c459752f3061d51b251f93a31786f904390f5ba9898b80c6467cb1",
+    "bytes": 1477
+  },
+  "matter/include/numi/matter/runtime.hpp": {
+    "sha256": "f3aa72f515ce7f67baf10826c15cdcb1d3787eace94703334c8ed669cc527a4c",
+    "bytes": 131
+  },
+  "matter/include/numi/matter/sha256_gpu.h": {
+    "sha256": "53e3c5047b5dc2fe3449d2a4dc9770879c23297792b53495ecab73c855bb4681",
+    "bytes": 2422
+  },
+  "matter/include/numi/matter/shared.h": {
+    "sha256": "e2dcede0637905078f08c38fed324de61f0c25e8a8e625646c06f74f21d51e7c",
+    "bytes": 66004
+  },
+  "matter/include/numi/matter/sparse_private_contact_admission.hpp": {
+    "sha256": "859c763ca42e8b6867f0ec77bcb5661ae143cd79ad2df87dde083b51ba138371",
+    "bytes": 8700
+  },
+  "matter/include/numi/matter/surgical_tissue.hpp": {
+    "sha256": "b11cf8c2753b9bff79391ae5a69abb83cba8292b666ab850f4b14782ccf44087",
+    "bytes": 5015
+  },
+  "matter/include/numi/matter/vascular.hpp": {
+    "sha256": "149e556aa04bb6de5a15dfaa6fac9d41875b67bc9fab8aac0caf9b3d6b69acb0",
+    "bytes": 237
+  },
+  "matter/materials/damageable_silicone.nmatter": {
+    "sha256": "cbbda90510ace4982f3d975c1190a65348117cd092dde0ad6577ff40640b3c4b",
+    "bytes": 2174
+  },
+  "matter/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter": {
+    "sha256": "8cc7f3e1936e4303a011b40ff287431a99be861a51a11e82913d630371825b00",
+    "bytes": 1351
+  },
+  "matter/src/NumiHumanRestingBloodVisual.metalinc": {
+    "sha256": "fcd32e225c6446a40aedb4ae332cd6b1fbc8d4461ffba1992e5eb0871a0eec23",
+    "bytes": 2366
+  },
+  "matter/src/NumiHumanRestingCommonField.metalinc": {
+    "sha256": "54042ab7dffdde282be6dd40047f4655fc9ae99a8ed6785adb8f4f562975347c",
+    "bytes": 17299
+  },
+  "matter/src/NumiHumanRestingRope.metalinc": {
+    "sha256": "72fe5a8e24232f3681490a993901f24715912c4b63c94e46460c98f11479684e",
+    "bytes": 3828
+  },
+  "matter/src/NumiHumanRestingRopeVisual.metalinc": {
+    "sha256": "b1b80309a419ed060d3ea2cd3c7e40a5708bfb7dbb72ae463d2936e87f6622de",
+    "bytes": 5796
+  },
+  "matter/src/NumiHumanSeparation.metalinc": {
+    "sha256": "0d8d8a918da9ce02f9b827bb0579b54fef439025ce49634ced9000ed1f03a870",
+    "bytes": 2982
+  },
+  "matter/src/NumiHumanSeparationForce.metalinc": {
+    "sha256": "dcc2887a8f762d640fda700f048c637e8d27815275e91df8220e6fb8147c9a83",
+    "bytes": 4022
+  },
+  "matter/src/accepted_state_proof_gpu.hpp": {
+    "sha256": "aa99af0ffdb39c5fd849d623d9eaf7a06e8bc2918bdd9fc851478b0794c712e8",
+    "bytes": 5696
+  },
+  "matter/src/compiler_impl.cpp": {
+    "sha256": "a12fb24d1bf8e0deeb010a85b6186cd1aec25996afebda6d17160f1657a23ddd",
+    "bytes": 192303
+  },
+  "matter/src/constitutive_impl.cpp": {
+    "sha256": "efb8636b3a230fe44a009d8b89138bb0d22b99ea1a4df5bc66906ad0447c1e1d",
+    "bytes": 93212
+  },
+  "matter/src/coupled_capture_manifest_context.hpp": {
+    "sha256": "7d82c3c8f1fff4546bd65ee1641b4fd5faced73dea9c75501ea780254069bbae",
+    "bytes": 583
+  },
+  "matter/src/fem_reference_geometry.hpp": {
+    "sha256": "661beb70332c510db9409639cfbc01c88d6940eaae57f90efd7faa11a30ec33c",
+    "bytes": 12248
+  },
+  "matter/src/fem_surface_attachment_validation.hpp": {
+    "sha256": "3463cdc081ef8b917d267c0436d93f4bd475aaf9335253ca0b7cf20bb5bbd0b2",
+    "bytes": 2201
+  },
+  "matter/src/fingerprint_impl.cpp": {
+    "sha256": "96b80cd05797715a864059d6622cbeb62d551cedb973e61875a627c143e16e36",
+    "bytes": 11916
+  },
+  "matter/src/human_physiology.mm": {
+    "sha256": "2fefc2ab1903aff0e03ddf8eae45c0fe985444cf39dc96c56beb719fa79ca18e",
+    "bytes": 16749
+  },
+  "matter/src/human_respiration.metal": {
+    "sha256": "42584599a52bdc853a8d9c79912cfbd82e05f952675678db750e957d6cdeb71e",
+    "bytes": 140078
+  },
+  "matter/src/language.cpp": {
+    "sha256": "a6559837019ca9c7995328fe63c9d44419aa364c5f66fef1543a2614549bb0cf",
+    "bytes": 237
+  },
+  "matter/src/language_impl.cpp": {
+    "sha256": "e3d92454fbf003b2eae2989888579dee07169f17ec38833e3b02424d1c8dcc43",
+    "bytes": 45413
+  },
+  "matter/src/matter.cpp": {
+    "sha256": "fb9db95c09f457713cb8df4b5f1a2ad46fd88121f61968ec6fc19aaf0ada67ec",
+    "bytes": 1845
+  },
+  "matter/src/matter_kernels.metal": {
+    "sha256": "5ded9e541d0303112905ea6187ad1d9e01fee37a6a8e9d2474a60ecbccf9333f",
+    "bytes": 766
+  },
+  "matter/src/metal/accepted_state_proof.metalinc": {
+    "sha256": "ccd73d2977f3f00df13bc7422e8acfc11e72934ebf739d72abfdd6528b315917",
+    "bytes": 58781
+  },
+  "matter/src/metal/adaptive.metalinc": {
+    "sha256": "48575bba875c8e7b6eba0138d542ac521acce8261a544a01390997d3eef0a332",
+    "bytes": 26326
+  },
+  "matter/src/metal/base_cgls.metalinc": {
+    "sha256": "54fc273e8e8e12a9472f2fe2defec45709c7f36d24b6886b862e477aa54260a2",
+    "bytes": 40315
+  },
+  "matter/src/metal/base_cgls_runtime.metalinc": {
+    "sha256": "c9e8a1b91d05c2103420ad146ae75545cb2b60e60b32f8c17aef5de3016f6a4a",
+    "bytes": 29933
+  },
+  "matter/src/metal/common.metalinc": {
+    "sha256": "a90b393ce6b378e5a22968fa4f1ec3bf2c19f0d85837f40486d9de1693ef1644",
+    "bytes": 161043
+  },
+  "matter/src/metal/contact.metalinc": {
+    "sha256": "28f0f24ea849cca007a2b198eaf24c850d0c805743aa545ce01335a700039b46",
+    "bytes": 678796
+  },
+  "matter/src/metal/fem.metalinc": {
+    "sha256": "f9f0fdfd732e77e259ca5cc9b968338b25e02c202094e5a697c4ff191d8680d0",
+    "bytes": 369151
+  },
+  "matter/src/metal/fem_backtracking_failure_witness.metalinc": {
+    "sha256": "9074eea5dc8a29ab0d13276663db78bb48137c83a61404e698d246a6aa84df90",
+    "bytes": 1395
+  },
+  "matter/src/metal/fgmres.metalinc": {
+    "sha256": "91cb742a47e888fc4489cb3726a2bc5e47e6b1da207f9e8ac46b46263b2e6ba2",
+    "bytes": 778059
+  },
+  "matter/src/metal/human_equality.metalinc": {
+    "sha256": "7d258cd6479fd54655d17dc16668713209ae418e62d73d44e1992c7e34b0c927",
+    "bytes": 14923
+  },
+  "matter/src/metal/human_implicit_spring.metalinc": {
+    "sha256": "240859627c1b3b60b775af427d55fe96cbb559aa481718c3282448c6bf320088",
+    "bytes": 24469
+  },
+  "matter/src/metal/human_limits.metalinc": {
+    "sha256": "cb63fbad03fe852e532acbdf984f5147d5897595c21b68572de430793a15a87e",
+    "bytes": 7795
+  },
+  "matter/src/metal/human_skin_spring_linearization.metalinc": {
+    "sha256": "6991936af5a4610e41424b5444d2ca3efcf43b0227e3babb14fe334bf374ce58",
+    "bytes": 3997
+  },
+  "matter/src/metal/identification_scheduler.metalinc": {
+    "sha256": "da05927181bc0a2cdcc6acd551d80def77fecd57bd1a91671fb0dff1ceebf4ce",
+    "bytes": 40306
+  },
+  "matter/src/metal/mixed_fem.metalinc": {
+    "sha256": "e0efe5298a46400f79ecbba9bf4919a941f30041fcd17a516c4c8f8d4481608d",
+    "bytes": 51017
+  },
+  "matter/src/metal/mpm.metalinc": {
+    "sha256": "87be026086c9b547d302eb9be46e6865c0a10d24ee1439219dc62bee9e8259ff",
+    "bytes": 46641
+  },
+  "matter/src/metal/newton_tail.metalinc": {
+    "sha256": "ee9ed86401b9738e0cff889170af8b16694b9669b615bc70aee8946e320c9708",
+    "bytes": 2168
+  },
+  "matter/src/metal/numi_human.metalinc": {
+    "sha256": "55aef605c7c411fa7785e07a21a9210a0fd55880a30a50751b16781103592b21",
+    "bytes": 159144
+  },
+  "matter/src/metal/partitioned_reduction_fem_tangent.metalinc": {
+    "sha256": "29dc8fc8135d3ab8fadd1c3595d20a11207a34ad6a2d9cf21f8bae1685d37927",
+    "bytes": 28853
+  },
+  "matter/src/metal/partitioned_reduction_projection.metalinc": {
+    "sha256": "06c55de13f02fdd361897854b4cb7726955536ddca2627f42df5d92496de0ef1",
+    "bytes": 55202
+  },
+  "matter/src/metal/physical_state_digest.metalinc": {
+    "sha256": "d3ceee9e4fc00d2b426e4d84e294d1c7c68702708acb49ad4459217d4baa6cec",
+    "bytes": 18467
+  },
+  "matter/src/metal/sha256.metalinc": {
+    "sha256": "c74148c9ce8ec4949edae4170341ab5a7dc3d791637d5147a165c76c653aff64",
+    "bytes": 9438
+  },
+  "matter/src/metal/sha256_kernels.metalinc": {
+    "sha256": "849e78fe9cb80b79019e26f659f1ee42930c9d787bf0ceb7a8976df0b53618bc",
+    "bytes": 2328
+  },
+  "matter/src/metal/topology_mutation.metalinc": {
+    "sha256": "77b99f7395dc77bea95945996ec3d963c5ecb4c79ea0325a11b43de8a6b9c726",
+    "bytes": 156284
+  },
+  "matter/src/metal/vascular.metalinc": {
+    "sha256": "e09d02fd026a0f14334fcb0a325ae3eb3e1b832d1124d60dd8d1fd6f5ef6914f",
+    "bytes": 189585
+  },
+  "matter/src/metal_encoder_timing.hpp": {
+    "sha256": "6ec44dde570db6cde3606ba3acfcabeba4afc34960a8bfcd3a0fff6f059ec81f",
+    "bytes": 18189
+  },
+  "matter/src/metal_world.cpp": {
+    "sha256": "54209979d35fcdd3cfeb474c2106874bb64f13dd3d422783006d7a1c47e062dd",
+    "bytes": 9331
+  },
+  "matter/src/native_tangent_source.hpp": {
+    "sha256": "0ed8f13d2c276cc6734df0ecfccd3980a3f50134cc48ed60be360bafb439a58d",
+    "bytes": 39883
+  },
+  "matter/src/numi_human.mm": {
+    "sha256": "61612f2004fd2ee98385a63027b4d69bfe29e458f35dab4a931cae10172dcd49",
+    "bytes": 246156
+  },
+  "matter/src/package_impl.cpp": {
+    "sha256": "9e23f30c7a87888e474363270c022cbcded4cf934476d7b243eb3f73c6740039",
+    "bytes": 41669
+  },
+  "matter/src/physical_state_digest_kernels.metal": {
+    "sha256": "c16160197348c18ecfc69c906300f1ef51fe0f5b31537abf857dc8306594f895",
+    "bytes": 48
+  },
+  "matter/src/regional_graph_schwarz.hpp": {
+    "sha256": "67b6db7797064fe4c466d274f4b840b4b514117cdb8de02c6a62c1d2f173dc15",
+    "bytes": 36549
+  },
+  "matter/src/regional_schur_condensation.hpp": {
+    "sha256": "926ccbc0359ce004fab636ce59237e0d9f87a4cede52b3c3271944dd83b8e980",
+    "bytes": 29172
+  },
+  "matter/src/surgical_tissue.cpp": {
+    "sha256": "3e6ff5ae889ca3ed496b5be762bc7af34f38c5eeac853b74aa0287aa06d01c52",
+    "bytes": 18264
+  },
+  "matter/src/validation_impl.cpp": {
+    "sha256": "f16bc732555a72cfef6d22e9405c20531629f404065bc2e17f75ba24d2bb6dd5",
+    "bytes": 169792
+  },
+  "matter/src/vascular_impl.cpp": {
+    "sha256": "04b1862dca31ac9e677c9d709b3750e4b168db6544c537ecf8af4d77fd034dc7",
+    "bytes": 57166
+  },
+  "matter/tools/fem_material_frame_compiler_check.cpp": {
+    "sha256": "e5ba3f88deac7c97a368b2d407e8f450c3cfdd227bf409adbc9852760daee5e5",
+    "bytes": 11691
+  },
+  "matter/tools/fem_tetrahedron_mass_compiler_check.cpp": {
+    "sha256": "eaac4d2c4c08927f39d7ca152c65a287562eb2134e13088fc51648b9c069b417",
+    "bytes": 12060
+  },
+  "matter/tools/legacy_package_bytes_fixture.cpp": {
+    "sha256": "d1445c2cbf24ffb44cef997e7dcf3c80d553b0c4a57f921ed3d2463caf8c553a",
+    "bytes": 1539
+  },
+  "matter/tools/legacy_package_reader.cpp": {
+    "sha256": "3afcb2ff2efbe6f74de7483084b26aef3017419a9a3d9c06faaf6f09af4511cd",
+    "bytes": 475
+  }
+}

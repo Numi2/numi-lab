@@ -72,6 +72,8 @@ enum class FingerprintSection : std::uint32_t {
     vascularCompartmentCavity,
     vascularCavityNodeIncidence,
     vascularCavityNodeRanges,
+    femTetrahedronMassSourceIdentities,
+    femTetrahedronMassesKg,
 };
 
 template <typename T>
@@ -133,6 +135,15 @@ std::uint64_t compiledWorldFingerprint(
         std::span<const NMScalarProgramGPU>(world.scalarPrograms));
     hashSection(fingerprint, FingerprintSection::objects,
         std::span<const NMContinuumObjectGPU>(world.objects));
+    if (!world.femTetrahedronMassSourceIdentities.empty()) {
+        hashSection(fingerprint,
+            FingerprintSection::femTetrahedronMassSourceIdentities,
+            std::span<const std::array<std::uint64_t, 4>>(
+                world.femTetrahedronMassSourceIdentities));
+        hashSection(fingerprint,
+            FingerprintSection::femTetrahedronMassesKg,
+            std::span<const double>(world.femTetrahedronMassesKg));
+    }
     hashSection(fingerprint, FingerprintSection::mpmParticles,
         std::span<const NMParticleStateGPU>(world.mpm.particles));
     hashSection(fingerprint, FingerprintSection::mpmNodes,

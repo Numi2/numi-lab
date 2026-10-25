@@ -22,7 +22,8 @@ inline constexpr std::array<char, 16> kMagic{
     'N', 'U', 'M', 'I', 'M', 'A', 'T', 'T',
     'E', 'R', 'P', 'K', 'G', '\0', '\0', '\0',
 };
-inline constexpr std::uint32_t kPackageVersion = 19u;
+inline constexpr std::uint32_t kLegacyPackageVersion = 19u;
+inline constexpr std::uint32_t kMassMetadataPackageVersion = 20u;
 inline constexpr std::uint32_t kEndianMarker = 0x01020304u;
 
 enum class Section : std::uint32_t {
@@ -91,10 +92,14 @@ enum class Section : std::uint32_t {
     vascularCavityNodeIncidence,
     vascularCavityNodeRanges,
     generatedMetal,
+    femTetrahedronMassSourceIdentities,
+    femTetrahedronMassesKg,
 };
 
-inline constexpr std::uint32_t kSectionCount =
+inline constexpr std::uint32_t kLegacySectionCount =
     static_cast<std::uint32_t>(Section::generatedMetal);
+inline constexpr std::uint32_t kMassMetadataSectionCount =
+    static_cast<std::uint32_t>(Section::femTetrahedronMassesKg);
 
 struct PackageHeader {
     std::array<char, 16> magic{};
@@ -261,10 +266,19 @@ bool writePackage(
 
     PackageHeader header{};
     header.magic = kMagic;
-    header.version = kPackageVersion;
+    const bool hasMassSourceMetadata =
+        !world.femTetrahedronMassSourceIdentities.empty();
+    if (hasMassSourceMetadata && world.femTetrahedronMassesKg.empty()) {
+        if (error != nullptr)
+            *error = "cannot package explicit mass identities without their per-tetrahedron mass ledger";
+        return false;
+    }
+    header.version = hasMassSourceMetadata ? kMassMetadataPackageVersion
+                                           : kLegacyPackageVersion;
     header.endian = kEndianMarker;
     header.matterAbiVersion = NM_MATTER_ABI_VERSION;
-    header.sectionCount = kSectionCount;
+    header.sectionCount = hasMassSourceMetadata ? kMassMetadataSectionCount
+                                                : kLegacySectionCount;
     header.physicsFingerprint = world.physicsFingerprint;
     header.fingerprint = world.fingerprint;
     header.headerHash = headerHash(header);
@@ -407,7 +421,13 @@ bool writePackage(
             std::span<const std::uint8_t>(world.vascular.names)) &&
         writeStringSection(stream, Section::generatedMetal, compiled.generatedMetal);
 
-    if (!written || !stream.flush()) {
+    const bool massMetadataWritten = !written || !hasMassSourceMetadata ||
+        (writeSection(stream, Section::femTetrahedronMassSourceIdentities,
+            std::span<const std::array<std::uint64_t, 4>>(
+                world.femTetrahedronMassSourceIdentities)) &&
+         writeSection(stream, Section::femTetrahedronMassesKg,
+            std::span<const double>(world.femTetrahedronMassesKg)));
+    if (!written || !massMetadataWritten || !stream.flush()) {
         if (error != nullptr) {
             *error = "failed while writing matter package sections";
         }
@@ -435,16 +455,20 @@ bool readPackage(
         return false;
     }
     if (header.magic == kMagic &&
-        (header.version != kPackageVersion ||
+        ((header.version != kLegacyPackageVersion &&
+          header.version != kMassMetadataPackageVersion) ||
          header.matterAbiVersion != NM_MATTER_ABI_VERSION)) {
         if (error != nullptr)
             *error = "matter package ABI mismatch: recook required";
         return false;
     }
+    const std::uint32_t expectedSectionCount =
+        header.version == kLegacyPackageVersion ? kLegacySectionCount
+                                                : kMassMetadataSectionCount;
     if (header.magic != kMagic ||
         header.endian != kEndianMarker ||
         header.headerHash != headerHash(header) ||
-        header.sectionCount != kSectionCount) {
+        header.sectionCount != expectedSectionCount) {
         if (error != nullptr) {
             *error = "invalid or unsupported matter package header";
         }
@@ -496,6 +520,12 @@ bool readPackage(
             decoded = decodeVector(stream, section, candidate.scalarPrograms, error); break;
         case Section::objects:
             decoded = decodeVector(stream, section, candidate.objects, error); break;
+        case Section::femTetrahedronMassSourceIdentities:
+            decoded = decodeVector(stream, section,
+                candidate.femTetrahedronMassSourceIdentities, error); break;
+        case Section::femTetrahedronMassesKg:
+            decoded = decodeVector(stream, section,
+                candidate.femTetrahedronMassesKg, error); break;
         case Section::mpmParticles:
             decoded = decodeVector(stream, section, candidate.mpm.particles, error); break;
         case Section::mpmNodes:
@@ -649,7 +679,7 @@ bool readPackage(
         }
     }
 
-    for (std::uint32_t id = 1u; id <= kSectionCount; ++id) {
+    for (std::uint32_t id = 1u; id <= kLegacySectionCount; ++id) {
         if (!seen.contains(id)) {
             if (error != nullptr) {
                 *error = "matter package is missing required section " +
@@ -657,6 +687,22 @@ bool readPackage(
             }
             return false;
         }
+    }
+
+    const bool hasMassSourceSection = seen.contains(
+        static_cast<std::uint32_t>(Section::femTetrahedronMassSourceIdentities));
+    const bool hasMassValuesSection = seen.contains(
+        static_cast<std::uint32_t>(Section::femTetrahedronMassesKg));
+    if ((header.version == kMassMetadataPackageVersion) !=
+            (hasMassSourceSection && hasMassValuesSection) ||
+        (header.version == kLegacyPackageVersion &&
+            (hasMassSourceSection || hasMassValuesSection)) ||
+        (header.version == kMassMetadataPackageVersion &&
+            (candidate.femTetrahedronMassSourceIdentities.empty() ||
+             candidate.femTetrahedronMassesKg.empty()))) {
+        if (error != nullptr)
+            *error = "matter package mass-source/value metadata version, sections or contents are incomplete";
+        return false;
     }
 
     candidate.physicsFingerprint = header.physicsFingerprint;

@@ -1,0 +1,164 @@
+{
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "d269fb20ddf369580c151cc29cc81738df3faf4d8928d427febe3679ba216143",
+      "size_bytes": 2074
+    },
+    {
+      "path": "evidence/canonical-configure.log",
+      "sha256": "3a7564839454f66ce0d8f613987b389b565ef2ebd491a88591d8d98164c4b6f5",
+      "size_bytes": 398
+    },
+    {
+      "path": "evidence/canonical-ctest-registration.log",
+      "sha256": "1e45b756d79fa50744837e3693b0b1b8aede2e4b85d386af0cadfb005efd9d31",
+      "size_bytes": 10875
+    },
+    {
+      "path": "evidence/canonical-mass-ledger-79-manifest.json",
+      "sha256": "cd699fb9f15b78579fbd8477ce6be512736b55a55acd50a3de90e1e0964f4274",
+      "size_bytes": 3253
+    },
+    {
+      "path": "evidence/canonical-mass-ledger-79.patch",
+      "sha256": "0dec9f290c1dd420c8ed15ffe7ccf91233db43c6b6b8dca098b6326824b3acd9",
+      "size_bytes": 84939
+    },
+    {
+      "path": "evidence/compiler-build-canonical-harness.log",
+      "sha256": "e1a07a11622e92f1ea1845e108b675047cd5ad44bac81e2db13dbf3cb955cc31",
+      "size_bytes": 1761
+    },
+    {
+      "path": "evidence/compiler-ctest-canonical-harness.log",
+      "sha256": "2d5160e36e0c05281427e95a6fb6588bc6d62fbc4a4b30cf103162af399ffaa6",
+      "size_bytes": 620
+    },
+    {
+      "path": "evidence/isolated-harness/CMakeLists.txt",
+      "sha256": "ec85cbec31bb9fc52093db596d933a5465c9bcfc2141835edaf4b06e9e2dd0a2",
+      "size_bytes": 2843
+    },
+    {
+      "path": "evidence/isolated-harness/tools/legacy_package_bytes_fixture.cpp",
+      "sha256": "d1445c2cbf24ffb44cef997e7dcf3c80d553b0c4a57f921ed3d2463caf8c553a",
+      "size_bytes": 1539
+    },
+    {
+      "path": "evidence/isolated-harness/tools/legacy_package_reader.cpp",
+      "sha256": "3afcb2ff2efbe6f74de7483084b26aef3017419a9a3d9c06faaf6f09af4511cd",
+      "size_bytes": 475
+    },
+    {
+      "path": "evidence/isolated-source-pins.json",
+      "sha256": "5403f596010d400633f81ed80cd9eaac356c3698133fa8591d9ed7224a9ef34f",
+      "size_bytes": 46511
+    },
+    {
+      "path": "evidence/legacy-byte-comparison.log",
+      "sha256": "6304f80fd596bf461badfe274d4e0acfaceaed435a0abf8e4965814747e2028e",
+      "size_bytes": 185
+    },
+    {
+      "path": "evidence/old-reader-rejection.log",
+      "sha256": "d7d35d8ab8276b5e1e5dcc33820495c613ae0be8dfd42f0b2da316fcdf910566",
+      "size_bytes": 45
+    },
+    {
+      "path": "evidence/root-rebased-supplemental.diff",
+      "sha256": "a22e763e82df52b1b70aed1d5003df3c33e2b0f278bb69916e04d14cf7f7fd40",
+      "size_bytes": 6877
+    },
+    {
+      "path": "evidence/supplemental-008/CMakeLists.txt",
+      "sha256": "5ea7e6a763f3876935341ea5a5a06a2e30b557caa22ada2375048464024bbaab",
+      "size_bytes": 1579
+    },
+    {
+      "path": "evidence/supplemental-008/build.log",
+      "sha256": "53df5336704f39fbd259dea96d0d3b67abeeeed267cd0762c33635bdb06fab20",
+      "size_bytes": 104
+    },
+    {
+      "path": "evidence/supplemental-008/canonical-mass-multiobject-supplemental.diff",
+      "sha256": "9b24362569059758aa8baea42b7895360007fd0c5ac432cd3ab5bbfec21cac79",
+      "size_bytes": 6802
+    },
+    {
+      "path": "evidence/supplemental-008/configure.log",
+      "sha256": "6a21e0040dfce702316ba4c50d9861494f01243eddb0995e26b299a87e350064",
+      "size_bytes": 663
+    },
+    {
+      "path": "evidence/supplemental-008/supplemental-manifest.json",
+      "sha256": "d0e942fd170427ea975ad9294c8a88ed56fcda903c6ac757ed7dbeef9f96d8e7",
+      "size_bytes": 4384
+    },
+    {
+      "path": "evidence/supplemental-008/test.log",
+      "sha256": "0e27176d087a481cb76ebecfef29b29f228ab3a9e8f0a612635500b7720d636f",
+      "size_bytes": 772
+    },
+    {
+      "path": "patch-application.log",
+      "sha256": "c6074542c5009e62958d3809869c7c3735ea32969aae060512f8f003489fd5c3",
+      "size_bytes": 462
+    },
+    {
+      "path": "root-all-tests-build.log",
+      "sha256": "23f037d37ee30a2b9ae746850f5ba26faf874948c5bc0d3837bd9f483d7d4b7a",
+      "size_bytes": 929
+    },
+    {
+      "path": "root-canonical-test-registration.log",
+      "sha256": "1e45b756d79fa50744837e3693b0b1b8aede2e4b85d386af0cadfb005efd9d31",
+      "size_bytes": 10875
+    },
+    {
+      "path": "root-compile-source-parity.json",
+      "sha256": "317ca79e9c6fc793442429771af54b0ac5a3766431b01fc20acdede84891c888",
+      "size_bytes": 2569
+    },
+    {
+      "path": "root-ctest.log",
+      "sha256": "59b9582dfaa374ed0e12b3ed83db6c17a95550dda3d1150af4e0fc285d3e9aa6",
+      "size_bytes": 4318
+    },
+    {
+      "path": "root-multiobject-ctest-before-build.log",
+      "sha256": "fb8de24d93151d3200e68ade5047210cdc7304067ed6d5df71e08db68beb2e9d",
+      "size_bytes": 24984
+    },
+    {
+      "path": "root-multiobject-ctest.log",
+      "sha256": "784c28ed59e30685ca956b94edaeac1ec2f67abfc5cc65812147157526d1f332",
+      "size_bytes": 5616
+    },
+    {
+      "path": "root-rebased-supplemental-application.log",
+      "sha256": "4b492511963d0f089478814bc3bb42cfb20595d0352ad668c3fd6ca4896546a9",
+      "size_bytes": 110
+    },
+    {
+      "path": "root-review.json",
+      "sha256": "5e57f10eeb9efd13eec3a3d86154165bee4bf12f1ac6a9289744c7083d83b927",
+      "size_bytes": 3217
+    },
+    {
+      "path": "supplemental-application.log",
+      "sha256": "383f3c6435ec55927f5d3ff3e3c307269dbfdb29c1e4c3a8eebf3c3d299b4cba",
+      "size_bytes": 206
+    },
+    {
+      "path": "test-environment.json",
+      "sha256": "8f38c9d60bd5fd6f52b317d3cc8e502e1668ba5c5bb7a9e7195b60455ca233c4",
+      "size_bytes": 533
+    },
+    {
+      "path": "verify_publication_065.py",
+      "sha256": "b8ab3143707ee0c023abb05e003a7508b0ee5c2ebc7012af5a7d3872012d4b17",
+      "size_bytes": 1127
+    }
+  ]
+}

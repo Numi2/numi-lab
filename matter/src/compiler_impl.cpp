@@ -1480,6 +1480,7 @@ CompileResult compileWorld(
         [](const ObjectSource& object) {
             return !object.femMaterialFrameRotations.empty() ||
                 !object.femMaterialIndices.empty() ||
+                !object.femTetrahedronMassesKg.empty() ||
                 !object.femReferenceNodes.empty() ||
                 !object.femPreconditionerRegionIds.empty();
         });
@@ -1584,6 +1585,41 @@ CompileResult compileWorld(
             result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
                 "FEM reference coordinates must be finite and representable as FP32"});
             return result;
+        }
+        const bool explicitTetrahedronMasses =
+            !object.femTetrahedronMassesKg.empty();
+        const bool tetrahedronMassIdentity = std::ranges::any_of(
+            object.femTetrahedronMassSourceIdentity,
+            [](std::uint64_t word) { return word != 0u; });
+        if (explicitTetrahedronMasses != tetrahedronMassIdentity ||
+                (explicitTetrahedronMasses &&
+                 (representation != Representation::fem ||
+                  object.automaticRepresentation ||
+                  object.femTetrahedronMassesKg.size() != object.tetrahedra.size() ||
+                  object.mixedFEM || object.multiphysics.enabled ||
+                  !object.fieldBoundaries.empty() || object.identifiable))) {
+            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "explicit FEM tetrahedron masses require exact per-tetrahedron values/source identity and explicit non-mixed FEM without nodal fields or object identification"});
+            return result;
+        }
+        if (explicitTetrahedronMasses &&
+                std::ranges::any_of(object.femTetrahedronMassesKg,
+                    [](double mass) {
+                        return !std::isfinite(mass) || mass <= 0.0 ||
+                            mass > static_cast<double>(
+                                std::numeric_limits<float>::max());
+                    })) {
+            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "explicit FEM tetrahedron masses must be finite, positive, and representable as FP32"});
+            return result;
+        }
+        if (explicitTetrahedronMasses) {
+            if (world.femTetrahedronMassSourceIdentities.empty()) {
+                world.femTetrahedronMassSourceIdentities.resize(source.objects.size());
+                world.femTetrahedronMassesKg.assign(world.fem.tetrahedra.size(), 0.0);
+            }
+            world.femTetrahedronMassSourceIdentities[objectIndexSize] =
+                object.femTetrahedronMassSourceIdentity;
         }
         const bool regional = !object.femMaterialIndices.empty();
         const bool regionalIdentity = std::ranges::any_of(object.femMaterialSourceIdentity,
@@ -2493,13 +2529,19 @@ CompileResult compileWorld(
                 const std::uint32_t tetrahedronIndex =
                     static_cast<nm_u32>(world.fem.tetrahedra.size());
                 world.fem.tetrahedra.push_back(tetrahedron);
-                // The opt-in regional field binds inertia to the serialized
-                // density and geometry, allowing independent cooked-mass
-                // validation. Preserve the exact legacy arithmetic otherwise.
-                const double nodalMass = (regional || referenced)
-                    ? double(world.materials[elementMaterial].bulk.x) *
-                        double(tetrahedron.inverseRestRow0.w) * 0.25
-                    : rho * signedVolume * 0.25;
+                if (!world.femTetrahedronMassesKg.empty() || explicitTetrahedronMasses)
+                    world.femTetrahedronMassesKg.push_back(
+                        explicitTetrahedronMasses
+                            ? object.femTetrahedronMassesKg[sourceTetIndex] : 0.0);
+                // An explicit per-tetrahedron mass ledger is authoritative
+                // only for the opt-in source-identified path. Legacy objects
+                // retain the exact density-and-geometry arithmetic.
+                const double nodalMass = explicitTetrahedronMasses
+                    ? object.femTetrahedronMassesKg[sourceTetIndex] * 0.25
+                    : (regional || referenced)
+                        ? double(world.materials[elementMaterial].bulk.x) *
+                            double(tetrahedron.inverseRestRow0.w) * 0.25
+                        : rho * signedVolume * 0.25;
                 for (const std::uint32_t localNode : sourceTet.nodes) {
                     localMass[localNode] += nodalMass;
                     femIncidence.push_back({
@@ -2511,12 +2553,25 @@ CompileResult compileWorld(
             for (std::size_t localNode = 0u; localNode < localMass.size(); ++localNode) {
                 const std::size_t globalNode =
                     static_cast<std::size_t>(descriptor.stateOffset) + localNode;
-                world.fem.nodes[globalNode].positionAndMass.w =
-                    static_cast<float>(localMass[localNode]);
-                world.fem.nodes[globalNode].velocityAndInverseMass.w =
+                const float cookedMass = static_cast<float>(localMass[localNode]);
+                const float cookedInverseMass =
                     localMass[localNode] > 0.0 && !fixedNodes[localNode]
                         ? static_cast<float>(1.0 / localMass[localNode])
                         : 0.0f;
+                if (explicitTetrahedronMasses &&
+                        (localMass[localNode] <= 0.0 ||
+                         !std::isfinite(localMass[localNode]) ||
+                         !std::isfinite(cookedMass) || cookedMass <= 0.0f ||
+                         (!fixedNodes[localNode] &&
+                          (!std::isfinite(cookedInverseMass) ||
+                           cookedInverseMass <= 0.0f)))) {
+                    result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                        "explicit FEM tetrahedron masses produce a nonfinite or unrepresentable nodal mass"});
+                    return result;
+                }
+                world.fem.nodes[globalNode].positionAndMass.w = cookedMass;
+                world.fem.nodes[globalNode].velocityAndInverseMass.w =
+                    cookedInverseMass;
             }
             const std::size_t authoredTetrahedronCount =
                 world.fem.tetrahedra.size() - descriptor.elementOffset;
@@ -2530,6 +2585,8 @@ CompileResult compileWorld(
                     0u,
                 };
                 world.fem.tetrahedra.push_back(inactive);
+                if (!world.femTetrahedronMassesKg.empty())
+                    world.femTetrahedronMassesKg.push_back(0.0);
             }
             // The object descriptor owns the complete private arena. Active
             // topology is carried exclusively by identity.w/counts, so later

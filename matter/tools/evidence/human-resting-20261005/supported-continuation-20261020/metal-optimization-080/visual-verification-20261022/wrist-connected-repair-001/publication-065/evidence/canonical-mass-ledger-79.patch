@@ -1,0 +1,1449 @@
+diff --git a/apps/NumiHumanUnpairedSkinFatVolume.hpp b/apps/NumiHumanUnpairedSkinFatVolume.hpp
+--- a/apps/NumiHumanUnpairedSkinFatVolume.hpp
++++ b/apps/NumiHumanUnpairedSkinFatVolume.hpp
+@@ -7,6 +7,7 @@
+ #include "NumiHumanSkinBoundaryNodeMap.hpp"
+ 
+ #include <array>
++#include <charconv>
+ #include <cmath>
+ #include <cstddef>
+ #include <cstdint>
+@@ -16,6 +17,7 @@
+ #include <span>
+ #include <string>
+ #include <string_view>
++#include <tuple>
+ #include <vector>
+ 
+ namespace metalrobo::human::coarse_tissue {
+@@ -53,6 +55,13 @@
+     std::span<const std::uint32_t> childParentAncestryOffsets;
+     std::span<const std::uint32_t> childParentAncestryTetrahedra;
+     std::span<const double> childParentAncestryVolumeFractions;
++    // Optional authoritative parent-mass ledger. Both arrays must be supplied
++    // together. childAncestryMeasureVolumeM3 is the measure in the same domain
++    // as the CSR fractions, not necessarily the emitted child reference volume:
++    // exactGeometricOverlap requires equality, while conservativeReferencePullback
++    // may carry a distinct pulled-back measure with its own pinned receipt.
++    std::span<const double> parentTetrahedronMassKg;
++    std::span<const double> childAncestryMeasureVolumeM3;
+     // Exact current RegisteredSurface row/stable ID for each tet facet, flattened
+     // child*4+omitted-corner. Unmatched interior facets use INVALID in both.
+     std::span<const std::uint32_t> childRegisteredLayerFacetSurfaceFaces;
+@@ -90,12 +99,51 @@
+     std::array<std::uint64_t,4> materialSourceIdentity{};
+ };
+ 
++struct ExplicitUnpairedVolumeDonorMassClosure {
++    std::uint32_t materialIndex=NM_INVALID_INDEX;
++    std::uint32_t donorBodyIndex=NM_INVALID_INDEX;
++    double parentMassKg=0.0;
++    double childMassKg=0.0;
++};
++
++struct ExplicitUnpairedVolumeNodeMassAttribution {
++    std::uint32_t materialIndex=NM_INVALID_INDEX;
++    std::uint32_t volumeNodeIndex=NM_INVALID_INDEX;
++    std::uint32_t donorBodyIndex=NM_INVALID_INDEX;
++    double parentAncestryMassKg=0.0;
++    double nodeFrameOwnerMassKg=0.0;
++};
++
++struct ExplicitUnpairedVolumeNodeOwnerMass {
++    std::uint32_t materialIndex=NM_INVALID_INDEX;
++    std::uint32_t donorBodyIndex=NM_INVALID_INDEX;
++    double parentAncestryMassKg=0.0;
++    double nodeFrameOwnerMassKg=0.0;
++};
++
+ struct ExplicitUnpairedVolumeReport {
+     std::vector<std::uint32_t> inputVolumeRowToObjectLocalNode;
+     std::uint32_t volumeNodeCount=0;
+     std::uint32_t tetrahedronCount=0;
+     double skinVolumeM3=0.0, fatVolumeM3=0.0;
+     double skinDensityKgM3=0.0, fatDensityKgM3=0.0;
++    // In the opt-in mass-ledger path, densityKgM3 above remains the unchanged
++    // material default. These fields report mass divided by emitted geometric
++    // volume and its per-child extrema; they do not replace the density field.
++    bool usesPerChildMassLedger=false;
++    double skinParentMassKg=0.0, fatParentMassKg=0.0;
++    double skinChildMassKg=0.0, fatChildMassKg=0.0;
++    double skinMeanImpliedDensityKgM3=0.0, fatMeanImpliedDensityKgM3=0.0;
++    double skinMinimumChildDensityKgM3=0.0, skinMaximumChildDensityKgM3=0.0;
++    double fatMinimumChildDensityKgM3=0.0, fatMaximumChildDensityKgM3=0.0;
++    double maximumDonorMassClosureErrorKg=0.0;
++    std::vector<ExplicitUnpairedVolumeDonorMassClosure> donorMassClosure;
++    // These compare mass source (parent ancestry) with the single frame/attachment
++    // owner carried by donorMassNodes. A mismatch is reported and rejects emission:
++    // the current rigid-body debit consumer cannot represent split source mass at one node.
++    bool parentAncestryMatchesNodeFrameMassOwnership=false;
++    std::vector<ExplicitUnpairedVolumeNodeOwnerMass> nodeOwnerMassByDonor;
++    std::vector<ExplicitUnpairedVolumeNodeMassAttribution> nodeMassAttributionMismatches;
+     VolumeAncestryVerificationKind ancestryVerificationKind=VolumeAncestryVerificationKind::unverified;
+     std::string ancestryVerificationReceiptSHA256;
+ };
+@@ -183,6 +231,12 @@
+        topology.parentStableSourceFaceIdentities.size()!=topology.parentTetrahedra.size()||
+        topology.parentDonorBodyIndices.size()!=topology.parentTetrahedra.size())
+         return fail("unpaired skin/fat reference or parent source topology is incomplete");
++    const bool hasPerChildMassLedger=!topology.parentTetrahedronMassKg.empty()||
++        !topology.childAncestryMeasureVolumeM3.empty();
++    if(hasPerChildMassLedger&&
++       (topology.parentTetrahedronMassKg.size()!=topology.parentTetrahedra.size()||
++        topology.childAncestryMeasureVolumeM3.size()!=nt))
++        return fail("unpaired skin/fat per-child mass ledger requires one parent mass and one child ancestry measure per row");
+     if(topology.retainedOriginalNodeCount>n||
+        topology.volumeNodeParentTetrahedra.size()!=n||
+        topology.volumeNodeParentBarycentric.size()!=n||
+@@ -472,6 +526,12 @@
+     std::set<std::array<std::uint32_t,4>> uniqueChildren;
+     std::vector<double> parentCovered(topology.parentTetrahedra.size(),0.0);
+     std::vector<double> parentVolume(topology.parentTetrahedra.size(),0.0);
++    std::vector<double> childMassKg(nt,0.0);
++    std::map<std::uint32_t,double> parentMassByMaterialKg,childMassByMaterialKg;
++    std::map<std::pair<std::uint32_t,std::uint32_t>,double> parentMassByDonorKg,childMassByDonorKg;
++    using NodeDonorKey=std::tuple<std::uint32_t,std::uint32_t,std::uint32_t>;
++    std::map<NodeDonorKey,double> ancestryMassByNodeDonorKg,nodeOwnerMassByNodeDonorKg;
++    std::map<std::pair<std::uint32_t,std::uint32_t>,double> nodeOwnerMassByDonorKg;
+     for(std::size_t p=0;p<topology.parentTetrahedra.size();++p){
+         const auto tet=topology.parentTetrahedra[p];
+         for(auto node:tet)if(node>=topology.parentReferenceWorldPoints.size())
+@@ -481,6 +541,13 @@
+            (topology.parentMaterialIndices[p]!=skinMaterialIndex&&topology.parentMaterialIndices[p]!=fatMaterialIndex)||
+            topology.parentDonorBodyIndices[p]==invalid||topology.parentDonorBodyIndices[p]>=sourceBodyCount)
+             return fail("unpaired skin/fat parent tetrahedron has invalid material, volume, or donor identity");
++        if(hasPerChildMassLedger){
++            const double mass=topology.parentTetrahedronMassKg[p];
++            if(!std::isfinite(mass)||mass<0.0)
++                return fail("unpaired skin/fat parent mass ledger contains a negative or nonfinite mass");
++            parentMassByMaterialKg[topology.parentMaterialIndices[p]]+=mass;
++            parentMassByDonorKg[{topology.parentMaterialIndices[p],topology.parentDonorBodyIndices[p]}]+=mass;
++        }
+     }
+     double skinVolume=0.0,fatVolume=0.0;
+     std::vector<double> nodalMass(n,0.0),skinNodeMass(n,0.0),fatNodeMass(n,0.0);
+@@ -504,8 +571,14 @@
+         const double emittedCurrentVolume=tetVolume(emittedCurrent[0],emittedCurrent[1],emittedCurrent[2],emittedCurrent[3]);
+         if(!std::isfinite(emittedCurrentVolume)||emittedCurrentVolume<=0.0)
+             return fail("unpaired skin/fat child loses positive emitted-Float32 current orientation at tet "+std::to_string(child));
+-        const double contribution=topology.childMaterialIndices[child]==skinMaterialIndex?skinVolume+=v:fatVolume+=v;
+-        (void)contribution;childVolumes[child]=v;
++        if(topology.childMaterialIndices[child]==skinMaterialIndex)skinVolume+=v;else fatVolume+=v;
++        childVolumes[child]=v;
++        const double ancestryMeasure=hasPerChildMassLedger?topology.childAncestryMeasureVolumeM3[child]:v;
++        if(!std::isfinite(ancestryMeasure)||ancestryMeasure<=0.0)
++            return fail("unpaired skin/fat child ancestry measure is nonpositive or nonfinite at tet "+std::to_string(child));
++        if(hasPerChildMassLedger&&topology.ancestryVerificationKind==VolumeAncestryVerificationKind::exactGeometricOverlap&&
++           std::abs(ancestryMeasure-v)>1.0e-6*std::max(ancestryMeasure,v))
++            return fail("exact geometric-overlap mass measure differs from emitted child reference volume at tet "+std::to_string(child));
+         for(auto node:ids)++usedNodes[node];
+         if(topology.childParentAncestryOffsets[child]>=topology.childParentAncestryOffsets[child+1u])
+             return fail("unpaired skin/fat child has an empty parent-volume CSR row");
+@@ -515,7 +588,23 @@
+             if(parent>=parentVolume.size()||(e>topology.childParentAncestryOffsets[child]&&parent<=prior)||
+                !std::isfinite(f)||f<=0.0||topology.parentMaterialIndices[parent]!=topology.childMaterialIndices[child])
+                 return fail("unpaired skin/fat child parent CSR has invalid, duplicate, or cross-material ancestry");
+-            prior=parent;sum+=f;parentCovered[parent]+=v*f;
++            prior=parent;sum+=f;parentCovered[parent]+=ancestryMeasure*f;
++            if(hasPerChildMassLedger){
++                const double transferred=topology.parentTetrahedronMassKg[parent]*
++                    (ancestryMeasure*f/parentVolume[parent]);
++                if(!std::isfinite(transferred)||transferred<0.0)
++                    return fail("unpaired skin/fat parent-to-child mass transfer is negative or nonfinite");
++                childMassKg[child]+=transferred;
++                childMassByMaterialKg[topology.childMaterialIndices[child]]+=transferred;
++                const auto material=topology.childMaterialIndices[child];
++                const auto sourceDonor=topology.parentDonorBodyIndices[parent];
++                childMassByDonorKg[{material,sourceDonor}]+=transferred;
++                const double nodeShare=0.25*transferred;
++                for(auto node:ids){
++                    ancestryMassByNodeDonorKg[{material,node,sourceDonor}]+=nodeShare;
++                    nodeOwnerMassByNodeDonorKg[{material,node,topology.volumeNodeDonorBodyIndices[node]}]+=nodeShare;
++                }
++            }
+         }
+         if(!std::isfinite(sum)||std::abs(sum-1.0)>1.0e-6)
+             return fail("unpaired skin/fat child parent-volume fractions do not sum to one");
+@@ -525,6 +614,66 @@
+     for(std::size_t p=0;p<parentVolume.size();++p)
+         if(std::abs(parentCovered[p]-parentVolume[p])>1.0e-6*parentVolume[p])
+             return fail("unpaired skin/fat CSR volume closure differs from original parent tet "+std::to_string(p));
++
++    double maximumDonorMassClosureErrorKg=0.0;
++    if(hasPerChildMassLedger){
++        const auto closeMass=[](double a,double b){
++            return std::isfinite(a)&&std::isfinite(b)&&
++                std::abs(a-b)<=1.0e-6*std::max({std::abs(a),std::abs(b),1.0e-12});
++        };
++        for(const auto [material,debit]:std::array<std::pair<std::uint32_t,double>,2>{{
++                {skinMaterialIndex,skinDonorDebitKg},{fatMaterialIndex,fatDonorDebitKg}}}){
++            const double parentMass=parentMassByMaterialKg[material];
++            const double childMass=childMassByMaterialKg[material];
++            if(!closeMass(parentMass,debit)||!closeMass(childMass,debit))
++                return fail("unpaired skin/fat parent/child mass ledger does not close its per-material donor debit");
++        }
++        for(const auto& [key,parentMass]:parentMassByDonorKg){
++            const double childMass=childMassByDonorKg[key];
++            const double errorKg=std::abs(parentMass-childMass);
++            maximumDonorMassClosureErrorKg=std::max(maximumDonorMassClosureErrorKg,errorKg);
++            if(!closeMass(parentMass,childMass))
++                return fail("unpaired skin/fat parent-to-child mass ledger does not close a material/donor region");
++        }
++        for(const auto& [key,childMass]:childMassByDonorKg)
++            if(!parentMassByDonorKg.contains(key)||!closeMass(parentMassByDonorKg[key],childMass))
++                return fail("unpaired skin/fat child mass ledger introduces a material/donor region without parent mass");
++        std::set<NodeDonorKey> nodeAttributionKeys;
++        for(const auto& [key,mass]:ancestryMassByNodeDonorKg){(void)mass;nodeAttributionKeys.insert(key);}
++        for(const auto& [key,mass]:nodeOwnerMassByNodeDonorKg){(void)mass;nodeAttributionKeys.insert(key);}
++        for(const auto& [key,mass]:nodeOwnerMassByNodeDonorKg)
++            nodeOwnerMassByDonorKg[{std::get<0>(key),std::get<2>(key)}]+=mass;
++        std::vector<ExplicitUnpairedVolumeNodeMassAttribution> attributionMismatches;
++        for(const auto& key:nodeAttributionKeys){
++            const double sourceMass=ancestryMassByNodeDonorKg[key];
++            const double ownerMass=nodeOwnerMassByNodeDonorKg[key];
++            if(!closeMass(sourceMass,ownerMass)){
++                attributionMismatches.push_back({.materialIndex=std::get<0>(key),
++                    .volumeNodeIndex=std::get<1>(key),.donorBodyIndex=std::get<2>(key),
++                    .parentAncestryMassKg=sourceMass,.nodeFrameOwnerMassKg=ownerMass});
++            }
++        }
++        report={};report.usesPerChildMassLedger=true;
++        report.parentAncestryMatchesNodeFrameMassOwnership=attributionMismatches.empty();
++        report.nodeMassAttributionMismatches=attributionMismatches;
++        report.skinParentMassKg=parentMassByMaterialKg[skinMaterialIndex];
++        report.fatParentMassKg=parentMassByMaterialKg[fatMaterialIndex];
++        report.skinChildMassKg=childMassByMaterialKg[skinMaterialIndex];
++        report.fatChildMassKg=childMassByMaterialKg[fatMaterialIndex];
++        report.maximumDonorMassClosureErrorKg=maximumDonorMassClosureErrorKg;
++        for(const auto& [key,parentMass]:parentMassByDonorKg)
++            report.donorMassClosure.push_back({.materialIndex=key.first,.donorBodyIndex=key.second,
++                .parentMassKg=parentMass,.childMassKg=childMassByDonorKg[key]});
++        std::set<std::pair<std::uint32_t,std::uint32_t>> ownerKeys;
++        for(const auto& [key,mass]:parentMassByDonorKg){(void)mass;ownerKeys.insert(key);}
++        for(const auto& [key,mass]:nodeOwnerMassByDonorKg){(void)mass;ownerKeys.insert(key);}
++        for(const auto& key:ownerKeys)
++            report.nodeOwnerMassByDonor.push_back({.materialIndex=key.first,.donorBodyIndex=key.second,
++                .parentAncestryMassKg=childMassByDonorKg[key],
++                .nodeFrameOwnerMassKg=nodeOwnerMassByDonorKg[key]});
++        if(!attributionMismatches.empty())
++            return fail("unpaired skin/fat parent-ancestry mass is assigned to a different rigid-body debit donor than node frame ownership; source-contribution mass-moment consumer is required");
++    }
+ 
+     auto densityFor=[&](std::uint32_t index,double debit,double volume,double& density)->bool{
+         auto& material=world.materials[index];
+@@ -534,13 +683,49 @@
+         density=debit/volume;return std::isfinite(density)&&density>=it->lower&&density<=it->upper;
+     };
+     double rhoSkin=0.0,rhoFat=0.0;
++    double skinDensityLower=0.0,skinDensityUpper=0.0,fatDensityLower=0.0,fatDensityUpper=0.0;
++    const auto densityBoundsFor=[&](std::uint32_t index,double& lower,double& upper,double& defaultValue)->bool{
++        auto& material=world.materials[index];
++        if(material.name.empty()||std::find(material.supportedRepresentations.begin(),material.supportedRepresentations.end(),numi::matter::Representation::fem)==material.supportedRepresentations.end())return false;
++        auto it=std::find_if(material.parameters.begin(),material.parameters.end(),[](const auto& p){return p.name=="density";});
++        if(it==material.parameters.end()||it->identifiable||!std::isfinite(it->lower)||!std::isfinite(it->upper)||
++           !std::isfinite(it->defaultValue)||it->lower>it->upper||it->defaultValue<it->lower||it->defaultValue>it->upper)return false;
++        lower=it->lower;upper=it->upper;defaultValue=it->defaultValue;return true;
++    };
++    double skinDefaultDensity=0.0,fatDefaultDensity=0.0;
+     if(world.materials[skinMaterialIndex].name!=skinMaterialName||world.materials[fatMaterialIndex].name!=fatMaterialName||
+-       !(skinVolume>0.0&&fatVolume>0.0)||!densityFor(skinMaterialIndex,skinDonorDebitKg,skinVolume,rhoSkin)||
+-       !densityFor(fatMaterialIndex,fatDonorDebitKg,fatVolume,rhoFat))
++       !(skinVolume>0.0&&fatVolume>0.0))
++        return fail("unpaired skin/fat material identities or geometric volumes are invalid");
++    if(hasPerChildMassLedger){
++        if(!densityBoundsFor(skinMaterialIndex,skinDensityLower,skinDensityUpper,skinDefaultDensity)||
++           !densityBoundsFor(fatMaterialIndex,fatDensityLower,fatDensityUpper,fatDefaultDensity))
++            return fail("unpaired skin/fat per-child mass ledger lacks finite material density bounds/defaults");
++        // Keep material defaults unchanged; local mass remains in the explicit
++        // donorMassNodes ledger rather than being hidden in a fitted uniform rho.
++        rhoSkin=skinDefaultDensity;rhoFat=fatDefaultDensity;
++    }else if(!densityFor(skinMaterialIndex,skinDonorDebitKg,skinVolume,rhoSkin)||
++             !densityFor(fatMaterialIndex,fatDonorDebitKg,fatVolume,rhoFat)){
+         return fail("unpaired skin/fat geometric volume implies an invalid or out-of-bounds existing material density");
++    }
++    double skinMinChildDensity=std::numeric_limits<double>::infinity();
++    double skinMaxChildDensity=0.0,fatMinChildDensity=std::numeric_limits<double>::infinity(),fatMaxChildDensity=0.0;
+     for(std::size_t child=0;child<nt;++child){
+-        const auto rho=topology.childMaterialIndices[child]==skinMaterialIndex?rhoSkin:rhoFat;
+-        const auto share=rho*childVolumes[child]*0.25;
++        double childMass=0.0;
++        if(hasPerChildMassLedger){
++            childMass=childMassKg[child];
++            const double impliedDensity=childMass/childVolumes[child];
++            const bool isSkin=topology.childMaterialIndices[child]==skinMaterialIndex;
++            const double lower=isSkin?skinDensityLower:fatDensityLower;
++            const double upper=isSkin?skinDensityUpper:fatDensityUpper;
++            if(!std::isfinite(impliedDensity)||impliedDensity<lower||impliedDensity>upper)
++                return fail("unpaired skin/fat per-child mass implies density outside material bounds at tet "+std::to_string(child));
++            if(isSkin){skinMinChildDensity=std::min(skinMinChildDensity,impliedDensity);skinMaxChildDensity=std::max(skinMaxChildDensity,impliedDensity);}
++            else{fatMinChildDensity=std::min(fatMinChildDensity,impliedDensity);fatMaxChildDensity=std::max(fatMaxChildDensity,impliedDensity);}
++        }else{
++            const auto rho=topology.childMaterialIndices[child]==skinMaterialIndex?rhoSkin:rhoFat;
++            childMass=rho*childVolumes[child];
++        }
++        const auto share=childMass*0.25;
+         for(auto node:topology.childTetrahedra[child]){
+             nodalMass[node]+=share;
+             if(topology.childMaterialIndices[child]==skinMaterialIndex)skinNodeMass[node]+=share;else fatNodeMass[node]+=share;
+@@ -555,6 +740,16 @@
+     object.femReferenceNodes.assign(reference.begin(),reference.end());
+     object.femReferenceSourceIdentity=topology.referenceSourceIdentity;
+     object.femMaterialSourceIdentity=topology.materialSourceIdentity;
++    if(hasPerChildMassLedger){
++        object.femTetrahedronMassesKg=childMassKg;
++        for(std::size_t word=0;word<object.femTetrahedronMassSourceIdentity.size();++word){
++            const auto begin=receipt.data()+word*16u;
++            const auto parsed=std::from_chars(begin,begin+16u,
++                object.femTetrahedronMassSourceIdentity[word],16);
++            if(parsed.ec!=std::errc{}||parsed.ptr!=begin+16u)
++                return fail("unpaired skin/fat mass source identity could not decode the pinned verification receipt");
++        }
++    }
+     const auto identityPresent=[](const auto& id){return std::any_of(id.begin(),id.end(),[](auto x){return x!=0u;});};
+     if(!identityPresent(object.femReferenceSourceIdentity)||!identityPresent(object.femMaterialSourceIdentity))
+         return fail("unpaired skin/fat source-reference or material identity is not pinned");
+@@ -610,15 +805,45 @@
+             return fail("unpaired skin/fat material ancestry entry count exceeds source format");
+         prepared.tetParentAncestryOffsets.push_back(static_cast<std::uint32_t>(prepared.tetParentAncestryTetrahedra.size()));
+     }
+-    const auto setDensity=[&](std::uint32_t index,double rho){
+-        auto& parameters=world.materials[index].parameters;
+-        auto it=std::find_if(parameters.begin(),parameters.end(),[](const auto& p){return p.name=="density";});
+-        it->defaultValue=rho;
+-    };
+-    setDensity(skinMaterialIndex,rhoSkin);setDensity(fatMaterialIndex,rhoFat);
++    if(!hasPerChildMassLedger){
++        const auto setDensity=[&](std::uint32_t index,double rho){
++            auto& parameters=world.materials[index].parameters;
++            auto it=std::find_if(parameters.begin(),parameters.end(),[](const auto& p){return p.name=="density";});
++            it->defaultValue=rho;
++        };
++        setDensity(skinMaterialIndex,rhoSkin);setDensity(fatMaterialIndex,rhoFat);
++    }
+     world.objects.push_back(std::move(object));
+     report={};report.volumeNodeCount=static_cast<std::uint32_t>(n);report.tetrahedronCount=static_cast<std::uint32_t>(nt);
+     report.skinVolumeM3=skinVolume;report.fatVolumeM3=fatVolume;report.skinDensityKgM3=rhoSkin;report.fatDensityKgM3=rhoFat;
++    report.usesPerChildMassLedger=hasPerChildMassLedger;
++    if(hasPerChildMassLedger){
++        report.skinParentMassKg=parentMassByMaterialKg[skinMaterialIndex];
++        report.fatParentMassKg=parentMassByMaterialKg[fatMaterialIndex];
++        report.skinChildMassKg=childMassByMaterialKg[skinMaterialIndex];
++        report.fatChildMassKg=childMassByMaterialKg[fatMaterialIndex];
++        report.skinMeanImpliedDensityKgM3=report.skinChildMassKg/skinVolume;
++        report.fatMeanImpliedDensityKgM3=report.fatChildMassKg/fatVolume;
++        report.skinMinimumChildDensityKgM3=skinMinChildDensity;
++        report.skinMaximumChildDensityKgM3=skinMaxChildDensity;
++        report.fatMinimumChildDensityKgM3=fatMinChildDensity;
++        report.fatMaximumChildDensityKgM3=fatMaxChildDensity;
++        report.maximumDonorMassClosureErrorKg=maximumDonorMassClosureErrorKg;
++        report.parentAncestryMatchesNodeFrameMassOwnership=true;
++        std::set<std::pair<std::uint32_t,std::uint32_t>> ownerKeys;
++        for(const auto& [key,parentMass]:parentMassByDonorKg){
++            ownerKeys.insert(key);
++            report.donorMassClosure.push_back({.materialIndex=key.first,.donorBodyIndex=key.second,
++                .parentMassKg=parentMass,.childMassKg=childMassByDonorKg[key]});
++        }
++        for(const auto& [key,nodeMass]:nodeOwnerMassByDonorKg){(void)nodeMass;ownerKeys.insert(key);}
++        for(const auto& key:ownerKeys)
++            report.nodeOwnerMassByDonor.push_back({.materialIndex=key.first,.donorBodyIndex=key.second,
++                .parentAncestryMassKg=childMassByDonorKg[key],
++                .nodeFrameOwnerMassKg=nodeOwnerMassByDonorKg[key]});
++    }else{
++        report.skinMeanImpliedDensityKgM3=rhoSkin;report.fatMeanImpliedDensityKgM3=rhoFat;
++    }
+     report.ancestryVerificationKind=topology.ancestryVerificationKind;
+     report.ancestryVerificationReceiptSHA256=std::string(receipt);
+     report.inputVolumeRowToObjectLocalNode.resize(n);for(std::uint32_t i=0;i<n;++i)report.inputVolumeRowToObjectLocalNode[i]=i;
+diff --git a/apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp b/apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp
+--- a/apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp
++++ b/apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp
+@@ -4,9 +4,13 @@
+ #include <array>
+ #include <cassert>
+ #include <cmath>
++#include <cstdlib>
++#include <cstring>
+ #include <cstdint>
++#include <filesystem>
+ #include <iostream>
+ #include <map>
++#include <limits>
+ #include <string>
+ #include <vector>
+ 
+@@ -288,6 +292,27 @@
+         0u,"skin","test skin material",skinVolume*1000.0,1u,"fat","test fat material",
+         fatVolume*1000.0,1u,"unpaired test shell",skin,fat,report,error);
+ }
++
++bool emitMassLedger(Fixture& f,const std::vector<double>& parentMass,
++                    const std::vector<double>& childMeasure,numi::matter::WorldSource& world,
++                    PreparedOrganicFEM& skin,PreparedOrganicFEM& fat,
++                    ExplicitUnpairedVolumeReport& report,std::string& error,
++                    double skinDebitScale=1.0,double fatDebitScale=1.0) {
++    f.topology.parentTetrahedronMassKg=parentMass;
++    f.topology.childAncestryMeasureVolumeM3=childMeasure;
++    double skinDebit=0.0,fatDebit=0.0;
++    for(std::size_t p=0;p<parentMass.size();++p)
++        (f.parentMaterial[p]==0u?skinDebit:fatDebit)+=parentMass[p];
++    return appendRegisteredSkinFatUnpairedVolume(world,f.surface,f.boundary,f.topology,
++        0u,"skin","test skin material",skinDebit*skinDebitScale,1u,"fat","test fat material",
++        fatDebit*fatDebitScale,f.bodyRotations.size(),"per-child mass-ledger test",skin,fat,report,error);
++}
++
++double sumDonorMass(const PreparedOrganicFEM& prepared) {
++    double total=0.0;
++    for(const auto& row:prepared.donorMassNodes)total+=row.massKg;
++    return total;
++}
+ }
+ 
+ int main() {
+@@ -295,7 +320,284 @@
+     if(!emit(f,world,report,error)){std::cerr<<error;return 1;}
+     assert(world.objects.size()==1u&&report.volumeNodeCount==19u);
+     assert(report.inputVolumeRowToObjectLocalNode.size()==19u&&report.inputVolumeRowToObjectLocalNode[18]==18u);
++    assert(!world.objects.front().deformableSelfContact); // legacy paired rows retain the old contact owner.
++    assert(world.objects.front().femTetrahedronMassesKg.empty());
++    assert(std::all_of(world.objects.front().femTetrahedronMassSourceIdentity.begin(),
++        world.objects.front().femTetrahedronMassSourceIdentity.end(),
++        [](auto word){return word==0u;}));
+     assert(report.ancestryVerificationKind==VolumeAncestryVerificationKind::conservativeReferencePullback);
++    {
++        Fixture ledger;
++        std::vector<double> parentMass(ledger.parentTets.size(),0.0);
++        for(std::size_t p=0;p<parentMass.size();++p){
++            const auto tet=ledger.parentTets[p];
++            const double v=tetVolume(ledger.parentPoints[tet[0]],ledger.parentPoints[tet[1]],
++                                     ledger.parentPoints[tet[2]],ledger.parentPoints[tet[3]]);
++            parentMass[p]=v*(ledger.parentMaterial[p]==0u?1000.0:900.0);
++        }
++        parentMass[0]*=1.05; // Heterogeneous authoritative mass within the configured material bounds.
++        std::vector<double> pulledMeasure(ledger.children.size(),0.0);
++        for(std::size_t c=0;c<ledger.children.size();++c){
++            const auto tet=ledger.children[c];
++            pulledMeasure[c]=tetVolume(ledger.reference[tet[0]],ledger.reference[tet[1]],
++                                       ledger.reference[tet[2]],ledger.reference[tet[3]]);
++        }
++        // Move only the appended interior reference point. The child geometric
++        // volumes change, while the supplied reference-pullback measures stay
++        // tied to the original parent material and still close its CSR columns.
++        ledger.reference[18][0]+=0.02;
++        ledger.nodeParentResidual[18][0]=0.02;
++        ledger.topology.referenceWorldPoints=ledger.reference;
++        ledger.topology.volumeNodeParentResidualWorldM=ledger.nodeParentResidual;
++        auto ledgerWorld=worldFor();
++        ledgerWorld.materials[0].parameters[0].defaultValue=1234.0;
++        ledgerWorld.materials[1].parameters[0].defaultValue=987.0;
++        PreparedOrganicFEM ledgerSkin,ledgerFat;
++        assert(emitMassLedger(ledger,parentMass,pulledMeasure,ledgerWorld,ledgerSkin,ledgerFat,report,error));
++        assert(report.usesPerChildMassLedger);
++        assert(ledgerWorld.objects.size()==1u);
++        assert(ledgerWorld.objects.front().femTetrahedronMassesKg.size()==ledger.children.size());
++        assert(ledgerWorld.objects.front().femTetrahedronMassSourceIdentity==
++            (std::array<std::uint64_t,4>{0xaaaaaaaaaaaaaaaaULL,0xaaaaaaaaaaaaaaaaULL,
++                                         0xaaaaaaaaaaaaaaaaULL,0xaaaaaaaaaaaaaaaaULL}));
++        for(std::size_t child=0;child<ledger.children.size();++child)
++            assert(ledgerWorld.objects.front().femTetrahedronMassesKg[child]>0.0);
++        assert(report.parentAncestryMatchesNodeFrameMassOwnership);
++        assert(report.nodeOwnerMassByDonor.size()==2u);
++        assert(std::abs(report.skinParentMassKg-report.skinChildMassKg)<1.0e-10);
++        assert(std::abs(report.fatParentMassKg-report.fatChildMassKg)<1.0e-10);
++        assert(std::abs(sumDonorMass(ledgerSkin)-report.skinChildMassKg)<1.0e-10);
++        assert(std::abs(sumDonorMass(ledgerFat)-report.fatChildMassKg)<1.0e-10);
++        assert(report.donorMassClosure.size()==2u);
++        for(const auto& closure:report.donorMassClosure)
++            assert(std::abs(closure.parentMassKg-closure.childMassKg)<1.0e-10);
++        assert(report.skinMinimumChildDensityKgM3>=1.0&&report.skinMaximumChildDensityKgM3<=5000.0);
++        assert(report.fatMinimumChildDensityKgM3>=1.0&&report.fatMaximumChildDensityKgM3<=5000.0);
++        assert(ledgerWorld.materials[0].parameters[0].defaultValue==1234.0);
++        assert(ledgerWorld.materials[1].parameters[0].defaultValue==987.0);
++        assert(std::abs(report.skinMeanImpliedDensityKgM3-report.skinChildMassKg/report.skinVolumeM3)<1.0e-10);
++
++        // Exercise the production owner-to-compiler seam: the ancestry ledger's
++        // child masses and source receipt must become compiled nodal inertia.
++        auto compilerLedgerWorld=ledgerWorld;
++#ifndef NUMI_TEST_MATERIAL_PATH
++#error "NUMI_TEST_MATERIAL_PATH must identify the compiler integration test material"
++#endif
++        const auto compiledMaterial=numi::matter::parseMatterFile(
++            std::filesystem::path(NUMI_TEST_MATERIAL_PATH));
++        assert(compiledMaterial.succeeded());
++        for(std::size_t material=0;material<compilerLedgerWorld.materials.size();++material) {
++            compilerLedgerWorld.materials[material]=compiledMaterial.material;
++            compilerLedgerWorld.materials[material].name=material==0u?"skin":"fat";
++            auto density=std::find_if(compilerLedgerWorld.materials[material].parameters.begin(),
++                compilerLedgerWorld.materials[material].parameters.end(),
++                [](const auto& parameter){return parameter.name=="density";});
++            assert(density!=compilerLedgerWorld.materials[material].parameters.end());
++            density->defaultValue=ledgerWorld.materials[material].parameters[0].defaultValue;
++        }
++        auto densityBaselineWorld=compilerLedgerWorld;
++        densityBaselineWorld.objects.front().femTetrahedronMassesKg.clear();
++        densityBaselineWorld.objects.front().femTetrahedronMassSourceIdentity={};
++        const auto densityBaseline=numi::matter::compileWorld(densityBaselineWorld);
++        if(!densityBaseline.succeeded()) {
++            for(const auto& diagnostic:densityBaseline.diagnostics)
++                std::cerr<<diagnostic.message<<"; ";
++        }
++        assert(densityBaseline.succeeded());
++        const auto compiledLedger=numi::matter::compileWorld(compilerLedgerWorld);
++        if(!compiledLedger.succeeded()) {
++            for(const auto& diagnostic:compiledLedger.diagnostics)
++                std::cerr<<diagnostic.message<<"; ";
++        }
++        assert(compiledLedger.succeeded());
++        const auto& sourceObject=ledgerWorld.objects.front();
++        const auto& cookedLedger=compiledLedger.world;
++        assert(cookedLedger.materials.size()==densityBaseline.world.materials.size());
++        assert(std::memcmp(cookedLedger.materials.data(),densityBaseline.world.materials.data(),
++            cookedLedger.materials.size()*sizeof(cookedLedger.materials[0]))==0);
++        assert(cookedLedger.femTetrahedronMassSourceIdentities.size()==1u);
++        assert(cookedLedger.femTetrahedronMassSourceIdentities.front()==
++            sourceObject.femTetrahedronMassSourceIdentity);
++        assert(cookedLedger.femTetrahedronMassesKg==sourceObject.femTetrahedronMassesKg);
++        assert(cookedLedger.fem.nodes.size()==sourceObject.femNodes.size());
++        std::vector<double> expectedCompiledNodeMass(sourceObject.femNodes.size(),0.0);
++        for(std::size_t cell=0;cell<sourceObject.tetrahedra.size();++cell) {
++            const auto tet=sourceObject.tetrahedra[cell];
++            const double quarter=sourceObject.femTetrahedronMassesKg[cell]*0.25;
++            for(const auto node:tet.nodes) expectedCompiledNodeMass[node]+=quarter;
++        }
++        for(std::size_t node=0;node<expectedCompiledNodeMass.size();++node) {
++            const auto& state=cookedLedger.fem.nodes[node];
++            const double actual=state.positionAndMass.w;
++            assert(std::abs(actual-expectedCompiledNodeMass[node])<=
++                std::max(1.0e-12,expectedCompiledNodeMass[node]*2.0e-6));
++            const bool fixed=std::find(sourceObject.femFixedNodes.begin(),
++                sourceObject.femFixedNodes.end(),static_cast<std::uint32_t>(node))!=
++                sourceObject.femFixedNodes.end();
++            if(fixed) assert(state.velocityAndInverseMass.w==0.0f);
++            else assert(std::abs(double(state.velocityAndInverseMass.w)-1.0/actual)<=
++                std::max(1.0e-5,2.0e-6/actual));
++        }
++        assert(std::abs(ledgerWorld.materials[0].parameters[0].defaultValue-1234.0)<1.0e-12);
++        assert(std::abs(ledgerWorld.materials[1].parameters[0].defaultValue-987.0)<1.0e-12);
++        const auto ledgerPackagePath=std::filesystem::temp_directory_path()/
++            "numi-owner-emitted-explicit-mass-ledger.nmpkg";
++        std::string ledgerPackageError;
++        assert(numi::matter::writePackage(compiledLedger,ledgerPackagePath,&ledgerPackageError));
++        numi::matter::CompiledWorld decodedLedger;
++        assert(numi::matter::readPackage(ledgerPackagePath,decodedLedger,nullptr,&ledgerPackageError));
++        assert(decodedLedger.femTetrahedronMassSourceIdentities==
++            cookedLedger.femTetrahedronMassSourceIdentities);
++        assert(decodedLedger.femTetrahedronMassesKg==sourceObject.femTetrahedronMassesKg);
++        for(std::size_t node=0;node<expectedCompiledNodeMass.size();++node)
++            assert(decodedLedger.fem.nodes[node].positionAndMass.w==
++                cookedLedger.fem.nodes[node].positionAndMass.w);
++        std::filesystem::remove(ledgerPackagePath);
++    }
++    {
++        Fixture crossed;
++        // Source ancestry belongs to body 1 for one parent cell, while every
++        // volume node remains transformed/attached by body 0. The owner must
++        // reject rather than debit body 0 merely because it owns the node frame.
++        crossed.parentDonor[0]=1u;
++        for(std::size_t child=0;child<crossed.children.size();++child)
++            crossed.childDonor[child]=crossed.parentDonor[crossed.dominant[child]];
++        crossed.bodyRotations.push_back(kIdentity);
++        crossed.bodyOrigins.push_back({1.0,0.0,0.0});
++        crossed.refreshChildMetadata();
++        crossed.topology.parentDonorBodyIndices=crossed.parentDonor;
++        crossed.topology.registeredBodyLocalToWorldLinear=crossed.bodyRotations;
++        crossed.topology.registeredBodyOriginWorld=crossed.bodyOrigins;
++        std::vector<double> parentMass(crossed.parentTets.size(),0.0);
++        for(std::size_t p=0;p<parentMass.size();++p){
++            const auto tet=crossed.parentTets[p];
++            const double v=tetVolume(crossed.parentPoints[tet[0]],crossed.parentPoints[tet[1]],
++                                     crossed.parentPoints[tet[2]],crossed.parentPoints[tet[3]]);
++            parentMass[p]=v*(crossed.parentMaterial[p]==0u?1000.0:900.0);
++        }
++        std::vector<double> measure(crossed.children.size(),0.0);
++        for(std::size_t c=0;c<crossed.children.size();++c){
++            const auto tet=crossed.children[c];
++            measure[c]=tetVolume(crossed.reference[tet[0]],crossed.reference[tet[1]],
++                                 crossed.reference[tet[2]],crossed.reference[tet[3]]);
++        }
++        auto crossedWorld=worldFor();PreparedOrganicFEM a,b;
++        assert(!emitMassLedger(crossed,parentMass,measure,crossedWorld,a,b,report,error));
++        assert(error.find("source-contribution mass-moment consumer is required")!=std::string::npos);
++        assert(report.usesPerChildMassLedger&&!report.parentAncestryMatchesNodeFrameMassOwnership);
++        assert(!report.nodeMassAttributionMismatches.empty());
++        const auto sourceBodyOne=std::find_if(report.donorMassClosure.begin(),report.donorMassClosure.end(),
++            [](const auto& x){return x.donorBodyIndex==1u;});
++        assert(sourceBodyOne!=report.donorMassClosure.end()&&sourceBodyOne->parentMassKg>0.0);
++        const auto ownerBodyOne=std::find_if(report.nodeOwnerMassByDonor.begin(),report.nodeOwnerMassByDonor.end(),
++            [](const auto& x){return x.donorBodyIndex==1u;});
++        assert(ownerBodyOne!=report.nodeOwnerMassByDonor.end());
++        assert(ownerBodyOne->parentAncestryMassKg>ownerBodyOne->nodeFrameOwnerMassKg);
++        assert(crossedWorld.objects.empty());
++    }
++    {
++        Fixture badMass;
++        std::vector<double> parentMass(badMass.parentTets.size(),0.0);
++        for(std::size_t p=0;p<parentMass.size();++p){
++            const auto tet=badMass.parentTets[p];
++            const double v=tetVolume(badMass.parentPoints[tet[0]],badMass.parentPoints[tet[1]],
++                                     badMass.parentPoints[tet[2]],badMass.parentPoints[tet[3]]);
++            parentMass[p]=v*(badMass.parentMaterial[p]==0u?1000.0:900.0);
++        }
++        parentMass[0]=-1.0e-6;
++        std::vector<double> measure(badMass.children.size(),0.0);
++        for(std::size_t c=0;c<badMass.children.size();++c){
++            const auto tet=badMass.children[c];
++            measure[c]=tetVolume(badMass.reference[tet[0]],badMass.reference[tet[1]],
++                                 badMass.reference[tet[2]],badMass.reference[tet[3]]);
++        }
++        auto badMassWorld=worldFor();PreparedOrganicFEM a,b;
++        assert(!emitMassLedger(badMass,parentMass,measure,badMassWorld,a,b,report,error));
++        assert(error.find("negative or nonfinite mass")!=std::string::npos&&badMassWorld.objects.empty());
++    }
++    {
++        Fixture badDebit;
++        std::vector<double> parentMass(badDebit.parentTets.size(),0.0);
++        for(std::size_t p=0;p<parentMass.size();++p){
++            const auto tet=badDebit.parentTets[p];
++            const double v=tetVolume(badDebit.parentPoints[tet[0]],badDebit.parentPoints[tet[1]],
++                                     badDebit.parentPoints[tet[2]],badDebit.parentPoints[tet[3]]);
++            parentMass[p]=v*(badDebit.parentMaterial[p]==0u?1000.0:900.0);
++        }
++        std::vector<double> measure(badDebit.children.size(),0.0);
++        for(std::size_t c=0;c<badDebit.children.size();++c){
++            const auto tet=badDebit.children[c];
++            measure[c]=tetVolume(badDebit.reference[tet[0]],badDebit.reference[tet[1]],
++                                 badDebit.reference[tet[2]],badDebit.reference[tet[3]]);
++        }
++        auto badDebitWorld=worldFor();PreparedOrganicFEM a,b;
++        assert(!emitMassLedger(badDebit,parentMass,measure,badDebitWorld,a,b,report,error,1.01));
++        assert(error.find("does not close its per-material donor debit")!=std::string::npos);
++        assert(badDebitWorld.objects.empty());
++    }
++    {
++        Fixture exactGeometry;
++        std::vector<double> parentMass(exactGeometry.parentTets.size(),0.0);
++        for(std::size_t p=0;p<parentMass.size();++p){
++            const auto tet=exactGeometry.parentTets[p];
++            const double v=tetVolume(exactGeometry.parentPoints[tet[0]],exactGeometry.parentPoints[tet[1]],
++                                     exactGeometry.parentPoints[tet[2]],exactGeometry.parentPoints[tet[3]]);
++            parentMass[p]=v*(exactGeometry.parentMaterial[p]==0u?1000.0:900.0);
++        }
++        std::vector<double> measure(exactGeometry.children.size(),0.0);
++        for(std::size_t c=0;c<exactGeometry.children.size();++c){
++            const auto tet=exactGeometry.children[c];
++            measure[c]=tetVolume(exactGeometry.reference[tet[0]],exactGeometry.reference[tet[1]],
++                                 exactGeometry.reference[tet[2]],exactGeometry.reference[tet[3]]);
++        }
++        exactGeometry.reference[18][0]+=0.02;
++        exactGeometry.nodeParentResidual[18][0]=0.02;
++        exactGeometry.topology.referenceWorldPoints=exactGeometry.reference;
++        exactGeometry.topology.volumeNodeParentResidualWorldM=exactGeometry.nodeParentResidual;
++        exactGeometry.topology.ancestryVerificationKind=VolumeAncestryVerificationKind::exactGeometricOverlap;
++        auto exactWorld=worldFor();PreparedOrganicFEM a,b;
++        assert(!emitMassLedger(exactGeometry,parentMass,measure,exactWorld,a,b,report,error));
++        assert(error.find("exact geometric-overlap mass measure differs")!=std::string::npos);
++        assert(exactWorld.objects.empty());
++    }
++    {
++        Fixture badDensity;
++        std::vector<double> parentMass(badDensity.parentTets.size(),0.0);
++        for(std::size_t p=0;p<parentMass.size();++p){
++            const auto tet=badDensity.parentTets[p];
++            const double v=tetVolume(badDensity.parentPoints[tet[0]],badDensity.parentPoints[tet[1]],
++                                     badDensity.parentPoints[tet[2]],badDensity.parentPoints[tet[3]]);
++            parentMass[p]=v*6000.0;
++        }
++        std::vector<double> measure(badDensity.children.size(),0.0);
++        for(std::size_t c=0;c<badDensity.children.size();++c){
++            const auto tet=badDensity.children[c];
++            measure[c]=tetVolume(badDensity.reference[tet[0]],badDensity.reference[tet[1]],
++                                 badDensity.reference[tet[2]],badDensity.reference[tet[3]]);
++        }
++        auto badDensityWorld=worldFor();PreparedOrganicFEM a,b;
++        assert(!emitMassLedger(badDensity,parentMass,measure,badDensityWorld,a,b,report,error));
++        assert(error.find("density outside material bounds")!=std::string::npos&&badDensityWorld.objects.empty());
++    }
++    {
++        Fixture partialLedger;
++        std::vector<double> onlyParentMass(partialLedger.parentTets.size(),1.0);
++        partialLedger.topology.parentTetrahedronMassKg=onlyParentMass;
++        auto partialWorld=worldFor();PreparedOrganicFEM a,b;
++        assert(!emit(partialLedger,partialWorld,report,error));
++        assert(error.find("requires one parent mass and one child ancestry measure")!=std::string::npos);
++        assert(partialWorld.objects.empty());
++    }
++    {
++        Fixture legacyDensity;
++        auto legacyWorld=worldFor();
++        legacyWorld.materials[0].parameters[0].defaultValue=1234.0;
++        legacyWorld.materials[1].parameters[0].defaultValue=987.0;
++        assert(emit(legacyDensity,legacyWorld,report,error));
++        assert(!report.usesPerChildMassLedger);
++        assert(std::abs(legacyWorld.materials[0].parameters[0].defaultValue-1000.0)<1.0e-9);
++        assert(std::abs(legacyWorld.materials[1].parameters[0].defaultValue-1000.0)<1.0e-9);
++    }
+     RegisteredSkinFatReductionSourceLabels labels;
+     assert(buildRegisteredSkinFatUnpairedReductionSourceLabels(f.surface,world.objects.front(),f.boundary,f.topology,1u,
+         [](std::uint32_t,std::uint32_t){return true;},[](std::uint32_t){return NM_INVALID_INDEX;},labels,error));
+@@ -340,14 +642,25 @@
+     independentInnerFixture(independent,inner,deep);
+     auto independentWorld=worldFor();
+     if(!emit(independent,independentWorld,report,error)){std::cerr<<"independent boundary: "<<error;return 2;}
+-    assert(report.volumeNodeCount==20u&&independent.boundary.outer.size()==6u&&independent.boundary.skinInner.size()==7u);
++    assert(report.volumeNodeCount==20u&&independent.boundary.outer.size()==6u&&independent.boundary.skinInner.size()==7u&&independent.boundary.fatDeep.size()==6u);
+     assert(inner.faces.size()==10u&&independent.surface.faces.size()==8u&&deep.faces.size()==8u);
+     assert(buildRegisteredSkinFatUnpairedReductionSourceLabels(independent.surface,independentWorld.objects.front(),
+         independent.boundary,independent.topology,1u,
+         [](std::uint32_t,std::uint32_t){return true;},[](std::uint32_t){return NM_INVALID_INDEX;},labels,error,36u,
+         [](std::uint32_t,std::uint32_t){return true;}));
+     assert(labels.sourceNodeLayerIndices[19]==1u);
++    assert((labels.registeredLayerVertexCounts==std::array<std::size_t,3>{6u,7u,6u}));
++    assert((labels.registeredLayerFaceCounts==std::array<std::size_t,3>{8u,10u,8u}));
++    assert(labels.registeredLayerVolumeNodeRows[1]==independent.boundary.skinInner);
++    assert(labels.registeredLayerFaces[1]==inner.faces);
++    assert(labels.registeredLayerStableFaceIdentities[1]==inner.sourceFaceIndices);
+     assert(validateRegisteredSkinFatRemeshNodeAncestry(independentWorld.objects.front(),labels,error));
++    auto wrongRoleMap=labels;
++    wrongRoleMap.registeredLayerVolumeNodeRows[1][0]=wrongRoleMap.registeredLayerVolumeNodeRows[0][0];
++    assert(!validateRegisteredSkinFatRemeshNodeAncestry(independentWorld.objects.front(),wrongRoleMap,error));
++    auto wrongRoleFace=labels;
++    wrongRoleFace.registeredLayerStableFaceIdentities[1][0]=kInvalid;
++    assert(!validateRegisteredSkinFatRemeshNodeAncestry(independentWorld.objects.front(),wrongRoleFace,error));
+     inner.sourceEmbeddingFaceIndices.back()=1u;
+     assert(!buildRegisteredSkinFatUnpairedReductionSourceLabels(independent.surface,independentWorld.objects.front(),
+         independent.boundary,independent.topology,1u,
+@@ -358,8 +671,33 @@
+     const auto independentObject=independentWorld.objects.front();
+     assert(independentObject.femNodes==independent.current);
+     assert(independentObject.femReferenceNodes==independent.reference);
+-    assert(independentObject.femContactNodes.size()==12u); // Closed O/D only, no interior I contact.
+-    // Mismatched independent contracts must fail before source/density mutation.
++    assert(independentObject.deformableSelfContact); // Canonical node-identity FEM self-contact, independent path only.
++    std::map<std::array<std::uint32_t,3>,unsigned> tetFacetUse;
++    for(const auto& tet:independent.children)for(unsigned omit=0;omit<4u;++omit){
++        std::array<std::uint32_t,3> face{};unsigned at=0;
++        for(unsigned corner=0;corner<4u;++corner)if(corner!=omit)face[at++]=tet[corner];
++        std::sort(face.begin(),face.end());++tetFacetUse[face];
++    }
++    std::vector<std::uint32_t> actualExteriorNodes;
++    for(const auto& [face,count]:tetFacetUse)if(count==1u)
++        actualExteriorNodes.insert(actualExteriorNodes.end(),face.begin(),face.end());
++    std::sort(actualExteriorNodes.begin(),actualExteriorNodes.end());
++    actualExteriorNodes.erase(std::unique(actualExteriorNodes.begin(),actualExteriorNodes.end()),actualExteriorNodes.end());
++    assert(independentObject.femContactNodes==actualExteriorNodes);
++
++    auto savedDeepFaceIds=deep.sourceFaceIndices;
++    deep.sourceFaceIndices.clear();
++    auto missingFaceIdsWorld=worldFor();
++    assert(!emit(independent,missingFaceIdsWorld,report,error));
++    assert(error.find("source-face ancestry identities")!=std::string::npos&&missingFaceIdsWorld.objects.empty());
++    assert(!buildRegisteredSkinFatUnpairedReductionSourceLabels(independent.surface,independentObject,
++        independent.boundary,independent.topology,1u,
++        [](std::uint32_t,std::uint32_t){return true;},[](std::uint32_t){return NM_INVALID_INDEX;},
++        labels,error,36u,[](std::uint32_t,std::uint32_t){return true;}));
++    assert(labels.sourceNodeLayerIndices.empty());
++    deep.sourceFaceIndices=std::move(savedDeepFaceIds);
++
++    // Runtime compilation is covered by the separate owner integration receipt.\n    // Mismatched independent contracts must fail before source/density mutation.
+     inner.sourceEmbeddingBarycentric.back()={.1,.1,.1};
+     auto badIndependentBaryWorld=worldFor();
+     assert(!emit(independent,badIndependentBaryWorld,report,error)&&badIndependentBaryWorld.objects.empty());
+diff --git a/matter/include/numi/matter/matter.hpp b/matter/include/numi/matter/matter.hpp
+--- a/matter/include/numi/matter/matter.hpp
++++ b/matter/include/numi/matter/matter.hpp
+@@ -669,6 +669,14 @@
+     // name a unique exterior face on an explicit immutable FEM object.
+     // Empty preserves the legacy all-exterior-face contact eligibility.
+     std::vector<std::uint32_t> femDisabledContactSurfaceFaces;
++    // Optional authored per-tetrahedron lumped mass contributions, in kilograms.
++    // Empty preserves density*reference-volume assembly. When present, the
++    // compiler adds one quarter of each positive finite cell mass to each of its
++    // four nodes while retaining the authored material and tetrahedron identity.
++    std::vector<double> femTetrahedronMassesKg;
++    // SHA256 of the verified source ancestry/mass ledger used to derive the
++    // per-tetrahedron masses. Required with femTetrahedronMassesKg, zero without.
++    std::array<std::uint64_t, 4> femTetrahedronMassSourceIdentity{};
+ };
+ 
+ // Vascular laws share the existing Matter transaction and conservative transport.
+@@ -978,6 +986,17 @@
+     std::uint64_t physicsFingerprint = 0u;
+     // Exact cooked-package identity, including all arena capacities.
+     std::uint64_t fingerprint = 0u;
++    // Optional per-object SHA256 source identities for authored per-tet masses.
++    // Empty for legacy worlds; when present, indexed by world.objects and zero
++    // for objects without an explicit mass ledger. Host/package metadata only.
++    // Appended to keep all pre-existing host member offsets stable; the host
++    // C++ type still changes size, so producer/runtime builds must be rebuilt.
++    std::vector<std::array<std::uint64_t, 4>> femTetrahedronMassSourceIdentities;
++    // Optional host/package ledger aligned to global FEM tetrahedron rows.
++    // Explicit-mass cells store their authoritative kilograms; legacy and
++    // dormant rows store zero. Empty exactly when no explicit source ledger
++    // is present. Appended to preserve all prior host member offsets.
++    std::vector<double> femTetrahedronMassesKg;
+ };
+ 
+ struct ParseResult {
+diff --git a/matter/src/compiler_impl.cpp b/matter/src/compiler_impl.cpp
+--- a/matter/src/compiler_impl.cpp
++++ b/matter/src/compiler_impl.cpp
+@@ -1480,6 +1480,7 @@
+         [](const ObjectSource& object) {
+             return !object.femMaterialFrameRotations.empty() ||
+                 !object.femMaterialIndices.empty() ||
++                !object.femTetrahedronMassesKg.empty() ||
+                 !object.femReferenceNodes.empty() ||
+                 !object.femPreconditionerRegionIds.empty();
+         });
+@@ -1584,6 +1585,41 @@
+             result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                 "FEM reference coordinates must be finite and representable as FP32"});
+             return result;
++        }
++        const bool explicitTetrahedronMasses =
++            !object.femTetrahedronMassesKg.empty();
++        const bool tetrahedronMassIdentity = std::ranges::any_of(
++            object.femTetrahedronMassSourceIdentity,
++            [](std::uint64_t word) { return word != 0u; });
++        if (explicitTetrahedronMasses != tetrahedronMassIdentity ||
++                (explicitTetrahedronMasses &&
++                 (representation != Representation::fem ||
++                  object.automaticRepresentation ||
++                  object.femTetrahedronMassesKg.size() != object.tetrahedra.size() ||
++                  object.mixedFEM || object.multiphysics.enabled ||
++                  !object.fieldBoundaries.empty() || object.identifiable))) {
++            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
++                "explicit FEM tetrahedron masses require exact per-tetrahedron values/source identity and explicit non-mixed FEM without nodal fields or object identification"});
++            return result;
++        }
++        if (explicitTetrahedronMasses &&
++                std::ranges::any_of(object.femTetrahedronMassesKg,
++                    [](double mass) {
++                        return !std::isfinite(mass) || mass <= 0.0 ||
++                            mass > static_cast<double>(
++                                std::numeric_limits<float>::max());
++                    })) {
++            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
++                "explicit FEM tetrahedron masses must be finite, positive, and representable as FP32"});
++            return result;
++        }
++        if (explicitTetrahedronMasses) {
++            if (world.femTetrahedronMassSourceIdentities.empty()) {
++                world.femTetrahedronMassSourceIdentities.resize(source.objects.size());
++                world.femTetrahedronMassesKg.assign(world.fem.tetrahedra.size(), 0.0);
++            }
++            world.femTetrahedronMassSourceIdentities[objectIndexSize] =
++                object.femTetrahedronMassSourceIdentity;
+         }
+         const bool regional = !object.femMaterialIndices.empty();
+         const bool regionalIdentity = std::ranges::any_of(object.femMaterialSourceIdentity,
+@@ -2493,13 +2529,19 @@
+                 const std::uint32_t tetrahedronIndex =
+                     static_cast<nm_u32>(world.fem.tetrahedra.size());
+                 world.fem.tetrahedra.push_back(tetrahedron);
+-                // The opt-in regional field binds inertia to the serialized
+-                // density and geometry, allowing independent cooked-mass
+-                // validation. Preserve the exact legacy arithmetic otherwise.
+-                const double nodalMass = (regional || referenced)
+-                    ? double(world.materials[elementMaterial].bulk.x) *
+-                        double(tetrahedron.inverseRestRow0.w) * 0.25
+-                    : rho * signedVolume * 0.25;
++                if (!world.femTetrahedronMassesKg.empty() || explicitTetrahedronMasses)
++                    world.femTetrahedronMassesKg.push_back(
++                        explicitTetrahedronMasses
++                            ? object.femTetrahedronMassesKg[sourceTetIndex] : 0.0);
++                // An explicit per-tetrahedron mass ledger is authoritative
++                // only for the opt-in source-identified path. Legacy objects
++                // retain the exact density-and-geometry arithmetic.
++                const double nodalMass = explicitTetrahedronMasses
++                    ? object.femTetrahedronMassesKg[sourceTetIndex] * 0.25
++                    : (regional || referenced)
++                        ? double(world.materials[elementMaterial].bulk.x) *
++                            double(tetrahedron.inverseRestRow0.w) * 0.25
++                        : rho * signedVolume * 0.25;
+                 for (const std::uint32_t localNode : sourceTet.nodes) {
+                     localMass[localNode] += nodalMass;
+                     femIncidence.push_back({
+@@ -2511,12 +2553,25 @@
+             for (std::size_t localNode = 0u; localNode < localMass.size(); ++localNode) {
+                 const std::size_t globalNode =
+                     static_cast<std::size_t>(descriptor.stateOffset) + localNode;
+-                world.fem.nodes[globalNode].positionAndMass.w =
+-                    static_cast<float>(localMass[localNode]);
+-                world.fem.nodes[globalNode].velocityAndInverseMass.w =
++                const float cookedMass = static_cast<float>(localMass[localNode]);
++                const float cookedInverseMass =
+                     localMass[localNode] > 0.0 && !fixedNodes[localNode]
+                         ? static_cast<float>(1.0 / localMass[localNode])
+                         : 0.0f;
++                if (explicitTetrahedronMasses &&
++                        (localMass[localNode] <= 0.0 ||
++                         !std::isfinite(localMass[localNode]) ||
++                         !std::isfinite(cookedMass) || cookedMass <= 0.0f ||
++                         (!fixedNodes[localNode] &&
++                          (!std::isfinite(cookedInverseMass) ||
++                           cookedInverseMass <= 0.0f)))) {
++                    result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
++                        "explicit FEM tetrahedron masses produce a nonfinite or unrepresentable nodal mass"});
++                    return result;
++                }
++                world.fem.nodes[globalNode].positionAndMass.w = cookedMass;
++                world.fem.nodes[globalNode].velocityAndInverseMass.w =
++                    cookedInverseMass;
+             }
+             const std::size_t authoredTetrahedronCount =
+                 world.fem.tetrahedra.size() - descriptor.elementOffset;
+@@ -2530,6 +2585,8 @@
+                     0u,
+                 };
+                 world.fem.tetrahedra.push_back(inactive);
++                if (!world.femTetrahedronMassesKg.empty())
++                    world.femTetrahedronMassesKg.push_back(0.0);
+             }
+             // The object descriptor owns the complete private arena. Active
+             // topology is carried exclusively by identity.w/counts, so later
+diff --git a/matter/src/validation_impl.cpp b/matter/src/validation_impl.cpp
+--- a/matter/src/validation_impl.cpp
++++ b/matter/src/validation_impl.cpp
+@@ -199,6 +199,7 @@
+         return validateDispatch() &&
+             validateMixedAuthorities() &&
+             validateProgramsAndMaterials() &&
++            validateFEMMassSourceIdentities() &&
+             validateObjectsAndTopology() &&
+             validateCompactStaticSurfaceMap() &&
+             validateHumanAttachments() &&
+@@ -210,6 +211,52 @@
+     }
+ 
+ private:
++    [[nodiscard]] bool validateFEMMassSourceIdentities() {
++        const auto& identities = world_.femTetrahedronMassSourceIdentities;
++        const auto& masses = world_.femTetrahedronMassesKg;
++        if (identities.empty() && masses.empty()) return true;
++        if (identities.empty() || masses.empty())
++            return fail("per-tetrahedron mass values and source identities must be present together");
++        if (identities.size() != world_.objects.size())
++            return fail("per-tetrahedron mass source identities do not match the object table");
++        if (masses.size() != world_.fem.tetrahedra.size())
++            return fail("per-tetrahedron mass values do not match the global FEM element table");
++        bool anyIdentity = false;
++        for (std::size_t i = 0; i < identities.size(); ++i) {
++            const bool present = std::ranges::any_of(identities[i],
++                [](std::uint64_t word) { return word != 0u; });
++            if (!present) continue;
++            anyIdentity = true;
++            const auto& object = world_.objects[i];
++            if (object.representation != static_cast<nm_u32>(Representation::fem) ||
++                    object.elementCount == 0u)
++                return failIndexed("FEM mass source identity", i,
++                    "must identify an object with compiled FEM elements");
++        }
++        if (!anyIdentity)
++            return fail("per-tetrahedron mass source identity table is present but all entries are zero");
++        for (std::size_t tetRow = 0; tetRow < world_.fem.tetrahedra.size(); ++tetRow) {
++            const auto& tet = world_.fem.tetrahedra[tetRow];
++            const bool active = (tet.identity.w & NM_OBJECT_ACTIVE) != 0u;
++            const auto objectIndex = static_cast<std::size_t>(tet.identity.y);
++            const bool explicitOwner = objectIndex < identities.size() &&
++                std::ranges::any_of(identities[objectIndex],
++                    [](std::uint64_t word) { return word != 0u; });
++            const double mass = masses[tetRow];
++            if (explicitOwner && active) {
++                if (!std::isfinite(mass) || !(mass > 0.0) ||
++                        !std::isfinite(static_cast<float>(mass)) ||
++                        !(static_cast<float>(mass) > 0.0f))
++                    return failIndexed("FEM tetrahedron mass", tetRow,
++                        "explicit source-identified active cell must have finite positive representable mass");
++            } else if (!std::isfinite(mass) || mass != 0.0) {
++                return failIndexed("FEM tetrahedron mass", tetRow,
++                    "legacy or inactive cell must have zero explicit-ledger mass");
++            }
++        }
++        return true;
++    }
++
+     [[nodiscard]] bool fail(const std::string_view message) {
+         if (error_ != nullptr && error_->empty()) {
+             *error_ = std::string(message);
+@@ -1967,6 +2014,10 @@
+                     "explicit FEM reference has invalid identity, representation or fixed material/field ownership");
+             }
+             const bool regional = (object.flags & NM_OBJECT_FEM_REGIONAL_MATERIAL) != 0u;
++            const bool explicitTetrahedronMasses =
++                index < world_.femTetrahedronMassSourceIdentities.size() &&
++                std::ranges::any_of(world_.femTetrahedronMassSourceIdentities[index],
++                    [](std::uint64_t word) { return word != 0u; });
+             const bool regionalIdentity = std::ranges::any_of(object.materialSourceIdentity,
+                 [](nm_u64 word) { return word != 0u; });
+             if (regional != regionalIdentity || (regional &&
+@@ -2232,7 +2283,8 @@
+                     femNodeOwners_[nodeIndex] =
+                         static_cast<std::uint32_t>(index);
+                 }
+-                std::vector<double> regionalMass((regional || referenced) ? object.stateCount : 0u, 0.0);
++                std::vector<double> regionalMass((regional || referenced || explicitTetrahedronMasses)
++                    ? object.stateCount : 0u, 0.0);
+                 std::set<std::uint32_t> preconditionerRegions;
+                 for (std::uint32_t local = 0u;
+                      local < object.elementCount;
+@@ -2351,10 +2403,12 @@
+                                 "node indices are outside the object or repeated"
+                             );
+                         }
+-                        if (regional || referenced) {
+-                            regionalMass[nodes[node] - object.stateOffset] +=
+-                                double(world_.materials[tetrahedron.identity.x].bulk.x) *
+-                                double(tetrahedron.inverseRestRow0.w) * 0.25;
++                        if (regional || referenced || explicitTetrahedronMasses) {
++                            const double tetMass = explicitTetrahedronMasses
++                                ? world_.femTetrahedronMassesKg[tetrahedronIndex]
++                                : double(world_.materials[tetrahedron.identity.x].bulk.x) *
++                                    double(tetrahedron.inverseRestRow0.w);
++                            regionalMass[nodes[node] - object.stateOffset] += tetMass * 0.25;
+                         }
+                     }
+                     if (referenced && !validReferenceCell(tetrahedron, world_.fem.nodes, world_.materials[tetrahedron.identity.x])) {
+diff --git a/matter/src/package_impl.cpp b/matter/src/package_impl.cpp
+--- a/matter/src/package_impl.cpp
++++ b/matter/src/package_impl.cpp
+@@ -22,7 +22,8 @@
+     'N', 'U', 'M', 'I', 'M', 'A', 'T', 'T',
+     'E', 'R', 'P', 'K', 'G', '\0', '\0', '\0',
+ };
+-inline constexpr std::uint32_t kPackageVersion = 19u;
++inline constexpr std::uint32_t kLegacyPackageVersion = 19u;
++inline constexpr std::uint32_t kMassMetadataPackageVersion = 20u;
+ inline constexpr std::uint32_t kEndianMarker = 0x01020304u;
+ 
+ enum class Section : std::uint32_t {
+@@ -91,10 +92,14 @@
+     vascularCavityNodeIncidence,
+     vascularCavityNodeRanges,
+     generatedMetal,
++    femTetrahedronMassSourceIdentities,
++    femTetrahedronMassesKg,
+ };
+ 
+-inline constexpr std::uint32_t kSectionCount =
++inline constexpr std::uint32_t kLegacySectionCount =
+     static_cast<std::uint32_t>(Section::generatedMetal);
++inline constexpr std::uint32_t kMassMetadataSectionCount =
++    static_cast<std::uint32_t>(Section::femTetrahedronMassesKg);
+ 
+ struct PackageHeader {
+     std::array<char, 16> magic{};
+@@ -261,10 +266,19 @@
+ 
+     PackageHeader header{};
+     header.magic = kMagic;
+-    header.version = kPackageVersion;
++    const bool hasMassSourceMetadata =
++        !world.femTetrahedronMassSourceIdentities.empty();
++    if (hasMassSourceMetadata && world.femTetrahedronMassesKg.empty()) {
++        if (error != nullptr)
++            *error = "cannot package explicit mass identities without their per-tetrahedron mass ledger";
++        return false;
++    }
++    header.version = hasMassSourceMetadata ? kMassMetadataPackageVersion
++                                           : kLegacyPackageVersion;
+     header.endian = kEndianMarker;
+     header.matterAbiVersion = NM_MATTER_ABI_VERSION;
+-    header.sectionCount = kSectionCount;
++    header.sectionCount = hasMassSourceMetadata ? kMassMetadataSectionCount
++                                                : kLegacySectionCount;
+     header.physicsFingerprint = world.physicsFingerprint;
+     header.fingerprint = world.fingerprint;
+     header.headerHash = headerHash(header);
+@@ -407,7 +421,13 @@
+             std::span<const std::uint8_t>(world.vascular.names)) &&
+         writeStringSection(stream, Section::generatedMetal, compiled.generatedMetal);
+ 
+-    if (!written || !stream.flush()) {
++    const bool massMetadataWritten = !written || !hasMassSourceMetadata ||
++        (writeSection(stream, Section::femTetrahedronMassSourceIdentities,
++            std::span<const std::array<std::uint64_t, 4>>(
++                world.femTetrahedronMassSourceIdentities)) &&
++         writeSection(stream, Section::femTetrahedronMassesKg,
++            std::span<const double>(world.femTetrahedronMassesKg)));
++    if (!written || !massMetadataWritten || !stream.flush()) {
+         if (error != nullptr) {
+             *error = "failed while writing matter package sections";
+         }
+@@ -435,16 +455,20 @@
+         return false;
+     }
+     if (header.magic == kMagic &&
+-        (header.version != kPackageVersion ||
++        ((header.version != kLegacyPackageVersion &&
++          header.version != kMassMetadataPackageVersion) ||
+          header.matterAbiVersion != NM_MATTER_ABI_VERSION)) {
+         if (error != nullptr)
+             *error = "matter package ABI mismatch: recook required";
+         return false;
+     }
++    const std::uint32_t expectedSectionCount =
++        header.version == kLegacyPackageVersion ? kLegacySectionCount
++                                                : kMassMetadataSectionCount;
+     if (header.magic != kMagic ||
+         header.endian != kEndianMarker ||
+         header.headerHash != headerHash(header) ||
+-        header.sectionCount != kSectionCount) {
++        header.sectionCount != expectedSectionCount) {
+         if (error != nullptr) {
+             *error = "invalid or unsupported matter package header";
+         }
+@@ -496,6 +520,12 @@
+             decoded = decodeVector(stream, section, candidate.scalarPrograms, error); break;
+         case Section::objects:
+             decoded = decodeVector(stream, section, candidate.objects, error); break;
++        case Section::femTetrahedronMassSourceIdentities:
++            decoded = decodeVector(stream, section,
++                candidate.femTetrahedronMassSourceIdentities, error); break;
++        case Section::femTetrahedronMassesKg:
++            decoded = decodeVector(stream, section,
++                candidate.femTetrahedronMassesKg, error); break;
+         case Section::mpmParticles:
+             decoded = decodeVector(stream, section, candidate.mpm.particles, error); break;
+         case Section::mpmNodes:
+@@ -649,7 +679,7 @@
+         }
+     }
+ 
+-    for (std::uint32_t id = 1u; id <= kSectionCount; ++id) {
++    for (std::uint32_t id = 1u; id <= kLegacySectionCount; ++id) {
+         if (!seen.contains(id)) {
+             if (error != nullptr) {
+                 *error = "matter package is missing required section " +
+@@ -657,6 +687,22 @@
+             }
+             return false;
+         }
++    }
++
++    const bool hasMassSourceSection = seen.contains(
++        static_cast<std::uint32_t>(Section::femTetrahedronMassSourceIdentities));
++    const bool hasMassValuesSection = seen.contains(
++        static_cast<std::uint32_t>(Section::femTetrahedronMassesKg));
++    if ((header.version == kMassMetadataPackageVersion) !=
++            (hasMassSourceSection && hasMassValuesSection) ||
++        (header.version == kLegacyPackageVersion &&
++            (hasMassSourceSection || hasMassValuesSection)) ||
++        (header.version == kMassMetadataPackageVersion &&
++            (candidate.femTetrahedronMassSourceIdentities.empty() ||
++             candidate.femTetrahedronMassesKg.empty()))) {
++        if (error != nullptr)
++            *error = "matter package mass-source/value metadata version, sections or contents are incomplete";
++        return false;
+     }
+ 
+     candidate.physicsFingerprint = header.physicsFingerprint;
+diff --git a/matter/src/fingerprint_impl.cpp b/matter/src/fingerprint_impl.cpp
+--- a/matter/src/fingerprint_impl.cpp
++++ b/matter/src/fingerprint_impl.cpp
+@@ -72,6 +72,8 @@
+     vascularCompartmentCavity,
+     vascularCavityNodeIncidence,
+     vascularCavityNodeRanges,
++    femTetrahedronMassSourceIdentities,
++    femTetrahedronMassesKg,
+ };
+ 
+ template <typename T>
+@@ -133,6 +135,15 @@
+         std::span<const NMScalarProgramGPU>(world.scalarPrograms));
+     hashSection(fingerprint, FingerprintSection::objects,
+         std::span<const NMContinuumObjectGPU>(world.objects));
++    if (!world.femTetrahedronMassSourceIdentities.empty()) {
++        hashSection(fingerprint,
++            FingerprintSection::femTetrahedronMassSourceIdentities,
++            std::span<const std::array<std::uint64_t, 4>>(
++                world.femTetrahedronMassSourceIdentities));
++        hashSection(fingerprint,
++            FingerprintSection::femTetrahedronMassesKg,
++            std::span<const double>(world.femTetrahedronMassesKg));
++    }
+     hashSection(fingerprint, FingerprintSection::mpmParticles,
+         std::span<const NMParticleStateGPU>(world.mpm.particles));
+     hashSection(fingerprint, FingerprintSection::mpmNodes,
+diff --git a/matter/tools/fem_tetrahedron_mass_compiler_check.cpp b/matter/tools/fem_tetrahedron_mass_compiler_check.cpp
+new file mode 100644
+--- /dev/null
++++ b/matter/tools/fem_tetrahedron_mass_compiler_check.cpp
+@@ -0,0 +1,244 @@
++
++#include "numi/matter/matter.hpp"
++#include <array>
++#include <cmath>
++#include <cstring>
++#include <filesystem>
++#include <fstream>
++#include <iostream>
++#include <limits>
++#include <stdexcept>
++#include <string>
++#include <utility>
++#include <vector>
++#include <iterator>
++#include <cstdint>
++
++using namespace numi::matter;
++namespace {
++int checks=0;
++void require(bool ok,const std::string& message){
++    ++checks;
++    if(!ok)throw std::runtime_error(message);
++}
++std::string diagnostics(const CompileResult& result){
++    std::string out;
++    for(const auto& diagnostic:result.diagnostics)out+=diagnostic.message+"; ";
++    return out;
++}
++WorldSource fixture(){
++    const auto parsed=parseMatterFile(std::filesystem::path(__FILE__).parent_path().parent_path()/
++        "materials"/"damageable_silicone.nmatter");
++    if(!parsed.succeeded())throw std::runtime_error("silicone fixture parse failed");
++    WorldSource source;
++    source.materials.push_back(parsed.material);
++    source.gravity={0,0,0};
++    ObjectSource object;
++    object.name="synthetic_explicit_element_mass";
++    object.materialIndex=0;
++    object.representation=Representation::fem;
++    object.automaticRepresentation=false;
++    object.mixedFEM=false;
++    object.deformableContact=false;
++    object.femNodes={{{0,0,0}},{{.01,0,0}},{{0,.01,0}},{{0,0,.01}},{{0,0,-.01}}};
++    object.tetrahedra={{{0,1,2,3}},{{0,2,1,4}}};
++    source.objects.push_back(object);
++    return source;
++}
++void denied(WorldSource source,const char* label){
++    const auto result=compileWorld(source);
++    require(!result.succeeded(),std::string("invalid source was accepted: ")+label);
++    std::cout<<"denied="<<label<<" diagnostics="<<diagnostics(result)<<'\n';
++}
++void checkMassAssembly(){
++    auto legacy=compileWorld(fixture());
++    require(legacy.succeeded(),"legacy fixture failed: "+diagnostics(legacy));
++    auto explicitSource=fixture();
++    auto& object=explicitSource.objects.front();
++    object.femTetrahedronMassesKg={2.0e-4,4.0e-4};
++    object.femTetrahedronMassSourceIdentity={0x0123456789abcdefULL,
++        0x1023456789abcdefULL,0x2123456789abcdefULL,0x3123456789abcdefULL};
++    object.femFixedNodes={4};
++    const auto explicitCook=compileWorld(explicitSource);
++    require(explicitCook.succeeded(),"explicit-mass fixture failed: "+diagnostics(explicitCook));
++    const auto& cooked=explicitCook.world;
++    require(cooked.fem.nodes.size()==5u&&cooked.fem.tetrahedra.size()==2u,
++        "explicit mass changed node/tetrahedron identities");
++    const std::array<double,5> expected{1.5e-4,1.5e-4,1.5e-4,5.0e-5,1.0e-4};
++    for(std::size_t node=0;node<expected.size();++node){
++        const auto& state=cooked.fem.nodes[node];
++        require(std::abs(double(state.positionAndMass.w)-expected[node])<=
++                std::max(1.0e-11,expected[node]*2.0e-7),
++            "wrong compiled per-node mass at row "+std::to_string(node));
++        const float inverse=state.velocityAndInverseMass.w;
++        if(node==4u)require(inverse==0.0f,"fixed node inverse mass was not zero");
++        else require(std::abs(double(inverse)-1.0/expected[node])<=
++                2.0e-6/expected[node],"compiled inverse mass does not match explicit element ledger");
++    }
++    require(cooked.fem.nodes[4].positionAndMass.w>0.0f,
++        "fixed node lost its authored mass");
++    require(cooked.materials.size()==legacy.world.materials.size()&&
++            std::memcmp(cooked.materials.data(),legacy.world.materials.data(),
++                        cooked.materials.size()*sizeof(NMMaterialGPU))==0,
++        "explicit masses changed the authored material density or material record");
++    require(cooked.fem.tetrahedra.size()==legacy.world.fem.tetrahedra.size()&&
++            std::memcmp(cooked.fem.tetrahedra.data(),legacy.world.fem.tetrahedra.data(),
++                        cooked.fem.tetrahedra.size()*sizeof(NMTetrahedronGPU))==0,
++        "explicit masses changed element material/topology identity");
++    require(cooked.fingerprint!=legacy.world.fingerprint&&
++            cooked.physicsFingerprint!=legacy.world.physicsFingerprint,
++        "compiled mass values are absent from executable world identity");
++    auto changedSource=explicitSource;
++    changedSource.objects.front().femTetrahedronMassesKg[1]=4.5e-4;
++    const auto changed=compileWorld(changedSource);
++    require(changed.succeeded(),"changed mass fixture failed: "+diagnostics(changed));
++    require(changed.world.fingerprint!=cooked.fingerprint&&
++            changed.world.physicsFingerprint!=cooked.physicsFingerprint,
++        "changed per-element mass did not change cooked identity");
++    require(changed.world.fem.nodes[0].positionAndMass.w!=
++            cooked.fem.nodes[0].positionAndMass.w,
++        "changed child mass did not reach compiled FEM nodal inertia");
++    auto provenanceSource=explicitSource;
++    provenanceSource.objects.front().femTetrahedronMassSourceIdentity[2]^=0x100ULL;
++    const auto provenanceChanged=compileWorld(provenanceSource);
++    require(provenanceChanged.succeeded(),
++        "changed mass-source identity fixture failed: "+diagnostics(provenanceChanged));
++    require(provenanceChanged.world.fem.nodes[0].positionAndMass.w==
++                cooked.fem.nodes[0].positionAndMass.w &&
++            provenanceChanged.world.fingerprint!=cooked.fingerprint &&
++            provenanceChanged.world.physicsFingerprint!=cooked.physicsFingerprint,
++        "mass-source identity changed physics values or was omitted from compiled identity");
++    require(cooked.femTetrahedronMassSourceIdentities.size()==1u &&
++            cooked.femTetrahedronMassSourceIdentities[0]==
++                object.femTetrahedronMassSourceIdentity,
++        "mass-source identity was not retained in compiled provenance");
++
++    const auto packagePath=std::filesystem::temp_directory_path()/
++        "numi-explicit-fem-tet-mass-check.nmpkg";
++    const auto legacyPackagePath=std::filesystem::temp_directory_path()/
++        "numi-legacy-fem-tet-mass-check.nmpkg";
++    const auto tamperedPackagePath=std::filesystem::temp_directory_path()/
++        "numi-tampered-fem-tet-mass-check.nmpkg";
++    std::string packageError;
++    require(writePackage(explicitCook,packagePath,&packageError),
++        "explicit mass package write failed: "+packageError);
++    CompiledWorld decoded;
++    require(readPackage(packagePath,decoded,nullptr,&packageError),
++        "explicit mass package read failed: "+packageError);
++    require(decoded.femTetrahedronMassSourceIdentities==
++                cooked.femTetrahedronMassSourceIdentities &&
++            decoded.femTetrahedronMassesKg==cooked.femTetrahedronMassesKg &&
++            decoded.fingerprint==cooked.fingerprint &&
++            decoded.physicsFingerprint==cooked.physicsFingerprint,
++        "package round trip lost mass-source identity or fingerprint");
++    {
++        std::ifstream package(packagePath,std::ios::binary);
++        require(bool(package),"cannot reopen explicit package for version/tamper checks");
++        std::vector<char> bytes((std::istreambuf_iterator<char>(package)),{});
++        require(bytes.size()>32u,"explicit package is unexpectedly short");
++        std::uint32_t version=0u,sectionCount=0u;
++        std::memcpy(&version,bytes.data()+16u,sizeof(version));
++        std::memcpy(&sectionCount,bytes.data()+28u,sizeof(sectionCount));
++        require(version==20u && sectionCount>0u,
++            "explicit source identity did not use the versioned package extension");
++        bytes.back()^=char{1};
++        std::ofstream tampered(tamperedPackagePath,std::ios::binary|std::ios::trunc);
++        tampered.write(bytes.data(),static_cast<std::streamsize>(bytes.size()));
++        tampered.close();
++        CompiledWorld rejected;
++        require(!readPackage(tamperedPackagePath,rejected,nullptr,&packageError),
++            "tampered package mass-source metadata was accepted");
++        std::filesystem::remove(tamperedPackagePath);
++    }
++    std::filesystem::remove(packagePath);
++    require(writePackage(legacy,legacyPackagePath,&packageError),
++        "legacy package write failed: "+packageError);
++    CompiledWorld legacyDecoded;
++    require(readPackage(legacyPackagePath,legacyDecoded,nullptr,&packageError),
++        "legacy package read failed: "+packageError);
++    require(legacyDecoded.femTetrahedronMassSourceIdentities.empty() &&
++            legacyDecoded.fingerprint==legacy.world.fingerprint &&
++            legacyDecoded.physicsFingerprint==legacy.world.physicsFingerprint,
++        "legacy package acquired mass metadata or changed its fingerprint");
++    {
++        std::ifstream package(legacyPackagePath,std::ios::binary);
++        std::vector<char> bytes((std::istreambuf_iterator<char>(package)),{});
++        std::uint32_t version=0u,sectionCount=0u;
++        std::memcpy(&version,bytes.data()+16u,sizeof(version));
++        std::memcpy(&sectionCount,bytes.data()+28u,sizeof(sectionCount));
++        require(version==19u && sectionCount>1u,
++            "empty-metadata package did not retain the legacy header version/count");
++    }
++    std::filesystem::remove(legacyPackagePath);
++    {
++        CompiledWorld malformed=cooked;
++        malformed.femTetrahedronMassSourceIdentities.push_back({});
++        CompileResult badPackage=explicitCook;
++        badPackage.world=std::move(malformed);
++        require(!writePackage(badPackage,packagePath,&packageError),
++            "wrong-sized mass-source metadata table was packaged");
++    }
++    {
++        CompiledWorld malformed=cooked;
++        malformed.femTetrahedronMassesKg.pop_back();
++        CompileResult badPackage=explicitCook;
++        badPackage.world=std::move(malformed);
++        require(!writePackage(badPackage,packagePath,&packageError),
++            "wrong-sized per-tetrahedron mass table was packaged");
++    }
++    {
++        CompiledWorld malformed=cooked;
++        malformed.objects.front().representation=
++            static_cast<nm_u32>(Representation::rigid);
++        std::string layoutError;
++        require(!validateCompiledWorldLayout(malformed,&layoutError) &&
++                layoutError.find("must identify an object with compiled FEM elements")!=std::string::npos,
++            "non-FEM object with a nonzero mass-source identity was accepted: "+layoutError);
++    }
++
++    auto invalid=explicitSource;
++    invalid.objects.front().femTetrahedronMassSourceIdentity={};
++    denied(std::move(invalid),"mass identity missing");
++    invalid=explicitSource;
++    invalid.objects.front().femTetrahedronMassesKg.clear();
++    denied(std::move(invalid),"identity without masses");
++    invalid=explicitSource;
++    invalid.objects.front().femTetrahedronMassesKg.pop_back();
++    denied(std::move(invalid),"partial mass vector");
++    invalid=explicitSource;
++    invalid.objects.front().femTetrahedronMassesKg[0]=0.0;
++    denied(std::move(invalid),"zero mass");
++    invalid=explicitSource;
++    invalid.objects.front().femTetrahedronMassesKg[0]=-1.0e-4;
++    denied(std::move(invalid),"negative mass");
++    invalid=explicitSource;
++    invalid.objects.front().femTetrahedronMassesKg[0]=
++        std::numeric_limits<double>::quiet_NaN();
++    denied(std::move(invalid),"NaN mass");
++    invalid=explicitSource;
++    invalid.objects.front().femTetrahedronMassesKg[0]=
++        std::numeric_limits<double>::infinity();
++    denied(std::move(invalid),"infinite mass");
++    invalid=explicitSource;
++    invalid.objects.front().representation=Representation::rigid;
++    denied(std::move(invalid),"non-FEM representation");
++    invalid=explicitSource;
++    invalid.objects.front().mixedFEM=true;
++    denied(std::move(invalid),"mixed FEM");
++    invalid=explicitSource;
++    invalid.objects.front().adaptive=true;
++    denied(std::move(invalid),"adaptive explicit-mass object");
++}
++}
++int main(){
++    try{
++        checkMassAssembly();
++        std::cout<<"PASS explicit_fem_tetrahedron_mass_compiler checks="<<checks
++                 <<" human_admission=not_tested\n";
++        return 0;
++    }catch(const std::exception& error){
++        std::cerr<<"FAIL explicit_fem_tetrahedron_mass_compiler checks="<<checks
++                 <<" error="<<error.what()<<'\n';
++        return 1;
++    }
++}
+diff --git a/matter/CMakeLists.txt b/matter/CMakeLists.txt
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -2370,11 +2370,28 @@
+     "${CMAKE_CURRENT_SOURCE_DIR}/../apps"
+     "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+     "${CMAKE_CURRENT_SOURCE_DIR}/include")
++target_link_libraries(numi-matter-unpaired-skin-fat-volume-check PRIVATE
++    numi_matter_compiler)
+ target_compile_options(numi-matter-unpaired-skin-fat-volume-check PRIVATE
+     -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
++target_compile_definitions(numi-matter-unpaired-skin-fat-volume-check PRIVATE
++    NUMI_TEST_MATERIAL_PATH="${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter")
+ if(BUILD_TESTING)
+     add_test(NAME matter.compiler.unpaired_skin_fat_volume
+         COMMAND numi-matter-unpaired-skin-fat-volume-check)
+     set_tests_properties(matter.compiler.unpaired_skin_fat_volume PROPERTIES
+         TIMEOUT 30 LABELS "matter;compiler;human;cpu;synthetic")
+ endif()
++
++add_executable(numi-matter-explicit-fem-tet-mass-check
++    tools/fem_tetrahedron_mass_compiler_check.cpp)
++target_link_libraries(numi-matter-explicit-fem-tet-mass-check PRIVATE
++    numi_matter_compiler)
++target_compile_options(numi-matter-explicit-fem-tet-mass-check PRIVATE
++    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
++if(BUILD_TESTING)
++    add_test(NAME matter.compiler.explicit_fem_tet_mass
++        COMMAND numi-matter-explicit-fem-tet-mass-check)
++    set_tests_properties(matter.compiler.explicit_fem_tet_mass PROPERTIES
++        TIMEOUT 30 LABELS "matter;compiler;fem;mass;cpu;synthetic")
++endif()

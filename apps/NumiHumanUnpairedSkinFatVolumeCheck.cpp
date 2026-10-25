@@ -4,9 +4,13 @@
 #include <array>
 #include <cassert>
 #include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include <cstdint>
+#include <filesystem>
 #include <iostream>
 #include <map>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -288,6 +292,27 @@ bool emit(Fixture& f,numi::matter::WorldSource& world,ExplicitUnpairedVolumeRepo
         0u,"skin","test skin material",skinVolume*1000.0,1u,"fat","test fat material",
         fatVolume*1000.0,1u,"unpaired test shell",skin,fat,report,error);
 }
+
+bool emitMassLedger(Fixture& f,const std::vector<double>& parentMass,
+                    const std::vector<double>& childMeasure,numi::matter::WorldSource& world,
+                    PreparedOrganicFEM& skin,PreparedOrganicFEM& fat,
+                    ExplicitUnpairedVolumeReport& report,std::string& error,
+                    double skinDebitScale=1.0,double fatDebitScale=1.0) {
+    f.topology.parentTetrahedronMassKg=parentMass;
+    f.topology.childAncestryMeasureVolumeM3=childMeasure;
+    double skinDebit=0.0,fatDebit=0.0;
+    for(std::size_t p=0;p<parentMass.size();++p)
+        (f.parentMaterial[p]==0u?skinDebit:fatDebit)+=parentMass[p];
+    return appendRegisteredSkinFatUnpairedVolume(world,f.surface,f.boundary,f.topology,
+        0u,"skin","test skin material",skinDebit*skinDebitScale,1u,"fat","test fat material",
+        fatDebit*fatDebitScale,f.bodyRotations.size(),"per-child mass-ledger test",skin,fat,report,error);
+}
+
+double sumDonorMass(const PreparedOrganicFEM& prepared) {
+    double total=0.0;
+    for(const auto& row:prepared.donorMassNodes)total+=row.massKg;
+    return total;
+}
 }
 
 int main() {
@@ -295,7 +320,284 @@ int main() {
     if(!emit(f,world,report,error)){std::cerr<<error;return 1;}
     assert(world.objects.size()==1u&&report.volumeNodeCount==19u);
     assert(report.inputVolumeRowToObjectLocalNode.size()==19u&&report.inputVolumeRowToObjectLocalNode[18]==18u);
+    assert(!world.objects.front().deformableSelfContact); // legacy paired rows retain the old contact owner.
+    assert(world.objects.front().femTetrahedronMassesKg.empty());
+    assert(std::all_of(world.objects.front().femTetrahedronMassSourceIdentity.begin(),
+        world.objects.front().femTetrahedronMassSourceIdentity.end(),
+        [](auto word){return word==0u;}));
     assert(report.ancestryVerificationKind==VolumeAncestryVerificationKind::conservativeReferencePullback);
+    {
+        Fixture ledger;
+        std::vector<double> parentMass(ledger.parentTets.size(),0.0);
+        for(std::size_t p=0;p<parentMass.size();++p){
+            const auto tet=ledger.parentTets[p];
+            const double v=tetVolume(ledger.parentPoints[tet[0]],ledger.parentPoints[tet[1]],
+                                     ledger.parentPoints[tet[2]],ledger.parentPoints[tet[3]]);
+            parentMass[p]=v*(ledger.parentMaterial[p]==0u?1000.0:900.0);
+        }
+        parentMass[0]*=1.05; // Heterogeneous authoritative mass within the configured material bounds.
+        std::vector<double> pulledMeasure(ledger.children.size(),0.0);
+        for(std::size_t c=0;c<ledger.children.size();++c){
+            const auto tet=ledger.children[c];
+            pulledMeasure[c]=tetVolume(ledger.reference[tet[0]],ledger.reference[tet[1]],
+                                       ledger.reference[tet[2]],ledger.reference[tet[3]]);
+        }
+        // Move only the appended interior reference point. The child geometric
+        // volumes change, while the supplied reference-pullback measures stay
+        // tied to the original parent material and still close its CSR columns.
+        ledger.reference[18][0]+=0.02;
+        ledger.nodeParentResidual[18][0]=0.02;
+        ledger.topology.referenceWorldPoints=ledger.reference;
+        ledger.topology.volumeNodeParentResidualWorldM=ledger.nodeParentResidual;
+        auto ledgerWorld=worldFor();
+        ledgerWorld.materials[0].parameters[0].defaultValue=1234.0;
+        ledgerWorld.materials[1].parameters[0].defaultValue=987.0;
+        PreparedOrganicFEM ledgerSkin,ledgerFat;
+        assert(emitMassLedger(ledger,parentMass,pulledMeasure,ledgerWorld,ledgerSkin,ledgerFat,report,error));
+        assert(report.usesPerChildMassLedger);
+        assert(ledgerWorld.objects.size()==1u);
+        assert(ledgerWorld.objects.front().femTetrahedronMassesKg.size()==ledger.children.size());
+        assert(ledgerWorld.objects.front().femTetrahedronMassSourceIdentity==
+            (std::array<std::uint64_t,4>{0xaaaaaaaaaaaaaaaaULL,0xaaaaaaaaaaaaaaaaULL,
+                                         0xaaaaaaaaaaaaaaaaULL,0xaaaaaaaaaaaaaaaaULL}));
+        for(std::size_t child=0;child<ledger.children.size();++child)
+            assert(ledgerWorld.objects.front().femTetrahedronMassesKg[child]>0.0);
+        assert(report.parentAncestryMatchesNodeFrameMassOwnership);
+        assert(report.nodeOwnerMassByDonor.size()==2u);
+        assert(std::abs(report.skinParentMassKg-report.skinChildMassKg)<1.0e-10);
+        assert(std::abs(report.fatParentMassKg-report.fatChildMassKg)<1.0e-10);
+        assert(std::abs(sumDonorMass(ledgerSkin)-report.skinChildMassKg)<1.0e-10);
+        assert(std::abs(sumDonorMass(ledgerFat)-report.fatChildMassKg)<1.0e-10);
+        assert(report.donorMassClosure.size()==2u);
+        for(const auto& closure:report.donorMassClosure)
+            assert(std::abs(closure.parentMassKg-closure.childMassKg)<1.0e-10);
+        assert(report.skinMinimumChildDensityKgM3>=1.0&&report.skinMaximumChildDensityKgM3<=5000.0);
+        assert(report.fatMinimumChildDensityKgM3>=1.0&&report.fatMaximumChildDensityKgM3<=5000.0);
+        assert(ledgerWorld.materials[0].parameters[0].defaultValue==1234.0);
+        assert(ledgerWorld.materials[1].parameters[0].defaultValue==987.0);
+        assert(std::abs(report.skinMeanImpliedDensityKgM3-report.skinChildMassKg/report.skinVolumeM3)<1.0e-10);
+
+        // Exercise the production owner-to-compiler seam: the ancestry ledger's
+        // child masses and source receipt must become compiled nodal inertia.
+        auto compilerLedgerWorld=ledgerWorld;
+#ifndef NUMI_TEST_MATERIAL_PATH
+#error "NUMI_TEST_MATERIAL_PATH must identify the compiler integration test material"
+#endif
+        const auto compiledMaterial=numi::matter::parseMatterFile(
+            std::filesystem::path(NUMI_TEST_MATERIAL_PATH));
+        assert(compiledMaterial.succeeded());
+        for(std::size_t material=0;material<compilerLedgerWorld.materials.size();++material) {
+            compilerLedgerWorld.materials[material]=compiledMaterial.material;
+            compilerLedgerWorld.materials[material].name=material==0u?"skin":"fat";
+            auto density=std::find_if(compilerLedgerWorld.materials[material].parameters.begin(),
+                compilerLedgerWorld.materials[material].parameters.end(),
+                [](const auto& parameter){return parameter.name=="density";});
+            assert(density!=compilerLedgerWorld.materials[material].parameters.end());
+            density->defaultValue=ledgerWorld.materials[material].parameters[0].defaultValue;
+        }
+        auto densityBaselineWorld=compilerLedgerWorld;
+        densityBaselineWorld.objects.front().femTetrahedronMassesKg.clear();
+        densityBaselineWorld.objects.front().femTetrahedronMassSourceIdentity={};
+        const auto densityBaseline=numi::matter::compileWorld(densityBaselineWorld);
+        if(!densityBaseline.succeeded()) {
+            for(const auto& diagnostic:densityBaseline.diagnostics)
+                std::cerr<<diagnostic.message<<"; ";
+        }
+        assert(densityBaseline.succeeded());
+        const auto compiledLedger=numi::matter::compileWorld(compilerLedgerWorld);
+        if(!compiledLedger.succeeded()) {
+            for(const auto& diagnostic:compiledLedger.diagnostics)
+                std::cerr<<diagnostic.message<<"; ";
+        }
+        assert(compiledLedger.succeeded());
+        const auto& sourceObject=ledgerWorld.objects.front();
+        const auto& cookedLedger=compiledLedger.world;
+        assert(cookedLedger.materials.size()==densityBaseline.world.materials.size());
+        assert(std::memcmp(cookedLedger.materials.data(),densityBaseline.world.materials.data(),
+            cookedLedger.materials.size()*sizeof(cookedLedger.materials[0]))==0);
+        assert(cookedLedger.femTetrahedronMassSourceIdentities.size()==1u);
+        assert(cookedLedger.femTetrahedronMassSourceIdentities.front()==
+            sourceObject.femTetrahedronMassSourceIdentity);
+        assert(cookedLedger.femTetrahedronMassesKg==sourceObject.femTetrahedronMassesKg);
+        assert(cookedLedger.fem.nodes.size()==sourceObject.femNodes.size());
+        std::vector<double> expectedCompiledNodeMass(sourceObject.femNodes.size(),0.0);
+        for(std::size_t cell=0;cell<sourceObject.tetrahedra.size();++cell) {
+            const auto tet=sourceObject.tetrahedra[cell];
+            const double quarter=sourceObject.femTetrahedronMassesKg[cell]*0.25;
+            for(const auto node:tet.nodes) expectedCompiledNodeMass[node]+=quarter;
+        }
+        for(std::size_t node=0;node<expectedCompiledNodeMass.size();++node) {
+            const auto& state=cookedLedger.fem.nodes[node];
+            const double actual=state.positionAndMass.w;
+            assert(std::abs(actual-expectedCompiledNodeMass[node])<=
+                std::max(1.0e-12,expectedCompiledNodeMass[node]*2.0e-6));
+            const bool fixed=std::find(sourceObject.femFixedNodes.begin(),
+                sourceObject.femFixedNodes.end(),static_cast<std::uint32_t>(node))!=
+                sourceObject.femFixedNodes.end();
+            if(fixed) assert(state.velocityAndInverseMass.w==0.0f);
+            else assert(std::abs(double(state.velocityAndInverseMass.w)-1.0/actual)<=
+                std::max(1.0e-5,2.0e-6/actual));
+        }
+        assert(std::abs(ledgerWorld.materials[0].parameters[0].defaultValue-1234.0)<1.0e-12);
+        assert(std::abs(ledgerWorld.materials[1].parameters[0].defaultValue-987.0)<1.0e-12);
+        const auto ledgerPackagePath=std::filesystem::temp_directory_path()/
+            "numi-owner-emitted-explicit-mass-ledger.nmpkg";
+        std::string ledgerPackageError;
+        assert(numi::matter::writePackage(compiledLedger,ledgerPackagePath,&ledgerPackageError));
+        numi::matter::CompiledWorld decodedLedger;
+        assert(numi::matter::readPackage(ledgerPackagePath,decodedLedger,nullptr,&ledgerPackageError));
+        assert(decodedLedger.femTetrahedronMassSourceIdentities==
+            cookedLedger.femTetrahedronMassSourceIdentities);
+        assert(decodedLedger.femTetrahedronMassesKg==sourceObject.femTetrahedronMassesKg);
+        for(std::size_t node=0;node<expectedCompiledNodeMass.size();++node)
+            assert(decodedLedger.fem.nodes[node].positionAndMass.w==
+                cookedLedger.fem.nodes[node].positionAndMass.w);
+        std::filesystem::remove(ledgerPackagePath);
+    }
+    {
+        Fixture crossed;
+        // Source ancestry belongs to body 1 for one parent cell, while every
+        // volume node remains transformed/attached by body 0. The owner must
+        // reject rather than debit body 0 merely because it owns the node frame.
+        crossed.parentDonor[0]=1u;
+        for(std::size_t child=0;child<crossed.children.size();++child)
+            crossed.childDonor[child]=crossed.parentDonor[crossed.dominant[child]];
+        crossed.bodyRotations.push_back(kIdentity);
+        crossed.bodyOrigins.push_back({1.0,0.0,0.0});
+        crossed.refreshChildMetadata();
+        crossed.topology.parentDonorBodyIndices=crossed.parentDonor;
+        crossed.topology.registeredBodyLocalToWorldLinear=crossed.bodyRotations;
+        crossed.topology.registeredBodyOriginWorld=crossed.bodyOrigins;
+        std::vector<double> parentMass(crossed.parentTets.size(),0.0);
+        for(std::size_t p=0;p<parentMass.size();++p){
+            const auto tet=crossed.parentTets[p];
+            const double v=tetVolume(crossed.parentPoints[tet[0]],crossed.parentPoints[tet[1]],
+                                     crossed.parentPoints[tet[2]],crossed.parentPoints[tet[3]]);
+            parentMass[p]=v*(crossed.parentMaterial[p]==0u?1000.0:900.0);
+        }
+        std::vector<double> measure(crossed.children.size(),0.0);
+        for(std::size_t c=0;c<crossed.children.size();++c){
+            const auto tet=crossed.children[c];
+            measure[c]=tetVolume(crossed.reference[tet[0]],crossed.reference[tet[1]],
+                                 crossed.reference[tet[2]],crossed.reference[tet[3]]);
+        }
+        auto crossedWorld=worldFor();PreparedOrganicFEM a,b;
+        assert(!emitMassLedger(crossed,parentMass,measure,crossedWorld,a,b,report,error));
+        assert(error.find("source-contribution mass-moment consumer is required")!=std::string::npos);
+        assert(report.usesPerChildMassLedger&&!report.parentAncestryMatchesNodeFrameMassOwnership);
+        assert(!report.nodeMassAttributionMismatches.empty());
+        const auto sourceBodyOne=std::find_if(report.donorMassClosure.begin(),report.donorMassClosure.end(),
+            [](const auto& x){return x.donorBodyIndex==1u;});
+        assert(sourceBodyOne!=report.donorMassClosure.end()&&sourceBodyOne->parentMassKg>0.0);
+        const auto ownerBodyOne=std::find_if(report.nodeOwnerMassByDonor.begin(),report.nodeOwnerMassByDonor.end(),
+            [](const auto& x){return x.donorBodyIndex==1u;});
+        assert(ownerBodyOne!=report.nodeOwnerMassByDonor.end());
+        assert(ownerBodyOne->parentAncestryMassKg>ownerBodyOne->nodeFrameOwnerMassKg);
+        assert(crossedWorld.objects.empty());
+    }
+    {
+        Fixture badMass;
+        std::vector<double> parentMass(badMass.parentTets.size(),0.0);
+        for(std::size_t p=0;p<parentMass.size();++p){
+            const auto tet=badMass.parentTets[p];
+            const double v=tetVolume(badMass.parentPoints[tet[0]],badMass.parentPoints[tet[1]],
+                                     badMass.parentPoints[tet[2]],badMass.parentPoints[tet[3]]);
+            parentMass[p]=v*(badMass.parentMaterial[p]==0u?1000.0:900.0);
+        }
+        parentMass[0]=-1.0e-6;
+        std::vector<double> measure(badMass.children.size(),0.0);
+        for(std::size_t c=0;c<badMass.children.size();++c){
+            const auto tet=badMass.children[c];
+            measure[c]=tetVolume(badMass.reference[tet[0]],badMass.reference[tet[1]],
+                                 badMass.reference[tet[2]],badMass.reference[tet[3]]);
+        }
+        auto badMassWorld=worldFor();PreparedOrganicFEM a,b;
+        assert(!emitMassLedger(badMass,parentMass,measure,badMassWorld,a,b,report,error));
+        assert(error.find("negative or nonfinite mass")!=std::string::npos&&badMassWorld.objects.empty());
+    }
+    {
+        Fixture badDebit;
+        std::vector<double> parentMass(badDebit.parentTets.size(),0.0);
+        for(std::size_t p=0;p<parentMass.size();++p){
+            const auto tet=badDebit.parentTets[p];
+            const double v=tetVolume(badDebit.parentPoints[tet[0]],badDebit.parentPoints[tet[1]],
+                                     badDebit.parentPoints[tet[2]],badDebit.parentPoints[tet[3]]);
+            parentMass[p]=v*(badDebit.parentMaterial[p]==0u?1000.0:900.0);
+        }
+        std::vector<double> measure(badDebit.children.size(),0.0);
+        for(std::size_t c=0;c<badDebit.children.size();++c){
+            const auto tet=badDebit.children[c];
+            measure[c]=tetVolume(badDebit.reference[tet[0]],badDebit.reference[tet[1]],
+                                 badDebit.reference[tet[2]],badDebit.reference[tet[3]]);
+        }
+        auto badDebitWorld=worldFor();PreparedOrganicFEM a,b;
+        assert(!emitMassLedger(badDebit,parentMass,measure,badDebitWorld,a,b,report,error,1.01));
+        assert(error.find("does not close its per-material donor debit")!=std::string::npos);
+        assert(badDebitWorld.objects.empty());
+    }
+    {
+        Fixture exactGeometry;
+        std::vector<double> parentMass(exactGeometry.parentTets.size(),0.0);
+        for(std::size_t p=0;p<parentMass.size();++p){
+            const auto tet=exactGeometry.parentTets[p];
+            const double v=tetVolume(exactGeometry.parentPoints[tet[0]],exactGeometry.parentPoints[tet[1]],
+                                     exactGeometry.parentPoints[tet[2]],exactGeometry.parentPoints[tet[3]]);
+            parentMass[p]=v*(exactGeometry.parentMaterial[p]==0u?1000.0:900.0);
+        }
+        std::vector<double> measure(exactGeometry.children.size(),0.0);
+        for(std::size_t c=0;c<exactGeometry.children.size();++c){
+            const auto tet=exactGeometry.children[c];
+            measure[c]=tetVolume(exactGeometry.reference[tet[0]],exactGeometry.reference[tet[1]],
+                                 exactGeometry.reference[tet[2]],exactGeometry.reference[tet[3]]);
+        }
+        exactGeometry.reference[18][0]+=0.02;
+        exactGeometry.nodeParentResidual[18][0]=0.02;
+        exactGeometry.topology.referenceWorldPoints=exactGeometry.reference;
+        exactGeometry.topology.volumeNodeParentResidualWorldM=exactGeometry.nodeParentResidual;
+        exactGeometry.topology.ancestryVerificationKind=VolumeAncestryVerificationKind::exactGeometricOverlap;
+        auto exactWorld=worldFor();PreparedOrganicFEM a,b;
+        assert(!emitMassLedger(exactGeometry,parentMass,measure,exactWorld,a,b,report,error));
+        assert(error.find("exact geometric-overlap mass measure differs")!=std::string::npos);
+        assert(exactWorld.objects.empty());
+    }
+    {
+        Fixture badDensity;
+        std::vector<double> parentMass(badDensity.parentTets.size(),0.0);
+        for(std::size_t p=0;p<parentMass.size();++p){
+            const auto tet=badDensity.parentTets[p];
+            const double v=tetVolume(badDensity.parentPoints[tet[0]],badDensity.parentPoints[tet[1]],
+                                     badDensity.parentPoints[tet[2]],badDensity.parentPoints[tet[3]]);
+            parentMass[p]=v*6000.0;
+        }
+        std::vector<double> measure(badDensity.children.size(),0.0);
+        for(std::size_t c=0;c<badDensity.children.size();++c){
+            const auto tet=badDensity.children[c];
+            measure[c]=tetVolume(badDensity.reference[tet[0]],badDensity.reference[tet[1]],
+                                 badDensity.reference[tet[2]],badDensity.reference[tet[3]]);
+        }
+        auto badDensityWorld=worldFor();PreparedOrganicFEM a,b;
+        assert(!emitMassLedger(badDensity,parentMass,measure,badDensityWorld,a,b,report,error));
+        assert(error.find("density outside material bounds")!=std::string::npos&&badDensityWorld.objects.empty());
+    }
+    {
+        Fixture partialLedger;
+        std::vector<double> onlyParentMass(partialLedger.parentTets.size(),1.0);
+        partialLedger.topology.parentTetrahedronMassKg=onlyParentMass;
+        auto partialWorld=worldFor();PreparedOrganicFEM a,b;
+        assert(!emit(partialLedger,partialWorld,report,error));
+        assert(error.find("requires one parent mass and one child ancestry measure")!=std::string::npos);
+        assert(partialWorld.objects.empty());
+    }
+    {
+        Fixture legacyDensity;
+        auto legacyWorld=worldFor();
+        legacyWorld.materials[0].parameters[0].defaultValue=1234.0;
+        legacyWorld.materials[1].parameters[0].defaultValue=987.0;
+        assert(emit(legacyDensity,legacyWorld,report,error));
+        assert(!report.usesPerChildMassLedger);
+        assert(std::abs(legacyWorld.materials[0].parameters[0].defaultValue-1000.0)<1.0e-9);
+        assert(std::abs(legacyWorld.materials[1].parameters[0].defaultValue-1000.0)<1.0e-9);
+    }
     RegisteredSkinFatReductionSourceLabels labels;
     assert(buildRegisteredSkinFatUnpairedReductionSourceLabels(f.surface,world.objects.front(),f.boundary,f.topology,1u,
         [](std::uint32_t,std::uint32_t){return true;},[](std::uint32_t){return NM_INVALID_INDEX;},labels,error));
@@ -340,14 +642,25 @@ int main() {
     independentInnerFixture(independent,inner,deep);
     auto independentWorld=worldFor();
     if(!emit(independent,independentWorld,report,error)){std::cerr<<"independent boundary: "<<error;return 2;}
-    assert(report.volumeNodeCount==20u&&independent.boundary.outer.size()==6u&&independent.boundary.skinInner.size()==7u);
+    assert(report.volumeNodeCount==20u&&independent.boundary.outer.size()==6u&&independent.boundary.skinInner.size()==7u&&independent.boundary.fatDeep.size()==6u);
     assert(inner.faces.size()==10u&&independent.surface.faces.size()==8u&&deep.faces.size()==8u);
     assert(buildRegisteredSkinFatUnpairedReductionSourceLabels(independent.surface,independentWorld.objects.front(),
         independent.boundary,independent.topology,1u,
         [](std::uint32_t,std::uint32_t){return true;},[](std::uint32_t){return NM_INVALID_INDEX;},labels,error,36u,
         [](std::uint32_t,std::uint32_t){return true;}));
     assert(labels.sourceNodeLayerIndices[19]==1u);
+    assert((labels.registeredLayerVertexCounts==std::array<std::size_t,3>{6u,7u,6u}));
+    assert((labels.registeredLayerFaceCounts==std::array<std::size_t,3>{8u,10u,8u}));
+    assert(labels.registeredLayerVolumeNodeRows[1]==independent.boundary.skinInner);
+    assert(labels.registeredLayerFaces[1]==inner.faces);
+    assert(labels.registeredLayerStableFaceIdentities[1]==inner.sourceFaceIndices);
     assert(validateRegisteredSkinFatRemeshNodeAncestry(independentWorld.objects.front(),labels,error));
+    auto wrongRoleMap=labels;
+    wrongRoleMap.registeredLayerVolumeNodeRows[1][0]=wrongRoleMap.registeredLayerVolumeNodeRows[0][0];
+    assert(!validateRegisteredSkinFatRemeshNodeAncestry(independentWorld.objects.front(),wrongRoleMap,error));
+    auto wrongRoleFace=labels;
+    wrongRoleFace.registeredLayerStableFaceIdentities[1][0]=kInvalid;
+    assert(!validateRegisteredSkinFatRemeshNodeAncestry(independentWorld.objects.front(),wrongRoleFace,error));
     inner.sourceEmbeddingFaceIndices.back()=1u;
     assert(!buildRegisteredSkinFatUnpairedReductionSourceLabels(independent.surface,independentWorld.objects.front(),
         independent.boundary,independent.topology,1u,
@@ -358,8 +671,33 @@ int main() {
     const auto independentObject=independentWorld.objects.front();
     assert(independentObject.femNodes==independent.current);
     assert(independentObject.femReferenceNodes==independent.reference);
-    assert(independentObject.femContactNodes.size()==12u); // Closed O/D only, no interior I contact.
-    // Mismatched independent contracts must fail before source/density mutation.
+    assert(independentObject.deformableSelfContact); // Canonical node-identity FEM self-contact, independent path only.
+    std::map<std::array<std::uint32_t,3>,unsigned> tetFacetUse;
+    for(const auto& tet:independent.children)for(unsigned omit=0;omit<4u;++omit){
+        std::array<std::uint32_t,3> face{};unsigned at=0;
+        for(unsigned corner=0;corner<4u;++corner)if(corner!=omit)face[at++]=tet[corner];
+        std::sort(face.begin(),face.end());++tetFacetUse[face];
+    }
+    std::vector<std::uint32_t> actualExteriorNodes;
+    for(const auto& [face,count]:tetFacetUse)if(count==1u)
+        actualExteriorNodes.insert(actualExteriorNodes.end(),face.begin(),face.end());
+    std::sort(actualExteriorNodes.begin(),actualExteriorNodes.end());
+    actualExteriorNodes.erase(std::unique(actualExteriorNodes.begin(),actualExteriorNodes.end()),actualExteriorNodes.end());
+    assert(independentObject.femContactNodes==actualExteriorNodes);
+
+    auto savedDeepFaceIds=deep.sourceFaceIndices;
+    deep.sourceFaceIndices.clear();
+    auto missingFaceIdsWorld=worldFor();
+    assert(!emit(independent,missingFaceIdsWorld,report,error));
+    assert(error.find("source-face ancestry identities")!=std::string::npos&&missingFaceIdsWorld.objects.empty());
+    assert(!buildRegisteredSkinFatUnpairedReductionSourceLabels(independent.surface,independentObject,
+        independent.boundary,independent.topology,1u,
+        [](std::uint32_t,std::uint32_t){return true;},[](std::uint32_t){return NM_INVALID_INDEX;},
+        labels,error,36u,[](std::uint32_t,std::uint32_t){return true;}));
+    assert(labels.sourceNodeLayerIndices.empty());
+    deep.sourceFaceIndices=std::move(savedDeepFaceIds);
+
+    // Runtime compilation is covered by the separate owner integration receipt.\n    // Mismatched independent contracts must fail before source/density mutation.
     inner.sourceEmbeddingBarycentric.back()={.1,.1,.1};
     auto badIndependentBaryWorld=worldFor();
     assert(!emit(independent,badIndependentBaryWorld,report,error)&&badIndependentBaryWorld.objects.empty());

@@ -1,0 +1,67 @@
+{
+  "schema": "numi.human.publication-manifest.v1",
+  "publication": "065",
+  "base_origin_main": "cde2ebf29125b0938d7748ca59748db35a501e59",
+  "native_or_physical_admission": false,
+  "accepted_physical_steps": 0,
+  "status": "READY_FOR_ROOT_REVIEW_NOT_PUSHED",
+  "payload_file_count": 32,
+  "payload_bytes": 231645,
+  "payload_file_list_sha256": "fcc8edf331c85d62da0126f32322fadaf432ec86fd9ada7404e427576c0b6f61",
+  "canonical_paths": [
+    {
+      "path": "apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "sha256": "f22a3cb423da75bda39634551e1b0b6c714f6e8f36813bc94e41686b682d76d7",
+      "size_bytes": 62014
+    },
+    {
+      "path": "apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp",
+      "sha256": "9bc1fc496a7aeb4e86b1f6b3e7076c9f3c54ef11fc2fb9cc611470ee08dd4248",
+      "size_bytes": 45730
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "sha256": "a2270303e11c48b531fb02a88d3f43cd83403ed828e3259d92cc153f34fed22a",
+      "size_bytes": 154498
+    },
+    {
+      "path": "matter/include/numi/matter/matter.hpp",
+      "sha256": "b7e5b336edf592e9a080a979ee12ee7e7b18612dbd04725c56064ffdd172c23b",
+      "size_bytes": 126115
+    },
+    {
+      "path": "matter/src/compiler_impl.cpp",
+      "sha256": "a12fb24d1bf8e0deeb010a85b6186cd1aec25996afebda6d17160f1657a23ddd",
+      "size_bytes": 192303
+    },
+    {
+      "path": "matter/src/fingerprint_impl.cpp",
+      "sha256": "96b80cd05797715a864059d6622cbeb62d551cedb973e61875a627c143e16e36",
+      "size_bytes": 11916
+    },
+    {
+      "path": "matter/src/package_impl.cpp",
+      "sha256": "9e23f30c7a87888e474363270c022cbcded4cf934476d7b243eb3f73c6740039",
+      "size_bytes": 41669
+    },
+    {
+      "path": "matter/src/validation_impl.cpp",
+      "sha256": "f16bc732555a72cfef6d22e9405c20531629f404065bc2e17f75ba24d2bb6dd5",
+      "size_bytes": 169792
+    },
+    {
+      "path": "matter/tools/fem_tetrahedron_mass_compiler_check.cpp",
+      "sha256": "eaac4d2c4c08927f39d7ca152c65a287562eb2134e13088fc51648b9c069b417",
+      "size_bytes": 12060
+    },
+    {
+      "path": "matter/tools/fem_tetrahedron_mass_multiobject_check.cpp",
+      "sha256": "aa3871336ab79fa01d7245b9886b2f709af0224c7424381ecab20614aa702123",
+      "size_bytes": 5398
+    }
+  ],
+  "legacy_v19_sha256": "f838b00b5a2515e17bc055390c8ffa94a737b3b422bfd5e9d9bfe1c82f02f42e",
+  "host_runtime_rebuild_required": true,
+  "focused_tests_passed": 3,
+  "full_native_runtime_build": false
+}

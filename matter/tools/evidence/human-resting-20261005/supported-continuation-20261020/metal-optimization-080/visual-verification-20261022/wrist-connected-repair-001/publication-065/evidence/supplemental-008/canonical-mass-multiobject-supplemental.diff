@@ -1,0 +1,141 @@
+diff --git a/matter/tools/fem_tetrahedron_mass_multiobject_check.cpp b/matter/tools/fem_tetrahedron_mass_multiobject_check.cpp
+new file mode 100644
+--- /dev/null
++++ b/matter/tools/fem_tetrahedron_mass_multiobject_check.cpp
+@@ -0,0 +1,115 @@
++#include "numi/matter/matter.hpp"
++
++#include <array>
++#include <cmath>
++#include <filesystem>
++#include <iostream>
++#include <stdexcept>
++#include <string>
++
++using namespace numi::matter;
++
++namespace {
++void require(bool ok,const std::string& message) {
++    if(!ok) throw std::runtime_error(message);
++}
++WorldSource singleObjectFixture() {
++#ifndef NUMI_TEST_MATERIAL_PATH
++#error "NUMI_TEST_MATERIAL_PATH must identify the compiler test material"
++#endif
++    const auto parsed=parseMatterFile(std::filesystem::path(NUMI_TEST_MATERIAL_PATH));
++    require(parsed.succeeded(),"could not parse compiler test material");
++    WorldSource source;
++    source.materials.push_back(parsed.material);
++    source.gravity={0,0,0};
++    ObjectSource object;
++    object.name="mass_layout_fixture";
++    object.materialIndex=0;
++    object.representation=Representation::fem;
++    object.automaticRepresentation=false;
++    object.mixedFEM=false;
++    object.deformableContact=false;
++    object.femNodes={{{0,0,0}},{{.01,0,0}},{{0,.01,0}},{{0,0,.01}},{{0,0,-.01}}};
++    object.tetrahedra={{{0,1,2,3}},{{0,2,1,4}}};
++    source.objects.push_back(object);
++    return source;
++}
++void checkMixedObjectOffsetsAndDormantCells() {
++    const auto one=singleObjectFixture();
++    const auto legacyOnly=compileWorld(one);
++    require(legacyOnly.succeeded(),"single legacy source failed to compile");
++    auto source=one;
++    const auto prototype=source.objects.front();
++    ObjectSource legacyBefore=prototype;
++    legacyBefore.name="legacy_before_explicit";
++    ObjectSource explicitObject=prototype;
++    explicitObject.name="explicit_middle";
++    explicitObject.femTetrahedronMassesKg={2.0e-4,4.0e-4};
++    explicitObject.femTetrahedronMassSourceIdentity={
++        0x0123456789abcdefULL,0x1023456789abcdefULL,
++        0x2123456789abcdefULL,0x3123456789abcdefULL};
++    ObjectSource legacyAfter=prototype;
++    legacyAfter.name="legacy_after_explicit_with_dormant";
++    legacyAfter.femCapacity.tetrahedra=3u;
++    source.objects={legacyBefore,explicitObject,legacyAfter};
++
++    const auto compiled=compileWorld(source);
++    require(compiled.succeeded(),"mixed legacy/explicit source failed: "+
++            (compiled.diagnostics.empty()?std::string{}:compiled.diagnostics.front().message));
++    const auto& world=compiled.world;
++    require(world.objects.size()==3u,"compiled object order/count changed");
++    require(world.fem.tetrahedra.size()==7u,
++            "per-object active/dormant element capacity was not preserved");
++    require(world.femTetrahedronMassesKg==
++            std::vector<double>{0.0,0.0,2.0e-4,4.0e-4,0.0,0.0,0.0},
++            "global mass table did not align legacy-before, explicit, legacy-after, and dormant rows");
++    const std::array<std::uint64_t,4> expectedIdentity{
++        0x0123456789abcdefULL,0x1023456789abcdefULL,
++        0x2123456789abcdefULL,0x3123456789abcdefULL};
++    require(world.femTetrahedronMassSourceIdentities.size()==3u,
++            "source identity table was not allocated by original object order");
++    const auto allZero=[](const auto& words) {
++        for(const auto word:words) if(word!=0u) return false;
++        return true;
++    };
++    require(allZero(world.femTetrahedronMassSourceIdentities[0]) &&
++            world.femTetrahedronMassSourceIdentities[1]==expectedIdentity &&
++            allZero(world.femTetrahedronMassSourceIdentities[2]),
++            "per-object source identity was assigned to the wrong object");
++    require((world.fem.tetrahedra[4].identity.w&NM_OBJECT_ACTIVE)!=0u &&
++            (world.fem.tetrahedra[5].identity.w&NM_OBJECT_ACTIVE)!=0u &&
++            world.fem.tetrahedra[6].identity.w==0u,
++            "active and dormant tetrahedron rows were not aligned with object capacity");
++    require(world.femTetrahedronMassesKg[5]==0.0 &&
++            world.femTetrahedronMassesKg[6]==0.0,
++            "dormant tetrahedron rows received an authored mass");
++
++    const std::size_t nodesPerObject=prototype.femNodes.size();
++    require(world.fem.nodes.size()==3u*nodesPerObject,
++            "multi-object FEM node ranges are not contiguous as expected");
++    const std::array<double,5> explicitMass{1.5e-4,1.5e-4,1.5e-4,5.0e-5,1.0e-4};
++    for(std::size_t local=0;local<nodesPerObject;++local) {
++        const double before=world.fem.nodes[local].positionAndMass.w;
++        const double explicitNode=world.fem.nodes[nodesPerObject+local].positionAndMass.w;
++        const double after=world.fem.nodes[2u*nodesPerObject+local].positionAndMass.w;
++        require(std::abs(before-legacyOnly.world.fem.nodes[local].positionAndMass.w)<=1.0e-9,
++                "legacy object before explicit object lost density-derived nodal mass");
++        require(std::abs(after-legacyOnly.world.fem.nodes[local].positionAndMass.w)<=1.0e-9,
++                "legacy object after explicit object lost density-derived nodal mass");
++        require(std::abs(explicitNode-explicitMass[local])<=
++                    std::max(1.0e-11,explicitMass[local]*2.0e-7),
++                "explicit object's nodal mass was shifted by earlier object offsets");
++    }
++}
++}
++int main() {
++    try {
++        checkMixedObjectOffsetsAndDormantCells();
++        std::cout<<"PASS explicit_fem_tetrahedron_mass_multiobject\n";
++        return 0;
++    } catch(const std::exception& error) {
++        std::cerr<<"FAIL explicit_fem_tetrahedron_mass_multiobject error="
++                 <<error.what()<<'\n';
++        return 1;
++    }
++}
+diff --git a/matter/CMakeLists.txt b/matter/CMakeLists.txt
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -2396,3 +2396,17 @@
+         TIMEOUT 30 LABELS "matter;compiler;fem;mass;cpu;synthetic")
+ endif()
+ 
++add_executable(numi-matter-fem-tet-mass-multiobject-check
++    tools/fem_tetrahedron_mass_multiobject_check.cpp)
++target_link_libraries(numi-matter-fem-tet-mass-multiobject-check PRIVATE
++    numi_matter_compiler)
++target_compile_options(numi-matter-fem-tet-mass-multiobject-check PRIVATE
++    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
++target_compile_definitions(numi-matter-fem-tet-mass-multiobject-check PRIVATE
++    NUMI_TEST_MATERIAL_PATH="${CMAKE_CURRENT_SOURCE_DIR}/materials/damageable_silicone.nmatter")
++if(BUILD_TESTING)
++    add_test(NAME matter.compiler.explicit_fem_tet_mass_multiobject
++        COMMAND numi-matter-fem-tet-mass-multiobject-check)
++    set_tests_properties(matter.compiler.explicit_fem_tet_mass_multiobject PROPERTIES
++        TIMEOUT 30 LABELS "matter;compiler;fem;mass;cpu;synthetic")
++endif()

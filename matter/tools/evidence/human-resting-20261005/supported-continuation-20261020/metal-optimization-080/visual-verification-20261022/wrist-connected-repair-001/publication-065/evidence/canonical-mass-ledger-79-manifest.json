@@ -1,0 +1,70 @@
+{
+  "base_commit": "79dbbd107b36813cf9c9c84c4f92f8f9c821b479",
+  "patch_sha256": "0dec9f290c1dd420c8ed15ffe7ccf91233db43c6b6b8dca098b6326824b3acd9",
+  "patch_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-007-owner-per-child-mass/canonical-mass-ledger-79.patch",
+  "files": [
+    {
+      "path": "apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "base_bytes": 47079,
+      "candidate_bytes": 62014,
+      "base_sha256": "88c0c8dff1d59aa17bf4ef248863c42a55b2abd5670f5f03a17f23ab0963eadc",
+      "candidate_sha256": "f22a3cb423da75bda39634551e1b0b6c714f6e8f36813bc94e41686b682d76d7"
+    },
+    {
+      "path": "apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp",
+      "base_bytes": 24375,
+      "candidate_bytes": 45730,
+      "base_sha256": "b81530a719848fd43a3df531ef8744df9f0ee184cc6b9bc8354e791ef985010c",
+      "candidate_sha256": "9bc1fc496a7aeb4e86b1f6b3e7076c9f3c54ef11fc2fb9cc611470ee08dd4248"
+    },
+    {
+      "path": "matter/include/numi/matter/matter.hpp",
+      "base_bytes": 124688,
+      "candidate_bytes": 126115,
+      "base_sha256": "5ccacdfa9bb33767e7dd70636b3a7fd8ce6fd6a8574d3d75aa72a7739f6862fc",
+      "candidate_sha256": "b7e5b336edf592e9a080a979ee12ee7e7b18612dbd04725c56064ffdd172c23b"
+    },
+    {
+      "path": "matter/src/compiler_impl.cpp",
+      "base_bytes": 188864,
+      "candidate_bytes": 192303,
+      "base_sha256": "d21579661186b0a89f8f8c586235d419744d2309e302c50638ab72f878474f5f",
+      "candidate_sha256": "a12fb24d1bf8e0deeb010a85b6186cd1aec25996afebda6d17160f1657a23ddd"
+    },
+    {
+      "path": "matter/src/validation_impl.cpp",
+      "base_bytes": 166491,
+      "candidate_bytes": 169792,
+      "base_sha256": "f4bf432e05edd138235946f8e59be3333dd12e83b41a25b8b5a8ee62a9abc11c",
+      "candidate_sha256": "f16bc732555a72cfef6d22e9405c20531629f404065bc2e17f75ba24d2bb6dd5"
+    },
+    {
+      "path": "matter/src/package_impl.cpp",
+      "base_bytes": 38954,
+      "candidate_bytes": 41669,
+      "base_sha256": "02aa83df6568dad36a3260ff74973c6b7c7de4c659fa87f36188d0c492188d3c",
+      "candidate_sha256": "9e23f30c7a87888e474363270c022cbcded4cf934476d7b243eb3f73c6740039"
+    },
+    {
+      "path": "matter/src/fingerprint_impl.cpp",
+      "base_bytes": 11404,
+      "candidate_bytes": 11916,
+      "base_sha256": "e10dd46df3c4617d50b3854fcdc3f11af9c369575785e422e8741acdd2f62115",
+      "candidate_sha256": "96b80cd05797715a864059d6622cbeb62d551cedb973e61875a627c143e16e36"
+    },
+    {
+      "path": "matter/tools/fem_tetrahedron_mass_compiler_check.cpp",
+      "base_bytes": 0,
+      "candidate_bytes": 12060,
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "eaac4d2c4c08927f39d7ca152c65a287562eb2134e13088fc51648b9c069b417"
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "base_bytes": 152780,
+      "candidate_bytes": 153682,
+      "base_sha256": "892920f282099355d92d08ecca11ae6b14f5ac987ede7854c4032b04cf4f98b8",
+      "candidate_sha256": "ae306376260689c749a28396ac562729b52103456327df7cbec818c9ae17cf93"
+    }
+  ]
+}

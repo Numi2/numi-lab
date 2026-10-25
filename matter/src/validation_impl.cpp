@@ -199,6 +199,7 @@ public:
         return validateDispatch() &&
             validateMixedAuthorities() &&
             validateProgramsAndMaterials() &&
+            validateFEMMassSourceIdentities() &&
             validateObjectsAndTopology() &&
             validateCompactStaticSurfaceMap() &&
             validateHumanAttachments() &&
@@ -210,6 +211,52 @@ public:
     }
 
 private:
+    [[nodiscard]] bool validateFEMMassSourceIdentities() {
+        const auto& identities = world_.femTetrahedronMassSourceIdentities;
+        const auto& masses = world_.femTetrahedronMassesKg;
+        if (identities.empty() && masses.empty()) return true;
+        if (identities.empty() || masses.empty())
+            return fail("per-tetrahedron mass values and source identities must be present together");
+        if (identities.size() != world_.objects.size())
+            return fail("per-tetrahedron mass source identities do not match the object table");
+        if (masses.size() != world_.fem.tetrahedra.size())
+            return fail("per-tetrahedron mass values do not match the global FEM element table");
+        bool anyIdentity = false;
+        for (std::size_t i = 0; i < identities.size(); ++i) {
+            const bool present = std::ranges::any_of(identities[i],
+                [](std::uint64_t word) { return word != 0u; });
+            if (!present) continue;
+            anyIdentity = true;
+            const auto& object = world_.objects[i];
+            if (object.representation != static_cast<nm_u32>(Representation::fem) ||
+                    object.elementCount == 0u)
+                return failIndexed("FEM mass source identity", i,
+                    "must identify an object with compiled FEM elements");
+        }
+        if (!anyIdentity)
+            return fail("per-tetrahedron mass source identity table is present but all entries are zero");
+        for (std::size_t tetRow = 0; tetRow < world_.fem.tetrahedra.size(); ++tetRow) {
+            const auto& tet = world_.fem.tetrahedra[tetRow];
+            const bool active = (tet.identity.w & NM_OBJECT_ACTIVE) != 0u;
+            const auto objectIndex = static_cast<std::size_t>(tet.identity.y);
+            const bool explicitOwner = objectIndex < identities.size() &&
+                std::ranges::any_of(identities[objectIndex],
+                    [](std::uint64_t word) { return word != 0u; });
+            const double mass = masses[tetRow];
+            if (explicitOwner && active) {
+                if (!std::isfinite(mass) || !(mass > 0.0) ||
+                        !std::isfinite(static_cast<float>(mass)) ||
+                        !(static_cast<float>(mass) > 0.0f))
+                    return failIndexed("FEM tetrahedron mass", tetRow,
+                        "explicit source-identified active cell must have finite positive representable mass");
+            } else if (!std::isfinite(mass) || mass != 0.0) {
+                return failIndexed("FEM tetrahedron mass", tetRow,
+                    "legacy or inactive cell must have zero explicit-ledger mass");
+            }
+        }
+        return true;
+    }
+
     [[nodiscard]] bool fail(const std::string_view message) {
         if (error_ != nullptr && error_->empty()) {
             *error_ = std::string(message);
@@ -1967,6 +2014,10 @@ private:
                     "explicit FEM reference has invalid identity, representation or fixed material/field ownership");
             }
             const bool regional = (object.flags & NM_OBJECT_FEM_REGIONAL_MATERIAL) != 0u;
+            const bool explicitTetrahedronMasses =
+                index < world_.femTetrahedronMassSourceIdentities.size() &&
+                std::ranges::any_of(world_.femTetrahedronMassSourceIdentities[index],
+                    [](std::uint64_t word) { return word != 0u; });
             const bool regionalIdentity = std::ranges::any_of(object.materialSourceIdentity,
                 [](nm_u64 word) { return word != 0u; });
             if (regional != regionalIdentity || (regional &&
@@ -2232,7 +2283,8 @@ private:
                     femNodeOwners_[nodeIndex] =
                         static_cast<std::uint32_t>(index);
                 }
-                std::vector<double> regionalMass((regional || referenced) ? object.stateCount : 0u, 0.0);
+                std::vector<double> regionalMass((regional || referenced || explicitTetrahedronMasses)
+                    ? object.stateCount : 0u, 0.0);
                 std::set<std::uint32_t> preconditionerRegions;
                 for (std::uint32_t local = 0u;
                      local < object.elementCount;
@@ -2351,10 +2403,12 @@ private:
                                 "node indices are outside the object or repeated"
                             );
                         }
-                        if (regional || referenced) {
-                            regionalMass[nodes[node] - object.stateOffset] +=
-                                double(world_.materials[tetrahedron.identity.x].bulk.x) *
-                                double(tetrahedron.inverseRestRow0.w) * 0.25;
+                        if (regional || referenced || explicitTetrahedronMasses) {
+                            const double tetMass = explicitTetrahedronMasses
+                                ? world_.femTetrahedronMassesKg[tetrahedronIndex]
+                                : double(world_.materials[tetrahedron.identity.x].bulk.x) *
+                                    double(tetrahedron.inverseRestRow0.w);
+                            regionalMass[nodes[node] - object.stateOffset] += tetMass * 0.25;
                         }
                     }
                     if (referenced && !validReferenceCell(tetrahedron, world_.fem.nodes, world_.materials[tetrahedron.identity.x])) {

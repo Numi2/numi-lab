@@ -2370,11 +2370,43 @@ target_include_directories(numi-matter-unpaired-skin-fat-volume-check PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/../apps"
     "${CMAKE_CURRENT_SOURCE_DIR}/../include"
     "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_link_libraries(numi-matter-unpaired-skin-fat-volume-check PRIVATE
+    numi_matter_compiler)
 target_compile_options(numi-matter-unpaired-skin-fat-volume-check PRIVATE
     -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+target_compile_definitions(numi-matter-unpaired-skin-fat-volume-check PRIVATE
+    NUMI_TEST_MATERIAL_PATH="${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter")
 if(BUILD_TESTING)
     add_test(NAME matter.compiler.unpaired_skin_fat_volume
         COMMAND numi-matter-unpaired-skin-fat-volume-check)
     set_tests_properties(matter.compiler.unpaired_skin_fat_volume PROPERTIES
         TIMEOUT 30 LABELS "matter;compiler;human;cpu;synthetic")
+endif()
+
+add_executable(numi-matter-explicit-fem-tet-mass-check
+    tools/fem_tetrahedron_mass_compiler_check.cpp)
+target_link_libraries(numi-matter-explicit-fem-tet-mass-check PRIVATE
+    numi_matter_compiler)
+target_compile_options(numi-matter-explicit-fem-tet-mass-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.explicit_fem_tet_mass
+        COMMAND numi-matter-explicit-fem-tet-mass-check)
+    set_tests_properties(matter.compiler.explicit_fem_tet_mass PROPERTIES
+        TIMEOUT 30 LABELS "matter;compiler;fem;mass;cpu;synthetic")
+endif()
+
+add_executable(numi-matter-fem-tet-mass-multiobject-check
+    tools/fem_tetrahedron_mass_multiobject_check.cpp)
+target_link_libraries(numi-matter-fem-tet-mass-multiobject-check PRIVATE
+    numi_matter_compiler)
+target_compile_options(numi-matter-fem-tet-mass-multiobject-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+target_compile_definitions(numi-matter-fem-tet-mass-multiobject-check PRIVATE
+    NUMI_TEST_MATERIAL_PATH="${CMAKE_CURRENT_SOURCE_DIR}/materials/damageable_silicone.nmatter")
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.explicit_fem_tet_mass_multiobject
+        COMMAND numi-matter-fem-tet-mass-multiobject-check)
+    set_tests_properties(matter.compiler.explicit_fem_tet_mass_multiobject PROPERTIES
+        TIMEOUT 30 LABELS "matter;compiler;fem;mass;cpu;synthetic")
 endif()

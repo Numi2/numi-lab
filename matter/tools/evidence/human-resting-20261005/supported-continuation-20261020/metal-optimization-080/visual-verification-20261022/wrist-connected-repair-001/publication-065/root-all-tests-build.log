@@ -1,0 +1,8 @@
+[ 83%] Built target numi_matter_compiler
+[ 91%] Building CXX object matter/CMakeFiles/numi-matter-explicit-fem-tet-mass-check.dir/tools/fem_tetrahedron_mass_compiler_check.cpp.o
+[100%] Linking CXX executable numi-matter-explicit-fem-tet-mass-check
+[100%] Built target numi-matter-explicit-fem-tet-mass-check
+[ 83%] Built target numi_matter_compiler
+[ 91%] Building CXX object matter/CMakeFiles/numi-human-unpaired-owner-compiler-integration-check.dir/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-040-shared-columns/attempt-007-owner-per-child-mass/tests/NumiHumanUnpairedSkinFatVolumeCheck.cpp.o
+[100%] Linking CXX executable numi-human-unpaired-owner-compiler-integration-check
+[100%] Built target numi-human-unpaired-owner-compiler-integration-check
