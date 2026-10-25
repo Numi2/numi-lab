@@ -1,0 +1,527 @@
+{
+  "iteration": 25,
+  "candidate_sha256": "2a8e8c9d9e6db7898dcd59c92ace2730448b14cf419a5e916ad84d6c7ec92294",
+  "emitted_points_sha256": "2f4a2ddd40889a4625a371e67bfdae05445ef02491e9d69e6de87140ede2baf8",
+  "minimum_allface_oriented_area_ratio": 0.13578656881810286,
+  "minimum_fixed_reference_area_magnitude_ratio": 0.10033820892702101,
+  "bad_area_faces": 0,
+  "anchors_bitwise_unchanged": true,
+  "nonzero_step_nodes": 17365,
+  "maximum_step_m": 0.0005000025404408156,
+  "maximum_source_displacement_mm": 7.491198938272331,
+  "source_cap_pass": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "point_summary_sha256": "dfcaab6d0806d250ce30dae8c06894c48f9c021f87965cce524ed42f15a53924",
+  "point_merit": {
+    "construction_progress": true,
+    "strict_pair_count_reduction": true,
+    "maximum_depth_nonincreasing": true,
+    "squared_depth_nonincreasing": true,
+    "before_inside_pairs": 556,
+    "after_inside_pairs": 473,
+    "before_maximum_depth_m": 0.0033851283017981575,
+    "after_maximum_depth_m": 0.0033851283017981575,
+    "before_squared_depth_m2": 0.00026059232463794085,
+    "after_squared_depth_m2": 0.0002205687604953993,
+    "introduced_typed_pairs": [
+      [
+        14013,
+        46,
+        74
+      ],
+      [
+        14018,
+        46,
+        74
+      ],
+      [
+        15745,
+        100,
+        85
+      ],
+      [
+        17614,
+        115,
+        118
+      ]
+    ],
+    "introduced_depths_m": [
+      4.423368092196159e-07,
+      6.255819977513115e-07,
+      1.2406683370287185e-06,
+      8.737680725398575e-06
+    ],
+    "removed_typed_pairs": [
+      [
+        13613,
+        57,
+        89
+      ],
+      [
+        13632,
+        59,
+        95
+      ],
+      [
+        13678,
+        65,
+        99
+      ],
+      [
+        13766,
+        124,
+        123
+      ],
+      [
+        13828,
+        115,
+        118
+      ],
+      [
+        13925,
+        100,
+        85
+      ],
+      [
+        13931,
+        100,
+        85
+      ],
+      [
+        14029,
+        43,
+        16
+      ],
+      [
+        14112,
+        57,
+        89
+      ],
+      [
+        14133,
+        57,
+        89
+      ],
+      [
+        14135,
+        57,
+        89
+      ],
+      [
+        14143,
+        59,
+        95
+      ],
+      [
+        14187,
+        65,
+        99
+      ],
+      [
+        14357,
+        115,
+        118
+      ],
+      [
+        14360,
+        115,
+        118
+      ],
+      [
+        14368,
+        115,
+        118
+      ],
+      [
+        14477,
+        96,
+        81
+      ],
+      [
+        14480,
+        96,
+        81
+      ],
+      [
+        14496,
+        93,
+        17
+      ],
+      [
+        14593,
+        61,
+        97
+      ],
+      [
+        14620,
+        61,
+        97
+      ],
+      [
+        14624,
+        61,
+        97
+      ],
+      [
+        14683,
+        59,
+        95
+      ],
+      [
+        14693,
+        57,
+        89
+      ],
+      [
+        14701,
+        57,
+        89
+      ],
+      [
+        14818,
+        43,
+        16
+      ],
+      [
+        14819,
+        43,
+        16
+      ],
+      [
+        14833,
+        42,
+        14
+      ],
+      [
+        14837,
+        42,
+        14
+      ],
+      [
+        14848,
+        43,
+        16
+      ],
+      [
+        14884,
+        74,
+        104
+      ],
+      [
+        14950,
+        96,
+        81
+      ],
+      [
+        14953,
+        96,
+        81
+      ],
+      [
+        14956,
+        96,
+        81
+      ],
+      [
+        14962,
+        93,
+        17
+      ],
+      [
+        14972,
+        115,
+        118
+      ],
+      [
+        14974,
+        115,
+        118
+      ],
+      [
+        14976,
+        115,
+        118
+      ],
+      [
+        14977,
+        115,
+        118
+      ],
+      [
+        14981,
+        115,
+        118
+      ],
+      [
+        15133,
+        114,
+        117
+      ],
+      [
+        15135,
+        114,
+        117
+      ],
+      [
+        15136,
+        114,
+        117
+      ],
+      [
+        15137,
+        114,
+        117
+      ],
+      [
+        15158,
+        114,
+        117
+      ],
+      [
+        15213,
+        43,
+        16
+      ],
+      [
+        15214,
+        43,
+        16
+      ],
+      [
+        15602,
+        114,
+        117
+      ],
+      [
+        15856,
+        61,
+        97
+      ],
+      [
+        15989,
+        114,
+        117
+      ],
+      [
+        16006,
+        115,
+        118
+      ],
+      [
+        16012,
+        115,
+        118
+      ],
+      [
+        16055,
+        96,
+        81
+      ],
+      [
+        16064,
+        93,
+        17
+      ],
+      [
+        16491,
+        57,
+        89
+      ],
+      [
+        16550,
+        59,
+        95
+      ],
+      [
+        16551,
+        59,
+        95
+      ],
+      [
+        16558,
+        59,
+        95
+      ],
+      [
+        16567,
+        59,
+        95
+      ],
+      [
+        16716,
+        65,
+        99
+      ],
+      [
+        16985,
+        64,
+        98
+      ],
+      [
+        16986,
+        64,
+        98
+      ],
+      [
+        17000,
+        64,
+        98
+      ],
+      [
+        17049,
+        43,
+        16
+      ],
+      [
+        17051,
+        43,
+        16
+      ],
+      [
+        17055,
+        43,
+        16
+      ],
+      [
+        17081,
+        43,
+        16
+      ],
+      [
+        17110,
+        42,
+        14
+      ],
+      [
+        17117,
+        42,
+        14
+      ],
+      [
+        17159,
+        43,
+        16
+      ],
+      [
+        17217,
+        74,
+        104
+      ],
+      [
+        17401,
+        124,
+        123
+      ],
+      [
+        17402,
+        124,
+        123
+      ],
+      [
+        17519,
+        96,
+        81
+      ],
+      [
+        17537,
+        96,
+        81
+      ],
+      [
+        17598,
+        115,
+        118
+      ],
+      [
+        17610,
+        115,
+        118
+      ],
+      [
+        17619,
+        115,
+        118
+      ],
+      [
+        18008,
+        109,
+        114
+      ],
+      [
+        18009,
+        109,
+        114
+      ],
+      [
+        18015,
+        109,
+        114
+      ],
+      [
+        18142,
+        104,
+        113
+      ],
+      [
+        18252,
+        114,
+        117
+      ],
+      [
+        18253,
+        114,
+        117
+      ],
+      [
+        18336,
+        114,
+        117
+      ],
+      [
+        18346,
+        114,
+        117
+      ],
+      [
+        18423,
+        114,
+        117
+      ]
+    ],
+    "geometry_admitted": false,
+    "accepted_physical_steps": 0
+  },
+  "joint_merit": {
+    "classification": "JOINT_CLEARANCE_CONSTRUCTION_PROGRESS",
+    "construction_progress": true,
+    "strict_surface_pair_reduction": true,
+    "strict_total_pair_reduction": true,
+    "maximum_depth_nonincreasing": true,
+    "squared_depth_nonincreasing": true,
+    "topology_points": 18430,
+    "topology_faces": 36815,
+    "typed_bank_count": 185,
+    "before_candidate_sha256": "b6f431209e8c5c1d0cd6704baee8463f4f55db1c520747a7eedc79b10b39401b",
+    "after_candidate_sha256": "2a8e8c9d9e6db7898dcd59c92ace2730448b14cf419a5e916ad84d6c7ec92294",
+    "before_point_pairs": 556,
+    "after_point_pairs": 473,
+    "before_surface_pairs": 4889,
+    "after_surface_pairs": 4743,
+    "before_total_pairs": 5445,
+    "after_total_pairs": 5216,
+    "before_maximum_point_depth_m": 0.0033851283017981575,
+    "after_maximum_point_depth_m": 0.0033851283017981575,
+    "before_squared_point_depth_m2": 0.00026059232463794085,
+    "after_squared_point_depth_m2": 0.0002205687604953993,
+    "final_zero_clearance_unchanged": false,
+    "geometry_admitted": false,
+    "accepted_physical_steps": 0,
+    "native_admission": false
+  },
+  "status": "CONSTRUCTION_PROGRESS_ONLY",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-001/local-backtrack/pass-025/candidate.npz",
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-001/local-backtrack/pass-025/audit-130/summary.json",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-001/local-backtrack/pass-025/audit-159/report.json",
+  "parent_fit": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-001/proposal/round-001/fit/attempt-001/fit-report.json"
+}

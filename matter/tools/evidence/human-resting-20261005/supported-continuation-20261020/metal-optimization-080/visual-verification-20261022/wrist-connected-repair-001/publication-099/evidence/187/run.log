@@ -1,0 +1,2 @@
+{"round": 1, "candidate_sha256": "a4738c787443be16a1344e95c05163d0a966029cd7ced071a927251ea03947cf", "before_crossings": 6161, "after_crossings": 5496, "before_inside": 1174, "after_inside": 927, "maximum_depth_m": 0.004256983296348104, "native_admission": false}
+{"round": 2, "candidate_sha256": "f73b0004a558f17b7a377cc905fab880a0f420bbf8fa3ebb52c01a45946b8de1", "before_crossings": 5496, "after_crossings": 5101, "before_inside": 927, "after_inside": 716, "maximum_depth_m": 0.0037571012433095, "native_admission": false}

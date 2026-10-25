@@ -1,0 +1,12 @@
+{
+  "status": "COMPLETED_BOUNDED_LOOP",
+  "rounds_completed": 6,
+  "progress_rounds": 5,
+  "round_006": "NO_COMBINED_PROGRESS",
+  "selected_candidate_sha256": "7aad7ab7286cc89ae006f90dc35e72d8d60f8178023f4ebbc3a9464fee3a0c21",
+  "selected_candidate_relative_path": "evidence/189/final-candidate.npz",
+  "selected_round": 5,
+  "intermediate_candidate_meshes_copied": false,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

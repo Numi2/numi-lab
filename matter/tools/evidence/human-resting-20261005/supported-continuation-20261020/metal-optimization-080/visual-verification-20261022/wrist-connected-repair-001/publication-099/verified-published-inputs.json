@@ -1,0 +1,39 @@
+{
+  "schema": "numi.verified-published-inputs.v1",
+  "commit": "cd85ac950100270989d8aa9633795c0f2e9b6fb2",
+  "tree": "aacedcdfa34b4c9c00a15ee015c9698466c7b6b2",
+  "remote_main_observed": "cd85ac950100270989d8aa9633795c0f2e9b6fb2",
+  "verification": "P098 is origin/main in the publication clone; tree and listed blobs were verified with git rev-parse and git show.",
+  "dependencies": [
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-098/publication-manifest.json",
+      "bytes": 23132,
+      "sha256": "7c06e2e8bd74613499dee4dadc6f9e1c2c6ff1014e09356a26af1646434e8747",
+      "note": "P098 published manifest"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-098/canonical/matter/tools/human_skin_fat_surface_fit_constraints.py",
+      "bytes": 27751,
+      "sha256": "05b1beb2105a184deb885974db892fa0f8e519fc3e1fdfde5aa441c180c97b34",
+      "note": "P098 published local-witness owner"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-098/evidence/186/pass-030/candidate.npz",
+      "bytes": 2172230,
+      "sha256": "5cf00286e56475740ae965c7e6b2d58b81357fc3d260a3e4d90cc879ac14cb77",
+      "note": "P098 selected 186 input candidate"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-098/evidence/sources/run_local_witness_backtracking_186.py",
+      "bytes": 7827,
+      "sha256": "d50ddd81e233b516d12b6b2ac7f773ae2cca7ba3c2169af059bb251a97a51127",
+      "note": "P098 186 runner dependency"
+    },
+    {
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-098/evidence/183/final-a644/local_witness_backtracking.py",
+      "bytes": 7504,
+      "sha256": "a644de24e2f23e90807eb75578309618d89c1a3f9d95d4f6a6f045f4d935c31a",
+      "note": "P098 published local-step helper"
+    }
+  ]
+}

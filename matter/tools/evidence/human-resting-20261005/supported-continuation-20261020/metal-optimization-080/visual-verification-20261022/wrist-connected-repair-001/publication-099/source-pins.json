@@ -1,0 +1,35 @@
+{
+  "schema": "numi.p099.source-pins.v1",
+  "base_commit": "cd85ac950100270989d8aa9633795c0f2e9b6fb2",
+  "base_tree": "aacedcdfa34b4c9c00a15ee015c9698466c7b6b2",
+  "canonical_changes": [],
+  "published_owner": {
+    "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-098/canonical/matter/tools/human_skin_fat_surface_fit_constraints.py",
+    "sha256": "05b1beb2105a184deb885974db892fa0f8e519fc3e1fdfde5aa441c180c97b34"
+  },
+  "run_results": {
+    "187": {
+      "round_001_candidate": "a4738c787443be16a1344e95c05163d0a966029cd7ced071a927251ea03947cf",
+      "round_002_candidate": "f73b0004a558f17b7a377cc905fab880a0f420bbf8fa3ebb52c01a45946b8de1",
+      "round_003_status": "NO_COMBINED_PROGRESS",
+      "round_003_final_self_pairs": 11
+    },
+    "188": {
+      "candidate": "b6f431209e8c5c1d0cd6704baee8463f4f55db1c520747a7eedc79b10b39401b",
+      "surface_crossings": 4889,
+      "point_inside_pairs": 556,
+      "exact_self_pairs": 0
+    },
+    "189": {
+      "candidate": "7aad7ab7286cc89ae006f90dc35e72d8d60f8178023f4ebbc3a9464fee3a0c21",
+      "surface_crossings": 4397,
+      "point_inside_pairs": 335,
+      "exact_self_pairs": 0,
+      "round_006": "NO_COMBINED_PROGRESS"
+    }
+  },
+  "active_outputs_excluded": [
+    "190",
+    "193"
+  ]
+}

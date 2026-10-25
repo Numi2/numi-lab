@@ -1,0 +1,45 @@
+{
+  "schema": "numi.p099.candidate-hash-inventory.v1",
+  "187_round_outputs_hash_only": [
+    {
+      "round": 1,
+      "sha256": "a4738c787443be16a1344e95c05163d0a966029cd7ced071a927251ea03947cf"
+    },
+    {
+      "round": 2,
+      "sha256": "f73b0004a558f17b7a377cc905fab880a0f420bbf8fa3ebb52c01a45946b8de1"
+    },
+    {
+      "round": 3,
+      "final_unaccepted_trial_sha256": "5696418e903ff4d4c7ba06ab1d166d4bd588c5a79ec9e99b60e99bfa5ec979f6",
+      "self_pairs": 11
+    }
+  ],
+  "188_selected": {
+    "sha256": "b6f431209e8c5c1d0cd6704baee8463f4f55db1c520747a7eedc79b10b39401b",
+    "path": "evidence/188/candidate.npz"
+  },
+  "189_intermediate_round_outputs_hash_only": [
+    {
+      "round": 1,
+      "sha256": "2a8e8c9d9e6db7898dcd59c92ace2730448b14cf419a5e916ad84d6c7ec92294"
+    },
+    {
+      "round": 2,
+      "sha256": "956e1cd6a10bcbb70889c4db8708ed1e7fa691c7cb4d30ec7cf37b0848da180a"
+    },
+    {
+      "round": 3,
+      "sha256": "a5c5ec5718465c13b166de246f200f43049b21ed4b8e0745537c63846fed5f31"
+    },
+    {
+      "round": 4,
+      "sha256": "220d65072457e38168dc89f7fd2c03988014d16abb8a7daeccce60c2381a06bf"
+    }
+  ],
+  "189_selected_completed_round_5": {
+    "sha256": "7aad7ab7286cc89ae006f90dc35e72d8d60f8178023f4ebbc3a9464fee3a0c21",
+    "path": "evidence/189/final-candidate.npz"
+  },
+  "189_round_6": "NO_COMBINED_PROGRESS; no candidate mesh"
+}

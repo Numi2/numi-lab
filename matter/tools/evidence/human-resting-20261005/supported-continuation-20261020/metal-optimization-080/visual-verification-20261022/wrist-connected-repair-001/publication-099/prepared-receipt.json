@@ -1,0 +1,26 @@
+{
+  "schema": "numi.publication-prepared-receipt.v1",
+  "publication": "099",
+  "base_commit": "cd85ac950100270989d8aa9633795c0f2e9b6fb2",
+  "base_tree": "aacedcdfa34b4c9c00a15ee015c9698466c7b6b2",
+  "manifest_sha256": "4a0951be576873a4a90e5fff0b1db10f4378d11c85432796d3d6e2315a2b5c8b",
+  "file_count": 50,
+  "total_bytes": 8330089,
+  "included_runs": [
+    "187",
+    "188",
+    "189"
+  ],
+  "selected_meshes": {
+    "188": "b6f431209e8c5c1d0cd6704baee8463f4f55db1c520747a7eedc79b10b39401b",
+    "189": "7aad7ab7286cc89ae006f90dc35e72d8d60f8178023f4ebbc3a9464fee3a0c21"
+  },
+  "excluded_runs": [
+    "190",
+    "193"
+  ],
+  "canonical_changes": [],
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "status": "ready_for_review"
+}
