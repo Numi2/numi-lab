@@ -444,3 +444,65 @@ def test_retained_side_with_no_selected_cells_fails_explicitly():
     assert out.excluded_parent_masses is None
     assert out.retained_parent_volumes[0] == pytest.approx(1./6.)
     assert out.excluded_parent_volumes[0] == 0.
+
+from human_skin_fat_layer_reconstruction import snap_shared_scalar_interface_vertices
+
+def test_shared_interface_snap_keeps_coordinates_and_records_explicit_change():
+    P=np.array([[0.,0.,0.],[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
+    T=np.array([[0,1,2,3]],dtype=np.int32)
+    phi=np.array([1.e-9,1.,-1.,-1.])
+    original_phi=phi.copy();original_P=P.copy()
+    out,stats,ledger=snap_shared_scalar_interface_vertices(P,T,phi,.001,fraction=.001)
+    assert out[0]==0 and np.array_equal(out[1:],phi[1:])
+    assert np.array_equal(P,original_P) and np.array_equal(phi,original_phi)
+    assert stats["snapped_vertex_count"]==1
+    assert np.array_equal(ledger["snapped_vertex_rows"],[0])
+    assert np.array_equal(ledger["snap_delta_m"],out-original_phi)
+    assert np.all(ledger["max_incident_crossing_displacement_m"][ledger["snapped_vertex_rows"]] <= ledger["allowed_displacement_m"][ledger["snapped_vertex_rows"]])
+    split=split_tetrahedra_by_linear_scalar_field(P,T,out)
+    X=split.points.astype(np.float32).astype(float)[split.tetrahedra]
+    det=np.einsum("ij,ij->i",X[:,1]-X[:,0],np.cross(X[:,2]-X[:,0],X[:,3]-X[:,0]))
+    assert np.all(det>0)
+    assert np.isclose(det.sum(),1.,rtol=1.e-14,atol=0)
+    assert set(split.side_signs)=={-1,1}
+
+def test_shared_interface_snap_respects_every_incident_crossing_not_nearest_only():
+    P=np.array([[0.,0.,0.],[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
+    T=np.array([[0,1,2,3]],dtype=np.int32)
+    phi=np.array([1.e-9,-1.,-1.e-9,1.])
+    out,stats,ledger=snap_shared_scalar_interface_vertices(P,T,phi,.001,fraction=.001)
+    assert out[0]==phi[0] # edge 0--2 crosses halfway along a one-metre edge
+    assert ledger["max_incident_crossing_displacement_m"][0]==.5
+
+def test_shared_interface_snap_is_independent_of_tetrahedron_visit_order():
+    P=np.array([[0.,0.,0.],[1.,0.,0.],[0.,1.,0.],[0.,0.,1.],[0.,0.,-1.]])
+    T=np.array([[0,1,2,3],[0,2,1,4]],dtype=np.int32)
+    phi=np.array([1.e-9,1.,-1.,-1.,-1.])
+    a,sa,la=snap_shared_scalar_interface_vertices(P,T,phi,.001,fraction=.001)
+    b,sb,lb=snap_shared_scalar_interface_vertices(P,T[::-1],phi,.001,fraction=.001)
+    assert np.array_equal(a,b) and sa==sb
+    for key in la: assert np.array_equal(la[key],lb[key])
+
+@pytest.mark.parametrize("fraction",[-1.,.5,float("nan"),float("inf")])
+def test_shared_interface_snap_rejects_invalid_explicit_budget(fraction):
+    P=np.array([[0.,0.,0.],[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
+    with pytest.raises(ValueError,match="fraction"):
+        snap_shared_scalar_interface_vertices(P,np.array([[0,1,2,3]]),np.array([-1.,1.,1.,1.]),.001,fraction=fraction)
+
+def test_shared_interface_snap_rejects_ambiguous_all_zero_parent():
+    P=np.array([[0.,0.,0.],[1.e-9,0.,0.],[0.,1.e-9,0.],[0.,0.,1.e-9]])
+    with pytest.raises(ValueError,match="ambiguous all-zero"):
+        snap_shared_scalar_interface_vertices(P,np.array([[0,1,2,3]]),np.array([-1.e-9,1.e-9,1.e-9,1.e-9]),.001,fraction=.001)
+
+def test_shared_interface_snap_rejects_invalid_geometry_and_fractional_indices():
+    P=np.array([[0.,0.,0.],[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
+    with pytest.raises(ValueError,match="positive"):
+        snap_shared_scalar_interface_vertices(P,np.array([[0,2,1,3]]),np.array([-1.,1.,1.,1.]),.001,fraction=.001)
+    with pytest.raises(ValueError,match="integer"):
+        snap_shared_scalar_interface_vertices(P,np.array([[0.,1.,2.,3.]]),np.array([-1.,1.,1.,1.]),.001,fraction=.001)
+
+def test_shared_interface_snap_zero_budget_is_exact_identity():
+    P=np.array([[0.,0.,0.],[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
+    phi=np.array([1.e-9,1.,-1.,-1.])
+    out,stats,ledger=snap_shared_scalar_interface_vertices(P,np.array([[0,1,2,3]]),phi,.001,fraction=0.)
+    assert np.array_equal(out,phi) and stats["snapped_vertex_count"]==0

@@ -1,0 +1,63 @@
+{
+  "blocking_stage": "deep-positive",
+  "construction_only": true,
+  "current_stage_interface_snap": {
+    "edge_count": 121495,
+    "max_allowed_displacement_m": 2.456894872139964e-06,
+    "max_cutpoint_float32_rounding_bound_m": 6.188917057900187e-08,
+    "max_cutpoint_rounding_to_snap_displacement_ratio": 25.019412922536326,
+    "max_projected_interface_displacement_m": 2.4323068260997783e-06,
+    "snap_fraction_of_local_hskin": 0.001,
+    "snapped_vertex_count": 18
+  },
+  "current_stage_snap_ledger": "deep-positive-snap-ledger.npz",
+  "elapsed_seconds": 90.18985591595992,
+  "error": "ordinary 4096-epsilon world-volume rows failed and exceptional arithmetic certificate rejected: required emitted Float32 child geometry contains nonpositive cells at rows [3475]",
+  "error_type": "ValueError",
+  "failed_stage_interface_snap": {
+    "edge_count": 121495,
+    "max_allowed_displacement_m": 2.456894872139964e-06,
+    "max_cutpoint_float32_rounding_bound_m": 6.188917057900187e-08,
+    "max_cutpoint_rounding_to_snap_displacement_ratio": 25.019412922536326,
+    "max_projected_interface_displacement_m": 2.4323068260997783e-06,
+    "snap_fraction_of_local_hskin": 0.001,
+    "snapped_vertex_count": 18
+  },
+  "failed_stage_snap_ledger": "deep-positive-snap-ledger.npz",
+  "geometry_admitted": false,
+  "input_f32_positive": true,
+  "input_min_f32_det_m3": 3.1018209341739027e-12,
+  "input_min_f32_q": 3.3162137098932413e-06,
+  "input_point_count": 129526,
+  "input_scalar_summaries": {
+    "skin_levelset_m": {
+      "all_zero_tets": 0,
+      "mixed_sign_tets": 313638,
+      "negative_only_tets": 81480,
+      "positive_nodes": 28708,
+      "positive_only_tets": 66551,
+      "zero_nodes": 0
+    },
+    "total_levelset_m": {
+      "all_zero_tets": 0,
+      "mixed_sign_tets": 190177,
+      "negative_only_tets": 30654,
+      "positive_nodes": 78396,
+      "positive_only_tets": 240838,
+      "zero_nodes": 0
+    }
+  },
+  "input_source_ancestry_sha256": "f9619f3527180c99a20bd276785bdbe8adb74e93c8e2ae2c8ac7da8c9f480c86",
+  "input_tet_count": 461669,
+  "input_volume_sha256": "cf51ebb33721a351be149f822f49f0737af136e66eb95a39924f10bbe6e3f179",
+  "interface_snap_policy": "Shared parent vertex scalar values within 0.1% of local hskin in every incident strict-crossing edge are set exactly to zero. Coordinates are unchanged; original phi, scalar delta, edge crossing distances and F32 cutpoint rounding bounds are saved. This is an explicit construction-level interface perturbation, not an F32 positivity waiver.",
+  "mass_mapping": "unavailable; this TetGen foundation has no authoritative tissue mass ledger",
+  "max_output_tets": 1000000,
+  "max_seconds_per_stage": 180.0,
+  "outer_domain_policy": "Input is the adaptively refined 159 true-O TetGen construction domain; original O PLC boundary and temporary cap are preserved. No outer signed-distance clip is applied.",
+  "physical_or_native_admission": false,
+  "registered_fields_sha256": "67ad75b444382ba864f244dc57b1ac073664379a409963eb6813972fa6091769",
+  "simulation_allowed": false,
+  "stages": [],
+  "status": "BLOCKED_SPLITTER_FAILURE"
+}

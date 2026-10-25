@@ -1,0 +1,17 @@
+{
+  "status": "EXACT_ACTUAL_INPUT_AND_LEDGER_PARITY",
+  "input_sha256": "5a70e5e123b6c767ec1681d13627a958c53ae2246697cb6865ce205da63a1a90",
+  "ledger_sha256": "a671c8d6999ce98335e8677a3e39d6d963d2d5c6305bf6efcd82bd2a928abaad",
+  "owner_sha256": "f545896b6a00c96990cadd6b0b05d35a1dc35a2ec83db23a2ee4906759e175ab",
+  "statistics": {
+    "edge_count": 121495,
+    "snapped_vertex_count": 18,
+    "snap_fraction_of_local_hskin": 0.001,
+    "max_projected_interface_displacement_m": 2.4323068260997783e-06,
+    "max_allowed_displacement_m": 2.456894872139964e-06,
+    "max_cutpoint_float32_rounding_bound_m": 6.188917057900187e-08,
+    "max_cutpoint_rounding_to_snap_displacement_ratio": 25.019412922536326
+  },
+  "wall_seconds": 1.0175857919966802,
+  "native_admission": false
+}

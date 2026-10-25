@@ -1,0 +1,2 @@
+Compiler base: b1581d320c473856f02fa570acd15dbccdf5cd5f
+Adapted shared-interface construction from frozen extract_refined_registered_layers_snap_163.py; explicit input, budget, emitted-geometry and all-zero validation added.

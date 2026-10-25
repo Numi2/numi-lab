@@ -819,3 +819,81 @@ def split_tetrahedra_by_linear_scalar_field(
         excluded_parent_masses=excluded_parent_masses,
         diagnostics=diagnostics,
     )
+
+
+def snap_shared_scalar_interface_vertices(points, tets, values, hskin, *, fraction):
+    """Set one globally shared vertex to exact zero only if every incident crossing-edge
+    intersection is within a declared fraction of that vertex's local skin depth.
+    Coordinates remain unchanged; the explicit edge-interface displacement is retained
+    in the ledger. This opt-in static construction perturbation neither certifies
+    clearance nor relaxes the downstream splitter positivity/partition gates.
+    """
+    P = _finite_points(points, "points")
+    raw_tets = np.asarray(tets)
+    if raw_tets.ndim != 2 or raw_tets.shape[1] != 4 or raw_tets.dtype.kind not in "iu":
+        raise ValueError("tets must be an integer (N, 4) array")
+    T = raw_tets.astype(np.int64, copy=False)
+    if not len(T) or T.min() < 0 or T.max() >= len(P):
+        raise ValueError("empty or out-of-range tets")
+    if np.any(np.diff(np.sort(T, axis=1), axis=1) == 0):
+        raise ValueError("repeated tetrahedron vertex")
+    fraction = float(fraction)
+    if not np.isfinite(fraction) or not 0.0 <= fraction < 0.5:
+        raise ValueError("fraction must be explicit, finite and in [0, 0.5)")
+    phi = np.asarray(values, dtype=np.float64)
+    hs = _positive_depth_field(hskin, "hskin", len(P))
+    if phi.shape != (len(P),) or not np.isfinite(phi).all():
+        raise ValueError("values must be a finite per-vertex scalar field")
+    phi = phi.copy()
+    with np.errstate(over="ignore", invalid="ignore"):
+        P32 = P.astype(np.float32).astype(np.float64)
+    if not np.isfinite(P32).all():
+        raise ValueError("points must remain finite in emitted Float32")
+    X = P32[T]
+    det = np.einsum("ij,ij->i", X[:,1]-X[:,0], np.cross(X[:,2]-X[:,0],X[:,3]-X[:,0]))
+    if not np.isfinite(det).all() or np.any(det <= 0):
+        raise ValueError("input cells must be positive in emitted Float32")
+    if np.any(np.all(phi[T] == 0.0, axis=1)):
+        raise ValueError("ambiguous all-zero input parent")
+    raw=np.concatenate((T[:,[0,1]],T[:,[0,2]],T[:,[0,3]],T[:,[1,2]],T[:,[1,3]],T[:,[2,3]]),axis=0)
+    E=np.unique(np.sort(raw,axis=1),axis=0)
+    a,b=E.T
+    va=phi[a];vb=phi[b]
+    cross=((va<0)&(vb>0))|((va>0)&(vb<0))
+    e=E[cross];a=e[:,0];b=e[:,1];va=phi[a];vb=phi[b]
+    if len(e)==0:
+        return phi,{"edge_count":0,"snapped_vertex_count":0},None
+    den=np.abs(va)+np.abs(vb)
+    t=np.abs(va)/den
+    d=P[b]-P[a];L=np.linalg.norm(d,axis=1)
+    cut=P[a]+t[:,None]*d
+    cf=cut.astype(np.float32).astype(np.float64)
+    cf32=cf.astype(np.float32)
+    prev=np.nextafter(cf32,np.full_like(cf32,-np.inf,dtype=np.float32)).astype(np.float64)
+    nxt=np.nextafter(cf32,np.full_like(cf32,np.inf,dtype=np.float32)).astype(np.float64)
+    round_bound=np.linalg.norm(0.5*np.maximum(np.abs(cf-prev),np.abs(nxt-cf)),axis=1)
+    da=t*L;db=(1-t)*L
+    maxdist=np.zeros(len(P),dtype=np.float64);nedge=np.zeros(len(P),dtype=np.int32)
+    np.maximum.at(maxdist,a,da);np.maximum.at(maxdist,b,db)
+    np.add.at(nedge,a,1);np.add.at(nedge,b,1)
+    cap=fraction*hs
+    snapped=(nedge>0)&(maxdist<=cap)
+    out=phi.copy();out[snapped]=0.0
+    if np.any(np.all(out[T] == 0.0, axis=1)):
+        raise ValueError("snap would create an ambiguous all-zero parent")
+    endpoint_move=np.column_stack((np.where(snapped[a],da,0.0),np.where(snapped[b],db,0.0)))
+    snapped_endpoint_ratios=np.concatenate((round_bound[snapped[a]]/da[snapped[a]],round_bound[snapped[b]]/db[snapped[b]]))
+    stats={"edge_count":int(len(e)),"snapped_vertex_count":int(snapped.sum()),
+      "snap_fraction_of_local_hskin":float(fraction),"max_projected_interface_displacement_m":float(maxdist[snapped].max(initial=0)),
+      "max_allowed_displacement_m":float(cap[snapped].max(initial=0)),
+      "max_cutpoint_float32_rounding_bound_m":float(round_bound.max(initial=0)),
+      "max_cutpoint_rounding_to_snap_displacement_ratio":float(snapped_endpoint_ratios.max(initial=0)) if len(snapped_endpoint_ratios) else None}
+    ledger={"original_phi_m":phi,"snapped_phi_m":out,"snap_delta_m":out-phi,
+      "local_hskin_m":hs,"allowed_displacement_m":cap,"max_incident_crossing_displacement_m":maxdist,
+      "incident_crossing_edge_count":nedge,"snapped_vertex_rows":np.flatnonzero(snapped).astype(np.int64),
+      "crossing_edges":e.astype(np.int64),"crossing_parameter_from_a":t,"crossing_edge_length_m":L,
+      "crossing_distance_to_a_m":da,"crossing_distance_to_b_m":db,
+      "crossing_cutpoint_f32_rounding_bound_m":round_bound,"crossing_snapped_a":snapped[a],
+      "crossing_snapped_b":snapped[b],"crossing_projected_interface_displacement_a_m":endpoint_move[:,0],
+      "crossing_projected_interface_displacement_b_m":endpoint_move[:,1]}
+    return out,stats,ledger
