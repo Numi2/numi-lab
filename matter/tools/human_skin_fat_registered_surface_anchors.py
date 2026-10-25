@@ -58,3 +58,41 @@ def registered_surface_anchors(detail_points, detail_faces, coarse_points, rows,
                        'coincidence_residual_m':residual})
     result.sort(key=lambda r:r['coarse_row'])
     return points,result
+
+
+class AnchorResolutionError(ValueError):
+    pass
+
+def resolve_typed_coarse_anchors(anchor_source_ids, node_kind, node_source_row, *, coarse_kind=0):
+    """Resolve coarse source identities to unique current output rows.
+
+    Source IDs must never be used as row indices after compaction/refinement.
+    Noncoarse nodes can carry the same numeric source ID and are ignored.
+    """
+    anchors=np.asarray(anchor_source_ids)
+    kinds=np.asarray(node_kind)
+    sources=np.asarray(node_source_row)
+    if anchors.ndim!=1 or kinds.ndim!=1 or sources.ndim!=1 or kinds.shape!=sources.shape:
+        raise AnchorResolutionError("anchor IDs and typed node provenance must be 1D and aligned")
+    if anchors.dtype.kind not in "iu" or kinds.dtype.kind not in "iu" or sources.dtype.kind not in "iu":
+        raise AnchorResolutionError("anchor IDs, node_kind and node_source_row must be integer arrays")
+    if np.any(anchors<0) or np.any(sources[kinds==int(coarse_kind)]<0):
+        raise AnchorResolutionError("coarse source IDs must be nonnegative")
+    if any(a.dtype.kind=="u" and np.any(a>np.iinfo(np.int64).max)for a in (anchors,kinds,sources)):
+        raise AnchorResolutionError("typed identity exceeds signed 64-bit domain")
+    anchor_ids=anchors.astype(np.int64,copy=False)
+    if len(np.unique(anchor_ids))!=len(anchor_ids):
+        raise AnchorResolutionError("coarse anchor source IDs are duplicated")
+    rows=np.flatnonzero(kinds==int(coarse_kind))
+    src=sources[rows].astype(np.int64,copy=False)
+    output=np.empty(len(anchor_ids),dtype=np.int64)
+    for j,sid in enumerate(anchor_ids):
+        match=rows[src==sid]
+        if len(match)==0:
+            raise AnchorResolutionError(f"missing coarse output row for source ID {int(sid)}")
+        if len(match)!=1:
+            raise AnchorResolutionError(f"ambiguous coarse source ID {int(sid)}: output rows {match.tolist()}")
+        output[j]=int(match[0])
+    if len(np.unique(output))!=len(output):
+        raise AnchorResolutionError("distinct source anchor IDs resolved to duplicate output rows")
+    return output

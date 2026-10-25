@@ -1,0 +1,8 @@
+{
+  "actual_query_rows": 2915,
+  "all_arrays_bitwise_equal": true,
+  "canonical_owner_sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+  "canonical_tests": "..............                                                           [100%]\n14 passed in 0.03s",
+  "global_clearance_certificate": false,
+  "native_admission": false
+}

@@ -1,0 +1,54 @@
+{
+  "status": "REGISTERED_DEPTHS_PROLONGED",
+  "operation": "B @ owner156_registered_depths",
+  "base_node_count": 8776,
+  "refined_node_count": 10145,
+  "prolongation_shape": [
+    10145,
+    8776
+  ],
+  "prolongation_nnz": 12193,
+  "generated_node_count": 1369,
+  "generated_node_kind_counts": {
+    "1": 690,
+    "2": 679
+  },
+  "convex_weight_sum_min": 1.0,
+  "convex_weight_sum_max": 1.0,
+  "source_depth_min_m": [
+    0.0005002264353692146,
+    0.0005050744682764339
+  ],
+  "source_depth_max_m": [
+    0.002499801122454758,
+    0.009933762505155314
+  ],
+  "refined_depth_min_m": [
+    0.0005002264353692146,
+    0.0005050744682764339
+  ],
+  "refined_depth_max_m": [
+    0.002499801122454758,
+    0.009933762505155314
+  ],
+  "prefix_depth_bitwise_equal": true,
+  "prolongation_reconstructs_float32_points_bitwise": true,
+  "input_sha256": {
+    "base_candidate": "3858c079054c4a87829fc554757104d74cb818073b1c8414acfd2d117fb3dbdd",
+    "refined_candidate": "7a3a6fb208ad7e6af96fecf4bdcbab5aee8c3b340958a66b39676ea45a8176ec",
+    "field_asset": "ff5d936d9c5f14df7e78a596134a03c5a6fd4f5c09a517203643ded28da8f5c1",
+    "depth_owner": "3ffb8e68a5427f99d27acc6a9583de4897552166f459752a60112cbf97bfa0f8",
+    "layer_assembler": "9d169a15458d272048a917c3e5cc3d91a45d5aabe0fd211746f972cb2390cde9",
+    "coarse_faces": "8270d42f41289b6a077e33aae6ffb6af9ddfa40d90ceeb7a5bd93d4f8d4cb79a"
+  },
+  "coarse_face_csv_raw_sha256": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+  "physical_steps": 0,
+  "geometry_admitted": false,
+  "limitations": [
+    "Generated-node fields are convex sparse interpolation of registered source-node fields.",
+    "This adaptation does not qualify volume, bone clearance, mass, or tissue physics."
+  ],
+  "elapsed_seconds": 0.05984941590577364,
+  "output_sha256": "b54206114ed9cc62fb031ee2b038e5edf20f07c2146e23e4d0884894a0837b47",
+  "output_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-conforming-crossing-refinement/registered-depth-adapter-018-run-002/registered-depths-refined.npz"
+}

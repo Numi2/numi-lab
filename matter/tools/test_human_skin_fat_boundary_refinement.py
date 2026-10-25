@@ -320,3 +320,160 @@ def test_expected_source_normal_reference_is_shape_finite_and_nonzero(normals):
             P, F, {(0,2):4}, {(0,2):provenance(P[4])}, original_point_count=4,
             parent_face_markers=np.array([100001,100002], dtype=np.int32),
             expected_parent_normals=normals)
+
+
+def test_affine_crossed_face_refinement_is_conforming_and_retains_multiface_ancestry():
+    from human_skin_fat_boundary_refinement import subdivide_crossed_faces_affine
+    P, F = oriented_tetra()
+    markers = np.array([1001, 1002, 1003, 1004], dtype=np.int32)
+    result = subdivide_crossed_faces_affine(P.astype(np.float32), F, [0], parent_face_markers=markers)
+    assert result.points.shape == (11, 3)
+    assert result.faces.shape == (18, 3)
+    assert result.selected_edges.tolist() == [[0, 1], [0, 2], [1, 2]]
+    assert result.affected_parent_face_rows.tolist() == [0, 1, 2, 3]
+    assert result.refinement_node_kind.tolist() == [0]*4 + [1]*3 + [2]*4
+    np.testing.assert_array_equal(result.child_parent_face_markers,
+                                  markers[result.child_parent_face_rows])
+    np.testing.assert_array_equal(result.points[:len(P)].view(np.uint32), P.astype(np.float32).view(np.uint32))
+    assert result.boundary_components_before == result.boundary_components_after == 0
+    assert result.boundary_edges_before == result.boundary_edges_after == 0
+    assert np.all(result.relative_parent_area_error < 1e-6)
+    assert np.allclose(result.child_parent_face_barycentric.sum(axis=2), 1.0)
+    # Every edge-midpoint node has the two incident source-face ancestors.
+    for row in result.edge_midpoint_rows:
+        a, b = result.refinement_node_parent_face_indptr[row:row+2]
+        assert b-a == 2
+    # Every child edge is either shared by two triangles or belongs to no boundary (closed tetra).
+    incidence = {}
+    for a, b, c in result.faces:
+        for u, v in ((a,b),(b,c),(c,a)):
+            key = tuple(sorted((int(u), int(v))))
+            incidence.setdefault(key, []).append((int(u), int(v)))
+    assert all(len(uses) == 2 and uses[0] == uses[1][::-1] for uses in incidence.values())
+    # The returned affine CSR reproduces every emitted point.
+    ptr, cols, weights = (result.source_prolongation_indptr,
+                          result.source_prolongation_node_rows,
+                          result.source_prolongation_weights)
+    reconstructed = np.vstack([
+        np.sum(P.astype(np.float64)[cols[ptr[i]:ptr[i+1]]] * weights[ptr[i]:ptr[i+1], None], axis=0)
+        for i in range(len(result.points))
+    ]).astype(np.float32)
+    np.testing.assert_array_equal(reconstructed.view(np.uint32), result.points.view(np.uint32))
+
+
+def test_affine_refinement_bisects_boundary_chain_without_changing_loop_topology():
+    from human_skin_fat_boundary_refinement import subdivide_crossed_faces_affine
+    P = np.array([[0.,0.,0.], [1.,0.,0.], [1.,1.,0.], [0.,1.,0.]], dtype=np.float64)
+    F = np.array([[0,1,2], [0,2,3]], dtype=np.int32)
+    result = subdivide_crossed_faces_affine(P, F, [0])
+    assert result.boundary_components_before == result.boundary_components_after == 1
+    assert result.boundary_edges_before == 4
+    assert result.boundary_edges_after == 6
+    assert result.faces.shape == (10, 3)
+    assert result.points.shape == (4 + 3 + 2, 3)
+
+
+def test_affine_refinement_rejects_nonmanifold_or_inconsistently_oriented_input():
+    from human_skin_fat_boundary_refinement import BoundaryRefinementError, subdivide_crossed_faces_affine
+    P = np.array([[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [0.,-1.,0.], [0.,0.,1.]])
+    nonmanifold = np.array([[0,1,2], [1,0,3], [0,1,4]], dtype=np.int32)
+    with pytest.raises(BoundaryRefinementError, match="nonmanifold edge"):
+        subdivide_crossed_faces_affine(P, nonmanifold, [0])
+    inconsistent = np.array([[0,1,2], [0,1,3]], dtype=np.int32)
+    with pytest.raises(BoundaryRefinementError, match="inconsistent directed winding"):
+        subdivide_crossed_faces_affine(P, inconsistent, [0])
+
+
+def test_affine_refinement_rejects_bad_rows_and_float32_collapsed_midpoint():
+    from human_skin_fat_boundary_refinement import BoundaryRefinementError, subdivide_crossed_faces_affine
+    P = np.array([[0.,0.,0.], [1.,0.,0.], [0.,1.,0.]], dtype=np.float32)
+    F = np.array([[0,1,2]], dtype=np.int32)
+    with pytest.raises(BoundaryRefinementError, match="crossed_face_rows"):
+        subdivide_crossed_faces_affine(P, F, np.array([0.5]))
+    with pytest.raises(BoundaryRefinementError, match="outside"):
+        subdivide_crossed_faces_affine(P, F, [1])
+    tiny = np.array([[1.0,0.,0.], [1.0+1e-9,0.,0.], [1.0,1e-6,0.]], dtype=np.float32)
+    with pytest.raises(BoundaryRefinementError, match="collapses"):
+        subdivide_crossed_faces_affine(tiny, F, [0])
+
+
+def test_registered_depth_prolongation_is_convex_affine_prefix_exact_and_hash_pinned():
+    from human_skin_fat_boundary_refinement import prolong_registered_depth_fields, subdivide_crossed_faces_affine
+    P, F = oriented_tetra()
+    result = subdivide_crossed_faces_affine(P, F, [0])
+    H = np.column_stack((0.5 + .2*P[:,0] + .1*P[:,1], 0.8 + .1*P[:,1] + .05*P[:,2]))
+    out = prolong_registered_depth_fields(
+        H, result.source_prolongation_indptr, result.source_prolongation_node_rows,
+        result.source_prolongation_weights, expected_source_field_sha256="a"*64, source_field_sha256="a"*64)
+    expected = np.column_stack((0.5 + .2*result.points[:,0] + .1*result.points[:,1],
+                                0.8 + .1*result.points[:,1] + .05*result.points[:,2]))
+    np.testing.assert_allclose(out, expected, rtol=0, atol=1e-15)
+    np.testing.assert_array_equal(out[:len(H)], H)
+    assert np.all(out > 0)
+    with pytest.raises(BoundaryRefinementError, match="does not match"):
+        prolong_registered_depth_fields(H, result.source_prolongation_indptr,
+            result.source_prolongation_node_rows, result.source_prolongation_weights,
+            expected_source_field_sha256="a"*64, source_field_sha256="b"*64)
+
+
+def test_registered_depth_prolongation_rejects_nonconvex_duplicate_empty_and_nonpositive_rows():
+    from human_skin_fat_boundary_refinement import BoundaryRefinementError, prolong_registered_depth_fields
+    H = np.array([[.1,.2], [.3,.4]], dtype=np.float64)
+    with pytest.raises(BoundaryRefinementError, match="strictly positive"):
+        prolong_registered_depth_fields(np.array([[0.,.2], [.3,.4]]), [0,1,2], [0,1], [1.,1.])
+    with pytest.raises(BoundaryRefinementError, match="repeats"):
+        prolong_registered_depth_fields(H, [0,2,3], [0,0,1], [.5,.5,1.])
+    with pytest.raises(BoundaryRefinementError, match="convex partition"):
+        prolong_registered_depth_fields(H, [0,1,2], [0,1], [.8,.8])
+    with pytest.raises(BoundaryRefinementError, match="empty"):
+        prolong_registered_depth_fields(H, [0,1,1], [0], [1.])
+    with pytest.raises(BoundaryRefinementError, match="provided together"):
+        prolong_registered_depth_fields(H, [0,1,2], [0,1], [1.,1.], expected_source_field_sha256="c"*64)
+
+
+def test_affine_face_fans_cover_one_two_and_three_selected_edges():
+    from human_skin_fat_boundary_refinement import subdivide_crossed_faces_affine
+    P, F = oriented_tetra()
+    one = subdivide_crossed_faces_affine(P, F, [0])
+    # With two crossed faces, the two remaining tetrahedron faces each inherit
+    # exactly two selected edges from their neighbours.
+    two = subdivide_crossed_faces_affine(P, F, [0, 1])
+    two_face_parent_counts = np.bincount(two.child_parent_face_rows, minlength=len(F))
+    assert two_face_parent_counts.tolist() == [6, 6, 5, 5]
+    # Crossing three tetra faces selects every edge, so each parent polygon has
+    # six boundary vertices and receives a six-triangle centroid fan.
+    three = subdivide_crossed_faces_affine(P, F, [0, 1, 2])
+    three_face_parent_counts = np.bincount(three.child_parent_face_rows, minlength=len(F))
+    assert three_face_parent_counts.tolist() == [6, 6, 6, 6]
+    assert len(one.selected_edges) == 3
+    assert len(two.selected_edges) == 5
+    assert len(three.selected_edges) == 6
+
+
+def test_affine_child_barycentrics_reconstruct_each_emitted_child_triangle():
+    from human_skin_fat_boundary_refinement import subdivide_crossed_faces_affine
+    P, F = oriented_tetra()
+    result = subdivide_crossed_faces_affine(P.astype(np.float32), F, [0])
+    for child_row, (child, parent, bary) in enumerate(zip(
+            result.faces, result.child_parent_face_rows, result.child_parent_face_barycentric)):
+        reconstructed = bary @ P.astype(np.float64)[F[int(parent)]]
+        actual = result.points[child].astype(np.float64)
+        np.testing.assert_allclose(reconstructed, actual, rtol=0, atol=2e-7,
+                                   err_msg=f"child row {child_row} ancestry mismatch")
+    for row in result.face_centroid_rows:
+        start, stop = result.refinement_node_parent_face_indptr[row:row+2]
+        assert stop-start == 1
+        np.testing.assert_allclose(result.refinement_node_parent_face_barycentric[start], [1/3]*3)
+
+
+def test_affine_refinement_preserves_repeated_and_sentinel_parent_markers():
+    from human_skin_fat_boundary_refinement import subdivide_crossed_faces_affine
+    P, F = oriented_tetra()
+    markers = np.array([-1, 4, -1, 4], dtype=np.int32)
+    result = subdivide_crossed_faces_affine(P, F, [0], parent_face_markers=markers)
+    np.testing.assert_array_equal(result.child_parent_face_markers,
+                                  markers[result.child_parent_face_rows])
+    # The edge-weight table uses -1 only as its non-edge sentinel.
+    assert np.all(result.refinement_node_parent_edge_weights[:len(P)] == -1)
+    assert np.all(result.refinement_node_parent_edge_weights[result.face_centroid_rows] == -1)
+    assert np.all(result.refinement_node_parent_edge_weights[result.edge_midpoint_rows] == .5)

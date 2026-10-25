@@ -1,0 +1,31 @@
+{
+  "schema": "numi.human.anchor-corrected-refined-start-018.v1",
+  "classification": "construction_initialization_requires_fresh_surface_and_bank_gates",
+  "inputs": {
+    "refined_candidate_sha256": "7a3a6fb208ad7e6af96fecf4bdcbab5aee8c3b340958a66b39676ea45a8176ec",
+    "soft_candidate_017_sha256": "3858c079054c4a87829fc554757104d74cb818073b1c8414acfd2d117fb3dbdd",
+    "source_702_sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+    "typed_anchor_resolver_sha256": "63c0d02a135f40ea21a7d853a58a828b051344a7635a6754925ba6fe5627c65d"
+  },
+  "candidate": {
+    "path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-018-generated-node-exit-targets-002/anchor-corrected-refined-start.npz",
+    "sha256": "34dc98d228ccc2ae9dc7ac51a65dcf45d894f607186531ac7d0e099f9da42d25",
+    "nodes": 10145,
+    "faces": 20245
+  },
+  "typed_anchors": {
+    "source_ids_count": 237,
+    "resolved_output_rows_count": 237,
+    "wrong_numeric_id_intersection": 56,
+    "all_restored_to_702_f32_bits": true
+  },
+  "start_update": {
+    "restored_old_anchor_rows": 65,
+    "changed_generated_rows_after_source_prolongation": 46,
+    "nonanchor_old_prefix_rows_bitwise_unchanged": 8711,
+    "generated_rows": 1369,
+    "prolongation_nnz": 12193,
+    "max_abs_prolongation_row_sum_error": 0.0
+  },
+  "warning": "The run-003 exact point/self audits apply to the pre-correction candidate and do not transfer. Run fresh complete gates on this candidate before using any query classes."
+}

@@ -1,0 +1,1019 @@
+{
+  "schema": "numi.human.point-constrained-first-exit-soft-fit.v1",
+  "status": "CONSTRAINED_SOFT_FIT_PARTIAL",
+  "classification": "unadmitted_geometry_construction_candidate",
+  "inputs": {
+    "fit_runner_sha256": "02d1f2c531149413ad518280cf7669edebbb4c1195376c9bb41a47e9534fe7b3",
+    "predecessor_runner_sha256": "429799305252429c2f26893aaeb379e771283e34066c6ab397812ff80dd278b7",
+    "source_candidate_sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+    "continuation_candidate_sha256": "cadacd749dce017eeba0ad5995c0dedc37f4f3bcd231a406a63a92716eba6a1e",
+    "start_point_gate": {
+      "status": "PASS_COMPLETE_POINT_GATE",
+      "pass": true,
+      "candidate_sha256": "cadacd749dce017eeba0ad5995c0dedc37f4f3bcd231a406a63a92716eba6a1e",
+      "summary_sha256": "a2eabad96af5cdf2f973e5031cfbfd3f3e65d64461cf550956b001af9d89fabc",
+      "receipt_sha256": "96d525196fba663b45fd210769b947ccff9a023a2b9a560a55a9dd3f53607d44",
+      "nodes_sha256": "feaa17f72e186e62f48c7393c89fc459186bd1721930ffb54dc41e4b8a974a3a",
+      "query_rows": 8776,
+      "banks_per_row": 185,
+      "rows_with_inside_ambiguous_or_invalid_banks": 0,
+      "inside_node_bank_pairs": 0,
+      "inside_nodes": 0,
+      "complete_surface_audit": true,
+      "exact_PLC_surface_pairs": 0
+    },
+    "start_face_audit_sha256": "ad6a9a094dc3fd721a692c3d406d55e9358d0427b2068d1831719d93f506bc7a",
+    "start_face_pair_count": 1755,
+    "start_face_unique_skin_faces": 354,
+    "refreshed_rhs_two_iteration_regression": "PASS",
+    "baseline702_point_gate": {
+      "status": "PASS_COMPLETE_POINT_GATE",
+      "pass": true,
+      "candidate_sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+      "summary_sha256": "3b0e234e471e15b702797f7148763620d8d68311d1f54b33f2f6e406ab3fa310",
+      "receipt_sha256": "2304cebc0a03b93706b9d94b4133660601a8a6d0358df4d903decb668112005e",
+      "nodes_sha256": "6f8ed7cbb938bec615c41ae2d260a7c3ea404712dda050c1c413f28d762a844e",
+      "query_rows": 8776,
+      "banks_per_row": 185,
+      "rows_with_inside_ambiguous_or_invalid_banks": 0,
+      "inside_node_bank_pairs": 0,
+      "inside_nodes": 0,
+      "complete_surface_audit": true,
+      "exact_PLC_surface_pairs": 0
+    },
+    "proposal_sha256": "2d9bfa692bc8ad903e49698cfcd5bdc7dcbee8a371550747088068ca893f292f",
+    "face_audit_sha256": "26083de305f88c310ea12c159a6eb8e6ec2504bcd08b3d37eb5589f8ceea8171",
+    "sat_helper_sha256": "b9e2dc94bdd4a49d3c2635e312a5d5b5b9a35786ed68695fb4fd96f7317e865d",
+    "exact_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "clearance_planes_sha256": "482439e08d1763d2f3d70006f0272d07f73e5fc9135f232811b0d7095c0ba5ed",
+    "clearance_planes_report_sha256": "832adabce9683af2b7c370ac2cb8e4e6cb59a3de3fe4786a9f651235baaf7e62",
+    "clearance_plane_owner_sha256": "1150ef94a03de84e8ec04cf84a77b0483a40ea8b87e56e8d3addd49babd5769d"
+  },
+  "initial": {
+    "complete_exact_self": true,
+    "exact_self_pairs": 0,
+    "face_bank_pairs": 1755,
+    "crossing_faces": 354,
+    "max_cumulative_from_source_m": 0.00524104865359968,
+    "plane_rows": 2915,
+    "plane_constraints_on_free_nodes": 861,
+    "fixed_plane_rows": 2054,
+    "minimum_plane_slack_m": -1.6838257647747867e-08
+  },
+  "method": {
+    "finite_target_faces": 295,
+    "unresolved_cap_faces": [
+      {
+        "face": 6905,
+        "exit_m": 0.006
+      },
+      {
+        "face": 6906,
+        "exit_m": 0.006
+      },
+      {
+        "face": 6923,
+        "exit_m": 0.006
+      },
+      {
+        "face": 6924,
+        "exit_m": 0.006
+      },
+      {
+        "face": 6935,
+        "exit_m": 0.006
+      },
+      {
+        "face": 7112,
+        "exit_m": 0.006
+      },
+      {
+        "face": 7612,
+        "exit_m": 0.006
+      },
+      {
+        "face": 7614,
+        "exit_m": 0.006
+      },
+      {
+        "face": 7618,
+        "exit_m": 0.006
+      },
+      {
+        "face": 7647,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8009,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8018,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8019,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8025,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8026,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8028,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8052,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8053,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8054,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8155,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8156,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8165,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8286,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8383,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8414,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8461,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8469,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8470,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8471,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8486,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8506,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8507,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8508,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8514,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8758,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8760,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8767,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8769,
+        "exit_m": 0.006
+      },
+      {
+        "face": 8779,
+        "exit_m": 0.006
+      },
+      {
+        "face": 9164,
+        "exit_m": 0.006
+      },
+      {
+        "face": 9165,
+        "exit_m": 0.006
+      },
+      {
+        "face": 9387,
+        "exit_m": 0.006
+      },
+      {
+        "face": 9388,
+        "exit_m": 0.006
+      },
+      {
+        "face": 9392,
+        "exit_m": 0.006
+      },
+      {
+        "face": 9615,
+        "exit_m": 0.006
+      },
+      {
+        "face": 9616,
+        "exit_m": 0.006
+      },
+      {
+        "face": 9951,
+        "exit_m": 0.006
+      },
+      {
+        "face": 9953,
+        "exit_m": 0.006
+      },
+      {
+        "face": 9958,
+        "exit_m": 0.006
+      },
+      {
+        "face": 9960,
+        "exit_m": 0.006
+      },
+      {
+        "face": 9961,
+        "exit_m": 0.006
+      },
+      {
+        "face": 10014,
+        "exit_m": 0.006
+      },
+      {
+        "face": 10198,
+        "exit_m": 0.006
+      },
+      {
+        "face": 10297,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13304,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13311,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13377,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13381,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13382,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13383,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13435,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13503,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13549,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13621,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13857,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13864,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13865,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13866,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13867,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13871,
+        "exit_m": 0.006
+      },
+      {
+        "face": 13872,
+        "exit_m": 0.006
+      },
+      {
+        "face": 14106,
+        "exit_m": 0.006
+      },
+      {
+        "face": 14536,
+        "exit_m": 0.006
+      },
+      {
+        "face": 14549,
+        "exit_m": 0.006
+      },
+      {
+        "face": 14559,
+        "exit_m": 0.006
+      },
+      {
+        "face": 14901,
+        "exit_m": 0.006
+      },
+      {
+        "face": 14926,
+        "exit_m": 0.006
+      },
+      {
+        "face": 14927,
+        "exit_m": 0.006
+      },
+      {
+        "face": 14928,
+        "exit_m": 0.006
+      },
+      {
+        "face": 14931,
+        "exit_m": 0.006
+      },
+      {
+        "face": 14961,
+        "exit_m": 0.006
+      },
+      {
+        "face": 14963,
+        "exit_m": 0.006
+      },
+      {
+        "face": 15045,
+        "exit_m": 0.006
+      },
+      {
+        "face": 15048,
+        "exit_m": 0.006
+      },
+      {
+        "face": 15051,
+        "exit_m": 0.006
+      },
+      {
+        "face": 15052,
+        "exit_m": 0.006
+      },
+      {
+        "face": 15093,
+        "exit_m": 0.006
+      },
+      {
+        "face": 17432,
+        "exit_m": 0.006
+      },
+      {
+        "face": 17433,
+        "exit_m": 0.006
+      },
+      {
+        "face": 17434,
+        "exit_m": 0.006
+      },
+      {
+        "face": 17435,
+        "exit_m": 0.006
+      },
+      {
+        "face": 17439,
+        "exit_m": 0.006
+      },
+      {
+        "face": 17446,
+        "exit_m": 0.006
+      }
+    ],
+    "fixed_exit_rows": [
+      4241,
+      4243,
+      4262,
+      4732,
+      4745,
+      4748,
+      7274,
+      7275,
+      7276,
+      7758,
+      8076
+    ],
+    "fixed_anchor_rows": 237,
+    "free_nodes": 1845,
+    "free_rings": 2,
+    "source_cap_m": 0.006,
+    "increment_cap_m": 0.0015,
+    "point_constraint_count": 861,
+    "optimizer": "continuation from salvaged run016 alpha=1; smooth L-BFGS-B target projected with node-wise Dykstra onto refreshed point planes and source-radius balls"
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "smooth_success": true,
+      "smooth_message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "smooth_nit": 90,
+      "smooth_seconds": 0.04424966697115451,
+      "projection_status": "DYKSTRA_FEASIBLE",
+      "projection_max_sweeps": 2,
+      "projection_max_violation_um": 5.684341886080802e-14,
+      "projection_seconds": 0.008842500043101609,
+      "accepted_alpha": 0.5,
+      "backtracking": [
+        {
+          "alpha": 1.0,
+          "accepted": false,
+          "reason": "cap_fixed_or_linear_plane",
+          "min_plane_slack_m": -2.3556135447782157e-08
+        },
+        {
+          "alpha": 0.5,
+          "accepted": true,
+          "reason": null,
+          "point_audit_status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC",
+          "inside_node_bank_pairs": 0,
+          "inside_nodes": 0,
+          "query_pair_count": 2907,
+          "query_rows": 8776,
+          "point_receipt": {
+            "status": "PASS_COMPLETE_POINT_GATE",
+            "pass": true,
+            "candidate_sha256": "265be2d1ceb1ddf54c633b42883e0d4d3b815aacc7282fdd6603bca511da1e91",
+            "summary_sha256": "d2bc99bf71c09bd3ccef536409b16e1e4f437e539a65d0c7ed50fdc50ccac8fd",
+            "receipt_sha256": "136a74be4c285e7417d901c4991dc7ddc8a9a567c9d996a291750c5ea952925c",
+            "nodes_sha256": "e9f3aee6735f10fed132d9a0b7d743df062d2e9df7a5eb43f124f8822249d646",
+            "query_rows": 8776,
+            "banks_per_row": 185,
+            "rows_with_inside_ambiguous_or_invalid_banks": 0,
+            "inside_node_bank_pairs": 0,
+            "inside_nodes": 0,
+            "complete_surface_audit": true,
+            "exact_PLC_surface_pairs": 0
+          },
+          "min_plane_slack_m": -8.416398497676936e-09,
+          "soft_before_m": 0.04078681494527725,
+          "soft_after_m": 0.03828512060240355,
+          "audit_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-point-constrained-soft-continuation/iteration-01-point-audit-alpha-01",
+          "candidate_sha256": "265be2d1ceb1ddf54c633b42883e0d4d3b815aacc7282fdd6603bca511da1e91"
+        }
+      ],
+      "soft_before_m": 0.04078681494527725,
+      "soft_after_m": 0.03828512060240355,
+      "max_cumulative_m": 0.005254832509997459,
+      "changed_nodes": 1827,
+      "minimum_plane_slack_m": -8.416398497676936e-09,
+      "point_audit_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-point-constrained-soft-continuation/iteration-01-point-audit-alpha-01",
+      "candidate_sha256": "265be2d1ceb1ddf54c633b42883e0d4d3b815aacc7282fdd6603bca511da1e91"
+    },
+    {
+      "iteration": 2,
+      "smooth_success": true,
+      "smooth_message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "smooth_nit": 83,
+      "smooth_seconds": 0.04143145796842873,
+      "projection_status": "DYKSTRA_FEASIBLE",
+      "projection_max_sweeps": 2,
+      "projection_max_violation_um": 5.1247200927306835e-14,
+      "projection_seconds": 0.008954875054769218,
+      "accepted_alpha": 1.0,
+      "backtracking": [
+        {
+          "alpha": 1.0,
+          "accepted": true,
+          "reason": null,
+          "point_audit_status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC",
+          "inside_node_bank_pairs": 0,
+          "inside_nodes": 0,
+          "query_pair_count": 2901,
+          "query_rows": 8776,
+          "point_receipt": {
+            "status": "PASS_COMPLETE_POINT_GATE",
+            "pass": true,
+            "candidate_sha256": "b7b8913673fdd549ca530a3160dac9ad5d50427d8f887a871ab29cffc359aa54",
+            "summary_sha256": "0c58a0ed0cc9a7979ed314d3e19609714571bedca4d22b4224dec92791bfef85",
+            "receipt_sha256": "78c76411dd6f989846667112beb293b324ab8d825f574c184bc1867e42b9b594",
+            "nodes_sha256": "fe173d4ac20e849fd619e318ffabe83790d51a602a4b6efed6c2a7f20dcb3f55",
+            "query_rows": 8776,
+            "banks_per_row": 185,
+            "rows_with_inside_ambiguous_or_invalid_banks": 0,
+            "inside_node_bank_pairs": 0,
+            "inside_nodes": 0,
+            "complete_surface_audit": true,
+            "exact_PLC_surface_pairs": 0
+          },
+          "min_plane_slack_m": -1.5356335504552532e-08,
+          "soft_before_m": 0.03828512060240355,
+          "soft_after_m": 0.03464745550671534,
+          "audit_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-point-constrained-soft-continuation/iteration-02-point-audit-alpha-00",
+          "candidate_sha256": "b7b8913673fdd549ca530a3160dac9ad5d50427d8f887a871ab29cffc359aa54"
+        }
+      ],
+      "soft_before_m": 0.03828512060240355,
+      "soft_after_m": 0.03464745550671534,
+      "max_cumulative_m": 0.005696909080302654,
+      "changed_nodes": 1828,
+      "minimum_plane_slack_m": -1.5356335504552532e-08,
+      "point_audit_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-point-constrained-soft-continuation/iteration-02-point-audit-alpha-00",
+      "candidate_sha256": "b7b8913673fdd549ca530a3160dac9ad5d50427d8f887a871ab29cffc359aa54"
+    },
+    {
+      "iteration": 3,
+      "smooth_success": true,
+      "smooth_message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "smooth_nit": 82,
+      "smooth_seconds": 0.04108991695102304,
+      "projection_status": "DYKSTRA_FEASIBLE",
+      "projection_max_sweeps": 2,
+      "projection_max_violation_um": 1.412216697749269e-14,
+      "projection_seconds": 0.008723709033802152,
+      "accepted_alpha": 0.03125,
+      "backtracking": [
+        {
+          "alpha": 1.0,
+          "accepted": false,
+          "reason": "exact_self",
+          "complete": true,
+          "pairs": 3,
+          "witness_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-point-constrained-soft-continuation/iteration-03-self-alpha-00.npy"
+        },
+        {
+          "alpha": 0.5,
+          "accepted": false,
+          "reason": "exact_self",
+          "complete": true,
+          "pairs": 3,
+          "witness_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-point-constrained-soft-continuation/iteration-03-self-alpha-01.npy"
+        },
+        {
+          "alpha": 0.25,
+          "accepted": false,
+          "reason": "cap_fixed_or_linear_plane",
+          "min_plane_slack_m": -2.2626941900813404e-08
+        },
+        {
+          "alpha": 0.125,
+          "accepted": false,
+          "reason": "cap_fixed_or_linear_plane",
+          "min_plane_slack_m": -2.049852469419199e-08
+        },
+        {
+          "alpha": 0.0625,
+          "accepted": false,
+          "reason": "cap_fixed_or_linear_plane",
+          "min_plane_slack_m": -3.104587795871305e-08
+        },
+        {
+          "alpha": 0.03125,
+          "accepted": true,
+          "reason": null,
+          "point_audit_status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC",
+          "inside_node_bank_pairs": 0,
+          "inside_nodes": 0,
+          "query_pair_count": 2901,
+          "query_rows": 8776,
+          "point_receipt": {
+            "status": "PASS_COMPLETE_POINT_GATE",
+            "pass": true,
+            "candidate_sha256": "3858c079054c4a87829fc554757104d74cb818073b1c8414acfd2d117fb3dbdd",
+            "summary_sha256": "39b757bcfabe7763b92f3a3c52e004690795e240c468be50dbea7743f21c7e67",
+            "receipt_sha256": "f45f2f5aa0cbe1ab70ae73bb768db1980fd314e9887793412740403cb534e59d",
+            "nodes_sha256": "fe173d4ac20e849fd619e318ffabe83790d51a602a4b6efed6c2a7f20dcb3f55",
+            "query_rows": 8776,
+            "banks_per_row": 185,
+            "rows_with_inside_ambiguous_or_invalid_banks": 0,
+            "inside_node_bank_pairs": 0,
+            "inside_nodes": 0,
+            "complete_surface_audit": true,
+            "exact_PLC_surface_pairs": 0
+          },
+          "min_plane_slack_m": -1.928507810711774e-08,
+          "soft_before_m": 0.03464745550671534,
+          "soft_after_m": 0.03457486982932183,
+          "audit_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-point-constrained-soft-continuation/iteration-03-point-audit-alpha-05",
+          "candidate_sha256": "3858c079054c4a87829fc554757104d74cb818073b1c8414acfd2d117fb3dbdd"
+        }
+      ],
+      "soft_before_m": 0.03464745550671534,
+      "soft_after_m": 0.03457486982932183,
+      "max_cumulative_m": 0.005704131262492191,
+      "changed_nodes": 1828,
+      "minimum_plane_slack_m": -1.928507810711774e-08,
+      "point_audit_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-point-constrained-soft-continuation/iteration-03-point-audit-alpha-05",
+      "candidate_sha256": "3858c079054c4a87829fc554757104d74cb818073b1c8414acfd2d117fb3dbdd"
+    }
+  ],
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0,
+  "final": {
+    "candidate_path": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-point-constrained-soft-continuation/candidate.npz",
+    "candidate_sha256": "3858c079054c4a87829fc554757104d74cb818073b1c8414acfd2d117fb3dbdd",
+    "max_cumulative_from_source_m": 0.005704131262492191,
+    "cumulative_6mm_cap_pass": true,
+    "changed_nodes": 1828,
+    "weighted_soft_residual_m": 0.03457486982932183,
+    "target_face_rows": [
+      765,
+      949,
+      3421,
+      4237,
+      4238,
+      4239,
+      4748,
+      5029,
+      5636,
+      6820,
+      6864,
+      6865,
+      6866,
+      6870,
+      6871,
+      6872,
+      6876,
+      6899,
+      6900,
+      6901,
+      6903,
+      6904,
+      6920,
+      6927,
+      6928,
+      6929,
+      6932,
+      6933,
+      6934,
+      7035,
+      7240,
+      7241,
+      7619,
+      7625,
+      7642,
+      7645,
+      7648,
+      7649,
+      8015,
+      8021,
+      8024,
+      8027,
+      8029,
+      8030,
+      8031,
+      8039,
+      8040,
+      8041,
+      8044,
+      8045,
+      8046,
+      8048,
+      8051,
+      8056,
+      8057,
+      8153,
+      8154,
+      8261,
+      8294,
+      8295,
+      8308,
+      8318,
+      8389,
+      8398,
+      8415,
+      8523,
+      8524,
+      8531,
+      8532,
+      8747,
+      8757,
+      8761,
+      8762,
+      8766,
+      8778,
+      8780,
+      8805,
+      8806,
+      9163,
+      9171,
+      9172,
+      9409,
+      9410,
+      9411,
+      9412,
+      9437,
+      9438,
+      9484,
+      9632,
+      9638,
+      9917,
+      9919,
+      10196,
+      10201,
+      10202,
+      10294,
+      10303,
+      10306,
+      10779,
+      10819,
+      10820,
+      10821,
+      10823,
+      10824,
+      10838,
+      10855,
+      10856,
+      10870,
+      10871,
+      10872,
+      10873,
+      10884,
+      10885,
+      10886,
+      10887,
+      10888,
+      10912,
+      10970,
+      10972,
+      11156,
+      11159,
+      11160,
+      11161,
+      11315,
+      11316,
+      13285,
+      13303,
+      13306,
+      13307,
+      13308,
+      13370,
+      13372,
+      13374,
+      13376,
+      13379,
+      13388,
+      13391,
+      13427,
+      13436,
+      13546,
+      13547,
+      13562,
+      13564,
+      13583,
+      13587,
+      13616,
+      13620,
+      13641,
+      13642,
+      13643,
+      13644,
+      13645,
+      13646,
+      13781,
+      13785,
+      13786,
+      13789,
+      13822,
+      13823,
+      13853,
+      13855,
+      13862,
+      13884,
+      13885,
+      13888,
+      13889,
+      13890,
+      13891,
+      13892,
+      13896,
+      14077,
+      14078,
+      14083,
+      14084,
+      14085,
+      14097,
+      14098,
+      14099,
+      14113,
+      14114,
+      14118,
+      14126,
+      14475,
+      14502,
+      14523,
+      14526,
+      14537,
+      14548,
+      14550,
+      14555,
+      14556,
+      14583,
+      14584,
+      14585,
+      14864,
+      14877,
+      14879,
+      14882,
+      14898,
+      14906,
+      14908,
+      14930,
+      14941,
+      14964,
+      14966,
+      14967,
+      14968,
+      14969,
+      14970,
+      14973,
+      14974,
+      15049,
+      15060,
+      15062,
+      15063,
+      15064,
+      15070,
+      15161,
+      15162,
+      15253,
+      15257,
+      15258,
+      15259,
+      15346,
+      15728,
+      15731,
+      15732,
+      15734,
+      15735,
+      15746,
+      15771,
+      15772,
+      15774,
+      15775,
+      15776,
+      15778,
+      15816,
+      15821,
+      15823,
+      15825,
+      15850,
+      15852,
+      16327,
+      16329,
+      16379,
+      16380,
+      16381,
+      16382,
+      16383,
+      16384,
+      16386,
+      16387,
+      16388,
+      16389,
+      16427,
+      16428,
+      16430,
+      17215,
+      17216,
+      17217,
+      17218,
+      17226,
+      17347,
+      17351,
+      17352,
+      17353,
+      17356,
+      17357,
+      17358,
+      17359,
+      17360,
+      17362,
+      17364,
+      17365,
+      17367,
+      17370,
+      17373,
+      17374,
+      17375,
+      17378,
+      17379,
+      17380,
+      17381,
+      17419,
+      17423,
+      17427,
+      17428,
+      17429,
+      17430,
+      17436,
+      17437,
+      17440,
+      17444,
+      17445,
+      17497
+    ],
+    "linear_point_plane_rows": 861,
+    "minimum_linear_plane_slack_m": -1.928507810711774e-08,
+    "all_linear_point_planes_pass": true,
+    "all_candidate_array_keys_preserved": [
+      "points_world_m",
+      "source_O_faces",
+      "node_kind",
+      "node_source_row",
+      "node_source_virtual_row",
+      "node_parent_coarse_face_row",
+      "node_parent_coarse_edge_a",
+      "node_parent_coarse_edge_b",
+      "node_parent_coarse_edge_parameter",
+      "node_source_displacement_m",
+      "face_kind",
+      "parent_coarse_face_row",
+      "parent_fine_detail_face_row",
+      "parent_source_face_marker",
+      "coarse_boundary_anchor_rows",
+      "coarse_boundary_anchor_source_nodes",
+      "coarse_boundary_edge_endpoints",
+      "coarse_boundary_edge_path_indptr",
+      "coarse_boundary_edge_path_output_nodes",
+      "coarse_boundary_edge_path_source_nodes",
+      "coarse_boundary_edge_path_parameters",
+      "selected_coarse_face_rows",
+      "selected_fine_subface_rows",
+      "failed_or_unselected_coarse_components",
+      "face_source_ancestry_indptr",
+      "face_source_ancestry_face_rows",
+      "retriangulation_output_face_rows",
+      "retriangulation_original_source_face_rows",
+      "retriangulation_shared_edge_vertex_rows",
+      "retriangulation_alternate_diagonal_vertex_rows",
+      "points_before_connected_source_unfold_m",
+      "node_connected_source_unfold_displacement_m",
+      "parent_fine_subface_row",
+      "parent_fine_detail_face_row_semantics",
+      "parent_fine_subface_row_semantics",
+      "face_fine_subface_ancestry_indptr",
+      "face_fine_subface_ancestry_rows",
+      "quality_edge_flip_face_rows",
+      "quality_edge_flip_pair_face_rows",
+      "quality_edge_flip_shared_edges",
+      "quality_edge_flip_new_diagonals",
+      "quality_edge_flip_detail_ancestry_indptr",
+      "quality_edge_flip_detail_ancestry_rows",
+      "quality_edge_flip_subface_ancestry_indptr",
+      "quality_edge_flip_subface_ancestry_rows",
+      "points_before_joint_self_pair_repair_m",
+      "node_joint_self_pair_repair_displacement_m",
+      "node_box_constrained_source_fidelity_delta_m",
+      "node_source_fidelity_target_mask",
+      "all_inherited_exit_target_mask"
+    ]
+  },
+  "solve_seconds_including_LP_excluding_exact_audits": 0.15329212602227926,
+  "wall_seconds": 21.27685816702433
+}

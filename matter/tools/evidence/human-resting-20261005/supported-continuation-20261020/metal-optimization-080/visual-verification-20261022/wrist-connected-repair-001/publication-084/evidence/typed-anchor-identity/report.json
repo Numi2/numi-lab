@@ -1,0 +1,14 @@
+{
+  "owner_sha256": "f907fed911a1572522d5abeecc6aef135f3a2325675b2f555e06e5447464768f",
+  "candidate_sha256": "3858c079054c4a87829fc554757104d74cb818073b1c8414acfd2d117fb3dbdd",
+  "source_reference_sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+  "typed_anchor_count": 237,
+  "numeric_ID_overlap": 56,
+  "true_anchors_not_fixed_by_old_runner": 181,
+  "moved_true_anchor_count": 65,
+  "max_anchor_displacement_m": 0.001214320121200449,
+  "rms_anchor_displacement_m": 0.00011549197844875696,
+  "source_ids_are_not_output_rows": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

@@ -7,6 +7,8 @@ import unittest
 import numpy as np
 
 MODULE = pathlib.Path(__file__).with_name("human_skin_fat_bone_audit.py")
+# Use the retained owner in the repository layout, not the historical scratch parent.
+EXACT_SEGMENT_OWNER_RELATIVE = 'evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root_exact_segment_witness.py'
 spec = importlib.util.spec_from_file_location("route_audit_consolidation_019", MODULE)
 mod = importlib.util.module_from_spec(spec)
 assert spec.loader is not None
@@ -71,7 +73,7 @@ class RouteAuditConsolidationTests(unittest.TestCase):
         self.assertEqual(len({tuple(row) for row in edges.tolist()}), len(edges))
 
     def test_outside_segment_endpoints_can_cross_two_bank_triangles(self):
-        exact = mod.runpy.run_path(str(MODULE.parent.parent / "root_exact_segment_witness.py"))
+        exact = mod.runpy.run_path(str(MODULE.parent / EXACT_SEGMENT_OWNER_RELATIVE))
         # Closed unit right tetrahedron: the segment starts outside, crosses x=0
         # and x+y+z=1 faces, then ends outside again.
         a = np.array([-1.0, 0.1, 0.1])
@@ -154,7 +156,7 @@ class RouteAuditConsolidationTests(unittest.TestCase):
         a = np.array([0.25, 0.25, -1.0])
         b = np.array([0.25, 0.25, 1.0])
         # Reconstruct from the actual exact segment/triangle classifier output.
-        exact = mod.runpy.run_path(str(MODULE.parent.parent / "root_exact_segment_witness.py"))
+        exact = mod.runpy.run_path(str(MODULE.parent / EXACT_SEGMENT_OWNER_RELATIVE))
         result = exact["classify_segment_triangle"](a, b, tri)
         self.assertEqual(result["classification"], "proper_interior_hit")
         err = mod.validate_hit_reconstruction(tri, np.asarray(result["barycentric"]), a, b, result["t"])
@@ -237,4 +239,26 @@ class RouteAuditConsolidationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+import numpy as np
+import pytest
+from human_skin_fat_bone_audit import world_clearance_plane
+def test_raw_nonorthogonal_frame_uses_exact_inverse_and_covector():
+ M=np.array([[1.001,.02,0.],[-.01,.999,.005],[0.,.002,1.003]])
+ off=np.array([.01,-.02,.03]);pos=np.array([.2,.3,.4]);cl=np.array([.1,-.03,.02]);ql=cl+np.array([.002,.003,.004])
+ p=np.linalg.solve(M,ql+off)+pos
+ n,b,c,d,e=world_clearance_plane(p,ql,cl,M,off,pos)
+ assert np.linalg.norm(M@(c-pos)-off-cl)<1.e-15
+ assert np.isclose(n@(p-c),d) and b<0 and e<1.e-15
+ assert not np.allclose((cl+off)@M+pos,c,rtol=0,atol=1.e-7)
+def test_world_plane_distance_and_margin_are_feasible():
+ n,b,c,d,e=world_clearance_plane([.001,0,0],[.001,0,0],[0,0,0],np.eye(3),np.zeros(3),np.zeros(3))
+ assert np.array_equal(n,[1,0,0]);assert b==pytest.approx(-.00095);assert d==.001
+def test_mismatched_source_query_and_zero_distance_rejected():
+ with pytest.raises(ValueError,match='does not match'):
+  world_clearance_plane([1,0,0],[2,0,0],[0,0,0],np.eye(3),np.zeros(3),np.zeros(3))
+ with pytest.raises(ValueError,match='undefined'):
+  world_clearance_plane([0,0,0],[0,0,0],[0,0,0],np.eye(3),np.zeros(3),np.zeros(3))
 

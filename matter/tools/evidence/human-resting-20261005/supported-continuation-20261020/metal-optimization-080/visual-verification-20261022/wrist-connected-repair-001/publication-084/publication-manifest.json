@@ -1,0 +1,254 @@
+{
+  "publication": "084",
+  "base_commit": "cc78ca8494b6a4ed8efbd94eb17aeb3d20383765",
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "canonical_changes": [
+    {
+      "path": "canonical/matter/tools/human_skin_fat_bone_audit.py",
+      "sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81"
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_boundary_refinement.py",
+      "sha256": "eab8deda28164964051a6fa6ff346b8d94bc8bede04e896411dfdd02d46594f6"
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_registered_surface_anchors.py",
+      "sha256": "f907fed911a1572522d5abeecc6aef135f3a2325675b2f555e06e5447464768f"
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_bone_audit.py",
+      "sha256": "b6dc5dfa103de8f003ef704d0180b0b8d85d307d5c9595e5ecd92290173c68ad"
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_boundary_refinement.py",
+      "sha256": "a04eadd7f4bc44fabae4016574a2bc12ba9987953edb752d62e54dba0a02f08a"
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_registered_surface_anchors.py",
+      "sha256": "7871077c0b2aaf8d7328003b9b69e0d63f18fff9a0f5163062a2568be32b666e"
+    }
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 3165,
+      "sha256": "fb2dbac3976ca47b9179dddc5e15f03018d66df45c194e5b12e5621f704c86bf"
+    },
+    {
+      "path": "canonical/matter/tools/.pytest_cache/.gitignore",
+      "bytes": 37,
+      "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+    },
+    {
+      "path": "canonical/matter/tools/.pytest_cache/CACHEDIR.TAG",
+      "bytes": 191,
+      "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+    },
+    {
+      "path": "canonical/matter/tools/.pytest_cache/README.md",
+      "bytes": 302,
+      "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+    },
+    {
+      "path": "canonical/matter/tools/.pytest_cache/v/cache/nodeids",
+      "bytes": 7550,
+      "sha256": "a6ad18fde4c0d1fe9100d84a50aae649d47ec208c87ac59e2e3f7b433f17e86c"
+    },
+    {
+      "path": "canonical/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/root_exact_segment_witness.py",
+      "bytes": 2734,
+      "sha256": "d6a2efe451e7743b659d74c274d1372a5ed2a765511a8671b2c1a2370b7d03a2"
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_bone_audit.py",
+      "bytes": 48788,
+      "sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81"
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_boundary_refinement.py",
+      "bytes": 62441,
+      "sha256": "eab8deda28164964051a6fa6ff346b8d94bc8bede04e896411dfdd02d46594f6"
+    },
+    {
+      "path": "canonical/matter/tools/human_skin_fat_registered_surface_anchors.py",
+      "bytes": 6051,
+      "sha256": "f907fed911a1572522d5abeecc6aef135f3a2325675b2f555e06e5447464768f"
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_bone_audit.py",
+      "bytes": 15455,
+      "sha256": "b6dc5dfa103de8f003ef704d0180b0b8d85d307d5c9595e5ecd92290173c68ad"
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_boundary_refinement.py",
+      "bytes": 25810,
+      "sha256": "a04eadd7f4bc44fabae4016574a2bc12ba9987953edb752d62e54dba0a02f08a"
+    },
+    {
+      "path": "canonical/matter/tools/test_human_skin_fat_registered_surface_anchors.py",
+      "bytes": 4715,
+      "sha256": "7871077c0b2aaf8d7328003b9b69e0d63f18fff9a0f5163062a2568be32b666e"
+    },
+    {
+      "path": "canonical-source-pins.json",
+      "bytes": 2137,
+      "sha256": "020b150cffc89f21d9f867af6d277d30e261017dc615971c41587a069b2c0efc"
+    },
+    {
+      "path": "canonical-tests.log",
+      "bytes": 99,
+      "sha256": "f0d4654ec9c8251bc67b3d7fd559dd3fd158d088abc32759b28e199bec87b164"
+    },
+    {
+      "path": "evidence/anchor-corrected-connected-start-018/anchor-corrected-refined-start.npz",
+      "bytes": 992118,
+      "sha256": "34dc98d228ccc2ae9dc7ac51a65dcf45d894f607186531ac7d0e099f9da42d25"
+    },
+    {
+      "path": "evidence/anchor-corrected-connected-start-018/anchor-corrected-start-report.json",
+      "bytes": 1526,
+      "sha256": "306f5672d3e117eb9d43e8a2575eb39f3f114d9995fe2a85980c8374c2a0fbf2"
+    },
+    {
+      "path": "evidence/anchor-corrected-connected-start-018/full130-audit/query/query-receipt.json",
+      "bytes": 1636,
+      "sha256": "5d45f831abbe8924bbcd629e89d852cbd91c143471178b201c7b95fae779c279"
+    },
+    {
+      "path": "evidence/anchor-corrected-connected-start-018/full130-audit/summary.json",
+      "bytes": 321697,
+      "sha256": "cf6809372906f18a041cea72a2f669e0a97e8270e61326325a561c227b7c8f4d"
+    },
+    {
+      "path": "evidence/anchor-corrected-connected-start-018/run-018-source-start-builder.py",
+      "bytes": 4493,
+      "sha256": "ac5cf4b8980cec0b8cfe3c14e221be30ed6d7200d30b44b4ae1133f704ec5bda"
+    },
+    {
+      "path": "evidence/as-run-construction-scripts/run-016-point-constrained-soft-fit.py",
+      "bytes": 15379,
+      "sha256": "429799305252429c2f26893aaeb379e771283e34066c6ab397812ff80dd278b7"
+    },
+    {
+      "path": "evidence/as-run-construction-scripts/run-017-point-constrained-soft-continuation.py",
+      "bytes": 20740,
+      "sha256": "02d1f2c531149413ad518280cf7669edebbb4c1195376c9bb41a47e9534fe7b3"
+    },
+    {
+      "path": "evidence/clearance-plane-parity/actual-parity.json",
+      "bytes": 358,
+      "sha256": "808e2213af3e3a6ea7f053c1739c911029ca502df436e0b49e17f7d0e7f9efdc"
+    },
+    {
+      "path": "evidence/clearance-plane-parity/canonical-tests.log",
+      "bytes": 99,
+      "sha256": "33c930eade6286ef5ddd39f98dab7b7067892f96d99a96cffb302925675837f3"
+    },
+    {
+      "path": "evidence/connected-continuation-017/candidate.npz",
+      "bytes": 766041,
+      "sha256": "3858c079054c4a87829fc554757104d74cb818073b1c8414acfd2d117fb3dbdd"
+    },
+    {
+      "path": "evidence/connected-continuation-017/final-face-audit-159/report.json",
+      "bytes": 158978,
+      "sha256": "cfb3803f35ee465004f5dc60f73279035493a28de8076101618bc0adc6f09325"
+    },
+    {
+      "path": "evidence/connected-continuation-017/fit-report.json",
+      "bytes": 25255,
+      "sha256": "9949d06227473b818210e05949d9aed70876fca9d9a0373038b328cec55f4485"
+    },
+    {
+      "path": "evidence/connected-refinement/canonical-increment-019/manifest-019.json",
+      "bytes": 3844,
+      "sha256": "25f1e597d8fa20848460c4e1009221f2c53fe4b8a3d5c695ca812834593f4cea"
+    },
+    {
+      "path": "evidence/connected-refinement/canonical-increment-019/parity-replay-020/report.json",
+      "bytes": 7137,
+      "sha256": "3f2e5df897ba22362983affcc8cd12fcd8b5143bf2acf0797d99011837c92359"
+    },
+    {
+      "path": "evidence/connected-refinement/canonical-increment-019/parity_replay_020.py",
+      "bytes": 8255,
+      "sha256": "34ecee512d4089ba3f39b6d828e7007dbdaf1a0c90eed9950e9862002857fb89"
+    },
+    {
+      "path": "evidence/connected-refinement/refine_conforming_017.py",
+      "bytes": 23276,
+      "sha256": "41325519fd4be091d59c032694b889b55b2a1be7cfc3663fb3396eb622067a48"
+    },
+    {
+      "path": "evidence/connected-refinement/registered-depth-adapter-018-run-002/report.json",
+      "bytes": 2078,
+      "sha256": "7019e72a566eb59c83093905d924fcc5284d753813a2771da0ee463c2c9d2ae9"
+    },
+    {
+      "path": "evidence/connected-refinement/registered_depth_adapter_018.py",
+      "bytes": 10793,
+      "sha256": "ce484c8a152db1bf471876c73cee81970c6ade2d935407e6f209708a0a1d166b"
+    },
+    {
+      "path": "evidence/connected-refinement/run-003/full130-audit/query/query-receipt.json",
+      "bytes": 1657,
+      "sha256": "3812fd815e540cd4ab797dff2eff1cc6af08e8aca97f73a570eefacca2a34fe4"
+    },
+    {
+      "path": "evidence/connected-refinement/run-003/full130-audit/summary.json",
+      "bytes": 321697,
+      "sha256": "adb9f0fc7472cb879a36a856ae8e8d954813bcd8cc4112b3ce7b693090c239a9"
+    },
+    {
+      "path": "evidence/connected-refinement/run-003/full159-audit/report.json",
+      "bytes": 225004,
+      "sha256": "db976b53c8015d024dba20504f146cbee399a03323b9f589529a820aa564015e"
+    },
+    {
+      "path": "evidence/connected-refinement/run-003/refined-candidate.npz",
+      "bytes": 990788,
+      "sha256": "7a3a6fb208ad7e6af96fecf4bdcbab5aee8c3b340958a66b39676ea45a8176ec"
+    },
+    {
+      "path": "evidence/connected-refinement/run-003/refinement-report.json",
+      "bytes": 12828,
+      "sha256": "a9430205d7bf5ae94a1b844bd7c490279648015bcb5e6ae441da5821e0a75c4c"
+    },
+    {
+      "path": "evidence/connected-refinement/test_refine_conforming_017.py",
+      "bytes": 6139,
+      "sha256": "91f56e1ef0f426ab4af87cbaefd913edde2afbf06766ade75da22a39ce27af43"
+    },
+    {
+      "path": "evidence/connected-refinement/test_registered_depth_adapter_018.py",
+      "bytes": 2437,
+      "sha256": "605ab9874b0a1cd9d8cb91442add5ee52d8acc3fc75f1613d05b4054419196e5"
+    },
+    {
+      "path": "evidence/deep-domain-remesh-025/posthoc-raw-mesh-audit-001/report.json",
+      "bytes": 1877,
+      "sha256": "bbb33a629f7c8ed7259cd3c691fbf682c4c8d69ad04a35a131b16b4c77655906"
+    },
+    {
+      "path": "evidence/deep-domain-remesh-025/report.json",
+      "bytes": 309617,
+      "sha256": "e843ad186849b950d136af1dbf428ba28a2aa0adcabca27f3d4c0c4a357e2125"
+    },
+    {
+      "path": "evidence/deep-domain-remesh-025/run-025-joint-deep-domain-remesh_prepare.py",
+      "bytes": 23713,
+      "sha256": "96ad1f261b77893d4fb497a14b6c1a7d37302c0b78258ae6b763066836ec3e21"
+    },
+    {
+      "path": "evidence/typed-anchor-identity/report.json",
+      "bytes": 624,
+      "sha256": "bf43a4b10f8e76c8044b1e086842c8a6d55f6f44a9af11fd50c7190724dfbdcd"
+    },
+    {
+      "path": "evidence/typed-anchor-identity/resolved-typed-anchor-rows.npz",
+      "bytes": 5267,
+      "sha256": "b6f2ad3410cf2b8673904015899a31c39bd77afafe3b655468771356458c4ab9"
+    }
+  ]
+}

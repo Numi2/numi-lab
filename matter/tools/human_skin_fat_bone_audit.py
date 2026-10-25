@@ -792,6 +792,37 @@ def main() -> None:
                      indent=2))
 
 
+
+def world_clearance_plane(world,query_local,closest_local,M,offset,position):
+    """Build a local proposal plane from an outside closest-point query.
+
+    Raw registered frames may be slightly nonorthogonal. Transform normals as
+    covectors and invert the matrix for positions; do not renormalize the source
+    quaternion. This plane is not a global solid-clearance certificate.
+    """
+    world=np.asarray(world,dtype=float);ql=np.asarray(query_local,dtype=float);cl=np.asarray(closest_local,dtype=float)
+    M=np.asarray(M,dtype=float);offset=np.asarray(offset,dtype=float);position=np.asarray(position,dtype=float)
+    if M.shape!=(3,3) or any(v.shape!=(3,) for v in [world,ql,cl,offset,position]) or not all(np.isfinite(v).all()for v in [world,ql,cl,M,offset,position]):
+        raise ValueError("nonfinite or malformed pinned transform")
+    expected=M@(world-position)-offset
+    error=float(np.linalg.norm(expected-ql))
+    if error>1.e-12: raise ValueError(f"query position does not match pinned source: {error}")
+    local_delta=ql-cl
+    norm=float(np.linalg.norm(local_delta))
+    if norm<=0 or not np.isfinite(norm):raise ValueError("undefined outside distance normal")
+    local_normal=local_delta/norm
+    covector=M.T@local_normal
+    scale=float(np.linalg.norm(covector))
+    if scale<=0 or not np.isfinite(scale):raise ValueError("singular plane transform")
+    n=covector/scale
+    closest_world=np.linalg.solve(M,cl+offset)+position
+    distance=float(n@(world-closest_world))
+    if distance<=0:raise ValueError("baseline point is not on positive plane side")
+    if not np.isclose(distance,norm/scale,rtol=1.e-9,atol=2.e-15):raise ValueError("plane transform distance mismatch")
+    margin=min(50.e-6,.25*distance)
+    return n,margin-distance,closest_world,distance,error
+
+
 if __name__ == "__main__":
     main()
 

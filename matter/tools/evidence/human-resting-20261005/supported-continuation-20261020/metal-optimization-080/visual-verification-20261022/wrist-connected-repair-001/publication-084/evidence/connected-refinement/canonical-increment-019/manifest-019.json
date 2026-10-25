@@ -1,0 +1,49 @@
+{
+  "status": "ISOLATED_CANONICAL_INCREMENT_AND_PARITY_REPLAY_FROZEN",
+  "paths": {
+    "owner_original": "/Users/n/Work/numi-human-connected-surface-069/publication-079/canonical/matter/tools/human_skin_fat_boundary_refinement.py",
+    "owner_increment": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-conforming-crossing-refinement/canonical-increment-019/matter/tools/human_skin_fat_boundary_refinement.py",
+    "tests": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-conforming-crossing-refinement/canonical-increment-019/matter/tools/test_human_skin_fat_boundary_refinement.py",
+    "test_log": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-conforming-crossing-refinement/canonical-increment-019/canonical-tests-019.log",
+    "parity_script": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-conforming-crossing-refinement/canonical-increment-019/parity_replay_020.py",
+    "parity_report": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-conforming-crossing-refinement/canonical-increment-019/parity-replay-020/report.json",
+    "base_candidate": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-point-constrained-soft-continuation/candidate.npz",
+    "matched_face_report": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-point-constrained-soft-continuation/final-face-audit-159/report.json",
+    "run003_refined": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-conforming-crossing-refinement/run-003/refined-candidate.npz",
+    "saved_depths": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-conforming-crossing-refinement/registered-depth-adapter-018-run-002/registered-depths-refined.npz",
+    "depth_adapter": "/Users/n/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-conforming-crossing-refinement/registered_depth_adapter_018.py"
+  },
+  "sha256": {
+    "owner_original": "a94f203efba2f0019ef1553a687b93798884e4b64b6d2434e5a690da42035d1d",
+    "owner_increment": "eab8deda28164964051a6fa6ff346b8d94bc8bede04e896411dfdd02d46594f6",
+    "tests": "a04eadd7f4bc44fabae4016574a2bc12ba9987953edb752d62e54dba0a02f08a",
+    "test_log": "79e416feef66bf3281284b8253f06c62def5f551cff0f401a306a50e38fea019",
+    "parity_script": "34ecee512d4089ba3f39b6d828e7007dbdaf1a0c90eed9950e9862002857fb89",
+    "parity_report": "3f2e5df897ba22362983affcc8cd12fcd8b5143bf2acf0797d99011837c92359",
+    "base_candidate": "3858c079054c4a87829fc554757104d74cb818073b1c8414acfd2d117fb3dbdd",
+    "matched_face_report": "cfb3803f35ee465004f5dc60f73279035493a28de8076101618bc0adc6f09325",
+    "run003_refined": "7a3a6fb208ad7e6af96fecf4bdcbab5aee8c3b340958a66b39676ea45a8176ec",
+    "saved_depths": "b54206114ed9cc62fb031ee2b038e5edf20f07c2146e23e4d0884894a0837b47",
+    "depth_adapter": "ce484c8a152db1bf471876c73cee81970c6ade2d935407e6f209708a0a1d166b"
+  },
+  "validation": {
+    "py_compile": "pass",
+    "pytest": "36 passed",
+    "actual_parity": {
+      "all_bank_count": 185,
+      "triangle_bank_hit_records": 1638,
+      "unique_crossed_parent_faces": 330,
+      "points_bitwise_equal": true,
+      "integer_and_ancestry_array_values_equal": true,
+      "registered_depth_max_abs_diff_m": 1.734723475976807e-18,
+      "registered_depth_mismatched_scalar_count": 362,
+      "physical_steps": 0,
+      "geometry_or_native_admission": false
+    }
+  },
+  "commands": [
+    "python3 -m py_compile <owner.py> <test_owner.py>",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q <test_owner.py>",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python parity_replay_020.py"
+  ]
+}

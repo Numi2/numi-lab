@@ -41,3 +41,32 @@ def test_registered_direct_offset_is_preserved_when_coincidence_not_requested():
     Q,R=_registered_surface_anchors(P,F,P[[0]].copy(),[{"coarse_row":0,"source_direct_id":1}],detail_source_vertex_ids=np.arange(len(P)))
     np.testing.assert_array_equal(Q,P[[1]].astype(float))
     assert R[0]["coincidence_residual_m"]>0.017
+
+import unittest
+import human_skin_fat_registered_surface_anchors as mod
+class ResolverTests(unittest.TestCase):
+    def test_reordered_typed_mapping(self):
+        got=mod.resolve_typed_coarse_anchors(np.array([99,41]),np.array([0,2,0,3,0]),np.array([41,99,99,41,7]))
+        np.testing.assert_array_equal(got,[2,0])
+    def test_noncoarse_collision_is_ignored(self):
+        got=mod.resolve_typed_coarse_anchors(np.array([41]),np.array([2,0,3]),np.array([41,41,41]))
+        np.testing.assert_array_equal(got,[1])
+    def test_missing_is_rejected(self):
+        with self.assertRaisesRegex(mod.AnchorResolutionError,"missing"):
+            mod.resolve_typed_coarse_anchors(np.array([9]),np.array([0,2]),np.array([8,9]))
+    def test_ambiguous_is_rejected(self):
+        with self.assertRaisesRegex(mod.AnchorResolutionError,"ambiguous"):
+            mod.resolve_typed_coarse_anchors(np.array([9]),np.array([0,0]),np.array([9,9]))
+    def test_duplicate_anchor_ids_rejected(self):
+        with self.assertRaisesRegex(mod.AnchorResolutionError,"duplicated"):
+            mod.resolve_typed_coarse_anchors(np.array([9,9]),np.array([0]),np.array([9]))
+    def test_alignment_rejected(self):
+        with self.assertRaisesRegex(mod.AnchorResolutionError,"aligned"):
+            mod.resolve_typed_coarse_anchors(np.array([9]),np.array([0,0]),np.array([9]))
+
+def test_typed_anchor_negative_ids_rejected():
+    with pytest.raises(ValueError,match="nonnegative"):
+        mod.resolve_typed_coarse_anchors(np.array([-1]),np.array([0]),np.array([-1]))
+def test_typed_anchor_overflow_rejected():
+    with pytest.raises(ValueError,match="64-bit"):
+        mod.resolve_typed_coarse_anchors(np.array([2**63],dtype=np.uint64),np.array([0]),np.array([1]))

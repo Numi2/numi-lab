@@ -1,0 +1,290 @@
+{
+  "status": "CANONICAL_RUN003_PARITY_COMPLETE",
+  "inputs_sha256": {
+    "base_candidate": "3858c079054c4a87829fc554757104d74cb818073b1c8414acfd2d117fb3dbdd",
+    "face_report": "cfb3803f35ee465004f5dc60f73279035493a28de8076101618bc0adc6f09325",
+    "run003_refined": "7a3a6fb208ad7e6af96fecf4bdcbab5aee8c3b340958a66b39676ea45a8176ec",
+    "registered_depths": "b54206114ed9cc62fb031ee2b038e5edf20f07c2146e23e4d0884894a0837b47",
+    "canonical_owner": "eab8deda28164964051a6fa6ff346b8d94bc8bede04e896411dfdd02d46594f6",
+    "depth_adapter": "ce484c8a152db1bf471876c73cee81970c6ade2d935407e6f209708a0a1d166b"
+  },
+  "crossing_inventory": {
+    "all_bank_count": 185,
+    "complete": true,
+    "triangle_bank_hit_records": 1638,
+    "unique_crossed_parent_faces": 330
+  },
+  "canonical_output": {
+    "point_count": 10145,
+    "face_count": 20245,
+    "selected_edge_count": 690,
+    "affected_parent_face_count": 679,
+    "centroid_count": 679
+  },
+  "comparisons": {
+    "points_world_m": {
+      "shape_actual": [
+        10145,
+        3
+      ],
+      "shape_expected": [
+        10145,
+        3
+      ],
+      "dtype_actual": "float32",
+      "dtype_expected": "float32",
+      "shape_equal": true,
+      "dtype_equal": true,
+      "value_equal": true,
+      "max_abs_diff": 0.0,
+      "mismatch_count": 0
+    },
+    "source_O_faces": {
+      "shape_actual": [
+        20245,
+        3
+      ],
+      "shape_expected": [
+        20245,
+        3
+      ],
+      "dtype_actual": "int64",
+      "dtype_expected": "int32",
+      "shape_equal": true,
+      "dtype_equal": false,
+      "value_equal": true,
+      "max_abs_diff": 0.0,
+      "mismatch_count": 0
+    },
+    "refinement_face_parent_face_row": {
+      "shape_actual": [
+        20245
+      ],
+      "shape_expected": [
+        20245
+      ],
+      "dtype_actual": "int64",
+      "dtype_expected": "int32",
+      "shape_equal": true,
+      "dtype_equal": false,
+      "value_equal": true,
+      "max_abs_diff": 0.0,
+      "mismatch_count": 0
+    },
+    "refinement_face_parent_barycentric": {
+      "shape_actual": [
+        20245,
+        3,
+        3
+      ],
+      "shape_expected": [
+        20245,
+        3,
+        3
+      ],
+      "dtype_actual": "float64",
+      "dtype_expected": "float64",
+      "shape_equal": true,
+      "dtype_equal": true,
+      "value_equal": true,
+      "max_abs_diff": 0.0,
+      "mismatch_count": 0
+    },
+    "parent_source_face_marker": {
+      "shape_actual": [
+        20245
+      ],
+      "shape_expected": [
+        20245
+      ],
+      "dtype_actual": "int32",
+      "dtype_expected": "int32",
+      "shape_equal": true,
+      "dtype_equal": true,
+      "value_equal": true,
+      "max_abs_diff": 0.0,
+      "mismatch_count": 0
+    },
+    "refinement_node_kind": {
+      "shape_actual": [
+        10145
+      ],
+      "shape_expected": [
+        10145
+      ],
+      "dtype_actual": "int8",
+      "dtype_expected": "int64",
+      "shape_equal": true,
+      "dtype_equal": false,
+      "value_equal": true,
+      "max_abs_diff": 0.0,
+      "mismatch_count": 0
+    },
+    "refinement_node_parent_edge_rows": {
+      "shape_actual": [
+        10145,
+        2
+      ],
+      "shape_expected": [
+        10145,
+        2
+      ],
+      "dtype_actual": "int64",
+      "dtype_expected": "int32",
+      "shape_equal": true,
+      "dtype_equal": false,
+      "value_equal": true,
+      "max_abs_diff": 0.0,
+      "mismatch_count": 0
+    },
+    "refinement_node_parent_edge_weights": {
+      "shape_actual": [
+        10145,
+        2
+      ],
+      "shape_expected": [
+        10145,
+        2
+      ],
+      "dtype_actual": "float64",
+      "dtype_expected": "float64",
+      "shape_equal": true,
+      "dtype_equal": true,
+      "value_equal": true,
+      "max_abs_diff": 0.0,
+      "mismatch_count": 0
+    },
+    "refinement_node_parent_face_indptr": {
+      "shape_actual": [
+        10146
+      ],
+      "shape_expected": [
+        10146
+      ],
+      "dtype_actual": "int64",
+      "dtype_expected": "int64",
+      "shape_equal": true,
+      "dtype_equal": true,
+      "value_equal": true,
+      "max_abs_diff": 0.0,
+      "mismatch_count": 0
+    },
+    "refinement_node_parent_face_rows": {
+      "shape_actual": [
+        2059
+      ],
+      "shape_expected": [
+        2059
+      ],
+      "dtype_actual": "int64",
+      "dtype_expected": "int32",
+      "shape_equal": true,
+      "dtype_equal": false,
+      "value_equal": true,
+      "max_abs_diff": 0.0,
+      "mismatch_count": 0
+    },
+    "refinement_node_parent_face_barycentric": {
+      "shape_actual": [
+        2059,
+        3
+      ],
+      "shape_expected": [
+        2059,
+        3
+      ],
+      "dtype_actual": "float64",
+      "dtype_expected": "float64",
+      "shape_equal": true,
+      "dtype_equal": true,
+      "value_equal": true,
+      "max_abs_diff": 0.0,
+      "mismatch_count": 0
+    },
+    "source_prolongation_indptr": {
+      "shape_actual": [
+        10146
+      ],
+      "shape_expected": [
+        10146
+      ],
+      "dtype_actual": "int64",
+      "dtype_expected": "int64",
+      "shape_equal": true,
+      "dtype_equal": true,
+      "value_equal": true,
+      "max_abs_diff": 0.0,
+      "mismatch_count": 0
+    },
+    "source_prolongation_node_rows": {
+      "shape_actual": [
+        12193
+      ],
+      "shape_expected": [
+        12193
+      ],
+      "dtype_actual": "int64",
+      "dtype_expected": "int32",
+      "shape_equal": true,
+      "dtype_equal": false,
+      "value_equal": true,
+      "max_abs_diff": 0.0,
+      "mismatch_count": 0
+    },
+    "source_prolongation_weights": {
+      "shape_actual": [
+        12193
+      ],
+      "shape_expected": [
+        12193
+      ],
+      "dtype_actual": "float64",
+      "dtype_expected": "float64",
+      "shape_equal": true,
+      "dtype_equal": true,
+      "value_equal": true,
+      "max_abs_diff": 0.0,
+      "mismatch_count": 0
+    },
+    "registered_depths_m": {
+      "shape_actual": [
+        10145,
+        2
+      ],
+      "shape_expected": [
+        10145,
+        2
+      ],
+      "dtype_actual": "float64",
+      "dtype_expected": "float64",
+      "shape_equal": true,
+      "dtype_equal": true,
+      "value_equal": false,
+      "max_abs_diff": 1.734723475976807e-18,
+      "mismatch_count": 362
+    }
+  },
+  "exact_value_equal_fields": [
+    "points_world_m",
+    "source_O_faces",
+    "refinement_face_parent_face_row",
+    "refinement_face_parent_barycentric",
+    "parent_source_face_marker",
+    "refinement_node_kind",
+    "refinement_node_parent_edge_rows",
+    "refinement_node_parent_edge_weights",
+    "refinement_node_parent_face_indptr",
+    "refinement_node_parent_face_rows",
+    "refinement_node_parent_face_barycentric",
+    "source_prolongation_indptr",
+    "source_prolongation_node_rows",
+    "source_prolongation_weights"
+  ],
+  "geometry_or_native_admission": false,
+  "physical_steps": 0,
+  "elapsed_seconds": 0.27617370896041393,
+  "notes": [
+    "Array ordering is checked as emitted; no ID reordering is applied.",
+    "Depth comparison uses owner 156 source fields and the frozen CSR; no mass transfer or geometry qualification is claimed."
+  ]
+}

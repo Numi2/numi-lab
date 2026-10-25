@@ -663,3 +663,366 @@ def subdivide_registered_column_edges(
         offset_provenance_by_layer={layer: tuple(provenance_by_layer_edge[layer][edge]
             for edge in provenance_by_layer_edge[layer]) for layer in layers if layer != "O"},
     )
+
+@dataclass(frozen=True)
+class AffineSurfaceRefinement:
+    """Same-surface affine subdivision with explicit source-face/edge ancestry.
+
+    This is a topology/field-prolongation primitive. It does not reconstruct a
+    curved source surface, establish bone clearance, or transfer physical mass.
+    """
+    points: np.ndarray
+    faces: np.ndarray
+    child_parent_face_rows: np.ndarray
+    child_parent_face_markers: np.ndarray
+    child_parent_face_barycentric: np.ndarray
+    selected_edges: np.ndarray
+    edge_midpoint_rows: np.ndarray
+    affected_parent_face_rows: np.ndarray
+    face_centroid_rows: np.ndarray
+    refinement_node_kind: np.ndarray
+    refinement_node_parent_edge_rows: np.ndarray
+    refinement_node_parent_edge_weights: np.ndarray
+    refinement_node_parent_face_indptr: np.ndarray
+    refinement_node_parent_face_rows: np.ndarray
+    refinement_node_parent_face_barycentric: np.ndarray
+    source_prolongation_indptr: np.ndarray
+    source_prolongation_node_rows: np.ndarray
+    source_prolongation_weights: np.ndarray
+    boundary_components_before: int
+    boundary_components_after: int
+    boundary_edges_before: int
+    boundary_edges_after: int
+    relative_parent_area_error: np.ndarray
+
+
+def _affine_edge_incidence(faces: np.ndarray) -> dict[tuple[int, int], list[tuple[int, int, int]]]:
+    incidence: dict[tuple[int, int], list[tuple[int, int, int]]] = {}
+    for fi, face in enumerate(np.asarray(faces, dtype=np.int64)):
+        a, b, c = map(int, face)
+        for u, v in ((a, b), (b, c), (c, a)):
+            incidence.setdefault(_edge_key(u, v), []).append((fi, u, v))
+    return incidence
+
+
+def _affine_boundary_summary(edges: set[tuple[int, int]]) -> tuple[int, dict[int, int]]:
+    adjacency: dict[int, set[int]] = {}
+    for a, b in edges:
+        adjacency.setdefault(a, set()).add(b)
+        adjacency.setdefault(b, set()).add(a)
+    degree = {v: len(neighbours) for v, neighbours in adjacency.items()}
+    seen: set[int] = set()
+    components = 0
+    for start in sorted(adjacency):
+        if start in seen:
+            continue
+        components += 1
+        seen.add(start)
+        stack = [start]
+        while stack:
+            current = stack.pop()
+            for neighbour in adjacency[current]:
+                if neighbour not in seen:
+                    seen.add(neighbour)
+                    stack.append(neighbour)
+    return components, degree
+
+
+def subdivide_crossed_faces_affine(
+    points: np.ndarray,
+    faces: np.ndarray,
+    crossed_face_rows: Sequence[int] | np.ndarray,
+    *,
+    parent_face_markers: np.ndarray | None = None,
+) -> AffineSurfaceRefinement:
+    """Conformingly refine crossed triangles with shared edge mids and face fans.
+
+    Every edge of every crossed face is bisected once globally. Every face
+    incident to a selected edge is then fanned from its affine centroid to its
+    ordered boundary polygon, so adjacent faces share midpoint rows and no
+    T-junction is introduced. Original vertices and all unaffected faces remain
+    unchanged. New rows have explicit edge or parent-face ancestry and a convex
+    CSR prolongation from the original point domain.
+
+    Boundary edges may be bisected; their geometric segments and boundary-loop
+    count are preserved. A selected edge with more than two incident faces, an
+    open/nonmanifold boundary, or inconsistent directed winding is rejected.
+    """
+    X = np.asarray(points)
+    Fraw = np.asarray(faces)
+    if X.ndim != 2 or X.shape[1] != 3 or X.dtype.kind != "f" or X.dtype.itemsize not in (4, 8) or not np.isfinite(X).all():
+        raise BoundaryRefinementError("points must be finite Float32/Float64 Nx3")
+    if Fraw.ndim != 2 or Fraw.shape[1] != 3 or Fraw.dtype.kind not in "iu" or len(Fraw) == 0:
+        raise BoundaryRefinementError("faces must be a nonempty integer Mx3 array")
+    npoints, nfaces = len(X), len(Fraw)
+    F = Fraw.astype(np.int64, copy=False)
+    if npoints < 3 or np.any(F < 0) or np.any(F >= npoints):
+        raise BoundaryRefinementError("faces reference a point outside the original point domain")
+    if np.any((F[:, 0] == F[:, 1]) | (F[:, 1] == F[:, 2]) | (F[:, 2] == F[:, 0])):
+        raise BoundaryRefinementError("input face contains a repeated vertex")
+    if len(np.unique(np.sort(F, axis=1), axis=0)) != nfaces:
+        raise BoundaryRefinementError("input face table contains duplicate triangles")
+    if parent_face_markers is None:
+        markers = np.arange(1, nfaces + 1, dtype=np.int64)
+    else:
+        markers = np.asarray(parent_face_markers)
+        if markers.shape != (nfaces,) or markers.dtype.kind not in "iu":
+            raise BoundaryRefinementError("parent_face_markers must be an integer M-vector")
+
+    crossed_raw = np.asarray(crossed_face_rows)
+    if crossed_raw.ndim != 1 or crossed_raw.dtype.kind not in "iu" or len(crossed_raw) == 0:
+        raise BoundaryRefinementError("crossed_face_rows must be a nonempty integer vector")
+    crossed = np.unique(crossed_raw.astype(np.int64, copy=False))
+    if np.any(crossed < 0) or np.any(crossed >= nfaces):
+        raise BoundaryRefinementError("crossed face row is outside the input face domain")
+
+    incidence = _affine_edge_incidence(F)
+    if any(len(uses) > 2 for uses in incidence.values()):
+        raise BoundaryRefinementError("input surface has a nonmanifold edge")
+    # A coherent oriented triangle surface must use every interior edge in
+    # opposite directions. Validate the whole domain before constructing fans.
+    for edge, uses in incidence.items():
+        if len(uses) == 2 and (uses[0][1], uses[0][2]) != (uses[1][2], uses[1][1]):
+            raise BoundaryRefinementError(f"input interior edge {edge} has inconsistent directed winding")
+    old_boundary = {edge for edge, uses in incidence.items() if len(uses) == 1}
+    old_components, old_degrees = _affine_boundary_summary(old_boundary)
+    if any(degree != 2 for degree in old_degrees.values()):
+        raise BoundaryRefinementError("input boundary is not a union of simple closed loops")
+
+    selected_edges: set[tuple[int, int]] = set()
+    for fi in crossed:
+        a, b, c = map(int, F[int(fi)])
+        selected_edges.update((_edge_key(a, b), _edge_key(b, c), _edge_key(c, a)))
+    affected = sorted({fi for edge in selected_edges for fi, _, _ in incidence[edge]})
+    edges_sorted = sorted(selected_edges)
+
+    edge_midpoint_rows = {edge: npoints + i for i, edge in enumerate(edges_sorted)}
+    face_centroid_rows = {fi: npoints + len(edges_sorted) + i for i, fi in enumerate(affected)}
+    all_new_points: list[np.ndarray] = []
+    node_kind = np.zeros(npoints, dtype=np.int8)
+    parent_edge_rows = np.full((npoints, 2), -1, dtype=np.int64)
+    parent_edge_weights = np.full((npoints, 2), -1.0, dtype=np.float64)
+    parent_face_indptr = [0] * (npoints + 1)
+    parent_face_rows: list[int] = []
+    parent_face_bary: list[np.ndarray] = []
+    prolong_indptr = [0]
+    prolong_rows: list[int] = []
+    prolong_weights: list[float] = []
+
+    for row in range(npoints):
+        prolong_rows.append(row)
+        prolong_weights.append(1.0)
+        prolong_indptr.append(len(prolong_rows))
+
+    for edge in edges_sorted:
+        a, b = edge
+        weights = np.array([0.5, 0.5], dtype=np.float64)
+        q = np.sum(X[[a, b]].astype(np.float64) * weights[:, None], axis=0).astype(X.dtype)
+        if not np.isfinite(q).all() or np.array_equal(q, X[a]) or np.array_equal(q, X[b]):
+            raise BoundaryRefinementError(f"Float32/Float64 midpoint collapses for selected edge {edge}")
+        all_new_points.append(q)
+        node_kind = np.append(node_kind, np.int8(1))
+        parent_edge_rows = np.vstack((parent_edge_rows, np.asarray(edge, dtype=np.int64)))
+        parent_edge_weights = np.vstack((parent_edge_weights, weights))
+        for fi, _, _ in sorted(incidence[edge]):
+            tri = tuple(map(int, F[fi]))
+            bary = np.zeros(3, dtype=np.float64)
+            bary[tri.index(a)] = 0.5
+            bary[tri.index(b)] = 0.5
+            parent_face_rows.append(int(fi))
+            parent_face_bary.append(bary)
+        parent_face_indptr.append(len(parent_face_rows))
+        prolong_rows.extend((a, b))
+        prolong_weights.extend((0.5, 0.5))
+        prolong_indptr.append(len(prolong_rows))
+
+    for fi in affected:
+        tri = tuple(map(int, F[fi]))
+        weights = np.full(3, 1.0 / 3.0, dtype=np.float64)
+        q = np.sum(X[np.asarray(tri)].astype(np.float64) * weights[:, None], axis=0).astype(X.dtype)
+        if not np.isfinite(q).all() or any(np.array_equal(q, X[v]) for v in tri):
+            raise BoundaryRefinementError(f"Float32/Float64 centroid collapses for parent face {fi}")
+        all_new_points.append(q)
+        node_kind = np.append(node_kind, np.int8(2))
+        parent_edge_rows = np.vstack((parent_edge_rows, np.asarray((-1, -1), dtype=np.int64)))
+        parent_edge_weights = np.vstack((parent_edge_weights, np.full(2, -1.0, dtype=np.float64)))
+        bary = weights.copy()
+        parent_face_rows.append(int(fi))
+        parent_face_bary.append(bary)
+        parent_face_indptr.append(len(parent_face_rows))
+        prolong_rows.extend(tri)
+        prolong_weights.extend((1.0 / 3.0,) * 3)
+        prolong_indptr.append(len(prolong_rows))
+
+    Xout = np.concatenate((X.copy(), np.asarray(all_new_points, dtype=X.dtype).reshape(-1, 3)), axis=0)
+    if not np.array_equal(Xout[:npoints].view(np.uint8), X.view(np.uint8)):
+        raise AssertionError("original point prefix changed")
+
+    affected_set = set(affected)
+    child_faces: list[tuple[int, int, int]] = []
+    child_parent: list[int] = []
+    child_bary: list[np.ndarray] = []
+    identity = np.eye(3, dtype=np.float64)
+    for fi, raw_tri in enumerate(F):
+        tri = tuple(map(int, raw_tri))
+        if fi not in affected_set:
+            child_faces.append(tri)
+            child_parent.append(fi)
+            child_bary.append(identity.copy())
+            continue
+        polygon_rows: list[int] = []
+        polygon_bary: list[np.ndarray] = []
+        for j in range(3):
+            a, b = tri[j], tri[(j + 1) % 3]
+            ba = np.zeros(3, dtype=np.float64); ba[j] = 1.0
+            polygon_rows.append(a); polygon_bary.append(ba)
+            edge = _edge_key(a, b)
+            if edge in edge_midpoint_rows:
+                bm = np.zeros(3, dtype=np.float64)
+                bm[tri.index(edge[0])] = 0.5
+                bm[tri.index(edge[1])] = 0.5
+                polygon_rows.append(edge_midpoint_rows[edge]); polygon_bary.append(bm)
+        center = face_centroid_rows[fi]
+        center_bary = np.full(3, 1.0 / 3.0, dtype=np.float64)
+        for j, row_a in enumerate(polygon_rows):
+            k = (j + 1) % len(polygon_rows)
+            row_b = polygon_rows[k]
+            child_faces.append((row_a, row_b, center))
+            child_parent.append(fi)
+            child_bary.append(np.vstack((polygon_bary[j], polygon_bary[k], center_bary)))
+
+    Fout = np.asarray(child_faces, dtype=F.dtype)
+    child_parent_rows = np.asarray(child_parent, dtype=np.int64)
+    child_markers = markers[child_parent_rows].copy()
+    child_parent_bary = np.asarray(child_bary, dtype=np.float64)
+
+    new_incidence = _affine_edge_incidence(Fout)
+    if any(len(uses) > 2 for uses in new_incidence.values()):
+        raise AssertionError("refinement produced a nonmanifold edge")
+    new_boundary = {edge for edge, uses in new_incidence.items() if len(uses) == 1}
+    expected_boundary: set[tuple[int, int]] = set()
+    for a, b in old_boundary:
+        edge = _edge_key(a, b)
+        if edge in edge_midpoint_rows:
+            mid = edge_midpoint_rows[edge]
+            expected_boundary.add(_edge_key(a, mid))
+            expected_boundary.add(_edge_key(mid, b))
+        else:
+            expected_boundary.add(edge)
+    if new_boundary != expected_boundary:
+        raise AssertionError("boundary chain changed beyond selected-edge bisection")
+    new_components, new_degrees = _affine_boundary_summary(new_boundary)
+    if new_components != old_components or any(d != 2 for d in new_degrees.values()):
+        raise AssertionError("boundary loop topology changed")
+
+    old_cross = np.cross(X[F[:, 1]].astype(np.float64) - X[F[:, 0]].astype(np.float64),
+                         X[F[:, 2]].astype(np.float64) - X[F[:, 0]].astype(np.float64))
+    new_cross = np.cross(Xout[Fout[:, 1]].astype(np.float64) - Xout[Fout[:, 0]].astype(np.float64),
+                         Xout[Fout[:, 2]].astype(np.float64) - Xout[Fout[:, 0]].astype(np.float64))
+    new_area2 = np.linalg.norm(new_cross, axis=1)
+    if not np.isfinite(new_area2).all() or np.any(new_area2 <= 0.0):
+        raise BoundaryRefinementError("Float32/Float64 refinement produced a zero-area child face")
+    orientation = np.einsum("ij,ij->i", new_cross, old_cross[child_parent_rows])
+    if np.any(orientation <= 0.0):
+        raise BoundaryRefinementError("child face winding is not positive relative to its parent")
+    old_area = 0.5 * np.linalg.norm(old_cross, axis=1)
+    new_area = 0.5 * new_area2
+    area_sum = np.bincount(child_parent_rows, weights=new_area, minlength=nfaces)
+    area_error = np.abs(area_sum - old_area) / np.maximum(old_area, np.finfo(np.float64).tiny)
+
+    ptr = np.asarray(prolong_indptr, dtype=np.int64)
+    cols = np.asarray(prolong_rows, dtype=np.int64)
+    weights = np.asarray(prolong_weights, dtype=np.float64)
+    if len(ptr) != len(Xout) + 1 or ptr[0] != 0 or ptr[-1] != len(cols) or len(cols) != len(weights):
+        raise AssertionError("source prolongation CSR shape mismatch")
+    for row in range(len(Xout)):
+        start, stop = int(ptr[row]), int(ptr[row + 1])
+        if stop <= start or np.any(cols[start:stop] < 0) or np.any(cols[start:stop] >= npoints):
+            raise AssertionError("source prolongation has an empty row or invalid source row")
+        if len(np.unique(cols[start:stop])) != stop - start or np.any(weights[start:stop] < 0) or abs(float(np.sum(weights[start:stop])) - 1.0) > 1e-14:
+            raise AssertionError("source prolongation row is not a convex source map")
+        reconstructed = np.sum(X[cols[start:stop]].astype(np.float64) * weights[start:stop, None], axis=0).astype(X.dtype)
+        if not np.array_equal(reconstructed, Xout[row]):
+            raise AssertionError(f"source prolongation does not reproduce output point row {row}")
+
+    return AffineSurfaceRefinement(
+        points=Xout, faces=Fout, child_parent_face_rows=child_parent_rows,
+        child_parent_face_markers=child_markers,
+        child_parent_face_barycentric=child_parent_bary,
+        selected_edges=np.asarray(edges_sorted, dtype=np.int64).reshape(-1, 2),
+        edge_midpoint_rows=np.asarray([edge_midpoint_rows[e] for e in edges_sorted], dtype=np.int64),
+        affected_parent_face_rows=np.asarray(affected, dtype=np.int64),
+        face_centroid_rows=np.asarray([face_centroid_rows[fi] for fi in affected], dtype=np.int64),
+        refinement_node_kind=node_kind,
+        refinement_node_parent_edge_rows=parent_edge_rows,
+        refinement_node_parent_edge_weights=parent_edge_weights,
+        refinement_node_parent_face_indptr=np.asarray(parent_face_indptr, dtype=np.int64),
+        refinement_node_parent_face_rows=np.asarray(parent_face_rows, dtype=np.int64),
+        refinement_node_parent_face_barycentric=np.asarray(parent_face_bary, dtype=np.float64).reshape(-1, 3),
+        source_prolongation_indptr=ptr, source_prolongation_node_rows=cols,
+        source_prolongation_weights=weights,
+        boundary_components_before=old_components, boundary_components_after=new_components,
+        boundary_edges_before=len(old_boundary), boundary_edges_after=len(new_boundary),
+        relative_parent_area_error=area_error,
+    )
+
+
+def prolong_registered_depth_fields(
+    source_depth_fields: np.ndarray,
+    source_prolongation_indptr: np.ndarray,
+    source_prolongation_node_rows: np.ndarray,
+    source_prolongation_weights: np.ndarray,
+    *,
+    expected_source_field_sha256: str | None = None,
+    source_field_sha256: str | None = None,
+) -> np.ndarray:
+    """Convexly prolong positive registered depth fields using an explicit CSR map.
+
+    Hash arguments are optional as a pair. When present they bind the field
+    table to the caller's immutable source pin; a mismatch is rejected. This is
+    scalar field ancestry only, not a physical mass or material-transfer map.
+    """
+    H = np.asarray(source_depth_fields)
+    if H.ndim != 2 or H.shape[0] == 0 or H.shape[1] == 0 or H.dtype.kind != "f" or H.dtype.itemsize not in (4, 8):
+        raise BoundaryRefinementError("source_depth_fields must be a nonempty floating NxK array")
+    if not np.isfinite(H).all() or np.any(H <= 0):
+        raise BoundaryRefinementError("source depth fields must be finite and strictly positive")
+    if (expected_source_field_sha256 is None) != (source_field_sha256 is None):
+        raise BoundaryRefinementError("source field hash pin and observed hash must be provided together")
+    if expected_source_field_sha256 is not None:
+        valid_hash = lambda h: isinstance(h, str) and len(h) == 64 and all(c in "0123456789abcdef" for c in h.lower())
+        if not valid_hash(expected_source_field_sha256) or not valid_hash(source_field_sha256):
+            raise BoundaryRefinementError("source field hashes must be SHA-256 hex strings")
+        if expected_source_field_sha256.lower() != source_field_sha256.lower():
+            raise BoundaryRefinementError("source depth field SHA-256 does not match the expected pin")
+
+    ptr = np.asarray(source_prolongation_indptr)
+    cols = np.asarray(source_prolongation_node_rows)
+    weights = np.asarray(source_prolongation_weights)
+    if ptr.ndim != 1 or ptr.dtype.kind not in "iu" or len(ptr) < 2:
+        raise BoundaryRefinementError("source prolongation indptr must be an integer vector")
+    if cols.ndim != 1 or cols.dtype.kind not in "iu" or weights.ndim != 1 or weights.dtype.kind != "f":
+        raise BoundaryRefinementError("source prolongation indices/weights must be vectors")
+    ptr = ptr.astype(np.int64, copy=False); cols = cols.astype(np.int64, copy=False)
+    weights = weights.astype(np.float64, copy=False)
+    if ptr[0] != 0 or np.any(np.diff(ptr) < 0) or ptr[-1] != len(cols) or len(cols) != len(weights):
+        raise BoundaryRefinementError("source prolongation CSR pointers are inconsistent")
+    if np.any(cols < 0) or np.any(cols >= len(H)) or not np.isfinite(weights).all() or np.any(weights < 0):
+        raise BoundaryRefinementError("source prolongation contains invalid columns or weights")
+    nout = len(ptr) - 1
+    out = np.empty((nout, H.shape[1]), dtype=H.dtype)
+    for row in range(nout):
+        start, stop = int(ptr[row]), int(ptr[row + 1])
+        if stop <= start:
+            raise BoundaryRefinementError(f"source prolongation row {row} is empty")
+        row_cols = cols[start:stop]
+        row_weights = weights[start:stop]
+        if len(np.unique(row_cols)) != len(row_cols):
+            raise BoundaryRefinementError(f"source prolongation row {row} repeats a source column")
+        if abs(float(np.sum(row_weights)) - 1.0) > 1e-14:
+            raise BoundaryRefinementError(f"source prolongation row {row} is not a convex partition")
+        value = np.sum(H[row_cols].astype(np.float64) * row_weights[:, None], axis=0)
+        out[row] = value.astype(H.dtype)
+    if not np.isfinite(out).all() or np.any(out <= 0):
+        raise BoundaryRefinementError("prolongation produced a nonpositive or nonfinite depth")
+    return out
