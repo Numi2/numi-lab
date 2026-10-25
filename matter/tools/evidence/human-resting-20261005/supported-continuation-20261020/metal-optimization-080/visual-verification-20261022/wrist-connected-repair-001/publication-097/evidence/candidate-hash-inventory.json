@@ -1,0 +1,679 @@
+{
+  "bundled_geometry_candidate_count": 2,
+  "candidate_count": 84,
+  "entries": [
+    {
+      "bytes": 2172601,
+      "disposition": "bundled once as 181 round-001 baseline; identical starting bytes in 181 round-002 and 182",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/candidate.npz",
+      "run": "181",
+      "sha256": "453009b7ad23f526b51ecd85cf0e0d9adbd6017e09501366674e7d89241deb73",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/candidate.npz"
+    },
+    {
+      "bytes": 2172605,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-01-alpha-0p03125/candidate.npz",
+      "run": "181",
+      "sha256": "73d5149d39145d09c43feac3e8796b2774fe59b95c407b56549d4406d71c3cfd",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-01-alpha-0p03125/candidate.npz"
+    },
+    {
+      "bytes": 2172595,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-01-alpha-0p0625/candidate.npz",
+      "run": "181",
+      "sha256": "4010e2348129dd22f97d91d61d8d849a5f3183fbea07db0e494a4348bd0ba48e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-01-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 2172673,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-01-alpha-0p125/candidate.npz",
+      "run": "181",
+      "sha256": "9c992eddfe28fb1d20670004a5fc5c81ecdd26faac11d84e95f35bc0d155d51d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-01-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 2172587,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-01-alpha-0p25/candidate.npz",
+      "run": "181",
+      "sha256": "4e901a20ed14de5ee021cd123154a5725e8b017861f046286ae935c2c3d77da1",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-01-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172601,
+      "disposition": "bundled once as 181 round-001 baseline; identical starting bytes in 181 round-002 and 182",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-02-alpha-0p0625/candidate.npz",
+      "run": "181",
+      "sha256": "453009b7ad23f526b51ecd85cf0e0d9adbd6017e09501366674e7d89241deb73",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-02-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 2172678,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-02-alpha-0p125/candidate.npz",
+      "run": "181",
+      "sha256": "8fb1502370955788d0e3ee87f12cd4f24c2d7e516f836ec243b493594c6f7c61",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-02-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 2172657,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-02-alpha-0p25/candidate.npz",
+      "run": "181",
+      "sha256": "66f05e636b4d0f6541e1e7dfbd74c916f8914af29d0227ac8138b29cf7a0e843",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-02-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172616,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-03-alpha-0p03125/candidate.npz",
+      "run": "181",
+      "sha256": "2ad7a3e14f3c8ba8161dfb57a72a1623b7bb3948dae63f4e443637059ce2b07c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-03-alpha-0p03125/candidate.npz"
+    },
+    {
+      "bytes": 2172700,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-03-alpha-0p0625/candidate.npz",
+      "run": "181",
+      "sha256": "0aa89940bfa2cb20ccfdd50f98cbed5f1ce05dd337ba4c15e8ddd164b452a798",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-03-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 2172639,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-03-alpha-0p125/candidate.npz",
+      "run": "181",
+      "sha256": "fc98953fa0bf0211954427c0010513cb7c0cc61dab1269da6948ab3e6690c9aa",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-03-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 2172637,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-03-alpha-0p25/candidate.npz",
+      "run": "181",
+      "sha256": "6ba7658222b1ef70ee9dbdfc895be8f0fb7a54277d9e28ee27da2e28e2a46a79",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-03-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172621,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-04-alpha-0p03125/candidate.npz",
+      "run": "181",
+      "sha256": "e81681962f6059034710091bc4c48b31ade5e16c2c059f092a9de5ee5b84eb69",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-04-alpha-0p03125/candidate.npz"
+    },
+    {
+      "bytes": 2172617,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-04-alpha-0p0625/candidate.npz",
+      "run": "181",
+      "sha256": "c0789e126271d3ff3190080b017e4e62373fee8165a11d39b86ebc1197a59ee5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-04-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 2172621,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-04-alpha-0p125/candidate.npz",
+      "run": "181",
+      "sha256": "ba7431ad840c4c11f26ada6f256a7c5660bfb0532b7a25d4610b2586d7aa8dab",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-04-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 2172606,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-001/fit/attempt-001/scp-04-alpha-0p25/candidate.npz",
+      "run": "181",
+      "sha256": "b9b550b8fe4e8e959a8a01010f66174a4c8385d79cb1252f8c952568bc1edf32",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/scp-04-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172601,
+      "disposition": "bundled once as 181 round-001 baseline; identical starting bytes in 181 round-002 and 182",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/candidate.npz",
+      "run": "181",
+      "sha256": "453009b7ad23f526b51ecd85cf0e0d9adbd6017e09501366674e7d89241deb73",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/candidate.npz"
+    },
+    {
+      "bytes": 2172540,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-01-alpha-0p03125/candidate.npz",
+      "run": "181",
+      "sha256": "d58458eac45e4db605d46203290a5086b12ff7ab625f92ce81662fdea793ca6b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-01-alpha-0p03125/candidate.npz"
+    },
+    {
+      "bytes": 2172618,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-01-alpha-0p0625/candidate.npz",
+      "run": "181",
+      "sha256": "24218abfece8cda7df1a9f8a6635eb2dd5b664aa760a0c1946740ae212a7dc39",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-01-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 2172679,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-01-alpha-0p125/candidate.npz",
+      "run": "181",
+      "sha256": "8acaa7a2fef0da82ee62b441ac7b84cb5168101464ff428d36858101df0116e8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-01-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 2172577,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-01-alpha-0p25/candidate.npz",
+      "run": "181",
+      "sha256": "f5ff2f036e04ce782b0eb4a433fc3da566505d476405c4b0429d71a329c88503",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-01-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172603,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-02-alpha-0p03125/candidate.npz",
+      "run": "181",
+      "sha256": "970fa5844df8499800d6a1eb4b41e2c79c71b01b733343543b88f046c48164ce",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-02-alpha-0p03125/candidate.npz"
+    },
+    {
+      "bytes": 2172688,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-02-alpha-0p0625/candidate.npz",
+      "run": "181",
+      "sha256": "f487b9b933aa2fbed147cf2a1aeb9388e6c83a1049f14ac7f81c1fc3db902bbf",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-02-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 2172623,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-02-alpha-0p125/candidate.npz",
+      "run": "181",
+      "sha256": "3f7cfbda6ebfd02ebe99d6704c75f5c3746b1432112d8cd797634561c3e0a6a4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-02-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 2172657,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-02-alpha-0p25/candidate.npz",
+      "run": "181",
+      "sha256": "d87a447e51c465d847f5d8ebba5cc7e1ab8b812940650ae3ec76914549bc0ae6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-02-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172620,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-03-alpha-0p03125/candidate.npz",
+      "run": "181",
+      "sha256": "1322ec5fd16370727f691110bb4cd136c461962b82eae5d24376c31a5aa5f01a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-03-alpha-0p03125/candidate.npz"
+    },
+    {
+      "bytes": 2172704,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-03-alpha-0p0625/candidate.npz",
+      "run": "181",
+      "sha256": "1a317cbd8a70a2000e5f944b1140d975e1aff2a3aad3a26df77913602ba48592",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-03-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 2172681,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-03-alpha-0p125/candidate.npz",
+      "run": "181",
+      "sha256": "216bcf0ebb75780ab0a17b4bad996beefecb611da67d626bdadbe300c81014f6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-03-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 2172612,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-03-alpha-0p25/candidate.npz",
+      "run": "181",
+      "sha256": "90b8dfe4dab86300edc06150c97b738a43dce5334a536f3f338f0164f09e85fe",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-03-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172620,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-04-alpha-0p03125/candidate.npz",
+      "run": "181",
+      "sha256": "e293b25e878d7b503c37365d98d6e0d2810231a5c1d93165acb06d70d9a898ca",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-04-alpha-0p03125/candidate.npz"
+    },
+    {
+      "bytes": 2172706,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-04-alpha-0p0625/candidate.npz",
+      "run": "181",
+      "sha256": "e0f12fdc53ac844e22e88dae5142e8edaa5d7f82e68261f716d6b1b1b2e1e8cb",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-04-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 2172680,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-04-alpha-0p125/candidate.npz",
+      "run": "181",
+      "sha256": "5deae087e77c60cdb37df622a786e335603b2d51217d343674ab1cd9e4bb59f8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-04-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 2172611,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-181-run001/round-002/fit/attempt-001/scp-04-alpha-0p25/candidate.npz",
+      "run": "181",
+      "sha256": "389b510acb62d898527a3e6eb7912e77c5aeccffe0a7874b938a00410c34175d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-002/fit/attempt-001/scp-04-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172601,
+      "disposition": "bundled once as 181 round-001 baseline; identical starting bytes in 181 round-002 and 182",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/candidate.npz",
+      "run": "182",
+      "sha256": "453009b7ad23f526b51ecd85cf0e0d9adbd6017e09501366674e7d89241deb73",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/candidate.npz"
+    },
+    {
+      "bytes": 2172550,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-01-alpha-0p03125/candidate.npz",
+      "run": "182",
+      "sha256": "bc6bf6bb1caafcfc423fdf7c1138a0006ad44cc2653167f8f0f2d13ccde2bd70",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-01-alpha-0p03125/candidate.npz"
+    },
+    {
+      "bytes": 2172624,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-01-alpha-0p0625/candidate.npz",
+      "run": "182",
+      "sha256": "97d0fa337c6d6b74d78a66b2bc8cefdce033ef731f9519e995bc9a9e2d776d19",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-01-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 2172673,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-01-alpha-0p125/candidate.npz",
+      "run": "182",
+      "sha256": "6954cad2349e3df7ba387a06af7ff608b4fe5fbb6ed3f837805fd673b16626e9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-01-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 2172563,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-01-alpha-0p25/candidate.npz",
+      "run": "182",
+      "sha256": "76122bbcf2eb35da50aa0c468db977643e2b84f566881289cec5d478e0cfa0e1",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-01-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172621,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-01-alpha-0p5/candidate.npz",
+      "run": "182",
+      "sha256": "f45b9c41c1e16fcac41deb94247e9a9aea436d3f12bf4084f005783dd7c911cc",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-01-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 2172616,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-01-alpha-1p0/candidate.npz",
+      "run": "182",
+      "sha256": "41daebe60dae8c30d1da62d27357c285d3fe8205ffb7538cc09ce697556a502f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-01-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 2172608,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-02-alpha-0p03125/candidate.npz",
+      "run": "182",
+      "sha256": "4969adc119e9fa31b1575f8b529221538ba977c2abec29a581dd45acc9bcc1f4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-02-alpha-0p03125/candidate.npz"
+    },
+    {
+      "bytes": 2172682,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-02-alpha-0p0625/candidate.npz",
+      "run": "182",
+      "sha256": "f3c1aa02e6bd91107e636d3dba5928ce175e0e5c53a2d8b27e16d596a1a3c70d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-02-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 2172681,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-02-alpha-0p125/candidate.npz",
+      "run": "182",
+      "sha256": "49d16ed63bf2176645a152f454fd6a9523d3e52a164a49cd5fc40e78c49a1b74",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-02-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 2172670,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-02-alpha-0p25/candidate.npz",
+      "run": "182",
+      "sha256": "00c1a37576218d268e184181b2c38d88604e256907f9cff34896cdc7075698cf",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-02-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172657,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-02-alpha-0p5/candidate.npz",
+      "run": "182",
+      "sha256": "f0b9a580f700e7712b6e1e5c7dfd475b17e2f634c437b8e82b91f08a35d56561",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-02-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 2172647,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-02-alpha-1p0/candidate.npz",
+      "run": "182",
+      "sha256": "1e7a21c1a01f2d15e7907e85f475547ed8072cea2d4289426a0e508b2ab753f7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-02-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 2172602,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-03-alpha-0p03125/candidate.npz",
+      "run": "182",
+      "sha256": "06780bc178f104c414612fae97777dca56103ca82ca8b1e419fc5c9151f672be",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-03-alpha-0p03125/candidate.npz"
+    },
+    {
+      "bytes": 2172672,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-03-alpha-0p0625/candidate.npz",
+      "run": "182",
+      "sha256": "ec23b05801a1b01f1f7d973f2a8fa8792c1163954ae156b4b2ebd1be5ece498a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-03-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 2172663,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-03-alpha-0p125/candidate.npz",
+      "run": "182",
+      "sha256": "4348b51152e5be896f07368805f482a859848f061128d4bca413eb2b6deaad3a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-03-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 2172680,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-03-alpha-0p25/candidate.npz",
+      "run": "182",
+      "sha256": "02722166454d0bdffb74233f81080eac6c5ec824190b78c9a34782a10db85995",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-03-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172645,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-03-alpha-0p5/candidate.npz",
+      "run": "182",
+      "sha256": "59536cc4b90a3d71fa5bde0bd235cb51b0f6b92fb1a707d38fe322f92042beae",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-03-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 2172645,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-03-alpha-1p0/candidate.npz",
+      "run": "182",
+      "sha256": "16fdd746c447a1380299affbe8d838a344fc7a718f373d3fee57c17581d57f7e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-03-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 2172602,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-04-alpha-0p03125/candidate.npz",
+      "run": "182",
+      "sha256": "757bf370909c742ebdf9d2ac4cd5f46bea69a49df0f0b25d9e90498bb48cd548",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-04-alpha-0p03125/candidate.npz"
+    },
+    {
+      "bytes": 2172672,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-04-alpha-0p0625/candidate.npz",
+      "run": "182",
+      "sha256": "f91b7775044b2818f91eb24634f4fa9b3e19c6ed8f309a04d5c853917dd5c44f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-04-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 2172661,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-04-alpha-0p125/candidate.npz",
+      "run": "182",
+      "sha256": "9d11bd5ccb7fabf4a82b40ad66e064506267bff5f6e9062764f0b82e1752609d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-04-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 2172683,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-04-alpha-0p25/candidate.npz",
+      "run": "182",
+      "sha256": "2c4c1000587b16191f21ead5a909815f202d55227d1c0e617b58e6220fb1c5f5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-04-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 2172642,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-04-alpha-0p5/candidate.npz",
+      "run": "182",
+      "sha256": "78040cac1bdbab5421c8ff02dc609330367aeb546a5ab046da657604f67b6473",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-04-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 2172644,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "refined-point-182-run001/round-001/fit/attempt-001/scp-04-alpha-1p0/candidate.npz",
+      "run": "182",
+      "sha256": "09e355b3c6720a09829982e2832b9f97fbde8d5a126effecae60beec109e9129",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-182-run001/round-001/fit/attempt-001/scp-04-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 2172644,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-001/candidate.npz",
+      "run": "183",
+      "sha256": "09e355b3c6720a09829982e2832b9f97fbde8d5a126effecae60beec109e9129",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-001/candidate.npz"
+    },
+    {
+      "bytes": 2172614,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-002/candidate.npz",
+      "run": "183",
+      "sha256": "66d669a038225444b3828dbaebc9a6ab5c011edc5c4cea7f3e2c3adb676570f7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-002/candidate.npz"
+    },
+    {
+      "bytes": 2172609,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-003/candidate.npz",
+      "run": "183",
+      "sha256": "823db88113421d8d4af42dc6f897b48ef41a0654ee672fa7d2b8ca9b77f931f0",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-003/candidate.npz"
+    },
+    {
+      "bytes": 2172622,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-004/candidate.npz",
+      "run": "183",
+      "sha256": "d496474eced9190ee71ccacc8b5dee7877fbbba1383d5985d57c375b8f4118b5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-004/candidate.npz"
+    },
+    {
+      "bytes": 2172607,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-005/candidate.npz",
+      "run": "183",
+      "sha256": "de40761c038ce6e5a79e684cf2f11184d0c755aa58eb82c8ffcd6a17de0d80df",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-005/candidate.npz"
+    },
+    {
+      "bytes": 2172622,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-006/candidate.npz",
+      "run": "183",
+      "sha256": "be8093d5c54f8dc4223386842cc3fea2339db71b684882e646a846b2ba9d1946",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-006/candidate.npz"
+    },
+    {
+      "bytes": 2172632,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-007/candidate.npz",
+      "run": "183",
+      "sha256": "1b264b16d067f89a3ab69a356ac8bf074090a938b23aafdeec9065c8d951519b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-007/candidate.npz"
+    },
+    {
+      "bytes": 2172645,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-008/candidate.npz",
+      "run": "183",
+      "sha256": "e23390133e3433053cf818218aefda1f77df69112edda1c2fc4809fc60dab206",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-008/candidate.npz"
+    },
+    {
+      "bytes": 2172644,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-009/candidate.npz",
+      "run": "183",
+      "sha256": "f1316d6429af328e134f6e8f391432a9986c8678c12d938fa68f8d676e4d9d3b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-009/candidate.npz"
+    },
+    {
+      "bytes": 2172644,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-010/candidate.npz",
+      "run": "183",
+      "sha256": "1bfabe4f6d8b77da86133b2664f3f82f6280143a8030ca46844e5ec0a8a73ded",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-010/candidate.npz"
+    },
+    {
+      "bytes": 2172645,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-011/candidate.npz",
+      "run": "183",
+      "sha256": "a712bb125f511d1de84f16dc1baf14e15f97dbaa671dd0f99fe2370769e2f47c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-011/candidate.npz"
+    },
+    {
+      "bytes": 2172654,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-012/candidate.npz",
+      "run": "183",
+      "sha256": "9a406dd962786c01b3d68d820a2a2ae1c8c2b9c967f0ada3ccc3cd7c60848c46",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-012/candidate.npz"
+    },
+    {
+      "bytes": 2172652,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-013/candidate.npz",
+      "run": "183",
+      "sha256": "889c515fb76c764592b6caf3ad79954c71969e71e8d143221039b80f36211f6b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-013/candidate.npz"
+    },
+    {
+      "bytes": 2172648,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-014/candidate.npz",
+      "run": "183",
+      "sha256": "7e60b60562713e2af0e19f4d1fe1cc731f0a7ab00e5a965901444b2d339945e0",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-014/candidate.npz"
+    },
+    {
+      "bytes": 2172650,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-015/candidate.npz",
+      "run": "183",
+      "sha256": "dbb04f4feefc52ede8ed330ec918e7b44f8f0e994a1f9f54065f39a6b30a1eaa",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-015/candidate.npz"
+    },
+    {
+      "bytes": 2172610,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-016/candidate.npz",
+      "run": "183",
+      "sha256": "31bdb13dc0e42bf0f7de8fbc2ec7d280be5ec4d6b2a4858ef596c9629934a120",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-016/candidate.npz"
+    },
+    {
+      "bytes": 2172611,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-017/candidate.npz",
+      "run": "183",
+      "sha256": "bf0b4141df7f8a2e9c43afce32c002e2e28c88bb41a3c2ef5c0bb2fb3200726a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-017/candidate.npz"
+    },
+    {
+      "bytes": 2172612,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-018/candidate.npz",
+      "run": "183",
+      "sha256": "2ca3d4595379c3310e63b1f5a708e8bbaa773ce1ff84120decea17a4b3cc96c1",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-018/candidate.npz"
+    },
+    {
+      "bytes": 2172607,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-019/candidate.npz",
+      "run": "183",
+      "sha256": "f1c40f5901560544e2cc800cdf2da6fe6341391f7709f06bd722b46d8cfd98d7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-019/candidate.npz"
+    },
+    {
+      "bytes": 2172609,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-183-run001/pass-020/candidate.npz",
+      "run": "183",
+      "sha256": "ac8c3220f019ef2b05d5fbdec16dc42330f4b0500634307a1e14f5b13a14b4b9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-183-run001/pass-020/candidate.npz"
+    },
+    {
+      "bytes": 2172629,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-184-run001/pass-001/candidate.npz",
+      "run": "184",
+      "sha256": "96b86f96ab3b1d8979a2d48a9d49f56b528d19ac267c755d34d118ac563d648d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-184-run001/pass-001/candidate.npz"
+    },
+    {
+      "bytes": 2172630,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-184-run001/pass-002/candidate.npz",
+      "run": "184",
+      "sha256": "f77bd2a82629d8ed0f68cd6da7c771101683eca3e4de6f67240e17439c358ceb",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-184-run001/pass-002/candidate.npz"
+    },
+    {
+      "bytes": 2172628,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-184-run001/pass-003/candidate.npz",
+      "run": "184",
+      "sha256": "fa3c6dcd729a927cf4f31fbb6a789b7dc842e2673f2efb01f7673752f67f40f6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-184-run001/pass-003/candidate.npz"
+    },
+    {
+      "bytes": 2172625,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-184-run001/pass-004/candidate.npz",
+      "run": "184",
+      "sha256": "02ce25f9fea07362ace2377706509436c1781bf150a13eb3cbac721e9c0e12fa",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-184-run001/pass-004/candidate.npz"
+    },
+    {
+      "bytes": 2172624,
+      "disposition": "hash-only rejected or unselected trial",
+      "relative_source_path": "local-witness-backtracking-184-run001/pass-005/candidate.npz",
+      "run": "184",
+      "sha256": "929ba7c8ac281997c84f61677e2d10928157dff82eb8380639a498c5c9efccc0",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-184-run001/pass-005/candidate.npz"
+    },
+    {
+      "bytes": 2172624,
+      "disposition": "bundled geometry candidate",
+      "relative_source_path": "local-witness-backtracking-184-run001/pass-006/candidate.npz",
+      "run": "184",
+      "sha256": "f0e3129826db621399cc03f889baf7a43abc1526b17f338562c84f062f9b398a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/local-witness-backtracking-184-run001/pass-006/candidate.npz"
+    }
+  ],
+  "schema": "numi.connected-clearance-candidate-inventory.v1"
+}

@@ -1,0 +1,11 @@
+test_anchor_clamp_preserves_unrelated_self_row (Work.numi-human-connected-surface-069.D.joint-clearance-postprojection-177.test_postproject_self_trial_177.PostprojectTests.test_anchor_clamp_preserves_unrelated_self_row) ... ok
+test_anchor_clamp_that_breaks_self_row_fails_closed (Work.numi-human-connected-surface-069.D.joint-clearance-postprojection-177.test_postproject_self_trial_177.PostprojectTests.test_anchor_clamp_that_breaks_self_row_fails_closed) ... ok
+test_invalid_margin_and_anchor_inputs_rejected (Work.numi-human-connected-surface-069.D.joint-clearance-postprojection-177.test_postproject_self_trial_177.PostprojectTests.test_invalid_margin_and_anchor_inputs_rejected) ... ok
+test_malformed_pair_rows_fail_closed (Work.numi-human-connected-surface-069.D.joint-clearance-postprojection-177.test_postproject_self_trial_177.PostprojectTests.test_malformed_pair_rows_fail_closed) ... ok
+test_nonzero_fixed_anchor_values_are_preserved (Work.numi-human-connected-surface-069.D.joint-clearance-postprojection-177.test_postproject_self_trial_177.PostprojectTests.test_nonzero_fixed_anchor_values_are_preserved) ... ok
+test_uses_self_projection_instead_of_infeasible_projection_average (Work.numi-human-connected-surface-069.D.joint-clearance-postprojection-177.test_postproject_self_trial_177.PostprojectTests.test_uses_self_projection_instead_of_infeasible_projection_average) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.009s
+
+OK

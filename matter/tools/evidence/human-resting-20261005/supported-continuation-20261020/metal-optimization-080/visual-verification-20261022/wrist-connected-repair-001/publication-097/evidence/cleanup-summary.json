@@ -1,0 +1,28 @@
+{
+  "observed_available_kib_after_cleanup": 1121100,
+  "recorded_cleanup_scope": "6,815 byte-identical private files were APFS-cloned with content/path/mode/mtime/uid/gid unchanged; no deletion was performed",
+  "records": [
+    {
+      "available": true,
+      "bytes": 648,
+      "path": "evidence/cleanup/perf080-apfs-clone-replacements-20261025-001.jsonl",
+      "sha256": "1d5ffac98121ac13d5c0ebc8af73b3756136320434501d12c322386f03f1771a",
+      "source_path": "/private/tmp/perf080-apfs-clone-replacements-20261025-001.jsonl"
+    },
+    {
+      "available": true,
+      "bytes": 119665,
+      "path": "evidence/cleanup/perf080-apfs-clone-replacements-20261025-002.jsonl",
+      "sha256": "36884cb076ef5d995e1ae9cc1b255761a2ecc48392bac3d16736ef3e575f5170",
+      "source_path": "/private/tmp/perf080-apfs-clone-replacements-20261025-002.jsonl"
+    },
+    {
+      "available": true,
+      "bytes": 11644623,
+      "path": "evidence/cleanup/perf080-apfs-clone-replacements-20261025-003.jsonl",
+      "sha256": "c388c241aa40c31cf329ee3fac79bf23250feaa6c364c34386c66682d3acb623",
+      "source_path": "/private/tmp/perf080-apfs-clone-replacements-20261025-003.jsonl"
+    }
+  ],
+  "status": "verified compact cleanup receipts copied; originals and raw manifests remain on Numi"
+}

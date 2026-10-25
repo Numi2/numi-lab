@@ -1,0 +1,40 @@
+{
+  "execution_host": "SSH Numi",
+  "published_parent_commit": "42e775eaa93b1cdb0316cb5810dece3a72032c46",
+  "published_parent_tree": "ecc8ebf3fd25880c69b1ff81d6764e9e43db04b2",
+  "schema": "numi.connected-clearance-source-pins.v1",
+  "sources": [
+    {
+      "path": "evidence/181/run_refined_point_continuation_181.py",
+      "sha256": "de292de4244aa234fb4625b46ea17dd01b29a8ae41b3072c222116aa5cf208bb"
+    },
+    {
+      "path": "evidence/182/run_refined_point_continuation_182.py",
+      "sha256": "c3aa3928512eb33c80b3e74e6b2238cb88353583b780497d3ba9876831eea07d"
+    },
+    {
+      "path": "evidence/183/run_local_witness_backtracking_183.py",
+      "sha256": "717aaba83a22603654fbc03ddd2052d969c2f020e1699f365da65802b00e5dc8"
+    },
+    {
+      "path": "evidence/183/as-run-helper/local_witness_backtracking.py",
+      "sha256": "f6972f1861629ac694d47ef6db747aaabbceb8b6eb821d2da54da0c84896e6e0"
+    },
+    {
+      "path": "evidence/183/as-run-helper/test_local_witness_backtracking.py",
+      "sha256": "205fa9bae1830bf43660ca2038a88b796f47d3eee38ec5889977d80dc860fca1"
+    },
+    {
+      "path": "evidence/184/run_local_witness_backtracking_184.py",
+      "sha256": "09d18a636c719306a30695bf18c440674a1d8e7a0d871c4a0c4afcf097afc437"
+    },
+    {
+      "path": "evidence/177/postproject_self_trial_177.py",
+      "sha256": "07f4b080229b148f36c8262bb0fd7dbd87340d59620a5d3a5976f59dfc12612e"
+    },
+    {
+      "path": "evidence/177/test_postproject_self_trial_177.py",
+      "sha256": "e8a36fc08eda3d7688cc6d4f3252a9670180c52fbc62f4e81d7c26ef421e18ac"
+    }
+  ]
+}

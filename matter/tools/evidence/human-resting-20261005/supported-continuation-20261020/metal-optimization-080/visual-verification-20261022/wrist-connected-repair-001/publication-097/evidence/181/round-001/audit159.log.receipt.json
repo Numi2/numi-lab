@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/fit/attempt-001/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/refined-point-181-run001/round-001/audit-159",
+    "--max-seconds",
+    "600"
+  ],
+  "returncode": 0,
+  "wall_seconds": 26.460050750058144,
+  "log_sha256": "f703cec8df3e333aafa89350bcbfb173b111f306918d4f4bcf817ef30f2886c2"
+}

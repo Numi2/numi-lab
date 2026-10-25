@@ -1,0 +1,15 @@
+{
+  "active_185_186_outputs_included": false,
+  "base_commit": "42e775eaa93b1cdb0316cb5810dece3a72032c46",
+  "base_tree": "ecc8ebf3fd25880c69b1ff81d6764e9e43db04b2",
+  "bundled_geometry_candidate_npz_count": 2,
+  "candidate_inventory_count": 84,
+  "canonical_changes": [],
+  "cleanup_originals_deleted": false,
+  "commit_created": false,
+  "file_count": 121,
+  "publication_manifest_sha256": "1cea2c39b83edd2e9663f7f91366a7c6c4a05b3a89745451e4f85d589efb4b79",
+  "push_performed": false,
+  "status": "staged_pending_root_review",
+  "root_review_correction": "181beforeinside1760 not initialrefined1793"
+}
