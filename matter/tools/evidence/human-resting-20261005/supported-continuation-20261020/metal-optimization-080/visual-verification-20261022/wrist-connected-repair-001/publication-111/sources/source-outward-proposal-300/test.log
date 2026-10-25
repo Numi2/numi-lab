@@ -1,0 +1,3 @@
+COMMAND: /Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q -p no:cacheprovider /Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/test_first_representable_union_target_300.py
+........                                                                 [100%]
+8 passed in 0.04s

@@ -1,0 +1,192 @@
+{
+  "analysis": {
+    "bounded_round_context": [
+      {
+        "after": 631,
+        "backtrack_passes": 16,
+        "candidate_sha256": "80a50000fc31c7e186beb749ca908f911ceff99d8a6e81bfc4c3332aea67db2f",
+        "classification": "CONSTRUCTION_PROGRESS_ONLY",
+        "face_bank_pairs_before": 3886,
+        "inside_point_pairs_before": 679,
+        "round": 1
+      },
+      {
+        "after": 583,
+        "backtrack_passes": 11,
+        "candidate_sha256": "c5d3a9eaf82900223576cdc55f25d9eb12194b1fa56333b639d01a638466a9ed",
+        "classification": "CONSTRUCTION_PROGRESS_ONLY",
+        "face_bank_pairs_before": 3796,
+        "inside_point_pairs_before": 631,
+        "round": 2
+      },
+      {
+        "face_targets": 3886,
+        "proposal_candidate_sha256": "4b7c35e988db42bc87baca7edff5bb691c0a3217f8d1ba80ff8decedfe3a84a3",
+        "round": 3,
+        "state": "proposal written; selected/backtracked result not present at diagnostic capture"
+      }
+    ],
+    "free_node_rows": "18430..20888 inclusive (2459 nodes)",
+    "least_coherent_node_clusters": [
+      {
+        "bank_body": 114,
+        "node_rows": [
+          20849,
+          20864,
+          20877
+        ],
+        "representative_xyz_m": [
+          0.259,
+          -0.98,
+          0.123
+        ],
+        "stable_bone_ids": [
+          5,
+          9
+        ]
+      },
+      {
+        "bank_body": 65,
+        "node_rows": [
+          18861,
+          18994,
+          18995,
+          19011
+        ],
+        "representative_xyz_m": [
+          -0.317,
+          -1.01,
+          0.119
+        ],
+        "stable_bone_id": 4
+      }
+    ],
+    "node_target_direction_coherence": {
+      "coherence_below_0_25_count": 29,
+      "coherence_below_0_5_count": 94,
+      "coherence_below_0_75_count": 329,
+      "cosine_below_minus_0_5_count": 45,
+      "free_free_edges_with_both_target_directions": 1391,
+      "opposing_mean_target_directions_count": 82,
+      "target_bearing_free_nodes": 1429
+    },
+    "proposal_structure": {
+      "alpha_1_f32_current_orientation_fail_faces": 186,
+      "area_rows": 5754,
+      "edge_gradient_rows": 0,
+      "face_clearance_rows": 3886,
+      "lp_method": "lexicographic sparse HiGHS: minimum weighted normalized point/face target slack, then minimum L1 distance to raw trial; fixed pair rows, relinearized hard area rows",
+      "point_clearance_rows": 679,
+      "target_direction_mode": "outward-nearest"
+    },
+    "raw_lp_face_sample_motion": {
+      "median_norm_mm": 0.1856,
+      "median_target_parallel_mm": 0.1031,
+      "median_target_tangent_mm": 0.1145,
+      "nonpositive_target_parallel_count": 216,
+      "source_normal_negative_count": 1249,
+      "source_tangent_exceeds_abs_normal_count": 2967,
+      "target_tangent_exceeds_forward_parallel_count": 1882
+    },
+    "raw_lp_neighbor_motion": {
+      "cosine_below_minus_0_5_count": 22,
+      "edges_with_both_endpoints_moving": 1049,
+      "moved_free_nodes": 1127,
+      "neighbor_delta_difference_mm": {
+        "max": 1.3431,
+        "median": 0.278,
+        "p90": 0.7008,
+        "p95": 0.8055
+      },
+      "opposing_motion_edges_count": 101,
+      "unique_free_free_topology_edges": 2596
+    },
+    "selected_local_backtrack_pass_016_neighbor_motion": {
+      "cosine_below_minus_0_5_count": 22,
+      "edges_with_both_endpoints_moving": 975,
+      "moved_free_nodes": 1067,
+      "neighbor_delta_difference_mm": {
+        "max": 0.6715,
+        "median": 0.2979,
+        "p90": 0.3613,
+        "p95": 0.5223
+      },
+      "opposing_motion_edges_count": 90
+    },
+    "target_count": 3886,
+    "target_direction_dot_source_normal": {
+      "count_below_0_1": 2107,
+      "fraction_below_0_1": 0.5422,
+      "max": 0.9946,
+      "median": 0.0454,
+      "min": -2.22e-16,
+      "p10": 0,
+      "p75": 0.429,
+      "p90": 0.7825,
+      "p99": 0.9726
+    }
+  },
+  "created_date": "2026-10-25",
+  "host": "SSH Numi",
+  "inputs": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fixed-prefix-continuation-304/round-001/face-targets/targets.npz",
+      "role": "round-001 face-target table",
+      "sha256": "4cb7ef1fb6c6ecac9874b08337ca674e192cb7d20ec3c248cd0d2e66482a9ea4"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fixed-prefix-continuation-304/round-001/face-targets/report.json",
+      "role": "round-001 face-target report",
+      "sha256": "70f92cf53095cedd512bdf29d4578d74f0b66dad682a860c7051385e2049881e"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fixed-prefix-continuation-291/round-001/attempt-001/local-183-fallback/backtrack/pass-016/candidate.npz",
+      "role": "baseline candidate",
+      "sha256": "4228f95305aae5bf5477264f976ee53ace3850c043b1b37d530b6b2ecd0fe7f8"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fixed-prefix-continuation-304/round-001/attempt-001/proposal/raw-lp-candidate.npz",
+      "role": "round-001 unbacktracked raw LP candidate",
+      "sha256": "06c402c6e8cd4dc48ad966de60c3352e7ec3f9c340c081a6f50224d4149234f5"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fixed-prefix-continuation-304/round-001/attempt-001/proposal/report.json",
+      "role": "round-001 LP proposal report",
+      "sha256": "dcbfd53db6a192ea32b152624ebc1c433c1aac260f375d958ebab9d01a46bdc8"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fixed-prefix-continuation-304/round-001/attempt-001/local-183-fallback/backtrack/pass-016/candidate.npz",
+      "role": "round-001 selected backtracked candidate",
+      "sha256": "80a50000fc31c7e186beb749ca908f911ceff99d8a6e81bfc4c3332aea67db2f"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fixed-prefix-continuation-304/round-001/attempt-001/selected-result.json",
+      "role": "round-001 selected state",
+      "sha256": "4e88d0a035c18d18d3ab8e59a0282bba35ecc11c95f2a0b6a876ed17ac8e0e8c"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fixed-prefix-continuation-304/round-002/attempt-001/selected-result.json",
+      "role": "round-002 selected state",
+      "sha256": "fdf1ac8e455c8eaf920f1dab0b69228ec38fcc02ff7104ebfc6fe679992c9110"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fixed-prefix-continuation-304/round-003/attempt-001/proposal/report.json",
+      "role": "round-003 unbacktracked proposal report (no selected backtrack result present at diagnostic capture)",
+      "sha256": "9dd2e615a44535165ef2555ff27ac5bf7f98e17536787b4be88adbf205a4c15b"
+    }
+  ],
+  "interpretation": {
+    "finding": "The per-face outward-nearest targets are often almost tangent to the source surface and vary sharply across adjacent free refinement nodes. The LP contains no edge-gradient rows, so local target movement is not spatially regularized; the raw solution has opposing neighboring displacements and fails orientation at full step.",
+    "next_method": "A coherent source-outward target direction mode and bounded adjacent-node gradient control are mechanistically motivated alternatives; any proposal still requires unchanged exact all-185-bank, self-intersection, F32 orientation/area, and other global gates.",
+    "qualification": "Construction diagnosis only. No geometry/native/physical admission."
+  },
+  "method": {
+    "caveat": "No exact self-intersection audit of the unbacktracked raw LP candidate was run by this analysis. Alpha=1 has the proposal report's F32 orientation failure; selected local backtrack evidence remains construction-only.",
+    "description": "Inline read-only Python analysis. Load baseline, raw LP, selected F32 coordinates and face-target NPZ. Compute delta = candidate.points_world_m.astype(F64) - baseline.points_world_m.astype(F64). For each target sample compute barycentric displacement sum_k(w_k * delta[face_node_rows_k]); project onto proposal_direction_world_unit and source_surface_normal_world_unit. For each free node accumulate sum_k(w_k * target_direction) and sum_k(w_k); coherence is norm(weighted_direction_sum)/weight_sum. Construct unique undirected mesh edges from source_O_faces; free node rows are [18430,20889), matching fixed_prefix_nodes=18430 in the LP report. Movement adjacency uses endpoint displacement norm >1e-7 m.",
+    "retained_script": false,
+    "runtime": "/Users/n/numi-human-prep-venv-20261005/bin/python (NumPy), invoked over SSH Numi"
+  },
+  "schema": "numi.human.connected.clearance.target-direction-coherence-diagnosis.307.v1",
+  "source_root": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fixed-prefix-continuation-304",
+  "status": "READ_ONLY_DIAGNOSTIC_NO_GEOMETRY_RUN_NO_SOURCE_EDIT"
+}

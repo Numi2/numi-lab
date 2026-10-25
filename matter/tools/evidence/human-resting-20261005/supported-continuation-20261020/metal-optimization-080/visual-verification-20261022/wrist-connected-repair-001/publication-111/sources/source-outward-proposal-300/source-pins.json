@@ -1,0 +1,28 @@
+{
+  "variant": "first representable union-ray target helper 300",
+  "classification": "offline construction helper; no geometry, native, or candidate run",
+  "base_292_script": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-292/build_outward_nearest_union_targets_292.py",
+  "base_292_script_sha256": "0f782974981fc3317d3bc529e5974642b10f05d1a819d774023c27a0ca941fb2",
+  "failure_witness_299": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fixed-prefix-continuation-299/round-001/face-targets/target-records.jsonl",
+  "failure_witness_299_sha256": "fa5a475025766d7af0e5abc620e1b5be72e83db9796021e44cb39199df445ac6",
+  "failure_row": {
+    "face_row": 41508,
+    "bank_body": 114,
+    "bank_stable_bone_id": 117,
+    "bank_triangle_stable_id": 373,
+    "exit_distance_m": 0.000980375951753978,
+    "next_event_distance_m": 0.00098037595175444,
+    "free_gap_m": 4.618701254788249e-16,
+    "emitted_distance_m": 0.0009803805224981774
+  },
+  "selection_semantics": "Earliest maximal event-defined union-empty interval whose deterministic clearance/midpoint Float32 proposal lies strictly inside the interval and passes exact classification for the exact expected 185 bank keys. This does not claim exhaustive search of all Float32 points in a skipped interval.",
+  "event_grouping": "Exact float equality only; no tolerance-based merging.",
+  "helper": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/first_representable_union_target_300.py",
+  "helper_sha256": "5e613e21b7bdebcc036dc9712ad21903df7d081de32bfdb83fae0a0c344ac094",
+  "tests": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/test_first_representable_union_target_300.py",
+  "tests_sha256": "541e0e0657028f9c73e5475a26062117c950b2d30192724e2d9b0f83af1f3a96",
+  "test_log": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/test.log",
+  "test_log_sha256": "8df0caff7d437b7616d1a1563610afe7f3e3da6f611f0671b6cbbb3acbd7d618",
+  "test_command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q -p no:cacheprovider /Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/test_first_representable_union_target_300.py",
+  "tests_passed": 8
+}
