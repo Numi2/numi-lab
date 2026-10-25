@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/points-world.npz",
+  "input_sha256": "744e0aba6c5300945dc1104211f14b524ec1a7d55d26dfd14aae49db7faf00bb",
+  "field": "points_world_f32",
+  "query_count": 13518,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/points.csv",
+  "output_sha256": "8e05e29fb98b4ce53659b061fdbf89e0d34db5ceb149695157942d1a19aa5536",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

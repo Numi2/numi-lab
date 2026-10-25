@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/run_connected_fit.py"
+  ],
+  "returncode": 0,
+  "wall_seconds": 65.77775104099419,
+  "log_sha256": "4a9f9ed1785fd5f5980810948270852cab522edc5aede21e711cd8739fe24b97"
+}

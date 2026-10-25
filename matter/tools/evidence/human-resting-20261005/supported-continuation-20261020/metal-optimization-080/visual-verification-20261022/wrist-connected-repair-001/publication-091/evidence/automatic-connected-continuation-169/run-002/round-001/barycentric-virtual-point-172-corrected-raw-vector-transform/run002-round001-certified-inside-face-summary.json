@@ -1,0 +1,31 @@
+{
+  "bank_bodies_sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+  "bank_triangles_sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+  "candidate_sha256": "495814b3cc3daf65b382a0f791c96edb6882230458fa5d47f17fe71c3f687048",
+  "certified_inside_samples": 3784,
+  "certified_rows": 3784,
+  "classification_scope": "Only the 3,784 saved exact 159 pairs on this frozen candidate. Each accepted row has an exact prepared-parity INSIDE sample and an exact OUTSIDE target for its implicated complete bank.",
+  "constraint_helper_sha256": "0e97159845d6902875c015bc96ae283a2ed43206e85f14637e29cfc611d7589f",
+  "elapsed_seconds": 7.501359542016871,
+  "exact_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "included_vertex_bank_aabb_proofs": 649,
+  "limitations": [
+    "Targets are certified outside only the implicated complete bank, not the 185-bank union; full point/bone post-audit remains mandatory.",
+    "Rows are linearized construction constraints only; they do not prove a fit, preserve topology, or qualify anatomy/physics.",
+    "No geometry or physical state was changed; no full audit or fit was run."
+  ],
+  "max_barycentric_reconstruction_abs_m": 2.7755575615628914e-17,
+  "normal_transform_rule": "For the sample-to-contact primal vector, world direction is solve(raw M, local direction), then normalized; M is not assumed orthogonal.",
+  "query_nodes_sha256": "3f167df86ae45bf0634d2d90ec4453ccec682694bb318a04149970edaa08d0b9",
+  "query_pairs_sha256": "96e935d241a1a3a291ecb3be82ec8b370a949dbfaaf476331e5c4e6e323ef482",
+  "query_receipt_sha256": "9e402eb8a7bd586b6260aff276adb1f1f86ca9f22cb4f44fb6158eb92866d37d",
+  "reported_crossing_face_bank_pairs": 3784,
+  "saved_vertex_classes_by_pair": {
+    "all_three_outside": 3652,
+    "at_least_one_inside": 132
+  },
+  "status": "TARGETED_CERTIFIED_INSIDE_FACE_SAMPLES",
+  "surface_report_sha256": "a034f74380dcf68fbc0c826ceb277032062169ac1349951eec4debaaa622193d",
+  "targets_outside_implicated_complete_bank": 3784,
+  "unresolved_reasons": {}
+}

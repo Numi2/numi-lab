@@ -1,0 +1,12 @@
+waiting_for_human_geometry_slot pid=68121
+acquired_human_geometry_slot pid=68121
+{
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/candidate.npz",
+  "sha256": "1e14addeeeae41bac37642aa5e49901e9f22de7f203a1167505ceb3d83851568",
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/fit-report.json",
+  "report_sha256": "ab6a9c6c011787e72aedd14cb7373e6f76738fc1b360b4b1f0c4edb39e55331a",
+  "stop_reason": "max_scp_iterations",
+  "accepted_steps": 2,
+  "allface_nonpositive": 0,
+  "max_source_displacement_mm": 6.405863716437245
+}

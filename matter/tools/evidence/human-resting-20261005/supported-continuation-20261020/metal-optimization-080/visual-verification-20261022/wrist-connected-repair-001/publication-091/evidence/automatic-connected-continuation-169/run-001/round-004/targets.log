@@ -1,0 +1,15 @@
+waiting_for_human_geometry_slot pid=68496
+acquired_human_geometry_slot pid=68496
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/targets/nearest-union-exits.json",
+  "report_sha256": "4e443eea1f16f37731c2fb10c553f05dea7350a02c0f7659d9f86e4466aad893",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/targets/nearest-union-exits.npz",
+  "npz_sha256": "a69da76ec727e140d99eff1b61c6e53c368eefc8697b9270cbd7078da38d1a7d",
+  "targets": 502,
+  "passing": 502,
+  "new_refinement_rows": 491,
+  "failed": [],
+  "max_distance_m": 0.0014457978039245148,
+  "over_6mm": 0,
+  "seconds": 6.022258833050728
+}

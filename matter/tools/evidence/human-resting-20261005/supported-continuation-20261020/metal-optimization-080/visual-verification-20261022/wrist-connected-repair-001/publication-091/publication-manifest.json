@@ -1,0 +1,1436 @@
+{
+  "accepted_physical_steps": 0,
+  "base_commit": "3528b57a207c2bf4d9a5c0e72fbf76b7a1816eb2",
+  "base_tree": "f21612abbe86cbbd34cb262e56daff12fe8ecccc",
+  "canonical_changes": [
+    {
+      "bytes": 2801,
+      "path": "canonical/matter/tools/human_skin_fat_barycentric_constraints.py",
+      "sha256": "965a166e86952d79c019302c98e7684f2f8ef3a9d63b328430ac9c8c8edbaff2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/human_skin_fat_barycentric_constraints.py"
+    },
+    {
+      "bytes": 2479,
+      "path": "canonical/matter/tools/test_human_skin_fat_barycentric_constraints.py",
+      "sha256": "22bee70011ca9ccf34a2a540289fc6574a02f0bd81ff875ac881a701ee50487f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/test_human_skin_fat_barycentric_constraints.py"
+    }
+  ],
+  "excluded_alternate_candidate_snapshots": [
+    {
+      "bytes": 1477880,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "ab62721f38475200d15c7c1330effde2c75ddbd365ab0986620602200eb3182a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-01-alpha-0p25/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-01-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477936,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "5852d488b0d6e057d27f35526bb9d34f48138eb169a5af095f430c5704241a5e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-01-alpha-0p5/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-01-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 1477945,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "07a18dd86e802f9f83dd7a7d55e3b6ffebce8dc3f47653cb77efdfe56ee31812",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-01-alpha-0p75/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-01-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 1477886,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "cc4deb03caf68a75d076c38cb5e97093e85ba559a8800fe6f2eadd9272be4c34",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-01-alpha-1p0/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-01-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 1477938,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "2d4a5536f7387de67f301fb3378c1b8aa80757526188d3ce3433506c1aad4d14",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477936,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "8ac56a3124ca10ab75b7280d4b15f4798db7900ad633ec11c75851856ef59d79",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p5/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-02-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 1477938,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "841fe7fce9655f6ecdba45e8b7b7991af4c1f759c0b2d1cbb288ea6d74b644b2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p75/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-02-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 1477889,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "52d4549c27cf7320171bb117fa44adc3bb3a09ad5b7918f128d97885587f836b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-1p0/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-02-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 1477916,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "f939b260c9f890fbd2d33ffaf8eba9300cecf31ba22ce28c16400bb4606b8545",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-03-alpha-0p25/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-03-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477911,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "40ffab8d77818b3575008757c3620d7f31013be2c61de1ce51f62ada64c17693",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-03-alpha-0p5/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-03-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 1477918,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "3edb53fa404f0682631c5bec39da529225ac61da1192e8473b2ed95813214951",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-03-alpha-0p75/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-03-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 1477924,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "396862a079424b6bb9e0ce7471fc3de2922f5a8a89e7abd0b862e8c721ba49c7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-03-alpha-1p0/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-03-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 1477893,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "1e14addeeeae41bac37642aa5e49901e9f22de7f203a1167505ceb3d83851568",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 1477932,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "7cf8fe7bb3590a9072deb9e0995a5a335d97b01470be760b28cd745db7cda722",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p75/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-04-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 1477883,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "6c6f3d1ccbb1db819398d485e32afcb4f8246c6e12a563075a8828ea9f568593",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-1p0/candidate.npz",
+      "source_relative_path": "run-001/round-001/fit/attempt-001/scp-04-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 1477920,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "d4edb8f22284b17bf1facb76162acc0396a181bc8ae6170b9c5904038c9171d6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-01-alpha-0p25/candidate.npz",
+      "source_relative_path": "run-001/round-002/fit/attempt-001/scp-01-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477914,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "c2772a48cb652328d10eed8eafb8f85c978fa2f10b4584810238f52a446feb97",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-01-alpha-0p5/candidate.npz",
+      "source_relative_path": "run-001/round-002/fit/attempt-001/scp-01-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 1477926,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "4e8ede2c81128d3addd05dfb613aa05e2059c388a651c9a27cb6be7704fd48fe",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-01-alpha-0p75/candidate.npz",
+      "source_relative_path": "run-001/round-002/fit/attempt-001/scp-01-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 1477859,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "60f2a5f1c4bcede6cbc770c88a7c5c775e5864cb070141784b90e1d4fb12bb09",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-01-alpha-1p0/candidate.npz",
+      "source_relative_path": "run-001/round-002/fit/attempt-001/scp-01-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 1477911,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "e8ee95abf490a9944d851cf0b0b041068ea3d4dc9dc8ef7485b9fdebcb54ed9f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/candidate.npz",
+      "source_relative_path": "run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477950,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "7c60988d523b42f56d383bbdcde967d5eacd15ac6e3eb798ad7c50939916ecd9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p5/candidate.npz",
+      "source_relative_path": "run-001/round-002/fit/attempt-001/scp-02-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 1477915,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "6b9da3ebe20d1703a394075550920e1968377bd67f159413d050f0595a7552a5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p75/candidate.npz",
+      "source_relative_path": "run-001/round-002/fit/attempt-001/scp-02-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 1477890,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "e24e816836c99f12e684a5fb32c6d2dac3385cf1da268a10ed50282db417018f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-1p0/candidate.npz",
+      "source_relative_path": "run-001/round-002/fit/attempt-001/scp-02-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 1477911,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "70168fb03c2134252fd6e7792e9578ca66b576dfd89a62ce8e63d4e790310be8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-01-alpha-0p25/candidate.npz",
+      "source_relative_path": "run-001/round-003/fit/attempt-001/scp-01-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477932,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "2f20508aaf681f5704e83450ae2fc44ce71d06c0c1c3487081c3eeacde0a9a7c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-01-alpha-0p5/candidate.npz",
+      "source_relative_path": "run-001/round-003/fit/attempt-001/scp-01-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 1477904,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "68817677816d4439f2fbe7f09b14160b824fbee4fc0a7a55bc9c22f09ba990d0",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-01-alpha-0p75/candidate.npz",
+      "source_relative_path": "run-001/round-003/fit/attempt-001/scp-01-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 1477943,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "156f8a1d0ea11cfbe5f685d8f5439262f43267527a591d934124e5024d72acc7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-01-alpha-1p0/candidate.npz",
+      "source_relative_path": "run-001/round-003/fit/attempt-001/scp-01-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 1477902,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "9782fc5f47cbc57cc3a1a40adb3842789439a20349b4bcb0637a0a0ac1fb953c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/candidate.npz",
+      "source_relative_path": "run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477892,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "1e8ef44dd8432d29cbb88245b48f756496ee77b6f9460d20efa9d5d958f6dd41",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p5/candidate.npz",
+      "source_relative_path": "run-001/round-003/fit/attempt-001/scp-02-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 1477887,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "db9d4843cba610b43a3bc4667bcb7a590a0e1dbb256d04e477a56b6370c673c8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p75/candidate.npz",
+      "source_relative_path": "run-001/round-003/fit/attempt-001/scp-02-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 1477891,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "83189f211fa80fe52d6bdb7a4177a567f03124439545ef2791d4060418f0ebe2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-1p0/candidate.npz",
+      "source_relative_path": "run-001/round-003/fit/attempt-001/scp-02-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 1477902,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "fbc30d27a48278ed54319139f918e048ea1186d1517d6909e3122eccd243e4bb",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-01-alpha-0p25/candidate.npz",
+      "source_relative_path": "run-001/round-004/fit/attempt-001/scp-01-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477937,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "6d471ccadc7ba438ab2779a469e38981d9520f72fa93300a33a6be33530d777f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-01-alpha-0p5/candidate.npz",
+      "source_relative_path": "run-001/round-004/fit/attempt-001/scp-01-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 1477929,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "4ba13e59161e99641d6ab5f6fc0646ba0bf3add475eaa1ac6d081c032ba7387c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-01-alpha-0p75/candidate.npz",
+      "source_relative_path": "run-001/round-004/fit/attempt-001/scp-01-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 1477888,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "2c3d7de9926b06a1c64bcdf5d6dad9192dc511d51bed8d439fa887cd201e43e1",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-01-alpha-1p0/candidate.npz",
+      "source_relative_path": "run-001/round-004/fit/attempt-001/scp-01-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 1477904,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "81738c05cc959956ee485e735156c7683abef592406b79535c5b5ca50f882676",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-02-alpha-0p25/candidate.npz",
+      "source_relative_path": "run-001/round-004/fit/attempt-001/scp-02-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477894,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "a873891355b9b02db8ca20f738222f3a21e0d741bc5b40e83df479aff1f40489",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-02-alpha-0p5/candidate.npz",
+      "source_relative_path": "run-001/round-004/fit/attempt-001/scp-02-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 1477878,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "f093be61e4eab50ac2f5fdde8ce3b4dd17eeb16fdcdd0126a3fdad6b4283b10c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-02-alpha-0p75/candidate.npz",
+      "source_relative_path": "run-001/round-004/fit/attempt-001/scp-02-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 1477930,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "338d164bcd1ed789ac5685bb0bc6081987e90480255d0717e221895b78ac019a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-02-alpha-1p0/candidate.npz",
+      "source_relative_path": "run-001/round-004/fit/attempt-001/scp-02-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 1477866,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "b11d9e7f1240e2528c5928d08a72e1f06b171cfa8a4604515fe616511f88e5b7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/candidate.npz",
+      "source_relative_path": "run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 1477919,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "2fe8e85ced29aff5307bb9a873bfa051f9c1cf6de8d276d2970606eca57347bf",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-1p0/candidate.npz",
+      "source_relative_path": "run-001/round-004/fit/attempt-001/scp-03-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 1477919,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "c58690179307c3fcc3d9e5de55d9f41256f0bfd00b3fe6d00503d41c1e4ce670",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-01-alpha-0p25/candidate.npz",
+      "source_relative_path": "run-002/round-001/fit/attempt-001/scp-01-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477883,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "ae04f72f73b78aec74cb541bc8c151e3738453613799cc91f1460018898aba8f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-01-alpha-0p5/candidate.npz",
+      "source_relative_path": "run-002/round-001/fit/attempt-001/scp-01-alpha-0p5/candidate.npz"
+    },
+    {
+      "bytes": 1477872,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "7aefb8a320ad3b282d0658c745dc1aaa7497a004dcc062b1b117576beaa14b94",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-01-alpha-0p75/candidate.npz",
+      "source_relative_path": "run-002/round-001/fit/attempt-001/scp-01-alpha-0p75/candidate.npz"
+    },
+    {
+      "bytes": 1477893,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "5036b55973499309afca93aa8e0b7294fe27a1a8681d3fae08443626bb8b3e85",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-01-alpha-1p0/candidate.npz",
+      "source_relative_path": "run-002/round-001/fit/attempt-001/scp-01-alpha-1p0/candidate.npz"
+    },
+    {
+      "bytes": 1477880,
+      "reason": "alternate per-alpha proposal snapshot omitted from compact publication; all fit reports, audit summaries, detailed query CSVs, logs, and selected round-result candidates are included; original remains untouched",
+      "sha256": "495814b3cc3daf65b382a0f791c96edb6882230458fa5d47f17fe71c3f687048",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/candidate.npz",
+      "source_relative_path": "run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/candidate.npz"
+    }
+  ],
+  "files": [
+    {
+      "bytes": 1639,
+      "kind": "publication-summary",
+      "path": "README.md",
+      "sha256": "1f099545bcdd8e9dec431f542b9d3ff984021a4be66c8310479f7f9b4f3e856c"
+    },
+    {
+      "bytes": 340,
+      "kind": "validation-log",
+      "path": "canonical/matter/tools/barycentric-helper-tests.log",
+      "sha256": "4897011811d69e502b8031a60cda72b7ba1d034028c4138bb9bd6ff330f2cb61"
+    },
+    {
+      "bytes": 2801,
+      "path": "canonical/matter/tools/human_skin_fat_barycentric_constraints.py",
+      "sha256": "965a166e86952d79c019302c98e7684f2f8ef3a9d63b328430ac9c8c8edbaff2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/human_skin_fat_barycentric_constraints.py"
+    },
+    {
+      "bytes": 2479,
+      "path": "canonical/matter/tools/test_human_skin_fat_barycentric_constraints.py",
+      "sha256": "22bee70011ca9ccf34a2a540289fc6574a02f0bd81ff875ac881a701ee50487f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/test_human_skin_fat_barycentric_constraints.py"
+    },
+    {
+      "bytes": 3017,
+      "kind": "derived-summary",
+      "path": "continuation-summary.json",
+      "sha256": "acf3eb0e70b70612a46f0e2e3297392c6fa7719954b15eb196592dd4a405ff7d"
+    },
+    {
+      "bytes": 99,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/audit-159/progress.json",
+      "sha256": "b942c38e9b808ea62477bebdb16ebb258cbb9863e139548abe05a9fed8fa5087",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/audit-159/progress.json"
+    },
+    {
+      "bytes": 294579,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/audit-159/report.json",
+      "sha256": "1cbd365b7cd99af1785aa4587a79a1285f8665e0b0414dae3f28b780c3cbb73a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/audit-159/report.json"
+    },
+    {
+      "bytes": 938,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/audit159.log",
+      "sha256": "925c0e3f560e6ffc1cf53727f41a4862642b3fce75f2cc23994bd4f4f206a272",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/audit159.log"
+    },
+    {
+      "bytes": 701,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/audit159.log.receipt.json",
+      "sha256": "faa5b74f172d481e3715caa966760e5fb45035805a4d76b2a3de5ffe2561445c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/audit159.log.receipt.json"
+    },
+    {
+      "bytes": 697,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit.log",
+      "sha256": "8e6f1d420eddb2af6e1b05417b7516fef7b3d04930ac427d9cbac1489605dd33",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit.log"
+    },
+    {
+      "bytes": 454,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit.log.receipt.json",
+      "sha256": "9f7802fc2da94b5918a25e9bf53fcb2c3b8255dc73126069cca18a99bd2aee00",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit.log.receipt.json"
+    },
+    {
+      "bytes": 16549,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/area_scp_support_023.py",
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/area_scp_support_023.py"
+    },
+    {
+      "bytes": 1477893,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/candidate.npz",
+      "sha256": "1e14addeeeae41bac37642aa5e49901e9f22de7f203a1167505ceb3d83851568",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/candidate.npz"
+    },
+    {
+      "bytes": 1081216,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/fit-report.json",
+      "sha256": "ab6a9c6c011787e72aedd14cb7373e6f76738fc1b360b4b1f0c4edb39e55331a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/fit-report.json"
+    },
+    {
+      "bytes": 570,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130.log",
+      "sha256": "9894a583a1228cb6b3123eda3bdcd5fd61aa5da50bfda599355c063ca65a9620",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130.log"
+    },
+    {
+      "bytes": 313458,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/nodes.csv",
+      "sha256": "7e1a99d311b0876d6c18e2d809dca96d5b634491cb18be6d13797e1bd0b942ea",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/nodes.csv"
+    },
+    {
+      "bytes": 1492480,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/pairs.csv",
+      "sha256": "bd36f1db7543efb10815ce98f5f94690bc2be4a9a15006fad764bd10da2f0424",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/pairs.csv"
+    },
+    {
+      "bytes": 147062,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/points-world.npz",
+      "sha256": "4993ee9c9469ba4318fdbde254c4db299b7180b3eda64c9929d75313d4f5bd88",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/points-world.npz"
+    },
+    {
+      "bytes": 1022976,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/points.csv",
+      "sha256": "6a0f72bc6bc78a710428bf44163ff17aae5cc308c3eeb98604c7c741af798ac9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/points.csv"
+    },
+    {
+      "bytes": 710,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/prepare.log",
+      "sha256": "75f38794c551359dee4ce5aaca5edd1f27bceb95030c68fcbfbe1e4c81c1d2b6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/prepare.log"
+    },
+    {
+      "bytes": 1693,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/query-receipt.json",
+      "sha256": "56ebff550f9addba269266a670a6c62958c90e13c71de6b08dffa537ef605f76",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/query-receipt.json"
+    },
+    {
+      "bytes": 135,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/query.log",
+      "sha256": "2c377ceba53fc7e6e374a7deccf588b626eb1c970607ddd7933efc69b7f2a45c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/query.log"
+    },
+    {
+      "bytes": 794016,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/summary.json",
+      "sha256": "402b4a36008bb8cefff0500a9d7f1c3baa2687cf87214e07e98b19ccac25974c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/summary.json"
+    },
+    {
+      "bytes": 128,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-02-alpha-0p25/audit-130/surface-self-pairs.npy"
+    },
+    {
+      "bytes": 571,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130.log",
+      "sha256": "d227005bc4a4548a5fe1d77a329d734e1b62009c9da73e397560581047c37356",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130.log"
+    },
+    {
+      "bytes": 313458,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/nodes.csv",
+      "sha256": "d9c237a263a569eac659d6cb8e04099437302665b6881e37e2cad85e340efdc9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/nodes.csv"
+    },
+    {
+      "bytes": 1480405,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/pairs.csv",
+      "sha256": "eb2ac404d7f53f46d4a52a600c897932527c4ef93074e5e56e1f96e0eba189e0",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/pairs.csv"
+    },
+    {
+      "bytes": 147017,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/points-world.npz",
+      "sha256": "744e0aba6c5300945dc1104211f14b524ec1a7d55d26dfd14aae49db7faf00bb",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/points-world.npz"
+    },
+    {
+      "bytes": 1023020,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/points.csv",
+      "sha256": "8e05e29fb98b4ce53659b061fdbf89e0d34db5ceb149695157942d1a19aa5536",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/points.csv"
+    },
+    {
+      "bytes": 708,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/prepare.log",
+      "sha256": "b31e80d141b11a35982fa8a011e54d7d5f1c4663a5b9490ca78480b218f81d67",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/prepare.log"
+    },
+    {
+      "bytes": 1690,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/query-receipt.json",
+      "sha256": "ab3f919f91b2da1418431d1706b075ae900bfa4aee66f18d17e5be8248c77594",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/query-receipt.json"
+    },
+    {
+      "bytes": 135,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/query.log",
+      "sha256": "16d7a77d1ebe7ee712415d5ce6ffb3e054af9eeded24f1f90602351f55fe8443",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/query/query.log"
+    },
+    {
+      "bytes": 587532,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/summary.json",
+      "sha256": "227f327f8568dca7aadc982f46d84ae00ba31d7954236bb621f720745406a791",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/summary.json"
+    },
+    {
+      "bytes": 128,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/attempt-001/scp-04-alpha-0p5/audit-130/surface-self-pairs.npy"
+    },
+    {
+      "bytes": 50127,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/run_connected_fit.py",
+      "sha256": "fccb22006df225e1eaf0048d4ceb799468cf93c8e8d3ad4844cfa73c0a7189bb",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/run_connected_fit.py"
+    },
+    {
+      "bytes": 11249,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/fit/self_separation_026.py",
+      "sha256": "ec647128549c31d38d02f1722de1ee584c1ff442b9275be92a2d3a25b0f52ee4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/fit/self_separation_026.py"
+    },
+    {
+      "bytes": 22616,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/result.json",
+      "sha256": "32647b0db5dcfd8c48aaea5fb85fde57c2a1b84d4c1aaac7e59b7e2b46a149e4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/result.json"
+    },
+    {
+      "bytes": 565,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/source-inputs.json",
+      "sha256": "635d76e213d37b044a6121573c9fbbbf3fdf229991acf9739e2ffb84f8c3dede",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/source-inputs.json"
+    },
+    {
+      "bytes": 23572,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/surface-count.json",
+      "sha256": "d1a8a301c6495dd70372cc02aca2fb7dc50c09d6dda920697eab1da6d8296ebb",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/surface-count.json"
+    },
+    {
+      "bytes": 734,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/targets.log",
+      "sha256": "59585cf5ff74ecbd7ba53dddac7cae87ea2614441a6d9b2b8357406bb08fbc77",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/targets.log"
+    },
+    {
+      "bytes": 454,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/targets.log.receipt.json",
+      "sha256": "87e73d9437f1fb3c06015429c6aeb74c01f903f5ff052e0bc6d3179279d72f2b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/targets.log.receipt.json"
+    },
+    {
+      "bytes": 22400,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/targets/build_targets.py",
+      "sha256": "04b44bad89b0548d8d2152aec6b6f3925404c092e660582d3ffc5b918a59ebad",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/targets/build_targets.py"
+    },
+    {
+      "bytes": 2737542,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/targets/nearest-union-exits.json",
+      "sha256": "f6778e59fe0f46145b8e144289dc2b43e3aa51a7e576b8b38660b783aa769d11",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/targets/nearest-union-exits.json"
+    },
+    {
+      "bytes": 42222,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-001/targets/nearest-union-exits.npz",
+      "sha256": "7ae9476a4372944654beca0d73a22378a8fa8f8df1522131b5e8cbba3329181b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-001/targets/nearest-union-exits.npz"
+    },
+    {
+      "bytes": 97,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/audit-159/progress.json",
+      "sha256": "e63df45bfc221030f9aa6277575b01d6767e27933d8c78360b386dba01b212c2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/audit-159/progress.json"
+    },
+    {
+      "bytes": 288026,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/audit-159/report.json",
+      "sha256": "667d4f8c6adffbe59c7ddac58c2559271e961822feff3687233c417038978f45",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/audit-159/report.json"
+    },
+    {
+      "bytes": 936,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/audit159.log",
+      "sha256": "61a8c8f1491aafe442f9b2d9c10834832ed291c0a5da60bbad739fd929fa583d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/audit159.log"
+    },
+    {
+      "bytes": 702,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/audit159.log.receipt.json",
+      "sha256": "666407082c95ba3966c0402a5333453fcbdc4e6a7aeb668516c76b17ae4a0ad8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/audit159.log.receipt.json"
+    },
+    {
+      "bytes": 738,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit.log",
+      "sha256": "ae874471f94bc6c41c3ce3ba82b04df28e7542425dc4efde96d9e618e885b1a2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit.log"
+    },
+    {
+      "bytes": 453,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit.log.receipt.json",
+      "sha256": "5bba77e33467a5e39a84cd79609a70b1c11301ac8d2808582fe50437179b9251",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit.log.receipt.json"
+    },
+    {
+      "bytes": 16549,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/area_scp_support_023.py",
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/area_scp_support_023.py"
+    },
+    {
+      "bytes": 1477911,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/candidate.npz",
+      "sha256": "e8ee95abf490a9944d851cf0b0b041068ea3d4dc9dc8ef7485b9fdebcb54ed9f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/candidate.npz"
+    },
+    {
+      "bytes": 823078,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/fit-report.json",
+      "sha256": "597e665a57b62fa949dd875ca846c6ba93bccd6686a779a75668734c1af75e14",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/fit-report.json"
+    },
+    {
+      "bytes": 571,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130.log",
+      "sha256": "6085f2a2119f0a9b29e52e970316ad4c1dcbc4b175931c4901ae401dd90f87a5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130.log"
+    },
+    {
+      "bytes": 313458,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/nodes.csv",
+      "sha256": "2a66e32a77658ef291d6045306ca6dee7908e5c1fab3dc7aadd33ebf7c054e46",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/nodes.csv"
+    },
+    {
+      "bytes": 1475595,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/pairs.csv",
+      "sha256": "a86c3ff456d79b0030fdb291c2f5e9738c75afc2bcb2881d8c441784320e7554",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/pairs.csv"
+    },
+    {
+      "bytes": 147035,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/points-world.npz",
+      "sha256": "5940776d928856baa62b0a78cd04ed5e44f95f34ffcda7a2c8a3e15f90af81b4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/points-world.npz"
+    },
+    {
+      "bytes": 1022993,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/points.csv",
+      "sha256": "49f4303673684362ea3cf94745efd1ff3fbfd54ad60460db7c60635e04672774",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/points.csv"
+    },
+    {
+      "bytes": 710,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/prepare.log",
+      "sha256": "6939873e77ccb5163caa8f987d2c1591bac45b1f27cbf59f9901b8d5c31709b9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/prepare.log"
+    },
+    {
+      "bytes": 1693,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/query-receipt.json",
+      "sha256": "90888e2a4b8a5b516779df7f61d1c2daebcf4dfcb8a655898ad896d7a553db31",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/query-receipt.json"
+    },
+    {
+      "bytes": 135,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/query.log",
+      "sha256": "67f7efbc43c5ec025e43e818b4f02470908a75fce2cbc616eaa1b045533ed1f7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/query.log"
+    },
+    {
+      "bytes": 509715,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/summary.json",
+      "sha256": "f0076fc43830a7a8a18452477c9d037ee6a70a5a1a8acd45dc7a4a8268dc53af",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/summary.json"
+    },
+    {
+      "bytes": 128,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/attempt-001/scp-02-alpha-0p25/audit-130/surface-self-pairs.npy"
+    },
+    {
+      "bytes": 50043,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/run_connected_fit.py",
+      "sha256": "459438c9f37a25537783e91ab1e123eb15bbc1cf891adddfc7df359920d7886c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/run_connected_fit.py"
+    },
+    {
+      "bytes": 11249,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/fit/self_separation_026.py",
+      "sha256": "ec647128549c31d38d02f1722de1ee584c1ff442b9275be92a2d3a25b0f52ee4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/fit/self_separation_026.py"
+    },
+    {
+      "bytes": 6798,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/result.json",
+      "sha256": "ef781960ccb5623a852492f3fa5192993fe44c486c4ba1afd807821b06498a37",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/result.json"
+    },
+    {
+      "bytes": 565,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/source-inputs.json",
+      "sha256": "c889debbd9883fca9f0501b0761bcd7671076e32ffb49571bd389f628dda7099",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/source-inputs.json"
+    },
+    {
+      "bytes": 23568,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/surface-count.json",
+      "sha256": "c267d943a22994380c9f6e8e0c8d774530d230bcb669bd6095c0e19a7a2351e3",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/surface-count.json"
+    },
+    {
+      "bytes": 730,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/targets.log",
+      "sha256": "05b572ae2d8ea87b06fe431e5c8ebe8579e9c45cfe61a7a73d4fc7b0015f3711",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/targets.log"
+    },
+    {
+      "bytes": 453,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/targets.log.receipt.json",
+      "sha256": "efdc553b2c14f430239c3c3d87399a193b75ba4bd597399549144e487d4f3dfa",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/targets.log.receipt.json"
+    },
+    {
+      "bytes": 22377,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/targets/build_targets.py",
+      "sha256": "797c1a62bb4df7525a01aadd943b552429b7d025141bca82f38c0e141ae496a5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/targets/build_targets.py"
+    },
+    {
+      "bytes": 1815748,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/targets/nearest-union-exits.json",
+      "sha256": "1346122e4c943cbbe18e21c5bfbe7faeddcc7776965856de0cbad887f2043951",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/targets/nearest-union-exits.json"
+    },
+    {
+      "bytes": 29742,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-002/targets/nearest-union-exits.npz",
+      "sha256": "0656f0c6ee9bd394786f89517e5a1ae2933d5d2d14fb9592249e0c9442de36d7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-002/targets/nearest-union-exits.npz"
+    },
+    {
+      "bytes": 99,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/audit-159/progress.json",
+      "sha256": "c722a02ad2059755edc11be4d000806b8191caa151045a6f61c93f3c87a8f5ab",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/audit-159/progress.json"
+    },
+    {
+      "bytes": 283958,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/audit-159/report.json",
+      "sha256": "c39bb3ec0b989d341c45bc0cd7f9a6bcf97347326737cc15593949c064a72763",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/audit-159/report.json"
+    },
+    {
+      "bytes": 938,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/audit159.log",
+      "sha256": "ea6774e5788aa7fa311052c9f976b9e3c65ab9cb22104b107a4595062c239093",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/audit159.log"
+    },
+    {
+      "bytes": 702,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/audit159.log.receipt.json",
+      "sha256": "ba823deaa9e32121b2bfcc34a8e5b7c89fa58571098dfa4319d3719120009c4e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/audit159.log.receipt.json"
+    },
+    {
+      "bytes": 738,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit.log",
+      "sha256": "4a9f9ed1785fd5f5980810948270852cab522edc5aede21e711cd8739fe24b97",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit.log"
+    },
+    {
+      "bytes": 453,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit.log.receipt.json",
+      "sha256": "4bc831de82f22ccf2f10bfa5106ed37e2a78849f2f6bb9177331013c77a74d0e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit.log.receipt.json"
+    },
+    {
+      "bytes": 16549,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/area_scp_support_023.py",
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/area_scp_support_023.py"
+    },
+    {
+      "bytes": 1477902,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/candidate.npz",
+      "sha256": "9782fc5f47cbc57cc3a1a40adb3842789439a20349b4bcb0637a0a0ac1fb953c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/candidate.npz"
+    },
+    {
+      "bytes": 594301,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/fit-report.json",
+      "sha256": "8dcaf5227621d88515c1a693a47e941561a43e6509d98aafa5d7d6786044b749",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/fit-report.json"
+    },
+    {
+      "bytes": 571,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130.log",
+      "sha256": "dd4d53b19a130e33793f59b5b8ad88a8106c406c09de9eecdb8261864f6ece4c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130.log"
+    },
+    {
+      "bytes": 313458,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/nodes.csv",
+      "sha256": "810dd86cb44c8b55ef0b8b24f6a9c79c23a9792edead20a574d814937f7aba87",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/nodes.csv"
+    },
+    {
+      "bytes": 1472044,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/pairs.csv",
+      "sha256": "62d226482816d9deede3c8696e50577faa245df927678afda13460886a1144d9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/pairs.csv"
+    },
+    {
+      "bytes": 147026,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/points-world.npz",
+      "sha256": "4d26ef69a1e177429b2e1131d62b31bfc412a8b95aeab123b75d0d1ca8dd1a75",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/points-world.npz"
+    },
+    {
+      "bytes": 1023060,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/points.csv",
+      "sha256": "deb1273a74a6e12941e1d4102678eb28bc274ceb58367db6149baa4f76ee4633",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/points.csv"
+    },
+    {
+      "bytes": 710,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/prepare.log",
+      "sha256": "d972af04380e77cb685a5e6b3533b1c0bb9784b086fd61f974bd2978cbc91d79",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/prepare.log"
+    },
+    {
+      "bytes": 1693,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/query-receipt.json",
+      "sha256": "e907b12ceaabb40adfd854e1e4e250cc38b2f39ee4f94ee77694a80118255508",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/query-receipt.json"
+    },
+    {
+      "bytes": 135,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/query.log",
+      "sha256": "4ff661ccd7d8f8f8b5b27b8813f092453ee8ec11cb48184bff04c464a281ee79",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/query/query.log"
+    },
+    {
+      "bytes": 425862,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/summary.json",
+      "sha256": "59eb7c955410e798c2381abc3ca9de24013a63b9f83330d4e60d1bcb1b979726",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/summary.json"
+    },
+    {
+      "bytes": 128,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/attempt-001/scp-02-alpha-0p25/audit-130/surface-self-pairs.npy"
+    },
+    {
+      "bytes": 50044,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/run_connected_fit.py",
+      "sha256": "90aeaa317b8a51b720fb609f2a38ff38ea0977c2cbea00b41839c9aa249c9cbc",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/run_connected_fit.py"
+    },
+    {
+      "bytes": 11249,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/fit/self_separation_026.py",
+      "sha256": "ec647128549c31d38d02f1722de1ee584c1ff442b9275be92a2d3a25b0f52ee4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/fit/self_separation_026.py"
+    },
+    {
+      "bytes": 7203,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/result.json",
+      "sha256": "8196c948f19b90314a36124e02523c4d6fc0f36899c93357847d7e3ef5399c76",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/result.json"
+    },
+    {
+      "bytes": 565,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/source-inputs.json",
+      "sha256": "d4f101cd487e0c5e29c36f8276594109ccfc86eb033f61b25fb1dde3872632fe",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/source-inputs.json"
+    },
+    {
+      "bytes": 23569,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/surface-count.json",
+      "sha256": "adec02d298e75ee34119fe13992830f8dd46ed72ce14a335871a4031947269f6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/surface-count.json"
+    },
+    {
+      "bytes": 730,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/targets.log",
+      "sha256": "70a475d121077ba9b4ff96bcca1c685affb54991e301491e657cdb90821efe65",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/targets.log"
+    },
+    {
+      "bytes": 453,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/targets.log.receipt.json",
+      "sha256": "997cb38579806a5dcbd0ce2dc3d71da96924708ecf15b32453035451540a4a90",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/targets.log.receipt.json"
+    },
+    {
+      "bytes": 22378,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/targets/build_targets.py",
+      "sha256": "1aa3d3007d7ff4a1aac97299867ffa1799d3d7424b385b1424d9f44f62eff2d5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/targets/build_targets.py"
+    },
+    {
+      "bytes": 1580501,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/targets/nearest-union-exits.json",
+      "sha256": "a19b9213755cdb8eeb08ec36b97ed60978eb4d301587d031e13cac5c2827fca1",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/targets/nearest-union-exits.json"
+    },
+    {
+      "bytes": 26488,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-003/targets/nearest-union-exits.npz",
+      "sha256": "6f74c3c9b56d4b61d4f1c86f45ac0228cfce61dae568f0109af62ba8a9e37c14",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-003/targets/nearest-union-exits.npz"
+    },
+    {
+      "bytes": 98,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/audit-159/progress.json",
+      "sha256": "7110aa70596f73848b85a0351e9054ccc237249616893c47f5639f170a709fd9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/audit-159/progress.json"
+    },
+    {
+      "bytes": 283335,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/audit-159/report.json",
+      "sha256": "be0b75b679187daa0d966edfaced58881e8065d2d0f6d2a307fa10c7eb843920",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/audit-159/report.json"
+    },
+    {
+      "bytes": 937,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/audit159.log",
+      "sha256": "9d6f4460db902b2fd77623610b2a502bc07cda27dd97168176d28dc7e67b0ef2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/audit159.log"
+    },
+    {
+      "bytes": 701,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/audit159.log.receipt.json",
+      "sha256": "3bc12de37de6a2be5a11b344b6c75e7ce1e704696da9596ed4ee980cdacd3b28",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/audit159.log.receipt.json"
+    },
+    {
+      "bytes": 738,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit.log",
+      "sha256": "1d6d9d4e827f53a94ec0792a1301091fabce2849e740f0cc4cd8fc8741f0eb50",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit.log"
+    },
+    {
+      "bytes": 454,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit.log.receipt.json",
+      "sha256": "84fde8e91ef96a8e2f5f80987f51868abebf79d4a40e6489ffe276ee1e7ee57f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit.log.receipt.json"
+    },
+    {
+      "bytes": 16549,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/area_scp_support_023.py",
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/area_scp_support_023.py"
+    },
+    {
+      "bytes": 1477866,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/candidate.npz",
+      "sha256": "b11d9e7f1240e2528c5928d08a72e1f06b171cfa8a4604515fe616511f88e5b7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/candidate.npz"
+    },
+    {
+      "bytes": 563589,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/fit-report.json",
+      "sha256": "b9aef6456ea6c94e2d0f89be593cbcf565a09515367df29b1d54b0ed38cd0b1a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/fit-report.json"
+    },
+    {
+      "bytes": 571,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130.log",
+      "sha256": "e7d858c41cad4319014c8eb84026217f959cba1b5bdb831baa2f1b0b0ed1cc85",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130.log"
+    },
+    {
+      "bytes": 313458,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/query/nodes.csv",
+      "sha256": "69f8ebb99cd1a698fbb71533ab2693c4ff414ee022b60d6b8f22003c2f3eff71",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/query/nodes.csv"
+    },
+    {
+      "bytes": 1465486,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/query/pairs.csv",
+      "sha256": "7d38f14f03f612c0a0af0306567d211fc985303731341089fc10fd9f3c62d7d6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/query/pairs.csv"
+    },
+    {
+      "bytes": 146990,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/query/points-world.npz",
+      "sha256": "3fd9cac3c6eb8c1a496e83b564dcc6ec994280f2c93d7b9529c314563f5800e2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/query/points-world.npz"
+    },
+    {
+      "bytes": 1022946,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/query/points.csv",
+      "sha256": "1dedb5db09986625c0b2d17faa3c1548db2a19237779e4b7ef03b662c2123127",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/query/points.csv"
+    },
+    {
+      "bytes": 710,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/query/prepare.log",
+      "sha256": "577235395c69b2e7331136d08c35458fa8ea22ef164ef32707ee788c76e3be08",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/query/prepare.log"
+    },
+    {
+      "bytes": 1693,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/query/query-receipt.json",
+      "sha256": "fa84a0582ba1149751610753592c53a070266700fde22184dfadf70981ef819a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/query/query-receipt.json"
+    },
+    {
+      "bytes": 135,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/query/query.log",
+      "sha256": "0efd4ebb816e36b9cdb24789b6fe94e3559ce618429b79fe117941b0849c6540",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/query/query.log"
+    },
+    {
+      "bytes": 109869,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/summary.json",
+      "sha256": "620237a39782197eac820ab4b230a2f043a198e47963c1182881b4a8907664b8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/summary.json"
+    },
+    {
+      "bytes": 128,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/attempt-001/scp-03-alpha-0p75/audit-130/surface-self-pairs.npy"
+    },
+    {
+      "bytes": 50044,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/run_connected_fit.py",
+      "sha256": "dfe12722e664db250e7888fe1e0f32c60570a0c55095ef0d19b76823681aa489",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/run_connected_fit.py"
+    },
+    {
+      "bytes": 11249,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/fit/self_separation_026.py",
+      "sha256": "ec647128549c31d38d02f1722de1ee584c1ff442b9275be92a2d3a25b0f52ee4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/fit/self_separation_026.py"
+    },
+    {
+      "bytes": 22672,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/result.json",
+      "sha256": "e99bccfedf0b6d9715644e40842d65167a96ce01289c0c7effad1b6531355234",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/result.json"
+    },
+    {
+      "bytes": 565,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/source-inputs.json",
+      "sha256": "36557506ecfc4bcd965215b5a1a86e5a22024b8a6a4cb748234041db1dbcde61",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/source-inputs.json"
+    },
+    {
+      "bytes": 23568,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/surface-count.json",
+      "sha256": "665bb40da6276b354019c395258055f45e3c9bafbdf1e1deb55f77366a7f0f3a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/surface-count.json"
+    },
+    {
+      "bytes": 731,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/targets.log",
+      "sha256": "8f52ed72cd43b4c1b05ecf001a5e70dd207effab1ac636f366d3fd92b195369a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/targets.log"
+    },
+    {
+      "bytes": 454,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/targets.log.receipt.json",
+      "sha256": "cbd3eecd98443fa6718c7fa78074936e8859cac62a9e58b00d4dd4e1f8fc31f6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/targets.log.receipt.json"
+    },
+    {
+      "bytes": 22378,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/targets/build_targets.py",
+      "sha256": "a1819a11b5b392b39b3eebdecf75869a7436899080d33f69b841b442814af5f5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/targets/build_targets.py"
+    },
+    {
+      "bytes": 1324407,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/targets/nearest-union-exits.json",
+      "sha256": "4e443eea1f16f37731c2fb10c553f05dea7350a02c0f7659d9f86e4466aad893",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/targets/nearest-union-exits.json"
+    },
+    {
+      "bytes": 22690,
+      "path": "evidence/automatic-connected-continuation-169/run-001/round-004/targets/nearest-union-exits.npz",
+      "sha256": "a69da76ec727e140d99eff1b61c6e53c368eefc8697b9270cbd7078da38d1a7d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-001/round-004/targets/nearest-union-exits.npz"
+    },
+    {
+      "bytes": 99,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/audit-159/progress.json",
+      "sha256": "9d7cf874e6a2016da6bacf9857a169c7e5538f3919bfca9c20dd7bc9bffd5d9e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/audit-159/progress.json"
+    },
+    {
+      "bytes": 287033,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/audit-159/report.json",
+      "sha256": "a034f74380dcf68fbc0c826ceb277032062169ac1349951eec4debaaa622193d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/audit-159/report.json"
+    },
+    {
+      "bytes": 937,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/audit159.log",
+      "sha256": "4d91e73c40f078497beae4e776b062f28c3887f5995d67bcab30a8f25d0b06e0",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/audit159.log"
+    },
+    {
+      "bytes": 701,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/audit159.log.receipt.json",
+      "sha256": "9c183bb156428cc2c03b252557d75bd608d33b73d56b373cd6c3a79a17928e16",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/audit159.log.receipt.json"
+    },
+    {
+      "bytes": 10449220,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/barycentric-virtual-point-171/run002-round001-certified-inside-face-rows.jsonl",
+      "sha256": "b742c5d51dfbcf38dfc1bfbe931cbf11538653fbdd0992a0e028324c434f38d7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/barycentric-virtual-point-171/run002-round001-certified-inside-face-rows.jsonl"
+    },
+    {
+      "bytes": 298044,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/barycentric-virtual-point-171/run002-round001-certified-inside-face-rows.npz",
+      "sha256": "eb19011f31d60eed9a415ee771c022471e865653fe2724be428187be68dced83",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/barycentric-virtual-point-171/run002-round001-certified-inside-face-rows.npz"
+    },
+    {
+      "bytes": 1930,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/barycentric-virtual-point-171/run002-round001-certified-inside-face-summary.json",
+      "sha256": "b2f4176ee06e1ae98c8f0f9596f0e499c8ff910865e6bdfa43728dbd7a7d17fc",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/barycentric-virtual-point-171/run002-round001-certified-inside-face-summary.json"
+    },
+    {
+      "bytes": 10846512,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/barycentric-virtual-point-172-corrected-raw-vector-transform/run002-round001-certified-inside-face-rows.jsonl",
+      "sha256": "7058d37e0935e7b44e348ca1da0cdb973272e714522d9319f20cea6a70bbc9e4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/barycentric-virtual-point-172-corrected-raw-vector-transform/run002-round001-certified-inside-face-rows.jsonl"
+    },
+    {
+      "bytes": 298039,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/barycentric-virtual-point-172-corrected-raw-vector-transform/run002-round001-certified-inside-face-rows.npz",
+      "sha256": "cd8213406ee11bd0adf759b9ff7e55aca9722887642aa4961ca239927ccff0d6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/barycentric-virtual-point-172-corrected-raw-vector-transform/run002-round001-certified-inside-face-rows.npz"
+    },
+    {
+      "bytes": 2097,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/barycentric-virtual-point-172-corrected-raw-vector-transform/run002-round001-certified-inside-face-summary.json",
+      "sha256": "04d5e3e4c787d3d84c73efb7c83a059c658e57e84038c6704ab94d5c358eb6df",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/barycentric-virtual-point-172-corrected-raw-vector-transform/run002-round001-certified-inside-face-summary.json"
+    },
+    {
+      "bytes": 738,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit.log",
+      "sha256": "cac2ce09877a994142d35f51444d655a9cde728d319bdb742badccdc952da935",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit.log"
+    },
+    {
+      "bytes": 452,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit.log.receipt.json",
+      "sha256": "30ad8e262b07b80c67e46f80f39d4df9656b7aacc13ecda9ba4891a198f182ba",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit.log.receipt.json"
+    },
+    {
+      "bytes": 16549,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/area_scp_support_023.py",
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/area_scp_support_023.py"
+    },
+    {
+      "bytes": 1477880,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/candidate.npz",
+      "sha256": "495814b3cc3daf65b382a0f791c96edb6882230458fa5d47f17fe71c3f687048",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/candidate.npz"
+    },
+    {
+      "bytes": 316435,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/fit-report.json",
+      "sha256": "ae60b6d799b330931b51be7340638b0930b56c0f2d840ef8618e8cd72202aeb3",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/fit-report.json"
+    },
+    {
+      "bytes": 570,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130.log",
+      "sha256": "4b02925d9481f54c026f3ca415760e6e59810d40c1c4302ae7dce587b2ea82ec",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130.log"
+    },
+    {
+      "bytes": 313458,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/query/nodes.csv",
+      "sha256": "3f167df86ae45bf0634d2d90ec4453ccec682694bb318a04149970edaa08d0b9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/query/nodes.csv"
+    },
+    {
+      "bytes": 1463752,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/query/pairs.csv",
+      "sha256": "96e935d241a1a3a291ecb3be82ec8b370a949dbfaaf476331e5c4e6e323ef482",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/query/pairs.csv"
+    },
+    {
+      "bytes": 147004,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/query/points-world.npz",
+      "sha256": "c1d0aa15f185ed204ff5e2292f9815c26dc801be193743483ebc04a1b1478f52",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/query/points-world.npz"
+    },
+    {
+      "bytes": 1022967,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/query/points.csv",
+      "sha256": "477d882164f5793c81927d6d7bbc60a47f317c78280ea9ef1bc4742ade381989",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/query/points.csv"
+    },
+    {
+      "bytes": 708,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/query/prepare.log",
+      "sha256": "232eb023a524aa53a461578909d50dc01d75dbdf9a71c41575c6291395b7560d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/query/prepare.log"
+    },
+    {
+      "bytes": 1690,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/query/query-receipt.json",
+      "sha256": "9e402eb8a7bd586b6260aff276adb1f1f86ca9f22cb4f44fb6158eb92866d37d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/query/query-receipt.json"
+    },
+    {
+      "bytes": 134,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/query/query.log",
+      "sha256": "15a7049bc4aa366df0a88a4d5a312ccdd4b5357ef231a5a6022e6076b21c071c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/query/query.log"
+    },
+    {
+      "bytes": 16696,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/summary.json",
+      "sha256": "2dce0838f3f71f491243fbbca8b60ef6c4132e4d0f6af48bf5b66547941f4de3",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/summary.json"
+    },
+    {
+      "bytes": 128,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/scp-02-alpha-1p0/audit-130/surface-self-pairs.npy"
+    },
+    {
+      "bytes": 50044,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/run_connected_fit.py",
+      "sha256": "c7c369100e636f4ad5e014002af7c81e291fd455029c99523a9b6ffd3ffd64a8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/run_connected_fit.py"
+    },
+    {
+      "bytes": 11249,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/fit/self_separation_026.py",
+      "sha256": "ec647128549c31d38d02f1722de1ee584c1ff442b9275be92a2d3a25b0f52ee4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/self_separation_026.py"
+    },
+    {
+      "bytes": 10353,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/result.json",
+      "sha256": "ebd97c6bd2e99e2561a18ddccf32e9887ee7d46bd79e23811165155e6674282e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/result.json"
+    },
+    {
+      "bytes": 565,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/source-inputs.json",
+      "sha256": "c36ff49057039034ca033fefd04042265ef773d9ff36ff2047d7aea685937d8f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/source-inputs.json"
+    },
+    {
+      "bytes": 23568,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/surface-count.json",
+      "sha256": "1da407ccc0eaa5201028b44943cb942400dc165ee76ee9b5263c8c08792656c8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/surface-count.json"
+    },
+    {
+      "bytes": 732,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/targets.log",
+      "sha256": "1731edbc1b683b6d850ad65557b80eaeec058b21e2b0ce0f9a9934d67b3afebf",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/targets.log"
+    },
+    {
+      "bytes": 453,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/targets.log.receipt.json",
+      "sha256": "b41eb7128c54fd66824daa03e97d2e8ac15f890e55f5865d15aad6b3ef5143ff",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/targets.log.receipt.json"
+    },
+    {
+      "bytes": 22378,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/targets/build_targets.py",
+      "sha256": "9a60f072de8ff2b94871a636356990e9535333e4daa9892675128f7088026000",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/targets/build_targets.py"
+    },
+    {
+      "bytes": 344131,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/targets/nearest-union-exits.json",
+      "sha256": "71d944bd67889d4888e7cb10075435e2d76d76c171b4714011118ff7d054c132",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/targets/nearest-union-exits.json"
+    },
+    {
+      "bytes": 7450,
+      "path": "evidence/automatic-connected-continuation-169/run-002/round-001/targets/nearest-union-exits.npz",
+      "sha256": "c1797eb160d7521e03ad6bea2af9e13821553adc784f07a9bf72a1573e904b48",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/targets/nearest-union-exits.npz"
+    },
+    {
+      "bytes": 8940,
+      "path": "evidence/automatic-connected-continuation-169/run_existing_continuation.py",
+      "sha256": "87e6b547325fedbe961b1d11b03f16299c13994f0c651da429ead6236d5c9aa5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run_existing_continuation.py"
+    },
+    {
+      "bytes": 9078,
+      "path": "evidence/automatic-connected-continuation-169/run_existing_continuation_002.py",
+      "sha256": "c33b3edc4410394f3a2f01fc8f29f6c2e0b6569158f935b9d8e1c1afb18aa58e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run_existing_continuation_002.py"
+    }
+  ],
+  "geometry_admitted": false,
+  "native_admission": false,
+  "publication": "091",
+  "schema": "numi.publication-manifest.v1",
+  "scope": "automatic-connected-continuation-169 run001/run002 plus barycentric-connected-clearance-170 canonical helper/tests",
+  "summary": {
+    "accepted_physical_steps": 0,
+    "classification": "construction_progress_only",
+    "geometry_admitted": false,
+    "native_admission": false,
+    "project_context": {
+      "best_same_topology_face_pairs": 3722,
+      "earlier_inside_node_bank_pairs": 1419,
+      "latest_face_result_is_regression": true,
+      "latest_inside_node_bank_pairs": 19,
+      "latest_same_topology_face_pairs": 3784,
+      "same_topology_face_pairs_earlier_baseline": 4331,
+      "scope_note": "The packaged run001 sequence starts from the already-progressed candidate and records 1072 inside pairs and 4076 surface pairs at its first fit boundary. The 1419 and 4331 values are earlier project-level baselines, not the first values in run001."
+    },
+    "rounds": [
+      {
+        "accepted_physical_steps": 0,
+        "candidate_sha256": "1e14addeeeae41bac37642aa5e49901e9f22de7f203a1167505ceb3d83851568",
+        "geometry_admitted": false,
+        "inside_pairs_after": 693,
+        "inside_pairs_before": 1072,
+        "native_admission": false,
+        "round": "run-001/round-001",
+        "same_topology_surface_pairs_after": 3910,
+        "same_topology_surface_pairs_before": 4076,
+        "status": "CONSTRUCTION_PROGRESS_ONLY"
+      },
+      {
+        "accepted_physical_steps": 0,
+        "candidate_sha256": "e8ee95abf490a9944d851cf0b0b041068ea3d4dc9dc8ef7485b9fdebcb54ed9f",
+        "geometry_admitted": false,
+        "inside_pairs_after": 601,
+        "inside_pairs_before": 693,
+        "native_admission": false,
+        "round": "run-001/round-002",
+        "same_topology_surface_pairs_after": 3800,
+        "same_topology_surface_pairs_before": 3910,
+        "status": "CONSTRUCTION_PROGRESS_ONLY"
+      },
+      {
+        "accepted_physical_steps": 0,
+        "candidate_sha256": "9782fc5f47cbc57cc3a1a40adb3842789439a20349b4bcb0637a0a0ac1fb953c",
+        "geometry_admitted": false,
+        "inside_pairs_after": 502,
+        "inside_pairs_before": 601,
+        "native_admission": false,
+        "round": "run-001/round-003",
+        "same_topology_surface_pairs_after": 3732,
+        "same_topology_surface_pairs_before": 3800,
+        "status": "CONSTRUCTION_PROGRESS_ONLY"
+      },
+      {
+        "accepted_physical_steps": 0,
+        "candidate_sha256": "b11d9e7f1240e2528c5928d08a72e1f06b171cfa8a4604515fe616511f88e5b7",
+        "geometry_admitted": false,
+        "inside_pairs_after": 129,
+        "inside_pairs_before": 502,
+        "native_admission": false,
+        "round": "run-001/round-004",
+        "same_topology_surface_pairs_after": 3722,
+        "same_topology_surface_pairs_before": 3732,
+        "status": "CONSTRUCTION_PROGRESS_ONLY"
+      },
+      {
+        "accepted_physical_steps": 0,
+        "candidate_sha256": "495814b3cc3daf65b382a0f791c96edb6882230458fa5d47f17fe71c3f687048",
+        "geometry_admitted": false,
+        "inside_pairs_after": 19,
+        "inside_pairs_before": 129,
+        "native_admission": false,
+        "round": "run-002/round-001",
+        "same_topology_surface_pairs_after": 3784,
+        "same_topology_surface_pairs_before": 3722,
+        "status": "CONSTRUCTION_PROGRESS_ONLY"
+      }
+    ]
+  },
+  "tests": 33
+}

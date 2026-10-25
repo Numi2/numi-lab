@@ -1,0 +1,4 @@
+command: /Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q -p no:cacheprovider /Users/numi/Work/numi-human-connected-surface-069/publication-091/canonical/matter/tools/test_human_skin_fat_barycentric_constraints.py
+exit_code: 0
+.................................                                        [100%]
+33 passed in 0.06s

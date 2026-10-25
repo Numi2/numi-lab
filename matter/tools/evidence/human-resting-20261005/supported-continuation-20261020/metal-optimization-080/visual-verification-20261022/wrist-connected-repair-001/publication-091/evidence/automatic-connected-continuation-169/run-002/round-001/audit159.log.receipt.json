@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/fit/attempt-001/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/automatic-connected-continuation-169/run-002/round-001/audit-159",
+    "--max-seconds",
+    "600"
+  ],
+  "returncode": 0,
+  "wall_seconds": 24.92859662498813,
+  "log_sha256": "4d91e73c40f078497beae4e776b062f28c3887f5995d67bcab30a8f25d0b06e0"
+}

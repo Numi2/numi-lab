@@ -1,0 +1,77 @@
+{
+  "accepted_physical_steps": 0,
+  "classification": "construction_progress_only",
+  "geometry_admitted": false,
+  "native_admission": false,
+  "project_context": {
+    "best_same_topology_face_pairs": 3722,
+    "earlier_inside_node_bank_pairs": 1419,
+    "latest_face_result_is_regression": true,
+    "latest_inside_node_bank_pairs": 19,
+    "latest_same_topology_face_pairs": 3784,
+    "same_topology_face_pairs_earlier_baseline": 4331,
+    "scope_note": "The packaged run001 sequence starts from the already-progressed candidate and records 1072 inside pairs and 4076 surface pairs at its first fit boundary. The 1419 and 4331 values are earlier project-level baselines, not the first values in run001."
+  },
+  "rounds": [
+    {
+      "accepted_physical_steps": 0,
+      "candidate_sha256": "1e14addeeeae41bac37642aa5e49901e9f22de7f203a1167505ceb3d83851568",
+      "geometry_admitted": false,
+      "inside_pairs_after": 693,
+      "inside_pairs_before": 1072,
+      "native_admission": false,
+      "round": "run-001/round-001",
+      "same_topology_surface_pairs_after": 3910,
+      "same_topology_surface_pairs_before": 4076,
+      "status": "CONSTRUCTION_PROGRESS_ONLY"
+    },
+    {
+      "accepted_physical_steps": 0,
+      "candidate_sha256": "e8ee95abf490a9944d851cf0b0b041068ea3d4dc9dc8ef7485b9fdebcb54ed9f",
+      "geometry_admitted": false,
+      "inside_pairs_after": 601,
+      "inside_pairs_before": 693,
+      "native_admission": false,
+      "round": "run-001/round-002",
+      "same_topology_surface_pairs_after": 3800,
+      "same_topology_surface_pairs_before": 3910,
+      "status": "CONSTRUCTION_PROGRESS_ONLY"
+    },
+    {
+      "accepted_physical_steps": 0,
+      "candidate_sha256": "9782fc5f47cbc57cc3a1a40adb3842789439a20349b4bcb0637a0a0ac1fb953c",
+      "geometry_admitted": false,
+      "inside_pairs_after": 502,
+      "inside_pairs_before": 601,
+      "native_admission": false,
+      "round": "run-001/round-003",
+      "same_topology_surface_pairs_after": 3732,
+      "same_topology_surface_pairs_before": 3800,
+      "status": "CONSTRUCTION_PROGRESS_ONLY"
+    },
+    {
+      "accepted_physical_steps": 0,
+      "candidate_sha256": "b11d9e7f1240e2528c5928d08a72e1f06b171cfa8a4604515fe616511f88e5b7",
+      "geometry_admitted": false,
+      "inside_pairs_after": 129,
+      "inside_pairs_before": 502,
+      "native_admission": false,
+      "round": "run-001/round-004",
+      "same_topology_surface_pairs_after": 3722,
+      "same_topology_surface_pairs_before": 3732,
+      "status": "CONSTRUCTION_PROGRESS_ONLY"
+    },
+    {
+      "accepted_physical_steps": 0,
+      "candidate_sha256": "495814b3cc3daf65b382a0f791c96edb6882230458fa5d47f17fe71c3f687048",
+      "geometry_admitted": false,
+      "inside_pairs_after": 19,
+      "inside_pairs_before": 129,
+      "native_admission": false,
+      "round": "run-002/round-001",
+      "same_topology_surface_pairs_after": 3784,
+      "same_topology_surface_pairs_before": 3722,
+      "status": "CONSTRUCTION_PROGRESS_ONLY"
+    }
+  ]
+}
