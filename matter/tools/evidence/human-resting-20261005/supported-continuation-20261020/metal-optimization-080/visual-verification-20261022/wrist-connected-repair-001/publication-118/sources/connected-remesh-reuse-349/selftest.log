@@ -1,0 +1,16 @@
+test_batch_is_deterministic_and_vertex_disjoint (Work.numi-human-connected-surface-069.D.connected-remesh-reuse-349.test_same_parent_flips_349.SameParentFlipTests.test_batch_is_deterministic_and_vertex_disjoint) ... ok
+test_cross_parent_candidate_is_rejected (Work.numi-human-connected-surface-069.D.connected-remesh-reuse-349.test_same_parent_flips_349.SameParentFlipTests.test_cross_parent_candidate_is_rejected) ... ok
+test_current_reference_orientation_disagreement_is_rejected (Work.numi-human-connected-surface-069.D.connected-remesh-reuse-349.test_same_parent_flips_349.SameParentFlipTests.test_current_reference_orientation_disagreement_is_rejected) ... ok
+test_empty_targets_and_out_of_range_fail (Work.numi-human-connected-surface-069.D.connected-remesh-reuse-349.test_same_parent_flips_349.SameParentFlipTests.test_empty_targets_and_out_of_range_fail) ... ok
+test_face_kind_mismatch_is_rejected (Work.numi-human-connected-surface-069.D.connected-remesh-reuse-349.test_same_parent_flips_349.SameParentFlipTests.test_face_kind_mismatch_is_rejected) ... ok
+test_missing_source_ancestry_is_rejected (Work.numi-human-connected-surface-069.D.connected-remesh-reuse-349.test_same_parent_flips_349.SameParentFlipTests.test_missing_source_ancestry_is_rejected) ... ok
+test_nonconvex_parent_patch_is_rejected (Work.numi-human-connected-surface-069.D.connected-remesh-reuse-349.test_same_parent_flips_349.SameParentFlipTests.test_nonconvex_parent_patch_is_rejected) ... ok
+test_reference_connectivity_mismatch_fails_closed (Work.numi-human-connected-surface-069.D.connected-remesh-reuse-349.test_same_parent_flips_349.SameParentFlipTests.test_reference_connectivity_mismatch_fails_closed) ... ok
+test_targeted_flip_updates_both_face_domains_barycentrics_and_ancestry (Work.numi-human-connected-surface-069.D.connected-remesh-reuse-349.test_same_parent_flips_349.SameParentFlipTests.test_targeted_flip_updates_both_face_domains_barycentrics_and_ancestry) ... ok
+test_unknown_face_aligned_payload_fails_closed (Work.numi-human-connected-surface-069.D.connected-remesh-reuse-349.test_same_parent_flips_349.SameParentFlipTests.test_unknown_face_aligned_payload_fails_closed) ... ok
+test_zero_flip_budget_keeps_topology_unchanged (Work.numi-human-connected-surface-069.D.connected-remesh-reuse-349.test_same_parent_flips_349.SameParentFlipTests.test_zero_flip_budget_keeps_topology_unchanged) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.004s
+
+OK

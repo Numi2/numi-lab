@@ -1,0 +1,91 @@
+{
+  "candidate": {
+    "angle_summary": {
+      "best_observed_pair_minimum_angle_deg": {
+        "after": 38.9040847821689,
+        "before": 18.824576270532223,
+        "edge_node_rows": [
+          15959,
+          20329
+        ],
+        "face_rows": [
+          22215,
+          22216
+        ],
+        "gain": 20.07950851163668,
+        "parent_row": 19671
+      },
+      "faces_below_1deg": 867,
+      "faces_below_5deg": 8095,
+      "median_face_minimum_angle_deg": 15.615980813765017,
+      "minimum_angle_deg": 0.026344565785768895,
+      "minimum_face_parent_row": 27522,
+      "minimum_face_row": 30814,
+      "minimum_parent_child_count": 1,
+      "pair_min_angle_improving_candidates": 968,
+      "same_parent_two_face_edge_pairs": 6079,
+      "strict_convex_alternate_diagonal_candidates": 2071
+    },
+    "faces": 41733,
+    "immediate_parent_fields": [
+      "refinement_face_parent_face_row",
+      "refinement_face_parent_barycentric"
+    ],
+    "matched037_arrays": [
+      "area_reference_037_points_world_m_f64",
+      "area_reference_037_source_O_faces"
+    ],
+    "parents": 36815,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-refined-278/candidate.npz",
+    "per_parent_barycentric_reconstruction": {
+      "least_squares_rank_min": 3,
+      "max_reference_vertex_residual_m": 1.4776423037906735e-15,
+      "violations_above_1e-8_m": 0
+    },
+    "points": 20889,
+    "same_connectivity": true,
+    "sha256": "c2a076267c2a8261a5f1a51b742a0b4e44471d31b200f5b809b8c98d6205348f"
+  },
+  "geometry_jobs_run": 0,
+  "limitation": "The global worst 278 face is a singleton under its immediate parent, so a two-face diagonal flip cannot repair that particular angle. The measured eligible flips can improve many other pairs but do not promise global minimum-angle repair. A parent-local retriangulation or bounded edge collapse with ancestry may be needed for singleton slivers.",
+  "recommendation": "If 348 IPM does not yield a useful step, test a bounded, deterministic batch of eligible same-immediate-parent diagonal flips using 031's topology/ancestry safeguards, with exact current/reference gates after every selected batch. Do not route through 124 unless its surface-vertex ancestry gap is first closed and all other failed gates are revisited.",
+  "reuse_031": {
+    "audit_scope": "031 exact whole-surface self audit reports 0 pairs, 17,507 faces, 8,776 points; geometry_admitted=false.",
+    "builder_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-031-fixed-coordinate-edge-flips/build_edge_flips_031.py",
+    "builder_sha256": "82508658f44fce097ee967275cd288088dc049d09805630d900a4238c5ddbef7",
+    "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-031-fixed-coordinate-edge-flips/candidate.npz",
+    "candidate_sha256": "bae1b03ce4042d8c4cde2e5124af9a65618b131f3bff351411b387dbb6a8cf42",
+    "report_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-031-fixed-coordinate-edge-flips/flip-report.json",
+    "report_sha256": "e66bac3f250f878ccc47b0b8c15dd370f2ae99a1ef123724a53fdb9db8f4cb7c",
+    "reuse_assessment": "Useful local operator: fixed-coordinate paired 2-to-2 flips check edge orientation, nondegenerate replacement area, neighbor-normal alignment, boundary edges, winding, and preserve source/fine-face ancestry. It does not maintain the 278 immediate-parent barycentric map; that must be regenerated for each pair. Its two fixed row examples must not be replayed on 278.",
+    "whole_surface_exact_self_audit_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-patch-cut-123/run-034-fixed-edge-flips-exact-self/results/summary.json",
+    "whole_surface_exact_self_audit_sha256": "e8a254d18102c8af35b05fbb2e54da16da5b7425cf8564ed6a389bcb62db59ff"
+  },
+  "reuse_124": {
+    "builder_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-boundary-remesh-124/build_connected_boundary_remesh_124.py",
+    "builder_sha256": "6b24df2791787f73f2bb52dc22582c8ff36b883d2b3ba29ba05234d970aafed4",
+    "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-boundary-remesh-124/run-001/candidate.npz",
+    "candidate_sha256": "94363d0cc47d210602c332167726ef0252180317be59a6d564ce77d3fd253105",
+    "provenance_gap": "The current output maps input rows and facet markers, but repeated markers are not unique face identities and the report/output do not provide per-generated-boundary-node barycentric ancestry to the matched 037 reference surface. Thus exact matched-reference area preservation cannot be established from the frozen output alone. It also has a separate prior bone-clearance rejection; it is not a fallback to promote.",
+    "report_metrics": {
+      "cells": 36680,
+      "cells_below_1e-5": 5,
+      "generated_nodes": 512,
+      "geometry_admitted": false,
+      "invalid_F32_cells": 0,
+      "points": 8183,
+      "q_min": 3.4015748286144224e-06
+    },
+    "report_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-boundary-remesh-124/run-001/report.json",
+    "report_sha256": "5acf489870ed3d09bc11d3c0d476543bf20cb03c01c3eb6befbe175e75e59046",
+    "source_surface_path": "/Users/numi/Work/numi-human-connected-surface-069/connected-boundary-continuation-123/run-001/surface-proposal.npz",
+    "source_surface_sha256": "34f77de89404b60690d156a6a39b136862ae571e45bbd6cdab29418e8e1e85d6"
+  },
+  "same_parent_flip_application": {
+    "method": "For an interior edge with two incident faces sharing the same refinement_face_parent_face_row, require opposite directed edge use and a strictly convex quadrilateral in the parent barycentric chart. Flip only the diagonal; retain all point coordinates. Write new face connectivity to both source_O_faces and area_reference_037_source_O_faces; rebuild each changed face's refinement_face_parent_barycentric from its shared-parent vertex barycentrics. Union the pair's face-source and fine-subface ancestry exactly as 031 does, marking singular parent fields ambiguous where needed.",
+    "required_postchecks": "Validate changed-face orientation/area and parent barycentric partition; preserve boundary/nonmanifold/winding invariants; then run the full exact F32 self-pair audit, fixed-037 area gates, source-cap/anchor gates, and all external typed-bank audits before retaining any proposal. Do not infer success from local angle improvement.",
+    "why_area_map_is_preserved": "Both faces partition one common source parent triangle. Every current matched-reference vertex reconstructs from the stored barycentrics with max residual 1.48e-15 m. A legal same-parent diagonal flip changes only the triangulation of that same planar patch, not its boundary or area vector."
+  },
+  "source_edits": 0,
+  "status": "READ_ONLY_REUSE_AUDIT"
+}

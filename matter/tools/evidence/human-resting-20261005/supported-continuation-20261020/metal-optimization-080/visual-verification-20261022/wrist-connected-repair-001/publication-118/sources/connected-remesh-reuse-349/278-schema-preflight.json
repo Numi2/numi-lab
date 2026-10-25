@@ -1,0 +1,13 @@
+{
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-refined-278/candidate.npz",
+  "candidate_sha256": "c2a076267c2a8261a5f1a51b742a0b4e44471d31b200f5b809b8c98d6205348f",
+  "faces": 41733,
+  "points": 20889,
+  "proposal_emitted": false,
+  "status": "PASS_SCHEMA_ONLY_NO_PROPOSAL",
+  "target_rows": [
+    15082,
+    32458
+  ],
+  "target_rows_15082_32458_in_range": true
+}

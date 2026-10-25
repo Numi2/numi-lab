@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/coherent-support-continuation-346/test_coherent_target_continuation_346.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-347/test_propose_joint_clearance_witnesses_347.py"
+  ],
+  "returncode": 0,
+  "stdout": "....................................................................     [100%]\n68 passed in 0.39s\n",
+  "stderr": "",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

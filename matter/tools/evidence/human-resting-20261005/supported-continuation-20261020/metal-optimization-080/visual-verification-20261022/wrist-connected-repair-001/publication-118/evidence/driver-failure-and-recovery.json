@@ -1,0 +1,13 @@
+{
+  "status": "DRIVER_FAILED_SAVED_TRIAL_EXACTLY_AUDITED_NO_SELECTION",
+  "driver_error": "support writer emitted continuation_346_fit_support_rows but reader required continuation_333_fit_support_rows",
+  "lp_rerun": false,
+  "lp_wall_seconds": 227.51386791700497,
+  "lp_method": "highs-ipm",
+  "exact_self_audit": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-348/saved-trial-recovery/global-275/backtrack/pass-001/audit-130/summary.json",
+  "exact_self_audit_sha256": "49b42f1f9ccc0dbab54ffe02567f6f6d2939bb994f0ba7aa64a22ba8c88d024e",
+  "exact_self_pairs": 49,
+  "best_selected_state": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/selected-result.json",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

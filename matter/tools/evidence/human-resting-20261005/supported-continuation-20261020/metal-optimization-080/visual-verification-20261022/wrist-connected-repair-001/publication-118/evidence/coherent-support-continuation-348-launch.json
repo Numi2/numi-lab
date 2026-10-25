@@ -1,0 +1,22 @@
+{
+  "pid": 2700,
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/coherent-support-continuation-346/run_coherent_target_continuation_346.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/selected-result.json",
+    "--seed-audit-root",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-344",
+    "--lp-method",
+    "highs-ipm",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-348",
+    "--rounds",
+    "1",
+    "--attempts-per-round",
+    "2"
+  ],
+  "source_sha256": "5ea63405adf7ec3dc21d82ba25b95c7274bb4f03835261edae8bab7a7329b94c",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/coherent-support-continuation-351/test_coherent_target_continuation_351.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/coherent-support-continuation-346/test_coherent_target_continuation_346.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-347/test_propose_joint_clearance_witnesses_347.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-349/test_same_parent_flips_349.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/swept-self-pair-preseed-350/test_swept_self_pair_preseed_350.py"
+  ],
+  "returncode": 0,
+  "stdout": "........................................................................ [ 75%]\n.......................                                                  [100%]\n95 passed in 0.44s\n",
+  "stderr": "",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}
