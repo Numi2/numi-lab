@@ -1,0 +1,71 @@
+{
+  "base_commit": "52735cf73d0e795c9e624296760c95ebeb363100",
+  "canonical_changes": [],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "7108d6b417fbb01620eca297de1b72e3c6d2dc99bf063805b69be59aa152c2c6",
+      "bytes": 1357
+    },
+    {
+      "path": "evidence/archive-manifest.json",
+      "sha256": "47902f54c49c2f6474f45089e6a6a2be94d3bc0c63b7eea11cd75d3702ae067a",
+      "bytes": 228713
+    },
+    {
+      "path": "evidence/best-connected-clearance-246.json",
+      "sha256": "95b3fa4eebf1f856c3794b7bbcd136f54f90b4010e561d9503b5286a3067b6c3",
+      "bytes": 6108
+    },
+    {
+      "path": "evidence/construction-continuation-239-247.tar.xz",
+      "sha256": "84055f6d96773be88843c7880129339a7b80b97aa5b8695672ecab7a09a72bab",
+      "bytes": 23917044
+    },
+    {
+      "path": "evidence/full-gradient-bounded-resume-245-config.json",
+      "sha256": "2e73f3b3e9cd6133795340ac922aa186e2c34433efc7a0673107324a127cff81",
+      "bytes": 6232
+    },
+    {
+      "path": "evidence/p106-remote-recovery-verification.json",
+      "sha256": "5d9130fb28c36af910dc42fbc9c0316425fe141494d683afe6e8444570675f99",
+      "bytes": 371
+    },
+    {
+      "path": "evidence/p106-root-publication-receipt.json",
+      "sha256": "55df24d131bc361f5cbff409028b70cf08ae91f13c20f26959de8889bc11cdba",
+      "bytes": 622
+    },
+    {
+      "path": "evidence/p106-verified-local-retirement.json",
+      "sha256": "41022be79623b22a89a161720ac969eaab9493d8928aef7b5e99c300a5fbd876",
+      "bytes": 532
+    },
+    {
+      "path": "source-pins.json",
+      "sha256": "309eca2dce6a38d08c5936cdf74dbcde934026aad2ce789aac76af7ed82876fb",
+      "bytes": 224
+    },
+    {
+      "path": "sources/run_backtrack_with_resume_244.py",
+      "sha256": "b815de761e50ccc18526f008bddc629f7c8d40084192a2a9d7c4d80a90c81335",
+      "bytes": 2020
+    },
+    {
+      "path": "sources/run_backtrack_with_resume_249.py",
+      "sha256": "24e1bd4ea29a1b8356f80b0149901ae9be0c69e2ee9994655de8876efb1d817a",
+      "bytes": 2145
+    },
+    {
+      "path": "sources/test_backtrack_resume_244.py",
+      "sha256": "f93351e9354f9fcfdfa14f8d72cb19e705b7f57f041d8d1d3e0dcafb680141ec",
+      "bytes": 1193
+    },
+    {
+      "path": "sources/test_backtrack_resume_249.py",
+      "sha256": "1544e1292c2c05e2563ca0265c0b5439874e982269f8f7781eb9662d7c8a1cbc",
+      "bytes": 1193
+    }
+  ]
+}
