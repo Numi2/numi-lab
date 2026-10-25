@@ -1,0 +1,44 @@
+{
+  "commit": "0210396c4eb300198b9fcab48b7df342a7184254",
+  "dependencies": [
+    {
+      "bytes": 54446,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-094/publication-manifest.json",
+      "note": "P094 manifest",
+      "sha256": "3702de8457c6bb0d51bdcaf13c6421fc2c80c19fcae77ebebed06acc0df6aa51"
+    },
+    {
+      "bytes": 3814,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-094/verified-published-inputs.json",
+      "note": "P094 dependency map",
+      "sha256": "d032589b50083835eaae12cdc42509077b867f37ade19b38120743d1db1e2e0a"
+    },
+    {
+      "bytes": 1477893,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-094/evidence/170/006/attempt-001/candidate.npz",
+      "note": "fit006 starting geometry",
+      "sha256": "931529f21497521436aa15d52ebebf71a1e243c5a32d9b301d3f0a99e3035cc7"
+    },
+    {
+      "bytes": 226795,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-094/evidence/170/006/attempt-001/fit-report.json",
+      "note": "previous fit report",
+      "sha256": "2dbd7b56bf0535b7a54b7279ad7492de95efd47a1b9caa24b4009aacd35469c3"
+    },
+    {
+      "bytes": 277635,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-094/evidence/170/006/attempt-001/scp-02-alpha-0p125/audit-159/report.json",
+      "note": "starting 185-bank surface report",
+      "sha256": "17036a56d8f4b7c38b8e91f3350f354954508fa157411285b1406c1b2c467f3b"
+    },
+    {
+      "bytes": 61909,
+      "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-093/canonical/matter/tools/human_skin_fat_bone_audit.py",
+      "note": "P093 strict typed-bank report summarizer used to validate both fit009 posthoc reports",
+      "sha256": "37c040a442f1fdf312745c1cc1fb6c543383f1cd0782db46c81ca1eadf0d8324"
+    }
+  ],
+  "schema": "numi.verified-published-inputs.v1",
+  "tree": "dbb262cd33c12df434dd1669343bd9ad80382fbc",
+  "verification": "Each dependency was read with git show from exact P094 commit and SHA-256 checked."
+}

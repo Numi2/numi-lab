@@ -1,0 +1,108 @@
+{
+  "candidate_npz_count": 13,
+  "duplicate_hash_groups": [
+    {
+      "sha256": "cec1eb701c64f97cada51948d3f015d7a23da9f2cd3486a86e3eca634a8edb37",
+      "source_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-02-alpha-0p0625/candidate.npz",
+        "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-04-alpha-0p0625/candidate.npz"
+      ]
+    },
+    {
+      "sha256": "ba286afc3b752ac4a61d8a13a1e0a88b0c630c6b9b24c2f99c4d3e53efc9294c",
+      "source_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-02-alpha-0p125/candidate.npz",
+        "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-04-alpha-0p125/candidate.npz"
+      ]
+    },
+    {
+      "sha256": "a799e16d8b97bd424ef1007bb0b4b3ead6b0d966b6e08c1e511bc90094a176ab",
+      "source_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-02-alpha-0p25/candidate.npz",
+        "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-04-alpha-0p25/candidate.npz"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "bytes": 1477893,
+      "included_in_publication": false,
+      "sha256": "931529f21497521436aa15d52ebebf71a1e243c5a32d9b301d3f0a99e3035cc7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/candidate.npz"
+    },
+    {
+      "bytes": 1477886,
+      "included_in_publication": false,
+      "sha256": "060cbbcfb329c6b797e14a058ed9d711d93b0724cfa7abed01e1b1aff11401ea",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-01-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 1477950,
+      "included_in_publication": false,
+      "sha256": "b081941dd5aab8f5919f081e2d93c8967dd59bdf297ddbcba8a821dc4df16f65",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-01-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 1477844,
+      "included_in_publication": false,
+      "sha256": "349334df98e3722a5deaf6203dd5f7a13bf2422da4cfe787a5b5033dc4910d5c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-01-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477908,
+      "included_in_publication": false,
+      "sha256": "cec1eb701c64f97cada51948d3f015d7a23da9f2cd3486a86e3eca634a8edb37",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-02-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 1477933,
+      "included_in_publication": false,
+      "sha256": "ba286afc3b752ac4a61d8a13a1e0a88b0c630c6b9b24c2f99c4d3e53efc9294c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-02-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 1477913,
+      "included_in_publication": false,
+      "sha256": "a799e16d8b97bd424ef1007bb0b4b3ead6b0d966b6e08c1e511bc90094a176ab",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-02-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477915,
+      "included_in_publication": false,
+      "sha256": "7c8c5c0ac3dc1f814a4372887e67f828edecb5a16347abec4d950f7eb4b92ea4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-03-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 1477922,
+      "included_in_publication": false,
+      "sha256": "b75c5b64068a9c91826773af6dbb69b6acf69e27b57db1015233c3c73fc1d462",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-03-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 1477902,
+      "included_in_publication": false,
+      "sha256": "d1a16fe7b2bbf000de7a2e3230cf580d3c90dcaf1a95c89b38f829b423ff6f17",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-03-alpha-0p25/candidate.npz"
+    },
+    {
+      "bytes": 1477908,
+      "included_in_publication": false,
+      "sha256": "cec1eb701c64f97cada51948d3f015d7a23da9f2cd3486a86e3eca634a8edb37",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-04-alpha-0p0625/candidate.npz"
+    },
+    {
+      "bytes": 1477933,
+      "included_in_publication": false,
+      "sha256": "ba286afc3b752ac4a61d8a13a1e0a88b0c630c6b9b24c2f99c4d3e53efc9294c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-04-alpha-0p125/candidate.npz"
+    },
+    {
+      "bytes": 1477913,
+      "included_in_publication": false,
+      "sha256": "a799e16d8b97bd424ef1007bb0b4b3ead6b0d966b6e08c1e511bc90094a176ab",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-04-alpha-0p25/candidate.npz"
+    }
+  ],
+  "note": "Candidate NPZs intentionally not bundled; no trial selected.",
+  "schema": "numi.human.rejected-fit-candidate-hash-inventory.v1"
+}

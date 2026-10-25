@@ -1,0 +1,19 @@
+{
+  "rows": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-02-alpha-0p25/candidate.npz",
+      "file_sha256": "a799e16d8b97bd424ef1007bb0b4b3ead6b0d966b6e08c1e511bc90094a176ab",
+      "point_bytes_sha256": "1a492a14cb2f84253a75e4eacbc6010508f25df8a2a14d1bfd46d05ce5a55e7b",
+      "face_bytes_sha256": "4dceffc566ef0e02d9160b3f1301104393b2bfddeefaddddfdc4ebfd815b9522"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-009-current-normal-soft/attempt-001/scp-03-alpha-0p25/candidate.npz",
+      "file_sha256": "d1a16fe7b2bbf000de7a2e3230cf580d3c90dcaf1a95c89b38f829b423ff6f17",
+      "point_bytes_sha256": "d7581093e2d1a0e4f548d15f2f1320ae91b099162ee1cfe6c5390625671a4b95",
+      "face_bytes_sha256": "4dceffc566ef0e02d9160b3f1301104393b2bfddeefaddddfdc4ebfd815b9522"
+    }
+  ],
+  "same_emitted_points": false,
+  "same_emitted_faces": true,
+  "correction": "Earlier root message claimed duplicate candidate file hashes without checking both. File hashes differ; compare emitted arrays independently. Preserve both reports."
+}

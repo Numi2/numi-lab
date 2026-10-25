@@ -1,0 +1,13 @@
+waiting_for_human_geometry_slot pid=74190
+acquired_human_geometry_slot pid=74190
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-face-first-union-175/run-004/results/report.json",
+  "report_sha256": "49a5440f74280bdc1b7d29ace0297de5be8feca5cc4e96fb0e744dc9ae8fb00f",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-face-first-union-175/run-004/results/targets.npz",
+  "npz_sha256": "67a58f17b25123dd9dce512bdb9b90fb38a8fe4176b8863aecf3e99a673e95b1",
+  "rows": 3626,
+  "pairs": 3626,
+  "targets": 3626,
+  "failures": {},
+  "elapsed_seconds": 22.590854999958538
+}

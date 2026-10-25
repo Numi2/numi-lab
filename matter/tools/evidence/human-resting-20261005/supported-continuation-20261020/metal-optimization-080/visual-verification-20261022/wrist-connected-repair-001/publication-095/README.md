@@ -1,0 +1,9 @@
+# Publication 095 — current-normal target and fit evidence
+
+This bundle adds the completed coherent current-normal target run 004 and completed current-normal fit 009 to the P094 lineage. Its base is published origin/main commit 0210396c4eb300198b9fcab48b7df342a7184254 (tree dbb262cd33c12df434dd1669343bd9ad80382fbc). P094 files are referenced by immutable Git path and hash in verified-published-inputs.json rather than recopied.
+
+Run 004 emitted 3,626 first-union target proposals from 3,626 matched surface/bank-triangle pairs across 185 banks. The as-run report records no target-generation failures and exact endpoint classification against the full 185-bank union. These are construction proposals only. The input surface remains open with 45 boundary edges, and the run made no geometry or physical-admission claim.
+
+Fit 009 completed with NO_ACCEPTED_CONSTRUCTION_STEP: zero accepted SCP steps and zero accepted physical steps. Its report, run log, source inputs, and two completed posthoc 159-bank surface audits are retained. Both posthoc audits report 3,723 triangle crossings. The matching outer-node summaries report 92 inside point/bank pairs and a maximum signed penetration of 58.17 µm for each candidate; neither summary certifies edge or solid clearance. The two as-run audit records name distinct candidate hashes. The geometry-identity correction receipt confirms that their emitted point arrays differ while their emitted face arrays match; both candidates remain rejected. No candidate was selected. All fit candidate NPZs are represented only by source path, size, and SHA-256 in candidate-hash-inventory.json; none are bundled. Fit 010 and any active output are excluded.
+
+No images are included. This evidence does not qualify geometry, tissue mass transfer, material behavior, native execution, or physical contact. It does not modify canonical source.

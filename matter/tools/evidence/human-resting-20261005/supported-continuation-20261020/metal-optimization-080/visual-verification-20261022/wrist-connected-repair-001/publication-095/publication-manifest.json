@@ -1,0 +1,354 @@
+{
+  "base_commit": "0210396c4eb300198b9fcab48b7df342a7184254",
+  "base_tree": "dbb262cd33c12df434dd1669343bd9ad80382fbc",
+  "canonical_changes": [],
+  "files": [
+    {
+      "bytes": 1883,
+      "kind": "publication-summary",
+      "path": "README.md",
+      "sha256": "1bcedec932801b42393123830a9716369f1f94d547308e6f5090a9404e0a64ab"
+    },
+    {
+      "bytes": 16549,
+      "kind": "report-or-receipt",
+      "path": "evidence/fit-009/area_scp_support_023.py",
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd"
+    },
+    {
+      "bytes": 593889,
+      "kind": "fit-report",
+      "path": "evidence/fit-009/attempt-001/fit-report.json",
+      "sha256": "28ff41788bc8e3779009e8c9eddc482a0322583e778cdbe317a5ff9286d54c5c"
+    },
+    {
+      "bytes": 156594,
+      "kind": "fit-target-input-data",
+      "path": "evidence/fit-009/barycentric-targets.npz",
+      "sha256": "2e6a291f54b9baaa1997cbacf76ac059dead3391cf98ee80cfb34ea7710c9670"
+    },
+    {
+      "bytes": 6181,
+      "kind": "hash-inventory",
+      "path": "evidence/fit-009/candidate-hash-inventory.json",
+      "sha256": "239fa869cbb7cbdb729c8b0398ce41e56b5fc817b78385e3dbab5b5c988ac1f9"
+    },
+    {
+      "bytes": 719,
+      "kind": "report-or-receipt",
+      "path": "evidence/fit-009/fit.log",
+      "sha256": "278f3da427d7c79141ced0fb4ba7ce1670efa52812592522c45a5ca57c5722ce"
+    },
+    {
+      "bytes": 477,
+      "kind": "report-or-receipt",
+      "path": "evidence/fit-009/fit.log.receipt.json",
+      "sha256": "102d9e8a72ec2fb67015bfae5aba1a31c03da9ab9bfca0d11456468e14645217"
+    },
+    {
+      "bytes": 4432,
+      "kind": "report-or-receipt",
+      "path": "evidence/fit-009/outcome-summary.json",
+      "sha256": "25bf7b3fb55fe0ae02e8d948a64ec84677b79408503a1ad7516870130ec1c9d5"
+    },
+    {
+      "bytes": 771,
+      "kind": "report-or-receipt",
+      "path": "evidence/fit-009/point-targets.log",
+      "sha256": "ddcd86e52308a8cf30eb80260954d1ef4d32d9c662d99a19b807fefa867295c1"
+    },
+    {
+      "bytes": 475,
+      "kind": "report-or-receipt",
+      "path": "evidence/fit-009/point-targets.log.receipt.json",
+      "sha256": "ed49a0f4c472daadfe5a875c0689439b0671bb84b49c81eeff9238430c945e0d"
+    },
+    {
+      "bytes": 22450,
+      "kind": "report-or-receipt",
+      "path": "evidence/fit-009/point-targets/build_targets.py",
+      "sha256": "eef743b024fddeb773ad4e5511374eff0f87d37fc12f4255f933b210c6fe124f"
+    },
+    {
+      "bytes": 36223,
+      "kind": "report-or-receipt",
+      "path": "evidence/fit-009/point-targets/nearest-union-exits.json",
+      "sha256": "87bc5d911e49a547fc4336a168c860ec8264f198cad7d3a183f27e70cfa6dbb1"
+    },
+    {
+      "bytes": 1211,
+      "kind": "correction-receipt",
+      "path": "evidence/fit-009/posthoc-geometry-identity-correction.json",
+      "sha256": "451ee53ba9c558c5fde534f1fe8c1a6f9c0aeebac3efd2c95f9bd93a09e06ddf"
+    },
+    {
+      "bytes": 109,
+      "kind": "report-or-receipt",
+      "path": "evidence/fit-009/result.json",
+      "sha256": "1f3ac0171d188984f22f62d64dae03394ae68f413737eb99c7d84af89c17d6ea"
+    },
+    {
+      "bytes": 54197,
+      "kind": "report-or-receipt",
+      "path": "evidence/fit-009/run_connected_barycentric_fit.py",
+      "sha256": "43d37fe63669880a6fdb05737efc765f0e02b8a74eadd03cc09fbc4728afeaeb"
+    },
+    {
+      "bytes": 570,
+      "kind": "point-audit-log",
+      "path": "evidence/fit-009/scp-02-alpha-0p25/audit-130.log",
+      "sha256": "a000f59bac70c6f58fa2b34a74d815a7a9015ae92e12d5e9c3a58a588a620fc2"
+    },
+    {
+      "bytes": 78490,
+      "kind": "point-audit-summary",
+      "path": "evidence/fit-009/scp-02-alpha-0p25/audit-130/summary.json",
+      "sha256": "c925ca2b2142da210504651147263838dd86dd5719c1de4270cea9aabd0d609d"
+    },
+    {
+      "bytes": 937,
+      "kind": "posthoc-audit-log",
+      "path": "evidence/fit-009/scp-02-alpha-0p25/audit-159-posthoc/audit-159-posthoc.log",
+      "sha256": "d0348869085e05bbe5473236b22f0ca9d9b6fa8c1629e8b51948cc487c0e8707"
+    },
+    {
+      "bytes": 99,
+      "kind": "posthoc-audit-log",
+      "path": "evidence/fit-009/scp-02-alpha-0p25/audit-159-posthoc/progress.json",
+      "sha256": "814e8ea827a10e4940d42a1c02c5731fc5f984863e5adbc7263a3aff20bd80b7"
+    },
+    {
+      "bytes": 283338,
+      "kind": "posthoc-audit-report",
+      "path": "evidence/fit-009/scp-02-alpha-0p25/audit-159-posthoc/report.json",
+      "sha256": "67ffc8ae70b7728f0ffcd7b25cb14efedd1e091d6aa67a7ad090309fa59a8e14"
+    },
+    {
+      "bytes": 570,
+      "kind": "point-audit-log",
+      "path": "evidence/fit-009/scp-03-alpha-0p25/audit-130.log",
+      "sha256": "00b12457647a433aee1a30b7450d9fdb7720b75ffea185d8f382145a93eececb"
+    },
+    {
+      "bytes": 78491,
+      "kind": "point-audit-summary",
+      "path": "evidence/fit-009/scp-03-alpha-0p25/audit-130/summary.json",
+      "sha256": "5def62dbdb1622d6d05b04063d0e408b4673749403331354772387338afef7c2"
+    },
+    {
+      "bytes": 937,
+      "kind": "posthoc-audit-log",
+      "path": "evidence/fit-009/scp-03-alpha-0p25/audit-159-posthoc/audit-159-posthoc.log",
+      "sha256": "33f11b0da41a26ccf8e728502990ba01b3e2eb9e5cc0ff06f5c69e4859028312"
+    },
+    {
+      "bytes": 99,
+      "kind": "posthoc-audit-log",
+      "path": "evidence/fit-009/scp-03-alpha-0p25/audit-159-posthoc/progress.json",
+      "sha256": "0ab753fb347385ca4869611bba4002161e47ae5d455f5b17cc75fd9ff352b97b"
+    },
+    {
+      "bytes": 283338,
+      "kind": "posthoc-audit-report",
+      "path": "evidence/fit-009/scp-03-alpha-0p25/audit-159-posthoc/report.json",
+      "sha256": "d0834e51a05a12d22e69d387475caf699093043c382fee6a477e63997b0715e2"
+    },
+    {
+      "bytes": 13276,
+      "kind": "report-or-receipt",
+      "path": "evidence/fit-009/self_separation_026.py",
+      "sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3"
+    },
+    {
+      "bytes": 1248,
+      "kind": "report-or-receipt",
+      "path": "evidence/fit-009/source-inputs.json",
+      "sha256": "99e57f573d0d2b9cff7b3cd5fbfcb39ac21f6a2715a7166446393c26a6a0cf75"
+    },
+    {
+      "bytes": 61973,
+      "kind": "report-or-receipt",
+      "path": "evidence/fit-009/strict-posthoc-summary.json",
+      "sha256": "fc55e90e3b2232567fbadab6c1fc1d0fdc1acc02edb82bce5d2783aadc331e3c"
+    },
+    {
+      "bytes": 23567,
+      "kind": "report-or-receipt",
+      "path": "evidence/fit-009/surface-count.json",
+      "sha256": "a53babdd03a5ffb4ffee45ceda556ff7f6bb162048bb9ac5b83ddb2a75220fab"
+    },
+    {
+      "bytes": 6959,
+      "kind": "source-pins",
+      "path": "evidence/source-pins.json",
+      "sha256": "d9e30b204e22db6f334db61db8e9488a1f7a035a93ace5ea7fcbabc627111c04"
+    },
+    {
+      "bytes": 28073,
+      "kind": "as-run-source",
+      "path": "evidence/target-004/build_targets.py",
+      "sha256": "48243935452e8cc7433514c0b1f2bcf87aedf17aa33c0483d9a77c5c781bef18"
+    },
+    {
+      "bytes": 1249,
+      "kind": "report-or-receipt",
+      "path": "evidence/target-004/execution-receipt.json",
+      "sha256": "cfbbfba08711df5044f6cdbfcd6073be9b8ca091b9d4c4cee1305458a820436c"
+    },
+    {
+      "bytes": 692,
+      "kind": "as-run-source",
+      "path": "evidence/target-004/numi-human-geometry-slot.py",
+      "sha256": "716fbdeea6fac8f3426e2c083ed4573e8554017ea75f4d4d20318400fa74c8e1"
+    },
+    {
+      "bytes": 5380,
+      "kind": "as-run-source",
+      "path": "evidence/target-004/prepare_capped_current_normal_soft.py",
+      "sha256": "864fb76e413a27c3492653808fc3af9da2af2018b987c513ecc6cd0507be7c2a"
+    },
+    {
+      "bytes": 4980,
+      "kind": "as-run-source",
+      "path": "evidence/target-004/prepare_coherent_union_soft.py",
+      "sha256": "aa564b7dab4d99b12ea927c031c7d13d581578553c30b3a723b22f18c760e91b"
+    },
+    {
+      "bytes": 3146,
+      "kind": "report-or-receipt",
+      "path": "evidence/target-004/report.json",
+      "sha256": "49a5440f74280bdc1b7d29ace0297de5be8feca5cc4e96fb0e744dc9ae8fb00f"
+    },
+    {
+      "bytes": 681,
+      "kind": "report-or-receipt",
+      "path": "evidence/target-004/run.log",
+      "sha256": "8bce9bebe339bf9d2f40625e0faa837ceecb566980976bd7e211fc20df4c6dfe"
+    },
+    {
+      "bytes": 1438,
+      "kind": "as-run-source",
+      "path": "evidence/target-004/run_prepared_joint_fit.py",
+      "sha256": "89cd011356b2b5c40c6f1ef029e7d2cd7bbca248183dc72113d154ae636faac0"
+    },
+    {
+      "bytes": 491257,
+      "kind": "source-orientation-proof",
+      "path": "evidence/target-004/source-path-orientation-audit-112.json",
+      "sha256": "e43908188f134182635ac36a9a1602abad1918df374a04f3f7cc9eb1812d7497"
+    },
+    {
+      "bytes": 3765226,
+      "kind": "target-records",
+      "path": "evidence/target-004/target-records.jsonl",
+      "sha256": "e8810e89810010ba8ffda0e78e6425b7838ffd2c0a351e5420d1adf5156857b1"
+    },
+    {
+      "bytes": 265424,
+      "kind": "target-data",
+      "path": "evidence/target-004/targets.npz",
+      "sha256": "67a58f17b25123dd9dce512bdb9b90fb38a8fe4176b8863aecf3e99a673e95b1"
+    },
+    {
+      "bytes": 2726,
+      "kind": "verified-published-inputs",
+      "path": "verified-published-inputs.json",
+      "sha256": "3dbe72ca5dad9459a436444f796d7d6da18b3e056bd8429dd8779df93f0c6fa2"
+    }
+  ],
+  "format": "numi.publication-manifest.v1",
+  "publication": "095",
+  "root_addenda_pending": [],
+  "scope": "completed current-normal target run004 and failed current-normal fit009 with posthoc audits; no trial geometry retained; fit010 excluded",
+  "summary": {
+    "excluded_active_work": "Fit010 and any active outputs excluded.",
+    "fit_009": {
+      "accepted_physical_steps": 0,
+      "accepted_scp_steps": 0,
+      "candidate_npz_hash_inventory_count": 13,
+      "fit_log_sha256": "278f3da427d7c79141ced0fb4ba7ce1670efa52812592522c45a5ca57c5722ce",
+      "fit_report_sha256": "28ff41788bc8e3779009e8c9eddc482a0322583e778cdbe317a5ff9286d54c5c",
+      "matching_outer_node_point_audits": [
+        {
+          "candidate_sha256": "a799e16d8b97bd424ef1007bb0b4b3ead6b0d966b6e08c1e511bc90094a176ab",
+          "complete_surface_audit": true,
+          "edge_and_solid_clearance_certified": false,
+          "exact_PLC_surface_pairs": 0,
+          "inside_node_bank_pairs": 92,
+          "inside_nodes": 92,
+          "log_path": "evidence/fit-009/scp-02-alpha-0p25/audit-130.log",
+          "log_sha256": "a000f59bac70c6f58fa2b34a74d815a7a9015ae92e12d5e9c3a58a588a620fc2",
+          "max_signed_penetration_um": 58.17049829248737,
+          "stage": "scp-02-alpha-0p25",
+          "summary_path": "evidence/fit-009/scp-02-alpha-0p25/audit-130/summary.json",
+          "summary_sha256": "c925ca2b2142da210504651147263838dd86dd5719c1de4270cea9aabd0d609d"
+        },
+        {
+          "candidate_sha256": "d1a16fe7b2bbf000de7a2e3230cf580d3c90dcaf1a95c89b38f829b423ff6f17",
+          "complete_surface_audit": true,
+          "edge_and_solid_clearance_certified": false,
+          "exact_PLC_surface_pairs": 0,
+          "inside_node_bank_pairs": 92,
+          "inside_nodes": 92,
+          "log_path": "evidence/fit-009/scp-03-alpha-0p25/audit-130.log",
+          "log_sha256": "00b12457647a433aee1a30b7450d9fdb7720b75ffea185d8f382145a93eececb",
+          "max_signed_penetration_um": 58.17049829248737,
+          "stage": "scp-03-alpha-0p25",
+          "summary_path": "evidence/fit-009/scp-03-alpha-0p25/audit-130/summary.json",
+          "summary_sha256": "5def62dbdb1622d6d05b04063d0e408b4673749403331354772387338afef7c2"
+        }
+      ],
+      "max_source_displacement_mm": 6.607616443579044,
+      "native_admission": false,
+      "selected_candidate": null,
+      "status": "NO_ACCEPTED_CONSTRUCTION_STEP",
+      "stop_reason": "max_scp_iterations"
+    },
+    "posthoc_159_audits": [
+      {
+        "bank_count": 185,
+        "candidate_sha256": "a799e16d8b97bd424ef1007bb0b4b3ead6b0d966b6e08c1e511bc90094a176ab",
+        "complete": true,
+        "crossing_pairs": 3723,
+        "log_path": "evidence/fit-009/scp-02-alpha-0p25/audit-159-posthoc/audit-159-posthoc.log",
+        "log_sha256": "d0348869085e05bbe5473236b22f0ca9d9b6fa8c1629e8b51948cc487c0e8707",
+        "report_path": "evidence/fit-009/scp-02-alpha-0p25/audit-159-posthoc/report.json",
+        "report_sha256": "67ffc8ae70b7728f0ffcd7b25cb14efedd1e091d6aa67a7ad090309fa59a8e14",
+        "stage": "scp-02-alpha-0p25",
+        "status": "COMPLETE_TYPED_BANK_SURFACE_CROSSING_AUDIT"
+      },
+      {
+        "bank_count": 185,
+        "candidate_sha256": "d1a16fe7b2bbf000de7a2e3230cf580d3c90dcaf1a95c89b38f829b423ff6f17",
+        "complete": true,
+        "crossing_pairs": 3723,
+        "log_path": "evidence/fit-009/scp-03-alpha-0p25/audit-159-posthoc/audit-159-posthoc.log",
+        "log_sha256": "33f11b0da41a26ccf8e728502990ba01b3e2eb9e5cc0ff06f5c69e4859028312",
+        "report_path": "evidence/fit-009/scp-03-alpha-0p25/audit-159-posthoc/report.json",
+        "report_sha256": "d0834e51a05a12d22e69d387475caf699093043c382fee6a477e63997b0715e2",
+        "stage": "scp-03-alpha-0p25",
+        "status": "COMPLETE_TYPED_BANK_SURFACE_CROSSING_AUDIT"
+      }
+    ],
+    "schema": "numi.human.publication-095-outcome-summary.v1",
+    "selection": "No candidate selected; trial NPZ files excluded.",
+    "strict_surface_audit_summary": {
+      "owner_sha256": "37c040a442f1fdf312745c1cc1fb6c543383f1cd0782db46c81ca1eadf0d8324",
+      "path": "evidence/fit-009/strict-posthoc-summary.json",
+      "result": "both reports passed typed 185-bank inventory and explicit per-bank count validation",
+      "sha256": "fc55e90e3b2232567fbadab6c1fc1d0fdc1acc02edb82bce5d2783aadc331e3c"
+    },
+    "target_run_004": {
+      "bank_count": 185,
+      "certified_inside_samples": 3626,
+      "failure_counts": {},
+      "full_union_endpoint_rule": "Exact point-location for every target against all185 banks; target accepted only if outside every complete bank; event-parity endpoint also required.",
+      "geometry_admitted": false,
+      "matched_surface_bank_triangle_pairs": 3626,
+      "open_surface_boundary_edges": 45,
+      "status": "completed_proposal_generation",
+      "targets": 3626
+    }
+  },
+  "verified_published_inputs": "verified-published-inputs.json"
+}

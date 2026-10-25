@@ -1,0 +1,55 @@
+{
+  "schema": "numi.human.coherent-current-winding-first-union-targets.175.v1",
+  "runner_sha256": "48243935452e8cc7433514c0b1f2bcf87aedf17aa33c0483d9a77c5c781bef18",
+  "classification": "construction_target_proposals_only_no_fit_or_clearance_admission",
+  "inputs": {
+    "candidate_sha256": "931529f21497521436aa15d52ebebf71a1e243c5a32d9b301d3f0a99e3035cc7",
+    "surface_report_sha256": "17036a56d8f4b7c38b8e91f3350f354954508fa157411285b1406c1b2c467f3b",
+    "detail_source_sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+    "orientation_report_sha256": "e43908188f134182635ac36a9a1602abad1918df374a04f3f7cc9eb1812d7497",
+    "refinement_input_028_candidate_sha256": "2f93d0159f5e1ece1fa377da71e52e4edb7ee60f4b61e483a0390733ca404c11",
+    "base_017_candidate_sha256": "3858c079054c4a87829fc554757104d74cb818073b1c8414acfd2d117fb3dbdd",
+    "coarse_084_reference_sha256": "d3d0abb590f5858de4a27e0362e98bc9b3088831183ea045096cefc4ebba26e1",
+    "exact_bank_triangle_export_sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "exact_bank_body_export_sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "bank_reader_sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+    "exact_predicate_sha256": "6f04ec7b129f47e810e75262f9f3ad3be0159bbe13dc2611a96e27141132b0fc",
+    "virtual_sample_helper_sha256": "0e97159845d6902875c015bc96ae283a2ed43206e85f14637e29cfc611d7589f",
+    "previous_172_samples_sha256": "cd8213406ee11bd0adf759b9ff7e55aca9722887642aa4961ca239927ccff0d6",
+    "previous_172_summary_sha256": "04d5e3e4c787d3d84c73efb7c83a059c658e57e84038c6704ab94d5c358eb6df"
+  },
+  "candidate_points": 13518,
+  "candidate_faces": 26991,
+  "matched_surface_bank_triangle_pairs": 3626,
+  "source_face_kind_counts_in_pairs": {
+    "0": 125,
+    "1": 63,
+    "2": 3438
+  },
+  "source_winding_rule": {
+    "kind2": "raw detailed face normal times absolute chosen_outward_sign=+1",
+    "kind1": "negative current coarse-only face area normal; candidate coarse winding is inward",
+    "kind0": "unresolved; no direction guessed",
+    "fine_to_coarse_winding_parity": -1,
+    "parity_is_not_absolute_outward_sign": true
+  },
+  "banks": 185,
+  "matched_159_complete": true,
+  "crossing_pairs": 3626,
+  "inside_samples_certified_for_implicated_bank": 3626,
+  "current_winding_first_union_targets": 3626,
+  "failure_counts": {},
+  "initial_inside_union_count_histogram": {
+    "1": 3626
+  },
+  "full_union_endpoint_classification": "Exact point-location for every target against all185 banks; target accepted only if outside every complete bank; event-parity endpoint also required.",
+  "limitations": [
+    "Current emitted-F32 face winding is anchored by exact ancestry to inward coarse O faces and registered O-to-I direction; the surface is open, not a closed shell.",
+    "First-union ray targets are construction proposals, not clearance or physical admission.",
+    "No fit or native physical step was run."
+  ],
+  "elapsed_seconds": 22.590854999958538,
+  "result_rows": 3626,
+  "passing_targets": 3626,
+  "output_sha256_pending": true
+}

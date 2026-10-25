@@ -1,0 +1,90 @@
+{
+  "excluded_active_work": "Fit010 and any active outputs excluded.",
+  "fit_009": {
+    "accepted_physical_steps": 0,
+    "accepted_scp_steps": 0,
+    "candidate_npz_hash_inventory_count": 13,
+    "fit_log_sha256": "278f3da427d7c79141ced0fb4ba7ce1670efa52812592522c45a5ca57c5722ce",
+    "fit_report_sha256": "28ff41788bc8e3779009e8c9eddc482a0322583e778cdbe317a5ff9286d54c5c",
+    "matching_outer_node_point_audits": [
+      {
+        "candidate_sha256": "a799e16d8b97bd424ef1007bb0b4b3ead6b0d966b6e08c1e511bc90094a176ab",
+        "complete_surface_audit": true,
+        "edge_and_solid_clearance_certified": false,
+        "exact_PLC_surface_pairs": 0,
+        "inside_node_bank_pairs": 92,
+        "inside_nodes": 92,
+        "log_path": "evidence/fit-009/scp-02-alpha-0p25/audit-130.log",
+        "log_sha256": "a000f59bac70c6f58fa2b34a74d815a7a9015ae92e12d5e9c3a58a588a620fc2",
+        "max_signed_penetration_um": 58.17049829248737,
+        "stage": "scp-02-alpha-0p25",
+        "summary_path": "evidence/fit-009/scp-02-alpha-0p25/audit-130/summary.json",
+        "summary_sha256": "c925ca2b2142da210504651147263838dd86dd5719c1de4270cea9aabd0d609d"
+      },
+      {
+        "candidate_sha256": "d1a16fe7b2bbf000de7a2e3230cf580d3c90dcaf1a95c89b38f829b423ff6f17",
+        "complete_surface_audit": true,
+        "edge_and_solid_clearance_certified": false,
+        "exact_PLC_surface_pairs": 0,
+        "inside_node_bank_pairs": 92,
+        "inside_nodes": 92,
+        "log_path": "evidence/fit-009/scp-03-alpha-0p25/audit-130.log",
+        "log_sha256": "00b12457647a433aee1a30b7450d9fdb7720b75ffea185d8f382145a93eececb",
+        "max_signed_penetration_um": 58.17049829248737,
+        "stage": "scp-03-alpha-0p25",
+        "summary_path": "evidence/fit-009/scp-03-alpha-0p25/audit-130/summary.json",
+        "summary_sha256": "5def62dbdb1622d6d05b04063d0e408b4673749403331354772387338afef7c2"
+      }
+    ],
+    "max_source_displacement_mm": 6.607616443579044,
+    "native_admission": false,
+    "selected_candidate": null,
+    "status": "NO_ACCEPTED_CONSTRUCTION_STEP",
+    "stop_reason": "max_scp_iterations"
+  },
+  "posthoc_159_audits": [
+    {
+      "bank_count": 185,
+      "candidate_sha256": "a799e16d8b97bd424ef1007bb0b4b3ead6b0d966b6e08c1e511bc90094a176ab",
+      "complete": true,
+      "crossing_pairs": 3723,
+      "log_path": "evidence/fit-009/scp-02-alpha-0p25/audit-159-posthoc/audit-159-posthoc.log",
+      "log_sha256": "d0348869085e05bbe5473236b22f0ca9d9b6fa8c1629e8b51948cc487c0e8707",
+      "report_path": "evidence/fit-009/scp-02-alpha-0p25/audit-159-posthoc/report.json",
+      "report_sha256": "67ffc8ae70b7728f0ffcd7b25cb14efedd1e091d6aa67a7ad090309fa59a8e14",
+      "stage": "scp-02-alpha-0p25",
+      "status": "COMPLETE_TYPED_BANK_SURFACE_CROSSING_AUDIT"
+    },
+    {
+      "bank_count": 185,
+      "candidate_sha256": "d1a16fe7b2bbf000de7a2e3230cf580d3c90dcaf1a95c89b38f829b423ff6f17",
+      "complete": true,
+      "crossing_pairs": 3723,
+      "log_path": "evidence/fit-009/scp-03-alpha-0p25/audit-159-posthoc/audit-159-posthoc.log",
+      "log_sha256": "33f11b0da41a26ccf8e728502990ba01b3e2eb9e5cc0ff06f5c69e4859028312",
+      "report_path": "evidence/fit-009/scp-03-alpha-0p25/audit-159-posthoc/report.json",
+      "report_sha256": "d0834e51a05a12d22e69d387475caf699093043c382fee6a477e63997b0715e2",
+      "stage": "scp-03-alpha-0p25",
+      "status": "COMPLETE_TYPED_BANK_SURFACE_CROSSING_AUDIT"
+    }
+  ],
+  "schema": "numi.human.publication-095-outcome-summary.v1",
+  "selection": "No candidate selected; trial NPZ files excluded.",
+  "strict_surface_audit_summary": {
+    "owner_sha256": "37c040a442f1fdf312745c1cc1fb6c543383f1cd0782db46c81ca1eadf0d8324",
+    "path": "evidence/fit-009/strict-posthoc-summary.json",
+    "result": "both reports passed typed 185-bank inventory and explicit per-bank count validation",
+    "sha256": "fc55e90e3b2232567fbadab6c1fc1d0fdc1acc02edb82bce5d2783aadc331e3c"
+  },
+  "target_run_004": {
+    "bank_count": 185,
+    "certified_inside_samples": 3626,
+    "failure_counts": {},
+    "full_union_endpoint_rule": "Exact point-location for every target against all185 banks; target accepted only if outside every complete bank; event-parity endpoint also required.",
+    "geometry_admitted": false,
+    "matched_surface_bank_triangle_pairs": 3626,
+    "open_surface_boundary_edges": 45,
+    "status": "completed_proposal_generation",
+    "targets": 3626
+  }
+}

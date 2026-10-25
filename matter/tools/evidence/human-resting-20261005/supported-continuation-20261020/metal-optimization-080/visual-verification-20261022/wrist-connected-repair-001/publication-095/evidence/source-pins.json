@@ -1,0 +1,187 @@
+{
+  "fit_009_input_hashes": [
+    {
+      "name": "start_sha256",
+      "sha256": "931529f21497521436aa15d52ebebf71a1e243c5a32d9b301d3f0a99e3035cc7",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "base_702_sha256",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "target_source_start_sha256",
+      "sha256": "931529f21497521436aa15d52ebebf71a1e243c5a32d9b301d3f0a99e3035cc7",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "current_point_report_sha256",
+      "sha256": "3257c9b17400e196b126df61ab862212f52fde49feaac7b892b05eff554f74e0",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "nearest_union_report_sha256",
+      "sha256": "87bc5d911e49a547fc4336a168c860ec8264f198cad7d3a183f27e70cfa6dbb1",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "crossing_report_sha256",
+      "sha256": "17036a56d8f4b7c38b8e91f3350f354954508fa157411285b1406c1b2c467f3b",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "crossing_count_receipt_sha256",
+      "sha256": "a53babdd03a5ffb4ffee45ceda556ff7f6bb162048bb9ac5b83ddb2a75220fab",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "refinement_candidate_sha256",
+      "sha256": "931529f21497521436aa15d52ebebf71a1e243c5a32d9b301d3f0a99e3035cc7",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "refinement_source_sha256",
+      "sha256": "588ab0ab844a9708ab37b0fe8658f5adda86e6be7769f3082ccdc0c9d6931718",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "nearest_union_npz_sha256",
+      "sha256": "c5b90c8e359209f6ebc86904f270a3a943c9d171f3f2161dbababa14259fb2b6",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "exact_predicate_sha256",
+      "sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "support_helper_sha256",
+      "sha256": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "self_pair_helper_sha256",
+      "sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "parent_run032_fit_report_sha256",
+      "sha256": "2dbd7b56bf0535b7a54b7279ad7492de95efd47a1b9caa24b4009aacd35469c3",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "progress_merit_helper_sha256",
+      "sha256": "37c040a442f1fdf312745c1cc1fb6c543383f1cd0782db46c81ca1eadf0d8324",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "batched_node_projector_sha256",
+      "sha256": "9175186e4a916dbfd8b2ce4d10f4bd7bb09938cecf442b291bc093823a1336e7",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "barycentric_target_sha256",
+      "sha256": "2e6a291f54b9baaa1997cbacf76ac059dead3391cf98ee80cfb34ea7710c9670",
+      "status": "as-run-fit-report-declared"
+    },
+    {
+      "name": "barycentric_helper_sha256",
+      "sha256": "965a166e86952d79c019302c98e7684f2f8ef3a9d63b328430ac9c8c8edbaff2",
+      "status": "as-run-fit-report-declared"
+    }
+  ],
+  "limitations": "Raw bank/query exports are not duplicated; report-declared hashes do not imply admission.",
+  "published_lineage": [
+    {
+      "name": "fit start candidate",
+      "path": "P094 evidence/170/006/attempt-001/candidate.npz",
+      "sha256": "931529f21497521436aa15d52ebebf71a1e243c5a32d9b301d3f0a99e3035cc7"
+    },
+    {
+      "name": "starting surface report",
+      "path": "P094 evidence/170/006/attempt-001/scp-02-alpha-0p125/audit-159/report.json",
+      "sha256": "17036a56d8f4b7c38b8e91f3350f354954508fa157411285b1406c1b2c467f3b"
+    },
+    {
+      "name": "orientation report",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/digit-source-diagnosis-110/source-path-orientation-audit-112.json",
+      "sha256": "e43908188f134182635ac36a9a1602abad1918df374a04f3f7cc9eb1812d7497"
+    }
+  ],
+  "schema": "numi.human.fit-source-pins.v1",
+  "target_report_path": "evidence/target-004/report.json",
+  "target_report_sha256": "49a5440f74280bdc1b7d29ace0297de5be8feca5cc4e96fb0e744dc9ae8fb00f",
+  "target_run_004_input_hashes": [
+    {
+      "name": "candidate_sha256",
+      "sha256": "931529f21497521436aa15d52ebebf71a1e243c5a32d9b301d3f0a99e3035cc7",
+      "status": "as-run-report-declared"
+    },
+    {
+      "name": "surface_report_sha256",
+      "sha256": "17036a56d8f4b7c38b8e91f3350f354954508fa157411285b1406c1b2c467f3b",
+      "status": "as-run-report-declared"
+    },
+    {
+      "name": "detail_source_sha256",
+      "sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+      "status": "as-run-report-declared"
+    },
+    {
+      "name": "orientation_report_sha256",
+      "sha256": "e43908188f134182635ac36a9a1602abad1918df374a04f3f7cc9eb1812d7497",
+      "status": "as-run-report-declared"
+    },
+    {
+      "name": "refinement_input_028_candidate_sha256",
+      "sha256": "2f93d0159f5e1ece1fa377da71e52e4edb7ee60f4b61e483a0390733ca404c11",
+      "status": "as-run-report-declared"
+    },
+    {
+      "name": "base_017_candidate_sha256",
+      "sha256": "3858c079054c4a87829fc554757104d74cb818073b1c8414acfd2d117fb3dbdd",
+      "status": "as-run-report-declared"
+    },
+    {
+      "name": "coarse_084_reference_sha256",
+      "sha256": "d3d0abb590f5858de4a27e0362e98bc9b3088831183ea045096cefc4ebba26e1",
+      "status": "as-run-report-declared"
+    },
+    {
+      "name": "exact_bank_triangle_export_sha256",
+      "sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+      "status": "as-run-report-declared"
+    },
+    {
+      "name": "exact_bank_body_export_sha256",
+      "sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+      "status": "as-run-report-declared"
+    },
+    {
+      "name": "bank_reader_sha256",
+      "sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+      "status": "as-run-report-declared"
+    },
+    {
+      "name": "exact_predicate_sha256",
+      "sha256": "6f04ec7b129f47e810e75262f9f3ad3be0159bbe13dc2611a96e27141132b0fc",
+      "status": "as-run-report-declared"
+    },
+    {
+      "name": "virtual_sample_helper_sha256",
+      "sha256": "0e97159845d6902875c015bc96ae283a2ed43206e85f14637e29cfc611d7589f",
+      "status": "as-run-report-declared"
+    },
+    {
+      "name": "previous_172_samples_sha256",
+      "sha256": "cd8213406ee11bd0adf759b9ff7e55aca9722887642aa4961ca239927ccff0d6",
+      "status": "as-run-report-declared"
+    },
+    {
+      "name": "previous_172_summary_sha256",
+      "sha256": "04d5e3e4c787d3d84c73efb7c83a059c658e57e84038c6704ab94d5c358eb6df",
+      "status": "as-run-report-declared"
+    }
+  ]
+}
