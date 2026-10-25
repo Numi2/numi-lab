@@ -1,0 +1,12 @@
+{
+  "candidate_sha256": "495814b3cc3daf65b382a0f791c96edb6882230458fa5d47f17fe71c3f687048",
+  "point_sha256": "2dce0838f3f71f491243fbbca8b60ef6c4132e4d0f6af48bf5b66547941f4de3",
+  "surface_sha256": "a034f74380dcf68fbc0c826ceb277032062169ac1349951eec4debaaa622193d",
+  "driver_sha256": "a17dd17d91dadb394506b2f16081d327b3c30f9f96d8f74e7eed064e94357d8e",
+  "bary_targets_sha256": "77d9e5a635abe5d3c93698f4b72418048f7d13c3f39522d245b8803979dfb91e",
+  "raw_bary_targets_sha256": "eb19011f31d60eed9a415ee771c022471e865653fe2724be428187be68dced83",
+  "bary_scope": "per implicated closed bank only; final all185 exact audit mandatory",
+  "best_prior_surface_pairs": 3722,
+  "starting_surface_pairs": 3784,
+  "native_admission": false
+}

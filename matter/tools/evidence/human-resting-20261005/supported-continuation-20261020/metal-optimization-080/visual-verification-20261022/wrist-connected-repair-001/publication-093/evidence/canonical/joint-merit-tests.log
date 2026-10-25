@@ -1,0 +1,9 @@
+cwd: /Users/numi/Work/numi-human-connected-surface-069/publication-093/canonical/matter/tools
+command: /Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -p no:cacheprovider -q test_human_skin_fat_bone_audit.py test_human_skin_fat_surface_count_summary.py test_human_skin_joint_clearance_construction_merit.py test_human_skin_point_construction_merit.py
+exit_code: 0
+
+stdout:
+......................................................                   [100%]
+54 passed in 0.06s
+
+stderr:

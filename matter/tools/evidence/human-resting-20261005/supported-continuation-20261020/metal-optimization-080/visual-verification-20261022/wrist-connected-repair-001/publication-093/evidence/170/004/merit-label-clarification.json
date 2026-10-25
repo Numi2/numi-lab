@@ -1,0 +1,7 @@
+{
+  "reason": "fit-report surface_pairs_before recorded best-prior threshold, not starting candidate surface count",
+  "starting_candidate_surface_pairs": 3784,
+  "best_prior_surface_pairs": 3722,
+  "after_surface_pairs": 3687,
+  "immutable_fit_report_sha256": "65fccbefbff43c82e5ea8ae710fe50820c7bc998c66a193300df4e1fa71af6dd"
+}

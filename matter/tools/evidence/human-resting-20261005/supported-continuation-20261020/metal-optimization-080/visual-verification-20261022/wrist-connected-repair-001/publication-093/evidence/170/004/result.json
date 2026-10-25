@@ -1,0 +1,14 @@
+{
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-004-threat-barriers/attempt-001/candidate.npz",
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-004-threat-barriers/attempt-001/scp-02-alpha-0p25/audit-130/summary.json",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-004-threat-barriers/attempt-001/scp-02-alpha-0p25/audit-159/report.json",
+  "parent_fit": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-004-threat-barriers/attempt-001/fit-report.json",
+  "candidate_sha256": "e9f9591409fac821711844fa4a09abb168c90c709beb02ffbe08241f8f985255",
+  "before_surface_pairs": 3784,
+  "best_prior_surface_pairs": 3722,
+  "after_surface_pairs": 3687,
+  "inside_pairs_before": 19,
+  "inside_pairs_after": 14,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

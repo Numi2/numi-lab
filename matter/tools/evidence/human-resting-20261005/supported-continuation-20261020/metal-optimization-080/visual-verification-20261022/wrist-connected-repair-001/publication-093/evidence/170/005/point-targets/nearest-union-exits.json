@@ -1,0 +1,1265 @@
+{
+  "schema": "numi.human.point-first-union-exits.run034-current.v1",
+  "classification": "construction_target_proposal_not_clearance_admission",
+  "inputs": {
+    "candidate_sha256": "e9f9591409fac821711844fa4a09abb168c90c709beb02ffbe08241f8f985255",
+    "query_points_sha256": "a060ae70bfb931be1f9efb672c37c1de4d132afec106fc693ecb548e6c990795",
+    "query_nodes_sha256": "d71ba19fff21bbeeac8c805c0f1f5dd16703b24e18f04a8e292a799aae4dbab5",
+    "query_pairs_sha256": "f8deec5cb944cc4e6a15a962209cc9591e20a6408f3d568032803a464180e8d3",
+    "base_candidate_sha256": "2f93d0159f5e1ece1fa377da71e52e4edb7ee60f4b61e483a0390733ca404c11",
+    "detail_source_sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+    "orientation_audit_sha256": "e43908188f134182635ac36a9a1602abad1918df374a04f3f7cc9eb1812d7497",
+    "bank_triangle_export_sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "bank_body_export_sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "bank_reader_source_sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+    "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "bank_count": 185,
+    "triangle_count": 469136,
+    "parity": -1
+  },
+  "query_rows": 14,
+  "inside_query_nodes": 14,
+  "inside_node_bank_pairs": 14,
+  "inherited_prefix_inside_nodes": 1,
+  "new_refinement_inside_nodes": 13,
+  "source_normal_unavailable_rows": [
+    9045
+  ],
+  "source_normal_errors": {},
+  "all_bank_ray_results": 14,
+  "passing_targets": 14,
+  "status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY",
+  "normal_method": "proposal direction is the exact native inside-query closest-boundary vector transformed to world by solving the raw body affine; source normals are ancillary diagnostics when direct parent-face ancestry is available; direction is proposal-only and anatomical orientation is unqualified",
+  "targets": [
+    {
+      "query_row": 9045,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        -0.3117651343345642,
+        -0.9598931074142456,
+        0.11990898102521896
+      ],
+      "proposal_direction_world_unit": [
+        -0.8849318265056418,
+        0.1823473005182273,
+        0.42853835817940966
+      ],
+      "source_surface_normal_world_unit": null,
+      "direction_evidence": {
+        "closest_bank_body": 64,
+        "closest_bank_stable_id": 98,
+        "nearest_distance_world_m": 8.613311858738815e-06,
+        "query_reported_nearest_distance_m": 8.613311938625421e-06,
+        "inside_bank_count": 1,
+        "inside_banks": [
+          [
+            64,
+            98
+          ]
+        ],
+        "source_normal_dot_nearest_direction": null,
+        "source_surface_normal_world_unit": null,
+        "source_normal_status": "unavailable_for_inherited_prefix",
+        "source_normal_error": null,
+        "closest_boundary_direction_world_unit": [
+          -0.8849318265056418,
+          0.1823473005182273,
+          0.42853835817940966
+        ],
+        "closest_point_world_delta_m": [
+          -7.622193795416445e-06,
+          1.5706141659626577e-06,
+          3.691134522431171e-06
+        ]
+      },
+      "target_world_f32_m": [
+        -0.3118169903755188,
+        -0.9598824381828308,
+        0.1199340969324112
+      ],
+      "ray_distance_m": 5.859769621673344e-05,
+      "union_exit_distance_m": 8.613311858738332e-06,
+      "next_union_event_distance_m": null,
+      "free_interval_margin_m": 4.998438435799511e-05,
+      "clearance_m": 5e-05,
+      "hit_count": 1,
+      "touched_banks": 1,
+      "initial_inside_bank_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "normal_provenance": null,
+      "bank_hit_counts": {
+        "64/98": 1
+      }
+    },
+    {
+      "query_row": 10523,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        -0.315332293510437,
+        -1.0087460279464722,
+        0.12137080729007721
+      ],
+      "proposal_direction_world_unit": [
+        0.9095755922908206,
+        0.31146447199680244,
+        0.2750674909773165
+      ],
+      "source_surface_normal_world_unit": [
+        0.2851422677441536,
+        -0.9445472719397685,
+        0.16286294304372162
+      ],
+      "direction_evidence": {
+        "closest_bank_body": 65,
+        "closest_bank_stable_id": 99,
+        "nearest_distance_world_m": 5.512180887125531e-07,
+        "query_reported_nearest_distance_m": 5.512180932532761e-07,
+        "inside_bank_count": 1,
+        "inside_banks": [
+          [
+            65,
+            99
+          ]
+        ],
+        "source_normal_dot_nearest_direction": 0.009963830856014183,
+        "source_surface_normal_world_unit": [
+          0.2851422677441536,
+          -0.9445472719397685,
+          0.16286294304372162
+        ],
+        "source_normal_status": "available_diagnostic_only",
+        "source_normal_error": null,
+        "closest_boundary_direction_world_unit": [
+          0.9095755922908206,
+          0.31146447199680244,
+          0.2750674909773165
+        ],
+        "closest_point_world_delta_m": [
+          5.013745195221346e-07,
+          1.7168485095594196e-07,
+          1.5162217664347384e-07
+        ]
+      },
+      "target_world_f32_m": [
+        -0.3152863085269928,
+        -1.0087302923202515,
+        0.12138471007347107
+      ],
+      "ray_distance_m": 5.055211081087488e-05,
+      "union_exit_distance_m": 5.512180887117539e-07,
+      "next_union_event_distance_m": null,
+      "free_interval_margin_m": 5.000089272216313e-05,
+      "clearance_m": 5e-05,
+      "hit_count": 1,
+      "touched_banks": 1,
+      "initial_inside_bank_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "normal_provenance": {
+        "parent_sources": [
+          {
+            "old_parent_face": 8802,
+            "source_detail_face": 5529,
+            "kind": "detailed",
+            "normal_alignment": 0.9989961760125425,
+            "barycentric": [
+              0.5,
+              0.5,
+              0.0
+            ]
+          },
+          {
+            "old_parent_face": 8819,
+            "source_detail_face": 5539,
+            "kind": "detailed",
+            "normal_alignment": 0.9893262720327072,
+            "barycentric": [
+              0.5,
+              0.5,
+              0.0
+            ]
+          }
+        ],
+        "resultant_over_sum_norms": 0.9372014849753927,
+        "incident_emitted_alignment": 0.996990399678771
+      },
+      "bank_hit_counts": {
+        "65/99": 1
+      }
+    },
+    {
+      "query_row": 10551,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        -0.31484144926071167,
+        -1.0104535818099976,
+        0.11842436343431473
+      ],
+      "proposal_direction_world_unit": [
+        0.9974522114476085,
+        0.07124279541413923,
+        -0.0036810297274748843
+      ],
+      "source_surface_normal_world_unit": [
+        0.23571773352590716,
+        -0.8893644395140644,
+        0.391749976170061
+      ],
+      "direction_evidence": {
+        "closest_bank_body": 65,
+        "closest_bank_stable_id": 99,
+        "nearest_distance_world_m": 3.890893894726528e-06,
+        "query_reported_nearest_distance_m": 3.890893931281165e-06,
+        "inside_bank_count": 1,
+        "inside_banks": [
+          [
+            65,
+            99
+          ]
+        ],
+        "source_normal_dot_nearest_direction": 0.17031432246190353,
+        "source_surface_normal_world_unit": [
+          0.23571773352590716,
+          -0.8893644395140644,
+          0.391749976170061
+        ],
+        "source_normal_status": "available_diagnostic_only",
+        "source_normal_error": null,
+        "closest_boundary_direction_world_unit": [
+          0.9974522114476085,
+          0.07124279541413923,
+          -0.0036810297274748843
+        ],
+        "closest_point_world_delta_m": [
+          3.8809807198029735e-06,
+          2.771981577201254e-07,
+          -1.4322496092938882e-08
+        ]
+      },
+      "target_world_f32_m": [
+        -0.31478768587112427,
+        -1.010449767112732,
+        0.11842416226863861
+      ],
+      "ray_distance_m": 5.3898922032569535e-05,
+      "union_exit_distance_m": 3.890893894726538e-06,
+      "next_union_event_distance_m": 0.5745322760062477,
+      "free_interval_margin_m": 5.0008028137842994e-05,
+      "clearance_m": 5e-05,
+      "hit_count": 3,
+      "touched_banks": 2,
+      "initial_inside_bank_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "normal_provenance": {
+        "parent_sources": [
+          {
+            "old_parent_face": 8805,
+            "source_detail_face": 5530,
+            "kind": "detailed",
+            "normal_alignment": 0.9231522569509338,
+            "barycentric": [
+              0.5,
+              0.5,
+              0.0
+            ]
+          },
+          {
+            "old_parent_face": 9104,
+            "source_detail_face": 6103,
+            "kind": "detailed",
+            "normal_alignment": 0.9991355921017077,
+            "barycentric": [
+              0.5,
+              0.5,
+              0.0
+            ]
+          }
+        ],
+        "resultant_over_sum_norms": 0.990871030117048,
+        "incident_emitted_alignment": 0.453547962974365
+      },
+      "bank_hit_counts": {
+        "65/99": 1,
+        "114/117": 2
+      }
+    },
+    {
+      "query_row": 10555,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        -0.3148391544818878,
+        -1.0106091499328613,
+        0.11780963838100433
+      ],
+      "proposal_direction_world_unit": [
+        0.9974522114476064,
+        0.07124279541416803,
+        -0.003681029727442081
+      ],
+      "source_surface_normal_world_unit": [
+        0.25918732370211695,
+        -0.9201516733476373,
+        0.29350098682572956
+      ],
+      "direction_evidence": {
+        "closest_bank_body": 65,
+        "closest_bank_stable_id": 99,
+        "nearest_distance_world_m": 1.0422248018123721e-05,
+        "query_reported_nearest_distance_m": 1.0422248116039908e-05,
+        "inside_bank_count": 1,
+        "inside_banks": [
+          [
+            65,
+            99
+          ]
+        ],
+        "source_normal_dot_nearest_direction": 0.191892405934014,
+        "source_surface_normal_world_unit": [
+          0.25918732370211695,
+          -0.9201516733476373,
+          0.29350098682572956
+        ],
+        "source_normal_status": "available_diagnostic_only",
+        "source_normal_error": null,
+        "closest_boundary_direction_world_unit": [
+          0.9974522114476064,
+          0.07124279541416803,
+          -0.003681029727442081
+        ],
+        "closest_point_world_delta_m": [
+          1.0395694333932939e-05,
+          7.425100833109064e-07,
+          -3.836460478148773e-08
+        ]
+      },
+      "target_world_f32_m": [
+        -0.3147788941860199,
+        -1.0106048583984375,
+        0.11780941486358643
+      ],
+      "ray_distance_m": 6.041332905917335e-05,
+      "union_exit_distance_m": 1.0422248018123523e-05,
+      "next_union_event_distance_m": 0.5747720074213756,
+      "free_interval_margin_m": 4.999108104104982e-05,
+      "clearance_m": 5e-05,
+      "hit_count": 3,
+      "touched_banks": 2,
+      "initial_inside_bank_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "normal_provenance": {
+        "parent_sources": [
+          {
+            "old_parent_face": 9103,
+            "source_detail_face": 6103,
+            "kind": "detailed",
+            "normal_alignment": 0.9980358508571257,
+            "barycentric": [
+              0.0,
+              0.5,
+              0.5
+            ]
+          },
+          {
+            "old_parent_face": 9104,
+            "source_detail_face": 6103,
+            "kind": "detailed",
+            "normal_alignment": 0.9991355921017077,
+            "barycentric": [
+              0.5,
+              0.0,
+              0.5
+            ]
+          }
+        ],
+        "resultant_over_sum_norms": 1.0000000000000002,
+        "incident_emitted_alignment": 0.9949929982198251
+      },
+      "bank_hit_counts": {
+        "65/99": 1,
+        "114/117": 2
+      }
+    },
+    {
+      "query_row": 11292,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        0.2208930402994156,
+        -0.8766468167304993,
+        0.12876702845096588
+      ],
+      "proposal_direction_world_unit": [
+        0.4169862458549581,
+        0.3890474106805699,
+        -0.821440553546349
+      ],
+      "source_surface_normal_world_unit": [
+        0.7167222191131968,
+        -0.44492536390146514,
+        -0.5369829431058339
+      ],
+      "direction_evidence": {
+        "closest_bank_body": 100,
+        "closest_bank_stable_id": 85,
+        "nearest_distance_world_m": 6.433618454726388e-06,
+        "query_reported_nearest_distance_m": 6.43361798355688e-06,
+        "inside_bank_count": 1,
+        "inside_banks": [
+          [
+            100,
+            85
+          ]
+        ],
+        "source_normal_dot_nearest_direction": 0.5668658127266751,
+        "source_surface_normal_world_unit": [
+          0.7167222191131968,
+          -0.44492536390146514,
+          -0.5369829431058339
+        ],
+        "source_normal_status": "available_diagnostic_only",
+        "source_normal_error": null,
+        "closest_boundary_direction_world_unit": [
+          0.4169862458549581,
+          0.3890474106805699,
+          -0.821440553546349
+        ],
+        "closest_point_world_delta_m": [
+          2.6827304066995333e-06,
+          2.502982601118031e-06,
+          -5.284835104756451e-06
+        ]
+      },
+      "target_world_f32_m": [
+        0.22091656923294067,
+        -0.8766248822212219,
+        0.12872067093849182
+      ],
+      "ray_distance_m": 5.6424746406219445e-05,
+      "union_exit_distance_m": 6.433618454726827e-06,
+      "next_union_event_distance_m": 0.02328596206125334,
+      "free_interval_margin_m": 4.999112795149262e-05,
+      "clearance_m": 5e-05,
+      "hit_count": 3,
+      "touched_banks": 2,
+      "initial_inside_bank_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "normal_provenance": {
+        "parent_sources": [
+          {
+            "old_parent_face": 15645,
+            "source_detail_face": 88036,
+            "kind": "detailed",
+            "normal_alignment": -0.5444700835927888,
+            "barycentric": [
+              0.0,
+              0.5,
+              0.5
+            ]
+          },
+          {
+            "old_parent_face": 15646,
+            "source_detail_face": 88036,
+            "kind": "detailed",
+            "normal_alignment": 0.9512528320649299,
+            "barycentric": [
+              0.5,
+              0.0,
+              0.5
+            ]
+          }
+        ],
+        "resultant_over_sum_norms": 1.0,
+        "incident_emitted_alignment": 0.1237193112855835
+      },
+      "bank_hit_counts": {
+        "98/73": 2,
+        "100/85": 1
+      }
+    },
+    {
+      "query_row": 11345,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        0.20323355495929718,
+        -0.9639871716499329,
+        0.177763432264328
+      ],
+      "proposal_direction_world_unit": [
+        -0.27359395788566465,
+        -0.6971458755891932,
+        -0.6626718451522099
+      ],
+      "source_surface_normal_world_unit": [
+        -0.8555922267386772,
+        0.39327235053291104,
+        -0.3365988708398638
+      ],
+      "direction_evidence": {
+        "closest_bank_body": 104,
+        "closest_bank_stable_id": 113,
+        "nearest_distance_world_m": 6.048599268488753e-06,
+        "query_reported_nearest_distance_m": 6.04859965213017e-06,
+        "inside_bank_count": 1,
+        "inside_banks": [
+          [
+            104,
+            113
+          ]
+        ],
+        "source_normal_dot_nearest_direction": 0.18297126130796024,
+        "source_surface_normal_world_unit": [
+          -0.8555922267386772,
+          0.39327235053291104,
+          -0.3365988708398638
+        ],
+        "source_normal_status": "available_diagnostic_only",
+        "source_normal_error": null,
+        "closest_boundary_direction_world_unit": [
+          -0.27359395788566465,
+          -0.6971458755891932,
+          -0.6626718451522099
+        ],
+        "closest_point_world_delta_m": [
+          -1.6548602135301738e-06,
+          -4.216756033118745e-06,
+          -4.008236437835749e-06
+        ]
+      },
+      "target_world_f32_m": [
+        0.2032182216644287,
+        -0.9640262722969055,
+        0.17772628366947174
+      ],
+      "ray_distance_m": 5.607127949856e-05,
+      "union_exit_distance_m": 6.048599268488875e-06,
+      "next_union_event_distance_m": null,
+      "free_interval_margin_m": 5.002268023007112e-05,
+      "clearance_m": 5e-05,
+      "hit_count": 1,
+      "touched_banks": 1,
+      "initial_inside_bank_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "normal_provenance": {
+        "parent_sources": [
+          {
+            "old_parent_face": 18140,
+            "source_detail_face": 93227,
+            "kind": "detailed",
+            "normal_alignment": 0.8073639301963492,
+            "barycentric": [
+              0.5,
+              0.5,
+              0.0
+            ]
+          },
+          {
+            "old_parent_face": 18221,
+            "source_detail_face": 93535,
+            "kind": "detailed",
+            "normal_alignment": 0.592355042519988,
+            "barycentric": [
+              0.5,
+              0.5,
+              0.0
+            ]
+          }
+        ],
+        "resultant_over_sum_norms": 0.9996409809366332,
+        "incident_emitted_alignment": 0.9072796484708111
+      },
+      "bank_hit_counts": {
+        "104/113": 1
+      }
+    },
+    {
+      "query_row": 11768,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        0.26866209506988525,
+        -1.0083050727844238,
+        0.11858069151639938
+      ],
+      "proposal_direction_world_unit": [
+        0.9374444138337855,
+        0.04420367701194244,
+        -0.3453172540005119
+      ],
+      "source_surface_normal_world_unit": [
+        -0.8413777552435145,
+        -0.21617522778940593,
+        0.49532993435848693
+      ],
+      "direction_evidence": {
+        "closest_bank_body": 115,
+        "closest_bank_stable_id": 118,
+        "nearest_distance_world_m": 1.8444752604408314e-05,
+        "query_reported_nearest_distance_m": 1.844475098861558e-05,
+        "inside_bank_count": 1,
+        "inside_banks": [
+          [
+            115,
+            118
+          ]
+        ],
+        "source_normal_dot_nearest_direction": -0.9693465892811552,
+        "source_surface_normal_world_unit": [
+          -0.8413777552435145,
+          -0.21617522778940593,
+          0.49532993435848693
+        ],
+        "source_normal_status": "available_diagnostic_only",
+        "source_normal_error": null,
+        "closest_boundary_direction_world_unit": [
+          0.9374444138337855,
+          0.04420367701194244,
+          -0.3453172540005119
+        ],
+        "closest_point_world_delta_m": [
+          1.729093029354874e-05,
+          8.153258866904492e-07,
+          -6.3692913200730685e-06
+        ]
+      },
+      "target_world_f32_m": [
+        0.26872625946998596,
+        -1.008302092552185,
+        0.11855705827474594
+      ],
+      "ray_distance_m": 6.84432617756051e-05,
+      "union_exit_distance_m": 1.8444752604408026e-05,
+      "next_union_event_distance_m": null,
+      "free_interval_margin_m": 4.999850917119707e-05,
+      "clearance_m": 5e-05,
+      "hit_count": 1,
+      "touched_banks": 1,
+      "initial_inside_bank_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "normal_provenance": {
+        "parent_sources": [
+          {
+            "old_parent_face": 15468,
+            "source_detail_face": 87908,
+            "kind": "detailed",
+            "normal_alignment": 0.35038321330048466,
+            "barycentric": [
+              0.0,
+              0.5,
+              0.5
+            ]
+          },
+          {
+            "old_parent_face": 15469,
+            "source_detail_face": 87908,
+            "kind": "detailed",
+            "normal_alignment": 0.12452312712994928,
+            "barycentric": [
+              0.5,
+              0.0,
+              0.5
+            ]
+          }
+        ],
+        "resultant_over_sum_norms": 1.0,
+        "incident_emitted_alignment": 0.3770276914303554
+      },
+      "bank_hit_counts": {
+        "115/118": 1
+      }
+    },
+    {
+      "query_row": 12041,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        -0.3172850012779236,
+        -1.025512933731079,
+        0.14441201090812683
+      ],
+      "proposal_direction_world_unit": [
+        0.8567511529725786,
+        -0.25752240479022714,
+        -0.446832936242636
+      ],
+      "source_surface_normal_world_unit": [
+        0.44450314389882717,
+        0.08020180773410199,
+        0.8921797044879695
+      ],
+      "direction_evidence": {
+        "closest_bank_body": 61,
+        "closest_bank_stable_id": 97,
+        "nearest_distance_world_m": 1.8809353772689876e-05,
+        "query_reported_nearest_distance_m": 1.880935394156552e-05,
+        "inside_bank_count": 1,
+        "inside_banks": [
+          [
+            61,
+            97
+          ]
+        ],
+        "source_normal_dot_nearest_direction": -0.03848045837339986,
+        "source_surface_normal_world_unit": [
+          0.44450314389882717,
+          0.08020180773410199,
+          0.8921797044879695
+        ],
+        "source_normal_status": "available_diagnostic_only",
+        "source_normal_error": null,
+        "closest_boundary_direction_world_unit": [
+          0.8567511529725786,
+          -0.25752240479022714,
+          -0.446832936242636
+        ],
+        "closest_point_world_delta_m": [
+          1.6114935531421173e-05,
+          -4.843830016093228e-06,
+          -8.40463877507752e-06
+        ]
+      },
+      "target_world_f32_m": [
+        -0.3172260522842407,
+        -1.0255306959152222,
+        0.14438126981258392
+      ],
+      "ray_distance_m": 6.881491266396686e-05,
+      "union_exit_distance_m": 1.8809353772688996e-05,
+      "next_union_event_distance_m": null,
+      "free_interval_margin_m": 5.000555889127786e-05,
+      "clearance_m": 5e-05,
+      "hit_count": 1,
+      "touched_banks": 1,
+      "initial_inside_bank_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "normal_provenance": {
+        "parent_sources": [
+          {
+            "old_parent_face": 7048,
+            "source_detail_face": 2469,
+            "kind": "detailed",
+            "normal_alignment": 0.9265831883831155,
+            "barycentric": [
+              0.3333333333333333,
+              0.3333333333333333,
+              0.3333333333333333
+            ]
+          }
+        ],
+        "resultant_over_sum_norms": 1.0000000000000002,
+        "incident_emitted_alignment": 0.8962794616228846
+      },
+      "bank_hit_counts": {
+        "61/97": 1
+      }
+    },
+    {
+      "query_row": 12387,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        -0.31483152508735657,
+        -1.0106432437896729,
+        0.11721330881118774
+      ],
+      "proposal_direction_world_unit": [
+        0.9974522114476132,
+        0.07124279541407243,
+        -0.0036810297274787497
+      ],
+      "source_surface_normal_world_unit": [
+        0.25918732370211695,
+        -0.9201516733476371,
+        0.29350098682572956
+      ],
+      "direction_evidence": {
+        "closest_bank_body": 65,
+        "closest_bank_stable_id": 99,
+        "nearest_distance_world_m": 3.0461262151139834e-06,
+        "query_reported_nearest_distance_m": 3.046126243732096e-06,
+        "inside_bank_count": 1,
+        "inside_banks": [
+          [
+            65,
+            99
+          ]
+        ],
+        "source_normal_dot_nearest_direction": 0.19189240593409296,
+        "source_surface_normal_world_unit": [
+          0.25918732370211695,
+          -0.9201516733476371,
+          0.29350098682572956
+        ],
+        "source_normal_status": "available_diagnostic_only",
+        "source_normal_error": null,
+        "closest_boundary_direction_world_unit": [
+          0.9974522114476132,
+          0.07124279541407243,
+          -0.0036810297274787497
+        ],
+        "closest_point_world_delta_m": [
+          3.038365329613991e-06,
+          2.170145467488083e-07,
+          -1.1212881151486902e-08
+        ]
+      },
+      "target_world_f32_m": [
+        -0.3147786259651184,
+        -1.0106394290924072,
+        0.11721311509609222
+      ],
+      "ray_distance_m": 5.30368292279763e-05,
+      "union_exit_distance_m": 3.0461262151138576e-06,
+      "next_union_event_distance_m": 0.5753899601874499,
+      "free_interval_margin_m": 4.999070301286244e-05,
+      "clearance_m": 5e-05,
+      "hit_count": 3,
+      "touched_banks": 2,
+      "initial_inside_bank_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "normal_provenance": {
+        "parent_sources": [
+          {
+            "old_parent_face": 9103,
+            "source_detail_face": 6103,
+            "kind": "detailed",
+            "normal_alignment": 0.9980358508571257,
+            "barycentric": [
+              0.3333333333333333,
+              0.3333333333333333,
+              0.3333333333333333
+            ]
+          }
+        ],
+        "resultant_over_sum_norms": 1.0000000000000002,
+        "incident_emitted_alignment": 0.9429715125224271
+      },
+      "bank_hit_counts": {
+        "65/99": 1,
+        "114/117": 2
+      }
+    },
+    {
+      "query_row": 12411,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        -0.31554609537124634,
+        -1.0106048583984375,
+        0.11526632308959961
+      ],
+      "proposal_direction_world_unit": [
+        0.8606706801752494,
+        0.4684400031250099,
+        -0.19952429365597102
+      ],
+      "source_surface_normal_world_unit": [
+        0.5013276594069461,
+        -0.8288681831588655,
+        -0.24829038012068527
+      ],
+      "direction_evidence": {
+        "closest_bank_body": 65,
+        "closest_bank_stable_id": 99,
+        "nearest_distance_world_m": 3.793228961959725e-06,
+        "query_reported_nearest_distance_m": 3.7932289891609887e-06,
+        "inside_bank_count": 1,
+        "inside_banks": [
+          [
+            65,
+            99
+          ]
+        ],
+        "source_normal_dot_nearest_direction": 0.09274296601843414,
+        "source_surface_normal_world_unit": [
+          0.5013276594069461,
+          -0.8288681831588655,
+          -0.24829038012068527
+        ],
+        "source_normal_status": "available_diagnostic_only",
+        "source_normal_error": null,
+        "closest_boundary_direction_world_unit": [
+          0.8606706801752494,
+          0.4684400031250099,
+          -0.19952429365597102
+        ],
+        "closest_point_world_delta_m": [
+          3.2647209507503317e-06,
+          1.7769001867942915e-06,
+          -7.568413293103863e-07
+        ]
+      },
+      "target_world_f32_m": [
+        -0.31549978256225586,
+        -1.0105797052383423,
+        0.11525558680295944
+      ],
+      "ray_distance_m": 5.378497321663526e-05,
+      "union_exit_distance_m": 3.7932289619589547e-06,
+      "next_union_event_distance_m": 0.3213393654194058,
+      "free_interval_margin_m": 4.999174425467631e-05,
+      "clearance_m": 5e-05,
+      "hit_count": 3,
+      "touched_banks": 2,
+      "initial_inside_bank_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "normal_provenance": {
+        "parent_sources": [
+          {
+            "old_parent_face": 9160,
+            "source_detail_face": 6135,
+            "kind": "detailed",
+            "normal_alignment": 0.29844941902963923,
+            "barycentric": [
+              0.3333333333333333,
+              0.3333333333333333,
+              0.3333333333333333
+            ]
+          }
+        ],
+        "resultant_over_sum_norms": 1.0,
+        "incident_emitted_alignment": 0.5633384785560203
+      },
+      "bank_hit_counts": {
+        "1/1": 2,
+        "65/99": 1
+      }
+    },
+    {
+      "query_row": 12782,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        0.23578789830207825,
+        -0.954501211643219,
+        0.09231478720903397
+      ],
+      "proposal_direction_world_unit": [
+        -0.6234686095950447,
+        -0.10026581599030317,
+        0.7753925837879934
+      ],
+      "source_surface_normal_world_unit": [
+        0.46287302108293843,
+        0.8859808327622908,
+        -0.028045148090023102
+      ],
+      "direction_evidence": {
+        "closest_bank_body": 124,
+        "closest_bank_stable_id": 123,
+        "nearest_distance_world_m": 1.1542753462089877e-05,
+        "query_reported_nearest_distance_m": 1.154275246174601e-05,
+        "inside_bank_count": 1,
+        "inside_banks": [
+          [
+            124,
+            123
+          ]
+        ],
+        "source_normal_dot_nearest_direction": -0.3991663898625567,
+        "source_surface_normal_world_unit": [
+          0.46287302108293843,
+          0.8859808327622908,
+          -0.028045148090023102
+        ],
+        "source_normal_status": "available_diagnostic_only",
+        "source_normal_error": null,
+        "closest_boundary_direction_world_unit": [
+          -0.6234686095950447,
+          -0.10026581599030317,
+          0.7753925837879934
+        ],
+        "closest_point_world_delta_m": [
+          -7.196544451907564e-06,
+          -1.1573435946513383e-06,
+          8.950165430997676e-06
+        ]
+      },
+      "target_world_f32_m": [
+        0.2357495278120041,
+        -0.9545074105262756,
+        0.09236250817775726
+      ],
+      "ray_distance_m": 6.154681740314148e-05,
+      "union_exit_distance_m": 1.1542753462089125e-05,
+      "next_union_event_distance_m": null,
+      "free_interval_margin_m": 5.0004063941052354e-05,
+      "clearance_m": 5e-05,
+      "hit_count": 1,
+      "touched_banks": 1,
+      "initial_inside_bank_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "normal_provenance": {
+        "parent_sources": [
+          {
+            "old_parent_face": 14790,
+            "source_detail_face": 83785,
+            "kind": "detailed",
+            "normal_alignment": 0.8908161539438486,
+            "barycentric": [
+              0.3333333333333333,
+              0.3333333333333333,
+              0.3333333333333333
+            ]
+          }
+        ],
+        "resultant_over_sum_norms": 1.0,
+        "incident_emitted_alignment": 0.8979893109396933
+      },
+      "bank_hit_counts": {
+        "124/123": 1
+      }
+    },
+    {
+      "query_row": 12792,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        0.23462635278701782,
+        -0.9543882012367249,
+        0.09139659255743027
+      ],
+      "proposal_direction_world_unit": [
+        -0.623468609595066,
+        -0.10026581599032797,
+        0.775392583787973
+      ],
+      "source_surface_normal_world_unit": [
+        0.3126873423699015,
+        0.9484391314050974,
+        0.05186366686990487
+      ],
+      "direction_evidence": {
+        "closest_bank_body": 124,
+        "closest_bank_stable_id": 123,
+        "nearest_distance_world_m": 1.064799411028892e-05,
+        "query_reported_nearest_distance_m": 1.0647993187488686e-05,
+        "inside_bank_count": 1,
+        "inside_banks": [
+          [
+            124,
+            123
+          ]
+        ],
+        "source_normal_dot_nearest_direction": -0.24983206335385458,
+        "source_surface_normal_world_unit": [
+          0.3126873423699015,
+          0.9484391314050974,
+          0.05186366686990487
+        ],
+        "source_normal_status": "available_diagnostic_only",
+        "source_normal_error": null,
+        "closest_boundary_direction_world_unit": [
+          -0.623468609595066,
+          -0.10026581599032797,
+          0.775392583787973
+        ],
+        "closest_point_world_delta_m": [
+          -6.638690082918285e-06,
+          -1.0676298181283248e-06,
+          8.256375665336045e-06
+        ]
+      },
+      "target_world_f32_m": [
+        0.23458853363990784,
+        -0.9543942809104919,
+        0.09144362062215805
+      ],
+      "ray_distance_m": 6.065384713576994e-05,
+      "union_exit_distance_m": 1.0647994110288891e-05,
+      "next_union_event_distance_m": null,
+      "free_interval_margin_m": 5.0005853025481055e-05,
+      "clearance_m": 5e-05,
+      "hit_count": 1,
+      "touched_banks": 1,
+      "initial_inside_bank_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "normal_provenance": {
+        "parent_sources": [
+          {
+            "old_parent_face": 14814,
+            "source_detail_face": 83789,
+            "kind": "detailed",
+            "normal_alignment": 0.9784922763715335,
+            "barycentric": [
+              0.3333333333333333,
+              0.3333333333333333,
+              0.3333333333333333
+            ]
+          }
+        ],
+        "resultant_over_sum_norms": 1.0,
+        "incident_emitted_alignment": 0.9872650850978536
+      },
+      "bank_hit_counts": {
+        "124/123": 1
+      }
+    },
+    {
+      "query_row": 12977,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        0.22067560255527496,
+        -0.8763652443885803,
+        0.12889252603054047
+      ],
+      "proposal_direction_world_unit": [
+        0.28873079814709895,
+        0.6828130474934399,
+        -0.6711191163825246
+      ],
+      "source_surface_normal_world_unit": [
+        0.7513200299333413,
+        -0.4882011007517616,
+        -0.4440471797520298
+      ],
+      "direction_evidence": {
+        "closest_bank_body": 100,
+        "closest_bank_stable_id": 85,
+        "nearest_distance_world_m": 4.721771242064046e-06,
+        "query_reported_nearest_distance_m": 4.721771029771643e-06,
+        "inside_bank_count": 1,
+        "inside_banks": [
+          [
+            100,
+            85
+          ]
+        ],
+        "source_normal_dot_nearest_direction": 0.181587701419928,
+        "source_surface_normal_world_unit": [
+          0.7513200299333413,
+          -0.4882011007517616,
+          -0.4440471797520298
+        ],
+        "source_normal_status": "available_diagnostic_only",
+        "source_normal_error": null,
+        "closest_boundary_direction_world_unit": [
+          0.28873079814709895,
+          0.6828130474934399,
+          -0.6711191163825246
+        ],
+        "closest_point_world_delta_m": [
+          1.3633207793891708e-06,
+          3.224087011360636e-06,
+          -3.168870943734438e-06
+        ]
+      },
+      "target_world_f32_m": [
+        0.22069139778614044,
+        -0.8763278722763062,
+        0.12885579466819763
+      ],
+      "ray_distance_m": 5.4729854926949666e-05,
+      "union_exit_distance_m": 4.72177124206466e-06,
+      "next_union_event_distance_m": 0.004749278562252589,
+      "free_interval_margin_m": 5.0008083684885e-05,
+      "clearance_m": 5e-05,
+      "hit_count": 7,
+      "touched_banks": 4,
+      "initial_inside_bank_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "normal_provenance": {
+        "parent_sources": [
+          {
+            "old_parent_face": 15617,
+            "source_detail_face": 88031,
+            "kind": "detailed",
+            "normal_alignment": 0.6386457845462986,
+            "barycentric": [
+              0.3333333333333333,
+              0.3333333333333333,
+              0.3333333333333333
+            ]
+          }
+        ],
+        "resultant_over_sum_norms": 1.0,
+        "incident_emitted_alignment": 0.05614853720152424
+      },
+      "bank_hit_counts": {
+        "92/15": 2,
+        "95/82": 2,
+        "96/81": 2,
+        "100/85": 1
+      }
+    },
+    {
+      "query_row": 13031,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        0.2656741142272949,
+        -1.0064266920089722,
+        0.1238023042678833
+      ],
+      "proposal_direction_world_unit": [
+        -0.9620509328118102,
+        0.016559245568510905,
+        0.2723670208783137
+      ],
+      "source_surface_normal_world_unit": [
+        -0.9353362832239025,
+        -0.30003448072857436,
+        0.18741757564014694
+      ],
+      "direction_evidence": {
+        "closest_bank_body": 115,
+        "closest_bank_stable_id": 118,
+        "nearest_distance_world_m": 1.1061400828472628e-05,
+        "query_reported_nearest_distance_m": 1.1061399862162414e-05,
+        "inside_bank_count": 1,
+        "inside_banks": [
+          [
+            115,
+            118
+          ]
+        ],
+        "source_normal_dot_nearest_direction": 0.9459191658602247,
+        "source_surface_normal_world_unit": [
+          -0.9353362832239025,
+          -0.30003448072857436,
+          0.18741757564014694
+        ],
+        "source_normal_status": "available_diagnostic_only",
+        "source_normal_error": null,
+        "closest_boundary_direction_world_unit": [
+          -0.9620509328118102,
+          0.016559245568510905,
+          0.2723670208783137
+        ],
+        "closest_point_world_delta_m": [
+          -1.0641630985237422e-05,
+          1.8316845265040824e-07,
+          3.012760790392001e-06
+        ]
+      },
+      "target_world_f32_m": [
+        0.2656153738498688,
+        -1.0064257383346558,
+        0.12381893396377563
+      ],
+      "ray_distance_m": 6.105640775204806e-05,
+      "union_exit_distance_m": 1.1061400828472083e-05,
+      "next_union_event_distance_m": null,
+      "free_interval_margin_m": 4.999500692357598e-05,
+      "clearance_m": 5e-05,
+      "hit_count": 1,
+      "touched_banks": 1,
+      "initial_inside_bank_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "normal_provenance": {
+        "parent_sources": [
+          {
+            "old_parent_face": 15905,
+            "source_detail_face": 88499,
+            "kind": "detailed",
+            "normal_alignment": 0.5984673010397694,
+            "barycentric": [
+              0.3333333333333333,
+              0.3333333333333333,
+              0.3333333333333333
+            ]
+          }
+        ],
+        "resultant_over_sum_norms": 1.0000000000000002,
+        "incident_emitted_alignment": 0.6167786287054093
+      },
+      "bank_hit_counts": {
+        "115/118": 1
+      }
+    }
+  ],
+  "construction_cap_m": 0.012,
+  "physical_steps": 0,
+  "first_union_fixture": "PASS: inside A exits at 2mm; distant B begins at 500mm; chosen target is 2.05mm",
+  "wall_seconds": 1.2977875410579145
+}

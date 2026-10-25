@@ -1,0 +1,193 @@
+{
+  "format": "numi.excluded-candidate-index.v1",
+  "scope": "completed 170 fits 001-005 only; active 006 is excluded from inspection",
+  "excluded_candidate_count": 31,
+  "candidates": [
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/candidate.npz",
+      "bytes": 1477880,
+      "sha256": "495814b3cc3daf65b382a0f791c96edb6882230458fa5d47f17fe71c3f687048",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-01-alpha-0p25/candidate.npz",
+      "bytes": 1477907,
+      "sha256": "ecf146a8733da4ab19c0c233c1ad629ef41a95dd507b15f057ce8ee90aafb330",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-01-alpha-0p5/candidate.npz",
+      "bytes": 1477907,
+      "sha256": "306246d88eb19aff361ba86f28873d5494c2efb3ff2f8393967fc85111fa6642",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-01-alpha-0p75/candidate.npz",
+      "bytes": 1477912,
+      "sha256": "bc4b5d5d622da314c7e3d6d1c5c19aba1609cf595dae09b9b7a68a90ed18f5bd",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-01-alpha-1p0/candidate.npz",
+      "bytes": 1477976,
+      "sha256": "4f9d80a06b046043e24f6dd89124cab292970c3e1859981baa36d1d8cf0cee4a",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-02-alpha-0p25/candidate.npz",
+      "bytes": 1477893,
+      "sha256": "756b1942aa2113a83258e18ad877c227f9d09fb5559785374fe407e95d7459de",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-02-alpha-0p5/candidate.npz",
+      "bytes": 1477889,
+      "sha256": "6cd8fb1d13ed114b4f77100a6fb9c56b011dc1df68697f4d3119790f75fcf9c9",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-02-alpha-0p75/candidate.npz",
+      "bytes": 1477993,
+      "sha256": "2910e46aeabde8ec570d75d6d9019921aafde9814124351812d9c80ffd3a9f96",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-02-alpha-1p0/candidate.npz",
+      "bytes": 1477994,
+      "sha256": "77213a46fabd75f2c4610760040c1d10848b87c8e4e28e757ccdde10bff8ac7f",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-03-alpha-0p25/candidate.npz",
+      "bytes": 1477937,
+      "sha256": "7c88ff48b9973ee9296bcfd3e542ddb09765b6bc9624c7b4a7f91c501d289691",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-03-alpha-0p5/candidate.npz",
+      "bytes": 1477896,
+      "sha256": "5e3af9e03c1349f8135f07bac03ba37133f56e1d24eccdee685be743de3477d6",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-03-alpha-0p75/candidate.npz",
+      "bytes": 1478012,
+      "sha256": "751df3af465234a1e5dfe18b2250de42b5a1685c30635c226e91619ee3a60f6d",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-03-alpha-1p0/candidate.npz",
+      "bytes": 1477952,
+      "sha256": "8608658095ffc0d735191977fa979146309b0eb97ab7ad204f812f8c6c44875c",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-04-alpha-0p25/candidate.npz",
+      "bytes": 1477928,
+      "sha256": "9adbe99b8b19e0865f8f240211e57ebbc5a56bd9bbc603ba76cd57e3018704ca",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-04-alpha-0p5/candidate.npz",
+      "bytes": 1477927,
+      "sha256": "d4fc209e082ba9dbc5a158f5ff8ddf44c5556e574235ed160a0e31d924dcb305",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-04-alpha-0p75/candidate.npz",
+      "bytes": 1477981,
+      "sha256": "55fbd9fea387eb4650387281d15442a98ff28647d13fed82eeec805febd1baf4",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-002/attempt-001/scp-04-alpha-1p0/candidate.npz",
+      "bytes": 1477956,
+      "sha256": "cb3b60b451da88015ec03c1eda3ddfefa58fc497e8fcad0ad05d6a9b18ff09c5",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-003-soft-objective/attempt-001/candidate.npz",
+      "bytes": 1477880,
+      "sha256": "495814b3cc3daf65b382a0f791c96edb6882230458fa5d47f17fe71c3f687048",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-003-soft-objective/attempt-001/scp-01-alpha-0p0625/candidate.npz",
+      "bytes": 1477875,
+      "sha256": "cd4df87b1356cdf2864a3c26d2f53ee86c66390641d73fc489c614107d978fd6",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-003-soft-objective/attempt-001/scp-01-alpha-0p125/candidate.npz",
+      "bytes": 1477916,
+      "sha256": "ced789b431d5ebd29134a74065f482bc7549a1f69a0cf9a57de3af57007dca37",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-003-soft-objective/attempt-001/scp-01-alpha-0p25/candidate.npz",
+      "bytes": 1477855,
+      "sha256": "50baf2a8086e2473627f268f1968d345ea5498de304ac42ea48b0683b760eeab",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-004-threat-barriers/attempt-001/scp-01-alpha-0p0625/candidate.npz",
+      "bytes": 1477875,
+      "sha256": "cd4df87b1356cdf2864a3c26d2f53ee86c66390641d73fc489c614107d978fd6",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-004-threat-barriers/attempt-001/scp-01-alpha-0p125/candidate.npz",
+      "bytes": 1477916,
+      "sha256": "ced789b431d5ebd29134a74065f482bc7549a1f69a0cf9a57de3af57007dca37",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-004-threat-barriers/attempt-001/scp-01-alpha-0p25/candidate.npz",
+      "bytes": 1477855,
+      "sha256": "50baf2a8086e2473627f268f1968d345ea5498de304ac42ea48b0683b760eeab",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-004-threat-barriers/attempt-001/scp-02-alpha-0p25/candidate.npz",
+      "bytes": 1477866,
+      "sha256": "e9f9591409fac821711844fa4a09abb168c90c709beb02ffbe08241f8f985255",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-005-rebased-soft/attempt-001/candidate.npz",
+      "bytes": 1477866,
+      "sha256": "e9f9591409fac821711844fa4a09abb168c90c709beb02ffbe08241f8f985255",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-005-rebased-soft/attempt-001/scp-01-alpha-0p0625/candidate.npz",
+      "bytes": 1477909,
+      "sha256": "30eb35f0d0e863c19c2247f63bc2f02f6419669c2574784207131b0368c82727",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-005-rebased-soft/attempt-001/scp-01-alpha-0p125/candidate.npz",
+      "bytes": 1477876,
+      "sha256": "141794375fab289a360efa847831dc2714ee3da6f55b4dbba7c47e640b8212d7",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-005-rebased-soft/attempt-001/scp-01-alpha-0p25/candidate.npz",
+      "bytes": 1477885,
+      "sha256": "564e274cb477485cea70c2d5c4e4922b355efb6ed74d1e2a83aa7ab6c3b32ce7",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-005-rebased-soft/attempt-001/scp-02-alpha-0p0625/candidate.npz",
+      "bytes": 1477907,
+      "sha256": "0829f8318ccac27910f972f7f57c07e7b0531aca21c6f0c24d5c2774ce4c10c3",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    },
+    {
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-fit-005-rebased-soft/attempt-001/scp-02-alpha-0p25/candidate.npz",
+      "bytes": 1477905,
+      "sha256": "bd1cd09d7f8be235f9f0b28ae819ad1ac8522726ffc284f7b9e53bc32e5aa50c",
+      "reason": "nonselected backtracking alternative or duplicate; original retained at the selected candidate path when same SHA"
+    }
+  ]
+}

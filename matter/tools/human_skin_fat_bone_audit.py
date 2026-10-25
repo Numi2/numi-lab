@@ -877,66 +877,70 @@ def summarize_surface_crossing_report(report, expected_banks=185, *, expected_ba
             "per_bank":per_bank}
 
 
+def _read_point_clearance_report(report):
+    """Parse P089's complete point witnesses and return typed pair depths."""
+    import math
+
+    if not isinstance(report, dict) or report.get("complete_surface_audit") is not True:
+        raise ValueError("incomplete exact point/surface audit")
+    self_pairs = report.get("exact_PLC_surface_pairs")
+    if type(self_pairs) is not int or self_pairs != 0:
+        raise ValueError("proposal has unresolved surface self intersections")
+    for name in ("points", "faces", "inside_node_bank_pairs", "inside_nodes"):
+        if type(report.get(name)) is not int or report[name] < 0:
+            raise ValueError("missing or invalid audit count: " + name)
+    rows = report.get("inside_witnesses")
+    if not isinstance(rows, list):
+        raise ValueError("missing typed inside witnesses")
+    values = {}
+
+    def identity(value):
+        # Existing query reports retain CSV identities as decimal strings.
+        if type(value) is int and value >= 0:
+            return value
+        if isinstance(value, str) and value.isascii() and value.isdecimal():
+            return int(value)
+        raise ValueError("invalid typed point/bank identity")
+
+    for row in rows:
+        if not isinstance(row, dict) or row.get("classification") != "inside":
+            raise ValueError("witness is not an explicit inside classification")
+        key = tuple(identity(row.get(k)) for k in ("query_row", "bank_body", "bank_stable_id"))
+        if key[0] >= report["points"] or key in values:
+            raise ValueError("duplicate or out of range typed inside witness")
+        if isinstance(row.get("nearest_distance_m"), bool):
+            raise ValueError("invalid penetration distance")
+        try:
+            distance = float(row["nearest_distance_m"])
+        except (KeyError, TypeError, ValueError):
+            raise ValueError("missing penetration distance") from None
+        if not math.isfinite(distance) or distance < 0 or not math.isfinite(distance * distance):
+            raise ValueError("nonfinite, negative or unrepresentable penetration distance")
+        values[key] = distance
+    if len(values) != report["inside_node_bank_pairs"] or len({k[0] for k in values}) != report["inside_nodes"]:
+        raise ValueError("typed inside counts disagree")
+    return values
+
+
 def assess_point_clearance_construction_progress(before, after):
     """Compare complete, same-topology point audits during mesh construction.
 
-    This is a proposal merit function, never an anatomical admission gate.
-    Newly exposed shallow pairs may accompany net improvement; preserve their
-    identities instead of requiring an invariant inside-pair set. Final
-    admission still requires zero erroneous point and surface intersections.
+    This preserves the P089 point-only merit. It never grants geometry or
+    native admission; the joint helper below handles the combined count rule.
     """
     import math
 
-    def read(report):
-        if not isinstance(report, dict) or report.get("complete_surface_audit") is not True:
-            raise ValueError("incomplete exact surface audit")
-        if type(report.get("exact_PLC_surface_pairs")) is not int or report["exact_PLC_surface_pairs"] != 0:
-            raise ValueError("proposal has unresolved surface self intersections")
-        for name in ("points", "faces", "inside_node_bank_pairs", "inside_nodes"):
-            if type(report.get(name)) is not int or report[name] < 0:
-                raise ValueError("missing or invalid audit count: " + name)
-        rows = report.get("inside_witnesses")
-        if not isinstance(rows, list):
-            raise ValueError("missing typed inside witnesses")
-        values = {}
-        def identity(value):
-            # Existing query reports retain CSV identities as decimal strings.
-            if type(value) is int and value >= 0:
-                return value
-            if isinstance(value, str) and value.isascii() and value.isdecimal():
-                return int(value)
-            raise ValueError("invalid typed point/bank identity")
-        for row in rows:
-            if not isinstance(row, dict) or row.get("classification") != "inside":
-                raise ValueError("witness is not an explicit inside classification")
-            key = tuple(identity(row.get(k)) for k in ("query_row", "bank_body", "bank_stable_id"))
-            if key[0] >= report["points"] or key in values:
-                raise ValueError("duplicate or out of range typed inside witness")
-            if isinstance(row.get("nearest_distance_m"), bool):
-                raise ValueError("invalid penetration distance")
-            try:
-                distance = float(row["nearest_distance_m"])
-            except (KeyError, TypeError, ValueError):
-                raise ValueError("missing penetration distance") from None
-            if not math.isfinite(distance) or distance < 0 or not math.isfinite(distance * distance):
-                raise ValueError("nonfinite, negative or unrepresentable penetration distance")
-            values[key] = distance
-        if len(values) != report["inside_node_bank_pairs"] or len({k[0] for k in values}) != report["inside_nodes"]:
-            raise ValueError("typed inside counts disagree")
-        return values
-
-    old, new = read(before), read(after)
+    old, new = _read_point_clearance_report(before), _read_point_clearance_report(after)
     if (before["points"], before["faces"]) != (after["points"], after["faces"]):
         raise ValueError("point merit requires matching topology")
     maximum_old, maximum_new = max(old.values(), default=0.0), max(new.values(), default=0.0)
-    squared_old = math.fsum(v*v for v in old.values())
-    squared_new = math.fsum(v*v for v in new.values())
+    squared_old = math.fsum(v * v for v in old.values())
+    squared_new = math.fsum(v * v for v in new.values())
     introduced = sorted(new.keys() - old.keys())
     removed = sorted(old.keys() - new.keys())
     count_improved = len(new) < len(old)
-    depth_nonincreasing = maximum_new <= maximum_old and squared_new <= squared_old
     return {
-        "construction_progress": count_improved and depth_nonincreasing,
+        "construction_progress": count_improved and maximum_new <= maximum_old and squared_new <= squared_old,
         "strict_pair_count_reduction": count_improved,
         "maximum_depth_nonincreasing": maximum_new <= maximum_old,
         "squared_depth_nonincreasing": squared_new <= squared_old,
@@ -947,6 +951,112 @@ def assess_point_clearance_construction_progress(before, after):
         "introduced_depths_m": [new[k] for k in introduced],
         "removed_typed_pairs": [list(k) for k in removed],
         "geometry_admitted": False, "accepted_physical_steps": 0,
+    }
+
+
+def assess_joint_clearance_construction_progress(before_points, after_points,
+                                                  before_surface, after_surface):
+    """Compare matching complete point and strict-185 surface audits.
+
+    A proposal advances construction only when the bone-surface crossing count
+    and combined point-plus-surface count both fall strictly, while maximum and
+    squared point penetration do not rise. This is not geometric, anatomical,
+    or native admission.
+    """
+    import math
+    import re
+
+    def candidate_hash(report, label):
+        if not isinstance(report, dict):
+            raise ValueError(label + " report must be an object")
+        value = report.get("candidate_sha256")
+        if not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None:
+            raise ValueError(label + " report lacks a valid candidate SHA-256")
+        return value
+
+    def topology(point_report, surface_report, label):
+        pairs = (("points", "surface_point_count"), ("faces", "surface_face_count"))
+        out = []
+        for point_key, surface_key in pairs:
+            value = point_report.get(point_key)
+            surface_value = surface_report.get(surface_key)
+            if type(value) is not int or value < 0 or type(surface_value) is not int or surface_value < 0:
+                raise ValueError(label + " report has missing or invalid topology dimensions")
+            if value != surface_value:
+                raise ValueError(label + " point/surface topology dimensions disagree")
+            out.append(value)
+        return tuple(out)
+
+    before_candidate = candidate_hash(before_points, "before point")
+    after_candidate = candidate_hash(after_points, "after point")
+    if candidate_hash(before_surface, "before surface") != before_candidate:
+        raise ValueError("before point/surface candidate SHA mismatch")
+    if candidate_hash(after_surface, "after surface") != after_candidate:
+        raise ValueError("after point/surface candidate SHA mismatch")
+
+    before_point_values = _read_point_clearance_report(before_points)
+    after_point_values = _read_point_clearance_report(after_points)
+    for report, label in ((before_points, "before"), (after_points, "after")):
+        if type(report.get("query_pair_count")) is not int or report["query_pair_count"] < 0:
+            raise ValueError(label + " point report has missing or invalid query-pair count")
+    before_topology = topology(before_points, before_surface, "before")
+    after_topology = topology(after_points, after_surface, "after")
+    if before_topology != after_topology:
+        raise ValueError("joint merit requires matching topology dimensions")
+
+    before_surface_summary = summarize_surface_crossing_report(before_surface, expected_banks=185)
+    expected_keys = [(row["body"], row["stable_bone_id"])
+                     for row in before_surface_summary["per_bank"]]
+    after_surface_summary = summarize_surface_crossing_report(
+        after_surface, expected_banks=185, expected_bank_keys=expected_keys)
+    before_keys = {(row["body"], row["stable_bone_id"]) for row in before_surface_summary["per_bank"]}
+    after_keys = {(row["body"], row["stable_bone_id"]) for row in after_surface_summary["per_bank"]}
+    if before_keys != after_keys or len(before_keys) != 185:
+        raise ValueError("joint merit requires the same 185 typed banks")
+
+    before_point_count, after_point_count = len(before_point_values), len(after_point_values)
+    before_surface_count = before_surface_summary["total_crossing_pairs"]
+    after_surface_count = after_surface_summary["total_crossing_pairs"]
+    before_total = before_point_count + before_surface_count
+    after_total = after_point_count + after_surface_count
+    before_max = max(before_point_values.values(), default=0.0)
+    after_max = max(after_point_values.values(), default=0.0)
+    before_squared = math.fsum(value * value for value in before_point_values.values())
+    after_squared = math.fsum(value * value for value in after_point_values.values())
+    strict_surface_reduction = after_surface_count < before_surface_count
+    strict_total_reduction = after_total < before_total
+    max_nonincreasing = after_max <= before_max
+    squared_nonincreasing = after_squared <= before_squared
+    progress = (strict_surface_reduction and strict_total_reduction
+                and max_nonincreasing and squared_nonincreasing)
+    final_zero_unchanged = before_total == 0 and after_total == 0
+    return {
+        "classification": ("JOINT_CLEARANCE_CONSTRUCTION_PROGRESS" if progress
+                           else "NO_JOINT_CLEARANCE_CONSTRUCTION_PROGRESS"),
+        "construction_progress": progress,
+        "strict_surface_pair_reduction": strict_surface_reduction,
+        "strict_total_pair_reduction": strict_total_reduction,
+        "maximum_depth_nonincreasing": max_nonincreasing,
+        "squared_depth_nonincreasing": squared_nonincreasing,
+        "topology_points": before_topology[0],
+        "topology_faces": before_topology[1],
+        "typed_bank_count": len(before_keys),
+        "before_candidate_sha256": before_candidate,
+        "after_candidate_sha256": after_candidate,
+        "before_point_pairs": before_point_count,
+        "after_point_pairs": after_point_count,
+        "before_surface_pairs": before_surface_count,
+        "after_surface_pairs": after_surface_count,
+        "before_total_pairs": before_total,
+        "after_total_pairs": after_total,
+        "before_maximum_point_depth_m": before_max,
+        "after_maximum_point_depth_m": after_max,
+        "before_squared_point_depth_m2": before_squared,
+        "after_squared_point_depth_m2": after_squared,
+        "final_zero_clearance_unchanged": final_zero_unchanged,
+        "geometry_admitted": False,
+        "accepted_physical_steps": 0,
+        "native_admission": False,
     }
 
 if __name__ == "__main__":
