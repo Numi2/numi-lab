@@ -1,0 +1,70 @@
+{
+  "artifact": "reference-layer-owner-095",
+  "status": "READ_ONLY_SOURCE_OWNER_AUDIT_NOT_PHYSICAL_QUALIFICATION",
+  "conclusion": {
+    "uniform_10mm_reference": false,
+    "authored_fields": "D28 has per-row construction fields, not one uniform measured thickness: 2411 rows; skin 0.5002064..2.4998107 mm, fat 0.5050804..9.9337731 mm.",
+    "generic_default": "SkinFatReference default fat is 10 mm with 2..20 mm bounds; owner calls it inferred local reference, not measured.",
+    "head": "75 selected head rows (body 23) classified O outside, I inside 1, D inside 75. Authored-rest O-I median 2.4508 mm, I-D 9.9006 mm. Exact 039 current-emitted spacing medians are O-I 2.4508 mm, I-D 10.2565 mm; current I-D range 1.8932..13.0265 mm.",
+    "regional_current_ID_medians_mm": {
+      "head_353": 9.491,
+      "forearm_214": 9.4743,
+      "hands_608": 3.7512
+    },
+    "interpretation": "10.2565 mm is posed/current emitted spacing, not authored reference thickness. Does not prove anatomical thickness or registration error.",
+    "update": "Per-row thickness is supported as candidate reference input, but geometry/topology must be regenerated. Preserve native parent-cell mass with same-material parent-child overlap accounting and typed donor moments; no global mass rescale."
+  },
+  "mass_rule": "compiled parent mass = inverse_rest_w_m3 * compiled_bulk_x; actual compiled density skin material 15 = 1000.0000610351562 kg/m3, fat material 16 = 900 kg/m3.",
+  "mass_by_material": [
+    {
+      "material_id": 15,
+      "region": "skin",
+      "cells": 14316,
+      "volume_m3": 0.0034525709479808473,
+      "mass_kg": 3.452571158709057
+    },
+    {
+      "material_id": 16,
+      "region": "fat",
+      "cells": 14316,
+      "volume_m3": 0.011652342866067663,
+      "mass_kg": 10.487108579460903
+    }
+  ],
+  "scope_limits": [
+    "No geometry, thickness, mass, or runtime changes.",
+    "073 transfer is offline accounting, not clearance or physical qualification."
+  ],
+  "pins": [
+    [
+      "canonical layer owner",
+      "/Users/n/Work/numi-human-connected-surface-069/publication-070/canonical/apps/NumiHumanCoarseTissuePreparation.hpp",
+      "27b3069cc96719ff86057b1f74b8c9ce1e47464d4f359d94bddd9abe4b3cb70c"
+    ],
+    [
+      "frozen D33 whole-body header",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-033-final091-regenerated-deltas-001/source/apps/NumiHumanWholeBodySkinReduction.hpp",
+      "0824cde4243340ec3a658eb730bc5caa856306b175d574b1bbeccfc0c84ffbf2"
+    ],
+    [
+      "D28 row fields",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-028-final080-omit-stale-inferred-hand-sites-001/generated/nodes.csv",
+      "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11"
+    ],
+    [
+      "head static report",
+      "/Users/n/Work/numi-human-connected-surface-069/anatomy-feasibility-090/report.json",
+      "7ec30993a076c936204dfb816bca8f0e6c28f39140fa3ba8fcc3d3806e6ddf90"
+    ],
+    [
+      "native compiled tet mass ledger",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-tets.csv",
+      "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461"
+    ],
+    [
+      "073 overlap transfer",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/native-parent-transfer-073/native-parent-transfer-073.npz",
+      "4421ee7534961fa6f85b2fe3c5bde728117a24c43ff69e6250c9498f45b1a55c"
+    ]
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "input": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/connected-clearance-091/run-001/iteration-001/candidate.npz",
+  "input_sha256": "f8cfd482522cf6647859e8f28e22c275ddcb002e752bd9b0bdaf3303ad4baf99",
+  "field": "points_world_f32",
+  "query_count": 7360,
+  "output": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/connected-clearance-091/run-001/iteration-001/query/points.csv",
+  "output_sha256": "5961f87d7d2a3a54859bb9d6b9011e944c76e2dce77312cf7d6b1e7cf81ea2af",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

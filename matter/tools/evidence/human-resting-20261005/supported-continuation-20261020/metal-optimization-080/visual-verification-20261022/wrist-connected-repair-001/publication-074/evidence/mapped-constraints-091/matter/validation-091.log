@@ -1,0 +1,16 @@
+test_connected_solver_gates_detail_without_repairing_render_output (test_human_skin_fat_embedded_surface.MappedSkinTests.test_connected_solver_gates_detail_without_repairing_render_output) ... ok
+test_detail_face_couples_disconnected_volume_components (test_human_skin_fat_embedded_surface.MappedSkinTests.test_detail_face_couples_disconnected_volume_components) ... ok
+test_free_inner_node_with_no_mapped_face_support (test_human_skin_fat_embedded_surface.MappedSkinTests.test_free_inner_node_with_no_mapped_face_support) ... ok
+test_linearization_filters_faces_without_free_support (test_human_skin_fat_embedded_surface.MappedSkinTests.test_linearization_filters_faces_without_free_support) ... ok
+test_mapped_cosine_rows_limit_lp_direction (test_human_skin_fat_embedded_surface.MappedSkinTests.test_mapped_cosine_rows_limit_lp_direction) ... ok
+test_mapped_true_area_and_cosine_random_direction_chain_rule (test_human_skin_fat_embedded_surface.MappedSkinTests.test_mapped_true_area_and_cosine_random_direction_chain_rule) ... ok
+test_positive_coarse_cell_can_fold_detailed_skin (test_human_skin_fat_embedded_surface.MappedSkinTests.test_positive_coarse_cell_can_fold_detailed_skin) ... ok
+test_reject_invalid_map_and_geometry (test_human_skin_fat_embedded_surface.MappedSkinTests.test_reject_invalid_map_and_geometry) ... ok
+test_sparse_chain_rule_and_inactive_vertex (test_human_skin_fat_embedded_surface.MappedSkinTests.test_sparse_chain_rule_and_inactive_vertex) ... ok
+test_exact_float32_detail_fold_backtracks_while_coarse_cell_stays_positive (test_human_skin_fat_connected_embedded_lp.ConnectedEmbeddedLPTests.test_exact_float32_detail_fold_backtracks_while_coarse_cell_stays_positive) ... ok
+test_surface_separator_rows_remain_hard_in_connected_lp (test_human_skin_fat_connected_embedded_lp.ConnectedEmbeddedLPTests.test_surface_separator_rows_remain_hard_in_connected_lp) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.025s
+
+OK

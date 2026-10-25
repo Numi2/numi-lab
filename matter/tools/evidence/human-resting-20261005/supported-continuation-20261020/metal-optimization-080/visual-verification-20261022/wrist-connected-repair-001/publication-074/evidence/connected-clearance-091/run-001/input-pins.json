@@ -1,0 +1,40 @@
+{
+  "input_npz": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/connectivity-001/run-001/candidate-tetrahedra-compacted.npz",
+  "input_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "starting_candidate_path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/connected-clearance-089/run-001/iteration-004/candidate.npz",
+  "starting_candidate_sha256": "30f761426a48b26c5bccf613d93ad8153ddd1db7ed2a5837ca667e2efa3e72a9",
+  "baseline_query_pairs_sha256": "10b44865b5296b20c32af7d18d066104bb663d35e4cd2c1927b95de5363257ad",
+  "baseline_query_nodes_sha256": "11d47fb7b23f773fd68793b394fba4ce5c46acd6d7de6bd4e100bff1260c3892",
+  "baseline_edge_audit_sha256": "acaabe9787254f027e92e9ca2f13dfb476dfc1b823fbc9af7390724d361850a8",
+  "transfer_rows_sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+  "coarse_reference_sha256": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2",
+  "coarse_faces_sha256": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+  "detail_payload_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+  "adapter_sha256": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+  "solver_sha256": "5759cae1f6058b05ae9e4a4baec77a641242e411822701109d3aee6bbb9f634e",
+  "embedded_surface_sha256": "1b955b7e49c2f4076fd0b8f51c08c78efb9d3c986a8b691f2f6ee3896a24f9c1",
+  "baseline": {
+    "query_rows": 7360,
+    "inside_pairs": 129,
+    "inside_nodes": 129,
+    "edge_bank_groups_with_hits": 2121,
+    "inside_signed_face_distance_min_mm": -6.767068363922619,
+    "inside_nearest_distance_max_mm": 6.93712586779058,
+    "note": "signed/nearest distances are source-query diagnostics, not a certified solid-penetration depth",
+    "mapped_skin_baseline": {
+      "mapped_skin_faces": 108987,
+      "mapped_skin_active_vertices": 54551,
+      "mapped_skin_area_ratio_min": 0.7377719055805282,
+      "mapped_skin_area_ratio_max": 1.7122628090284246,
+      "mapped_skin_normal_cosine_min": 0.5040168009496498,
+      "mapped_skin_nonpositive_normal_faces": 0,
+      "mapped_skin_geometry_pass": true,
+      "mapped_skin_native_shader_parity_qualified": false
+    }
+  },
+  "active_set_passes": 0,
+  "iteration_limit": 4,
+  "physical_steps": 0,
+  "geometry_admitted": false,
+  "scope": "connected whole skin-fat remesh with same-parent detail embedding; static authoring, not native physical qualification"
+}

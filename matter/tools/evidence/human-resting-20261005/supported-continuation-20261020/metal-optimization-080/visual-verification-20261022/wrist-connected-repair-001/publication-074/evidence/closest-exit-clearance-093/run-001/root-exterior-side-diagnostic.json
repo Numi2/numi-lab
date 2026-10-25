@@ -1,0 +1,284 @@
+{
+  "method": "dot queried closest-exit covector with barycentric interpolation of normalized reference O-D column direction, original source nodes only",
+  "candidate_reference_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "provenance_sha256": "187febe152aea545e89f0b40d0dad98a2b91c3e58136c4b949937ca238563dae",
+  "head_body": 23,
+  "eligible_edge_planes": 1028,
+  "generated_support_planes_excluded": 15,
+  "opposed_planes": 544,
+  "cosine_min": -0.9999457735932974,
+  "worst": [
+    {
+      "cosine": -0.9999457735932974,
+      "sample_query_row": 4326,
+      "mechanics_node_rows": [
+        5835,
+        6004
+      ],
+      "bone_stable_id": 28
+    },
+    {
+      "cosine": -0.9999302350672066,
+      "sample_query_row": 4415,
+      "mechanics_node_rows": [
+        5929,
+        6004
+      ],
+      "bone_stable_id": 28
+    },
+    {
+      "cosine": -0.9998987722966577,
+      "sample_query_row": 2631,
+      "mechanics_node_rows": [
+        4018,
+        6112
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9997096849731975,
+      "sample_query_row": 2380,
+      "mechanics_node_rows": [
+        3699,
+        6260
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9992960975318909,
+      "sample_query_row": 2192,
+      "mechanics_node_rows": [
+        3518,
+        6004
+      ],
+      "bone_stable_id": 28
+    },
+    {
+      "cosine": -0.9991532940927041,
+      "sample_query_row": 4470,
+      "mechanics_node_rows": [
+        6005,
+        6112
+      ],
+      "bone_stable_id": 28
+    },
+    {
+      "cosine": -0.9991511788854468,
+      "sample_query_row": 4473,
+      "mechanics_node_rows": [
+        6005,
+        6112
+      ],
+      "bone_stable_id": 28
+    },
+    {
+      "cosine": -0.9989546137543128,
+      "sample_query_row": 4629,
+      "mechanics_node_rows": [
+        6112,
+        6153
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9988224496214265,
+      "sample_query_row": 2372,
+      "mechanics_node_rows": [
+        3699,
+        6055
+      ],
+      "bone_stable_id": 28
+    },
+    {
+      "cosine": -0.9984954403505268,
+      "sample_query_row": 4466,
+      "mechanics_node_rows": [
+        6004,
+        6153
+      ],
+      "bone_stable_id": 28
+    },
+    {
+      "cosine": -0.9984450343308143,
+      "sample_query_row": 4476,
+      "mechanics_node_rows": [
+        6005,
+        6153
+      ],
+      "bone_stable_id": 28
+    },
+    {
+      "cosine": -0.9982472426206744,
+      "sample_query_row": 2639,
+      "mechanics_node_rows": [
+        4018,
+        6300
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9977552204632576,
+      "sample_query_row": 4627,
+      "mechanics_node_rows": [
+        6112,
+        6153
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.997717398745739,
+      "sample_query_row": 1404,
+      "mechanics_node_rows": [
+        3276,
+        5688
+      ],
+      "bone_stable_id": 28
+    },
+    {
+      "cosine": -0.9976786136622917,
+      "sample_query_row": 1407,
+      "mechanics_node_rows": [
+        3276,
+        5719
+      ],
+      "bone_stable_id": 28
+    },
+    {
+      "cosine": -0.9976410609595037,
+      "sample_query_row": 2383,
+      "mechanics_node_rows": [
+        3699,
+        6300
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9974611702550231,
+      "sample_query_row": 2422,
+      "mechanics_node_rows": [
+        3742,
+        6032
+      ],
+      "bone_stable_id": 28
+    },
+    {
+      "cosine": -0.9974605148285232,
+      "sample_query_row": 2419,
+      "mechanics_node_rows": [
+        3742,
+        6032
+      ],
+      "bone_stable_id": 28
+    },
+    {
+      "cosine": -0.9973456459845527,
+      "sample_query_row": 4681,
+      "mechanics_node_rows": [
+        6153,
+        6300
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9973324944509312,
+      "sample_query_row": 4631,
+      "mechanics_node_rows": [
+        6112,
+        6153
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9973049453284393,
+      "sample_query_row": 4685,
+      "mechanics_node_rows": [
+        6153,
+        6429
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9972503236818735,
+      "sample_query_row": 4683,
+      "mechanics_node_rows": [
+        6153,
+        6348
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9971550870018375,
+      "sample_query_row": 4679,
+      "mechanics_node_rows": [
+        6153,
+        6260
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9971035138625818,
+      "sample_query_row": 4479,
+      "mechanics_node_rows": [
+        6005,
+        6153
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9970245912471875,
+      "sample_query_row": 4469,
+      "mechanics_node_rows": [
+        6004,
+        6153
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9969299780761829,
+      "sample_query_row": 4558,
+      "mechanics_node_rows": [
+        6055,
+        6153
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9968784845393284,
+      "sample_query_row": 4623,
+      "mechanics_node_rows": [
+        6110,
+        6153
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9968489896003083,
+      "sample_query_row": 4530,
+      "mechanics_node_rows": [
+        6032,
+        6153
+      ],
+      "bone_stable_id": 29
+    },
+    {
+      "cosine": -0.9967999460436308,
+      "sample_query_row": 2370,
+      "mechanics_node_rows": [
+        3699,
+        6032
+      ],
+      "bone_stable_id": 28
+    },
+    {
+      "cosine": -0.9967976814195206,
+      "sample_query_row": 2634,
+      "mechanics_node_rows": [
+        4018,
+        6112
+      ],
+      "bone_stable_id": 29
+    }
+  ],
+  "interpretation": "closest exit does not select the connected exterior side. This directional diagnostic alone is not an anatomical solid clearance certificate. Run093 is not an admitted repair.",
+  "physical_steps": 0
+}

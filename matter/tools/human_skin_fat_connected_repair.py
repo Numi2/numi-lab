@@ -212,12 +212,37 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
         rows += [sparse.hstack([-AA,z(len(BF))]),sparse.hstack([AA,z(len(BF))]),
                  sparse.hstack([-AC,z(len(BF))])]
         bs += [ar-amin,amax-ar,ac-cmin]
+    embedded_lp_info=None
+    embedded_dihedral_lp_info=None
     if embedded_surface is not None:
-        ev,EJ=embedded_surface.projected_area_linearization(X,F)
-        emin,emax=embedded_surface.area_bounds
-        EJ=.001*EJ
-        rows += [sparse.hstack([-EJ,z(len(ev))]),sparse.hstack([EJ,z(len(ev))])]
-        bs += [ev-emin,emax-ev]
+        # Linearize only detailed faces touched by a free coarse node. The
+        # unchanged nonlinear Float32 gate below still checks every face.
+        surface_face_ids=embedded_surface.linearization_face_ids(F)
+        if len(surface_face_ids):
+            ids,ea,eaJ,ec,ecJ=embedded_surface.area_cosine_linearization(
+                X,F,face_ids=surface_face_ids)
+            emin,emax=embedded_surface.area_bounds
+            eaJ=.001*eaJ;ecJ=.001*ecJ
+            rows += [sparse.hstack([-eaJ,z(len(ea))]),sparse.hstack([eaJ,z(len(ea))]),
+                     sparse.hstack([-ecJ,z(len(ec))])]
+            bs += [ea-emin,emax-ea,ec-embedded_surface.normal_cosine_min]
+            embedded_lp_info={'face_ids':ids,'area':ea,'area_j_mm':eaJ,
+                              'cosine':ec,'cosine_j_mm':ecJ}
+        else:
+            embedded_lp_info={'face_ids':surface_face_ids}
+        if embedded_surface.max_dihedral_change_degrees is not None:
+            edge_ids,dihedral_delta,dihedral_J=embedded_surface.dihedral_change_linearization(X,F)
+            if len(edge_ids):
+                dihedral_J_mm=.001*dihedral_J
+                limit=np.deg2rad(embedded_surface.max_dihedral_change_degrees)
+                rows += [sparse.hstack([dihedral_J_mm,z(len(edge_ids))]),
+                         sparse.hstack([-dihedral_J_mm,z(len(edge_ids))])]
+                bs += [limit-dihedral_delta,limit+dihedral_delta]
+                embedded_dihedral_lp_info={'edge_ids':edge_ids,'delta':dihedral_delta,
+                    'jacobian_mm':dihedral_J_mm,'limit':limit}
+            else:
+                embedded_dihedral_lp_info={'edge_ids':edge_ids,'delta':dihedral_delta,
+                    'jacobian_mm':dihedral_J,'limit':np.deg2rad(embedded_surface.max_dihedral_change_degrees)}
     # Limit the actual P1 displacement gradient, instead of letting slender
     # cells force a tiny whole-body line search after unrelated nodal jumps.
     if max_incremental_gradient is not None:
@@ -245,11 +270,31 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
     report={'linear_method':linear_method,'lp_success':bool(result.success),'lp_status':int(result.status),'lp_message':result.message,
             'free_nodes':len(F),'touched_cells':len(active),'contact_rows':nc,'starting_contact_deficit_l1_mm':float(np.maximum(rhs,0).sum()),
             'reference_unchanged':True,'geometry_admitted':False,'accepted_physical_steps':0}
-    if embedded_surface is not None:report.update(embedded_surface.report(X))
+    if embedded_surface is not None:
+        report.update(embedded_surface.report(X))
+        if embedded_lp_info is not None:
+            ids=embedded_lp_info['face_ids']
+            report['mapped_skin_linearization_face_count']=int(len(ids))
+            report['mapped_skin_linearization_face_ids']=ids.tolist()
+        if embedded_dihedral_lp_info is not None:
+            report['mapped_skin_dihedral_linearization_edge_count']=int(len(embedded_dihedral_lp_info['edge_ids']))
+            report['mapped_skin_dihedral_linearization_edge_ids']=embedded_dihedral_lp_info['edge_ids'].tolist()
     if not result.success:return X.copy(),report
     delta=result.x[:nd].reshape(-1,3)*.001
     original=np.maximum(target-C@X.astype(float).ravel(),0).sum()
     report['lp_predicted_contact_deficit_l1_mm']=float(result.x[nd:nd+nc].sum())
+    if embedded_lp_info is not None and 'area' in embedded_lp_info:
+        earea=embedded_lp_info['area']+embedded_lp_info['area_j_mm']@result.x[:nd]
+        ecos=embedded_lp_info['cosine']+embedded_lp_info['cosine_j_mm']@result.x[:nd]
+        report.update({'lp_linearized_mapped_skin_area_ratio_min':float(np.min(earea)),
+                       'lp_linearized_mapped_skin_area_ratio_max':float(np.max(earea)),
+                       'lp_linearized_mapped_skin_normal_cosine_min':float(np.min(ecos))})
+    if embedded_dihedral_lp_info is not None and len(embedded_dihedral_lp_info['edge_ids']):
+        linearized=(embedded_dihedral_lp_info['delta']+
+                    embedded_dihedral_lp_info['jacobian_mm']@result.x[:nd])
+        report.update({
+            'lp_linearized_mapped_skin_dihedral_abs_change_max_degrees':float(np.degrees(np.abs(linearized).max())),
+            'lp_linearized_mapped_skin_dihedral_violations':int(np.count_nonzero(np.abs(linearized)>embedded_dihedral_lp_info['limit']+1e-8))})
     if BF is not None:
         report.update({
             'starting_boundary_area_ratio_min':float(ar.min()),
@@ -281,6 +326,12 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
             ix=lookup[S.indices[S.indptr[row]:S.indptr[row+1]]]
             ix=ix[ix>=0]
             for j in ix[1:]:er.append(ix[0]);ec.append(j);er.append(j);ec.append(ix[0])
+    if embedded_dihedral_lp_info is not None:
+        DJ=embedded_dihedral_lp_info['jacobian_mm'].tocsr()
+        for row in range(DJ.shape[0]):
+            ix=np.unique(DJ.indices[DJ.indptr[row]:DJ.indptr[row+1]]//3)
+            if len(ix)>1:
+                for j in ix[1:]:er.append(ix[0]);ec.append(j);er.append(j);ec.append(ix[0])
     graph=sparse.coo_matrix((np.ones(len(er)),(er,ec)),shape=(len(F),len(F))).tocsr()
     count,labels=connected_components(graph,directed=False)
     best=X.copy();components=[]
@@ -295,6 +346,12 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
             if lower_linear_matrix is not None:linear_pass=bool(np.min(L@Y.astype(float).ravel()-lt)>=-1e-9)
             surface_pass=True
             trial_area_min=trial_area_max=trial_cosine_min=None
+            trial_dihedral_max=None
+            dihedral_pass=True
+            if embedded_surface is not None and embedded_surface.max_dihedral_change_degrees is not None:
+                _,trial_delta=embedded_surface.dihedral_change_metrics(Y)
+                trial_dihedral_max=float(np.degrees(np.abs(trial_delta).max())) if len(trial_delta) else 0.
+                dihedral_pass=embedded_surface.dihedral_passes(Y)
             if BF is not None:
                 _,_,area,cosine=boundary_face_values_gradients(Y,O,BF)
                 trial_area_min=float(np.min(area));trial_area_max=float(np.max(area))
@@ -306,9 +363,10 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
                 'cell_J' if not (np.min(jj)>=lo and np.max(jj)<=hi) else
                 'hard_linear' if not linear_pass else
                 'coarse_surface' if not surface_pass else
+                'mapped_skin_dihedral' if not dihedral_pass else
                 'mapped_skin' if embedded_surface is not None and not embedded_surface.passes(Y) else
                 'contact_progress' if not deficit<original-1e-12 else None)
-            attempts.append({'fraction':float(scale),'first_failed_gate':first_failed,
+            attempt={'fraction':float(scale),'first_failed_gate':first_failed,
                 'q_min':float(qq.min()),'q_witness_row':int(qq.argmin()),
                 'J_min':float(jj.min()),'J_max':float(jj.max()),
                 'hard_linear_min_slack_m':None if lower_linear_matrix is None else float(np.min(L@Y.astype(float).ravel()-lt)),
@@ -316,7 +374,10 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
                 'contact_deficit_l1_mm':float(deficit*1000),
                 'boundary_area_ratio_min':trial_area_min,
                 'boundary_area_ratio_max':trial_area_max,
-                'boundary_normal_cosine_min':trial_cosine_min})
+                'boundary_normal_cosine_min':trial_cosine_min}
+            if trial_dihedral_max is not None:
+                attempt['mapped_skin_dihedral_abs_change_max_degrees']=trial_dihedral_max
+            attempts.append(attempt)
             if first_failed is None:
                 best=Y;accepted=True;break
         components.append({'nodes':len(nodes),'applied':accepted,'line_fraction':scale if accepted else 0.,'attempts':attempts})
@@ -404,7 +465,10 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
     report={'algorithm':'sparse_regularized_least_squares_exact_geometry_backtracking','free_nodes':len(F),
             'contact_rows':len(rhs),'active_contact_rows':int(hot.sum()),'starting_contact_deficit_l1_mm':float(np.maximum(rhs,0).sum()),
             'accepted_physical_steps':0,'geometry_admitted':False,'reference_unchanged':True}
-    if embedded_surface is not None:report.update(embedded_surface.report(X))
+    if embedded_surface is not None:
+        report.update(embedded_surface.report(X))
+        report['mapped_skin_linearization_face_count']=0
+        report['mapped_skin_linearization_face_ids']=[]
     if not np.any(hot):report['step_applied']=False;return X.copy(),report
     dcols=(3*F[:,None]+np.arange(3)).ravel()
     active=np.flatnonzero(np.isin(T,F).any(axis=1))
@@ -416,6 +480,7 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
     solve=lsmr(A@sparse.diags(scale),b,atol=1e-6,btol=1e-6,maxiter=int(iteration_limit))
     delta=(scale*solve[0]).reshape(-1,3)
     active_history=[]
+    embedded_lp_info=None
     if active_set_passes:
         # Fit all near-active connected constraints into the same sparse solve.
         # This avoids scaling the whole body because one node exceeded a local
@@ -431,10 +496,17 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
             hi-J[active],J[active]-lo,quality[active]-q_min,amax-av,av-amin,
             []if L is None else 1000*(L@X.astype(float).ravel()-lt)]
         if embedded_surface is not None:
-            ev,EJ=embedded_surface.projected_area_linearization(X,F)
-            emin,emax=embedded_surface.area_bounds
-            H=sparse.vstack([H,.001*EJ,-.001*EJ],format='csr')
-            h=np.r_[h,emax-ev,ev-emin]
+            surface_face_ids=embedded_surface.linearization_face_ids(F)
+            if len(surface_face_ids):
+                ids,ea,eaJ,ec,ecJ=embedded_surface.area_cosine_linearization(
+                    X,F,face_ids=surface_face_ids)
+                emin,emax=embedded_surface.area_bounds
+                eaJ=.001*eaJ;ecJ=.001*ecJ
+                H=sparse.vstack([H,eaJ,-eaJ,-ecJ],format='csr')
+                h=np.r_[h,emax-ea,ea-emin,ec-embedded_surface.normal_cosine_min]
+                embedded_lp_info={'face_ids':ids}
+            else:
+                embedded_lp_info={'face_ids':surface_face_ids}
         norm=np.sqrt(np.asarray(H.power(2).sum(axis=1)).ravel())
         keep=norm>1e-20
         if np.any((~keep)&(h<-1e-9)):raise ValueError('fixed authoring constraints are infeasible')
@@ -469,6 +541,9 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
                 'linear_stop':int(solve2[1]),'linear_iterations':int(solve2[2])})
             if not accepted:break
     report['active_set_history']=active_history
+    if embedded_surface is not None and embedded_lp_info is not None:
+        report['mapped_skin_linearization_face_count']=int(len(embedded_lp_info['face_ids']))
+        report['mapped_skin_linearization_face_ids']=embedded_lp_info['face_ids'].tolist()
     if not np.isfinite(delta).all():raise ValueError('nonfinite sparse authoring direction')
     report.update({'linear_stop':int(solve[1]),'linear_iterations':int(solve[2]),'linear_residual_norm':float(solve[3]),
                    'estimated_condition':float(solve[6]),'touched_cells':len(active)})

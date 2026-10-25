@@ -1,0 +1,85 @@
+{
+  "ancestry_numeric": {
+    "accepted_roundoff_tolerance": 1e-10,
+    "max_abs_row_sum_error": 2.220446049250313e-16,
+    "raw_barycentric_max": 0.96875,
+    "raw_barycentric_min": -1.6697754290362354e-13,
+    "weights_clamped_or_renormalized": false
+  },
+  "compact_counts": {
+    "direct_source_rows": 7233,
+    "generated_output_rows": 127,
+    "generated_parent_ancestry_choices": 183,
+    "materials": {
+      "1": 16238,
+      "2": 16558
+    },
+    "nodes": 7360,
+    "source_global_id_max": 8898,
+    "source_global_id_min": 1666,
+    "tetrahedra": 32796
+  },
+  "field_summary": {
+    "anatomical_outward_claim": false,
+    "direction_definition": "normalize(O_world_m[input_row % 2411] - D_world_m[input_row % 2411])",
+    "finite_rows": 7360,
+    "full_field_diagnostic": {
+      "anatomical_outward_claim": false,
+      "direct_output_rows": 7233,
+      "direction_agreement_tolerance": 1e-08,
+      "generated_ancestry_choices": 183,
+      "generated_direction_disagreements": [],
+      "generated_node_extension": "barycentric interpolation over every declared original native parent tetrahedron",
+      "generated_output_rows": 127,
+      "generated_parent_barycentric_max_row_sum_error": 2.220446049250313e-16,
+      "generated_parent_barycentric_min": -1.6697754290362354e-13,
+      "generated_parent_barycentric_roundoff_tolerance": 1e-10,
+      "maximum_generated_parent_direction_spread": 4.6084286565755714e-15,
+      "source_direction_definition": "normalize(O_world_m[col]-D_world_m[col]), col=source_global_node_id%column_count",
+      "source_global_ids_are_identity_labels": true,
+      "source_rows": 7233,
+      "strict_parent_agreement": false,
+      "topology_indices_use_source_input_rows": true,
+      "unresolved_output_rows": []
+    },
+    "generated_direction_disagreement_count": 0,
+    "generated_field": "raw barycentric prolongation through every declared native parent tet; normalize each candidate; compare all candidate directions per generated node",
+    "maximum_parent_direction_spread": 4.6084286565755714e-15,
+    "strict_parent_agreement": false,
+    "unresolved_rows": []
+  },
+  "geometry_gates": {
+    "anatomical_outward_or_bone_clearance_claim": false,
+    "mesh_or_source_changed": false,
+    "ray_queries_run": false,
+    "source_field_only": true
+  },
+  "inputs": {
+    "compact_candidate_npz": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/connectivity-001/run-001/candidate-tetrahedra-compacted.npz",
+      "sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db"
+    },
+    "compact_point_domain": "084 compacted reference/current candidate",
+    "global_source_ids_semantics": "identity labels only; source-input row order carries topology and O/I/D column index",
+    "native_parent_tet_domain": "old_tetrahedra rows in native source candidate; vertex indices are source-input rows 0..7232",
+    "source_candidate_npz": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz",
+      "sha256": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc"
+    }
+  },
+  "output": {
+    "keys": [
+      "source_outward_direction_by_compact_output_row",
+      "source_global_node_ids",
+      "source_input_row_by_compact_output_row",
+      "generated_output_rows",
+      "generated_parent_output_rows",
+      "generated_parent_native_tet_rows",
+      "generated_parent_material_ids",
+      "generated_parent_barycentric_raw"
+    ],
+    "npz": "/Users/numi/Work/numi-human-connected-surface-069/closest-exit-clearance-098/source-field-audit-001/source-outward-field.npz",
+    "sha256": "048f4f37354475bba48bd9427e8fb6f9723da22e1b5f2c3cf4de7485e386570a"
+  },
+  "schema": "source-outward-field-audit-098-v1"
+}

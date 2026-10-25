@@ -1,0 +1,36 @@
+{
+  "changes": [
+    "Compose true area-ratio and oriented normal-cosine derivatives from detailed faces through the sparse detail-to-coarse displacement map.",
+    "Linearize only faces with nonzero support from the current free coarse-node set and record their exact zero-based face IDs in solver reports.",
+    "Keep the full-face mapped Float32 nonlinear gate unchanged; retain projected-area API including all-face default and optional scoped faces.",
+    "Return empty Jacobians for a free-node set with no mapped-face support."
+  ],
+  "limitations": [
+    "Tests cover analytic chain rule, LP cosine constraint, active-face selection, empty-support behavior, and existing mapped-surface exact backtracking.",
+    "No whole-body geometry solve, native shader parity, material, mass, or physical qualification was run."
+  ],
+  "output_sha256": {
+    "human_skin_fat_connected_repair.py": "5759cae1f6058b05ae9e4a4baec77a641242e411822701109d3aee6bbb9f634e",
+    "human_skin_fat_embedded_surface.py": "1b955b7e49c2f4076fd0b8f51c08c78efb9d3c986a8b691f2f6ee3896a24f9c1",
+    "human_skin_fat_surface_separation.py": "cafecf587c641b67c709ffa5c4633f5428dfe6fa979e856420662e1d0764a244",
+    "test_human_skin_fat_connected_embedded_lp.py": "1f8f0c8b3658c881263a885db0c0a1586181a0d942ca8d14ef120f4390a369d6",
+    "test_human_skin_fat_embedded_surface.py": "6edaa545da034cc146c3240678359c470791dfda64e0b45fcbcc9bb30aa0be20",
+    "validation-091.log": "53617c213a2d875967d677910cf24c1ed61c89851cc73484dbf96da9f82a41e2"
+  },
+  "scope": "Isolated mapped-skin LP linearization extension; no candidate geometry or native run",
+  "source_inputs": {
+    "canonical_embedded_lp_test_p073": "1f8f0c8b3658c881263a885db0c0a1586181a0d942ca8d14ef120f4390a369d6",
+    "canonical_embedded_surface_p073": "31d7f036c9795b90e761e5713250e6a5ddbf07a71b7d3bec9e344e043d0cb60e",
+    "canonical_embedded_surface_test_p073_before_extension": "83faa36a775a8fa132f6df2539ffef51aeccf3e65f187b5b6a09ae7bdf470019",
+    "canonical_repair_p073": "85729db567d81946a59b33772823ca2235cfd56a27bfac0a5976067c790a62d2",
+    "canonical_surface_separation_p073": "cafecf587c641b67c709ffa5c4633f5428dfe6fa979e856420662e1d0764a244"
+  },
+  "status": "PASS_FOCUSED_SOURCE_TESTS",
+  "validation": {
+    "command": "cd matter/tools && /Users/n/numi-human-prep-venv-20261005/bin/python -m py_compile human_skin_fat_connected_repair.py human_skin_fat_embedded_surface.py test_human_skin_fat_embedded_surface.py test_human_skin_fat_connected_embedded_lp.py human_skin_fat_surface_separation.py && /Users/n/numi-human-prep-venv-20261005/bin/python -m unittest -v test_human_skin_fat_embedded_surface.py test_human_skin_fat_connected_embedded_lp.py",
+    "host": "numi.local",
+    "python": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "python_version": "3.13.16",
+    "result": "11 tests passed"
+  }
+}

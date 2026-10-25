@@ -1,0 +1,67 @@
+waiting_for_human_geometry_slot pid=17235
+acquired_human_geometry_slot pid=17235
+{
+  "construction_bound_degrees": 15.0,
+  "bound_is_anatomical_acceptance": false,
+  "source_sha256": {
+    "embedded_owner": "06a1032c883854bb338e7489c0cdb76d75b15aa0a024dc4545499088aa9602da",
+    "compacted_mesh": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "mapped_matrix": "55329313bf9c2c3b613fcd7eb52dd9b7b453520dd1b4a14e0e0d6ac457ce8519"
+  },
+  "baseline": {
+    "mapped_skin_faces": 108987,
+    "mapped_skin_active_vertices": 54551,
+    "mapped_skin_area_ratio_min": 0.9999999999999998,
+    "mapped_skin_area_ratio_max": 1.0000000000000002,
+    "mapped_skin_normal_cosine_min": 0.9999999999999996,
+    "mapped_skin_nonpositive_normal_faces": 0,
+    "mapped_skin_geometry_pass": true,
+    "mapped_skin_native_shader_parity_qualified": false,
+    "mapped_skin_dihedral_constraint_enabled": true,
+    "mapped_skin_dihedral_edge_count": 163423,
+    "mapped_skin_dihedral_change_bound_degrees": 15.0,
+    "mapped_skin_dihedral_abs_change_max_degrees": 0.0,
+    "mapped_skin_dihedral_abs_change_p95_degrees": 0.0,
+    "mapped_skin_dihedral_violations": 0,
+    "mapped_skin_dihedral_geometry_pass": true
+  },
+  "candidates": {
+    "091": {
+      "candidate_sha256": "0675413e628d157cf48fc8a00508ed25b718126c40881fc3e5c03cdb069bb903",
+      "mapped_skin_faces": 108987,
+      "mapped_skin_active_vertices": 54551,
+      "mapped_skin_area_ratio_min": 0.623379049282664,
+      "mapped_skin_area_ratio_max": 1.8830151557532562,
+      "mapped_skin_normal_cosine_min": 0.5137740752138223,
+      "mapped_skin_nonpositive_normal_faces": 0,
+      "mapped_skin_geometry_pass": false,
+      "mapped_skin_native_shader_parity_qualified": false,
+      "mapped_skin_dihedral_constraint_enabled": true,
+      "mapped_skin_dihedral_edge_count": 163423,
+      "mapped_skin_dihedral_change_bound_degrees": 15.0,
+      "mapped_skin_dihedral_abs_change_max_degrees": 76.54212970793404,
+      "mapped_skin_dihedral_abs_change_p95_degrees": 4.455081240053433,
+      "mapped_skin_dihedral_violations": 1205,
+      "mapped_skin_dihedral_geometry_pass": false
+    },
+    "093": {
+      "candidate_sha256": "387477869e6c19925f4ba96549c83cbb013578fe5eb4d2e6544c70b36309d1d5",
+      "mapped_skin_faces": 108987,
+      "mapped_skin_active_vertices": 54551,
+      "mapped_skin_area_ratio_min": 0.6511808657798094,
+      "mapped_skin_area_ratio_max": 1.7891446030600653,
+      "mapped_skin_normal_cosine_min": 0.5064766914609588,
+      "mapped_skin_nonpositive_normal_faces": 0,
+      "mapped_skin_geometry_pass": false,
+      "mapped_skin_native_shader_parity_qualified": false,
+      "mapped_skin_dihedral_constraint_enabled": true,
+      "mapped_skin_dihedral_edge_count": 163423,
+      "mapped_skin_dihedral_change_bound_degrees": 15.0,
+      "mapped_skin_dihedral_abs_change_max_degrees": 72.78833648043911,
+      "mapped_skin_dihedral_abs_change_p95_degrees": 3.413932914670693,
+      "mapped_skin_dihedral_violations": 755,
+      "mapped_skin_dihedral_geometry_pass": false
+    }
+  },
+  "physical_steps": 0
+}

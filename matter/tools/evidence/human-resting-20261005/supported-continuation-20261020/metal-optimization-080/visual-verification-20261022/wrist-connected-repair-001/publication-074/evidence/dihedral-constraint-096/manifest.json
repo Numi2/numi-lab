@@ -1,0 +1,76 @@
+{
+  "coverage": [
+    "094 signed orientation and opt-in nonlinear emitted-F32 gate",
+    "random mapped-W central directional derivative",
+    "near-flat derivative stability",
+    "periodic wrapped delta",
+    "inactive free-support returns empty safe sparse rows",
+    "captured coupled LP verifies paired hard rows and bound right-hand sides",
+    "existing P074 embedded and connected-owner regression tests"
+  ],
+  "files": {
+    "README.md": {
+      "bytes": 1703,
+      "sha256": "331f35620d772a71952c8018aa76372a2049c2b1470275ea34074ef9811b7bac"
+    },
+    "matter/tools/human_skin_fat_connected_repair.py": {
+      "bytes": 42063,
+      "sha256": "3b2019f30f1f17746f828231356fdf349131607c3234eeb894ffa65b223a6d02"
+    },
+    "matter/tools/human_skin_fat_embedded_surface.py": {
+      "bytes": 19010,
+      "sha256": "06a1032c883854bb338e7489c0cdb76d75b15aa0a024dc4545499088aa9602da"
+    },
+    "matter/tools/test_human_skin_fat_connected_repair.py": {
+      "bytes": 9450,
+      "sha256": "59c820b42d9608cd22f365f690fb4343ab5e848502f4612108061a0ae15d1612"
+    },
+    "matter/tools/test_human_skin_fat_embedded_surface.py": {
+      "bytes": 9632,
+      "sha256": "6edaa545da034cc146c3240678359c470791dfda64e0b45fcbcc9bb30aa0be20"
+    },
+    "test-run.log": {
+      "bytes": 99,
+      "sha256": "5ef97ac2a556a403f6c7cd967fe2b594832bb86b4986478fde21647688986199"
+    },
+    "tests/test_dihedral_constraint.py": {
+      "bytes": 5893,
+      "sha256": "5a1954578624d296df8d4e451df8fcfd893c30d7bb85a3ec9811a4b39b018e8b"
+    }
+  },
+  "limits": [
+    "No production/native source was changed or run.",
+    "No anatomical acceptance bound was selected; degree bound is caller-configured.",
+    "Only two-face manifold interior edges have a dihedral; boundary and nonmanifold edges are omitted."
+  ],
+  "schema": "dihedral-constraint-096/v1",
+  "scope": "Optional fixed-origin mapped detailed-surface signed-dihedral change safeguard for offline connected construction.",
+  "source_pins": {
+    "P074_connected_repair_test": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/publication-074/canonical/matter/tools/test_human_skin_fat_connected_repair.py",
+      "sha256": "59c820b42d9608cd22f365f690fb4343ab5e848502f4612108061a0ae15d1612"
+    },
+    "P074_embedded_surface": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/publication-074/canonical/matter/tools/human_skin_fat_embedded_surface.py",
+      "sha256": "1b955b7e49c2f4076fd0b8f51c08c78efb9d3c986a8b691f2f6ee3896a24f9c1"
+    },
+    "P074_embedded_surface_test": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/publication-074/canonical/matter/tools/test_human_skin_fat_embedded_surface.py",
+      "sha256": "6edaa545da034cc146c3240678359c470791dfda64e0b45fcbcc9bb30aa0be20"
+    },
+    "P074_repair": {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/publication-074/canonical/matter/tools/human_skin_fat_connected_repair.py",
+      "sha256": "5759cae1f6058b05ae9e4a4baec77a641242e411822701109d3aee6bbb9f634e"
+    }
+  },
+  "status": "isolated-tested-draft; not canonical and not physically admitted",
+  "verification": {
+    "compile": "py_compile passed for both modified owner modules",
+    "host": "numi.local",
+    "pytest": "20 passed in 0.18s",
+    "pytest_output_sha256": "5ef97ac2a556a403f6c7cd967fe2b594832bb86b4986478fde21647688986199",
+    "python": "/opt/homebrew/opt/python@3.15/bin/python3.15",
+    "python_version": "3.15.0",
+    "test_command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q matter/tools/test_human_skin_fat_embedded_surface.py matter/tools/test_human_skin_fat_connected_repair.py tests/test_dihedral_constraint.py"
+  }
+}

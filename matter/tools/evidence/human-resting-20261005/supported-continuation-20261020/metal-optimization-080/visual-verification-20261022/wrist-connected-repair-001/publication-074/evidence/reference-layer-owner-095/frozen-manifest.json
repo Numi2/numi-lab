@@ -1,0 +1,74 @@
+{
+  "artifact": "reference-layer-owner-095-final",
+  "artifacts": [
+    {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/D/reference-layer-owner-095/analysis-001.json",
+      "sha256": "1ccefd6a202b96148c3d21c9f10f0ae247a1fcf53fdc864598f57eb0be9879b4",
+      "size_bytes": 4214
+    },
+    {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/D/reference-layer-owner-095/README-001.md",
+      "sha256": "1768d93b5f32c8f71b6a076b65fb79bc713496ddeac45bd28bed3df612af446f",
+      "size_bytes": 1111
+    },
+    {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/D/reference-layer-owner-095/analysis.json",
+      "sha256": "cef6b2c9e1d102eb0534aeff095f31d5a61b6ba99efdb4873c7a43fb081626c5",
+      "size_bytes": 15600
+    },
+    {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/D/reference-layer-owner-095/README.md",
+      "sha256": "1bca55cad86379e4174009b961231db01cfa00956f0832845afdbe4367c7ce03",
+      "size_bytes": 1906
+    },
+    {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/D/reference-layer-owner-095/reproduce_095.py",
+      "sha256": "023ca92d1a82b45fb091913dea76cd123be339a4629e2104162925ed9e71a16f",
+      "size_bytes": 7733
+    },
+    {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/D/reference-layer-owner-095/reproduction-output.json",
+      "sha256": "6a27558fd38e6af60546927a5cc2c6cc16d8e5042a07e8bd1f08907804b2cd88",
+      "size_bytes": 7240
+    },
+    {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/D/reference-layer-owner-095/reproduction-run.jsonl",
+      "sha256": "6a27558fd38e6af60546927a5cc2c6cc16d8e5042a07e8bd1f08907804b2cd88",
+      "size_bytes": 7240
+    },
+    {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/D/reference-layer-owner-095/reproduction-run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    }
+  ],
+  "final_P073_receipt": [
+    {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/publication-073/evidence/native-parent-transfer-085c-complete/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/partition-receipt-manifest-004.json",
+      "role": "final P073 parent-local partition receipt",
+      "sha256": "67e16865e40e6b30d6534a0f9a9c8e6f8f13ea543aa323c9d539d30c6c8785de",
+      "size_bytes": 14685
+    },
+    {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/publication-073/evidence/native-parent-transfer-085c-complete/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/native-parent-transfer-085c-parent-local-partition.npz",
+      "role": "final P073 parent-local partition payload",
+      "sha256": "300e435da66fa372566e3c394446e7b7e409be064e943ebd4dd7bd795291933a",
+      "size_bytes": 6609619
+    },
+    {
+      "path": "/Users/n/Work/numi-human-connected-surface-069/publication-073/evidence/native-parent-transfer-085c-complete/local-coverage-precision-004-fix001/parent-local-partition-004-fix002/transfer-report-parent-local-partition-004.json",
+      "role": "final P073 transfer report",
+      "sha256": "cc68137c4b6f2c854ebf8003aa90df60a0c30412fb18f8710c502129648f9447",
+      "size_bytes": 4352
+    }
+  ],
+  "interpretation": "No source geometry/mass/runtime change; not physical/native qualification.",
+  "reproduction_input_sha256": {
+    "/Users/n/Work/numi-human-connected-surface-069/anatomy-feasibility-090/report.json": "7ec30993a076c936204dfb816bca8f0e6c28f39140fa3ba8fcc3d3806e6ddf90",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-tets.csv": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-028-final080-omit-stale-inferred-hand-sites-001/generated/donor-frames-fullweights.csv": "3a1c4220172a5b4050e6502031c80d9c93ea23cee7d0a6e4a751fac6c2f7e4e7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-028-final080-omit-stale-inferred-hand-sites-001/generated/nodes.csv": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11"
+  },
+  "status": "FROZEN_SOURCE_AUDIT_AND_REPRODUCTION"
+}

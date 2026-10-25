@@ -1,0 +1,38 @@
+{
+  "sample_build": {
+    "edge_bank_groups": 1802,
+    "span_midpoint_samples": 4782,
+    "endpoint_parity_contradiction_count": 0,
+    "endpoint_parity_contradictions": [],
+    "identical_t_duplicate_witnesses_coalesced": 0,
+    "f32_collapsed_sample_query_rows": [],
+    "mechanics_query_row_mapping_count": 7360,
+    "sample_query_row_domain": "separate from mechanics_node_row; each sample maps to edge endpoint nodes",
+    "crossing_barycentric_identity": {
+      "witnesses": 2980,
+      "max_edge_to_triangle_residual_m": 3.98609107286759e-17,
+      "tolerance_m": 5e-09,
+      "passed": true
+    }
+  },
+  "sample_query_rows": 4782,
+  "target_inside_midpoints": 1851,
+  "target_outside_midpoints": 2026,
+  "target_aabb_outside_midpoints": 905,
+  "actual_inside_bank_nearest_exit_constraints": 1981,
+  "sample_query_pairs": 5315,
+  "aabb_coverage": "complete over all 185 banks",
+  "sample_points_csv_identity": {
+    "rows": 4782,
+    "max_decimal_roundtrip_error_m": 0.0,
+    "bitwise_sample_identity": true
+  },
+  "max_query_local_transform_residual_m": 5.721958498152797e-17,
+  "nearest_exit_barycentric_residual_max_m": 1.7850169700549308e-16,
+  "expected_actual_classification_disagreements": [],
+  "f32_collapsed_sample_query_rows": [],
+  "query_receipt_sha256": "1d7825820460a4bfb9c2f4bcd05c8da50e6465d234d192143c22e65d60b014b0",
+  "sample_mapping_sha256": "76914d11590317c2b717ea19882265aaa247dba78d95217253d53d6327579174",
+  "sample_npz_sha256": "0f54a6be3d0c3ff4fa6240e701eea3ce90e5624e7040a2126bf9513315593794",
+  "interpretation": "every nonzero exact-hit interval is queried; actual inside pairs receive measured nearest-exit planes; actual outside intervals receive no plane"
+}

@@ -1,0 +1,199 @@
+{
+  "compiled_native_mass_by_material": {
+    "15": {
+      "cell_count": 14316,
+      "compiled_density_kg_m3": 1000.0000610351562,
+      "compiled_mass_kg": 3.452571158709054,
+      "reference_volume_m3": 0.003452570947980847
+    },
+    "16": {
+      "cell_count": 14316,
+      "compiled_density_kg_m3": 900.0,
+      "compiled_mass_kg": 10.487108579460898,
+      "reference_volume_m3": 0.011652342866067663
+    }
+  },
+  "field_ranges_mm": {
+    "fat": {
+      "count": 2411,
+      "max_mm": 9.933773113702658,
+      "median_mm": 9.818523061855315,
+      "min_mm": 0.5050804237096452
+    },
+    "row_count": 2411,
+    "skin": {
+      "count": 2411,
+      "max_mm": 2.4998107482138643,
+      "median_mm": 2.4507803677068307,
+      "min_mm": 0.5002063838721457
+    }
+  },
+  "head_selected_iteration003_D_inside": {
+    "body_index": 23,
+    "current_ID_mm": {
+      "count": 75,
+      "max_mm": 13.026497122347793,
+      "median_mm": 10.256496356107435,
+      "min_mm": 1.8931732683524514
+    },
+    "current_OI_mm": {
+      "count": 75,
+      "max_mm": 2.5085897770949956,
+      "median_mm": 2.4507786365334536,
+      "min_mm": 1.3051400440874472
+    },
+    "rest_field_ID_mm": {
+      "count": 75,
+      "max_mm": 9.902047034786378,
+      "median_mm": 9.900604061561266,
+      "min_mm": 3.525023197455966
+    },
+    "rest_field_OI_mm": {
+      "count": 75,
+      "max_mm": 2.4516503143092203,
+      "median_mm": 2.450801516855806,
+      "min_mm": 2.4090118798121165
+    },
+    "rest_geometry_ID_mm": {
+      "count": 75,
+      "max_mm": 9.902047034786378,
+      "median_mm": 9.900604061561266,
+      "min_mm": 3.525023197455966
+    },
+    "rest_geometry_OI_mm": {
+      "count": 75,
+      "max_mm": 2.4516503143092203,
+      "median_mm": 2.450801516855806,
+      "min_mm": 2.4090118798121165
+    },
+    "row_count": 75
+  },
+  "inputs_sha256": {
+    "/Users/n/Work/numi-human-connected-surface-069/anatomy-feasibility-090/report.json": "7ec30993a076c936204dfb816bca8f0e6c28f39140fa3ba8fcc3d3806e6ddf90",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-tets.csv": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-028-final080-omit-stale-inferred-hand-sites-001/generated/donor-frames-fullweights.csv": "3a1c4220172a5b4050e6502031c80d9c93ea23cee7d0a6e4a751fac6c2f7e4e7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-028-final080-omit-stale-inferred-hand-sites-001/generated/nodes.csv": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11"
+  },
+  "interpretation": "Current emitted distances are posed query spacing, not authored reference thickness or anatomical measurements.",
+  "regional_by_donor_body_index": {
+    "bilateral_arm_bone_donors_41_42_43_91_92_93": {
+      "authored_rest_field_ID_mm": {
+        "count": 214,
+        "max_mm": 9.902325959599416,
+        "median_mm": 9.660809255951412,
+        "min_mm": 0.5498737256372283
+      },
+      "authored_rest_field_OI_mm": {
+        "count": 214,
+        "max_mm": 2.46241573450578,
+        "median_mm": 2.450497937931939,
+        "min_mm": 0.6427529667143682
+      },
+      "authored_rest_geometry_ID_mm": {
+        "count": 214,
+        "max_mm": 9.902325959599416,
+        "median_mm": 9.660809255951412,
+        "min_mm": 0.5498737256372283
+      },
+      "authored_rest_geometry_OI_mm": {
+        "count": 214,
+        "max_mm": 2.46241573450578,
+        "median_mm": 2.450497937931939,
+        "min_mm": 0.6427529667143682
+      },
+      "emitted_current_ID_mm": {
+        "count": 214,
+        "max_mm": 9.902309724628045,
+        "median_mm": 9.474330088690566,
+        "min_mm": 0.5498837839014353
+      },
+      "emitted_current_OI_mm": {
+        "count": 214,
+        "max_mm": 2.4624035038851275,
+        "median_mm": 2.4501926167526857,
+        "min_mm": 0.642757717488049
+      },
+      "rows": 214
+    },
+    "bilateral_hands": {
+      "authored_rest_field_ID_mm": {
+        "count": 608,
+        "max_mm": 9.90080841149918,
+        "median_mm": 3.775484939381898,
+        "min_mm": 0.5050804237096452
+      },
+      "authored_rest_field_OI_mm": {
+        "count": 608,
+        "max_mm": 2.4546671138843688,
+        "median_mm": 2.4501918685580093,
+        "min_mm": 0.5002063838721457
+      },
+      "authored_rest_geometry_ID_mm": {
+        "count": 608,
+        "max_mm": 9.90080841149918,
+        "median_mm": 3.775484939381898,
+        "min_mm": 0.5050804237096452
+      },
+      "authored_rest_geometry_OI_mm": {
+        "count": 608,
+        "max_mm": 2.4546671138843688,
+        "median_mm": 2.4501918685580093,
+        "min_mm": 0.5002063838721457
+      },
+      "emitted_current_ID_mm": {
+        "count": 608,
+        "max_mm": 11.85959736248146,
+        "median_mm": 3.7511883497709073,
+        "min_mm": 0.10755465328864292
+      },
+      "emitted_current_OI_mm": {
+        "count": 608,
+        "max_mm": 3.3730701318932783,
+        "median_mm": 2.450182161554158,
+        "min_mm": 0.4653488515320076
+      },
+      "rows": 608
+    },
+    "head_23": {
+      "authored_rest_field_ID_mm": {
+        "count": 353,
+        "max_mm": 9.902490897594975,
+        "median_mm": 9.900578201852682,
+        "min_mm": 0.5425964411694981
+      },
+      "authored_rest_field_OI_mm": {
+        "count": 353,
+        "max_mm": 2.4730148387619044,
+        "median_mm": 2.450788846786622,
+        "min_mm": 0.5361751727928811
+      },
+      "authored_rest_geometry_ID_mm": {
+        "count": 353,
+        "max_mm": 9.902490897594975,
+        "median_mm": 9.900578201852682,
+        "min_mm": 0.5425964411694981
+      },
+      "authored_rest_geometry_OI_mm": {
+        "count": 353,
+        "max_mm": 2.4730148387619044,
+        "median_mm": 2.450788846786622,
+        "min_mm": 0.5361751727928811
+      },
+      "emitted_current_ID_mm": {
+        "count": 353,
+        "max_mm": 13.026497122347793,
+        "median_mm": 9.490991866341014,
+        "min_mm": 0.5065699313445452
+      },
+      "emitted_current_OI_mm": {
+        "count": 353,
+        "max_mm": 2.961757534577675,
+        "median_mm": 2.4505008773488486,
+        "min_mm": 0.5361797482552945
+      },
+      "rows": 353
+    }
+  },
+  "status": "REPRODUCED_FROM_HASH_PINNED_INPUTS"
+}

@@ -1,0 +1,9 @@
+{
+  "input": "/Users/n/Work/numi-human-connected-surface-069/closest-exit-clearance-093/run-001/iteration-004/inside-edge-span-samples.npz",
+  "input_sha256": "0f54a6be3d0c3ff4fa6240e701eea3ce90e5624e7040a2126bf9513315593794",
+  "field": "points_world_f32",
+  "query_count": 4782,
+  "output": "/Users/n/Work/numi-human-connected-surface-069/closest-exit-clearance-093/run-001/iteration-004/midpoint-query/points.csv",
+  "output_sha256": "8e9a92a9466eaa4b52cf24dd2d90246189643dbcace5e410b3f7a7944f25b414",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}
