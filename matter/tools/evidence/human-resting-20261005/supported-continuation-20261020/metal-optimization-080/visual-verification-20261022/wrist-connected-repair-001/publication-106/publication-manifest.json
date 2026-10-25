@@ -1,0 +1,86 @@
+{
+  "base_commit": "82ea3e582775ab76d216b3e558d257e1bcebaa51",
+  "canonical_changes": [],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "a99bbcd38eefa6b47404e4a7fd122a030d8bbef26941f0caee44b21da2ecfdcc",
+      "bytes": 1193
+    },
+    {
+      "path": "evidence/archive-manifest.json",
+      "sha256": "c7f638ba448b9bbea793392ce72b0ff19d652301e75244b497f0eb794a1f25c3",
+      "bytes": 537370
+    },
+    {
+      "path": "evidence/construction-continuation-232-234.tar.xz",
+      "sha256": "6689e0a9b0a3113e6baf839c2451a27ff3a97b813a3fd055063f9ae93573480b",
+      "bytes": 40890960
+    },
+    {
+      "path": "evidence/object-manifest.json",
+      "sha256": "9d50e40ddfa03eec5dea71b06b239e67b659b66d0928276b9702d1d80f9d9808",
+      "bytes": 13674191
+    },
+    {
+      "path": "evidence/p105-remote-recovery-verification.json",
+      "sha256": "b6cb53fe2b6a9f71d61c7b1608dec58f640accae83fcd910b4b43db811d21262",
+      "bytes": 371
+    },
+    {
+      "path": "evidence/p105-root-publication-receipt.json",
+      "sha256": "c92e4655b1ac9989556219bafa23f67a546e714b643eb063023de3504a21f8b8",
+      "bytes": 622
+    },
+    {
+      "path": "evidence/p105-verified-local-retirement.json",
+      "sha256": "622011367f46208064cf8222b037c2237bb3503b6eb8c542d38341bb86b81d35",
+      "bytes": 529
+    },
+    {
+      "path": "evidence/selected-result.json",
+      "sha256": "8536c684ab3ff5bad702f7dc50b336a38d3fa390c1f742f63086ef22e04007b2",
+      "bytes": 4891
+    },
+    {
+      "path": "evidence/verified-object-retirement.json",
+      "sha256": "c4bcbe1fb23fcacdec1a0dd33ab247ea221cad01b7fe6d8009a1f23e7392fd92",
+      "bytes": 120995
+    },
+    {
+      "path": "source-pins.json",
+      "sha256": "39ba5d9823ede090ae9d02d02bac3d41f17fe2ee610baedbfbe0625162bffef6",
+      "bytes": 401
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-235/emit_empty_point_targets_235.py",
+      "sha256": "4367ecca6a2506d61d83a76ede4ea6449606c1b792fbb45fab9182a4a5a1fd43",
+      "bytes": 9780
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-235/test_empty_point_targets_235.py",
+      "sha256": "2830b5cf32b607fc7d8f11570477cd39d98bd0594a291b63838581378c7d9089",
+      "bytes": 8555
+    },
+    {
+      "path": "sources/run_connected_clearance_238.py",
+      "sha256": "dae3781464606ec991a46a079e17ee877db1d9c1c8cc3ea6a27db402dd93d593",
+      "bytes": 6907
+    },
+    {
+      "path": "sources/run_connected_clearance_239.py",
+      "sha256": "e1d55f2bf5599ecae8936a100e4f114e497fc6929ae44290fbb0ad328129eeba",
+      "bytes": 2210
+    },
+    {
+      "path": "sources/run_joint_clearance_continuation_232.py",
+      "sha256": "5035f1f1f3f90b82357b407c504e6a66ecb153a6ccfd88f6f1874e642f2ee081",
+      "bytes": 4741
+    },
+    {
+      "path": "sources/run_joint_clearance_continuation_234.py",
+      "sha256": "8db0b88c4296b7d803702ddb3f9aeae7abc9a40ee448174cbc88829e912c9fbd",
+      "bytes": 4951
+    }
+  ]
+}

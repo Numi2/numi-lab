@@ -1,0 +1,11 @@
+{
+  "base_commit": "82ea3e582775ab76d216b3e558d257e1bcebaa51",
+  "selected_candidate_sha256": "ec354fe9b32246ae944daf3864340491999fdd68e0f175e197d5df554a01ed55",
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "archive_local_restoration_verified": true,
+  "archive_members": 769,
+  "archive_uncompressed_bytes": 323201501,
+  "retirable_candidates": 48,
+  "retirable_bytes": 116212927
+}
