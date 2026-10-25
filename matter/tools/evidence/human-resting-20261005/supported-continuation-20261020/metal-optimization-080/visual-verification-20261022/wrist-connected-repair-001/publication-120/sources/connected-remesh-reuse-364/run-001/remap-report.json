@@ -1,0 +1,98 @@
+{
+  "constraint_use": "identity-preserving seed only; retained rows are not a complete current audit",
+  "constraints": {
+    "fixed_bone_rows_input": 1024,
+    "fixed_bone_rows_retained_identity_only": 933,
+    "fixed_bone_rows_stale_for_fresh_audit": 91,
+    "fixed_bone_triangle_geometry_copied_verbatim_mm": true,
+    "self_pairs_input": 4103,
+    "self_pairs_retained_identity_only": 3537,
+    "self_pairs_stale_for_fresh_audit": 566
+  },
+  "inputs": {
+    "fixed_bone": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/fixed-boundary/introduced-skin-bone-barriers.npz",
+      "sha256": "f8ba1b49a6cf11431161065776578b265324a965c1c3205e05ab4c7583301eb9"
+    },
+    "flip_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/same-parent-remesh-359/flip-proposal-report.json",
+      "sha256": "57a99f494042e4768e73b29b0348d892a8fdad7767dd016123777a9e047f0e78"
+    },
+    "legacy_base": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-002/attempt-004/local-183-fallback/backtrack/pass-008/candidate.npz",
+      "sha256": "73dcee97f00bd4135855e2cf4b2a568eff73a4200836204c92e115ddb6ca741c"
+    },
+    "remesh_input": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/global-275/backtrack/pass-002/candidate.npz",
+      "sha256": "2346d174df8b363bca2200c24589a36cf1ad6a4642a4b73a9a156a48e6826b25"
+    },
+    "remesh_output": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/same-parent-remesh-359/candidate.npz",
+      "sha256": "bc98b04d1035528c82c30aa6e929cd91159c6a17677ffcf9e3690d6866f76e20"
+    },
+    "self_pairs": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/joint-boundary-continuation-322/round-003/attempt-004/self-pairs.npy",
+      "sha256": "929d1fcb53ed0b4b6ba750aae6669b41725dc9c072f0f27309dd13734ab9dfbb"
+    }
+  },
+  "native_admission": false,
+  "no_357_358_witness_rows_reused": true,
+  "outputs": {
+    "changed-face-rows.npy": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-364/run-001/changed-face-rows.npy",
+      "sha256": "07be524cf272fc2f45c5da6ac6911e35e17eff3f26fdb131a0d984e891ff59f9"
+    },
+    "metadata-changed-face-rows.npy": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-364/run-001/metadata-changed-face-rows.npy",
+      "sha256": "07be524cf272fc2f45c5da6ac6911e35e17eff3f26fdb131a0d984e891ff59f9"
+    },
+    "metadata-only-face-rows.npy": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-364/run-001/metadata-only-face-rows.npy",
+      "sha256": "e734dac55ea9fbbe782af2d8c02c3c5992131906228afb2aaaf137d6f3ed74db"
+    },
+    "retained-fixed-bone-barriers.npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-364/run-001/retained-fixed-bone-barriers.npz",
+      "sha256": "55def913cb31fe61b5928bc1306756029681a68369140c4c23a0db330391e366"
+    },
+    "retained-self-pairs.npy": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-364/run-001/retained-self-pairs.npy",
+      "sha256": "5dd3f62516ba8cf364fcf9193adfb82bb00a4e7c2a0921850220950d6eb0f0ec"
+    },
+    "stale-fixed-bone-barriers.npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-364/run-001/stale-fixed-bone-barriers.npz",
+      "sha256": "52764a7756c2249571aed314c474a9af5d95e467ca3a24760ebea1092f33b527"
+    },
+    "stale-self-pairs.npy": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-364/run-001/stale-self-pairs.npy",
+      "sha256": "4e4536276880f8570f7d9fe8fa19a7ee90b134b60a17c24f9a3266fae949e40c"
+    },
+    "unsafe-face-rows.npy": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-364/run-001/unsafe-face-rows.npy",
+      "sha256": "07be524cf272fc2f45c5da6ac6911e35e17eff3f26fdb131a0d984e891ff59f9"
+    }
+  },
+  "required_followup": [
+    "rerun complete exact self-surface audit on the 359 candidate",
+    "rerun all 185 typed-bank skin-bone audits on the 359 candidate",
+    "combine fresh witnesses with retained identities only after auditing current geometry"
+  ],
+  "schema": "numi.connected_remesh_constraint_filter.v1",
+  "status": "PARTIAL_LEGACY_CONSTRAINT_FILTER",
+  "topology": {
+    "changed_face_rows_sha256": "781b80de19f016e1d00111babc8e42b594437d4bcac5401b54bd74627e388339",
+    "current_points_bitwise_unchanged_across_remesh": true,
+    "face_count": 41733,
+    "face_row_identity_semantics": "same row index only; no stable-ID or nearest-face inference",
+    "flip_report_changed_face_rows": 212,
+    "legacy_and_remesh_input_connectivity_sha256": "93d145d4f15babe57ae80c55687c1fcf015bc140f6f1b7128bb24b82d60013ce",
+    "legacy_base_points_bitwise_equal_to_remesh_input": false,
+    "matched_037_connectivity_synchronized": true,
+    "matched_037_reference_points_bitwise_unchanged_across_remesh": true,
+    "provenance_metadata_changed_face_row_count": 212,
+    "provenance_only_changed_face_rows": 0,
+    "remesh_output_connectivity_sha256": "ce908aee6732e02462c8ebcfeb05477d601e7f0dde58aed90128f8503094b50c",
+    "retained_constraints_are_identity_seeds_not_reused_geometry_coefficients": true,
+    "unsafe_face_row_count": 212,
+    "unsafe_face_rows_sha256": "781b80de19f016e1d00111babc8e42b594437d4bcac5401b54bd74627e388339"
+  }
+}

@@ -1,0 +1,205 @@
+{
+  "rows": [
+    {
+      "node": 18706,
+      "bank": 57,
+      "stable": 89,
+      "depth_mm": 2.9546113378514836,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 1.835285089685393,
+      "last_step_mm": 0.00017694148550984138
+    },
+    {
+      "node": 18580,
+      "bank": 64,
+      "stable": 98,
+      "depth_mm": 2.4978921968398162,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 2.3442582691883262,
+      "last_step_mm": 0.057392936093824364
+    },
+    {
+      "node": 19487,
+      "bank": 64,
+      "stable": 98,
+      "depth_mm": 2.439945903591831,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 3.3242955320234757,
+      "last_step_mm": 0.028044856303207726
+    },
+    {
+      "node": 18496,
+      "bank": 43,
+      "stable": 16,
+      "depth_mm": 2.341101647348568,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 5.936931777406733,
+      "last_step_mm": 0.008669607763164553
+    },
+    {
+      "node": 19818,
+      "bank": 59,
+      "stable": 95,
+      "depth_mm": 2.2786537728490766,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 6.196262656275293,
+      "last_step_mm": 0.14683087363358344
+    },
+    {
+      "node": 18834,
+      "bank": 109,
+      "stable": 114,
+      "depth_mm": 2.2782270993946145,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 3.7096150465945392,
+      "last_step_mm": 0.015620511369991008
+    },
+    {
+      "node": 18495,
+      "bank": 43,
+      "stable": 16,
+      "depth_mm": 2.24794587538155,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 5.739112247892301,
+      "last_step_mm": 0.0083418425238583
+    },
+    {
+      "node": 19663,
+      "bank": 109,
+      "stable": 114,
+      "depth_mm": 2.2029890227027598,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 4.339303548326635,
+      "last_step_mm": 0.037288958267555
+    },
+    {
+      "node": 19379,
+      "bank": 43,
+      "stable": 16,
+      "depth_mm": 2.171295958536778,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 6.412222063298688,
+      "last_step_mm": 0.019085060320270596
+    },
+    {
+      "node": 20182,
+      "bank": 43,
+      "stable": 16,
+      "depth_mm": 2.1546808015370575,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 5.202708348174908,
+      "last_step_mm": 0.011755760186822475
+    },
+    {
+      "node": 20198,
+      "bank": 43,
+      "stable": 16,
+      "depth_mm": 2.1455511254971826,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 6.843256261605901,
+      "last_step_mm": 0.01700796370857293
+    },
+    {
+      "node": 19222,
+      "bank": 114,
+      "stable": 117,
+      "depth_mm": 2.074403966759517,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 0.9321875289427257,
+      "last_step_mm": 0.005957786323463358
+    },
+    {
+      "node": 19104,
+      "bank": 124,
+      "stable": 123,
+      "depth_mm": 2.074223624996153,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 1.4681366131133662,
+      "last_step_mm": 0.009843164460810308
+    },
+    {
+      "node": 19703,
+      "bank": 43,
+      "stable": 16,
+      "depth_mm": 2.0548916361844145,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 5.10321787829455,
+      "last_step_mm": 0.00664778862698109
+    },
+    {
+      "node": 18491,
+      "bank": 43,
+      "stable": 16,
+      "depth_mm": 2.048254199325791,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 5.999294447639478,
+      "last_step_mm": 0.005029997267214237
+    },
+    {
+      "node": 18489,
+      "bank": 43,
+      "stable": 16,
+      "depth_mm": 2.0102265792093195,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 6.203368475491316,
+      "last_step_mm": 0.008874889422353786
+    },
+    {
+      "node": 19226,
+      "bank": 114,
+      "stable": 117,
+      "depth_mm": 2.008986727938268,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 0.9145115483209251,
+      "last_step_mm": 0.007022558564971486
+    },
+    {
+      "node": 19641,
+      "bank": 114,
+      "stable": 117,
+      "depth_mm": 1.9935226200213843,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 0.9868440883834,
+      "last_step_mm": 0.0177054782768481
+    },
+    {
+      "node": 19063,
+      "bank": 43,
+      "stable": 16,
+      "depth_mm": 1.989979842391256,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 6.915229422302567,
+      "last_step_mm": 0.003701851541803538
+    },
+    {
+      "node": 18901,
+      "bank": 124,
+      "stable": 123,
+      "depth_mm": 1.9898726255814934,
+      "native_anchor": false,
+      "fit_scope": true,
+      "source_displacement_mm": 0.8538557170022308,
+      "last_step_mm": 0.0038876041509163786
+    }
+  ],
+  "semantics": "diagnostic only; no acceptance change"
+}

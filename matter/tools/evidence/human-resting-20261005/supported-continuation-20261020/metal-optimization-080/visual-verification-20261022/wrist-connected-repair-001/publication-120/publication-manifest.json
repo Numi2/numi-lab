@@ -1,0 +1,168 @@
+{
+  "base_commit": "88fe6a94b93ec7568c1d137ebcc3647540456a53",
+  "canonical_changes": [],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "fd67a3a2c596c43dd2da4334e057c4c6723bcabb0e4199c4f9e3ac60b209e3a1",
+      "bytes": 2726
+    },
+    {
+      "path": "evidence/archive-manifest-368.json",
+      "sha256": "9df8fc67ece66f224558b2a627634ad48ae6a843c6402dd00d53ad696ce5f3a7",
+      "bytes": 11795
+    },
+    {
+      "path": "evidence/archive-manifest.json",
+      "sha256": "582b78cdc36d9bc6367955577a8d6c40a764f3f05b590369b04106480a4621de",
+      "bytes": 96911
+    },
+    {
+      "path": "evidence/candidate-362-814b879-near-001/point-depth-rows.npz",
+      "sha256": "d0c8712a8bb33adb46bd4c90c84010e78ec123279be23d4c9ac7192ed8c57577",
+      "bytes": 220538
+    },
+    {
+      "path": "evidence/candidate-362-814b879-near-001/report.json",
+      "sha256": "75b648488567bc4e59cfea813532c4269ce00c14ad9aec06ebfde6b3fadc85aa",
+      "bytes": 8455674
+    },
+    {
+      "path": "evidence/coherent-support-continuation-369-launch.json",
+      "sha256": "67af13019d1a707f5dc1bc5c3103348dd4252af8a6d51c7d47c0b826ab74bb9f",
+      "bytes": 10037
+    },
+    {
+      "path": "evidence/connected-coherent-recovery-362.tar.xz",
+      "sha256": "2cc348b8cbf85e4975196fe5ae65354d199d460172cfcc7f80d485b4d64b57a8",
+      "bytes": 13641924
+    },
+    {
+      "path": "evidence/connected-remesh-368.tar.xz",
+      "sha256": "086e003b405495eb61a37c79c261644fbea54bd3a03b9b9b203d06ac65859f5d",
+      "bytes": 3901600
+    },
+    {
+      "path": "evidence/deepest-point-blockers.json",
+      "sha256": "3cf3b4d1454fd8a2907c67d216ac8ed8ca5e34d04663022e8ca2e5df8e1e507f",
+      "bytes": 5256
+    },
+    {
+      "path": "evidence/driver-failure-and-recovery.json",
+      "sha256": "5a792015c287a5507c558a97cfff17f9add554b79cecf7f133eea3292c345fd2",
+      "bytes": 2095
+    },
+    {
+      "path": "evidence/independent-selected-verification.json",
+      "sha256": "b333d646ae823cae9ecbc37e4b2fd8ee92b6ba5710f5502548dc7ee67ef250dc",
+      "bytes": 3237
+    },
+    {
+      "path": "evidence/publication-119-remote-recovery-verification.json",
+      "sha256": "85c1976500dc5fd54ded57680b369241463bab91d037eba7a58af9eb37d9f269",
+      "bytes": 371
+    },
+    {
+      "path": "evidence/root-combined-tests.json",
+      "sha256": "e44e3ca9666d17e0b10fc33b22e020782dfcd91d1ddc0496de3cb658411b58e9",
+      "bytes": 818
+    },
+    {
+      "path": "evidence/root-tests.json",
+      "sha256": "31323bd02586b0050cb8d08596504179e9b70e21d8acd938401949b35672908e",
+      "bytes": 216
+    },
+    {
+      "path": "sources/build_candidate_362_near_001.py",
+      "sha256": "ad8289f57814ebb1cc7e9f2166e3306eec40d674fd47f80692a24b5eb0ab0346",
+      "bytes": 13476
+    },
+    {
+      "path": "sources/coherent-support-continuation-363/run_coherent_target_continuation_363.py",
+      "sha256": "e89f71d080d7ef14f8d788d717c21dba55706f6d6d1bd32da2fd09818bc063fe",
+      "bytes": 100072
+    },
+    {
+      "path": "sources/coherent-support-continuation-363/test_run_coherent_target_continuation_363.py",
+      "sha256": "5f8ee968184977fb7e0be233f7173e869b3b00bb1c60198f30a6be18f09b1470",
+      "bytes": 4707
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-365/propose_joint_clearance_witnesses_365.py",
+      "sha256": "b06af3a336fbf23fddfdd75f45353d4b27d1354978472cc5dbb3a4b7c7527203",
+      "bytes": 186547
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-365/test_propose_joint_clearance_witnesses_365.py",
+      "sha256": "333452f1f8a6a4a43da1cd813b12873963b1119568af2ce11033834b5e01d939",
+      "bytes": 39724
+    },
+    {
+      "path": "sources/connected-remesh-reuse-364/remap_legacy_face_constraints_364.py",
+      "sha256": "79fc0c2f4ad253a71057bee787f35300a713c27e15e2000a0f29a893e22d4a9e",
+      "bytes": 16562
+    },
+    {
+      "path": "sources/connected-remesh-reuse-364/run-001/changed-face-rows.npy",
+      "sha256": "07be524cf272fc2f45c5da6ac6911e35e17eff3f26fdb131a0d984e891ff59f9",
+      "bytes": 1824
+    },
+    {
+      "path": "sources/connected-remesh-reuse-364/run-001/metadata-changed-face-rows.npy",
+      "sha256": "07be524cf272fc2f45c5da6ac6911e35e17eff3f26fdb131a0d984e891ff59f9",
+      "bytes": 1824
+    },
+    {
+      "path": "sources/connected-remesh-reuse-364/run-001/metadata-only-face-rows.npy",
+      "sha256": "e734dac55ea9fbbe782af2d8c02c3c5992131906228afb2aaaf137d6f3ed74db",
+      "bytes": 128
+    },
+    {
+      "path": "sources/connected-remesh-reuse-364/run-001/remap-report.json",
+      "sha256": "5ddc8f6609ed4de2660d88e14c0f37b9ca76891b27f35a12b4d394fdeb1d2455",
+      "bytes": 5789
+    },
+    {
+      "path": "sources/connected-remesh-reuse-364/run-001/retained-fixed-bone-barriers.npz",
+      "sha256": "55def913cb31fe61b5928bc1306756029681a68369140c4c23a0db330391e366",
+      "bytes": 11727
+    },
+    {
+      "path": "sources/connected-remesh-reuse-364/run-001/retained-self-pairs.npy",
+      "sha256": "5dd3f62516ba8cf364fcf9193adfb82bb00a4e7c2a0921850220950d6eb0f0ec",
+      "bytes": 56720
+    },
+    {
+      "path": "sources/connected-remesh-reuse-364/run-001/stale-fixed-bone-barriers.npz",
+      "sha256": "52764a7756c2249571aed314c474a9af5d95e467ca3a24760ebea1092f33b527",
+      "bytes": 4744
+    },
+    {
+      "path": "sources/connected-remesh-reuse-364/run-001/stale-self-pairs.npy",
+      "sha256": "4e4536276880f8570f7d9fe8fa19a7ee90b134b60a17c24f9a3266fae949e40c",
+      "bytes": 9184
+    },
+    {
+      "path": "sources/connected-remesh-reuse-364/run-001/unsafe-face-rows.npy",
+      "sha256": "07be524cf272fc2f45c5da6ac6911e35e17eff3f26fdb131a0d984e891ff59f9",
+      "bytes": 1824
+    },
+    {
+      "path": "sources/connected-remesh-reuse-364/test_remap_legacy_face_constraints_364.py",
+      "sha256": "f7a82d274047a02bff3535e86053115e83f0d64a7224b6a464620b95c4bbacf4",
+      "bytes": 2875
+    },
+    {
+      "path": "sources/connected-remesh-reuse-368/replay_seed_flips_368.py",
+      "sha256": "770a998f187bbfee315754ec5ec7e1bc795d0d85d805f6cbb5a8bec4f49389da",
+      "bytes": 14854
+    },
+    {
+      "path": "sources/verify_saved_362.py",
+      "sha256": "0903bb0e64e2c06f5f2e1d8e8ee3352c85e6310ea4aa053ad0f5986dfe23f0e1",
+      "bytes": 1532
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

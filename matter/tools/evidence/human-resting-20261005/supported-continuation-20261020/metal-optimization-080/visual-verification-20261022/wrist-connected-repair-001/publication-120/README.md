@@ -1,0 +1,13 @@
+# Connected skin construction: shared-displacement progress and safe continuation
+
+Best independently checked combined surface368:3,487 skin-bone triangle pairs,486 inside point-bank pairs,and zero exact skin self-intersections. Compared with322(3600/489),this is113fewer surface pairs and3fewer inside pairs. All185typed banks,exactFloat32area,237nativeanchor positions,and existing45openhead boundary edges are accounted for. Native admission false;accepted physical steps0;no visual inspection.
+
+362fit completed four optimal lexicographic LP stages in173.935seconds total. It saved both coordinate candidates,then its success report failed trying to serialize basis_coordinates. The failure is retained.365uses one solver-receipt serializer for both success/failure paths and adds an actual reduced-basis payload regression;noLP rerun was required for recovery.
+
+The saved362candidate had25exact self pairs. Nonuniform local damping failed. Uniform connected half-scaling preserved the shared displacement pattern and passed exact self0 plus all185banks:3588surface/486inside,maximum inside depth2.954611mm versus2.954632mm before,and reduced squared depth. It removes3inside typed pairs and introduces none. Its surface audit removes50old pairs but introduces38different pairs,so this is explicitly net construction progress,not pairwise clearance or final anatomical acceptance. Root independently verified selected-state/source/anchor/scope receipts.
+
+368replays only the106previously retained359flip operations on362coordinates;105remain locally admissible. One fails current/reference orientation and is excluded. Full fresh audits then give3487surface/486inside/self0. Current and matched037connectivity/ancestry are updated together;point bytes and patch boundaries are unchanged. Legacy constraints on210changedface rows must be rebuilt/remapped before solving on this topology.
+
+364implements conservative face-identity filtering;it does not reuse old coefficients at new coordinates.363pins365, accepts candidate-matched fresh357rows for SHA-pinned one-round continuation,and allows six global exact backtracking audits before local fallback. Root77focused regressions pass.369is launched on the coordinate-improved362branch withfresh7033depth rows(486inside+6547nearoutside),allretainedwitnesses,andhighs-ipm. No369result is claimed here.
+
+Full362failed/recovered evidence and368evidence are retained in separate per-file hashed restoration archives. No local evidence was retired. Geometry work does not establish physically coupled skin/fat:matched inner volumes,positivecells,mass/thickness/contacttransfer,movingposes,andnative16/60-second checks remain pending. Head closure remains explicitly unfinished.
