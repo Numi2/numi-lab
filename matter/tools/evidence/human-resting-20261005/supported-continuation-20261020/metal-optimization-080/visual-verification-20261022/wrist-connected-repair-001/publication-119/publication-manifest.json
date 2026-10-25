@@ -1,0 +1,113 @@
+{
+  "base_commit": "614b3cdd0b60a8115257b47aeb62436aac2b34c1",
+  "canonical_changes": [],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "91e806d774cb59a3cd9a7b65a46f1f29c1bee6c3c9f0deb92a8103a495a48784",
+      "bytes": 2530
+    },
+    {
+      "path": "evidence/357-counterexample-check.json",
+      "sha256": "a5c21752514123e4962dd41977b62774f8b9d1146a93c6eebed56aaadac3eaec",
+      "bytes": 7677
+    },
+    {
+      "path": "evidence/archive-manifest.json",
+      "sha256": "1d890580b8b2349951b69c364032b5592ebe8805e000a95eda4d473abc8b9494",
+      "bytes": 74275
+    },
+    {
+      "path": "evidence/coherent-support-continuation-362-launch.json",
+      "sha256": "5b52e22b2116b828f22451f89d5b674117cb9930585fc37ebaa7deadc4511cbd",
+      "bytes": 9059
+    },
+    {
+      "path": "evidence/connected-clearance-and-remesh-352-359.tar.xz",
+      "sha256": "32b36d9ea64f1f01a351ed4d29ddb7c6b63a391f45e6f085fe1c2fb30ca7aac4",
+      "bytes": 21209564
+    },
+    {
+      "path": "evidence/point-depth-rows-357/point-depth-rows.npz",
+      "sha256": "e442572310d55d9be2fbff265f4e79b28e13975c7cea61747e5d8674baa20746",
+      "bytes": 220953
+    },
+    {
+      "path": "evidence/point-depth-rows-357/report.json",
+      "sha256": "6f441deb8f4da170dcebba65a5365be7b62c80f0e4c4d78c2af7fef02792dbb1",
+      "bytes": 8465618
+    },
+    {
+      "path": "evidence/point-depth-rows-357/selection-policy-correction.json",
+      "sha256": "3617c74ac7f1b9b8f996db2dbcdf3dc0b77972e74542349314f8faea668b04ab",
+      "bytes": 842
+    },
+    {
+      "path": "evidence/root-combined-tests.json",
+      "sha256": "025043e7b55bef2f5e45592bfa97ac150c1a88e31c10c1b6930f7acc942367e8",
+      "bytes": 827
+    },
+    {
+      "path": "sources/coherent-support-continuation-360/run_coherent_target_continuation_360.py",
+      "sha256": "fa33220b2e2e9d3e96e344f03366a21ccc8ce2ffb841917c9f7d3ef1ccf98c64",
+      "bytes": 98664
+    },
+    {
+      "path": "sources/coherent-support-continuation-360/test_run_coherent_target_continuation_360.py",
+      "sha256": "d2f312e7008229cdc79437e50d0cdffd07d1cdaaaf2ae40e415a8db85811bdd4",
+      "bytes": 1300
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-354/propose_joint_clearance_witnesses_354.py",
+      "sha256": "4cabd756840242b5dac17701a7f08fb5c202363d198d7d9e55f8548a7d2377a9",
+      "bytes": 186423
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-354/test_propose_joint_clearance_witnesses_354.py",
+      "sha256": "e1db2c270f8163bb32c5820603248306553f5d5117eba1f73b48c9eb8228f7e8",
+      "bytes": 38600
+    },
+    {
+      "path": "sources/connected-remesh-reuse-358/same_parent_flips_358.py",
+      "sha256": "a08e1f7e6392854f72ffab09af6f2b1f2afe885b1a84f586afe71160ff3ccbee",
+      "bytes": 35723
+    },
+    {
+      "path": "sources/connected-remesh-reuse-358/test_same_parent_flips_358.py",
+      "sha256": "7b904ab7af068cb4e3cacbb68b681f72465810ef6755f60ecd7b6a4a1fb16884",
+      "bytes": 10787
+    },
+    {
+      "path": "sources/point-depth-barriers-357/build_all_near_outside_357.py",
+      "sha256": "22e7a84b0ad83b17d9d99e0ccaec1ba26c1f2843987e39965e7727d905979bef",
+      "bytes": 11957
+    },
+    {
+      "path": "sources/point-depth-barriers-357/build_near_outside_357.py",
+      "sha256": "a69f3f9931ac8c7dbee1933edc0043a370333c6e277834ff461d0393e0e7bf89",
+      "bytes": 11496
+    },
+    {
+      "path": "sources/point-depth-barriers-357/point_depth_barriers_357.py",
+      "sha256": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1",
+      "bytes": 15120
+    },
+    {
+      "path": "sources/point-depth-barriers-357/point_depth_barriers_357_asrun_actual.py",
+      "sha256": "bccadcba1644f3ff17b3d03deffa9dd3ff3ca8823053560ef2420ec1e914c5ff",
+      "bytes": 14769
+    },
+    {
+      "path": "sources/point-depth-barriers-357/point_depth_barriers_357_asrun_v2.py",
+      "sha256": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1",
+      "bytes": 15120
+    },
+    {
+      "path": "sources/point-depth-barriers-357/test_point_depth_barriers_357.py",
+      "sha256": "0df1bd2067fe4adeff44efb82197b7ca4d6f9b750d09f8a059130dbc0719b3f7",
+      "bytes": 6743
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

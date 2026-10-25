@@ -1,0 +1,13 @@
+{
+  "returncode": 0,
+  "stdout": "........................................................................ [ 82%]\n...............                                                          [100%]\n87 passed in 0.25s\n",
+  "stderr": "",
+  "tests": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-354/test_propose_joint_clearance_witnesses_354.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/coherent-support-continuation-360/test_run_coherent_target_continuation_360.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-358/test_same_parent_flips_358.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-barriers-357/test_point_depth_barriers_357.py"
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

@@ -1,0 +1,15 @@
+{
+  "as_run_value": "exact query CSV outside rows within immediate-Q scope",
+  "corrected_value": "all exact baseline query CSV outside rows with nearest_distance_m <= 0.0011 m; immediate-Q scope is recorded for downstream support partition only and did not filter selected rows",
+  "field": "selection_policy.kind",
+  "geometry_or_solver_changed": false,
+  "source_report": "/Users/n/Work/numi-human-connected-surface-069/D/point-depth-barriers-357/actual-near-outside-all-001/report.json",
+  "source_report_sha256": "6f441deb8f4da170dcebba65a5365be7b62c80f0e4c4d78c2af7fef02792dbb1",
+  "status": "REPORT_INTERPRETATION_CORRECTION",
+  "supporting_fields": {
+    "outside_rows_included_all_near_csv": 6553,
+    "outside_rows_within_352_support": 2975,
+    "outside_rows_within_expanded_q_scope": 2980,
+    "scope_filter_applied": false
+  }
+}
