@@ -1,0 +1,17 @@
+{
+  "host": "numi.local",
+  "hardware": "Apple M6",
+  "os": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "source_head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "source_branch": "numi-human-aortic-contact-perf",
+  "source_index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+  "source_index_sha256": "900932a2b704bbf6ab7fd5c2cd200b11502352e71129e795a5bafe3fa7a7ac71",
+  "published_parent": "7d274436989b52948d1c7931392aef4db2803a54",
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "visual_inspection_performed": false,
+  "execution": "All tests and geometry construction on SSH numi; Metal physical state owner unchanged.",
+  "disk": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   228Gi   185Gi   2.2Gi    99%    1.1M   23M    5%   /System/Volumes/Data",
+  "prior_native_transfer_qualification_receipt": "publication-073/root-publication-receipt.json",
+  "unmodified_native_owner": "apps/NumiHumanAcceptedFEMSkinTransfer.hpp"
+}

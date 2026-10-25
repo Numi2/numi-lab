@@ -1,0 +1,6195 @@
+{
+  "status": "CONSTRUCTION_ROWS_BUILT_BASELINE_FEASIBLE",
+  "node_count": 7360,
+  "source_nodes": 7233,
+  "generated_nodes": 127,
+  "generated_boundary_nodes": 125,
+  "generated_interior_nodes_excluded": 2,
+  "generated_boundary_nodes_covered": 125,
+  "generated_boundary_nodes_uncovered": [],
+  "source_face_rows_per_surface": 4777,
+  "O_I_D_same_column_topology": true,
+  "thickness_bounds_multiple": [
+    0.5,
+    1.5
+  ],
+  "relation_count_after_deduplication": 362,
+  "constraint_row_count": 724,
+  "constraint_nnz": 7188,
+  "relations_by_direction": {
+    "D->I": 32,
+    "I->D": 112,
+    "I->O": 112,
+    "O->I": 106
+  },
+  "generated_boundary_corner_visits": {
+    "D": 68,
+    "I": 243,
+    "O": 241
+  },
+  "max_reference_parent_plane_residual_m": 1.2432050435751766e-16,
+  "minimum_barycentric_weight_before_roundoff_clip": -3.580454986199264e-14,
+  "minimum_frozen_baseline_slack_m": 0.000430253459665667,
+  "frozen_baseline_max_inequality_violation_m": 0.0,
+  "rows": [
+    {
+      "generated_output_row": 7233,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 3831,
+      "opposing_output_rows": [
+        4329,
+        4260,
+        4397
+      ],
+      "barycentric": [
+        0.43334654437246795,
+        0.0,
+        0.5666534556275321
+      ],
+      "baseline_spacing_m": 0.0008605069193313455
+    },
+    {
+      "generated_output_row": 7233,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 3956,
+      "opposing_output_rows": [
+        4374,
+        4329,
+        4397
+      ],
+      "barycentric": [
+        0.0,
+        0.43334654437247067,
+        0.5666534556275293
+      ],
+      "baseline_spacing_m": 0.000860506919331334
+    },
+    {
+      "generated_output_row": 7234,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2066,
+      "opposing_output_rows": [
+        3523,
+        3349,
+        3687
+      ],
+      "barycentric": [
+        4.440892098500626e-16,
+        0.2064076517143401,
+        0.7935923482856594
+      ],
+      "baseline_spacing_m": 0.002406779123115719
+    },
+    {
+      "generated_output_row": 7234,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2068,
+      "opposing_output_rows": [
+        3687,
+        3349,
+        3700
+      ],
+      "barycentric": [
+        0.7935923482856595,
+        0.20640765171434045,
+        3.473654006786355e-17
+      ],
+      "baseline_spacing_m": 0.002406779123115719
+    },
+    {
+      "generated_output_row": 7235,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 2228,
+      "opposing_output_rows": [
+        3423,
+        3422,
+        3428
+      ],
+      "barycentric": [
+        1.6542323066914832e-14,
+        0.5209828983545666,
+        0.4790171016454169
+      ],
+      "baseline_spacing_m": 0.009899324950247453
+    },
+    {
+      "generated_output_row": 7235,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 2229,
+      "opposing_output_rows": [
+        3428,
+        3422,
+        3563
+      ],
+      "barycentric": [
+        0.47901710164542455,
+        0.5209828983545751,
+        2.8950264392010793e-16
+      ],
+      "baseline_spacing_m": 0.009899324950247432
+    },
+    {
+      "generated_output_row": 7238,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1444,
+      "opposing_output_rows": [
+        3097,
+        3096,
+        3150
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5000000000000001
+      ],
+      "baseline_spacing_m": 0.0024111178691757057
+    },
+    {
+      "generated_output_row": 7238,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1447,
+      "opposing_output_rows": [
+        3097,
+        3150,
+        3207
+      ],
+      "barycentric": [
+        0.5000000000000001,
+        0.4999999999999997,
+        2.726752546160048e-16
+      ],
+      "baseline_spacing_m": 0.002411117869175712
+    },
+    {
+      "generated_output_row": 7239,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1444,
+      "opposing_output_rows": [
+        3097,
+        3096,
+        3150
+      ],
+      "barycentric": [
+        0.75,
+        0.0,
+        0.25000000000000006
+      ],
+      "baseline_spacing_m": 0.0024213349524906734
+    },
+    {
+      "generated_output_row": 7239,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1447,
+      "opposing_output_rows": [
+        3097,
+        3150,
+        3207
+      ],
+      "barycentric": [
+        0.7500000000000001,
+        0.24999999999999986,
+        1.363376273080024e-16
+      ],
+      "baseline_spacing_m": 0.0024213349524906656
+    },
+    {
+      "generated_output_row": 7240,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1444,
+      "opposing_output_rows": [
+        3097,
+        3096,
+        3150
+      ],
+      "barycentric": [
+        0.875,
+        0.0,
+        0.12500000000000003
+      ],
+      "baseline_spacing_m": 0.002433927037102394
+    },
+    {
+      "generated_output_row": 7240,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1447,
+      "opposing_output_rows": [
+        3097,
+        3150,
+        3207
+      ],
+      "barycentric": [
+        0.875,
+        0.12499999999999992,
+        6.816881365400118e-17
+      ],
+      "baseline_spacing_m": 0.0024339270371023956
+    },
+    {
+      "generated_output_row": 7241,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1444,
+      "opposing_output_rows": [
+        3097,
+        3096,
+        3150
+      ],
+      "barycentric": [
+        0.9375,
+        0.0,
+        0.06250000000000001
+      ],
+      "baseline_spacing_m": 0.00244206883015134
+    },
+    {
+      "generated_output_row": 7241,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1447,
+      "opposing_output_rows": [
+        3097,
+        3150,
+        3207
+      ],
+      "barycentric": [
+        0.9375,
+        0.06249999999999996,
+        3.408440682700059e-17
+      ],
+      "baseline_spacing_m": 0.00244206883015134
+    },
+    {
+      "generated_output_row": 7242,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1445,
+      "opposing_output_rows": [
+        3097,
+        3100,
+        3110
+      ],
+      "barycentric": [
+        0.5,
+        0.49999999999999994,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024498607397190966
+    },
+    {
+      "generated_output_row": 7242,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1446,
+      "opposing_output_rows": [
+        3100,
+        3097,
+        3207
+      ],
+      "barycentric": [
+        0.5,
+        0.49999999999999994,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024498607397190966
+    },
+    {
+      "generated_output_row": 7243,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1445,
+      "opposing_output_rows": [
+        3097,
+        3100,
+        3110
+      ],
+      "barycentric": [
+        0.25,
+        0.75,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002450344368836444
+    },
+    {
+      "generated_output_row": 7243,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1446,
+      "opposing_output_rows": [
+        3100,
+        3097,
+        3207
+      ],
+      "barycentric": [
+        0.75,
+        0.24999999999999997,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002450344368836444
+    },
+    {
+      "generated_output_row": 7244,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1462,
+      "opposing_output_rows": [
+        5511,
+        5618,
+        5625
+      ],
+      "barycentric": [
+        0.5,
+        3.667751711580057e-17,
+        0.49999999999999994
+      ],
+      "baseline_spacing_m": 0.008183426759494402
+    },
+    {
+      "generated_output_row": 7244,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1463,
+      "opposing_output_rows": [
+        5619,
+        5511,
+        5625
+      ],
+      "barycentric": [
+        0.0,
+        0.5,
+        0.5
+      ],
+      "baseline_spacing_m": 0.008183426759494402
+    },
+    {
+      "generated_output_row": 7244,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1462,
+      "opposing_output_rows": [
+        689,
+        796,
+        803
+      ],
+      "barycentric": [
+        0.5,
+        3.667751711580057e-17,
+        0.49999999999999994
+      ],
+      "baseline_spacing_m": 0.002429400897916128
+    },
+    {
+      "generated_output_row": 7244,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1463,
+      "opposing_output_rows": [
+        797,
+        689,
+        803
+      ],
+      "barycentric": [
+        0.0,
+        0.5,
+        0.5
+      ],
+      "baseline_spacing_m": 0.002429400897916128
+    },
+    {
+      "generated_output_row": 7245,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1462,
+      "opposing_output_rows": [
+        5511,
+        5618,
+        5625
+      ],
+      "barycentric": [
+        0.75,
+        1.8338758557900285e-17,
+        0.24999999999999997
+      ],
+      "baseline_spacing_m": 0.00902987267053115
+    },
+    {
+      "generated_output_row": 7245,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1463,
+      "opposing_output_rows": [
+        5619,
+        5511,
+        5625
+      ],
+      "barycentric": [
+        0.0,
+        0.75,
+        0.25
+      ],
+      "baseline_spacing_m": 0.00902987267053115
+    },
+    {
+      "generated_output_row": 7245,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1462,
+      "opposing_output_rows": [
+        689,
+        796,
+        803
+      ],
+      "barycentric": [
+        0.75,
+        1.8338758557900285e-17,
+        0.24999999999999997
+      ],
+      "baseline_spacing_m": 0.002435022124606429
+    },
+    {
+      "generated_output_row": 7245,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1463,
+      "opposing_output_rows": [
+        797,
+        689,
+        803
+      ],
+      "barycentric": [
+        0.0,
+        0.75,
+        0.25
+      ],
+      "baseline_spacing_m": 0.002435022124606429
+    },
+    {
+      "generated_output_row": 7246,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1462,
+      "opposing_output_rows": [
+        5511,
+        5618,
+        5625
+      ],
+      "barycentric": [
+        0.875,
+        9.169379278950143e-18,
+        0.12499999999999999
+      ],
+      "baseline_spacing_m": 0.009463227502517062
+    },
+    {
+      "generated_output_row": 7246,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1463,
+      "opposing_output_rows": [
+        5619,
+        5511,
+        5625
+      ],
+      "barycentric": [
+        0.0,
+        0.875,
+        0.125
+      ],
+      "baseline_spacing_m": 0.009463227502517062
+    },
+    {
+      "generated_output_row": 7246,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1462,
+      "opposing_output_rows": [
+        689,
+        796,
+        803
+      ],
+      "barycentric": [
+        0.875,
+        9.169379278950143e-18,
+        0.12499999999999999
+      ],
+      "baseline_spacing_m": 0.0024419823307964906
+    },
+    {
+      "generated_output_row": 7246,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1463,
+      "opposing_output_rows": [
+        797,
+        689,
+        803
+      ],
+      "barycentric": [
+        0.0,
+        0.875,
+        0.125
+      ],
+      "baseline_spacing_m": 0.0024419823307964906
+    },
+    {
+      "generated_output_row": 7247,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        3110,
+        3100,
+        3151
+      ],
+      "barycentric": [
+        0.0,
+        0.5,
+        0.49999999999999994
+      ],
+      "baseline_spacing_m": 0.0024443907336738
+    },
+    {
+      "generated_output_row": 7247,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1461,
+      "opposing_output_rows": [
+        3151,
+        3100,
+        3208
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024443907336738
+    },
+    {
+      "generated_output_row": 7248,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        3110,
+        3100,
+        3151
+      ],
+      "barycentric": [
+        1.1102230246251565e-16,
+        0.25,
+        0.7499999999999999
+      ],
+      "baseline_spacing_m": 0.002446002105743578
+    },
+    {
+      "generated_output_row": 7248,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1461,
+      "opposing_output_rows": [
+        3151,
+        3100,
+        3208
+      ],
+      "barycentric": [
+        0.75,
+        0.25,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002446002105743578
+    },
+    {
+      "generated_output_row": 7249,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        3110,
+        3100,
+        3151
+      ],
+      "barycentric": [
+        1.1102230246251565e-16,
+        0.12500000000000003,
+        0.8749999999999999
+      ],
+      "baseline_spacing_m": 0.0024481241574696106
+    },
+    {
+      "generated_output_row": 7249,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1461,
+      "opposing_output_rows": [
+        3151,
+        3100,
+        3208
+      ],
+      "barycentric": [
+        0.875,
+        0.125,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002448124157469607
+    },
+    {
+      "generated_output_row": 7250,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        5521,
+        5511,
+        5562
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.009890360014020098
+    },
+    {
+      "generated_output_row": 7250,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1491,
+      "opposing_output_rows": [
+        5521,
+        5562,
+        5598
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.009890360014020098
+    },
+    {
+      "generated_output_row": 7250,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        699,
+        689,
+        740
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.0024484884788816517
+    },
+    {
+      "generated_output_row": 7250,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1491,
+      "opposing_output_rows": [
+        699,
+        740,
+        776
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024484884788816517
+    },
+    {
+      "generated_output_row": 7251,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        5521,
+        5511,
+        5562
+      ],
+      "barycentric": [
+        0.75,
+        0.0,
+        0.25
+      ],
+      "baseline_spacing_m": 0.00989312668818186
+    },
+    {
+      "generated_output_row": 7251,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1491,
+      "opposing_output_rows": [
+        5521,
+        5562,
+        5598
+      ],
+      "barycentric": [
+        0.75,
+        0.25,
+        0.0
+      ],
+      "baseline_spacing_m": 0.00989312668818186
+    },
+    {
+      "generated_output_row": 7251,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        699,
+        689,
+        740
+      ],
+      "barycentric": [
+        0.75,
+        0.0,
+        0.25
+      ],
+      "baseline_spacing_m": 0.002449197690517198
+    },
+    {
+      "generated_output_row": 7251,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1491,
+      "opposing_output_rows": [
+        699,
+        740,
+        776
+      ],
+      "barycentric": [
+        0.75,
+        0.25,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002449197690517198
+    },
+    {
+      "generated_output_row": 7252,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1390,
+      "opposing_output_rows": [
+        3081,
+        3110,
+        3119
+      ],
+      "barycentric": [
+        1.1102230246251565e-16,
+        0.4999999999999998,
+        0.5000000000000001
+      ],
+      "baseline_spacing_m": 0.002418696863486051
+    },
+    {
+      "generated_output_row": 7252,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1490,
+      "opposing_output_rows": [
+        3119,
+        3110,
+        3187
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002418696863486045
+    },
+    {
+      "generated_output_row": 7253,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1390,
+      "opposing_output_rows": [
+        3081,
+        3110,
+        3119
+      ],
+      "barycentric": [
+        0.0,
+        0.7499999999999999,
+        0.25000000000000006
+      ],
+      "baseline_spacing_m": 0.0024268621546983302
+    },
+    {
+      "generated_output_row": 7253,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1490,
+      "opposing_output_rows": [
+        3119,
+        3110,
+        3187
+      ],
+      "barycentric": [
+        0.25,
+        0.75,
+        0.0
+      ],
+      "baseline_spacing_m": 0.00242686215469833
+    },
+    {
+      "generated_output_row": 7254,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1390,
+      "opposing_output_rows": [
+        3081,
+        3110,
+        3119
+      ],
+      "barycentric": [
+        0.0,
+        0.875,
+        0.12500000000000003
+      ],
+      "baseline_spacing_m": 0.002437048790785861
+    },
+    {
+      "generated_output_row": 7254,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1490,
+      "opposing_output_rows": [
+        3119,
+        3110,
+        3187
+      ],
+      "barycentric": [
+        0.125,
+        0.875,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002437048790785861
+    },
+    {
+      "generated_output_row": 7255,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1389,
+      "opposing_output_rows": [
+        3081,
+        3097,
+        3110
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.0024332671134623183
+    },
+    {
+      "generated_output_row": 7255,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1390,
+      "opposing_output_rows": [
+        3081,
+        3110,
+        3119
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024332671134623183
+    },
+    {
+      "generated_output_row": 7256,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1389,
+      "opposing_output_rows": [
+        3081,
+        3097,
+        3110
+      ],
+      "barycentric": [
+        0.25,
+        0.0,
+        0.75
+      ],
+      "baseline_spacing_m": 0.0024405163518830173
+    },
+    {
+      "generated_output_row": 7256,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1390,
+      "opposing_output_rows": [
+        3081,
+        3110,
+        3119
+      ],
+      "barycentric": [
+        0.25,
+        0.75,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024405163518830173
+    },
+    {
+      "generated_output_row": 7257,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1389,
+      "opposing_output_rows": [
+        3081,
+        3097,
+        3110
+      ],
+      "barycentric": [
+        0.125,
+        0.0,
+        0.875
+      ],
+      "baseline_spacing_m": 0.0024454506606776606
+    },
+    {
+      "generated_output_row": 7257,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1390,
+      "opposing_output_rows": [
+        3081,
+        3110,
+        3119
+      ],
+      "barycentric": [
+        0.125,
+        0.875,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024454506606776606
+    },
+    {
+      "generated_output_row": 7258,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1389,
+      "opposing_output_rows": [
+        5492,
+        5508,
+        5521
+      ],
+      "barycentric": [
+        0.0,
+        0.5,
+        0.5
+      ],
+      "baseline_spacing_m": 0.009840013886015447
+    },
+    {
+      "generated_output_row": 7258,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1445,
+      "opposing_output_rows": [
+        5508,
+        5511,
+        5521
+      ],
+      "barycentric": [
+        0.49999999999999967,
+        5.393411585295382e-16,
+        0.49999999999999983
+      ],
+      "baseline_spacing_m": 0.009840013886015447
+    },
+    {
+      "generated_output_row": 7258,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1389,
+      "opposing_output_rows": [
+        670,
+        686,
+        699
+      ],
+      "barycentric": [
+        0.0,
+        0.5,
+        0.5
+      ],
+      "baseline_spacing_m": 0.0024360793761406038
+    },
+    {
+      "generated_output_row": 7258,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1445,
+      "opposing_output_rows": [
+        686,
+        689,
+        699
+      ],
+      "barycentric": [
+        0.49999999999999967,
+        5.393411585295382e-16,
+        0.49999999999999983
+      ],
+      "baseline_spacing_m": 0.0024360793761406038
+    },
+    {
+      "generated_output_row": 7259,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1389,
+      "opposing_output_rows": [
+        5492,
+        5508,
+        5521
+      ],
+      "barycentric": [
+        0.0,
+        0.25,
+        0.75
+      ],
+      "baseline_spacing_m": 0.009855345862783988
+    },
+    {
+      "generated_output_row": 7259,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1445,
+      "opposing_output_rows": [
+        5508,
+        5511,
+        5521
+      ],
+      "barycentric": [
+        0.25000000000000033,
+        0.0,
+        0.7499999999999998
+      ],
+      "baseline_spacing_m": 0.00985534586278399
+    },
+    {
+      "generated_output_row": 7259,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1389,
+      "opposing_output_rows": [
+        670,
+        686,
+        699
+      ],
+      "barycentric": [
+        0.0,
+        0.25,
+        0.75
+      ],
+      "baseline_spacing_m": 0.002439854048050201
+    },
+    {
+      "generated_output_row": 7259,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1445,
+      "opposing_output_rows": [
+        686,
+        689,
+        699
+      ],
+      "barycentric": [
+        0.25000000000000033,
+        0.0,
+        0.7499999999999998
+      ],
+      "baseline_spacing_m": 0.0024398540480502
+    },
+    {
+      "generated_output_row": 7260,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1389,
+      "opposing_output_rows": [
+        5492,
+        5508,
+        5521
+      ],
+      "barycentric": [
+        0.0,
+        0.125,
+        0.875
+      ],
+      "baseline_spacing_m": 0.00987453333386973
+    },
+    {
+      "generated_output_row": 7260,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1445,
+      "opposing_output_rows": [
+        5508,
+        5511,
+        5521
+      ],
+      "barycentric": [
+        0.12499999999999956,
+        5.393411585295382e-16,
+        0.8749999999999999
+      ],
+      "baseline_spacing_m": 0.009874533333869725
+    },
+    {
+      "generated_output_row": 7260,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1389,
+      "opposing_output_rows": [
+        670,
+        686,
+        699
+      ],
+      "barycentric": [
+        0.0,
+        0.125,
+        0.875
+      ],
+      "baseline_spacing_m": 0.002444605559162611
+    },
+    {
+      "generated_output_row": 7260,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1445,
+      "opposing_output_rows": [
+        686,
+        689,
+        699
+      ],
+      "barycentric": [
+        0.12499999999999956,
+        5.393411585295382e-16,
+        0.8749999999999999
+      ],
+      "baseline_spacing_m": 0.0024446055591626176
+    },
+    {
+      "generated_output_row": 7261,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        3110,
+        3100,
+        3151
+      ],
+      "barycentric": [
+        0.4271878732320533,
+        0.0,
+        0.5728121267679467
+      ],
+      "baseline_spacing_m": 0.009890576810111538
+    },
+    {
+      "generated_output_row": 7261,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1491,
+      "opposing_output_rows": [
+        3110,
+        3151,
+        3187
+      ],
+      "barycentric": [
+        0.42718787323205343,
+        0.5728121267679462,
+        3.082798630543982e-16
+      ],
+      "baseline_spacing_m": 0.009890576810111542
+    },
+    {
+      "generated_output_row": 7262,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        3110,
+        3100,
+        3151
+      ],
+      "barycentric": [
+        0.0,
+        0.7535642771193065,
+        0.2464357228806936
+      ],
+      "baseline_spacing_m": 0.00988096140878938
+    },
+    {
+      "generated_output_row": 7262,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1461,
+      "opposing_output_rows": [
+        3151,
+        3100,
+        3208
+      ],
+      "barycentric": [
+        0.24643572288069326,
+        0.7535642771193066,
+        6.651955723683985e-17
+      ],
+      "baseline_spacing_m": 0.009880961408789371
+    },
+    {
+      "generated_output_row": 7263,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        5521,
+        5511,
+        5562
+      ],
+      "barycentric": [
+        0.0,
+        0.4936460413493506,
+        0.5063539586506494
+      ],
+      "baseline_spacing_m": 0.009873445220140959
+    },
+    {
+      "generated_output_row": 7263,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1461,
+      "opposing_output_rows": [
+        5562,
+        5511,
+        5619
+      ],
+      "barycentric": [
+        0.5063539586506487,
+        0.4936460413493508,
+        4.576966047440937e-16
+      ],
+      "baseline_spacing_m": 0.00987344522014096
+    },
+    {
+      "generated_output_row": 7263,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        699,
+        689,
+        740
+      ],
+      "barycentric": [
+        0.0,
+        0.4936460413493506,
+        0.5063539586506494
+      ],
+      "baseline_spacing_m": 0.0024443847591577718
+    },
+    {
+      "generated_output_row": 7263,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1461,
+      "opposing_output_rows": [
+        740,
+        689,
+        797
+      ],
+      "barycentric": [
+        0.5063539586506487,
+        0.4936460413493508,
+        4.576966047440937e-16
+      ],
+      "baseline_spacing_m": 0.0024443847591577752
+    },
+    {
+      "generated_output_row": 7264,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        5521,
+        5511,
+        5562
+      ],
+      "barycentric": [
+        1.1102230246251565e-16,
+        0.24264929343183197,
+        0.7573507065681679
+      ],
+      "baseline_spacing_m": 0.009880682330794652
+    },
+    {
+      "generated_output_row": 7264,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1461,
+      "opposing_output_rows": [
+        5562,
+        5511,
+        5619
+      ],
+      "barycentric": [
+        0.7573507065681679,
+        0.24264929343183203,
+        5.201097781182883e-18
+      ],
+      "baseline_spacing_m": 0.00988068233079465
+    },
+    {
+      "generated_output_row": 7264,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        699,
+        689,
+        740
+      ],
+      "barycentric": [
+        1.1102230246251565e-16,
+        0.24264929343183197,
+        0.7573507065681679
+      ],
+      "baseline_spacing_m": 0.0024461037460631486
+    },
+    {
+      "generated_output_row": 7264,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1461,
+      "opposing_output_rows": [
+        740,
+        689,
+        797
+      ],
+      "barycentric": [
+        0.7573507065681679,
+        0.24264929343183203,
+        5.201097781182883e-18
+      ],
+      "baseline_spacing_m": 0.0024461037460631403
+    },
+    {
+      "generated_output_row": 7265,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        5521,
+        5511,
+        5562
+      ],
+      "barycentric": [
+        6.661338147750939e-16,
+        0.11715091947307273,
+        0.8828490805269266
+      ],
+      "baseline_spacing_m": 0.009889637501053487
+    },
+    {
+      "generated_output_row": 7265,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1461,
+      "opposing_output_rows": [
+        5562,
+        5511,
+        5619
+      ],
+      "barycentric": [
+        0.8828490805269272,
+        0.11715091947307271,
+        0.0
+      ],
+      "baseline_spacing_m": 0.009889637501053485
+    },
+    {
+      "generated_output_row": 7265,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        699,
+        689,
+        740
+      ],
+      "barycentric": [
+        6.661338147750939e-16,
+        0.11715091947307273,
+        0.8828490805269266
+      ],
+      "baseline_spacing_m": 0.0024482852186039224
+    },
+    {
+      "generated_output_row": 7265,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1461,
+      "opposing_output_rows": [
+        740,
+        689,
+        797
+      ],
+      "barycentric": [
+        0.8828490805269272,
+        0.11715091947307271,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002448285218603924
+    },
+    {
+      "generated_output_row": 7266,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1460,
+      "opposing_output_rows": [
+        3110,
+        3100,
+        3151
+      ],
+      "barycentric": [
+        2.220446049250313e-16,
+        0.4670456388701487,
+        0.5329543611298511
+      ],
+      "baseline_spacing_m": 0.009873534511091754
+    },
+    {
+      "generated_output_row": 7266,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1461,
+      "opposing_output_rows": [
+        3151,
+        3100,
+        3208
+      ],
+      "barycentric": [
+        0.5329543611298513,
+        0.46704563887014877,
+        0.0
+      ],
+      "baseline_spacing_m": 0.009873534511091764
+    },
+    {
+      "generated_output_row": 7267,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1463,
+      "opposing_output_rows": [
+        3208,
+        3100,
+        3214
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.007303437593625502
+    },
+    {
+      "generated_output_row": 7267,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1737,
+      "opposing_output_rows": [
+        3208,
+        3214,
+        3351
+      ],
+      "barycentric": [
+        0.5,
+        0.49999999999999994,
+        0.0
+      ],
+      "baseline_spacing_m": 0.007303437593625502
+    },
+    {
+      "generated_output_row": 7268,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1463,
+      "opposing_output_rows": [
+        5619,
+        5511,
+        5625
+      ],
+      "barycentric": [
+        0.5075091120177376,
+        0.0,
+        0.4924908879822623
+      ],
+      "baseline_spacing_m": 0.007315120651492701
+    },
+    {
+      "generated_output_row": 7268,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1737,
+      "opposing_output_rows": [
+        5619,
+        5625,
+        5762
+      ],
+      "barycentric": [
+        0.5075091120177376,
+        0.49249088798226237,
+        1.0259582743115789e-16
+      ],
+      "baseline_spacing_m": 0.0073151206514926945
+    },
+    {
+      "generated_output_row": 7268,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1463,
+      "opposing_output_rows": [
+        797,
+        689,
+        803
+      ],
+      "barycentric": [
+        0.5075091120177376,
+        0.0,
+        0.4924908879822623
+      ],
+      "baseline_spacing_m": 0.0024265141301068704
+    },
+    {
+      "generated_output_row": 7268,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1737,
+      "opposing_output_rows": [
+        797,
+        803,
+        940
+      ],
+      "barycentric": [
+        0.5075091120177376,
+        0.49249088798226237,
+        1.0259582743115789e-16
+      ],
+      "baseline_spacing_m": 0.0024265141301068847
+    },
+    {
+      "generated_output_row": 7269,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1463,
+      "opposing_output_rows": [
+        5619,
+        5511,
+        5625
+      ],
+      "barycentric": [
+        0.25375455600886887,
+        1.3527201160346967e-16,
+        0.746245443991131
+      ],
+      "baseline_spacing_m": 0.006939477543090302
+    },
+    {
+      "generated_output_row": 7269,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1737,
+      "opposing_output_rows": [
+        5619,
+        5625,
+        5762
+      ],
+      "barycentric": [
+        0.2537545560088691,
+        0.746245443991131,
+        0.0
+      ],
+      "baseline_spacing_m": 0.006939477543090291
+    },
+    {
+      "generated_output_row": 7269,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1463,
+      "opposing_output_rows": [
+        797,
+        689,
+        803
+      ],
+      "barycentric": [
+        0.25375455600886887,
+        1.3527201160346967e-16,
+        0.746245443991131
+      ],
+      "baseline_spacing_m": 0.0024326039779475842
+    },
+    {
+      "generated_output_row": 7269,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1737,
+      "opposing_output_rows": [
+        797,
+        803,
+        940
+      ],
+      "barycentric": [
+        0.2537545560088691,
+        0.746245443991131,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024326039779475877
+    },
+    {
+      "generated_output_row": 7270,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1737,
+      "opposing_output_rows": [
+        3208,
+        3214,
+        3351
+      ],
+      "barycentric": [
+        0.0,
+        0.49999999999999994,
+        0.5
+      ],
+      "baseline_spacing_m": 0.005416197101681376
+    },
+    {
+      "generated_output_row": 7270,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        3214,
+        3317,
+        3351
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.005416197101681377
+    },
+    {
+      "generated_output_row": 7271,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1737,
+      "opposing_output_rows": [
+        3208,
+        3214,
+        3351
+      ],
+      "barycentric": [
+        0.0,
+        0.75,
+        0.2500000000000001
+      ],
+      "baseline_spacing_m": 0.006009502115837649
+    },
+    {
+      "generated_output_row": 7271,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        3214,
+        3317,
+        3351
+      ],
+      "barycentric": [
+        0.75,
+        0.0,
+        0.25
+      ],
+      "baseline_spacing_m": 0.006009502115837635
+    },
+    {
+      "generated_output_row": 7272,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1753,
+      "opposing_output_rows": [
+        5625,
+        5652,
+        5728
+      ],
+      "barycentric": [
+        0.5,
+        6.483918600717394e-17,
+        0.49999999999999994
+      ],
+      "baseline_spacing_m": 0.0045266322804451715
+    },
+    {
+      "generated_output_row": 7272,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        5625,
+        5728,
+        5762
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0045266322804451715
+    },
+    {
+      "generated_output_row": 7272,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1753,
+      "opposing_output_rows": [
+        803,
+        830,
+        906
+      ],
+      "barycentric": [
+        0.5,
+        6.483918600717394e-17,
+        0.49999999999999994
+      ],
+      "baseline_spacing_m": 0.002358796965568799
+    },
+    {
+      "generated_output_row": 7272,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        803,
+        906,
+        940
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0023587969655688014
+    },
+    {
+      "generated_output_row": 7273,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1753,
+      "opposing_output_rows": [
+        5625,
+        5652,
+        5728
+      ],
+      "barycentric": [
+        0.25,
+        0.0,
+        0.75
+      ],
+      "baseline_spacing_m": 0.0035662548979160692
+    },
+    {
+      "generated_output_row": 7273,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        5625,
+        5728,
+        5762
+      ],
+      "barycentric": [
+        0.2499999999999999,
+        0.7500000000000001,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0035662548979160692
+    },
+    {
+      "generated_output_row": 7273,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1753,
+      "opposing_output_rows": [
+        803,
+        830,
+        906
+      ],
+      "barycentric": [
+        0.25,
+        0.0,
+        0.75
+      ],
+      "baseline_spacing_m": 0.002382070002577793
+    },
+    {
+      "generated_output_row": 7273,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        803,
+        906,
+        940
+      ],
+      "barycentric": [
+        0.2499999999999999,
+        0.7500000000000001,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002382070002577793
+    },
+    {
+      "generated_output_row": 7274,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1753,
+      "opposing_output_rows": [
+        5625,
+        5652,
+        5728
+      ],
+      "barycentric": [
+        0.125,
+        0.0,
+        0.875
+      ],
+      "baseline_spacing_m": 0.003128151107125386
+    },
+    {
+      "generated_output_row": 7274,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        5625,
+        5728,
+        5762
+      ],
+      "barycentric": [
+        0.12499999999999989,
+        0.8750000000000001,
+        0.0
+      ],
+      "baseline_spacing_m": 0.003128151107125386
+    },
+    {
+      "generated_output_row": 7274,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1753,
+      "opposing_output_rows": [
+        803,
+        830,
+        906
+      ],
+      "barycentric": [
+        0.125,
+        0.0,
+        0.875
+      ],
+      "baseline_spacing_m": 0.0024109559726498172
+    },
+    {
+      "generated_output_row": 7274,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        803,
+        906,
+        940
+      ],
+      "barycentric": [
+        0.12499999999999989,
+        0.8750000000000001,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024109559726498194
+    },
+    {
+      "generated_output_row": 7275,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1753,
+      "opposing_output_rows": [
+        5625,
+        5652,
+        5728
+      ],
+      "barycentric": [
+        0.0625,
+        0.0,
+        0.9375
+      ],
+      "baseline_spacing_m": 0.0029252850599637845
+    },
+    {
+      "generated_output_row": 7275,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        5625,
+        5728,
+        5762
+      ],
+      "barycentric": [
+        0.06249999999999989,
+        0.9375000000000001,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0029252850599637845
+    },
+    {
+      "generated_output_row": 7275,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1753,
+      "opposing_output_rows": [
+        803,
+        830,
+        906
+      ],
+      "barycentric": [
+        0.0625,
+        0.0,
+        0.9375
+      ],
+      "baseline_spacing_m": 0.0024295470099374326
+    },
+    {
+      "generated_output_row": 7275,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        803,
+        906,
+        940
+      ],
+      "barycentric": [
+        0.06249999999999989,
+        0.9375000000000001,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024295470099374326
+    },
+    {
+      "generated_output_row": 7276,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        3214,
+        3317,
+        3351
+      ],
+      "barycentric": [
+        0.0,
+        0.49999999999999994,
+        0.5
+      ],
+      "baseline_spacing_m": 0.0023300947977505067
+    },
+    {
+      "generated_output_row": 7276,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1990,
+      "opposing_output_rows": [
+        3351,
+        3317,
+        3565
+      ],
+      "barycentric": [
+        0.49999999999999967,
+        0.5000000000000003,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0023300947977505098
+    },
+    {
+      "generated_output_row": 7277,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        3214,
+        3317,
+        3351
+      ],
+      "barycentric": [
+        0.0,
+        0.75,
+        0.24999999999999997
+      ],
+      "baseline_spacing_m": 0.0023607008630620804
+    },
+    {
+      "generated_output_row": 7277,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1990,
+      "opposing_output_rows": [
+        3351,
+        3317,
+        3565
+      ],
+      "barycentric": [
+        0.24999999999999944,
+        0.7500000000000006,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0023607008630620522
+    },
+    {
+      "generated_output_row": 7278,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        3214,
+        3317,
+        3351
+      ],
+      "barycentric": [
+        0.0,
+        0.8750000000000001,
+        0.12499999999999996
+      ],
+      "baseline_spacing_m": 0.002398630994687148
+    },
+    {
+      "generated_output_row": 7278,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1990,
+      "opposing_output_rows": [
+        3351,
+        3317,
+        3565
+      ],
+      "barycentric": [
+        0.125,
+        0.875,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0023986309946871782
+    },
+    {
+      "generated_output_row": 7279,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        3214,
+        3317,
+        3351
+      ],
+      "barycentric": [
+        0.0,
+        0.9375,
+        0.06249999999999998
+      ],
+      "baseline_spacing_m": 0.0024230102378303368
+    },
+    {
+      "generated_output_row": 7279,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1990,
+      "opposing_output_rows": [
+        3351,
+        3317,
+        3565
+      ],
+      "barycentric": [
+        0.0625,
+        0.9375,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024230102378303368
+    },
+    {
+      "generated_output_row": 7280,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1754,
+      "opposing_output_rows": [
+        3214,
+        3317,
+        3351
+      ],
+      "barycentric": [
+        0.0,
+        0.96875,
+        0.03124999999999999
+      ],
+      "baseline_spacing_m": 0.002436494430487863
+    },
+    {
+      "generated_output_row": 7280,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1990,
+      "opposing_output_rows": [
+        3351,
+        3317,
+        3565
+      ],
+      "barycentric": [
+        0.03125,
+        0.96875,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002436494430487863
+    },
+    {
+      "generated_output_row": 7281,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1993,
+      "opposing_output_rows": [
+        5728,
+        5935,
+        5976
+      ],
+      "barycentric": [
+        0.5,
+        1.8424203099187583e-16,
+        0.4999999999999998
+      ],
+      "baseline_spacing_m": 0.0028874536846302938
+    },
+    {
+      "generated_output_row": 7281,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1990,
+      "opposing_output_rows": [
+        5762,
+        5728,
+        5976
+      ],
+      "barycentric": [
+        4.440892098500626e-16,
+        0.4999999999999985,
+        0.5000000000000011
+      ],
+      "baseline_spacing_m": 0.002887453684630294
+    },
+    {
+      "generated_output_row": 7281,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1993,
+      "opposing_output_rows": [
+        906,
+        1113,
+        1154
+      ],
+      "barycentric": [
+        0.5,
+        1.8424203099187583e-16,
+        0.4999999999999998
+      ],
+      "baseline_spacing_m": 0.0023553159613523577
+    },
+    {
+      "generated_output_row": 7281,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1990,
+      "opposing_output_rows": [
+        940,
+        906,
+        1154
+      ],
+      "barycentric": [
+        4.440892098500626e-16,
+        0.4999999999999985,
+        0.5000000000000011
+      ],
+      "baseline_spacing_m": 0.0023553159613523586
+    },
+    {
+      "generated_output_row": 7282,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1993,
+      "opposing_output_rows": [
+        5728,
+        5935,
+        5976
+      ],
+      "barycentric": [
+        0.75,
+        9.212101549593791e-17,
+        0.2499999999999999
+      ],
+      "baseline_spacing_m": 0.0028091117168497245
+    },
+    {
+      "generated_output_row": 7282,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1990,
+      "opposing_output_rows": [
+        5762,
+        5728,
+        5976
+      ],
+      "barycentric": [
+        2.220446049250313e-16,
+        0.7499999999999992,
+        0.25000000000000056
+      ],
+      "baseline_spacing_m": 0.002809111716849721
+    },
+    {
+      "generated_output_row": 7282,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1993,
+      "opposing_output_rows": [
+        906,
+        1113,
+        1154
+      ],
+      "barycentric": [
+        0.75,
+        9.212101549593791e-17,
+        0.2499999999999999
+      ],
+      "baseline_spacing_m": 0.0024007515591376086
+    },
+    {
+      "generated_output_row": 7282,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1990,
+      "opposing_output_rows": [
+        940,
+        906,
+        1154
+      ],
+      "barycentric": [
+        2.220446049250313e-16,
+        0.7499999999999992,
+        0.25000000000000056
+      ],
+      "baseline_spacing_m": 0.002400751559137612
+    },
+    {
+      "generated_output_row": 7283,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1993,
+      "opposing_output_rows": [
+        5728,
+        5935,
+        5976
+      ],
+      "barycentric": [
+        0.875,
+        4.606050774796896e-17,
+        0.12499999999999994
+      ],
+      "baseline_spacing_m": 0.0027720418164887775
+    },
+    {
+      "generated_output_row": 7283,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1990,
+      "opposing_output_rows": [
+        5762,
+        5728,
+        5976
+      ],
+      "barycentric": [
+        0.0,
+        0.875000000000001,
+        0.12499999999999886
+      ],
+      "baseline_spacing_m": 0.0027720418164888096
+    },
+    {
+      "generated_output_row": 7283,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1993,
+      "opposing_output_rows": [
+        906,
+        1113,
+        1154
+      ],
+      "barycentric": [
+        0.875,
+        4.606050774796896e-17,
+        0.12499999999999994
+      ],
+      "baseline_spacing_m": 0.0024252264209358005
+    },
+    {
+      "generated_output_row": 7283,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1990,
+      "opposing_output_rows": [
+        940,
+        906,
+        1154
+      ],
+      "barycentric": [
+        0.0,
+        0.875000000000001,
+        0.12499999999999886
+      ],
+      "baseline_spacing_m": 0.0024252264209357662
+    },
+    {
+      "generated_output_row": 7284,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1992,
+      "opposing_output_rows": [
+        5728,
+        5892,
+        5935
+      ],
+      "barycentric": [
+        2.55351295663786e-15,
+        0.4999999999999888,
+        0.5000000000000087
+      ],
+      "baseline_spacing_m": 0.002629962363194713
+    },
+    {
+      "generated_output_row": 7284,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 2242,
+      "opposing_output_rows": [
+        5892,
+        5841,
+        5935
+      ],
+      "barycentric": [
+        0.5,
+        1.969641346520462e-17,
+        0.49999999999999994
+      ],
+      "baseline_spacing_m": 0.0026299623631947165
+    },
+    {
+      "generated_output_row": 7284,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1992,
+      "opposing_output_rows": [
+        906,
+        1070,
+        1113
+      ],
+      "barycentric": [
+        2.55351295663786e-15,
+        0.4999999999999888,
+        0.5000000000000087
+      ],
+      "baseline_spacing_m": 0.002458926994375167
+    },
+    {
+      "generated_output_row": 7284,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 2242,
+      "opposing_output_rows": [
+        1070,
+        1019,
+        1113
+      ],
+      "barycentric": [
+        0.5,
+        1.969641346520462e-17,
+        0.49999999999999994
+      ],
+      "baseline_spacing_m": 0.0024589269943751653
+    },
+    {
+      "generated_output_row": 7285,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1992,
+      "opposing_output_rows": [
+        5728,
+        5892,
+        5935
+      ],
+      "barycentric": [
+        1.3322676295501878e-15,
+        0.7499999999999943,
+        0.25000000000000433
+      ],
+      "baseline_spacing_m": 0.0026810363417060726
+    },
+    {
+      "generated_output_row": 7285,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 2242,
+      "opposing_output_rows": [
+        5892,
+        5841,
+        5935
+      ],
+      "barycentric": [
+        0.75,
+        9.84820673260231e-18,
+        0.24999999999999997
+      ],
+      "baseline_spacing_m": 0.002681036341706073
+    },
+    {
+      "generated_output_row": 7285,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1992,
+      "opposing_output_rows": [
+        906,
+        1070,
+        1113
+      ],
+      "barycentric": [
+        1.3322676295501878e-15,
+        0.7499999999999943,
+        0.25000000000000433
+      ],
+      "baseline_spacing_m": 0.0024516508005506124
+    },
+    {
+      "generated_output_row": 7285,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 2242,
+      "opposing_output_rows": [
+        1070,
+        1019,
+        1113
+      ],
+      "barycentric": [
+        0.75,
+        9.84820673260231e-18,
+        0.24999999999999997
+      ],
+      "baseline_spacing_m": 0.002451650800550611
+    },
+    {
+      "generated_output_row": 7286,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1991,
+      "opposing_output_rows": [
+        5728,
+        5841,
+        5892
+      ],
+      "barycentric": [
+        0.5,
+        1.2246767072091289e-16,
+        0.49999999999999983
+      ],
+      "baseline_spacing_m": 0.0027223612721397317
+    },
+    {
+      "generated_output_row": 7286,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1992,
+      "opposing_output_rows": [
+        5728,
+        5892,
+        5935
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0027223612721396927
+    },
+    {
+      "generated_output_row": 7286,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1991,
+      "opposing_output_rows": [
+        906,
+        1019,
+        1070
+      ],
+      "barycentric": [
+        0.5,
+        1.2246767072091289e-16,
+        0.49999999999999983
+      ],
+      "baseline_spacing_m": 0.0024385413286044486
+    },
+    {
+      "generated_output_row": 7286,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1992,
+      "opposing_output_rows": [
+        906,
+        1070,
+        1113
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024385413286044876
+    },
+    {
+      "generated_output_row": 7287,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1991,
+      "opposing_output_rows": [
+        5728,
+        5841,
+        5892
+      ],
+      "barycentric": [
+        0.75,
+        6.123383536045644e-17,
+        0.24999999999999992
+      ],
+      "baseline_spacing_m": 0.0027260728962334394
+    },
+    {
+      "generated_output_row": 7287,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1992,
+      "opposing_output_rows": [
+        5728,
+        5892,
+        5935
+      ],
+      "barycentric": [
+        0.75,
+        0.25,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0027260728962334394
+    },
+    {
+      "generated_output_row": 7287,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1991,
+      "opposing_output_rows": [
+        906,
+        1019,
+        1070
+      ],
+      "barycentric": [
+        0.75,
+        6.123383536045644e-17,
+        0.24999999999999992
+      ],
+      "baseline_spacing_m": 0.0024416865089554648
+    },
+    {
+      "generated_output_row": 7287,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1992,
+      "opposing_output_rows": [
+        906,
+        1070,
+        1113
+      ],
+      "barycentric": [
+        0.75,
+        0.25,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024416865089554648
+    },
+    {
+      "generated_output_row": 7288,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1991,
+      "opposing_output_rows": [
+        5728,
+        5841,
+        5892
+      ],
+      "barycentric": [
+        0.875,
+        3.061691768022822e-17,
+        0.12499999999999996
+      ],
+      "baseline_spacing_m": 0.0027304308680285087
+    },
+    {
+      "generated_output_row": 7288,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1992,
+      "opposing_output_rows": [
+        5728,
+        5892,
+        5935
+      ],
+      "barycentric": [
+        0.875,
+        0.125,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0027304308680285087
+    },
+    {
+      "generated_output_row": 7288,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1991,
+      "opposing_output_rows": [
+        906,
+        1019,
+        1070
+      ],
+      "barycentric": [
+        0.875,
+        3.061691768022822e-17,
+        0.12499999999999996
+      ],
+      "baseline_spacing_m": 0.0024455109176902546
+    },
+    {
+      "generated_output_row": 7288,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1992,
+      "opposing_output_rows": [
+        906,
+        1070,
+        1113
+      ],
+      "barycentric": [
+        0.875,
+        0.125,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024455109176902546
+    },
+    {
+      "generated_output_row": 7289,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1991,
+      "opposing_output_rows": [
+        5728,
+        5841,
+        5892
+      ],
+      "barycentric": [
+        0.9375,
+        1.530845884011411e-17,
+        0.06249999999999998
+      ],
+      "baseline_spacing_m": 0.0027332323072198623
+    },
+    {
+      "generated_output_row": 7289,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1992,
+      "opposing_output_rows": [
+        5728,
+        5892,
+        5935
+      ],
+      "barycentric": [
+        0.9375,
+        0.0625,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0027332323072198623
+    },
+    {
+      "generated_output_row": 7289,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1991,
+      "opposing_output_rows": [
+        906,
+        1019,
+        1070
+      ],
+      "barycentric": [
+        0.9375,
+        1.530845884011411e-17,
+        0.06249999999999998
+      ],
+      "baseline_spacing_m": 0.0024479835490327107
+    },
+    {
+      "generated_output_row": 7289,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1992,
+      "opposing_output_rows": [
+        906,
+        1070,
+        1113
+      ],
+      "barycentric": [
+        0.9375,
+        0.0625,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024479835490327107
+    },
+    {
+      "generated_output_row": 7290,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1809,
+      "opposing_output_rows": [
+        5652,
+        5727,
+        5760
+      ],
+      "barycentric": [
+        0.05632317690234745,
+        4.776700857176811e-16,
+        0.9436768230976521
+      ],
+      "baseline_spacing_m": 0.002797999920892845
+    },
+    {
+      "generated_output_row": 7290,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1811,
+      "opposing_output_rows": [
+        5728,
+        5652,
+        5760
+      ],
+      "barycentric": [
+        0.0,
+        0.05632317690234768,
+        0.9436768230976522
+      ],
+      "baseline_spacing_m": 0.0027979999208929507
+    },
+    {
+      "generated_output_row": 7290,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1809,
+      "opposing_output_rows": [
+        830,
+        905,
+        938
+      ],
+      "barycentric": [
+        0.05632317690234745,
+        4.776700857176811e-16,
+        0.9436768230976521
+      ],
+      "baseline_spacing_m": 0.0024033823013954523
+    },
+    {
+      "generated_output_row": 7290,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1811,
+      "opposing_output_rows": [
+        906,
+        830,
+        938
+      ],
+      "barycentric": [
+        0.0,
+        0.05632317690234768,
+        0.9436768230976522
+      ],
+      "baseline_spacing_m": 0.002403382301395349
+    },
+    {
+      "generated_output_row": 7291,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1809,
+      "opposing_output_rows": [
+        5652,
+        5727,
+        5760
+      ],
+      "barycentric": [
+        0.5281615884511739,
+        0.0,
+        0.47183841154882605
+      ],
+      "baseline_spacing_m": 0.004324602566867771
+    },
+    {
+      "generated_output_row": 7291,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1811,
+      "opposing_output_rows": [
+        5728,
+        5652,
+        5760
+      ],
+      "barycentric": [
+        6.661338147750939e-16,
+        0.5281615884511737,
+        0.4718384115488257
+      ],
+      "baseline_spacing_m": 0.004324602566867769
+    },
+    {
+      "generated_output_row": 7291,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1809,
+      "opposing_output_rows": [
+        830,
+        905,
+        938
+      ],
+      "barycentric": [
+        0.5281615884511739,
+        0.0,
+        0.47183841154882605
+      ],
+      "baseline_spacing_m": 0.0021890236368428506
+    },
+    {
+      "generated_output_row": 7291,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1811,
+      "opposing_output_rows": [
+        906,
+        830,
+        938
+      ],
+      "barycentric": [
+        6.661338147750939e-16,
+        0.5281615884511737,
+        0.4718384115488257
+      ],
+      "baseline_spacing_m": 0.0021890236368428545
+    },
+    {
+      "generated_output_row": 7292,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1809,
+      "opposing_output_rows": [
+        5652,
+        5727,
+        5760
+      ],
+      "barycentric": [
+        0.7640807942255868,
+        0.0,
+        0.23591920577441308
+      ],
+      "baseline_spacing_m": 0.005419572560872322
+    },
+    {
+      "generated_output_row": 7292,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1811,
+      "opposing_output_rows": [
+        5728,
+        5652,
+        5760
+      ],
+      "barycentric": [
+        3.3306690738754696e-16,
+        0.7640807942255872,
+        0.23591920577441253
+      ],
+      "baseline_spacing_m": 0.0054195725608723235
+    },
+    {
+      "generated_output_row": 7292,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1809,
+      "opposing_output_rows": [
+        830,
+        905,
+        938
+      ],
+      "barycentric": [
+        0.7640807942255868,
+        0.0,
+        0.23591920577441308
+      ],
+      "baseline_spacing_m": 0.002263863615653915
+    },
+    {
+      "generated_output_row": 7292,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1811,
+      "opposing_output_rows": [
+        906,
+        830,
+        938
+      ],
+      "barycentric": [
+        3.3306690738754696e-16,
+        0.7640807942255872,
+        0.23591920577441253
+      ],
+      "baseline_spacing_m": 0.002263863615653916
+    },
+    {
+      "generated_output_row": 7293,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1809,
+      "opposing_output_rows": [
+        3241,
+        3316,
+        3349
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0023344480823078613
+    },
+    {
+      "generated_output_row": 7293,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1810,
+      "opposing_output_rows": [
+        3241,
+        4791,
+        3316
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.0023344480823078613
+    },
+    {
+      "generated_output_row": 7294,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1809,
+      "opposing_output_rows": [
+        3241,
+        3316,
+        3349
+      ],
+      "barycentric": [
+        0.25,
+        0.75,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0023643438542739676
+    },
+    {
+      "generated_output_row": 7294,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1810,
+      "opposing_output_rows": [
+        3241,
+        4791,
+        3316
+      ],
+      "barycentric": [
+        0.2500000000000002,
+        0.0,
+        0.7499999999999997
+      ],
+      "baseline_spacing_m": 0.0023643438542740145
+    },
+    {
+      "generated_output_row": 7295,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1809,
+      "opposing_output_rows": [
+        3241,
+        3316,
+        3349
+      ],
+      "barycentric": [
+        0.12500000000000033,
+        0.8749999999999996,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024011043792139686
+    },
+    {
+      "generated_output_row": 7295,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1810,
+      "opposing_output_rows": [
+        3241,
+        4791,
+        3316
+      ],
+      "barycentric": [
+        0.12500000000000028,
+        0.0,
+        0.8749999999999999
+      ],
+      "baseline_spacing_m": 0.0024011043792138576
+    },
+    {
+      "generated_output_row": 7296,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1731,
+      "opposing_output_rows": [
+        5642,
+        5616,
+        5727
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.008223450280673368
+    },
+    {
+      "generated_output_row": 7296,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1787,
+      "opposing_output_rows": [
+        7202,
+        5642,
+        5727
+      ],
+      "barycentric": [
+        0.0,
+        0.5000000000000001,
+        0.49999999999999994
+      ],
+      "baseline_spacing_m": 0.008223450280673365
+    },
+    {
+      "generated_output_row": 7296,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1731,
+      "opposing_output_rows": [
+        820,
+        794,
+        905
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.002442224306219477
+    },
+    {
+      "generated_output_row": 7296,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1787,
+      "opposing_output_rows": [
+        2380,
+        820,
+        905
+      ],
+      "barycentric": [
+        0.0,
+        0.5000000000000001,
+        0.49999999999999994
+      ],
+      "baseline_spacing_m": 0.0024422243062194858
+    },
+    {
+      "generated_output_row": 7297,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1731,
+      "opposing_output_rows": [
+        5642,
+        5616,
+        5727
+      ],
+      "barycentric": [
+        0.25,
+        0.0,
+        0.75
+      ],
+      "baseline_spacing_m": 0.007404384349103785
+    },
+    {
+      "generated_output_row": 7297,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1787,
+      "opposing_output_rows": [
+        7202,
+        5642,
+        5727
+      ],
+      "barycentric": [
+        0.0,
+        0.2500000000000002,
+        0.7499999999999999
+      ],
+      "baseline_spacing_m": 0.0074043843491037285
+    },
+    {
+      "generated_output_row": 7297,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1731,
+      "opposing_output_rows": [
+        820,
+        794,
+        905
+      ],
+      "barycentric": [
+        0.25,
+        0.0,
+        0.75
+      ],
+      "baseline_spacing_m": 0.002444554623175784
+    },
+    {
+      "generated_output_row": 7297,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1787,
+      "opposing_output_rows": [
+        2380,
+        820,
+        905
+      ],
+      "barycentric": [
+        0.0,
+        0.2500000000000002,
+        0.7499999999999999
+      ],
+      "baseline_spacing_m": 0.0024445546231758384
+    },
+    {
+      "generated_output_row": 7298,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1731,
+      "opposing_output_rows": [
+        5642,
+        5616,
+        5727
+      ],
+      "barycentric": [
+        0.0,
+        0.5,
+        0.5
+      ],
+      "baseline_spacing_m": 0.008091764753233057
+    },
+    {
+      "generated_output_row": 7298,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1733,
+      "opposing_output_rows": [
+        5727,
+        5616,
+        5971
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.008091764753233057
+    },
+    {
+      "generated_output_row": 7298,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1731,
+      "opposing_output_rows": [
+        820,
+        794,
+        905
+      ],
+      "barycentric": [
+        0.0,
+        0.5,
+        0.5
+      ],
+      "baseline_spacing_m": 0.0024015227582358137
+    },
+    {
+      "generated_output_row": 7298,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1733,
+      "opposing_output_rows": [
+        905,
+        794,
+        1149
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024015227582358137
+    },
+    {
+      "generated_output_row": 7299,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1731,
+      "opposing_output_rows": [
+        5642,
+        5616,
+        5727
+      ],
+      "barycentric": [
+        0.0,
+        0.25,
+        0.75
+      ],
+      "baseline_spacing_m": 0.0072946073414907305
+    },
+    {
+      "generated_output_row": 7299,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1733,
+      "opposing_output_rows": [
+        5727,
+        5616,
+        5971
+      ],
+      "barycentric": [
+        0.75,
+        0.25,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0072946073414907305
+    },
+    {
+      "generated_output_row": 7299,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1731,
+      "opposing_output_rows": [
+        820,
+        794,
+        905
+      ],
+      "barycentric": [
+        0.0,
+        0.25,
+        0.75
+      ],
+      "baseline_spacing_m": 0.0024140535023802214
+    },
+    {
+      "generated_output_row": 7299,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1733,
+      "opposing_output_rows": [
+        905,
+        794,
+        1149
+      ],
+      "barycentric": [
+        0.75,
+        0.25,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024140535023802214
+    },
+    {
+      "generated_output_row": 7300,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1731,
+      "opposing_output_rows": [
+        5642,
+        5616,
+        5727
+      ],
+      "barycentric": [
+        0.0,
+        0.125,
+        0.875
+      ],
+      "baseline_spacing_m": 0.006934609631911837
+    },
+    {
+      "generated_output_row": 7300,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1733,
+      "opposing_output_rows": [
+        5727,
+        5616,
+        5971
+      ],
+      "barycentric": [
+        0.875,
+        0.125,
+        0.0
+      ],
+      "baseline_spacing_m": 0.006934609631911837
+    },
+    {
+      "generated_output_row": 7300,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1731,
+      "opposing_output_rows": [
+        820,
+        794,
+        905
+      ],
+      "barycentric": [
+        0.0,
+        0.125,
+        0.875
+      ],
+      "baseline_spacing_m": 0.002429772097578851
+    },
+    {
+      "generated_output_row": 7300,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1733,
+      "opposing_output_rows": [
+        905,
+        794,
+        1149
+      ],
+      "barycentric": [
+        0.875,
+        0.125,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002429772097578851
+    },
+    {
+      "generated_output_row": 7301,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1731,
+      "opposing_output_rows": [
+        5642,
+        5616,
+        5727
+      ],
+      "barycentric": [
+        0.0,
+        0.0625,
+        0.9375
+      ],
+      "baseline_spacing_m": 0.006766090090586892
+    },
+    {
+      "generated_output_row": 7301,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1733,
+      "opposing_output_rows": [
+        5727,
+        5616,
+        5971
+      ],
+      "barycentric": [
+        0.9375,
+        0.0625,
+        0.0
+      ],
+      "baseline_spacing_m": 0.006766090090586892
+    },
+    {
+      "generated_output_row": 7301,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1731,
+      "opposing_output_rows": [
+        820,
+        794,
+        905
+      ],
+      "barycentric": [
+        0.0,
+        0.0625,
+        0.9375
+      ],
+      "baseline_spacing_m": 0.0024399599058157135
+    },
+    {
+      "generated_output_row": 7301,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1733,
+      "opposing_output_rows": [
+        905,
+        794,
+        1149
+      ],
+      "barycentric": [
+        0.9375,
+        0.0625,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024399599058157135
+    },
+    {
+      "generated_output_row": 7302,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1731,
+      "opposing_output_rows": [
+        5642,
+        5616,
+        5727
+      ],
+      "barycentric": [
+        0.0,
+        0.03125,
+        0.96875
+      ],
+      "baseline_spacing_m": 0.0066849825723758445
+    },
+    {
+      "generated_output_row": 7302,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1733,
+      "opposing_output_rows": [
+        5727,
+        5616,
+        5971
+      ],
+      "barycentric": [
+        0.96875,
+        0.03125,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0066849825723758445
+    },
+    {
+      "generated_output_row": 7302,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1731,
+      "opposing_output_rows": [
+        820,
+        794,
+        905
+      ],
+      "barycentric": [
+        0.0,
+        0.03125,
+        0.96875
+      ],
+      "baseline_spacing_m": 0.002445602797552621
+    },
+    {
+      "generated_output_row": 7302,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1733,
+      "opposing_output_rows": [
+        905,
+        794,
+        1149
+      ],
+      "barycentric": [
+        0.96875,
+        0.03125,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002445602797552621
+    },
+    {
+      "generated_output_row": 7303,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1988,
+      "opposing_output_rows": [
+        5727,
+        5971,
+        5973
+      ],
+      "barycentric": [
+        0.0,
+        0.49999999999999994,
+        0.5000000000000001
+      ],
+      "baseline_spacing_m": 0.007116135956712241
+    },
+    {
+      "generated_output_row": 7303,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 2239,
+      "opposing_output_rows": [
+        5971,
+        5838,
+        5973
+      ],
+      "barycentric": [
+        0.49999999999999967,
+        1.893415597770413e-16,
+        0.5000000000000001
+      ],
+      "baseline_spacing_m": 0.007116135956712241
+    },
+    {
+      "generated_output_row": 7303,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1988,
+      "opposing_output_rows": [
+        905,
+        1149,
+        1151
+      ],
+      "barycentric": [
+        0.0,
+        0.49999999999999994,
+        0.5000000000000001
+      ],
+      "baseline_spacing_m": 0.002097696477567207
+    },
+    {
+      "generated_output_row": 7303,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 2239,
+      "opposing_output_rows": [
+        1149,
+        1016,
+        1151
+      ],
+      "barycentric": [
+        0.49999999999999967,
+        1.893415597770413e-16,
+        0.5000000000000001
+      ],
+      "baseline_spacing_m": 0.002097696477567207
+    },
+    {
+      "generated_output_row": 7304,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2239,
+      "opposing_output_rows": [
+        3560,
+        3427,
+        3562
+      ],
+      "barycentric": [
+        0.0,
+        0.5,
+        0.5
+      ],
+      "baseline_spacing_m": 0.002448319534282916
+    },
+    {
+      "generated_output_row": 7304,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2240,
+      "opposing_output_rows": [
+        3562,
+        3427,
+        3683
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002448319534282916
+    },
+    {
+      "generated_output_row": 7305,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2239,
+      "opposing_output_rows": [
+        3560,
+        3427,
+        3562
+      ],
+      "barycentric": [
+        2.220446049250313e-16,
+        0.6835343843933367,
+        0.31646561560666303
+      ],
+      "baseline_spacing_m": 0.0024487665332965083
+    },
+    {
+      "generated_output_row": 7305,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2240,
+      "opposing_output_rows": [
+        3562,
+        3427,
+        3683
+      ],
+      "barycentric": [
+        0.3164656156066631,
+        0.6835343843933365,
+        3.9079304032696863e-16
+      ],
+      "baseline_spacing_m": 0.002448766533296506
+    },
+    {
+      "generated_output_row": 7306,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 2238,
+      "opposing_output_rows": [
+        5838,
+        5936,
+        6094
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.009410807056137322
+    },
+    {
+      "generated_output_row": 7306,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 2240,
+      "opposing_output_rows": [
+        5973,
+        5838,
+        6094
+      ],
+      "barycentric": [
+        0.0,
+        0.5000000000000002,
+        0.4999999999999997
+      ],
+      "baseline_spacing_m": 0.009410807056137314
+    },
+    {
+      "generated_output_row": 7306,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 2238,
+      "opposing_output_rows": [
+        1016,
+        1114,
+        1272
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.002145247220839585
+    },
+    {
+      "generated_output_row": 7306,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 2240,
+      "opposing_output_rows": [
+        1151,
+        1016,
+        1272
+      ],
+      "barycentric": [
+        0.0,
+        0.5000000000000002,
+        0.4999999999999997
+      ],
+      "baseline_spacing_m": 0.0021452472208395895
+    },
+    {
+      "generated_output_row": 7307,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 2238,
+      "opposing_output_rows": [
+        5838,
+        5936,
+        6094
+      ],
+      "barycentric": [
+        0.8228264692881323,
+        0.0,
+        0.1771735307118677
+      ],
+      "baseline_spacing_m": 0.009618565258300403
+    },
+    {
+      "generated_output_row": 7307,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 2240,
+      "opposing_output_rows": [
+        5973,
+        5838,
+        6094
+      ],
+      "barycentric": [
+        4.440892098500626e-16,
+        0.8228264692881317,
+        0.17717353071186784
+      ],
+      "baseline_spacing_m": 0.009618565258300413
+    },
+    {
+      "generated_output_row": 7307,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 2238,
+      "opposing_output_rows": [
+        1016,
+        1114,
+        1272
+      ],
+      "barycentric": [
+        0.8228264692881323,
+        0.0,
+        0.1771735307118677
+      ],
+      "baseline_spacing_m": 0.002321026635522827
+    },
+    {
+      "generated_output_row": 7307,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 2240,
+      "opposing_output_rows": [
+        1151,
+        1016,
+        1272
+      ],
+      "barycentric": [
+        4.440892098500626e-16,
+        0.8228264692881317,
+        0.17717353071186784
+      ],
+      "baseline_spacing_m": 0.0023210266355228174
+    },
+    {
+      "generated_output_row": 7308,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2238,
+      "opposing_output_rows": [
+        3427,
+        3525,
+        3683
+      ],
+      "barycentric": [
+        0.0,
+        0.5,
+        0.5000000000000001
+      ],
+      "baseline_spacing_m": 0.002247283555845538
+    },
+    {
+      "generated_output_row": 7308,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2424,
+      "opposing_output_rows": [
+        3525,
+        3664,
+        3683
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.0022472835558454947
+    },
+    {
+      "generated_output_row": 7309,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2238,
+      "opposing_output_rows": [
+        3427,
+        3525,
+        3683
+      ],
+      "barycentric": [
+        0.0,
+        0.75,
+        0.25000000000000006
+      ],
+      "baseline_spacing_m": 0.002346547133643083
+    },
+    {
+      "generated_output_row": 7309,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2424,
+      "opposing_output_rows": [
+        3525,
+        3664,
+        3683
+      ],
+      "barycentric": [
+        0.75,
+        0.0,
+        0.25
+      ],
+      "baseline_spacing_m": 0.00234654713364308
+    },
+    {
+      "generated_output_row": 7310,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2238,
+      "opposing_output_rows": [
+        3427,
+        3525,
+        3683
+      ],
+      "barycentric": [
+        0.0,
+        0.875,
+        0.12499999999999997
+      ],
+      "baseline_spacing_m": 0.0023982898239334562
+    },
+    {
+      "generated_output_row": 7310,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2424,
+      "opposing_output_rows": [
+        3525,
+        3664,
+        3683
+      ],
+      "barycentric": [
+        0.875,
+        0.0,
+        0.125
+      ],
+      "baseline_spacing_m": 0.0023982898239334575
+    },
+    {
+      "generated_output_row": 7311,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2238,
+      "opposing_output_rows": [
+        3427,
+        3525,
+        3683
+      ],
+      "barycentric": [
+        0.0,
+        0.9375,
+        0.06250000000000004
+      ],
+      "baseline_spacing_m": 0.0024246371150770628
+    },
+    {
+      "generated_output_row": 7311,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2424,
+      "opposing_output_rows": [
+        3525,
+        3664,
+        3683
+      ],
+      "barycentric": [
+        0.9375,
+        0.0,
+        0.0625
+      ],
+      "baseline_spacing_m": 0.0024246371150770615
+    },
+    {
+      "generated_output_row": 7312,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        3427,
+        3234,
+        3429
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.002368317236597198
+    },
+    {
+      "generated_output_row": 7312,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2237,
+      "opposing_output_rows": [
+        3427,
+        3429,
+        3525
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002368317236597198
+    },
+    {
+      "generated_output_row": 7313,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        3427,
+        3234,
+        3429
+      ],
+      "barycentric": [
+        0.75,
+        0.0,
+        0.25
+      ],
+      "baseline_spacing_m": 0.0023894378250903917
+    },
+    {
+      "generated_output_row": 7313,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2237,
+      "opposing_output_rows": [
+        3427,
+        3429,
+        3525
+      ],
+      "barycentric": [
+        0.75,
+        0.25,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0023894378250903917
+    },
+    {
+      "generated_output_row": 7314,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        3427,
+        3234,
+        3429
+      ],
+      "barycentric": [
+        0.875,
+        0.0,
+        0.125
+      ],
+      "baseline_spacing_m": 0.002415477226216912
+    },
+    {
+      "generated_output_row": 7314,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2237,
+      "opposing_output_rows": [
+        3427,
+        3429,
+        3525
+      ],
+      "barycentric": [
+        0.875,
+        0.125,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002415477226216912
+    },
+    {
+      "generated_output_row": 7315,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        3427,
+        3234,
+        3429
+      ],
+      "barycentric": [
+        0.9375,
+        0.0,
+        0.0625
+      ],
+      "baseline_spacing_m": 0.0024322675467635985
+    },
+    {
+      "generated_output_row": 7315,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 2237,
+      "opposing_output_rows": [
+        3427,
+        3429,
+        3525
+      ],
+      "barycentric": [
+        0.9375,
+        0.0625,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024322675467635985
+    },
+    {
+      "generated_output_row": 7316,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        5616,
+        5645,
+        5838
+      ],
+      "barycentric": [
+        0.0,
+        0.03748461066262754,
+        0.9625153893373725
+      ],
+      "baseline_spacing_m": 0.009862707290714357
+    },
+    {
+      "generated_output_row": 7316,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        5838,
+        5645,
+        5840
+      ],
+      "barycentric": [
+        0.9625153893373721,
+        0.03748461066262769,
+        1.789185354676078e-16
+      ],
+      "baseline_spacing_m": 0.009862707290714345
+    },
+    {
+      "generated_output_row": 7316,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        794,
+        823,
+        1016
+      ],
+      "barycentric": [
+        0.0,
+        0.03748461066262754,
+        0.9625153893373725
+      ],
+      "baseline_spacing_m": 0.0024415770552696273
+    },
+    {
+      "generated_output_row": 7316,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        1016,
+        823,
+        1018
+      ],
+      "barycentric": [
+        0.9625153893373721,
+        0.03748461066262769,
+        1.789185354676078e-16
+      ],
+      "baseline_spacing_m": 0.0024415770552695766
+    },
+    {
+      "generated_output_row": 7317,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        5616,
+        5645,
+        5838
+      ],
+      "barycentric": [
+        0.0,
+        0.5187423053313146,
+        0.4812576946686855
+      ],
+      "baseline_spacing_m": 0.009626695605088432
+    },
+    {
+      "generated_output_row": 7317,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        5838,
+        5645,
+        5840
+      ],
+      "barycentric": [
+        0.4812576946686852,
+        0.5187423053313138,
+        1.0459852842721687e-15
+      ],
+      "baseline_spacing_m": 0.00962669560508841
+    },
+    {
+      "generated_output_row": 7317,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        794,
+        823,
+        1016
+      ],
+      "barycentric": [
+        0.0,
+        0.5187423053313146,
+        0.4812576946686855
+      ],
+      "baseline_spacing_m": 0.002382164589800625
+    },
+    {
+      "generated_output_row": 7317,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        1016,
+        823,
+        1018
+      ],
+      "barycentric": [
+        0.4812576946686852,
+        0.5187423053313138,
+        1.0459852842721687e-15
+      ],
+      "baseline_spacing_m": 0.0023821645898006037
+    },
+    {
+      "generated_output_row": 7318,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        5616,
+        5645,
+        5838
+      ],
+      "barycentric": [
+        0.0,
+        0.2781134579969723,
+        0.7218865420030277
+      ],
+      "baseline_spacing_m": 0.009681206121797434
+    },
+    {
+      "generated_output_row": 7318,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        5838,
+        5645,
+        5840
+      ],
+      "barycentric": [
+        0.7218865420030276,
+        0.2781134579969708,
+        1.5965038549417313e-15
+      ],
+      "baseline_spacing_m": 0.009681206121797488
+    },
+    {
+      "generated_output_row": 7318,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        794,
+        823,
+        1016
+      ],
+      "barycentric": [
+        0.0,
+        0.2781134579969723,
+        0.7218865420030277
+      ],
+      "baseline_spacing_m": 0.0023958890010452745
+    },
+    {
+      "generated_output_row": 7318,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        1016,
+        823,
+        1018
+      ],
+      "barycentric": [
+        0.7218865420030276,
+        0.2781134579969708,
+        1.5965038549417313e-15
+      ],
+      "baseline_spacing_m": 0.0023958890010452225
+    },
+    {
+      "generated_output_row": 7319,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        5616,
+        5645,
+        5838
+      ],
+      "barycentric": [
+        1.1102230246251565e-16,
+        0.15779903432979883,
+        0.8422009656702011
+      ],
+      "baseline_spacing_m": 0.00975641261839865
+    },
+    {
+      "generated_output_row": 7319,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        5838,
+        5645,
+        5840
+      ],
+      "barycentric": [
+        0.842200965670201,
+        0.15779903432979894,
+        1.101037141339125e-16
+      ],
+      "baseline_spacing_m": 0.009756412618398698
+    },
+    {
+      "generated_output_row": 7319,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        794,
+        823,
+        1016
+      ],
+      "barycentric": [
+        1.1102230246251565e-16,
+        0.15779903432979883,
+        0.8422009656702011
+      ],
+      "baseline_spacing_m": 0.002414818209335376
+    },
+    {
+      "generated_output_row": 7319,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        1016,
+        823,
+        1018
+      ],
+      "barycentric": [
+        0.842200965670201,
+        0.15779903432979894,
+        1.101037141339125e-16
+      ],
+      "baseline_spacing_m": 0.0024148182093353785
+    },
+    {
+      "generated_output_row": 7320,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        3205,
+        3234,
+        3427
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5000000000000001
+      ],
+      "baseline_spacing_m": 0.009205445067220678
+    },
+    {
+      "generated_output_row": 7320,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1734,
+      "opposing_output_rows": [
+        3205,
+        3427,
+        3560
+      ],
+      "barycentric": [
+        0.5,
+        0.49999999999999994,
+        0.0
+      ],
+      "baseline_spacing_m": 0.009205445067220692
+    },
+    {
+      "generated_output_row": 7321,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        3205,
+        3234,
+        3427
+      ],
+      "barycentric": [
+        0.25,
+        0.0,
+        0.7500000000000001
+      ],
+      "baseline_spacing_m": 0.009384177997969327
+    },
+    {
+      "generated_output_row": 7321,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1734,
+      "opposing_output_rows": [
+        3205,
+        3427,
+        3560
+      ],
+      "barycentric": [
+        0.25,
+        0.75,
+        0.0
+      ],
+      "baseline_spacing_m": 0.009384177997969367
+    },
+    {
+      "generated_output_row": 7322,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        3205,
+        3234,
+        3427
+      ],
+      "barycentric": [
+        0.125,
+        0.0,
+        0.8750000000000001
+      ],
+      "baseline_spacing_m": 0.009603281391900857
+    },
+    {
+      "generated_output_row": 7322,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1734,
+      "opposing_output_rows": [
+        3205,
+        3427,
+        3560
+      ],
+      "barycentric": [
+        0.1250000000000001,
+        0.8749999999999999,
+        0.0
+      ],
+      "baseline_spacing_m": 0.009603281391900914
+    },
+    {
+      "generated_output_row": 7323,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1734,
+      "opposing_output_rows": [
+        5616,
+        5838,
+        5971
+      ],
+      "barycentric": [
+        2.220446049250313e-16,
+        0.0474972359661855,
+        0.9525027640338143
+      ],
+      "baseline_spacing_m": 0.009697308451711245
+    },
+    {
+      "generated_output_row": 7323,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 2239,
+      "opposing_output_rows": [
+        5971,
+        5838,
+        5973
+      ],
+      "barycentric": [
+        0.9525027640338145,
+        0.047497235966185394,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0096973084517113
+    },
+    {
+      "generated_output_row": 7323,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1734,
+      "opposing_output_rows": [
+        794,
+        1016,
+        1149
+      ],
+      "barycentric": [
+        2.220446049250313e-16,
+        0.0474972359661855,
+        0.9525027640338143
+      ],
+      "baseline_spacing_m": 0.002400620855078474
+    },
+    {
+      "generated_output_row": 7323,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 2239,
+      "opposing_output_rows": [
+        1149,
+        1016,
+        1151
+      ],
+      "barycentric": [
+        0.9525027640338145,
+        0.047497235966185394,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002400620855078412
+    },
+    {
+      "generated_output_row": 7324,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1734,
+      "opposing_output_rows": [
+        5616,
+        5838,
+        5971
+      ],
+      "barycentric": [
+        4.440892098500626e-16,
+        0.5237486179830902,
+        0.47625138201690925
+      ],
+      "baseline_spacing_m": 0.008722459852728404
+    },
+    {
+      "generated_output_row": 7324,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 2239,
+      "opposing_output_rows": [
+        5971,
+        5838,
+        5973
+      ],
+      "barycentric": [
+        0.47625138201690687,
+        0.5237486179830926,
+        5.359155339482818e-16
+      ],
+      "baseline_spacing_m": 0.008722459852728397
+    },
+    {
+      "generated_output_row": 7324,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1734,
+      "opposing_output_rows": [
+        794,
+        1016,
+        1149
+      ],
+      "barycentric": [
+        4.440892098500626e-16,
+        0.5237486179830902,
+        0.47625138201690925
+      ],
+      "baseline_spacing_m": 0.0021586858291869552
+    },
+    {
+      "generated_output_row": 7324,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 2239,
+      "opposing_output_rows": [
+        1149,
+        1016,
+        1151
+      ],
+      "barycentric": [
+        0.47625138201690687,
+        0.5237486179830926,
+        5.359155339482818e-16
+      ],
+      "baseline_spacing_m": 0.002158685829186968
+    },
+    {
+      "generated_output_row": 7325,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        3205,
+        3234,
+        3427
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.0022783668461138257
+    },
+    {
+      "generated_output_row": 7325,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1734,
+      "opposing_output_rows": [
+        3205,
+        3427,
+        3560
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0022783668461138257
+    },
+    {
+      "generated_output_row": 7326,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        3205,
+        3234,
+        3427
+      ],
+      "barycentric": [
+        0.25,
+        0.0,
+        0.75
+      ],
+      "baseline_spacing_m": 0.00232273400884095
+    },
+    {
+      "generated_output_row": 7326,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1734,
+      "opposing_output_rows": [
+        3205,
+        3427,
+        3560
+      ],
+      "barycentric": [
+        0.25,
+        0.75,
+        0.0
+      ],
+      "baseline_spacing_m": 0.00232273400884095
+    },
+    {
+      "generated_output_row": 7327,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        3205,
+        3234,
+        3427
+      ],
+      "barycentric": [
+        0.125,
+        9.590620876659375e-17,
+        0.8749999999999999
+      ],
+      "baseline_spacing_m": 0.0023772081490412585
+    },
+    {
+      "generated_output_row": 7327,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1734,
+      "opposing_output_rows": [
+        3205,
+        3427,
+        3560
+      ],
+      "barycentric": [
+        0.125,
+        0.875,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0023772081490412585
+    },
+    {
+      "generated_output_row": 7328,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        3205,
+        3234,
+        3427
+      ],
+      "barycentric": [
+        0.0,
+        0.503132892029849,
+        0.49686710797015093
+      ],
+      "baseline_spacing_m": 0.0023820548782652108
+    },
+    {
+      "generated_output_row": 7328,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        3427,
+        3234,
+        3429
+      ],
+      "barycentric": [
+        0.496867107970151,
+        0.5031328920298486,
+        4.2566603814624175e-16
+      ],
+      "baseline_spacing_m": 0.0023820548782652303
+    },
+    {
+      "generated_output_row": 7329,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        3205,
+        3234,
+        3427
+      ],
+      "barycentric": [
+        0.0,
+        0.7515664460149242,
+        0.24843355398507583
+      ],
+      "baseline_spacing_m": 0.0023998726223663632
+    },
+    {
+      "generated_output_row": 7329,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        3427,
+        3234,
+        3429
+      ],
+      "barycentric": [
+        0.2484335539850755,
+        0.7515664460149242,
+        3.192495286096813e-16
+      ],
+      "baseline_spacing_m": 0.0023998726223663485
+    },
+    {
+      "generated_output_row": 7330,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        3205,
+        3234,
+        3427
+      ],
+      "barycentric": [
+        4.440892098500626e-16,
+        0.8757832230074611,
+        0.12421677699253844
+      ],
+      "baseline_spacing_m": 0.002421596492304741
+    },
+    {
+      "generated_output_row": 7330,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        3427,
+        3234,
+        3429
+      ],
+      "barycentric": [
+        0.12421677699253869,
+        0.8757832230074614,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024215964923047706
+    },
+    {
+      "generated_output_row": 7331,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1732,
+      "opposing_output_rows": [
+        3205,
+        3234,
+        3427
+      ],
+      "barycentric": [
+        2.220446049250313e-16,
+        0.9378916115037306,
+        0.06210838849626922
+      ],
+      "baseline_spacing_m": 0.002435590388301313
+    },
+    {
+      "generated_output_row": 7331,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        3427,
+        3234,
+        3429
+      ],
+      "barycentric": [
+        0.06210838849626951,
+        0.9378916115037303,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024355903883013182
+    },
+    {
+      "generated_output_row": 7332,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1795,
+      "opposing_output_rows": [
+        3234,
+        3240,
+        3429
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.002427703484199063
+    },
+    {
+      "generated_output_row": 7332,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        3427,
+        3234,
+        3429
+      ],
+      "barycentric": [
+        0.0,
+        0.49999999999999994,
+        0.5000000000000001
+      ],
+      "baseline_spacing_m": 0.002427703484199063
+    },
+    {
+      "generated_output_row": 7333,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1795,
+      "opposing_output_rows": [
+        3234,
+        3240,
+        3429
+      ],
+      "barycentric": [
+        0.75,
+        0.0,
+        0.25
+      ],
+      "baseline_spacing_m": 0.00243374608249602
+    },
+    {
+      "generated_output_row": 7333,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        3427,
+        3234,
+        3429
+      ],
+      "barycentric": [
+        0.0,
+        0.75,
+        0.25
+      ],
+      "baseline_spacing_m": 0.00243374608249602
+    },
+    {
+      "generated_output_row": 7334,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1795,
+      "opposing_output_rows": [
+        3234,
+        3240,
+        3429
+      ],
+      "barycentric": [
+        0.875,
+        0.0,
+        0.125
+      ],
+      "baseline_spacing_m": 0.0024412225331210844
+    },
+    {
+      "generated_output_row": 7334,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        3427,
+        3234,
+        3429
+      ],
+      "barycentric": [
+        0.0,
+        0.875,
+        0.12500000000000006
+      ],
+      "baseline_spacing_m": 0.0024412225331210844
+    },
+    {
+      "generated_output_row": 7335,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1795,
+      "opposing_output_rows": [
+        3234,
+        3240,
+        3429
+      ],
+      "barycentric": [
+        0.9375,
+        0.0,
+        0.0625
+      ],
+      "baseline_spacing_m": 0.0024460428738750334
+    },
+    {
+      "generated_output_row": 7335,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1796,
+      "opposing_output_rows": [
+        3427,
+        3234,
+        3429
+      ],
+      "barycentric": [
+        0.0,
+        0.9375,
+        0.06250000000000008
+      ],
+      "baseline_spacing_m": 0.002446042873875053
+    },
+    {
+      "generated_output_row": 7336,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1597,
+      "opposing_output_rows": [
+        5645,
+        5559,
+        5651
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.009844923977536058
+    },
+    {
+      "generated_output_row": 7336,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1795,
+      "opposing_output_rows": [
+        5645,
+        5651,
+        5840
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.009844923977536058
+    },
+    {
+      "generated_output_row": 7336,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1597,
+      "opposing_output_rows": [
+        823,
+        737,
+        829
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.002437500159928062
+    },
+    {
+      "generated_output_row": 7336,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1795,
+      "opposing_output_rows": [
+        823,
+        829,
+        1018
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002437500159928062
+    },
+    {
+      "generated_output_row": 7337,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1597,
+      "opposing_output_rows": [
+        5645,
+        5559,
+        5651
+      ],
+      "barycentric": [
+        0.75,
+        0.0,
+        0.25
+      ],
+      "baseline_spacing_m": 0.009859241292465869
+    },
+    {
+      "generated_output_row": 7337,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1795,
+      "opposing_output_rows": [
+        5645,
+        5651,
+        5840
+      ],
+      "barycentric": [
+        0.75,
+        0.25,
+        0.0
+      ],
+      "baseline_spacing_m": 0.009859241292465869
+    },
+    {
+      "generated_output_row": 7337,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1597,
+      "opposing_output_rows": [
+        823,
+        737,
+        829
+      ],
+      "barycentric": [
+        0.75,
+        0.0,
+        0.25
+      ],
+      "baseline_spacing_m": 0.0024410438470710513
+    },
+    {
+      "generated_output_row": 7337,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1795,
+      "opposing_output_rows": [
+        823,
+        829,
+        1018
+      ],
+      "barycentric": [
+        0.75,
+        0.25,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024410438470710513
+    },
+    {
+      "generated_output_row": 7338,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1597,
+      "opposing_output_rows": [
+        5645,
+        5559,
+        5651
+      ],
+      "barycentric": [
+        0.875,
+        0.0,
+        0.125
+      ],
+      "baseline_spacing_m": 0.0098771106021539
+    },
+    {
+      "generated_output_row": 7338,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1795,
+      "opposing_output_rows": [
+        5645,
+        5651,
+        5840
+      ],
+      "barycentric": [
+        0.875,
+        0.125,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0098771106021539
+    },
+    {
+      "generated_output_row": 7338,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1597,
+      "opposing_output_rows": [
+        823,
+        737,
+        829
+      ],
+      "barycentric": [
+        0.875,
+        0.0,
+        0.125
+      ],
+      "baseline_spacing_m": 0.0024454422120379423
+    },
+    {
+      "generated_output_row": 7338,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1795,
+      "opposing_output_rows": [
+        823,
+        829,
+        1018
+      ],
+      "barycentric": [
+        0.875,
+        0.125,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024454422120379423
+    },
+    {
+      "generated_output_row": 7339,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1597,
+      "opposing_output_rows": [
+        3234,
+        3148,
+        3240
+      ],
+      "barycentric": [
+        0.47564976305648266,
+        2.698812530773392e-17,
+        0.5243502369435173
+      ],
+      "baseline_spacing_m": 0.009845056021988527
+    },
+    {
+      "generated_output_row": 7339,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1795,
+      "opposing_output_rows": [
+        3234,
+        3240,
+        3429
+      ],
+      "barycentric": [
+        0.47564976305648254,
+        0.5243502369435175,
+        0.0
+      ],
+      "baseline_spacing_m": 0.009845056021988532
+    },
+    {
+      "generated_output_row": 7340,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1795,
+      "opposing_output_rows": [
+        5645,
+        5651,
+        5840
+      ],
+      "barycentric": [
+        0.0,
+        0.4999999999999999,
+        0.5000000000000001
+      ],
+      "baseline_spacing_m": 0.009870931734350163
+    },
+    {
+      "generated_output_row": 7340,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1808,
+      "opposing_output_rows": [
+        5651,
+        5694,
+        5840
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.009870931734350163
+    },
+    {
+      "generated_output_row": 7340,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1795,
+      "opposing_output_rows": [
+        823,
+        829,
+        1018
+      ],
+      "barycentric": [
+        0.0,
+        0.4999999999999999,
+        0.5000000000000001
+      ],
+      "baseline_spacing_m": 0.002443754066941023
+    },
+    {
+      "generated_output_row": 7340,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1808,
+      "opposing_output_rows": [
+        829,
+        872,
+        1018
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.002443754066941023
+    },
+    {
+      "generated_output_row": 7341,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1765,
+      "opposing_output_rows": [
+        3240,
+        3221,
+        3255
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.009822048313618518
+    },
+    {
+      "generated_output_row": 7341,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1807,
+      "opposing_output_rows": [
+        3240,
+        3255,
+        3283
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.009822048313618518
+    },
+    {
+      "generated_output_row": 7342,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1596,
+      "opposing_output_rows": [
+        5559,
+        5632,
+        5651
+      ],
+      "barycentric": [
+        0.0,
+        0.4999999999999999,
+        0.5000000000000001
+      ],
+      "baseline_spacing_m": 0.00986022915052175
+    },
+    {
+      "generated_output_row": 7342,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1765,
+      "opposing_output_rows": [
+        5651,
+        5632,
+        5666
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.00986022915052175
+    },
+    {
+      "generated_output_row": 7342,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1596,
+      "opposing_output_rows": [
+        737,
+        810,
+        829
+      ],
+      "barycentric": [
+        0.0,
+        0.4999999999999999,
+        0.5000000000000001
+      ],
+      "baseline_spacing_m": 0.002441574730787442
+    },
+    {
+      "generated_output_row": 7342,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1765,
+      "opposing_output_rows": [
+        829,
+        810,
+        844
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002441574730787442
+    },
+    {
+      "generated_output_row": 7343,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1508,
+      "opposing_output_rows": [
+        3148,
+        3117,
+        3221
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.002412740496091837
+    },
+    {
+      "generated_output_row": 7343,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1596,
+      "opposing_output_rows": [
+        3148,
+        3221,
+        3240
+      ],
+      "barycentric": [
+        0.5,
+        0.49999999999999994,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002412740496091837
+    },
+    {
+      "generated_output_row": 7344,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1508,
+      "opposing_output_rows": [
+        3148,
+        3117,
+        3221
+      ],
+      "barycentric": [
+        0.25,
+        0.0,
+        0.75
+      ],
+      "baseline_spacing_m": 0.002422895827559407
+    },
+    {
+      "generated_output_row": 7344,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1596,
+      "opposing_output_rows": [
+        3148,
+        3221,
+        3240
+      ],
+      "barycentric": [
+        0.2500000000000001,
+        0.7499999999999998,
+        1.4678324600960494e-16
+      ],
+      "baseline_spacing_m": 0.002422895827559394
+    },
+    {
+      "generated_output_row": 7345,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1508,
+      "opposing_output_rows": [
+        3148,
+        3117,
+        3221
+      ],
+      "barycentric": [
+        0.125,
+        0.0,
+        0.875
+      ],
+      "baseline_spacing_m": 0.0024354675353830354
+    },
+    {
+      "generated_output_row": 7345,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1596,
+      "opposing_output_rows": [
+        3148,
+        3221,
+        3240
+      ],
+      "barycentric": [
+        0.1250000000000001,
+        0.8749999999999999,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024354675353830397
+    },
+    {
+      "generated_output_row": 7346,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1507,
+      "opposing_output_rows": [
+        3117,
+        3129,
+        3221
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.0023551019265638956
+    },
+    {
+      "generated_output_row": 7346,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1508,
+      "opposing_output_rows": [
+        3148,
+        3117,
+        3221
+      ],
+      "barycentric": [
+        0.0,
+        0.49999999999999994,
+        0.5
+      ],
+      "baseline_spacing_m": 0.002355101926563889
+    },
+    {
+      "generated_output_row": 7347,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1507,
+      "opposing_output_rows": [
+        3117,
+        3129,
+        3221
+      ],
+      "barycentric": [
+        0.2499999999999999,
+        0.0,
+        0.7500000000000001
+      ],
+      "baseline_spacing_m": 0.002379913342016893
+    },
+    {
+      "generated_output_row": 7347,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1508,
+      "opposing_output_rows": [
+        3148,
+        3117,
+        3221
+      ],
+      "barycentric": [
+        0.0,
+        0.24999999999999997,
+        0.75
+      ],
+      "baseline_spacing_m": 0.002379913342016897
+    },
+    {
+      "generated_output_row": 7348,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1507,
+      "opposing_output_rows": [
+        3117,
+        3129,
+        3221
+      ],
+      "barycentric": [
+        0.12499999999999989,
+        0.0,
+        0.8750000000000001
+      ],
+      "baseline_spacing_m": 0.00241060095615556
+    },
+    {
+      "generated_output_row": 7348,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1508,
+      "opposing_output_rows": [
+        3148,
+        3117,
+        3221
+      ],
+      "barycentric": [
+        0.0,
+        0.12499999999999999,
+        0.875
+      ],
+      "baseline_spacing_m": 0.002410600956155569
+    },
+    {
+      "generated_output_row": 7349,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1507,
+      "opposing_output_rows": [
+        3117,
+        3129,
+        3221
+      ],
+      "barycentric": [
+        0.06249999999999989,
+        0.0,
+        0.9375000000000001
+      ],
+      "baseline_spacing_m": 0.0024303448788907693
+    },
+    {
+      "generated_output_row": 7349,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1508,
+      "opposing_output_rows": [
+        3148,
+        3117,
+        3221
+      ],
+      "barycentric": [
+        0.0,
+        0.0625,
+        0.9374999999999999
+      ],
+      "baseline_spacing_m": 0.0024303448788908057
+    },
+    {
+      "generated_output_row": 7350,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1763,
+      "opposing_output_rows": [
+        5632,
+        5644,
+        5646
+      ],
+      "barycentric": [
+        0.5000000000000031,
+        3.6388848937355526e-15,
+        0.4999999999999932
+      ],
+      "baseline_spacing_m": 0.009774384651476824
+    },
+    {
+      "generated_output_row": 7350,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1764,
+      "opposing_output_rows": [
+        5632,
+        5646,
+        5761
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.00977438465147682
+    },
+    {
+      "generated_output_row": 7350,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1763,
+      "opposing_output_rows": [
+        810,
+        822,
+        824
+      ],
+      "barycentric": [
+        0.5000000000000031,
+        3.6388848937355526e-15,
+        0.4999999999999932
+      ],
+      "baseline_spacing_m": 0.0024202984069482095
+    },
+    {
+      "generated_output_row": 7350,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1764,
+      "opposing_output_rows": [
+        810,
+        824,
+        939
+      ],
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ],
+      "baseline_spacing_m": 0.00242029840694822
+    },
+    {
+      "generated_output_row": 7351,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1764,
+      "opposing_output_rows": [
+        3221,
+        3235,
+        3350
+      ],
+      "barycentric": [
+        0.4999999999999999,
+        0.0,
+        0.5000000000000001
+      ],
+      "baseline_spacing_m": 0.0023986131174320194
+    },
+    {
+      "generated_output_row": 7351,
+      "from_surface": "O",
+      "to_surface": "I",
+      "parent_face_row": 1766,
+      "opposing_output_rows": [
+        3255,
+        3221,
+        3350
+      ],
+      "barycentric": [
+        0.0,
+        0.49999999999999994,
+        0.5
+      ],
+      "baseline_spacing_m": 0.0023986131174320298
+    },
+    {
+      "generated_output_row": 7352,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1764,
+      "opposing_output_rows": [
+        5632,
+        5646,
+        5761
+      ],
+      "barycentric": [
+        0.5076922981917069,
+        3.7469238521365987e-16,
+        0.4923077018082927
+      ],
+      "baseline_spacing_m": 0.009686477421674578
+    },
+    {
+      "generated_output_row": 7352,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1766,
+      "opposing_output_rows": [
+        5666,
+        5632,
+        5761
+      ],
+      "barycentric": [
+        0.0,
+        0.5076922981917071,
+        0.4923077018082929
+      ],
+      "baseline_spacing_m": 0.009686477421674574
+    },
+    {
+      "generated_output_row": 7352,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1764,
+      "opposing_output_rows": [
+        810,
+        824,
+        939
+      ],
+      "barycentric": [
+        0.5076922981917069,
+        3.7469238521365987e-16,
+        0.4923077018082927
+      ],
+      "baseline_spacing_m": 0.0023986379546804765
+    },
+    {
+      "generated_output_row": 7352,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1766,
+      "opposing_output_rows": [
+        844,
+        810,
+        939
+      ],
+      "barycentric": [
+        0.0,
+        0.5076922981917071,
+        0.4923077018082929
+      ],
+      "baseline_spacing_m": 0.00239863795468049
+    },
+    {
+      "generated_output_row": 7353,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1764,
+      "opposing_output_rows": [
+        3221,
+        3235,
+        3350
+      ],
+      "barycentric": [
+        0.543509689558015,
+        3.0562729077465277e-16,
+        0.4564903104419846
+      ],
+      "baseline_spacing_m": 0.0096881891432444
+    },
+    {
+      "generated_output_row": 7353,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1766,
+      "opposing_output_rows": [
+        3255,
+        3221,
+        3350
+      ],
+      "barycentric": [
+        0.0,
+        0.5435096895580154,
+        0.45649031044198474
+      ],
+      "baseline_spacing_m": 0.0096881891432444
+    },
+    {
+      "generated_output_row": 7354,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1763,
+      "opposing_output_rows": [
+        3221,
+        3233,
+        3235
+      ],
+      "barycentric": [
+        0.49917566439386524,
+        0.0,
+        0.5008243356061348
+      ],
+      "baseline_spacing_m": 0.009774380272296282
+    },
+    {
+      "generated_output_row": 7354,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1764,
+      "opposing_output_rows": [
+        3221,
+        3235,
+        3350
+      ],
+      "barycentric": [
+        0.4991756643939136,
+        0.5008243356060865,
+        0.0
+      ],
+      "baseline_spacing_m": 0.009774380272296263
+    },
+    {
+      "generated_output_row": 7355,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1507,
+      "opposing_output_rows": [
+        5528,
+        5540,
+        5632
+      ],
+      "barycentric": [
+        5.551115123125783e-16,
+        0.034604897396414834,
+        0.9653951026035846
+      ],
+      "baseline_spacing_m": 0.009886311510023584
+    },
+    {
+      "generated_output_row": 7355,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1542,
+      "opposing_output_rows": [
+        5632,
+        5540,
+        5644
+      ],
+      "barycentric": [
+        0.9653951026035846,
+        0.03460489739641534,
+        0.0
+      ],
+      "baseline_spacing_m": 0.009886311510023584
+    },
+    {
+      "generated_output_row": 7355,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1507,
+      "opposing_output_rows": [
+        706,
+        718,
+        810
+      ],
+      "barycentric": [
+        5.551115123125783e-16,
+        0.034604897396414834,
+        0.9653951026035846
+      ],
+      "baseline_spacing_m": 0.0024484806225874246
+    },
+    {
+      "generated_output_row": 7355,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1542,
+      "opposing_output_rows": [
+        810,
+        718,
+        822
+      ],
+      "barycentric": [
+        0.9653951026035846,
+        0.03460489739641534,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024484806225874164
+    },
+    {
+      "generated_output_row": 7356,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1507,
+      "opposing_output_rows": [
+        5528,
+        5540,
+        5632
+      ],
+      "barycentric": [
+        6.661338147750939e-16,
+        0.5173024486982069,
+        0.4826975513017925
+      ],
+      "baseline_spacing_m": 0.009768947252820227
+    },
+    {
+      "generated_output_row": 7356,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1542,
+      "opposing_output_rows": [
+        5632,
+        5540,
+        5644
+      ],
+      "barycentric": [
+        0.4826975513017927,
+        0.5173024486982074,
+        0.0
+      ],
+      "baseline_spacing_m": 0.009768947252820199
+    },
+    {
+      "generated_output_row": 7356,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1507,
+      "opposing_output_rows": [
+        706,
+        718,
+        810
+      ],
+      "barycentric": [
+        6.661338147750939e-16,
+        0.5173024486982069,
+        0.4826975513017925
+      ],
+      "baseline_spacing_m": 0.002419394474349721
+    },
+    {
+      "generated_output_row": 7356,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1542,
+      "opposing_output_rows": [
+        810,
+        718,
+        822
+      ],
+      "barycentric": [
+        0.4826975513017927,
+        0.5173024486982074,
+        0.0
+      ],
+      "baseline_spacing_m": 0.002419394474349772
+    },
+    {
+      "generated_output_row": 7357,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1507,
+      "opposing_output_rows": [
+        5528,
+        5540,
+        5632
+      ],
+      "barycentric": [
+        2.220446049250313e-16,
+        0.27595367304731133,
+        0.7240463269526884
+      ],
+      "baseline_spacing_m": 0.009796180574157083
+    },
+    {
+      "generated_output_row": 7357,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1542,
+      "opposing_output_rows": [
+        5632,
+        5540,
+        5644
+      ],
+      "barycentric": [
+        0.7240463269526886,
+        0.27595367304731155,
+        0.0
+      ],
+      "baseline_spacing_m": 0.009796180574157074
+    },
+    {
+      "generated_output_row": 7357,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1507,
+      "opposing_output_rows": [
+        706,
+        718,
+        810
+      ],
+      "barycentric": [
+        2.220446049250313e-16,
+        0.27595367304731133,
+        0.7240463269526884
+      ],
+      "baseline_spacing_m": 0.0024261645772206248
+    },
+    {
+      "generated_output_row": 7357,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1542,
+      "opposing_output_rows": [
+        810,
+        718,
+        822
+      ],
+      "barycentric": [
+        0.7240463269526886,
+        0.27595367304731155,
+        0.0
+      ],
+      "baseline_spacing_m": 0.0024261645772206608
+    },
+    {
+      "generated_output_row": 7358,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1507,
+      "opposing_output_rows": [
+        5528,
+        5540,
+        5632
+      ],
+      "barycentric": [
+        0.0,
+        0.15527928522186363,
+        0.8447207147781364
+      ],
+      "baseline_spacing_m": 0.00983346876215195
+    },
+    {
+      "generated_output_row": 7358,
+      "from_surface": "I",
+      "to_surface": "D",
+      "parent_face_row": 1542,
+      "opposing_output_rows": [
+        5632,
+        5540,
+        5644
+      ],
+      "barycentric": [
+        0.8447207147781364,
+        0.15527928522186346,
+        1.8587367762555143e-16
+      ],
+      "baseline_spacing_m": 0.009833468762151968
+    },
+    {
+      "generated_output_row": 7358,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1507,
+      "opposing_output_rows": [
+        706,
+        718,
+        810
+      ],
+      "barycentric": [
+        0.0,
+        0.15527928522186363,
+        0.8447207147781364
+      ],
+      "baseline_spacing_m": 0.002435393969934822
+    },
+    {
+      "generated_output_row": 7358,
+      "from_surface": "I",
+      "to_surface": "O",
+      "parent_face_row": 1542,
+      "opposing_output_rows": [
+        810,
+        718,
+        822
+      ],
+      "barycentric": [
+        0.8447207147781364,
+        0.15527928522186346,
+        1.8587367762555143e-16
+      ],
+      "baseline_spacing_m": 0.002435393969934826
+    },
+    {
+      "generated_output_row": 7359,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1507,
+      "opposing_output_rows": [
+        3117,
+        3129,
+        3221
+      ],
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "baseline_spacing_m": 0.009509064091617095
+    },
+    {
+      "generated_output_row": 7359,
+      "from_surface": "D",
+      "to_surface": "I",
+      "parent_face_row": 1508,
+      "opposing_output_rows": [
+        3148,
+        3117,
+        3221
+      ],
+      "barycentric": [
+        0.0,
+        0.5,
+        0.5
+      ],
+      "baseline_spacing_m": 0.009509064091617095
+    }
+  ],
+  "limitations": [
+    "Construction-only projected spacing bounds for generated O/I/D boundary nodes.",
+    "Generated interior nodes are not layer-paired.",
+    "These rows do not certify all surface clearance, exact solid containment, mass transfer, or native physics."
+  ]
+}

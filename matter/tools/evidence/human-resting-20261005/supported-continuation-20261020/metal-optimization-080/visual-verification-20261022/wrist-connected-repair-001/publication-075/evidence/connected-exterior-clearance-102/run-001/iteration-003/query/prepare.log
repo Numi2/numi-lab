@@ -1,0 +1,9 @@
+{
+  "input": "/Users/n/Work/numi-human-connected-surface-069/connected-exterior-clearance-102/run-001/iteration-003/candidate.npz",
+  "input_sha256": "dd52bcecf389261c3cf499ebd3eca27e62361276eae127c1a000eb8bbd3a72a7",
+  "field": "points_world_f32",
+  "query_count": 7360,
+  "output": "/Users/n/Work/numi-human-connected-surface-069/connected-exterior-clearance-102/run-001/iteration-003/query/points.csv",
+  "output_sha256": "4d2bb89d73547172b576396e1bdb17d47b03be1d22ca973b6e717f8a0c17f48c",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

@@ -803,3 +803,63 @@ def certify_first_outward_exit(
     result["scope_limit"] = "Construction direction is source O-D prolongation; not an anatomical outward proof or whole-surface/tet clearance certificate."
     return result
 
+
+def build_reference_outward_field(
+    reference_points_m, *, source_global_node_ids, output_source_input_row,
+    native_parent_tetrahedra, generated_output_rows, generated_parent_tet_rows,
+    generated_parent_barycentric, column_count=2411, direction_tolerance=1e-8,
+    strict_parent_agreement=True, reference_ancestry_tolerance_m=1e-10,
+):
+    """Derive layer directions from the same reference as the mechanical mesh.
+
+    Identity labels never index layer coordinates. Direct source-input rows
+    invert the compact output map; all generated reference positions must match
+    their declared native-parent barycentric construction in this same frame.
+    """
+    reference = np.asarray(reference_points_m)
+    rows = np.asarray(output_source_input_row)
+    labels = np.asarray(source_global_node_ids)
+    count = int(column_count)
+    if count <= 0 or count != column_count or labels.shape != (3*count,):
+        raise CertificationError("complete three-layer source domain required")
+    if reference.ndim != 2 or reference.shape[1] != 3 or reference.dtype.kind not in "fiu" or not np.isfinite(reference).all():
+        raise CertificationError("finite mechanical reference Nx3 coordinates required")
+    if rows.shape != (len(reference),) or rows.dtype.kind not in "iu" or np.any(rows < -1) or np.any(rows >= len(labels)):
+        raise CertificationError("reference source-input row domain is invalid")
+    direct = np.flatnonzero(rows >= 0)
+    if len(direct) != len(labels) or not np.array_equal(np.sort(rows[direct]),np.arange(len(labels))):
+        raise CertificationError("reference must cover each source-input row exactly once")
+    tolerance = float(reference_ancestry_tolerance_m)
+    if not np.isfinite(tolerance) or tolerance <= 0:
+        raise CertificationError("positive finite reference ancestry tolerance required")
+    source_reference = np.empty((len(labels),3),dtype=np.float64)
+    source_reference[rows[direct]] = reference[direct]
+    # Existing owner performs all typed ancestry and field-domain checks.
+    field, report = build_source_outward_field(
+        source_global_node_ids=labels, output_source_input_row=rows,
+        outer_points_by_column_m=source_reference[:count],
+        deep_points_by_column_m=source_reference[2*count:3*count],
+        native_parent_tetrahedra=native_parent_tetrahedra,
+        generated_output_rows=generated_output_rows,
+        generated_parent_tet_rows=generated_parent_tet_rows,
+        generated_parent_barycentric=generated_parent_barycentric,
+        column_count=count, direction_tolerance=direction_tolerance,
+        strict_parent_agreement=strict_parent_agreement)
+    generated = np.asarray(generated_output_rows,dtype=np.int64)
+    parents = np.asarray(generated_parent_tet_rows,dtype=np.int64)
+    bary = np.asarray(generated_parent_barycentric,dtype=np.float64)
+    tets = np.asarray(native_parent_tetrahedra,dtype=np.int64)
+    predicted = np.einsum("ij,ijk->ik",bary,source_reference[tets[parents]])
+    residual = np.linalg.norm(predicted-reference[generated],axis=1)
+    maximum = float(residual.max()) if len(residual) else 0.
+    if maximum > tolerance:
+        witness = int(np.argmax(residual))
+        raise CertificationError(
+            f"generated reference row {int(generated[witness])} disagrees with declared ancestry: {maximum:.9g} m")
+    report.update({
+        "direction_coordinate_frame":"mechanical reference_points_m via explicit source-input row inverse",
+        "legacy_layer_coordinate_arrays_used":False,
+        "generated_reference_ancestry_max_residual_m":maximum,
+        "reference_ancestry_tolerance_m":tolerance,
+    })
+    return field, report

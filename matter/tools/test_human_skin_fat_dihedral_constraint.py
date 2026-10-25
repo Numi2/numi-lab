@@ -129,3 +129,152 @@ def test_connected_lp_includes_hard_dihedral_rows_when_enabled(monkeypatch):
     assert np.allclose(added[0],-added[1])
     limit=np.deg2rad(20.)
     assert captures[1][1][-2:]==pytest.approx([limit-current_delta,limit+current_delta])
+
+def test_explicit_edge_selection_is_validated_before_gradient_build():
+    base=pair(0.)
+    surf=pair_surface(base,bound=15.,edge_ids=np.array([0],dtype=np.int64))
+    F=np.arange(4,dtype=np.int64)
+    ids,delta,J=surf.dihedral_change_linearization(base,F,edge_ids=np.empty(0,dtype=np.int64))
+    assert ids.size==delta.size==0 and J.shape==(0,12)
+    for invalid in [np.array([1]),np.array([0,0]),np.array([0.]),np.array([[0]])]:
+        with pytest.raises(ValueError,match='edge IDs'):
+            surf.dihedral_change_linearization(base,F,edge_ids=invalid)
+
+
+def test_omitted_lp_curvature_is_still_checked_and_backtracked(monkeypatch):
+    # Two mapped faces share only a fixed edge. Opposite free nodes must
+    # remain in one nonlinear component even when no LP edge is active.
+    origin=np.array([[0,0,0],[.01,0,0],[0,.01,0],[0,-.01,0],
+                     [0,0,.02]],dtype=np.float32)
+    T=np.array([[0,1,2,4],[0,3,1,4]],dtype=np.int64)
+    surf=MappedSkinSurface(origin,origin[:4],np.array([[0,1,2],[1,0,3]]),
+        sparse.csr_matrix((np.ones(4),(np.arange(4),np.arange(4))),shape=(4,5)),
+        max_dihedral_change_degrees=15.,dihedral_edge_ids=np.array([0]))
+    F=np.array([2,3],dtype=np.int64)
+    C=sparse.csr_matrix(([1.],([0],[11])),shape=(1,15))
+    def fake(c,**kwargs):
+        x=np.zeros(len(c));x[5]=10. # 10 mm at opposite vertex 3
+        return SimpleNamespace(success=True,status=0,message='injected direction',x=x)
+    monkeypatch.setattr(repair,'linprog',fake)
+    Y,report=repair.coupled_clearance_step(origin,origin.astype(float),T,F,C,
+        np.array([.01]),construction_origin=origin,max_incremental_gradient=None,
+        step_limit_mm=10.,embedded_surface=surf,dihedral_active_fraction=.75)
+    assert report['mapped_skin_dihedral_linearization_edge_count']==0
+    assert report['step_applied'] and len(report['components'])==1
+    attempts=report['components'][0]['attempts']
+    assert attempts[0]['first_failed_gate']=='mapped_skin_dihedral'
+    assert attempts[-1]['first_failed_gate'] is None
+    assert report['components'][0]['line_fraction']<1.
+    assert surf.dihedral_passes(Y)
+    assert 0.<float(Y[3,2])<.01
+    np.testing.assert_array_equal(Y[[0,1,4]],origin[[0,1,4]])
+
+
+@pytest.mark.parametrize('fraction',[float('nan'),float('inf'),-.1,1.,'bad'])
+def test_invalid_active_fraction_fails_closed(fraction):
+    with pytest.raises(ValueError,match='dihedral active fraction'):
+        repair.coupled_clearance_step(None,None,None,None,None,None,dihedral_active_fraction=fraction)
+
+@pytest.mark.parametrize('ids',[np.empty(0,dtype=np.int64),np.empty(0,dtype=float)])
+def test_enabled_constructor_rejects_empty_coverage(ids):
+    with pytest.raises(ValueError,match='nonempty'):
+        pair_surface(pair(0.),bound=15.,edge_ids=ids)
+
+
+def _witness_fixture():
+    origin=np.array([[0,0,0],[.01,0,0],[0,.01,0],[0,-.01,0],
+                     [0,0,.02]],dtype=np.float32)
+    T=np.array([[0,1,2,4],[0,3,1,4]],dtype=np.int64)
+    surf=MappedSkinSurface(origin,origin[:4],np.array([[0,1,2],[1,0,3]]),
+        sparse.csr_matrix((np.ones(4),(np.arange(4),np.arange(4))),shape=(4,5)),
+        max_dihedral_change_degrees=15.)
+    C=sparse.csr_matrix(([1.],([0],[11])),shape=(1,15))
+    return dict(points=origin,reference=origin.astype(float),tetrahedra=T,
+        free_nodes=np.array([2,3],dtype=np.int64),contact_matrix=C,
+        contact_targets=np.array([.01]),construction_origin=origin,
+        max_incremental_gradient=None,step_limit_mm=10.,embedded_surface=surf,
+        dihedral_active_fraction=.75,dihedral_constraint_passes=2)
+
+
+def test_proposed_crease_adds_only_witness_rows_before_resolve(monkeypatch):
+    kwargs=_witness_fixture();kwargs['dihedral_constraint_passes']=1;calls=[]
+    def fake(c,**kw):
+        calls.append(kw['A_ub'].shape[0])
+        x=np.zeros(len(c));x[5]=10. if len(calls)==1 else 2.
+        return SimpleNamespace(success=True,status=0,message='injected',x=x)
+    monkeypatch.setattr(repair,'linprog',fake)
+    Y,report=repair.coupled_clearance_step(**kwargs)
+    assert len(calls)==2 and calls[1]==calls[0]+2
+    assert report['lp_constraint_generation'][-1]['new_cell_caps_not_added_at_budget']==0
+    assert report['lp_constraint_generation'][-1]['new_dihedral_edges_not_added_at_budget']==0
+    assert report['lp_constraint_generation'][0]['new_dihedral_rows']==1
+    assert report['mapped_skin_dihedral_linearization_edge_count']==1
+    assert report['components'][0]['line_fraction']==1.
+    assert kwargs['embedded_surface'].passes(Y)
+    assert float(Y[3,2])==pytest.approx(.002)
+
+
+def test_failed_refinement_retains_prior_direction_but_full_gate_still_applies(monkeypatch):
+    kwargs=_witness_fixture();calls=[]
+    def fake(c,**kw):
+        calls.append(1);x=np.zeros(len(c));x[5]=10.
+        return SimpleNamespace(success=len(calls)==1,status=0 if len(calls)==1 else 1,
+            message='injected refinement timeout' if len(calls)>1 else 'injected',x=x)
+    monkeypatch.setattr(repair,'linprog',fake)
+    Y,report=repair.coupled_clearance_step(**kwargs)
+    assert len(calls)==2 and report['lp_success'] and report['lp_refinement_failure_retained']
+    assert report['mapped_skin_dihedral_linearization_edge_count']==0
+    assert report['components'][0]['line_fraction']<1.
+    assert kwargs['embedded_surface'].passes(Y)
+    assert report['lp_constraint_generation'][1]['success'] is False
+
+
+@pytest.mark.parametrize('passes',[-1,1.5,True,9])
+def test_invalid_constraint_generation_budget(passes):
+    with pytest.raises(ValueError,match='constraint passes'):
+        repair.coupled_clearance_step(None,None,None,None,None,None,dihedral_constraint_passes=passes)
+
+def test_witness_preparation_budget_exhaustion_is_explicit(monkeypatch):
+    kwargs=_witness_fixture();kwargs['time_limit_s']=1.
+    calls=[]
+    def fake(c,**kw):
+        calls.append(1);x=np.zeros(len(c));x[5]=10.
+        return SimpleNamespace(success=True,status=0,message='injected',x=x)
+    ticks=iter([0.,0.,.1,2.,2.,2.])
+    monkeypatch.setattr(repair,'linprog',fake)
+    monkeypatch.setattr(repair.time,'monotonic',lambda:next(ticks))
+    Y,report=repair.coupled_clearance_step(**kwargs)
+    assert len(calls)==1
+    assert report['lp_refinement_budget_exhausted']
+    assert report['lp_constraint_generation_stop_reason']=='time_budget_exhausted_before_refinement'
+    assert report['lp_constraint_generation'][0]['cumulative_elapsed_s']==2.
+    assert report['mapped_skin_dihedral_linearization_edge_count']==0
+    assert kwargs['embedded_surface'].passes(Y)
+
+def test_local_cell_witness_adds_gradient_cap_without_changing_reference(monkeypatch):
+    kwargs=_witness_fixture();kwargs['cell_witness_gradient_limit']=.15
+    # Vertex 4 is not rendered; its inversion must be discovered from cells.
+    kwargs['free_nodes']=np.array([2,3,4],dtype=np.int64)
+    calls=[]
+    def fake(c,**kw):
+        calls.append(kw['A_ub'].copy());x=np.zeros(len(c))
+        x[5]=1.;x[8]=-30. if len(calls)==1 else -.5
+        return SimpleNamespace(success=True,status=0,message='injected',x=x)
+    monkeypatch.setattr(repair,'linprog',fake)
+    ref=kwargs['reference'].copy()
+    Y,report=repair.coupled_clearance_step(**kwargs)
+    assert len(calls)==2
+    first=report['lp_constraint_generation'][0]
+    assert first['proposed_cell_J_min']<0.
+    assert first['new_cell_gradient_caps']==2
+    assert calls[1].shape[0]==calls[0].shape[0]+36
+    assert report['lp_cell_gradient_cap_count']==2
+    assert report['emitted_J_min']>=.35 and report['emitted_q_min']>=1e-5
+    np.testing.assert_array_equal(kwargs['reference'],ref)
+
+
+@pytest.mark.parametrize('limit',[0.,1.,float('nan'),-.1])
+def test_invalid_cell_witness_gradient_limit(limit):
+    kwargs=_witness_fixture();kwargs['cell_witness_gradient_limit']=limit
+    with pytest.raises(ValueError,match='cell witness gradient'):
+        repair.coupled_clearance_step(**kwargs)

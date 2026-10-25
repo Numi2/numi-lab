@@ -1,0 +1,7 @@
+{
+  "iteration": 4,
+  "stage": "validated midpoint query and source-ray exits",
+  "exception_type": "ValueError",
+  "message": "one or more exact-hit spans collapse in Float32; see midpoint-query-report.json",
+  "traceback": "Traceback (most recent call last):\n  File \"/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-105/run_connected_clearance_105.py\", line 432, in <module>\n    midpoint_contacts,midpoint_qmap,midpoint_report=query_inside_span_midpoints(edge_report,qmap,X,I)\n                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-105/run_connected_clearance_105.py\", line 343, in query_inside_span_midpoints\n    raise ValueError('one or more exact-hit spans collapse in Float32; see midpoint-query-report.json')\nValueError: one or more exact-hit spans collapse in Float32; see midpoint-query-report.json\n"
+}

@@ -1,0 +1,99 @@
+{
+  "schema": "075_to_compacted_084_additive_transfer_map_v3",
+  "status": "pass_static_mapping_and_adjoint_checks",
+  "inputs_sha256": {
+    "candidate": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "marker_map": "8e7ac9430c037d29e74d4c2f7f9f838995f6541c0f5fdf29a7b7095d9a6d8ff7",
+    "adapter": "6f1c8887ab33d75bf5dd6241ec7a4a4ae8bc21d2d7573a8ba36b417f303c1117",
+    "transfer_rows": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+    "coarse_reference": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2",
+    "coarse_faces": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+    "detail_payload": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb"
+  },
+  "candidate": {
+    "node_count": 7360,
+    "tet_count": 32796,
+    "surface_child_O_face_count": 4883
+  },
+  "075": {
+    "detail_rows": 61950,
+    "active_rows": 54551,
+    "inactive_fixed_rows": 7399,
+    "coarse_nodes": 2411,
+    "selected_parent_faces": 4777
+  },
+  "face_identity_and_orientation": {
+    "ordered_075_faces_equal_source_O": true,
+    "ordered_075_vs_source_O_winding_signs": {
+      "1": 4777
+    },
+    "marker_parent_vs_source_O_winding_signs": {
+      "-1": 4777
+    },
+    "candidate_child_normal_vs_source_O_parent_signs": {
+      "1": 4883
+    },
+    "every_child_uses_marker_selected_source_parent": true,
+    "all_4777_parent_faces_have_children": true,
+    "max_child_area_fraction_closure_error": 4.440892098500626e-16,
+    "max_child_vertex_parent_plane_residual_m": 1.1264020518906844e-16,
+    "min_child_vertex_parent_barycentric": -1.908590119568169e-15
+  },
+  "Wnew": {
+    "shape": [
+      61950,
+      7360
+    ],
+    "nnz": 155384,
+    "direct_one_hot_rows": 2370,
+    "exact_parent_child_barycentric_rows": 52181,
+    "multiple_containing_child_ties": 0,
+    "unmapped_active_rows": 0,
+    "nearest_fallback_used": false,
+    "min_weight": 5.237653871945955e-19,
+    "max_active_row_sum_error": 5.960464477539063e-08,
+    "inactive_zero_rows_preserved": true,
+    "max_float32_bary_adjustment": 4.469911263349502e-08,
+    "max_parent_affine_sum_error_before_normalization": 4.470348358154297e-08,
+    "max_raw_W0_to_affine_parent_point_residual_m": 7.892850428886216e-08
+  },
+  "additive_owner": {
+    "formula": "detail_origin_f32 + Wnew @ (mechanical_origin_f32 - current_X_f32)",
+    "mechanical_origin_array": "candidate.current037_points_m_f32, exact full output-node domain",
+    "baseline_detail_origin_bitwise_preserved": true,
+    "max_old_vs_new_reference_map_point_delta_m": 5.314296765976273e-08,
+    "rms_old_vs_new_reference_map_point_delta_m": 1.618767501676402e-08,
+    "max_old_vs_new_current037_map_point_delta_m": 1.3153286803879217e-07,
+    "rms_old_vs_new_current037_map_point_delta_m": 1.846870899608211e-08,
+    "075_csv_rest_offset_used": false,
+    "075_csv_rest_offset_active_formula_discrepancy_max_m": 6.009487967354627e-08,
+    "075_csv_rest_offset_active_formula_discrepancy_rms_m": 1.8771101007977074e-08
+  },
+  "support": {
+    "candidate_O_node_count": 2464,
+    "new_O_node_count": 53,
+    "new_O_nodes_with_positive_transfer_support": 52,
+    "new_O_nodes_without_transfer_support": 1,
+    "unsupported_new_O_output_rows": [
+      7315
+    ]
+  },
+  "adjoint": {
+    "lhs": -366.99845019523366,
+    "rhs": -366.99845019523366,
+    "absolute_error": 0.0,
+    "relative_error": 0.0,
+    "seed": 75084
+  },
+  "scope": [
+    "Static W remap, source identity, face partition, and baseline additive-map checks only.",
+    "No solve, current geometry repair, detailed self-intersection audit, force/physics qualification, or native admission.",
+    "No nearest-face fallback; each remapped row is constrained to its exact 075 selected parent face."
+  ],
+  "elapsed_seconds": 2.5661637783050537,
+  "outputs_sha256": {
+    "Wnew-detail-to-084-nodes.npz": "55329313bf9c2c3b613fcd7eb52dd9b7b453520dd1b4a14e0e0d6ac457ce8519",
+    "transfer-sidecar.npz": "050875e760a1b3e3ddbbf18da5aff145b1405eeb4d3aa5d6dc31a09b15908f5d",
+    "builder": "944946919575ff61a0065d0d23b88ed27683e3e4a6ccca6273453c35aa8e9e29"
+  }
+}

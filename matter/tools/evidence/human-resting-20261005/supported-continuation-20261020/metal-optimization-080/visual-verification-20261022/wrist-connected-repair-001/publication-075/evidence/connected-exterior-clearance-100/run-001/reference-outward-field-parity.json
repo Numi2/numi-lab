@@ -1,0 +1,27 @@
+{
+  "bitwise_field_parity_with_corrected_002": true,
+  "source_ancestry_sha256": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc",
+  "report": {
+    "source_direction_definition": "normalize(O_world_m[col]-D_world_m[col]), col=source_global_node_id%column_count",
+    "generated_node_extension": "barycentric interpolation over every declared original native parent tetrahedron",
+    "source_rows": 7233,
+    "direct_output_rows": 7233,
+    "generated_output_rows": 127,
+    "generated_ancestry_choices": 183,
+    "generated_parent_barycentric_min": -1.6697754290362354e-13,
+    "generated_parent_barycentric_max_row_sum_error": 2.220446049250313e-16,
+    "generated_parent_barycentric_roundoff_tolerance": 1e-10,
+    "source_global_ids_are_identity_labels": true,
+    "topology_indices_use_source_input_rows": true,
+    "generated_direction_disagreements": [],
+    "unresolved_output_rows": [],
+    "strict_parent_agreement": true,
+    "maximum_generated_parent_direction_spread": 4.679428714672884e-15,
+    "direction_agreement_tolerance": 1e-08,
+    "anatomical_outward_claim": false,
+    "direction_coordinate_frame": "mechanical reference_points_m via explicit source-input row inverse",
+    "legacy_layer_coordinate_arrays_used": false,
+    "generated_reference_ancestry_max_residual_m": 5.067293260069208e-16,
+    "reference_ancestry_tolerance_m": 1e-10
+  }
+}

@@ -4,6 +4,7 @@ Sparse coupled clearance steps retain the original reference, all cell gates and
 anchored outside vertices. Linearized feasibility is not anatomical admission.
 """
 from __future__ import annotations
+import time
 import numpy as np
 from scipy import sparse
 from scipy.optimize import linprog
@@ -126,11 +127,43 @@ def sparse_face_jacobian(gradients,faces,free_nodes,node_count):
     cc=3*cols[:,:,None]+np.arange(3)[None,None,:]
     return sparse.coo_matrix((gradients[valid],(rr[valid],cc[valid])),shape=(len(T),3*len(F))).tocsr()
 
+def sufficient_cell_gradient_caps(current_quality,current_J,q_min,J_bounds,user_limit):
+    """Per-cell componentwise ||grad(u)||_inf caps sufficient for current q/J.
+
+    For any 3x3 incremental gradient with each entry bounded by g, its spectral
+    norm is at most its Frobenius norm, 3g. Thus singular values of I+grad(u)
+    lie in [1-3g,1+3g]; the determinant and longest-edge bounds give the
+    sufficient q and J limits below. Caps are relative to the current geometry,
+    in exact arithmetic. Emitted Float32 nonlinear gates remain authoritative.
+    """
+    q=np.asarray(current_quality,dtype=np.float64);J=np.asarray(current_J,dtype=np.float64)
+    try:
+        qmin=float(q_min);lo,hi=map(float,J_bounds);limit=float(user_limit)
+    except Exception as exc:
+        raise ValueError("invalid cell gradient cap inputs") from exc
+    if (q.ndim!=1 or J.shape!=q.shape or not len(q) or not np.isfinite(q).all() or
+        not np.isfinite(J).all() or np.any(q<=0.) or np.any(J<=0.) or
+        not np.isfinite([qmin,lo,hi,limit]).all() or qmin<=0. or lo<=0. or
+        hi<=lo or not 0.<limit<1.):
+        raise ValueError("invalid cell gradient cap inputs")
+    if np.any(q<qmin) or np.any(J<lo) or np.any(J>hi):
+        raise ValueError("current cells must already satisfy q/J gates")
+    ratio_q=np.cbrt(qmin/q)
+    ratio_lo=np.cbrt(lo/J)
+    # Divide cube roots instead of forming hi/J, which could overflow for
+    # otherwise finite extreme-but-valid diagnostic inputs.
+    ratio_hi=np.cbrt(hi)/np.cbrt(J)
+    q_cap=(1.-ratio_q)/(3.*(1.+ratio_q))
+    lo_cap=(1.-ratio_lo)/3.
+    hi_cap=(ratio_hi-1.)/3.
+    return .95*np.maximum(0.,np.minimum.reduce((np.full_like(q,limit),q_cap,lo_cap,hi_cap)))
+
+
 def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix,contact_targets,
                            *, step_limit_mm=2.,q_min=1e-5,J_bounds=(.35,2.5),time_limit_s=90.,
                            lower_linear_matrix=None,lower_linear_targets=None,max_incremental_gradient=.12,
                            construction_origin=None,cumulative_displacement_weight=.01,
-                           boundary_faces=None,boundary_area_bounds=(.25,4.),boundary_normal_cosine_min=.25,linear_method="highs",embedded_surface=None):
+                           boundary_faces=None,boundary_area_bounds=(.25,4.),boundary_normal_cosine_min=.25,linear_method="highs",embedded_surface=None,dihedral_active_fraction=0.,dihedral_constraint_passes=0,cell_witness_gradient_limit=None):
     """One bounded sparse LP and hard nonlinear Float32 backtracking transaction.
 
     Contact matrix maps absolute xyz metres to normal separation metres. Each row
@@ -138,6 +171,18 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
     and reported; the caller must refresh exact collision witnesses.
     """
     if linear_method not in ("highs","highs-ipm","highs-ds"):raise ValueError("unsupported sparse linear method")
+    try:dihedral_active_fraction=float(dihedral_active_fraction)
+    except Exception as exc:raise ValueError('dihedral active fraction must be numeric') from exc
+    if not np.isfinite(dihedral_active_fraction) or not 0.<=dihedral_active_fraction<1.:
+        raise ValueError('dihedral active fraction must lie in [0,1)')
+    if isinstance(dihedral_constraint_passes,(bool,np.bool_)) or not isinstance(dihedral_constraint_passes,(int,np.integer)) or not 0<=dihedral_constraint_passes<=8:
+        raise ValueError('dihedral constraint passes must be an integer in [0,8]')
+    if dihedral_constraint_passes and (embedded_surface is None or embedded_surface.max_dihedral_change_degrees is None):
+        raise ValueError('dihedral constraint passes require an enabled mapped skin guard')
+    if cell_witness_gradient_limit is not None:
+        cell_witness_gradient_limit=float(cell_witness_gradient_limit)
+        if not np.isfinite(cell_witness_gradient_limit) or not 0.<cell_witness_gradient_limit<1. or not dihedral_constraint_passes:
+            raise ValueError('cell witness gradient limit requires (0,1) and refinement passes')
     X=np.asarray(points);R=np.asarray(reference);rawT=np.asarray(tetrahedra);rawF=np.asarray(free_nodes)
     if X.dtype!=np.float32:raise ValueError('actual emitted Float32 input required')
     if rawT.dtype.kind not in 'iu' or rawT.ndim!=2 or rawT.shape[1]!=4 or len(rawT)==0:raise ValueError('tetrahedra must be a nonempty integer Mx4 table')
@@ -231,7 +276,12 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
         else:
             embedded_lp_info={'face_ids':surface_face_ids}
         if embedded_surface.max_dihedral_change_degrees is not None:
-            edge_ids,dihedral_delta,dihedral_J=embedded_surface.dihedral_change_linearization(X,F)
+            selected_edges=None
+            if dihedral_active_fraction>0.:
+                all_edges,all_delta=embedded_surface.dihedral_change_metrics(X)
+                active_limit=dihedral_active_fraction*np.deg2rad(embedded_surface.max_dihedral_change_degrees)
+                selected_edges=all_edges[np.abs(all_delta)>=active_limit]
+            edge_ids,dihedral_delta,dihedral_J=embedded_surface.dihedral_change_linearization(X,F,edge_ids=selected_edges)
             if len(edge_ids):
                 dihedral_J_mm=.001*dihedral_J
                 limit=np.deg2rad(embedded_surface.max_dihedral_change_degrees)
@@ -264,12 +314,112 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
         rows += [sparse.hstack([DG,z(DG.shape[0])]),sparse.hstack([-DG,z(DG.shape[0])])]
         bs += [np.full(DG.shape[0],max_incremental_gradient),np.full(DG.shape[0],max_incremental_gradient)]
     objective=np.r_[np.zeros(nd),np.ones(nc),.01,np.full(nd,cumulative_displacement_weight)]
-    result=linprog(objective,A_ub=sparse.vstack(rows,format='csr'),b_ub=np.concatenate(bs),
-                   bounds=[(-step_limit_mm,step_limit_mm)]*nd+[(0,None)]*nc+[(0,step_limit_mm)]+[(0,None if O is not None else step_limit_mm)]*nd,
-                   method=linear_method,options={'time_limit':time_limit_s})
+    bounds=[(-step_limit_mm,step_limit_mm)]*nd+[(0,None)]*nc+[(0,step_limit_mm)]+[(0,None if O is not None else step_limit_mm)]*nd
+    # Constraint generation fits *all* connected tissues together. A proposed
+    # crease adds its starting-state derivative before another solve; it never
+    # admits the proposed surface or replaces the full Float32 postcheck.
+    # One shared time budget covers all LP calls and witness preparation.
+    lp_started=time.monotonic();lp_history=[];result=None;lp_stop_reason='generation_limit'
+    pending_dihedral_info=embedded_dihedral_lp_info
+    cell_cap_ids=np.empty(0,dtype=np.int64);solved_cell_cap_ids=cell_cap_ids.copy()
+    cell_cap_values={}
+    solved_cell_cap_values=np.empty(0,dtype=np.float64)
+    for generation in range(dihedral_constraint_passes+1):
+        remaining=time_limit_s-(time.monotonic()-lp_started)
+        if result is not None and remaining<=.001:
+            lp_stop_reason='time_budget_exhausted_before_refinement';break
+        trial_result=linprog(objective,A_ub=sparse.vstack(rows,format='csr'),b_ub=np.concatenate(bs),
+            bounds=bounds,method=linear_method,options={'time_limit':max(.001,remaining)})
+        entry={'generation':generation,'success':bool(trial_result.success),
+            'status':int(trial_result.status),'message':str(trial_result.message),
+            'constraint_rows':int(sum(len(b) for b in bs)),
+            'cumulative_elapsed_s':float(time.monotonic()-lp_started)}
+        lp_history.append(entry)
+        if not trial_result.success:
+            if result is None:result=trial_result
+            lp_stop_reason='initial_lp_failed' if not result.success else 'refinement_lp_failed'
+            # Keep the previous solved direction; normal full backtracking
+            # still certifies it. Failed refinement is explicitly retained.
+            break
+        result=trial_result;embedded_dihedral_lp_info=pending_dihedral_info
+        solved_cell_cap_ids=cell_cap_ids.copy()
+        solved_cell_cap_values=np.asarray(
+            [cell_cap_values[int(row)] for row in solved_cell_cap_ids],dtype=np.float64)
+        if not dihedral_constraint_passes:
+            lp_stop_reason='constraint_generation_disabled';break
+        proposed=X.copy()
+        proposed[F]=X[F].astype(float)+.001*result.x[:nd].reshape(-1,3)
+        all_edges,all_delta=embedded_surface.dihedral_change_metrics(proposed)
+        limit=np.deg2rad(embedded_surface.max_dihedral_change_degrees)
+        violated=all_edges[np.abs(all_delta)>limit]
+        # Last allowed solve is measured too, though no new LP will follow.
+        entry['proposed_dihedral_violations']=int(len(violated))
+        proposed_bad_cells=np.empty(0,dtype=np.int64)
+        if cell_witness_gradient_limit is not None:
+            proposed_J,_,proposed_q,_=cell_values_gradients(proposed,R,T)
+            proposed_bad_cells=np.intersect1d(active,np.flatnonzero(
+                (proposed_q<q_min*1.02)|(proposed_J<lo+.02)|(proposed_J>hi-.02)))
+            entry['proposed_cell_witness_count']=int(len(proposed_bad_cells))
+            entry['proposed_cell_q_min']=float(proposed_q.min())
+            entry['proposed_cell_J_min']=float(proposed_J.min())
+            entry['proposed_cell_J_max']=float(proposed_J.max())
+        if generation==dihedral_constraint_passes:
+            entry['new_cell_caps_not_added_at_budget']=int(len(np.setdiff1d(proposed_bad_cells,cell_cap_ids)))
+            entry['new_dihedral_edges_not_added_at_budget']=int(len(np.setdiff1d(violated,embedded_dihedral_lp_info['edge_ids'])))
+            entry['cumulative_elapsed_s']=float(time.monotonic()-lp_started)
+            lp_stop_reason='generation_limit';break
+        selected=np.setdiff1d(violated,embedded_dihedral_lp_info['edge_ids'])
+        edge_ids,delta_edges,J_edges=embedded_surface.dihedral_change_linearization(X,F,edge_ids=selected)
+        entry['proposed_dihedral_violations']=int(len(violated))
+        entry['new_dihedral_rows']=int(len(edge_ids))
+        new_cells=np.setdiff1d(proposed_bad_cells,cell_cap_ids)
+        entry['new_cell_gradient_caps']=int(len(new_cells))
+        if not len(edge_ids) and not len(new_cells):
+            entry['cumulative_elapsed_s']=float(time.monotonic()-lp_started)
+            lp_stop_reason='no_new_geometric_witnesses';break
+        if len(edge_ids):
+            Jmm=.001*J_edges
+            rows += [sparse.hstack([Jmm,z(len(edge_ids))]),sparse.hstack([-Jmm,z(len(edge_ids))])]
+            bs += [limit-delta_edges,limit+delta_edges]
+            old_info=embedded_dihedral_lp_info
+            pending_dihedral_info={'edge_ids':np.r_[old_info['edge_ids'],edge_ids],
+                'delta':np.r_[old_info['delta'],delta_edges],
+                'jacobian_mm':sparse.vstack([old_info['jacobian_mm'],Jmm],format='csr'),'limit':limit}
+        if len(new_cells):
+            new_caps=sufficient_cell_gradient_caps(
+                q[new_cells],J[new_cells],q_min,(lo,hi),cell_witness_gradient_limit)
+            # Bound the incremental gradient relative to the actual current
+            # emitted geometry, not the undeformed reference configuration.
+            DG=sparse_displacement_gradient(X,T[new_cells],F)
+            rows += [sparse.hstack([DG,z(DG.shape[0])]),sparse.hstack([-DG,z(DG.shape[0])])]
+            row_caps=np.repeat(new_caps,9)
+            bs += [row_caps,row_caps]
+            cell_cap_values.update({int(row):float(cap) for row,cap in zip(new_cells,new_caps)})
+            cell_cap_ids=np.union1d(cell_cap_ids,new_cells)
+            entry['new_cell_gradient_cap_min']=float(new_caps.min())
+            entry['new_cell_gradient_cap_max']=float(new_caps.max())
+        entry['cumulative_elapsed_s']=float(time.monotonic()-lp_started)
+    lp_elapsed=float(time.monotonic()-lp_started)
     report={'linear_method':linear_method,'lp_success':bool(result.success),'lp_status':int(result.status),'lp_message':result.message,
             'free_nodes':len(F),'touched_cells':len(active),'contact_rows':nc,'starting_contact_deficit_l1_mm':float(np.maximum(rhs,0).sum()),
             'reference_unchanged':True,'geometry_admitted':False,'accepted_physical_steps':0}
+    report.update({'lp_cell_witness_gradient_limit':cell_witness_gradient_limit,
+                   'lp_cell_gradient_cap_count':int(len(solved_cell_cap_ids)),
+                   'lp_cell_gradient_cap_row_count':int(9*len(solved_cell_cap_ids)),
+                   'lp_cell_gradient_cap_tetrahedron_rows':solved_cell_cap_ids.tolist(),
+                   'lp_cell_gradient_cap_values':solved_cell_cap_values.tolist(),
+                   'lp_cell_gradient_cap_min':float(solved_cell_cap_values.min()) if len(solved_cell_cap_values) else None,
+                   'lp_cell_gradient_cap_max':float(solved_cell_cap_values.max()) if len(solved_cell_cap_values) else None,
+                   'cell_gradient_caps_are_current_geometry_sufficient_bounds':cell_witness_gradient_limit is not None,
+                   'cell_gradient_caps_are_componentwise_infinity_bounds':True,
+                   'cell_gradient_caps_require_exact_float32_q_J_postcheck':True,
+                   'cell_gradient_caps_are_authoring_only':True,
+                   'lp_calls':len(lp_history),'lp_elapsed_s':lp_elapsed,
+                   'lp_constraint_generation':lp_history,
+                   'dihedral_constraint_passes_budget':dihedral_constraint_passes,
+                   'lp_refinement_failure_retained':bool(result.success and any(not h['success'] for h in lp_history)),
+                   'lp_constraint_generation_stop_reason':lp_stop_reason,
+                   'lp_refinement_budget_exhausted':lp_stop_reason=='time_budget_exhausted_before_refinement'})
     if embedded_surface is not None:
         report.update(embedded_surface.report(X))
         if embedded_lp_info is not None:
@@ -277,6 +427,8 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
             report['mapped_skin_linearization_face_count']=int(len(ids))
             report['mapped_skin_linearization_face_ids']=ids.tolist()
         if embedded_dihedral_lp_info is not None:
+            report['mapped_skin_dihedral_active_fraction']=dihedral_active_fraction
+            report['mapped_skin_dihedral_postcheck_scope']='all configured edges, regardless of LP row selection'
             report['mapped_skin_dihedral_linearization_edge_count']=int(len(embedded_dihedral_lp_info['edge_ids']))
             report['mapped_skin_dihedral_linearization_edge_ids']=embedded_dihedral_lp_info['edge_ids'].tolist()
     if not result.success:return X.copy(),report
@@ -321,7 +473,7 @@ def coupled_clearance_step(points,reference,tetrahedra,free_nodes,contact_matrix
             ix=lookup[face];ix=ix[ix>=0]
             for j in ix[1:]:er.append(ix[0]);ec.append(j);er.append(j);ec.append(ix[0])
     if embedded_surface is not None:
-        S=embedded_surface.support
+        S=embedded_surface.coupling_support
         for row in range(S.shape[0]):
             ix=lookup[S.indices[S.indptr[row]:S.indptr[row+1]]]
             ix=ix[ix>=0]
@@ -561,7 +713,7 @@ def coupled_clearance_least_squares_step(points,reference,tetrahedra,free_nodes,
             ix=np.unique(lookup[matrix.indices[matrix.indptr[row]:matrix.indptr[row+1]]//3]);ix=ix[ix>=0]
             for j in ix[1:]:er.extend([ix[0],j]);ec.extend([j,ix[0]])
     if embedded_surface is not None:
-        S=embedded_surface.support
+        S=embedded_surface.coupling_support
         for row in range(S.shape[0]):
             ix=lookup[S.indices[S.indptr[row]:S.indptr[row+1]]];ix=ix[ix>=0]
             for j in ix[1:]:er.extend([ix[0],j]);ec.extend([j,ix[0]])

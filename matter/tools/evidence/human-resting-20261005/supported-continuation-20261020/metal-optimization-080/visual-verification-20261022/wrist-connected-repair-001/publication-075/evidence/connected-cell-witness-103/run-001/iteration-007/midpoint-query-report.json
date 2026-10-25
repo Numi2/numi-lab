@@ -1,0 +1,38 @@
+{
+  "sample_build": {
+    "edge_bank_groups": 1468,
+    "span_midpoint_samples": 3777,
+    "endpoint_parity_contradiction_count": 0,
+    "endpoint_parity_contradictions": [],
+    "identical_t_duplicate_witnesses_coalesced": 0,
+    "f32_collapsed_sample_query_rows": [],
+    "mechanics_query_row_mapping_count": 7360,
+    "sample_query_row_domain": "separate from mechanics_node_row; each sample maps to edge endpoint nodes",
+    "crossing_barycentric_identity": {
+      "witnesses": 2309,
+      "max_edge_to_triangle_residual_m": 5.562326987096582e-17,
+      "tolerance_m": 5e-09,
+      "passed": true
+    }
+  },
+  "sample_query_rows": 3777,
+  "target_inside_midpoints": 1547,
+  "target_outside_midpoints": 1460,
+  "target_aabb_outside_midpoints": 770,
+  "actual_inside_bank_first_outward_ray_exit_constraints": 1740,
+  "sample_query_pairs": 4025,
+  "aabb_coverage": "complete over all 185 banks",
+  "sample_points_csv_identity": {
+    "rows": 3777,
+    "max_decimal_roundtrip_error_m": 0.0,
+    "bitwise_sample_identity": true
+  },
+  "max_query_local_transform_residual_m": 4.5102810375396984e-17,
+  "certified_first_outward_ray_exits": 1740,
+  "expected_actual_classification_disagreements": [],
+  "f32_collapsed_sample_query_rows": [],
+  "query_receipt_sha256": "347c5f477bdf1ec68b57f50c45c35e8b7b4ff12899b295713a5918f1b330d374",
+  "sample_mapping_sha256": "6abf97a2d5b19820b3c614edc6ba41d388cb455e9f9f352d97acaa2db4f1ddbc",
+  "sample_npz_sha256": "ecd885ed97869950bcdf12ab03fbcf89ff6e8d33d312509995cfd2007af7e13c",
+  "interpretation": "every nonzero exact-hit interval is queried; actual inside pairs receive 098 source O-D first-exit planes against complete bank AABBs and exact segment classification; no nearest-point fallback; outside intervals receive no plane"
+}

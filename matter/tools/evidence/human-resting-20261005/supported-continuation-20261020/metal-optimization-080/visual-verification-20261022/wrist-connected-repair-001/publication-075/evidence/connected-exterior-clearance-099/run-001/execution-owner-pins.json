@@ -1,0 +1,21 @@
+{
+  "candidate_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "fresh_start": "compact 084 current037_points_m_f32; X=O bitwise",
+  "mapping_sha256": "55329313bf9c2c3b613fcd7eb52dd9b7b453520dd1b4a14e0e0d6ac457ce8519",
+  "mapping_report_sha256": "5452f7c24b9201734e0823a40a02d7cabcee6f945fd4755ea7acc5ee09fe8413",
+  "construction_owner_sha256": "3b2019f30f1f17746f828231356fdf349131607c3234eeb894ffa65b223a6d02",
+  "embedded_owner_sha256": "06a1032c883854bb338e7489c0cdb76d75b15aa0a024dc4545499088aa9602da",
+  "surface_separator_owner_sha256": "cafecf587c641b67c709ffa5c4633f5428dfe6fa979e856420662e1d0764a244",
+  "generated_thickness_owner_sha256": "a627a3b8c491345c42e1de9b8d5cb0cc7d35aa953742b29b2a09662f3eb8e253",
+  "source_field_helper_sha256": "712b6aa304893cf1ad3aca1edde4ea913d4ab60cb5c0eb3617f5f09732e1743f",
+  "source_field_npz_sha256": "263d3be786bea0192019d0070060218fe4aea6a66b3b804a87cdcaa0715c767d",
+  "source_field_report_sha256": "976b029e2d97451a926ebd7bd592b6b248930952fba28dacf6cd1e380f452e2f",
+  "source_field_semantics": "098 audited field; unit O-D direction indexed by source input row modulo 2411 and prolonged to generated nodes through all declared native-parent barycentric choices; construction direction only",
+  "starting_candidate_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "mapped_skin_max_dihedral_change_degrees": 15.0,
+  "step_limit_mm": 2.0,
+  "max_incremental_gradient": 0.12,
+  "iteration_limit": 4,
+  "static_authoring_only": true,
+  "accepted_physical_steps": 0
+}

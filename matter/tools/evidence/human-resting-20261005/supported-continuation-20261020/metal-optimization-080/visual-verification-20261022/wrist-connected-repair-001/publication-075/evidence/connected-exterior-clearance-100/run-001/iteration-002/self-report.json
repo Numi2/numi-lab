@@ -1,0 +1,8 @@
+{
+  "count": 0,
+  "aabb_candidate_pairs": 724776,
+  "allowed_shared_vertex_or_edge_pairs": 681879,
+  "complete_surface_audit": true,
+  "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "mapped_positions_sha256": "7c7ea24f564eb8c08f1bb29612d8122d378d26ceee2137c4bbdbdd3982428cc1"
+}

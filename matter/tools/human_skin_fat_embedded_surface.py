@@ -166,12 +166,13 @@ class MappedSkinSurface:
                 ids=np.arange(len(all_vertices),dtype=np.int64)
             else:
                 raw_ids=np.asarray(dihedral_edge_ids)
-                if raw_ids.ndim!=1 or (len(raw_ids) and raw_ids.dtype.kind not in 'iu') or len(np.unique(raw_ids))!=len(raw_ids):
-                    raise ValueError('dihedral edge IDs must be a unique integer vector')
+                if raw_ids.ndim!=1 or raw_ids.dtype.kind not in 'iu' or not len(raw_ids) or len(np.unique(raw_ids))!=len(raw_ids):
+                    raise ValueError('enabled dihedral edge IDs must be a nonempty unique integer vector')
                 ids=raw_ids.astype(np.int64,copy=False)
                 if np.any(ids<0) or np.any(ids>=len(all_vertices)):
                     raise ValueError('dihedral edge ID out of range')
                 ids=np.sort(ids)
+            if not len(ids):raise ValueError('enabled dihedral guard requires interior edge coverage')
             if len(ids) and not np.all(opposite[ids]):
                 raise ValueError('selected dihedral edges require opposite incident face winding')
             self.max_dihedral_change_degrees=bound
@@ -257,14 +258,21 @@ class MappedSkinSurface:
         touched=self._dihedral_support[:,F].tocsr()
         return self.dihedral_edge_ids[np.flatnonzero(np.diff(touched.indptr)>0)]
 
-    def dihedral_change_linearization(self, points, free_nodes):
+    def dihedral_change_linearization(self, points, free_nodes, edge_ids=None):
         """Wrapped signed-angle changes and analytic sparse Jacobian through W.
 
         Jacobian columns are coarse xyz coordinates in metres. Rows are omitted
         safely when every configured edge is inactive on the supplied free set.
         """
         F=self._validated_free_nodes(free_nodes)
-        edge_ids=self.dihedral_linearization_edge_ids(F)
+        touching=self.dihedral_linearization_edge_ids(F)
+        if edge_ids is None:
+            edge_ids=touching
+        else:
+            supplied=np.asarray(edge_ids)
+            if supplied.dtype.kind not in 'iu' or supplied.ndim!=1 or len(np.unique(supplied))!=len(supplied) or not np.isin(supplied,self.dihedral_edge_ids).all():
+                raise ValueError('invalid mapped-skin linearization edge IDs')
+            edge_ids=np.intersect1d(supplied,touching)
         if not len(edge_ids):
             return edge_ids,np.empty(0,dtype=np.float64),sparse.csr_matrix((0,3*len(F)))
         local=np.searchsorted(self.dihedral_edge_ids,edge_ids)
@@ -276,6 +284,18 @@ class MappedSkinSurface:
         cols=(3*F[:,None]+np.arange(3)).ravel()
         J=(detailJ@self._vector_map[:,cols]).tocsr()
         return edge_ids,delta,J
+
+    @property
+    def coupling_support(self):
+        """All nonlinear surface constraints, independent of selected LP rows.
+
+        Adjacent faces may share only fixed coarse nodes; their crease still
+        couples the opposite free vertices. Never infer this graph from a
+        zero-valued or active-only derivative.
+        """
+        if self.max_dihedral_change_degrees is None:
+            return self.support
+        return sparse.vstack([self.support,self._dihedral_support],format='csr')
 
     def _compose_face_jacobian(self, gradients, face_ids, free_nodes):
         from human_skin_fat_connected_repair import sparse_face_jacobian

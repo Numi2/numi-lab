@@ -1,0 +1,60 @@
+{
+  "candidate_sha256": "b177419b43d593b590d58b2e4bd04801bc60b4f3cda430055e3db1c8679f43f7",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/connected-exterior-clearance-100/run-001/iteration-004/candidate.npz",
+  "input_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+  "sample_map_sha256": "cedc810453d68ebe0378cec11c38d53da966f821ebc5432e40bb9d350650bc85",
+  "actual_target_query_pairs_sha256": "c74e6372ea9d6b352b00f1922ff824cebea4df3e2d5d0381815ea45fa07bcf5a",
+  "source_input_row_is_authoritative": true,
+  "source_global_node_ids_are_labels_only": true,
+  "target_inside_span_count": 2502,
+  "regions": {
+    "head_body_23": {
+      "target_inside_spans": 1044,
+      "by_endpoint_layers": {
+        "D-D": 311,
+        "D-generated": 8,
+        "I-D": 603,
+        "I-I": 68,
+        "I-generated": 4,
+        "O-I": 38,
+        "O-O": 12
+      },
+      "O_O_spans_that_are_actual_source_O_face_edges": 12,
+      "I_D_same_column": 117,
+      "I_D_cross_column": 486
+    },
+    "selected_humerus_ulna_radius_bodies": {
+      "target_inside_spans": 207,
+      "by_endpoint_layers": {
+        "D-D": 66,
+        "I-D": 56,
+        "I-I": 28,
+        "O-I": 35,
+        "O-O": 22
+      },
+      "O_O_spans_that_are_actual_source_O_face_edges": 22,
+      "I_D_same_column": 6,
+      "I_D_cross_column": 50
+    }
+  },
+  "original_layer_projection_ratios": [
+    {
+      "layer": "O-I",
+      "min": 0.9330145165190921,
+      "max": 1.066998938269907
+    },
+    {
+      "layer": "I-D",
+      "min": 0.9330074596517017,
+      "max": 1.0669930715997211
+    }
+  ],
+  "minimum_original_projected_thickness_slack_mm": 0.23477938088984013,
+  "minimum_generated_projected_thickness_slack_mm": 0.4134632854636705,
+  "outer_nodes_displaced_over_one_micrometre": 476,
+  "maximum_outer_node_displacement_mm": 0.48715560173169753,
+  "conclusion": "Head witnesses are predominantly deep-layer; arms include verified outer edges. Relative thickness bounds are inactive here. No global thickness scaling is justified by this diagnostic.",
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "visual_inspection_performed": false
+}

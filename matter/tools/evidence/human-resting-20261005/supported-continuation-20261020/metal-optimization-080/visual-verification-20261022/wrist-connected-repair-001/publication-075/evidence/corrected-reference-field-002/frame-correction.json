@@ -1,0 +1,11 @@
+{
+  "old_field_sha256": "048f4f37354475bba48bd9427e8fb6f9723da22e1b5f2c3cf4de7485e386570a",
+  "corrected_field_sha256": "263d3be786bea0192019d0070060218fe4aea6a66b3b804a87cdcaa0715c767d",
+  "corrected_report_sha256": "976b029e2d97451a926ebd7bd592b6b248930952fba28dacf6cd1e380f452e2f",
+  "coordinate_frame": "compacted reference_points_m via explicit source_input_row inverse; matches active bone query frame",
+  "max_direction_change_degrees": 89.36322841629747,
+  "rows_changed_above_1e_minus8": 7360,
+  "old_fixture_admitted": false,
+  "accepted_physical_steps": 0,
+  "interpretation": "001 used legacy O_world_m/D_world_m source metadata, inconsistent with active compiled reference; retained as failed frame fixture. Helper math unchanged."
+}

@@ -1,0 +1,356 @@
+{
+  "parent_commit": "7d274436989b52948d1c7931392aef4db2803a54",
+  "verified_inputs": [
+    {
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+      "sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+      "uncompressed_bytes": 146247212,
+      "published_copies": [
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-061/payload/039/run-002/exact-emitted.triangles.csv.gz",
+          "stored_sha256": "fa6f21f77da7836b110bc73ec2f48bf99e29cb3b502788fb6021b4634d91dc96",
+          "gzip": true
+        }
+      ]
+    },
+    {
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+      "sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+      "uncompressed_bytes": 80016,
+      "published_copies": [
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-061/payload/039/run-002/exact-emitted.bodies.csv",
+          "stored_sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+          "gzip": false
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-064/payload/native-source-only-rest-geometry-022-query-023/source-preflight/exact-emitted.bodies.csv",
+          "stored_sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+          "gzip": false
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-066/evidence/native-source-only-rest-geometry-027-query-028/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-039/iteration-001/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-039/iteration-002/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-039/iteration-003/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-039/iteration-004/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-039/iteration-005/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-040/iteration-001/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-040/iteration-002/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-040/iteration-003/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-040/iteration-004/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-040/iteration-005/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-041/iteration-001/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-041/iteration-002/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-041/iteration-003/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-041/iteration-004/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-041/iteration-005/native-query/source-preflight/exact-emitted.bodies.csv.gz",
+          "stored_sha256": "7109039a0bb1beaf560d578d11db5254d1bfec308378bef6522a8e7d24060e3c",
+          "gzip": true
+        }
+      ]
+    },
+    {
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-nodes.csv",
+      "sha256": "26c607f9835241ef5d274169e4ac2aeae9c0f6ab7ad94a06b307ca25844862c9",
+      "uncompressed_bytes": 1731845,
+      "published_copies": [
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-070/evidence/mass/compiled-cell-export-068/run-001/source-preflight/compiled-skin-fem-nodes.csv.gz",
+          "stored_sha256": "a3fc0c234ab012dc72d612f46a43a299eb7891f3cb5c392b7d871bcf41c700a9",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-070/evidence/mass/compiled-cell-export-068/run-002/source-preflight/compiled-skin-fem-nodes.csv.gz",
+          "stored_sha256": "a3fc0c234ab012dc72d612f46a43a299eb7891f3cb5c392b7d871bcf41c700a9",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-070/evidence/mass/compiled-cell-export-068/run-003/source-preflight/compiled-skin-fem-nodes.csv.gz",
+          "stored_sha256": "a3fc0c234ab012dc72d612f46a43a299eb7891f3cb5c392b7d871bcf41c700a9",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-070/evidence/mass/compiled-cell-export-068/run-004/source-preflight/compiled-skin-fem-nodes.csv.gz",
+          "stored_sha256": "a3fc0c234ab012dc72d612f46a43a299eb7891f3cb5c392b7d871bcf41c700a9",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-070/evidence/mass/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-nodes.csv.gz",
+          "stored_sha256": "a3fc0c234ab012dc72d612f46a43a299eb7891f3cb5c392b7d871bcf41c700a9",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/compiled-skin-fem-nodes.csv.gz",
+          "stored_sha256": "a3fc0c234ab012dc72d612f46a43a299eb7891f3cb5c392b7d871bcf41c700a9",
+          "gzip": true
+        }
+      ]
+    },
+    {
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-tets.csv",
+      "sha256": "a7dc2d97713e43ed2bfae2aa805bb5281fdf2361108cf208df4cbdea10084461",
+      "uncompressed_bytes": 12664621,
+      "published_copies": [
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-070/evidence/mass/compiled-cell-export-068/run-003/source-preflight/compiled-skin-fem-tets.csv.gz",
+          "stored_sha256": "32727fd24ab67925273b47249889efdbbf6805a6294e142c7eb26698bce68382",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-070/evidence/mass/compiled-cell-export-068/run-004/source-preflight/compiled-skin-fem-tets.csv.gz",
+          "stored_sha256": "32727fd24ab67925273b47249889efdbbf6805a6294e142c7eb26698bce68382",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-070/evidence/mass/source-contribution-export-072/run-002/source-preflight/compiled-skin-fem-tets.csv.gz",
+          "stored_sha256": "32727fd24ab67925273b47249889efdbbf6805a6294e142c7eb26698bce68382",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-070/evidence/mass/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-tets.csv.gz",
+          "stored_sha256": "32727fd24ab67925273b47249889efdbbf6805a6294e142c7eb26698bce68382",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/compiled-skin-fem-tets.csv.gz",
+          "stored_sha256": "32727fd24ab67925273b47249889efdbbf6805a6294e142c7eb26698bce68382",
+          "gzip": true
+        }
+      ]
+    },
+    {
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/connected-skin-parent-mass-transfer-067/source-contribution-export-072/run-003/source-preflight/premerge-layer-contributions.csv",
+      "sha256": "75bd67cc6f7aeab9dccbb73da29220fcd35896b217042e8ce9c8181d89ca7c6f",
+      "uncompressed_bytes": 1542836,
+      "published_copies": [
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-070/evidence/mass/source-contribution-export-072/run-002/source-preflight/premerge-layer-contributions.csv.gz",
+          "stored_sha256": "aae8e8439a272bc41ec46ffdf5ace5e71abf8d6a55992c47e4d012f912b9f583",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-070/evidence/mass/source-contribution-export-072/run-003/source-preflight/premerge-layer-contributions.csv.gz",
+          "stored_sha256": "aae8e8439a272bc41ec46ffdf5ace5e71abf8d6a55992c47e4d012f912b9f583",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/premerge-layer-contributions.csv.gz",
+          "stored_sha256": "aae8e8439a272bc41ec46ffdf5ace5e71abf8d6a55992c47e4d012f912b9f583",
+          "gzip": true
+        }
+      ]
+    },
+    {
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-transfer-rows.csv",
+      "sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+      "uncompressed_bytes": 15484617,
+      "published_copies": [
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/accepted-transfer-rows.csv.gz",
+          "stored_sha256": "46d6e0fb7f44cdb9dc0b48233d14f42b95b93ddf66b47144971c79088959db21",
+          "gzip": true
+        }
+      ]
+    },
+    {
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-reference.csv",
+      "sha256": "9e26673335c571d5920f5cd43e52daf4b240de72feadf6d9e1cef92cf80807a2",
+      "uncompressed_bytes": 869580,
+      "published_copies": [
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/accepted-coarse-reference.csv.gz",
+          "stored_sha256": "00b24dd1f09d3f890cf085ceeb1665715a2de7e116275e84165b5c14f43585d4",
+          "gzip": true
+        }
+      ]
+    },
+    {
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-row-export-075/run-001/source-preflight/accepted-coarse-faces.csv",
+      "sha256": "7311267392275649abeb3ecaf6a5ca43eb4d67cf2a9b7f13a9c692587c36b1e2",
+      "uncompressed_bytes": 115765,
+      "published_copies": [
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-071/evidence/exact-transfer-075/run-001/source-preflight/accepted-coarse-faces.csv.gz",
+          "stored_sha256": "8270d42f41289b6a077e33aae6ffb6af9ddfa40d90ceeb7a5bd93d4f8d4cb79a",
+          "gzip": true
+        }
+      ]
+    },
+    {
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin",
+      "sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+      "uncompressed_bytes": 26091000,
+      "published_copies": [
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-056/payload/bilateral-hand-functional-rebind-020/run-001/candidate.nhskin",
+          "stored_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+          "gzip": false
+        }
+      ]
+    },
+    {
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv",
+      "sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+      "uncompressed_bytes": 26176,
+      "published_copies": [
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-060/payload/035/audit/source-preflight-003/all-bank-containment.csv.banks.csv",
+          "stored_sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+          "gzip": false
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-060/payload/038/run-002/source-preflight/all-bank-containment.csv.banks.csv",
+          "stored_sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+          "gzip": false
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-064/payload/native-source-only-rest-geometry-022-query-023/source-preflight/all-bank-containment.csv.banks.csv",
+          "stored_sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+          "gzip": false
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-066/evidence/native-source-only-rest-geometry-027-query-028/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-039/iteration-001/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-039/iteration-002/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-039/iteration-003/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-039/iteration-004/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-039/iteration-005/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-040/iteration-001/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-040/iteration-002/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-040/iteration-003/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-040/iteration-004/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-040/iteration-005/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-041/iteration-001/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-041/iteration-002/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-041/iteration-003/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-041/iteration-004/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        },
+        {
+          "git_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-068/evidence/connected-volume-continuation-041/iteration-005/native-query/source-preflight/all-bank-containment.csv.banks.csv.gz",
+          "stored_sha256": "f1c453670b3752ec6c1fa500e359139dbe7a647a3b3b628bbd9f6d65741b2201",
+          "gzip": true
+        }
+      ]
+    }
+  ],
+  "status": "PASS_GIT_BLOB_DECOMPRESSION_AND_SOURCE_HASH"
+}

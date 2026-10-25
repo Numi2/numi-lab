@@ -1,0 +1,16 @@
+{
+  "helper_path": "/Users/numi/Work/numi-human-connected-surface-069/closest-exit-clearance-098/outward_ray_exit_098.py",
+  "helper_sha256": "712b6aa304893cf1ad3aca1edde4ea913d4ab60cb5c0eb3617f5f09732e1743f",
+  "input_pins": {
+    "/Users/n/Work/numi-human-connected-surface-069/whole-reference-tetgen-084-bounded/connectivity-001/run-001/candidate-tetrahedra-compacted.npz": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-candidate020-failure-witness-026/physical-cell-quality-001/palm-prism-rank-retriangulation-003/candidate.npz": "640b7bc56013748b26d5e4e12790f85a472602ee6a4732f5773243df6e2147cc"
+  },
+  "npz_path": "/Users/numi/Work/numi-human-connected-surface-069/closest-exit-clearance-098/source-field-audit-002/source-outward-field.npz",
+  "npz_sha256": "263d3be786bea0192019d0070060218fe4aea6a66b3b804a87cdcaa0715c767d",
+  "report_path": "/Users/numi/Work/numi-human-connected-surface-069/closest-exit-clearance-098/source-field-audit-002/source-field-audit.json",
+  "report_sha256": "976b029e2d97451a926ebd7bd592b6b248930952fba28dacf6cd1e380f452e2f",
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/closest-exit-clearance-098/audit_source_outward_field_098_002.py",
+  "script_sha256": "8dfce3e3bca6037d6334a0a13ecbc9a6ef3ded663b549e00cf12d1fcd7baceee",
+  "test_path": "/Users/numi/Work/numi-human-connected-surface-069/closest-exit-clearance-098/test_outward_ray_exit_098.py",
+  "test_sha256": "dd3cbcb0f5f59c8cb19dc20582465c961fee950594476a2075cc57d064a07b87"
+}
