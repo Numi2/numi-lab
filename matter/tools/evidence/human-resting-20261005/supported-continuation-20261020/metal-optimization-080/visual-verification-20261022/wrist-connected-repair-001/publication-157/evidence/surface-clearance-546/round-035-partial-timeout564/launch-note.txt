@@ -1,0 +1,1 @@
+Prepared only; not run. Exact 034 matched inputs and 2-SCP/90s per-stage/120s total policy retained. Opt-in partial timeout fallback flag added; output directory is unique. Run through /tmp/numi-human-geometry-slot.py.

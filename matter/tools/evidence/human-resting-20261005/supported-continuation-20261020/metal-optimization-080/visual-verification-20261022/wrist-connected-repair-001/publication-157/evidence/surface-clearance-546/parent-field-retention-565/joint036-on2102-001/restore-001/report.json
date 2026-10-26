@@ -1,0 +1,82 @@
+{
+  "accepted_physical_steps": 0,
+  "all_nonpoint_payload_baseline_bitwise_preserved": true,
+  "all_other_parent036_point_rows_bitwise_preserved": true,
+  "baseline_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/retained-552-001/candidate.npz",
+  "baseline_candidate_sha256": "b033848a0893ff45f216d150c3847e21e7db99b3a228719efbd9d31c6c8f912a",
+  "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/retained-552-001/final/state.json",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/joint036-on2102-001/restore-001/candidate.npz",
+  "candidate_sha256": "b4fe663690f603d1904b8362e1e0a6fc1c17160588b4cf847d445a7f7d4b7fe5",
+  "classification": "parent036 strict-check witness restoration target; exact inside rows reset to 2102 baseline positions",
+  "failed_exact_130_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/parent036-001/full-check/audit-130/summary.json",
+  "failed_exact_130_report_sha256": "31cde5d5d608ff385c2e87d564be9f83dcc89c53344b5e7927ee6b701ef1f3e4",
+  "failed_exact_159_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/parent036-001/full-check/audit-159/report.json",
+  "failed_exact_159_report_sha256": "0cca7966e4daf446141c6056c8995f6ad289f789f482d74e605f615f6ded15c0",
+  "failed_parent036_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/parent036-001/candidate.npz",
+  "failed_parent036_candidate_sha256": "70fea6ba95d6b961c33291ea6675586f2d5d2c1721231c7dcca70a59e9240b22",
+  "fixed_anchor_rows_unmodified": true,
+  "lp_feasibility_claim": false,
+  "native_admission": false,
+  "required_follow_up": "existing strict 567 witness-local retention and full 545 check; no promotion before exact zero-contained/self and strict surface progress",
+  "restored_output_rows": [
+    19007,
+    19010
+  ],
+  "restored_rows_equal_2102_baseline_f32_bitwise": true,
+  "restored_typed_witnesses": [
+    {
+      "bank_body": "65",
+      "bank_stable_id": "99",
+      "baseline_point_m": [
+        -0.31935355067253113,
+        -1.0082252025604248,
+        0.11742543429136276
+      ],
+      "classification": "inside",
+      "nearest_bone": "99",
+      "nearest_distance_m": "9.8480419358997194e-07",
+      "nearest_triangle": "184",
+      "output_node": 19007,
+      "parent036_point_m": [
+        -0.31937313079833984,
+        -1.0082252025604248,
+        0.11713134497404099
+      ],
+      "query_row": "19007",
+      "signed_face_distance_m": "-9.8480419358997194e-07"
+    },
+    {
+      "bank_body": "65",
+      "bank_stable_id": "99",
+      "baseline_point_m": [
+        -0.3192485570907593,
+        -1.0085606575012207,
+        0.1180664598941803
+      ],
+      "classification": "inside",
+      "nearest_bone": "99",
+      "nearest_distance_m": "8.0465883997922555e-06",
+      "nearest_triangle": "184",
+      "output_node": 19010,
+      "parent036_point_m": [
+        -0.3192559778690338,
+        -1.0085606575012207,
+        0.11778266727924347
+      ],
+      "query_row": "19010",
+      "signed_face_distance_m": "-8.0465883997922555e-06"
+    }
+  ],
+  "restored_unique_node_count": 2,
+  "restored_witness_pair_count": 2,
+  "schema": "numi.human.parent036_exact_inside_node_restore_target.v1",
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/parent036-001/candidate.npz": "70fea6ba95d6b961c33291ea6675586f2d5d2c1721231c7dcca70a59e9240b22",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/parent036-001/full-check/audit-130/summary.json": "31cde5d5d608ff385c2e87d564be9f83dcc89c53344b5e7927ee6b701ef1f3e4",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/parent036-001/full-check/audit-159/report.json": "0cca7966e4daf446141c6056c8995f6ad289f789f482d74e605f615f6ded15c0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/retained-552-001/candidate.npz": "b033848a0893ff45f216d150c3847e21e7db99b3a228719efbd9d31c6c8f912a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/retained-552-001/final/state.json": "d1a83165e2a069b5f53e2ef89bd52b54b02731eeb0f164cc7a1dcabf461076a4"
+  },
+  "status": "UNADMITTED_BASELINE_NODE_RESTORE_TARGET",
+  "topology_bitwise_preserved": true
+}

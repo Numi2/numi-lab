@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/parent036-restore-001/full-check/audit-130/query/points-world.npz",
+  "input_sha256": "c2575a006b8877466af64247596a40ceecad5b88d991e5227a86cb2aca4f220b",
+  "field": "points_world_f32",
+  "query_count": 20889,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/parent036-restore-001/full-check/audit-130/query/points.csv",
+  "output_sha256": "f98a84055d105d82220dafd625f883d76d74b089a5cb184b40bd62b81a6a7148",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

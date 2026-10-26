@@ -1,0 +1,3 @@
+waiting_for_human_geometry_slot pid=87683
+acquired_human_geometry_slot pid=87683
+{"candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/refined036-001/candidate.npz", "iterations": 36, "alpha_counts": {"4.76837158203125e-07": 1, "3.814697265625e-06": 1, "7.62939453125e-06": 1, "1.52587890625e-05": 1, "3.0517578125e-05": 2, "6.103515625e-05": 2, "0.0001220703125": 8, "0.000244140625": 17, "0.00048828125": 37, "0.0009765625": 48, "0.001953125": 97, "0.00390625": 165, "0.0078125": 239, "0.015625": 402, "0.03125": 598, "0.0625": 788, "0.125": 850, "0.25": 759, "0.5": 849, "1.0": 772}, "seconds": 49.937756249913946}

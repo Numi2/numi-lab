@@ -1,0 +1,21 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology-policy-root-v6/test_root_policy_v5.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology-policy-root-v6/test_quality_policy025_variant.py"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology-policy-root-v6/quality_policy025_variant.py": "2ce11405c178379325d98fe76171010015eac5bc46b2c12d9813676afcd9970a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology-policy-root-v6/run_chain_and_check_v5.py": "fb1b67dbfb76ddf234e3a740abe79672a5a9bfc77057752f501467053eaf6c08",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology-policy-root-v6/run_quality_policy025_variant.py": "495abd9e466db0d0247c76529c6e50dfccae178c0a7353579211dd93daeefe8a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology-policy-root-v6/run_tests_receipt_v6.py": "9fabcf687060e0dc5b21450a0f109b38019bb549ab1320f9bc122327444a9abf",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology-policy-root-v6/test_quality_policy025_variant.py": "5f168f8e24a62bf1305d186e5a469b42d0bcfb89b62eec21482d4e0ba180ff1f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology-policy-root-v6/test_root_policy_v5.py": "bd82365277cb1b3ac57adc0aed1094146c1166ab2017a1e9cc52393d9dd3d57e"
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "accepted_physical_steps": 0,
+  "active_star_patch_paths_excluded": true,
+  "candidate_selected": false,
+  "finalization_utc": "2026-10-26T23:31:47.097346+00:00",
+  "latest_anchor_rows": 237,
+  "latest_checked_candidate_sha256": "f43c5131832897cab3099356d6f87f09b021aadc24b27f197011e46dbb95cb47",
+  "latest_complete_banks": 185,
+  "latest_contained_pairs": 0,
+  "latest_self_pairs": 0,
+  "latest_surface_pairs": 2086,
+  "native_admission": false,
+  "parent036_restore_negative": {
+    "baseline_surface_pairs": 2102,
+    "candidate_sha256": "b4fe663690f603d1904b8362e1e0a6fc1c17160588b4cf847d445a7f7d4b7fe5",
+    "construction_progress": false,
+    "contained_pairs": 0,
+    "self_pairs": 0,
+    "surface_pairs": 2108
+  },
+  "parent_manifest_sha256": "494792624ce2ad17567e00b452d688a669fc47ff71a865ba21f188437f441ac6",
+  "parent_publication_commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+  "prefix": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157",
+  "prior_references_count": 16,
+  "publication_ready": true,
+  "push_held_until_geometry_settlement": false,
+  "push_performed": false,
+  "readiness_checked_utc": "2026-10-26T23:32:34.078319+00:00",
+  "remote_main_before": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+  "review_status": "prepush_gates_passed",
+  "root_policy_040_no_progress": {
+    "accepted_operations": 0,
+    "after_surface_pairs": 2086,
+    "before_surface_pairs": 2086,
+    "candidate_sha256": "f43c5131832897cab3099356d6f87f09b021aadc24b27f197011e46dbb95cb47",
+    "full_audit_rerun": false,
+    "status": "NO_EXACT_PAIR_REDUCING_SELF_SAFE_FLIPS"
+  },
+  "root_policy_v6_test_log": "evidence/surface-clearance-546/topology-policy-root-v6/tests-publication-001.log",
+  "root_policy_v6_test_log_sha256": "15be9e29acfb9af509f76be546e214ba2e874086568562b11118d8a499c56aad",
+  "root_policy_v6_tests": "7 passed in 0.05s; returncode 0; frozen source pins unchanged",
+  "round040_no_progress": {
+    "accepted_operations": 0,
+    "after_surface_pairs": 2086,
+    "before_surface_pairs": 2086,
+    "candidate_sha256": "f43c5131832897cab3099356d6f87f09b021aadc24b27f197011e46dbb95cb47",
+    "full_audit_rerun": false,
+    "status": "NO_EXACT_PAIR_REDUCING_SELF_SAFE_FLIPS"
+  },
+  "schema": "numi.human.surface_clearance.p157.verification_receipt.v1",
+  "shared_checkout_after": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "shared_checkout_before": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "source_pin_gaps": [],
+  "source_snapshot_count": 53,
+  "trial_full_check_counts": {
+    "parent036-001": {
+      "candidate_sha256": "70fea6ba95d6b961c33291ea6675586f2d5d2c1721231c7dcca70a59e9240b22",
+      "contained_pairs": 2,
+      "self_pairs": 0,
+      "surface_pairs": 2108
+    },
+    "refined036-001": {
+      "candidate_sha256": "58fd39a062d120150aa0710af034127943a623107612ccb7c784de2df0754bfc",
+      "contained_pairs": 1183,
+      "self_pairs": 0,
+      "surface_pairs": 5077
+    },
+    "retained-552-001": {
+      "candidate_sha256": "b033848a0893ff45f216d150c3847e21e7db99b3a228719efbd9d31c6c8f912a",
+      "contained_pairs": 0,
+      "self_pairs": 0,
+      "surface_pairs": 2102
+    },
+    "run-001": {
+      "candidate_sha256": "6b0760f1bd5101195914f2aa96714d06747802e544b2a2a9b2414885d84eb146",
+      "contained_pairs": 0,
+      "self_pairs": 0,
+      "surface_pairs": 2108
+    }
+  },
+  "verification_utc": "2026-10-26T23:25:34.423407+00:00"
+}

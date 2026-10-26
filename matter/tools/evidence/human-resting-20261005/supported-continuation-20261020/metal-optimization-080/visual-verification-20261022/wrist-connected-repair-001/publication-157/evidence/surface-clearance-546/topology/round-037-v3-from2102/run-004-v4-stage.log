@@ -1,0 +1,34 @@
+waiting_for_human_geometry_slot pid=88616
+acquired_human_geometry_slot pid=88616
+{"stage": "chain_round_started", "round": 1, "candidate_sha256": "b033848a0893ff45f216d150c3847e21e7db99b3a228719efbd9d31c6c8f912a", "input_pair_count": 2102}
+{"elapsed_seconds": 0.0, "stage": "preflight_started"}
+{"elapsed_seconds": 1.806, "interior_target_edges": 1460, "selected_for_validation": 1460, "stage": "cheap_prefilter_complete", "target_faces": 717, "top_old_pair_count": 22, "validated_edge_cap": 2048}
+{"elapsed_seconds": 1.806, "eligible": 0, "rejections": {}, "stage": "source_quality_validation", "total": 1460, "validated": 1}
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_quality_policy025_variant_v4.py", line 167, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_quality_policy025_variant_v4.py", line 163, in main
+    run_topology()
+    ~~~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_quality_policy025_variant_v4.py", line 126, in run_topology
+    topology.main()
+    ~~~~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/topology-bone-aware-025.py", line 225, in main
+    slow,slow_why=q.evaluate_op(base,op,quality,points_mm,ref_mm)
+                  ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: evaluate_op_parity() missing 1 required positional argument: 'ref_mm'
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_quality_policy025_variant_v4.py", line 167, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_quality_policy025_variant_v4.py", line 161, in main
+    run_chain()
+    ~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_quality_policy025_variant_v4.py", line 144, in run_chain
+    chain.main()
+    ~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/chain_exact_flip_batches_025.py", line 143, in main
+    if rc:raise RuntimeError(f'025 batch round {index} exited {rc}; logs preserved')
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: 025 batch round 1 exited 1; logs preserved

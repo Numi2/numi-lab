@@ -1,0 +1,7 @@
+{
+  "attempt": 2,
+  "empty_collision_root": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/run-002-v4",
+  "execution_log": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/execution-v4.log",
+  "reason": "output-root run-002-v4 already existed; FileExistsError before round 1",
+  "status": "FAILED_PRE_ROUND"
+}

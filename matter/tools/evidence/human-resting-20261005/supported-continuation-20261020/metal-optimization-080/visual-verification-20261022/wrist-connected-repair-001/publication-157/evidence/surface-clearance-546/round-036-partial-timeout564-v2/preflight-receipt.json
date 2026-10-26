@@ -1,0 +1,24 @@
+{
+  "accepted_physical_steps": 0,
+  "area_scp_iterations": 2,
+  "argv_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-036-partial-timeout564-v2/fit-argv.json",
+  "component_helper": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/partial-timeout-fallback564/frozen-v2/component_lp_partial_timeout564.py",
+  "entry_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/partial-timeout-fallback564/frozen-v2/run_joint_full_coordinate_fit564.py",
+  "fit_output_exists": false,
+  "launch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-036-partial-timeout564-v2/fit-stage.launch.json",
+  "max_total_wall_s": 120.0,
+  "native_admission": false,
+  "pytest": "11 passed",
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/partial-timeout-fallback564/frozen-v2/component_lp_partial_timeout564.py": "a24aa58178394e25d7b38c7c35a36c93eaf109a666ace7773c0ca13d33250818",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/partial-timeout-fallback564/frozen-v2/joint_objective_560.py": "09ce0c4f47e69142de6ce394576edd3ef0ee6f4b946824a476f5425919c492c8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/partial-timeout-fallback564/frozen-v2/run_joint_full_coordinate_fit564.py": "bce28ca873ba9fdc75427e16443fdf047587742cfbef1f83e48a31df28caa4d9",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/partial-timeout-fallback564/frozen-v2/test_partial_timeout564_v2.py": "f2117dd40c9b6d80dbd7c54c0765d881818fc9badd8a470d30aa413dd50231d3",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-joint-capture-563/raw_joint_capture563.py": "fa7df8771a37200c4ed30e61d92ebf1b6227eed9da8a5ff45ab54b4ff299975e",
+    "conditioned_558_fit_coordinator": "edf675b0ed7c819943c6f656133e7c958e53e0357a7c28fe4c59bb20d4f7ac95",
+    "matched_inputs_from_round034": "c3d7e062fdbe72ec44468af3752a3a462eae99351e416bf2d46f6daeff258a1d"
+  },
+  "status": "PREPARED_NOT_LAUNCHED",
+  "test_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/partial-timeout-fallback564/frozen-v2/test_partial_timeout564_v2.py",
+  "variant": "partial timeout fallback 564 frozen-v2"
+}

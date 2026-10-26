@@ -1,0 +1,51 @@
+{
+  "accepted_physical_steps": 0,
+  "full_final_audit_required": true,
+  "inputs": {
+    "audit130": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/retained-552-001/full-check/audit-130/summary.json",
+      "sha256": "251dd08c4503e8c6723ce84fa3d7507c69c2b0b2e2f61947641d140e73240591"
+    },
+    "audit159": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/retained-552-001/full-check/audit-159/report.json",
+      "sha256": "7d6818776a047ffc3e272f3721348fb06f8527adf1f6bba07a5439c01fc7e00e"
+    },
+    "candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/retained-552-001/candidate.npz",
+      "sha256": "b033848a0893ff45f216d150c3847e21e7db99b3a228719efbd9d31c6c8f912a"
+    },
+    "self_pairs130": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/retained-552-001/full-check/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+    }
+  },
+  "native_admission": false,
+  "output_root": "D/surface-clearance-546/topology/round-037-v3-from2102/run-004-v4",
+  "parameters": {
+    "max_accept": 64,
+    "max_candidates": 2048,
+    "prefilter_factor": 1,
+    "rounds": 3
+  },
+  "preserved_failures": [
+    "D/surface-clearance-546/topology/round-037-v3-from2102/run-001",
+    "D/surface-clearance-546/topology/round-037-v3-from2102/run-002-v4",
+    "D/surface-clearance-546/topology/round-037-v3-from2102/run-003-v4"
+  ],
+  "schema": "numi.topology_025_v4_chain_launch.v1",
+  "source_pins": {
+    "D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/quality_policy025_variant.py": "02078d7a942770aae7544beb479d7dd633ad2a7f514e1239ce73ce51c253784e",
+    "D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_quality_policy025_variant_v4.py": "aeaa741ef6ff2f480a5676055d7d8386c90fb58a377447a7054501c0e6233913",
+    "D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/test_quality_policy025_variant_v4.py": "dcc6b70c979e4ad08fe044d8d50d99339ddc4c0fe15af2ea6cd32c6e25df3644",
+    "D/surface-clearance-546/topology/round-037-v3-from2102/sources/chain_exact_flip_batches_025.py": "d42db71f6003f60eec69787156775e2133be2c54f69e37047ea8c451c76bd5a9",
+    "D/surface-clearance-546/topology/round-037-v3-from2102/sources/numi-human-geometry-slot.py": "716fbdeea6fac8f3426e2c083ed4573e8554017ea75f4d4d20318400fa74c8e1",
+    "D/surface-clearance-546/topology/round-037-v3-from2102/sources/repair_focused_clearance_541.py": "26930be05518834f02724948cffa5ff74719f070a4ac4e4917b0965f42a412aa",
+    "D/surface-clearance-546/topology/round-037-v3-from2102/sources/select_bone_reducing_flips_370.py": "c8650b8c311ca8f386ebf1713b5fc285b7bded860cfa878192472704ac1336d5",
+    "D/surface-clearance-546/topology/round-037-v3-from2102/sources/topology-bone-aware-025.py": "9123965621161beb6408f6c9663d8d36968cf1113c3a97106e968ea1c754d84e"
+  },
+  "state": {
+    "candidate_sha256": "b033848a0893ff45f216d150c3847e21e7db99b3a228719efbd9d31c6c8f912a",
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/retained-552-001/final/state.json",
+    "sha256": "d1a83165e2a069b5f53e2ef89bd52b54b02731eeb0f164cc7a1dcabf461076a4"
+  }
+}

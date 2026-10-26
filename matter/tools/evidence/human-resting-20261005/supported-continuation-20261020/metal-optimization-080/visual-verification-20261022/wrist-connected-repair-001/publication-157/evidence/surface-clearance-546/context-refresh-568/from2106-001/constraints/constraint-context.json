@@ -1,0 +1,17 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/affine-ancestry-refresh-566/from2106-001/candidate.npz",
+  "candidate_sha256": "9de48d996cab795258ddabfce309c970091708dd1549f490c99de8c45b6174d3",
+  "guard_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/context-refresh-568/from2106-001/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+  "guard_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/context-refresh-568/from2106-001/constraints/refresh-541/fixed-guards/report.json",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/affine-ancestry-refresh-566/from2106-001/full-check/audit-130/summary.json",
+  "point_summary_sha256": "0e43b468fda6a20c5b0fad40f4b95cf4a3b2cb80a25647b46e5aa843ffc11ed9",
+  "refresh_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/context-refresh-568/from2106-001/constraints/refresh-report.json",
+  "refresh_report_sha256": "5f75fde32377798e1c74ded9e0803fb4f6308f7e157c0626ab5cad520a5aae5b",
+  "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/context-refresh-568/from2106-001/constraints/self-seeds/merged-self-pair-seeds.npy",
+  "seed_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/context-refresh-568/from2106-001/constraints/self-seeds/seed-preflight.json",
+  "seed_report_sha256": "39f77f4906471661eeeb6a0f78d4f90eb1929be77240b200ac148d328a6fcb7c",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/affine-ancestry-refresh-566/from2106-001/full-check/audit-159/report.json",
+  "surface_report_sha256": "e50026eb4785e9e35a51c0bb394b8f7a40dfa80b8aca17c5b36d8484c47f8cb2"
+}

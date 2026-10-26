@@ -1,0 +1,16 @@
+waiting_for_human_geometry_slot pid=88131
+acquired_human_geometry_slot pid=88131
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_quality_policy025_variant_v4.py", line 167, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_quality_policy025_variant_v4.py", line 161, in main
+    run_chain()
+    ~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_quality_policy025_variant_v4.py", line 144, in run_chain
+    chain.main()
+    ~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/chain_exact_flip_batches_025.py", line 90, in main
+    if actual!=expected:raise ValueError(f'{name} input SHA mismatch: {actual}')
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: self_pairs130 input SHA mismatch: 55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de

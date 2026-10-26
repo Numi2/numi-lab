@@ -1,0 +1,7 @@
+{
+  "actual_self_pairs130_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+  "attempt": 3,
+  "failed_output_root": "D/surface-clearance-546/topology/round-037-v3-from2102/run-003-v4",
+  "reason": "expected self-pairs130 SHA typo; chain rejected it before round 1",
+  "status": "FAILED_PRE_ROUND"
+}

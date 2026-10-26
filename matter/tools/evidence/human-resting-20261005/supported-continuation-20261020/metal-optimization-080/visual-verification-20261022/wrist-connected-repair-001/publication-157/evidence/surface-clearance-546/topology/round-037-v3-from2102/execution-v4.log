@@ -1,0 +1,16 @@
+waiting_for_human_geometry_slot pid=88051
+acquired_human_geometry_slot pid=88051
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_quality_policy025_variant_v4.py", line 167, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_quality_policy025_variant_v4.py", line 161, in main
+    run_chain()
+    ~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_quality_policy025_variant_v4.py", line 144, in run_chain
+    chain.main()
+    ~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/chain_exact_flip_batches_025.py", line 86, in main
+    if outroot.exists():raise FileExistsError(outroot)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileExistsError: /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/run-002-v4

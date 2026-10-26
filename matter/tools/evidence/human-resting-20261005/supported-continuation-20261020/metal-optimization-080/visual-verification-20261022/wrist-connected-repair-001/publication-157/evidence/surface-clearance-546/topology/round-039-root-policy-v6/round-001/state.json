@@ -1,0 +1,15 @@
+{
+  "accepted_operation_count": 6,
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-039-root-policy-v6/round-001/candidate.npz",
+  "candidate_sha256": "9f40ba5ded378717387145cb06a68f0d559c99fed272e6f9534a99b8b4a1a38b",
+  "changed_face_count": 12,
+  "exact_159_inventory": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-039-root-policy-v6/round-001/composed-exact-159-inventory.json",
+  "exact_159_inventory_sha256": "5cf1abb47b9b50dd098ca70cb6ec4f8b2eebceba3323bf04593f390be10cefbd",
+  "full_130_run_on_this_candidate": false,
+  "full_159_run_on_this_candidate": false,
+  "native_admission": false,
+  "self_state_certificate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-039-root-policy-v6/round-001/incremental-self-certificate.json",
+  "self_state_certificate_sha256": "6cedc1426d2039c9935882bc787393b01c256fb080715e1275d338651d1ecfc3",
+  "surface_pair_count_composed": 2090
+}

@@ -1,0 +1,7 @@
+{
+  "attempt": 1,
+  "command_sha256_before_retry": "dac4d42659ad63859bbb3296011207a4899cb62f7b8d842685d7f76aee1d39f1",
+  "reason": "slot wrapper lacked execute permission; shell returned Permission denied before acquiring slot",
+  "retained_execution_log": "execution.log",
+  "status": "FAILED_TO_START"
+}

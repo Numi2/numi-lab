@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_from2102_topology025_v4.py", line 79, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/sources-v4/run_from2102_topology025_v4.py", line 73, in main
+    status = owner.run_stage(argv, STAGE, slot=True, source_paths=sources, timeout=3600)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continue_surface_round546.py", line 181, in run_stage
+    raise RuntimeError(f"stage failed: {stem}; see {log_path}")
+RuntimeError: stage failed: /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/run-004-v4-stage; see /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-037-v3-from2102/run-004-v4-stage.log

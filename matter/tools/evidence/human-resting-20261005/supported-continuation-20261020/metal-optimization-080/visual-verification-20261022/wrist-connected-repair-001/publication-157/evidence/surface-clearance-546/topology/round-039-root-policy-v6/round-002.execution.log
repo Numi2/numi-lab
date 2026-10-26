@@ -1,0 +1,30 @@
+{"elapsed_seconds": 0.0, "stage": "preflight_started"}
+{"elapsed_seconds": 1.812, "interior_target_edges": 1458, "selected_for_validation": 1458, "stage": "cheap_prefilter_complete", "target_faces": 716, "top_old_pair_count": 22, "validated_edge_cap": 2048}
+{"elapsed_seconds": 1.812, "eligible": 0, "rejections": {}, "stage": "source_quality_validation", "total": 1458, "validated": 1}
+{"elapsed_seconds": 1.871, "first_eligible_edge": [19092, 19095], "matched": true, "stage": "541_local_evaluator_parity"}
+{"elapsed_seconds": 1.898, "eligible": 33, "rejections": {"037_nonpositive_new_face": 4, "541_angle_loss_bound": 10, "alternate_diagonal_exists": 2, "current_037_orientation_disagreement": 29, "nonconvex_quad": 49}, "stage": "source_quality_validation", "total": 1458, "validated": 128}
+{"elapsed_seconds": 1.927, "eligible": 56, "rejections": {"037_nonpositive_new_face": 4, "541_angle_loss_bound": 30, "alternate_diagonal_exists": 3, "current_037_orientation_disagreement": 67, "nonconvex_quad": 95}, "stage": "source_quality_validation", "total": 1458, "validated": 256}
+{"elapsed_seconds": 1.952, "eligible": 74, "rejections": {"037_nonpositive_new_face": 7, "541_angle_loss_bound": 43, "541_fixed037_area_floor": 1, "alternate_diagonal_exists": 3, "current_037_orientation_disagreement": 97, "nonconvex_quad": 158}, "stage": "source_quality_validation", "total": 1458, "validated": 384}
+{"elapsed_seconds": 1.98, "eligible": 97, "rejections": {"037_nonpositive_new_face": 7, "541_angle_loss_bound": 60, "541_fixed037_area_floor": 1, "alternate_diagonal_exists": 5, "current_037_orientation_disagreement": 130, "nonconvex_quad": 211}, "stage": "source_quality_validation", "total": 1458, "validated": 512}
+{"elapsed_seconds": 2.003, "eligible": 111, "rejections": {"037_nonpositive_new_face": 7, "541_angle_loss_bound": 71, "541_fixed037_area_floor": 3, "alternate_diagonal_exists": 9, "current_037_orientation_disagreement": 159, "nonconvex_quad": 279}, "stage": "source_quality_validation", "total": 1458, "validated": 640}
+{"elapsed_seconds": 2.031, "eligible": 137, "rejections": {"037_nonpositive_new_face": 7, "541_angle_loss_bound": 85, "541_fixed037_area_floor": 3, "alternate_diagonal_exists": 13, "current_037_orientation_disagreement": 196, "nonconvex_quad": 326}, "stage": "source_quality_validation", "total": 1458, "validated": 768}
+{"elapsed_seconds": 2.052, "eligible": 143, "rejections": {"037_nonpositive_new_face": 12, "541_angle_loss_bound": 104, "541_fixed037_area_floor": 3, "alternate_diagonal_exists": 14, "current_037_orientation_disagreement": 208, "nonconvex_quad": 411}, "stage": "source_quality_validation", "total": 1458, "validated": 896}
+{"elapsed_seconds": 2.074, "eligible": 149, "rejections": {"037_nonpositive_new_face": 13, "541_angle_loss_bound": 129, "541_fixed037_area_floor": 3, "alternate_diagonal_exists": 15, "current_037_orientation_disagreement": 230, "different_or_unselected_connected_patch": 1, "nonconvex_quad": 483}, "stage": "source_quality_validation", "total": 1458, "validated": 1024}
+{"elapsed_seconds": 2.094, "eligible": 154, "rejections": {"037_nonpositive_new_face": 14, "541_angle_loss_bound": 148, "541_fixed037_area_floor": 3, "alternate_diagonal_exists": 17, "current_037_orientation_disagreement": 248, "different_or_unselected_connected_patch": 1, "nonconvex_quad": 566}, "stage": "source_quality_validation", "total": 1458, "validated": 1152}
+{"elapsed_seconds": 2.116, "eligible": 159, "rejections": {"037_nonpositive_new_face": 14, "541_angle_loss_bound": 164, "541_fixed037_area_floor": 3, "alternate_diagonal_exists": 17, "current_037_orientation_disagreement": 279, "different_or_unselected_connected_patch": 1, "nonconvex_quad": 642}, "stage": "source_quality_validation", "total": 1458, "validated": 1280}
+{"elapsed_seconds": 2.133, "eligible": 161, "rejections": {"037_nonpositive_new_face": 14, "541_angle_loss_bound": 180, "541_fixed037_area_floor": 3, "alternate_diagonal_exists": 18, "current_037_orientation_disagreement": 288, "different_or_unselected_connected_patch": 1, "nonconvex_quad": 742}, "stage": "source_quality_validation", "total": 1458, "validated": 1408}
+{"elapsed_seconds": 2.142, "eligible": 163, "rejections": {"037_nonpositive_new_face": 14, "541_angle_loss_bound": 191, "541_fixed037_area_floor": 3, "alternate_diagonal_exists": 19, "current_037_orientation_disagreement": 293, "different_or_unselected_connected_patch": 1, "nonconvex_quad": 774}, "stage": "source_quality_validation_complete", "validated": 1458}
+{"elapsed_seconds": 2.142, "reducing": 0, "scored": 1, "stage": "exact_159_scoring", "total": 163}
+{"elapsed_seconds": 6.99, "reducing": 9, "scored": 128, "stage": "exact_159_scoring", "total": 163}
+{"accepted": 1, "edge": [19247, 19577], "elapsed_seconds": 9.792, "replacement_pair_reduction": 2, "self_pairs_after_incremental": 0, "stage": "accepted_operation"}
+{"accepted": 1, "candidate_sha256": "462acd72fef9a8c66243a178b912b043e7a017519375efe8ed2d03cd2e820075", "changed_pair_reduction": 2, "elapsed_seconds": 11.465, "stage": "proposal_complete", "status": "EXACT_185_PAIR_REDUCING_CONNECTED_FLIP_PROPOSAL_PENDING_FULL_AUDIT"}
+{
+  "status": "EXACT_185_PAIR_REDUCING_CONNECTED_FLIP_PROPOSAL_PENDING_FULL_AUDIT",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-039-root-policy-v6/round-002/candidate.npz",
+  "candidate_sha256": "462acd72fef9a8c66243a178b912b043e7a017519375efe8ed2d03cd2e820075",
+  "input_pair_count": 2090,
+  "changed_pair_reduction": 2,
+  "accepted": 1,
+  "self_rejections": 9,
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-039-root-policy-v6/round-002/report.json"
+}

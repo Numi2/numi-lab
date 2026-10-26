@@ -1,0 +1,29 @@
+{
+  "excluded": [
+    "all __pycache__, .pytest_cache and compiled cache files",
+    "unchanged P155/P156 trees, referenced by commit/path/hash",
+    "native or physical qualification claims",
+    "surface-clearance-546/connected-star-569 and all new active star-patch work",
+    "surface-clearance-546/coherent-depth-targets-546 active star-patch sources/receipts"
+  ],
+  "included": [
+    "surface-clearance-546/partial-timeout-fallback564/frozen-v1 and its matched top-level test snapshot",
+    "surface-clearance-546/partial-timeout-fallback564/frozen-v2 including tests",
+    "surface-clearance-546/round-035-partial-timeout564 launch-only preparation",
+    "surface-clearance-546/round-036-partial-timeout564-v2 failed LP report and partial raw-direction capture",
+    "surface-clearance-546/parent-field-retention-565 transfer helper and joint036-on2102 outputs",
+    "surface-clearance-546/local-witness-retention-567 run001, retained552, refined036 and failed parent036 plus owner sources/tests",
+    "surface-clearance-546/context-refresh-568 completed context/remap receipts",
+    "surface-clearance-546/topology/round-037-v3-from2102 failed variants and source snapshots",
+    "surface-clearance-546/round-037-joint562-v2-trust1-edge01 preflight only",
+    "surface-clearance-546/topology-policy-root-v5 stopped-before-geometry failure/source/tests",
+    "surface-clearance-546/topology-policy-root-v6 frozen tested sources and seven-pass receipt",
+    "surface-clearance-546/topology/round-039-root-policy-v6 exact completed chain and reports",
+    "two owner sources pinned by root-policy-v6 receipt",
+    "surface-clearance-546/local-witness-retention-567/parent036-restore-001 frozen 2108/0/0 full-check negative; no strict progress from 2102 baseline",
+    "surface-clearance-546/topology/round-040-root-policy-v6 plus its stage launch/execution/log, frozen run_continue040.py, zero-operation 2086 no-progress result",
+    "exact source-pinned endpoint candidate input for parent036-restore-001"
+  ],
+  "schema": "numi.human.surface_clearance.p157.scope.v1",
+  "selection_note": "The 2086 candidate is the latest checked baseline in this increment; round040 accepted no operations and candidate_selected remains false. Parent036-restore is a negative 2108/0/0 result, worse than the 2102 retained-552 baseline."
+}

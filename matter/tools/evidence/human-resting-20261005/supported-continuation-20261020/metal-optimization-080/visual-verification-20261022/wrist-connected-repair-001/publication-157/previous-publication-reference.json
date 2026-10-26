@@ -1,0 +1,152 @@
+{
+  "external_inputs_and_sources": [
+    {
+      "bytes": 964,
+      "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+      "manifest_sha256": "e433efcf63074501724d9dc4236f4e35dec3af83ed4fc0ae79ca47a2f65bd61a",
+      "path": "evidence/surface-clearance-546/conditioned-connected-refinement-558/refine-all-001/state.json",
+      "publication": "P155",
+      "sha256": "b72fd820ee0937fa5cc4ea3b03f019d334e6ffd69f8cdd557e78b77530785d80",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 4352,
+      "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+      "manifest_sha256": "e433efcf63074501724d9dc4236f4e35dec3af83ed4fc0ae79ca47a2f65bd61a",
+      "path": "evidence/surface-clearance-546/conditioned-connected-refinement-558/run_joint_conditioned558_v2.py",
+      "publication": "P155",
+      "sha256": "edf675b0ed7c819943c6f656133e7c958e53e0357a7c28fe4c59bb20d4f7ac95",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 2196,
+      "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+      "manifest_sha256": "e433efcf63074501724d9dc4236f4e35dec3af83ed4fc0ae79ca47a2f65bd61a",
+      "path": "evidence/surface-clearance-546/round-032-joint560/matched-inputs.json",
+      "publication": "P155",
+      "sha256": "c3d7e062fdbe72ec44468af3752a3a462eae99351e416bf2d46f6daeff258a1d",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 950,
+      "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+      "manifest_sha256": "494792624ce2ad17567e00b452d688a669fc47ff71a865ba21f188437f441ac6",
+      "path": "evidence/surface-clearance-546/affine-ancestry-refresh-566/from2106-001/final/state.json",
+      "publication": "P156",
+      "sha256": "1e4c9d82c7cd561a997ebf281715d5413ad381f161a6aed774a757f952ec32d6",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 6663460,
+      "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+      "manifest_sha256": "494792624ce2ad17567e00b452d688a669fc47ff71a865ba21f188437f441ac6",
+      "path": "evidence/surface-clearance-546/parent-field-retention-565/run-001/candidate.npz",
+      "publication": "P156",
+      "sha256": "f0058d8e5d5ced6c3f144f48bc5db7d0995518d98cefdadce286f68c5cc47eba",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 5276,
+      "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+      "manifest_sha256": "494792624ce2ad17567e00b452d688a669fc47ff71a865ba21f188437f441ac6",
+      "path": "evidence/source-snapshots/88baf47524c02c525a2f121a99923777576e8603c16a6b84729032ce464ad671-retain_surface_components552.py",
+      "publication": "P156",
+      "sha256": "88baf47524c02c525a2f121a99923777576e8603c16a6b84729032ce464ad671",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 22800,
+      "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+      "manifest_sha256": "494792624ce2ad17567e00b452d688a669fc47ff71a865ba21f188437f441ac6",
+      "path": "evidence/surface-clearance-546/raw-joint-capture-563/raw_joint_capture563.py",
+      "publication": "P156",
+      "sha256": "fa7df8771a37200c4ed30e61d92ebf1b6227eed9da8a5ff45ab54b4ff299975e",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 18883,
+      "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+      "manifest_sha256": "494792624ce2ad17567e00b452d688a669fc47ff71a865ba21f188437f441ac6",
+      "path": "evidence/source-snapshots/d42db71f6003f60eec69787156775e2133be2c54f69e37047ea8c451c76bd5a9-chain_exact_flip_batches_025.py",
+      "publication": "P156",
+      "sha256": "d42db71f6003f60eec69787156775e2133be2c54f69e37047ea8c451c76bd5a9",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 29102,
+      "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+      "manifest_sha256": "494792624ce2ad17567e00b452d688a669fc47ff71a865ba21f188437f441ac6",
+      "path": "evidence/source-snapshots/9123965621161beb6408f6c9663d8d36968cf1113c3a97106e968ea1c754d84e-topology-bone-aware-025.py",
+      "publication": "P156",
+      "sha256": "9123965621161beb6408f6c9663d8d36968cf1113c3a97106e968ea1c754d84e",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 11275,
+      "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+      "manifest_sha256": "494792624ce2ad17567e00b452d688a669fc47ff71a865ba21f188437f441ac6",
+      "path": "evidence/source-snapshots/0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a-run_candidate_checks545.py",
+      "publication": "P156",
+      "sha256": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 48788,
+      "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+      "manifest_sha256": "494792624ce2ad17567e00b452d688a669fc47ff71a865ba21f188437f441ac6",
+      "path": "evidence/source-snapshots/4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81-human_skin_fat_bone_audit.py",
+      "publication": "P156",
+      "sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 13692,
+      "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+      "manifest_sha256": "494792624ce2ad17567e00b452d688a669fc47ff71a865ba21f188437f441ac6",
+      "path": "evidence/source-snapshots/db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781-finalize_existing_checks546.py",
+      "publication": "P156",
+      "sha256": "db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 63212,
+      "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+      "manifest_sha256": "e433efcf63074501724d9dc4236f4e35dec3af83ed4fc0ae79ca47a2f65bd61a",
+      "path": "source-snapshots/f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d-cardiac_cavity_intersections.py",
+      "publication": "P155",
+      "sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 202611,
+      "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+      "manifest_sha256": "e433efcf63074501724d9dc4236f4e35dec3af83ed4fc0ae79ca47a2f65bd61a",
+      "path": "source-snapshots/5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2-propose_joint_clearance_witnesses_408.py",
+      "publication": "P155",
+      "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 5152,
+      "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+      "manifest_sha256": "e433efcf63074501724d9dc4236f4e35dec3af83ed4fc0ae79ca47a2f65bd61a",
+      "path": "source-snapshots/52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9-audit_connected_outer_geometry_130.py",
+      "publication": "P155",
+      "sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9",
+      "verified_in_prior_manifest": true
+    },
+    {
+      "bytes": 4925,
+      "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+      "manifest_sha256": "e433efcf63074501724d9dc4236f4e35dec3af83ed4fc0ae79ca47a2f65bd61a",
+      "path": "source-snapshots/de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1-audit_skin_bone_surfaces_159.py",
+      "publication": "P155",
+      "sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+      "verified_in_prior_manifest": true
+    }
+  ],
+  "parent_publication_commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+  "previous_main_commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+  "previous_manifest_sha256": "494792624ce2ad17567e00b452d688a669fc47ff71a865ba21f188437f441ac6",
+  "schema": "numi.human.surface_clearance.p157.prior_publication_references.v1"
+}

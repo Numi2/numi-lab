@@ -1,0 +1,6 @@
+{
+  "status": "STOPPED_BEFORE_GEOMETRY_CHANGE",
+  "unit_test": "obsolete function-identity assertion rejected the intentional bound wrapper; replaced by actual lazy-owner invocation test",
+  "runtime": "copied runner still pinned the original unbound helper; no source ownership gate bypassed",
+  "next_change": "new frozen root v6 pins its tested bound helper, validates source pins in tests, and gates launch on pytest success"
+}
