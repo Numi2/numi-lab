@@ -1,0 +1,23 @@
+{
+  "compile_check": {
+    "files": [
+      "point_first_objective_443.py",
+      "run_point_first_fit_443.py",
+      "graded_cut_step_447.py",
+      "verify455root.py",
+      "verify456root.py"
+    ],
+    "status": "PASS"
+  },
+  "environment": "SSH numi only",
+  "python": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "schema": "publication-131-test-receipt-v1",
+  "scope": "Source and synthetic tests only; no geometry solver, mesh audit, or benchmark was run for this receipt.",
+  "tests": {
+    "command": "python -m unittest -v point-first-objective-443/test_point_first_objective_443.py graded-cut-step-447/test_graded_cut_step_447.py",
+    "errors": 0,
+    "failures": 0,
+    "status": "PASS",
+    "tests_run": 5
+  }
+}

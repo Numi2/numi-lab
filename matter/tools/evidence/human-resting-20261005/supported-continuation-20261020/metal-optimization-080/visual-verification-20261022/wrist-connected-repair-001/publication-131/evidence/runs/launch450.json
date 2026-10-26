@@ -1,0 +1,31 @@
+{
+  "pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/seed-preserving-backtrack-436/run-001/backtrack-373/pass-015/candidate.npz": "1429bbe58c4e27d7d483fa4583b747ec42cf679e04505e24f43c2ffbb5e091e1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/grouped-backtrack-442/run-001/backtrack-373/pass-007/candidate.npz": "3b2f3ce58e4e0d7e1883f937f203af8bb0a5630cd502c5131cc7c4cc4b7e2b07",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/graded-cut-step-447/graded_cut_step_447.py": "522152a4df248d230ddc66652e3071a2283c29ca73bccc52efbe1789e2ee2b9e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-guard-backtrack-450/run-003/context.npz": "2226f9f285b1e3d4768dc3f5108ecd37ab0ace01927ed0d9729c7a25e7e4fe77",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh-449/run-001/report.json": "ddbd34ea34428123e3b82c17412a5819b27f111c2f7d463f056daf68316da6be",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh-449/run-001/introduced-skin-bone-barriers.npz": "7e9ca02dfbe0b6f29bbf20b6f261cc60388c7ef476dcce6213f5f3d2e48e0ece",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-guard-backtrack-450/run-003/backtrack-config.json": "5db7debe43ff6a4be500a3372fe46fb534831d203ae355bbe61e495a87c459a6",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-guard-backtrack-450/run450c.py": "5e902465036661261091eda0b6fcc669c6f746d2bad7aa34d022e147ca94ca98"
+  },
+  "env": {
+    "NUMI_GRADED_LOCAL_STEP_CONTEXT_423": "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-guard-backtrack-450/run-003/context.npz",
+    "NUMI_GRADED_LOCAL_STEP_CONTEXT_SHA256_423": "2226f9f285b1e3d4768dc3f5108ecd37ab0ace01927ed0d9729c7a25e7e4fe77",
+    "NUMI_GRADED_LOCAL_STEP_KAPPA_423": ".1",
+    "NUMI_GRADED_SELF_SEED_PATH_431": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep-438/run-001/self-seeds/merged-self-pair-seeds.npy",
+    "NUMI_GRADED_SELF_SEED_SHA256_431": "c414dabbc418180eb27493c6fe670497480020f16362bcf10db229133e42f7f6",
+    "NUMI_GRADED_SELF_SEED_PREFLIGHT_PATH_431": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep-438/run-001/self-seeds/report.json",
+    "NUMI_GRADED_SELF_SEED_PREFLIGHT_SHA256_431": "bb0d97f9282a6611ca33f676eb40e368e7ba533a82000cb445d9ad857e72308e",
+    "NUMI_GRADED_SELF_SEED_CACHE_431": "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-guard-backtrack-450/run-003/seed-rows.npz",
+    "NUMI_GRADED_SELF_SEED_REPORT_431": "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-guard-backtrack-450/run-003/seed-scale-report.json",
+    "NUMI_GRADED_FIXED_GUARD_NPZ_PATH_447": "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh-449/run-001/introduced-skin-bone-barriers.npz",
+    "NUMI_GRADED_FIXED_GUARD_NPZ_SHA256_447": "7e9ca02dfbe0b6f29bbf20b6f261cc60388c7ef476dcce6213f5f3d2e48e0ece",
+    "NUMI_GRADED_FIXED_GUARD_REPORT_PATH_447": "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh-449/run-001/report.json",
+    "NUMI_GRADED_FIXED_GUARD_REPORT_SHA256_447": "ddbd34ea34428123e3b82c17412a5819b27f111c2f7d463f056daf68316da6be",
+    "NUMI_GRADED_FIXED_GUARD_BASE_CANDIDATE_SHA256_447": "1429bbe58c4e27d7d483fa4583b747ec42cf679e04505e24f43c2ffbb5e091e1"
+  },
+  "exact_failure_face_count": 273,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}
