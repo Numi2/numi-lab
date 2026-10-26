@@ -1,0 +1,77 @@
+{
+  "generated_utc": "2026-10-26T21:55:11.820751+00:00",
+  "geometry_or_native_jobs_started": false,
+  "groups": [
+    {
+      "command": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "methods/connected-source-refinement-553/test_source_outward_targets553.py",
+        "methods/line-search-cuts-554/test_build_quality_feasible_failed_pose554.py",
+        "methods/line-search-cuts-554/test_component_refined_backtracking554.py"
+      ],
+      "log_path": "test-results/553-554-focused.log",
+      "name": "553-554-focused",
+      "returncode": 0,
+      "source_pins": {
+        "methods/connected-source-refinement-553/test_source_outward_targets553.py": "3f6546cf23ef081de8ce3d5f0385242acb0ce789f8d1d1e241886e6f5922638d",
+        "methods/line-search-cuts-554/test_build_quality_feasible_failed_pose554.py": "41687fa07c3706eb5a1021501eb9f863808ce72b807b9cf99287ed5d56a82169",
+        "methods/line-search-cuts-554/test_component_refined_backtracking554.py": "ca667c9b89bf0043cebbde54c00a304717517bd72f2c5c708f2bb2e5324ec82d"
+      },
+      "stdout_tail": "...............                                                          [100%]\n15 passed in 0.04s\n"
+    },
+    {
+      "command": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "methods/current-parent-normal-targets-555/test_current_parent_normal_helper555.py",
+        "methods/current-parent-normal-targets-555/test_current_parent_normal_targets555.py"
+      ],
+      "log_path": "test-results/555-targets-recovery.log",
+      "name": "555-targets-recovery",
+      "returncode": 0,
+      "source_pins": {
+        "methods/current-parent-normal-targets-555/test_current_parent_normal_helper555.py": "471602ccad8aed822235b5a03ed449df202eeafb16a51900beaa170b83d9b5ef",
+        "methods/current-parent-normal-targets-555/test_current_parent_normal_targets555.py": "af0a263ae7b9829a70fad7aeb5784ff4c5f8bd19d7533a9fca90901d5ac715de"
+      },
+      "stdout_tail": "................                                                         [100%]\n16 passed in 0.31s\n"
+    },
+    {
+      "command": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "methods/connected-fixed-boundary-556/test_merge_introduced_skin_bone_guards556.py"
+      ],
+      "log_path": "test-results/556-merge.log",
+      "name": "556-merge",
+      "returncode": 0,
+      "source_pins": {
+        "methods/connected-fixed-boundary-556/test_merge_introduced_skin_bone_guards556.py": "0caf10d34a0dea64c53467b30ecba8b83f4acbaab4309d2491bd2f15f13ae726"
+      },
+      "stdout_tail": "....                                                                     [100%]\n4 passed in 0.02s\n"
+    }
+  ],
+  "legacy_555_helper_collection_failure": {
+    "collection_log_bytes": 2242,
+    "collection_log_path": "test-results/555-helper-legacy-collection.log",
+    "collection_log_sha256": "a87a715c9a4544f0907e1fc62d4a848383cf53f3015f20aef55e95324df3953c",
+    "failure": "original syntax error preserved; corrected helper source hash-pinned and now passes with targets/recovery tests",
+    "source_snapshot_bytes": 3686,
+    "source_snapshot_path": "methods/current-parent-normal-targets-555/failed-collection-original-20261026.txt",
+    "source_snapshot_sha256": "eece7feb2ed4da65da23dd02d88efaeb37e41a8fe54f9465c62f707c670079f5"
+  },
+  "schema": "numi.human.surface_clearance.publication153.tests.v1",
+  "tests_ran_on_staged_sources": true
+}

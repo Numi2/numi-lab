@@ -1,0 +1,30 @@
+[
+  {
+    "original_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-019-pair-sat551/component-proposal/candidate.npz",
+    "candidate_sha256": "2e7528838faa055a60fd797f97393c18ee8f206e6c8ce84751ca7bcbbf7a29ce",
+    "original_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-019-pair-sat551/full-check/audit-159/report.json",
+    "report_sha256": "1086cde92ad55c2a0e1d52bf4b34213ea71ec034083ccb341ae425d499ac8a90",
+    "alias_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/round-019-pair-sat551/audit159/report.json"
+  },
+  {
+    "original_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-021-pair-sat551-cut297/component-proposal/candidate.npz",
+    "candidate_sha256": "0b0e2cfeef66be2ad0b40952b7c28e6a5a66038bf1ec9c5c0495792a4541fb27",
+    "original_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-021-pair-sat551-cut297/full-check/audit-159/report.json",
+    "report_sha256": "b872eea45f6447fecbcf27b5a1e4d56b03ef9417d9ada90a7dbad46974f34a96",
+    "alias_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/round-021-pair-sat551-cut297/audit159/report.json"
+  },
+  {
+    "original_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/component-proposal/candidate.npz",
+    "candidate_sha256": "fc97d4340ad0ab165e7ec7e4b949fb336307beee6c565d16055aaf0e23f41f60",
+    "original_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/full-check/audit-159/report.json",
+    "report_sha256": "3e1fe2cfacfc5e073df747e8f064ca17be2f2b7f4912b56ec566a984259ac7e5",
+    "alias_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/round-023-pair-sat551-cut60/audit159/report.json"
+  },
+  {
+    "original_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-024-refined-alpha554/proposal/candidate.npz",
+    "candidate_sha256": "065e81706096287070f2341517438bea9ff8bc5a149c88596586088898afecde",
+    "original_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-024-refined-alpha554/full-check/audit-159/report.json",
+    "report_sha256": "9475250aeff8dfc7f786b0b46f12cc2dde0b109d9cc200bc8fa4c917fa2f6c92",
+    "alias_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/round-024-refined-alpha554/audit159/report.json"
+  }
+]

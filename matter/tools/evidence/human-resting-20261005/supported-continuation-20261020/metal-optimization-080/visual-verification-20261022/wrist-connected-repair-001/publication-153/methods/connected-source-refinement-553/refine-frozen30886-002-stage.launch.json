@@ -1,0 +1,30 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-adapter546/run_affine_refinement546.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/candidate.npz",
+    "--candidate-sha256",
+    "10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366",
+    "--crossing-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/full-check/audit-159/report.json",
+    "--crossing-report-sha256",
+    "3875a075fc43cdd4da78d9006a56b9ad45a71ed640fbe30ef2f42018e85bee46",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002",
+    "--freeze-face",
+    "30886",
+    "--selection-exclusion-reason",
+    "Exact diagnostic affine-winding-diagnosis.json identified parent30886 reference normal magnitude9.42e-20m2 and3 wrong-winding prolonged children. Preserve this parent and its edges until reference-conditioning repair; excluded crossings remain unresolved, not certified."
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-adapter546/connected_refinement_adapter546.py": "06081873eaf0d5452fbf4beee3d580a0eba97c3a546a9f7e7a06a0c9f548cbc6",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-adapter546/run_affine_refinement546.py": "bf5e442ef5bbeba4649ffdf976fb8af413c02f780bbcf651e03565b65c24e0bb",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/affine-winding-diagnosis.json": "d2917264cd7745ded638f3a266622c1d81dd0fa7acd77f4c3c6d2ac7906204f1"
+  }
+}

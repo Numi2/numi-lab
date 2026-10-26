@@ -1,0 +1,26 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/line-search-cuts-554/component_refined_backtracking554.py",
+    "--raw-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/raw-directions/raw-direction-001",
+    "--context",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/prepare/constraint-context.json",
+    "--output",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-024-refined-alpha554/proposal",
+    "--trust-mm",
+    "4",
+    "--exact-self",
+    "--refine-steps",
+    "6"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/component-area-backtracking-549/component_area_backtracking549.py": "523b1aef89d92eef09bf63e9de2d4f3fa6bd938ef53a45915f9ea138f5b8f249",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/line-search-cuts-554/component_refined_backtracking554.py": "89ce98834f39b5135daf112ca5e58e64f3bba370f11439b5fdbef90a341605eb"
+  }
+}

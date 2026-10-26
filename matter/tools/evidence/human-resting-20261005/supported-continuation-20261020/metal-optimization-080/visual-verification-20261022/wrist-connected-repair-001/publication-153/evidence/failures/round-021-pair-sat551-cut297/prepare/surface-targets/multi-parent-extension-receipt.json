@@ -1,0 +1,17 @@
+{
+  "candidate_sha256": "10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366",
+  "crossing_pairs": 2200,
+  "multi_parent_faces": [
+    11827,
+    14133,
+    21227
+  ],
+  "passing_targets": 2200,
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-021-pair-sat551-cut297/prepare/surface-targets/report.json",
+  "report_sha256": "5329b2f5d460d52c7b5b41ba17c935a4935c85ad3a0d51b152bc154254d99046",
+  "surface_report_sha256": "3875a075fc43cdd4da78d9006a56b9ad45a71ed640fbe30ef2f42018e85bee46",
+  "target_records": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-021-pair-sat551-cut297/prepare/surface-targets/target-records.jsonl",
+  "target_records_sha256": "73a5a58bf48fea1830837d19c4e100b646ff8c97c1a92999466fc84bae64ae15",
+  "targets_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-021-pair-sat551-cut297/prepare/surface-targets/targets.npz",
+  "targets_npz_sha256": "0ab041b1a111b08e115e4bd6c736fff4948dc117e553ce79258704af90f276ef"
+}

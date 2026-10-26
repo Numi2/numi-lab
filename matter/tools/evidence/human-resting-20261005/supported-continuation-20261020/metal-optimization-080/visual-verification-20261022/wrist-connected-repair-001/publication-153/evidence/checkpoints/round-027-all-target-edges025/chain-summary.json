@@ -1,0 +1,56 @@
+{
+  "accepted_physical_steps": 0,
+  "final_state": {
+    "accepted_operation_count": 0,
+    "accepted_physical_steps": 0,
+    "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-002/candidate.npz",
+    "candidate_sha256": "331b4debe2dfd8a2da90278c669673f4ddf591beea48e841cc39c5fb9036d2ef",
+    "changed_face_count": 0,
+    "exact_159_inventory": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-002/composed-exact-159-inventory.json",
+    "exact_159_inventory_sha256": "e82d6bf2b6e79aa594ae258e205e231846464919fc4080dee213e7c8643f00e8",
+    "full_130_run_on_this_candidate": false,
+    "full_159_run_on_this_candidate": false,
+    "native_admission": false,
+    "self_state_certificate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-002/incremental-self-certificate.json",
+    "self_state_certificate_sha256": "3dbefe80872b9efedb1f8ffb2e6a90904345c85b0f394be9eee107c150340d4b",
+    "surface_pair_count_composed": 2188
+  },
+  "input_candidate_sha256": "3d1eeaa431ccbc4f46bc4bc6c2c5cf55697ea19f123405241c0274e3d13188a6",
+  "input_full_130_audit_sha256": "c7f5f2a75283f475b02a7d2827d6a8be0e6761223bd3143d88de30a65d1396f2",
+  "method_limits": [
+    "159 counts are exact per changed face and composed with unchanged identities from a pinned complete report.",
+    "130 self-free state is incremental carry-forward, not a fresh full audit on intermediate candidates.",
+    "One full final 130 and 159 audit is required after the chain.",
+    "All coordinates and typed anchors are required bitwise unchanged across each batch."
+  ],
+  "native_admission": false,
+  "results": [
+    {
+      "accepted_count": 4,
+      "after_pairs": 2188,
+      "before_pairs": 2198,
+      "candidate_sha256": "331b4debe2dfd8a2da90278c669673f4ddf591beea48e841cc39c5fb9036d2ef",
+      "changed_face_count": 8,
+      "introduced_self_pair_count": 0,
+      "reduction": 10,
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-001/report.json",
+      "round": 1,
+      "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-001/state.json"
+    },
+    {
+      "accepted_count": 0,
+      "after_pairs": 2188,
+      "before_pairs": 2188,
+      "candidate_sha256": "331b4debe2dfd8a2da90278c669673f4ddf591beea48e841cc39c5fb9036d2ef",
+      "changed_face_count": 0,
+      "introduced_self_pair_count": 0,
+      "reduction": 0,
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-002/report.json",
+      "round": 2,
+      "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-002/state.json"
+    }
+  ],
+  "rounds_completed": 2,
+  "rounds_requested": 3,
+  "status": "BOUNDED_CHAIN_COMPLETE_PENDING_ONE_FINAL_FULL_EXACT_AUDIT"
+}

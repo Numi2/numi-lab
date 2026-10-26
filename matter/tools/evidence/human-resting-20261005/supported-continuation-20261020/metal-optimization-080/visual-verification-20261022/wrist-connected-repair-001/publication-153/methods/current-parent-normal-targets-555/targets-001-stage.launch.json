@@ -1,0 +1,29 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/run_current_parent_normal_targets555.py",
+    "--direction-mode",
+    "current-parent-normal",
+    "--parent-candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/candidate.npz",
+    "--parent-point-summary",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/full-check/audit-130/summary.json",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/candidate.npz",
+    "--point-summary",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-130/summary.json",
+    "--query-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-130/query",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/targets-001"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/current_parent_normal_helper555.py": "431f4af0b1308a1c8d90f22cf9be65e5dd13b97491ba6ddfd3b4c269bf56e5e5",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/run_current_parent_normal_targets555.py": "69dd8fb8ca21402289279c048ff650c28b15c2343795058d2af66455a9387a71"
+  }
+}

@@ -1,0 +1,30 @@
+waiting_for_human_geometry_slot pid=75388
+acquired_human_geometry_slot pid=75388
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-adapter546/run_affine_refinement546.py", line 83, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-adapter546/run_affine_refinement546.py", line 57, in main
+    output,report=adapter.build_refined_arrays546(
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        source,crossing,source[required[0]],source[required[1]],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        frozen_face_rows=a.freeze_face,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        selection_exclusion_reason=a.selection_exclusion_reason)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-adapter546/connected_refinement_adapter546.py", line 226, in build_refined_arrays546
+    output, report = owner.build_refined_arrays(
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        staged, crossing_report, area_reference_points_world_m, area_reference_faces,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        candidate_sha256=candidate_sha256,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        crossing_report_sha256=crossing_report_sha256,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        area_reference_sha256=area_reference_sha256)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/publication-109/sources/connected-refinement-270/connected_refinement_270.py", line 204, in build_refined_arrays
+    raise ValueError('matched 037 area-reference child winding disagrees with its parent')
+ValueError: matched 037 area-reference child winding disagrees with its parent

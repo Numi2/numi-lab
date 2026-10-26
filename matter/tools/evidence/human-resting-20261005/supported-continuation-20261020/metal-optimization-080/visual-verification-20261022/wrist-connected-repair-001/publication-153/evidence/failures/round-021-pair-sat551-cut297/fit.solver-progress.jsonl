@@ -1,0 +1,1 @@
+{"accepted":true,"accepted_alpha":0.25,"fallback_used":false,"iteration":1,"lp_method":"highs-ipm","lp_success":true,"lp_wall_seconds":36.8581004999578,"max_delta_mm":0.39589405059814453,"minimum_current_oriented_ratio":0.7680988426426378,"minimum_fixed_037_reference_magnitude_ratio":0.10009356948026137,"stage1_success":true,"stage2_success":true,"stage2_time_limit":false}

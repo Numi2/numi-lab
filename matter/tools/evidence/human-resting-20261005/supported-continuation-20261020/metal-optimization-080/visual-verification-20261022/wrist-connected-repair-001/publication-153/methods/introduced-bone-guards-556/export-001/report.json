@@ -1,0 +1,1136 @@
+{
+  "audit_script_path": "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+  "audit_script_sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+  "bank_count": 185,
+  "bank_reader_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-084/canonical/matter/tools/human_skin_fat_bone_audit.py",
+  "bank_reader_sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+  "bank_source_paths": {
+    "all-bank-containment.csv.banks.csv": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv",
+    "exact-emitted.bodies.csv": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+    "exact-emitted.nodes.csv": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv",
+    "exact-emitted.triangles.csv": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv"
+  },
+  "bank_source_pins": {
+    "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac"
+  },
+  "base_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/candidate.npz",
+  "base_candidate_sha256": "10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366",
+  "base_pair_count": 2200,
+  "candidate_points_world_m_array_sha256": "1315e52a98a104ee85231443b021f500037ce222a99a3cc60f8d221051010f95",
+  "candidate_points_world_m_shape": [
+    20889,
+    3
+  ],
+  "exact_predicate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+  "exact_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "expected_bank_count": 185,
+  "face_count": 41733,
+  "fixed_triangle_transform": "solve(M, (local_triangle_m + com_offset_local_m).T).T + body_position_world_m, then multiply by 1000; pinned raw emitted Float32 triangle values promoted to Float64; no extra Float32 cast",
+  "fixed_triangles_frame": "world",
+  "fixed_triangles_units": "mm",
+  "geometry_or_native_admission": false,
+  "inputs": [
+    {
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/candidate.npz",
+      "candidate_points_world_m_array_sha256": "1315e52a98a104ee85231443b021f500037ce222a99a3cc60f8d221051010f95",
+      "candidate_sha256": "10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366",
+      "face_count": 41733,
+      "introduced_or_base_pair_count": 2200,
+      "point_count": 20889,
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/full-check/audit-159/report.json",
+      "report_sha256": "3875a075fc43cdd4da78d9006a56b9ad45a71ed640fbe30ef2f42018e85bee46",
+      "role": "base",
+      "source_O_faces_array_sha256": "04c7abc58a276522625e0ee6636ebaba95d04c192d7abda79a47202f8b8d534a"
+    },
+    {
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/round-019-pair-sat551/candidate.npz",
+      "candidate_points_world_m_array_sha256": "b68e9a2fd84208b6fc0bd5d58177c5dc12d5206340a7d579f501e11d83d57761",
+      "candidate_sha256": "2e7528838faa055a60fd797f97393c18ee8f206e6c8ce84751ca7bcbbf7a29ce",
+      "face_count": 41733,
+      "introduced_or_base_pair_count": 2216,
+      "point_count": 20889,
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/round-019-pair-sat551/audit159/report.json",
+      "report_sha256": "1086cde92ad55c2a0e1d52bf4b34213ea71ec034083ccb341ae425d499ac8a90",
+      "role": "trial",
+      "source_O_faces_array_sha256": "04c7abc58a276522625e0ee6636ebaba95d04c192d7abda79a47202f8b8d534a"
+    },
+    {
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/round-021-pair-sat551-cut297/candidate.npz",
+      "candidate_points_world_m_array_sha256": "1bed05512213cfc06919801bd4743c8b084785235bde06d6695990132b6c20cb",
+      "candidate_sha256": "0b0e2cfeef66be2ad0b40952b7c28e6a5a66038bf1ec9c5c0495792a4541fb27",
+      "face_count": 41733,
+      "introduced_or_base_pair_count": 2248,
+      "point_count": 20889,
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/round-021-pair-sat551-cut297/audit159/report.json",
+      "report_sha256": "b872eea45f6447fecbcf27b5a1e4d56b03ef9417d9ada90a7dbad46974f34a96",
+      "role": "trial",
+      "source_O_faces_array_sha256": "04c7abc58a276522625e0ee6636ebaba95d04c192d7abda79a47202f8b8d534a"
+    },
+    {
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/round-023-pair-sat551-cut60/candidate.npz",
+      "candidate_points_world_m_array_sha256": "ccd3fb852c465013450e8de6249e9514c43eb6e4101bd4a6e2415d8ad30fc27c",
+      "candidate_sha256": "fc97d4340ad0ab165e7ec7e4b949fb336307beee6c565d16055aaf0e23f41f60",
+      "face_count": 41733,
+      "introduced_or_base_pair_count": 2248,
+      "point_count": 20889,
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/round-023-pair-sat551-cut60/audit159/report.json",
+      "report_sha256": "3e1fe2cfacfc5e073df747e8f064ca17be2f2b7f4912b56ec566a984259ac7e5",
+      "role": "trial",
+      "source_O_faces_array_sha256": "04c7abc58a276522625e0ee6636ebaba95d04c192d7abda79a47202f8b8d534a"
+    },
+    {
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/round-024-refined-alpha554/candidate.npz",
+      "candidate_points_world_m_array_sha256": "039bdd4aa4364c7ee49614feece547081aeee72159219934cb7ac21a44ecdea3",
+      "candidate_sha256": "065e81706096287070f2341517438bea9ff8bc5a149c88596586088898afecde",
+      "face_count": 41733,
+      "introduced_or_base_pair_count": 2289,
+      "point_count": 20889,
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/round-024-refined-alpha554/audit159/report.json",
+      "report_sha256": "9475250aeff8dfc7f786b0b46f12cc2dde0b109d9cc200bc8fa4c917fa2f6c92",
+      "role": "trial",
+      "source_O_faces_array_sha256": "04c7abc58a276522625e0ee6636ebaba95d04c192d7abda79a47202f8b8d534a"
+    }
+  ],
+  "introduced_pair_count": 170,
+  "limitations": [
+    "This payload adds hard fixed-triangle witnesses for construction-only line searches.",
+    "It is not a physics state, mass transfer, tissue deformation, native runtime install, or physical acceptance result."
+  ],
+  "output_npz": "introduced-skin-bone-barriers.npz",
+  "output_npz_sha256": "14a41647fc4546ecf4b29e1430bba0a0225a91e065347783968ef626b1de42f0",
+  "point_count": 20889,
+  "schema": "numi.fixed_skin_bone_barriers.v1",
+  "skin_faces_array_sha256": "04c7abc58a276522625e0ee6636ebaba95d04c192d7abda79a47202f8b8d534a",
+  "skin_faces_shape": [
+    41733,
+    3
+  ],
+  "status": "COMPLETE_TYPED_INTRODUCED_SKIN_BONE_BARRIER_EXPORT",
+  "topology_contract": "every trial candidate was located from its 159 report sibling, SHA-verified, and source_O_faces byte-array equal to the base",
+  "trial_union_pair_count": 2351,
+  "typed_pairs": [
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 18953,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 19141,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 146,
+      "skin_face_row": 19141,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 147,
+      "skin_face_row": 19141,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 462,
+      "skin_face_row": 13129,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 464,
+      "skin_face_row": 13129,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 469,
+      "skin_face_row": 13129,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 473,
+      "skin_face_row": 13241,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 187,
+      "skin_face_row": 13264,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 190,
+      "skin_face_row": 13264,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 210,
+      "skin_face_row": 11827,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 210,
+      "skin_face_row": 12070,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 12399,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 12399,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 12401,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 12401,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 12402,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 12402,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 12414,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 12414,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 157,
+      "skin_face_row": 8834,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 165,
+      "skin_face_row": 8834,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 29,
+      "skin_face_row": 8840,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 81,
+      "skin_face_row": 8840,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 82,
+      "skin_face_row": 8840,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 29,
+      "skin_face_row": 8842,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 81,
+      "skin_face_row": 8842,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 39,
+      "skin_face_row": 8847,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 40,
+      "skin_face_row": 8847,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 41,
+      "skin_face_row": 8847,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 39,
+      "skin_face_row": 8848,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 40,
+      "skin_face_row": 8848,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 350,
+      "skin_face_row": 17302,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 351,
+      "skin_face_row": 17302,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 17334,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 17334,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 278,
+      "skin_face_row": 17341,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 278,
+      "skin_face_row": 17342,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 355,
+      "skin_face_row": 17363,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 354,
+      "skin_face_row": 17386,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 354,
+      "skin_face_row": 17387,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 17406,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 353,
+      "skin_face_row": 17406,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 366,
+      "skin_face_row": 17406,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 367,
+      "skin_face_row": 17406,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 17407,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 353,
+      "skin_face_row": 17407,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 366,
+      "skin_face_row": 17407,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 367,
+      "skin_face_row": 17407,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 95,
+      "skin_face_row": 13815,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 97,
+      "skin_face_row": 13815,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 180,
+      "skin_face_row": 14080,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 180,
+      "skin_face_row": 14084,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 180,
+      "skin_face_row": 14085,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 180,
+      "skin_face_row": 14105,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 175,
+      "skin_face_row": 14140,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 175,
+      "skin_face_row": 14142,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 175,
+      "skin_face_row": 14149,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 173,
+      "skin_face_row": 14251,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 174,
+      "skin_face_row": 14251,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 173,
+      "skin_face_row": 14253,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 174,
+      "skin_face_row": 14253,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 296,
+      "skin_face_row": 14804,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 14804,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 305,
+      "skin_face_row": 14804,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 317,
+      "skin_face_row": 14804,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 314,
+      "skin_face_row": 14805,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 315,
+      "skin_face_row": 14805,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 315,
+      "skin_face_row": 14813,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 296,
+      "skin_face_row": 14818,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 302,
+      "skin_face_row": 14818,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 226,
+      "skin_face_row": 14950,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 184,
+      "skin_face_row": 14951,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 306,
+      "skin_face_row": 14951,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 54,
+      "skin_face_row": 21206,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 55,
+      "skin_face_row": 21206,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 126,
+      "skin_face_row": 22178,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 32550,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 112,
+      "skin_face_row": 32550,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 32550,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 116,
+      "skin_face_row": 32550,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 32552,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 32553,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 32554,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 32555,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 112,
+      "skin_face_row": 33974,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 33974,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 112,
+      "skin_face_row": 33976,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 33976,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 149,
+      "skin_face_row": 34145,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 149,
+      "skin_face_row": 34146,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 90,
+      "skin_face_row": 34167,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 34167,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 90,
+      "skin_face_row": 34171,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 34171,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 149,
+      "skin_face_row": 34171,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 150,
+      "skin_face_row": 34171,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 110,
+      "skin_face_row": 34784,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 110,
+      "skin_face_row": 34785,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 110,
+      "skin_face_row": 34814,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 191,
+      "skin_face_row": 34842,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 298,
+      "skin_face_row": 34842,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 251,
+      "skin_face_row": 34861,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 183,
+      "skin_face_row": 34908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 189,
+      "skin_face_row": 34908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 251,
+      "skin_face_row": 34908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 254,
+      "skin_face_row": 34908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 257,
+      "skin_face_row": 34908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 302,
+      "skin_face_row": 34908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 34908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 305,
+      "skin_face_row": 34908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 34908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 302,
+      "skin_face_row": 34936,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 305,
+      "skin_face_row": 34936,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 34936,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 338,
+      "skin_face_row": 40524,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 260,
+      "skin_face_row": 40525,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 261,
+      "skin_face_row": 40525,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 348,
+      "skin_face_row": 40525,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 328,
+      "skin_face_row": 40529,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 333,
+      "skin_face_row": 40529,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 260,
+      "skin_face_row": 40535,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 268,
+      "skin_face_row": 40535,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 205,
+      "skin_face_row": 40591,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 267,
+      "skin_face_row": 40591,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 379,
+      "skin_face_row": 41371,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 373,
+      "skin_face_row": 41467,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 122,
+      "skin_face_row": 29256,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 109,
+      "skin_face_row": 29354,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 109,
+      "skin_face_row": 29355,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 109,
+      "skin_face_row": 29356,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 285,
+      "skin_face_row": 30887,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 285,
+      "skin_face_row": 30888,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 30910,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 148,
+      "skin_face_row": 30939,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 215,
+      "skin_face_row": 30939,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 290,
+      "skin_face_row": 31012,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 106,
+      "skin_face_row": 31015,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 203,
+      "skin_face_row": 31015,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 321,
+      "skin_face_row": 31054,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 31054,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 284,
+      "skin_face_row": 31056,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 31056,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 284,
+      "skin_face_row": 31067,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 284,
+      "skin_face_row": 31104,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 31104,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 280,
+      "skin_face_row": 31166,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 31166,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 321,
+      "skin_face_row": 31215,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 31217,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 31217,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 31217,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 107,
+      "skin_face_row": 26491,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 105,
+      "skin_face_row": 26558,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 106,
+      "skin_face_row": 26558,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 26558,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 208,
+      "skin_face_row": 26558,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 105,
+      "skin_face_row": 26581,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 106,
+      "skin_face_row": 26581,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 26581,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 208,
+      "skin_face_row": 26581,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 30,
+      "skin_face_row": 26840,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 32,
+      "skin_face_row": 26840,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 31,
+      "skin_face_row": 26864,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 34,
+      "skin_face_row": 26864,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 35,
+      "skin_face_row": 26864,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 31,
+      "skin_face_row": 26872,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 31,
+      "skin_face_row": 26939,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 31,
+      "skin_face_row": 26946,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 31,
+      "skin_face_row": 26947,
+      "stable_bone_id": 123
+    }
+  ]
+}

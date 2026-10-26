@@ -1,0 +1,34 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/candidate.npz",
+    "--point-summary",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-130/summary.json",
+    "--surface-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-159/report.json",
+    "--query-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-130/query",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/direct-depth-rows-002",
+    "--expected-candidate-sha256",
+    "dc92a5285643fd6dd63801675744ca474fd036b9e68235c638f00d095dd50f9c",
+    "--expected-point-summary-sha256",
+    "0919979d7d124e4232cb2ef28629f65fed104ece6c528c786f630d512dbc824f",
+    "--expected-surface-report-sha256",
+    "46c76794b1c211c4d379ca889d4b627a09dfd87392a53e19931c805de7ad4cc2",
+    "--expected-query-receipt-sha256",
+    "eaccf31f644ae105d476bbae5a769563a7210ab5e7e8a7802e1c762610da5abf",
+    "--expected-owner-sha256",
+    "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py": "ee327a03af99bcb9b89f6344d1f3a7d6ead074cbf489fd985f04c22362ecff3f"
+  }
+}

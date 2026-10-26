@@ -1,0 +1,24 @@
+waiting_for_human_geometry_slot pid=76249
+acquired_human_geometry_slot pid=76249
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/source-normal-targets-002/nearest-union-exits.json",
+  "report_sha256": "8002a9986650df74907fe86eddc248d0b4e8e83eef93f9de7111050a07799452",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/source-normal-targets-002/nearest-union-exits.npz",
+  "npz_sha256": "a00a50988ba6095c5df8e72abd8fd5f55f806cb776d6d4255f86dff8b50c9c7e",
+  "query_rows": 1248,
+  "passing_targets": 1248,
+  "status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY",
+  "seconds": 18.70370937511325
+}
+{
+  "status": "PASS_NEW_REFINEMENT_INSIDE_ROWS_SOURCE_OUTWARD_ENDPOINTS_ONLY",
+  "target_count": 1248,
+  "candidate_sha256": "dc92a5285643fd6dd63801675744ca474fd036b9e68235c638f00d095dd50f9c",
+  "target_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/source-normal-targets-002/nearest-union-exits.json",
+  "target_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/source-normal-targets-002/nearest-union-exits.npz",
+  "receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/source-normal-targets-002/source-outward-launcher-553.json",
+  "receipt_sha256": "3e6a7d09d3934b8bc0dc005e1830999e9ac797418c9df1ebbdd1bfe383446859",
+  "source_outward_directions": true,
+  "all185_endpoint_targets": true,
+  "geometry_changed": false
+}

@@ -1,0 +1,63 @@
+{
+  "batch2_compression_receipt_sha256": "a420ab38686e9d05e599bf0b1926f3843d4f537c227cc3b87c3eae78efd21dfc",
+  "batch3_compression_receipt_sha256": "7e1a8641e9d0f39165ff6dbc81b31643aab4d551dab497b0c2919d819a6ffe3d",
+  "generated_utc": "2026-10-26T22:06:07.521703+00:00",
+  "geometry_or_native_job_started_by_publisher": false,
+  "latest_candidate": {
+    "accepted_physical_steps": 0,
+    "anchor_rows": 237,
+    "candidate_selected_state_field": false,
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "full_check_report_sha256": "2c98e6d9c3b5246c580c6e9c0a2f54f5d5bc651b56148a712d14dee2ade682ac",
+    "native_admission": false,
+    "path": "evidence/checkpoints/round-027-all-target-edges025/round-001/candidate.npz",
+    "self_pairs": 0,
+    "sha256": "331b4debe2dfd8a2da90278c669673f4ddf591beea48e841cc39c5fb9036d2ef",
+    "surface_pairs": 2188
+  },
+  "p153_prefix": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-153",
+  "parent_main_before": "2711e98612d86a3d0edf0a8002b0b56644826172",
+  "publication": "P153",
+  "raw_direction_diagnostics": {
+    "bank_rows": 185,
+    "derived_count_receipt_sha256": "da4a693fd7c394acfa5d47dd9246a5dcbc1dbe14ae5de88d4adda8b6f79b924f",
+    "derived_surface_pair_count": 2275,
+    "exact_self_pairs": 7,
+    "raw_surface_audit_complete": true,
+    "unique_bank_rows": 185
+  },
+  "root_critical_review_sha256": "09674258edfdadd9cf08296d5813bb2be40f20ded62a926d8b2ad9fd9bb7fd16",
+  "round026_candidate": {
+    "accepted_physical_steps": 0,
+    "anchor_rows": 237,
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "full_check_report_sha256": "b01cfbd1584ec69db2c47942d1fa5de6c646557f3918d72f1ecf8b2586ec7534",
+    "native_admission": false,
+    "self_pairs": 0,
+    "sha256": "3d1eeaa431ccbc4f46bc4bc6c2c5cf55697ea19f123405241c0274e3d13188a6",
+    "surface_pairs": 2198
+  },
+  "schema": "numi.human.surface_clearance.publication153.verification.v1",
+  "shared_checkout_after_package_preparation": {
+    "branch": "numi-human-aortic-contact-perf",
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "shared_checkout_before": {
+    "branch": "numi-human-aortic-contact-perf",
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "source_pin_gap": "UNRECOVERABLE_SOURCE_SNAPSHOT_GAP for historical failed targets-001 runner SHA 69dd8fb8ca21402289279c048ff650c28b15c2343795058d2af66455a9387a71; exact gap documented; fixed runner separately included and tested.",
+  "test_receipt_sha256": "a0625c12170380c63372c0436175a2f54cf5168dcef8a98922070e6574fadef1"
+}

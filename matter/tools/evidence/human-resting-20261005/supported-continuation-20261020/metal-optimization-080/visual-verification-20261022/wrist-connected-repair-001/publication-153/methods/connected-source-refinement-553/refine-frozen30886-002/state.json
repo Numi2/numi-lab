@@ -1,0 +1,13 @@
+{
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/candidate.npz",
+  "candidate_sha256": "dc92a5285643fd6dd63801675744ca474fd036b9e68235c638f00d095dd50f9c",
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-130/summary.json",
+  "point_summary_sha256": "0919979d7d124e4232cb2ef28629f65fed104ece6c528c786f630d512dbc824f",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-159/report.json",
+  "surface_report_sha256": "46c76794b1c211c4d379ca889d4b627a09dfd87392a53e19931c805de7ad4cc2",
+  "candidate_selected": false,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "temporary_unselected_construction": true,
+  "continuation_mode": "point_continuation"
+}

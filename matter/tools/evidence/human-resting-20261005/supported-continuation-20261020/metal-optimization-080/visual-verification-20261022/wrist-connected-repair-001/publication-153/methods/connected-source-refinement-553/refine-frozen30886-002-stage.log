@@ -1,0 +1,12 @@
+waiting_for_human_geometry_slot pid=76141
+acquired_human_geometry_slot pid=76141
+{
+  "status": "REFINEMENT_CONSTRUCTION_READY",
+  "output_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/candidate.npz",
+  "output_candidate_sha256": "dc92a5285643fd6dd63801675744ca474fd036b9e68235c638f00d095dd50f9c",
+  "output_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/report.json",
+  "new_nodes": 3035,
+  "new_faces": 6070,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

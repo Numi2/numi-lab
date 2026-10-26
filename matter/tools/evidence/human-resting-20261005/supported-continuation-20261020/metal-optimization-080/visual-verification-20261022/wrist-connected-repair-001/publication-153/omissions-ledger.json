@@ -1,0 +1,38 @@
+{
+  "omissions": [
+    {
+      "path": "D/surface-clearance-546/connected-source-refinement-553/recovered-target-applier-555/",
+      "reason": "Future applier branch excluded by the frozen P153 scope; the staging copy was removed, source remains in D.",
+      "staging_only_removed": true
+    },
+    {
+      "path": "D/surface-clearance-546/introduced-bone-guards-556/export-002/ and merge-002/",
+      "reason": "Later 556 branch; P153 includes only export-001 and merge-001."
+    },
+    {
+      "path": "D/surface-clearance-546/introduced-bone-guards-556/inputcases/raw026/; input-alias-raw026.json; context-002.json",
+      "reason": "Later mutable 556 input set excluded; P153 contains the frozen 019/021/023/024 cases only."
+    },
+    {
+      "path": "D/surface-clearance-546/topology/round-028-all-witnesses551/ and later rounds including round029",
+      "reason": "Later construction work belongs to a future publication; P153 is frozen at the 027 checkpoint."
+    },
+    {
+      "path": "**/__pycache__/** and **/.pytest_cache/**",
+      "reason": "Generated caches excluded; publication test outputs are retained under test-results/."
+    },
+    {
+      "path": "D/surface-clearance-546/current-parent-normal-targets-555/run_current_parent_normal_targets555.py at SHA-256 69dd8fb8ca21402289279c048ff650c28b15c2343795058d2af66455a9387a71",
+      "reason": "UNRECOVERABLE_SOURCE_SNAPSHOT_GAP: the failed targets-001 launch records this exact source hash, but the historical runner source was not retained or recoverable. The failure is annotation-only and not reproducible from this package. The fixed current runner is included and tested; recovered targets are unselected and endpoint applications failed exact 545 checks."
+    },
+    {
+      "path": "D/surface-clearance-546/round-023-pair-sat551-cut60/fit/report.json and fit-stage.log",
+      "reason": "Preserved losslessly as zstd in compression-preservation/surface-clearance-546/round-023-pair-sat551-cut60/; hashes and restoration instructions are in batch3-receipt.json."
+    },
+    {
+      "path": "D/surface-clearance-546/round-026-guard-cuts556/fit/report.json and fit-stage.log",
+      "reason": "Preserved losslessly as zstd in compression-preservation/surface-clearance-546/round-026-guard-cuts556/; hashes and restoration instructions are in batch3-receipt.json."
+    }
+  ],
+  "schema": "numi.human.surface_clearance.publication153.omissions.v1"
+}

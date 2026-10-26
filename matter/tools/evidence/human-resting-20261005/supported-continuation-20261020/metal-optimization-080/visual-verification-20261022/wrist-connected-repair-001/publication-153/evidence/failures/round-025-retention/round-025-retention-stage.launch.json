@@ -1,0 +1,22 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/retain_surface_components552.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/final/state.json",
+    "--proposal",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-024-refined-alpha554/proposal",
+    "--full-check",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-024-refined-alpha554/full-check",
+    "--context",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/prepare/constraint-context.json",
+    "--output",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-025-retained-refined554"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/retain_surface_components552.py": "88baf47524c02c525a2f121a99923777576e8603c16a6b84729032ce464ad671"
+  }
+}

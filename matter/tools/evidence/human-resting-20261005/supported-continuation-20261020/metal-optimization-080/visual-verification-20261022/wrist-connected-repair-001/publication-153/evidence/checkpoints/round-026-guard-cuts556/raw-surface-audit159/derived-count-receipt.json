@@ -1,0 +1,15 @@
+{
+  "accepted_physical_steps": 0,
+  "bank_count": 185,
+  "candidate_path": "evidence/checkpoints/round-026-guard-cuts556/raw-directions/raw-direction-001/candidate.npz",
+  "candidate_sha256": "b984477875c5744f35d87abcf07a46fc97ca2d12605f1f9fa366306836c7ac3f",
+  "geometry_or_native_admission": false,
+  "method": "Sum int((bank.get(\"result\") or {}).get(\"count\",0)) over the report banks after verifying the report is complete, candidate SHA matches the raw input candidate, and all (body, stable_bone_id) rows are unique.",
+  "report_complete": true,
+  "report_status": "COMPLETE_TYPED_BANK_SURFACE_CROSSING_AUDIT",
+  "schema": "numi.human.surface_clearance.surface_pair_count_derived.v1",
+  "source_report_path": "evidence/checkpoints/round-026-guard-cuts556/raw-surface-audit159/report.json",
+  "source_report_sha256": "6ed41373b4184692f84179ae017d26ae31eff8631c9aee6568e2db1890a8a03e",
+  "surface_pair_count": 2275,
+  "unique_bank_rows": 185
+}

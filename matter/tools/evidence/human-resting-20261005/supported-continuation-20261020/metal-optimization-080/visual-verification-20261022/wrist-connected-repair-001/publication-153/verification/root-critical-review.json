@@ -1,0 +1,24 @@
+{
+  "status": "PASS_INDEPENDENT_CRITICAL_ARTIFACT_REVIEW",
+  "checks": [
+    {
+      "checkpoint": "round-026-guard-cuts556",
+      "candidate_sha256": "3d1eeaa431ccbc4f46bc4bc6c2c5cf55697ea19f123405241c0274e3d13188a6",
+      "surface_pairs": 2198,
+      "contained_pairs": 0,
+      "self_pairs": 0,
+      "banks": 185,
+      "state_and_complete_reports_sha256_match": true
+    },
+    {
+      "checkpoint": "round-027-all-target-edges025",
+      "candidate_sha256": "331b4debe2dfd8a2da90278c669673f4ddf591beea48e841cc39c5fb9036d2ef",
+      "surface_pairs": 2188,
+      "contained_pairs": 0,
+      "self_pairs": 0,
+      "banks": 185,
+      "state_and_complete_reports_sha256_match": true
+    }
+  ],
+  "limitations": "Construction evidence only; P153 historical555sourcegap remains declared."
+}

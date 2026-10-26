@@ -1,0 +1,7 @@
+waiting_for_human_geometry_slot pid=75464
+acquired_human_geometry_slot pid=75464
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/diagnose_affine_winding553.py", line 13, in <module>
+    Y=Q@A;G=result['faces'];parent=result['parent_face_rows']
+            ~~~~~~^^^^^^^^^
+KeyError: 'faces'

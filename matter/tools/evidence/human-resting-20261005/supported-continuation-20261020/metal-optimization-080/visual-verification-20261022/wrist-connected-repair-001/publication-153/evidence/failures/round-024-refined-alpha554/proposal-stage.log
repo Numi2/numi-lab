@@ -1,0 +1,4 @@
+waiting_for_human_geometry_slot pid=76837
+acquired_human_geometry_slot pid=76837
+{"candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-024-refined-alpha554/proposal/candidate.npz", "components": 14, "alphas": [0.31640625, null, null, null, 0.90625, 0.890625, 0.8984375, 0.8125, 0.9765625, 0.9921875, 0.9453125, 0.9375, 0.8359375, null], "native_admission": false}
+{"candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-024-refined-alpha554/proposal/candidate.npz", "components": 14, "selected_alphas": [0.31640625, null, null, null, 0.90625, 0.890625, 0.8984375, 0.8125, 0.9765625, 0.9921875, 0.9453125, 0.9375, 0.8359375, null], "refine_steps": 6, "search_claim": "bounded_actual_gate_probes_only_no_monotonicity_or_global_maximum_claim", "native_admission": false}

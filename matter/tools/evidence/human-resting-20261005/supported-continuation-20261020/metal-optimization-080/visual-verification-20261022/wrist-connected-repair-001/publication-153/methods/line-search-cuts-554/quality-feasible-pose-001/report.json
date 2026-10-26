@@ -1,0 +1,869 @@
+{
+  "accepted_physical_steps": 0,
+  "all_nonpoint_payload_bitwise_unchanged": true,
+  "all_points_outside_free_nodes_bitwise_unchanged": true,
+  "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/candidate.npz",
+  "base_sha256": "10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366",
+  "bone_guard_exact_admission": "NOT_RUN",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/line-search-cuts-554/quality-feasible-pose-001/candidate.npz",
+  "candidate_sha256": "fc97d4340ad0ab165e7ec7e4b949fb336307beee6c565d16055aaf0e23f41f60",
+  "combined_arithmetic_recheck": {
+    "anchors_unchanged": true,
+    "area_floor": 0.1,
+    "area_pass": true,
+    "edge_gradient_cap": 0.5,
+    "edge_gradient_pass": true,
+    "faces_checked": 41733,
+    "maximum_source_distance_mm": 11.99709812605202,
+    "maximum_step_mm": 0.840920238238284,
+    "minimum_current_oriented_ratio": 0.5218449567154029,
+    "minimum_edge_slack_mm": 0.0017022466367939734,
+    "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+    "outside_support_unchanged": true,
+    "pass": true,
+    "source_cap_mm": 12.0,
+    "source_cap_pass": true,
+    "trust_mm": 4.0,
+    "trust_pass": true
+  },
+  "component_choices": [
+    {
+      "component": 0,
+      "fresh_component_only_arithmetic": {
+        "anchors_unchanged": true,
+        "area_floor": 0.1,
+        "area_pass": true,
+        "edge_gradient_cap": 0.5,
+        "edge_gradient_pass": true,
+        "faces_checked": 41733,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.20335013199157204,
+        "minimum_current_oriented_ratio": 0.78111683063219,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "outside_support_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      },
+      "node_count": 752,
+      "recorded_trial_count": 3,
+      "rejected_recorded_trials": [
+        {
+          "alpha": 1.0,
+          "reason": [
+            "recorded_area",
+            "recorded_edge_gradient"
+          ]
+        },
+        {
+          "alpha": 0.5,
+          "reason": [
+            "recorded_area"
+          ]
+        }
+      ],
+      "selected_alpha": 0.25,
+      "selected_recorded_trial": {
+        "alpha": 0.25,
+        "area_pass": true,
+        "exact_incremental_reuse": true,
+        "exact_self_pairs": 0,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.20335013199157204,
+        "minimum_current_oriented_ratio": 0.78111683063219,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "pass": true,
+        "selected_face_count": 719
+      },
+      "selection_ignored_fields": [
+        "pass",
+        "exact_self_pairs",
+        "selected_face_count",
+        "exact_incremental_reuse"
+      ],
+      "self_intersection_audit_performed": false
+    },
+    {
+      "component": 1,
+      "fresh_component_only_arithmetic": {
+        "anchors_unchanged": true,
+        "area_floor": 0.1,
+        "area_pass": true,
+        "edge_gradient_cap": 0.5,
+        "edge_gradient_pass": true,
+        "faces_checked": 41733,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.0,
+        "minimum_current_oriented_ratio": 0.9999999999999994,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "outside_support_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      },
+      "node_count": 7,
+      "recorded_trial_count": 0,
+      "rejected_recorded_trials": [],
+      "selected_alpha": 0.0,
+      "selected_recorded_trial": null,
+      "selection_ignored_fields": [
+        "pass",
+        "exact_self_pairs",
+        "selected_face_count",
+        "exact_incremental_reuse"
+      ],
+      "self_intersection_audit_performed": false
+    },
+    {
+      "component": 2,
+      "fresh_component_only_arithmetic": {
+        "anchors_unchanged": true,
+        "area_floor": 0.1,
+        "area_pass": true,
+        "edge_gradient_cap": 0.5,
+        "edge_gradient_pass": true,
+        "faces_checked": 41733,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.0,
+        "minimum_current_oriented_ratio": 0.9999999999999994,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "outside_support_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      },
+      "node_count": 1,
+      "recorded_trial_count": 0,
+      "rejected_recorded_trials": [],
+      "selected_alpha": 0.0,
+      "selected_recorded_trial": null,
+      "selection_ignored_fields": [
+        "pass",
+        "exact_self_pairs",
+        "selected_face_count",
+        "exact_incremental_reuse"
+      ],
+      "self_intersection_audit_performed": false
+    },
+    {
+      "component": 3,
+      "fresh_component_only_arithmetic": {
+        "anchors_unchanged": true,
+        "area_floor": 0.1,
+        "area_pass": true,
+        "edge_gradient_cap": 0.5,
+        "edge_gradient_pass": true,
+        "faces_checked": 41733,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.0,
+        "minimum_current_oriented_ratio": 0.9999999999999994,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "outside_support_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      },
+      "node_count": 18,
+      "recorded_trial_count": 0,
+      "rejected_recorded_trials": [],
+      "selected_alpha": 0.0,
+      "selected_recorded_trial": null,
+      "selection_ignored_fields": [
+        "pass",
+        "exact_self_pairs",
+        "selected_face_count",
+        "exact_incremental_reuse"
+      ],
+      "self_intersection_audit_performed": false
+    },
+    {
+      "component": 4,
+      "fresh_component_only_arithmetic": {
+        "anchors_unchanged": true,
+        "area_floor": 0.1,
+        "area_pass": true,
+        "edge_gradient_cap": 0.5,
+        "edge_gradient_pass": true,
+        "faces_checked": 41733,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.6153281469023215,
+        "minimum_current_oriented_ratio": 0.5325490022864362,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "outside_support_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      },
+      "node_count": 570,
+      "recorded_trial_count": 2,
+      "rejected_recorded_trials": [
+        {
+          "alpha": 1.0,
+          "reason": [
+            "recorded_area",
+            "recorded_edge_gradient"
+          ]
+        }
+      ],
+      "selected_alpha": 0.5,
+      "selected_recorded_trial": {
+        "alpha": 0.5,
+        "area_pass": true,
+        "exact_incremental_reuse": true,
+        "exact_self_pairs": 0,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.6153281469023215,
+        "minimum_current_oriented_ratio": 0.5325490022864362,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "pass": true,
+        "selected_face_count": 305
+      },
+      "selection_ignored_fields": [
+        "pass",
+        "exact_self_pairs",
+        "selected_face_count",
+        "exact_incremental_reuse"
+      ],
+      "self_intersection_audit_performed": false
+    },
+    {
+      "component": 5,
+      "fresh_component_only_arithmetic": {
+        "anchors_unchanged": true,
+        "area_floor": 0.1,
+        "area_pass": true,
+        "edge_gradient_cap": 0.5,
+        "edge_gradient_pass": true,
+        "faces_checked": 41733,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.40833251035294044,
+        "minimum_current_oriented_ratio": 0.523622097289478,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "outside_support_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      },
+      "node_count": 374,
+      "recorded_trial_count": 2,
+      "rejected_recorded_trials": [
+        {
+          "alpha": 1.0,
+          "reason": [
+            "recorded_area",
+            "recorded_edge_gradient"
+          ]
+        }
+      ],
+      "selected_alpha": 0.5,
+      "selected_recorded_trial": {
+        "alpha": 0.5,
+        "area_pass": true,
+        "exact_incremental_reuse": true,
+        "exact_self_pairs": 0,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.6153281469023215,
+        "minimum_current_oriented_ratio": 0.523622097289478,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "pass": true,
+        "selected_face_count": 578
+      },
+      "selection_ignored_fields": [
+        "pass",
+        "exact_self_pairs",
+        "selected_face_count",
+        "exact_incremental_reuse"
+      ],
+      "self_intersection_audit_performed": false
+    },
+    {
+      "component": 6,
+      "fresh_component_only_arithmetic": {
+        "anchors_unchanged": true,
+        "area_floor": 0.1,
+        "area_pass": true,
+        "edge_gradient_cap": 0.5,
+        "edge_gradient_pass": true,
+        "faces_checked": 41733,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.840920238238284,
+        "minimum_current_oriented_ratio": 0.5218449567154029,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "outside_support_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      },
+      "node_count": 483,
+      "recorded_trial_count": 2,
+      "rejected_recorded_trials": [
+        {
+          "alpha": 1.0,
+          "reason": [
+            "recorded_area",
+            "recorded_edge_gradient"
+          ]
+        }
+      ],
+      "selected_alpha": 0.5,
+      "selected_recorded_trial": {
+        "alpha": 0.5,
+        "area_pass": true,
+        "exact_incremental_reuse": true,
+        "exact_self_pairs": 0,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.840920238238284,
+        "minimum_current_oriented_ratio": 0.5218449567154029,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "pass": true,
+        "selected_face_count": 355
+      },
+      "selection_ignored_fields": [
+        "pass",
+        "exact_self_pairs",
+        "selected_face_count",
+        "exact_incremental_reuse"
+      ],
+      "self_intersection_audit_performed": false
+    },
+    {
+      "component": 7,
+      "fresh_component_only_arithmetic": {
+        "anchors_unchanged": true,
+        "area_floor": 0.1,
+        "area_pass": true,
+        "edge_gradient_cap": 0.5,
+        "edge_gradient_pass": true,
+        "faces_checked": 41733,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.4546008588790634,
+        "minimum_current_oriented_ratio": 0.5654300314599127,
+        "minimum_edge_slack_mm": 0.002032572951546261,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "outside_support_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      },
+      "node_count": 736,
+      "recorded_trial_count": 2,
+      "rejected_recorded_trials": [
+        {
+          "alpha": 1.0,
+          "reason": [
+            "recorded_area",
+            "recorded_edge_gradient"
+          ]
+        }
+      ],
+      "selected_alpha": 0.5,
+      "selected_recorded_trial": {
+        "alpha": 0.5,
+        "area_pass": true,
+        "exact_incremental_reuse": true,
+        "exact_self_pairs": 0,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.840920238238284,
+        "minimum_current_oriented_ratio": 0.5218449567154029,
+        "minimum_edge_slack_mm": 0.002032572951546261,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "pass": true,
+        "selected_face_count": 598
+      },
+      "selection_ignored_fields": [
+        "pass",
+        "exact_self_pairs",
+        "selected_face_count",
+        "exact_incremental_reuse"
+      ],
+      "self_intersection_audit_performed": false
+    },
+    {
+      "component": 8,
+      "fresh_component_only_arithmetic": {
+        "anchors_unchanged": true,
+        "area_floor": 0.1,
+        "area_pass": true,
+        "edge_gradient_cap": 0.5,
+        "edge_gradient_pass": true,
+        "faces_checked": 41733,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.36854954417565156,
+        "minimum_current_oriented_ratio": 0.543629617755456,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "outside_support_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      },
+      "node_count": 687,
+      "recorded_trial_count": 2,
+      "rejected_recorded_trials": [
+        {
+          "alpha": 1.0,
+          "reason": [
+            "recorded_area",
+            "recorded_edge_gradient"
+          ]
+        }
+      ],
+      "selected_alpha": 0.5,
+      "selected_recorded_trial": {
+        "alpha": 0.5,
+        "area_pass": true,
+        "exact_incremental_reuse": true,
+        "exact_self_pairs": 0,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.840920238238284,
+        "minimum_current_oriented_ratio": 0.5218449567154029,
+        "minimum_edge_slack_mm": 0.002032572951546261,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "pass": true,
+        "selected_face_count": 741
+      },
+      "selection_ignored_fields": [
+        "pass",
+        "exact_self_pairs",
+        "selected_face_count",
+        "exact_incremental_reuse"
+      ],
+      "self_intersection_audit_performed": false
+    },
+    {
+      "component": 9,
+      "fresh_component_only_arithmetic": {
+        "anchors_unchanged": true,
+        "area_floor": 0.1,
+        "area_pass": true,
+        "edge_gradient_cap": 0.5,
+        "edge_gradient_pass": true,
+        "faces_checked": 41733,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.3690828019556531,
+        "minimum_current_oriented_ratio": 0.6611102526423636,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "outside_support_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      },
+      "node_count": 488,
+      "recorded_trial_count": 2,
+      "rejected_recorded_trials": [
+        {
+          "alpha": 1.0,
+          "reason": [
+            "recorded_edge_gradient"
+          ]
+        }
+      ],
+      "selected_alpha": 0.5,
+      "selected_recorded_trial": {
+        "alpha": 0.5,
+        "area_pass": true,
+        "exact_incremental_reuse": true,
+        "exact_self_pairs": 0,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.840920238238284,
+        "minimum_current_oriented_ratio": 0.5218449567154029,
+        "minimum_edge_slack_mm": 0.002032572951546261,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "pass": true,
+        "selected_face_count": 174
+      },
+      "selection_ignored_fields": [
+        "pass",
+        "exact_self_pairs",
+        "selected_face_count",
+        "exact_incremental_reuse"
+      ],
+      "self_intersection_audit_performed": false
+    },
+    {
+      "component": 10,
+      "fresh_component_only_arithmetic": {
+        "anchors_unchanged": true,
+        "area_floor": 0.1,
+        "area_pass": true,
+        "edge_gradient_cap": 0.5,
+        "edge_gradient_pass": true,
+        "faces_checked": 41733,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.6422278643867159,
+        "minimum_current_oriented_ratio": 0.5500876206660589,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "outside_support_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      },
+      "node_count": 662,
+      "recorded_trial_count": 2,
+      "rejected_recorded_trials": [
+        {
+          "alpha": 1.0,
+          "reason": [
+            "recorded_area",
+            "recorded_edge_gradient"
+          ]
+        }
+      ],
+      "selected_alpha": 0.5,
+      "selected_recorded_trial": {
+        "alpha": 0.5,
+        "area_pass": true,
+        "exact_incremental_reuse": true,
+        "exact_self_pairs": 0,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.840920238238284,
+        "minimum_current_oriented_ratio": 0.5218449567154029,
+        "minimum_edge_slack_mm": 0.002032572951546261,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "pass": true,
+        "selected_face_count": 359
+      },
+      "selection_ignored_fields": [
+        "pass",
+        "exact_self_pairs",
+        "selected_face_count",
+        "exact_incremental_reuse"
+      ],
+      "self_intersection_audit_performed": false
+    },
+    {
+      "component": 11,
+      "fresh_component_only_arithmetic": {
+        "anchors_unchanged": true,
+        "area_floor": 0.1,
+        "area_pass": true,
+        "edge_gradient_cap": 0.5,
+        "edge_gradient_pass": true,
+        "faces_checked": 41733,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.2700104260941995,
+        "minimum_current_oriented_ratio": 0.5448742015277812,
+        "minimum_edge_slack_mm": 0.0022291430768075966,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "outside_support_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      },
+      "node_count": 1732,
+      "recorded_trial_count": 2,
+      "rejected_recorded_trials": [
+        {
+          "alpha": 1.0,
+          "reason": [
+            "recorded_area",
+            "recorded_edge_gradient"
+          ]
+        }
+      ],
+      "selected_alpha": 0.5,
+      "selected_recorded_trial": {
+        "alpha": 0.5,
+        "area_pass": true,
+        "exact_incremental_reuse": true,
+        "exact_self_pairs": 0,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.840920238238284,
+        "minimum_current_oriented_ratio": 0.5218449567154029,
+        "minimum_edge_slack_mm": 0.002032572951546261,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "pass": true,
+        "selected_face_count": 769
+      },
+      "selection_ignored_fields": [
+        "pass",
+        "exact_self_pairs",
+        "selected_face_count",
+        "exact_incremental_reuse"
+      ],
+      "self_intersection_audit_performed": false
+    },
+    {
+      "component": 12,
+      "fresh_component_only_arithmetic": {
+        "anchors_unchanged": true,
+        "area_floor": 0.1,
+        "area_pass": true,
+        "edge_gradient_cap": 0.5,
+        "edge_gradient_pass": true,
+        "faces_checked": 41733,
+        "maximum_source_distance_mm": 11.99709812605202,
+        "maximum_step_mm": 0.6594479174860027,
+        "minimum_current_oriented_ratio": 0.5586203321479697,
+        "minimum_edge_slack_mm": 0.0017022466367939734,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "outside_support_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      },
+      "node_count": 994,
+      "recorded_trial_count": 2,
+      "rejected_recorded_trials": [
+        {
+          "alpha": 1.0,
+          "reason": [
+            "recorded_area",
+            "recorded_edge_gradient"
+          ]
+        }
+      ],
+      "selected_alpha": 0.5,
+      "selected_recorded_trial": {
+        "alpha": 0.5,
+        "area_pass": true,
+        "exact_incremental_reuse": true,
+        "exact_self_pairs": 0,
+        "maximum_source_distance_mm": 11.99709812605202,
+        "maximum_step_mm": 0.840920238238284,
+        "minimum_current_oriented_ratio": 0.5218449567154029,
+        "minimum_edge_slack_mm": 0.0017022466367939734,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "pass": true,
+        "selected_face_count": 771
+      },
+      "selection_ignored_fields": [
+        "pass",
+        "exact_self_pairs",
+        "selected_face_count",
+        "exact_incremental_reuse"
+      ],
+      "self_intersection_audit_performed": false
+    },
+    {
+      "component": 13,
+      "fresh_component_only_arithmetic": {
+        "anchors_unchanged": true,
+        "area_floor": 0.1,
+        "area_pass": true,
+        "edge_gradient_cap": 0.5,
+        "edge_gradient_pass": true,
+        "faces_checked": 41733,
+        "maximum_source_distance_mm": 11.99648895195475,
+        "maximum_step_mm": 0.0,
+        "minimum_current_oriented_ratio": 0.9999999999999994,
+        "minimum_edge_slack_mm": 0.0033986572893574584,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "outside_support_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      },
+      "node_count": 331,
+      "recorded_trial_count": 0,
+      "rejected_recorded_trials": [],
+      "selected_alpha": 0.0,
+      "selected_recorded_trial": null,
+      "selection_ignored_fields": [
+        "pass",
+        "exact_self_pairs",
+        "selected_face_count",
+        "exact_incremental_reuse"
+      ],
+      "self_intersection_audit_performed": false
+    }
+  ],
+  "component_count": 14,
+  "component_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/component-proposal/report.json",
+  "component_report_sha256": "c6fa42bfc755110b73573e1191617fe077ae67aeb02de3cb1b3205c28adb8c92",
+  "context": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/prepare/constraint-context.json",
+  "context_sha256": "01691b3b579c1988df41b91f5c831878fb79ce9afa55b46431c4d1f9732ef83e",
+  "edge_constraint_metadata": {
+    "active_edges": 24547,
+    "enabled": true,
+    "inequality_rows": 147282,
+    "max_component_gradient": 0.5,
+    "maximum_reference_edge_length_mm": 132.85777725647887,
+    "minimum_reference_edge_length_mm": 0.009612854464934997,
+    "semantics": "componentwise |d_i-d_j| <= cap * reference_edge_length; nonsupport displacement is zero",
+    "unique_mesh_edges": 62622
+  },
+  "exact_self_audit": "NOT_RUN_PARENT_MUST_RUN_COMPLETE_130",
+  "fixed_bone_guard_face_count": 2521,
+  "free_node_count": 7835,
+  "independence_proof": {
+    "all_stencils_single_mutable_owner": true,
+    "complete_face_stencils": 41733,
+    "complete_self_pair_stencils": 25768,
+    "components": 14,
+    "free_nodes": 7835,
+    "sizes": [
+      752,
+      7,
+      1,
+      18,
+      570,
+      374,
+      483,
+      736,
+      687,
+      488,
+      662,
+      1732,
+      994,
+      331
+    ]
+  },
+  "native_admission": false,
+  "raw_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/raw-directions/raw-direction-001/candidate.npz",
+  "raw_candidate_sha256": "ddd3193dbfb07af8ef74259f907c61d768146f82375f13456e3310cb78f46f3c",
+  "schema": "numi.human.failed_pose_line_search_cuts554.v1",
+  "scope": "retained recorded-alpha arithmetic-feasible failed-pose witness; self intersections intentionally not screened here",
+  "selected_alphas": [
+    0.25,
+    0.0,
+    0.0,
+    0.0,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.0
+  ],
+  "source_pins": {
+    "baseline": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/candidate.npz",
+      "sha256": "10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366"
+    },
+    "component_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/component-proposal/candidate.npz",
+      "sha256": "fc97d4340ad0ab165e7ec7e4b949fb336307beee6c565d16055aaf0e23f41f60"
+    },
+    "component_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/component-proposal/report.json",
+      "sha256": "c6fa42bfc755110b73573e1191617fe077ae67aeb02de3cb1b3205c28adb8c92"
+    },
+    "constraint_context": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/prepare/constraint-context.json",
+      "sha256": "01691b3b579c1988df41b91f5c831878fb79ce9afa55b46431c4d1f9732ef83e"
+    },
+    "fixed_guards": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/prepare/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+      "sha256": "72b64cf358f68d7c5363be983cb64d6c7c8912a34c932a7b0b693a6a48bad978"
+    },
+    "owner408": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+      "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+    },
+    "owner549": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/component-area-backtracking-549/component_area_backtracking549.py",
+      "sha256": "523b1aef89d92eef09bf63e9de2d4f3fa6bd938ef53a45915f9ea138f5b8f249"
+    },
+    "raw_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/raw-directions/raw-direction-001/candidate.npz",
+      "sha256": "ddd3193dbfb07af8ef74259f907c61d768146f82375f13456e3310cb78f46f3c"
+    },
+    "raw_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/raw-directions/raw-direction-001/report.json",
+      "sha256": "17a147cfe0eef6472c9b1a90552f328ae0f76d8601203cb21980fa2fac3abd79"
+    },
+    "script": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/line-search-cuts-554/build_quality_feasible_failed_pose554.py",
+      "sha256": "820fa16da7813a9a5c2c17f308135e6a1a649592097a9de83c30167d66ce18ca"
+    },
+    "seed_pairs": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/prepare/constraints/self-seeds/merged-self-pair-seeds.npy",
+      "sha256": "57bb1d22b6b8d8aa6f7b39bc1e6d15fd32162fedc50062fdb4169e63ddb70396"
+    },
+    "source_reference": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+    }
+  },
+  "source_reference_receipts": [
+    {
+      "columns": 13518,
+      "kind": "csr_level",
+      "level": 0,
+      "max_row_sum_error": 2.220446049250313e-16,
+      "nnz": 32638,
+      "prefix": "",
+      "rows": 20889
+    },
+    {
+      "columns": 10145,
+      "kind": "csr_level",
+      "level": 1,
+      "max_row_sum_error": 0.0,
+      "nnz": 18450,
+      "prefix": "prior_input_006__",
+      "rows": 13518
+    },
+    {
+      "columns": 8776,
+      "kind": "csr_level",
+      "level": 2,
+      "max_row_sum_error": 0.0,
+      "nnz": 12193,
+      "prefix": "prior_run028__",
+      "rows": 10145
+    },
+    {
+      "composed_nnz": 43457,
+      "composed_shape": [
+        20889,
+        8776
+      ],
+      "kind": "composed_source_base",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+      "shape": [
+        8776,
+        3
+      ]
+    }
+  ],
+  "status": "FAILED_WITNESS_PROPOSAL_FOR_PARENT_EXACT_AUDIT",
+  "typed_anchors_bitwise_unchanged": true
+}

@@ -1,0 +1,31 @@
+from pathlib import Path
+import argparse,json,hashlib
+import numpy as np
+sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
+def main():
+ ap=argparse.ArgumentParser()
+ for k in ['baseline-state','target-dir','output-dir']:ap.add_argument('--'+k,type=Path,required=True)
+ a=ap.parse_args()
+ if a.output_dir.exists():raise FileExistsError(a.output_dir)
+ st=json.loads(a.baseline_state.read_text());bp=Path(st['candidate'])
+ if sha(bp)!=st['candidate_sha256'] or sha(st['point_summary'])!=st['point_summary_sha256']:raise ValueError('baseline pins')
+ with np.load(bp,allow_pickle=False) as z:payload={k:z[k] for k in z.files}
+ with np.load(a.target_dir/'nearest-union-exits.npz',allow_pickle=False) as z:t={k:z[k] for k in z.files}
+ pr=json.loads(Path(st['point_summary']).read_text());tr=json.loads((a.target_dir/'nearest-union-exits.json').read_text())
+ rows=t['query_rows'];expected=sorted({int(w['output_node']) for w in pr['inside_witnesses']})
+ if rows.dtype.kind not in 'iu' or sorted(rows.tolist())!=expected or len(rows)!=len(set(rows.tolist())):raise ValueError('inside target identity mismatch')
+ if not np.all(t['pass_mask']&t['target_exactly_outside_all185']) or tr['status']!='PASS_FIRST_UNION_EXIT_TARGETS_ONLY':raise ValueError('uncertified endpoints')
+ old_count=json.loads(bp.with_name('report.json').read_text())['old_node_count']
+ if np.any(rows<old_count):raise ValueError('old node targeted')
+ x=payload['points_world_m'];y=x.copy()
+ if t['target_world_f32_m'].dtype!=np.float32 or t['target_world_f32_m'].shape!=(len(rows),3) or not np.isfinite(t['target_world_f32_m']).all():raise ValueError('target coordinate domain')
+ y[rows]=t['target_world_f32_m'];keep=np.setdiff1d(np.arange(len(x)),rows)
+ if y[keep].tobytes()!=x[keep].tobytes() or y[:old_count].tobytes()!=x[:old_count].tobytes():raise ValueError('non-target point changed')
+ anchors=payload['typed_coarse_anchor_output_rows_018']
+ if y[anchors].tobytes()!=x[anchors].tobytes():raise ValueError('anchor changed')
+ payload['points_world_m']=y;a.output_dir.mkdir()
+ op=a.output_dir/'candidate.npz';np.savez_compressed(op,**payload)
+ source_paths=[Path(__file__),a.baseline_state,bp,Path(st['point_summary']),a.target_dir/'nearest-union-exits.npz',a.target_dir/'nearest-union-exits.json']
+ r=dict(status='CONSTRUCTION_ENDPOINT_PROPOSAL_WRITTEN_UNADMITTED',candidate=str(op),candidate_sha256=sha(op),baseline=str(bp),baseline_sha256=sha(bp),target_rows=rows.tolist(),target_count=len(rows),old_point_prefix_bitwise_unchanged=True,all_nonpoint_payload_bitwise_unchanged=True,maximum_new_node_step_mm=float(np.linalg.norm(y[rows].astype(float)-x[rows].astype(float),axis=1).max()*1000),direction_mode=tr['direction_mode'],native_admission=False,accepted_physical_steps=0,full_geometry_checks_required=True,source_pins={str(p):sha(p) for p in source_paths})
+ (a.output_dir/'report.json').write_text(json.dumps(r,indent=2,sort_keys=True)+'\n');print(json.dumps({k:r[k] for k in ['status','target_count','maximum_new_node_step_mm','direction_mode']}))
+if __name__=='__main__':main()
