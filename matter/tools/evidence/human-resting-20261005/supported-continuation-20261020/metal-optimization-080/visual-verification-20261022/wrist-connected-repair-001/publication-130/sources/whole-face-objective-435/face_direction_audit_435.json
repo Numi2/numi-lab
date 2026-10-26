@@ -1,0 +1,310 @@
+{
+  "schema": "numi.human.face-direction-audit.435.v1",
+  "classification": "read_only_direction_diagnostic_no_fit_no_new_geometry_audit_no_admission",
+  "inputs": {
+    "candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/postfit-backtrack-427/run-001/backtrack-373/pass-004/candidate.npz",
+      "sha256": "e25c536f3fb7d8d8e07d6a0584d27a3f72889bd04e1de280f8dbccd2719abd0b"
+    },
+    "face_targets": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep-428/run-001/surface-targets-335/targets.npz",
+      "sha256": "b2350da0a4514351bad52363184bb2606a4ad763d86ce6b62df01d394ea1634c"
+    },
+    "face_target_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep-428/run-001/surface-targets-335/report.json",
+      "sha256": "1560171495310e4d28c656fc3a06b1253ae698e5678840ec01a22238c93f8f04"
+    },
+    "point_targets": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep-428/run-001/point-targets-390/nearest-union-exits.npz",
+      "sha256": "a073f2e294a01d655b5a9ba3fac4e5fbf96c7d4869c0144bd6330e3a8ec2c8ae"
+    },
+    "audit159": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/postfit-backtrack-427/run-001/backtrack-373/pass-004/audit-159/report.json",
+      "sha256": "e09ef3292b85300685bc4a865d86fa53c2325a9de9e57b91caee9a8daf729c02"
+    },
+    "audit130_summary": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/postfit-backtrack-427/run-001/backtrack-373/pass-004/audit-130/summary.json",
+      "sha256": "e34a8ab697b1808147987f1788e54f4f43b270e1228960f10af6d9b225058f23"
+    },
+    "audit130_pairs": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/postfit-backtrack-427/run-001/backtrack-373/pass-004/audit-130/query/pairs.csv",
+      "sha256": "25b3179e6b8640617e5d379146d03a285549bf11e91998ef04a7d20d8ad5fef2"
+    },
+    "audit130_nodes": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/postfit-backtrack-427/run-001/backtrack-373/pass-004/audit-130/query/nodes.csv",
+      "sha256": "c7604a0f2302ce7ee8054c1ce54f50e9515e9ffb38ff2d2500f96ec9bfcb9703"
+    },
+    "helper435": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/whole-face-objective-435/whole_face_objective_435.py",
+      "sha256": "0d9b99363c6fae7bc15b7f8d4c06ae688e1358e72e2ef1eac5de23e137d0c83e"
+    },
+    "test435": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/whole-face-objective-435/test_face_bone_grouped_objective_435.py",
+      "sha256": "647e80b3d249483eaa2392a2a2b8179954db80cb425dfe8dd6c025e1415ed8ba"
+    },
+    "fit429_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/whole-face-fit-429/run-003/report.json",
+      "sha256": "5aaee2f82f86c1b513302f85f12e40620cd07d5cbc3935253f228f59e13bd0e3"
+    },
+    "fixed_guard_validation": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh-428/run-001/validation.json",
+      "sha256": "0654e3b53dd70100bec31b65bba4dfddac7b8569f5b91ac33d78be3831bdd12d"
+    },
+    "owner408": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+      "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+    },
+    "face_target_builder_335": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/build_outward_nearest_union_targets_335.py",
+      "sha256": "1c3468b6e6285afed77e8ae7ca463abb797f6a22d562ccf878734c39161947c9"
+    }
+  },
+  "selection": {
+    "selected_source_index_count": 1747,
+    "selection_indices_sha256_int64_bytes": "3e1eea0974b23cb015aebf46e34cd0935ce3fc856905daf6529cc09f1e5ad1ae",
+    "selection_criterion": "one existing certified plane per (face_row,body,stable_bone_id), minimizing maximum positive corner deficit, ties by original source index"
+  },
+  "normal_orientation_context": {
+    "normal_formula": "normalize(cross(points[face,1]-points[face,0], points[face,2]-points[face,0])) using current candidate points_world_m and source_O_faces",
+    "candidate_face_count": 41733,
+    "zero_area_target_rows": 0,
+    "signed_volume_m3": -0.0686141744425871,
+    "unique_edges": 62622,
+    "boundary_edges_valence1": 45,
+    "edges_not_valence2": 45,
+    "orientation_conclusion": "All 62,577 valence-2 shared edges have consistent opposite traversal (none same-direction); 45 edges are boundary edges. Signed volume is -0.0686141744 m^3. The coherent winding plus negative signed volume suggests the candidate winding is globally inward under the usual right-handed signed-volume convention, but the 45 open boundary edges prevent a closed-surface orientation proof. Target vectors must therefore be interpreted against their source-normal provenance, not raw candidate winding alone.",
+    "valence2_shared_edge_orientation": {
+      "valence1_boundary_edges": 45,
+      "valence2_shared_edges": 62577,
+      "valence2_traversed_oppositely": 62577,
+      "valence2_traversed_same_direction": 0,
+      "valence_gt2_edges": 0,
+      "basis": "directed edge traversal over candidate source_O_faces"
+    }
+  },
+  "direction_alignment": {
+    "raw_face_cross_vs_335_exit_all_rows": {
+      "count": 3239,
+      "min": -0.999937201405791,
+      "p01": -0.9447909504334324,
+      "p05": -0.8329422872007959,
+      "p10": -0.7001190018518877,
+      "p50": -0.10301834195507177,
+      "p90": 0.5363454340732307,
+      "p95": 0.7354207621376556,
+      "p99": 0.9317989853454433,
+      "max": 0.9970388852383033,
+      "lt_0": 1962,
+      "lt_minus_0_1": 1627,
+      "abs_lt_0_01": 61,
+      "gt_0_5": 363
+    },
+    "raw_face_cross_vs_selected_435_exit": {
+      "count": 1747,
+      "min": -0.999937201405791,
+      "p01": -0.9643155904801058,
+      "p05": -0.8827835501972932,
+      "p10": -0.7693295998069468,
+      "p50": -0.11237187959697639,
+      "p90": 0.568864472994547,
+      "p95": 0.7673388886754425,
+      "p99": 0.9458768615773054,
+      "max": 0.9970388852383033,
+      "lt_0": 1060,
+      "lt_minus_0_1": 894,
+      "abs_lt_0_01": 26,
+      "gt_0_5": 219
+    },
+    "raw_face_cross_vs_335_source_surface_normal": {
+      "count": 3239,
+      "min": -0.9996417219112949,
+      "p01": -0.9922239720370141,
+      "p05": -0.9550813265860933,
+      "p10": -0.8907569522766383,
+      "p50": -0.3075779858219035,
+      "p90": 0.7803627665113586,
+      "p95": 0.8935119413615163,
+      "p99": 0.9768668813099305,
+      "max": 0.9999759174909952,
+      "lt_0": 2055,
+      "lt_minus_0_1": 1945,
+      "abs_lt_0_01": 10,
+      "gt_0_5": 698
+    },
+    "335_exit_vs_335_source_surface_normal": {
+      "count": 3239,
+      "min": -2.220446049250313e-16,
+      "p01": -1.1102230246251565e-16,
+      "p05": -5.551115123125783e-17,
+      "p10": -5.551115123125783e-17,
+      "p50": 0.037045552926655706,
+      "p90": 0.7824771234414949,
+      "p95": 0.8679877423819561,
+      "p99": 0.9726447694759549,
+      "max": 0.9946289536713259,
+      "lt_0": 655,
+      "lt_minus_0_1": 0,
+      "abs_lt_0_01": 1573,
+      "gt_0_5": 739,
+      "material_lt_minus_1e_12": 0,
+      "roundoff_negative_lt_0": 655,
+      "normal_provenance": "original_NHSKIN_face for every 335 target row; confirmed in target-records.jsonl and builder"
+    },
+    "global_sign_flipped_if_outward_assumed": {
+      "all_rows_dot": {
+        "count": 3239,
+        "min": -0.9970388852383033,
+        "p01": -0.9317989853454433,
+        "p05": -0.7354207621376557,
+        "p10": -0.5363454340732307,
+        "p50": 0.10301834195507177,
+        "p90": 0.7001190018518878,
+        "p95": 0.8329422872007958,
+        "p99": 0.9447909504334322,
+        "max": 0.999937201405791,
+        "lt_0": 1277,
+        "lt_minus_0_1": 941,
+        "abs_lt_0_01": 61,
+        "gt_0_5": 638
+      },
+      "selected_rows_dot": {
+        "count": 1747,
+        "min": -0.9970388852383033,
+        "p01": -0.9458768615773054,
+        "p05": -0.7673388886754429,
+        "p10": -0.5688644729945466,
+        "p50": 0.11237187959697639,
+        "p90": 0.7693295998069468,
+        "p95": 0.8827835501972929,
+        "p99": 0.9643155904801056,
+        "max": 0.999937201405791,
+        "lt_0": 687,
+        "lt_minus_0_1": 509,
+        "abs_lt_0_01": 26,
+        "gt_0_5": 392
+      }
+    }
+  },
+  "target_identity_and_point_classification": {
+    "face_target_rows": 3239,
+    "audit159_skin_bone_crossing_triangle_pairs": 3239,
+    "exact_four_tuple_target_to_audit159_matches": 3239,
+    "target_rows_not_matching_audit159": 0,
+    "unique_face_bone_groups": 1747,
+    "all_three_corners_outside_per_target_row": 1109,
+    "mixed_corner_membership_per_target_row": 2130,
+    "all_inside_per_target_row": 0,
+    "unknown_per_target_row": 0,
+    "all_three_corners_outside_per_unique_face_bone_group": 391,
+    "mixed_per_unique_face_bone_group": 1356,
+    "all_inside_per_unique_face_bone_group": 0,
+    "crossing_triangle_rows_per_face_bone_group": {
+      "1": 824,
+      "2": 564,
+      "3": 220,
+      "4": 90,
+      "5": 33,
+      "6": 12,
+      "7": 3,
+      "9": 1
+    },
+    "groups_with_opposing_exit_planes_within_group": 256,
+    "minimum_intragroup_exit_direction_dot": -0.998737405114051
+  },
+  "source_cap_trust_anchors": {
+    "source_cap_mm": 12.0,
+    "target_nodes_max_source_displacement_mm": 10.895294276666641,
+    "positive_face_corner_rows": 6366,
+    "positive_point_rows": 347,
+    "rows_impossible_anywhere_in_source_cap_sphere": {
+      "face": 0,
+      "point": 0
+    },
+    "rows_exceeding_one_step_1mm_trust_component_box": {
+      "face": 3224,
+      "point": 80
+    },
+    "fixed_anchor_count": 237,
+    "positive_face_corner_anchor_rows": 0,
+    "point_target_anchor_rows": 0
+  },
+  "edge_scale_and_429": {
+    "unique_crossed_face_edges": 3168,
+    "edge_length_mm": {
+      "count": 3168,
+      "min": 0.034358707662427976,
+      "p01": 0.10442729524685437,
+      "p05": 0.29861780407615746,
+      "p10": 0.5506897934924354,
+      "p50": 2.721815504912877,
+      "p90": 6.1319940607839545,
+      "p95": 7.281299345688702,
+      "p99": 9.259137606562085,
+      "max": 11.880105530405649,
+      "lt_0": 0,
+      "lt_minus_0_1": 0,
+      "abs_lt_0_01": 0,
+      "gt_0_5": 2887
+    },
+    "fit429_report_sha256": "5aaee2f82f86c1b513302f85f12e40620cd07d5cbc3935253f228f59e13bd0e3",
+    "fit429_status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED",
+    "fit429_weighted_normalized_target_slack": 0.8108962656509906,
+    "fit429_max_emitted_step_mm": 0.6006668900996047,
+    "fit429_max_source_displacement_after_mm": 11.839578419812915,
+    "fit429_edge_gradient_rows": 131142,
+    "fit429_edge_gradient_emission_pass": true,
+    "fit429_edge_gradient_minimum_slack_mm": 0.0018091506976849192,
+    "fit429_anchors_bitwise_unchanged": true,
+    "fixed_guard_9012_rows_zero_step_valid": true
+  },
+  "direction_conflicts": {
+    "all_335_face_planes": {
+      "nodes_2plus": 1440,
+      "nodes_with_opposing_pair": 591,
+      "direction_pairs": 36483,
+      "minimum_pair_dot": -0.9995260165573182
+    },
+    "selected_435_face_planes": {
+      "nodes_2plus": 1389,
+      "nodes_with_opposing_pair": 382,
+      "direction_pairs": 8643,
+      "minimum_pair_dot": -0.999420925818403
+    }
+  },
+  "withdrawal": "I explicitly withdraw the earlier all-inside interpretation. Audit-159's 3239 count is skin/bone crossing triangle pairs. Audit-130's zero PLC triangle-pair count is the skin self-audit. Saved audit-130 point-by-bank data classify 391/1747 unique face/bone groups as all-three-corners-outside, 1356 as mixed, and none as all-inside.",
+  "source_normal_definition_335": {
+    "owner": "build_outward_nearest_union_targets_335.py",
+    "owner_sha256": "1c3468b6e6285afed77e8ae7ca463abb797f6a22d562ccf878734c39161947c9",
+    "owner_lines": "registered_source_outward_face_normal at lines 466-485; outward-nearest direction selection at lines 718-719; target records emitted at lines 760-763",
+    "definition": "Typed original skin-face ancestry normal with the pinned outward sign: face_kind=2 maps to original_NHSKIN_face; face_kind=1 would map to original coarse source_O_faces. The 3,239 target records are all face_kind=2 and provenance original_NHSKIN_face.",
+    "not_bone_contact_normal": true,
+    "source_orientation_pins_from_335_report": {
+      "fine_outward_sign": 1,
+      "fine_to_coarse_winding_parity": -1,
+      "coarse_outward_sign": -1,
+      "fine_anchor_count": 2315,
+      "fine_anchor_agreement": 0.9969762419006479,
+      "parity_anchor_count": 2300,
+      "parity_anchor_agreement": 0.9982608695652174
+    },
+    "direction_method": "Nearest complete-bank boundary direction clipped to the nonnegative hemisphere of the typed original source skin-face normal; report mode outward-nearest.",
+    "target_record_counts": {
+      "total": 3239,
+      "original_NHSKIN_face": 3239,
+      "coarse_source_face": 0,
+      "face_kind_2": 3239,
+      "face_kind_1": 0
+    },
+    "source_normal_dot_exit": {
+      "count": 3239,
+      "minimum": -2.220446049250313e-16,
+      "materially_negative_below_minus_1e_12": 0,
+      "negative_below_zero_due_to_roundoff": 655
+    },
+    "selected_435_source_dot_note": "All 1,747 selected 435 rows are a subset of these 3,239 certified source-hemisphere rows, so none is materially negative relative to its original NHSKIN face normal."
+  },
+  "interpretation": {
+    "observed": "Raw current candidate cross normals have negative dot with the 335 exit direction on 1,962/3,239 rows (60.6%) and 1,060/1,747 selected 435 rows (60.7%). Raw candidate normals also oppose their original NHSKIN source normals on 2,055/3,239 target rows (63.4%).",
+    "bounded_conclusion": "This does not show that targets push the skin inward. The 335 builder explicitly constrains exit directions to the nonnegative hemisphere of the typed original NHSKIN face normal; target vectors are outward-oriented relative to that source definition (up to floating-point zero). The current candidate winding is consistently oriented across shared edges and has negative signed volume, so the raw-normal opposition is more consistent with an inward-oriented candidate winding than with inward target vectors, but the open boundary means this remains an inference. The soft objective direction does not by itself establish the final displacement or full-triangle clearance."
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/whole-face-objective-429/test_whole_face_objective_429.py",
+      "sha256": "31a954939f386d58f8a0b04ef3270273b0f4bf6ffa61fb64171f5e9fe7a879f0",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "test_anchor_has_zero_coefficients_and_retained_slack (__main__.Tests.test_anchor_has_zero_coefficients_and_retained_slack) ... ok\ntest_barycentric_sample_exit_does_not_clear_every_corner (__main__.Tests.test_barycentric_sample_exit_does_not_clear_every_corner) ... ok\ntest_coherent_translation_satisfies_all_corner_rows (__main__.Tests.test_coherent_translation_satisfies_all_corner_rows) ... ok\ntest_duplicate_pairs_share_one_unique_face_mass (__main__.Tests.test_duplicate_pairs_share_one_unique_face_mass) ... ok\ntest_empty_targets_keep_shape (__main__.Tests.test_empty_targets_keep_shape) ... ok\ntest_point_rows_are_preserved_and_share_mass (__main__.Tests.test_point_rows_are_preserved_and_share_mass) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.003s\n\nOK\n"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/graded-cut-step-431/test_graded_cut_step_431.py",
+      "sha256": "c6523b37c9b2976219e4a038bfe2e389beb56e86e613d2be3c04cceb81659a6e",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.003s\n\nOK\n"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/whole-face-objective-435/test_face_bone_grouped_objective_435.py",
+      "sha256": "647e80b3d249483eaa2392a2a2b8179954db80cb425dfe8dd6c025e1415ed8ba",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "test_anchor_keeps_zero_coefficients_and_positive_slack_row (__main__.Tests.test_anchor_keeps_zero_coefficients_and_positive_slack_row) ... ok\ntest_empty_targets_keep_shape (__main__.Tests.test_empty_targets_keep_shape) ... ok\ntest_opposing_triangle_planes_reduce_to_one_group_plane (__main__.Tests.test_opposing_triangle_planes_reduce_to_one_group_plane) ... ok\ntest_point_rows_are_exact_frozen_408_rows (__main__.Tests.test_point_rows_are_exact_frozen_408_rows) ... ok\ntest_tie_uses_lower_source_index_and_is_deterministic (__main__.Tests.test_tie_uses_lower_source_index_and_is_deterministic) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.003s\n\nOK\n"
+    }
+  ],
+  "focused_tests": 13,
+  "compile_checks": 4,
+  "native_admission": false
+}

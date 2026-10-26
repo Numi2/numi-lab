@@ -1,0 +1,233 @@
+{
+  "status": "TESTED_OFFLINE_CONSTRUCTION_INCREMENT",
+  "members": [
+    {
+      "path": "sources/whole-face-objective-429/whole_face_objective_429.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/D/whole-face-objective-429/whole_face_objective_429.py",
+      "bytes": 7125,
+      "sha256": "e6def5a77c2e46502266c4468b00c270ae9474e151d13e99a0f57b4bed85ad50"
+    },
+    {
+      "path": "sources/whole-face-objective-429/README.md",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/D/whole-face-objective-429/README.md",
+      "bytes": 647,
+      "sha256": "e766682da419653136e95934caede0abfbe4b08a5b845af4e465cba5c5f05377"
+    },
+    {
+      "path": "sources/whole-face-objective-429/run_whole_face_fit_429.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/D/whole-face-objective-429/run_whole_face_fit_429.py",
+      "bytes": 1272,
+      "sha256": "c4cc3a4d5490f7f29d4bd69da5c42219b7daf9b5763bd867d6ae56bcb5f36be8"
+    },
+    {
+      "path": "sources/whole-face-objective-429/test_whole_face_objective_429.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/D/whole-face-objective-429/test_whole_face_objective_429.py",
+      "bytes": 6012,
+      "sha256": "31a954939f386d58f8a0b04ef3270273b0f4bf6ffa61fb64171f5e9fe7a879f0"
+    },
+    {
+      "path": "sources/graded-cut-step-431/graded_cut_step_431.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/graded-cut-step-431/graded_cut_step_431.py",
+      "bytes": 16339,
+      "sha256": "615b579d5a7c5d70ae788cf905c2d09b117a130c828717c0794c3e8eff30d37b"
+    },
+    {
+      "path": "sources/graded-cut-step-431/test_graded_cut_step_431.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/graded-cut-step-431/test_graded_cut_step_431.py",
+      "bytes": 2347,
+      "sha256": "c6523b37c9b2976219e4a038bfe2e389beb56e86e613d2be3c04cceb81659a6e"
+    },
+    {
+      "path": "sources/whole-face-objective-435/run_grouped_fit_435.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/D/whole-face-objective-435/run_grouped_fit_435.py",
+      "bytes": 1290,
+      "sha256": "344d1d79d6db497e5aaa439fefb5fd70a2356c59074aebc7903e33b783d2ab10"
+    },
+    {
+      "path": "sources/whole-face-objective-435/face_direction_audit_435.json",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/D/whole-face-objective-435/face_direction_audit_435.json",
+      "bytes": 14520,
+      "sha256": "6de7ac5c810bfc2018ccea254feba5a11dceed813131e3bc96cf7e957c9d5007"
+    },
+    {
+      "path": "sources/whole-face-objective-435/test_face_bone_grouped_objective_435.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/D/whole-face-objective-435/test_face_bone_grouped_objective_435.py",
+      "bytes": 5790,
+      "sha256": "647e80b3d249483eaa2392a2a2b8179954db80cb425dfe8dd6c025e1415ed8ba"
+    },
+    {
+      "path": "sources/whole-face-objective-435/README.md",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/D/whole-face-objective-435/README.md",
+      "bytes": 1524,
+      "sha256": "ade9118d951d36b529836b7efdafbfd4f22b319ba88866fc6a775f47090c0633"
+    },
+    {
+      "path": "sources/whole-face-objective-435/whole_face_objective_435.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/D/whole-face-objective-435/whole_face_objective_435.py",
+      "bytes": 7124,
+      "sha256": "0d9b99363c6fae7bc15b7f8d4c06ae688e1358e72e2ef1eac5de23e137d0c83e"
+    },
+    {
+      "path": "sources/checked-proposal-430/run_checked_proposal_430.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/checked-proposal-430/run_checked_proposal_430.py",
+      "bytes": 4689,
+      "sha256": "915e5e05a9eb85d649fc5a1c32b7671fb827fb683712646133a9f71f601318f3"
+    },
+    {
+      "path": "sources/checked-proposal-436/run_checked_proposal_436.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/checked-proposal-436/run_checked_proposal_436.py",
+      "bytes": 5410,
+      "sha256": "af8c911418f3390be0b273aac5b2a548a4ad2cf39c8f8b5b123e583c546a64fc"
+    },
+    {
+      "path": "sources/operation-source-441/prep433.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/operation-source-441/prep433.py",
+      "bytes": 2022,
+      "sha256": "9d0eae42c51dceea97bbf9942791ee79b68e054b9aa3a5f648e8ad6dc9a04b71"
+    },
+    {
+      "path": "sources/operation-source-441/fit428.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/operation-source-441/fit428.py",
+      "bytes": 2117,
+      "sha256": "2fb79e19e6dba9a2b711644db12ded9f0dfb40f1f8df9cb1bdce7a7048981602"
+    },
+    {
+      "path": "sources/operation-source-441/fit429.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/operation-source-441/fit429.py",
+      "bytes": 1131,
+      "sha256": "04f5d3cd3e7bce664e9e608126ec470899cbcfd86b9db8d234ed909e356ab7d4"
+    },
+    {
+      "path": "sources/operation-source-441/prep428.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/operation-source-441/prep428.py",
+      "bytes": 2022,
+      "sha256": "6fb198ac05f1754d7b95daffad241c998d5cca55d77aba41da9e91b8b1d745dc"
+    },
+    {
+      "path": "sources/operation-source-441/launch436.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/operation-source-441/launch436.py",
+      "bytes": 772,
+      "sha256": "c92db1eed94d2c4ee154c2d779d4df26f0f365ddf951ca4d24b4fb7f982318cd"
+    },
+    {
+      "path": "sources/operation-source-441/fit434.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/operation-source-441/fit434.py",
+      "bytes": 1505,
+      "sha256": "84a92de85ffa08c9170ea22a2c090ed7998a6bac42c39b1ec40a2ab82fcb2115"
+    },
+    {
+      "path": "sources/operation-source-441/test-receipt.json",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/operation-source-441/test-receipt.json",
+      "bytes": 2591,
+      "sha256": "231a95e8be3c3bb00d536b5fe30a62b240bad466b17d48c1fb36ffe3e472f6f9"
+    },
+    {
+      "path": "sources/operation-source-441/fit429c.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/operation-source-441/fit429c.py",
+      "bytes": 1131,
+      "sha256": "d4781da1cce8c87db2b3583d670eeda4a68e683f60b843de4e30a5d822d7148d"
+    },
+    {
+      "path": "sources/operation-source-441/uniform432.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/operation-source-441/uniform432.py",
+      "bytes": 1566,
+      "sha256": "f566976a1d47772e260364b92b4c8635327ceae1c3828abe36a60a6381f5520a"
+    },
+    {
+      "path": "sources/operation-source-441/fit440.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/operation-source-441/fit440.py",
+      "bytes": 2446,
+      "sha256": "660e2bb80743f79f1914492a26cc517f380521cc31f9b43bbf867a73dd705396"
+    },
+    {
+      "path": "sources/operation-source-441/guard428.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/operation-source-441/guard428.py",
+      "bytes": 1517,
+      "sha256": "2029726adba38a0f37360bd33b536780627f416cfeb0053c7c4a5c0a373fbebb"
+    },
+    {
+      "path": "sources/operation-source-441/refresh438.py",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/operation-source-441/refresh438.py",
+      "bytes": 3287,
+      "sha256": "da527bb35b5ba30fe1bdd2205c5b8eb3b2cd9030131ee4f16a99c41405793587"
+    },
+    {
+      "path": "evidence/candidate436.npz",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/seed-preserving-backtrack-436/run-001/backtrack-373/pass-015/candidate.npz",
+      "bytes": 6367589,
+      "sha256": "1429bbe58c4e27d7d483fa4583b747ec42cf679e04505e24f43c2ffbb5e091e1"
+    },
+    {
+      "path": "evidence/point-summary436.json",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/seed-preserving-backtrack-436/run-001/backtrack-373/pass-015/audit-130/summary.json",
+      "bytes": 273403,
+      "sha256": "2111acd6ebd8f3c950248ae20b03f7e3cb3831a80bad5465fbf5237801fcb5b1"
+    },
+    {
+      "path": "evidence/surface-report436.json",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/seed-preserving-backtrack-436/run-001/backtrack-373/pass-015/audit-159/report.json",
+      "bytes": 254524,
+      "sha256": "5f343237d9a7561c69760ed3d74f0119b6cbfb35c1c90fb7c2d25eeeb5ee273c"
+    },
+    {
+      "path": "evidence/selected436.json",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/seed-preserving-backtrack-436/run-001/backtrack-373/selected-result.json",
+      "bytes": 5860,
+      "sha256": "3c161ce3deb6e856bb756a090e08132b032ca24940ebebd1e38107a5d1fa2608"
+    },
+    {
+      "path": "evidence/independent436.json",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/seed-preserving-backtrack-436/run-001/backtrack-373/root-independent-construction-verification.json",
+      "bytes": 2791,
+      "sha256": "ae60728e705a7a0f05a71f6a741fefab66c9891610f187c2967a18680638579a"
+    },
+    {
+      "path": "evidence/seed-scale-report436.json",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/seed-preserving-backtrack-436/run-001/seed-scale-report.json",
+      "bytes": 320290,
+      "sha256": "a3d6ca5779ef6adc5527dbf87dcbd92c2f3f9440b4e625f90134dabc879f4ca9"
+    },
+    {
+      "path": "evidence/run436.json",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/seed-preserving-backtrack-436/run-001/execution.json",
+      "bytes": 184,
+      "sha256": "36f767a44dbef5d3c803eea74b4c7a7cb4e8697d023f36cc43b1bf840e44edaa"
+    },
+    {
+      "path": "evidence/fit434.json",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/reseeded-fit-434/run-001/report.json",
+      "bytes": 41214669,
+      "sha256": "e26ac6aa5f249782dfe672b9a52a8b139ee59a9802acbe179d0a0e2bc3d701af"
+    },
+    {
+      "path": "evidence/control428.json",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/postfit-backtrack-428/run-001/execution.json",
+      "bytes": 150,
+      "sha256": "8615a0d1526897554081a5c40cf46ccf1c55fcc125ce8c3cf9bc800cb3aa2885"
+    },
+    {
+      "path": "evidence/wholeface429.json",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/postfit-backtrack-429/run-001/execution.json",
+      "bytes": 150,
+      "sha256": "93b26e0be7055e224517d83d36a4ba29c66f2a54b870948333e11760ab3fc323"
+    },
+    {
+      "path": "evidence/uniform432.json",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/uniform-control-432/run-001/execution.json",
+      "bytes": 118,
+      "sha256": "a25622fe17ec43ee03998be6c787eec7594e8d0be4185a4a0f3aa346887fbd32"
+    },
+    {
+      "path": "evidence/new-seeds433.json",
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep-433/run-001/self-seeds/report.json",
+      "bytes": 14361,
+      "sha256": "2e0eb57284abedcd2659c5050a251e9c11753023093def4981b5afa71fbe255a"
+    }
+  ],
+  "source_head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "source_index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+  "source_index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+  "parent_main": "ac51e405e9cf3b64c34a1f589b0ee8583108e60d",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}
