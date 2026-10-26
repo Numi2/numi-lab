@@ -1,0 +1,102 @@
+{
+  "accepted_physical_steps": 0,
+  "context_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-backtrack-prep-558/prep-031-001/constraint-context.json",
+  "context_sha256": "f320b8044bf3a2acd6208e10c0281b3227dd72ee4c49bc238a493fe0eb028138",
+  "merge": {
+    "all_exact_witnesses_retained": true,
+    "exact_witness_unique_count": 3450,
+    "existing_unique_count": 19388,
+    "merged_unique_count": 22838,
+    "new_exact_witness_count": 3450
+  },
+  "native_admission": false,
+  "pins": {
+    "026_pair_owner": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/204/source/fit/self_separation_026.py",
+      "sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3"
+    },
+    "350_builder": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/swept-self-pair-preseed-350/swept_self_pair_preseed_350.py",
+      "sha256": "54bc7f72724c14eb72eedce73aceca1492ce4abd38771bfc6af780582c9b677b"
+    },
+    "350_potential_pairs": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-saved-proposal-559/preseed-001/self-pairs-potential.npy",
+      "sha256": "222010a07c5a1aaff74ce15201fa3c4ea88f9dd8662402579f2733361ad6e521"
+    },
+    "350_receipt": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-saved-proposal-559/preseed-001/receipt.json",
+      "sha256": "0c45ff06003e20c8f511f9dfb8fc31fb248e80d545121557fd6ba7691224a480"
+    },
+    "350_unclassified_pairs": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-saved-proposal-559/preseed-001/self-pairs-unclassified.npy",
+      "sha256": "222010a07c5a1aaff74ce15201fa3c4ea88f9dd8662402579f2733361ad6e521"
+    },
+    "audit130_summary": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/full-check/audit-130/summary.json",
+      "sha256": "f2c853b982d1558ddcfb77aebef81408c0a826e98bb87856e3f9f2cdeadd4cd7"
+    },
+    "base_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/candidate.npz",
+      "sha256": "dc92a5285643fd6dd63801675744ca474fd036b9e68235c638f00d095dd50f9c"
+    },
+    "context_template": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/constraint-context.json",
+      "sha256": "28a5359cd02c7d9da14d4ba0a6a27153c216102826744f084fcf24fe385ace3e"
+    },
+    "exact_witness_pairs": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/full-check/audit-130/surface-self-pairs.npy",
+      "sha256": "4762800cd6e08e3e4dba7fe0ddeb09cf5caddf6c5dc2eb9bd302a2601813e897"
+    },
+    "existing_pairs": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/self-seeds/merged-self-pair-seeds.npy",
+      "sha256": "ebc0e7f280f6edc18a4fd802f682004199bf1bbccc7d6d1fd9d9aa6bd761f88f"
+    },
+    "existing_seed_preflight": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/self-seeds/seed-preflight.json",
+      "sha256": "9fffe19afd688cf9603f8b2689187b1227994216f6589714241d90be0ea387ef"
+    },
+    "fixed_guard_npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+      "sha256": "c617f603a0d91d6a4e0b2bb8c1214a9563848a11ce5f9c9db358ae27760354db"
+    },
+    "fixed_guard_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/fixed-guards/report.json",
+      "sha256": "bf280bb667db3de0bd5fcdb3bdd003beb1d7881cdbad101a2e92be8e4aad0a93"
+    },
+    "trial_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/fit/candidate.npz",
+      "sha256": "7d250c34674da17f25529d398be871c1656aaa6fd0726416bbd513a355fa8a10"
+    }
+  },
+  "seed_input_pair_count": 22838,
+  "seed_input_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-backtrack-prep-558/prep-031-001/self-pairs-input.npy",
+  "seed_input_sha256": "6643705d74ba0f1e96a4923b6e76ee868239aa7ff2eab2b2c3636ea62d1354e2",
+  "status": "PREPARED_SELECTED_WITNESS_SEEDS_ONLY",
+  "swept_output_check": {
+    "all_exact_witnesses_retained": true,
+    "all_existing_seeds_retained": true,
+    "classification_complete": false,
+    "potential_pair_count": 1134175,
+    "potential_pairs_sha256": "222010a07c5a1aaff74ce15201fa3c4ea88f9dd8662402579f2733361ad6e521"
+  },
+  "swept_pair_coverage_complete": false,
+  "swept_receipt_disposition": {
+    "potential_pair_count": 1134175,
+    "reason": "candidate_pair_cap",
+    "status": "BLOCKED_CLASSIFICATION_INCOMPLETE",
+    "swept_aabb_pair_count": 1131108,
+    "swept_coverage_complete": false,
+    "unclassified_pair_count": 1134175
+  },
+  "targeted_witness_row_certification": {
+    "batch_size": 64,
+    "coverage": "exact audit-130 witnesses not already covered by historical 026 seed preflight",
+    "linear_row_count": 19740,
+    "owner_calls": 54,
+    "pair_count": 3450,
+    "status": "PASS_SELECTED_EXACT_WITNESS_ROWS_ZERO_STEP_ONLY",
+    "swept_pair_coverage": false,
+    "timeout_seconds": 120.0,
+    "zero_step_tolerance_mm": 2e-08
+  }
+}

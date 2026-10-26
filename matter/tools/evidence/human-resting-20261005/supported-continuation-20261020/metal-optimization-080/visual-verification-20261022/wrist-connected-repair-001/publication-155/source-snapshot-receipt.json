@@ -1,0 +1,98 @@
+{
+  "all_sha256_verified": true,
+  "count": 18,
+  "schema": "numi.human.surface_clearance.p155.source_snapshot_receipt.v1",
+  "source_files_modified": false,
+  "source_snapshots_added": [
+    {
+      "bytes": 63212,
+      "path": "source-snapshots/f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d-cardiac_cavity_intersections.py",
+      "sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d"
+    },
+    {
+      "bytes": 11275,
+      "path": "source-snapshots/0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a-run_candidate_checks545.py",
+      "sha256": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a"
+    },
+    {
+      "bytes": 17209,
+      "path": "source-snapshots/293e4da49a10f07420d1da7c512823dcb182dca246e411c3775d18866b27a241-refresh_guards_541.py",
+      "sha256": "293e4da49a10f07420d1da7c512823dcb182dca246e411c3775d18866b27a241"
+    },
+    {
+      "bytes": 23103,
+      "path": "source-snapshots/ee327a03af99bcb9b89f6344d1f3a7d6ead074cbf489fd985f04c22362ecff3f-refresh_point_depth_rows.py",
+      "sha256": "ee327a03af99bcb9b89f6344d1f3a7d6ead074cbf489fd985f04c22362ecff3f"
+    },
+    {
+      "bytes": 199806,
+      "path": "source-snapshots/2f1eda3f0d46d0f5497a1a04075b5dc2c3b37afe906d0389ff636fca8abc5869-propose_joint_clearance_witnesses_401.py",
+      "sha256": "2f1eda3f0d46d0f5497a1a04075b5dc2c3b37afe906d0389ff636fca8abc5869"
+    },
+    {
+      "bytes": 14151,
+      "path": "source-snapshots/dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68-build_outward_targets_multi_source_546.py",
+      "sha256": "dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68"
+    },
+    {
+      "bytes": 10162,
+      "path": "source-snapshots/c911c414a15fe5e6630ff84b900d553ed098d41c9044f0142f5841a2f80ae413-run_checked_batch_context546.py",
+      "sha256": "c911c414a15fe5e6630ff84b900d553ed098d41c9044f0142f5841a2f80ae413"
+    },
+    {
+      "bytes": 5645,
+      "path": "source-snapshots/0708d259c7bc7dd6341b8cac737f6516ac611011e6d4f599e05530cf91106ac5-run_direct_depth_targets546.py",
+      "sha256": "0708d259c7bc7dd6341b8cac737f6516ac611011e6d4f599e05530cf91106ac5"
+    },
+    {
+      "bytes": 13692,
+      "path": "source-snapshots/db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781-finalize_existing_checks546.py",
+      "sha256": "db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781"
+    },
+    {
+      "bytes": 16945,
+      "path": "source-snapshots/090e368e693bc6f7d12c403812c1b691dc8de6d3e409cfae8d869f910aae076f-refresh_guards_multi_parent_546.py",
+      "sha256": "090e368e693bc6f7d12c403812c1b691dc8de6d3e409cfae8d869f910aae076f"
+    },
+    {
+      "bytes": 37809,
+      "path": "source-snapshots/a9586a81d92f117040e774c980b6028168432386b2e9babd96a7b7f725175d09-refresh_surface_constraints546.py",
+      "sha256": "a9586a81d92f117040e774c980b6028168432386b2e9babd96a7b7f725175d09"
+    },
+    {
+      "bytes": 202611,
+      "path": "source-snapshots/5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2-propose_joint_clearance_witnesses_408.py",
+      "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+    },
+    {
+      "bytes": 5152,
+      "path": "source-snapshots/52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9-audit_connected_outer_geometry_130.py",
+      "sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9"
+    },
+    {
+      "bytes": 4925,
+      "path": "source-snapshots/de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1-audit_skin_bone_surfaces_159.py",
+      "sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+    },
+    {
+      "bytes": 48788,
+      "path": "source-snapshots/4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81-human_skin_fat_bone_audit.py",
+      "sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81"
+    },
+    {
+      "bytes": 13276,
+      "path": "source-snapshots/c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3-self_separation_026.py",
+      "sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3"
+    },
+    {
+      "bytes": 8523,
+      "path": "source-snapshots/dc9d4f953ecede00567c59cbbb6b6b63e0a3556b97972689de499cbce29d4c2e-fixed_bone_triangle_rows_313.py",
+      "sha256": "dc9d4f953ecede00567c59cbbb6b6b63e0a3556b97972689de499cbce29d4c2e"
+    },
+    {
+      "bytes": 19865,
+      "path": "source-snapshots/3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78-emit_introduced_skin_bone_barriers_314.py",
+      "sha256": "3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78"
+    }
+  ]
+}

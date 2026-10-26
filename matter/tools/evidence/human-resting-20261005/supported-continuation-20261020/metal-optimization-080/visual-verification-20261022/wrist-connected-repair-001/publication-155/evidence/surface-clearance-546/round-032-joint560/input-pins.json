@@ -1,0 +1,22 @@
+{
+  "accepted_physical_steps": 0,
+  "native_admission": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/constraints-002/refresh-541/fixed-guards/fixed-skin-bone-guards.npz": "31eb8c51bac1fe7a8243bcb68903eca422961832a2c3183b587fe212fa0cc4bb",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/constraints-002/refresh-541/fixed-guards/report.json": "b5148f7f439b39f2d89a34d0a2a92de764905df3dfec3efc083489d4f4c7bb16",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/depth/365-compatible-report.json": "cd5924a0082f204417fc1907a6ab67b9b8e6cf0bb1f42bf4714b42db3cdb60d1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/depth/point-depth-rows.npz": "b8e18223d8e9248cb6e724086b041da46b0cb39b24e86eb2450da1d3513111e7",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/point-targets/nearest-union-exits.json": "4cf62f60c4f63df739bc128646c57fecef24542166e8da3f86e6c997293f9239",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/point-targets/nearest-union-exits.npz": "f49fd227d9e5109c79151d31a2b115e8fb8763555da505879ec9ca5216976ccd",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/surface-targets/report.json": "1da7f780a777d8ccda7832f9a5a962dc64692f2e0d491749a501e8e02355a3e4",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/surface-targets/targets.npz": "7ffbafb99886c38d7349f772d90529aa7eb88b5457f6f36e0d2a796be8c06a7e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/refine-all-001/audit-159/report.json": "aa00a12a53115e574db5fbce21dbbfcd903041bf29e5fcc6ea56e0ceb06f85d2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/refine-all-001/candidate.npz": "2ef23b2788175409169138e07abce9d751b253fede2cb53ee49c911268c7f046",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/refine-all-001/state.json": "b72fd820ee0937fa5cc4ea3b03f019d334e6ffd69f8cdd557e78b77530785d80",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/run_joint_conditioned558.py": "f6d75c896be16625d5819209693cc131075e012c92e1c93b453008f334a0e9d8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-objective-full-coordinate-560/run_joint_full_coordinate_fit560.py": "f54fdc1f41def7efe8babfe3311f7905110acac0de87f07d687599ad9117b15c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prolongation-witness-seeds-561/run-002/constraint-context.json": "def616445110e8beeff90d7b3c2cd0fa95ea3ffd1d7553671b003fed17efc387",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prolongation-witness-seeds-561/run-002/self-pairs-input.npy": "067dba29c36a7f768480d9232d79b2a4d023d49b25357b809fbaf1e7cd4a3c96"
+  },
+  "temporary_unselected_construction": true
+}

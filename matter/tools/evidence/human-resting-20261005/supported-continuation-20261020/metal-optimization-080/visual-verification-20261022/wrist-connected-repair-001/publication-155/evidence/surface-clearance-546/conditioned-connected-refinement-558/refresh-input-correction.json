@@ -1,0 +1,11 @@
+{
+  "failed_attempt": "prepared-001/refresh-stage.execution.json",
+  "specific_failure": "Wrong ancestry parent supplied: prior guards026 is not the immediate input of558, detected at immutable-reference barycentric reconstruction (2.2306mm mismatch).",
+  "next_change": "Use exact SHA-pinned input_candidate_path from558refinement report as ancestry parent; keep prior guard/seed candidate026 unchanged.",
+  "new_coordinator": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/refresh_conditioned558_v2.py",
+  "new_coordinator_sha256": "e10d1ef3a28d504307311c3aaacc39274ea1c0aee434857665bc3b18635d67f0",
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "immediate_parent": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/diagnostic-proposal.npz",
+  "immediate_parent_sha256": "c46ceb00c694ba88f07e93c295659f31303d0e30cef69feb2ab9fd7c5622a4ba"
+}

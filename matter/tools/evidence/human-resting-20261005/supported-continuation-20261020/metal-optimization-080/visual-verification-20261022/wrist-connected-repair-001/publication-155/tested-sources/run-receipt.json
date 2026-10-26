@@ -1,0 +1,54 @@
+{
+  "generated_utc": "2026-10-26T22:34:15.226554+00:00",
+  "python": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "runs": [
+    {
+      "test": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-backtrack-prep-558/test_prepare_swept_backtrack_seeds558.py",
+      "command": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-backtrack-prep-558/test_prepare_swept_backtrack_seeds558.py"
+      ],
+      "exit_code": 0,
+      "output": "......                                                                   [100%]\n6 passed in 0.02s"
+    },
+    {
+      "test": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-objective-full-coordinate-560/test_joint_objective_560.py",
+      "command": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-objective-full-coordinate-560/test_joint_objective_560.py"
+      ],
+      "exit_code": 0,
+      "output": "..........                                                               [100%]\n10 passed in 0.05s"
+    },
+    {
+      "test": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prolongation-witness-seeds-561/test_map_prolongation_witnesses561.py",
+      "command": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prolongation-witness-seeds-561/test_map_prolongation_witnesses561.py"
+      ],
+      "exit_code": 0,
+      "output": "........                                                                 [100%]\n8 passed in 0.02s"
+    },
+    {
+      "test": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prolongation-witness-seeds-561/test_map_prolongation_witnesses561_v2.py",
+      "command": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prolongation-witness-seeds-561/test_map_prolongation_witnesses561_v2.py"
+      ],
+      "exit_code": 0,
+      "output": "............                                                             [100%]\n12 passed in 0.02s"
+    }
+  ]
+}

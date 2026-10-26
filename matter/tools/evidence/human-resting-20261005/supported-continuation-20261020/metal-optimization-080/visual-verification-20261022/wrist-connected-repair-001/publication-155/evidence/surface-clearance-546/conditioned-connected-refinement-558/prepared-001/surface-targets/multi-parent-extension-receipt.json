@@ -1,0 +1,32 @@
+{
+  "candidate_sha256": "2ef23b2788175409169138e07abce9d751b253fede2cb53ee49c911268c7f046",
+  "crossing_pairs": 5044,
+  "multi_parent_faces": [
+    11993,
+    11994,
+    11995,
+    11996,
+    11997,
+    11998,
+    15087,
+    15088,
+    15089,
+    15090,
+    15091,
+    15092,
+    23955,
+    23956,
+    23957,
+    23958,
+    23959,
+    23960
+  ],
+  "passing_targets": 5044,
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/surface-targets/report.json",
+  "report_sha256": "1da7f780a777d8ccda7832f9a5a962dc64692f2e0d491749a501e8e02355a3e4",
+  "surface_report_sha256": "aa00a12a53115e574db5fbce21dbbfcd903041bf29e5fcc6ea56e0ceb06f85d2",
+  "target_records": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/surface-targets/target-records.jsonl",
+  "target_records_sha256": "8f49263f276758d89b1f820a82d354814cf4a6e73465cb13ee1e8eeba1e935a5",
+  "targets_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/surface-targets/targets.npz",
+  "targets_npz_sha256": "7ffbafb99886c38d7349f772d90529aa7eb88b5457f6f36e0d2a796be8c06a7e"
+}

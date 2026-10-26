@@ -1,0 +1,25 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prolongation-witness-seeds-561/map_prolongation_witnesses561_v2.py",
+    "--source-candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/fit/candidate.npz",
+    "--source-audit130",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/full-check/audit-130/summary.json",
+    "--source-pairs",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/full-check/audit-130/surface-self-pairs.npy",
+    "--context",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/constraint-context.json",
+    "--output",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prolongation-witness-seeds-561/run-002"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prolongation-witness-seeds-561/map_prolongation_witnesses561_v2.py": "8c2ae993feeb49359f1af4de7d38141b734fb9412e8d61849c141b94bb5151a4",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py": "a9586a81d92f117040e774c980b6028168432386b2e9babd96a7b7f725175d09"
+  }
+}

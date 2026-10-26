@@ -1,0 +1,17 @@
+{
+  "start": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/candidate.npz",
+  "start_sha256": "dc92a5285643fd6dd63801675744ca474fd036b9e68235c638f00d095dd50f9c",
+  "trial": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/fit/candidate.npz",
+  "trial_sha256": "7d250c34674da17f25529d398be871c1656aaa6fd0726416bbd513a355fa8a10",
+  "helper_sha256": "522152a4df248d230ddc66652e3071a2283c29ca73bccc52efbe1789e2ee2b9e",
+  "source_point_summary_sha256": "0919979d7d124e4232cb2ef28629f65fed104ece6c528c786f630d512dbc824f",
+  "source_surface_report_sha256": "46c76794b1c211c4d379ca889d4b627a09dfd87392a53e19931c805de7ad4cc2",
+  "construction_trust_mm": 4.0,
+  "construction_step_bound_m": 0.0040030000000000005,
+  "step_tolerance_mm": 0.003,
+  "global_R0_source_cap_m": 0.012002,
+  "source_runner_524_sha256": "7aea149ba26acf4b86e04d60843955a141ba3a7889d004b9d5f1cbf33cd83a07",
+  "trust_helper_sha256": "559ab40ff89f0cae511c26a3008c39e95ea532bd899a9117a716a56c87aefea0",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

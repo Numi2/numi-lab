@@ -1,0 +1,35 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/refine-all-001/candidate.npz",
+    "--point-summary",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/refine-all-001/audit-130/summary.json",
+    "--surface-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/refine-all-001/audit-159/report.json",
+    "--query-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/refine-all-001/audit-130/query",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/depth",
+    "--expected-candidate-sha256",
+    "2ef23b2788175409169138e07abce9d751b253fede2cb53ee49c911268c7f046",
+    "--expected-point-summary-sha256",
+    "b565c9be0fbab5e7df939eaabfa09929728c167856b59c866554937c88efe419",
+    "--expected-surface-report-sha256",
+    "aa00a12a53115e574db5fbce21dbbfcd903041bf29e5fcc6ea56e0ceb06f85d2",
+    "--expected-query-receipt-sha256",
+    "66e85920fbd11ecc80075d2e16a84af35be066ad19220cb2c8293741d431537a",
+    "--expected-owner-sha256",
+    "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py": "ee327a03af99bcb9b89f6344d1f3a7d6ead074cbf489fd985f04c22362ecff3f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepare_conditioned558.py": "fe93e0edc618e4e9309beff8aa43cf6e40110d1998840929674d113d93072741"
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "conditioned_refinement_558": {
+    "candidate_sha256": "2ef23b2788175409169138e07abce9d751b253fede2cb53ee49c911268c7f046",
+    "corrected_refresh_retained": true,
+    "crossing_bank_triangle_pair_count": 2188,
+    "selected": false,
+    "status": "REFINEMENT_CONSTRUCTION_READY",
+    "wrong_parent_attempt_retained": true
+  },
+  "excluded_scopes": [
+    "joint-objective-full-coordinate-561 active budget adapter",
+    "raw-joint-capture-563",
+    "round-033 and later",
+    "active 562 development"
+  ],
+  "mapping_runs_561": [
+    {
+      "accepted_physical_steps": 0,
+      "mapped_witnesses": 3321,
+      "merged_pair_count": 22723,
+      "native_admission": false,
+      "run": "run-001",
+      "status": "PASS_MAPPED_CONSTRUCTION_SEEDS_ONLY",
+      "unmapped_witnesses": 129
+    },
+    {
+      "accepted_physical_steps": 0,
+      "mapped_witnesses": 3321,
+      "merged_pair_count": 22723,
+      "native_admission": false,
+      "run": "run-002",
+      "status": "PASS_MAPPED_CONSTRUCTION_SEEDS_ONLY",
+      "unmapped_witnesses": 129
+    }
+  ],
+  "new_unselected_point_continuation": {
+    "accepted_physical_steps": 0,
+    "anchor_rows": 237,
+    "candidate_path": "evidence/surface-clearance-546/swept-backtrack-prep-558/backtrack-031-001/run/backtrack-373/pass-024/candidate.npz",
+    "candidate_selected": false,
+    "candidate_sha256": "ddb0c0a51f5518a3bef519824a9aca79d74ee85eb0640ab43187742e5936fefc",
+    "complete_banks": 185,
+    "contained_pairs": 1184,
+    "continuation_mode": "point_continuation",
+    "finalizer_report_path": "evidence/surface-clearance-546/swept-backtrack-prep-558/backtrack-031-001/final-point-continuation/report.json",
+    "finalizer_report_sha256": "56e2e68f65771002999c97b56427d91284cb1a2338d5c6ec31abfc29353b1ba5",
+    "full_check_path": "evidence/surface-clearance-546/swept-backtrack-prep-558/backtrack-031-001/run/final-check/report.json",
+    "full_check_sha256": "d4dd4fa8d53d511f32db2cfcbc64dc63d2124a784739d829163c6209fa4cdc97",
+    "native_admission": false,
+    "self_pairs": 0,
+    "state_path": "evidence/surface-clearance-546/swept-backtrack-prep-558/backtrack-031-001/final-point-continuation/state.json",
+    "state_sha256": "9d78eca99f494842cf75bb488e5ccbc73978ba13c98f6ea55c68091470085bc8",
+    "surface_pairs": 4920
+  },
+  "no_native_or_physical_jobs_started_by_publisher": true,
+  "parent_main": "daf88041dc138c75737ac3deb3147ae16b12e55b",
+  "prefix": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-155",
+  "prepared_utc": "2026-10-26T22:39:14.648946+00:00",
+  "remote_main_before": "daf88041dc138c75737ac3deb3147ae16b12e55b",
+  "round032_failure": {
+    "coordinator_failure": "v1 attempted candidate checker despite LP_NO_PROPOSAL and missing candidate; checker failed before geometry work.",
+    "fit_status": "LP_NO_PROPOSAL",
+    "v2_guard_source": "evidence/surface-clearance-546/conditioned-connected-refinement-558/run_joint_conditioned558_v2.py",
+    "v2_runtime_claim": false,
+    "wall_seconds": 21.77325824997388
+  },
+  "schema": "numi.human.surface_clearance.publication155.preparation.v1",
+  "selected_main_baseline": {
+    "candidate_selected": true,
+    "candidate_sha256": "6cebc9e4d4d2cda4afbde1670f105b2b56b7e7f74de40cbb5f51b513e6bb4c7d",
+    "contained_pairs": 0,
+    "full_check_report_sha256": "0658565bf7263be879832a92ee19bc85fe16e3f4c68f892da11de5e42fd154e6",
+    "publication": "P154",
+    "self_pairs": 0,
+    "surface_pairs": 2180
+  },
+  "shared_checkout_after": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "shared_checkout_before": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "source_snapshot_count": 32,
+  "source_snapshot_receipt_sha256": "409d132a4fce74bcea5dd10747c6dcc0aaf39df39b3b3f0ddfe7dd8ccd583ddd",
+  "swept_preseed_559": {
+    "eligible_pairs": 0,
+    "exact_intersection_audit": "not run by this tool",
+    "max_candidate_pairs": 500000,
+    "status": "BLOCKED_CLASSIFICATION_INCOMPLETE",
+    "unclassified_pairs": 1134175
+  },
+  "test_receipt_sha256": "1b3e747f2e33b69cb2b32c81db5d68c31f17ed4f2033f65800c0b8a05a6c8328"
+}

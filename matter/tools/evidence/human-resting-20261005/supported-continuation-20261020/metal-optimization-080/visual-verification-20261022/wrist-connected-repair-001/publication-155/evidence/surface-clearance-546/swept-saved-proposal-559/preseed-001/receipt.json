@@ -1,0 +1,63 @@
+{
+  "aabb_padding_m": 1e-07,
+  "acceptance": "none; emitted pairs only seed optional linearized constraints; exact emitted-F32 audit remains mandatory",
+  "all_exact_witnesses_retained_in_potential_output": true,
+  "eligible_pair_array_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+  "eligible_pair_array_shape": [
+    0,
+    2
+  ],
+  "estimated_axis_interval_workloads": [
+    30077049,
+    32273857,
+    55923293
+  ],
+  "exact_intersection_audit": "not run by this tool",
+  "excluded_shared_vertex_threshold": 2,
+  "face_count": 47803,
+  "input_pins": {
+    "base_candidate": "dc92a5285643fd6dd63801675744ca474fd036b9e68235c638f00d095dd50f9c",
+    "raw_trial_0": "7d250c34674da17f25529d398be871c1656aaa6fd0726416bbd513a355fa8a10",
+    "seed_pairs_0": "ebc0e7f280f6edc18a4fd802f682004199bf1bbccc7d6d1fd9d9aa6bd761f88f",
+    "witness_pairs_0": "4762800cd6e08e3e4dba7fe0ddeb09cf5caddf6c5dc2eb9bd302a2601813e897"
+  },
+  "max_candidate_pairs": 500000,
+  "pair_owner_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/204/source/fit/self_separation_026.py",
+  "pair_owner_sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+  "pair_row_eligibility": {
+    "classification_completed": false,
+    "classification_stop_reason": "candidate_pair_cap",
+    "classification_time_budget_seconds": 240.0,
+    "eligible_pair_count": 0,
+    "generated_linear_row_count": 0,
+    "owner_call_count": 0,
+    "rejected_pair_count": 0,
+    "rejected_pairs": [],
+    "rejected_pairs_retained_in_broadphase_output": true,
+    "unclassified_pair_count": 1134175
+  },
+  "potential_pair_array_sha256": "222010a07c5a1aaff74ce15201fa3c4ea88f9dd8662402579f2733361ad6e521",
+  "potential_pair_array_shape": [
+    1134175,
+    2
+  ],
+  "raw_displacement_scale": 1.0,
+  "rejected_exact_witness_pairs": [],
+  "rejected_pair_array_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+  "rejected_pair_array_shape": [
+    0,
+    2
+  ],
+  "scope": "conservative construction broadphase only; not an exact intersection test or acceptance gate",
+  "seed_pair_count": 22838,
+  "status": "BLOCKED_CLASSIFICATION_INCOMPLETE",
+  "sweep_axis": 0,
+  "swept_aabb_pair_count": 1131108,
+  "trial_count": 1,
+  "unclassified_pair_array_sha256": "222010a07c5a1aaff74ce15201fa3c4ea88f9dd8662402579f2733361ad6e521",
+  "unclassified_pair_array_shape": [
+    1134175,
+    2
+  ],
+  "union_pair_count": 1134175
+}

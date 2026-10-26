@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py", line 154, in <module>
+    if __name__=="__main__":main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py", line 93, in main
+    result={"candidate_path":str(cp),"candidate_sha256":sha(cp),"baseline_sha256":BASE_SHA,"baseline_state":str(a.baseline_state),"construction_trust_mm":a.trust_mm,"native_admission":False,"accepted_physical_steps":0,"commands":[]}
+                                                        ~~~^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py", line 19, in sha
+    def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+                                      ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_abc.py", line 625, in read_bytes
+    with self.open(mode='rb') as f:
+         ~~~~~~~~~^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py", line 537, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-032-joint560/fit/candidate.npz'

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-backtrack-prep-558/backtrack-031-001/run/backtrack-373/pass-012/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-backtrack-prep-558/backtrack-031-001/run/backtrack-373/pass-012/audit-130"
+  ],
+  "returncode": 0,
+  "wall_seconds": 10.149913958040997
+}

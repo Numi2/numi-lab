@@ -1,0 +1,23 @@
+{
+  "candidate_sha256": "2ef23b2788175409169138e07abce9d751b253fede2cb53ee49c911268c7f046",
+  "point_target_sha256": "f49fd227d9e5109c79151d31a2b115e8fb8763555da505879ec9ca5216976ccd",
+  "old_prefix_node_count": 20889,
+  "inside_rows": 1245,
+  "all_inside_rows_are_affine_new_nodes": true,
+  "current_distance_p0_p50_p90_p100_mm": [
+    0.2495030813320727,
+    3.6865289552583027,
+    6.60704752267,
+    9.340914704459177
+  ],
+  "goal_distance_p0_p50_p90_p100_mm": [
+    1.3236213713049814,
+    4.212909059307696,
+    7.301858263734954,
+    9.85409813153135
+  ],
+  "goal_endpoints_beyond_12mm_source_cap": 0,
+  "current_rows_already_at_12mm_source_cap": 0,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

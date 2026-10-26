@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py", line 280, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py", line 276, in main
+    refresh.main()
+    ~~~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/refresh_guards_541.py", line 113, in main
+    ancestry_receipt=validate_ancestry(z,ancestry_parent,current_surface)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py", line 234, in validate_ancestry
+    affine_map_receipt = (_validate_affine_parent_maps(candidate, parent_candidate, pfaces, bary)
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py", line 129, in _validate_affine_parent_maps
+    raise ValueError(f"affine parent barycentrics do not reconstruct immutable area-reference child vertices: {max_error} > {tolerance}")
+ValueError: affine parent barycentrics do not reconstruct immutable area-reference child vertices: 0.002230614423751831 > 1e-12

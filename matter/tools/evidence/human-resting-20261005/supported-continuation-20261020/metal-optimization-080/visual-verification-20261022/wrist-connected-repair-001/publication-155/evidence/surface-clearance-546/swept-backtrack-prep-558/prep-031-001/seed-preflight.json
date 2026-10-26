@@ -1,0 +1,44 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/candidate.npz",
+  "candidate_sha256": "dc92a5285643fd6dd63801675744ca474fd036b9e68235c638f00d095dd50f9c",
+  "construction_only": true,
+  "exact_witness_source": {
+    "all_exact_witnesses_retained": true,
+    "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/full-check/audit-130/summary.json",
+    "audit130_sha256": "f2c853b982d1558ddcfb77aebef81408c0a826e98bb87856e3f9f2cdeadd4cd7",
+    "new_rows_zero_step_certification": {
+      "batch_size": 64,
+      "coverage": "exact audit-130 witnesses not already covered by historical 026 seed preflight",
+      "linear_row_count": 19740,
+      "owner_calls": 54,
+      "pair_count": 3450,
+      "status": "PASS_SELECTED_EXACT_WITNESS_ROWS_ZERO_STEP_ONLY",
+      "swept_pair_coverage": false,
+      "timeout_seconds": 120.0,
+      "zero_step_tolerance_mm": 2e-08
+    },
+    "pair_count": 3450,
+    "pairs_sha256": "4762800cd6e08e3e4dba7fe0ddeb09cf5caddf6c5dc2eb9bd302a2601813e897"
+  },
+  "merged_unique_pair_count": 22838,
+  "native_admission": false,
+  "old_seed_preflight": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/self-seeds/seed-preflight.json",
+    "sha256": "9fffe19afd688cf9603f8b2689187b1227994216f6589714241d90be0ea387ef",
+    "status": "validated against current baseline and pinned 026 owner"
+  },
+  "output_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-backtrack-prep-558/prep-031-001/self-pairs-input.npy",
+  "output_pairs_sha256": "6643705d74ba0f1e96a4923b6e76ee868239aa7ff2eab2b2c3636ea62d1354e2",
+  "pair_owner_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/204/source/fit/self_separation_026.py",
+  "pair_owner_sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+  "schema": "numi.human.continuation-self-seeds.v1",
+  "status": "PASS_REBUILT_CONSTRUCTION_SEEDS_ONLY",
+  "swept_broadphase": {
+    "full_sweep_guard_coverage_claimed": false,
+    "receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-saved-proposal-559/preseed-001/receipt.json",
+    "receipt_sha256": "0c45ff06003e20c8f511f9dfb8fc31fb248e80d545121557fd6ba7691224a480",
+    "status": "INCOMPLETE_NOT_USED_AS_COMPLETE_GUARD_SET"
+  },
+  "zero_step_feasible": true
+}

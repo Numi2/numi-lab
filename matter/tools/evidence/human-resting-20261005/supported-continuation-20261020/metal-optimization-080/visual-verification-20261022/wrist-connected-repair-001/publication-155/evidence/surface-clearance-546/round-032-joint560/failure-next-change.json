@@ -1,0 +1,8 @@
+{
+  "fit_status": "LP_NO_PROPOSAL",
+  "failure": "Component7 time limit at21.77s total; per-stage allocation only6.8s under fixed120s global budget.",
+  "coordinator_failure": "v1 attempted candidate checker despite LP_NO_PROPOSAL and missing candidate; checker failed before geometry work.",
+  "next_change": "Workload-weight per-component time allocation within unchanged120s total; v2 coordinator stops immediately if fit has no candidate.",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

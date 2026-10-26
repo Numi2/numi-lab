@@ -1,0 +1,11 @@
+waiting_for_human_geometry_slot pid=81211
+acquired_human_geometry_slot pid=81211
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py", line 597, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py", line 592, in main
+    result = execute(args, point_continuation=args.point_continuation)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py", line 439, in execute
+    raise RuntimeError(f"frozen 541 refresh failed; see {log_path}")
+RuntimeError: frozen 541 refresh failed; see /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/constraints/refresh-541.log

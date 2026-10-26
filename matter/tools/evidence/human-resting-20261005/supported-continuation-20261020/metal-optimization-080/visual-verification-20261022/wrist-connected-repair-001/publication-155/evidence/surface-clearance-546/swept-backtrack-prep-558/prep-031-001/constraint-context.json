@@ -1,0 +1,23 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/candidate.npz",
+  "candidate_sha256": "dc92a5285643fd6dd63801675744ca474fd036b9e68235c638f00d095dd50f9c",
+  "exact_witness_source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/full-check/audit-130/surface-self-pairs.npy",
+  "exact_witness_source_sha256": "4762800cd6e08e3e4dba7fe0ddeb09cf5caddf6c5dc2eb9bd302a2601813e897",
+  "guard_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+  "guard_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/fixed-guards/report.json",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-130/summary.json",
+  "point_summary_sha256": "0919979d7d124e4232cb2ef28629f65fed104ece6c528c786f630d512dbc824f",
+  "refresh_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-report.json",
+  "refresh_report_sha256": "3df6913f14500a87634e09367de5b8374f6d3a0a123fb58e089997cf1adba764",
+  "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-backtrack-prep-558/prep-031-001/self-pairs-input.npy",
+  "seed_pairs_sha256": "6643705d74ba0f1e96a4923b6e76ee868239aa7ff2eab2b2c3636ea62d1354e2",
+  "seed_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-backtrack-prep-558/prep-031-001/seed-preflight.json",
+  "seed_report_sha256": "6fa41a326e59f367892c561bff9f88ab5cb498a318b5c7fe2ebcb33fe88be004",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-159/report.json",
+  "surface_report_sha256": "46c76794b1c211c4d379ca889d4b627a09dfd87392a53e19931c805de7ad4cc2",
+  "swept_pair_coverage_complete": false,
+  "swept_receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-saved-proposal-559/preseed-001/receipt.json",
+  "swept_receipt_sha256": "0c45ff06003e20c8f511f9dfb8fc31fb248e80d545121557fd6ba7691224a480"
+}

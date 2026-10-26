@@ -1,0 +1,7194 @@
+{
+  "bank_count": 185,
+  "bank_reader_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-084/canonical/matter/tools/human_skin_fat_bone_audit.py",
+  "bank_reader_sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+  "bank_source_pins": {
+    "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac"
+  },
+  "base_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/refine-all-001/candidate.npz",
+  "base_candidate_sha256": "2ef23b2788175409169138e07abce9d751b253fede2cb53ee49c911268c7f046",
+  "candidate_points_world_m_array_sha256": "1b31dce3a37338910c1a68b176215cfb34a87b12352e7c65f13b72d969e3410c",
+  "expected_bank_count": 185,
+  "face_count": 47783,
+  "filtered_builder_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/refresh_guards_541.py",
+  "filtered_builder_sha256": "293e4da49a10f07420d1da7c512823dcb182dca246e411c3775d18866b27a241",
+  "fixed_triangles_frame": "world",
+  "fixed_triangles_units": "mm",
+  "geometry_or_native_admission": false,
+  "inputs": [
+    {
+      "audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/refine-all-001/audit-159/report.json",
+      "audit159_sha256": "aa00a12a53115e574db5fbce21dbbfcd903041bf29e5fcc6ea56e0ceb06f85d2",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/refine-all-001/candidate.npz",
+      "candidate_sha256": "2ef23b2788175409169138e07abce9d751b253fede2cb53ee49c911268c7f046",
+      "role": "base"
+    }
+  ],
+  "introduced_pair_count": 1190,
+  "limitations": [
+    "Only exact unchanged node-triangle identities were mapped; unmapped faces were excluded.",
+    "Current exact 159 crossings were excluded from fixed guards.",
+    "Construction only; exact endpoint audit is still required."
+  ],
+  "mapping_source": {
+    "active_current_crossings_excluded": 0,
+    "ambiguous_face_matches": 0,
+    "exact_face_matches": 1190,
+    "prior_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/candidate.npz",
+    "prior_candidate_sha256": "10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366",
+    "prior_guard_npz_sha256": "c136b4eb2a55f8d44ff0de5b731e3ef0ef2351b912bfddb11c866d682369e54d",
+    "prior_guard_report_sha256": "dffc23e5393e5587782e15bec2242a8ed781cc6cdf647d370c0006ab743ba552",
+    "unmapped_faces": 1500
+  },
+  "output_npz": "fixed-skin-bone-guards.npz",
+  "output_npz_sha256": "31eb8c51bac1fe7a8243bcb68903eca422961832a2c3183b587fe212fa0cc4bb",
+  "point_count": 23914,
+  "schema": "numi.fixed_skin_bone_barriers.v1",
+  "skin_faces_array_sha256": "92d041233026ca214d160806ceb64918f7e5cdc74324e771d47642216aeff596",
+  "status": "COMPLETE_TYPED_INTRODUCED_SKIN_BONE_BARRIER_EXPORT",
+  "typed_pairs": [
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20516,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 20516,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20516,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 144,
+      "skin_face_row": 20516,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20521,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 20521,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20521,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 144,
+      "skin_face_row": 20521,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20591,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20591,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20592,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20592,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20666,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20666,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 144,
+      "skin_face_row": 20666,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20667,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20667,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 144,
+      "skin_face_row": 20667,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 128,
+      "skin_face_row": 20674,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 130,
+      "skin_face_row": 20674,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 128,
+      "skin_face_row": 20675,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 130,
+      "skin_face_row": 20675,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20700,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20700,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20701,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20701,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20721,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20721,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20722,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20722,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 126,
+      "skin_face_row": 20730,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 127,
+      "skin_face_row": 20730,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 126,
+      "skin_face_row": 20731,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 127,
+      "skin_face_row": 20731,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 126,
+      "skin_face_row": 20732,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 127,
+      "skin_face_row": 20732,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 128,
+      "skin_face_row": 20750,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 130,
+      "skin_face_row": 20750,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 126,
+      "skin_face_row": 20758,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 127,
+      "skin_face_row": 20758,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 126,
+      "skin_face_row": 20759,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 127,
+      "skin_face_row": 20759,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20766,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 20766,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20766,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20767,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 20767,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20767,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 137,
+      "skin_face_row": 20778,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 20778,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20779,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 20779,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20830,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20830,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 144,
+      "skin_face_row": 20830,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20834,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 130,
+      "skin_face_row": 20919,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 20919,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20981,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20981,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20982,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 20982,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 20982,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20982,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 20983,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 20983,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 20983,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 20983,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 21056,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 21056,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 144,
+      "skin_face_row": 21056,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 21057,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 21057,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 21059,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 21073,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 21073,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 21073,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 21075,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 21075,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 21076,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 21076,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 21076,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 162,
+      "skin_face_row": 21201,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 162,
+      "skin_face_row": 21202,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 162,
+      "skin_face_row": 21218,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 129,
+      "skin_face_row": 21219,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 162,
+      "skin_face_row": 21219,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 244,
+      "skin_face_row": 21251,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 162,
+      "skin_face_row": 21305,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 162,
+      "skin_face_row": 21306,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 244,
+      "skin_face_row": 21332,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 130,
+      "skin_face_row": 21361,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 147,
+      "skin_face_row": 21361,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 129,
+      "skin_face_row": 21397,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 278,
+      "skin_face_row": 21569,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 303,
+      "skin_face_row": 21569,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 278,
+      "skin_face_row": 21574,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 303,
+      "skin_face_row": 21574,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 162,
+      "skin_face_row": 21613,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 165,
+      "skin_face_row": 21678,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 166,
+      "skin_face_row": 21678,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 170,
+      "skin_face_row": 21678,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 166,
+      "skin_face_row": 21696,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 128,
+      "skin_face_row": 21791,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 130,
+      "skin_face_row": 21791,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 162,
+      "skin_face_row": 21793,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 162,
+      "skin_face_row": 21794,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 129,
+      "skin_face_row": 21828,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 162,
+      "skin_face_row": 21828,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 162,
+      "skin_face_row": 21872,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 303,
+      "skin_face_row": 22613,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 22613,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 303,
+      "skin_face_row": 22614,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 22614,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 303,
+      "skin_face_row": 22618,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 22618,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 303,
+      "skin_face_row": 22635,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 22635,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 303,
+      "skin_face_row": 22640,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 22640,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 303,
+      "skin_face_row": 22641,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 22641,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 303,
+      "skin_face_row": 22642,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 22642,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 22737,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 22816,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 22817,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 311,
+      "skin_face_row": 22859,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 311,
+      "skin_face_row": 22860,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 22925,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 22925,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 311,
+      "skin_face_row": 22925,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 22932,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 22932,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 311,
+      "skin_face_row": 22932,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 311,
+      "skin_face_row": 22937,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 309,
+      "skin_face_row": 22944,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 310,
+      "skin_face_row": 22944,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 311,
+      "skin_face_row": 22944,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 309,
+      "skin_face_row": 22965,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 310,
+      "skin_face_row": 22965,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 311,
+      "skin_face_row": 22965,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 302,
+      "skin_face_row": 24260,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 303,
+      "skin_face_row": 24260,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 24260,
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 52,
+      "bank_triangle_stable_id": 376,
+      "skin_face_row": 146,
+      "stable_bone_id": 88
+    },
+    {
+      "bank_body": 52,
+      "bank_triangle_stable_id": 378,
+      "skin_face_row": 146,
+      "stable_bone_id": 88
+    },
+    {
+      "bank_body": 52,
+      "bank_triangle_stable_id": 395,
+      "skin_face_row": 146,
+      "stable_bone_id": 88
+    },
+    {
+      "bank_body": 52,
+      "bank_triangle_stable_id": 396,
+      "skin_face_row": 146,
+      "stable_bone_id": 88
+    },
+    {
+      "bank_body": 52,
+      "bank_triangle_stable_id": 397,
+      "skin_face_row": 146,
+      "stable_bone_id": 88
+    },
+    {
+      "bank_body": 52,
+      "bank_triangle_stable_id": 398,
+      "skin_face_row": 146,
+      "stable_bone_id": 88
+    },
+    {
+      "bank_body": 52,
+      "bank_triangle_stable_id": 400,
+      "skin_face_row": 146,
+      "stable_bone_id": 88
+    },
+    {
+      "bank_body": 52,
+      "bank_triangle_stable_id": 401,
+      "skin_face_row": 146,
+      "stable_bone_id": 88
+    },
+    {
+      "bank_body": 52,
+      "bank_triangle_stable_id": 402,
+      "skin_face_row": 146,
+      "stable_bone_id": 88
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 301,
+      "skin_face_row": 11016,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 11016,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 301,
+      "skin_face_row": 11022,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 11022,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 301,
+      "skin_face_row": 11103,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 302,
+      "skin_face_row": 11103,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 11103,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 294,
+      "skin_face_row": 11114,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 188,
+      "skin_face_row": 13659,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 188,
+      "skin_face_row": 13664,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 310,
+      "skin_face_row": 13712,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 473,
+      "skin_face_row": 13713,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 474,
+      "skin_face_row": 13713,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 82,
+      "skin_face_row": 13718,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 82,
+      "skin_face_row": 13719,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 83,
+      "skin_face_row": 13719,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 84,
+      "skin_face_row": 13719,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 91,
+      "skin_face_row": 13719,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 83,
+      "skin_face_row": 13731,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 84,
+      "skin_face_row": 13731,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 91,
+      "skin_face_row": 13731,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 127,
+      "skin_face_row": 13731,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 188,
+      "skin_face_row": 13731,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 82,
+      "skin_face_row": 13736,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 83,
+      "skin_face_row": 13736,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 84,
+      "skin_face_row": 13736,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 91,
+      "skin_face_row": 13736,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 188,
+      "skin_face_row": 13736,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 470,
+      "skin_face_row": 13859,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 473,
+      "skin_face_row": 13859,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 128,
+      "skin_face_row": 13899,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 129,
+      "skin_face_row": 13899,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 193,
+      "skin_face_row": 13899,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 191,
+      "skin_face_row": 13910,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 193,
+      "skin_face_row": 13910,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 293,
+      "skin_face_row": 14174,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 297,
+      "skin_face_row": 14174,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 293,
+      "skin_face_row": 14179,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 57,
+      "bank_triangle_stable_id": 297,
+      "skin_face_row": 14179,
+      "stable_bone_id": 89
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 141,
+      "skin_face_row": 11862,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 11862,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 141,
+      "skin_face_row": 11866,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 11867,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 11867,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 11867,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 11867,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 141,
+      "skin_face_row": 11867,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 11867,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 141,
+      "skin_face_row": 12017,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 141,
+      "skin_face_row": 12019,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 142,
+      "skin_face_row": 12019,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 12019,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 12026,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 12026,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 141,
+      "skin_face_row": 12026,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 12026,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 12041,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 12041,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 12041,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 142,
+      "skin_face_row": 12045,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 68,
+      "skin_face_row": 12048,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 12048,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 12048,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 12049,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 12049,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 12049,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 12049,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 12078,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 12078,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 12079,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 12079,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 12079,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 12079,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 141,
+      "skin_face_row": 12079,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 12079,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 12080,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 141,
+      "skin_face_row": 12080,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 12081,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 12082,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 12082,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 12082,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 12082,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 12083,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 140,
+      "skin_face_row": 12083,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 12257,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 141,
+      "skin_face_row": 12280,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 142,
+      "skin_face_row": 12280,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 12280,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 144,
+      "skin_face_row": 12280,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 12280,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 248,
+      "skin_face_row": 12280,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 141,
+      "skin_face_row": 12288,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 142,
+      "skin_face_row": 12288,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 12288,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 144,
+      "skin_face_row": 12288,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 12288,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 248,
+      "skin_face_row": 12288,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 68,
+      "skin_face_row": 12302,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 69,
+      "skin_face_row": 12302,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 141,
+      "skin_face_row": 12316,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 142,
+      "skin_face_row": 12316,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 12316,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 144,
+      "skin_face_row": 12316,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 68,
+      "skin_face_row": 12318,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 69,
+      "skin_face_row": 12318,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 251,
+      "skin_face_row": 12371,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 251,
+      "skin_face_row": 12376,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 12376,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 12377,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 251,
+      "skin_face_row": 12380,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 251,
+      "skin_face_row": 12388,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 212,
+      "skin_face_row": 12475,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 68,
+      "skin_face_row": 12489,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 69,
+      "skin_face_row": 12489,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 145,
+      "skin_face_row": 12489,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 145,
+      "skin_face_row": 12491,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 211,
+      "skin_face_row": 12491,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 211,
+      "skin_face_row": 12492,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 68,
+      "skin_face_row": 12493,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 69,
+      "skin_face_row": 12493,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 142,
+      "skin_face_row": 12493,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 12493,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 144,
+      "skin_face_row": 12493,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 68,
+      "skin_face_row": 12494,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 142,
+      "skin_face_row": 12494,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 12494,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 144,
+      "skin_face_row": 12494,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 68,
+      "skin_face_row": 12497,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 69,
+      "skin_face_row": 12497,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 141,
+      "skin_face_row": 12497,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 142,
+      "skin_face_row": 12497,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 12497,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 144,
+      "skin_face_row": 12497,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 12497,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 12539,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 12539,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 12539,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 12540,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 12540,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 332,
+      "skin_face_row": 12540,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 12540,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 12541,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 12541,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 332,
+      "skin_face_row": 12541,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 12541,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 12546,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 12547,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 12604,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 12604,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 12604,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 332,
+      "skin_face_row": 12604,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 379,
+      "skin_face_row": 12604,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 12604,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 12609,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 12609,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 12609,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 332,
+      "skin_face_row": 12609,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 379,
+      "skin_face_row": 12609,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 12609,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 12622,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 12622,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 12622,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 12623,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 12623,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 12623,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 12623,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 302,
+      "skin_face_row": 12746,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 334,
+      "skin_face_row": 12746,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 12807,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 332,
+      "skin_face_row": 12807,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 12817,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 12817,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 12817,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 12878,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 12878,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 332,
+      "skin_face_row": 12929,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 12929,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 13021,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 13025,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 13025,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 13025,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 13026,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 13035,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 13035,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 13051,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 13051,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 332,
+      "skin_face_row": 13069,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 13077,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 13081,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 330,
+      "skin_face_row": 13110,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 13110,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 13110,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 13113,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 13113,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 13125,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 59,
+      "bank_triangle_stable_id": 384,
+      "skin_face_row": 13125,
+      "stable_bone_id": 95
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 39,
+      "skin_face_row": 8838,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 40,
+      "skin_face_row": 8838,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 41,
+      "skin_face_row": 8838,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 172,
+      "skin_face_row": 8860,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 175,
+      "skin_face_row": 8860,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 176,
+      "skin_face_row": 8860,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 102,
+      "skin_face_row": 8877,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 109,
+      "skin_face_row": 8877,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 176,
+      "skin_face_row": 8877,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 187,
+      "skin_face_row": 8877,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 82,
+      "skin_face_row": 8878,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 8878,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 39,
+      "skin_face_row": 8916,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 40,
+      "skin_face_row": 8916,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 170,
+      "skin_face_row": 8930,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 175,
+      "skin_face_row": 8930,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 170,
+      "skin_face_row": 8950,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 175,
+      "skin_face_row": 8950,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 95,
+      "skin_face_row": 8972,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 97,
+      "skin_face_row": 8972,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 102,
+      "skin_face_row": 8972,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 95,
+      "skin_face_row": 8982,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 97,
+      "skin_face_row": 8982,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 61,
+      "bank_triangle_stable_id": 102,
+      "skin_face_row": 8982,
+      "stable_bone_id": 97
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 18604,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 18604,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 132,
+      "skin_face_row": 18620,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 18620,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 18621,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 18621,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 346,
+      "skin_face_row": 18780,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 18780,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 350,
+      "skin_face_row": 18780,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 346,
+      "skin_face_row": 18781,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 18781,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 350,
+      "skin_face_row": 18781,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 351,
+      "skin_face_row": 18781,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 346,
+      "skin_face_row": 18782,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 18782,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 350,
+      "skin_face_row": 18782,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 351,
+      "skin_face_row": 18782,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 346,
+      "skin_face_row": 18783,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 346,
+      "skin_face_row": 18791,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 18791,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 350,
+      "skin_face_row": 18791,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 351,
+      "skin_face_row": 18791,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 451,
+      "skin_face_row": 18793,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 18794,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 350,
+      "skin_face_row": 18794,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 351,
+      "skin_face_row": 18794,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 451,
+      "skin_face_row": 18794,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 346,
+      "skin_face_row": 18795,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 18795,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 350,
+      "skin_face_row": 18795,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 351,
+      "skin_face_row": 18795,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 346,
+      "skin_face_row": 18796,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 18796,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 350,
+      "skin_face_row": 18796,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 351,
+      "skin_face_row": 18796,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 457,
+      "skin_face_row": 18797,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 346,
+      "skin_face_row": 18803,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 18803,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 349,
+      "skin_face_row": 18803,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 350,
+      "skin_face_row": 18803,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 351,
+      "skin_face_row": 18803,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 354,
+      "skin_face_row": 18803,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 18847,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 135,
+      "skin_face_row": 18848,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 18967,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 353,
+      "skin_face_row": 19058,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 357,
+      "skin_face_row": 19058,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 367,
+      "skin_face_row": 19058,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 357,
+      "skin_face_row": 19060,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 357,
+      "skin_face_row": 19083,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 451,
+      "skin_face_row": 19111,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 453,
+      "skin_face_row": 19111,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 19145,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 348,
+      "skin_face_row": 19145,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 353,
+      "skin_face_row": 19145,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 366,
+      "skin_face_row": 19145,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 367,
+      "skin_face_row": 19145,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 348,
+      "skin_face_row": 19146,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 348,
+      "skin_face_row": 19147,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 132,
+      "skin_face_row": 19164,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 19164,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 19164,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 132,
+      "skin_face_row": 19165,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 19165,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 19165,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 132,
+      "skin_face_row": 19166,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 19166,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 19167,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 137,
+      "skin_face_row": 19167,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 19167,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 137,
+      "skin_face_row": 19168,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 19168,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 132,
+      "skin_face_row": 19170,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 137,
+      "skin_face_row": 19170,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 19170,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 132,
+      "skin_face_row": 19171,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 19171,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 19171,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 19171,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 19171,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 19174,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 137,
+      "skin_face_row": 19174,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 19174,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 132,
+      "skin_face_row": 19175,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 137,
+      "skin_face_row": 19175,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 19175,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 19220,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 224,
+      "skin_face_row": 19220,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 132,
+      "skin_face_row": 19232,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 19232,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 19232,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 137,
+      "skin_face_row": 19232,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 19232,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 139,
+      "skin_face_row": 19232,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 19232,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 132,
+      "skin_face_row": 19233,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 19233,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 19234,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 19235,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 132,
+      "skin_face_row": 19240,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 19240,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 19240,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 19240,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 137,
+      "skin_face_row": 19240,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 138,
+      "skin_face_row": 19240,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 139,
+      "skin_face_row": 19240,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 143,
+      "skin_face_row": 19240,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 19259,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 225,
+      "skin_face_row": 19260,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 276,
+      "skin_face_row": 19260,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 277,
+      "skin_face_row": 19260,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 282,
+      "skin_face_row": 19260,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 134,
+      "skin_face_row": 19311,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 132,
+      "skin_face_row": 19332,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 19332,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 19332,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 132,
+      "skin_face_row": 19358,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 19358,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 19358,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 132,
+      "skin_face_row": 19374,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 19374,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 19374,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 133,
+      "skin_face_row": 19375,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 19375,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 19920,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 19923,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 351,
+      "skin_face_row": 19923,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 19930,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 351,
+      "skin_face_row": 19930,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 350,
+      "skin_face_row": 19931,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 351,
+      "skin_face_row": 19931,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 19948,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 350,
+      "skin_face_row": 19948,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 351,
+      "skin_face_row": 19948,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 19949,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 19954,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 350,
+      "skin_face_row": 19954,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 351,
+      "skin_face_row": 19954,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 347,
+      "skin_face_row": 19955,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 64,
+      "bank_triangle_stable_id": 350,
+      "skin_face_row": 19955,
+      "stable_bone_id": 98
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 175,
+      "skin_face_row": 14491,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 101,
+      "skin_face_row": 14521,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 102,
+      "skin_face_row": 14521,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 101,
+      "skin_face_row": 14536,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 102,
+      "skin_face_row": 14536,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 104,
+      "skin_face_row": 14536,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 180,
+      "skin_face_row": 14692,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 183,
+      "skin_face_row": 14728,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 183,
+      "skin_face_row": 14764,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 183,
+      "skin_face_row": 14765,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 174,
+      "skin_face_row": 14843,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 174,
+      "skin_face_row": 14991,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 173,
+      "skin_face_row": 15109,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 175,
+      "skin_face_row": 15112,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 180,
+      "skin_face_row": 15112,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 174,
+      "skin_face_row": 15156,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 174,
+      "skin_face_row": 15157,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 175,
+      "skin_face_row": 15181,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 175,
+      "skin_face_row": 15237,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 175,
+      "skin_face_row": 15299,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 180,
+      "skin_face_row": 15299,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 174,
+      "skin_face_row": 15312,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 183,
+      "skin_face_row": 15366,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 183,
+      "skin_face_row": 15367,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 173,
+      "skin_face_row": 15384,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 174,
+      "skin_face_row": 15384,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 180,
+      "skin_face_row": 15401,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 180,
+      "skin_face_row": 15402,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 180,
+      "skin_face_row": 15403,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 180,
+      "skin_face_row": 15437,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 180,
+      "skin_face_row": 15438,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 296,
+      "skin_face_row": 15888,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 301,
+      "skin_face_row": 15891,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 15891,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 299,
+      "skin_face_row": 15892,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 301,
+      "skin_face_row": 15892,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 302,
+      "skin_face_row": 15892,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 15892,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 317,
+      "skin_face_row": 15892,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 300,
+      "skin_face_row": 15905,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 301,
+      "skin_face_row": 15905,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 15905,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 317,
+      "skin_face_row": 15905,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 315,
+      "skin_face_row": 15973,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 294,
+      "skin_face_row": 16069,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 300,
+      "skin_face_row": 16193,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 300,
+      "skin_face_row": 16238,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 183,
+      "skin_face_row": 16275,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 183,
+      "skin_face_row": 16276,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 174,
+      "skin_face_row": 16309,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 184,
+      "skin_face_row": 16386,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 314,
+      "skin_face_row": 16400,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 184,
+      "skin_face_row": 16411,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 306,
+      "skin_face_row": 16411,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 306,
+      "skin_face_row": 16412,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 306,
+      "skin_face_row": 16413,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 184,
+      "skin_face_row": 16482,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 299,
+      "skin_face_row": 16784,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 302,
+      "skin_face_row": 16784,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 299,
+      "skin_face_row": 16845,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 302,
+      "skin_face_row": 16845,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 296,
+      "skin_face_row": 16850,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 299,
+      "skin_face_row": 16850,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 302,
+      "skin_face_row": 16850,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 299,
+      "skin_face_row": 16915,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 65,
+      "bank_triangle_stable_id": 302,
+      "skin_face_row": 16915,
+      "stable_bone_id": 99
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 56,
+      "skin_face_row": 23718,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 58,
+      "skin_face_row": 23718,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 54,
+      "skin_face_row": 23719,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 57,
+      "skin_face_row": 23719,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 54,
+      "skin_face_row": 23727,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 57,
+      "skin_face_row": 23727,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 56,
+      "skin_face_row": 23780,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 56,
+      "skin_face_row": 23796,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 57,
+      "skin_face_row": 23796,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 56,
+      "skin_face_row": 23832,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 74,
+      "skin_face_row": 23947,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 77,
+      "skin_face_row": 23947,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 53,
+      "skin_face_row": 23948,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 73,
+      "skin_face_row": 23948,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 74,
+      "skin_face_row": 23948,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 77,
+      "skin_face_row": 23948,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 72,
+      "skin_face_row": 23949,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 72,
+      "skin_face_row": 23950,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 53,
+      "skin_face_row": 23995,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 123,
+      "skin_face_row": 24003,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 123,
+      "skin_face_row": 24004,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 56,
+      "skin_face_row": 24025,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 57,
+      "skin_face_row": 24025,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 58,
+      "skin_face_row": 24025,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 56,
+      "skin_face_row": 24028,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 57,
+      "skin_face_row": 24028,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 58,
+      "skin_face_row": 24028,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 74,
+      "skin_face_row": 24028,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 58,
+      "skin_face_row": 24033,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 74,
+      "skin_face_row": 24033,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 58,
+      "skin_face_row": 24034,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 74,
+      "skin_face_row": 24034,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 56,
+      "skin_face_row": 24035,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 57,
+      "skin_face_row": 24035,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 58,
+      "skin_face_row": 24035,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 74,
+      "skin_face_row": 24035,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 75,
+      "skin_face_row": 24035,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 76,
+      "skin_face_row": 24035,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 57,
+      "skin_face_row": 24105,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 54,
+      "skin_face_row": 24108,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 73,
+      "skin_face_row": 24967,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 72,
+      "skin_face_row": 24977,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 72,
+      "skin_face_row": 24978,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 123,
+      "skin_face_row": 25090,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 123,
+      "skin_face_row": 25091,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 123,
+      "skin_face_row": 25102,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 217,
+      "skin_face_row": 25117,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 218,
+      "skin_face_row": 25117,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 222,
+      "skin_face_row": 25117,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 223,
+      "skin_face_row": 25117,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 224,
+      "skin_face_row": 25117,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 227,
+      "skin_face_row": 25117,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 217,
+      "skin_face_row": 25170,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 218,
+      "skin_face_row": 25170,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 222,
+      "skin_face_row": 25170,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 223,
+      "skin_face_row": 25170,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 224,
+      "skin_face_row": 25170,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 227,
+      "skin_face_row": 25170,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 125,
+      "skin_face_row": 25173,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 126,
+      "skin_face_row": 25173,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 231,
+      "skin_face_row": 25173,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 125,
+      "skin_face_row": 25178,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 126,
+      "skin_face_row": 25178,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 231,
+      "skin_face_row": 25178,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 224,
+      "skin_face_row": 25220,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 74,
+      "bank_triangle_stable_id": 224,
+      "skin_face_row": 25256,
+      "stable_bone_id": 104
+    },
+    {
+      "bank_body": 96,
+      "bank_triangle_stable_id": 305,
+      "skin_face_row": 33850,
+      "stable_bone_id": 81
+    },
+    {
+      "bank_body": 96,
+      "bank_triangle_stable_id": 309,
+      "skin_face_row": 33850,
+      "stable_bone_id": 81
+    },
+    {
+      "bank_body": 96,
+      "bank_triangle_stable_id": 305,
+      "skin_face_row": 33855,
+      "stable_bone_id": 81
+    },
+    {
+      "bank_body": 96,
+      "bank_triangle_stable_id": 309,
+      "skin_face_row": 33855,
+      "stable_bone_id": 81
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 28,
+      "skin_face_row": 34029,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 29,
+      "skin_face_row": 34029,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 29,
+      "skin_face_row": 34032,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 89,
+      "skin_face_row": 34032,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 29,
+      "skin_face_row": 34033,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 28,
+      "skin_face_row": 34034,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 29,
+      "skin_face_row": 34034,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 23,
+      "skin_face_row": 34038,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 24,
+      "skin_face_row": 34038,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 27,
+      "skin_face_row": 34038,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 28,
+      "skin_face_row": 34038,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 89,
+      "skin_face_row": 34038,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 153,
+      "skin_face_row": 34038,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 202,
+      "skin_face_row": 34038,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 21,
+      "skin_face_row": 34045,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 22,
+      "skin_face_row": 34045,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 23,
+      "skin_face_row": 34045,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 24,
+      "skin_face_row": 34045,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 27,
+      "skin_face_row": 34045,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 28,
+      "skin_face_row": 34045,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 34045,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 89,
+      "skin_face_row": 34045,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 153,
+      "skin_face_row": 34045,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 202,
+      "skin_face_row": 34045,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 202,
+      "skin_face_row": 34065,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 21,
+      "skin_face_row": 34094,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 22,
+      "skin_face_row": 34094,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 21,
+      "skin_face_row": 34101,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 22,
+      "skin_face_row": 34101,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 33,
+      "skin_face_row": 34189,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 35,
+      "skin_face_row": 34189,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 33,
+      "skin_face_row": 34190,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 100,
+      "bank_triangle_stable_id": 35,
+      "skin_face_row": 34190,
+      "stable_bone_id": 85
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 36908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 36908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 36908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 36908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 112,
+      "skin_face_row": 36908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 36908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 116,
+      "skin_face_row": 36908,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 36925,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 36925,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 36925,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 36925,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 112,
+      "skin_face_row": 36925,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 36925,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 116,
+      "skin_face_row": 36925,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 36926,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 36926,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 36926,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 36926,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 36990,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 36991,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 37021,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 37021,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 37027,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 37027,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 37027,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 37028,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 37028,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 37028,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 91,
+      "skin_face_row": 37168,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 91,
+      "skin_face_row": 37169,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 37326,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 37341,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 37341,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 37344,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 37344,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 37417,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 37417,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 37417,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 37418,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 37418,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 37483,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 37483,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 37483,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 110,
+      "skin_face_row": 38586,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 110,
+      "skin_face_row": 38676,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 110,
+      "skin_face_row": 38677,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 110,
+      "skin_face_row": 38723,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 90,
+      "skin_face_row": 38763,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 110,
+      "skin_face_row": 38807,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 89,
+      "skin_face_row": 38838,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 89,
+      "skin_face_row": 38839,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 89,
+      "skin_face_row": 38840,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 90,
+      "skin_face_row": 38965,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 150,
+      "skin_face_row": 38965,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 90,
+      "skin_face_row": 39008,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 90,
+      "skin_face_row": 39009,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 150,
+      "skin_face_row": 39052,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 90,
+      "skin_face_row": 39110,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 90,
+      "skin_face_row": 39111,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 90,
+      "skin_face_row": 39112,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 150,
+      "skin_face_row": 39112,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 39260,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 112,
+      "skin_face_row": 39260,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 39260,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 116,
+      "skin_face_row": 39260,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 39273,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 39273,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 112,
+      "skin_face_row": 39273,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 39273,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 116,
+      "skin_face_row": 39273,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 91,
+      "skin_face_row": 39274,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 39274,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 39275,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 39282,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 112,
+      "skin_face_row": 39282,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 39282,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 116,
+      "skin_face_row": 39282,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 39283,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 39299,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 39299,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 39299,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 39299,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 39300,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 39300,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 39300,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 39300,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 39300,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 62,
+      "skin_face_row": 39301,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 39301,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 39301,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 39301,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 91,
+      "skin_face_row": 39302,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 39302,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 91,
+      "skin_face_row": 39303,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 39303,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 39312,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 88,
+      "skin_face_row": 39313,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 39313,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 39313,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 112,
+      "skin_face_row": 39313,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 39313,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 116,
+      "skin_face_row": 39313,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 39314,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 39314,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 39314,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 92,
+      "skin_face_row": 39321,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 39321,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 112,
+      "skin_face_row": 39321,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 115,
+      "skin_face_row": 39321,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 116,
+      "skin_face_row": 39321,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 254,
+      "skin_face_row": 39488,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 256,
+      "skin_face_row": 39488,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 254,
+      "skin_face_row": 39491,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 254,
+      "skin_face_row": 39496,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 256,
+      "skin_face_row": 39496,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 254,
+      "skin_face_row": 39507,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 256,
+      "skin_face_row": 39507,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 189,
+      "skin_face_row": 39545,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 190,
+      "skin_face_row": 39557,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 191,
+      "skin_face_row": 39608,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 189,
+      "skin_face_row": 39611,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 183,
+      "skin_face_row": 39613,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 251,
+      "skin_face_row": 39613,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 252,
+      "skin_face_row": 39613,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 254,
+      "skin_face_row": 39634,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 255,
+      "skin_face_row": 39634,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 256,
+      "skin_face_row": 39634,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 255,
+      "skin_face_row": 39635,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 256,
+      "skin_face_row": 39635,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 255,
+      "skin_face_row": 39636,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 254,
+      "skin_face_row": 39640,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 255,
+      "skin_face_row": 39640,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 256,
+      "skin_face_row": 39640,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 254,
+      "skin_face_row": 39641,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 255,
+      "skin_face_row": 39641,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 256,
+      "skin_face_row": 39641,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 254,
+      "skin_face_row": 39708,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 254,
+      "skin_face_row": 39709,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 110,
+      "skin_face_row": 39980,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 110,
+      "skin_face_row": 40007,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 139,
+      "skin_face_row": 40050,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 257,
+      "skin_face_row": 40216,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 302,
+      "skin_face_row": 40216,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 304,
+      "skin_face_row": 40216,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 305,
+      "skin_face_row": 40216,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 331,
+      "skin_face_row": 40216,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 191,
+      "skin_face_row": 40237,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 183,
+      "skin_face_row": 40260,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 189,
+      "skin_face_row": 40260,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 252,
+      "skin_face_row": 40305,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 109,
+      "bank_triangle_stable_id": 190,
+      "skin_face_row": 40429,
+      "stable_bone_id": 114
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 181,
+      "skin_face_row": 45199,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 182,
+      "skin_face_row": 45199,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 259,
+      "skin_face_row": 46068,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 264,
+      "skin_face_row": 46068,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 328,
+      "skin_face_row": 46068,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 259,
+      "skin_face_row": 46102,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 259,
+      "skin_face_row": 46105,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 328,
+      "skin_face_row": 46105,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 268,
+      "skin_face_row": 46164,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 282,
+      "skin_face_row": 46164,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 144,
+      "skin_face_row": 46185,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 144,
+      "skin_face_row": 46186,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 267,
+      "skin_face_row": 46186,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 175,
+      "skin_face_row": 46250,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 175,
+      "skin_face_row": 46284,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 259,
+      "skin_face_row": 46284,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 175,
+      "skin_face_row": 46285,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 177,
+      "skin_face_row": 46363,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 177,
+      "skin_face_row": 46368,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 142,
+      "skin_face_row": 46478,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 177,
+      "skin_face_row": 46478,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 181,
+      "skin_face_row": 46478,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 182,
+      "skin_face_row": 46478,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 184,
+      "skin_face_row": 46478,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 142,
+      "skin_face_row": 46479,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 177,
+      "skin_face_row": 46479,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 181,
+      "skin_face_row": 46479,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 182,
+      "skin_face_row": 46479,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 184,
+      "skin_face_row": 46479,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 142,
+      "skin_face_row": 46486,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 177,
+      "skin_face_row": 46486,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 181,
+      "skin_face_row": 46486,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 182,
+      "skin_face_row": 46486,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 184,
+      "skin_face_row": 46486,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 374,
+      "skin_face_row": 47128,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 375,
+      "skin_face_row": 47128,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 379,
+      "skin_face_row": 47128,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 374,
+      "skin_face_row": 47137,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 375,
+      "skin_face_row": 47137,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 379,
+      "skin_face_row": 47137,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 373,
+      "skin_face_row": 47220,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 329,
+      "skin_face_row": 47337,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 329,
+      "skin_face_row": 47360,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 329,
+      "skin_face_row": 47361,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 373,
+      "skin_face_row": 47424,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 373,
+      "skin_face_row": 47425,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 374,
+      "skin_face_row": 47425,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 375,
+      "skin_face_row": 47425,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 377,
+      "skin_face_row": 47425,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 378,
+      "skin_face_row": 47425,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 379,
+      "skin_face_row": 47425,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 391,
+      "skin_face_row": 47425,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 373,
+      "skin_face_row": 47505,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 374,
+      "skin_face_row": 47505,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 375,
+      "skin_face_row": 47505,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 377,
+      "skin_face_row": 47505,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 378,
+      "skin_face_row": 47505,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 379,
+      "skin_face_row": 47505,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 391,
+      "skin_face_row": 47505,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 335,
+      "skin_face_row": 47519,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 375,
+      "skin_face_row": 47519,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 377,
+      "skin_face_row": 47519,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 378,
+      "skin_face_row": 47519,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 379,
+      "skin_face_row": 47519,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 391,
+      "skin_face_row": 47519,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 377,
+      "skin_face_row": 47521,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 378,
+      "skin_face_row": 47521,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 379,
+      "skin_face_row": 47521,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 373,
+      "skin_face_row": 47522,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 374,
+      "skin_face_row": 47522,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 375,
+      "skin_face_row": 47522,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 377,
+      "skin_face_row": 47522,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 378,
+      "skin_face_row": 47522,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 379,
+      "skin_face_row": 47522,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 391,
+      "skin_face_row": 47522,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 373,
+      "skin_face_row": 47627,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 374,
+      "skin_face_row": 47627,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 375,
+      "skin_face_row": 47627,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 379,
+      "skin_face_row": 47627,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 391,
+      "skin_face_row": 47627,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 373,
+      "skin_face_row": 47634,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 374,
+      "skin_face_row": 47634,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 375,
+      "skin_face_row": 47634,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 329,
+      "skin_face_row": 47655,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 373,
+      "skin_face_row": 47655,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 374,
+      "skin_face_row": 47655,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 375,
+      "skin_face_row": 47655,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 380,
+      "skin_face_row": 47655,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 388,
+      "skin_face_row": 47655,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 335,
+      "skin_face_row": 47662,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 373,
+      "skin_face_row": 47662,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 374,
+      "skin_face_row": 47662,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 375,
+      "skin_face_row": 47662,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 379,
+      "skin_face_row": 47662,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 380,
+      "skin_face_row": 47662,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 388,
+      "skin_face_row": 47662,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 114,
+      "bank_triangle_stable_id": 391,
+      "skin_face_row": 47662,
+      "stable_bone_id": 117
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 80,
+      "skin_face_row": 32903,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 80,
+      "skin_face_row": 32924,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 107,
+      "skin_face_row": 32924,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 82,
+      "skin_face_row": 33046,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 122,
+      "skin_face_row": 33046,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 82,
+      "skin_face_row": 33049,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 33049,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 124,
+      "skin_face_row": 33049,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 82,
+      "skin_face_row": 33073,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 122,
+      "skin_face_row": 33073,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 82,
+      "skin_face_row": 33074,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 111,
+      "skin_face_row": 33074,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 124,
+      "skin_face_row": 33074,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 215,
+      "skin_face_row": 33265,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 215,
+      "skin_face_row": 33318,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 284,
+      "skin_face_row": 34921,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 107,
+      "skin_face_row": 35008,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 286,
+      "skin_face_row": 35067,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 285,
+      "skin_face_row": 35081,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 285,
+      "skin_face_row": 35143,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 285,
+      "skin_face_row": 35160,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 285,
+      "skin_face_row": 35161,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35202,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 284,
+      "skin_face_row": 35279,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 35279,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35279,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 284,
+      "skin_face_row": 35280,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 35280,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35280,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 280,
+      "skin_face_row": 35471,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 35471,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35471,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35471,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 281,
+      "skin_face_row": 35472,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 284,
+      "skin_face_row": 35472,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 35472,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35472,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 281,
+      "skin_face_row": 35499,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35537,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 280,
+      "skin_face_row": 35538,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35538,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35538,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 35539,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35539,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 35541,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35541,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 283,
+      "skin_face_row": 35542,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35542,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 35543,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35543,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 35547,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35547,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 280,
+      "skin_face_row": 35561,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 281,
+      "skin_face_row": 35561,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 284,
+      "skin_face_row": 35561,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 35561,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35561,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35561,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 280,
+      "skin_face_row": 35563,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 281,
+      "skin_face_row": 35563,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35563,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35563,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 280,
+      "skin_face_row": 35564,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 281,
+      "skin_face_row": 35564,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35564,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35564,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 284,
+      "skin_face_row": 35565,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 35565,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35565,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 284,
+      "skin_face_row": 35566,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 307,
+      "skin_face_row": 35566,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35566,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35612,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35612,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35612,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35612,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 284,
+      "skin_face_row": 35625,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35625,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35632,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35632,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35632,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35632,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35632,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35645,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35645,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35645,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35646,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35646,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35647,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35650,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35650,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35651,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35651,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35651,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35654,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 285,
+      "skin_face_row": 35655,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 321,
+      "skin_face_row": 35655,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35655,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35655,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35655,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 285,
+      "skin_face_row": 35669,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35670,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35670,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35670,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35671,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35671,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35671,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35673,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35674,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35674,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35675,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35675,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 280,
+      "skin_face_row": 35684,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 281,
+      "skin_face_row": 35684,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35684,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35684,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 280,
+      "skin_face_row": 35685,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 280,
+      "skin_face_row": 35688,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 281,
+      "skin_face_row": 35688,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35688,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35688,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35699,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 280,
+      "skin_face_row": 35701,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 281,
+      "skin_face_row": 35701,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35701,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35701,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35702,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 280,
+      "skin_face_row": 35708,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 281,
+      "skin_face_row": 35708,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35708,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35708,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 280,
+      "skin_face_row": 35709,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 281,
+      "skin_face_row": 35709,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35709,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35709,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35728,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35728,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35730,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35730,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35731,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35731,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35733,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35733,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35743,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35746,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35746,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35746,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35766,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35766,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35766,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35781,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35784,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35784,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35785,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35786,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35791,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35791,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 280,
+      "skin_face_row": 35792,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 281,
+      "skin_face_row": 35792,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 308,
+      "skin_face_row": 35792,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35792,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35792,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35792,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 327,
+      "skin_face_row": 35792,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35806,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35806,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 326,
+      "skin_face_row": 35851,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35879,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35879,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 324,
+      "skin_face_row": 35886,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 115,
+      "bank_triangle_stable_id": 325,
+      "skin_face_row": 35886,
+      "stable_bone_id": 118
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 30,
+      "skin_face_row": 29268,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 32,
+      "skin_face_row": 29268,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 34,
+      "skin_face_row": 29268,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 35,
+      "skin_face_row": 29268,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 30,
+      "skin_face_row": 29274,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 32,
+      "skin_face_row": 29274,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 34,
+      "skin_face_row": 29274,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 35,
+      "skin_face_row": 29274,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 30,
+      "skin_face_row": 29462,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 49,
+      "skin_face_row": 29462,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 49,
+      "skin_face_row": 29463,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 107,
+      "skin_face_row": 29468,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 108,
+      "skin_face_row": 29468,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 49,
+      "skin_face_row": 29604,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 50,
+      "skin_face_row": 29604,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 49,
+      "skin_face_row": 29605,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 207,
+      "skin_face_row": 29651,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 29651,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 210,
+      "skin_face_row": 29651,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 106,
+      "skin_face_row": 29670,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 106,
+      "skin_face_row": 29671,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 29671,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 105,
+      "skin_face_row": 29734,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 106,
+      "skin_face_row": 29734,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 136,
+      "skin_face_row": 29734,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 208,
+      "skin_face_row": 29734,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 104,
+      "skin_face_row": 29785,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 105,
+      "skin_face_row": 29785,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 104,
+      "skin_face_row": 29786,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 105,
+      "skin_face_row": 29786,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 50,
+      "skin_face_row": 29799,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 107,
+      "skin_face_row": 29836,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 107,
+      "skin_face_row": 29837,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 50,
+      "skin_face_row": 29885,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 207,
+      "skin_face_row": 29915,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 29915,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 211,
+      "skin_face_row": 29918,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 211,
+      "skin_face_row": 29919,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 210,
+      "skin_face_row": 29920,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 207,
+      "skin_face_row": 29921,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 208,
+      "skin_face_row": 29921,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 29921,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 210,
+      "skin_face_row": 29925,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 212,
+      "skin_face_row": 29932,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 29933,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 212,
+      "skin_face_row": 29933,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 29934,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 212,
+      "skin_face_row": 29934,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 207,
+      "skin_face_row": 29944,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 29944,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 207,
+      "skin_face_row": 29945,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 29945,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 29979,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 210,
+      "skin_face_row": 29979,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 211,
+      "skin_face_row": 29979,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 212,
+      "skin_face_row": 29979,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 207,
+      "skin_face_row": 29980,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 208,
+      "skin_face_row": 29980,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 29980,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 210,
+      "skin_face_row": 29990,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 212,
+      "skin_face_row": 29990,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 207,
+      "skin_face_row": 29991,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 208,
+      "skin_face_row": 29991,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 29991,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 210,
+      "skin_face_row": 29992,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 212,
+      "skin_face_row": 29992,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 212,
+      "skin_face_row": 29994,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 210,
+      "skin_face_row": 29998,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 211,
+      "skin_face_row": 29998,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 212,
+      "skin_face_row": 29998,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 30011,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 210,
+      "skin_face_row": 30011,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 211,
+      "skin_face_row": 30011,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 212,
+      "skin_face_row": 30011,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 31,
+      "skin_face_row": 30127,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 32,
+      "skin_face_row": 30127,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 34,
+      "skin_face_row": 30127,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 35,
+      "skin_face_row": 30127,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 31,
+      "skin_face_row": 30141,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 32,
+      "skin_face_row": 30141,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 34,
+      "skin_face_row": 30141,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 35,
+      "skin_face_row": 30141,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 108,
+      "skin_face_row": 30345,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 30,
+      "skin_face_row": 30505,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 30,
+      "skin_face_row": 30526,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 30,
+      "skin_face_row": 30605,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 207,
+      "skin_face_row": 30647,
+      "stable_bone_id": 123
+    },
+    {
+      "bank_body": 124,
+      "bank_triangle_stable_id": 209,
+      "skin_face_row": 30647,
+      "stable_bone_id": 123
+    }
+  ]
+}
