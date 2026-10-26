@@ -1,0 +1,320 @@
+{
+  "all_185_bank_membership": "Both affected anchor query rows have inside_banks=0 and ambiguous_banks=0. Node 30 has 184 AABB-proven outside banks plus one exact parity-outside bank (body 53, stable bone 93); node 194 is AABB-proven outside all 185. Therefore both are outside the closed volumes, including implicated body52/bone88 (AABB excluded for both).",
+  "anchor_rows_affected": [
+    30,
+    194
+  ],
+  "anchored_positive_corner_count": 10,
+  "audit130_summary_sha256": "bd2877c7dfe51dcaebc7e38b1c9c14038f4d4c05f119388cd504b91e194b717e",
+  "audit159_sha256": "e2a83c363f05ddbcbdf063a160be8669989f1f1d4706e093078ba297f34f91a3",
+  "candidate_sha256": "aef14b798367c7a8e76aeb605942453022eefe68670019044d59b9a58f3444a1",
+  "classification": "diagnostic only; no fit, no accepted physical steps",
+  "complete_surface_audit": true,
+  "conclusion": "458's per-pair infinite bone-face halfspace deficits are positive at two fixed vertices of source face 146, even though query130 certifies both vertices outside every closed bone bank. This is a local supporting-plane sign conflict, not evidence those anchors are embedded inside the bone. The proposed bound is overconservative for this pair; it cannot be solved while anchors remain fixed. Preserve anchors, replace the conflicting row target with an anchor-compatible SAT separating axis only if a finite-triangle separation certificate exists for the moved face, otherwise locally split/retriangulate source face 146 around its crossing while keeping nodes 30 and 194 fixed, then regenerate exact targets and all audits.",
+  "face": {
+    "anchor_source_ids": {
+      "194": 198,
+      "30": 30
+    },
+    "face_kind": 0,
+    "immediate_parent_barycentric": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "immediate_parent_face_row": 146,
+    "nodes": [
+      172,
+      30,
+      194
+    ],
+    "parent_coarse_face_row": 89,
+    "parent_source_face_marker": 89,
+    "row": 146,
+    "source_ancestry_rows": [
+      89
+    ]
+  },
+  "query_counts": {
+    "detail_pair_rows": [
+      {
+        "ambiguous": "0",
+        "bank_body": "53",
+        "bank_stable_id": "93",
+        "classification": "outside",
+        "closest_x": "0.00075078471020570674",
+        "closest_y": "-0.00045240884769519421",
+        "closest_z": "0.0048461980965039857",
+        "inside_rays": "0",
+        "nearest_bone": "93",
+        "nearest_distance_m": "0.0082930263322626395",
+        "nearest_triangle": "117",
+        "outside_rays": "3",
+        "query_local_x": "0.0062981024728095743",
+        "query_local_y": "-0.00085680512800266975",
+        "query_local_z": "0.010997459352277035",
+        "query_row": "30",
+        "signed_face_distance_m": "0.0082915720214797144"
+      }
+    ],
+    "nodes": {
+      "194": {
+        "aabb_proven_outside_banks": "185",
+        "ambiguous_banks": "0",
+        "inside_banks": "0",
+        "invalid_banks": "0",
+        "parity_outside_banks": "0",
+        "parity_query_banks": "0",
+        "query_row": "194",
+        "total_bone_banks": "185"
+      },
+      "30": {
+        "aabb_proven_outside_banks": "184",
+        "ambiguous_banks": "0",
+        "inside_banks": "0",
+        "invalid_banks": "0",
+        "parity_outside_banks": "1",
+        "parity_query_banks": "1",
+        "query_row": "30",
+        "total_bone_banks": "185"
+      }
+    }
+  },
+  "query_nodes_csv_sha256": "0295d7cf6a982c0b3e0ef52d4f2ebf333f64ce3d84f2596fadecec32ec1dce94",
+  "query_pairs_csv_sha256": "5ce279acf942cf21f7ebf30008cb4338dd3b89c878fb2641d3de8eda1d2a08c4",
+  "schema": "numi.human.area-blocker-506-anchored-plane-diagnosis.v1",
+  "witnesses": [
+    {
+      "body": 52,
+      "bone_id": 88,
+      "corner_index": 1,
+      "face_row": 146,
+      "float32_ulp_margin_mm": 0.00012145000433644948,
+      "lower_mm": 2.142589203194396,
+      "node_row": 30,
+      "normal_world_unit": [
+        0.8250723973560694,
+        0.5496114820767187,
+        0.13108301907776274
+      ],
+      "pair_index": 373,
+      "plane_point_mm": [
+        -260.5687810901469,
+        -912.9117060900312,
+        159.6041516694137
+      ],
+      "signed_distance_mm": -2.1424677531900596,
+      "triangle_id": 376
+    },
+    {
+      "body": 52,
+      "bone_id": 88,
+      "corner_index": 2,
+      "face_row": 146,
+      "float32_ulp_margin_mm": 0.00012145000433644948,
+      "lower_mm": 4.935789735297931,
+      "node_row": 194,
+      "normal_world_unit": [
+        0.8250723973560694,
+        0.5496114820767187,
+        0.13108301907776274
+      ],
+      "pair_index": 373,
+      "plane_point_mm": [
+        -260.5687810901469,
+        -912.9117060900312,
+        159.6041516694137
+      ],
+      "signed_distance_mm": -4.935668285293595,
+      "triangle_id": 376
+    },
+    {
+      "body": 52,
+      "bone_id": 88,
+      "corner_index": 1,
+      "face_row": 146,
+      "float32_ulp_margin_mm": 0.00013957468661071935,
+      "lower_mm": 9.169514564305963,
+      "node_row": 30,
+      "normal_world_unit": [
+        0.4627033077090485,
+        0.8450839267926388,
+        0.2678410082713992
+      ],
+      "pair_index": 374,
+      "plane_point_mm": [
+        -260.5687810901469,
+        -912.9117060900312,
+        159.6041516694137
+      ],
+      "signed_distance_mm": -9.169374989619353,
+      "triangle_id": 378
+    },
+    {
+      "body": 52,
+      "bone_id": 88,
+      "corner_index": 1,
+      "face_row": 146,
+      "float32_ulp_margin_mm": 0.00011865171724241504,
+      "lower_mm": 8.47107308790354,
+      "node_row": 30,
+      "normal_world_unit": [
+        -0.009110391362534682,
+        0.826853942057844,
+        0.5623429196430101
+      ],
+      "pair_index": 375,
+      "plane_point_mm": [
+        -261.6470329089625,
+        -911.7957373773861,
+        157.94579269885423
+      ],
+      "signed_distance_mm": -8.470954436186297,
+      "triangle_id": 395
+    },
+    {
+      "body": 52,
+      "bone_id": 88,
+      "corner_index": 2,
+      "face_row": 146,
+      "float32_ulp_margin_mm": 9.783642022168578e-05,
+      "lower_mm": 2.550347256351483,
+      "node_row": 194,
+      "normal_world_unit": [
+        0.535475703466769,
+        0.340523610207185,
+        0.7728579700619215
+      ],
+      "pair_index": 376,
+      "plane_point_mm": [
+        -262.99087092281263,
+        -914.9519248827386,
+        162.1812266341088
+      ],
+      "signed_distance_mm": -2.5502494199312613,
+      "triangle_id": 396
+    },
+    {
+      "body": 52,
+      "bone_id": 88,
+      "corner_index": 1,
+      "face_row": 146,
+      "float32_ulp_margin_mm": 0.00013026288261477244,
+      "lower_mm": 11.466845297455851,
+      "node_row": 30,
+      "normal_world_unit": [
+        -0.1899376840467645,
+        0.8487823863021017,
+        0.49344922421892734
+      ],
+      "pair_index": 377,
+      "plane_point_mm": [
+        -262.99087092281263,
+        -914.9519248827386,
+        162.1812266341088
+      ],
+      "signed_distance_mm": -11.466715034573236,
+      "triangle_id": 397
+    },
+    {
+      "body": 52,
+      "bone_id": 88,
+      "corner_index": 1,
+      "face_row": 146,
+      "float32_ulp_margin_mm": 0.00011734588341282956,
+      "lower_mm": 6.234987091015655,
+      "node_row": 30,
+      "normal_world_unit": [
+        -0.09978253658770915,
+        0.7471157965642894,
+        0.6571616482390233
+      ],
+      "pair_index": 378,
+      "plane_point_mm": [
+        -260.5687810901469,
+        -912.9117060900312,
+        159.6041516694137
+      ],
+      "signed_distance_mm": -6.234869745132242,
+      "triangle_id": 398
+    },
+    {
+      "body": 52,
+      "bone_id": 88,
+      "corner_index": 2,
+      "face_row": 146,
+      "float32_ulp_margin_mm": 0.00010125673720922046,
+      "lower_mm": 7.321944389917394,
+      "node_row": 194,
+      "normal_world_unit": [
+        0.8635012060634809,
+        0.295581313827542,
+        0.4086530974346065
+      ],
+      "pair_index": 379,
+      "plane_point_mm": [
+        -260.5687810901469,
+        -912.9117060900312,
+        159.6041516694137
+      ],
+      "signed_distance_mm": -7.3218431331801845,
+      "triangle_id": 400
+    },
+    {
+      "body": 52,
+      "bone_id": 88,
+      "corner_index": 2,
+      "face_row": 146,
+      "float32_ulp_margin_mm": 9.354027577374144e-05,
+      "lower_mm": 5.430372286168887,
+      "node_row": 194,
+      "normal_world_unit": [
+        0.6979628057666657,
+        0.24948247715569227,
+        0.6712722363978589
+      ],
+      "pair_index": 380,
+      "plane_point_mm": [
+        -260.5687810901469,
+        -912.9117060900312,
+        159.6041516694137
+      ],
+      "signed_distance_mm": -5.430278745893113,
+      "triangle_id": 401
+    },
+    {
+      "body": 52,
+      "bone_id": 88,
+      "corner_index": 2,
+      "face_row": 146,
+      "float32_ulp_margin_mm": 0.00010666017163150482,
+      "lower_mm": 7.0551216848464815,
+      "node_row": 194,
+      "normal_world_unit": [
+        0.8762567519342005,
+        0.3538750365551202,
+        0.32702685393226866
+      ],
+      "pair_index": 381,
+      "plane_point_mm": [
+        -258.3877044595724,
+        -916.3549583336443,
+        157.48597054110425
+      ],
+      "signed_distance_mm": -7.05501502467485,
+      "triangle_id": 402
+    }
+  ]
+}

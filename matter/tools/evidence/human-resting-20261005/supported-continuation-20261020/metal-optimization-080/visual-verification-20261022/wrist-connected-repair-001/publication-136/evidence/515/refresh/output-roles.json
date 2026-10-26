@@ -1,0 +1,30 @@
+{
+  "from_preparation_report": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/connected-continuation-prep491/run-001/preparation-report.json",
+  "roles": {
+    "point_targets_npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/connected-continuation-prep491/run-001/point-targets-390/nearest-union-exits.npz",
+      "sha256": "de709c8eea102f120fb64ef3981e5cb7cafa4cb40b7e227bb4da62a5c9f9d797"
+    },
+    "point_targets_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/connected-continuation-prep491/run-001/point-targets-390/nearest-union-exits.json",
+      "sha256": "3982c51038dd8c8cdad54d414d8ab72d892305b6806adceb33b88483e09b5129"
+    },
+    "self_seed_pairs": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/connected-continuation-prep491/run-001/self-seeds/merged-self-pair-seeds.npy",
+      "sha256": "ba52f6b5caf18a276f3bfda6b34fd38a14a8413d619bcb4709319200a3464aa8"
+    },
+    "self_seed_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/connected-continuation-prep491/run-001/self-seeds/report.json",
+      "sha256": "d8efc009be3c6e664722ca1385c091aaad9dd56b6aa9b5ec9bc0ab4509c6fa7b"
+    },
+    "surface_targets_npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/connected-continuation-prep491/run-001/surface-targets-335/targets.npz",
+      "sha256": "50d7e7cf7f1651d18f7dd69948bda693e2c7754019cb156de635365f089d2ebc"
+    },
+    "surface_targets_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/connected-continuation-prep491/run-001/surface-targets-335/report.json",
+      "sha256": "f08f67e8f11cd799c6a5230940b4eab012254ae015a061f1e24d11572706ed6b"
+    }
+  },
+  "schema": "numi.refresh491.output-roles.v1"
+}

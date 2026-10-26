@@ -1,0 +1,32 @@
+waiting_for_human_geometry_slot pid=39463
+acquired_human_geometry_slot pid=39463
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/D/area-blocker-zero-bounds-505/run_matched_fit_505.py", line 133, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/D/area-blocker-zero-bounds-505/run_matched_fit_505.py", line 106, in main
+    entry.main()
+    ~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-490/run_matched_component_fit_490.py", line 204, in main
+    runner.main()
+    ~~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-485/run_matched_component_fit_485.py", line 96, in main
+    w.main()
+    ~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/run_grouped_fit_458.py", line 400, in main
+    owner.main()
+    ~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py", line 3352, in main
+    result = run(args)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py", line 2407, in run
+    clearance_C, clearance_h, clearance_weights, clearance_metadata = build_clearance_rows(
+                                                                      ~~~~~~~~~~~~~~~~~~~~^
+        points_mm, faces, support, local_anchors, point_targets, face_targets, bary_owner
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/run_grouped_fit_458.py", line 263, in replacement
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: current exact bone-plane targets include 10 positive anchored corner lower bounds

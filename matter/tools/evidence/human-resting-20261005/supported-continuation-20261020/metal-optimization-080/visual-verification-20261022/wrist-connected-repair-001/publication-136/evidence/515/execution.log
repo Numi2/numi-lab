@@ -1,0 +1,20 @@
+{
+  "commands": {
+    "depth": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/depth-argv.json",
+    "guards": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/guards-argv.json",
+    "prep": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/prep-argv.json"
+  },
+  "execute_requested": true,
+  "failed_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/failed-trials.json",
+  "failed_trials_excluded": 13,
+  "failed_trials_included": 16,
+  "outputs": {
+    "connected_prep": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/connected-continuation-prep491/run-001",
+    "fixed_bone_guards": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/fixed-bone-guard-refresh491/run-001",
+    "point_depth": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/point-depth-refresh491/run-001"
+  },
+  "role_note": "After prep, roles are read from preparation-report.json; no global path substitution.",
+  "schema": "numi.refresh491.plan.v1",
+  "source_pins": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/source-pins.json",
+  "status": "PLAN_READY"
+}

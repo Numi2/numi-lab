@@ -1,0 +1,46 @@
+{
+  "candidate_sha256": "aef14b798367c7a8e76aeb605942453022eefe68670019044d59b9a58f3444a1",
+  "candidate_triangle_count": 121,
+  "claim": "Finite segment-versus-triangle plane crossing and coplanar narrowphase evaluated for every emitted bone triangle whose world AABB overlaps the fixed segment AABB. No whole-mesh or point parity audit was run.",
+  "edge_length_mm": 38.06350750884071,
+  "edge_node_rows": [
+    30,
+    194
+  ],
+  "edge_source_ids": [
+    30,
+    198
+  ],
+  "endpoint_world_m": {
+    "194": [
+      -0.2726198732852936,
+      -0.9040769934654236,
+      0.16076140105724335
+    ],
+    "30": [
+      -0.2520662248134613,
+      -0.933090329170227,
+      0.17434832453727722
+    ]
+  },
+  "exact_segment_triangle_intersections": [],
+  "incident_source_O_face_rows": [
+    128,
+    146
+  ],
+  "parallel_candidates": [],
+  "parallel_or_coplanar_candidate_count": 0,
+  "schema": "numi.human.anchor-edge-segment-506.v1",
+  "segment_aabb_candidate_banks": [
+    {
+      "body": 52,
+      "bone_id": 88,
+      "triangle_count": 64
+    },
+    {
+      "body": 53,
+      "bone_id": 93,
+      "triangle_count": 57
+    }
+  ]
+}

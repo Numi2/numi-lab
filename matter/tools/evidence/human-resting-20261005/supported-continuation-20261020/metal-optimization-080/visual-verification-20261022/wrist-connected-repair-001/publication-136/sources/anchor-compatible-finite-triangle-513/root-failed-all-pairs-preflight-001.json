@@ -1,0 +1,10 @@
+{
+  "status": "FAILED_BEFORE_FIT",
+  "returncode": 1,
+  "exception": "KeyError: anchor_compatible_axis_count",
+  "failure_location": "build_anchor_compatible_rows metadata for unanchored selected pairs",
+  "script_sha256": "74ac27ad2f03de8079177f49d3e463f07b1fb2fdb1cc6df3162a52ef2a47f77a",
+  "helper_sha256": "4e4592c99289bfef015c583787a4c59ca91d5498cd7adbb595aeb2f1122b9891",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

@@ -1,0 +1,23 @@
+{
+  "status": "FAILED_CLOSED_BEFORE_FIT",
+  "witness": [
+    146,
+    52,
+    88,
+    376
+  ],
+  "reason": "No outward-hemisphere SAT axis compatible with every anchored corner",
+  "root_command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/anchor-feasible-sat-508/preflight_matched_rows_508.py"
+  ],
+  "returncode": 1,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "source_pins": {
+    "preflight_matched_rows_508.py": "ad11e35315d1394119c54ff1baae0d946d2cee03908459c3a4ec6eaa67a14a30",
+    "anchor_feasible_sat_508.py": "0e70ddd65776fb16c41fef74758b73186de022b161d1c9426eccb954e39c6869",
+    "run_anchor_sat_508.py": "df874f8ab70b9ec6674aa38c6c96a505d80c0961716be9f895d66d0ca095324d",
+    "test_anchor_feasible_sat_508.py": "51242b149bba9c0e9960ebf3309a106b6f403cf2130128465ae9263dc3e976ab"
+  }
+}

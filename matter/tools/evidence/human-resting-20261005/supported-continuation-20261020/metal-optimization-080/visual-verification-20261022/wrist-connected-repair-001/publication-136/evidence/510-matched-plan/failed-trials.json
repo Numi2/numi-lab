@@ -1,0 +1,162 @@
+{
+  "excluded": [
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/component-backtrack-479/run-001/backtrack-373/pass-006/audit-130/summary.json",
+      "reason": "zero exact self pairs"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/soft-target-backtrack-482/run-002/backtrack-373/pass-007/audit-130/summary.json",
+      "reason": "zero exact self pairs"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/soft-target-backtrack-482/run-002/backtrack-373/pass-010/audit-130/summary.json",
+      "reason": "zero exact self pairs"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-backtrack-487/run-001/backtrack-373/pass-006/audit-130/summary.json",
+      "reason": "zero exact self pairs"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-001/check/backtrack-373/pass-009/audit-130/summary.json",
+      "reason": "zero exact self pairs"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-001/check/backtrack-373/pass-010/audit-130/summary.json",
+      "reason": "zero exact self pairs"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-006/audit-130/summary.json",
+      "reason": "zero exact self pairs"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-012/audit-130/summary.json",
+      "reason": "zero exact self pairs"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-013/audit-130/summary.json",
+      "reason": "zero exact self pairs"
+    }
+  ],
+  "trials": [
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/component-backtrack-479/run-001/backtrack-373/pass-001/audit-130/summary.json",
+      "audit130_sha256": "4d0d899663f9fa5abe0f7ba576c55e71420d7defd836035c4a9d787001c67754",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/component-backtrack-479/run-001/backtrack-373/pass-001/candidate.npz",
+      "candidate_sha256": "b01df6a7abaa3d761a25c850cd6b7b8793cd5385499d8793d13a5eb2d30f2aec",
+      "exact_self_pair_count": 125,
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/component-backtrack-479/run-001/backtrack-373/pass-001/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "276586b1be103b2871eaf4d0ad417b91f015d78c559000441e147331211d410e",
+      "source_backtrack_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/component-backtrack-479/run-001/backtrack-373"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/component-backtrack-479/run-001/backtrack-373/pass-003/audit-130/summary.json",
+      "audit130_sha256": "3a3d47282b0b58133e35264ef293bab7f68e6fe41160d7d60df4fd92bef0d5a0",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/component-backtrack-479/run-001/backtrack-373/pass-003/candidate.npz",
+      "candidate_sha256": "8dd151a0aa6c87986d4b248de888885f579e60fae9cdba28ce46af3b12e77417",
+      "exact_self_pair_count": 6,
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/component-backtrack-479/run-001/backtrack-373/pass-003/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "f25189fecfbef78a8e07e8d7a1bb47354cf66830b221c98eaf59305dfabc9ba9",
+      "source_backtrack_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/component-backtrack-479/run-001/backtrack-373"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/component-backtrack-479/run-001/backtrack-373/pass-005/audit-130/summary.json",
+      "audit130_sha256": "6aa7ef43fd9968c5aa91ee76863a08b475dfc746f6f2489e6b02e6d394aba124",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/component-backtrack-479/run-001/backtrack-373/pass-005/candidate.npz",
+      "candidate_sha256": "6b5fc10a0e1a4ed630b30a76fea89e18844db0d11a8a2ce0368421377ff54ea3",
+      "exact_self_pair_count": 5,
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/component-backtrack-479/run-001/backtrack-373/pass-005/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "008e13bcf1690a021adb75d122f877b5546da9d308c5cf8b6b47fbb094d51b2e",
+      "source_backtrack_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/component-backtrack-479/run-001/backtrack-373"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/soft-target-backtrack-482/run-002/backtrack-373/pass-001/audit-130/summary.json",
+      "audit130_sha256": "02b1eb95a72d0d0e8e90b8de6b967238f08b8ae8ab7e183a2ca98e437ecd6f93",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/soft-target-backtrack-482/run-002/backtrack-373/pass-001/candidate.npz",
+      "candidate_sha256": "ce657fcde6c5bb5a711c2e94749d884b311a827627b1f9dd7293be27be4c9c9b",
+      "exact_self_pair_count": 933,
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/soft-target-backtrack-482/run-002/backtrack-373/pass-001/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "f0b8d00de9f619d6c641494034c09830c25fde9f6e87b44b2d39aa3364cc3d37",
+      "source_backtrack_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/soft-target-backtrack-482/run-002/backtrack-373"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/soft-target-backtrack-482/run-002/backtrack-373/pass-005/audit-130/summary.json",
+      "audit130_sha256": "275f58abfee2ae62c4d567835c041fc151cf36224bc96e9748f0996d5dd698c5",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/soft-target-backtrack-482/run-002/backtrack-373/pass-005/candidate.npz",
+      "candidate_sha256": "6cab51bfbda48a5eec47d804c3baaab619d91337028131ca540042d5c1c0c2fc",
+      "exact_self_pair_count": 36,
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/soft-target-backtrack-482/run-002/backtrack-373/pass-005/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "236ea4bac2c9b1cd9a0853ff2274be16a7ac28b77aedb098e9c49e10dde68e4b",
+      "source_backtrack_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/soft-target-backtrack-482/run-002/backtrack-373"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/soft-target-backtrack-482/run-002/backtrack-373/pass-006/audit-130/summary.json",
+      "audit130_sha256": "0298bd9fdc3096a4016d0bbb73870e0b0354276c21f3f4cc376f9dc5ed32e64d",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/soft-target-backtrack-482/run-002/backtrack-373/pass-006/candidate.npz",
+      "candidate_sha256": "0b4b9d18b782694a232cbaa880793f9056ed43746c1720a3281c6e7f47945667",
+      "exact_self_pair_count": 10,
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/soft-target-backtrack-482/run-002/backtrack-373/pass-006/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "9e2f9e1b0d65507fc0c29f8a1a7d28ea5170ca8e61800d4399d7699edc9375b2",
+      "source_backtrack_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/soft-target-backtrack-482/run-002/backtrack-373"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-backtrack-487/run-001/backtrack-373/pass-001/audit-130/summary.json",
+      "audit130_sha256": "dbb753cca8c7f6ff8da5c634ce8c0590ad45c1ce402a68d83fa6ad2b29384455",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-backtrack-487/run-001/backtrack-373/pass-001/candidate.npz",
+      "candidate_sha256": "f3b6c08a7563fdcecab963b91aea7b8b3bfb54cdcb1a35e4179307415675ef39",
+      "exact_self_pair_count": 278,
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-backtrack-487/run-001/backtrack-373/pass-001/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "e192a7912b5d15011102517d11af7948b68b475b23d79dff5a8424bf4f61738f",
+      "source_backtrack_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-backtrack-487/run-001/backtrack-373"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-backtrack-487/run-001/backtrack-373/pass-005/audit-130/summary.json",
+      "audit130_sha256": "9aefe14f6b6829adfa1586f985d8c3ddfeac9a7e4a3d94794d6aed5c936af247",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-backtrack-487/run-001/backtrack-373/pass-005/candidate.npz",
+      "candidate_sha256": "94d9a110a6b7b9429f233d4d8ce8bbf6b73ffedf79db31c76d8b17d7b1a5ddc4",
+      "exact_self_pair_count": 8,
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-backtrack-487/run-001/backtrack-373/pass-005/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "e5a7c2f450764039940bd3f4988e4f2570f97ef3f2c7b4582dade8523019a184",
+      "source_backtrack_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-backtrack-487/run-001/backtrack-373"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-001/check/backtrack-373/pass-001/audit-130/summary.json",
+      "audit130_sha256": "a5606d85760f644307f2f00bc513bc28eed8a54602a389f61a251e1c9c9bc3b7",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-001/check/backtrack-373/pass-001/candidate.npz",
+      "candidate_sha256": "de61a28ce0ca237747c164c626fc9b4cfe693d6b42a11b6cbad94334af4e5d45",
+      "exact_self_pair_count": 240,
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-001/check/backtrack-373/pass-001/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "bca894eebd08320d750bf8204e5f883f52d70e4f4d7be4195ef9833819d3d7bd",
+      "source_backtrack_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-001/check/backtrack-373"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-001/check/backtrack-373/pass-007/audit-130/summary.json",
+      "audit130_sha256": "25032c20a937021f7fd39115b435a1b224c97edc52c2989a015c714f987f7dea",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-001/check/backtrack-373/pass-007/candidate.npz",
+      "candidate_sha256": "0a521b198880dd5d9d99b899e66f6b041663a9255d2efcdb028237e19fa6ca99",
+      "exact_self_pair_count": 34,
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-001/check/backtrack-373/pass-007/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "0ad364ef04d26177cc4c1538e40c7d63715adc59b476abe503d3d07962c18dd1",
+      "source_backtrack_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-001/check/backtrack-373"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-001/audit-130/summary.json",
+      "audit130_sha256": "6ba9effd36abb1d84c0f8d5211fca18799c8f5f61eb7a3ed49e50374f742b037",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-001/candidate.npz",
+      "candidate_sha256": "120da3cd1bd9931e07f033dd91888c48927f03b06c10697db60e5a948138b978",
+      "exact_self_pair_count": 164,
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-001/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "e2326cea970b50dbe25c273c64a8c2332b06f21ba63d277949af30368e24e5e2",
+      "source_backtrack_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-004/audit-130/summary.json",
+      "audit130_sha256": "3c3c0dbfc1386397706d0d8c604ae5f546433bd895e3bf01cc97fae845505296",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-004/candidate.npz",
+      "candidate_sha256": "0d250a87746b34491396883a0fb850d768d7451c48ab1415c9a278e41b425c74",
+      "exact_self_pair_count": 17,
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-004/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "b5e46253a8582d4039378680fdc9f85b9b5116fb65ed5d35a0e341a9f45ba2c2",
+      "source_backtrack_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373"
+    }
+  ]
+}

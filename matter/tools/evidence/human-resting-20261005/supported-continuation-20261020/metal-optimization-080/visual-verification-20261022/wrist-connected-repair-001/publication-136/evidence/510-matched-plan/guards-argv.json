@@ -1,0 +1,18 @@
+[
+  "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh-413/refresh_fixed_bone_guards.py",
+  "--previous-candidate",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-001/check/backtrack-373/pass-010/candidate.npz",
+  "--previous-surface-report",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-001/check/backtrack-373/pass-010/audit-159/report.json",
+  "--prior-guard-report",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/refresh/fixed-bone-guard-refresh491/run-001/report.json",
+  "--prior-guard-npz",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/refresh/fixed-bone-guard-refresh491/run-001/introduced-skin-bone-barriers.npz",
+  "--candidate",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-013/candidate.npz",
+  "--surface-report",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-013/audit-159/report.json",
+  "--output-dir",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-510/matched-plan-test/fixed-bone-guard-refresh491/run-001"
+]
