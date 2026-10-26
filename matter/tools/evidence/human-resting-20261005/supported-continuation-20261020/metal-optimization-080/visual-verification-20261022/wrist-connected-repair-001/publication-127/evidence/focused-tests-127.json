@@ -1,0 +1,62 @@
+[
+  {
+    "command": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "unittest",
+      "-v",
+      "test_surface_witness_basis_408"
+    ],
+    "cwd": "/Users/numi/Work/numi-human-connected-surface-069/publication-127/sources/surface-witness-basis-408",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "test_cli_requires_fine_point (test_surface_witness_basis_408.Tests.test_cli_requires_fine_point) ... ok\ntest_existing_output_constraints_stay_on_output (test_surface_witness_basis_408.Tests.test_existing_output_constraints_stay_on_output) ... ok\ntest_interleaved_prior_point_column (test_surface_witness_basis_408.Tests.test_interleaved_prior_point_column) ... ok\ntest_invalid_point_rows (test_surface_witness_basis_408.Tests.test_invalid_point_rows) ... ok\ntest_invalid_surface_rows (test_surface_witness_basis_408.Tests.test_invalid_surface_rows) ... ok\ntest_isolated_identity_skip_report_is_json_serializable (test_surface_witness_basis_408.Tests.test_isolated_identity_skip_report_is_json_serializable) ... ok\ntest_no_surface_keeps_point_path (test_surface_witness_basis_408.Tests.test_no_surface_keeps_point_path) ... ok\ntest_same_as_explicit_union (test_surface_witness_basis_408.Tests.test_same_as_explicit_union) ... ok\ntest_union_and_parent_span (test_surface_witness_basis_408.Tests.test_union_and_parent_span) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 0.194s\n\nOK\n",
+    "source_sha256": {
+      "fine_point_basis_405.py": "b730820790c25c747578d5d7a73274d84a7acceb20abb36423c08c0c35cec445",
+      "precision_phase_one_integration_396.py": "46de947e4a6302d9f70695f12061ac1107f59b2dfaa7b8f0c431c68b95e72e68",
+      "surface_witness_basis_408.py": "993c5fd24a18ba203625545b2f283cc5a6692dfe32afe3a42f4bb23cf3f7ba16",
+      "audit_actual_basis_408.py": "5ee781701989e7cd473b0e85ccf6af86fe6cc1956fc9e6a4c67f774ca7292d2e",
+      "propose_joint_clearance_witnesses_408.py": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+      "test_surface_witness_basis_408.py": "12c622436b038f82f2c7c94ec48703616383bd17512fd3757fc0e2c7a8c81f34"
+    }
+  },
+  {
+    "command": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "unittest",
+      "-v",
+      "test_incremental_exact_flip_check_408",
+      "test_incremental_flip_check_408_patch_owner",
+      "test_global_incremental_flip_search_409"
+    ],
+    "cwd": "/Users/numi/Work/numi-human-connected-surface-069/publication-127/sources/incremental-flips-409",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "test_changed_face_is_checked_against_disjoint_nearby_third_face (test_incremental_exact_flip_check_408.T.test_changed_face_is_checked_against_disjoint_nearby_third_face) ... ok\ntest_changed_rows_and_fixed_points (test_incremental_exact_flip_check_408.T.test_changed_rows_and_fixed_points) ... ok\ntest_empty_full_baseline (test_incremental_exact_flip_check_408.T.test_empty_full_baseline) ... ok\ntest_empty_pair_schema_is_narrow (test_incremental_exact_flip_check_408.T.test_empty_pair_schema_is_narrow) ... ok\ntest_full_baseline_prepared_once_and_sequential_trials_match_full_predicate (test_incremental_exact_flip_check_408.T.test_full_baseline_prepared_once_and_sequential_trials_match_full_predicate) ... ok\ntest_new_pair_is_found (test_incremental_exact_flip_check_408.T.test_new_pair_is_found) ... ok\ntest_receipt_fail_closed (test_incremental_exact_flip_check_408.T.test_receipt_fail_closed) ... ok\ntest_reuse_and_remove (test_incremental_exact_flip_check_408.T.test_reuse_and_remove) ... ok\ntest_shared_vertex_contact_is_reconciled_with_full_predicate (test_incremental_exact_flip_check_408.T.test_shared_vertex_contact_is_reconciled_with_full_predicate) ... ok\ntest_trial_is_bound_to_baseline (test_incremental_exact_flip_check_408.T.test_trial_is_bound_to_baseline) ... ok\ntest_402_two_face_flip_is_incrementally_checked_without_moving_anchors (test_incremental_flip_check_408_patch_owner.PatchIntegrationTests.test_402_two_face_flip_is_incrementally_checked_without_moving_anchors) ... ok\ntest_search_commits_only_strict_global_reduction_and_pins_step (test_global_incremental_flip_search_409.Search409Tests.test_search_commits_only_strict_global_reduction_and_pins_step) ... ok\ntest_zero_accept_smoke_runs_single_complete_baseline_and_preserves_402_arrays (test_global_incremental_flip_search_409.Search409Tests.test_zero_accept_smoke_runs_single_complete_baseline_and_preserves_402_arrays) ... ok\n\n----------------------------------------------------------------------\nRan 13 tests in 0.017s\n\nOK\n",
+    "source_sha256": {
+      "test_incremental_flip_check_408_patch_owner.py": "6936f8c39154a394fa96b94f85844ade79f92b60317425f3ec6b3d99278019a6",
+      "exact_global_incremental_flip_search_409.py": "64f05be466d672266d4265185c895fecc70113d476f69e7a1c6dc3af8ec514a8",
+      "incremental_exact_flip_check_408.py": "01026156cccd5c1742e2edcaa6288f64f888731424dfb6337831412701020711",
+      "test_global_incremental_flip_search_409.py": "64b9868f7fedd3ec230b3eca4a323fe0a8df6e42df0756e5448fbdf0d57b007d",
+      "test_incremental_exact_flip_check_408.py": "9c7af04ca23742bb6aa13d3d3cfba7ad7c75f5fdabd9c5bb211e754cfdb5fb36"
+    }
+  },
+  {
+    "command": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "test_refresh_self_witnesses_409.py"
+    ],
+    "cwd": "/Users/numi/Work/numi-human-connected-surface-069/publication-127/sources/self-refresh-409",
+    "exit_code": 0,
+    "stdout": "......                                                                   [100%]\n6 passed in 0.00s\n",
+    "stderr": "",
+    "source_sha256": {
+      "refresh_self_witnesses_409.py": "a08f5e62eb2d3b67288973bf1b9aace8eab7186305de3d5d8655502fcf0eae7b",
+      "test_refresh_self_witnesses_409.py": "d2d040e664749d34daa93b083edb6d3c6b1f82e6edf06aed71005875d544dc8f"
+    }
+  }
+]

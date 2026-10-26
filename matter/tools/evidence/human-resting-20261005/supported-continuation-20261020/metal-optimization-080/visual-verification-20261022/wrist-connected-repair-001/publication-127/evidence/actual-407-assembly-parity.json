@@ -1,0 +1,53 @@
+{
+  "status": "PASS_ACTUAL_FIRST_SCP_PARITY_AND_CONSTRAINED_ENRICHMENT",
+  "argv_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/run-001-launch/argv.json",
+  "argv_sha256": "648c83747fd66c885ed6f226ef5ab0755da09bc960357850a4593dd4dfb9a91e",
+  "default_408_matches_405_point": true,
+  "enriched_output_space_constraints_identical": true,
+  "parent_span_preserved": true,
+  "output_dimension": 20619,
+  "prior_point_enriched_coordinate_count": 14547,
+  "enriched_coordinate_count": 17940,
+  "added_fine_nodes": 1131,
+  "fixed_output_rows": 30,
+  "open_boundary_vertex_count": 45,
+  "open_boundary_rows_in_scope": 0,
+  "open_boundary_fixed": true,
+  "solver_invoked": false,
+  "candidate_emitted": false,
+  "native_admission": false,
+  "inputs": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/fine-point-basis-enrichment-405/propose_joint_clearance_witnesses_405.py": "1e1e915bed2a43dfb7fcdb7b2932a4dcf4658a9686c7dd385d599e0bef21ee97",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/surface_witness_basis_408.py": "993c5fd24a18ba203625545b2f283cc5a6692dfe32afe3a42f4bb23cf3f7ba16"
+  },
+  "matrix_receipts": {
+    "A": {
+      "shape": [
+        256171,
+        20619
+      ],
+      "data": "a8db198c2ebed9a68f39ffca12ca351f6975bf711b612b2eff53f1722af3a4ea",
+      "indices": "2367945cda8f35af7e208b4d196a8c4395456b87c5bbae1a036c35245a20921f",
+      "indptr": "95e41655ca5ac668454002e7bb3f3b261486bba97cc579fb77653d80b5bc07a0"
+    },
+    "C": {
+      "shape": [
+        3762,
+        20619
+      ],
+      "data": "6585797dc3de85360e82f96c83361b7df24daf26b3fa796330429d903ed1af80",
+      "indices": "9f006fa8240e0e793b00fed68dba631b90b10e2631d5f9587b374198c4b64f26",
+      "indptr": "dce8d5430b2320efc76bc29b28260b06082ff1e539440c19bf1c67a82211f930"
+    },
+    "output_map": {
+      "shape": [
+        20619,
+        17940
+      ],
+      "data": "d06ce7b5496950687285cb19e6f7f5608d722a958ce8b134295ac0e81a698211",
+      "indices": "fe76d5d42f908bbbb6c27b96d308c0faa37d967bb51f1ae7144f4856817328a3",
+      "indptr": "0842cd14b2286278a57a383fb2d320f2be92ee34e7df6de4e61d4327de766721"
+    }
+  }
+}

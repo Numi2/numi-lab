@@ -1,0 +1,9 @@
+{
+  "candidate_sha256": "6c115d5beef83989bed2af6309771b8d34cece7e30eaaf3f99f397ee3a304fda",
+  "surface_target_count": 3324,
+  "whole_target_faces_fixed": 0,
+  "targets_with_zero_movable_barycentric_weight": 0,
+  "fixed_face_witness_indices": [],
+  "no_movable_weight_indices": [],
+  "native_admission": false
+}

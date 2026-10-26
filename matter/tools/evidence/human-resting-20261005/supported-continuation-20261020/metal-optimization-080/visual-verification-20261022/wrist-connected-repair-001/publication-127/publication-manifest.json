@@ -1,0 +1,128 @@
+{
+  "base_commit": "60977540799f20fe403eefe2ae13fe03b224e677",
+  "canonical_changes": [],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "0f7296fc64b1d5589246a5741d6cb101734bf680ed350734c4cf3df74d41f678",
+      "bytes": 3054
+    },
+    {
+      "path": "build_archive_127.py",
+      "sha256": "e8222d364a18991d48642213b50e04bd49e09b410102253a554e9416ce5c54d8",
+      "bytes": 2951
+    },
+    {
+      "path": "evidence/408-per-bank-changes.json",
+      "sha256": "c8339fec7f29b73f5f7021617ef7b1c0d27ece36165101acfed03c5fcbf4cf64",
+      "bytes": 1046
+    },
+    {
+      "path": "evidence/408-root-independent-construction-verification.json",
+      "sha256": "106b25ce47c4a180352c1340acba6353f254d419fa62b0e5c7b46a1e0d38a958",
+      "bytes": 2710
+    },
+    {
+      "path": "evidence/408-selected-result.json",
+      "sha256": "ef54857ab11990c64e1dca079d5e6cb2385217db0912c68829ccd78760667ff2",
+      "bytes": 5169
+    },
+    {
+      "path": "evidence/actual-407-assembly-parity.json",
+      "sha256": "34f2dfdb3e20c2e6d84a821da2503e2d9abf4f4a060c59302efbba6c9a0e5550",
+      "bytes": 2369
+    },
+    {
+      "path": "evidence/anchor-target-compatibility-407.json",
+      "sha256": "4617b8e7fe4be0afb5b4ab11fc68be448d408fe1669c309495b814dbce77f3c6",
+      "bytes": 311
+    },
+    {
+      "path": "evidence/archive-manifest-407-409.json",
+      "sha256": "71c0f3e4ba30816d016a82c385501a29fddb855058930ffaa69579fb77a3e51d",
+      "bytes": 61232
+    },
+    {
+      "path": "evidence/connected-clearance-407-409.tar.xz",
+      "sha256": "02fa553b3023037cd6b0cfeb4877a586b748b148d41cc567a50916108e5e8c1f",
+      "bytes": 26739236
+    },
+    {
+      "path": "evidence/focused-tests-127.json",
+      "sha256": "27306739ba513df7c6caedab86815e01dd1a0d3efb09014ba80fc7655c32a6d3",
+      "bytes": 5950
+    },
+    {
+      "path": "evidence/publication126-independent-recovery.json",
+      "sha256": "939788fe8bd9e4a669ce143ab4a449b7f9322c93694e6924b8d59fe8449c91ee",
+      "bytes": 371
+    },
+    {
+      "path": "sources/incremental-flips-409/exact_global_incremental_flip_search_409.py",
+      "sha256": "64f05be466d672266d4265185c895fecc70113d476f69e7a1c6dc3af8ec514a8",
+      "bytes": 13517
+    },
+    {
+      "path": "sources/incremental-flips-409/incremental_exact_flip_check_408.py",
+      "sha256": "01026156cccd5c1742e2edcaa6288f64f888731424dfb6337831412701020711",
+      "bytes": 9587
+    },
+    {
+      "path": "sources/incremental-flips-409/test_global_incremental_flip_search_409.py",
+      "sha256": "64b9868f7fedd3ec230b3eca4a323fe0a8df6e42df0756e5448fbdf0d57b007d",
+      "bytes": 5544
+    },
+    {
+      "path": "sources/incremental-flips-409/test_incremental_exact_flip_check_408.py",
+      "sha256": "9c7af04ca23742bb6aa13d3d3cfba7ad7c75f5fdabd9c5bb211e754cfdb5fb36",
+      "bytes": 7194
+    },
+    {
+      "path": "sources/incremental-flips-409/test_incremental_flip_check_408_patch_owner.py",
+      "sha256": "6936f8c39154a394fa96b94f85844ade79f92b60317425f3ec6b3d99278019a6",
+      "bytes": 4253
+    },
+    {
+      "path": "sources/self-refresh-409/refresh_self_witnesses_409.py",
+      "sha256": "a08f5e62eb2d3b67288973bf1b9aace8eab7186305de3d5d8655502fcf0eae7b",
+      "bytes": 18369
+    },
+    {
+      "path": "sources/self-refresh-409/test_refresh_self_witnesses_409.py",
+      "sha256": "d2d040e664749d34daa93b083edb6d3c6b1f82e6edf06aed71005875d544dc8f",
+      "bytes": 1806
+    },
+    {
+      "path": "sources/surface-witness-basis-408/audit_actual_basis_408.py",
+      "sha256": "5ee781701989e7cd473b0e85ccf6af86fe6cc1956fc9e6a4c67f774ca7292d2e",
+      "bytes": 4925
+    },
+    {
+      "path": "sources/surface-witness-basis-408/fine_point_basis_405.py",
+      "sha256": "b730820790c25c747578d5d7a73274d84a7acceb20abb36423c08c0c35cec445",
+      "bytes": 2727
+    },
+    {
+      "path": "sources/surface-witness-basis-408/precision_phase_one_integration_396.py",
+      "sha256": "46de947e4a6302d9f70695f12061ac1107f59b2dfaa7b8f0c431c68b95e72e68",
+      "bytes": 13432
+    },
+    {
+      "path": "sources/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+      "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+      "bytes": 202611
+    },
+    {
+      "path": "sources/surface-witness-basis-408/surface_witness_basis_408.py",
+      "sha256": "993c5fd24a18ba203625545b2f283cc5a6692dfe32afe3a42f4bb23cf3f7ba16",
+      "bytes": 1827
+    },
+    {
+      "path": "sources/surface-witness-basis-408/test_surface_witness_basis_408.py",
+      "sha256": "12c622436b038f82f2c7c94ec48703616383bd17512fd3757fc0e2c7a8c81f34",
+      "bytes": 3539
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}
