@@ -1,0 +1,85 @@
+{
+  "full_audit_159_sha256": "ddf1211aa7ca01ef8f1c907c89eb082ab700f00299db09b74fa6426bafc270f1",
+  "generated_utc": "2026-10-26T19:01:32.754767+00:00",
+  "package_preparation_checks": [
+    "bounded completed round-007 topology chain copied with all intermediate and failure evidence",
+    "all final report metrics and full typed-bank audit status/hash checked",
+    "exact code source pins copied from immutable P147 source snapshots",
+    "active refined-point branch and mutable agent sources excluded",
+    "shared HEAD/index/tree/status unchanged during package preparation",
+    "no geometry solver, native run, audit, or test launched during package preparation"
+  ],
+  "parent_publication_commit": "c55a6ffe6cb4c940948389f89c0dd9deed260667",
+  "prefix": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-148",
+  "publication": "148",
+  "remote_main_before": "c55a6ffe6cb4c940948389f89c0dd9deed260667",
+  "selected_candidate_path": "surface-clearance-546/topology/round-007-wide-chain-025/round-004/candidate.npz",
+  "selected_candidate_sha256": "eadcd3838ec5bf4f2d72d45ba5d19c775e9fef4361f92ebea6f49e18d4bfe3a5",
+  "selected_metrics": {
+    "accepted_physical_steps": 0,
+    "anchor_rows": 237,
+    "candidate_sha256": "eadcd3838ec5bf4f2d72d45ba5d19c775e9fef4361f92ebea6f49e18d4bfe3a5",
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "native_admission": false,
+    "self_pairs": 0,
+    "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS",
+    "surface_pairs": 2409
+  },
+  "selected_report_path": "surface-clearance-546/topology/round-007-wide-chain-025/final-check/report.json",
+  "selected_report_sha256": "27c01ad4033b9b1181ada53cff9f9aca27799e637741c1fced969effab78e979",
+  "shared_checkout_after": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "shared_checkout_before": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "source_snapshots": [
+    {
+      "bytes": 29102,
+      "path": "source-snapshots/9123965621161beb6408f6c9663d8d36968cf1113c3a97106e968ea1c754d84e-topology-bone-aware-025.py",
+      "sha256": "9123965621161beb6408f6c9663d8d36968cf1113c3a97106e968ea1c754d84e"
+    },
+    {
+      "bytes": 18883,
+      "path": "source-snapshots/d42db71f6003f60eec69787156775e2133be2c54f69e37047ea8c451c76bd5a9-chain_exact_flip_batches_025.py",
+      "sha256": "d42db71f6003f60eec69787156775e2133be2c54f69e37047ea8c451c76bd5a9"
+    },
+    {
+      "bytes": 11275,
+      "path": "source-snapshots/0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a-run_candidate_checks545.py",
+      "sha256": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a"
+    },
+    {
+      "bytes": 202611,
+      "path": "source-snapshots/propose_joint_clearance_witnesses_408.py",
+      "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+    },
+    {
+      "bytes": 5152,
+      "path": "source-snapshots/audit_connected_outer_geometry_130.py",
+      "sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9"
+    },
+    {
+      "bytes": 4925,
+      "path": "source-snapshots/de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1-audit_skin_bone_surfaces_159.py",
+      "sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+    },
+    {
+      "bytes": 63212,
+      "path": "source-snapshots/f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d-cardiac_cavity_intersections.py",
+      "sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d"
+    }
+  ],
+  "status": "PACKAGE_PREPARED_NOT_YET_PUBLISHED"
+}
