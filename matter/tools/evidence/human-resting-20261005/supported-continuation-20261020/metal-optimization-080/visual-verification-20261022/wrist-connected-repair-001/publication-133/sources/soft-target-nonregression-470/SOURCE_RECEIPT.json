@@ -1,0 +1,36 @@
+{
+  "schema": "numi.soft_target_nonregression_470.source_receipt.v1",
+  "classification": "isolated opt-in solver experiment; construction only",
+  "fit_launched": false,
+  "verification": {
+    "py_compile": "passed",
+    "unittest": "passed",
+    "test_count": 4,
+    "test_wall_seconds": 1.315,
+    "scope": "3 synthetic solver checks and 1 matched 456/457 integration check"
+  },
+  "integration_counts": {
+    "matched_crossing_pairs": 3136,
+    "fixed_plane_corner_inequalities": 9408,
+    "positive_soft_target_rows": 4890,
+    "preserved_nonpositive_hard_rows": 4518,
+    "408_point_rows_preserved_byte_equal": true
+  },
+  "source_sha256": {
+    "run_grouped_fit_470.py": "80b4d2001305b9fe1bea286c2e7c887ade0975064bb8ef2ca7d03aa1d243c7a5",
+    "soft_target_nonregression_470.py": "990e126932186e33c0a5363a6ac34fa967e211f4bc55977567582e2b89b8bb79",
+    "test_fit_integration_470.py": "d7ce7d0517ec0066f6ac331461b83decfa9564ee0671e7011a1843b8f425dbec",
+    "test_solver_470.py": "8c414f5571c783edbb8153cb4c6729f10753a3336665efc1e8bbc2da8d575f6c",
+    "pinned_458_runner_unchanged": "08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93",
+    "pinned_458_objective_unchanged": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0",
+    "pinned_408_owner_unchanged": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+  },
+  "semantics": {
+    "artificial_soft_target_Cd_nonnegative_rows": "removed from LP stages 1 and 2",
+    "physical_hard_rows_and_output_bounds": "preserved",
+    "target_slack_inequalities": "preserved",
+    "negative_soft_target_progress": "reported",
+    "physical_clearance_claim": false,
+    "native_admission": false
+  }
+}

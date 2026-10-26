@@ -1,0 +1,9 @@
+{
+  "status": "INTERRUPTED_UNQUALIFIED",
+  "reason": "Root added standalone post-run source check after the queued run had started; launcher input source hash no longer matches. Stop trial and rerun immutable sources.",
+  "pid": 36455,
+  "original_wrapper_sha256": "691dde8fcc300668efb10bf916742fdd9e7fae88631227d980f4ef05658fe3ee",
+  "current_wrapper_sha256": "3d0df12b97081d20a9d168c3a7bf076687f39e2659066d837c8b006d6589f836",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

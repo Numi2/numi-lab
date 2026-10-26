@@ -1,0 +1,15 @@
+{
+  "tests_passed": [
+    "test_certified_stage1_fallback_does_not_claim_stage2_success",
+    "test_component_union_joins_hard_row_crossing_independent_controls",
+    "test_disconnected_component_stage1_and_stage2_parity",
+    "test_global_retained_gain_budget_equals_component_budget_sum",
+    "test_nonfinite_sparse_input_rejected",
+    "test_output_row_with_zero_map_is_counted_and_bounds_checked",
+    "test_zero_cancellation_rows_become_fixed_slack_and_output_constants",
+    "test_zero_mapped_hard_row_positive_rhs_fails_closed"
+  ],
+  "helper_sha256": "af0b6a6bf40757a403a8b7c359233694241d34e1e016b6dd3a37d7c98789c46d",
+  "wrapper_sha256": "a3de4f31a311faa39025c54be508156ea3b23c5cec8f5736b330ac99234cbf2f",
+  "native_admission": false
+}

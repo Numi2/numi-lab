@@ -1,0 +1,28 @@
+{
+  "trials": [
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-001/audit-130/summary.json",
+      "audit130_sha256": "6064b4b3fa8ea73db0660a344aaa56b6e537b01649a7ce0185c2ce8239f90df1",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-001/candidate.npz",
+      "candidate_sha256": "7d977b0d99226a344d3ecc8cd4e8a65ef092f81e2aefccc0265eae3154533dfb",
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-001/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "5e943d9f4f38a959654c6673813bc3db5bd200a94f76ef2b0abca3ab88b9a285"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-005/audit-130/summary.json",
+      "audit130_sha256": "1012a8d4775fb826307e661b354d99e03f0ad223089970424c779409c021b33f",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-005/candidate.npz",
+      "candidate_sha256": "c71c2ec1ad599d5e6a612b9763b046866a0f82e002ecd6cbf8e38a469e8ae3e8",
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-005/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "ecc7f2ced80099decf7f1abe5e52804c6035d73a5916eea2da45756578aed885"
+    },
+    {
+      "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-010/audit-130/summary.json",
+      "audit130_sha256": "b9307e89e55d6236e123f64908b2b46bec8f2d98229732982402217d304132e1",
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-010/candidate.npz",
+      "candidate_sha256": "8435f1e65be5ab9eee4ac786b3e58e3b5b4aff1f28d6fce40a9366060bb278a6",
+      "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-010/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "9615e2aded17d83275dd603b8f665af14cd70821ab78cdd838dad43a81fc833b"
+    }
+  ]
+}

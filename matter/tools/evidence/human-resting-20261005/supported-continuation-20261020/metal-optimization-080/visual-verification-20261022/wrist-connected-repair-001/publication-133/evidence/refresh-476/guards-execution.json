@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh-413/refresh_fixed_bone_guards.py",
+    "--previous-candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/constraint-project-backtrack-456/run-001/backtrack-373/pass-006/candidate.npz",
+    "--previous-surface-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/constraint-project-backtrack-456/run-001/backtrack-373/pass-006/audit-159/report.json",
+    "--prior-guard-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh-457/run-001/report.json",
+    "--prior-guard-npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh-457/run-001/introduced-skin-bone-barriers.npz",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-011/candidate.npz",
+    "--surface-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-011/audit-159/report.json",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh476/run-001"
+  ],
+  "log_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-476/guards.log",
+  "returncode": 0,
+  "seconds": 2.3863485001493245,
+  "stage": "guards"
+}

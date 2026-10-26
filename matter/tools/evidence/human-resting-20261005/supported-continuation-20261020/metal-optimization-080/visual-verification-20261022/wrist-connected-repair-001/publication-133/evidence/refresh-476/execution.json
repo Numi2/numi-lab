@@ -1,0 +1,89 @@
+{
+  "attempt_001_cli_error_preserved_at": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-476/execution-attempt-001.json",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-011/candidate.npz",
+  "candidate_sha256": "742315227c1d8225aac9307af828251a73a98a9c40b4f59fe791aeef5da1ba0f",
+  "connected_continuation_prep": {
+    "failed_trial_raw_pair_rows_added": 1272,
+    "merged_seed_pairs": 25984,
+    "new_unique_seed_pairs": 1272,
+    "output_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep476/run-001",
+    "point_targets": 316,
+    "prior_unique_seed_pairs": 24712,
+    "rebuilt_026_rows": 146240,
+    "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep476/run-001/preparation-report.json",
+    "report_sha256": "e4578adc9b69517e63da73b3873ad8c04133535af59809b35d5166549a33bab7",
+    "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep476/run-001/self-seeds/merged-self-pair-seeds.npy",
+    "seed_pairs_sha256": "83b4e4bf646aef93b546532f409a84f23736217b3b2d84349126df0caed827d3",
+    "seed_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep476/run-001/self-seeds/report.json",
+    "seed_report_sha256": "c73d954ed8e8200ff97af0d06bac225485a33891db4811a0b281f9755c0618ef",
+    "surface_targets": 3117,
+    "zero_step_max_rhs_mm": -0.00017058377194288925
+  },
+  "failed_trial_witness_manifest_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-476/failed-trials.json",
+  "failed_trial_witness_manifest_sha256": "a4a7ac89d1e14b06e4d9255164be63e8afa3a92db08e19667a96c503bd483d6e",
+  "fit_launched": false,
+  "fixed_bone_guard": {
+    "313_rows": 13950,
+    "current_pairs": 3117,
+    "npz_path": "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh476/run-001/introduced-skin-bone-barriers.npz",
+    "npz_sha256": "3bd60b549a7cf2c3800558daca8df5e389edf0ee99fd872c083a5232e53a2f40",
+    "output_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh476/run-001",
+    "previous_candidate_sha256": "1ac004ef6f6646ce4720360c50b7fd9855336a4967c3e97b199cf9bc0350049a",
+    "previous_pairs": 3136,
+    "prior_guard_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh-457/run-001/report.json",
+    "prior_guard_report_sha256": "5fb08073495e961c80bb2be98de022ef7861f73eea1c9f33ad012c353d27d42e",
+    "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh476/run-001/report.json",
+    "report_sha256": "04a16c5a25433109ee3292f485279bcf6d86f35680a83023ad62f7faf10576d2",
+    "resolved_added": 53,
+    "retained_guard_pairs": 2325,
+    "validation_path": "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh476/run-001/validation.json",
+    "validation_sha256": "f23ab4d6680dffc7a588cd3e19cfe28254e7c4222203546a955cc2721eda7937"
+  },
+  "geometry_or_native_admission": false,
+  "label": 476,
+  "limitations": [
+    "This refresh prepares construction rows and targets only.",
+    "Complete exact 130/159 audits remain authoritative.",
+    "No fit, native, physical, or anatomy admission is claimed."
+  ],
+  "physical_steps": 0,
+  "point_depth": {
+    "bank_count": 185,
+    "compatible_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh476/run-001/365-compatible-report.json",
+    "compatible_report_sha256": "125c5a9d38c8e0ff52815ddb57797f1c6537fe20f5dd66a9ee43b0133530cb40",
+    "complete_bank_accounting_verified": true,
+    "inside_rows": 316,
+    "npz_path": "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh476/run-001/point-depth-rows.npz",
+    "npz_sha256": "a3b1dd32e5519fdf9e02302f0239e07fb39f940c67fda2f8df8f10494b9f675d",
+    "output_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh476/run-001",
+    "outside_rows": 6179,
+    "rows": 6495,
+    "validation_path": "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh476/run-001/365-validation.json",
+    "validation_sha256": "784dd297eae9e7e506e45130c1bc8f02f0192e6ebdd2bc7158567747a6432d86",
+    "zero_step_violation_m": 0.0
+  },
+  "stages": [
+    {
+      "execution_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-476/depth-execution.json",
+      "execution_sha256": "04188b984106eb12e03a36db2f922a8157cadb536980aec68373d80aa36185af",
+      "returncode": 0,
+      "seconds": 3.0860622921027243,
+      "stage": "depth"
+    },
+    {
+      "execution_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-476/guards-execution.json",
+      "execution_sha256": "0c354aa9ef132ecaecd57ee6c2bd5c078ceecf6168f9ef868709bc860cd9737f",
+      "returncode": 0,
+      "seconds": 2.3863485001493245,
+      "stage": "guards"
+    },
+    {
+      "execution_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-476/prep-attempt-002-execution.json",
+      "execution_sha256": "d4483be173350d692aa46eea61e5755733209042dc3d2e2b8073007366b8575c",
+      "returncode": 0,
+      "seconds": 40.867135250009596,
+      "stage": "prep"
+    }
+  ],
+  "status": "PASS_MATCHED_461_CONSTRUCTION_REFRESH_ONLY"
+}

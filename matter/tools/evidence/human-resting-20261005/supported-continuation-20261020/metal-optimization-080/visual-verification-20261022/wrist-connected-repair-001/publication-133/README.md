@@ -1,0 +1,16 @@
+# Connected skin: component solves and checked479
+Offline mesh construction only. Native admission false; accepted physical steps zero. Zero clearance remains unmet.
+
+The checked479 snapshot has3,104 skin/bone surface pairs,308 contained node/bank pairs and zero exact skin self-pairs across185 banks. Its matched461 base has3,117/316. Exact identities:83 surface pairs resolved and70 introduced;8 contained pairs resolved, none introduced. The earlier containment-focused446 branch still has283 contained pairs but3,212 surface pairs; these branches are not combined.
+
+The475 solver splits the exact sparse row/control graph into independent components, preserving all hard rows and certifying the combined output through the original global matrices. Stage1 weighted slack is additive. Componentwise stage2 retained-gain budgets sum to the global budget, but restrict slack redistribution; global stage2 L1 optimality is not claimed. Eight focused tests pass, including cancellation, fixed rows, global budget and honest fallback reporting. Root independently reran all eight. The fresh461/476 fit had15 components, largest3,714 controls. Its first SCP solve completed both stages in45.75s; the second took73.62s and used certified stage1 fallback in components11 and13. Total fit launch131.32s; exact backtracking68.41s. The prior460 run used a different state, so this is not a matched speedup benchmark.
+
+The470 experiment removes only the additional soft-target C*d>=0 constraints/checks from the copied reduced solver; actual hard A rows, bounds and target-slack inequalities stay intact. Four tests pass, including matched408 point-block parity and an opposing-target case constrained by a physical hard cap. This source increment does not claim an anatomical improvement from470: its full-scene comparison was still pending when this bundle was sealed.
+
+The480 wrapper/481 comparison attempt001 was stopped because root added a standalone end-of-run hash check after the queued trial began; its original wrapper bytes, launch hash and explicit invalidation receipt are retained. The corrected source was frozen before retry. The470 initial source receipt had a manually transcribed objective digest typo; both original and corrected live-hash receipts are retained. Neither issue is hidden or presented as a successful trial.
+
+Independent479 proof verifies169 unchanged non-coordinate arrays,237 unchanged anchors, Float32 reconstruction, source cap12mm, fixed037 area gate,7,304-node declared fit support and unchanged outside points. It checks146,240 self-seed rows/25,984 pairs and13,950 fixed-guard rows/2,325 pairs with zero violations. Exact reports and candidate snapshot are included.
+
+476 refresh uses existing413/417 owners. Its initial prep CLI omitted two hash flags and exited before geometry work; successful attempt002 is separately retained. No original source or failed witnesses were discarded.
+
+Limits:45 known head-boundary edges remain open; positive skin/fat cells, thickness/mass, conservative physical transfer, eight retained poses and native16/60s qualification remain unestablished. No images/native run were made. Owner-pinned helpers use their original SSH Numi paths; this is not a new artifact format or alternate physics simulator.
