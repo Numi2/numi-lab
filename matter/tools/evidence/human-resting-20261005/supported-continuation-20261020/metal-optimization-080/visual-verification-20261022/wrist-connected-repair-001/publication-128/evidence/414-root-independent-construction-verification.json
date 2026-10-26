@@ -1,0 +1,131 @@
+{
+  "status": "ROOT_INDEPENDENT_CONSTRUCTION_CHECK_PASS",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-414/run-001-pass002/search/selected/candidate.npz",
+  "candidate_sha256": "3221a63a44cd76d25374fd5be42f25ec8c3ef0f87a80ca6415d077e6add92f01",
+  "base_candidate_sha256": "141ca8ff15a4377092e198c9d7d52d08034541cbf295979e7b539c34d508a090",
+  "changed_existing_arrays": [
+    "source_O_faces",
+    "refinement_face_parent_face_row",
+    "refinement_face_parent_barycentric",
+    "area_reference_037_source_O_faces",
+    "refinement_face_parent_ancestry_indptr",
+    "refinement_face_parent_ancestry_face_rows"
+  ],
+  "unchanged_array_count": 164,
+  "changed_face_rows": [
+    17449,
+    17450,
+    17454
+  ],
+  "points_bitwise_unchanged_from_pass002": true,
+  "typed_anchors_unchanged": 237,
+  "boundary_edges_unchanged": 45,
+  "manifold": true,
+  "no_winding_conflict": true,
+  "no_duplicate_faces": true,
+  "matched037_faces": true,
+  "parent_union_csr_valid": true,
+  "area": {
+    "faces_checked": 41733,
+    "minimum_current_oriented_ratio": 0.8794099973272118,
+    "minimum_fixed_037_reference_magnitude_ratio": 0.10003977287040827,
+    "bad_current_oriented_face_count": 0,
+    "bad_current_oriented_face_rows_first_64": [],
+    "bad_current_oriented_face_rows_truncated": false,
+    "bad_fixed_037_reference_face_count": 0,
+    "bad_fixed_037_reference_face_rows_first_64": [],
+    "bad_fixed_037_reference_face_rows_truncated": false,
+    "area_floor": 0.1,
+    "pass": true
+  },
+  "max_source_displacement_mm": 11.718978068159865,
+  "max_step_from410_mm": 0.1250129461486156,
+  "self_pairs": 0,
+  "surface_pairs": 3254,
+  "inside_pairs": 391,
+  "introduced_inside_pairs_vs410": [],
+  "removed_inside_pairs_vs410": [
+    [
+      18565,
+      65,
+      99
+    ],
+    [
+      18600,
+      74,
+      104
+    ],
+    [
+      18822,
+      109,
+      114
+    ],
+    [
+      18859,
+      65,
+      99
+    ],
+    [
+      19146,
+      115,
+      118
+    ],
+    [
+      19359,
+      64,
+      98
+    ],
+    [
+      19444,
+      109,
+      114
+    ],
+    [
+      19482,
+      64,
+      98
+    ],
+    [
+      19635,
+      124,
+      123
+    ],
+    [
+      20073,
+      64,
+      98
+    ],
+    [
+      20188,
+      43,
+      16
+    ],
+    [
+      20421,
+      124,
+      123
+    ],
+    [
+      20546,
+      115,
+      118
+    ],
+    [
+      20670,
+      109,
+      114
+    ],
+    [
+      20797,
+      114,
+      117
+    ]
+  ],
+  "unchanged_face_introduced_surface_pairs": 110,
+  "unchanged_face_resolved_surface_pairs": 124,
+  "point_summary_sha256": "821b8b2032995442db20c7e3a5647758bc24e27ca782f014773b7656d17ba467",
+  "surface_report_sha256": "6662c169238a71818178d8b3b670ff769a260c3d7f307030630778d562121699",
+  "accepted_physical_steps": 0,
+  "native_admission": false,
+  "physical_transfer_pending": true
+}

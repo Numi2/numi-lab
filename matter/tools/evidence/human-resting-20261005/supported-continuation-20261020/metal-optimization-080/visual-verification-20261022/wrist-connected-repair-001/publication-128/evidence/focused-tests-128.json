@@ -1,0 +1,117 @@
+[
+  {
+    "argv": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "test_prepare_continuation_inputs.py"
+    ],
+    "cwd": "/Users/numi/Work/numi-human-connected-surface-069/publication-128/sources/continuation-prep",
+    "returncode": 0,
+    "stdout": ".......                                                                  [100%]\n7 passed in 0.03s\n",
+    "stderr": "",
+    "source_sha256": {
+      "test_prepare_connected_continuation_inputs.py": "0104bdc2f05a993ced1302860830b701ada2ba267eea9bcb198a6282ff5dc938",
+      "prepare_connected_continuation_inputs.py": "c3cc9dbc44cd87866f990a9849e87a49a5db7549e9d0b516419bc5e614ad5ef1",
+      "test_prepare_continuation_inputs.py": "0104bdc2f05a993ced1302860830b701ada2ba267eea9bcb198a6282ff5dc938"
+    }
+  },
+  {
+    "argv": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "unittest",
+      "-v",
+      "test_f32_area_gate_409_next",
+      "test_prospective_self_guards_409_next"
+    ],
+    "cwd": "/Users/numi/Work/numi-human-connected-surface-069/publication-128/sources/exact-next",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "test_identical_emitted_geometry_passes_full_gate (test_f32_area_gate_409_next.AreaGateTests.test_identical_emitted_geometry_passes_full_gate) ... ok\ntest_preserves_floor_tolerance_semantics (test_f32_area_gate_409_next.AreaGateTests.test_preserves_floor_tolerance_semantics) ... ok\ntest_rejects_wrong_dtype_empty_or_invalid_rows (test_f32_area_gate_409_next.AreaGateTests.test_rejects_wrong_dtype_empty_or_invalid_rows) ... ok\ntest_selected_face_gate_detects_orientation_reversal (test_f32_area_gate_409_next.AreaGateTests.test_selected_face_gate_detects_orientation_reversal) ... ok\ntest_selected_face_gate_detects_reference_magnitude_collapse (test_f32_area_gate_409_next.AreaGateTests.test_selected_face_gate_detects_reference_magnitude_collapse) ... ok\ntest_expanded_aabb_near_pairs_union_seed_and_adjacency_policy (test_prospective_self_guards_409_next.GuardRowsTests.test_expanded_aabb_near_pairs_union_seed_and_adjacency_policy) ... ok\ntest_guard_rows_keep_incompatible_pair_explicit (test_prospective_self_guards_409_next.GuardRowsTests.test_guard_rows_keep_incompatible_pair_explicit) ... ok\ntest_guard_rows_reject_positive_baseline_rhs_and_retain_reason (test_prospective_self_guards_409_next.GuardRowsTests.test_guard_rows_reject_positive_baseline_rhs_and_retain_reason) ... ok\ntest_pair_generation_is_deterministic_and_typed_empty (test_prospective_self_guards_409_next.GuardRowsTests.test_pair_generation_is_deterministic_and_typed_empty) ... ok\ntest_pair_inputs_and_radius_fail_closed (test_prospective_self_guards_409_next.GuardRowsTests.test_pair_inputs_and_radius_fail_closed) ... ok\n\n----------------------------------------------------------------------\nRan 10 tests in 0.009s\n\nOK\n",
+    "source_sha256": {
+      "test_f32_area_gate_409_next.py": "9f62f3b6dcea90fa28c3215b301bd9957e350fafc91ce5cc46cbdbf1e82fec76",
+      "exact_global_incremental_flip_search_409_next.py": "475d9aa7c4c69544c0494d3ddd0a877994cabe53174e8ced7f69f8e5d1cbe1b5",
+      "test_prospective_self_guards_409_next.py": "9e40475221d4dde4164db37dc97c4fbbe17e8cb6b4ab1c826669a7f114358246",
+      "f32_area_gate_409_next.py": "d150b7ec0b35b68fefe9ea606fe32191df321848f53e35c2596c1514b9ebe17d",
+      "prospective_self_guards_409_next.py": "066acf100fb34279625347cd3ec7597001524bce84563bfbabe0457335a4a093",
+      "incremental_exact_flip_check_408.py": "01026156cccd5c1742e2edcaa6288f64f888731424dfb6337831412701020711",
+      "patch_driver.py": "cc65fea97d4763dc48f4eef312b075e4babd93772216753e7ad80be106158f1c"
+    }
+  },
+  {
+    "argv": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "unittest",
+      "-v",
+      "test_refresh_fixed_bone_guards"
+    ],
+    "cwd": "/Users/numi/Work/numi-human-connected-surface-069/publication-128/sources/guard-refresh413",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "test_current_filter_removes_prior_and_resolved_identity (test_refresh_fixed_bone_guards.GuardIdentityTests.test_current_filter_removes_prior_and_resolved_identity) ... ok\ntest_current_reference_face_mismatch_fails_closed (test_refresh_fixed_bone_guards.GuardIdentityTests.test_current_reference_face_mismatch_fails_closed) ... ok\ntest_face_topology_mismatch_fails_closed (test_refresh_fixed_bone_guards.GuardIdentityTests.test_face_topology_mismatch_fails_closed) ... ok\ntest_no_change_preserves_prior_guards_without_inventing_delta (test_refresh_fixed_bone_guards.GuardIdentityTests.test_no_change_preserves_prior_guards_without_inventing_delta) ... ok\ntest_report_binding_rejects_missing_or_duplicate_bank_inventory (test_refresh_fixed_bone_guards.GuardIdentityTests.test_report_binding_rejects_missing_or_duplicate_bank_inventory) ... ok\ntest_report_binding_rejects_wrong_candidate_hash (test_refresh_fixed_bone_guards.GuardIdentityTests.test_report_binding_rejects_wrong_candidate_hash) ... ok\ntest_resolved_pairs_are_added_and_current_pairs_filtered (test_refresh_fixed_bone_guards.GuardIdentityTests.test_resolved_pairs_are_added_and_current_pairs_filtered) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.000s\n\nOK\n",
+    "source_sha256": {
+      "refresh_fixed_bone_guards.py": "466a2ca569f1043a7c8736bd32e35c3c8ef96db226bb02121592fd57ec7e8965",
+      "test_refresh_fixed_bone_guards.py": "483aba3c13912d28f0d7df4533db8f2e48ec9ab8dcd6b8506961e6f733f53a5f"
+    }
+  },
+  {
+    "argv": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "test_prepare_continuation_inputs_413.py"
+    ],
+    "cwd": "/Users/numi/Work/numi-human-connected-surface-069/publication-128/sources/continuation-prep413",
+    "returncode": 0,
+    "stdout": "..............                                                           [100%]\n14 passed in 0.04s\n",
+    "stderr": "",
+    "source_sha256": {
+      "prepare_connected_continuation_inputs_413.py": "50a603548a85343430deedbbd2d5e564ff915ce0036f229147a4d76a6070031a",
+      "test_prepare_continuation_inputs_413.py": "1fadfc3ff4ff6752fa408dfd157a7157770a2426a9ebec43c032e5a719d08be1"
+    }
+  },
+  {
+    "argv": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "unittest",
+      "-v",
+      "test_refresh_point_depth_rows"
+    ],
+    "cwd": "/Users/numi/Work/numi-human-connected-surface-069/publication-128/sources/depth-refresh413",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "test_candidate_summary_requires_exact_complete_zero_step_binding (test_refresh_point_depth_rows.PointDepthRefreshTests.test_candidate_summary_requires_exact_complete_zero_step_binding) ... ok\ntest_existing_owner_source_receipts_are_complete_without_redundant_top_level_fields (test_refresh_point_depth_rows.PointDepthRefreshTests.test_existing_owner_source_receipts_are_complete_without_redundant_top_level_fields) ... ok\ntest_node_accounting_rejects_missing_or_inconsistent_bank_coverage (test_refresh_point_depth_rows.PointDepthRefreshTests.test_node_accounting_rejects_missing_or_inconsistent_bank_coverage) ... ok\ntest_query_receipt_requires_complete_mechanics_node_domain (test_refresh_point_depth_rows.PointDepthRefreshTests.test_query_receipt_requires_complete_mechanics_node_domain) ... ok\ntest_sparse_pair_rows_reject_duplicate_and_unknown_bank (test_refresh_point_depth_rows.PointDepthRefreshTests.test_sparse_pair_rows_reject_duplicate_and_unknown_bank) ... ok\ntest_sparse_pairs_are_complete_when_node_rows_account_for_aabb_pruning (test_refresh_point_depth_rows.PointDepthRefreshTests.test_sparse_pairs_are_complete_when_node_rows_account_for_aabb_pruning) ... ok\ntest_surface_report_requires_all_unique_typed_banks (test_refresh_point_depth_rows.PointDepthRefreshTests.test_surface_report_requires_all_unique_typed_banks) ... ok\ntest_zero_feasibility_gate_accepts_exact_zero_and_rejects_positive (test_refresh_point_depth_rows.PointDepthRefreshTests.test_zero_feasibility_gate_accepts_exact_zero_and_rejects_positive) ... ok\ntest_zero_feasibility_gate_rejects_incomplete_source_coverage (test_refresh_point_depth_rows.PointDepthRefreshTests.test_zero_feasibility_gate_rejects_incomplete_source_coverage) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 0.002s\n\nOK\n",
+    "source_sha256": {
+      "refresh_point_depth_rows.py": "ee327a03af99bcb9b89f6344d1f3a7d6ead074cbf489fd985f04c22362ecff3f",
+      "test_refresh_point_depth_rows.py": "7a26e78aae1425b8e1fa84ecfde58d35f3b0a8d787a5faba9116ea8cffc4956a"
+    }
+  },
+  {
+    "argv": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "unittest",
+      "-v",
+      "test_select_active_guards_413"
+    ],
+    "cwd": "/Users/numi/Work/numi-human-connected-surface-069/publication-128/sources/prospective412",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "test_activity_margin_selects_near_active_pair (test_select_active_guards_413.ActiveGuardSelectionTests.test_activity_margin_selects_near_active_pair) ... ok\ntest_malformed_nonfinite_or_overspecified_payload_fails_closed (test_select_active_guards_413.ActiveGuardSelectionTests.test_malformed_nonfinite_or_overspecified_payload_fails_closed) ... ok\ntest_missing_mandatory_pair_fails_closed (test_select_active_guards_413.ActiveGuardSelectionTests.test_missing_mandatory_pair_fails_closed) ... ok\ntest_node_trust_clips_prediction_and_reports_it (test_select_active_guards_413.ActiveGuardSelectionTests.test_node_trust_clips_prediction_and_reports_it) ... ok\ntest_selects_whole_threatened_pair_and_keeps_mandatory (test_select_active_guards_413.ActiveGuardSelectionTests.test_selects_whole_threatened_pair_and_keeps_mandatory) ... ok\ntest_zero_activity_margin_does_not_select_safe_pairs (test_select_active_guards_413.ActiveGuardSelectionTests.test_zero_activity_margin_does_not_select_safe_pairs) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.008s\n\nOK\n",
+    "source_sha256": {
+      "augment_mandatory_413.py": "3dcbbaac653ab7716ddc55c1b92c84dc53197cc0d55b4c92dc740403614a564b",
+      "test_select_active_guards_413.py": "0bc51ed579a467cc72ecb939927f7ae312f87dc9fe08707d43a47d6053b0a652",
+      "enumerate_witness_scope_412.py": "cb751d182e5de08291d52764b4eb5961479e231e3e6f7de9f4d5926a0e362693",
+      "enumerate_412_count.py": "294e0d4ace1f24505966758667c1ea7fe03b38d4ce22d90cd2a70b0d6618568b",
+      "build_new_026_rows_412.py": "af73460204fdfd434e7465271e8643ef574a8980457f35ef3c6d7ddf0c713971",
+      "build_union_026_rows_412.py": "7cbf314fa81e10a5497a4ac35221214cf69438c9d0544e8411762e98c2f5a00c",
+      "enumerate_412.py": "c11f0b4ad21cc416cf2be81cad6da1237993a6d2bb53a0ea9a86991768b9b117",
+      "select_active_guards_413.py": "b7d2d8d43d06115a43955c7e36415a35761da0a4e2369523586ddbc1b9abb76e"
+    }
+  }
+]
