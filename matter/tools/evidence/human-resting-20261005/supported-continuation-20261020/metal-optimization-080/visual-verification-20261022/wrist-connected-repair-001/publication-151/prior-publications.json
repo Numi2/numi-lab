@@ -1,0 +1,18 @@
+{
+  "P148_commit": "a17f689a8d25a5c6e8d7c09cfe9865548148ec9d",
+  "P149_commit": "943a3f73e04da968fde212bed3504c9718e7faf1",
+  "P150_candidate": {
+    "counts": {
+      "anchor_rows": 237,
+      "complete_banks": 185,
+      "contained_pairs": 0,
+      "self_pairs": 0,
+      "surface_pairs": 2326
+    },
+    "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-150/surface-clearance-546/raw-lp-trial-005-full-plane/fit/candidate.npz",
+    "sha256": "881e8e588a15bb74057ad1b587125b47aad7b483e424a0b75f29f9b82ecf94db"
+  },
+  "P150_commit": "24a11b9fb4753080d9e2579d419613ea0ca432d6",
+  "note": "P150 and earlier large input/candidate payloads remain at their exact committed paths; P151 references those published sources rather than duplicating them.",
+  "server_parent_main": "24a11b9fb4753080d9e2579d419613ea0ca432d6"
+}

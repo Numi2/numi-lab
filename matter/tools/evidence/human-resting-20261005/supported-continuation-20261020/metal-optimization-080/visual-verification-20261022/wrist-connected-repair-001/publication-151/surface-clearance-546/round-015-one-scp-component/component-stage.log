@@ -1,0 +1,3 @@
+waiting_for_human_geometry_slot pid=71477
+acquired_human_geometry_slot pid=71477
+{"candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-015-one-scp-component/component-proposal/candidate.npz", "components": 14, "alphas": [0.125, null, null, null, 0.125, 0.125, 0.125, 0.5, 0.0001220703125, 0.5, 0.5, 0.125, 0.25, null], "native_admission": false}

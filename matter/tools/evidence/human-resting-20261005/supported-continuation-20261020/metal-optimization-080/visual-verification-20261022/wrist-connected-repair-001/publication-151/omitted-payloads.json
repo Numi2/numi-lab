@@ -1,0 +1,39 @@
+{
+  "omitted_payloads": [
+    {
+      "bytes": 43046845,
+      "package_path": null,
+      "reason": "Large stdout mirror of the retained structured fit/report.json; exact launch/execution metadata and report remain included.",
+      "sha256": "cab591d6a1d06b6933b1442dfbd07d19f19799ab401af440b15599f0ca4c7c10",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-010-full-plane-trust4/fit-stage.log"
+    },
+    {
+      "bytes": 43180373,
+      "package_path": null,
+      "reason": "Large stdout mirror of the retained structured fit/report.json; exact launch/execution metadata and report remain included.",
+      "sha256": "0cf5b3c9d5184dbf102ee1db1d4d9a326999ce94e296dc9f425ae7828472a7bd",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-011-full-plane-trust4/fit-stage.log"
+    },
+    {
+      "bytes": 43167369,
+      "package_path": null,
+      "reason": "Large stdout mirror of the retained structured fit/report.json; exact launch/execution metadata and report remain included.",
+      "sha256": "ace675f23874c6d6211b06ba36613b434ae1d6c8a256d29044761753d5f0872f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-012-full-plane-trust4/fit-stage.log"
+    },
+    {
+      "bytes": 43424320,
+      "package_path": null,
+      "reason": "Large stdout mirror of the retained structured fit/report.json; exact launch/execution metadata and report remain included.",
+      "sha256": "c59c2e01aafa485274cd15b7fe7c15f0c6af50531a47cf1f8f8cd4bdcca71867",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-013-full-plane-trust4/fit-stage.log"
+    },
+    {
+      "bytes": 43292808,
+      "package_path": null,
+      "reason": "Large stdout mirror of the retained structured fit/report.json; exact launch/execution metadata and report remain included.",
+      "sha256": "ef52b84d6301e15acba569456596bdc5a5af0aa36dabdfa4f1b54147b4f9bbaf",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-015-one-scp-component/fit-stage.log"
+    }
+  ]
+}

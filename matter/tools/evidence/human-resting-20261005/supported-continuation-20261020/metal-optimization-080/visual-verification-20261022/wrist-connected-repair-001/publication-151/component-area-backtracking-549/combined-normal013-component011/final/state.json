@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/component-area-backtracking-549/combined-normal013-component011/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "f3b01c6f1f45067c251b4a728f5acf3e9c644043d99742d96c367e6335661ca2",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/component-area-backtracking-549/combined-normal013-component011/full-check/audit-130/summary.json",
+  "point_summary_sha256": "bda3205189413228b801070b53be35f38ddb9827722b7aa81f62cc40b7e2772e",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/component-area-backtracking-549/combined-normal013-component011/full-check/audit-159/report.json",
+  "surface_report_sha256": "028a5d122d81b2ca88184ca579d04dbb4a8f379a9e7314050fdad7fe90460c7d",
+  "temporary_unselected_construction": false
+}

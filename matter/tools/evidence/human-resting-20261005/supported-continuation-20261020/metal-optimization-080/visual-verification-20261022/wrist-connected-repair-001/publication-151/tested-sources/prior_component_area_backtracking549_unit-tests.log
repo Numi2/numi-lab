@@ -1,0 +1,15 @@
+test_bad_baseline_rejected (test_component_area_backtracking549.TestComponents.test_bad_baseline_rejected) ... ok
+test_disjoint_faces (test_component_area_backtracking549.TestComponents.test_disjoint_faces) ... ok
+test_duplicate_free (test_component_area_backtracking549.TestComponents.test_duplicate_free) ... ok
+test_failed_region_keeps_other_progress (test_component_area_backtracking549.TestComponents.test_failed_region_keeps_other_progress) ... ok
+test_independent_alpha_and_fixed_bits (test_component_area_backtracking549.TestComponents.test_independent_alpha_and_fixed_bits) ... ok
+test_invalid_pair (test_component_area_backtracking549.TestComponents.test_invalid_pair) ... ok
+test_malformed_partition_rejected (test_component_area_backtracking549.TestComponents.test_malformed_partition_rejected) ... ok
+test_pair_merges_complete_stencils (test_component_area_backtracking549.TestComponents.test_pair_merges_complete_stencils) ... ok
+test_shared_fixed_node_does_not_couple (test_component_area_backtracking549.TestComponents.test_shared_fixed_node_does_not_couple) ... ok
+test_zero_linear_derivative_still_coupled (test_component_area_backtracking549.TestComponents.test_zero_linear_derivative_still_coupled) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.001s
+
+OK

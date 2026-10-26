@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-013-full-plane-trust4/fit/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "367f57638e9b51bfd3cf654223138b6fc31dd8eec6b656dcb710ef0d397f087f",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-013-full-plane-trust4/first-check/audit-130/summary.json",
+  "point_summary_sha256": "facbaf261cf122dff4e61de4881bb545390ae43bcc9c8e420d89be752c7d61d6",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-013-full-plane-trust4/first-check/audit-159/report.json",
+  "surface_report_sha256": "09b908f3ea55d23ec40c3d8a4b4ddba7c1b5477676e4ae2d48c9aee6c629b190",
+  "temporary_unselected_construction": false
+}

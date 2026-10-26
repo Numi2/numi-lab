@@ -1,0 +1,19 @@
+{
+  "arithmetic_run": "completed",
+  "geometry_or_solver_jobs_launched": 0,
+  "python_path": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/line-search-target-diagnosis-546/report.json",
+  "report_sha256": "ea0fe4393fb12cb85a81711b20ed00facc5e90b39dc36f40219518470cad1337",
+  "reproduction_command": "/Users/n/numi-human-prep-venv-20261005/bin/python /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/line-search-target-diagnosis-546/diagnose.py",
+  "round010_exact_pair_count": 113,
+  "round010_fit_input_new_count": 113,
+  "round010_postfit_pool_overlap": 113,
+  "round011_exact_pair_count": 23,
+  "round011_fit_input_new_count": 23,
+  "round011_postfit_pool_overlap": 23,
+  "schema": "numi.human.line_search_diagnosis546_manifest.v1",
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/line-search-target-diagnosis-546/diagnose.py",
+  "script_sha256": "1ff53e809dc7a4094186ce9b78587667a353f8c94a9a0389f6e0ae37de33df64",
+  "syntax_check": "py_compile_passed",
+  "timings_measured": false
+}

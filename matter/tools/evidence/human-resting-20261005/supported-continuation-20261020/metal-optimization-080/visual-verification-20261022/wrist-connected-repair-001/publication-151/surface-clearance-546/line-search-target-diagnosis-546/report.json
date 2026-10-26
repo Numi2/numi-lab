@@ -1,0 +1,1127 @@
+{
+  "inputs_sha256": {
+    "base_candidate": "881e8e588a15bb74057ad1b587125b47aad7b483e424a0b75f29f9b82ecf94db",
+    "pair_owner": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+    "plane_owner": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0",
+    "plane_pair_input": "26084e6f288e8ab6c27ddd0fdc0b5234272ff6eb30c9c430ffa1a990eb7c99b9",
+    "round010_exact_pairs": "06650107fd8a78ab18307d6a0c24238698c001a62fbc161aa72f3c6ca6399323",
+    "round010_exact_summary": "5e9506e780cc5be30713fb76bde24230b0329b6aa8d364076a9fecd6b302e164",
+    "round010_fit_report": "0c2da08a6721064982cf1e51eee9251bcc81382b999dfe43e1652e70b602525b",
+    "round010_fit_seed_pool": "d7fd3954d58e4cef1fb784b873ff50b47a416e5c8c15a87bea600465b03acf29",
+    "round010_postfit_seed_pool": "9d912f80f5fe292d03e51cc069c24eab27d403c64c089b2d87df29e3410fd3b9",
+    "round010_selected_seed_pool": "d7fd3954d58e4cef1fb784b873ff50b47a416e5c8c15a87bea600465b03acf29",
+    "round011_exact_pairs": "c5157fd5c9ccec9f2702de49612558d2c0a01302e215e71b6c4467385ba58058",
+    "round011_exact_summary": "e5ef4ef41b293a73b0e05ecbde0531f5425dc3045a99d3a9889f359b9e84272e",
+    "round011_fit_report": "e0d2656fbcfa1a79ea0332d154a1db3ff5608cdec7d20ed1c7cd2a388c8b4ecf",
+    "round011_fit_seed_pool": "9d912f80f5fe292d03e51cc069c24eab27d403c64c089b2d87df29e3410fd3b9",
+    "round011_postfit_seed_pool": "25de040378d9e05ccf510e41699e66e8bb9eb1d925119a9cd8598116cf65eab5",
+    "surface_objective_source": "dd6f70afab9cb51f3658d8f4fc9d65a13a6f70517e536a9e81c4c2a098750516",
+    "targets_npz": "845cac0dd3367a8c8ed0878e3d04558097573722fdbd283a00c669d3e186776f",
+    "targets_report": "2d93e2021fa8e84ecbf075aa1f350a19618e461d697ee18bbce5012a2ea6700a"
+  },
+  "limits": [
+    "The 0.1 area floor, 0.5 edge gradient cap, 12 mm source cap and 4 mm trust region are construction gates from this fit, not anatomy or physical tissue requirements.",
+    "Bone triangle winding/positive-volume checks do not prove convexity or that each local triangle plane supports its entire bank.",
+    "The per-pair plane rows guarantee separation only from the paired triangle when all corner inequalities hold; they do not certify the whole bone-bank union.",
+    "Per-component alpha is a viable construction-only line-search change because hard nonlinear area/edge and existing seed stencils partition into the same exact 14 components here, but full F32 checks and complete exact surface/self audits must still be run after recombination."
+  ],
+  "physical_or_anatomical_admission": false,
+  "round011_area_and_component_diagnosis": {
+    "actual_fit_seed_count": 25449,
+    "area_gate_trials": {
+      "alpha_estimate_is_not_a_f32_gate": true,
+      "area_scp_iterations": [
+        {
+          "accepted_alpha": 0.125,
+          "accepted_area_ratio": 0.10009356948026137,
+          "iteration": 1,
+          "trials": [
+            {
+              "accepted": false,
+              "alpha": 1.0,
+              "bad_current_oriented_components": [
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "bad_current_oriented_faces_first_12": [
+                8539,
+                8732,
+                8766,
+                8771,
+                8772,
+                8779,
+                8805,
+                8910,
+                8965,
+                9193,
+                9204,
+                9812
+              ],
+              "bad_fixed_037_components": [
+                0,
+                1,
+                2,
+                3,
+                5,
+                7,
+                9
+              ],
+              "bad_fixed_037_faces": [
+                8851,
+                12442,
+                18061,
+                18704,
+                18705,
+                26606,
+                26607,
+                26853,
+                34134,
+                40715,
+                40716,
+                41484,
+                41561
+              ],
+              "edge_gradient_pass": false,
+              "minimum_edge_gradient_slack_mm": -8.056734574046764e-05,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.06588404993450324,
+              "node_step_max_mm": 2.8830193964140314,
+              "reason": "emitted_gate",
+              "source_max_mm": 11.99701275174885
+            },
+            {
+              "accepted": false,
+              "alpha": 0.5,
+              "bad_current_oriented_components": [],
+              "bad_current_oriented_faces_first_12": [],
+              "bad_fixed_037_components": [
+                0,
+                2
+              ],
+              "bad_fixed_037_faces": [
+                18705,
+                40715
+              ],
+              "edge_gradient_pass": true,
+              "minimum_edge_gradient_slack_mm": 0.0017542168792784856,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.098262933694695,
+              "node_step_max_mm": 1.4415314745519245,
+              "reason": "emitted_gate",
+              "source_max_mm": 11.996230080821611
+            },
+            {
+              "accepted": false,
+              "alpha": 0.25,
+              "bad_current_oriented_components": [],
+              "bad_current_oriented_faces_first_12": [],
+              "bad_fixed_037_components": [
+                0
+              ],
+              "bad_fixed_037_faces": [
+                40715
+              ],
+              "edge_gradient_pass": true,
+              "minimum_edge_gradient_slack_mm": 0.002639300698007264,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.09983137242165839,
+              "node_step_max_mm": 0.7207418647186314,
+              "reason": "emitted_gate",
+              "source_max_mm": 11.995836084709932
+            },
+            {
+              "accepted": true,
+              "alpha": 0.125,
+              "bad_current_oriented_components": [],
+              "bad_current_oriented_faces_first_12": [],
+              "bad_fixed_037_components": [],
+              "bad_fixed_037_faces": [],
+              "edge_gradient_pass": true,
+              "minimum_edge_gradient_slack_mm": 0.0030607691831162024,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+              "node_step_max_mm": 0.360373028726721,
+              "reason": "accepted",
+              "source_max_mm": 11.995640676661047
+            }
+          ]
+        },
+        {
+          "accepted_alpha": 0.125,
+          "accepted_area_ratio": 0.10009356948026137,
+          "iteration": 2,
+          "trials": [
+            {
+              "accepted": false,
+              "alpha": 1.0,
+              "bad_current_oriented_components": [
+                0,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "bad_current_oriented_faces_first_12": [
+                8539,
+                8732,
+                8752,
+                8766,
+                8771,
+                8772,
+                8779,
+                8805,
+                8910,
+                8965,
+                9193,
+                9194
+              ],
+              "bad_fixed_037_components": [
+                0,
+                1,
+                2,
+                4,
+                5,
+                7,
+                9
+              ],
+              "bad_fixed_037_faces": [
+                8851,
+                15261,
+                17074,
+                18061,
+                18704,
+                18705,
+                26606,
+                26607,
+                26853,
+                34134,
+                40715,
+                40716,
+                41484
+              ],
+              "edge_gradient_pass": false,
+              "minimum_edge_gradient_slack_mm": -7.750775127808932e-05,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.02248169501290125,
+              "node_step_max_mm": 2.882751498532778,
+              "reason": "emitted_gate",
+              "source_max_mm": 11.99701275174885
+            },
+            {
+              "accepted": false,
+              "alpha": 0.5,
+              "bad_current_oriented_components": [],
+              "bad_current_oriented_faces_first_12": [],
+              "bad_fixed_037_components": [
+                0,
+                2
+              ],
+              "bad_fixed_037_faces": [
+                18705,
+                40715
+              ],
+              "edge_gradient_pass": true,
+              "minimum_edge_gradient_slack_mm": 0.0015013357882131253,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.09889181691150528,
+              "node_step_max_mm": 1.6215632084851037,
+              "reason": "emitted_gate",
+              "source_max_mm": 11.996343157426095
+            },
+            {
+              "accepted": false,
+              "alpha": 0.25,
+              "bad_current_oriented_components": [],
+              "bad_current_oriented_faces_first_12": [],
+              "bad_fixed_037_components": [
+                0
+              ],
+              "bad_fixed_037_faces": [
+                40715
+              ],
+              "edge_gradient_pass": true,
+              "minimum_edge_gradient_slack_mm": 0.0023021259099201105,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.09988429841720287,
+              "node_step_max_mm": 0.9909889490576167,
+              "reason": "emitted_gate",
+              "source_max_mm": 11.995976849370708
+            },
+            {
+              "accepted": true,
+              "alpha": 0.125,
+              "bad_current_oriented_components": [],
+              "bad_current_oriented_faces_first_12": [],
+              "bad_fixed_037_components": [],
+              "bad_fixed_037_faces": [],
+              "edge_gradient_pass": true,
+              "minimum_edge_gradient_slack_mm": 0.002681447546518156,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+              "node_step_max_mm": 0.6756830839405561,
+              "reason": "accepted",
+              "source_max_mm": 11.995825341327336
+            }
+          ]
+        },
+        {
+          "accepted_alpha": 0.125,
+          "accepted_area_ratio": 0.10009356948026137,
+          "iteration": 3,
+          "trials": [
+            {
+              "accepted": false,
+              "alpha": 1.0,
+              "bad_current_oriented_components": [
+                0,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "bad_current_oriented_faces_first_12": [
+                8539,
+                8627,
+                8732,
+                8766,
+                8771,
+                8772,
+                8779,
+                8805,
+                8910,
+                8965,
+                9193,
+                9194
+              ],
+              "bad_fixed_037_components": [
+                0,
+                1,
+                2,
+                5,
+                7,
+                9
+              ],
+              "bad_fixed_037_faces": [
+                8772,
+                8851,
+                17049,
+                17074,
+                18061,
+                18704,
+                18705,
+                26853,
+                34134,
+                40715,
+                40716,
+                41484
+              ],
+              "edge_gradient_pass": false,
+              "minimum_edge_gradient_slack_mm": -7.853395428676635e-05,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.07297411918233485,
+              "node_step_max_mm": 2.8822345027257623,
+              "reason": "emitted_gate",
+              "source_max_mm": 11.99701275174885
+            },
+            {
+              "accepted": false,
+              "alpha": 0.5,
+              "bad_current_oriented_components": [],
+              "bad_current_oriented_faces_first_12": [],
+              "bad_fixed_037_components": [
+                0
+              ],
+              "bad_fixed_037_faces": [
+                40715
+              ],
+              "edge_gradient_pass": true,
+              "minimum_edge_gradient_slack_mm": 0.0013538218184249952,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.09923742902265939,
+              "node_step_max_mm": 1.7789566847181795,
+              "reason": "emitted_gate",
+              "source_max_mm": 11.996434278517736
+            },
+            {
+              "accepted": false,
+              "alpha": 0.25,
+              "bad_current_oriented_components": [],
+              "bad_current_oriented_faces_first_12": [],
+              "bad_fixed_037_components": [
+                0
+              ],
+              "bad_fixed_037_faces": [
+                40715
+              ],
+              "edge_gradient_pass": true,
+              "minimum_edge_gradient_slack_mm": 0.0020070979703438532,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.09992202638472325,
+              "node_step_max_mm": 1.2273168340140743,
+              "reason": "emitted_gate",
+              "source_max_mm": 11.99612822521087
+            },
+            {
+              "accepted": true,
+              "alpha": 0.125,
+              "bad_current_oriented_components": [],
+              "bad_current_oriented_faces_first_12": [],
+              "bad_fixed_037_components": [],
+              "bad_fixed_037_faces": [],
+              "edge_gradient_pass": true,
+              "minimum_edge_gradient_slack_mm": 0.002344272758431005,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+              "node_step_max_mm": 0.951505093507693,
+              "reason": "accepted",
+              "source_max_mm": 11.995962992686446
+            }
+          ]
+        },
+        {
+          "accepted_alpha": 0.125,
+          "accepted_area_ratio": 0.10007851082725151,
+          "iteration": 4,
+          "trials": [
+            {
+              "accepted": false,
+              "alpha": 1.0,
+              "bad_current_oriented_components": [
+                0,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "bad_current_oriented_faces_first_12": [
+                8539,
+                8732,
+                8752,
+                8766,
+                8771,
+                8772,
+                8779,
+                8805,
+                8910,
+                8965,
+                9193,
+                9194
+              ],
+              "bad_fixed_037_components": [
+                0,
+                1,
+                2,
+                5
+              ],
+              "bad_fixed_037_faces": [
+                18704,
+                18705,
+                26853,
+                34134,
+                40715,
+                40716
+              ],
+              "edge_gradient_pass": false,
+              "minimum_edge_gradient_slack_mm": -7.853395428677329e-05,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.08355353401830441,
+              "node_step_max_mm": 2.883298031216967,
+              "reason": "emitted_gate",
+              "source_max_mm": 11.99701275174885
+            },
+            {
+              "accepted": false,
+              "alpha": 0.5,
+              "bad_current_oriented_components": [],
+              "bad_current_oriented_faces_first_12": [],
+              "bad_fixed_037_components": [
+                0
+              ],
+              "bad_fixed_037_faces": [
+                40715
+              ],
+              "edge_gradient_pass": true,
+              "minimum_edge_gradient_slack_mm": 0.0011852344243814187,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.09946489142622585,
+              "node_step_max_mm": 1.9174015437390515,
+              "reason": "emitted_gate",
+              "source_max_mm": 11.996505933035396
+            },
+            {
+              "accepted": false,
+              "alpha": 0.25,
+              "bad_current_oriented_components": [],
+              "bad_current_oriented_faces_first_12": [],
+              "bad_fixed_037_components": [
+                0
+              ],
+              "bad_fixed_037_faces": [
+                40715
+              ],
+              "edge_gradient_pass": true,
+              "minimum_edge_gradient_slack_mm": 0.0017542168792784854,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.09997263456003092,
+              "node_step_max_mm": 1.4344563518130617,
+              "reason": "emitted_gate",
+              "source_max_mm": 11.996230080821611
+            },
+            {
+              "accepted": true,
+              "alpha": 0.125,
+              "bad_current_oriented_components": [],
+              "bad_current_oriented_faces_first_12": [],
+              "bad_fixed_037_components": [],
+              "bad_fixed_037_faces": [],
+              "edge_gradient_pass": true,
+              "minimum_edge_gradient_slack_mm": 0.0020492448188547487,
+              "minimum_fixed_037_reference_magnitude_ratio": 0.10007851082725151,
+              "node_step_max_mm": 1.1930015505836105,
+              "reason": "accepted",
+              "source_max_mm": 11.99608430398875
+            }
+          ]
+        }
+      ],
+      "final_emitted_gate": {
+        "edge_gradient_pass": true,
+        "exact_global_self_audit": "NOT_RUN_REQUIRED",
+        "maximum_node_step_mm": 1.1930015505836105,
+        "maximum_source_displacement_mm": 11.99608430398875,
+        "minimum_current_oriented_ratio": 0.6079460136988876,
+        "minimum_edge_gradient_slack_mm": 0.0020492448188547487,
+        "minimum_fixed_037_area_ratio": 0.10007851082725151,
+        "source_cap_mm": 12.0,
+        "status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED",
+        "trust_mm": 4.0
+      },
+      "gate_conclusion": "for iteration 4, alpha .25 failed only fixed-037 face 40715 in component 0; edge/source/trust passed. At alpha .5 only face 40715 remained an area failure and edge/source/trust passed. At alpha 1 area/current-orientation failures crossed several components and edge failed; source/trust still passed.",
+      "last_iteration_face_40715_linear_interpolated_area_floor_alpha_estimate": 0.217691720855542
+    },
+    "candidate_sha256": "12054723a816da4716a38fc25bf52b2ba7ed81372d71e0992772c5dab3b2bb53",
+    "support_area_and_seed_component_graph": {
+      "area_face_count": 16561,
+      "component_count": 14,
+      "component_free_node_counts_descending": [
+        1725,
+        994,
+        752,
+        730,
+        686,
+        645,
+        570,
+        488,
+        462,
+        356,
+        331,
+        18,
+        7,
+        1
+      ],
+      "component_graph_method": "union active free nodes in every support-area triangle and every input self-seed triangle-pair stencil; fixed anchors excluded",
+      "input_seed_count": 25449,
+      "witness_face_component_ids": {
+        "10923": [
+          8
+        ],
+        "11001": [
+          8
+        ],
+        "11069": [
+          8
+        ],
+        "11082": [
+          8
+        ],
+        "11733": [
+          3
+        ],
+        "11792": [
+          3
+        ],
+        "11858": [
+          3
+        ],
+        "12121": [
+          3
+        ],
+        "12387": [
+          3
+        ],
+        "12402": [
+          3
+        ],
+        "12442": [
+          3
+        ],
+        "12545": [
+          3
+        ],
+        "12546": [
+          3
+        ],
+        "13099": [
+          8
+        ],
+        "13137": [
+          8
+        ],
+        "13838": [
+          4
+        ],
+        "13915": [
+          4
+        ],
+        "14005": [
+          4
+        ],
+        "14071": [
+          4
+        ],
+        "14113": [
+          4
+        ],
+        "14181": [
+          4
+        ],
+        "14249": [
+          4
+        ],
+        "14372": [
+          4
+        ],
+        "14782": [
+          4
+        ],
+        "14886": [
+          4
+        ],
+        "14945": [
+          4
+        ],
+        "15058": [
+          4
+        ],
+        "15247": [
+          4
+        ],
+        "15261": [
+          4
+        ],
+        "15297": [
+          4
+        ],
+        "15300": [
+          4
+        ],
+        "15343": [
+          4
+        ],
+        "15370": [
+          4
+        ],
+        "15400": [
+          4
+        ],
+        "17049": [
+          7
+        ],
+        "17055": [
+          7
+        ],
+        "17074": [
+          7
+        ],
+        "17236": [
+          7
+        ],
+        "17293": [
+          7
+        ],
+        "17533": [
+          7
+        ],
+        "18061": [
+          7
+        ],
+        "18704": [
+          2
+        ],
+        "18705": [
+          2
+        ],
+        "18971": [
+          2
+        ],
+        "19118": [
+          2
+        ],
+        "19398": [
+          2
+        ],
+        "21197": [
+          6
+        ],
+        "21463": [
+          2
+        ],
+        "26248": [
+          5
+        ],
+        "26257": [
+          5
+        ],
+        "26479": [
+          5
+        ],
+        "26520": [
+          5
+        ],
+        "26606": [
+          5
+        ],
+        "26607": [
+          5
+        ],
+        "26646": [
+          5
+        ],
+        "26804": [
+          5
+        ],
+        "26853": [
+          5
+        ],
+        "26973": [
+          5
+        ],
+        "27019": [
+          5
+        ],
+        "27070": [
+          5
+        ],
+        "27088": [
+          5
+        ],
+        "27113": [
+          5
+        ],
+        "27131": [
+          5
+        ],
+        "27171": [
+          5
+        ],
+        "27176": [
+          5
+        ],
+        "27195": [
+          5
+        ],
+        "27342": [
+          5
+        ],
+        "27368": [
+          5
+        ],
+        "29255": [
+          0
+        ],
+        "29383": [
+          0
+        ],
+        "29400": [
+          0
+        ],
+        "29415": [
+          0
+        ],
+        "30986": [
+          0
+        ],
+        "31074": [
+          0
+        ],
+        "34134": [
+          1
+        ],
+        "40715": [
+          0
+        ],
+        "40716": [
+          0
+        ],
+        "41484": [
+          0
+        ],
+        "41561": [
+          0
+        ],
+        "8539": [
+          9
+        ],
+        "8627": [
+          9
+        ],
+        "8732": [
+          9
+        ],
+        "8752": [
+          9
+        ],
+        "8766": [
+          9
+        ],
+        "8771": [
+          9
+        ],
+        "8772": [
+          9
+        ],
+        "8779": [
+          9
+        ],
+        "8805": [
+          9
+        ],
+        "8851": [
+          9
+        ],
+        "8910": [
+          9
+        ],
+        "8965": [
+          9
+        ],
+        "9193": [
+          9
+        ],
+        "9194": [
+          9
+        ],
+        "9204": [
+          9
+        ],
+        "9812": [
+          8
+        ]
+      }
+    }
+  },
+  "schema": "numi.human.surface_line_search_target_diagnosis546.v1",
+  "scope": "read-only report parsing and narrow arithmetic; no solver, geometry query, full audit, or native run",
+  "self_pair_chronology": {
+    "interpretation": "113 round010 and 23 round011 exact self pairs were absent from the respective fit's actual seed input; each appears in its later refreshed pool. These are new post-fit witness cuts, not known violated SAT rows or Float32-only residuals. No 23/113 overlap is asserted.",
+    "pair_owner_sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+    "recomputed_026_row_margin_evaluation": "not applicable to the exact pairs because each pair set has zero overlap with the corresponding fit-time seed input",
+    "round010": {
+      "candidate_and_exact_audit_match": true,
+      "exact_audit_pair_count": 113,
+      "exact_audit_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-010-full-plane-trust4/first-check/audit-130/surface-self-pairs.npy",
+      "exact_audit_status": "STOPPED_AT_SURFACE_GATE",
+      "exact_audit_summary_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-010-full-plane-trust4/first-check/audit-130/summary.json",
+      "exact_pairs_new_relative_to_actual_fit_input": 113,
+      "exact_pairs_overlapping_actual_fit_input": 0,
+      "exact_pairs_overlapping_postfit_refresh": 113,
+      "fit_base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-005-full-plane/fit/candidate.npz",
+      "fit_base_candidate_sha256": "881e8e588a15bb74057ad1b587125b47aad7b483e424a0b75f29f9b82ecf94db",
+      "fit_candidate_sha256": "804678e24cbb9e93dc4a46d4e6740ec7102a7206ef37c25e2ebd58f8a641882e",
+      "fit_self_pair_linear_row_count_reported": 141788,
+      "fit_self_pairs_input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-010-selected-2326/prepare/constraints/self-seeds/merged-self-pair-seeds.npy",
+      "fit_self_pairs_input_count": 25336,
+      "fit_self_pairs_input_sha256": "d7fd3954d58e4cef1fb784b873ff50b47a416e5c8c15a87bea600465b03acf29",
+      "fit_status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED",
+      "postfit_refreshed_seed_count": 25449,
+      "postfit_refreshed_seed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-010-full-plane-trust4/constraints/self-seeds/merged-self-pair-seeds.npy",
+      "postfit_refreshed_seed_sha256": "9d912f80f5fe292d03e51cc069c24eab27d403c64c089b2d87df29e3410fd3b9"
+    },
+    "round011": {
+      "candidate_and_exact_audit_match": true,
+      "exact_audit_pair_count": 23,
+      "exact_audit_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-011-full-plane-trust4/first-check/audit-130/surface-self-pairs.npy",
+      "exact_audit_status": "STOPPED_AT_SURFACE_GATE",
+      "exact_audit_summary_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-011-full-plane-trust4/first-check/audit-130/summary.json",
+      "exact_pairs_new_relative_to_actual_fit_input": 23,
+      "exact_pairs_overlapping_actual_fit_input": 0,
+      "exact_pairs_overlapping_postfit_refresh": 23,
+      "fit_base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-005-full-plane/fit/candidate.npz",
+      "fit_base_candidate_sha256": "881e8e588a15bb74057ad1b587125b47aad7b483e424a0b75f29f9b82ecf94db",
+      "fit_candidate_sha256": "12054723a816da4716a38fc25bf52b2ba7ed81372d71e0992772c5dab3b2bb53",
+      "fit_self_pair_linear_row_count_reported": 142426,
+      "fit_self_pairs_input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-010-full-plane-trust4/constraints/self-seeds/merged-self-pair-seeds.npy",
+      "fit_self_pairs_input_count": 25449,
+      "fit_self_pairs_input_sha256": "9d912f80f5fe292d03e51cc069c24eab27d403c64c089b2d87df29e3410fd3b9",
+      "fit_status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED",
+      "postfit_refreshed_seed_count": 25472,
+      "postfit_refreshed_seed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-011-full-plane-trust4/constraints/self-seeds/merged-self-pair-seeds.npy",
+      "postfit_refreshed_seed_sha256": "25de040378d9e05ccf510e41699e66e8bb9eb1d925119a9cd8598116cf65eab5"
+    }
+  },
+  "target_plane_diagnosis": {
+    "bank_normal_mismatch_summary": [
+      {
+        "body": 109,
+        "dot_median": 0.9990817164729965,
+        "dot_p10": 0.7845976432860468,
+        "opposite_count": 7,
+        "pairs": 407,
+        "stable_bone_id": 114,
+        "top_component_ids": [
+          {
+            "component": 1,
+            "count": 407
+          }
+        ]
+      },
+      {
+        "body": 43,
+        "dot_median": 0.9999929648721422,
+        "dot_p10": 0.9375177256639233,
+        "opposite_count": 1,
+        "pairs": 311,
+        "stable_bone_id": 16,
+        "top_component_ids": [
+          {
+            "component": 2,
+            "count": 311
+          }
+        ]
+      },
+      {
+        "body": 115,
+        "dot_median": 0.9580784799286262,
+        "dot_p10": 0.17345369427214113,
+        "opposite_count": 9,
+        "pairs": 300,
+        "stable_bone_id": 118,
+        "top_component_ids": [
+          {
+            "component": 0,
+            "count": 300
+          }
+        ]
+      },
+      {
+        "body": 65,
+        "dot_median": 0.9976171333835442,
+        "dot_p10": -0.9848370105232213,
+        "opposite_count": 39,
+        "pairs": 284,
+        "stable_bone_id": 99,
+        "top_component_ids": [
+          {
+            "component": 4,
+            "count": 284
+          }
+        ]
+      },
+      {
+        "body": 124,
+        "dot_median": 0.9997576240477126,
+        "dot_p10": 0.8920500096969082,
+        "opposite_count": 9,
+        "pairs": 222,
+        "stable_bone_id": 123,
+        "top_component_ids": [
+          {
+            "component": 5,
+            "count": 222
+          }
+        ]
+      },
+      {
+        "body": 114,
+        "dot_median": 0.9095075765488797,
+        "dot_p10": 0.117086631771958,
+        "opposite_count": 14,
+        "pairs": 220,
+        "stable_bone_id": 117,
+        "top_component_ids": [
+          {
+            "component": 0,
+            "count": 220
+          }
+        ]
+      },
+      {
+        "body": 59,
+        "dot_median": 0.9272940548378058,
+        "dot_p10": 0.5255526022189745,
+        "opposite_count": 6,
+        "pairs": 184,
+        "stable_bone_id": 95,
+        "top_component_ids": [
+          {
+            "component": 3,
+            "count": 184
+          }
+        ]
+      },
+      {
+        "body": 74,
+        "dot_median": 0.9999999999999999,
+        "dot_p10": 0.8328672345387091,
+        "opposite_count": 6,
+        "pairs": 148,
+        "stable_bone_id": 104,
+        "top_component_ids": [
+          {
+            "component": 6,
+            "count": 148
+          }
+        ]
+      },
+      {
+        "body": 64,
+        "dot_median": 0.9226253233570036,
+        "dot_p10": 0.37140573924221754,
+        "opposite_count": 8,
+        "pairs": 114,
+        "stable_bone_id": 98,
+        "top_component_ids": [
+          {
+            "component": 7,
+            "count": 114
+          }
+        ]
+      },
+      {
+        "body": 57,
+        "dot_median": 0.9083866378696095,
+        "dot_p10": 0.3790229476056106,
+        "opposite_count": 5,
+        "pairs": 91,
+        "stable_bone_id": 89,
+        "top_component_ids": [
+          {
+            "component": 8,
+            "count": 91
+          }
+        ]
+      },
+      {
+        "body": 61,
+        "dot_median": 0.988449147491974,
+        "dot_p10": 0.10831776673923803,
+        "opposite_count": 2,
+        "pairs": 41,
+        "stable_bone_id": 97,
+        "top_component_ids": [
+          {
+            "component": 9,
+            "count": 41
+          }
+        ]
+      },
+      {
+        "body": 100,
+        "dot_median": 0.9607636306344031,
+        "dot_p10": 0.9215272612688061,
+        "opposite_count": 0,
+        "pairs": 4,
+        "stable_bone_id": 85,
+        "top_component_ids": [
+          {
+            "component": 10,
+            "count": 4
+          }
+        ]
+      }
+    ],
+    "bank_pair_counts_descending": [
+      {
+        "body": 109,
+        "pairs": 407,
+        "stable_bone_id": 114
+      },
+      {
+        "body": 43,
+        "pairs": 311,
+        "stable_bone_id": 16
+      },
+      {
+        "body": 115,
+        "pairs": 300,
+        "stable_bone_id": 118
+      },
+      {
+        "body": 65,
+        "pairs": 284,
+        "stable_bone_id": 99
+      },
+      {
+        "body": 124,
+        "pairs": 222,
+        "stable_bone_id": 123
+      },
+      {
+        "body": 114,
+        "pairs": 220,
+        "stable_bone_id": 117
+      },
+      {
+        "body": 59,
+        "pairs": 184,
+        "stable_bone_id": 95
+      },
+      {
+        "body": 74,
+        "pairs": 148,
+        "stable_bone_id": 104
+      },
+      {
+        "body": 64,
+        "pairs": 114,
+        "stable_bone_id": 98
+      },
+      {
+        "body": 57,
+        "pairs": 91,
+        "stable_bone_id": 89
+      },
+      {
+        "body": 61,
+        "pairs": 41,
+        "stable_bone_id": 97
+      },
+      {
+        "body": 100,
+        "pairs": 4,
+        "stable_bone_id": 85
+      }
+    ],
+    "bone_plane_normal_dot_certified_union_proposal_direction_quantiles": {
+      "0.0": -0.9966123740191737,
+      "0.1": 0.4860486242788587,
+      "0.25": 0.8897312691455347,
+      "0.5": 0.9931485304612291,
+      "0.75": 1.0,
+      "0.9": 1.0,
+      "1.0": 1.0000000000000004
+    },
+    "direction_definition": "Nearest point on initially containing complete bank triangles clipped to the source-normal hemisphere, in an orthonormal source-relative frame with strict nonnegative clipping coordinate; deterministic stable-ID ties; exact certified-union-interval ray plus all185 endpoint classification unchanged.",
+    "hard_and_soft_row_semantics": {
+      "each_plane_separates_complete_triangle_pair": true,
+      "global_bank_or_global_surface_clearance_certified": false,
+      "matched_pairs": 2326,
+      "nonpositive_hard_rows": 3586,
+      "objective": "three corner constraints per paired skin face against its matched bone triangle plane; only positive lower bounds are soft targets, nonpositive are hard nonregression rows",
+      "point_objective_rows": 0,
+      "positive_soft_rows": 3392
+    },
+    "opposite_direction_count_dot_lt_0": 106,
+    "pair_count": 2326,
+    "plane_normals": "unit cross product of each ordered matched fixed-bone triangle",
+    "plane_owner_pin": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0",
+    "poor_alignment_count_dot_lt_0_5": 242,
+    "target_direction_limit": "per-pair proposal direction is a certified complete-bank union exit; the plane owner verifies outward winding but does not certify the individual triangle plane supports the whole possibly curved/nonconvex bank",
+    "target_npz_sha256": "845cac0dd3367a8c8ed0878e3d04558097573722fdbd283a00c669d3e186776f",
+    "well_aligned_count_dot_ge_0_9": 1692
+  },
+  "timings_measured": false
+}

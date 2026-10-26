@@ -1,0 +1,252 @@
+{
+  "base_full_130_audit_sha256": "bda3205189413228b801070b53be35f38ddb9827722b7aa81f62cc40b7e2772e",
+  "base_full_130_candidate_sha256": "f3b01c6f1f45067c251b4a728f5acf3e9c644043d99742d96c367e6335661ca2",
+  "candidate_sha256": "3ff88da6aa4a63ba849d7b9a497774b261b1785f8db322ad4b259cc9776bb717",
+  "claim_scope": "Exact 315/408 incremental self checks from a complete initial zero-self audit; not a fresh full 130 execution on this candidate.",
+  "incremental_chain": [
+    {
+      "accepted_operation_count": 17,
+      "final_self_pair_count": 0,
+      "full_130_execution": false,
+      "input_candidate_sha256": "f3b01c6f1f45067c251b4a728f5acf3e9c644043d99742d96c367e6335661ca2",
+      "introduced_self_pair_count": 0,
+      "operation_checks": [
+        {
+          "edge": [
+            11787,
+            20876
+          ],
+          "face_rows": [
+            41537,
+            41538
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            18857,
+            19970
+          ],
+          "face_rows": [
+            14170,
+            14212
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            18794,
+            20807
+          ],
+          "face_rows": [
+            40576,
+            40616
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            9628,
+            19937
+          ],
+          "face_rows": [
+            13995,
+            14000
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            17796,
+            20559
+          ],
+          "face_rows": [
+            31224,
+            31225
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            17177,
+            20258
+          ],
+          "face_rows": [
+            20399,
+            20400
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            14278,
+            19375
+          ],
+          "face_rows": [
+            18905,
+            18914
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            15666,
+            20775
+          ],
+          "face_rows": [
+            34908,
+            34913
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            17785,
+            20524
+          ],
+          "face_rows": [
+            30989,
+            30990
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            18611,
+            19521
+          ],
+          "face_rows": [
+            22285,
+            22286
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            17626,
+            20487
+          ],
+          "face_rows": [
+            29403,
+            29404
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            19120,
+            20399
+          ],
+          "face_rows": [
+            26788,
+            26863
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            17224,
+            18479
+          ],
+          "face_rows": [
+            21220,
+            21245
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            17075,
+            20183
+          ],
+          "face_rows": [
+            19128,
+            19129
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            13103,
+            20644
+          ],
+          "face_rows": [
+            32728,
+            32733
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            16750,
+            18869
+          ],
+          "face_rows": [
+            14859,
+            14876
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            16043,
+            18934
+          ],
+          "face_rows": [
+            34058,
+            34098
+          ],
+          "introduced_self_pair_count": 0
+        }
+      ],
+      "output_candidate_sha256": "d4d9781c0eceda427268556627ac07d46a92bea0cb0baef24254256697f6e484",
+      "proposal_report_sha256": "d441d3193643f8484c9d6829c910dfc80bcff1de80d5f6bbe6b5896d2f5fbf23"
+    },
+    {
+      "accepted_operation_count": 2,
+      "final_self_pair_count": 0,
+      "full_130_execution": false,
+      "input_candidate_sha256": "d4d9781c0eceda427268556627ac07d46a92bea0cb0baef24254256697f6e484",
+      "introduced_self_pair_count": 0,
+      "operation_checks": [
+        {
+          "edge": [
+            17289,
+            18611
+          ],
+          "face_rows": [
+            22269,
+            22286
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            14713,
+            18565
+          ],
+          "face_rows": [
+            13996,
+            14231
+          ],
+          "introduced_self_pair_count": 0
+        }
+      ],
+      "output_candidate_sha256": "3ff88da6aa4a63ba849d7b9a497774b261b1785f8db322ad4b259cc9776bb717",
+      "proposal_report_sha256": "12e74d6c0390c965cd2b5b89cb84b9ef47accf3f86c1012ee9c1f7636f5bb8ab"
+    },
+    {
+      "accepted_operation_count": 0,
+      "final_self_pair_count": 0,
+      "full_130_execution": false,
+      "input_candidate_sha256": "3ff88da6aa4a63ba849d7b9a497774b261b1785f8db322ad4b259cc9776bb717",
+      "introduced_self_pair_count": 0,
+      "operation_checks": [],
+      "output_candidate_sha256": "3ff88da6aa4a63ba849d7b9a497774b261b1785f8db322ad4b259cc9776bb717",
+      "proposal_report_sha256": "066ac3d991040093d7bf909afad794521abaa0f664e048dcca2d77137e3a0576"
+    }
+  ],
+  "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "type": "INCREMENTAL_ZERO_SELF_CARRYFORWARD",
+  "zero_self_pair_count": 0
+}

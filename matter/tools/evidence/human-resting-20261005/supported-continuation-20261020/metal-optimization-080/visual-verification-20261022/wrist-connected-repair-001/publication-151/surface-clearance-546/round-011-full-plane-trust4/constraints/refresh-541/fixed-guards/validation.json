@@ -1,0 +1,14 @@
+{
+  "313_rows": 13914,
+  "active_current_crossings_excluded": 0,
+  "all_rows_zero_feasible": true,
+  "ambiguous_face_matches": 0,
+  "candidate_sha256": "881e8e588a15bb74057ad1b587125b47aad7b483e424a0b75f29f9b82ecf94db",
+  "exact_face_matches": 2319,
+  "filtered_guard_pairs": 2319,
+  "maximum_zero_step_rhs_mm": -6.665516731951815e-06,
+  "npz_sha256": "1b25a2d03f97a78f88c85ba60882dee18c6f7acec4960855145987713cb97b2d",
+  "report_sha256": "cf233c05f1ba3b6b46cba3501fec4a519ce39cdbe0cdef79398c4a994cf7afe1",
+  "status": "PASS_401_FIXED_BOUNDARY_PAYLOAD_AND_313_ROW_VALIDATION",
+  "unmapped_faces": 0
+}

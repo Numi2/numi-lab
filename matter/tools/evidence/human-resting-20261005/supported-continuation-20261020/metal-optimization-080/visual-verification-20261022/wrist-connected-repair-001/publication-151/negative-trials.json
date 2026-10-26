@@ -1,0 +1,23 @@
+{
+  "failed_full_plane_endpoints": {
+    "round-010-full-plane-trust4": {
+      "candidate_sha256": "804678e24cbb9e93dc4a46d4e6740ec7102a7206ef37c25e2ebd58f8a641882e",
+      "report_sha256": "8e34d8a81bae24cb5373cb62db6d227b199ecee5fb41942cdbbaf4ad36c1581a",
+      "self_pairs": 113,
+      "status": "FAILED"
+    },
+    "round-011-full-plane-trust4": {
+      "candidate_sha256": "12054723a816da4716a38fc25bf52b2ba7ed81372d71e0992772c5dab3b2bb53",
+      "report_sha256": "a445d5bd9bcc59e88df08ec96335890c6b1fc49e77b66e41cc9a6e2ca1fdf8e7",
+      "self_pairs": 23,
+      "status": "FAILED"
+    },
+    "round-012-full-plane-trust4": {
+      "candidate_sha256": "943a990e1a905f37e70d2a4dea8e559d0e2b794cfd3fc23b780c1b642a8be1e9",
+      "report_sha256": "878b55067c4aad65d2506ef43be17b582a887b852727e853f3057cde7ce37aa9",
+      "self_pairs": 252,
+      "status": "FAILED"
+    }
+  },
+  "note": "The full first-check report, candidate array, witness/audit outputs and launch/execution records remain under each round directory. Failure endpoint self counts do not establish a containment result."
+}
