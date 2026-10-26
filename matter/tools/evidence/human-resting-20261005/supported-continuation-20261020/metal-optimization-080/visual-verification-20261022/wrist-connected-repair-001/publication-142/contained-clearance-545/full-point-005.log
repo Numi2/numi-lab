@@ -1,0 +1,48 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py", line 86, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py", line 74, in main
+    run(args,O/'fit',True)
+    ~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py", line 24, in run
+    if r.returncode:raise RuntimeError(f'failed {stem}: '+Path(str(stem)+'.log').read_text()[-3000:])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: failed /Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/full-point-005/fit: -reference-points-key AREA_REFERENCE_POINTS_KEY]
+                                           [--area-reference-faces-key AREA_REFERENCE_FACES_KEY]
+                                           [--pair-owner PAIR_OWNER]
+                                           [--area-owner AREA_OWNER]
+                                           [--bary-owner BARY_OWNER]
+                                           [--point-target-npz POINT_TARGET_NPZ]
+                                           [--point-target-report POINT_TARGET_REPORT]
+                                           [--face-target-npz FACE_TARGET_NPZ]
+                                           [--face-target-report FACE_TARGET_REPORT]
+                                           [--slack-tolerance SLACK_TOLERANCE]
+                                           [--retained-gain-fraction RETAINED_GAIN_FRACTION]
+                                           [--allow-stage1-feasible-timeout-fallback]
+                                           [--defer-emitted-clearance-proxy]
+                                           [--trust-mm TRUST_MM]
+                                           [--source-cap-mm SOURCE_CAP_MM]
+                                           [--area-floor AREA_FLOOR]
+                                           [--margin-fraction MARGIN_FRACTION]
+                                           [--lp-method {highs,highs-ipm,highs-ds}]
+                                           [--time-limit-s TIME_LIMIT_S]
+                                           [--area-scp-iterations AREA_SCP_ITERATIONS]
+                                           [--max-edge-gradient MAX_EDGE_GRADIENT]
+                                           [--immediate-parent-basis]
+                                           [--fine-surface-controls]
+                                           [--fine-point-controls]
+                                           [--precision-phase-one-report PRECISION_PHASE_ONE_REPORT]
+                                           [--precision-phase-one-rows-npz PRECISION_PHASE_ONE_ROWS_NPZ]
+                                           [--precision-safety-factor PRECISION_SAFETY_FACTOR]
+                                           [--precision-cert-tolerance-mm PRECISION_CERT_TOLERANCE_MM]
+                                           [--point-depth-rows-npz POINT_DEPTH_ROWS_NPZ]
+                                           [--point-depth-rows-report POINT_DEPTH_ROWS_REPORT]
+                                           [--point-depth-owner POINT_DEPTH_OWNER]
+                                           [--fixed-prefix-nodes FIXED_PREFIX_NODES]
+                                           [--fixed-boundary-npz FIXED_BOUNDARY_NPZ]
+                                           [--fixed-boundary-report FIXED_BOUNDARY_REPORT]
+                                           [--fixed-boundary-owner FIXED_BOUNDARY_OWNER]
+                                           [--self-test]
+run_full_coordinate_point_fit545.py: error: area-scp-iterations must be in [1,4]
+

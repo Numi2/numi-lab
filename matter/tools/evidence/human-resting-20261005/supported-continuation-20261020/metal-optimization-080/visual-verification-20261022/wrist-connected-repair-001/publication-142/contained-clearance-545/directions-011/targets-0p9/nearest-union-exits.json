@@ -1,0 +1,1030 @@
+{
+  "schema": "numi.human.point-first-union-exits.depth-maximizing-390.v1",
+  "classification": "proposal-only construction targets; no fit, geometry admission, or physical steps",
+  "direction_mode": "depth-compatible",
+  "minimum_depth_cosine": 0.9,
+  "depth_row_inputs": {
+    "npz_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/spatial-patch-010/depth/point-depth-rows.npz",
+    "npz_sha256": "589e5f756940e18cc66f161c4862797b2dcfb6c36c8d4301378dab92ee0c175f",
+    "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/spatial-patch-010/depth/365-compatible-report.json",
+    "report_sha256": "f3bd4d884666ee7596bb299df5e55c5276a1674035d50e1c412f0378f4e812ed",
+    "owner_path": "/Users/n/Work/numi-human-connected-surface-069/D/point-depth-barriers-357/point_depth_barriers_357.py",
+    "owner_sha256": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1",
+    "inside_row_count": 6,
+    "unique_inside_node_count": 6,
+    "multirow_inside_node_count": 0,
+    "max_inside_rows_per_node": 1,
+    "selected_rows_are_exact_zero_rhs": true
+  },
+  "inputs": {
+    "candidate_sha256": "7f99f2333c4bc7acf7627a802c5e48c77646d0538aff225a909c14008838e0ac",
+    "point_summary_sha256": "8160cf7dc4b86646feacb6d95a959085db0721e16e2b824c1c22324c9c15aa63",
+    "query_receipt_sha256": "2750b8392ef567b70b7af7854c943df405c92c8d919557e084610becd8eb12b4",
+    "query_points_sha256": "a9f2c24100e8415bdf314f391550dd7937b4b594127ecf73397b0dea348f7ca2",
+    "query_nodes_sha256": "a86d2ffffa3a4d64f0f923be344e5adb77b6ad7d0f5f44b97e3a211b3f1b0aa1",
+    "query_pairs_sha256": "21ed1a21cd655ecd4b3890782d16d285e00422c076a4af97d44aa88a1b07c8e5",
+    "source371_base_sha256": "b0ef9f9b7e900ecbf5ae1e08bf450742735550fb6a673a3aa80f06e7ed5d7e7c",
+    "source303_sha256": "c8fe5b7be2efb2c6867a2cde178ebc35280814c37f90eec5aea47e964fc17a1f",
+    "selector300_sha256": "5e613e21b7bdebcc036dc9712ad21903df7d081de32bfdb83fae0a0c344ac094",
+    "template035_sha256": "cfa5071fb03e3b8d637b5be285a96b83aade01a755a663bc1c52a91fc093e240",
+    "source_orientation_report_sha256": "e43908188f134182635ac36a9a1602abad1918df374a04f3f7cc9eb1812d7497",
+    "orientation_input_pins": {
+      "detail_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+      "accepted_rows_sha256": "71e0ff115f74f1c072dc39e25d8c0de869c892dbfaf3424c792c2f674172fb14",
+      "compact_sha256": "5a35470223ce12343cc217be7822d182802e99f1c423bb52b8409f153f9a49db",
+      "W_sha256": "55329313bf9c2c3b613fcd7eb52dd9b7b453520dd1b4a14e0e0d6ac457ce8519",
+      "batch_report_sha256": "e4c6c76d497e176e40ad802cb3159a4a143279cc131ae632fe515498aa38fafa",
+      "batch_runner_sha256": "b2504d9e3a43c7ae8b07d8913dca55878c933b482b91875aa3b2ad1792a403f0"
+    },
+    "detail_source_sha256": "21f1869b418a2eca1e5a0522059c8f9cc6f8afe1a270ccc7c7d99c9c19fdd2a4",
+    "base_source_candidate_sha256": "2f93d0159f5e1ece1fa377da71e52e4edb7ee60f4b61e483a0390733ca404c11",
+    "bank_reader_sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+    "exact_predicate_sha256": "6f04ec7b129f47e810e75262f9f3ad3be0159bbe13dc2611a96e27141132b0fc",
+    "bank_export_pins": {
+      "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+      "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+      "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+      "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df"
+    }
+  },
+  "candidate_points": 20889,
+  "candidate_faces": 41733,
+  "query_rows": 6,
+  "inside_query_nodes": 6,
+  "inside_node_bank_pairs": 6,
+  "all_bank_ray_results": 6,
+  "passing_targets": 6,
+  "physical_steps": 0,
+  "status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY",
+  "normal_method": "For each query node, deduplicate incident candidate face rows, resolve each via 303 typed original-face ancestry and pinned source orientation, and area-average unit normals using matched source037 face areas. Cancellation or missing ancestry fails closed; no nearest-boundary fallback.",
+  "direction_method": "Closest unit direction to registered source-outward normal satisfying the single matched depth-covector constraint n dot d >= minimum_depth_cosine, while remaining in the positive source-outward hemisphere. Multirow nodes fail closed. This changes ray proposal direction only; exact endpoint and all-185-bank checks are unchanged.",
+  "ray_and_endpoint_method": "Exact segment events use all 185 banks; selector300 requires a representable first union-empty interval and exact endpoint classification outside every complete bank.",
+  "source037_area_reference_array_sha256": "0100ced73116c068cb7cfe316a50ea538066afdb9ba411eecc58cf823c1b0162",
+  "clearance_m": 5e-06,
+  "clearance_interpretation": "Numerical construction target margin only; not anatomical thickness or physical clearance admission.",
+  "targets": [
+    {
+      "query_row": 18495,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        -0.28383857011795044,
+        -0.852464497089386,
+        0.13165545463562012
+      ],
+      "target_world_f32_m": [
+        -0.2842142581939697,
+        -0.8529576063156128,
+        0.13201825320720673
+      ],
+      "proposal_direction_world_unit": [
+        -0.5230421847008996,
+        -0.6865195393369485,
+        0.5050918680120423
+      ],
+      "source_surface_normal_world_unit": [
+        0.2918471193740694,
+        -0.546045623681298,
+        0.7852766619297684
+      ],
+      "direction_compatibility": {
+        "adjusted": true,
+        "source_outward_dot_depth_covector": 0.2145812864191318,
+        "selected_depth_cosine": 0.9000000000000019,
+        "selected_source_hemisphere_cosine": 0.6188594911909318,
+        "minimum_depth_cosine": 0.9,
+        "direction_world_unit": [
+          -0.5230421847008996,
+          -0.6865195393369485,
+          0.5050918680120423
+        ],
+        "method": "nearest unit direction in source-outward hemisphere intersected with depth-covector cap",
+        "typed_depth_id": [
+          18495,
+          43,
+          16,
+          128
+        ],
+        "depth_source_row": 0
+      },
+      "target_distance_m": 0.0007182764391140128,
+      "union_exit_distance_m": 0.000713283281634885,
+      "next_union_event_distance_m": null,
+      "free_interval_margin_m": 4.99315747912784e-06,
+      "clearance_m": 5e-06,
+      "initial_inside_banks": [
+        [
+          43,
+          16
+        ]
+      ],
+      "initial_inside_bank_count": 1,
+      "hit_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "target_exactly_outside_all185": true,
+      "exact_endpoint_bank_count": 185,
+      "source_normal_provenance": {
+        "incident_candidate_face_rows": [
+          19414,
+          19418,
+          19419,
+          19432,
+          19433
+        ],
+        "unique_incident_face_count": 5,
+        "source037_area_sum_m2": 7.819578340903671e-07,
+        "resultant_over_area_sum": 1.0,
+        "source_face_area_weights": [
+          {
+            "candidate_face_row": 19414,
+            "source037_area_m2": 7.819041692187437e-08,
+            "registered_source_normal_world_unit": [
+              0.2918471193740694,
+              -0.546045623681298,
+              0.7852766619297685
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8269
+            }
+          },
+          {
+            "candidate_face_row": 19418,
+            "source037_area_m2": 1.5638083384368106e-07,
+            "registered_source_normal_world_unit": [
+              0.2918471193740694,
+              -0.546045623681298,
+              0.7852766619297685
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8269
+            }
+          },
+          {
+            "candidate_face_row": 19419,
+            "source037_area_m2": 2.3457125076573557e-07,
+            "registered_source_normal_world_unit": [
+              0.2918471193740694,
+              -0.546045623681298,
+              0.7852766619297685
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8269
+            }
+          },
+          {
+            "candidate_face_row": 19432,
+            "source037_area_m2": 1.5640766627953798e-07,
+            "registered_source_normal_world_unit": [
+              0.2918471193740694,
+              -0.546045623681298,
+              0.7852766619297685
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8269
+            }
+          },
+          {
+            "candidate_face_row": 19433,
+            "source037_area_m2": 1.5640766627953812e-07,
+            "registered_source_normal_world_unit": [
+              0.2918471193740694,
+              -0.546045623681298,
+              0.7852766619297685
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8269
+            }
+          }
+        ]
+      },
+      "selection": {
+        "status": "PASS_FIRST_CERTIFIED_PROPOSAL_INTERVAL",
+        "interval_index": 0,
+        "exit_distance_m": 0.000713283281634885,
+        "next_event_distance_m": null,
+        "free_gap_m": null,
+        "requested_margin_m": 5e-06,
+        "requested_target_distance_m": 0.000718283281634885,
+        "emitted_target_distance_m": 0.0007182764391140128,
+        "selected_interval_index": 0,
+        "target_exactly_outside_all_banks": true,
+        "classified_bank_count": 185,
+        "skipped_intervals": [],
+        "selection_policy": "first event-defined union-empty interval whose deterministic clearance/midpoint proposal rounds to a Float32 endpoint strictly inside that interval and passes the complete exact bank classifier; earlier interval failures are retained; this does not claim exhaustive search of every Float32 point in each interval",
+        "free_gap_unbounded": true
+      }
+    },
+    {
+      "query_row": 18591,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        -0.2808462083339691,
+        -0.8552087545394897,
+        0.1304979771375656
+      ],
+      "target_world_f32_m": [
+        -0.28069841861724854,
+        -0.8557096719741821,
+        0.1303749531507492
+      ],
+      "proposal_direction_world_unit": [
+        0.2754671541667948,
+        -0.9335683728538293,
+        -0.22927699444623917
+      ],
+      "source_surface_normal_world_unit": [
+        0.5681165847950531,
+        -0.3263553306643766,
+        0.7554705449107534
+      ],
+      "direction_compatibility": {
+        "adjusted": true,
+        "source_outward_dot_depth_covector": -0.15826218881119897,
+        "selected_depth_cosine": 0.9000000000000019,
+        "selected_source_hemisphere_cosine": 0.28796045793916725,
+        "minimum_depth_cosine": 0.9,
+        "direction_world_unit": [
+          0.2754671541667948,
+          -0.9335683728538293,
+          -0.22927699444623917
+        ],
+        "method": "nearest unit direction in source-outward hemisphere intersected with depth-covector cap",
+        "typed_depth_id": [
+          18591,
+          43,
+          16,
+          245
+        ],
+        "depth_source_row": 1
+      },
+      "target_distance_m": 0.0005365584570620768,
+      "union_exit_distance_m": 0.0005315588483754719,
+      "next_union_event_distance_m": 0.009861594711690751,
+      "free_interval_margin_m": 4.999608686604914e-06,
+      "clearance_m": 5e-06,
+      "initial_inside_banks": [
+        [
+          43,
+          16
+        ]
+      ],
+      "initial_inside_bank_count": 1,
+      "hit_count": 5,
+      "end_outside_all185_by_event_parity": true,
+      "target_exactly_outside_all185": true,
+      "exact_endpoint_bank_count": 185,
+      "source_normal_provenance": {
+        "incident_candidate_face_rows": [
+          19141,
+          19142,
+          19160,
+          19161
+        ],
+        "unique_incident_face_count": 4,
+        "source037_area_sum_m2": 1.3437475545264561e-07,
+        "resultant_over_area_sum": 1.0,
+        "source_face_area_weights": [
+          {
+            "candidate_face_row": 19141,
+            "source037_area_m2": 3.360573576409066e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          },
+          {
+            "candidate_face_row": 19142,
+            "source037_area_m2": 3.3605735764090933e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          },
+          {
+            "candidate_face_row": 19160,
+            "source037_area_m2": 3.3581641962232006e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          },
+          {
+            "candidate_face_row": 19161,
+            "source037_area_m2": 3.3581641962232006e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          }
+        ]
+      },
+      "selection": {
+        "status": "PASS_FIRST_CERTIFIED_PROPOSAL_INTERVAL",
+        "interval_index": 0,
+        "exit_distance_m": 0.0005315588483754719,
+        "next_event_distance_m": 0.009861594711690751,
+        "free_gap_m": 0.009330035863315279,
+        "requested_margin_m": 5e-06,
+        "requested_target_distance_m": 0.0005365588483754719,
+        "emitted_target_distance_m": 0.0005365584570620768,
+        "selected_interval_index": 0,
+        "target_exactly_outside_all_banks": true,
+        "classified_bank_count": 185,
+        "skipped_intervals": [],
+        "selection_policy": "first event-defined union-empty interval whose deterministic clearance/midpoint proposal rounds to a Float32 endpoint strictly inside that interval and passes the complete exact bank classifier; earlier interval failures are retained; this does not claim exhaustive search of every Float32 point in each interval",
+        "free_gap_unbounded": false
+      }
+    },
+    {
+      "query_row": 18933,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        0.25685957074165344,
+        -0.9621009826660156,
+        0.13564400374889374
+      ],
+      "target_world_f32_m": [
+        0.25675296783447266,
+        -0.9622960090637207,
+        0.13546660542488098
+      ],
+      "proposal_direction_world_unit": [
+        -0.3749093602472131,
+        -0.6857568582536869,
+        -0.6238433320610699
+      ],
+      "source_surface_normal_world_unit": [
+        0.7523993907606094,
+        -0.5099543053180977,
+        -0.4169433573887469
+      ],
+      "direction_compatibility": {
+        "adjusted": true,
+        "source_outward_dot_depth_covector": -0.11685887404342962,
+        "selected_depth_cosine": 0.9000000000000019,
+        "selected_source_hemisphere_cosine": 0.3277304213815525,
+        "minimum_depth_cosine": 0.9,
+        "direction_world_unit": [
+          -0.3749093602472131,
+          -0.6857568582536869,
+          -0.6238433320610699
+        ],
+        "method": "nearest unit direction in source-outward hemisphere intersected with depth-covector cap",
+        "typed_depth_id": [
+          18933,
+          109,
+          114,
+          91
+        ],
+        "depth_source_row": 2
+      },
+      "target_distance_m": 0.00028437587905257727,
+      "union_exit_distance_m": 0.00027936443759432014,
+      "next_union_event_distance_m": null,
+      "free_interval_margin_m": 5.011441458257126e-06,
+      "clearance_m": 5e-06,
+      "initial_inside_banks": [
+        [
+          109,
+          114
+        ]
+      ],
+      "initial_inside_bank_count": 1,
+      "hit_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "target_exactly_outside_all185": true,
+      "exact_endpoint_bank_count": 185,
+      "source_normal_provenance": {
+        "incident_candidate_face_rows": [
+          33978,
+          33979,
+          34080,
+          34081
+        ],
+        "unique_incident_face_count": 4,
+        "source037_area_sum_m2": 2.456256377204672e-07,
+        "resultant_over_area_sum": 1.0,
+        "source_face_area_weights": [
+          {
+            "candidate_face_row": 33978,
+            "source037_area_m2": 6.605154847114437e-08,
+            "registered_source_normal_world_unit": [
+              0.7523993907606094,
+              -0.5099543053180976,
+              -0.41694335738874677
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 90091
+            }
+          },
+          {
+            "candidate_face_row": 33979,
+            "source037_area_m2": 6.605154847114441e-08,
+            "registered_source_normal_world_unit": [
+              0.7523993907606094,
+              -0.5099543053180976,
+              -0.41694335738874677
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 90091
+            }
+          },
+          {
+            "candidate_face_row": 34080,
+            "source037_area_m2": 5.6761270389089205e-08,
+            "registered_source_normal_world_unit": [
+              0.7523993907606094,
+              -0.5099543053180976,
+              -0.41694335738874677
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 90091
+            }
+          },
+          {
+            "candidate_face_row": 34081,
+            "source037_area_m2": 5.676127038908922e-08,
+            "registered_source_normal_world_unit": [
+              0.7523993907606094,
+              -0.5099543053180976,
+              -0.41694335738874677
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 90091
+            }
+          }
+        ]
+      },
+      "selection": {
+        "status": "PASS_FIRST_CERTIFIED_PROPOSAL_INTERVAL",
+        "interval_index": 0,
+        "exit_distance_m": 0.00027936443759432014,
+        "next_event_distance_m": null,
+        "free_gap_m": null,
+        "requested_margin_m": 5e-06,
+        "requested_target_distance_m": 0.00028436443759432016,
+        "emitted_target_distance_m": 0.00028437587905257727,
+        "selected_interval_index": 0,
+        "target_exactly_outside_all_banks": true,
+        "classified_bank_count": 185,
+        "skipped_intervals": [],
+        "selection_policy": "first event-defined union-empty interval whose deterministic clearance/midpoint proposal rounds to a Float32 endpoint strictly inside that interval and passes the complete exact bank classifier; earlier interval failures are retained; this does not claim exhaustive search of every Float32 point in each interval",
+        "free_gap_unbounded": true
+      }
+    },
+    {
+      "query_row": 19111,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        0.23934687674045563,
+        -0.9549392461776733,
+        0.09359544515609741
+      ],
+      "target_world_f32_m": [
+        0.23938244581222534,
+        -0.9549797773361206,
+        0.09365437179803848
+      ],
+      "proposal_direction_world_unit": [
+        0.4452721324108251,
+        -0.5072656024982851,
+        0.7378443850978121
+      ],
+      "source_surface_normal_world_unit": [
+        -0.4628730210829384,
+        -0.8859808327622908,
+        0.028045148090023096
+      ],
+      "direction_compatibility": {
+        "adjusted": true,
+        "source_outward_dot_depth_covector": -0.18280927929299395,
+        "selected_depth_cosine": 0.9000000000000019,
+        "selected_source_hemisphere_cosine": 0.2640160988475152,
+        "minimum_depth_cosine": 0.9,
+        "direction_world_unit": [
+          0.4452721324108251,
+          -0.5072656024982851,
+          0.7378443850978121
+        ],
+        "method": "nearest unit direction in source-outward hemisphere intersected with depth-covector cap",
+        "typed_depth_id": [
+          19111,
+          124,
+          123,
+          209
+        ],
+        "depth_source_row": 3
+      },
+      "target_distance_m": 7.98766708333682e-05,
+      "union_exit_distance_m": 7.486817781916883e-05,
+      "next_union_event_distance_m": null,
+      "free_interval_margin_m": 5.0084930141993745e-06,
+      "clearance_m": 5e-06,
+      "initial_inside_banks": [
+        [
+          124,
+          123
+        ]
+      ],
+      "initial_inside_bank_count": 1,
+      "hit_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "target_exactly_outside_all185": true,
+      "exact_endpoint_bank_count": 185,
+      "source_normal_provenance": {
+        "incident_candidate_face_rows": [
+          26698,
+          26699,
+          26703,
+          26721,
+          26722,
+          26726
+        ],
+        "unique_incident_face_count": 6,
+        "source037_area_sum_m2": 8.284848542362093e-07,
+        "resultant_over_area_sum": 1.0,
+        "source_face_area_weights": [
+          {
+            "candidate_face_row": 26698,
+            "source037_area_m2": 1.0899278564667477e-07,
+            "registered_source_normal_world_unit": [
+              -0.46287302108293843,
+              -0.8859808327622908,
+              0.028045148090023102
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 83785
+            }
+          },
+          {
+            "candidate_face_row": 26699,
+            "source037_area_m2": 2.1798557129334562e-07,
+            "registered_source_normal_world_unit": [
+              -0.46287302108293843,
+              -0.8859808327622908,
+              0.028045148090023102
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 83785
+            }
+          },
+          {
+            "candidate_face_row": 26703,
+            "source037_area_m2": 3.2697835694000826e-07,
+            "registered_source_normal_world_unit": [
+              -0.46287302108293843,
+              -0.8859808327622908,
+              0.028045148090023102
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 83785
+            }
+          },
+          {
+            "candidate_face_row": 26721,
+            "source037_area_m2": 2.9088023392699323e-08,
+            "registered_source_normal_world_unit": [
+              -0.46287302108293843,
+              -0.8859808327622908,
+              0.028045148090023102
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 83785
+            }
+          },
+          {
+            "candidate_face_row": 26722,
+            "source037_area_m2": 5.817604678539088e-08,
+            "registered_source_normal_world_unit": [
+              -0.46287302108293843,
+              -0.8859808327622908,
+              0.028045148090023102
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 83785
+            }
+          },
+          {
+            "candidate_face_row": 26726,
+            "source037_area_m2": 8.726407017809035e-08,
+            "registered_source_normal_world_unit": [
+              -0.46287302108293843,
+              -0.8859808327622908,
+              0.028045148090023102
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 83785
+            }
+          }
+        ]
+      },
+      "selection": {
+        "status": "PASS_FIRST_CERTIFIED_PROPOSAL_INTERVAL",
+        "interval_index": 0,
+        "exit_distance_m": 7.486817781916883e-05,
+        "next_event_distance_m": null,
+        "free_gap_m": null,
+        "requested_margin_m": 5e-06,
+        "requested_target_distance_m": 7.986817781916883e-05,
+        "emitted_target_distance_m": 7.98766708333682e-05,
+        "selected_interval_index": 0,
+        "target_exactly_outside_all_banks": true,
+        "classified_bank_count": 185,
+        "skipped_intervals": [],
+        "selection_policy": "first event-defined union-empty interval whose deterministic clearance/midpoint proposal rounds to a Float32 endpoint strictly inside that interval and passes the complete exact bank classifier; earlier interval failures are retained; this does not claim exhaustive search of every Float32 point in each interval",
+        "free_gap_unbounded": true
+      }
+    },
+    {
+      "query_row": 19702,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        -0.28331807255744934,
+        -0.8516239523887634,
+        0.133819118142128
+      ],
+      "target_world_f32_m": [
+        -0.28347915410995483,
+        -0.851749837398529,
+        0.13407684862613678
+      ],
+      "proposal_direction_world_unit": [
+        -0.48961975747597297,
+        -0.38271197096993836,
+        0.7834564699876276
+      ],
+      "source_surface_normal_world_unit": [
+        0.5681165847950533,
+        -0.32635533066437666,
+        0.7554705449107534
+      ],
+      "direction_compatibility": {
+        "adjusted": true,
+        "source_outward_dot_depth_covector": 0.0030326486067367986,
+        "selected_depth_cosine": 0.9000000000000019,
+        "selected_source_hemisphere_cosine": 0.43861727366508585,
+        "minimum_depth_cosine": 0.9,
+        "direction_world_unit": [
+          -0.48961975747597297,
+          -0.38271197096993836,
+          0.7834564699876276
+        ],
+        "method": "nearest unit direction in source-outward hemisphere intersected with depth-covector cap",
+        "typed_depth_id": [
+          19702,
+          43,
+          16,
+          130
+        ],
+        "depth_source_row": 4
+      },
+      "target_distance_m": 0.00032896702608429363,
+      "union_exit_distance_m": 0.00032397433229468297,
+      "next_union_event_distance_m": null,
+      "free_interval_margin_m": 4.992693789610664e-06,
+      "clearance_m": 5e-06,
+      "initial_inside_banks": [
+        [
+          43,
+          16
+        ]
+      ],
+      "initial_inside_bank_count": 1,
+      "hit_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "target_exactly_outside_all185": true,
+      "exact_endpoint_bank_count": 185,
+      "source_normal_provenance": {
+        "incident_candidate_face_rows": [
+          19087,
+          19088,
+          19095,
+          19096
+        ],
+        "unique_incident_face_count": 4,
+        "source037_area_sum_m2": 1.337638262136655e-07,
+        "resultant_over_area_sum": 0.9999999999999998,
+        "source_face_area_weights": [
+          {
+            "candidate_face_row": 19087,
+            "source037_area_m2": 3.3439602698665014e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          },
+          {
+            "candidate_face_row": 19088,
+            "source037_area_m2": 3.343960269866501e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          },
+          {
+            "candidate_face_row": 19095,
+            "source037_area_m2": 3.344231040816773e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          },
+          {
+            "candidate_face_row": 19096,
+            "source037_area_m2": 3.344231040816773e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          }
+        ]
+      },
+      "selection": {
+        "status": "PASS_FIRST_CERTIFIED_PROPOSAL_INTERVAL",
+        "interval_index": 0,
+        "exit_distance_m": 0.00032397433229468297,
+        "next_event_distance_m": null,
+        "free_gap_m": null,
+        "requested_margin_m": 5e-06,
+        "requested_target_distance_m": 0.000328974332294683,
+        "emitted_target_distance_m": 0.00032896702608429363,
+        "selected_interval_index": 0,
+        "target_exactly_outside_all_banks": true,
+        "classified_bank_count": 185,
+        "skipped_intervals": [],
+        "selection_policy": "first event-defined union-empty interval whose deterministic clearance/midpoint proposal rounds to a Float32 endpoint strictly inside that interval and passes the complete exact bank classifier; earlier interval failures are retained; this does not claim exhaustive search of every Float32 point in each interval",
+        "free_gap_unbounded": true
+      }
+    },
+    {
+      "query_row": 20182,
+      "status": "PASS_FIRST_UNION_EXIT",
+      "start_world_f32_m": [
+        -0.2828366756439209,
+        -0.8521175980567932,
+        0.13374075293540955
+      ],
+      "target_world_f32_m": [
+        -0.28319528698921204,
+        -0.8523979187011719,
+        0.13431456685066223
+      ],
+      "proposal_direction_world_unit": [
+        -0.48961975747597186,
+        -0.38271197096994297,
+        0.7834564699876261
+      ],
+      "source_surface_normal_world_unit": [
+        0.5681165847950533,
+        -0.3263553306643767,
+        0.7554705449107533
+      ],
+      "direction_compatibility": {
+        "adjusted": true,
+        "source_outward_dot_depth_covector": 0.0030326486067378533,
+        "selected_depth_cosine": 0.9000000000000019,
+        "selected_source_hemisphere_cosine": 0.43861727366508674,
+        "minimum_depth_cosine": 0.9,
+        "direction_world_unit": [
+          -0.48961975747597186,
+          -0.38271197096994297,
+          0.7834564699876261
+        ],
+        "method": "nearest unit direction in source-outward hemisphere intersected with depth-covector cap",
+        "typed_depth_id": [
+          20182,
+          43,
+          16,
+          130
+        ],
+        "depth_source_row": 5
+      },
+      "target_distance_m": 0.000732423490696949,
+      "union_exit_distance_m": 0.0007274067909512735,
+      "next_union_event_distance_m": null,
+      "free_interval_margin_m": 5.0166997456754054e-06,
+      "clearance_m": 5e-06,
+      "initial_inside_banks": [
+        [
+          43,
+          16
+        ]
+      ],
+      "initial_inside_bank_count": 1,
+      "hit_count": 1,
+      "end_outside_all185_by_event_parity": true,
+      "target_exactly_outside_all185": true,
+      "exact_endpoint_bank_count": 185,
+      "source_normal_provenance": {
+        "incident_candidate_face_rows": [
+          19119,
+          19120,
+          19121,
+          19122,
+          19123,
+          19124,
+          19129,
+          19153,
+          19163
+        ],
+        "unique_incident_face_count": 9,
+        "source037_area_sum_m2": 3.2020493767075945e-07,
+        "resultant_over_area_sum": 1.0,
+        "source_face_area_weights": [
+          {
+            "candidate_face_row": 19119,
+            "source037_area_m2": 3.3218886530571947e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          },
+          {
+            "candidate_face_row": 19120,
+            "source037_area_m2": 4.319931929151367e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          },
+          {
+            "candidate_face_row": 19121,
+            "source037_area_m2": 4.3199319291489965e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          },
+          {
+            "candidate_face_row": 19122,
+            "source037_area_m2": 1.4397197034854416e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          },
+          {
+            "candidate_face_row": 19123,
+            "source037_area_m2": 4.319931929150632e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          },
+          {
+            "candidate_face_row": 19124,
+            "source037_area_m2": 4.319931929150632e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          },
+          {
+            "candidate_face_row": 19129,
+            "source037_area_m2": 7.198690784033414e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          },
+          {
+            "candidate_face_row": 19153,
+            "source037_area_m2": 1.0922911089321523e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          },
+          {
+            "candidate_face_row": 19163,
+            "source037_area_m2": 1.6881758009661216e-08,
+            "registered_source_normal_world_unit": [
+              0.5681165847950532,
+              -0.32635533066437666,
+              0.7554705449107533
+            ],
+            "source_ancestry": {
+              "kind": "original_NHSKIN_face",
+              "row": 8265
+            }
+          }
+        ]
+      },
+      "selection": {
+        "status": "PASS_FIRST_CERTIFIED_PROPOSAL_INTERVAL",
+        "interval_index": 0,
+        "exit_distance_m": 0.0007274067909512735,
+        "next_event_distance_m": null,
+        "free_gap_m": null,
+        "requested_margin_m": 5e-06,
+        "requested_target_distance_m": 0.0007324067909512736,
+        "emitted_target_distance_m": 0.000732423490696949,
+        "selected_interval_index": 0,
+        "target_exactly_outside_all_banks": true,
+        "classified_bank_count": 185,
+        "skipped_intervals": [],
+        "selection_policy": "first event-defined union-empty interval whose deterministic clearance/midpoint proposal rounds to a Float32 endpoint strictly inside that interval and passes the complete exact bank classifier; earlier interval failures are retained; this does not claim exhaustive search of every Float32 point in each interval",
+        "free_gap_unbounded": true
+      }
+    }
+  ],
+  "wall_seconds": 1.315760500030592,
+  "outputs": {
+    "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/directions-011/targets-0p9/nearest-union-exits.npz",
+    "npz_sha256": "3e3e364c165071c18047e0121ff67dc5593c3e6eb5914aa02ccce52db843327a"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "inputs": {
+    "audit159": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-002/backtrack/backtrack-373/pass-002/audit-159/report.json",
+      "sha256": "5c6e3137a7464cefe363d12d4aa7a93c0ee97300d3a915246a2e8d78a04ab095"
+    },
+    "candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-002/backtrack/backtrack-373/pass-002/candidate.npz",
+      "sha256": "77b5396338286e61f852cc1a9b78d782b3d41a7dc5504c038402a6d882c4e303"
+    },
+    "face_target_npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/surface-targets/targets.npz",
+      "sha256": "2f1fa2cc0515d8e6d057be90ccf4d82affd4b4e8e3cfa23cc3c01b3d51b9bf10"
+    },
+    "point_target_npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/point-targets/nearest-union-exits.npz",
+      "sha256": "902016e8964c137ee549e3972cded611d1ea75e36daf00ad51646814d353d23d"
+    }
+  },
+  "schema": "numi.human.matched_inputs_component_fit_475.v1",
+  "source_pins": {
+    "decomposition475": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-475/component_lp_decomposition_475.py",
+      "sha256": "af0b6a6bf40757a403a8b7c359233694241d34e1e016b6dd3a37d7c98789c46d"
+    },
+    "objective458": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/fixed_bone_outward_plane_458.py",
+      "sha256": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0"
+    },
+    "owner408": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+      "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+    },
+    "runner458": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/run_grouped_fit_458.py",
+      "sha256": "08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93"
+    }
+  }
+}

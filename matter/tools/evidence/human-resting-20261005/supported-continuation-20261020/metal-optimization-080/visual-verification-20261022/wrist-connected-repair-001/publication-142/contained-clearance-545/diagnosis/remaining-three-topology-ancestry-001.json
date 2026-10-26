@@ -1,0 +1,339 @@
+{
+  "title": "Remaining three containment witnesses: ancestry, contact scale, and local flip eligibility",
+  "scope": "Read-only structural diagnosis of the selected connected-cones-014 checkpoint. Reused exact endpoint reports; computed source-map positions, graph anchor distances, local face adjacency, and pairwise distances only. No solver or whole-geometry audit was launched.",
+  "checkpoint": {
+    "candidate": "D/contained-clearance-545/connected-cones-014/15-270-spatial/candidate.npz",
+    "candidate_sha256": "215fa7da9bc9c3fa2a189b853343282e21403ef97c1d691a2a28cab36563ea82",
+    "current_exact130": {
+      "path": "D/contained-clearance-545/connected-cones-014/check/audit-130/summary.json",
+      "sha256": "5a0233b674a5d1857013c49393058d4475af904c6da3b54ea9c0ec6708df2c60",
+      "inside_count": 3,
+      "complete_surface_audit": true,
+      "exact_self_pairs": 0
+    },
+    "current_exact159": {
+      "path": "D/contained-clearance-545/connected-cones-014/check/audit-159/report.json",
+      "sha256": "4707b7ad84180cfff5f27107001e6b3f3a7af209705ff369a1afe1602fa625cd",
+      "complete_banks": 185,
+      "expected_banks": 185,
+      "geometry_admission": false
+    },
+    "current_candidate_selection": {
+      "path": "D/contained-clearance-545/connected-cones-014/current-selection.json",
+      "sha256": "73c13237e827a077c8d2bee5614ab5cf651b4418f4e916bb9ff5ffcebce03150"
+    }
+  },
+  "witnesses": [
+    {
+      "node": 18495,
+      "body": 43,
+      "bone_id": 16,
+      "nearest_bone_triangle": 128,
+      "inside_depth_mm": 0.641955,
+      "refinement_kind": 1,
+      "refinement_kind_meaning": "selected-edge midpoint",
+      "current_graph_hops_to_nearest_output_anchor": 5,
+      "nearest_output_anchor_row": 329,
+      "nearest_typed_anchor_source_id": 356
+    },
+    {
+      "node": 19702,
+      "body": 43,
+      "bone_id": 16,
+      "nearest_bone_triangle": 130,
+      "inside_depth_mm": 0.291577,
+      "refinement_kind": 1,
+      "refinement_kind_meaning": "selected-edge midpoint",
+      "current_graph_hops_to_nearest_output_anchor": 5,
+      "nearest_output_anchor_row": 329,
+      "nearest_typed_anchor_source_id": 356
+    },
+    {
+      "node": 20182,
+      "body": 43,
+      "bone_id": 16,
+      "nearest_bone_triangle": 130,
+      "inside_depth_mm": 0.594024,
+      "refinement_kind": 2,
+      "refinement_kind_meaning": "affected-face centroid",
+      "current_graph_hops_to_nearest_output_anchor": 4,
+      "nearest_output_anchor_row": 329,
+      "nearest_typed_anchor_source_id": 356
+    }
+  ],
+  "shared_source_patch": {
+    "reference_candidate": "full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+    "reference_candidate_sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+    "composed_source_map": "The current candidate composes three sparse ancestry maps to this 8776-node source domain.",
+    "common_source_face": {
+      "row": 9388,
+      "vertices": [
+        5884,
+        5889,
+        5888
+      ]
+    },
+    "adjacent_source_face": {
+      "row": 9392,
+      "vertices": [
+        5889,
+        2706,
+        5888
+      ]
+    },
+    "ancestry_support": {
+      "node18495": {
+        "source_rows": {
+          "2706": 0.01851852,
+          "5888": 0.4212963,
+          "5889": 0.56018519
+        },
+        "incident_current_detail_subface": [
+          8269,
+          8271
+        ]
+      },
+      "node19702": {
+        "source_rows": {
+          "5884": 0.11574074,
+          "5888": 0.37268519,
+          "5889": 0.51157407
+        },
+        "incident_current_detail_subface": [
+          8265,
+          8267
+        ]
+      },
+      "node20182": {
+        "source_rows": {
+          "5884": 0.17901235,
+          "5888": 0.30864198,
+          "5889": 0.51234568
+        },
+        "incident_current_detail_subface": [
+          8265,
+          8267
+        ]
+      }
+    },
+    "source_anchor_proximity": {
+      "source_row5884": {
+        "hops": 2,
+        "nearest_anchor_row": 312,
+        "nearest_source_anchor_node": 1715
+      },
+      "source_row5888": {
+        "hops": 2,
+        "nearest_anchor_row": 630,
+        "nearest_source_anchor_node": 6317
+      },
+      "source_row5889": {
+        "hops": 2,
+        "nearest_anchor_rows": [
+          312,
+          630
+        ],
+        "nearest_source_anchor_nodes": [
+          1715,
+          6317
+        ]
+      },
+      "source_row2706": {
+        "hops": 1,
+        "nearest_anchor_row": 630,
+        "nearest_source_anchor_node": 6317
+      }
+    },
+    "source_reference_comparison": {
+      "method": "Composed each current output-node CSR ancestry row through the pinned run-009 source candidate, then projected source_position minus current_position onto the retained nearest-exit covector from the depth report.",
+      "source_minus_current_exit_projection_mm": {
+        "node18495": -6.6018,
+        "node19702": -6.0697,
+        "node20182": -5.4262
+      },
+      "source_vertex_normal_dot_nearest_exit": {
+        "node18495": -0.0816,
+        "node19702": -0.2353,
+        "node20182": -0.2342
+      },
+      "current_vertex_normal_dot_nearest_exit": {
+        "node18495": -0.0968,
+        "node19702": 0.806,
+        "node20182": 0.0025
+      },
+      "caveat": "The run-009 candidate is a historical source-prolongation reference, not pristine raw anatomy. Its mapped positions are farther inside along the current exit covectors, so restoring that reference would worsen these three rows."
+    },
+    "prior_local_patch_effect": {
+      "array": "local_witness_cluster_199_delta_m in the selected candidate",
+      "outward_projection_mm": {
+        "node18495": 0.1388,
+        "node19702": 0.1051,
+        "node20182": 0.0755
+      },
+      "interpretation": "This existing local patch moved all three toward their nearest bone exits; reversing it is not useful."
+    }
+  },
+  "failed_motion_contacts": {
+    "prior_trial_receipt": "D/contained-clearance-545/local-patch-009/retry-patches/report.json",
+    "prior_trial_receipt_sha256": "98056c357ccbb10c332a35fb77030e74c2e0b42338589bd62b907b6beef08f72",
+    "current_mesh_face_hash": "d166551add5128a1c75cd69f19b2a4c761a9595da5613a55cd5d818845e015ab",
+    "observations": [
+      {
+        "node": 18495,
+        "trial": "one-ring direct patch",
+        "representative_self_pair": [
+          16712,
+          19058
+        ],
+        "current_pairwise_triangle_gap_mm": 0.200092,
+        "mesh_graph_separation_edges": 4,
+        "incident_moved_patch_contact": "face 19058 includes target neighbor 18488"
+      },
+      {
+        "node": 19702,
+        "trial": "one-ring direct patch",
+        "representative_self_pair": [
+          19087,
+          19162
+        ],
+        "current_pairwise_triangle_gap_mm": 0.123607,
+        "mesh_graph_separation_edges": 3,
+        "incident_moved_patch_contact": "face 19087 includes node 19702"
+      },
+      {
+        "node": 20182,
+        "trial": "one-ring direct patch",
+        "self_pairs": 0,
+        "area_failure_faces": [
+          19120,
+          19121,
+          19125,
+          19153,
+          19163
+        ],
+        "note": "The listed fan faces include the moved centroid; the failure is local oriented-area preservation."
+      }
+    ],
+    "conclusion": "The high row-number separation is not large geometric clearance. The representative self-pair faces are only 3–4 mesh edges apart and already within 0.12–0.20 mm in the selected base. For node 20182, the direct patch fails on its centroid fan."
+  },
+  "topology_only_22_candidates": {
+    "method": "Enumerated interior edges whose two faces are in the target one-ring, same face kind/detail/subface, four distinct vertices, and absent alternate diagonal. This checks combinatorial eligibility only; no convexity, area, self-intersection, or exact endpoint geometry check was run.",
+    "counts": {
+      "node18495": {
+        "incident_edges": 5,
+        "one_ring_scope_faces": 38,
+        "one_ring_combinatorial_candidates": 40
+      },
+      "node19702": {
+        "incident_edges": 4,
+        "one_ring_scope_faces": 22,
+        "one_ring_combinatorial_candidates": 26
+      },
+      "node20182": {
+        "incident_edges": 8,
+        "one_ring_scope_faces": 45,
+        "one_ring_combinatorial_candidates": 51
+      }
+    },
+    "targeted_edges": [
+      {
+        "edge": [
+          18488,
+          18495
+        ],
+        "incident_faces": [
+          19414,
+          19419
+        ],
+        "reason": "near the retained 18495 self-contact face 19058"
+      },
+      {
+        "edge": [
+          19702,
+          20176
+        ],
+        "incident_faces": [
+          19087,
+          19088
+        ],
+        "reason": "directly changes the retained 19702 self-contact face 19087"
+      },
+      {
+        "edge": [
+          12579,
+          20182
+        ],
+        "incident_faces": [
+          19120,
+          19121
+        ],
+        "reason": "directly spans two of the centroid fan area-failure faces"
+      },
+      {
+        "edge": [
+          19056,
+          20182
+        ],
+        "incident_faces": [
+          19120,
+          19153
+        ],
+        "reason": "also touches the centroid fan failures"
+      }
+    ],
+    "reusable_owners": {
+      "same_detail_flip": "D/local-two-parent-retriangulation-402/two_parent_patch_flips_402.py",
+      "same_detail_flip_sha256": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764",
+      "multi_parent_seam_union": "D/local-two-parent-retriangulation-405/cross_seam_search_405.py",
+      "multi_parent_seam_union_sha256": "e995a2f460e60cb62fb24b80af400678757f62a2b0c1b51141bf0ef387993967",
+      "limitation": "402 checks flips within a single detail/subface. 405 explicitly writes multi-parent ancestry unions, but its search groups are hardcoded to detail IDs 9570/9577/10226; it cannot be run unmodified for current details 8265/8269."
+    },
+    "actionable_next_method": "Use a local 2:2 retriangulation pass around source faces 9388/9392, starting with the listed target fan edges, parameterized for current details 8265/8269. Keep source/detail/subface ancestry as CSR unions at any seam, lock the outer ring and all 237 typed anchors, then rerun a small coordinated displacement with exact current point, self, area, edge, and all-185 gates. A flip does not move or clear the contained points by itself; it only tests whether local face layout is the obstruction to a safe correction. If the anchor-adjacent patch has no admissible flips, the next construction-only step is a barycentric subdivision ring over these two source faces plus one transition ring, with boundary rows held fixed."
+  },
+  "source_pins": [
+    {
+      "path": "D/contained-clearance-545/connected-cones-014/15-270-spatial/candidate.npz",
+      "sha256": "215fa7da9bc9c3fa2a189b853343282e21403ef97c1d691a2a28cab36563ea82"
+    },
+    {
+      "path": "D/contained-clearance-545/connected-cones-014/check/audit-130/summary.json",
+      "sha256": "5a0233b674a5d1857013c49393058d4475af904c6da3b54ea9c0ec6708df2c60"
+    },
+    {
+      "path": "D/contained-clearance-545/connected-cones-014/check/audit-159/report.json",
+      "sha256": "4707b7ad84180cfff5f27107001e6b3f3a7af209705ff369a1afe1602fa625cd"
+    },
+    {
+      "path": "full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+    },
+    {
+      "path": "D/contained-clearance-545/local-patch-009/retry-patches/candidate.npz",
+      "sha256": "7f99f2333c4bc7acf7627a802c5e48c77646d0538aff225a909c14008838e0ac"
+    },
+    {
+      "path": "D/contained-clearance-545/local-patch-009/retry-patches/report.json",
+      "sha256": "98056c357ccbb10c332a35fb77030e74c2e0b42338589bd62b907b6beef08f72"
+    },
+    {
+      "path": "D/contained-clearance-545/local-patch-009/depth/report.json",
+      "sha256": "1163227226c17c880f3369035a6df40a2022622d97eb827a736802661dc8b448"
+    },
+    {
+      "path": "D/contained-clearance-545/spatial-patch-010/patches/report.json",
+      "sha256": "927f482ac2d490e9be3e392a37d35e7835c81c5cf7978be58d54b46085a0d981"
+    },
+    {
+      "path": "D/contained-clearance-545/hard-point-007/fit/report.json",
+      "sha256": "e400cb5813acdf0957de0d62af3e9e145c3cee299601901b60e12bece5efa3e4"
+    },
+    {
+      "path": "D/local-two-parent-retriangulation-402/two_parent_patch_flips_402.py",
+      "sha256": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764"
+    },
+    {
+      "path": "D/local-two-parent-retriangulation-405/cross_seam_search_405.py",
+      "sha256": "e995a2f460e60cb62fb24b80af400678757f62a2b0c1b51141bf0ef387993967"
+    }
+  ]
+}

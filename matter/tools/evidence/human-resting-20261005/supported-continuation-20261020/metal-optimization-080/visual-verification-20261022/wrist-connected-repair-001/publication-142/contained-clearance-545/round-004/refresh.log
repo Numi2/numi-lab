@@ -1,0 +1,59 @@
+waiting_for_human_geometry_slot pid=51913
+acquired_human_geometry_slot pid=51913
+{
+  "accepted_physical_steps": 0,
+  "active_current_crossings_excluded": 2,
+  "ambiguous_guard_faces": 0,
+  "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-005/audit-130/summary.json",
+  "audit130_sha256": "746128732cc90d1271f8d8c1084839ea237dd4e08453cfc1b095558747f85c28",
+  "audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-005/audit-159/report.json",
+  "audit159_sha256": "8f19729bd0995c1973715a543d6033d9e84958f6e843966136302402bf4bc87c",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-005/candidate.npz",
+  "candidate_sha256": "f723a48c9c677cada9c5eb9fdee4a493c947db94d1445f14e54ca5983e9639e0",
+  "current_exact_bone_crossing_pairs": 2831,
+  "current_exact_self_pairs": 0,
+  "current_face_ancestry": {
+    "crossing_face_count": 1315,
+    "crossing_face_kind_counts": {
+      "2": 1315
+    },
+    "crossing_faces_with_multi_parent_csr": 174,
+    "crossing_fine_detail_ancestry_unique_and_matching": true,
+    "current_face_count": 41733,
+    "multi_parent_current_face_count": 516,
+    "parent_candidate_path": "provided",
+    "parent_face_count": 41733,
+    "parent_indices_in_range": true,
+    "refinement_parent_csr_rows": 42287
+  },
+  "fixed_313_max_rhs_mm": -1.779603943125041e-06,
+  "fixed_313_row_count": 12126,
+  "fixed_313_rows_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-004/constraints/fixed-guards/fixed-guard-313-rows.npz",
+  "fixed_313_rows_sha256": "826adfa71f5f9705da68d06b44822e5ab959d93f0429e203d5a15c1b46895554",
+  "fixed_guard_npz_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-004/constraints/fixed-guards/fixed-skin-bone-guards.npz",
+  "fixed_guard_npz_sha256": "d1da48c458ecfaa50ddb582f1405aba73027513605021bae9a86fa2312010543",
+  "fixed_guard_pair_count": 2021,
+  "fixed_guard_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-004/constraints/fixed-guards/report.json",
+  "fixed_guard_report_sha256": "db349235a1715834b2e0cfc2d1ee6e6ef657524d8183669104c2a358a5c02dec",
+  "fixed_guard_source_pairs": 2023,
+  "fixed_guard_validation_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-004/constraints/fixed-guards/validation.json",
+  "fixed_guard_validation_sha256": "051ea2b68533a5b52ebe72e5cfc5d2a03bab3654ce36a49f610666d75feb6ae7",
+  "mapped_guard_faces": 2023,
+  "mapped_trial_seed_max_rhs_mm": -0.00014937548529317087,
+  "mapped_trial_seed_pairs": 149,
+  "mapped_trial_seed_rows": 822,
+  "native_admission": false,
+  "schema": "numi.human.focused-clearance-541.current-constraints.v1",
+  "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-004/constraints/self-guards/mapped-trial-self-pairs.npy",
+  "seed_pairs_sha256": "1546c90c0d11a8ac0b36720eccef6abce86be122e60ee8f7ccb497e32b4e970a",
+  "seed_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-004/constraints/self-guards/mapped-trial-self-seeds-report.json",
+  "seed_report_sha256": "5f34820eacf87ee1975981106ee3ef4717cdb7ee8da239953a8e217f37312c9f",
+  "source_pins": {
+    "026": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+    "313": "dc9d4f953ecede00567c59cbbb6b6b63e0a3556b97972689de499cbce29d4c2e",
+    "314": "3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78",
+    "401": "2f1eda3f0d46d0f5497a1a04075b5dc2c3b37afe906d0389ff636fca8abc5869"
+  },
+  "status": "PASS_CONSTRUCTION_ROWS_ONLY",
+  "unmapped_guard_faces": 0
+}

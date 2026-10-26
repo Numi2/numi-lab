@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-002/backtrack/backtrack-373/pass-002/audit-130/query/points-world.npz",
+  "input_sha256": "4941badf6b86a05873c98c274714b868f2d3912fa6894fd2b96c518c6221187c",
+  "field": "points_world_f32",
+  "query_count": 20889,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-002/backtrack/backtrack-373/pass-002/audit-130/query/points.csv",
+  "output_sha256": "dde58ce1626b0c5fcb0179cbf30e93233b59cb852064d4d3925ee5858d371a69",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

@@ -1,0 +1,10 @@
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/coherent-source-targets-001/nearest-union-exits.json",
+  "report_sha256": "4d07bc178924e19436cfc79d4283a4bc677dcc2a56aba02d66627bfc503d8145",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/coherent-source-targets-001/nearest-union-exits.npz",
+  "npz_sha256": "4bbeb79fc06e19877d31725256d54df11fbaf28c35bf95378295275584889d44",
+  "query_rows": 19,
+  "passing_targets": 19,
+  "status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY",
+  "seconds": 1.7574609171133488
+}

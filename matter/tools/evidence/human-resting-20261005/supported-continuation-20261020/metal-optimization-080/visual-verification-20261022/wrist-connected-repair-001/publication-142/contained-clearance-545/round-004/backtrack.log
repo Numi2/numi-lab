@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_checked_batch_context545.py", line 72, in <module>
+    if __name__=="__main__":main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_checked_batch_context545.py", line 12, in main
+    if report["status"]!="CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED":raise ValueError("fit has no proposal")
+                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: fit has no proposal

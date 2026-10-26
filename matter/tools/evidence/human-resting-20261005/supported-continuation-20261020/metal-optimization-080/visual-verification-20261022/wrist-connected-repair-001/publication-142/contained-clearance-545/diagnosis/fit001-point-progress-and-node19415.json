@@ -1,0 +1,140 @@
+{
+  "title": "Contained-point fit001 progress and long-exit diagnosis",
+  "scope": "Read-only interpretation of retained fit001 artifacts. This is not an exact endpoint qualification; round004 is a separate pending experiment.",
+  "findings": {
+    "starting_state": "Candidate c1e had 251 inside witnesses.",
+    "population_progress": {
+      "rows": 251,
+      "projected_fraction_quantiles_min_p10_p25_p50_p75_p90_max": [
+        -0.083455,
+        0.003467,
+        0.016444,
+        0.237837,
+        0.749931,
+        0.750072,
+        2.336874
+      ],
+      "projected_progress_mm_quantiles_min_p10_p25_p50_p75_p90_max": [
+        -0.009074,
+        0.00019,
+        0.000935,
+        0.026432,
+        0.054784,
+        0.16115,
+        0.653613
+      ],
+      "rows_below_0_001mm_progress": 64,
+      "depth_bin_0_to_0_01mm": {
+        "rows": 156,
+        "median_fraction": 0.0458,
+        "p10_fraction": 0.0013,
+        "rows_below_0_1_fraction": 97,
+        "negative_rows": 2
+      },
+      "depth_bin_0_01_to_0_1mm": {
+        "rows": 54,
+        "median_fraction": 0.7498
+      },
+      "depth_bin_0_1_to_0_5mm": {
+        "rows": 22,
+        "median_fraction": 0.75
+      },
+      "depth_bin_0_5_to_1mm": {
+        "rows": 12,
+        "median_fraction": 0.5078
+      },
+      "depth_bin_over_1mm": {
+        "rows": 7,
+        "median_fraction": 0.3101
+      }
+    },
+    "long_exit_witness": {
+      "node": 19415,
+      "body_bank": 114,
+      "bone_bank": 117,
+      "initial_depth_mm": 0.006205,
+      "nearest_union_exit_mm": 16.402944,
+      "target_distance_with_margin_mm": 16.452916,
+      "initial_inside_bank_count": 1,
+      "next_union_event": false,
+      "source_normal": [
+        0.90415677,
+        0.00651006,
+        -0.42715121
+      ],
+      "nearest_boundary_covector": [
+        -0.90244921,
+        -0.15763814,
+        0.40091848
+      ],
+      "source_covector_dot": -0.9882346,
+      "selected_direction": [
+        -0.0131072,
+        -0.9870556,
+        -0.1598421
+      ],
+      "selected_source_cosine": 0.05,
+      "selected_depth_cosine": 0.1033425,
+      "configured_cosine_floors": {
+        "source": 0.05,
+        "depth": 0.05
+      },
+      "current_R0_displacement_mm": 4.66978,
+      "remaining_12mm_cap_room_in_selected_direction_mm": 11.5637,
+      "fit001_projected_fraction": 0.0054,
+      "interpretation": "The long path is caused by the source-outward hemisphere constraint opposing the nearest-boundary covector; 390 already selected the depth-maximizing direction subject to both cosine floors. The single initially intersecting bank and absence of a next union event indicate this is not a route blocked by intervening banks. The requested target exceeds the remaining 12 mm construction-cap room by about 4.89 mm. This does not establish anatomical infeasibility; it shows this target/direction combination cannot be met under that cap."
+    },
+    "objective_weighting": {
+      "point_rows": 251,
+      "point_objective_mass": 0.99,
+      "point_weighting": "0.99 * target_distance / sum(target_distance), giving constant cost per mm",
+      "total_point_target_distance_mm": 57.5125,
+      "node19415_weight": 0.2832147,
+      "median_point_weight": 0.00094083,
+      "node19415_multiple_of_median": 301,
+      "note": "The distance-proportional weights gave one long target 28.3% of point objective mass; equal-per-point fractional deficit weighting in round003 addressed that imbalance. Parent reports round004 now uses an explicit direct-depth direction, removing the source-ray hemisphere while retaining the original exact endpoint185 checks; that tests the identified bottleneck."
+    },
+    "hard_constraint_diagnostic": {
+      "witness_anchors": 0,
+      "fit_basis_support_nodes": 7762,
+      "point_witnesses_in_support": 251,
+      "emitted_max_source_displacement_mm": 11.98977,
+      "construction_source_cap_mm": 12,
+      "note": "Fit001 was only a construction proposal. The inspected artifacts showed no witness anchors and no point-control support gap. Its source cap was nearly saturated globally, but node19415 itself was not at the cap."
+    }
+  },
+  "source_pins": [
+    {
+      "path": "D/focused-clearance-541/joint/area-damping-14187/run-001/candidate.npz",
+      "sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939"
+    },
+    {
+      "path": "D/focused-clearance-541/joint/area-damping-14187/check-001-full/audit-130/summary.json",
+      "sha256": "1be729eebf68d78b4d8bc5a707a762bca079a469f230f21aea59b7b5dca24f12"
+    },
+    {
+      "path": "D/contained-clearance-545/point-targets-001/nearest-union-exits.json",
+      "sha256": "e2e5955cf43df77348d11674488bf594e059c074c5829cb654fa585d580f2e14"
+    },
+    {
+      "artifact": "390 target NPZ",
+      "sha256": "6bbd08589e57e39e97789e58f974cabb0ab0dd1a1862eb4f285a1fb98cc6f968"
+    },
+    {
+      "path": "D/contained-clearance-545/depth-001/365-compatible-report.json",
+      "sha256": "24d2ae9924bc4d6b7cc3190d66ec69ba111be8797bc4edb3a90115470e4ee07b"
+    },
+    {
+      "path": "D/contained-clearance-545/run_point_batch545.py",
+      "sha256": "ae4697acc1ca8d5b747d0b2406b36d565ca98775a99d1bd18a1388f09cb970ea"
+    },
+    {
+      "path": "D/contained-clearance-545/fit-001/report.json",
+      "sha256": "44ff4fa6a6e356e838c1b0de3075151e70075349811b1bec83ea41cd2a782b57"
+    },
+    {
+      "path": "D/contained-clearance-545/fit-001/candidate.npz",
+      "sha256": "b4d03f58a92d3e6291466f3fb42ad33b400371ddcf5b3b8012d3286f75e333c1"
+    }
+  ]
+}

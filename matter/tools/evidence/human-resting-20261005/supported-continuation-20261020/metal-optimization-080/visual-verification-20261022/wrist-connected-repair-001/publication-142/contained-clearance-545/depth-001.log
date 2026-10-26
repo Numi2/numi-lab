@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/run-001/candidate.npz",
+  "candidate_sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939",
+  "output_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/depth-001",
+  "rows_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/depth-001/point-depth-rows.npz",
+  "rows_npz_sha256": "33ccc05d0b8ec8c4b9d6ae6e885d13ed98daf4357ebd04c13778a473b158a18d",
+  "raw_report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/depth-001/report.json",
+  "raw_report_sha256": "89cfae29c334e4a4822e6ff1d63ff5cbb36c5ae8683e30bfd46c5b7de10c0a28",
+  "compatible_report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/depth-001/365-compatible-report.json",
+  "compatible_report_sha256": "24d2ae9924bc4d6b7cc3190d66ec69ba111be8797bc4edb3a90115470e4ee07b",
+  "validation": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/depth-001/365-validation.json",
+  "validation_sha256": "9d373d7e9c947188982ddc75aa2775fcde30554049ccacd84510e81b1f239eb0",
+  "inside": 251,
+  "outside": 6108,
+  "row_count": 6359,
+  "unique_nodes": 6269,
+  "max_zero_step_violation_m": 0.0
+}

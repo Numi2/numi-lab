@@ -1,0 +1,427 @@
+{
+  "iteration": 2,
+  "candidate_sha256": "c0bd48c42836f257c9316673f1f3dec56aaa6d2e9888ea1fecf10f6fcf5cf842",
+  "emitted_points_sha256": "5b2cfd870ed50b43a60fa7635db601e29e1c2211708ad245343777c2cb1db828",
+  "minimum_allface_oriented_area_ratio": 0.30250818943635194,
+  "minimum_fixed_reference_area_magnitude_ratio": 0.10009356948026137,
+  "bad_area_faces": 0,
+  "anchors_bitwise_unchanged": true,
+  "nonzero_step_nodes": 956,
+  "nonzero_construction_scale_nodes": 20652,
+  "maximum_step_m": 0.0006660458297435449,
+  "maximum_source_displacement_mm": 11.989767857993577,
+  "source_cap_pass": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "point_summary_sha256": "656593983cb01a423784fb164ab65a13ce7b9a755287b143b38b3f717933b641",
+  "point_merit": {
+    "construction_progress": true,
+    "strict_pair_count_reduction": true,
+    "maximum_depth_nonincreasing": true,
+    "squared_depth_nonincreasing": true,
+    "before_inside_pairs": 251,
+    "after_inside_pairs": 185,
+    "before_maximum_depth_m": 0.0018326399158158089,
+    "after_maximum_depth_m": 0.0013948769020269694,
+    "before_squared_depth_m2": 1.9438219454503204e-05,
+    "after_squared_depth_m2": 1.0771668258332231e-05,
+    "introduced_typed_pairs": [],
+    "introduced_depths_m": [],
+    "removed_typed_pairs": [
+      [
+        18492,
+        43,
+        16
+      ],
+      [
+        18569,
+        65,
+        99
+      ],
+      [
+        18571,
+        65,
+        99
+      ],
+      [
+        18572,
+        65,
+        99
+      ],
+      [
+        18573,
+        65,
+        99
+      ],
+      [
+        18628,
+        115,
+        118
+      ],
+      [
+        18646,
+        109,
+        114
+      ],
+      [
+        18725,
+        65,
+        99
+      ],
+      [
+        18728,
+        65,
+        99
+      ],
+      [
+        18748,
+        74,
+        104
+      ],
+      [
+        18766,
+        124,
+        123
+      ],
+      [
+        18776,
+        124,
+        123
+      ],
+      [
+        18824,
+        109,
+        114
+      ],
+      [
+        18834,
+        109,
+        114
+      ],
+      [
+        18842,
+        109,
+        114
+      ],
+      [
+        18845,
+        100,
+        85
+      ],
+      [
+        18892,
+        43,
+        16
+      ],
+      [
+        18982,
+        59,
+        95
+      ],
+      [
+        18994,
+        65,
+        99
+      ],
+      [
+        18998,
+        65,
+        99
+      ],
+      [
+        19002,
+        65,
+        99
+      ],
+      [
+        19030,
+        64,
+        98
+      ],
+      [
+        19061,
+        43,
+        16
+      ],
+      [
+        19101,
+        124,
+        123
+      ],
+      [
+        19107,
+        124,
+        123
+      ],
+      [
+        19117,
+        124,
+        123
+      ],
+      [
+        19126,
+        124,
+        123
+      ],
+      [
+        19149,
+        115,
+        118
+      ],
+      [
+        19169,
+        115,
+        118
+      ],
+      [
+        19209,
+        109,
+        114
+      ],
+      [
+        19216,
+        109,
+        114
+      ],
+      [
+        19222,
+        114,
+        117
+      ],
+      [
+        19364,
+        74,
+        104
+      ],
+      [
+        19365,
+        74,
+        104
+      ],
+      [
+        19392,
+        124,
+        123
+      ],
+      [
+        19404,
+        115,
+        118
+      ],
+      [
+        19663,
+        109,
+        114
+      ],
+      [
+        19664,
+        109,
+        114
+      ],
+      [
+        19790,
+        59,
+        95
+      ],
+      [
+        19868,
+        59,
+        95
+      ],
+      [
+        19880,
+        59,
+        95
+      ],
+      [
+        19907,
+        65,
+        99
+      ],
+      [
+        19945,
+        65,
+        99
+      ],
+      [
+        19953,
+        65,
+        99
+      ],
+      [
+        19985,
+        65,
+        99
+      ],
+      [
+        19990,
+        65,
+        99
+      ],
+      [
+        20013,
+        65,
+        99
+      ],
+      [
+        20029,
+        65,
+        99
+      ],
+      [
+        20087,
+        64,
+        98
+      ],
+      [
+        20088,
+        64,
+        98
+      ],
+      [
+        20164,
+        43,
+        16
+      ],
+      [
+        20204,
+        43,
+        16
+      ],
+      [
+        20215,
+        43,
+        16
+      ],
+      [
+        20248,
+        43,
+        16
+      ],
+      [
+        20329,
+        74,
+        104
+      ],
+      [
+        20383,
+        124,
+        123
+      ],
+      [
+        20394,
+        124,
+        123
+      ],
+      [
+        20411,
+        124,
+        123
+      ],
+      [
+        20470,
+        115,
+        118
+      ],
+      [
+        20483,
+        115,
+        118
+      ],
+      [
+        20509,
+        115,
+        118
+      ],
+      [
+        20615,
+        109,
+        114
+      ],
+      [
+        20629,
+        109,
+        114
+      ],
+      [
+        20675,
+        109,
+        114
+      ],
+      [
+        20747,
+        109,
+        114
+      ],
+      [
+        20764,
+        109,
+        114
+      ]
+    ],
+    "geometry_admitted": false,
+    "accepted_physical_steps": 0
+  },
+  "joint_merit": {
+    "classification": "JOINT_CLEARANCE_CONSTRUCTION_PROGRESS",
+    "construction_progress": true,
+    "strict_surface_pair_reduction": true,
+    "strict_total_pair_reduction": true,
+    "maximum_depth_nonincreasing": true,
+    "squared_depth_nonincreasing": true,
+    "topology_points": 20889,
+    "topology_faces": 41733,
+    "typed_bank_count": 185,
+    "before_candidate_sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939",
+    "after_candidate_sha256": "c0bd48c42836f257c9316673f1f3dec56aaa6d2e9888ea1fecf10f6fcf5cf842",
+    "before_point_pairs": 251,
+    "after_point_pairs": 185,
+    "before_surface_pairs": 2895,
+    "after_surface_pairs": 2833,
+    "before_total_pairs": 3146,
+    "after_total_pairs": 3018,
+    "before_maximum_point_depth_m": 0.0018326399158158089,
+    "after_maximum_point_depth_m": 0.0013948769020269694,
+    "before_squared_point_depth_m2": 1.9438219454503204e-05,
+    "after_squared_point_depth_m2": 1.0771668258332231e-05,
+    "final_zero_clearance_unchanged": false,
+    "geometry_admitted": false,
+    "accepted_physical_steps": 0,
+    "native_admission": false
+  },
+  "depth_merit": {
+    "classification": "NO_CONSTRUCTION_DEPTH_PROGRESS",
+    "construction_progress": false,
+    "point_pair_count_nonincreasing": true,
+    "surface_pair_count_nonincreasing": false,
+    "same_query_coverage": true,
+    "no_introduced_typed_pairs": false,
+    "introduced_point_pairs": [],
+    "introduced_surface_pair_count": 163,
+    "maximum_depth_nonincreasing": true,
+    "strict_squared_depth_progress": true,
+    "before_point_pairs": 251,
+    "after_point_pairs": 185,
+    "before_surface_pairs": 2895,
+    "after_surface_pairs": 2833,
+    "before_maximum_depth_m": 0.0018326399158158089,
+    "after_maximum_depth_m": 0.0013948769020269694,
+    "before_squared_depth_m2": 1.9438219454503204e-05,
+    "after_squared_depth_m2": 1.0771668258332231e-05,
+    "squared_depth_improvement_m2": 8.666551196170972e-06,
+    "squared_depth_roundoff_threshold_m2": 2.7623371259015817e-19,
+    "typed_bank_count": 185,
+    "topology_points": 20889,
+    "topology_faces": 41733,
+    "before_candidate_sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939",
+    "after_candidate_sha256": "c0bd48c42836f257c9316673f1f3dec56aaa6d2e9888ea1fecf10f6fcf5cf842",
+    "geometry_admitted": false,
+    "native_admission": false,
+    "accepted_physical_steps": 0
+  },
+  "status": "CONSTRUCTION_PROGRESS_ONLY",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/backtrack-001/backtrack-373/pass-002/candidate.npz",
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/backtrack-001/backtrack-373/pass-002/audit-130/summary.json",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/backtrack-001/backtrack-373/pass-002/audit-159/report.json",
+  "parent_fit": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/fit-001/report.json"
+}

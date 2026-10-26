@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "existing_rows_and_rhs_preserved": true,
+  "hard_goal_row_preserved": true,
+  "source_sha256": "7c3a3587cb0c5754e28c84c9c06dd37c6ad4b59ac06cf0b9c163b762dbe3d340"
+}

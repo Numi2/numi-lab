@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/select_connected_endpoint_patches545.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/spatial-patch-012/state.json",
+    "--targets",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/cone-search-013/targets-45-180/nearest-union-exits.npz",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/connected-cones-014/45-180-spatial",
+    "--initial-selected",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/connected-cones-014/45-180-harmonic",
+    "--trust-mm",
+    "3",
+    "--spatial",
+    "--protect-new-inside"
+  ],
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py": "dbef219f9d414a8cca41b54284bc78ffe1b1e15d339e7b35c42b31b7523e0b31",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/select_connected_endpoint_patches545.py": "297029608d02769ce2f93e26c9798007af66410d99b1aaaca3c7a3dd7d4ac960"
+  }
+}

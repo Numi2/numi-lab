@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_nearest_union_targets_500.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/filter-002/candidate.npz",
+    "--surface-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/check-002/audit-159/report.json",
+    "--query-receipt",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/check-002/audit-130/query/query-receipt.json",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/full-point-005/surface-targets",
+    "--clearance-m",
+    ".00005",
+    "--direction-mode",
+    "outward-nearest"
+  ],
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py": "1b796c7167b76e950d5ef01421bc308691c9497e3e09f2584bc7ea19711ed88d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_nearest_union_targets_500.py": "454501303db7c6420ff3744729c62c723c208aaf9348a53534137c62b7e6afbf"
+  }
+}

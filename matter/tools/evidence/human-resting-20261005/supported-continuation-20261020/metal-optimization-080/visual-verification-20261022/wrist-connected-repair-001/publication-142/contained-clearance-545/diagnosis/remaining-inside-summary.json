@@ -1,0 +1,711 @@
+{
+  "actionable_readout": [
+    "No remaining inside witness is an anchor; all are node_kind=-1 refinement outputs.",
+    "The witness nodes and their one-ring have substantial 12 mm R0 cap headroom; cap is not the local blocker.",
+    "The inherited 390/408 targets cover all 251 current witnesses but were generated against candidate 442f, not selected c1e. Refresh point exits and 357 rows against c1e.",
+    "408 clearance rows are soft objective targets. 357 inside rows are zero-lower-delta nonregression barriers, not a zero-depth requirement. A point-priority construction pass is the direct existing-owner lever; retain all hard rows and exact all-185 checks."
+  ],
+  "anchor_and_source_cap": {
+    "all_mesh_count_over_11_5_mm": 1,
+    "all_mesh_max_displacement_mm": 11.989767857993577,
+    "cap_mm": 12.0,
+    "one_ring_anchor_count": 0,
+    "one_ring_count_over_11_5_mm": 0,
+    "one_ring_max_displacement_mm": 11.371907418644051,
+    "witness_anchor_count": 0,
+    "witness_count_over_11_5_mm": 0,
+    "witness_displacement_mm_quantiles_min_p50_p90_max": [
+      1.1943782850173823,
+      4.028423121912915,
+      6.842038476402224,
+      9.553028204497918
+    ],
+    "witness_one_ring_node_count": 976
+  },
+  "audit130_sha256": "1be729eebf68d78b4d8bc5a707a762bca079a469f230f21aea59b7b5dca24f12",
+  "candidate_sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939",
+  "depth_mm_quantiles_min_p25_p50_p75_p90_p95_p99_max": [
+    8.0793141898388e-06,
+    0.0007450811662557616,
+    0.004603668903951547,
+    0.027792766331788142,
+    0.2698668746203971,
+    0.5938784284654597,
+    1.266614722904833,
+    1.8326399158158089
+  ],
+  "direct_witness_induced_mesh_edge_components": {
+    "count": 120,
+    "largest_12": [
+      {
+        "bank_stable_ids": [
+          117
+        ],
+        "bbox_extent_mm": [
+          5.3271,
+          2.4388,
+          3.4085
+        ],
+        "max_depth_mm": 1.8326399158158089,
+        "output_nodes": [
+          19222,
+          19223,
+          19226,
+          19227,
+          19641,
+          19643,
+          20791,
+          20796,
+          20807
+        ],
+        "witness_node_count": 9
+      },
+      {
+        "bank_stable_ids": [
+          123
+        ],
+        "bbox_extent_mm": [
+          3.0905,
+          2.4123,
+          4.1057
+        ],
+        "max_depth_mm": 0.09363641439236087,
+        "output_nodes": [
+          18500,
+          18501,
+          19101,
+          19391,
+          19392,
+          20354,
+          20362
+        ],
+        "witness_node_count": 7
+      },
+      {
+        "bank_stable_ids": [
+          114
+        ],
+        "bbox_extent_mm": [
+          5.1848,
+          3.743,
+          1.3765
+        ],
+        "max_depth_mm": 0.10089021516031518,
+        "output_nodes": [
+          18641,
+          18642,
+          18842,
+          19553,
+          20675,
+          20676,
+          20699
+        ],
+        "witness_node_count": 7
+      },
+      {
+        "bank_stable_ids": [
+          98
+        ],
+        "bbox_extent_mm": [
+          2.5878,
+          2.0483,
+          2.8011
+        ],
+        "max_depth_mm": 0.07692762344560879,
+        "output_nodes": [
+          18876,
+          18879,
+          19024,
+          19027,
+          19692,
+          20075,
+          20080
+        ],
+        "witness_node_count": 7
+      },
+      {
+        "bank_stable_ids": [
+          16
+        ],
+        "bbox_extent_mm": [
+          2.6678,
+          4.0166,
+          4.467
+        ],
+        "max_depth_mm": 1.3485731047451825,
+        "output_nodes": [
+          18591,
+          19056,
+          19059,
+          19499,
+          20182,
+          20189
+        ],
+        "witness_node_count": 6
+      },
+      {
+        "bank_stable_ids": [
+          16
+        ],
+        "bbox_extent_mm": [
+          3.3956,
+          5.1529,
+          4.4114
+        ],
+        "max_depth_mm": 0.8775752796464988,
+        "output_nodes": [
+          18488,
+          18492,
+          18495,
+          20171,
+          20215
+        ],
+        "witness_node_count": 5
+      },
+      {
+        "bank_stable_ids": [
+          16
+        ],
+        "bbox_extent_mm": [
+          4.1625,
+          4.5689,
+          4.3354
+        ],
+        "max_depth_mm": 1.2482984312470666,
+        "output_nodes": [
+          18489,
+          18496,
+          19379,
+          20196,
+          20218
+        ],
+        "witness_node_count": 5
+      },
+      {
+        "bank_stable_ids": [
+          118
+        ],
+        "bbox_extent_mm": [
+          3.0638,
+          1.1395,
+          1.2588
+        ],
+        "max_depth_mm": 0.4491295721108937,
+        "output_nodes": [
+          18625,
+          18627,
+          20508,
+          20509,
+          20523
+        ],
+        "witness_node_count": 5
+      },
+      {
+        "bank_stable_ids": [
+          123
+        ],
+        "bbox_extent_mm": [
+          1.8398,
+          0.3682,
+          2.784
+        ],
+        "max_depth_mm": 0.028611417734179596,
+        "output_nodes": [
+          18770,
+          19117,
+          19628,
+          20407,
+          20412
+        ],
+        "witness_node_count": 5
+      },
+      {
+        "bank_stable_ids": [
+          114
+        ],
+        "bbox_extent_mm": [
+          5.0746,
+          3.2426,
+          3.645
+        ],
+        "max_depth_mm": 0.2470926008016993,
+        "output_nodes": [
+          18824,
+          19210,
+          19663,
+          20747,
+          20752
+        ],
+        "witness_node_count": 5
+      },
+      {
+        "bank_stable_ids": [
+          99
+        ],
+        "bbox_extent_mm": [
+          4.2206,
+          1.1234,
+          0.2087
+        ],
+        "max_depth_mm": 0.06745743025510945,
+        "output_nodes": [
+          18994,
+          18998,
+          19343,
+          19945,
+          19953
+        ],
+        "witness_node_count": 5
+      },
+      {
+        "bank_stable_ids": [
+          104
+        ],
+        "bbox_extent_mm": [
+          2.0052,
+          0.393,
+          0.9054
+        ],
+        "max_depth_mm": 0.007895732672681002,
+        "output_nodes": [
+          18602,
+          18603,
+          20275,
+          20281
+        ],
+        "witness_node_count": 4
+      }
+    ],
+    "size_quantiles_min_p50_p90_max": [
+      1.0,
+      1.0,
+      4.0,
+      9.0
+    ]
+  },
+  "existing_point_clearance_leverage": {
+    "357_matching_lower_delta_mm_max": 0.0,
+    "357_matching_record_kinds": {
+      "inside_nonregression": 251
+    },
+    "current_witness_nodes_with_inherited_point_target": 251,
+    "current_witnesses_with_matching_357_record": 251,
+    "depth_source_candidate_sha256": "442f80600304c9474794aa034f4efe8418c15cfe1256ee364c11ac586853ca98",
+    "fresh_for_selected_c1e": false,
+    "inherited_408_face_rows": 3338,
+    "inherited_408_point_targets": 458,
+    "target_h_mm_quantiles_current_witnesses_min_p50_p90_max": [
+      0.2500331318624847,
+      0.3003023465245144,
+      1.932341864605025,
+      4.877064589049143
+    ],
+    "target_point_row_weight_unique": [
+      0.001091703056768559
+    ],
+    "target_source_candidate_sha256": "442f80600304c9474794aa034f4efe8418c15cfe1256ee364c11ac586853ca98"
+  },
+  "inside_node_bank_pairs": 251,
+  "schema": "numi.focused-clearance-545.contained-witness-diagnosis.v1",
+  "scope": "Read-only summary of retained exact 130 witness rows and candidate arrays. No fit or geometry audit was run; node components are direct mesh-edge adjacency among witness nodes, not connected collision regions.",
+  "source_pins": {
+    "audit130": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/check-001-full/audit-130/summary.json",
+      "sha256": "1be729eebf68d78b4d8bc5a707a762bca079a469f230f21aea59b7b5dca24f12"
+    },
+    "candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/run-001/candidate.npz",
+      "sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939"
+    },
+    "owner357": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-barriers-357/point_depth_barriers_357.py",
+      "sha256": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1"
+    },
+    "owner390": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/coherent-point-targets-390/build_coherent_point_targets_390.py",
+      "sha256": "15be65c3f3863998a2fb709e70e22a20402ab1580e84960aeb1a3f2301c70b00"
+    },
+    "owner408": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+      "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+    },
+    "target390_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/coherent-point-targets-390/candidate-403-442f806/nearest-union-exits.json",
+      "sha256": "6154600a088a6f20b98888c4eef0fd92244bb0a05fe8069889f59ea0559f0e87"
+    }
+  },
+  "typed_bank_groups": [
+    {
+      "bank_body": 43,
+      "bank_stable_id": 16,
+      "depth_mm_max": 1.3485731047451825,
+      "depth_mm_median": 0.08917140549381918,
+      "depth_mm_p90": 1.0949197701742055,
+      "inside_pair_count": 32,
+      "output_nodes": [
+        18488,
+        18489,
+        18492,
+        18495,
+        18496,
+        18591,
+        18891,
+        18892,
+        19051,
+        19056,
+        19059,
+        19061,
+        19063,
+        19071,
+        19379,
+        19382,
+        19496,
+        19499,
+        19702,
+        19703,
+        20157,
+        20164,
+        20169,
+        20171,
+        20182,
+        20189,
+        20196,
+        20198,
+        20204,
+        20215,
+        20218,
+        20248
+      ]
+    },
+    {
+      "bank_body": 57,
+      "bank_stable_id": 89,
+      "depth_mm_max": 1.0928836453826645,
+      "depth_mm_median": 0.19504250862646083,
+      "depth_mm_p90": 0.8276024981763577,
+      "inside_pair_count": 4,
+      "output_nodes": [
+        18706,
+        19260,
+        19762,
+        19890
+      ]
+    },
+    {
+      "bank_body": 59,
+      "bank_stable_id": 95,
+      "depth_mm_max": 0.7953195721637034,
+      "depth_mm_median": 0.001011729237067015,
+      "depth_mm_p90": 0.1458489493953531,
+      "inside_pair_count": 19,
+      "output_nodes": [
+        18450,
+        18452,
+        18697,
+        18698,
+        18961,
+        18966,
+        18972,
+        18982,
+        19599,
+        19682,
+        19775,
+        19790,
+        19796,
+        19827,
+        19830,
+        19846,
+        19858,
+        19868,
+        19880
+      ]
+    },
+    {
+      "bank_body": 61,
+      "bank_stable_id": 97,
+      "depth_mm_max": 0.04303822716572699,
+      "depth_mm_median": 0.001211214307123037,
+      "depth_mm_p90": 0.0346728245940062,
+      "inside_pair_count": 3,
+      "output_nodes": [
+        18945,
+        19450,
+        19735
+      ]
+    },
+    {
+      "bank_body": 64,
+      "bank_stable_id": 98,
+      "depth_mm_max": 1.2849310145625992,
+      "depth_mm_median": 0.006020926192916225,
+      "depth_mm_p90": 0.38618979767240014,
+      "inside_pair_count": 14,
+      "output_nodes": [
+        18474,
+        18580,
+        18876,
+        18879,
+        19024,
+        19027,
+        19030,
+        19487,
+        19692,
+        20056,
+        20075,
+        20080,
+        20087,
+        20088
+      ]
+    },
+    {
+      "bank_body": 65,
+      "bank_stable_id": 99,
+      "depth_mm_max": 0.5734671996006439,
+      "depth_mm_median": 0.0050961700074114305,
+      "depth_mm_p90": 0.04469612271189506,
+      "inside_pair_count": 39,
+      "output_nodes": [
+        18457,
+        18463,
+        18464,
+        18569,
+        18570,
+        18571,
+        18572,
+        18573,
+        18710,
+        18725,
+        18728,
+        18729,
+        18861,
+        18864,
+        18869,
+        18994,
+        18998,
+        19002,
+        19003,
+        19006,
+        19007,
+        19010,
+        19011,
+        19339,
+        19343,
+        19347,
+        19478,
+        19907,
+        19932,
+        19940,
+        19945,
+        19953,
+        19958,
+        19964,
+        19985,
+        19990,
+        19999,
+        20013,
+        20029
+      ]
+    },
+    {
+      "bank_body": 74,
+      "bank_stable_id": 104,
+      "depth_mm_max": 0.509446358324483,
+      "depth_mm_median": 0.002264183321158936,
+      "depth_mm_p90": 0.04379617749855619,
+      "inside_pair_count": 15,
+      "output_nodes": [
+        18602,
+        18603,
+        18748,
+        18881,
+        19081,
+        19084,
+        19091,
+        19363,
+        19364,
+        19365,
+        19507,
+        19696,
+        20275,
+        20281,
+        20329
+      ]
+    },
+    {
+      "bank_body": 100,
+      "bank_stable_id": 85,
+      "depth_mm_max": 0.00011125596402893579,
+      "depth_mm_median": 0.00011125596402893579,
+      "depth_mm_p90": 0.00011125596402893579,
+      "inside_pair_count": 1,
+      "output_nodes": [
+        18845
+      ]
+    },
+    {
+      "bank_body": 109,
+      "bank_stable_id": 114,
+      "depth_mm_max": 0.34058388964902625,
+      "depth_mm_median": 0.0018379324305061887,
+      "depth_mm_p90": 0.04466887021130547,
+      "inside_pair_count": 48,
+      "output_nodes": [
+        18641,
+        18642,
+        18646,
+        18824,
+        18830,
+        18834,
+        18842,
+        18928,
+        18930,
+        18933,
+        18937,
+        19178,
+        19180,
+        19181,
+        19188,
+        19194,
+        19195,
+        19209,
+        19210,
+        19215,
+        19216,
+        19440,
+        19446,
+        19553,
+        19558,
+        19663,
+        19664,
+        19668,
+        19671,
+        19672,
+        20615,
+        20628,
+        20629,
+        20675,
+        20676,
+        20684,
+        20689,
+        20691,
+        20692,
+        20696,
+        20699,
+        20703,
+        20747,
+        20752,
+        20764,
+        20771,
+        20773,
+        20778
+      ]
+    },
+    {
+      "bank_body": 114,
+      "bank_stable_id": 117,
+      "depth_mm_max": 1.8326399158158089,
+      "depth_mm_median": 0.006205118852811546,
+      "depth_mm_p90": 0.4980568896717746,
+      "inside_pair_count": 15,
+      "output_nodes": [
+        19222,
+        19223,
+        19226,
+        19227,
+        19239,
+        19246,
+        19415,
+        19571,
+        19572,
+        19576,
+        19641,
+        19643,
+        20791,
+        20796,
+        20807
+      ]
+    },
+    {
+      "bank_body": 115,
+      "bank_stable_id": 118,
+      "depth_mm_max": 0.4491295721108937,
+      "depth_mm_median": 0.002191101248464631,
+      "depth_mm_p90": 0.11363204339746719,
+      "inside_pair_count": 30,
+      "output_nodes": [
+        18625,
+        18627,
+        18628,
+        19136,
+        19137,
+        19149,
+        19153,
+        19157,
+        19162,
+        19169,
+        19404,
+        19405,
+        19407,
+        19411,
+        19412,
+        19534,
+        19651,
+        19709,
+        20470,
+        20480,
+        20483,
+        20486,
+        20508,
+        20509,
+        20523,
+        20533,
+        20542,
+        20544,
+        20550,
+        20558
+      ]
+    },
+    {
+      "bank_body": 124,
+      "bank_stable_id": 123,
+      "depth_mm_max": 0.6524574315965709,
+      "depth_mm_median": 0.0075149265641300915,
+      "depth_mm_p90": 0.09363641439236087,
+      "inside_pair_count": 31,
+      "output_nodes": [
+        18500,
+        18501,
+        18766,
+        18767,
+        18770,
+        18776,
+        19101,
+        19104,
+        19107,
+        19111,
+        19117,
+        19118,
+        19123,
+        19126,
+        19391,
+        19392,
+        19522,
+        19625,
+        19628,
+        19631,
+        20354,
+        20362,
+        20363,
+        20383,
+        20388,
+        20394,
+        20399,
+        20407,
+        20411,
+        20412,
+        20430
+      ]
+    }
+  ],
+  "unique_inside_nodes": 251
+}

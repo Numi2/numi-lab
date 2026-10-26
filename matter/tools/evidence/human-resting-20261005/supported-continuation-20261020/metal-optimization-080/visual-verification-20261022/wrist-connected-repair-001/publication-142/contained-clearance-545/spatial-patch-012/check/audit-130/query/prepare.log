@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/spatial-patch-012/check/audit-130/query/points-world.npz",
+  "input_sha256": "a744341824d44add396ce91777b26c971cdfcd5f9d1bb93cf58d1e233fc8613c",
+  "field": "points_world_f32",
+  "query_count": 20889,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/spatial-patch-012/check/audit-130/query/points.csv",
+  "output_sha256": "558e60057dcc0e90758e3b24ef7e16c7d93018a1ba7ea0f355b92f07c10eefd9",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

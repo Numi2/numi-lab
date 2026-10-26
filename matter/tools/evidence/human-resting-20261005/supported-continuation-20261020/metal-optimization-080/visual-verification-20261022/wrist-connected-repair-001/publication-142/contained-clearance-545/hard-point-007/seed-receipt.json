@@ -1,0 +1,6 @@
+{
+  "candidate_sha256": "6fd48fec0fd193afed5dfc83d0697987176abbf3f1a8f69bf2f38fae2dd247ad",
+  "pairs": 23613,
+  "zero_delta_max_rhs_mm": -2.8351904682462e-05,
+  "zero_delta_feasible": true
+}

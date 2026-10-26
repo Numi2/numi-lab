@@ -1,0 +1,11 @@
+{
+  "start": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-005/candidate.npz",
+  "start_sha256": "f723a48c9c677cada9c5eb9fdee4a493c947db94d1445f14e54ca5983e9639e0",
+  "trial": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-004/retry-fit/candidate.npz",
+  "trial_sha256": "5bab1ff219c0e0b3d171a5aaaf5f8b44656ee4fad7e5a721604c09679412bb4f",
+  "helper_sha256": "522152a4df248d230ddc66652e3071a2283c29ca73bccc52efbe1789e2ee2b9e",
+  "source_point_summary_sha256": "746128732cc90d1271f8d8c1084839ea237dd4e08453cfc1b095558747f85c28",
+  "source_surface_report_sha256": "8f19729bd0995c1973715a543d6033d9e84958f6e843966136302402bf4bc87c",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

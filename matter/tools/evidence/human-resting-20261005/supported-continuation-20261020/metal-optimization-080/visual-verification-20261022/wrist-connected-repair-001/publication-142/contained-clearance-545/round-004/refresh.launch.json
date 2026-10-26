@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/refresh_guards_541.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-005/candidate.npz",
+    "--audit130",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-005/audit-130/summary.json",
+    "--audit159",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-005/audit-159/report.json",
+    "--query-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-005/audit-130/query",
+    "--ancestry-parent-candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-005/candidate.npz",
+    "--seed-source-candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-001/candidate.npz",
+    "--seed-source-audit130",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-001/audit-130/summary.json",
+    "--seed-source-pairs",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-001/audit-130/surface-self-pairs.npy",
+    "--prior-guard-candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-002/backtrack/backtrack-373/pass-002/candidate.npz",
+    "--prior-guard-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/constraints/fixed-guards/report.json",
+    "--prior-guard-npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/constraints/fixed-guards/fixed-skin-bone-guards.npz",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-004/constraints",
+    "--expected-candidate-sha256",
+    "f723a48c9c677cada9c5eb9fdee4a493c947db94d1445f14e54ca5983e9639e0",
+    "--expected-audit130-sha256",
+    "746128732cc90d1271f8d8c1084839ea237dd4e08453cfc1b095558747f85c28",
+    "--expected-audit159-sha256",
+    "8f19729bd0995c1973715a543d6033d9e84958f6e843966136302402bf4bc87c"
+  ],
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py": "5e98a87156400679d807a386d86e0f70b2f97c13d2db4d8ffec940c66d6cffae",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/refresh_guards_541.py": "293e4da49a10f07420d1da7c512823dcb182dca246e411c3775d18866b27a241"
+  }
+}

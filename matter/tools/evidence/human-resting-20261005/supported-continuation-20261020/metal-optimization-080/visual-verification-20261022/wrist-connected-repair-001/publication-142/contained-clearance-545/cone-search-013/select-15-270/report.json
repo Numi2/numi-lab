@@ -1,0 +1,502 @@
+{
+  "status": "CONNECTED_ENDPOINT_SELECTION_PENDING_FULL_EXACT_CHECKS",
+  "candidate_sha256": "3d754e5d0b71bb0f1568a9ece9f06b3056218828376dad128b444eba2a8a2dea",
+  "base_sha256": "8cf5d22141ab059d79e02a54c97fa53e45f98f32b156682e2522fe119230736e",
+  "source_sha256": "6faf31ed4f474d311f843402807663ffaa3139ee95dd1c7c4844e63dca38ae12",
+  "target_sha256": "df7ecf8a591c4f56cd50b69e910d9c8bdfd38b69aeb5d95e5c4a72533f42b6fc",
+  "retained_node_rows": [
+    18933
+  ],
+  "retained_operations": 1,
+  "selected_order": 0,
+  "initial_selection": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/cone-search-013/select-15-180",
+    "report_sha256": "bb01c5e6dab2f5fd975dfb3b8713d5a11f208adfb49e90a07cef84bf6a32e125",
+    "candidate_sha256": "3d754e5d0b71bb0f1568a9ece9f06b3056218828376dad128b444eba2a8a2dea"
+  },
+  "trials": [
+    {
+      "order": 0,
+      "node": 19702,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": false,
+      "self_pairs": [
+        [
+          19087,
+          19141
+        ],
+        [
+          19087,
+          19161
+        ],
+        [
+          19087,
+          19162
+        ],
+        [
+          19088,
+          19161
+        ],
+        [
+          19088,
+          19162
+        ],
+        [
+          19095,
+          19141
+        ],
+        [
+          19095,
+          19161
+        ],
+        [
+          19095,
+          19162
+        ],
+        [
+          19096,
+          19141
+        ],
+        [
+          19096,
+          19162
+        ]
+      ],
+      "complete_pair_scope": {
+        "changed_faces": [
+          19087,
+          19088,
+          19095,
+          19096
+        ],
+        "complete_surface_faces": 41733
+      }
+    },
+    {
+      "order": 0,
+      "node": 18591,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [
+          59937
+        ],
+        "bad_bound_nodes": []
+      },
+      "accepted": false
+    },
+    {
+      "order": 0,
+      "node": 20182,
+      "arithmetic": {
+        "bad_area_faces": [
+          19120,
+          19121,
+          19153,
+          19163
+        ],
+        "bad_edge_rows": [
+          62043
+        ],
+        "bad_bound_nodes": []
+      },
+      "accepted": false
+    },
+    {
+      "order": 0,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": false,
+      "self_pairs": [
+        [
+          19054,
+          19418
+        ],
+        [
+          19054,
+          19433
+        ],
+        [
+          19055,
+          19418
+        ],
+        [
+          19055,
+          19433
+        ],
+        [
+          19058,
+          19418
+        ],
+        [
+          19058,
+          19432
+        ],
+        [
+          19058,
+          19433
+        ],
+        [
+          19063,
+          19418
+        ],
+        [
+          19063,
+          19433
+        ],
+        [
+          19414,
+          19432
+        ],
+        [
+          19415,
+          19418
+        ],
+        [
+          19415,
+          19432
+        ]
+      ],
+      "complete_pair_scope": {
+        "changed_faces": [
+          19414,
+          19418,
+          19419,
+          19432,
+          19433
+        ],
+        "complete_surface_faces": 41733
+      }
+    },
+    {
+      "order": 1,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": false,
+      "self_pairs": [
+        [
+          19054,
+          19418
+        ],
+        [
+          19054,
+          19433
+        ],
+        [
+          19055,
+          19418
+        ],
+        [
+          19055,
+          19433
+        ],
+        [
+          19058,
+          19418
+        ],
+        [
+          19058,
+          19432
+        ],
+        [
+          19058,
+          19433
+        ],
+        [
+          19063,
+          19418
+        ],
+        [
+          19063,
+          19433
+        ],
+        [
+          19414,
+          19432
+        ],
+        [
+          19415,
+          19418
+        ],
+        [
+          19415,
+          19432
+        ]
+      ],
+      "complete_pair_scope": {
+        "changed_faces": [
+          19414,
+          19418,
+          19419,
+          19432,
+          19433
+        ],
+        "complete_surface_faces": 41733
+      }
+    },
+    {
+      "order": 1,
+      "node": 20182,
+      "arithmetic": {
+        "bad_area_faces": [
+          19120,
+          19121,
+          19153,
+          19163
+        ],
+        "bad_edge_rows": [
+          62043
+        ],
+        "bad_bound_nodes": []
+      },
+      "accepted": false
+    },
+    {
+      "order": 1,
+      "node": 18591,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [
+          59937
+        ],
+        "bad_bound_nodes": []
+      },
+      "accepted": false
+    },
+    {
+      "order": 1,
+      "node": 19702,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": false,
+      "self_pairs": [
+        [
+          19087,
+          19141
+        ],
+        [
+          19087,
+          19161
+        ],
+        [
+          19087,
+          19162
+        ],
+        [
+          19088,
+          19161
+        ],
+        [
+          19088,
+          19162
+        ],
+        [
+          19095,
+          19141
+        ],
+        [
+          19095,
+          19161
+        ],
+        [
+          19095,
+          19162
+        ],
+        [
+          19096,
+          19141
+        ],
+        [
+          19096,
+          19162
+        ]
+      ],
+      "complete_pair_scope": {
+        "changed_faces": [
+          19087,
+          19088,
+          19095,
+          19096
+        ],
+        "complete_surface_faces": 41733
+      }
+    },
+    {
+      "order": 2,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": false,
+      "self_pairs": [
+        [
+          19054,
+          19418
+        ],
+        [
+          19054,
+          19433
+        ],
+        [
+          19055,
+          19418
+        ],
+        [
+          19055,
+          19433
+        ],
+        [
+          19058,
+          19418
+        ],
+        [
+          19058,
+          19432
+        ],
+        [
+          19058,
+          19433
+        ],
+        [
+          19063,
+          19418
+        ],
+        [
+          19063,
+          19433
+        ],
+        [
+          19414,
+          19432
+        ],
+        [
+          19415,
+          19418
+        ],
+        [
+          19415,
+          19432
+        ]
+      ],
+      "complete_pair_scope": {
+        "changed_faces": [
+          19414,
+          19418,
+          19419,
+          19432,
+          19433
+        ],
+        "complete_surface_faces": 41733
+      }
+    },
+    {
+      "order": 2,
+      "node": 18591,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [
+          59937
+        ],
+        "bad_bound_nodes": []
+      },
+      "accepted": false
+    },
+    {
+      "order": 2,
+      "node": 19702,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": false,
+      "self_pairs": [
+        [
+          19087,
+          19141
+        ],
+        [
+          19087,
+          19161
+        ],
+        [
+          19087,
+          19162
+        ],
+        [
+          19088,
+          19161
+        ],
+        [
+          19088,
+          19162
+        ],
+        [
+          19095,
+          19141
+        ],
+        [
+          19095,
+          19161
+        ],
+        [
+          19095,
+          19162
+        ],
+        [
+          19096,
+          19141
+        ],
+        [
+          19096,
+          19162
+        ]
+      ],
+      "complete_pair_scope": {
+        "changed_faces": [
+          19087,
+          19088,
+          19095,
+          19096
+        ],
+        "complete_surface_faces": 41733
+      }
+    },
+    {
+      "order": 2,
+      "node": 20182,
+      "arithmetic": {
+        "bad_area_faces": [
+          19120,
+          19121,
+          19153,
+          19163
+        ],
+        "bad_edge_rows": [
+          62043
+        ],
+        "bad_bound_nodes": []
+      },
+      "accepted": false
+    }
+  ],
+  "seconds": 2.476450707996264,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

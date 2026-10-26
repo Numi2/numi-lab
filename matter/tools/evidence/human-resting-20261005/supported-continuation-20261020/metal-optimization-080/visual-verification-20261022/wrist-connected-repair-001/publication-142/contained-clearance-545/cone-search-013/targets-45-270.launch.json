@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_cone_depth_targets545.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/spatial-patch-012/candidate.npz",
+    "--point-summary",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/spatial-patch-012/check/audit-130/summary.json",
+    "--query-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/spatial-patch-012/check/audit-130/query",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/cone-search-013/targets-45-270",
+    "--clearance-m",
+    "5e-06",
+    "--direction-mode",
+    "direct-depth",
+    "--point-depth-rows-npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/cone-search-013/depth/point-depth-rows.npz",
+    "--point-depth-rows-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/cone-search-013/depth/365-compatible-report.json",
+    "--minimum-depth-cosine",
+    ".05",
+    "--cone-angle-545",
+    "45",
+    "--cone-azimuth-545",
+    "270"
+  ],
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_cone_depth_targets545.py": "5c016c4dc3345815c321caa4a48e3b979f574641436c95eaeb768a0951aae5ce",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py": "dbef219f9d414a8cca41b54284bc78ffe1b1e15d339e7b35c42b31b7523e0b31"
+  }
+}

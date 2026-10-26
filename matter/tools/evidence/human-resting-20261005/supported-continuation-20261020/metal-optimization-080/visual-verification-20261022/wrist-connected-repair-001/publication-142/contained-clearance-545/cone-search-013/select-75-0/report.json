@@ -1,0 +1,217 @@
+{
+  "status": "CONNECTED_ENDPOINT_SELECTION_PENDING_FULL_EXACT_CHECKS",
+  "candidate_sha256": "3d754e5d0b71bb0f1568a9ece9f06b3056218828376dad128b444eba2a8a2dea",
+  "base_sha256": "8cf5d22141ab059d79e02a54c97fa53e45f98f32b156682e2522fe119230736e",
+  "source_sha256": "6faf31ed4f474d311f843402807663ffaa3139ee95dd1c7c4844e63dca38ae12",
+  "target_sha256": "f63efc2d71f803ec55aa9e7258967d9957d41db59f25da574d65674f4583a18d",
+  "retained_node_rows": [
+    18933
+  ],
+  "retained_operations": 1,
+  "selected_order": 0,
+  "initial_selection": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/cone-search-013/select-45-270",
+    "report_sha256": "c1a217ff1f947b2737e26b07b3260e56d13d9acfdf3fc3821b2e1f060f2f9b57",
+    "candidate_sha256": "3d754e5d0b71bb0f1568a9ece9f06b3056218828376dad128b444eba2a8a2dea"
+  },
+  "trials": [
+    {
+      "order": 0,
+      "node": 19702,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": [
+          19702
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 0,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [
+          19418
+        ],
+        "bad_edge_rows": [
+          59695
+        ],
+        "bad_bound_nodes": [
+          18495
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 0,
+      "node": 20182,
+      "arithmetic": {
+        "bad_area_faces": [
+          19129,
+          19153,
+          19163
+        ],
+        "bad_edge_rows": [
+          61044,
+          61050,
+          62043,
+          62570
+        ],
+        "bad_bound_nodes": [
+          20182
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 0,
+      "node": 18591,
+      "arithmetic": {
+        "bad_area_faces": [
+          19142
+        ],
+        "bad_edge_rows": [
+          59937
+        ],
+        "bad_bound_nodes": [
+          18591
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 1,
+      "node": 18591,
+      "arithmetic": {
+        "bad_area_faces": [
+          19142
+        ],
+        "bad_edge_rows": [
+          59937
+        ],
+        "bad_bound_nodes": [
+          18591
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 1,
+      "node": 20182,
+      "arithmetic": {
+        "bad_area_faces": [
+          19129,
+          19153,
+          19163
+        ],
+        "bad_edge_rows": [
+          61044,
+          61050,
+          62043,
+          62570
+        ],
+        "bad_bound_nodes": [
+          20182
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 1,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [
+          19418
+        ],
+        "bad_edge_rows": [
+          59695
+        ],
+        "bad_bound_nodes": [
+          18495
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 1,
+      "node": 19702,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": [
+          19702
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 2,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [
+          19418
+        ],
+        "bad_edge_rows": [
+          59695
+        ],
+        "bad_bound_nodes": [
+          18495
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 2,
+      "node": 18591,
+      "arithmetic": {
+        "bad_area_faces": [
+          19142
+        ],
+        "bad_edge_rows": [
+          59937
+        ],
+        "bad_bound_nodes": [
+          18591
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 2,
+      "node": 19702,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": [
+          19702
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 2,
+      "node": 20182,
+      "arithmetic": {
+        "bad_area_faces": [
+          19129,
+          19153,
+          19163
+        ],
+        "bad_edge_rows": [
+          61044,
+          61050,
+          62043,
+          62570
+        ],
+        "bad_bound_nodes": [
+          20182
+        ]
+      },
+      "accepted": false
+    }
+  ],
+  "seconds": 0.6794459170196205,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

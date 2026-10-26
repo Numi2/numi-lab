@@ -1,0 +1,12 @@
+waiting_for_human_geometry_slot pid=52726
+acquired_human_geometry_slot pid=52726
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/local-patch-009/point-targets/nearest-union-exits.json",
+  "report_sha256": "bfd37a6676055697e1691941bec40a15fd40841de526834b4ab4fb1dc232d6e3",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/local-patch-009/point-targets/nearest-union-exits.npz",
+  "npz_sha256": "3853752c9c288f99aacf70e11a40eb95e133fe6d01371a2d09ce822d9cb1dddb",
+  "query_rows": 12,
+  "passing_targets": 12,
+  "status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY",
+  "seconds": 1.4390967921353877
+}

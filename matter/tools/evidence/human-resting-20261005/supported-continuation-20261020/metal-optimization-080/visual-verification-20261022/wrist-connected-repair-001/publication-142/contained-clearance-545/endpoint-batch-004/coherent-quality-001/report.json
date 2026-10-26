@@ -1,0 +1,31 @@
+{
+  "parent_patch": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/coherent-patch-rings-8",
+  "parent_patch_sha256": "c9a5ff99e7986f743cdb57a9fd0257532630cba5d4b9ac2ef483eaea7ef13b83",
+  "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/filter-002/candidate.npz",
+  "base_sha256": "6fd48fec0fd193afed5dfc83d0697987176abbf3f1a8f69bf2f38fae2dd247ad",
+  "source_sha256": "41214798681b7ee78870c8276fe00b52061d5f054b6e4d27788960994d104f4c",
+  "history": [
+    {
+      "iteration": 0,
+      "minimum_oriented_ratio": -0.6922430958642086,
+      "area_faces": [
+        18708,
+        18783,
+        18971
+      ],
+      "edge_count": 0
+    },
+    {
+      "iteration": 1,
+      "minimum_oriented_ratio": 0.11497444743429867,
+      "area_faces": [],
+      "edge_count": 0
+    }
+  ],
+  "target_nodes_bitwise_unchanged": true,
+  "all_fixed_nodes_bitwise_unchanged": true,
+  "candidate_sha256": "629158ca005918b7822810fab2c2d59a0be58115b0a855bc2c2787d94e66ea6e",
+  "construction_only": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

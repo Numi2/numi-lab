@@ -1,0 +1,39 @@
+{
+  "inputs": {
+    "audit159": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/spatial-patch-012/check/audit-159/report.json",
+      "sha256": "8751d095790f0d2348d47a34c8ee951f3a511bc167dd40196895d1ace8736f22"
+    },
+    "candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/spatial-patch-012/candidate.npz",
+      "sha256": "8cf5d22141ab059d79e02a54c97fa53e45f98f32b156682e2522fe119230736e"
+    },
+    "face_target_npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/cone-search-013/surface-targets/targets.npz",
+      "sha256": "b6ca1d90c9693ba94ffcb8e33b41d33c5e04d707e7d75381312d1d9241a872d6"
+    },
+    "point_target_npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/cone-search-013/point-targets/nearest-union-exits.npz",
+      "sha256": "aca95d44af9df0cb7117a02bc5f5c38ac3daea08dbb67dff95f19a2d18953ffc"
+    }
+  },
+  "schema": "numi.human.matched_inputs_component_fit_475.v1",
+  "source_pins": {
+    "decomposition475": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-475/component_lp_decomposition_475.py",
+      "sha256": "af0b6a6bf40757a403a8b7c359233694241d34e1e016b6dd3a37d7c98789c46d"
+    },
+    "objective458": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/fixed_bone_outward_plane_458.py",
+      "sha256": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0"
+    },
+    "owner408": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+      "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+    },
+    "runner458": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/run_grouped_fit_458.py",
+      "sha256": "08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93"
+    }
+  }
+}

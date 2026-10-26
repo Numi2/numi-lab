@@ -1,0 +1,10 @@
+{
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/greedy-endpoints-008/candidate.npz",
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/greedy-endpoints-008/check/audit-130/summary.json",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/greedy-endpoints-008/check/audit-159/report.json",
+  "candidate_sha256": "9d32d0310a5a1b26ad69b56db519c03d51265db753df769cf9b677a3faaad47f",
+  "point_summary_sha256": "d622f461740110187ab0d67135ae9ed0540bb48873b76bd41b2b4a2afa67ae35",
+  "surface_report_sha256": "d9a1a6c682859636433cf0a349e5e82c37d97b1c2c6021cead64ee6bfd0937fc",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

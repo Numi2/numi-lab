@@ -1,0 +1,256 @@
+{
+  "status": "CONNECTED_ENDPOINT_SELECTION_PENDING_FULL_EXACT_CHECKS",
+  "candidate_sha256": "3d754e5d0b71bb0f1568a9ece9f06b3056218828376dad128b444eba2a8a2dea",
+  "base_sha256": "8cf5d22141ab059d79e02a54c97fa53e45f98f32b156682e2522fe119230736e",
+  "source_sha256": "6faf31ed4f474d311f843402807663ffaa3139ee95dd1c7c4844e63dca38ae12",
+  "target_sha256": "8a88ad30e91ef66401a1f479ae76aa07e051fc6bbebe61bb8e407d6c2a3832c7",
+  "retained_node_rows": [
+    18933
+  ],
+  "retained_operations": 1,
+  "selected_order": 0,
+  "initial_selection": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/cone-search-013/select-75-90",
+    "report_sha256": "7eeb5464b1a5c980a2c4ce9fe9978adfb6c06eb6a653dc3a778dec9774594569",
+    "candidate_sha256": "3d754e5d0b71bb0f1568a9ece9f06b3056218828376dad128b444eba2a8a2dea"
+  },
+  "trials": [
+    {
+      "order": 0,
+      "node": 19702,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [
+          62481
+        ],
+        "bad_bound_nodes": [
+          19702
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 0,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [
+          19414,
+          19419
+        ],
+        "bad_edge_rows": [
+          59695,
+          59712,
+          59713
+        ],
+        "bad_bound_nodes": [
+          18495
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 0,
+      "node": 20182,
+      "arithmetic": {
+        "bad_area_faces": [
+          19120,
+          19121,
+          19122,
+          19124
+        ],
+        "bad_edge_rows": [
+          48480,
+          54391,
+          61044,
+          61050,
+          62043,
+          62570,
+          62571
+        ],
+        "bad_bound_nodes": [
+          20182
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 0,
+      "node": 18591,
+      "arithmetic": {
+        "bad_area_faces": [
+          19160,
+          19161
+        ],
+        "bad_edge_rows": [
+          37318,
+          58409,
+          59936,
+          59937
+        ],
+        "bad_bound_nodes": [
+          18591
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 1,
+      "node": 18591,
+      "arithmetic": {
+        "bad_area_faces": [
+          19160,
+          19161
+        ],
+        "bad_edge_rows": [
+          37318,
+          58409,
+          59936,
+          59937
+        ],
+        "bad_bound_nodes": [
+          18591
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 1,
+      "node": 20182,
+      "arithmetic": {
+        "bad_area_faces": [
+          19120,
+          19121,
+          19122,
+          19124
+        ],
+        "bad_edge_rows": [
+          48480,
+          54391,
+          61044,
+          61050,
+          62043,
+          62570,
+          62571
+        ],
+        "bad_bound_nodes": [
+          20182
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 1,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [
+          19414,
+          19419
+        ],
+        "bad_edge_rows": [
+          59695,
+          59712,
+          59713
+        ],
+        "bad_bound_nodes": [
+          18495
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 1,
+      "node": 19702,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [
+          62481
+        ],
+        "bad_bound_nodes": [
+          19702
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 2,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [
+          19414,
+          19419
+        ],
+        "bad_edge_rows": [
+          59695,
+          59712,
+          59713
+        ],
+        "bad_bound_nodes": [
+          18495
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 2,
+      "node": 18591,
+      "arithmetic": {
+        "bad_area_faces": [
+          19160,
+          19161
+        ],
+        "bad_edge_rows": [
+          37318,
+          58409,
+          59936,
+          59937
+        ],
+        "bad_bound_nodes": [
+          18591
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 2,
+      "node": 19702,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [
+          62481
+        ],
+        "bad_bound_nodes": [
+          19702
+        ]
+      },
+      "accepted": false
+    },
+    {
+      "order": 2,
+      "node": 20182,
+      "arithmetic": {
+        "bad_area_faces": [
+          19120,
+          19121,
+          19122,
+          19124
+        ],
+        "bad_edge_rows": [
+          48480,
+          54391,
+          61044,
+          61050,
+          62043,
+          62570,
+          62571
+        ],
+        "bad_bound_nodes": [
+          20182
+        ]
+      },
+      "accepted": false
+    }
+  ],
+  "seconds": 0.680541459005326,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

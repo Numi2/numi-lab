@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/coherent-point-targets-390/build_coherent_point_targets_390.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/filter-002/candidate.npz",
+    "--point-summary",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/check-002/audit-130/summary.json",
+    "--query-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/check-002/audit-130/query",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/full-point-005/point-targets",
+    "--clearance-m",
+    "5e-06",
+    "--direction-mode",
+    "source-outward",
+    "--point-depth-rows-npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/full-point-005/depth/point-depth-rows.npz",
+    "--point-depth-rows-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/full-point-005/depth/365-compatible-report.json",
+    "--minimum-depth-cosine",
+    ".05"
+  ],
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/coherent-point-targets-390/build_coherent_point_targets_390.py": "15be65c3f3863998a2fb709e70e22a20402ab1580e84960aeb1a3f2301c70b00",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py": "1b796c7167b76e950d5ef01421bc308691c9497e3e09f2584bc7ea19711ed88d"
+  }
+}

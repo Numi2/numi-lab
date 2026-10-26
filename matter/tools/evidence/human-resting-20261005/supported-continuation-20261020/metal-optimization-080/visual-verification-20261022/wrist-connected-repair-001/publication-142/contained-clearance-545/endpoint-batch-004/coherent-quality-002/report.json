@@ -1,0 +1,137 @@
+{
+  "parent_patch": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/coherent-patch-rings-2",
+  "parent_patch_sha256": "c335536e1c25e132d91c068191359268eb4d6c7f3f25a1d75b8bce027330e23d",
+  "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/filter-002/candidate.npz",
+  "base_sha256": "6fd48fec0fd193afed5dfc83d0697987176abbf3f1a8f69bf2f38fae2dd247ad",
+  "source_sha256": "41214798681b7ee78870c8276fe00b52061d5f054b6e4d27788960994d104f4c",
+  "history": [
+    {
+      "iteration": 0,
+      "minimum_oriented_ratio": -2.999186606653874,
+      "area_faces": [
+        18971,
+        19093,
+        19094,
+        19101,
+        19102,
+        19125,
+        19139,
+        19143,
+        19155,
+        19326,
+        19331
+      ],
+      "edge_count": 0
+    },
+    {
+      "iteration": 1,
+      "minimum_oriented_ratio": -0.24887106099775022,
+      "area_faces": [
+        19094
+      ],
+      "edge_count": 1
+    },
+    {
+      "iteration": 2,
+      "minimum_oriented_ratio": -0.5900502119630784,
+      "area_faces": [
+        18971,
+        19102,
+        19143,
+        19155
+      ],
+      "edge_count": 0
+    },
+    {
+      "iteration": 3,
+      "minimum_oriented_ratio": 0.08079843709874354,
+      "area_faces": [
+        19094
+      ],
+      "edge_count": 1
+    },
+    {
+      "iteration": 4,
+      "minimum_oriented_ratio": -0.21104342570511214,
+      "area_faces": [
+        18971,
+        19102,
+        19143,
+        19155
+      ],
+      "edge_count": 0
+    },
+    {
+      "iteration": 5,
+      "minimum_oriented_ratio": 0.11189357818654104,
+      "area_faces": [],
+      "edge_count": 1
+    },
+    {
+      "iteration": 6,
+      "minimum_oriented_ratio": -0.036140450755115815,
+      "area_faces": [
+        18971,
+        19143,
+        19155
+      ],
+      "edge_count": 0
+    },
+    {
+      "iteration": 7,
+      "minimum_oriented_ratio": 0.11189357818654104,
+      "area_faces": [],
+      "edge_count": 1
+    },
+    {
+      "iteration": 8,
+      "minimum_oriented_ratio": 0.045176643665353344,
+      "area_faces": [
+        18971,
+        19155
+      ],
+      "edge_count": 0
+    },
+    {
+      "iteration": 9,
+      "minimum_oriented_ratio": 0.11189357818654104,
+      "area_faces": [],
+      "edge_count": 1
+    },
+    {
+      "iteration": 10,
+      "minimum_oriented_ratio": 0.08264056443375273,
+      "area_faces": [
+        18971,
+        19155
+      ],
+      "edge_count": 0
+    },
+    {
+      "iteration": 11,
+      "minimum_oriented_ratio": 0.11189357818654104,
+      "area_faces": [],
+      "edge_count": 1
+    },
+    {
+      "iteration": 12,
+      "minimum_oriented_ratio": 0.09979015048509669,
+      "area_faces": [
+        18971
+      ],
+      "edge_count": 0
+    },
+    {
+      "iteration": 13,
+      "minimum_oriented_ratio": 0.10933927245611774,
+      "area_faces": [],
+      "edge_count": 0
+    }
+  ],
+  "target_nodes_bitwise_unchanged": true,
+  "all_fixed_nodes_bitwise_unchanged": true,
+  "candidate_sha256": "46b0b81afe5de244215252454ea59b18ad80dbb4e11032a0aad38143fc4365aa",
+  "construction_only": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

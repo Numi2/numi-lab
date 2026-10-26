@@ -1,0 +1,16 @@
+{
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-002/backtrack/backtrack-373/pass-002/candidate.npz",
+  "guard_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/constraints/fixed-guards/fixed-skin-bone-guards.npz",
+  "guard_report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/constraints/fixed-guards/report.json",
+  "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/all-failed-self-seeds-through003.npy",
+  "seed_report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/constraints/seed-preflight.json",
+  "additional_exact_trial_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/backtrack-001/backtrack-373/pass-001/audit-130/surface-self-pairs.npy": "0dcdea7164a29bf19143638d5849c2654e8ccdd1810e778a2adcfbf75b91f03e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/backtrack-001/backtrack-373/pass-002/audit-130/surface-self-pairs.npy": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-002/backtrack/backtrack-373/pass-001/audit-130/surface-self-pairs.npy": "3b9d7c614793cbbbb89146deb37f6e8a5c81afe1284ede26c7cca064c07d855b",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-002/backtrack/backtrack-373/pass-002/audit-130/surface-self-pairs.npy": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-001/audit-130/surface-self-pairs.npy": "1546c90c0d11a8ac0b36720eccef6abce86be122e60ee8f7ccb497e32b4e970a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-004/audit-130/surface-self-pairs.npy": "0668590f771747aa4720a813293d994ec0fe1daf1639cbf69665f9ff2ef15872",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/backtrack/backtrack-373/pass-005/audit-130/surface-self-pairs.npy": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+  }
+}

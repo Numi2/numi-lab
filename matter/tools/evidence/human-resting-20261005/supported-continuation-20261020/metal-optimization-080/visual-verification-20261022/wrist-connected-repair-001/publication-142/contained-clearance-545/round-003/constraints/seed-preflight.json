@@ -1,0 +1,18 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate_sha256": "77b5396338286e61f852cc1a9b78d782b3d41a7dc5504c038402a6d882c4e303",
+  "merged_unique_pair_count": 23196,
+  "native_admission": false,
+  "new_trial_seed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/constraints/self-guards/mapped-trial-self-pairs.npy",
+  "new_trial_seed_sha256": "3b9d7c614793cbbbb89146deb37f6e8a5c81afe1284ede26c7cca064c07d855b",
+  "output_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/constraints/merged-self-pair-seeds.npy",
+  "output_pairs_sha256": "be77c68d998722382e0a1da266f489f858fbd43a61a52e6877ac61217c351a56",
+  "pair_owner_sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+  "prior_seed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-002/constraints/merged-self-pair-seeds.npy",
+  "prior_seed_sha256": "0a24cb16d8b26d1c8c048c2d43961fdad059105d14f6230ae7f34832a6015455",
+  "rebuilt_linear_row_count": 129952,
+  "schema": "numi.human.continuation-self-seeds.v1",
+  "status": "PASS_REBUILT_CONSTRUCTION_SEEDS_ONLY",
+  "zero_step_feasible": true,
+  "zero_step_max_rhs_mm": -2.8351904682462e-05
+}

@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/filter-002/candidate.npz",
+    "--point-summary",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/check-002/audit-130/summary.json",
+    "--surface-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/check-002/audit-159/report.json",
+    "--query-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/check-002/audit-130/query",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/full-point-005/depth",
+    "--expected-candidate-sha256",
+    "6fd48fec0fd193afed5dfc83d0697987176abbf3f1a8f69bf2f38fae2dd247ad",
+    "--expected-point-summary-sha256",
+    "d52a3953d61f3aff0eaf4f40a2ad9031b0d5890119789eaa4550f3449b8fe689",
+    "--expected-surface-report-sha256",
+    "e25117004bc7ce3b22df28caf40237ef49b01024662c4e81c0d454f86fcf8b7b",
+    "--expected-query-receipt-sha256",
+    "f76f8b362399af37858c8d6ae225b855cdfd4f25c42f73cbaaf4a13867006d05",
+    "--expected-owner-sha256",
+    "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1"
+  ],
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py": "1b796c7167b76e950d5ef01421bc308691c9497e3e09f2584bc7ea19711ed88d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py": "ee327a03af99bcb9b89f6344d1f3a7d6ead074cbf489fd985f04c22362ecff3f"
+  }
+}

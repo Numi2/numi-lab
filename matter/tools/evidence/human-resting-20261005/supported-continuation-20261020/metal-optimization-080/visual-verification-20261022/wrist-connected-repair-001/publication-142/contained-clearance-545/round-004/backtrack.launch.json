@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_checked_batch_context545.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-003/state.json",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-004/fit",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-004/constraint-context.json",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-004/backtrack"
+  ],
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py": "5e98a87156400679d807a386d86e0f70b2f97c13d2db4d8ffec940c66d6cffae",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_checked_batch_context545.py": "ca1074c583144ac86c6b44e9c382ab7fc04ab32749eede794fb5fd31dc0d8f21"
+  }
+}

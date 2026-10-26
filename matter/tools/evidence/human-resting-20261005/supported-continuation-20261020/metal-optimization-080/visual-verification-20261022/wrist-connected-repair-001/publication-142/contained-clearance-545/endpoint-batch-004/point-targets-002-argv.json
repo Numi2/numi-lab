@@ -1,0 +1,20 @@
+[
+  "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_direct_depth_targets545.py",
+  "--candidate",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/filter-002/candidate.npz",
+  "--point-summary",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/check-002/audit-130/summary.json",
+  "--query-dir",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/check-002/audit-130/query",
+  "--output-dir",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/point-targets-002",
+  "--clearance-m",
+  ".000005",
+  "--direction-mode",
+  "direct-depth",
+  "--point-depth-rows-npz",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/depth-002/point-depth-rows.npz",
+  "--point-depth-rows-report",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/endpoint-batch-004/depth-002/365-compatible-report.json"
+]

@@ -1,0 +1,10 @@
+waiting_for_human_geometry_slot pid=53058
+acquired_human_geometry_slot pid=53058
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/select_exact_endpoint_operations545.py", line 49, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/select_exact_endpoint_operations545.py", line 33, in main
+    if key!='points_world_m':assert np.array_equal(z[key],zz[key]),key
+                                    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: node_parent_coarse_edge_parameter

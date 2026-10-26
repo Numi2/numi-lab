@@ -1,0 +1,10 @@
+{
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/connected-cones-014/15-270-spatial/candidate.npz",
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/connected-cones-014/check/audit-130/summary.json",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/connected-cones-014/check/audit-159/report.json",
+  "candidate_sha256": "215fa7da9bc9c3fa2a189b853343282e21403ef97c1d691a2a28cab36563ea82",
+  "point_summary_sha256": "5a0233b674a5d1857013c49393058d4475af904c6da3b54ea9c0ec6708df2c60",
+  "surface_report_sha256": "4707b7ad84180cfff5f27107001e6b3f3a7af209705ff369a1afe1602fa625cd",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

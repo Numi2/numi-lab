@@ -1,0 +1,5 @@
+{
+  "source_sha256": "c6ef6f4323fb29a6b677839d3b1748c3d7b00c7aa719a08fb8db3726d0d2a9a6",
+  "error": "CSV writer CRLF header rejected by existing binary; retry emits LF",
+  "native_admission": false
+}

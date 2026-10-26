@@ -1,0 +1,13 @@
+waiting_for_human_geometry_slot pid=52401
+acquired_human_geometry_slot pid=52401
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/full-point-005/surface-targets/report.json",
+  "report_sha256": "36c11b5836a95ee353a8feda4ae1acbf2e554a28df22bbca95483851e7e3c942",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/full-point-005/surface-targets/targets.npz",
+  "npz_sha256": "148ee77447907432f84f289967a7c66b7556949049dc3e623737dc56554c8747",
+  "rows": 2862,
+  "pairs": 2862,
+  "targets": 2862,
+  "failures": {},
+  "elapsed_seconds": 24.385823333868757
+}

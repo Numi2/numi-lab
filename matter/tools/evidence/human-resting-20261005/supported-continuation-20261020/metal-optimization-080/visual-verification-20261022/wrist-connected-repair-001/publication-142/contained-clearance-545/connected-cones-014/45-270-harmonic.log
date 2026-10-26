@@ -1,0 +1,3 @@
+waiting_for_human_geometry_slot pid=53131
+acquired_human_geometry_slot pid=53131
+{"retained_operations": 1, "candidate_sha256": "3d754e5d0b71bb0f1568a9ece9f06b3056218828376dad128b444eba2a8a2dea", "seconds": 7.594236291944981}

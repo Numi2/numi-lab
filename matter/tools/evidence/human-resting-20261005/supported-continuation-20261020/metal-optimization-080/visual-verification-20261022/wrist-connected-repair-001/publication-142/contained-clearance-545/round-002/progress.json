@@ -1,0 +1,10 @@
+{
+  "accepted_physical_steps": 0,
+  "after_inside": 170,
+  "before_inside": 185,
+  "candidate_sha256": "77b5396338286e61f852cc1a9b78d782b3d41a7dc5504c038402a6d882c4e303",
+  "native_admission": false,
+  "self_pairs": 0,
+  "state": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-002/state.json",
+  "surface_pairs": 2832
+}

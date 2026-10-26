@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py", line 80, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py", line 71, in main
+    run([PY,W/'run_checked_batch_context545.py',a.state,O/'fit',O/'constraint-context.json',O/'backtrack'],O/'backtrack')
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py", line 24, in run
+    if r.returncode:raise RuntimeError(f'failed {stem}: '+Path(str(stem)+'.log').read_text()[-3000:])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: failed /Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/round-004/backtrack: Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_checked_batch_context545.py", line 72, in <module>
+    if __name__=="__main__":main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_checked_batch_context545.py", line 12, in main
+    if report["status"]!="CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED":raise ValueError("fit has no proposal")
+                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: fit has no proposal
+
