@@ -1,0 +1,9 @@
+{
+  "returncode": 0,
+  "stdout": ".....                                                                    [100%]\n5 passed in 0.17s\n",
+  "stderr": "",
+  "pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/graded-cut-step-426/test_graded_cut_step_426.py": "f6e2998549bc5dc64ba448c92636345fab9922112c2892b9438a0225aa09f64b",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/graded-cut-step-426/graded_cut_step_426.py": "36eae51a16923a0a636518cb05aefea141cf8dd63a67210504575a91302d41ed"
+  }
+}

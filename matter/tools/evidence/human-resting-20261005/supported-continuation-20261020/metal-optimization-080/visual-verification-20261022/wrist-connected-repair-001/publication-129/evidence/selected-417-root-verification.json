@@ -1,0 +1,80 @@
+{
+  "status": "ROOT_INDEPENDENT_CONSTRUCTION_PASS",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/postfit-backtrack-417/run-001/backtrack-373/pass-004/candidate.npz",
+  "candidate_sha256": "611569f0b506d62764a2a464c1ab56c8053895705545550d7c6da0cc72462af0",
+  "state_sha256": "22a97bb325e48bb782f33a2852bdceed805288b0f953874769d4cfdfaee2a4e0",
+  "base_candidate_sha256": "1cad4d077979ce91ce69fb8acbce9bb01505afe490de238ae741c7d4006da7a1",
+  "source_arrays_bitwise_unchanged": 169,
+  "anchors237_unchanged": true,
+  "anchor_index_domain": "typed_coarse_anchor_output_rows_018; legacy coarse rows are not current output IDs",
+  "support_nodes": 6899,
+  "changed_nodes": 4065,
+  "outside_support_bitwise_unchanged": true,
+  "max_step_mm": 0.054690479244321494,
+  "max_source_displacement_mm": 11.730816120864048,
+  "area": {
+    "faces_checked": 41733,
+    "minimum_current_oriented_ratio": 0.9458719564389123,
+    "minimum_fixed_037_reference_magnitude_ratio": 0.10003977287040827,
+    "bad_current_oriented_face_count": 0,
+    "bad_current_oriented_face_rows_first_64": [],
+    "bad_current_oriented_face_rows_truncated": false,
+    "bad_fixed_037_reference_face_count": 0,
+    "bad_fixed_037_reference_face_rows_first_64": [],
+    "bad_fixed_037_reference_face_rows_truncated": false,
+    "area_floor": 0.1,
+    "pass": true
+  },
+  "source_reference_receipt": [
+    {
+      "kind": "csr_level",
+      "level": 0,
+      "prefix": "",
+      "rows": 20889,
+      "columns": 13518,
+      "nnz": 32638,
+      "max_row_sum_error": 2.220446049250313e-16
+    },
+    {
+      "kind": "csr_level",
+      "level": 1,
+      "prefix": "prior_input_006__",
+      "rows": 13518,
+      "columns": 10145,
+      "nnz": 18450,
+      "max_row_sum_error": 0.0
+    },
+    {
+      "kind": "csr_level",
+      "level": 2,
+      "prefix": "prior_run028__",
+      "rows": 10145,
+      "columns": 8776,
+      "nnz": 12193,
+      "max_row_sum_error": 0.0
+    },
+    {
+      "kind": "composed_source_base",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+      "shape": [
+        8776,
+        3
+      ],
+      "composed_shape": [
+        20889,
+        8776
+      ],
+      "composed_nnz": 43457
+    }
+  ],
+  "surface_pairs": 3253,
+  "inside_pairs": 384,
+  "introduced_inside_pairs": [],
+  "introduced_surface_pair_count": 43,
+  "self_pairs": 0,
+  "point_summary_sha256": "2ab142eaf6ecd8d1e01177b493ab10b6c5d3bf3c19db135adf72e5b3b3ad60b9",
+  "surface_report_sha256": "064ddd080bbb60ec765bb560967336fb52669cf394b78512346c2306e03cc355",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

@@ -1,0 +1,233 @@
+{
+  "base_commit": "27b92237ddb91e95e565264906dc793302248e28",
+  "canonical_changes": [],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "d3577f64f15663c281d101398b329243e2db39da6b5129181d141fd1c25131d0",
+      "bytes": 4363
+    },
+    {
+      "path": "evidence/archive-manifest-417-418.json",
+      "sha256": "4103b0b2f3359532e2bf46fab2f783d9e6acd6015dbbcb982857e2d0bbab48cb",
+      "bytes": 59211
+    },
+    {
+      "path": "evidence/archive-manifest-420-422.json",
+      "sha256": "65ec4ff2718195e2dbc9cecfed5f4f1f7616dd8e4be8e5ccf86da98466ab731b",
+      "bytes": 64427
+    },
+    {
+      "path": "evidence/archive-manifest-423-425.json",
+      "sha256": "88b59909767585f5f040f2d0de76ea167c5900a1ab4cf80f8b09976ba0e0cd53",
+      "bytes": 52938
+    },
+    {
+      "path": "evidence/archive-manifest-426-427.json",
+      "sha256": "623ae4eb75631d9b6342c1a5d9e30efdd036b7e63041d582a69abb13bd53383c",
+      "bytes": 24709
+    },
+    {
+      "path": "evidence/connected-clearance-417-418.tar.xz",
+      "sha256": "acc88ea55ec60d1a19dfb932ff0631121aaddeb8ba643d63bb4b93cadc774366",
+      "bytes": 51950888
+    },
+    {
+      "path": "evidence/connected-clearance-420-422.tar.xz",
+      "sha256": "de9608e64990adc39aaa6a95dbd8a4c0d4c1b6c783c9e20a2348d9bbabbf97fe",
+      "bytes": 55309664
+    },
+    {
+      "path": "evidence/connected-clearance-423-425.tar.xz",
+      "sha256": "d51cbe64c34cb5d50daa1052d0baad1028b9a33d129fe8454ed48c9319aba8f8",
+      "bytes": 51380696
+    },
+    {
+      "path": "evidence/connected-clearance-426-427.tar.xz",
+      "sha256": "47832a9b98308526bde3c12656812731fa3138b04cf0c9b6a714556d1fbcc71d",
+      "bytes": 15747284
+    },
+    {
+      "path": "evidence/focused-tests-419-423-root.json",
+      "sha256": "2da9728ae52b8634c3e37f88b6513dbe0e8896b2a65a7f686508aa1030ad270a",
+      "bytes": 1523
+    },
+    {
+      "path": "evidence/focused-tests-419-423-worker.json",
+      "sha256": "a6bcc9899aa5c2750ee898b1da3d751434df32541e25cf57aad03d288c9cce4c",
+      "bytes": 1586
+    },
+    {
+      "path": "evidence/focused-tests-426-root.json",
+      "sha256": "ec439995f1334afc8b462cd8973b802b91c818a8ecb2b32116ef5bbf1377b8a2",
+      "bytes": 515
+    },
+    {
+      "path": "evidence/previous-publication-128-independent-recovery-410-412.json",
+      "sha256": "dc0d8ea6f26e147e9c190689313321ec983700ea70f01541de2ce0b43eb30a59",
+      "bytes": 371
+    },
+    {
+      "path": "evidence/previous-publication-128-independent-recovery-413-416.json",
+      "sha256": "52585b3e0bf57b4025d328fbea6d00833592b34c4fa7451372185cc7bb7a8805",
+      "bytes": 371
+    },
+    {
+      "path": "evidence/selected-417-root-verification.json",
+      "sha256": "118e28aa4130c83b78b3c2f6ad11f9669f2d84a5303ef5d0f60272c9cb63c1a5",
+      "bytes": 2785
+    },
+    {
+      "path": "evidence/selected-427-root-verification.json",
+      "sha256": "f7f4e206e6a054a416b80144a0257fe64a3cb9fe307a2c6606d540466a6b1b64",
+      "bytes": 2785
+    },
+    {
+      "path": "sources/graded-cut-step-426/graded_cut_step_426.py",
+      "sha256": "36eae51a16923a0a636518cb05aefea141cf8dd63a67210504575a91302d41ed",
+      "bytes": 3813
+    },
+    {
+      "path": "sources/graded-cut-step-426/test_graded_cut_step_426.py",
+      "sha256": "f6e2998549bc5dc64ba448c92636345fab9922112c2892b9438a0225aa09f64b",
+      "bytes": 1544
+    },
+    {
+      "path": "sources/graded-local-step-423/graded_local_step_423.py",
+      "sha256": "72cb043f1849a66f6829b1767717d574d0e25fd286bf40cfeab1c96a9cab3b8f",
+      "bytes": 8514
+    },
+    {
+      "path": "sources/graded-local-step-423/test_graded_local_step_423.py",
+      "sha256": "017912866c664bb7746325a69907557fe6892931d6c50dc3de258606ee4a3e53",
+      "bytes": 5518
+    },
+    {
+      "path": "sources/local-backtracking-config-419/graded_context_validation_419.py",
+      "sha256": "07bf66689449298aaf72a0c186d9b8294e98bc2535241e346092d91fd486a9de",
+      "bytes": 5603
+    },
+    {
+      "path": "sources/local-backtracking-config-419/local_backtracking_config_419.py",
+      "sha256": "ea14c34f3d02c8ab3a115dc83d4622f5d813d45dd7240362197b4f45964dfe91",
+      "bytes": 4904
+    },
+    {
+      "path": "sources/local-backtracking-config-419/run_validated_local_backtracking_419.py",
+      "sha256": "d8a1fb90046c630c8c7c13eab6a4270551ff27faed30a2f0cf705a7c079993de",
+      "bytes": 5786
+    },
+    {
+      "path": "sources/local-backtracking-config-419/test_local_backtracking_config_419.py",
+      "sha256": "d80acfec7313a07fa3079b97bfc52b4afe46063d1a1f9a4caa6fe7271aa725db",
+      "bytes": 4139
+    },
+    {
+      "path": "sources/local-backtracking-config-419/test_run_validated_local_backtracking_419.py",
+      "sha256": "c3740e02223e55a5a55df658ee70295064a5e86479771f5eab06f28d733a6338",
+      "bytes": 5176
+    },
+    {
+      "path": "sources/operations/archive129ab.py",
+      "sha256": "84b0bc31f8800a442d72f43a47c2840611e681e1abf0f50c11f7036b29cbc8ca",
+      "bytes": 2609
+    },
+    {
+      "path": "sources/operations/archive129cd.py",
+      "sha256": "935a2fa9d316759d5f2308e450c68e736c758b4891e9d5bb99a9c8eaddc3dd13",
+      "bytes": 2444
+    },
+    {
+      "path": "sources/operations/launch417postfit.py",
+      "sha256": "12066d3d93b6b0a327ed2dc7e7a1d3678c0eb183651f675a0899826d5d53f6cb",
+      "bytes": 682
+    },
+    {
+      "path": "sources/operations/launch418local.py",
+      "sha256": "9b97880cf6a090c27d9d19cf745a0aaa64a59010b54772f8d6a9eac22663ce3b",
+      "bytes": 682
+    },
+    {
+      "path": "sources/operations/launch420local.py",
+      "sha256": "1c88bc431d454cb175641b5b77b8d70fb8b491db876cc2bbf19946db7948017a",
+      "bytes": 682
+    },
+    {
+      "path": "sources/operations/launch422flip.py",
+      "sha256": "bf5a333b1d216c99a207a2d8ccd87508ba7f94880b812bb3760051f4ac70cbbc",
+      "bytes": 745
+    },
+    {
+      "path": "sources/operations/launch424graded.py",
+      "sha256": "bca1f8a880ddd9b5c70b4dfcda3ea266d5bd5cadfcebbf151b0e9ee2aa0d60d7",
+      "bytes": 1070
+    },
+    {
+      "path": "sources/operations/launch425flip.py",
+      "sha256": "45f0c6c9b8421236488b2a489ed3faf94532049a0f49e1a841447eac4e82b334",
+      "bytes": 745
+    },
+    {
+      "path": "sources/operations/launch427cut.py",
+      "sha256": "bebbe822b448a3d426f59f8b461c33424d738a73aef0ceb1f15c8da00e843fd1",
+      "bytes": 2151
+    },
+    {
+      "path": "sources/operations/outcome424.py",
+      "sha256": "3e598c8b9ba21813a3c2d20e2845d4c60272f49ca848e88f747372018022afc1",
+      "bytes": 1314
+    },
+    {
+      "path": "sources/operations/prepare417postfit.py",
+      "sha256": "cdb2d0cfacc702f85b26e81149f5870b3b5128c1ec6370ad8854b010049cb8a7",
+      "bytes": 3393
+    },
+    {
+      "path": "sources/operations/prepare418local.py",
+      "sha256": "feabf07c39e7ea1952f4692abc57e66d4e0e238b0581f99168170f05c7e20bc2",
+      "bytes": 3440
+    },
+    {
+      "path": "sources/operations/prepare420local.py",
+      "sha256": "35f32432335fe8d65d252ab3fbc01c4be46a91c4f585716e6da5cebf9f0023fa",
+      "bytes": 1126
+    },
+    {
+      "path": "sources/operations/prepare422flip.py",
+      "sha256": "a008115070bc32c0426b0ddc62bafb3367b54d21920502a0a9f1d6208e21a155",
+      "bytes": 1606
+    },
+    {
+      "path": "sources/operations/prepare424graded.py",
+      "sha256": "bc3e132533e3e4b3f771b5027627dbeaa4f213d79ea26b6fab9556d071628a83",
+      "bytes": 1086
+    },
+    {
+      "path": "sources/operations/prepare425flip.py",
+      "sha256": "c0cecd1c102eea84880986ba2b03570ecd38c728f44db4efad6176f4edc58bcf",
+      "bytes": 1606
+    },
+    {
+      "path": "sources/operations/prepare427cut.py",
+      "sha256": "0316ad7d096f9de24944b80ff00ff83b52f52cc17a2a0caa6d62bddba02877b9",
+      "bytes": 658
+    },
+    {
+      "path": "sources/operations/resumeArchive129ab.py",
+      "sha256": "249e2f000d8f08d56c2e003663a21b886b94904401002e4d6394c25139faf320",
+      "bytes": 3303
+    },
+    {
+      "path": "sources/operations/verify417root.py",
+      "sha256": "04db06661652f427b56896065436a5c1d32f324486c03afe00917891d84c7d83",
+      "bytes": 3688
+    },
+    {
+      "path": "sources/operations/verify427root.py",
+      "sha256": "c0a5b6c802a4ad64feb9979cb49525731df2c004f4f1ccfcab03e9bdf36b4fdb",
+      "bytes": 3688
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

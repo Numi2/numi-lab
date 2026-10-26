@@ -1,0 +1,22 @@
+{
+  "accepted_physical_steps": 0,
+  "command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q test_local_backtracking_config_419.py test_run_validated_local_backtracking_419.py ../graded-local-step-423/test_graded_local_step_423.py",
+  "coverage_note": "Includes the actual 424 graded config adapter smoke with mocked child launch, context hash rejection before launch, original 419 tests, and 423 reducer tests. No geometry runner launched by this test command.",
+  "native_admission": false,
+  "pins": {
+    "424_config_sha256": "df67f172a44f4f9502607071a8bff92768706d1e8f442638a9515f15d53a4c3b",
+    "base_419_test_sha256": "d80acfec7313a07fa3079b97bfc52b4afe46063d1a1f9a4caa6fe7271aa725db",
+    "base_419_validator_sha256": "ea14c34f3d02c8ab3a115dc83d4622f5d813d45dd7240362197b4f45964dfe91",
+    "graded_context_validator_sha256": "07bf66689449298aaf72a0c186d9b8294e98bc2535241e346092d91fd486a9de",
+    "graded_helper_sha256": "72cb043f1849a66f6829b1767717d574d0e25fd286bf40cfeab1c96a9cab3b8f",
+    "graded_helper_test_sha256": "017912866c664bb7746325a69907557fe6892931d6c50dc3de258606ee4a3e53",
+    "runner_wrapper_sha256": "d8a1fb90046c630c8c7c13eab6a4270551ff27faed30a2f0cf705a7c079993de",
+    "runner_wrapper_test_sha256": "c3740e02223e55a5a55df658ee70295064a5e86479771f5eab06f28d733a6338"
+  },
+  "schema": "numi.human.graded-local-step-423.validation-receipt.v1",
+  "status": "PASS",
+  "subtests_passed": 3,
+  "tests_failed": 0,
+  "tests_passed": 19,
+  "working_directory": "/Users/numi/Work/numi-human-connected-surface-069/D/local-backtracking-config-419"
+}
