@@ -1,0 +1,7 @@
+{
+  "direct_parent_passed": true,
+  "nested_parent_rejected": true,
+  "self_test_returncode": 0,
+  "stdout": "postfit-373 self-test PASS\n",
+  "source_sha256": "d6452cf1b8c6cacf75d3e94d131e06672dae6d41dd33ec4d0fc8ea611b5276bb"
+}

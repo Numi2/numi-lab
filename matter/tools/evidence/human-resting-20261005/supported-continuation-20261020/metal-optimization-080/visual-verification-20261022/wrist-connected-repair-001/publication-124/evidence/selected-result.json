@@ -1,0 +1,217 @@
+{
+  "iteration": 2,
+  "candidate_sha256": "442f80600304c9474794aa034f4efe8418c15cfe1256ee364c11ac586853ca98",
+  "emitted_points_sha256": "f00c1f5e16ff8db2ccb5255e0f02c3900e0759832a77a039e00823293ff6eac7",
+  "minimum_allface_oriented_area_ratio": 0.7439149936741715,
+  "minimum_fixed_reference_area_magnitude_ratio": 0.10003977287040829,
+  "bad_area_faces": 0,
+  "anchors_bitwise_unchanged": true,
+  "nonzero_step_nodes": 4022,
+  "nonzero_construction_scale_nodes": 20652,
+  "maximum_step_m": 0.00021025750502497693,
+  "maximum_source_displacement_mm": 11.601276299202187,
+  "source_cap_pass": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "point_summary_sha256": "3614d5e4670541943a1f7b4d6681c1522596959e689ee0b6897970a6d96950bd",
+  "point_merit": {
+    "construction_progress": true,
+    "strict_pair_count_reduction": true,
+    "maximum_depth_nonincreasing": true,
+    "squared_depth_nonincreasing": true,
+    "before_inside_pairs": 482,
+    "after_inside_pairs": 458,
+    "before_maximum_depth_m": 0.002954603045809936,
+    "after_maximum_depth_m": 0.0029538173802889857,
+    "before_squared_depth_m2": 0.00023073337342996818,
+    "after_squared_depth_m2": 0.00022820214103349404,
+    "introduced_typed_pairs": [],
+    "introduced_depths_m": [],
+    "removed_typed_pairs": [
+      [
+        18696,
+        59,
+        95
+      ],
+      [
+        18738,
+        64,
+        98
+      ],
+      [
+        18789,
+        114,
+        117
+      ],
+      [
+        19206,
+        109,
+        114
+      ],
+      [
+        19834,
+        59,
+        95
+      ],
+      [
+        20090,
+        64,
+        98
+      ],
+      [
+        20094,
+        64,
+        98
+      ],
+      [
+        20197,
+        43,
+        16
+      ],
+      [
+        20294,
+        74,
+        104
+      ],
+      [
+        20295,
+        74,
+        104
+      ],
+      [
+        20318,
+        74,
+        104
+      ],
+      [
+        20355,
+        124,
+        123
+      ],
+      [
+        20516,
+        115,
+        118
+      ],
+      [
+        20567,
+        115,
+        118
+      ],
+      [
+        20570,
+        115,
+        118
+      ],
+      [
+        20614,
+        109,
+        114
+      ],
+      [
+        20682,
+        109,
+        114
+      ],
+      [
+        20700,
+        109,
+        114
+      ],
+      [
+        20742,
+        109,
+        114
+      ],
+      [
+        20758,
+        109,
+        114
+      ],
+      [
+        20792,
+        114,
+        117
+      ],
+      [
+        20793,
+        114,
+        117
+      ],
+      [
+        20802,
+        114,
+        117
+      ],
+      [
+        20819,
+        114,
+        117
+      ]
+    ],
+    "geometry_admitted": false,
+    "accepted_physical_steps": 0
+  },
+  "joint_merit": {
+    "classification": "JOINT_CLEARANCE_CONSTRUCTION_PROGRESS",
+    "construction_progress": true,
+    "strict_surface_pair_reduction": true,
+    "strict_total_pair_reduction": true,
+    "maximum_depth_nonincreasing": true,
+    "squared_depth_nonincreasing": true,
+    "topology_points": 20889,
+    "topology_faces": 41733,
+    "typed_bank_count": 185,
+    "before_candidate_sha256": "251b7e0a8c39d2e1e3ef57b2654bf4912cfb3e62bc9cc38fb9ee4d7a9a52e8c3",
+    "after_candidate_sha256": "442f80600304c9474794aa034f4efe8418c15cfe1256ee364c11ac586853ca98",
+    "before_point_pairs": 482,
+    "after_point_pairs": 458,
+    "before_surface_pairs": 3375,
+    "after_surface_pairs": 3338,
+    "before_total_pairs": 3857,
+    "after_total_pairs": 3796,
+    "before_maximum_point_depth_m": 0.002954603045809936,
+    "after_maximum_point_depth_m": 0.0029538173802889857,
+    "before_squared_point_depth_m2": 0.00023073337342996818,
+    "after_squared_point_depth_m2": 0.00022820214103349404,
+    "final_zero_clearance_unchanged": false,
+    "geometry_admitted": false,
+    "accepted_physical_steps": 0,
+    "native_admission": false
+  },
+  "depth_merit": {
+    "classification": "NO_CONSTRUCTION_DEPTH_PROGRESS",
+    "construction_progress": false,
+    "point_pair_count_nonincreasing": true,
+    "surface_pair_count_nonincreasing": false,
+    "same_query_coverage": false,
+    "no_introduced_typed_pairs": false,
+    "introduced_point_pairs": [],
+    "introduced_surface_pair_count": 86,
+    "maximum_depth_nonincreasing": true,
+    "strict_squared_depth_progress": true,
+    "before_point_pairs": 482,
+    "after_point_pairs": 458,
+    "before_surface_pairs": 3375,
+    "after_surface_pairs": 3338,
+    "before_maximum_depth_m": 0.002954603045809936,
+    "after_maximum_depth_m": 0.0029538173802889857,
+    "before_squared_depth_m2": 0.00023073337342996818,
+    "after_squared_depth_m2": 0.00022820214103349404,
+    "squared_depth_improvement_m2": 2.5312323964741417e-06,
+    "squared_depth_roundoff_threshold_m2": 3.278918447761728e-18,
+    "typed_bank_count": 185,
+    "topology_points": 20889,
+    "topology_faces": 41733,
+    "before_candidate_sha256": "251b7e0a8c39d2e1e3ef57b2654bf4912cfb3e62bc9cc38fb9ee4d7a9a52e8c3",
+    "after_candidate_sha256": "442f80600304c9474794aa034f4efe8418c15cfe1256ee364c11ac586853ca98",
+    "geometry_admitted": false,
+    "native_admission": false,
+    "accepted_physical_steps": 0
+  },
+  "status": "CONSTRUCTION_PROGRESS_ONLY",
+  "candidate": "/Users/n/Work/numi-human-connected-surface-069/D/postfit-backtrack-403/run-001/backtrack-373/pass-002/candidate.npz",
+  "point_summary": "/Users/n/Work/numi-human-connected-surface-069/D/postfit-backtrack-403/run-001/backtrack-373/pass-002/audit-130/summary.json",
+  "surface_report": "/Users/n/Work/numi-human-connected-surface-069/D/postfit-backtrack-403/run-001/backtrack-373/pass-002/audit-159/report.json",
+  "parent_fit": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/retained-gain-continuation-401/run-003/report.json"
+}

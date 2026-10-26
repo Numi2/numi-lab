@@ -1,0 +1,259 @@
+{
+  "accepted_physical_steps": 0,
+  "baseline_candidate_path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/combined-clearance-394/run-001/candidate.npz",
+  "baseline_candidate_sha256": "251b7e0a8c39d2e1e3ef57b2654bf4912cfb3e62bc9cc38fb9ee4d7a9a52e8c3",
+  "depth_merit": {
+    "accepted_physical_steps": 0,
+    "after_candidate_sha256": "442f80600304c9474794aa034f4efe8418c15cfe1256ee364c11ac586853ca98",
+    "after_maximum_depth_m": 0.0029538173802889857,
+    "after_point_pairs": 458,
+    "after_squared_depth_m2": 0.00022820214103349404,
+    "after_surface_pairs": 3338,
+    "before_candidate_sha256": "251b7e0a8c39d2e1e3ef57b2654bf4912cfb3e62bc9cc38fb9ee4d7a9a52e8c3",
+    "before_maximum_depth_m": 0.002954603045809936,
+    "before_point_pairs": 482,
+    "before_squared_depth_m2": 0.00023073337342996818,
+    "before_surface_pairs": 3375,
+    "classification": "NO_CONSTRUCTION_DEPTH_PROGRESS",
+    "construction_progress": false,
+    "geometry_admitted": false,
+    "introduced_point_pairs": [],
+    "introduced_surface_pair_count": 86,
+    "maximum_depth_nonincreasing": true,
+    "native_admission": false,
+    "no_introduced_typed_pairs": false,
+    "point_pair_count_nonincreasing": true,
+    "same_query_coverage": false,
+    "squared_depth_improvement_m2": 2.5312323964741417e-06,
+    "squared_depth_roundoff_threshold_m2": 3.278918447761728e-18,
+    "strict_squared_depth_progress": true,
+    "surface_pair_count_nonincreasing": false,
+    "topology_faces": 41733,
+    "topology_points": 20889,
+    "typed_bank_count": 185
+  },
+  "exact_self_pairs": 0,
+  "fit_candidate_path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/retained-gain-continuation-401/run-003/candidate.npz",
+  "fit_candidate_sha256": "eddb73fa87f59e696b7b5336e3c84e438d8d37edff90440e14b293be691ab9d2",
+  "fit_owner_path": "/Users/numi/Work/numi-human-connected-surface-069/D/retained-gain-continuation-401/propose_joint_clearance_witnesses_401.py",
+  "fit_owner_sha256": "2f1eda3f0d46d0f5497a1a04075b5dc2c3b37afe906d0389ff636fca8abc5869",
+  "fit_report_path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/retained-gain-continuation-401/run-003/report.json",
+  "fit_report_sha256": "9da0953db67b8af5b7673b9209abe5772388601e57243263013c94eb984821a5",
+  "geometry_admission": false,
+  "joint_merit": {
+    "accepted_physical_steps": 0,
+    "after_candidate_sha256": "442f80600304c9474794aa034f4efe8418c15cfe1256ee364c11ac586853ca98",
+    "after_maximum_point_depth_m": 0.0029538173802889857,
+    "after_point_pairs": 458,
+    "after_squared_point_depth_m2": 0.00022820214103349404,
+    "after_surface_pairs": 3338,
+    "after_total_pairs": 3796,
+    "before_candidate_sha256": "251b7e0a8c39d2e1e3ef57b2654bf4912cfb3e62bc9cc38fb9ee4d7a9a52e8c3",
+    "before_maximum_point_depth_m": 0.002954603045809936,
+    "before_point_pairs": 482,
+    "before_squared_point_depth_m2": 0.00023073337342996818,
+    "before_surface_pairs": 3375,
+    "before_total_pairs": 3857,
+    "classification": "JOINT_CLEARANCE_CONSTRUCTION_PROGRESS",
+    "construction_progress": true,
+    "final_zero_clearance_unchanged": false,
+    "geometry_admitted": false,
+    "maximum_depth_nonincreasing": true,
+    "native_admission": false,
+    "squared_depth_nonincreasing": true,
+    "strict_surface_pair_reduction": true,
+    "strict_total_pair_reduction": true,
+    "topology_faces": 41733,
+    "topology_points": 20889,
+    "typed_bank_count": 185
+  },
+  "native_admission": false,
+  "new_unique_vs_402": 189,
+  "per_bank_increased_count": 1,
+  "per_bank_increases": [
+    {
+      "after": 379,
+      "before": 367,
+      "body": 59,
+      "increase": 12,
+      "stable_bone_id": 95
+    }
+  ],
+  "point_audit_complete": true,
+  "point_inside_nodes": 458,
+  "point_inside_pairs": 458,
+  "point_merit": {
+    "accepted_physical_steps": 0,
+    "after_inside_pairs": 458,
+    "after_maximum_depth_m": 0.0029538173802889857,
+    "after_squared_depth_m2": 0.00022820214103349404,
+    "before_inside_pairs": 482,
+    "before_maximum_depth_m": 0.002954603045809936,
+    "before_squared_depth_m2": 0.00023073337342996818,
+    "construction_progress": true,
+    "geometry_admitted": false,
+    "introduced_depths_m": [],
+    "introduced_typed_pairs": [],
+    "maximum_depth_nonincreasing": true,
+    "removed_typed_pairs": [
+      [
+        18696,
+        59,
+        95
+      ],
+      [
+        18738,
+        64,
+        98
+      ],
+      [
+        18789,
+        114,
+        117
+      ],
+      [
+        19206,
+        109,
+        114
+      ],
+      [
+        19834,
+        59,
+        95
+      ],
+      [
+        20090,
+        64,
+        98
+      ],
+      [
+        20094,
+        64,
+        98
+      ],
+      [
+        20197,
+        43,
+        16
+      ],
+      [
+        20294,
+        74,
+        104
+      ],
+      [
+        20295,
+        74,
+        104
+      ],
+      [
+        20318,
+        74,
+        104
+      ],
+      [
+        20355,
+        124,
+        123
+      ],
+      [
+        20516,
+        115,
+        118
+      ],
+      [
+        20567,
+        115,
+        118
+      ],
+      [
+        20570,
+        115,
+        118
+      ],
+      [
+        20614,
+        109,
+        114
+      ],
+      [
+        20682,
+        109,
+        114
+      ],
+      [
+        20700,
+        109,
+        114
+      ],
+      [
+        20742,
+        109,
+        114
+      ],
+      [
+        20758,
+        109,
+        114
+      ],
+      [
+        20792,
+        114,
+        117
+      ],
+      [
+        20793,
+        114,
+        117
+      ],
+      [
+        20802,
+        114,
+        117
+      ],
+      [
+        20819,
+        114,
+        117
+      ]
+    ],
+    "squared_depth_nonincreasing": true,
+    "strict_pair_count_reduction": true
+  },
+  "point_summary_path": "/Users/n/Work/numi-human-connected-surface-069/D/postfit-backtrack-403/run-001/backtrack-373/pass-002/audit-130/summary.json",
+  "point_summary_sha256": "3614d5e4670541943a1f7b4d6681c1522596959e689ee0b6897970a6d96950bd",
+  "query_pairs": 13423,
+  "schema": "numi.human.retained-gain-403-exact-postcheck.v1",
+  "scope": {
+    "anchors_bitwise_unchanged": true,
+    "changed_rows_count": 4022,
+    "changed_rows_outside_lp_support": 0,
+    "maximum_source_displacement_mm": 11.601276299202187,
+    "minimum_current_area_ratio": 0.7439149936741715,
+    "minimum_fixed_037_area_ratio": 0.10003977287040829,
+    "noncoordinate_arrays_bitwise_unchanged": true,
+    "source_cap_pass": true,
+    "support_rows_count": 6865,
+    "topology_faces": 41733,
+    "topology_points": 20889,
+    "typed_anchor_rows": 237
+  },
+  "seed_026_max_baseline_rhs_mm": -1.8254721763609483e-06,
+  "seed_026_rebuild_rows": 100558,
+  "seed_bundle_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/self-witness-refresh-403/report-403-adapter.json",
+  "seed_bundle_report_sha256": "328c81381e5c5bbc74d420fdb1c39e0e0f536664d43342acd1e967f203a9ea4f",
+  "seed_pair_count": 17832,
+  "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/self-witness-refresh-403/merged-self-pair-seeds.npy",
+  "seed_pairs_sha256": "528a72d9c48adbebdca960b37fbd1e124448ae80bf43cb6642f4389aacc209f4",
+  "selected_candidate_path": "/Users/n/Work/numi-human-connected-surface-069/D/postfit-backtrack-403/run-001/backtrack-373/pass-002/candidate.npz",
+  "selected_candidate_sha256": "442f80600304c9474794aa034f4efe8418c15cfe1256ee364c11ac586853ca98",
+  "slot_recovery": "The outer adapter was stopped after detecting a nested geometry-slot wait. Its verified config was preserved; the already-started backtracker continued and each audit acquired the slot independently.",
+  "status": "CONSTRUCTION_PROGRESS_ONLY_EXACT_SELF_AND_FULL_185_AUDITS_PASS",
+  "surface_audit_candidate_sha256": "442f80600304c9474794aa034f4efe8418c15cfe1256ee364c11ac586853ca98",
+  "surface_audit_complete": true,
+  "surface_bank_count": 185,
+  "surface_before_pair_count": 3375,
+  "surface_pair_count": 3338,
+  "surface_report_path": "/Users/n/Work/numi-human-connected-surface-069/D/postfit-backtrack-403/run-001/backtrack-373/pass-002/audit-159/report.json",
+  "surface_report_sha256": "60d23546bb945e36d1f30475575f75763ffd33ab26b9bfb832c4ac1e70c1618a"
+}

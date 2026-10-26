@@ -1,0 +1,68 @@
+{
+  "base_commit": "42b0fdd76db88530a6f2eeaee627ee060263b5ae",
+  "canonical_changes": [],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "7c86590bd57fb46a28f98bca2520a60e5b6e4169fd1b34bd918176ef4193e1ed",
+      "bytes": 1938
+    },
+    {
+      "path": "evidence/archive-manifest-403.json",
+      "sha256": "0baf4ec505e7e2f7644618a0e80472989ea2bbd6085954077f6f5026d353a2ad",
+      "bytes": 24173
+    },
+    {
+      "path": "evidence/connected-clearance-403.tar.xz",
+      "sha256": "f2cfc1874e67fe765b3e2de925de3cc26ba0febb9aaac577e28f6e7e5d15ccf9",
+      "bytes": 13428496
+    },
+    {
+      "path": "evidence/launcher-recovery.json",
+      "sha256": "99897c28b4fa636a7124841d508993c1b57175cef17db2c6e73ebfb5eb63942d",
+      "bytes": 1751
+    },
+    {
+      "path": "evidence/postcheck-receipt.json",
+      "sha256": "44ef6e6e1f5652da2f401413ec6817d31ef01f8c3cfce34d646c1f76ded7b5d5",
+      "bytes": 8265
+    },
+    {
+      "path": "evidence/publication-123-remote-recovery-verification-394-402.json",
+      "sha256": "f7f925eba0b0737ef2e8eff49183ab1f35181681be58537260c60e04b5277a66",
+      "bytes": 371
+    },
+    {
+      "path": "evidence/root-403-launch-guard-tests.json",
+      "sha256": "5d3f0a83767d741d3bccf60168f64bb9f8721be5d1f5717dcbeade2d1ff01e47",
+      "bytes": 229
+    },
+    {
+      "path": "evidence/root-independent-construction-verification.json",
+      "sha256": "a5f3a7b576f8f9789ec255bd13799888710590bb18f6aa71945827c8ee0ac3cd",
+      "bytes": 2598
+    },
+    {
+      "path": "evidence/selected-result.json",
+      "sha256": "a6a59552e11fb7669e3efda3f28e28b88190892d8fc0dd0c704bfbde7802714e",
+      "bytes": 5784
+    },
+    {
+      "path": "sources/postfit-backtrack-403/postfit_backtrack_403.py",
+      "sha256": "d6452cf1b8c6cacf75d3e94d131e06672dae6d41dd33ec4d0fc8ea611b5276bb",
+      "bytes": 23901
+    },
+    {
+      "path": "sources/postfit-backtrack-403/postfit_backtrack_403_asrun.py",
+      "sha256": "f591bd8174e87483e1c83c3aef72b20c7815f17f7f0b9cf54974844cc118f640",
+      "bytes": 23225
+    },
+    {
+      "path": "sources/postfit-backtrack-403/root_independent_verify_403.py",
+      "sha256": "c60e819eaec0c4fdd8264505f41f3331c95706c5becaa9c9997a87e7090e4f79",
+      "bytes": 3103
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

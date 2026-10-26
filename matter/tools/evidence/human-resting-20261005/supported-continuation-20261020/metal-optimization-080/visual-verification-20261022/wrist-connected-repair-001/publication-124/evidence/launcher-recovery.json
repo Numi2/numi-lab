@@ -1,0 +1,21 @@
+{
+  "accepted_physical_steps": 0,
+  "as_run_adapter_path": "/Users/n/Work/numi-human-connected-surface-069/D/postfit-backtrack-403/postfit_backtrack_403_asrun.py",
+  "as_run_adapter_sha256": "f591bd8174e87483e1c83c3aef72b20c7815f17f7f0b9cf54974844cc118f640",
+  "backtracker_pid": 17741,
+  "failure": "Outer adapter held geometry lock while the nested backtracker audit wrapper waited on the same lock.",
+  "first_audit_wrapper_pid": 17742,
+  "guarded_adapter_path": "/Users/n/Work/numi-human-connected-surface-069/D/postfit-backtrack-403/postfit_backtrack_403.py",
+  "guarded_adapter_sha256": "d6452cf1b8c6cacf75d3e94d131e06672dae6d41dd33ec4d0fc8ea611b5276bb",
+  "native_admission": false,
+  "outer_adapter_pid": 17740,
+  "point_audit_path": "/Users/n/Work/numi-human-connected-surface-069/D/postfit-backtrack-403/run-001/backtrack-373/pass-002/audit-130/summary.json",
+  "point_audit_sha256": "3614d5e4670541943a1f7b4d6681c1522596959e689ee0b6897970a6d96950bd",
+  "recovery": "Terminated only outer adapter; backtracker and audit wrapper survived, audit wrapper acquired the slot, and backtracker completed pass 2 and selected a construction-progress candidate.",
+  "schema": "numi.human.postfit-backtrack-launch-recovery.v1",
+  "selected_result_path": "/Users/n/Work/numi-human-connected-surface-069/D/postfit-backtrack-403/run-001/backtrack-373/selected-result.json",
+  "selected_result_sha256": "a6a59552e11fb7669e3efda3f28e28b88190892d8fc0dd0c704bfbde7802714e",
+  "status": "RECOVERED_AND_COMPLETED",
+  "surface_audit_path": "/Users/n/Work/numi-human-connected-surface-069/D/postfit-backtrack-403/run-001/backtrack-373/pass-002/audit-159/report.json",
+  "surface_audit_sha256": "60d23546bb945e36d1f30475575f75763ffd33ab26b9bfb832c4ac1e70c1618a"
+}
