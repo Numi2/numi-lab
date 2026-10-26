@@ -1,0 +1,50 @@
+{
+  "candidate_sha256": "2ef23b2788175409169138e07abce9d751b253fede2cb53ee49c911268c7f046",
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-point-targets-564/compare_targets564.py": "ff90ece6da622a8f87d8dcfd8940b3836b50de815c64a56030eb6636859857db",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/refine-all-001/candidate.npz": "2ef23b2788175409169138e07abce9d751b253fede2cb53ee49c911268c7f046",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/prepared-001/point-targets/nearest-union-exits.npz": "f49fd227d9e5109c79151d31a2b115e8fb8763555da505879ec9ca5216976ccd",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-point-targets-564/targets-001/nearest-union-exits.npz": "7c9d973624b91f60b2808e442a8eb4ee7346fc91cb18c09125bc0125a21688e0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+  },
+  "point_targets": 1245,
+  "direct_directions_opposing_registered_normal_count": 509,
+  "comparison_scope": "target proposals only; no mesh or physics admission",
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "direct": {
+    "endpoint_step_p0_p50_p90_p100_mm": [
+      0.051050995498487295,
+      0.8201948248966108,
+      2.062138442309757,
+      3.665343415249721
+    ],
+    "endpoints_over_4mm_step": 0,
+    "source_distance_p0_p50_p90_p100_mm": [
+      1.3236213713049814,
+      4.212909059307696,
+      7.301858263734954,
+      9.85409813153135
+    ],
+    "endpoints_over_12mm_source_cap": 0,
+    "all185_endpoint_certification": true
+  },
+  "source_outward": {
+    "endpoint_step_p0_p50_p90_p100_mm": [
+      0.05276207229263191,
+      2.970970026986342,
+      8.244240525816076,
+      16.989544146083222
+    ],
+    "endpoints_over_4mm_step": 526,
+    "source_distance_p0_p50_p90_p100_mm": [
+      2.394470747392435,
+      6.41221587675676,
+      10.680856361379519,
+      18.46171951328311
+    ],
+    "endpoints_over_12mm_source_cap": 41,
+    "all185_endpoint_certification": true
+  }
+}

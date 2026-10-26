@@ -1,0 +1,18 @@
+{
+  "status": "PARENT_CORRECTION_PROPOSAL_ONLY",
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/retain_parent_correction565.py": "dc35d9da83f694249c9ee87c833837c5c547ab9810a64ac59d17f8a4eae7ba64",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/state.json": "f184acf0a12aeecd2abdb03ad03581fa2d811ddf3cf67675909411c39d8d05d2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/lineage-repaired-base.npz": "6cebc9e4d4d2cda4afbde1670f105b2b56b7e7f74de40cbb5f51b513e6bb4c7d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/candidate.npz": "dc92a5285643fd6dd63801675744ca474fd036b9e68235c638f00d095dd50f9c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-backtrack-prep-558/backtrack-031-001/final-point-continuation/state.json": "9d78eca99f494842cf75bb488e5ccbc73978ba13c98f6ea55c68091470085bc8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/swept-backtrack-prep-558/backtrack-031-001/run/backtrack-373/pass-024/candidate.npz": "ddb0c0a51f5518a3bef519824a9aca79d74ee85eb0640ab43187742e5936fefc"
+  },
+  "node_count": 20889,
+  "changed_nodes": 6305,
+  "max_transferred_step_mm": 0.6349176640636285,
+  "anchor_count": 237,
+  "candidate_sha256": "f0058d8e5d5ced6c3f144f48bc5db7d0995518d98cefdadce286f68c5cc47eba",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

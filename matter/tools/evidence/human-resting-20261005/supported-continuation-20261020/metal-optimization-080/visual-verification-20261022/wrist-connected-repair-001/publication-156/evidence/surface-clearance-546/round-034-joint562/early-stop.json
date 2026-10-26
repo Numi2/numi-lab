@@ -1,0 +1,8 @@
+{
+  "accepted_physical_steps": 0,
+  "fit_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-034-joint562/fit/report.json",
+  "fit_report_sha256": "739fdad493909e694c6ca7c5442ceb8eeb51d4f0cce30264db259b74f93826ee",
+  "fit_status": "LP_NO_PROPOSAL",
+  "native_admission": false,
+  "status": "STOPPED_AT_FIT_WITHOUT_CANDIDATE"
+}

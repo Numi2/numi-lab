@@ -1,0 +1,92 @@
+{
+  "accepted_physical_steps": 0,
+  "all_76_restore_helper_replays_passed": true,
+  "compression_file_count": 76,
+  "compression_receipt_sha256": "b31973f4eed2fb7a40a3ee8d01e4e13b6a3bb10e7a841f1b2ed19678e522f501",
+  "compression_restore_tests_passed": true,
+  "critical_checkpoints": {
+    "ancestry566": {
+      "candidate_sha256": "9de48d996cab795258ddabfce309c970091708dd1549f490c99de8c45b6174d3",
+      "final_report_sha256": "3373fb452f19dceacdb2ee7cd65efa9468ecc75659d8ca72a09a57073387f700",
+      "full_check_sha256": "9b092776abfa29775bf94971f68aaad12016a8ec1039f7bbf688c950b02ec17e",
+      "surface_pairs": 2106
+    },
+    "retained565": {
+      "candidate_sha256": "63a7546d65b7a174a98fd546f37682e36be02854de1190d38b3bd1dc05856af5",
+      "report_sha256": "bcd179c3de8d90b18bd7be5b0ed37894c405b4012885ffb0b328431551a9bcd8",
+      "state_sha256": "76304ca9ea8e9a3b5217fa8f0c2e60b6b47aab6cc84fa4f6da411495c0b508e1",
+      "surface_pairs": 2122
+    },
+    "round034": {
+      "report_sha256": "739fdad493909e694c6ca7c5442ceb8eeb51d4f0cce30264db259b74f93826ee",
+      "status": "LP_NO_PROPOSAL"
+    },
+    "targets564": {
+      "comparison_sha256": "1d54c7e6e4a88a24a3f668c9db35cb4cca47ed3982a06a66dc305b2580b4f310",
+      "query_rows": 1245,
+      "target_candidate_sha256": "2ef23b2788175409169138e07abce9d751b253fede2cb53ee49c911268c7f046",
+      "targets_sha256": "8ad809b6bdbd3b9005e68260eecca8b4a92c7bbf302236ec0c6e33a5fcb7b827"
+    },
+    "topology035": {
+      "candidate_sha256": "079fd06f6828ea2b781b3655925068063035e9001d5801afa36ea43549589944",
+      "full_check_sha256": "c3f640932878787bdcfff5d6d06b40d1b173ccf8e54231984deab67815323bf5",
+      "surface_pairs": 2106
+    }
+  },
+  "generated_utc": "2026-10-26T23:11:24.876616+00:00",
+  "independent_archive_verification_passed": true,
+  "independent_archive_verification_path": "independent-archive-verification.json",
+  "independent_archive_verification_sha256": "ece6fa6614bc08df5fc15a909d49a0b426b4e2fc0b18687e8b32846032e85e88",
+  "native_admission": false,
+  "package_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-156",
+  "parent_main": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+  "parent_prefix_absent": true,
+  "physical_admission": false,
+  "prefix_diff_scope": "publication-156 only; verified by separate index-free publisher before push",
+  "prepush_remote_main": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+  "prepush_shared_checkout": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "prepush_utc": "2026-10-26T23:13:59.411787+00:00",
+  "publication": "P156",
+  "publication_ready": true,
+  "push_performed": false,
+  "remote_main_before": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+  "review_status": "prepush_gates_passed",
+  "schema": "numi.human.surface_clearance.p156.preparation_receipt.v1",
+  "scope_sha256": "9273add1b15865d0fec0a867f2b72388107333d4641b135eb59fe624cc01e082",
+  "selected_main_baseline": {
+    "candidate_selected": true,
+    "candidate_sha256": "6cebc9e4d4d2cda4afbde1670f105b2b56b7e7f74de40cbb5f51b513e6bb4c7d",
+    "contained_pairs": 0,
+    "full_check_report_sha256": "0658565bf7263be879832a92ee19bc85fe16e3f4c68f892da11de5e42fd154e6",
+    "publication": "P154",
+    "self_pairs": 0,
+    "surface_pairs": 2180
+  },
+  "shared_checkout_after": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "shared_checkout_before": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "source_pin_count": 37,
+  "source_pin_gaps": [],
+  "source_pin_verification_count": 37,
+  "unit_tests_rerun_by_publisher": false
+}

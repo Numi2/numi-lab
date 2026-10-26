@@ -1,0 +1,34 @@
+{"elapsed_seconds": 0.0, "stage": "preflight_started"}
+{"elapsed_seconds": 1.804, "interior_target_edges": 1483, "selected_for_validation": 1483, "stage": "cheap_prefilter_complete", "target_faces": 729, "top_old_pair_count": 22, "validated_edge_cap": 2048}
+{"elapsed_seconds": 1.804, "eligible": 0, "rejections": {}, "stage": "source_quality_validation", "total": 1483, "validated": 1}
+{"elapsed_seconds": 1.862, "first_eligible_edge": [19092, 19095], "matched": true, "stage": "541_local_evaluator_parity"}
+{"elapsed_seconds": 1.888, "eligible": 20, "rejections": {"037_nonpositive_new_face": 5, "541_angle_loss_bound": 20, "541_no_measured_quality_gain": 1, "alternate_diagonal_exists": 2, "current_037_orientation_disagreement": 28, "nonconvex_quad": 51}, "stage": "source_quality_validation", "total": 1483, "validated": 128}
+{"elapsed_seconds": 1.916, "eligible": 34, "rejections": {"037_nonpositive_new_face": 7, "541_angle_loss_bound": 45, "541_no_measured_quality_gain": 3, "alternate_diagonal_exists": 3, "current_037_orientation_disagreement": 65, "nonconvex_quad": 98}, "stage": "source_quality_validation", "total": 1483, "validated": 256}
+{"elapsed_seconds": 1.941, "eligible": 46, "rejections": {"037_nonpositive_new_face": 8, "541_angle_loss_bound": 64, "541_fixed037_area_floor": 1, "541_no_measured_quality_gain": 4, "alternate_diagonal_exists": 3, "current_037_orientation_disagreement": 95, "nonconvex_quad": 162}, "stage": "source_quality_validation", "total": 1483, "validated": 384}
+{"elapsed_seconds": 1.969, "eligible": 61, "rejections": {"037_nonpositive_new_face": 8, "541_angle_loss_bound": 89, "541_fixed037_area_floor": 1, "541_no_measured_quality_gain": 6, "alternate_diagonal_exists": 5, "current_037_orientation_disagreement": 127, "nonconvex_quad": 214}, "stage": "source_quality_validation", "total": 1483, "validated": 512}
+{"elapsed_seconds": 1.993, "eligible": 68, "rejections": {"037_nonpositive_new_face": 9, "541_angle_loss_bound": 109, "541_fixed037_area_floor": 3, "541_no_measured_quality_gain": 10, "alternate_diagonal_exists": 9, "current_037_orientation_disagreement": 154, "nonconvex_quad": 277}, "stage": "source_quality_validation", "total": 1483, "validated": 640}
+{"elapsed_seconds": 2.02, "eligible": 80, "rejections": {"037_nonpositive_new_face": 9, "541_angle_loss_bound": 128, "541_fixed037_area_floor": 3, "541_no_measured_quality_gain": 15, "alternate_diagonal_exists": 13, "current_037_orientation_disagreement": 195, "nonconvex_quad": 324}, "stage": "source_quality_validation", "total": 1483, "validated": 768}
+{"elapsed_seconds": 2.041, "eligible": 80, "rejections": {"037_nonpositive_new_face": 12, "541_angle_loss_bound": 154, "541_fixed037_area_floor": 3, "541_no_measured_quality_gain": 16, "alternate_diagonal_exists": 13, "current_037_orientation_disagreement": 209, "nonconvex_quad": 408}, "stage": "source_quality_validation", "total": 1483, "validated": 896}
+{"elapsed_seconds": 2.062, "eligible": 83, "rejections": {"037_nonpositive_new_face": 13, "541_angle_loss_bound": 176, "541_fixed037_area_floor": 3, "541_no_measured_quality_gain": 16, "alternate_diagonal_exists": 15, "current_037_orientation_disagreement": 228, "different_or_unselected_connected_patch": 1, "nonconvex_quad": 488}, "stage": "source_quality_validation", "total": 1483, "validated": 1024}
+{"elapsed_seconds": 2.082, "eligible": 87, "rejections": {"037_nonpositive_new_face": 14, "541_angle_loss_bound": 197, "541_fixed037_area_floor": 3, "541_no_measured_quality_gain": 16, "alternate_diagonal_exists": 17, "current_037_orientation_disagreement": 246, "different_or_unselected_connected_patch": 1, "nonconvex_quad": 570}, "stage": "source_quality_validation", "total": 1483, "validated": 1152}
+{"elapsed_seconds": 2.105, "eligible": 90, "rejections": {"037_nonpositive_new_face": 14, "541_angle_loss_bound": 217, "541_fixed037_area_floor": 3, "541_no_measured_quality_gain": 16, "alternate_diagonal_exists": 17, "current_037_orientation_disagreement": 281, "different_or_unselected_connected_patch": 1, "nonconvex_quad": 640}, "stage": "source_quality_validation", "total": 1483, "validated": 1280}
+{"elapsed_seconds": 2.122, "eligible": 90, "rejections": {"037_nonpositive_new_face": 16, "541_angle_loss_bound": 233, "541_fixed037_area_floor": 3, "541_no_measured_quality_gain": 16, "alternate_diagonal_exists": 18, "current_037_orientation_disagreement": 289, "different_or_unselected_connected_patch": 1, "nonconvex_quad": 741}, "stage": "source_quality_validation", "total": 1483, "validated": 1408}
+{"elapsed_seconds": 2.133, "eligible": 90, "rejections": {"037_nonpositive_new_face": 16, "541_angle_loss_bound": 247, "541_fixed037_area_floor": 3, "541_no_measured_quality_gain": 16, "alternate_diagonal_exists": 19, "current_037_orientation_disagreement": 296, "different_or_unselected_connected_patch": 1, "nonconvex_quad": 795}, "stage": "source_quality_validation_complete", "validated": 1483}
+{"elapsed_seconds": 2.133, "reducing": 0, "scored": 1, "stage": "exact_159_scoring", "total": 90}
+{"accepted": 1, "edge": [19376, 20155], "elapsed_seconds": 6.631, "replacement_pair_reduction": 4, "self_pairs_after_incremental": 0, "stage": "accepted_operation"}
+{"accepted": 2, "edge": [19105, 19107], "elapsed_seconds": 7.337, "replacement_pair_reduction": 2, "self_pairs_after_incremental": 0, "stage": "accepted_operation"}
+{"accepted": 3, "edge": [10443, 19862], "elapsed_seconds": 8.011, "replacement_pair_reduction": 2, "self_pairs_after_incremental": 0, "stage": "accepted_operation"}
+{"accepted": 4, "edge": [12939, 20478], "elapsed_seconds": 9.027, "replacement_pair_reduction": 2, "self_pairs_after_incremental": 0, "stage": "accepted_operation"}
+{"accepted": 5, "edge": [11596, 20004], "elapsed_seconds": 9.735, "replacement_pair_reduction": 2, "self_pairs_after_incremental": 0, "stage": "accepted_operation"}
+{"accepted": 6, "edge": [17623, 18801], "elapsed_seconds": 10.465, "replacement_pair_reduction": 2, "self_pairs_after_incremental": 0, "stage": "accepted_operation"}
+{"accepted": 6, "candidate_sha256": "b6b214f7aa5b2651a957bbd404aa81e6213659e56d834be2887ae53d325ec419", "changed_pair_reduction": 14, "elapsed_seconds": 11.234, "stage": "proposal_complete", "status": "EXACT_185_PAIR_REDUCING_CONNECTED_FLIP_PROPOSAL_PENDING_FULL_AUDIT"}
+{
+  "status": "EXACT_185_PAIR_REDUCING_CONNECTED_FLIP_PROPOSAL_PENDING_FULL_AUDIT",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-from2122/round-001/candidate.npz",
+  "candidate_sha256": "b6b214f7aa5b2651a957bbd404aa81e6213659e56d834be2887ae53d325ec419",
+  "input_pair_count": 2122,
+  "changed_pair_reduction": 14,
+  "accepted": 6,
+  "self_rejections": 4,
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-from2122/round-001/report.json"
+}

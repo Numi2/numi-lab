@@ -1,0 +1,67 @@
+{
+  "accepted_physical_steps": 0,
+  "audit": {
+    "Q_times_P_max_abs_source_weight_error": 1.1102230246251565e-16,
+    "Q_to_canonical037_max_abs_point_error_m": 2.220446049250313e-16,
+    "canonical037_candidate_sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+    "coordinate_fit_or_least_squares_used": false,
+    "face_barycentric_values_derived_from_exact_Q": true,
+    "maximum_stale_barycentric_component_delta": 0.6666666666666667,
+    "multi_parent_ancestry_length_counts": {
+      "2": 584,
+      "3": 50,
+      "4": 6
+    },
+    "multi_parent_face_count": 640,
+    "parent_P_matches_archived_P_bitwise": true,
+    "parent_candidate_sha256": "5a7239e62cbc0cf461440a48a8c4747d7d733eec630d63cf9e08682009593cc6",
+    "parent_face_count": 36815,
+    "parent_row_27587_nodes": [
+      15020,
+      9913,
+      17779
+    ],
+    "rule": "old node uses exact one-hot parent-face membership; new node uses immediate-Q row support restricted to the pinned parent-face node rows",
+    "singleton_parent_face_count": 41093,
+    "stale_singleton_face_barycentric_count": 4,
+    "stale_singleton_face_rows": [
+      14874,
+      14875,
+      29343,
+      29348
+    ],
+    "unmapped_singleton_face_count": 0
+  },
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/affine-ancestry-refresh-566/from2106-001/candidate.npz",
+  "candidate_sha256": "9de48d996cab795258ddabfce309c970091708dd1549f490c99de8c45b6174d3",
+  "changed_fields": [
+    "refinement_face_parent_barycentric"
+  ],
+  "coordinates_and_connectivity_bitwise_unchanged": true,
+  "input_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-from2122/round-003/candidate.npz",
+  "input_sha256": "079fd06f6828ea2b781b3655925068063035e9001d5801afa36ea43549589944",
+  "native_admission": false,
+  "repair": {
+    "barycentric_values_regenerated_from_pinned_parent_Q": true,
+    "changed_row_count": 4,
+    "changed_rows": [
+      14874,
+      14875,
+      29343,
+      29348
+    ],
+    "coordinate_fit_or_least_squares_used": false,
+    "remaining_singleton_mismatches": 0,
+    "rows_rebuilt_from_pinned_parent_and_Q": 41093
+  },
+  "requires_full_geometry_recheck_for_emitted_candidate": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-402/two_parent_patch_flips_402.py": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-405/cross_seam_search_405.py": "e995a2f460e60cb62fb24b80af400678757f62a2b0c1b51141bf0ef387993967",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/affine-ancestry-refresh-566/rebuild_affine_rows566.py": "79a808bb3fa0e0cb6216e9fe91752335cec214e7958a5bd08222519b407ebb65",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/frozen-v4/diagnose_reference_degeneracy_557.py": "aecbb82aca291172de54b1529ca217100c935380afed03c057c868d7bcec5798",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-037-local-refinement-006-prep/run-001/refined-candidate.npz": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-108/evidence/outward-surface-resume-264/pass-001/candidate.npz": "5a7239e62cbc0cf461440a48a8c4747d7d733eec630d63cf9e08682009593cc6"
+  },
+  "status": "AFFINE_ANCESTRY_REGENERATED_GEOMETRY_IDENTICAL"
+}

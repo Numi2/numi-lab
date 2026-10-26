@@ -1,0 +1,73 @@
+{
+  "accepted_physical_steps": 0,
+  "excluded": [
+    "partial-timeout-fallback564/**",
+    "round-035-partial-timeout564/**",
+    "mutable joint-objective-full-coordinate-561 directory except frozen-v2 source/test snapshots copied into budget-capture562",
+    "parent-field-retention-565/transfer_captured_field565.py",
+    "parent-field-retention-565/joint036-on2102-001/**",
+    "parent-field-retention-565/**/joint-transfer-*/**",
+    "future clearance-policy work",
+    "root local witness retention 567 and later outputs",
+    "__pycache__ and .pytest_cache"
+  ],
+  "included_562_frozen_sources": [
+    "frozen-v2/component_lp_budget561.py",
+    "frozen-v2/joint_objective_560.py",
+    "frozen-v2/run_joint_full_coordinate_fit562.py"
+  ],
+  "included_562_tests": [
+    "test_component_budget561.py",
+    "test_joint_capture_adapter562.py"
+  ],
+  "included_additional_files": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-stage.execution.json",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-stage.launch.json",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-stage.log",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/run_from2122_035.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/check_from2122_035.py"
+  ],
+  "included_roots": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-034-joint562",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-joint-capture-563",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-point-targets-564",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-from2122",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/affine-ancestry-refresh-566"
+  ],
+  "native_admission": false,
+  "prior_selected_main": {
+    "candidate_sha256": "6cebc9e4d4d2cda4afbde1670f105b2b56b7e7f74de40cbb5f51b513e6bb4c7d",
+    "contained_pairs": 0,
+    "manifest_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-154/publication-manifest.json",
+    "publication": "P154",
+    "self_pairs": 0,
+    "surface_pairs": 2180
+  },
+  "publication": "P156",
+  "schema": "numi.human.surface_clearance.p156.scope.v1",
+  "unselected_checkpoints": [
+    {
+      "candidate_sha256": "63a7546d65b7a174a98fd546f37682e36be02854de1190d38b3bd1dc05856af5",
+      "contained_pairs": 0,
+      "name": "parent-field-retention-565",
+      "self_pairs": 0,
+      "surface_pairs": 2122
+    },
+    {
+      "candidate_sha256": "079fd06f6828ea2b781b3655925068063035e9001d5801afa36ea43549589944",
+      "contained_pairs": 0,
+      "name": "topology-round-035-from2122",
+      "self_pairs": 0,
+      "surface_pairs": 2106
+    },
+    {
+      "candidate_sha256": "9de48d996cab795258ddabfce309c970091708dd1549f490c99de8c45b6174d3",
+      "contained_pairs": 0,
+      "name": "affine-ancestry-refresh-566",
+      "self_pairs": 0,
+      "surface_pairs": 2106
+    }
+  ]
+}

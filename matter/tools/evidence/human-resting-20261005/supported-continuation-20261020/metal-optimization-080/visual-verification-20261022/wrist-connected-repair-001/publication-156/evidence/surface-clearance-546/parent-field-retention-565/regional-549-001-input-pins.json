@@ -1,0 +1,15 @@
+{
+  "accepted_physical_steps": 0,
+  "native_admission": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/component-area-backtracking-549/component_area_backtracking549.py": "523b1aef89d92eef09bf63e9de2d4f3fa6bd938ef53a45915f9ea138f5b8f249",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/state.json": "f184acf0a12aeecd2abdb03ad03581fa2d811ddf3cf67675909411c39d8d05d2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/prepare-001/549-transfer-descriptor.json": "196fc0027bb937956e7af2e92e08e1102cbb497fa576cec97b5394247ecf214d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/prepare-001/annotate_549_transfer565.py": "e3f81f5fff1b069910bd0f84bb0640910602af40f3738d9c6a6cfd04f6e055c1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/raw-transfer-001/candidate.npz": "f0058d8e5d5ced6c3f144f48bc5db7d0995518d98cefdadce286f68c5cc47eba",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/raw-transfer-001/report.json": "6887ef31d65c7d268ea67e195e06feb84e8660b160e5990c193ee2ff034ec661",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/run_regional565.py": "1dedcb5c9cb6451e316db2cbdb042f2d98c88a05da454101be0afbf0b2b94da7",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/constraints/constraint-context.json": "8ddc6a4379580a9777a1cd8e0833f8ab7654638293efc633444be771d0a72d92"
+  }
+}

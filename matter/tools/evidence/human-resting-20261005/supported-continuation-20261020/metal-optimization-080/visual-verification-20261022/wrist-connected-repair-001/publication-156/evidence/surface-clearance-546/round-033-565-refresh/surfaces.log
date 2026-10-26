@@ -1,0 +1,30 @@
+waiting_for_human_geometry_slot pid=84805
+acquired_human_geometry_slot pid=84805
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/surface-targets/report.json",
+  "report_sha256": "242a6f37484dad065be3505397bb7f9747b3b26f6d92805365d23449ef2e815b",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/surface-targets/targets.npz",
+  "npz_sha256": "3cc1425e4183d859a767fbb0a74d47a4fa01161830c412a45590b0583f5ff05d",
+  "rows": 2180,
+  "pairs": 2180,
+  "targets": 2180,
+  "failures": {},
+  "elapsed_seconds": 20.059982875129208
+}
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/surface-targets/report.json",
+  "report_sha256": "45c05f64556852cc0d6db516a2190f087440b6ff4d115991abca9ae89cab9f4b",
+  "candidate_sha256": "6cebc9e4d4d2cda4afbde1670f105b2b56b7e7f74de40cbb5f51b513e6bb4c7d",
+  "surface_report_sha256": "670ed94d7b470c6a60a75a22e3bd3f44076eba0bce00d10709021be52c62b1f8",
+  "targets_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/surface-targets/targets.npz",
+  "targets_npz_sha256": "3cc1425e4183d859a767fbb0a74d47a4fa01161830c412a45590b0583f5ff05d",
+  "target_records": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/surface-targets/target-records.jsonl",
+  "target_records_sha256": "1ba0533a207b49c6b106779bde43d910a10fa42d6bd2783730aa9835ccce3706",
+  "passing_targets": 2180,
+  "crossing_pairs": 2180,
+  "multi_parent_faces": [
+    11827,
+    14133,
+    21227
+  ]
+}

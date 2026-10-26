@@ -1,0 +1,21 @@
+waiting_for_human_geometry_slot pid=84752
+acquired_human_geometry_slot pid=84752
+{
+  "status": "PASS",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/lineage-repaired-base.npz",
+  "candidate_sha256": "6cebc9e4d4d2cda4afbde1670f105b2b56b7e7f74de40cbb5f51b513e6bb4c7d",
+  "output_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/depth",
+  "rows_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/depth/point-depth-rows.npz",
+  "rows_npz_sha256": "cf78c2b2131e803e86cf6ef57b7623596c9161e10ed008ce7eb3f44f9d7d084b",
+  "raw_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/depth/report.json",
+  "raw_report_sha256": "dd0c2ead91a38ca4b4e51a5ac9aa6e99057b4b3fcb903c758138d4db68624cf8",
+  "compatible_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/depth/365-compatible-report.json",
+  "compatible_report_sha256": "96e37c7f2cc1698ddaf7a8d1786340798d61077ec75144ced894b3d6f4760d54",
+  "validation": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/depth/365-validation.json",
+  "validation_sha256": "dffdbdeb255d6dfe76b2543693bb67e21df94634eea9bf10950356ffc78619dc",
+  "inside": 0,
+  "outside": 6199,
+  "row_count": 6199,
+  "unique_nodes": 6109,
+  "max_zero_step_violation_m": 0.0
+}

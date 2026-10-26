@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/regional-549-001/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "63a7546d65b7a174a98fd546f37682e36be02854de1190d38b3bd1dc05856af5",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/regional-549-001-full-check/audit-130/summary.json",
+  "point_summary_sha256": "fcf2ae76d183f76f7dbc6583afaddf5a31db0d7a7d63018c44532d9e51abbc62",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/regional-549-001-full-check/audit-159/report.json",
+  "surface_report_sha256": "efcff3d3dadade1f60591dc8b0457960bb7477b34fb49a87107ad6730dcbbe8b",
+  "temporary_unselected_construction": false
+}

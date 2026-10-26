@@ -1,0 +1,18 @@
+{
+  "accepted_physical_steps": 0,
+  "annotated_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/regional-549-001/report.json",
+  "annotated_report_sha256": "71e6dd7acaf35aa05db4e2528138c460246e89595f03d062db6f2fb60ee5f298",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/regional-549-001/candidate.npz",
+  "candidate_sha256": "63a7546d65b7a174a98fd546f37682e36be02854de1190d38b3bd1dc05856af5",
+  "descriptor_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/prepare-001/549-transfer-descriptor.json",
+  "descriptor_sha256": "196fc0027bb937956e7af2e92e08e1102cbb497fa576cec97b5394247ecf214d",
+  "full_545_exact_check_required": true,
+  "native_admission": false,
+  "original_report_backup_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/regional-549-001/report.pre-565-annotation.json",
+  "original_report_sha256": "5797a56d75003b76111747523f4c0cd0b6396e8cc607dc6a784ae86c4b1d3479",
+  "raw_input_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/raw-transfer-001/report.json",
+  "raw_input_report_sha256": "6887ef31d65c7d268ea67e195e06feb84e8660b160e5990c193ee2ff034ec661",
+  "raw_lp_feasibility_claim": false,
+  "schema": "numi.human.generic_coordinate_transfer_549_annotation565.v1",
+  "status": "PROVENANCE_ANNOTATED_NUMERIC_549_OUTPUT_UNCHANGED"
+}

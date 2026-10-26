@@ -1,0 +1,68 @@
+{
+  "accepted_physical_steps": 0,
+  "final_state": {
+    "accepted_operation_count": 0,
+    "accepted_physical_steps": 0,
+    "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-from2122/round-003/candidate.npz",
+    "candidate_sha256": "079fd06f6828ea2b781b3655925068063035e9001d5801afa36ea43549589944",
+    "changed_face_count": 0,
+    "exact_159_inventory": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-from2122/round-003/composed-exact-159-inventory.json",
+    "exact_159_inventory_sha256": "a7c245959ab34aeef5e90b78b82b473fe9c4873727fc5984f7f1c129f420993f",
+    "full_130_run_on_this_candidate": false,
+    "full_159_run_on_this_candidate": false,
+    "native_admission": false,
+    "self_state_certificate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-from2122/round-003/incremental-self-certificate.json",
+    "self_state_certificate_sha256": "613239b83b934fe96b84757feb669c56a6129c1f97fd7a3ce48caacb3bdd138a",
+    "surface_pair_count_composed": 2106
+  },
+  "input_candidate_sha256": "63a7546d65b7a174a98fd546f37682e36be02854de1190d38b3bd1dc05856af5",
+  "input_full_130_audit_sha256": "fcf2ae76d183f76f7dbc6583afaddf5a31db0d7a7d63018c44532d9e51abbc62",
+  "method_limits": [
+    "159 counts are exact per changed face and composed with unchanged identities from a pinned complete report.",
+    "130 self-free state is incremental carry-forward, not a fresh full audit on intermediate candidates.",
+    "One full final 130 and 159 audit is required after the chain.",
+    "All coordinates and typed anchors are required bitwise unchanged across each batch."
+  ],
+  "native_admission": false,
+  "results": [
+    {
+      "accepted_count": 6,
+      "after_pairs": 2108,
+      "before_pairs": 2122,
+      "candidate_sha256": "b6b214f7aa5b2651a957bbd404aa81e6213659e56d834be2887ae53d325ec419",
+      "changed_face_count": 12,
+      "introduced_self_pair_count": 0,
+      "reduction": 14,
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-from2122/round-001/report.json",
+      "round": 1,
+      "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-from2122/round-001/state.json"
+    },
+    {
+      "accepted_count": 1,
+      "after_pairs": 2106,
+      "before_pairs": 2108,
+      "candidate_sha256": "079fd06f6828ea2b781b3655925068063035e9001d5801afa36ea43549589944",
+      "changed_face_count": 2,
+      "introduced_self_pair_count": 0,
+      "reduction": 2,
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-from2122/round-002/report.json",
+      "round": 2,
+      "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-from2122/round-002/state.json"
+    },
+    {
+      "accepted_count": 0,
+      "after_pairs": 2106,
+      "before_pairs": 2106,
+      "candidate_sha256": "079fd06f6828ea2b781b3655925068063035e9001d5801afa36ea43549589944",
+      "changed_face_count": 0,
+      "introduced_self_pair_count": 0,
+      "reduction": 0,
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-from2122/round-003/report.json",
+      "round": 3,
+      "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-035-from2122/round-003/state.json"
+    }
+  ],
+  "rounds_completed": 3,
+  "rounds_requested": 3,
+  "status": "BOUNDED_CHAIN_COMPLETE_PENDING_ONE_FINAL_FULL_EXACT_AUDIT"
+}

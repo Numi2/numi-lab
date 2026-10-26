@@ -1,0 +1,18 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/prepare-001/annotate_549_transfer565.py",
+    "--549-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/regional-549-001/report.json",
+    "--raw-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/raw-transfer-001/report.json",
+    "--descriptor",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/prepare-001/549-transfer-descriptor.json"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/parent-field-retention-565/prepare-001/annotate_549_transfer565.py": "e3f81f5fff1b069910bd0f84bb0640910602af40f3738d9c6a6cfd04f6e055c1"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/affine-ancestry-refresh-566/from2106-001/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "9de48d996cab795258ddabfce309c970091708dd1549f490c99de8c45b6174d3",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/affine-ancestry-refresh-566/from2106-001/full-check/audit-130/summary.json",
+  "point_summary_sha256": "0e43b468fda6a20c5b0fad40f4b95cf4a3b2cb80a25647b46e5aa843ffc11ed9",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/affine-ancestry-refresh-566/from2106-001/full-check/audit-159/report.json",
+  "surface_report_sha256": "e50026eb4785e9e35a51c0bb394b8f7a40dfa80b8aca17c5b36d8484c47f8cb2",
+  "temporary_unselected_construction": false
+}
