@@ -1,0 +1,9 @@
+{
+  "commit": "202f777b0e81dab9425740aa75ac1a7c9317107d",
+  "remote_blob_oid": "846e1d453abdff762d0130a01202b7d36f7d8a76",
+  "archive_sha256": "01d0cb657b8cc1f1f0b0fa27366b49e067b719217e841d5a38a0a19209baf63a",
+  "independent_source": "GitHub REST git/blobs API",
+  "verified_members": 126,
+  "verified_bytes": 204325927,
+  "bytes_hash_mode_owner_mtime_verified": true
+}

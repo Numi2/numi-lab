@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/target-row-progress-396-capture/test_capture_396_normal_assembly_397.py"
+  ],
+  "returncode": 0,
+  "stdout": ".....                                                                    [100%]\n5 passed in 0.07s\n",
+  "stderr": ""
+}

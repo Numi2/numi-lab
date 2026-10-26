@@ -1,0 +1,328 @@
+{
+  "base_commit": "202f777b0e81dab9425740aa75ac1a7c9317107d",
+  "canonical_changes": [],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "2950b6d511b306a6a5bf55087687521f3df65c5c40dcfa692b3250f1cf07f024",
+      "bytes": 4223
+    },
+    {
+      "path": "evidence/archive-manifest-394-402.json",
+      "sha256": "a832ed0fb973c2ceeb13905b75c8610b09a52ee12a2ecf396c8b73e519f8ee76",
+      "bytes": 111646
+    },
+    {
+      "path": "evidence/candidate-394/selected-state-002/selected-result.json",
+      "sha256": "615e6682a78a4eef74ba25d1f0aefaf76146c27b706154d706318534c64bf22d",
+      "bytes": 7961
+    },
+    {
+      "path": "evidence/candidate-394/selected-state-002/state-build-report.json",
+      "sha256": "edfaf42b26533a788525bb00e3a84ec58f7da89d28fe73ff9155448176e81478",
+      "bytes": 8281
+    },
+    {
+      "path": "evidence/candidate-394/selected-state-003/selected-result.json",
+      "sha256": "3eff4846352bc8090cf52ff9c6f754bc184dec1cd738d23077971723fb30fabd",
+      "bytes": 9598
+    },
+    {
+      "path": "evidence/candidate-394/source-cap-feasibility-001.json",
+      "sha256": "4d0f41c6b31f8869d246cc6f618d24a03222fd2a2c11955eef17287ebaf64e01",
+      "bytes": 7767
+    },
+    {
+      "path": "evidence/connected-clearance-394-402.tar.xz",
+      "sha256": "0e09fdcb0f5f8b4ae7889546118df69fcc6e9516d423c2d0d5c2ae2e106f70d8",
+      "bytes": 94462256
+    },
+    {
+      "path": "evidence/current-394-precision-summary.json",
+      "sha256": "9273ef580c59a706e2c287742d01660a8413a3b749c4bfe7e9231d94664c75f3",
+      "bytes": 4266
+    },
+    {
+      "path": "evidence/normal-clearance-396-run-001/report.json",
+      "sha256": "117f53564738975b87dd7514e3f2508e902169955dd2f75aebb83a463a446fb1",
+      "bytes": 1109993
+    },
+    {
+      "path": "evidence/normal-clearance-396-run-002/report.json",
+      "sha256": "af0cf3b64207ad100aa9cd4d4641be7d22a8cccafb037cc225d400c89f91f0b3",
+      "bytes": 31625695
+    },
+    {
+      "path": "evidence/normal-clearance-396-run-003/report.json",
+      "sha256": "a73a4b62a367b8374d7682cfd6ebc3c0bd554a81c558d821ad53bf7389ee8841",
+      "bytes": 31569812
+    },
+    {
+      "path": "evidence/phase-one-basis-feasibility-398/feasibility-comparison.json",
+      "sha256": "87a62fad94359b2d102aaa04f82515319a92ff650154a490070035516f7f65a8",
+      "bytes": 16123
+    },
+    {
+      "path": "evidence/postcheck-400-summary.json",
+      "sha256": "1a4a89d858db36826e146234c0431c15c4cf1121ebe3b3a72d9542b6b30b0b71",
+      "bytes": 7374
+    },
+    {
+      "path": "evidence/postfit-backtrack-401/execution.json",
+      "sha256": "8a9de871306d28ac7347892853c13aa95f278410c68cbbafe94cf7dc6749efac",
+      "bytes": 835
+    },
+    {
+      "path": "evidence/postfit-backtrack-401/root-exact-self-verification.json",
+      "sha256": "8c72881fa4b3efcd1c65683d10b9672db48e56f98a1de3419a5a535b51e8155b",
+      "bytes": 2977
+    },
+    {
+      "path": "evidence/precision-phase-one-396/report.json",
+      "sha256": "afc47e4593b29b86bc8f44884376450fa12b424c224128bc5890b5001241da60",
+      "bytes": 1124496
+    },
+    {
+      "path": "evidence/precision-phase-one-396/root-launch-argv.json",
+      "sha256": "317d943935b0b01b89335d06c0889df783edcdee7d4283cf0f9b05bb4d8cb4b9",
+      "bytes": 3527
+    },
+    {
+      "path": "evidence/precision-phase-one-396/root-phase-one-launch.json",
+      "sha256": "55d936b2edbdc159171ceb4a6f02759057ec278996ec39cfac4ddd001917a9d5",
+      "bytes": 3937
+    },
+    {
+      "path": "evidence/precision-phase-one-396/root-phase-one-run-001.log",
+      "sha256": "7ece217d5e8138c648cc6bc54a8cc9f6b352eb32690d715ed67bb47a9eb19d97",
+      "bytes": 1124577
+    },
+    {
+      "path": "evidence/publication-122-remote-recovery-verification-381.json",
+      "sha256": "c02636fbf0101e9aadce77b7a945f7410be28dd1b3368d7bdaf10bdeb79267a7",
+      "bytes": 368
+    },
+    {
+      "path": "evidence/publication-122-remote-recovery-verification-382-390.json",
+      "sha256": "b3d447517aefc769d49383f67bba0e4b6a115f842ffef9896ce815528199b6e7",
+      "bytes": 371
+    },
+    {
+      "path": "evidence/publication-122-remote-recovery-verification-386-394.json",
+      "sha256": "d96304a991843c0b16fce77860d0edeb55ce87e755a828ed59df065367199831",
+      "bytes": 371
+    },
+    {
+      "path": "evidence/root-normal-argv-002.json",
+      "sha256": "198c372b01762c423e9cae3b61fa04c4137593084af6a01e0067e50a389a1cb7",
+      "bytes": 3124
+    },
+    {
+      "path": "evidence/root-normal-argv-003.json",
+      "sha256": "5d01a4a6081c2883618640eb6bb0f8e530847ce3a951637f0bc5a755ed628d8c",
+      "bytes": 3161
+    },
+    {
+      "path": "evidence/root-run-assembly-smoke.json",
+      "sha256": "6dee75fccbd2e9248962791b41ec256f72c85b3e1ddfb13f2354c930ee1fcb3a",
+      "bytes": 328
+    },
+    {
+      "path": "evidence/root-tests-396.json",
+      "sha256": "bd809aea99a2ade03ffb4c16332a535bf68f57c9e7f5c1382e66649f82f4aa4a",
+      "bytes": 1172
+    },
+    {
+      "path": "evidence/root-tests-397.json",
+      "sha256": "1e11cb8ecfb6d539041da70b0bee45306f6efaced96e73295c83e3b0409e6ab6",
+      "bytes": 465
+    },
+    {
+      "path": "evidence/root-tests-399.json",
+      "sha256": "2bb74ddbf0306566215818d094828e752b1a1e0be57d1ca34a9fc8cb4ce2c3dc",
+      "bytes": 623
+    },
+    {
+      "path": "evidence/root-tests-400.json",
+      "sha256": "d190bf299fef12aea49d6cf37e8962ca1840177a028a89acdfabc9fc36b0b795",
+      "bytes": 283
+    },
+    {
+      "path": "evidence/root-tests-401.json",
+      "sha256": "6552dee476ee3f5bcec2e182a4253091b170c96990fe6b95ce2f5a5db52b0d84",
+      "bytes": 395
+    },
+    {
+      "path": "evidence/root-tests-phase-one-basis-feasibility-398.json",
+      "sha256": "528d8d5bc6764a6c35ac27b9a385ee0e9bec26fb4a97c418df48d2b5090961c2",
+      "bytes": 385
+    },
+    {
+      "path": "evidence/root-tests-postfit-401.json",
+      "sha256": "7225b2f344c1045dd09ceeb6e442bd4e871b4c0dc86520ff2fe41c867fb6d8d1",
+      "bytes": 375
+    },
+    {
+      "path": "evidence/root-tests-target-row-progress-396-capture.json",
+      "sha256": "ef549f961eec57a2813f0a3503bc3df2df61c7806ab9e91eaa16265338a3a839",
+      "bytes": 395
+    },
+    {
+      "path": "evidence/self-witness-refresh-402/report.json",
+      "sha256": "e370f1766dbf99dd4fa782ba1753e54bc14711416d8d36b732df086ce052a15d",
+      "bytes": 4099
+    },
+    {
+      "path": "evidence/target-row-progress-396-capture/comparison.json",
+      "sha256": "02fa78139966ec049aeb01408afe26350eaa7e24201b9dccd5afbdadb4b4e676",
+      "bytes": 639872
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-399/precision_phase_one_integration_396.py",
+      "sha256": "46de947e4a6302d9f70695f12061ac1107f59b2dfaa7b8f0c431c68b95e72e68",
+      "bytes": 13432
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-399/propose_joint_clearance_witnesses_399.py",
+      "sha256": "a1220638353c5fd474bc6ad270d2d9ad13bd9892fc2cbf99f364bcc581172210",
+      "bytes": 197074
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-399/test_clearance_target_tradeoffs_399.py",
+      "sha256": "9788361d62184baf9e214312573ae3fcfb7fe637474212fd37f7ed192343e5db",
+      "bytes": 5122
+    },
+    {
+      "path": "sources/connected-local-witness-proposal-399/test_propose_joint_clearance_witnesses_399.py",
+      "sha256": "877bafa59be971581396971e6a29007c5ea67c6b9b36ce335442d46bdea0d875",
+      "bytes": 39724
+    },
+    {
+      "path": "sources/fixed-bone-guards-394/build_filtered_fixed_guards_394.py",
+      "sha256": "d87f462daee97d02efa04985b3e94e5739351d75034a221923a6dd0ce2ba2c5c",
+      "bytes": 11501
+    },
+    {
+      "path": "sources/fixed-bone-guards-394/build_filtered_fixed_guards_394_v3.py",
+      "sha256": "d5008ca20cf9d29c3a975be0e7f448ffa2305dd76bad4bcee77721a3ea6b59f1",
+      "bytes": 11828
+    },
+    {
+      "path": "sources/phase-one-basis-feasibility-398/basis_feasibility_398.py",
+      "sha256": "aff50c4447ea0239551b95ab848bdd1f592e4c7752b702867709248af77b878e",
+      "bytes": 6958
+    },
+    {
+      "path": "sources/phase-one-basis-feasibility-398/elastic_precision_phase_one_398.py",
+      "sha256": "aa34855896992432cf55c114ca49ceb641f83851b6b8be335b7069e7aa6e1c55",
+      "bytes": 15302
+    },
+    {
+      "path": "sources/phase-one-basis-feasibility-398/test_basis_feasibility_398.py",
+      "sha256": "afa784f62b7ea1183fb69150d0519c760eb007e0543d93012c32126de76e12d5",
+      "bytes": 2241
+    },
+    {
+      "path": "sources/phase-one-basis-feasibility-398/test_elastic_precision_phase_one_398.py",
+      "sha256": "f310d362d350faf9d5f2cbc6032b43f861dfa6887aad7511766714bc498f2dfd",
+      "bytes": 2877
+    },
+    {
+      "path": "sources/postfit-backtrack-400/postfit_backtrack_400.py",
+      "sha256": "64770b2772e863937a057cdc91f2f703bdcb4b1d07f749288ff1b28e3a4032f2",
+      "bytes": 11930
+    },
+    {
+      "path": "sources/postfit-backtrack-401/postfit_backtrack_401.py",
+      "sha256": "d73fda3d8a357d0057e07032f03a240ee07ca76b14168825bad57bf001bce52d",
+      "bytes": 20469
+    },
+    {
+      "path": "sources/postfit-backtrack-401/test_postfit_backtrack_401.py",
+      "sha256": "118e493c2691133b40a6652d051dec437ed3d78d54028031718fe5e23aace727",
+      "bytes": 2189
+    },
+    {
+      "path": "sources/precision-phase-one-396/precision_phase_one_392.py",
+      "sha256": "34f66dc6fded40ecbbb93ee35987180ffaa1b64a5e31b6498d1304e1262dde97",
+      "bytes": 8138
+    },
+    {
+      "path": "sources/precision-phase-one-396/precision_phase_one_integration_396.py",
+      "sha256": "46de947e4a6302d9f70695f12061ac1107f59b2dfaa7b8f0c431c68b95e72e68",
+      "bytes": 13432
+    },
+    {
+      "path": "sources/precision-phase-one-396/propose_joint_clearance_witnesses_396.py",
+      "sha256": "705ebe465df1e9d186b465e498cdb8c3f693ad46690c48cb1f4794fc478ea03a",
+      "bytes": 194172
+    },
+    {
+      "path": "sources/precision-phase-one-396/root_audit_emitted_candidate_396.py",
+      "sha256": "8e8564f716bb4493c89487cd94869ae540e718acfd32797cff5d3eb57a3ad66e",
+      "bytes": 1780
+    },
+    {
+      "path": "sources/precision-phase-one-396/test_precision_phase_one_integration_396.py",
+      "sha256": "13fe1a20440652322ac564f4d788e360a5f8dccaa742a143812e320f42128758",
+      "bytes": 9136
+    },
+    {
+      "path": "sources/retained-gain-continuation-401/precision_phase_one_integration_396.py",
+      "sha256": "46de947e4a6302d9f70695f12061ac1107f59b2dfaa7b8f0c431c68b95e72e68",
+      "bytes": 13432
+    },
+    {
+      "path": "sources/retained-gain-continuation-401/propose_joint_clearance_witnesses_401.py",
+      "sha256": "2f1eda3f0d46d0f5497a1a04075b5dc2c3b37afe906d0389ff636fca8abc5869",
+      "bytes": 199806
+    },
+    {
+      "path": "sources/retained-gain-continuation-401/test_retained_gain_401.py",
+      "sha256": "6bca81870cadf6bb74e49751924aa3b01faee093a775f0862ceb2818bd342991",
+      "bytes": 4814
+    },
+    {
+      "path": "sources/self-row-f32-precision-audit-391/audit_seed_pair_rows_391.py",
+      "sha256": "2446eb7f83ce8b332a6eee054fae5d42142022869457800e56287368f5d1f9b1",
+      "bytes": 9193
+    },
+    {
+      "path": "sources/self-row-f32-precision-audit-391/row_f32_precision_audit.py",
+      "sha256": "e6440b805bd909523f9d776370671cc938ce8a2d9a639ed1ca0780ba9e8293b0",
+      "bytes": 11109
+    },
+    {
+      "path": "sources/self-row-f32-precision-audit-391/test_row_f32_precision_audit.py",
+      "sha256": "4a59ed9f243b9bb88f55d437a22e992697ab3d1048cd68142bf69dc08ac83db2",
+      "bytes": 6922
+    },
+    {
+      "path": "sources/self-witness-refresh-402/refresh_self_witnesses_402.py",
+      "sha256": "6bf25a6fceaea53cc05810b4f9fabc04261e2308b9119f064402025b8a750416",
+      "bytes": 2381
+    },
+    {
+      "path": "sources/target-row-progress-396-capture/capture_396_normal_assembly_397.py",
+      "sha256": "ba8ce45f3782f25a675e73825f702b74347e73be5d5f3429948ddf3efc29276c",
+      "bytes": 14530
+    },
+    {
+      "path": "sources/target-row-progress-396-capture/test_capture_396_normal_assembly_397.py",
+      "sha256": "742ab423fa4e973b05263d4bfc34e681c14d8ee1f2866ae81075e7dc076288b8",
+      "bytes": 2555
+    },
+    {
+      "path": "sources/target-row-progress-feasibility-397/target_row_progress_feasibility_397.py",
+      "sha256": "803546cab8f6a3fc8b27c8f0db03c4a6039b13c41cdf290ddb42f4f0f26f3bba",
+      "bytes": 8954
+    },
+    {
+      "path": "sources/target-row-progress-feasibility-397/test_target_row_progress_feasibility_397.py",
+      "sha256": "91e0d6c75face793e5dc82c781b3a5292242e1e8eb695fa5179556eddf8984b9",
+      "bytes": 4656
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

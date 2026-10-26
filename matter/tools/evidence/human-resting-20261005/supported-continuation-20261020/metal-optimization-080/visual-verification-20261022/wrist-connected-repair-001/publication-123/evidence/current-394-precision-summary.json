@@ -1,0 +1,87 @@
+{
+  "audit_helper_path": "/Users/numi/Work/numi-human-connected-surface-069/D/self-row-f32-precision-audit-391/row_f32_precision_audit.py",
+  "audit_helper_sha256": "e6440b805bd909523f9d776370671cc938ce8a2d9a639ed1ca0780ba9e8293b0",
+  "candidate_faces_sha256": "8135cf5c8d3b36c7a05dfe3db8eae7b2ac499fae4564bf00f6359d43eb1041d9",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/combined-clearance-394/run-001/candidate.npz",
+  "candidate_points_sha256": "3946d123a2facc602e66ad0f33994e0c330d92d97c62d1633249eb2afcf0b093",
+  "candidate_sha256": "251b7e0a8c39d2e1e3ef57b2654bf4912cfb3e62bc9cc38fb9ee4d7a9a52e8c3",
+  "diagnostic_only": true,
+  "face_filter": null,
+  "faces_shape": [
+    41733,
+    3
+  ],
+  "interval_radius_mm": 1.003,
+  "margin_fraction": 0.25,
+  "owner_path": "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-005/proposal/round-001/fit/self_separation_026.py",
+  "owner_sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+  "pair_build_batch_size": 512,
+  "points_dtype": "float32",
+  "points_shape": [
+    20889,
+    3
+  ],
+  "rows_payload_path": "/Users/numi/Work/numi-human-connected-surface-069/D/self-row-f32-precision-audit-391/actual-394-retained-16527-radius-1p003/merged-row-payload.npz",
+  "rows_payload_sha256": "fd987832de707eb97624fa6d86a90ff851451573d8fce60496b0ec7b13111054",
+  "schema": "self_row_f32_precision_audit_391.v1",
+  "seed_pair_count_total": 16527,
+  "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/combined-clearance-394/run-001/selected-state-001/retained-self-pair-seeds.npy",
+  "seed_pairs_sha256": "6ac0798c38da97f8a0e1a2cdd9bbfe1da89f9c07a5649304a21802e867d34add",
+  "selected_pair_count": 16527,
+  "summary": {
+    "by_pair_kind": {
+      "common_vertex_wedge": {
+        "current_subprecision_rows": 112,
+        "interval_subprecision_rows": 112,
+        "max_current_error_bound_mm": 0.0001237559221962326,
+        "max_current_error_to_margin_ratio": 18.80412713112776,
+        "max_interval_error_bound_mm": 0.0001237559221962326,
+        "max_interval_error_to_margin_ratio": 18.80412713112776,
+        "nonpositive_delta_rhs_rows": 11908,
+        "pairs": 2977,
+        "pairs_with_subprecision_rows": 28,
+        "rows": 11908
+      },
+      "moving_sat_midplane": {
+        "current_subprecision_rows": 217,
+        "interval_subprecision_rows": 217,
+        "max_current_error_bound_mm": 0.0001237299140024954,
+        "max_current_error_to_margin_ratio": 14.48516592025096,
+        "max_interval_error_bound_mm": 0.00012374900878960436,
+        "max_interval_error_to_margin_ratio": 14.48516592025096,
+        "nonpositive_delta_rhs_rows": 81300,
+        "pairs": 13550,
+        "pairs_with_subprecision_rows": 40,
+        "rows": 81300
+      },
+      "unmatched_record": {
+        "pairs": 0,
+        "pairs_with_subprecision_rows": 0
+      }
+    },
+    "coordinate_scope": "axiswise cube around emitted F32 coordinates",
+    "current_subprecision_rows": 329,
+    "diagnostic_only": true,
+    "interval_bound_method": "maximum absolute coordinate over axiswise +/-radius interval, rounded to F32, then symmetric neighbor-spacing bound",
+    "interval_radius_mm": 1.003,
+    "interval_subprecision_rows": 329,
+    "max_interval_error_to_positive_margin_ratio": 18.80412713112776,
+    "maximum_rounding_bound_mm": 0.0001237559221962326,
+    "method": "sum(abs(merged_coefficient)*half(max(adjacent_F32_spacings))*1000)",
+    "minimum_positive_margin_mm": 1.8254721751986835e-06,
+    "nonpositive_preserved_margin_rows": 0,
+    "pair_count_with_rows": 16527,
+    "pair_record_count": 16527,
+    "pair_records_without_rows": [],
+    "positive_margin_rows": 93208,
+    "row_count": 93208,
+    "scope_limit": "rounding sensitivity only; no constraint or geometry gate is changed",
+    "units": {
+      "delta_rhs": "mm displacement threshold, often negative by design",
+      "input_points": "Float32 world metres, exact emitted array",
+      "preserved_pair_margin_and_rounding_bound": "mm",
+      "row_coefficients": "mm per mm displacement"
+    },
+    "unmatched_row_pairs": []
+  }
+}

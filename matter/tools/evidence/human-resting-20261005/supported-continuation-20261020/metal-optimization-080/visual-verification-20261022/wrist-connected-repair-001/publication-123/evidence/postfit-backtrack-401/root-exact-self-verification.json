@@ -1,0 +1,51 @@
+{
+  "status": "NO_PASSING_SELF_CANDIDATE",
+  "audit_count": 7,
+  "audits": [
+    {
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/postfit-backtrack-401/run-001/backtrack-373/pass-001/candidate.npz",
+      "candidate_sha256": "0c5decf17fbfbe275688318864b2b54fd5e7b97ed4caf653323103bc0d681441",
+      "summary_sha256": "12eea44dfb596890a9622b33141a4ca9a2492d537abc24a1ebdf9c6cd824bece",
+      "self_pairs": 129
+    },
+    {
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/postfit-backtrack-401/run-001/backtrack-373/pass-002/candidate.npz",
+      "candidate_sha256": "a09161ba595308566df73387a391b3ee403db6987010affc28e7b3373d877256",
+      "summary_sha256": "6fc7d5e71199e4181e1559b6e93d0facf248b208d7ded14c561d9355f3bff45d",
+      "self_pairs": 70
+    },
+    {
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/postfit-backtrack-401/run-001/backtrack-373/pass-003/candidate.npz",
+      "candidate_sha256": "c67c7857d5b6d7317015489441fe99d98637465990e6cb4d0ea17457941242ab",
+      "summary_sha256": "4417206bdfbac428bbb96bb7f83ef48eea6320646897d38d56a383f07cfa667c",
+      "self_pairs": 36
+    },
+    {
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/postfit-backtrack-401/run-001/backtrack-373/pass-004/candidate.npz",
+      "candidate_sha256": "d0128fcf1e3ca4d8ad4c175eb648bab358cb46e4e27c32ebbc41d275b0627a5c",
+      "summary_sha256": "fc9aedbd8cf8c0a6b20d07157817a0c3e22c66af96338bec1effa013a2f65d03",
+      "self_pairs": 17
+    },
+    {
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/postfit-backtrack-401/run-001/backtrack-373/pass-005/candidate.npz",
+      "candidate_sha256": "8fb2054483342f8a414ce5c57787c1b57f50be936746806e7260bdd8b6f6ff6e",
+      "summary_sha256": "fb259e5e89284db22295f289487552a35d7c5f48684d13e5521c13d0f989a244",
+      "self_pairs": 15
+    },
+    {
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/postfit-backtrack-401/run-001/backtrack-373/pass-006/candidate.npz",
+      "candidate_sha256": "83e5d778859320c1a1b1abb9b5ef304f54314d61c8b0f04b4c456be4a6a2b8f4",
+      "summary_sha256": "d1b8403c2459b11193d304fc51d632c881884bdc47701df4896b5ccd4f09869f",
+      "self_pairs": 9
+    },
+    {
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/postfit-backtrack-401/run-001/backtrack-373/pass-007/candidate.npz",
+      "candidate_sha256": "97068300142fb247a4a7607e5a055205775392a998900ed07e4f40049cde58f5",
+      "summary_sha256": "951cde6ea9da3f774c63b1604a8827b6f3a5eeafc281338e0e949d3627b69166",
+      "self_pairs": 9
+    }
+  ],
+  "selected": false,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

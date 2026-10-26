@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/retained-gain-continuation-401/test_retained_gain_401.py"
+  ],
+  "returncode": 0,
+  "stdout": "......                                                               [100%]\n6 passed, 4 subtests passed in 0.17s\n",
+  "stderr": ""
+}

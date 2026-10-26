@@ -1,0 +1,26 @@
+{
+  "tests": {
+    "command": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/precision-phase-one-396/test_precision_phase_one_integration_396.py"
+    ],
+    "returncode": 0,
+    "stdout": ".......                                                                  [100%]\n7 passed in 0.04s\n",
+    "stderr": ""
+  },
+  "self_test": {
+    "command": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/precision-phase-one-396/propose_joint_clearance_witnesses_396.py",
+      "--self-test"
+    ],
+    "returncode": 0,
+    "stdout": "{\n  \"status\": \"PASS\",\n  \"self_test\": \"lexicographic normalized clearance slacks; report candidate pins; sparse row dimensions and anchor elimination; empty target parity; strict F32 area selector; bounded area-SCP RHS/FD; opt-in emitted-clearance proxy deferral; stage-1 timeout primal fallback; raw LP serialization; source/trust box; fixed-037 area reference\"\n}\n",
+    "stderr": ""
+  },
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

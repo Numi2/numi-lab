@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/postfit-backtrack-400/postfit_backtrack_400.py",
+    "--self-test"
+  ],
+  "returncode": 0,
+  "stdout": "postfit-373 self-test PASS\n",
+  "stderr": ""
+}

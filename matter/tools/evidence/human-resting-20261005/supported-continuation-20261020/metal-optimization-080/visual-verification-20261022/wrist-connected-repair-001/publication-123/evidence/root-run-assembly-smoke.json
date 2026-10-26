@@ -1,0 +1,16 @@
+{
+  "status": "PASS_RUN_ASSEMBLY_REACHED_SOLVER",
+  "A_shape": [
+    240981,
+    19359
+  ],
+  "C_shape": [
+    0,
+    19359
+  ],
+  "positive_rhs_rows": 279,
+  "target_max_mm": 0,
+  "driver_sha256": "705ebe465df1e9d186b465e498cdb8c3f693ad46690c48cb1f4794fc478ea03a",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

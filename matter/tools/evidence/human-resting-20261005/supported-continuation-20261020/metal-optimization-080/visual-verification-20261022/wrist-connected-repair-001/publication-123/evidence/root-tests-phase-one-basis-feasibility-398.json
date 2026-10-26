@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/phase-one-basis-feasibility-398/test_basis_feasibility_398.py"
+  ],
+  "returncode": 0,
+  "stdout": "....                                                                     [100%]\n4 passed in 0.16s\n",
+  "stderr": ""
+}

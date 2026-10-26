@@ -1,0 +1,14 @@
+{
+  "accepted_physical_steps": 0,
+  "backtracker_sha256": "a91b410c979701a29ab32f376637db566abb745e066b629c000f6a37fea13212",
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/no-progress-backtracker-373/run_local_witness_backtracking_373.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/postfit-backtrack-401/run-001/backtrack-config.json"
+  ],
+  "fit_candidate_sha256": "eb78b4d29e9613c51b65a08c0f351270a1de0e13abab375af4d1aef88dc18865",
+  "fit_report_sha256": "8820b5c2ee2b02f7a525207572eff33b79ec9a579ccd3a1f144994e119665330",
+  "native_admission": false,
+  "returncode": 0,
+  "self_pair_seed_sha256": "5886a19ba21f7c5143ebaa83797b2c89392bf5335a9c7936132fb7a479bd8b4f"
+}

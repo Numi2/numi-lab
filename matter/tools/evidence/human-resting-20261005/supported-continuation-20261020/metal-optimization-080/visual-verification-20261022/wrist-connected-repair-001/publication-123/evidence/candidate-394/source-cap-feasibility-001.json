@@ -1,0 +1,148 @@
+{
+  "accepted_physical_steps": 0,
+  "baseline_target_start_362": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-362/uniform-scale-recovery/backtrack/pass-001/candidate.npz",
+    "point_count": 20889,
+    "points_sha256": "6fdc8f5cdeaa522b0a977bdbd72ee6366468a320f1052103b1bae8aa1955771d",
+    "sha256": "814b879cb8f3af988aeaa0540d183222d942e95f5597434b6328f714d35e14d3"
+  },
+  "candidate": {
+    "face_count": 41733,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/combined-clearance-394/run-001/candidate.npz",
+    "point_count": 20889,
+    "points_key": "points_world_m",
+    "points_sha256": "3946d123a2facc602e66ad0f33994e0c330d92d97c62d1633249eb2afcf0b093",
+    "sha256": "251b7e0a8c39d2e1e3ef57b2654bf4912cfb3e62bc9cc38fb9ee4d7a9a52e8c3"
+  },
+  "cap_and_trust": {
+    "all_current_points_max_source_displacement_mm": 11.569468605457056,
+    "all_current_points_min_remaining_cap_mm": 0.4305313945429443,
+    "all_current_points_over_cap": 0,
+    "convex_cap_segment_implication": "Every target endpoint and current point in this inside set is within the 12 mm source ball; the straight segment between each pair also remains within that ball. Per-node source cap does not obstruct these 391 target endpoints. The 1 mm trust value is an iterative step bound, so targets over 1 mm require multiple accepted steps.",
+    "inside_count": 482,
+    "inside_current_remaining_cap_below_1mm": 0,
+    "inside_current_source_displacement_mm_quantiles": {
+      "max": 8.48229684371661,
+      "median": 3.7038040896136533,
+      "min": 0.31831768346356326,
+      "p10": 2.071765316468862,
+      "p90": 6.330612617187481
+    },
+    "inside_current_to_target_mm_quantiles": {
+      "max": 4.873375979379131,
+      "median": 0.33545957915844643,
+      "min": 0.22072677431239154,
+      "p10": 0.25114245851359435,
+      "p90": 1.684384340597396
+    },
+    "inside_remaining_cap_mm_quantiles": {
+      "max": 11.681682316536437,
+      "median": 8.296195910386347,
+      "min": 3.5177031562833907,
+      "p10": 5.66938738281252,
+      "p90": 9.928234683531139
+    },
+    "inside_target_endpoint_over_12mm_cap": 0,
+    "inside_target_endpoint_source_displacement_mm_quantiles": {
+      "max": 10.45345781832146,
+      "median": 4.183320794304286,
+      "min": 1.3354478137791082,
+      "p10": 2.5445971155619316,
+      "p90": 6.966962348243219
+    },
+    "inside_targets_reachable_wrt_source_cap": 482,
+    "inside_targets_requiring_multiple_1mm_steps": 94,
+    "inside_targets_within_one_1mm_trust_step": 388,
+    "minimum_inside_current_cap_headroom_mm": 3.5177031562833907,
+    "minimum_inside_endpoint_cap_slack_mm": 1.5465421816785394,
+    "scope_note": "Current point classifications are 394 audit-130 results; 391 target endpoints were constructed from 362 candidate coordinates with the same output-row indexing. Four of the 486 target rows are not currently inside; the comparison here uses only the 482 currently inside rows.",
+    "single_iteration_trust_mm": 1.0,
+    "source_cap_mm": 12.0
+  },
+  "current_geometric_gates": {
+    "audit130_complete_surface_audit": true,
+    "audit130_exact_PLC_surface_self_pairs": 0,
+    "audit130_inside_node_bank_pairs": 482,
+    "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/combined-clearance-394/run-001/audit-130/summary.json",
+    "audit130_sha256": "37fde05865aebd9037ab0840e50371157eb1f08c61929e643223115a4a351e0a",
+    "audit159_bank_count": 185,
+    "audit159_complete": true,
+    "audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/combined-clearance-394/run-001/audit-159/report.json",
+    "audit159_sha256": "a16543bc13f8fb35eec62e0f8cad6dc3b3fe587cb92366c93f33874dda8b6774",
+    "audit159_skin_bone_surface_pairs": 3375,
+    "interpretation": "Zero in audit-130 is the exact PLC skin self-intersection count; it is distinct from audit-159 skin-bone crossings, which remain."
+  },
+  "geometry_admitted": false,
+  "limitations": [
+    "Construction-feasibility comparison only; no geometry is admitted and no physical step is claimed.",
+    "Targets are the frozen 391 endpoints generated against 362, not newly recomputed from 394.",
+    "The 1 mm trust bound is per solve iteration, not a total movement limit."
+  ],
+  "schema": "numi.human.source-cap-feasibility.394.v1",
+  "source_reference": {
+    "candidate394_and_source362_reference_arrays_bitwise_equal": true,
+    "cap_semantics": "per-output-node Euclidean norm from composed source reference, as in 365; cap 12 mm",
+    "method": "365.compose_source_reference using the candidate three-level source_prolongation CSR chain and pinned run-009 endpoint candidate source base; no refit or nearest mapping",
+    "reference_array_max_abs_difference_m": 0.0,
+    "reference_float64_array_sha256": "28acbe36bbeba8131a57d504f402a9523d5e701eb3ad2557506f769e7e470adc",
+    "reference_shape": [
+      20889,
+      3
+    ],
+    "solver_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-witness-proposal-365/propose_joint_clearance_witnesses_365.py",
+    "solver_sha256": "b06af3a336fbf23fddfdd75f45353d4b27d1354978472cc5dbb3a4b7c7527203",
+    "source_base_path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+    "source_base_sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+  },
+  "status": "SOURCE_CAP_FEASIBILITY_ONLY",
+  "target_endpoints_391": {
+    "all_target_exactly_outside_all185": true,
+    "all_target_pass_mask": true,
+    "npz_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-391/run-001/round-001/point-targets/nearest-union-exits.npz",
+    "npz_sha256": "a327b7054cd0fb6d96993ac9d207f114a1db13d716723ec97facf866dc5490f0",
+    "query_rows": 486,
+    "report_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/coherent-support-continuation-391/run-001/round-001/point-targets/nearest-union-exits.json",
+    "report_sha256": "c97f2c8a5954e1ca30510196640cb2708b9cb05b4cfd0fdda15ada7562b1bc53",
+    "source_candidate_sha256": "814b879cb8f3af988aeaa0540d183222d942e95f5597434b6328f714d35e14d3"
+  },
+  "witnesses": {
+    "deep_row_18706": {
+      "current_inside_394": true,
+      "current_source_displacement_mm": 1.835290035888838,
+      "current_to_target_mm": 4.245463071514456,
+      "output_row": 18706,
+      "proposal_direction_world_unit": [
+        0.4108518676381176,
+        -0.49314412985761874,
+        0.7668178467180082
+      ],
+      "remaining_12mm_source_cap_mm": 10.164709964111163,
+      "target_delta_world_mm": [
+        1.7443299293518066,
+        -2.093672752380371,
+        3.2554268836975098
+      ],
+      "target_endpoint_cap_slack_mm": 6.395996125445037,
+      "target_endpoint_source_displacement_mm": 5.604003874554963
+    },
+    "inside_row_with_minimum_current_cap_headroom": {
+      "current_inside_394": true,
+      "current_source_displacement_mm": 8.48229684371661,
+      "current_to_target_mm": 0.3449609280263066,
+      "output_row": 19847,
+      "proposal_direction_world_unit": [
+        -0.5335453680616234,
+        -0.019574296243180123,
+        -0.8455449054583506
+      ],
+      "remaining_12mm_source_cap_mm": 3.5177031562833907,
+      "target_delta_world_mm": [
+        -0.19240379333496094,
+        0.08213520050048828,
+        -0.2742856740951538
+      ],
+      "target_endpoint_cap_slack_mm": 3.3772534984434674,
+      "target_endpoint_source_displacement_mm": 8.622746501556533
+    }
+  }
+}
