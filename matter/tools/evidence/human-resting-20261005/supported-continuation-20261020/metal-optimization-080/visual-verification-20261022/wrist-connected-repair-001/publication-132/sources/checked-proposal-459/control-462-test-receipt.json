@@ -1,0 +1,79 @@
+{
+  "comparison": {
+    "446_surface_pairs": 3212,
+    "462_surface_pairs_more_than_446": 2,
+    "after_inside_pairs": 283,
+    "after_surface_pairs": 3214,
+    "base_inside_pairs": 298,
+    "base_surface_pairs": 3219,
+    "classification": "retain as construction control, not best current candidate"
+  },
+  "control": {
+    "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/grouped-backtrack-442/run-001/backtrack-373/pass-007/candidate.npz",
+    "base_sha256": "3b2f3ce58e4e0d7e1883f937f203af8bb0a5630cd502c5131cc7c4cc4b7e2b07",
+    "candidate_sha256": "2d38ad2d10dcfac0e1b207fd24ac5c61d60955faa729ea9d775dbb3b63a00f83",
+    "elapsed_seconds": 141.83920208294876,
+    "fit_candidate": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/point-first-fit-445/run-001/candidate.npz",
+    "fit_sha256": "74cd0dc836f513c5d2f912d26f2768a61878455f103f1af040751ba40a717305",
+    "guard_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh-444/run-001/introduced-skin-bone-barriers.npz",
+    "guard_npz_sha256": "f74ca94da539fd72941c3a5a1d2de22832bb8ec97470e0e5049dd265f7948145",
+    "guard_report": "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh-444/run-001/report.json",
+    "guard_report_sha256": "3d939d71b91991207f9808596f88c302b91530861f6d055513d0a0f4c543b35e",
+    "launch_pin_count": 13,
+    "launch_pin_mismatches": [],
+    "point_summary_sha256": "4ccf882a091286380d5a5d0586cfc62fd39f4a7eca33f13505a50476781660c6",
+    "returncode": 0,
+    "run": "point-projection-backtrack-462/run-001",
+    "selected_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/point-projection-backtrack-462/run-001/backtrack-373/pass-015/candidate.npz",
+    "selected_state_sha256": "9af32a4f9d54b0c15c4a9541168d47e8e2eca2af6864be26defb9b2b1a3a3184",
+    "surface_report_sha256": "dba89832749f7c0a4542c8315e56bc253a7aab0db93f89f29db1e1cef381a1a8",
+    "unchanged_runtime_pins": true
+  },
+  "exact_gate_receipts": {
+    "accepted_physical_steps": 0,
+    "contained_node_bank_pairs": 283,
+    "max_source_displacement_mm": 11.96102488202118,
+    "max_step_mm": 0.6895993567959955,
+    "minimum_allface_oriented_area_ratio": 0.21829290721523056,
+    "minimum_fixed_reference_area_magnitude_ratio": 0.10003977287040829,
+    "native_admission": false,
+    "point_receipt_binds_candidate": true,
+    "self_pairs": 0,
+    "surface_pair_count": 3214,
+    "surface_receipt_binds_candidate": true,
+    "surface_receipt_complete_185_banks": true
+  },
+  "runner": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/checked-proposal-459/run_checked_proposal_459.py",
+    "py_compile": "PASS",
+    "sha256": "f1c0c9828757b2760186da40e12beba0bde9ac5185d9b1fe8521eeb16ebe5072"
+  },
+  "schema": "checked-proposal-459-control-462-test-receipt-v1",
+  "scope": "Read-only validation of saved control-462 artifacts and source pins; no solver, geometry audit, or benchmark rerun.",
+  "source_contract": {
+    "anchor_max_abs_scale": 0.0,
+    "context": {
+      "base_points_match": true,
+      "baseline_float32": true,
+      "edge_budget_max_abs_error": 0.0,
+      "edge_budgets_match_423_formula": true,
+      "edge_count": 62622,
+      "kappa": 0.1,
+      "proposal_delta_match": true,
+      "sorted_unique_edges_match": true
+    },
+    "fixed_guard_max_violation_mm": 2.211772431870429e-17,
+    "fixed_guard_rows_checked": 12714,
+    "fixed_guard_rows_total": 12714,
+    "fixed_guard_tolerance_mm": 2e-08,
+    "fixed_guard_violated_rows": 0,
+    "helper_path": "/Users/numi/Work/numi-human-connected-surface-069/D/graded-cut-step-447/graded_cut_step_447.py",
+    "helper_sha256": "522152a4df248d230ddc66652e3071a2283c29ca73bccc52efbe1789e2ee2b9e",
+    "helper_sha_matches": true,
+    "projection_mode": "CONSTRAINT_PROJECTION_WITHOUT_WITNESS_HALVING",
+    "seed_rows_checked": 137764,
+    "seed_rows_total": 137764,
+    "seed_violated_rows": 0
+  },
+  "status": "PASS_SAVED_CONTROL_AND_SOURCE_CONTRACT_CHECKS"
+}

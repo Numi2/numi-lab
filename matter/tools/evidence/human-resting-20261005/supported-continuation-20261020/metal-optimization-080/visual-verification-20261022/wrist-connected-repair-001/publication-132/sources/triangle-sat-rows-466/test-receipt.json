@@ -1,0 +1,73 @@
+{
+  "coverage": [
+    "default 458 plane and builder preserve the original return fields, matrices, and lower bounds",
+    "outward-hemisphere signs, both exact tangent signs, deterministic tie ordering",
+    "minimum max-deficit cost across normalized bone-face, skin-face, and edge-cross candidates",
+    "three corner rows imply full-pair projection separation with the Float32 ULP margin",
+    "per-pair opt-in and unknown identities fail closed",
+    "synthetic 408/458 adapter integration: exact point-prefix parity, all selected pairs carry SAT metadata for all 13 valid candidate axes, three guard rows per pair, and nonpositive guards join combined hard barriers"
+  ],
+  "files": {
+    "458_source_unchanged_reference": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/fixed_bone_outward_plane_458.py",
+      "sha256": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0"
+    },
+    "458_test_reference": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/test_fixed_bone_outward_plane_458.py",
+      "sha256": "e593c5e0cbd8dd4bf80c0e2c4148cbfc47622368d5a069cba86864f57c2a1ab9"
+    },
+    "466_adapter_integration_test": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/triangle-sat-rows-466/test_run_sat_fit_466_integration.py",
+      "sha256": "35f724d35f78e761f1cd2beb61528cb382b62c79d6247ac80cbbd2cbc7314e24"
+    },
+    "466_source": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/triangle-sat-rows-466/triangle_sat_rows_466.py",
+      "sha256": "cf4df8cd8a3f2773f0992a5f9a1d9b899d64db781b0a58cc2ed618285fa11cf3"
+    },
+    "466_tests": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/triangle-sat-rows-466/test_triangle_sat_rows_466.py",
+      "sha256": "bbcf5cb47884975d6dfcbf9a06cc83d643eba5d58e0afe1aa7e6f2b4cc2f8f76"
+    },
+    "readme": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/triangle-sat-rows-466/README.md",
+      "sha256": "2140ac23cf0992f0fb10a15bbd42f5a8f7a5fff53c1aa19570ba2aa2be0a18f9"
+    }
+  },
+  "matched_457_inputs_hash_check": {
+    "audit_159_456": {
+      "matches_458_pin": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/constraint-project-backtrack-456/run-001/backtrack-373/pass-006/audit-159/report.json",
+      "sha256": "55e6e4ffc5b296f8793de9f65060e533290021e09b55d15213221c996091737b"
+    },
+    "base_candidate_456": {
+      "matches_458_pin": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/constraint-project-backtrack-456/run-001/backtrack-373/pass-006/candidate.npz",
+      "sha256": "1ac004ef6f6646ce4720360c50b7fd9855336a4967c3e97b199cf9bc0350049a"
+    },
+    "classification": "actual target/candidate/report file hashes checked; no target-driven fit or geometric audit run",
+    "point_390_npz": {
+      "matches_458_pin": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep-457/run-001/point-targets-390/nearest-union-exits.npz",
+      "sha256": "c20370c4a856c9a975000eee800c9c96512c6765473022ee84311e870f7dbe0c"
+    },
+    "surface_335_npz": {
+      "matches_458_pin": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep-457/run-001/surface-targets-335/targets.npz",
+      "sha256": "e7c5ffe5e37637f3207026e5f8d8e2be492e5810794ad07f814b33f2a5797cd0"
+    }
+  },
+  "py_compile": "PASS",
+  "runtime": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "schema": "triangle-sat-rows-466-test-receipt-v1",
+  "scope": "Synthetic algorithm and adapter-integration tests plus matched input hash checks only; no fit/LP, mesh audit, benchmark, or pipeline wrapper invocation.",
+  "status": "PASS_SYNTHETIC_TESTS_ONLY",
+  "test_command": "PYTHONPATH=<458-dir>:<466-dir> python -m unittest -v test_fixed_bone_outward_plane_458 test_triangle_sat_rows_466 test_run_sat_fit_466_integration",
+  "test_counts": {
+    "458_existing": 5,
+    "466_adapter_integration": 1,
+    "466_new": 4,
+    "errors": 0,
+    "failures": 0,
+    "total": 10
+  }
+}

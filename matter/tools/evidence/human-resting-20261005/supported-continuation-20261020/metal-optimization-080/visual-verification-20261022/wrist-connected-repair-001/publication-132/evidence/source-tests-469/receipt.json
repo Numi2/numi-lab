@@ -1,0 +1,36 @@
+{
+  "suites": [
+    {
+      "argv": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458",
+        "-p",
+        "test*.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "output": "test_current_matched_inputs_reach_408_builder_and_preserve_point_block (test_fit_integration_458.Matched408Integration458.test_current_matched_inputs_reach_408_builder_and_preserve_point_block) ... /Users/numi/Work/numi-human-connected-surface-069/publication-084/canonical/matter/tools/human_skin_fat_bone_audit.py:189: ResourceWarning: unclosed file <_io.TextIOWrapper name='/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv' mode='r' encoding='UTF-8'>\n  bodies = {int(r[\"body_index\"]): r for r in csv.DictReader(bodies_path.open(newline=\"\"))}\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n/Users/numi/Work/numi-human-connected-surface-069/publication-084/canonical/matter/tools/human_skin_fat_bone_audit.py:217: ResourceWarning: unclosed file <_io.TextIOWrapper name='/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv' mode='r' encoding='UTF-8'>\n  for r in csv.DictReader(inventory_path.open(newline=\"\"))}\nResourceWarning: Enable tracemalloc to get the object allocation traceback\nok\ntest_all_three_bounds_include_negative_rhs_and_soft_rows_are_positive_only (test_fixed_bone_outward_plane_458.FixedBoneOutwardPlane458Tests.test_all_three_bounds_include_negative_rhs_and_soft_rows_are_positive_only) ... ok\ntest_outward_sign_follows_verified_triangle_order (test_fixed_bone_outward_plane_458.FixedBoneOutwardPlane458Tests.test_outward_sign_follows_verified_triangle_order) ... ok\ntest_plane_lower_bounds_separate_complete_triangle (test_fixed_bone_outward_plane_458.FixedBoneOutwardPlane458Tests.test_plane_lower_bounds_separate_complete_triangle) ... ok\ntest_verified_hand_example_signed_distances (test_fixed_bone_outward_plane_458.FixedBoneOutwardPlane458Tests.test_verified_hand_example_signed_distances) ... ok\ntest_zero_anchor_coefficients_and_positive_anchor_conflict_reported (test_fixed_bone_outward_plane_458.FixedBoneOutwardPlane458Tests.test_zero_anchor_coefficients_and_positive_anchor_conflict_reported) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 1.251s\n\nOK\n"
+    },
+    {
+      "argv": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/D/triangle-sat-rows-466",
+        "-p",
+        "test*.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "output": "test_pinned_458_install_path_preserves_point_prefix_and_injects_sat_guards (test_run_sat_fit_466_integration.SatFit466AdapterIntegrationTests.test_pinned_458_install_path_preserves_point_prefix_and_injects_sat_guards) ... ok\ntest_both_tangent_signs_are_allowed_and_axis_choice_is_deterministic (test_triangle_sat_rows_466.TriangleSatRows466Tests.test_both_tangent_signs_are_allowed_and_axis_choice_is_deterministic) ... ok\ntest_default_plane_and_builder_preserve_458_rows (test_triangle_sat_rows_466.TriangleSatRows466Tests.test_default_plane_and_builder_preserve_458_rows) ... ok\ntest_sat_axis_chooses_cheaper_lateral_candidate_and_rows_separate_whole_pair (test_triangle_sat_rows_466.TriangleSatRows466Tests.test_sat_axis_chooses_cheaper_lateral_candidate_and_rows_separate_whole_pair) ... ok\ntest_sat_selection_is_per_pair_and_unknown_identity_fails_closed (test_triangle_sat_rows_466.TriangleSatRows466Tests.test_sat_selection_is_per_pair_and_unknown_identity_fails_closed) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.083s\n\nOK\n"
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

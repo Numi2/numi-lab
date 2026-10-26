@@ -1,0 +1,147 @@
+{
+  "status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED",
+  "candidate_sha256": "c4c2829f51dfaaaae424043b67f20e5e46933ad7a74bcd9e8c42ef7a9ac71892",
+  "solver": {
+    "basis": {
+      "control_dimension": 18159,
+      "hard_row_transform": {
+        "dropped_feasible_zero_rows": 253,
+        "input_rows": 353837,
+        "retained_rows": 353584
+      },
+      "output_dimension": 21381
+    },
+    "basis_coordinates_receipt": {
+      "all_finite": true,
+      "count": 18159,
+      "encoding": "float64-c-order",
+      "maximum": 2.9803241692080173,
+      "minimum": -2.9747317470747436,
+      "sha256": "3d153269c022fd6228910ab0b1f75d32cd6ce7d4ffbb17e2d6a6afcdd8c20973",
+      "shape": [
+        18159
+      ]
+    },
+    "delta_receipt": {
+      "all_finite": true,
+      "count": 21381,
+      "encoding": "float64-c-order",
+      "maximum": 0.25260448455810547,
+      "minimum": -0.25260448455810547,
+      "sha256": "dad37bc9383514988e7cc670a7faf14f8fe62e2bb78741a9d34e5cab8c1c0312",
+      "shape": [
+        21381
+      ]
+    },
+    "fallback_used": true,
+    "lexicographic_slack_tolerance": 0.0068092382637517995,
+    "lp_method": "highs-ipm",
+    "message": "Stage 2 hit its time limit; using independently certified feasible Stage 1 primal (no output-L1 tie-break optimality claim)",
+    "method": "lexicographic sparse HiGHS with exact emitted-F32 area-feasible iterate backtracking after every area SCP solve; minimum weighted normalized point/face target slack, then minimum L1 distance to raw trial; fixed pair rows, relinearized hard area rows",
+    "nit": 52009,
+    "normalized_slack_objective": 0.8638152347249641,
+    "normalized_slack_receipt": {
+      "all_finite": true,
+      "count": 5211,
+      "encoding": "float64-c-order",
+      "maximum": 1.0000000000000344,
+      "minimum": -0.0,
+      "sha256": "1dc00c7d9a27a69597aca09d961757e64cfff72ecac86191f0e8af06b3d15e00",
+      "shape": [
+        5211
+      ]
+    },
+    "objective": null,
+    "residual_to_raw_target_l1_mm": 5668.715116796019,
+    "solution_source": "certified_stage1_primal_after_stage2_time_limit",
+    "stage1": {
+      "objective": 0.8638152347249641,
+      "status": 0,
+      "success": true
+    },
+    "stage1_output_certificate": {
+      "checked_hard_rows": 311075,
+      "checked_no_regression_rows": 5211,
+      "checked_output_bounds": 42762,
+      "checked_slack_bounds": 5211,
+      "checked_target_rows": 5211,
+      "maximum_output_bound_violation": 3.3306690738754696e-16,
+      "minimum_hard_residual": -7.612088136470935e-10,
+      "minimum_no_regression_residual": -3.2801617390532175e-15,
+      "minimum_target_residual": -2.6645352591003757e-15,
+      "passed": true,
+      "reported_stage1_objective": 0.8638152347249641,
+      "weighted_slack_objective": 0.8638152347249832
+    },
+    "stage1_primal_certificate": {
+      "output_space_certificate": {
+        "checked_hard_rows": 311075,
+        "checked_no_regression_rows": 5211,
+        "checked_output_bounds": 42762,
+        "checked_slack_bounds": 5211,
+        "checked_target_rows": 5211,
+        "maximum_output_bound_violation": 3.3306690738754696e-16,
+        "minimum_hard_residual": -7.612088136470935e-10,
+        "minimum_no_regression_residual": -3.2801617390532175e-15,
+        "minimum_target_residual": -2.6645352591003757e-15,
+        "passed": true,
+        "reported_stage1_objective": 0.8638152347249641,
+        "weighted_slack_objective": 0.8638152347249832
+      },
+      "passed": true,
+      "status": "CERTIFIED_STAGE1_PRIMAL"
+    },
+    "stage2": {
+      "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+      "status": 1,
+      "success": false,
+      "time_limit": true
+    },
+    "stage2_slack_budget_policy": {
+      "effective_slack_increase": 0.0068092382637517995,
+      "legacy_slack_tolerance": 1e-09,
+      "mode": "relative_retained_gain_fraction",
+      "raw_gain_vs_zero": 0.13618476527503587,
+      "recognized_gain_vs_zero": 0.13618476527503587,
+      "relative_policy_uses_absolute_tolerance_cap": false,
+      "retained_gain_fraction": 0.95,
+      "semantics": "opt+(1-retained_gain_fraction)*(feasible_zero_move_baseline-opt)",
+      "stage1_objective": 0.8638152347249641,
+      "stage2_slack_budget": 0.8706244729887159,
+      "zero_move_baseline_feasible": true,
+      "zero_move_baseline_objective": 1.0
+    },
+    "status": 0,
+    "success": true,
+    "wall_seconds": 276.92431812593713
+  },
+  "support": {
+    "area_faces_touching_free_support": 15359,
+    "core_faces": 15378,
+    "core_nodes": 5386,
+    "fixed_anchor_rows_in_support": [
+      30,
+      108,
+      194,
+      209,
+      210,
+      252,
+      253,
+      283,
+      291,
+      329
+    ],
+    "fixed_anchor_rows_total": 237,
+    "fixed_prefix_nodes": 0,
+    "fixed_prefix_semantics": "LP coordinate bounds are exactly zero; not reinterpreted as native anchors",
+    "fixed_prefix_support_rows": 0,
+    "free_support_nodes": 7117,
+    "support_nodes": 7127,
+    "threatened_pairs": 24712
+  },
+  "maximum_emitted_node_step_mm": 0.43750659526470786,
+  "maximum_source_displacement_mm": 11.962707495069841,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "source_report_sha256": "1f1040489f422c5386ee75eceaad391ac0b57559171aa26d2097cad32b2cec2d"
+}

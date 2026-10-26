@@ -1,0 +1,26 @@
+{
+  "pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/run_grouped_fit_458.py": "08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/fixed_bone_outward_plane_458.py": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep-457/run-001/preparation-report.json": "8d357757f5c4a3d5db8f73efffdaf49327e71a656eaaefa69279ba61f99b2327",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/constraint-project-backtrack-456/run-001/backtrack-373/pass-006/audit-159/report.json": "55e6e4ffc5b296f8793de9f65060e533290021e09b55d15213221c996091737b",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-fit-460/run460b.py": "6ec1dc99c7369c4767571b843b9967d22b3b8836c7e74ecf04e4f1d17472b4e0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/constraint-project-backtrack-456/run-001/backtrack-373/pass-006/candidate.npz": "1ac004ef6f6646ce4720360c50b7fd9855336a4967c3e97b199cf9bc0350049a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep-457/run-001/self-seeds/merged-self-pair-seeds.npy": "41f967d6e6d228ddb7420f08d107c10070669190c5a805f756cf75eaceb6b831",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep-457/run-001/point-targets-390/nearest-union-exits.npz": "c20370c4a856c9a975000eee800c9c96512c6765473022ee84311e870f7dbe0c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep-457/run-001/point-targets-390/nearest-union-exits.json": "45f0b56c8a55ba05dfe280c0817d28fecada5b4cd163ded4c5a93636eeb3c338",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep-457/run-001/surface-targets-335/targets.npz": "e7c5ffe5e37637f3207026e5f8d8e2be492e5810794ad07f814b33f2a5797cd0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep-457/run-001/surface-targets-335/report.json": "8476df313cfacac267cc202962de74461f73ec28ba32bf894bf17c02e0c65fa6",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-457/run-001/point-depth-rows.npz": "a385075bf14796b8e6585eb1d3e532551f9f34332b4a1318322d67793c62bebe",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-457/run-001/365-compatible-report.json": "5863c316791636fb226e7fe39dcfafa82bb5c7c89aa4b5be28f5b8483e752d4f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh-457/run-001/introduced-skin-bone-barriers.npz": "168080d6865c810208719fdc1ee3e2655a8e0e4588b8129a862a7a64c575f156",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/fixed-bone-guard-refresh-457/run-001/report.json": "5fb08073495e961c80bb2be98de022ef7861f73eea1c9f33ad012c353d27d42e"
+  },
+  "env": {
+    "NUMI_FIXED_BONE_OUTWARD_AUDIT159_PATH_458": "/Users/numi/Work/numi-human-connected-surface-069/D/constraint-project-backtrack-456/run-001/backtrack-373/pass-006/audit-159/report.json",
+    "NUMI_FIXED_BONE_OUTWARD_AUDIT159_SHA256_458": "55e6e4ffc5b296f8793de9f65060e533290021e09b55d15213221c996091737b"
+  },
+  "variant": "actual outward bone triangle planes458; matched456; unchanged hard physics construction constraints",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

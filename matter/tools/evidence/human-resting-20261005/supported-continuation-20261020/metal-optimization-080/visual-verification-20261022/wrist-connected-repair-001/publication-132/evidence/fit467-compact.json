@@ -1,0 +1,46 @@
+{
+  "status": "LP_NO_PROPOSAL",
+  "candidate_sha256": null,
+  "solver": {
+    "basis": {
+      "control_dimension": 18159,
+      "hard_row_transform": {
+        "dropped_feasible_zero_rows": 253,
+        "input_rows": 351502,
+        "retained_rows": 351249
+      },
+      "output_dimension": 21381
+    },
+    "lp_method": "highs-ipm",
+    "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+    "nit": 57127,
+    "objective": null,
+    "stage1": {
+      "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+      "status": 1,
+      "success": false
+    },
+    "status": 1,
+    "success": false,
+    "wall_seconds": 90.2170953748282
+  },
+  "support": {
+    "area_faces_touching_free_support": 15359,
+    "core_faces": 15378,
+    "core_nodes": 5386,
+    "fixed_boundary_barrier_rows": 13632,
+    "fixed_boundary_skin_faces": 2272,
+    "fixed_prefix_nodes": 0,
+    "fixed_prefix_semantics": "LP coordinate bounds are exactly zero; not reinterpreted as native anchors",
+    "fixed_prefix_support_rows": 0,
+    "free_support_nodes": 7117,
+    "point_depth_barrier_rows": 3240,
+    "support_nodes": 7127,
+    "threatened_pairs": 24712
+  },
+  "maximum_emitted_node_step_mm": null,
+  "maximum_source_displacement_mm": null,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "source_report_sha256": "b032b42065011c38b56c0d5a4743594e2fdba3f9db03f0d4fce0d2a0d4e5cd06"
+}

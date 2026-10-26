@@ -1,0 +1,251 @@
+{
+  "publication": 132,
+  "status": "offline construction increment; zero clearance unmet",
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "members": [
+    {
+      "path": "README.md",
+      "sha256": "6aabf6166650694b731ed4ce6aea57a0299a476e286bc6f8cecaa3af63638b31",
+      "bytes": 2925
+    },
+    {
+      "path": "evidence/candidate461-point-summary.json",
+      "sha256": "db029ea8039a1ac1ecf7ec4f261bb298e6b56d4300a5f9225614eea3f5495c2c",
+      "bytes": 268328
+    },
+    {
+      "path": "evidence/candidate461-surface-report.json",
+      "sha256": "5d4e7995c08245a197e5e12df688fafa95473dfd27b34aa12456085d79b589eb",
+      "bytes": 248063
+    },
+    {
+      "path": "evidence/candidate461.npz",
+      "sha256": "742315227c1d8225aac9307af828251a73a98a9c40b4f59fe791aeef5da1ba0f",
+      "bytes": 6367566
+    },
+    {
+      "path": "evidence/constraint-diagnostic-473/probe473.py",
+      "sha256": "1e31e2ef1acf88f1901ae235d2147eb44e114faaffe8977fc45ade22dda8ee14",
+      "bytes": 1953
+    },
+    {
+      "path": "evidence/constraint-diagnostic-473/report.json",
+      "sha256": "9117ae866ea4a4b6e11a7f9879c2a0871825f273e639fda987ea0bfca6973280",
+      "bytes": 1954
+    },
+    {
+      "path": "evidence/constraint-diagnostic-473/run473.py",
+      "sha256": "635df5c6c886886991d7ff8308f9e0ce14c390fd41c77729b4d5310765b01c3b",
+      "bytes": 2804
+    },
+    {
+      "path": "evidence/fit460-compact.json",
+      "sha256": "d69ab8d6837377c8ffb02a20dc627b3bcbd92991a137254373a24f32a82e4057",
+      "bytes": 5305
+    },
+    {
+      "path": "evidence/fit467-compact.json",
+      "sha256": "65b19f3b94daaaa2575018cf8029f742efe640916ae5749998c69fdb1345d039",
+      "bytes": 1490
+    },
+    {
+      "path": "evidence/outward-plane-backtrack-461/launch461.py",
+      "sha256": "e840d48aa6440d59b29416aa537df193742cc99f1d85a63c0fd7602df712e570",
+      "bytes": 832
+    },
+    {
+      "path": "evidence/outward-plane-backtrack-461/run-001/backtrack-373/selected-result.json",
+      "sha256": "fd44416c24a4d69524bec078458b355f41a06ec47e5273c28e0615e640b9cccd",
+      "bytes": 4726
+    },
+    {
+      "path": "evidence/outward-plane-backtrack-461/run-001/execution.json",
+      "sha256": "54ae65ed486672c60651d92aed76ec6bce3695f3ad4acfe8cd8dc02177beb05a",
+      "bytes": 184
+    },
+    {
+      "path": "evidence/outward-plane-fit-460/run-001-launch/execution.json",
+      "sha256": "d2041bcf90f4d3c4678dbaaf5180432709df39625cd31b4c64b3aee483ab1fcf",
+      "bytes": 149
+    },
+    {
+      "path": "evidence/outward-plane-fit-460/run-001-launch/failed-source-run_grouped_fit458.py",
+      "sha256": "46f0a476bc80a40d822a4a3cc89518e8cce553538170265b543f6342bb64d801",
+      "bytes": 22071
+    },
+    {
+      "path": "evidence/outward-plane-fit-460/run-002-launch/argv.json",
+      "sha256": "252352f7c9b5f26b4f1f7bb1c64fdec794b71ddb07057babd075eaeea5aa686b",
+      "bytes": 3808
+    },
+    {
+      "path": "evidence/outward-plane-fit-460/run-002-launch/execution.json",
+      "sha256": "a8bb915fbfe2cdaefd243e237dff4fdad4b1364103b1e399028731e845e4384f",
+      "bytes": 149
+    },
+    {
+      "path": "evidence/outward-plane-fit-460/run-002-launch/preflight.json",
+      "sha256": "5459be85ba5fbbc860a2f9459e1f22ca50de7e2a672422022e137fec12208305",
+      "bytes": 3422
+    },
+    {
+      "path": "evidence/outward-plane-fit-460/run460.py",
+      "sha256": "f3c017d594c92663829562d205bc8286890df0fe0c70f0843966fe853403e48e",
+      "bytes": 2796
+    },
+    {
+      "path": "evidence/outward-plane-fit-460/run460b.py",
+      "sha256": "6ec1dc99c7369c4767571b843b9967d22b3b8836c7e74ecf04e4f1d17472b4e0",
+      "bytes": 2796
+    },
+    {
+      "path": "evidence/root-independent-construction-verification.json",
+      "sha256": "5f09860707e46115a094624dfd439f0dce9c3594baba85b2974e5a27a77df0f2",
+      "bytes": 9741
+    },
+    {
+      "path": "evidence/sat-backtrack-468/launch468.py",
+      "sha256": "def18893b87771d64b73303f4d43e35b81b5b225f98631943e05e3a8a9cdbcc3",
+      "bytes": 802
+    },
+    {
+      "path": "evidence/sat-fit-467/run-001-launch/argv.json",
+      "sha256": "1f3168ed663fd1e568de815ed1c5a7218ed6e1b6e47756ed1dd63f8972f72825",
+      "bytes": 3787
+    },
+    {
+      "path": "evidence/sat-fit-467/run-001-launch/execution.json",
+      "sha256": "06b12a415f75375a262031bb9728e940275e41461769e3fade492bcfd7d6aabd",
+      "bytes": 149
+    },
+    {
+      "path": "evidence/sat-fit-467/run-001-launch/preflight.json",
+      "sha256": "b5a73e67ca1ca9dd9bdec3cf5375ee66a9f6aea17f9aac46e0754385af31420d",
+      "bytes": 3393
+    },
+    {
+      "path": "evidence/sat-fit-467/run467.py",
+      "sha256": "31aa5598c2cedc816bd6f1ab12de175398000381db9f207dd792fd499fceac4e",
+      "bytes": 2765
+    },
+    {
+      "path": "evidence/source-tests-469/receipt.json",
+      "sha256": "cd830bbfc032c7100980cbe90b5b5bd276221dda270871c088dfbabe4e0bf44d",
+      "bytes": 4454
+    },
+    {
+      "path": "evidence/verify461root.py",
+      "sha256": "fdeddd0402423235f38c1cb09579e4c5d388d4bd8936d002dbfcf8c6f0a77dd9",
+      "bytes": 19692
+    },
+    {
+      "path": "sources/checked-proposal-459/README.md",
+      "sha256": "8cb569dd9b81d849991367b33d9dd3a72df4e6550d06d4ff4863ca054af6efe2",
+      "bytes": 2126
+    },
+    {
+      "path": "sources/checked-proposal-459/control-462-test-receipt.json",
+      "sha256": "f0606b7bcc7e547ae746b285e572905bf90f4c118fc6caa59e84b441e9348115",
+      "bytes": 4023
+    },
+    {
+      "path": "sources/checked-proposal-459/run_checked_proposal_459.py",
+      "sha256": "f1c0c9828757b2760186da40e12beba0bde9ac5185d9b1fe8521eeb16ebe5072",
+      "bytes": 7093
+    },
+    {
+      "path": "sources/fixed-bone-outward-plane-458/README.md",
+      "sha256": "7db9405f0722650dd5cc693a257abd3d5a93d9e032feb38104918b964b82a710",
+      "bytes": 1859
+    },
+    {
+      "path": "sources/fixed-bone-outward-plane-458/fixed_bone_outward_plane_458.py",
+      "sha256": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0",
+      "bytes": 10317
+    },
+    {
+      "path": "sources/fixed-bone-outward-plane-458/run_grouped_fit_458.py",
+      "sha256": "08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93",
+      "bytes": 22143
+    },
+    {
+      "path": "sources/fixed-bone-outward-plane-458/test_fit_integration_458.py",
+      "sha256": "12a07890fb2e28cc604ba5366d2bdb31e224efec2cc3f53b6dedee5eff216039",
+      "bytes": 3792
+    },
+    {
+      "path": "sources/fixed-bone-outward-plane-458/test_fixed_bone_outward_plane_458.py",
+      "sha256": "e593c5e0cbd8dd4bf80c0e2c4148cbfc47622368d5a069cba86864f57c2a1ab9",
+      "bytes": 4810
+    },
+    {
+      "path": "sources/triangle-sat-rows-466/README.md",
+      "sha256": "e7fa9be3f5844636c306ebdd5d6929233933979830fb9b93babbf0684987741e",
+      "bytes": 2754
+    },
+    {
+      "path": "sources/triangle-sat-rows-466/run_sat_fit_466.py",
+      "sha256": "86223a91788cdfcf7d53ac5e65968de43637e9e39d619e5816f5861e8b347afc",
+      "bytes": 2124
+    },
+    {
+      "path": "sources/triangle-sat-rows-466/test-receipt.json",
+      "sha256": "190d53b89ba1cb84eb360036bae46da16ac467abe43e4f75ba9c0490ed400cb6",
+      "bytes": 4148
+    },
+    {
+      "path": "sources/triangle-sat-rows-466/test_run_sat_fit_466_integration.py",
+      "sha256": "35f724d35f78e761f1cd2beb61528cb382b62c79d6247ac80cbbd2cbc7314e24",
+      "bytes": 7452
+    },
+    {
+      "path": "sources/triangle-sat-rows-466/test_triangle_sat_rows_466.py",
+      "sha256": "bbcf5cb47884975d6dfcbf9a06cc83d643eba5d58e0afe1aa7e6f2b4cc2f8f76",
+      "bytes": 7198
+    },
+    {
+      "path": "sources/triangle-sat-rows-466/triangle_sat_rows_466.py",
+      "sha256": "cf4df8cd8a3f2773f0992a5f9a1d9b899d64db781b0a58cc2ed618285fa11cf3",
+      "bytes": 19099
+    }
+  ],
+  "external_references": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/outward-plane-fit-460/run-002/report.json",
+      "sha256": "1f1040489f422c5386ee75eceaad391ac0b57559171aa26d2097cad32b2cec2d",
+      "bytes": 42876786
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/outward-plane-fit-460/run-002/candidate.npz",
+      "sha256": "c4c2829f51dfaaaae424043b67f20e5e46933ad7a74bcd9e8c42ef7a9ac71892",
+      "bytes": 6823755
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/sat-fit-467/run-001/report.json",
+      "sha256": "b032b42065011c38b56c0d5a4743594e2fdba3f9db03f0d4fce0d2a0d4e5cd06",
+      "bytes": 1090679
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/constraint-project-backtrack-456/run-001/backtrack-373/pass-006/candidate.npz",
+      "sha256": "1ac004ef6f6646ce4720360c50b7fd9855336a4967c3e97b199cf9bc0350049a",
+      "bytes": 6367550
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/sat-fit-467/run-001-launch/execution.log",
+      "sha256": "921b37fe20cd800639d55466c07db2941061d6d8f44ed2b70d7d1be3ea3aa203",
+      "bytes": 1081414
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-fit-460/run-002-launch/execution.log",
+      "sha256": "02e3bb4f688842bfed7dfa264100464371f602887dd29786329bf5903a3f9fb0",
+      "bytes": 42868426
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/execution.log",
+      "sha256": "10b9ffd4c800ade0530a5d6358c6db7939fed23f618909d10998c3daed48283c",
+      "bytes": 10681
+    }
+  ],
+  "source_head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471"
+}
