@@ -1,0 +1,93 @@
+{
+  "base_commit": "d58b8356225bea51a509b08d7ed8c3633b05f7ce",
+  "canonical_changes": [],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "69e5860d412b42988ef55da93b6d9d504591a4375c0d41ba4f9db874b98e6ae9",
+      "bytes": 2270
+    },
+    {
+      "path": "evidence/404-root-independent-construction-verification.json",
+      "sha256": "0a51d0cc22618046f128d038fa29922add4aabd82fb4b94cca993f2baed0ea48",
+      "bytes": 2713
+    },
+    {
+      "path": "evidence/404-selected-result.json",
+      "sha256": "851ab817bcc549c6091adc190c727a821d43ab3e63a549d5fa85954aec93cb80",
+      "bytes": 4554
+    },
+    {
+      "path": "evidence/405-root-independent-construction-verification.json",
+      "sha256": "dd07beac2c791a6e7cdf3bad1f81f42712a4732554acc711ad9902d1c703067a",
+      "bytes": 2712
+    },
+    {
+      "path": "evidence/405-selected-result.json",
+      "sha256": "64e58dfafdf82e29811ef7f6dc18d30e4032b53e881816954af5cd3f5834d2be",
+      "bytes": 4612
+    },
+    {
+      "path": "evidence/archive-manifest-404-405.json",
+      "sha256": "be57c377b6860e9237aba5f114a602d498b54b2c5cc444d93ab112d1cad75237",
+      "bytes": 91013
+    },
+    {
+      "path": "evidence/connected-clearance-404-405.tar.xz",
+      "sha256": "6c306dfec9cdbf956bc18cbfa361b1bcd5ae5689331355450715713bdfb07416",
+      "bytes": 39371652
+    },
+    {
+      "path": "evidence/per-bank-changes.json",
+      "sha256": "9510b6f6119588eee763f4284f1d7c4b71c15964d6087ca7804b1363b16576f7",
+      "bytes": 987
+    },
+    {
+      "path": "evidence/publication-124-remote-recovery-verification-403.json",
+      "sha256": "a1e1f9f6682c46050bdaabadbec8ae03f70dba6aa806c592967737044aeae508",
+      "bytes": 369
+    },
+    {
+      "path": "sources/fine-point-basis-enrichment-405/audit_actual_basis_405.py",
+      "sha256": "a8b4c4c7ecb2eca234c0f3eb0ac4c711b3e0080a84b8154a071419e9a2d52f27",
+      "bytes": 3552
+    },
+    {
+      "path": "sources/fine-point-basis-enrichment-405/fine_point_basis_405.py",
+      "sha256": "e11e7f1305b5f824c23f12b6d447c5a019b4a69fe04a47f1cbe106d8096766f7",
+      "bytes": 2722
+    },
+    {
+      "path": "sources/fine-point-basis-enrichment-405/precision_phase_one_integration_396.py",
+      "sha256": "46de947e4a6302d9f70695f12061ac1107f59b2dfaa7b8f0c431c68b95e72e68",
+      "bytes": 13432
+    },
+    {
+      "path": "sources/fine-point-basis-enrichment-405/propose_joint_clearance_witnesses_405.py",
+      "sha256": "1e1e915bed2a43dfb7fcdb7b2932a4dcf4658a9686c7dd385d599e0bef21ee97",
+      "bytes": 201552
+    },
+    {
+      "path": "sources/fine-point-basis-enrichment-405/test_fine_point_basis_405.py",
+      "sha256": "4e182db97553d4c469b899e1617c8f2a170cf0b78f72cc75a2f7a2a5ecfbe948",
+      "bytes": 2745
+    },
+    {
+      "path": "sources/fine-point-basis-enrichment-405/test_retained_gain_405.py",
+      "sha256": "92c2cad5733e30efb119501782bf74af6235d60bc0f7fe9b38c5bfc1a441ea9f",
+      "bytes": 4815
+    },
+    {
+      "path": "sources/root_independent_verify_404.py",
+      "sha256": "fcfee6eab4dd8bfda4ed11f761092aa50ecba1183e4546b708ea01d410d2e0fb",
+      "bytes": 3240
+    },
+    {
+      "path": "sources/root_independent_verify_405.py",
+      "sha256": "6623c6d29dd540e643619ef2ac2ace5d3d2610fbbac7e22546c467c85bde8361",
+      "bytes": 3241
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

@@ -1,0 +1,62 @@
+{
+  "404": [
+    {
+      "body": 65,
+      "stable_bone_id": 99,
+      "before": 388,
+      "after": 386,
+      "delta": -2
+    },
+    {
+      "body": 109,
+      "stable_bone_id": 114,
+      "before": 534,
+      "after": 530,
+      "delta": -4
+    },
+    {
+      "body": 114,
+      "stable_bone_id": 117,
+      "before": 292,
+      "after": 290,
+      "delta": -2
+    },
+    {
+      "body": 115,
+      "stable_bone_id": 118,
+      "before": 429,
+      "after": 431,
+      "delta": 2
+    }
+  ],
+  "405": [
+    {
+      "body": 65,
+      "stable_bone_id": 99,
+      "before": 388,
+      "after": 387,
+      "delta": -1
+    },
+    {
+      "body": 109,
+      "stable_bone_id": 114,
+      "before": 534,
+      "after": 532,
+      "delta": -2
+    },
+    {
+      "body": 115,
+      "stable_bone_id": 118,
+      "before": 429,
+      "after": 431,
+      "delta": 2
+    },
+    {
+      "body": 124,
+      "stable_bone_id": 123,
+      "before": 328,
+      "after": 327,
+      "delta": -1
+    }
+  ]
+}

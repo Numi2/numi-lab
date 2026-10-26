@@ -1,0 +1,11 @@
+# Connected-surface continuation 404 and fine-point controls 405
+
+The retained current-pose checkpoint404 has 3332 skin–bone triangle pairs /456 contained node–bone pairs /self0, versus403 at3338/458/self0. Maximum and squared penetration depth decreased; no new contained pairs.405 is a passing alternate at3336/455/self0, with greater depth reduction but a higher combined count.404 is selected for continuation. Zero crossings remains unmet. Per-bank deltas are disclosed, including local regressions.
+
+The opt-in405 construction fitter extends the existing401 parent basis with correction columns at contained point targets. It adds458 fine-node controls (13209→14583 coordinates) without changing any original output-space hard constraint or target row. Default405 matches401 at the actual first-SCP matrix assembly; parent span and typed-anchor exclusion pass.19 focused tests plus4 subtests and the existing self-test passed. Fine enrichment is excluded from unqualified precision PhaseI.
+
+In matched403 fits, optimal stage1 weighted unmet fraction changed .883601→.591481.405 stage2 hit30s and used the existing independently certified stage1 fallback; it has no L1-optimal claim. Its unshrunk emitted step was .125013mm. Exact postchecks found13→4→0 self pairs but then rejected surface-count regressions before selecting a smaller passing step. This is evidence for added construction freedom, not a speed or physiological claim.404 used both optimal stages. Original and failed setup attempts are retained.
+
+Root independently verifies140 source arrays bitwise unchanged,237 typed output anchors unchanged, source cap12mm, all41733 area gates and support scope. A root audit initially used legacy coarse-domain anchor rows as output rows; the retained correction explains that index-domain error. Existing fitter and373 already use typed output anchor identities correctly.
+
+All work is offline outer-skin construction on SSH Numi. Native admission=false; accepted physical steps=0. Inner-fat validity, conservative physical transfer, retained motion poses and native qualification remain pending. No images inspected; no runtime/forces/physiology changed. Tested sources, exact commands and compact/full construction evidence are retained below.
