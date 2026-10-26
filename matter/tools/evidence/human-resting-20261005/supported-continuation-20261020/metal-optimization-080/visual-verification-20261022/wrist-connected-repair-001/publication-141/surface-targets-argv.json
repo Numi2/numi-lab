@@ -1,0 +1,18 @@
+[
+  "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "/tmp/numi-human-geometry-slot.py",
+  "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_nearest_union_targets_500.py",
+  "--candidate",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/run-001/candidate.npz",
+  "--surface-report",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/check-001-full/audit-159/report.json",
+  "--query-receipt",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/check-001-full/audit-130/query/query-receipt.json",
+  "--output-dir",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/surface-targets-001",
+  "--clearance-m",
+  "0.00005",
+  "--direction-mode",
+  "outward-nearest"
+]

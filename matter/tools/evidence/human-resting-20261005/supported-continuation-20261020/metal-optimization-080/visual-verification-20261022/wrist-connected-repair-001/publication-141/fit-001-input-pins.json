@@ -1,0 +1,22 @@
+{
+  "/Users/n/numi-human-prep-venv-20261005/bin/python": "c2d16fe8332897836229aff307d1d9cb32432d405fa889f342ffe1830b1608c5",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_point_batch545.py": "6da0b257753dccd1cdf26ce1f16a2fa9bd7aa866e5f9eebeab495e343323021d",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/run-001/candidate.npz": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/seed-refresh-001/merged-self-pair-seeds.npy": "a8c3b4a6125c26ded752ac953631de608ea0c58b80cd9525b1c59d04f2f2548b",
+  "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-005/proposal/round-001/fit/self_separation_026.py": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+  "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-005/proposal/round-001/fit/area_scp_support_023.py": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+  "/Users/numi/Work/numi-human-connected-surface-069/publication-091/canonical/matter/tools/human_skin_fat_barycentric_constraints.py": "965a166e86952d79c019302c98e7684f2f8ef3a9d63b328430ac9c8c8edbaff2",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/point-targets-001/nearest-union-exits.npz": "6bbd08589e57e39e97789e58f974cabb0ab0dd1a1862eb4f285a1fb98cc6f968",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/point-targets-001/nearest-union-exits.json": "e2e5955cf43df77348d11674488bf594e059c074c5829cb654fa585d580f2e14",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/surface-targets-001/targets.npz": "3b50a928810eb8be57e03518b4e571734612fdc0611261c89fbf84697c4b1079",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/surface-targets-001/report.json": "9caddbe3569effd139cfc026569f8c15327ef53df5eb802a7a595c834053acfb",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/depth-001/point-depth-rows.npz": "33ccc05d0b8ec8c4b9d6ae6e885d13ed98daf4357ebd04c13778a473b158a18d",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/depth-001/365-compatible-report.json": "24d2ae9924bc4d6b7cc3190d66ec69ba111be8797bc4edb3a90115470e4ee07b",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-barriers-357/point_depth_barriers_357.py": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1",
+  "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/fixed-guard-refresh-001/run-002/fixed-guards/fixed-skin-bone-guards.npz": "3ee3011a39f2a0649c1598bb3513fe550970708cc80cf172c853750881f73bdb",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/fixed-guard-refresh-001/run-002/fixed-guards/report.json": "d5ebe84ce448ec9c53fe3903b9c31413e0979da781d14fe57895f7451ffe9bea",
+  "/Users/numi/Work/numi-human-connected-surface-069/publication-113/sources/connected-fixed-boundary-313/fixed_bone_triangle_rows_313.py": "dc9d4f953ecede00567c59cbbb6b6b63e0a3556b97972689de499cbce29d4c2e",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/matched-inputs-001.json": "9628599f3f4d8cc5fb7f9a2923907b13f94bc6a86cddfd408cafc96fce95eac7",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/check-001-full/audit-159/report.json": "1c97d856712f34ca4fce684bb6ca6914d4df0b21da7c9c1a17dfbe9fbffa683c"
+}

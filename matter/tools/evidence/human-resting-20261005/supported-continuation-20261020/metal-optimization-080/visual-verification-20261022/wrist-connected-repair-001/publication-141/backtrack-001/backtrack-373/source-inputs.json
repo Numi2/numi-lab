@@ -1,0 +1,11 @@
+{
+  "start": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/run-001/candidate.npz",
+  "start_sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939",
+  "trial": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/fit-001/candidate.npz",
+  "trial_sha256": "b4d03f58a92d3e6291466f3fb42ad33b400371ddcf5b3b8012d3286f75e333c1",
+  "helper_sha256": "522152a4df248d230ddc66652e3071a2283c29ca73bccc52efbe1789e2ee2b9e",
+  "source_point_summary_sha256": "1be729eebf68d78b4d8bc5a707a762bca079a469f230f21aea59b7b5dca24f12",
+  "source_surface_report_sha256": "1c97d856712f34ca4fce684bb6ca6914d4df0b21da7c9c1a17dfbe9fbffa683c",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

@@ -1,0 +1,11 @@
+# Connected contained-point clearance, first batch
+
+Verified emitted Float32 construction: contained node/bone-bank pairs **251 → 185**, surface crossings **2895 → 2833**, exact self-intersections **0**. All 185 banks queried. Maximum depth 1.83264 → 1.39488 mm; squared depth 1.94382e-5 → 1.07717e-5 m². The new batch objective retains the existing connected 490/485/458/408 fit and all hard rows, while assigning 99% soft objective mass to contained-point deficits. It changes construction priorities, not runtime material or force equations.
+
+The selected candidate is `backtrack-001/backtrack-373/pass-002/candidate.npz`, SHA-256 c0bd48c42836f257c9316673f1f3dec56aaa6d2e9888ea1fecf10f6fcf5cf842. Its exact reports and current-parent arithmetic certificate are retained. The full-amplitude proposal produced93 self-intersections and remains a failed trial. The first projected trial also produced93; only the second, exact-self-free trial is selected. Surface pair identities changed (163 introduced, 225 removed); the complete net count decreased62. This is not zero clearance.
+
+The old checker against538 reports a cumulative construction edge-gradient failure. The current-parent checker explicitly pins c1e and both matching exact reports, and passes fresh edge rows, fixed037 reference area, current orientation, 237 typed anchors/CSR lineage, unchanged boundary, 1mm step and12mm source bounds. Its construction bound is per increment; no claim of cumulative538-gradient equivalence is made.
+
+All execution was on SSH numi. `continue545.py` refreshes candidate-bound constraints and targets, merges all historical self seeds with new failed-trial witnesses, runs one bounded fit, then the existing exact witness backtracker. It is resumable from the existing state/configuration JSON and does not introduce a runtime or artifact schema. Initial237 typed attachments and provenance remain unchanged.
+
+**Construction only:** accepted physical steps0; native/physical admission false. Skin/fat positive-cell compilation, retained motion and native qualification remain outstanding.45 pre-existing head boundary edges remain declared. No visuals or native GPU runs were performed in this increment.

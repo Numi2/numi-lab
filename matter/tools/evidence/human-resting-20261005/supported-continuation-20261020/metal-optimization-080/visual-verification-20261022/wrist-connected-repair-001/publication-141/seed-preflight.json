@@ -1,0 +1,14 @@
+{
+  "schema": "numi.human.continuation-self-seeds.v1",
+  "status": "PASS_REBUILT_CONSTRUCTION_SEEDS_ONLY",
+  "zero_step_feasible": true,
+  "output_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/seed-refresh-001/merged-self-pair-seeds.npy",
+  "output_pairs_sha256": "a8c3b4a6125c26ded752ac953631de608ea0c58b80cd9525b1c59d04f2f2548b",
+  "merged_unique_pair_count": 23032,
+  "pair_owner_sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+  "candidate_sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939",
+  "source_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/seed-refresh-001/seed-refresh-report.json",
+  "source_report_sha256": "da2de28f08326a63500949411ee6aeb4a423840df324feac01ce1dd54f35a6f2",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}
