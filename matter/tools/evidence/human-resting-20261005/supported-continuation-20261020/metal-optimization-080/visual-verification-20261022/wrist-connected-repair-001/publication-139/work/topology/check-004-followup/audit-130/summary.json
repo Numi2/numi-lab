@@ -1,0 +1,12 @@
+{
+  "candidate_sha256": "c528c1a0f3bb74f6a59430efdd3c9a8f2e9432035cb0aaa4be37bf6d67b1f215",
+  "points": 20889,
+  "faces": 41733,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "exact_PLC_surface_pairs": 102,
+  "complete_surface_audit": true,
+  "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "status": "STOPPED_AT_SURFACE_GATE",
+  "wall_seconds": 7.476540624862537
+}

@@ -1,0 +1,348 @@
+{
+  "members": [
+    {
+      "path": "README.md",
+      "bytes": 2907,
+      "sha256": "bbac94c47266e970e424854ad3aa903ec4b797c1f6a72474ec17075ce13c7712"
+    },
+    {
+      "path": "root-test-receipt.json",
+      "bytes": 3997,
+      "sha256": "4275f107b912836d76f473a270395eeb39a331f3a6c9293d0f9fb3faa49cf085"
+    },
+    {
+      "path": "root-tests.log",
+      "bytes": 99,
+      "sha256": "54e1ac520d9b01492e6d0cd56d71e8120ecfaf007f8bcac8a2a9cb1186b0a4d9"
+    },
+    {
+      "path": "work/prepare_reused_coordinates.py",
+      "bytes": 6648,
+      "sha256": "2af8f9fc898155aa3205ab16cedaac07fedc200d736110413e76db95c08aba70"
+    },
+    {
+      "path": "work/root-baseline-arithmetic/report.json",
+      "bytes": 3451,
+      "sha256": "3c51f2f9b70e4100c9f722249930971a935132126b8437ad86c1c859d3906b88"
+    },
+    {
+      "path": "work/run_candidate_checks.py",
+      "bytes": 8236,
+      "sha256": "087778eca7286a1f342f507a33b153314500d05065d80579e165446e5c16dc3f"
+    },
+    {
+      "path": "work/source-snapshots/35e23e73d9cc38d6f9e45bf60a9d7a711b70b9a9854d614a510faa850f716b9d-run_candidate_checks.py",
+      "bytes": 8200,
+      "sha256": "35e23e73d9cc38d6f9e45bf60a9d7a711b70b9a9854d614a510faa850f716b9d"
+    },
+    {
+      "path": "work/source-snapshots/51e740a020f7066691bd2a385314c91d3269f1a22649e8c4b58347810f5bb8f3-prepare_reused_coordinates.py",
+      "bytes": 5528,
+      "sha256": "51e740a020f7066691bd2a385314c91d3269f1a22649e8c4b58347810f5bb8f3"
+    },
+    {
+      "path": "work/test_prepare_reused_coordinates.py",
+      "bytes": 2125,
+      "sha256": "bd710fc62df7929d1aea520a707635ebad4aace552dda62aead9c617a7ab9bf2"
+    },
+    {
+      "path": "work/test_run_candidate_checks.py",
+      "bytes": 1583,
+      "sha256": "46e9707cda5461055ee0c54bf03d4d231f3685f71b3099e014f63012e324d319"
+    },
+    {
+      "path": "work/topology/check-002-full/audit-130/summary.json",
+      "bytes": 433,
+      "sha256": "3103c1cd460639f019d8352a3025ac70521026494bdd1917e93ddb9c785147b3"
+    },
+    {
+      "path": "work/topology/check-002-full/audit-130/surface-self-pairs.npy",
+      "bytes": 1280,
+      "sha256": "bdb6c42843179110311afa8072dd439f46fb97bc40d8edad4f82908da0e451a0"
+    },
+    {
+      "path": "work/topology/check-002-full/audit-130.log",
+      "bytes": 492,
+      "sha256": "bea30c4b49f4748c115fa364ca5fd4c3508ae95d6423d077cc02549b8cdcbcff"
+    },
+    {
+      "path": "work/topology/check-002-full/report.json",
+      "bytes": 6401,
+      "sha256": "fff60ae39b544a1a4d69130875b3643f983efc929be67b71cda73a688694bc02"
+    },
+    {
+      "path": "work/topology/check-003-filtered/audit-130/summary.json",
+      "bytes": 226896,
+      "sha256": "ae40cc24fdc4282132b91ca5201a18ff17b1ff86170c670b437468ba3f7529a4"
+    },
+    {
+      "path": "work/topology/check-003-filtered/audit-130/surface-self-pairs.npy",
+      "bytes": 128,
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+    },
+    {
+      "path": "work/topology/check-003-filtered/audit-130.log",
+      "bytes": 653,
+      "sha256": "ae002a6813e1bb47980d8a9c471f85bf912a65522669dfb2687f9937ef855073"
+    },
+    {
+      "path": "work/topology/check-003-filtered/audit-159/progress.json",
+      "bytes": 99,
+      "sha256": "e32aeb450bce2e6e9ed03a9f31c73cb104ff2cd14eaba3182d2dc3a9ddb440c1"
+    },
+    {
+      "path": "work/topology/check-003-filtered/audit-159/report.json",
+      "bytes": 236671,
+      "sha256": "d0f2ca650d5287b3d3cbe054175dd2c55e7c60ad54f06ff0459dfdc134a0b1de"
+    },
+    {
+      "path": "work/topology/check-003-filtered/audit-159.log",
+      "bytes": 937,
+      "sha256": "7d15e43629609643ae55f86fd013fbb1720069b9da39061d8ee41bf02ee24d3d"
+    },
+    {
+      "path": "work/topology/check-003-filtered/report.json",
+      "bytes": 6993,
+      "sha256": "58f0a821624644341e2af32acf100e7da60ed2aa08a8baaa9fbe936a132ff4c8"
+    },
+    {
+      "path": "work/topology/check-004-followup/audit-130/summary.json",
+      "bytes": 434,
+      "sha256": "120fdc59b2cf8600ac61c377f53d1388292fd5b1324ff852038bc3681a0ca5be"
+    },
+    {
+      "path": "work/topology/check-004-followup/audit-130/surface-self-pairs.npy",
+      "bytes": 1760,
+      "sha256": "44245f4493e9be90503d463648870e03f21bfcf9ab4324ab6b6631f046590211"
+    },
+    {
+      "path": "work/topology/check-004-followup/audit-130.log",
+      "bytes": 493,
+      "sha256": "7941a6b7842018c6c1aa2fb75587006599eed5c7092d88f6f2dc96bc21fe319b"
+    },
+    {
+      "path": "work/topology/check-004-followup/report.json",
+      "bytes": 7277,
+      "sha256": "c019cce6afb1a24399dbdae0ba454f84b308d953eee77b6570a8b775c88b49fe"
+    },
+    {
+      "path": "work/topology/check-005-filtered/audit-130/summary.json",
+      "bytes": 226896,
+      "sha256": "7d4f953a10f371747e40368bfb4184747693f8c01f91b5df4b0b2be2f453a196"
+    },
+    {
+      "path": "work/topology/check-005-filtered/audit-130/surface-self-pairs.npy",
+      "bytes": 128,
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+    },
+    {
+      "path": "work/topology/check-005-filtered/audit-130.log",
+      "bytes": 653,
+      "sha256": "47d30a53f20474c8a06ff8c9c43ec86c1260448703f2dd8e44740d43b7afe272"
+    },
+    {
+      "path": "work/topology/check-005-filtered/audit-159/progress.json",
+      "bytes": 99,
+      "sha256": "3e310e21d263ebb6da5a7f708d6250fb07a6ed66a769387aebe1323fce9596ed"
+    },
+    {
+      "path": "work/topology/check-005-filtered/audit-159/report.json",
+      "bytes": 235050,
+      "sha256": "6a536b9a869f5909dbc521af9fbb8b5065344b24e2972c410f17c9d0bbd738fd"
+    },
+    {
+      "path": "work/topology/check-005-filtered/audit-159.log",
+      "bytes": 937,
+      "sha256": "996e903ba77f1e7996dc750d651f3961bcd83811ce51851829af9e1b306cd1ae"
+    },
+    {
+      "path": "work/topology/check-005-filtered/report.json",
+      "bytes": 7800,
+      "sha256": "d6c3e56fef5a3aa25b923b8fb48c9b731504908b5ed386608d4ab1f6baf1acfe"
+    },
+    {
+      "path": "work/topology/check-006-followup/audit-130/summary.json",
+      "bytes": 434,
+      "sha256": "7999cf8ab8658cd8da7dcd453c3e7421292c4cce6700e3080cf48658d56346c9"
+    },
+    {
+      "path": "work/topology/check-006-followup/audit-130/surface-self-pairs.npy",
+      "bytes": 1872,
+      "sha256": "9fe8ea0ea319dae7db91b3e5c787b7f9973ae3ca4023e67271ec79c3b791a23f"
+    },
+    {
+      "path": "work/topology/check-006-followup/audit-130.log",
+      "bytes": 493,
+      "sha256": "b8abe2422742147c9807d4d638f262317e80067d1ef26967bfc93c6325e8f72b"
+    },
+    {
+      "path": "work/topology/check-006-followup/report.json",
+      "bytes": 7705,
+      "sha256": "d153f22c1744f629ad5ba2a5a8834394d032299c2b15b37c3fae67dcda770215"
+    },
+    {
+      "path": "work/topology/check-007-arithmetic/bound-exact-construction-receipt.json",
+      "bytes": 7725,
+      "sha256": "2b6dd0310ece3f56588188b58292c3f71c5bf9d900adba4c8f36d6f731ef6c32"
+    },
+    {
+      "path": "work/topology/check-007-arithmetic/report.json",
+      "bytes": 6405,
+      "sha256": "0bdada0638a950615d454be91de732dce5a2d3b715351875791783962ed781cd"
+    },
+    {
+      "path": "work/topology/check-007-filtered/audit-130/summary.json",
+      "bytes": 226896,
+      "sha256": "8a02298c09f69b912fec691b08a3b4c3381351321e5d23ea697b806ea9f3b9ab"
+    },
+    {
+      "path": "work/topology/check-007-filtered/audit-130/surface-self-pairs.npy",
+      "bytes": 128,
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+    },
+    {
+      "path": "work/topology/check-007-filtered/audit-130.log",
+      "bytes": 653,
+      "sha256": "aa164b39a041fb6816d577ab96799d4cce18fc02e95676cfae07da547ede7b21"
+    },
+    {
+      "path": "work/topology/check-007-filtered/audit-159/progress.json",
+      "bytes": 99,
+      "sha256": "9348347bf7457875c776ea000f18ddd96790336b7fc9f3d154ed1c9ebda4f0d3"
+    },
+    {
+      "path": "work/topology/check-007-filtered/audit-159.log",
+      "bytes": 81,
+      "sha256": "dc3187560574e86e46c391eb6af6f2ad9c0f13c5220e14c7589478d771ce3dfa"
+    },
+    {
+      "path": "work/topology/check-007-filtered-rerun/audit-159/progress.json",
+      "bytes": 99,
+      "sha256": "7f505bbb29317c0e93fff50ad1bd35386f3fe730fd83adf33f585dfe6931dfeb"
+    },
+    {
+      "path": "work/topology/check-007-filtered-rerun/audit-159/report.json",
+      "bytes": 234569,
+      "sha256": "38404eae3b620bf24cced157f31a3ceeaa7a8807da1784ebea4b5ad63f9b211d"
+    },
+    {
+      "path": "work/topology/filter_self_safe_batch_542.py",
+      "bytes": 8988,
+      "sha256": "fbce3910007d5f27307d065990fdd907c57b6b406bd89699b3b873b0dbbae318"
+    },
+    {
+      "path": "work/topology/filter_self_safe_followup_543.py",
+      "bytes": 9626,
+      "sha256": "af47e185f71ae22626b3fc20c9597b1678111f9bcf91fe660d183e7e00a348d0"
+    },
+    {
+      "path": "work/topology/filter_self_safe_run006_544.py",
+      "bytes": 9628,
+      "sha256": "e7ef0c70bcdd00d7231ade347a6764ea899021b0d1cfbce88a118559ca863228"
+    },
+    {
+      "path": "work/topology/repair_focused_clearance_541.py",
+      "bytes": 28159,
+      "sha256": "26930be05518834f02724948cffa5ff74719f070a4ac4e4917b0965f42a412aa"
+    },
+    {
+      "path": "work/topology/repair_focused_clearance_followup.py",
+      "bytes": 28940,
+      "sha256": "88536ee1e1297b7249c3f60e02f143937883934d602e10c8e8ddd4a104adb626"
+    },
+    {
+      "path": "work/topology/run-001/candidate.npz",
+      "bytes": 6444302,
+      "sha256": "05b5579ceb51e75aabaadfe9fac096f2067b5daa8b50ac626bc94b0e6fec3187"
+    },
+    {
+      "path": "work/topology/run-001/report.json",
+      "bytes": 38869,
+      "sha256": "634d9aa132e5f4a7bc280135517b15a50446f3cf30d121f7aac77bec93995bee"
+    },
+    {
+      "path": "work/topology/run-002-full/candidate.npz",
+      "bytes": 6444994,
+      "sha256": "8154d8a1215970deba3e08a772feca133d21ff9de142136b7b1958cd75199eca"
+    },
+    {
+      "path": "work/topology/run-002-full/report.json",
+      "bytes": 136289,
+      "sha256": "64b9b4ec0456d1179c692c4dcf130831929ee61cbd222b1e66033787d37f8847"
+    },
+    {
+      "path": "work/topology/run-003-filtered/candidate.npz",
+      "bytes": 6444794,
+      "sha256": "8dd096a2fcb8f9b24571fb4c1ffcab0bd3e1bd1c37537916255bd832e4265e65"
+    },
+    {
+      "path": "work/topology/run-003-filtered/report.json",
+      "bytes": 9066,
+      "sha256": "0d08b44b2d6be386388a148d5533d969c0c7891940ff96dd45bb8ea77117dc4d"
+    },
+    {
+      "path": "work/topology/run-004-followup/candidate.npz",
+      "bytes": 6445646,
+      "sha256": "c528c1a0f3bb74f6a59430efdd3c9a8f2e9432035cb0aaa4be37bf6d67b1f215"
+    },
+    {
+      "path": "work/topology/run-004-followup/report.json",
+      "bytes": 115843,
+      "sha256": "26f7f320c8d7c4a2792844502033b185b5af77c8c243c8061533c95dd89f747e"
+    },
+    {
+      "path": "work/topology/run-005-filtered/candidate.npz",
+      "bytes": 6445399,
+      "sha256": "bd0b103a6c69697e935bf4ab74b2825dec61ccda8487526026337c3456d22c35"
+    },
+    {
+      "path": "work/topology/run-005-filtered/report.json",
+      "bytes": 9356,
+      "sha256": "137c8ba8a664edbb0db0d9bce4083366236f9af33795f7f848c954b01655b653"
+    },
+    {
+      "path": "work/topology/run-006-followup/candidate.npz",
+      "bytes": 6445738,
+      "sha256": "27611365f7816560a883d0ec7ab15ce4c39c606389228001da9f06306d20a87f"
+    },
+    {
+      "path": "work/topology/run-006-followup/report.json",
+      "bytes": 92196,
+      "sha256": "6ed2925fd7c184efd1c94157cdc233b117ec3a2a48a9792c288100baa0b6be03"
+    },
+    {
+      "path": "work/topology/run-007-filtered/candidate.npz",
+      "bytes": 6445499,
+      "sha256": "a1fce94c3dc57b79f16f94b117e7d49e83a0ff7219de73ce6e7abcec17f22dae"
+    },
+    {
+      "path": "work/topology/run-007-filtered/report.json",
+      "bytes": 9290,
+      "sha256": "3832e580b650199b7e3152b5fa5f7846a18c4279f4014fc172293855f02c0db1"
+    },
+    {
+      "path": "work/topology/test_filter_self_safe_batch_542.py",
+      "bytes": 4058,
+      "sha256": "cc82ae1183fc7ce93f6dea0e856598222fba1146c5a7005abfa1c88fa201b42b"
+    },
+    {
+      "path": "work/topology/test_filter_self_safe_followup_543.py",
+      "bytes": 4118,
+      "sha256": "231e0f2cac474537d8059e006aaf8a83c9e9decdd28a82e3fb6d7207bdda0371"
+    },
+    {
+      "path": "work/topology/test_focused_clearance_541.py",
+      "bytes": 5831,
+      "sha256": "bbf14df6d9bd0cc003a4d8f625dc29be1cbb0c4b4ba697d435d888e967987512"
+    },
+    {
+      "path": "work/topology/test_focused_clearance_followup.py",
+      "bytes": 4254,
+      "sha256": "62ae35ec0be0f43835d54acff185b935c39e859478fd4b7b38819cc99e3fb1d0"
+    }
+  ],
+  "base538_sha256": "2f52328e1105dad576717eae872391324a1172ceec3f74f23fae591891078c6e",
+  "selected_candidate_sha256": "a1fce94c3dc57b79f16f94b117e7d49e83a0ff7219de73ce6e7abcec17f22dae",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

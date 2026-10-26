@@ -1,0 +1,5537 @@
+{
+  "accepted_physical_steps": 0,
+  "added_candidate_arrays": [],
+  "area_and_edge_gates": "NOT_RECOMPUTED_BY_THIS_BUILDER",
+  "boundary_edge_set_unchanged": true,
+  "builder_source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/repair_focused_clearance_followup.py",
+  "builder_source_sha256": "88536ee1e1297b7249c3f60e02f143937883934d602e10c8e8ddd4a104adb626",
+  "candidate_edge_count": 136,
+  "candidate_output_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/run-004-followup/candidate.npz",
+  "candidate_output_sha256": "c528c1a0f3bb74f6a59430efdd3c9a8f2e9432035cb0aaa4be37bf6d67b1f215",
+  "changed_candidate_arrays": [
+    "source_O_faces",
+    "refinement_face_parent_face_row",
+    "refinement_face_parent_barycentric",
+    "area_reference_037_source_O_faces",
+    "refinement_face_parent_ancestry_indptr",
+    "refinement_face_parent_ancestry_face_rows"
+  ],
+  "changed_face_rows": [
+    11711,
+    11718,
+    11831,
+    11836,
+    12091,
+    12104,
+    12209,
+    12210,
+    12232,
+    12289,
+    12298,
+    12312,
+    12439,
+    12440,
+    12466,
+    12472,
+    12547,
+    12553,
+    13799,
+    13809,
+    13810,
+    13815,
+    13829,
+    13839,
+    14099,
+    14109,
+    14139,
+    14140,
+    14150,
+    14182,
+    14233,
+    14234,
+    14251,
+    14260,
+    14796,
+    14806,
+    14833,
+    14841,
+    14842,
+    14855,
+    14856,
+    14873,
+    14884,
+    14889,
+    14909,
+    14910,
+    14949,
+    14954,
+    14979,
+    14988,
+    15309,
+    15321,
+    18906,
+    18907,
+    18927,
+    18952,
+    19004,
+    19015,
+    19020,
+    19044,
+    19119,
+    19163,
+    19369,
+    19397,
+    19398,
+    19401,
+    19431,
+    19432,
+    20322,
+    20328,
+    21428,
+    21434,
+    26477,
+    26506,
+    26536,
+    26577,
+    26578,
+    26594,
+    26595,
+    26613,
+    26622,
+    26650,
+    26667,
+    26691,
+    26718,
+    26725,
+    26788,
+    26863,
+    26913,
+    26916,
+    26918,
+    26923,
+    29261,
+    29262,
+    29297,
+    29305,
+    29394,
+    29399,
+    29406,
+    29407,
+    30885,
+    30889,
+    30895,
+    30937,
+    30944,
+    30980,
+    31045,
+    31046,
+    31062,
+    31080,
+    31097,
+    31105,
+    31183,
+    31184,
+    31223,
+    31232,
+    31271,
+    31278,
+    31409,
+    31415,
+    32556,
+    32561,
+    33955,
+    33962,
+    34034,
+    34043,
+    34064,
+    34065,
+    34168,
+    34169,
+    34200,
+    34222,
+    34429,
+    34456,
+    34487,
+    34531,
+    34547,
+    34554,
+    34732,
+    34739,
+    34759,
+    34782,
+    34789,
+    34814,
+    34841,
+    34845,
+    34846,
+    34854,
+    34897,
+    34898,
+    34928,
+    34935
+  ],
+  "coordinates_bitwise_unchanged": true,
+  "declared_edge_one_ring_face_count": 1911,
+  "exact_self_surface_and_185_bank_audits": "NOT_RUN_PENDING_ROOT_SLOT",
+  "focus_body_stable_bone_pairs": [
+    {
+      "body": 43,
+      "exact_pair_count": 349,
+      "stable_bone_id": 16
+    },
+    {
+      "body": 59,
+      "exact_pair_count": 291,
+      "stable_bone_id": 95
+    },
+    {
+      "body": 65,
+      "exact_pair_count": 350,
+      "stable_bone_id": 99
+    },
+    {
+      "body": 109,
+      "exact_pair_count": 502,
+      "stable_bone_id": 114
+    },
+    {
+      "body": 115,
+      "exact_pair_count": 370,
+      "stable_bone_id": 118
+    },
+    {
+      "body": 124,
+      "exact_pair_count": 293,
+      "stable_bone_id": 123
+    }
+  ],
+  "focus_exact_pair_count": 2155,
+  "focus_witness_face_count": 1198,
+  "generation_elapsed_seconds": 1.819023499963805,
+  "geometry_admitted": false,
+  "input_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/run-003-filtered/candidate.npz",
+  "input_candidate_sha256": "8dd096a2fcb8f9b24571fb4c1ffcab0bd3e1bd1c37537916255bd832e4265e65",
+  "input_surface_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-003-filtered/audit-159/report.json",
+  "input_surface_report_sha256": "d0f2ca650d5287b3d3cbe054175dd2c55e7c60ad54f06ff0459dfdc134a0b1de",
+  "matched_037_face_connectivity_synchronized": true,
+  "max_flips_argument": 0,
+  "native_admission": false,
+  "nonmanifold_edges_after": 0,
+  "outside_focus_ancestry_rows_unchanged": true,
+  "outside_focus_faces_bitwise_unchanged": true,
+  "overlap_skips": 60,
+  "owner_402_sha256": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764",
+  "quality_defect_seed_count": 221,
+  "replay_405_sha256": "e995a2f460e60cb62fb24b80af400678757f62a2b0c1b51141bf0ef387993967",
+  "replay_534_sha256": "4559fd425a3300528f49e5211afbd633674910ecaa0d6671408ee0e9d145e504",
+  "schema": "numi.human.focused-clearance-topology-541.v1",
+  "scope_limit": "fixed-coordinate local topology candidate only; full exact and native gates remain pending",
+  "scope_rule": "six exact body/stable-bone banks plus one edge-ring; every flip touches a focus witness or a halo quality defect and both faces remain in scope",
+  "selected_flip_count": 76,
+  "selected_flips": [
+    {
+      "edge": [
+        15970,
+        18888
+      ],
+      "face_rows": [
+        19004,
+        19044
+      ],
+      "immediate_parent_union": [
+        17159,
+        17168
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          18888,
+          20169,
+          20162
+        ],
+        [
+          20169,
+          15970,
+          20162
+        ]
+      ],
+      "old_faces": [
+        [
+          18888,
+          15970,
+          20162
+        ],
+        [
+          15970,
+          18888,
+          20169
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 2.787814999716674,
+          "minimum_area_ratio": 1.174527367458157,
+          "minimum_normal_cosine": 0.886049990465842
+        },
+        "before": {
+          "minimum_angle_deg": 0.7070964536291848,
+          "minimum_area_ratio": 0.3028941381392883,
+          "minimum_normal_cosine": -0.1922061235476251
+        },
+        "deltas": {
+          "area_ratio": 0.8716332293188687,
+          "min_angle_deg": 2.080718546087489,
+          "normal_cosine": 1.078256114013467
+        },
+        "score": [
+          0.8716332293188687,
+          1.078256114013467,
+          2.080718546087489
+        ]
+      },
+      "source_ancestry_union": [
+        8265
+      ],
+      "source_detail": 8265,
+      "source_subface": 8267,
+      "subface_ancestry_union": [
+        8267
+      ]
+    },
+    {
+      "edge": [
+        18019,
+        19218
+      ],
+      "face_rows": [
+        34928,
+        34935
+      ],
+      "immediate_parent_union": [
+        30477,
+        30478
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19218,
+          20779,
+          20778
+        ],
+        [
+          20779,
+          18019,
+          20778
+        ]
+      ],
+      "old_faces": [
+        [
+          19218,
+          18019,
+          20778
+        ],
+        [
+          18019,
+          19218,
+          20779
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 10.450171967679632,
+          "minimum_area_ratio": 11.26719635394729,
+          "minimum_normal_cosine": 0.8574322964097562
+        },
+        "before": {
+          "minimum_angle_deg": 3.056767365119543,
+          "minimum_area_ratio": 12.18611025489386,
+          "minimum_normal_cosine": -0.08481827103728991
+        },
+        "deltas": {
+          "area_ratio": -0.9189139009465705,
+          "min_angle_deg": 7.393404602560089,
+          "normal_cosine": 0.942250567447046
+        },
+        "score": [
+          -0.9189139009465705,
+          0.942250567447046,
+          7.393404602560089
+        ]
+      },
+      "source_ancestry_union": [
+        90122
+      ],
+      "source_detail": 90122,
+      "source_subface": 90130,
+      "subface_ancestry_union": [
+        90130
+      ]
+    },
+    {
+      "edge": [
+        12781,
+        19101
+      ],
+      "face_rows": [
+        26477,
+        26506
+      ],
+      "immediate_parent_union": [
+        23822,
+        23829
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19101,
+          20361,
+          19102
+        ],
+        [
+          20361,
+          12781,
+          19102
+        ]
+      ],
+      "old_faces": [
+        [
+          12781,
+          19102,
+          19101
+        ],
+        [
+          12781,
+          19101,
+          20361
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 6.019404269589789,
+          "minimum_area_ratio": 3.981389811983687,
+          "minimum_normal_cosine": 0.6018145308174521
+        },
+        "before": {
+          "minimum_angle_deg": 3.972584345496295,
+          "minimum_area_ratio": 4.99118853391277,
+          "minimum_normal_cosine": -0.8891366289270782
+        },
+        "deltas": {
+          "area_ratio": -1.0097987219290832,
+          "min_angle_deg": 2.0468199240934943,
+          "normal_cosine": 1.4909511597445304
+        },
+        "score": [
+          -1.0097987219290832,
+          1.4909511597445304,
+          2.0468199240934943
+        ]
+      },
+      "source_ancestry_union": [
+        83785
+      ],
+      "source_detail": 83785,
+      "source_subface": 83793,
+      "subface_ancestry_union": [
+        83793
+      ]
+    },
+    {
+      "edge": [
+        14726,
+        19476
+      ],
+      "face_rows": [
+        14796,
+        14806
+      ],
+      "immediate_parent_union": [
+        13689,
+        13690
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          14726,
+          19991,
+          18729
+        ],
+        [
+          19991,
+          19476,
+          18729
+        ]
+      ],
+      "old_faces": [
+        [
+          14726,
+          19476,
+          18729
+        ],
+        [
+          19476,
+          14726,
+          19991
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 12.055305184442377,
+          "minimum_area_ratio": 1.8213985997636015,
+          "minimum_normal_cosine": 0.6485799725294126
+        },
+        "before": {
+          "minimum_angle_deg": 4.843441153394125,
+          "minimum_area_ratio": 11.159098785051338,
+          "minimum_normal_cosine": -0.026061639520516572
+        },
+        "deltas": {
+          "area_ratio": -9.337700185287737,
+          "min_angle_deg": 7.211864031048251,
+          "normal_cosine": 0.6746416120499291
+        },
+        "score": [
+          -9.337700185287737,
+          0.6746416120499291,
+          7.211864031048251
+        ]
+      },
+      "source_ancestry_union": [
+        6103
+      ],
+      "source_detail": 6103,
+      "source_subface": 6103,
+      "subface_ancestry_union": [
+        6103
+      ]
+    },
+    {
+      "edge": [
+        17064,
+        20146
+      ],
+      "face_rows": [
+        18906,
+        18907
+      ],
+      "immediate_parent_union": [
+        -1,
+        17125
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          17064,
+          19370,
+          19375
+        ],
+        [
+          19370,
+          20146,
+          19375
+        ]
+      ],
+      "old_faces": [
+        [
+          19375,
+          17064,
+          20146
+        ],
+        [
+          20146,
+          17064,
+          19370
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 8.809503085046124,
+          "minimum_area_ratio": 7.57150237904448,
+          "minimum_normal_cosine": 0.7397334492693618
+        },
+        "before": {
+          "minimum_angle_deg": 8.129840040883764,
+          "minimum_area_ratio": 21.47881560435423,
+          "minimum_normal_cosine": -0.9982501745289291
+        },
+        "deltas": {
+          "area_ratio": -13.907313225309752,
+          "min_angle_deg": 0.6796630441623606,
+          "normal_cosine": 1.7379836237982909
+        },
+        "score": [
+          -13.907313225309752,
+          1.7379836237982909,
+          0.6796630441623606
+        ]
+      },
+      "source_ancestry_union": [
+        8265
+      ],
+      "source_detail": 8265,
+      "source_subface": 8267,
+      "subface_ancestry_union": [
+        8267
+      ]
+    },
+    {
+      "edge": [
+        12591,
+        19063
+      ],
+      "face_rows": [
+        19369,
+        19401
+      ],
+      "immediate_parent_union": [
+        -1,
+        17339
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19063,
+          19064,
+          20204
+        ],
+        [
+          19064,
+          12591,
+          20204
+        ]
+      ],
+      "old_faces": [
+        [
+          19063,
+          12591,
+          20204
+        ],
+        [
+          19064,
+          12591,
+          19063
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 28.87544541525415,
+          "minimum_area_ratio": 5.533483278726494,
+          "minimum_normal_cosine": 0.5811961727980586
+        },
+        "before": {
+          "minimum_angle_deg": 13.024651749004203,
+          "minimum_area_ratio": 13.775844457183178,
+          "minimum_normal_cosine": 0.5693507598298043
+        },
+        "deltas": {
+          "area_ratio": -8.242361178456683,
+          "min_angle_deg": 15.850793666249945,
+          "normal_cosine": 0.011845412968254254
+        },
+        "score": [
+          -8.242361178456683,
+          0.011845412968254254,
+          15.850793666249945
+        ]
+      },
+      "source_ancestry_union": [
+        8269
+      ],
+      "source_detail": 8269,
+      "source_subface": 8271,
+      "subface_ancestry_union": [
+        8271
+      ]
+    },
+    {
+      "edge": [
+        17968,
+        20709
+      ],
+      "face_rows": [
+        34200,
+        34222
+      ],
+      "immediate_parent_union": [
+        -1,
+        30063
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          17968,
+          19436,
+          19429
+        ],
+        [
+          19436,
+          20709,
+          19429
+        ]
+      ],
+      "old_faces": [
+        [
+          17968,
+          20709,
+          19429
+        ],
+        [
+          17968,
+          19436,
+          20709
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 7.559070734412109,
+          "minimum_area_ratio": 6.877851844785064,
+          "minimum_normal_cosine": 0.9080464733579655
+        },
+        "before": {
+          "minimum_angle_deg": 7.946240795871355,
+          "minimum_area_ratio": 19.071689333348154,
+          "minimum_normal_cosine": -0.8024634069652343
+        },
+        "deltas": {
+          "area_ratio": -12.19383748856309,
+          "min_angle_deg": -0.38717006145924593,
+          "normal_cosine": 1.7105098803231997
+        },
+        "score": [
+          -12.19383748856309,
+          1.7105098803231997,
+          -0.38717006145924593
+        ]
+      },
+      "source_ancestry_union": [
+        90091
+      ],
+      "source_detail": 90091,
+      "source_subface": 90099,
+      "subface_ancestry_union": [
+        90099
+      ]
+    },
+    {
+      "edge": [
+        15073,
+        19555
+      ],
+      "face_rows": [
+        34034,
+        34043
+      ],
+      "immediate_parent_union": [
+        30015,
+        30016
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          15073,
+          19191,
+          20677
+        ],
+        [
+          19191,
+          19555,
+          20677
+        ]
+      ],
+      "old_faces": [
+        [
+          15073,
+          19555,
+          20677
+        ],
+        [
+          19555,
+          15073,
+          19191
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 5.658461289596518,
+          "minimum_area_ratio": 89.30806936994006,
+          "minimum_normal_cosine": 0.9833851774871448
+        },
+        "before": {
+          "minimum_angle_deg": 5.958453044975883,
+          "minimum_area_ratio": 43.41831283897228,
+          "minimum_normal_cosine": 0.985910794473043
+        },
+        "deltas": {
+          "area_ratio": 45.88975653096778,
+          "min_angle_deg": -0.29999175537936473,
+          "normal_cosine": -0.002525616985898149
+        },
+        "score": [
+          45.88975653096778,
+          -0.002525616985898149,
+          -0.29999175537936473
+        ]
+      },
+      "source_ancestry_union": [
+        90091
+      ],
+      "source_detail": 90091,
+      "source_subface": 90099,
+      "subface_ancestry_union": [
+        90099
+      ]
+    },
+    {
+      "edge": [
+        17410,
+        18774
+      ],
+      "face_rows": [
+        26650,
+        26667
+      ],
+      "immediate_parent_union": [
+        23872,
+        23877
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          17410,
+          20386,
+          20383
+        ],
+        [
+          20386,
+          18774,
+          20383
+        ]
+      ],
+      "old_faces": [
+        [
+          17410,
+          18774,
+          20383
+        ],
+        [
+          20386,
+          18774,
+          17410
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 8.096146627981588,
+          "minimum_area_ratio": 29.000997138643505,
+          "minimum_normal_cosine": 0.25830715665366955
+        },
+        "before": {
+          "minimum_angle_deg": 1.3439273937817025,
+          "minimum_area_ratio": 14.14293228551887,
+          "minimum_normal_cosine": 0.1342313700148123
+        },
+        "deltas": {
+          "area_ratio": 14.858064853124635,
+          "min_angle_deg": 6.7522192341998855,
+          "normal_cosine": 0.12407578663885724
+        },
+        "score": [
+          14.858064853124635,
+          0.12407578663885724,
+          6.7522192341998855
+        ]
+      },
+      "source_ancestry_union": [
+        83785
+      ],
+      "source_detail": 83785,
+      "source_subface": 83793,
+      "subface_ancestry_union": [
+        83793
+      ]
+    },
+    {
+      "edge": [
+        17174,
+        19585
+      ],
+      "face_rows": [
+        20322,
+        20328
+      ],
+      "immediate_parent_union": [
+        -1,
+        18110
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19585,
+          18672,
+          20248
+        ],
+        [
+          18672,
+          17174,
+          20248
+        ]
+      ],
+      "old_faces": [
+        [
+          19585,
+          17174,
+          20248
+        ],
+        [
+          17174,
+          19585,
+          18672
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 7.44246945476649,
+          "minimum_area_ratio": 0.18582963177385745,
+          "minimum_normal_cosine": 0.2747847440772384
+        },
+        "before": {
+          "minimum_angle_deg": 5.0529878468872775,
+          "minimum_area_ratio": 0.2896379509743601,
+          "minimum_normal_cosine": 0.1493949242336652
+        },
+        "deltas": {
+          "area_ratio": -0.10380831920050268,
+          "min_angle_deg": 2.3894816078792127,
+          "normal_cosine": 0.1253898198435732
+        },
+        "score": [
+          -0.10380831920050268,
+          0.1253898198435732,
+          2.3894816078792127
+        ]
+      },
+      "source_ancestry_union": [
+        9002
+      ],
+      "source_detail": 9002,
+      "source_subface": 9004,
+      "subface_ancestry_union": [
+        9004
+      ]
+    },
+    {
+      "edge": [
+        17955,
+        19442
+      ],
+      "face_rows": [
+        33955,
+        33962
+      ],
+      "immediate_parent_union": [
+        -1,
+        29988
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19442,
+          20666,
+          19438
+        ],
+        [
+          20666,
+          17955,
+          19438
+        ]
+      ],
+      "old_faces": [
+        [
+          19442,
+          17955,
+          19438
+        ],
+        [
+          17955,
+          19442,
+          20666
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 7.763406129930102,
+          "minimum_area_ratio": 21.82182357014207,
+          "minimum_normal_cosine": 0.7924060076706696
+        },
+        "before": {
+          "minimum_angle_deg": 1.0082316857873488,
+          "minimum_area_ratio": 2.111885754833759,
+          "minimum_normal_cosine": 0.5327131515426301
+        },
+        "deltas": {
+          "area_ratio": 19.709937815308308,
+          "min_angle_deg": 6.755174444142753,
+          "normal_cosine": 0.2596928561280395
+        },
+        "score": [
+          19.709937815308308,
+          0.2596928561280395,
+          6.755174444142753
+        ]
+      },
+      "source_ancestry_union": [
+        90091
+      ],
+      "source_detail": 90091,
+      "source_subface": 90099,
+      "subface_ancestry_union": [
+        90099
+      ]
+    },
+    {
+      "edge": [
+        15344,
+        19597
+      ],
+      "face_rows": [
+        12289,
+        12298
+      ],
+      "immediate_parent_union": [
+        -1,
+        11805
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          15344,
+          19847,
+          19842
+        ],
+        [
+          19847,
+          19597,
+          19842
+        ]
+      ],
+      "old_faces": [
+        [
+          15344,
+          19597,
+          19842
+        ],
+        [
+          15344,
+          19847,
+          19597
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 13.971299535338789,
+          "minimum_area_ratio": 12.820843447481623,
+          "minimum_normal_cosine": 0.01653278445571854
+        },
+        "before": {
+          "minimum_angle_deg": 9.171577516628155,
+          "minimum_area_ratio": 11.799016936360175,
+          "minimum_normal_cosine": 0.22132186831041115
+        },
+        "deltas": {
+          "area_ratio": 1.0218265111214482,
+          "min_angle_deg": 4.799722018710634,
+          "normal_cosine": -0.2047890838546926
+        },
+        "score": [
+          1.0218265111214482,
+          -0.2047890838546926,
+          4.799722018710634
+        ]
+      },
+      "source_ancestry_union": [
+        5135
+      ],
+      "source_detail": 5135,
+      "source_subface": 5135,
+      "subface_ancestry_union": [
+        5135
+      ]
+    },
+    {
+      "edge": [
+        17789,
+        18518
+      ],
+      "face_rows": [
+        31080,
+        31105
+      ],
+      "immediate_parent_union": [
+        27655,
+        27660
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          17789,
+          20542,
+          20537
+        ],
+        [
+          20542,
+          18518,
+          20537
+        ]
+      ],
+      "old_faces": [
+        [
+          17789,
+          18518,
+          20537
+        ],
+        [
+          18518,
+          17789,
+          20542
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 23.416711780572367,
+          "minimum_area_ratio": 15.778860565911597,
+          "minimum_normal_cosine": 0.4090575400132948
+        },
+        "before": {
+          "minimum_angle_deg": 12.279532519302606,
+          "minimum_area_ratio": 15.365768771560552,
+          "minimum_normal_cosine": 0.052201301359393895
+        },
+        "deltas": {
+          "area_ratio": 0.41309179435104504,
+          "min_angle_deg": 11.137179261269761,
+          "normal_cosine": 0.3568562386539009
+        },
+        "score": [
+          0.41309179435104504,
+          0.3568562386539009,
+          11.137179261269761
+        ]
+      },
+      "source_ancestry_union": [
+        88498
+      ],
+      "source_detail": 88498,
+      "source_subface": 88506,
+      "subface_ancestry_union": [
+        88506
+      ]
+    },
+    {
+      "edge": [
+        17619,
+        20463
+      ],
+      "face_rows": [
+        29261,
+        29262
+      ],
+      "immediate_parent_union": [
+        -1,
+        26154
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          17619,
+          20462,
+          19534
+        ],
+        [
+          20462,
+          20463,
+          19534
+        ]
+      ],
+      "old_faces": [
+        [
+          19534,
+          17619,
+          20463
+        ],
+        [
+          20463,
+          17619,
+          20462
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 8.512274444913807,
+          "minimum_area_ratio": 13.363884943665997,
+          "minimum_normal_cosine": 0.8681115639419609
+        },
+        "before": {
+          "minimum_angle_deg": 6.124914158482314,
+          "minimum_area_ratio": 13.262862957024751,
+          "minimum_normal_cosine": 0.46774809596460837
+        },
+        "deltas": {
+          "area_ratio": 0.10102198664124629,
+          "min_angle_deg": 2.387360286431493,
+          "normal_cosine": 0.4003634679773525
+        },
+        "score": [
+          0.10102198664124629,
+          0.4003634679773525,
+          2.387360286431493
+        ]
+      },
+      "source_ancestry_union": [
+        87944
+      ],
+      "source_detail": 87944,
+      "source_subface": 87952,
+      "subface_ancestry_union": [
+        87952
+      ]
+    },
+    {
+      "edge": [
+        18487,
+        19371
+      ],
+      "face_rows": [
+        18927,
+        18952
+      ],
+      "immediate_parent_union": [
+        -1,
+        17129
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19371,
+          20155,
+          20150
+        ],
+        [
+          20155,
+          18487,
+          20150
+        ]
+      ],
+      "old_faces": [
+        [
+          18487,
+          20150,
+          19371
+        ],
+        [
+          20155,
+          18487,
+          19371
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 7.2749040605505835,
+          "minimum_area_ratio": 0.6827046020871395,
+          "minimum_normal_cosine": 0.859062253549429
+        },
+        "before": {
+          "minimum_angle_deg": 2.4945720957395894,
+          "minimum_area_ratio": 1.0714458160633196,
+          "minimum_normal_cosine": 0.6717633552889452
+        },
+        "deltas": {
+          "area_ratio": -0.3887412139761801,
+          "min_angle_deg": 4.780331964810994,
+          "normal_cosine": 0.18729889826048385
+        },
+        "score": [
+          -0.3887412139761801,
+          0.18729889826048385,
+          4.780331964810994
+        ]
+      },
+      "source_ancestry_union": [
+        8265
+      ],
+      "source_detail": 8265,
+      "source_subface": 8267,
+      "subface_ancestry_union": [
+        8267
+      ]
+    },
+    {
+      "edge": [
+        20377,
+        20378
+      ],
+      "face_rows": [
+        26613,
+        26622
+      ],
+      "immediate_parent_union": [
+        -1
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          20378,
+          19707,
+          15984
+        ],
+        [
+          19707,
+          20377,
+          15984
+        ]
+      ],
+      "old_faces": [
+        [
+          15984,
+          20378,
+          20377
+        ],
+        [
+          20378,
+          19707,
+          20377
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 3.5543932148996538,
+          "minimum_area_ratio": 18.05820440189976,
+          "minimum_normal_cosine": 0.3186421154734274
+        },
+        "before": {
+          "minimum_angle_deg": 3.4717309039907343,
+          "minimum_area_ratio": 19.651917914440634,
+          "minimum_normal_cosine": 0.2042893038377749
+        },
+        "deltas": {
+          "area_ratio": -1.593713512540873,
+          "min_angle_deg": 0.08266231090891951,
+          "normal_cosine": 0.1143528116356525
+        },
+        "score": [
+          -1.593713512540873,
+          0.1143528116356525,
+          0.08266231090891951
+        ]
+      },
+      "source_ancestry_union": [
+        83785
+      ],
+      "source_detail": 83785,
+      "source_subface": 83793,
+      "subface_ancestry_union": [
+        83793
+      ]
+    },
+    {
+      "edge": [
+        15377,
+        19909
+      ],
+      "face_rows": [
+        13810,
+        13815
+      ],
+      "immediate_parent_union": [
+        -1,
+        13046
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19909,
+          19605,
+          19913
+        ],
+        [
+          19605,
+          15377,
+          19913
+        ]
+      ],
+      "old_faces": [
+        [
+          15377,
+          19913,
+          19909
+        ],
+        [
+          19605,
+          15377,
+          19909
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 14.63121573965309,
+          "minimum_area_ratio": 17.859731743423435,
+          "minimum_normal_cosine": 0.06168418279370381
+        },
+        "before": {
+          "minimum_angle_deg": 14.618048329483011,
+          "minimum_area_ratio": 29.490122079361115,
+          "minimum_normal_cosine": -0.680033478165654
+        },
+        "deltas": {
+          "area_ratio": -11.63039033593768,
+          "min_angle_deg": 0.013167410170078497,
+          "normal_cosine": 0.7417176609593578
+        },
+        "score": [
+          -11.63039033593768,
+          0.7417176609593578,
+          0.013167410170078497
+        ]
+      },
+      "source_ancestry_union": [
+        5529
+      ],
+      "source_detail": 5529,
+      "source_subface": 5529,
+      "subface_ancestry_union": [
+        5529
+      ]
+    },
+    {
+      "edge": [
+        17408,
+        20373
+      ],
+      "face_rows": [
+        26594,
+        26595
+      ],
+      "immediate_parent_union": [
+        23860
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          17408,
+          18901,
+          19390
+        ],
+        [
+          18901,
+          20373,
+          19390
+        ]
+      ],
+      "old_faces": [
+        [
+          19390,
+          17408,
+          20373
+        ],
+        [
+          17408,
+          18901,
+          20373
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 3.1353069508369966,
+          "minimum_area_ratio": 23.929434698018262,
+          "minimum_normal_cosine": 0.6544378695104468
+        },
+        "before": {
+          "minimum_angle_deg": 2.1338260934446827,
+          "minimum_area_ratio": 15.901502384548824,
+          "minimum_normal_cosine": 0.5995089877593552
+        },
+        "deltas": {
+          "area_ratio": 8.027932313469439,
+          "min_angle_deg": 1.001480857392314,
+          "normal_cosine": 0.05492888175109156
+        },
+        "score": [
+          8.027932313469439,
+          0.05492888175109156,
+          1.001480857392314
+        ]
+      },
+      "source_ancestry_union": [
+        83785
+      ],
+      "source_detail": 83785,
+      "source_subface": 83793,
+      "subface_ancestry_union": [
+        83793
+      ]
+    },
+    {
+      "edge": [
+        15919,
+        18866
+      ],
+      "face_rows": [
+        14833,
+        14873
+      ],
+      "immediate_parent_union": [
+        13697,
+        13706
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          18866,
+          20004,
+          19997
+        ],
+        [
+          20004,
+          15919,
+          19997
+        ]
+      ],
+      "old_faces": [
+        [
+          18866,
+          15919,
+          19997
+        ],
+        [
+          15919,
+          18866,
+          20004
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 5.772222112207044,
+          "minimum_area_ratio": 11.323809632228391,
+          "minimum_normal_cosine": 0.7692676749656899
+        },
+        "before": {
+          "minimum_angle_deg": 2.9247935192753363,
+          "minimum_area_ratio": 4.573500315707627,
+          "minimum_normal_cosine": 0.304405781728528
+        },
+        "deltas": {
+          "area_ratio": 6.750309316520764,
+          "min_angle_deg": 2.8474285929317076,
+          "normal_cosine": 0.4648618932371619
+        },
+        "score": [
+          6.750309316520764,
+          0.4648618932371619,
+          2.8474285929317076
+        ]
+      },
+      "source_ancestry_union": [
+        6103
+      ],
+      "source_detail": 6103,
+      "source_subface": 6103,
+      "subface_ancestry_union": [
+        6103
+      ]
+    },
+    {
+      "edge": [
+        14452,
+        19202
+      ],
+      "face_rows": [
+        34487,
+        34547
+      ],
+      "immediate_parent_union": [
+        30232,
+        30253
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19202,
+          20742,
+          19446
+        ],
+        [
+          20742,
+          14452,
+          19446
+        ]
+      ],
+      "old_faces": [
+        [
+          14452,
+          19446,
+          19202
+        ],
+        [
+          14452,
+          19202,
+          20742
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 17.57452379279061,
+          "minimum_area_ratio": 13.77883717420995,
+          "minimum_normal_cosine": 0.9953251940850565
+        },
+        "before": {
+          "minimum_angle_deg": 2.5450029936473473,
+          "minimum_area_ratio": 9.57081588169276,
+          "minimum_normal_cosine": 0.8693090017530355
+        },
+        "deltas": {
+          "area_ratio": 4.208021292517191,
+          "min_angle_deg": 15.029520799143263,
+          "normal_cosine": 0.126016192332021
+        },
+        "score": [
+          4.208021292517191,
+          0.126016192332021,
+          15.029520799143263
+        ]
+      },
+      "source_ancestry_union": [
+        90117
+      ],
+      "source_detail": 90117,
+      "source_subface": 90125,
+      "subface_ancestry_union": [
+        90125
+      ]
+    },
+    {
+      "edge": [
+        18008,
+        18824
+      ],
+      "face_rows": [
+        34732,
+        34739
+      ],
+      "immediate_parent_union": [
+        30417,
+        30418
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          18824,
+          20747,
+          20746
+        ],
+        [
+          20747,
+          18008,
+          20746
+        ]
+      ],
+      "old_faces": [
+        [
+          18824,
+          18008,
+          20746
+        ],
+        [
+          18008,
+          18824,
+          20747
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 8.51436257554833,
+          "minimum_area_ratio": 10.255492058103526,
+          "minimum_normal_cosine": 0.8928369826883027
+        },
+        "before": {
+          "minimum_angle_deg": 1.8785357862217045,
+          "minimum_area_ratio": 6.950553484743653,
+          "minimum_normal_cosine": 0.8625814654296534
+        },
+        "deltas": {
+          "area_ratio": 3.3049385733598724,
+          "min_angle_deg": 6.635826789326625,
+          "normal_cosine": 0.030255517258649278
+        },
+        "score": [
+          3.3049385733598724,
+          0.030255517258649278,
+          6.635826789326625
+        ]
+      },
+      "source_ancestry_union": [
+        90122
+      ],
+      "source_detail": 90122,
+      "source_subface": 90130,
+      "subface_ancestry_union": [
+        90130
+      ]
+    },
+    {
+      "edge": [
+        16791,
+        20029
+      ],
+      "face_rows": [
+        15309,
+        15321
+      ],
+      "immediate_parent_union": [
+        -1,
+        14032
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          20029,
+          20031,
+          19346
+        ],
+        [
+          20031,
+          16791,
+          19346
+        ]
+      ],
+      "old_faces": [
+        [
+          16791,
+          19346,
+          20029
+        ],
+        [
+          20031,
+          16791,
+          20029
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 2.682126047618263,
+          "minimum_area_ratio": 1.1765541979666059,
+          "minimum_normal_cosine": 0.8009094001451673
+        },
+        "before": {
+          "minimum_angle_deg": 0.7208839051804484,
+          "minimum_area_ratio": 0.6188001320838445,
+          "minimum_normal_cosine": 0.2878252079932811
+        },
+        "deltas": {
+          "area_ratio": 0.5577540658827613,
+          "min_angle_deg": 1.9612421424378144,
+          "normal_cosine": 0.5130841921518863
+        },
+        "score": [
+          0.5577540658827613,
+          0.5130841921518863,
+          1.9612421424378144
+        ]
+      },
+      "source_ancestry_union": [
+        6135
+      ],
+      "source_detail": 6135,
+      "source_subface": 6135,
+      "subface_ancestry_union": [
+        6135
+      ]
+    },
+    {
+      "edge": [
+        17414,
+        19114
+      ],
+      "face_rows": [
+        26718,
+        26725
+      ],
+      "immediate_parent_union": [
+        23899,
+        23900
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19114,
+          20394,
+          20393
+        ],
+        [
+          20394,
+          17414,
+          20393
+        ]
+      ],
+      "old_faces": [
+        [
+          19114,
+          17414,
+          20393
+        ],
+        [
+          17414,
+          19114,
+          20394
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 11.148837607609329,
+          "minimum_area_ratio": 1.9556059144801154,
+          "minimum_normal_cosine": 0.7795740053926187
+        },
+        "before": {
+          "minimum_angle_deg": 3.3864267872256355,
+          "minimum_area_ratio": 1.8016816399725517,
+          "minimum_normal_cosine": 0.6226394912217391
+        },
+        "deltas": {
+          "area_ratio": 0.15392427450756374,
+          "min_angle_deg": 7.762410820383693,
+          "normal_cosine": 0.15693451417087956
+        },
+        "score": [
+          0.15392427450756374,
+          0.15693451417087956,
+          7.762410820383693
+        ]
+      },
+      "source_ancestry_union": [
+        83785
+      ],
+      "source_detail": 83785,
+      "source_subface": 83793,
+      "subface_ancestry_union": [
+        83793
+      ]
+    },
+    {
+      "edge": [
+        15020,
+        19538
+      ],
+      "face_rows": [
+        30889,
+        30980
+      ],
+      "immediate_parent_union": [
+        -1,
+        27587
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19538,
+          20523,
+          20508
+        ],
+        [
+          20523,
+          15020,
+          20508
+        ]
+      ],
+      "old_faces": [
+        [
+          19538,
+          15020,
+          20508
+        ],
+        [
+          20523,
+          15020,
+          19538
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 18.61943521150349,
+          "minimum_area_ratio": 5.107320842885931,
+          "minimum_normal_cosine": 0.45249669283692734
+        },
+        "before": {
+          "minimum_angle_deg": 6.94315991999658,
+          "minimum_area_ratio": 5.429470284424008,
+          "minimum_normal_cosine": 0.4253821651999446
+        },
+        "deltas": {
+          "area_ratio": -0.3221494415380768,
+          "min_angle_deg": 11.67627529150691,
+          "normal_cosine": 0.027114527636982744
+        },
+        "score": [
+          -0.3221494415380768,
+          0.027114527636982744,
+          11.67627529150691
+        ]
+      },
+      "source_ancestry_union": [
+        88498
+      ],
+      "source_detail": 88498,
+      "source_subface": 88506,
+      "subface_ancestry_union": [
+        88506
+      ]
+    },
+    {
+      "edge": [
+        17795,
+        20553
+      ],
+      "face_rows": [
+        31183,
+        31184
+      ],
+      "immediate_parent_union": [
+        -1,
+        27690
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          17795,
+          20556,
+          19410
+        ],
+        [
+          20556,
+          20553,
+          19410
+        ]
+      ],
+      "old_faces": [
+        [
+          19410,
+          17795,
+          20553
+        ],
+        [
+          17795,
+          20556,
+          20553
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 23.904151557148484,
+          "minimum_area_ratio": 2.4212322750583204,
+          "minimum_normal_cosine": 0.4917643551239589
+        },
+        "before": {
+          "minimum_angle_deg": 4.504571310011447,
+          "minimum_area_ratio": 2.8043231897444745,
+          "minimum_normal_cosine": 0.3765894540972452
+        },
+        "deltas": {
+          "area_ratio": -0.3830909146861541,
+          "min_angle_deg": 19.399580247137038,
+          "normal_cosine": 0.11517490102671368
+        },
+        "score": [
+          -0.3830909146861541,
+          0.11517490102671368,
+          19.399580247137038
+        ]
+      },
+      "source_ancestry_union": [
+        88498
+      ],
+      "source_detail": 88498,
+      "source_subface": 88506,
+      "subface_ancestry_union": [
+        88506
+      ]
+    },
+    {
+      "edge": [
+        14367,
+        20531
+      ],
+      "face_rows": [
+        31045,
+        31046
+      ],
+      "immediate_parent_union": [
+        27649
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          14367,
+          19407,
+          18807
+        ],
+        [
+          19407,
+          20531,
+          18807
+        ]
+      ],
+      "old_faces": [
+        [
+          18807,
+          14367,
+          20531
+        ],
+        [
+          14367,
+          19407,
+          20531
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 7.871059037114791,
+          "minimum_area_ratio": 1.3724444354024041,
+          "minimum_normal_cosine": 0.7390165280175389
+        },
+        "before": {
+          "minimum_angle_deg": 1.3353503627061767,
+          "minimum_area_ratio": 3.7055776032895835,
+          "minimum_normal_cosine": 0.23837599887860678
+        },
+        "deltas": {
+          "area_ratio": -2.3331331678871794,
+          "min_angle_deg": 6.535708674408614,
+          "normal_cosine": 0.5006405291389322
+        },
+        "score": [
+          -2.3331331678871794,
+          0.5006405291389322,
+          6.535708674408614
+        ]
+      },
+      "source_ancestry_union": [
+        88498
+      ],
+      "source_detail": 88498,
+      "source_subface": 88506,
+      "subface_ancestry_union": [
+        88506
+      ]
+    },
+    {
+      "edge": [
+        10555,
+        20016
+      ],
+      "face_rows": [
+        14949,
+        14954
+      ],
+      "immediate_parent_union": [
+        13729
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          20016,
+          18732,
+          18730
+        ],
+        [
+          18732,
+          10555,
+          18730
+        ]
+      ],
+      "old_faces": [
+        [
+          10555,
+          18730,
+          20016
+        ],
+        [
+          18732,
+          10555,
+          20016
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 7.511537152152685,
+          "minimum_area_ratio": 28.654273584218558,
+          "minimum_normal_cosine": 0.5652603002112558
+        },
+        "before": {
+          "minimum_angle_deg": 5.629274295334151,
+          "minimum_area_ratio": 32.35513568632554,
+          "minimum_normal_cosine": 0.593449649102788
+        },
+        "deltas": {
+          "area_ratio": -3.7008621021069814,
+          "min_angle_deg": 1.8822628568185342,
+          "normal_cosine": -0.02818934889153213
+        },
+        "score": [
+          -3.7008621021069814,
+          -0.02818934889153213,
+          1.8822628568185342
+        ]
+      },
+      "source_ancestry_union": [
+        6103
+      ],
+      "source_detail": 6103,
+      "source_subface": 6103,
+      "subface_ancestry_union": [
+        6103
+      ]
+    },
+    {
+      "edge": [
+        8953,
+        18453
+      ],
+      "face_rows": [
+        12091,
+        12104
+      ],
+      "immediate_parent_union": [
+        11738,
+        11743
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          18453,
+          18451,
+          18450
+        ],
+        [
+          18451,
+          8953,
+          18450
+        ]
+      ],
+      "old_faces": [
+        [
+          18453,
+          8953,
+          18450
+        ],
+        [
+          8953,
+          18453,
+          18451
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 14.172535764597818,
+          "minimum_area_ratio": 15.216664740100766,
+          "minimum_normal_cosine": 0.595938637264848
+        },
+        "before": {
+          "minimum_angle_deg": 7.912000859401315,
+          "minimum_area_ratio": 25.96395073697085,
+          "minimum_normal_cosine": 0.3148766253781244
+        },
+        "deltas": {
+          "area_ratio": -10.747285996870085,
+          "min_angle_deg": 6.2605349051965025,
+          "normal_cosine": 0.2810620118867236
+        },
+        "score": [
+          -10.747285996870085,
+          0.2810620118867236,
+          6.2605349051965025
+        ]
+      },
+      "source_ancestry_union": [
+        5135
+      ],
+      "source_detail": 5135,
+      "source_subface": 5135,
+      "subface_ancestry_union": [
+        5135
+      ]
+    },
+    {
+      "edge": [
+        15397,
+        19616
+      ],
+      "face_rows": [
+        14979,
+        14988
+      ],
+      "immediate_parent_union": [
+        13737,
+        13738
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          15397,
+          20022,
+          20021
+        ],
+        [
+          20022,
+          19616,
+          20021
+        ]
+      ],
+      "old_faces": [
+        [
+          15397,
+          19616,
+          20021
+        ],
+        [
+          19616,
+          15397,
+          20022
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 2.699693155733563,
+          "minimum_area_ratio": 13.531025212484717,
+          "minimum_normal_cosine": 0.3737067028074273
+        },
+        "before": {
+          "minimum_angle_deg": 2.3496100708633008,
+          "minimum_area_ratio": 7.731474543464874,
+          "minimum_normal_cosine": 0.36946879033109986
+        },
+        "deltas": {
+          "area_ratio": 5.799550669019843,
+          "min_angle_deg": 0.3500830848702621,
+          "normal_cosine": 0.004237912476327432
+        },
+        "score": [
+          5.799550669019843,
+          0.004237912476327432,
+          0.3500830848702621
+        ]
+      },
+      "source_ancestry_union": [
+        6103
+      ],
+      "source_detail": 6103,
+      "source_subface": 6103,
+      "subface_ancestry_union": [
+        6103
+      ]
+    },
+    {
+      "edge": [
+        19137,
+        20488
+      ],
+      "face_rows": [
+        29406,
+        29407
+      ],
+      "immediate_parent_union": [
+        26193
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19137,
+          12939,
+          19649
+        ],
+        [
+          12939,
+          20488,
+          19649
+        ]
+      ],
+      "old_faces": [
+        [
+          20488,
+          19649,
+          19137
+        ],
+        [
+          19137,
+          12939,
+          20488
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 8.537809004189803,
+          "minimum_area_ratio": 7.335168701077271,
+          "minimum_normal_cosine": 0.09700467407338913
+        },
+        "before": {
+          "minimum_angle_deg": 8.601716069566397,
+          "minimum_area_ratio": 5.440429674615643,
+          "minimum_normal_cosine": 0.7550152754097686
+        },
+        "deltas": {
+          "area_ratio": 1.894739026461628,
+          "min_angle_deg": -0.06390706537659341,
+          "normal_cosine": -0.6580106013363796
+        },
+        "score": [
+          1.894739026461628,
+          -0.6580106013363796,
+          -0.06390706537659341
+        ]
+      },
+      "source_ancestry_union": [
+        87944
+      ],
+      "source_detail": 87944,
+      "source_subface": 87952,
+      "subface_ancestry_union": [
+        87952
+      ]
+    },
+    {
+      "edge": [
+        14979,
+        20486
+      ],
+      "face_rows": [
+        29394,
+        29399
+      ],
+      "immediate_parent_union": [
+        -1,
+        26191
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          20486,
+          19533,
+          20461
+        ],
+        [
+          19533,
+          14979,
+          20461
+        ]
+      ],
+      "old_faces": [
+        [
+          20486,
+          14979,
+          20461
+        ],
+        [
+          19533,
+          14979,
+          20486
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 2.069959768697565,
+          "minimum_area_ratio": 4.060054124395203,
+          "minimum_normal_cosine": 0.7931455260227733
+        },
+        "before": {
+          "minimum_angle_deg": 2.646126635909416,
+          "minimum_area_ratio": 2.9872119148190674,
+          "minimum_normal_cosine": 0.8003183743750816
+        },
+        "deltas": {
+          "area_ratio": 1.0728422095761352,
+          "min_angle_deg": -0.576166867211851,
+          "normal_cosine": -0.007172848352308248
+        },
+        "score": [
+          1.0728422095761352,
+          -0.007172848352308248,
+          -0.576166867211851
+        ]
+      },
+      "source_ancestry_union": [
+        87944
+      ],
+      "source_detail": 87944,
+      "source_subface": 87952,
+      "subface_ancestry_union": [
+        87952
+      ]
+    },
+    {
+      "edge": [
+        16533,
+        19790
+      ],
+      "face_rows": [
+        11831,
+        11836
+      ],
+      "immediate_parent_union": [
+        -1,
+        11570
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19790,
+          19587,
+          19327
+        ],
+        [
+          19587,
+          16533,
+          19327
+        ]
+      ],
+      "old_faces": [
+        [
+          16533,
+          19327,
+          19790
+        ],
+        [
+          19587,
+          16533,
+          19790
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 3.856694927080735,
+          "minimum_area_ratio": 0.6660878694545375,
+          "minimum_normal_cosine": 0.6468909863734529
+        },
+        "before": {
+          "minimum_angle_deg": 1.9488960536364321,
+          "minimum_area_ratio": 0.7276860347386174,
+          "minimum_normal_cosine": 0.3708359072317795
+        },
+        "deltas": {
+          "area_ratio": -0.06159816528407991,
+          "min_angle_deg": 1.9077988734443028,
+          "normal_cosine": 0.2760550791416734
+        },
+        "score": [
+          -0.06159816528407991,
+          0.2760550791416734,
+          1.9077988734443028
+        ]
+      },
+      "source_ancestry_union": [
+        5120
+      ],
+      "source_detail": 5120,
+      "source_subface": 5120,
+      "subface_ancestry_union": [
+        5120
+      ]
+    },
+    {
+      "edge": [
+        15626,
+        19651
+      ],
+      "face_rows": [
+        31223,
+        31232
+      ],
+      "immediate_parent_union": [
+        27704,
+        27705
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          15626,
+          19158,
+          20559
+        ],
+        [
+          19158,
+          19651,
+          20559
+        ]
+      ],
+      "old_faces": [
+        [
+          15626,
+          19651,
+          20559
+        ],
+        [
+          19651,
+          15626,
+          19158
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 12.056221757606208,
+          "minimum_area_ratio": 4.885744835233452,
+          "minimum_normal_cosine": 0.23189631010204678
+        },
+        "before": {
+          "minimum_angle_deg": 10.530019661314812,
+          "minimum_area_ratio": 5.070343793927155,
+          "minimum_normal_cosine": 0.12680761237429763
+        },
+        "deltas": {
+          "area_ratio": -0.18459895869370335,
+          "min_angle_deg": 1.5262020962913958,
+          "normal_cosine": 0.10508869772774915
+        },
+        "score": [
+          -0.18459895869370335,
+          0.10508869772774915,
+          1.5262020962913958
+        ]
+      },
+      "source_ancestry_union": [
+        88499
+      ],
+      "source_detail": 88499,
+      "source_subface": 88507,
+      "subface_ancestry_union": [
+        88507
+      ]
+    },
+    {
+      "edge": [
+        10443,
+        19865
+      ],
+      "face_rows": [
+        12439,
+        12440
+      ],
+      "immediate_parent_union": [
+        11859
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          10443,
+          18700,
+          18697
+        ],
+        [
+          18700,
+          19865,
+          18697
+        ]
+      ],
+      "old_faces": [
+        [
+          18697,
+          10443,
+          19865
+        ],
+        [
+          10443,
+          18700,
+          19865
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 4.471245010874049,
+          "minimum_area_ratio": 2.8825571648353447,
+          "minimum_normal_cosine": 0.6331993520323684
+        },
+        "before": {
+          "minimum_angle_deg": 2.3473459764182536,
+          "minimum_area_ratio": 3.206177927534772,
+          "minimum_normal_cosine": 0.454331258094826
+        },
+        "deltas": {
+          "area_ratio": -0.3236207626994272,
+          "min_angle_deg": 2.1238990344557953,
+          "normal_cosine": 0.17886809393754244
+        },
+        "score": [
+          -0.3236207626994272,
+          0.17886809393754244,
+          2.1238990344557953
+        ]
+      },
+      "source_ancestry_union": [
+        5136
+      ],
+      "source_detail": 5136,
+      "source_subface": 5136,
+      "subface_ancestry_union": [
+        5136
+      ]
+    },
+    {
+      "edge": [
+        16749,
+        19998
+      ],
+      "face_rows": [
+        14841,
+        14842
+      ],
+      "immediate_parent_union": [
+        13698
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          16749,
+          19688,
+          19006
+        ],
+        [
+          19688,
+          19998,
+          19006
+        ]
+      ],
+      "old_faces": [
+        [
+          19006,
+          16749,
+          19998
+        ],
+        [
+          16749,
+          19688,
+          19998
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 3.701680499491091,
+          "minimum_area_ratio": 2.939701479228421,
+          "minimum_normal_cosine": 0.5189539409284469
+        },
+        "before": {
+          "minimum_angle_deg": 1.4766048953326134,
+          "minimum_area_ratio": 5.177017367324553,
+          "minimum_normal_cosine": 0.1830115936992977
+        },
+        "deltas": {
+          "area_ratio": -2.2373158880961324,
+          "min_angle_deg": 2.2250756041584774,
+          "normal_cosine": 0.33594234722914923
+        },
+        "score": [
+          -2.2373158880961324,
+          0.33594234722914923,
+          2.2250756041584774
+        ]
+      },
+      "source_ancestry_union": [
+        6103
+      ],
+      "source_detail": 6103,
+      "source_subface": 6103,
+      "subface_ancestry_union": [
+        6103
+      ]
+    },
+    {
+      "edge": [
+        18865,
+        20001
+      ],
+      "face_rows": [
+        14855,
+        14856
+      ],
+      "immediate_parent_union": [
+        -1,
+        13701
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          18865,
+          19347,
+          18869
+        ],
+        [
+          19347,
+          20001,
+          18869
+        ]
+      ],
+      "old_faces": [
+        [
+          20001,
+          18869,
+          18865
+        ],
+        [
+          20001,
+          18865,
+          19347
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 3.8829830411036017,
+          "minimum_area_ratio": 0.5960451101973651,
+          "minimum_normal_cosine": 0.44843434872695687
+        },
+        "before": {
+          "minimum_angle_deg": 3.774402615427694,
+          "minimum_area_ratio": 2.91518632171321,
+          "minimum_normal_cosine": 0.24211745601777512
+        },
+        "deltas": {
+          "area_ratio": -2.319141211515845,
+          "min_angle_deg": 0.10858042567590775,
+          "normal_cosine": 0.20631689270918174
+        },
+        "score": [
+          -2.319141211515845,
+          0.20631689270918174,
+          0.10858042567590775
+        ]
+      },
+      "source_ancestry_union": [
+        6103
+      ],
+      "source_detail": 6103,
+      "source_subface": 6103,
+      "subface_ancestry_union": [
+        6103
+      ]
+    },
+    {
+      "edge": [
+        12578,
+        20164
+      ],
+      "face_rows": [
+        19015,
+        19020
+      ],
+      "immediate_parent_union": [
+        17161
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          12578,
+          19051,
+          19054
+        ],
+        [
+          19051,
+          20164,
+          19054
+        ]
+      ],
+      "old_faces": [
+        [
+          19054,
+          12578,
+          20164
+        ],
+        [
+          12578,
+          19051,
+          20164
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 4.407158556927034,
+          "minimum_area_ratio": 3.5249705005638687,
+          "minimum_normal_cosine": 0.9493593451482177
+        },
+        "before": {
+          "minimum_angle_deg": 3.848637784000915,
+          "minimum_area_ratio": 5.969657409296482,
+          "minimum_normal_cosine": 0.3019198516517464
+        },
+        "deltas": {
+          "area_ratio": -2.444686908732613,
+          "min_angle_deg": 0.5585207729261192,
+          "normal_cosine": 0.6474394934964713
+        },
+        "score": [
+          -2.444686908732613,
+          0.6474394934964713,
+          0.5585207729261192
+        ]
+      },
+      "source_ancestry_union": [
+        8265
+      ],
+      "source_detail": 8265,
+      "source_subface": 8267,
+      "subface_ancestry_union": [
+        8267
+      ]
+    },
+    {
+      "edge": [
+        14369,
+        19150
+      ],
+      "face_rows": [
+        31062,
+        31097
+      ],
+      "immediate_parent_union": [
+        27652,
+        27659
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          14369,
+          19412,
+          20534
+        ],
+        [
+          19412,
+          19150,
+          20534
+        ]
+      ],
+      "old_faces": [
+        [
+          14369,
+          19150,
+          20534
+        ],
+        [
+          14369,
+          19412,
+          19150
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 6.286556908708557,
+          "minimum_area_ratio": 0.6771984277545238,
+          "minimum_normal_cosine": 0.993739479585534
+        },
+        "before": {
+          "minimum_angle_deg": 2.1483348081116644,
+          "minimum_area_ratio": 3.649937389086309,
+          "minimum_normal_cosine": 0.9330396326083074
+        },
+        "deltas": {
+          "area_ratio": -2.9727389613317854,
+          "min_angle_deg": 4.138222100596893,
+          "normal_cosine": 0.060699846977226635
+        },
+        "score": [
+          -2.9727389613317854,
+          0.060699846977226635,
+          4.138222100596893
+        ]
+      },
+      "source_ancestry_union": [
+        88498
+      ],
+      "source_detail": 88498,
+      "source_subface": 88506,
+      "subface_ancestry_union": [
+        88506
+      ]
+    },
+    {
+      "edge": [
+        19959,
+        19965
+      ],
+      "face_rows": [
+        14150,
+        14182
+      ],
+      "immediate_parent_union": [
+        -1
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19965,
+          18999,
+          19339
+        ],
+        [
+          18999,
+          19959,
+          19339
+        ]
+      ],
+      "old_faces": [
+        [
+          19959,
+          19339,
+          19965
+        ],
+        [
+          19965,
+          18999,
+          19959
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 8.705776418418463,
+          "minimum_area_ratio": 12.566060102041769,
+          "minimum_normal_cosine": 0.6813021994928947
+        },
+        "before": {
+          "minimum_angle_deg": 3.843142460810341,
+          "minimum_area_ratio": 19.65685275354437,
+          "minimum_normal_cosine": 0.6833411471014232
+        },
+        "deltas": {
+          "area_ratio": -7.090792651502602,
+          "min_angle_deg": 4.8626339576081214,
+          "normal_cosine": -0.0020389476085285185
+        },
+        "score": [
+          -7.090792651502602,
+          -0.0020389476085285185,
+          4.8626339576081214
+        ]
+      },
+      "source_ancestry_union": [
+        5530
+      ],
+      "source_detail": 5530,
+      "source_subface": 5530,
+      "subface_ancestry_union": [
+        5530
+      ]
+    },
+    {
+      "edge": [
+        9941,
+        20615
+      ],
+      "face_rows": [
+        32556,
+        32561
+      ],
+      "immediate_parent_union": [
+        28804
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          20615,
+          18632,
+          18631
+        ],
+        [
+          18632,
+          9941,
+          18631
+        ]
+      ],
+      "old_faces": [
+        [
+          9941,
+          18631,
+          20615
+        ],
+        [
+          18632,
+          9941,
+          20615
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 9.667857107414019,
+          "minimum_area_ratio": 59.680147342209516,
+          "minimum_normal_cosine": 0.03613255291851307
+        },
+        "before": {
+          "minimum_angle_deg": 1.6271076551348176,
+          "minimum_area_ratio": 23.944918558989247,
+          "minimum_normal_cosine": -0.06324916665700712
+        },
+        "deltas": {
+          "area_ratio": 35.735228783220265,
+          "min_angle_deg": 8.0407494522792,
+          "normal_cosine": 0.0993817195755202
+        },
+        "score": [
+          35.735228783220265,
+          0.0993817195755202,
+          8.0407494522792
+        ]
+      },
+      "source_ancestry_union": [
+        89504
+      ],
+      "source_detail": 89504,
+      "source_subface": 89512,
+      "subface_ancestry_union": [
+        89512
+      ]
+    },
+    {
+      "edge": [
+        19107,
+        19706
+      ],
+      "face_rows": [
+        26577,
+        26578
+      ],
+      "immediate_parent_union": [
+        -1,
+        23857
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19706,
+          20370,
+          20371
+        ],
+        [
+          20370,
+          19107,
+          20371
+        ]
+      ],
+      "old_faces": [
+        [
+          19107,
+          20371,
+          19706
+        ],
+        [
+          19706,
+          20370,
+          19107
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 22.204695758429654,
+          "minimum_area_ratio": 16.408901375714002,
+          "minimum_normal_cosine": 0.966735439551174
+        },
+        "before": {
+          "minimum_angle_deg": 3.957400779570423,
+          "minimum_area_ratio": 3.819298934911901,
+          "minimum_normal_cosine": 0.9013995180359351
+        },
+        "deltas": {
+          "area_ratio": 12.589602440802102,
+          "min_angle_deg": 18.24729497885923,
+          "normal_cosine": 0.06533592151523893
+        },
+        "score": [
+          12.589602440802102,
+          0.06533592151523893,
+          18.24729497885923
+        ]
+      },
+      "source_ancestry_union": [
+        83785
+      ],
+      "source_detail": 83785,
+      "source_subface": 83793,
+      "subface_ancestry_union": [
+        83793
+      ]
+    },
+    {
+      "edge": [
+        19207,
+        20751
+      ],
+      "face_rows": [
+        34759,
+        34789
+      ],
+      "immediate_parent_union": [
+        -1,
+        30425
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          20751,
+          20756,
+          19210
+        ],
+        [
+          20756,
+          19207,
+          19210
+        ]
+      ],
+      "old_faces": [
+        [
+          19210,
+          20751,
+          19207
+        ],
+        [
+          20756,
+          19207,
+          20751
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 5.23178595885397,
+          "minimum_area_ratio": 44.32244616243485,
+          "minimum_normal_cosine": 0.6771557384055856
+        },
+        "before": {
+          "minimum_angle_deg": 5.082026234227054,
+          "minimum_area_ratio": 34.271704196511735,
+          "minimum_normal_cosine": 0.7401592498762986
+        },
+        "deltas": {
+          "area_ratio": 10.050741965923116,
+          "min_angle_deg": 0.14975972462691622,
+          "normal_cosine": -0.06300351147071293
+        },
+        "score": [
+          10.050741965923116,
+          -0.06300351147071293,
+          0.14975972462691622
+        ]
+      },
+      "source_ancestry_union": [
+        90122
+      ],
+      "source_detail": 90122,
+      "source_subface": 90130,
+      "subface_ancestry_union": [
+        90130
+      ]
+    },
+    {
+      "edge": [
+        11560,
+        19830
+      ],
+      "face_rows": [
+        12209,
+        12210
+      ],
+      "immediate_parent_union": [
+        11778
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          11560,
+          18855,
+          18853
+        ],
+        [
+          18855,
+          19830,
+          18853
+        ]
+      ],
+      "old_faces": [
+        [
+          18853,
+          11560,
+          19830
+        ],
+        [
+          11560,
+          18855,
+          19830
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 8.713664311098228,
+          "minimum_area_ratio": 13.354930610028267,
+          "minimum_normal_cosine": 0.9746432584158016
+        },
+        "before": {
+          "minimum_angle_deg": 1.2531158717095647,
+          "minimum_area_ratio": 5.569182333142885,
+          "minimum_normal_cosine": 0.9135147244776678
+        },
+        "deltas": {
+          "area_ratio": 7.785748276885382,
+          "min_angle_deg": 7.460548439388663,
+          "normal_cosine": 0.06112853393813378
+        },
+        "score": [
+          7.785748276885382,
+          0.06112853393813378,
+          7.460548439388663
+        ]
+      },
+      "source_ancestry_union": [
+        5135
+      ],
+      "source_detail": 5135,
+      "source_subface": 5135,
+      "subface_ancestry_union": [
+        5135
+      ]
+    },
+    {
+      "edge": [
+        15665,
+        19209
+      ],
+      "face_rows": [
+        34782,
+        34814
+      ],
+      "immediate_parent_union": [
+        30431,
+        30438
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          15665,
+          20761,
+          20755
+        ],
+        [
+          20761,
+          19209,
+          20755
+        ]
+      ],
+      "old_faces": [
+        [
+          15665,
+          19209,
+          20755
+        ],
+        [
+          19209,
+          15665,
+          20761
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 4.457120617706903,
+          "minimum_area_ratio": 25.411517826012002,
+          "minimum_normal_cosine": 0.5186153289692326
+        },
+        "before": {
+          "minimum_angle_deg": 4.942968138746972,
+          "minimum_area_ratio": 22.32660454336383,
+          "minimum_normal_cosine": 0.12222632981508606
+        },
+        "deltas": {
+          "area_ratio": 3.0849132826481735,
+          "min_angle_deg": -0.48584752104006856,
+          "normal_cosine": 0.3963889991541465
+        },
+        "score": [
+          3.0849132826481735,
+          0.3963889991541465,
+          -0.48584752104006856
+        ]
+      },
+      "source_ancestry_union": [
+        90122
+      ],
+      "source_detail": 90122,
+      "source_subface": 90130,
+      "subface_ancestry_union": [
+        90130
+      ]
+    },
+    {
+      "edge": [
+        18572,
+        19972
+      ],
+      "face_rows": [
+        14233,
+        14234
+      ],
+      "immediate_parent_union": [
+        -1,
+        13201
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          18572,
+          19973,
+          18565
+        ],
+        [
+          19973,
+          19972,
+          18565
+        ]
+      ],
+      "old_faces": [
+        [
+          18572,
+          19972,
+          18565
+        ],
+        [
+          18572,
+          19973,
+          19972
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 3.9951171171864575,
+          "minimum_area_ratio": 54.22169714738429,
+          "minimum_normal_cosine": 0.8781805735617322
+        },
+        "before": {
+          "minimum_angle_deg": 4.460682363602194,
+          "minimum_area_ratio": 51.59396682567518,
+          "minimum_normal_cosine": 0.8744689949776905
+        },
+        "deltas": {
+          "area_ratio": 2.627730321709109,
+          "min_angle_deg": -0.4655652464157365,
+          "normal_cosine": 0.003711578584041697
+        },
+        "score": [
+          2.627730321709109,
+          0.003711578584041697,
+          -0.4655652464157365
+        ]
+      },
+      "source_ancestry_union": [
+        5530
+      ],
+      "source_detail": 5530,
+      "source_subface": 5530,
+      "subface_ancestry_union": [
+        5530
+      ]
+    },
+    {
+      "edge": [
+        19404,
+        20516
+      ],
+      "face_rows": [
+        30937,
+        30944
+      ],
+      "immediate_parent_union": [
+        -1,
+        27604
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          20516,
+          18799,
+          18513
+        ],
+        [
+          18799,
+          19404,
+          18513
+        ]
+      ],
+      "old_faces": [
+        [
+          18513,
+          20516,
+          19404
+        ],
+        [
+          18799,
+          19404,
+          20516
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 7.237732416655598,
+          "minimum_area_ratio": 28.438273458659932,
+          "minimum_normal_cosine": 0.9604947656092755
+        },
+        "before": {
+          "minimum_angle_deg": 6.037759336378054,
+          "minimum_area_ratio": 27.2145484286832,
+          "minimum_normal_cosine": 0.9604718170740686
+        },
+        "deltas": {
+          "area_ratio": 1.2237250299767304,
+          "min_angle_deg": 1.1999730802775446,
+          "normal_cosine": 2.2948535206901433e-05
+        },
+        "score": [
+          1.2237250299767304,
+          2.2948535206901433e-05,
+          1.1999730802775446
+        ]
+      },
+      "source_ancestry_union": [
+        88498
+      ],
+      "source_detail": 88498,
+      "source_subface": 88506,
+      "subface_ancestry_union": [
+        88506
+      ]
+    },
+    {
+      "edge": [
+        19115,
+        20411
+      ],
+      "face_rows": [
+        26788,
+        26863
+      ],
+      "immediate_parent_union": [
+        -1,
+        23969
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19115,
+          19120,
+          20399
+        ],
+        [
+          19120,
+          20411,
+          20399
+        ]
+      ],
+      "old_faces": [
+        [
+          19115,
+          20411,
+          20399
+        ],
+        [
+          19120,
+          20411,
+          19115
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 21.686084729420745,
+          "minimum_area_ratio": 21.878758678492588,
+          "minimum_normal_cosine": 0.5865318707201427
+        },
+        "before": {
+          "minimum_angle_deg": 20.621166739013038,
+          "minimum_area_ratio": 20.982356778558366,
+          "minimum_normal_cosine": 0.5565915262843366
+        },
+        "deltas": {
+          "area_ratio": 0.8964018999342223,
+          "min_angle_deg": 1.0649179904077073,
+          "normal_cosine": 0.029940344435806066
+        },
+        "score": [
+          0.8964018999342223,
+          0.029940344435806066,
+          1.0649179904077073
+        ]
+      },
+      "source_ancestry_union": [
+        83789
+      ],
+      "source_detail": 83789,
+      "source_subface": 83797,
+      "subface_ancestry_union": [
+        83797
+      ]
+    },
+    {
+      "edge": [
+        15080,
+        18646
+      ],
+      "face_rows": [
+        34429,
+        34456
+      ],
+      "immediate_parent_union": [
+        30214,
+        30223
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          18646,
+          20728,
+          20723
+        ],
+        [
+          20728,
+          15080,
+          20723
+        ]
+      ],
+      "old_faces": [
+        [
+          18646,
+          15080,
+          20723
+        ],
+        [
+          15080,
+          18646,
+          20728
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 14.133190305616004,
+          "minimum_area_ratio": 7.234865882194501,
+          "minimum_normal_cosine": 0.9679129235506054
+        },
+        "before": {
+          "minimum_angle_deg": 7.616514724005152,
+          "minimum_area_ratio": 6.377302956390049,
+          "minimum_normal_cosine": 0.5887129433625761
+        },
+        "deltas": {
+          "area_ratio": 0.8575629258044515,
+          "min_angle_deg": 6.516675581610852,
+          "normal_cosine": 0.37919998018802936
+        },
+        "score": [
+          0.8575629258044515,
+          0.37919998018802936,
+          6.516675581610852
+        ]
+      },
+      "source_ancestry_union": [
+        90117
+      ],
+      "source_detail": 90117,
+      "source_subface": 90125,
+      "subface_ancestry_union": [
+        90125
+      ]
+    },
+    {
+      "edge": [
+        16045,
+        19203
+      ],
+      "face_rows": [
+        34531,
+        34554
+      ],
+      "immediate_parent_union": [
+        30247,
+        30254
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          16045,
+          20743,
+          19726
+        ],
+        [
+          20743,
+          19203,
+          19726
+        ]
+      ],
+      "old_faces": [
+        [
+          19726,
+          16045,
+          19203
+        ],
+        [
+          19203,
+          16045,
+          20743
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 6.052262953352046,
+          "minimum_area_ratio": 2.3402734225547857,
+          "minimum_normal_cosine": 0.976242129268985
+        },
+        "before": {
+          "minimum_angle_deg": 4.223643814720896,
+          "minimum_area_ratio": 1.7547935464264646,
+          "minimum_normal_cosine": 0.9869552213386623
+        },
+        "deltas": {
+          "area_ratio": 0.5854798761283211,
+          "min_angle_deg": 1.8286191386311499,
+          "normal_cosine": -0.010713092069677299
+        },
+        "score": [
+          0.5854798761283211,
+          -0.010713092069677299,
+          1.8286191386311499
+        ]
+      },
+      "source_ancestry_union": [
+        90117
+      ],
+      "source_detail": 90117,
+      "source_subface": 90125,
+      "subface_ancestry_union": [
+        90125
+      ]
+    },
+    {
+      "edge": [
+        14831,
+        20210
+      ],
+      "face_rows": [
+        19397,
+        19398
+      ],
+      "immediate_parent_union": [
+        17345
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          14831,
+          19504,
+          19061
+        ],
+        [
+          19504,
+          20210,
+          19061
+        ]
+      ],
+      "old_faces": [
+        [
+          19061,
+          14831,
+          20210
+        ],
+        [
+          14831,
+          19504,
+          20210
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 27.655596277590405,
+          "minimum_area_ratio": 7.472974699104039,
+          "minimum_normal_cosine": 0.9517187831654822
+        },
+        "before": {
+          "minimum_angle_deg": 12.600025713613645,
+          "minimum_area_ratio": 6.941899141391266,
+          "minimum_normal_cosine": 0.8975346856341949
+        },
+        "deltas": {
+          "area_ratio": 0.5310755577127733,
+          "min_angle_deg": 15.05557056397676,
+          "normal_cosine": 0.05418409753128728
+        },
+        "score": [
+          0.5310755577127733,
+          0.05418409753128728,
+          15.05557056397676
+        ]
+      },
+      "source_ancestry_union": [
+        8269
+      ],
+      "source_detail": 8269,
+      "source_subface": 8271,
+      "subface_ancestry_union": [
+        8271
+      ]
+    },
+    {
+      "edge": [
+        16573,
+        19867
+      ],
+      "face_rows": [
+        12466,
+        12472
+      ],
+      "immediate_parent_union": [
+        -1,
+        11874
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19867,
+          19868,
+          19591
+        ],
+        [
+          19868,
+          16573,
+          19591
+        ]
+      ],
+      "old_faces": [
+        [
+          16573,
+          19591,
+          19867
+        ],
+        [
+          19868,
+          16573,
+          19867
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 8.586781671673647,
+          "minimum_area_ratio": 0.41597114693489434,
+          "minimum_normal_cosine": 0.3287301546232668
+        },
+        "before": {
+          "minimum_angle_deg": 2.0834316050548716,
+          "minimum_area_ratio": 0.28043624262758904,
+          "minimum_normal_cosine": 0.12100151190617725
+        },
+        "deltas": {
+          "area_ratio": 0.1355349043073053,
+          "min_angle_deg": 6.503350066618776,
+          "normal_cosine": 0.20772864271708957
+        },
+        "score": [
+          0.1355349043073053,
+          0.20772864271708957,
+          6.503350066618776
+        ]
+      },
+      "source_ancestry_union": [
+        5136
+      ],
+      "source_detail": 5136,
+      "source_subface": 5136,
+      "subface_ancestry_union": [
+        5136
+      ]
+    },
+    {
+      "edge": [
+        16525,
+        19681
+      ],
+      "face_rows": [
+        11711,
+        11718
+      ],
+      "immediate_parent_union": [
+        -1,
+        11512
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19681,
+          19777,
+          19775
+        ],
+        [
+          19777,
+          16525,
+          19775
+        ]
+      ],
+      "old_faces": [
+        [
+          19681,
+          16525,
+          19775
+        ],
+        [
+          16525,
+          19681,
+          19777
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 19.03610172346998,
+          "minimum_area_ratio": 0.4972701238861051,
+          "minimum_normal_cosine": 0.9260809665260482
+        },
+        "before": {
+          "minimum_angle_deg": 14.99170052048066,
+          "minimum_area_ratio": 0.5601181682208833,
+          "minimum_normal_cosine": 0.8027670728370842
+        },
+        "deltas": {
+          "area_ratio": -0.06284804433477825,
+          "min_angle_deg": 4.04440120298932,
+          "normal_cosine": 0.12331389368896406
+        },
+        "score": [
+          -0.06284804433477825,
+          0.12331389368896406,
+          4.04440120298932
+        ]
+      },
+      "source_ancestry_union": [
+        5120
+      ],
+      "source_detail": 5120,
+      "source_subface": 5120,
+      "subface_ancestry_union": [
+        5120
+      ]
+    },
+    {
+      "edge": [
+        18014,
+        19664
+      ],
+      "face_rows": [
+        34841,
+        34854
+      ],
+      "immediate_parent_union": [
+        -1,
+        30450
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19664,
+          20766,
+          20764
+        ],
+        [
+          20766,
+          18014,
+          20764
+        ]
+      ],
+      "old_faces": [
+        [
+          19664,
+          18014,
+          20764
+        ],
+        [
+          20766,
+          18014,
+          19664
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 18.70069973927309,
+          "minimum_area_ratio": 4.365853848641988,
+          "minimum_normal_cosine": 0.8696028498322366
+        },
+        "before": {
+          "minimum_angle_deg": 5.346056930999895,
+          "minimum_area_ratio": 4.855930611574345,
+          "minimum_normal_cosine": 0.7901996160461636
+        },
+        "deltas": {
+          "area_ratio": -0.4900767629323566,
+          "min_angle_deg": 13.354642808273196,
+          "normal_cosine": 0.07940323378607295
+        },
+        "score": [
+          -0.4900767629323566,
+          0.07940323378607295,
+          13.354642808273196
+        ]
+      },
+      "source_ancestry_union": [
+        90122
+      ],
+      "source_detail": 90122,
+      "source_subface": 90130,
+      "subface_ancestry_union": [
+        90130
+      ]
+    },
+    {
+      "edge": [
+        16578,
+        18982
+      ],
+      "face_rows": [
+        12547,
+        12553
+      ],
+      "immediate_parent_union": [
+        11903,
+        11904
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          18982,
+          19602,
+          19880
+        ],
+        [
+          19602,
+          16578,
+          19880
+        ]
+      ],
+      "old_faces": [
+        [
+          18982,
+          16578,
+          19880
+        ],
+        [
+          16578,
+          18982,
+          19602
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 4.847855526635293,
+          "minimum_area_ratio": 0.38890055471780066,
+          "minimum_normal_cosine": 0.5651671092230918
+        },
+        "before": {
+          "minimum_angle_deg": 5.076970694361281,
+          "minimum_area_ratio": 2.5711141719147546,
+          "minimum_normal_cosine": 0.1967294359759913
+        },
+        "deltas": {
+          "area_ratio": -2.182213617196954,
+          "min_angle_deg": -0.22911516772598794,
+          "normal_cosine": 0.3684376732471005
+        },
+        "score": [
+          -2.182213617196954,
+          0.3684376732471005,
+          -0.22911516772598794
+        ]
+      },
+      "source_ancestry_union": [
+        5136
+      ],
+      "source_detail": 5136,
+      "source_subface": 5136,
+      "subface_ancestry_union": [
+        5136
+      ]
+    },
+    {
+      "edge": [
+        18967,
+        19846
+      ],
+      "face_rows": [
+        12232,
+        12312
+      ],
+      "immediate_parent_union": [
+        -1,
+        11812
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          18967,
+          18972,
+          19834
+        ],
+        [
+          18972,
+          19846,
+          19834
+        ]
+      ],
+      "old_faces": [
+        [
+          18967,
+          19846,
+          19834
+        ],
+        [
+          18972,
+          19846,
+          18967
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 39.280319118355024,
+          "minimum_area_ratio": 7.9944776044708075,
+          "minimum_normal_cosine": 0.6186758997601751
+        },
+        "before": {
+          "minimum_angle_deg": 15.091025389208545,
+          "minimum_area_ratio": 11.186215406493607,
+          "minimum_normal_cosine": 0.5302684960265626
+        },
+        "deltas": {
+          "area_ratio": -3.1917378020228,
+          "min_angle_deg": 24.189293729146478,
+          "normal_cosine": 0.08840740373361256
+        },
+        "score": [
+          -3.1917378020228,
+          0.08840740373361256,
+          24.189293729146478
+        ]
+      },
+      "source_ancestry_union": [
+        5135
+      ],
+      "source_detail": 5135,
+      "source_subface": 5135,
+      "subface_ancestry_union": [
+        5135
+      ]
+    },
+    {
+      "edge": [
+        17423,
+        19625
+      ],
+      "face_rows": [
+        26916,
+        26923
+      ],
+      "immediate_parent_union": [
+        -1,
+        23999
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19625,
+          20417,
+          20415
+        ],
+        [
+          20417,
+          17423,
+          20415
+        ]
+      ],
+      "old_faces": [
+        [
+          19625,
+          17423,
+          20415
+        ],
+        [
+          17423,
+          19625,
+          20417
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 33.3337590202411,
+          "minimum_area_ratio": 4.891026745236479,
+          "minimum_normal_cosine": 0.990987699704063
+        },
+        "before": {
+          "minimum_angle_deg": 16.053796700475342,
+          "minimum_area_ratio": 13.171327558154976,
+          "minimum_normal_cosine": 0.9873662320071095
+        },
+        "deltas": {
+          "area_ratio": -8.280300812918497,
+          "min_angle_deg": 17.279962319765755,
+          "normal_cosine": 0.0036214676969534842
+        },
+        "score": [
+          -8.280300812918497,
+          0.0036214676969534842,
+          17.279962319765755
+        ]
+      },
+      "source_ancestry_union": [
+        83789
+      ],
+      "source_detail": 83789,
+      "source_subface": 83797,
+      "subface_ancestry_union": [
+        83797
+      ]
+    },
+    {
+      "edge": [
+        14714,
+        19469
+      ],
+      "face_rows": [
+        14251,
+        14260
+      ],
+      "immediate_parent_union": [
+        -1,
+        13206
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          14714,
+          19967,
+          19975
+        ],
+        [
+          19967,
+          19469,
+          19975
+        ]
+      ],
+      "old_faces": [
+        [
+          14714,
+          19469,
+          19975
+        ],
+        [
+          19469,
+          14714,
+          19967
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 7.613223522393214,
+          "minimum_area_ratio": 12.46943014382958,
+          "minimum_normal_cosine": 0.5169143575473023
+        },
+        "before": {
+          "minimum_angle_deg": 1.1679669662855514,
+          "minimum_area_ratio": 5.420570220396298,
+          "minimum_normal_cosine": 0.4549383210188854
+        },
+        "deltas": {
+          "area_ratio": 7.048859923433282,
+          "min_angle_deg": 6.445256556107662,
+          "normal_cosine": 0.06197603652841688
+        },
+        "score": [
+          7.048859923433282,
+          0.06197603652841688,
+          6.445256556107662
+        ]
+      },
+      "source_ancestry_union": [
+        5530
+      ],
+      "source_detail": 5530,
+      "source_subface": 5530,
+      "subface_ancestry_union": [
+        5530
+      ]
+    },
+    {
+      "edge": [
+        10802,
+        20416
+      ],
+      "face_rows": [
+        26913,
+        26918
+      ],
+      "immediate_parent_union": [
+        23998
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          20416,
+          18766,
+          18764
+        ],
+        [
+          18766,
+          10802,
+          18764
+        ]
+      ],
+      "old_faces": [
+        [
+          10802,
+          18764,
+          20416
+        ],
+        [
+          18766,
+          10802,
+          20416
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 40.65264483657428,
+          "minimum_area_ratio": 16.211815030020578,
+          "minimum_normal_cosine": 0.9926289713951455
+        },
+        "before": {
+          "minimum_angle_deg": 14.785830370738227,
+          "minimum_area_ratio": 9.683020927147176,
+          "minimum_normal_cosine": 0.9946408323552799
+        },
+        "deltas": {
+          "area_ratio": 6.528794102873402,
+          "min_angle_deg": 25.866814465836057,
+          "normal_cosine": -0.002011860960134393
+        },
+        "score": [
+          6.528794102873402,
+          -0.002011860960134393,
+          25.866814465836057
+        ]
+      },
+      "source_ancestry_union": [
+        83789
+      ],
+      "source_detail": 83789,
+      "source_subface": 83797,
+      "subface_ancestry_union": [
+        83797
+      ]
+    },
+    {
+      "edge": [
+        12364,
+        18998
+      ],
+      "face_rows": [
+        14099,
+        14109
+      ],
+      "immediate_parent_union": [
+        13151,
+        13152
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          12364,
+          18995,
+          18994
+        ],
+        [
+          18995,
+          18998,
+          18994
+        ]
+      ],
+      "old_faces": [
+        [
+          12364,
+          18998,
+          18994
+        ],
+        [
+          18998,
+          12364,
+          18995
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 5.663976211453336,
+          "minimum_area_ratio": 29.69492681625175,
+          "minimum_normal_cosine": 0.4129335457303589
+        },
+        "before": {
+          "minimum_angle_deg": 3.107263143502375,
+          "minimum_area_ratio": 25.911324245732676,
+          "minimum_normal_cosine": 0.4105460473965905
+        },
+        "deltas": {
+          "area_ratio": 3.7836025705190757,
+          "min_angle_deg": 2.5567130679509606,
+          "normal_cosine": 0.0023874983337683897
+        },
+        "score": [
+          3.7836025705190757,
+          0.0023874983337683897,
+          2.5567130679509606
+        ]
+      },
+      "source_ancestry_union": [
+        5530
+      ],
+      "source_detail": 5530,
+      "source_subface": 5530,
+      "subface_ancestry_union": [
+        5530
+      ]
+    },
+    {
+      "edge": [
+        9106,
+        20215
+      ],
+      "face_rows": [
+        19431,
+        19432
+      ],
+      "immediate_parent_union": [
+        17358
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          9106,
+          18495,
+          18491
+        ],
+        [
+          18495,
+          20215,
+          18491
+        ]
+      ],
+      "old_faces": [
+        [
+          18491,
+          9106,
+          20215
+        ],
+        [
+          9106,
+          18495,
+          20215
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 9.786516213403932,
+          "minimum_area_ratio": 11.74026562799473,
+          "minimum_normal_cosine": 0.899983538568774
+        },
+        "before": {
+          "minimum_angle_deg": 1.8651038977213898,
+          "minimum_area_ratio": 8.761236464366439,
+          "minimum_normal_cosine": 0.07620392066233937
+        },
+        "deltas": {
+          "area_ratio": 2.979029163628292,
+          "min_angle_deg": 7.921412315682542,
+          "normal_cosine": 0.8237796179064346
+        },
+        "score": [
+          2.979029163628292,
+          0.8237796179064346,
+          7.921412315682542
+        ]
+      },
+      "source_ancestry_union": [
+        8269
+      ],
+      "source_detail": 8269,
+      "source_subface": 8271,
+      "subface_ancestry_union": [
+        8271
+      ]
+    },
+    {
+      "edge": [
+        17798,
+        19162
+      ],
+      "face_rows": [
+        31271,
+        31278
+      ],
+      "immediate_parent_union": [
+        27717,
+        27718
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19162,
+          20568,
+          20567
+        ],
+        [
+          20568,
+          17798,
+          20567
+        ]
+      ],
+      "old_faces": [
+        [
+          19162,
+          17798,
+          20567
+        ],
+        [
+          17798,
+          19162,
+          20568
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 35.02015078615925,
+          "minimum_area_ratio": 2.5195440484295593,
+          "minimum_normal_cosine": 0.9741148229932919
+        },
+        "before": {
+          "minimum_angle_deg": 3.700320857927107,
+          "minimum_area_ratio": 0.6835890803762728,
+          "minimum_normal_cosine": 0.7191930233299255
+        },
+        "deltas": {
+          "area_ratio": 1.8359549680532865,
+          "min_angle_deg": 31.319829928232142,
+          "normal_cosine": 0.25492179966336637
+        },
+        "score": [
+          1.8359549680532865,
+          0.25492179966336637,
+          31.319829928232142
+        ]
+      },
+      "source_ancestry_union": [
+        88499
+      ],
+      "source_detail": 88499,
+      "source_subface": 88507,
+      "subface_ancestry_union": [
+        88507
+      ]
+    },
+    {
+      "edge": [
+        10522,
+        18710
+      ],
+      "face_rows": [
+        13799,
+        13809
+      ],
+      "immediate_parent_union": [
+        13044,
+        13045
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          10522,
+          18709,
+          18708
+        ],
+        [
+          18709,
+          18710,
+          18708
+        ]
+      ],
+      "old_faces": [
+        [
+          10522,
+          18710,
+          18708
+        ],
+        [
+          18710,
+          10522,
+          18709
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 2.915049994185171,
+          "minimum_area_ratio": 7.689268394541917,
+          "minimum_normal_cosine": 0.1433501973051872
+        },
+        "before": {
+          "minimum_angle_deg": 2.542078051334901,
+          "minimum_area_ratio": 6.119325018962253,
+          "minimum_normal_cosine": 0.0530591349809031
+        },
+        "deltas": {
+          "area_ratio": 1.5699433755796637,
+          "min_angle_deg": 0.37297194285027,
+          "normal_cosine": 0.09029106232428409
+        },
+        "score": [
+          1.5699433755796637,
+          0.09029106232428409,
+          0.37297194285027
+        ]
+      },
+      "source_ancestry_union": [
+        5529
+      ],
+      "source_detail": 5529,
+      "source_subface": 5529,
+      "subface_ancestry_union": [
+        5529
+      ]
+    },
+    {
+      "edge": [
+        12360,
+        18988
+      ],
+      "face_rows": [
+        13829,
+        13839
+      ],
+      "immediate_parent_union": [
+        13052,
+        13053
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          12360,
+          18986,
+          18985
+        ],
+        [
+          18986,
+          18988,
+          18985
+        ]
+      ],
+      "old_faces": [
+        [
+          12360,
+          18988,
+          18985
+        ],
+        [
+          18988,
+          12360,
+          18986
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 23.55252179074903,
+          "minimum_area_ratio": 10.888206667762734,
+          "minimum_normal_cosine": 0.387102371368662
+        },
+        "before": {
+          "minimum_angle_deg": 7.791814648267954,
+          "minimum_area_ratio": 9.723242111000248,
+          "minimum_normal_cosine": 0.2540155874039128
+        },
+        "deltas": {
+          "area_ratio": 1.1649645567624862,
+          "min_angle_deg": 15.760707142481076,
+          "normal_cosine": 0.1330867839647492
+        },
+        "score": [
+          1.1649645567624862,
+          0.1330867839647492,
+          15.760707142481076
+        ]
+      },
+      "source_ancestry_union": [
+        5529
+      ],
+      "source_detail": 5529,
+      "source_subface": 5529,
+      "subface_ancestry_union": [
+        5529
+      ]
+    },
+    {
+      "edge": [
+        14921,
+        18776
+      ],
+      "face_rows": [
+        26536,
+        26691
+      ],
+      "immediate_parent_union": [
+        23848,
+        23891
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          18776,
+          19523,
+          20363
+        ],
+        [
+          19523,
+          14921,
+          20363
+        ]
+      ],
+      "old_faces": [
+        [
+          18776,
+          14921,
+          20363
+        ],
+        [
+          19523,
+          14921,
+          18776
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 4.80601916879909,
+          "minimum_area_ratio": 7.977801927988981,
+          "minimum_normal_cosine": 0.17768907027159198
+        },
+        "before": {
+          "minimum_angle_deg": 3.8154920525552836,
+          "minimum_area_ratio": 6.8426551578445745,
+          "minimum_normal_cosine": 0.21750866568163046
+        },
+        "deltas": {
+          "area_ratio": 1.1351467701444067,
+          "min_angle_deg": 0.9905271162438067,
+          "normal_cosine": -0.03981959541003849
+        },
+        "score": [
+          1.1351467701444067,
+          -0.03981959541003849,
+          0.9905271162438067
+        ]
+      },
+      "source_ancestry_union": [
+        83785
+      ],
+      "source_detail": 83785,
+      "source_subface": 83793,
+      "subface_ancestry_union": [
+        83793
+      ]
+    },
+    {
+      "edge": [
+        17232,
+        18663
+      ],
+      "face_rows": [
+        21428,
+        21434
+      ],
+      "immediate_parent_union": [
+        19009,
+        19010
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          18663,
+          19581,
+          20298
+        ],
+        [
+          19581,
+          17232,
+          20298
+        ]
+      ],
+      "old_faces": [
+        [
+          18663,
+          17232,
+          20298
+        ],
+        [
+          17232,
+          18663,
+          19581
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 19.364555497905517,
+          "minimum_area_ratio": 1.4226929938559685,
+          "minimum_normal_cosine": 0.6097333722646873
+        },
+        "before": {
+          "minimum_angle_deg": 14.767545573914207,
+          "minimum_area_ratio": 1.4424676451714327,
+          "minimum_normal_cosine": 0.4773082661062917
+        },
+        "deltas": {
+          "area_ratio": -0.019774651315464187,
+          "min_angle_deg": 4.59700992399131,
+          "normal_cosine": 0.1324251061583956
+        },
+        "score": [
+          -0.019774651315464187,
+          0.1324251061583956,
+          4.59700992399131
+        ]
+      },
+      "source_ancestry_union": [
+        9696
+      ],
+      "source_detail": 9696,
+      "source_subface": 9698,
+      "subface_ancestry_union": [
+        9698
+      ]
+    },
+    {
+      "edge": [
+        9913,
+        18627
+      ],
+      "face_rows": [
+        30885,
+        30895
+      ],
+      "immediate_parent_union": [
+        27587,
+        27588
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          9913,
+          18625,
+          18624
+        ],
+        [
+          18625,
+          18627,
+          18624
+        ]
+      ],
+      "old_faces": [
+        [
+          9913,
+          18627,
+          18624
+        ],
+        [
+          18627,
+          9913,
+          18625
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 14.338218941195972,
+          "minimum_area_ratio": 3.8543422146158437,
+          "minimum_normal_cosine": 0.9464086839233601
+        },
+        "before": {
+          "minimum_angle_deg": 7.762769856934305,
+          "minimum_area_ratio": 3.8755867209699852,
+          "minimum_normal_cosine": 0.9190753757280138
+        },
+        "deltas": {
+          "area_ratio": -0.021244506354141546,
+          "min_angle_deg": 6.575449084261667,
+          "normal_cosine": 0.027333308195346295
+        },
+        "score": [
+          -0.021244506354141546,
+          0.027333308195346295,
+          6.575449084261667
+        ]
+      },
+      "source_ancestry_union": [
+        88498
+      ],
+      "source_detail": 88498,
+      "source_subface": 88506,
+      "subface_ancestry_union": [
+        88506
+      ]
+    },
+    {
+      "edge": [
+        17807,
+        19169
+      ],
+      "face_rows": [
+        31409,
+        31415
+      ],
+      "immediate_parent_union": [
+        27763,
+        27764
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          19169,
+          19660,
+          20589
+        ],
+        [
+          19660,
+          17807,
+          20589
+        ]
+      ],
+      "old_faces": [
+        [
+          19169,
+          17807,
+          20589
+        ],
+        [
+          17807,
+          19169,
+          19660
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 10.890168516285986,
+          "minimum_area_ratio": 0.2639101587758803,
+          "minimum_normal_cosine": 0.9389848714483
+        },
+        "before": {
+          "minimum_angle_deg": 6.214481336768974,
+          "minimum_area_ratio": 0.9027747221307798,
+          "minimum_normal_cosine": 0.9183718544984902
+        },
+        "deltas": {
+          "area_ratio": -0.6388645633548995,
+          "min_angle_deg": 4.675687179517012,
+          "normal_cosine": 0.02061301694980977
+        },
+        "score": [
+          -0.6388645633548995,
+          0.02061301694980977,
+          4.675687179517012
+        ]
+      },
+      "source_ancestry_union": [
+        88499
+      ],
+      "source_detail": 88499,
+      "source_subface": 88507,
+      "subface_ancestry_union": [
+        88507
+      ]
+    },
+    {
+      "edge": [
+        11127,
+        20773
+      ],
+      "face_rows": [
+        34897,
+        34898
+      ],
+      "immediate_parent_union": [
+        30469
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          11127,
+          18835,
+          18831
+        ],
+        [
+          18835,
+          20773,
+          18831
+        ]
+      ],
+      "old_faces": [
+        [
+          18831,
+          11127,
+          20773
+        ],
+        [
+          11127,
+          18835,
+          20773
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 16.74985716706608,
+          "minimum_area_ratio": 10.157808699722027,
+          "minimum_normal_cosine": 0.6562883367681344
+        },
+        "before": {
+          "minimum_angle_deg": 5.91919389933853,
+          "minimum_area_ratio": 11.501348570715766,
+          "minimum_normal_cosine": 0.399748725865898
+        },
+        "deltas": {
+          "area_ratio": -1.3435398709937392,
+          "min_angle_deg": 10.830663267727548,
+          "normal_cosine": 0.25653961090223637
+        },
+        "score": [
+          -1.3435398709937392,
+          0.25653961090223637,
+          10.830663267727548
+        ]
+      },
+      "source_ancestry_union": [
+        90122
+      ],
+      "source_detail": 90122,
+      "source_subface": 90130,
+      "subface_ancestry_union": [
+        90130
+      ]
+    },
+    {
+      "edge": [
+        14825,
+        19499
+      ],
+      "face_rows": [
+        19119,
+        19163
+      ],
+      "immediate_parent_union": [
+        -1,
+        17196
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          14825,
+          20189,
+          20182
+        ],
+        [
+          20189,
+          19499,
+          20182
+        ]
+      ],
+      "old_faces": [
+        [
+          14825,
+          19499,
+          20182
+        ],
+        [
+          19499,
+          14825,
+          20189
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 4.902912379373916,
+          "minimum_area_ratio": 54.43692782805226,
+          "minimum_normal_cosine": 0.13946231726557096
+        },
+        "before": {
+          "minimum_angle_deg": 2.129687246467461,
+          "minimum_area_ratio": 56.99080567278218,
+          "minimum_normal_cosine": 0.34384213444093753
+        },
+        "deltas": {
+          "area_ratio": -2.553877844729918,
+          "min_angle_deg": 2.773225132906455,
+          "normal_cosine": -0.20437981717536657
+        },
+        "score": [
+          -2.553877844729918,
+          -0.20437981717536657,
+          2.773225132906455
+        ]
+      },
+      "source_ancestry_union": [
+        8265
+      ],
+      "source_detail": 8265,
+      "source_subface": 8267,
+      "subface_ancestry_union": [
+        8267
+      ]
+    },
+    {
+      "edge": [
+        11144,
+        20700
+      ],
+      "face_rows": [
+        34168,
+        34169
+      ],
+      "immediate_parent_union": [
+        30049
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          11144,
+          18844,
+          18842
+        ],
+        [
+          18844,
+          20700,
+          18842
+        ]
+      ],
+      "old_faces": [
+        [
+          18842,
+          11144,
+          20700
+        ],
+        [
+          11144,
+          18844,
+          20700
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 15.270326135939415,
+          "minimum_area_ratio": 14.053937870767346,
+          "minimum_normal_cosine": 0.6680596929261462
+        },
+        "before": {
+          "minimum_angle_deg": 6.741150119256565,
+          "minimum_area_ratio": 17.763381346272205,
+          "minimum_normal_cosine": -0.22265507507077062
+        },
+        "deltas": {
+          "area_ratio": -3.709443475504859,
+          "min_angle_deg": 8.52917601668285,
+          "normal_cosine": 0.8907147679969168
+        },
+        "score": [
+          -3.709443475504859,
+          0.8907147679969168,
+          8.52917601668285
+        ]
+      },
+      "source_ancestry_union": [
+        90091
+      ],
+      "source_detail": 90091,
+      "source_subface": 90099,
+      "subface_ancestry_union": [
+        90099
+      ]
+    },
+    {
+      "edge": [
+        8988,
+        19957
+      ],
+      "face_rows": [
+        14139,
+        14140
+      ],
+      "immediate_parent_union": [
+        13172
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          8988,
+          18457,
+          18455
+        ],
+        [
+          18457,
+          19957,
+          18455
+        ]
+      ],
+      "old_faces": [
+        [
+          18455,
+          8988,
+          19957
+        ],
+        [
+          8988,
+          18457,
+          19957
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 6.947852108963266,
+          "minimum_area_ratio": 23.95992254399673,
+          "minimum_normal_cosine": 0.9802871369756562
+        },
+        "before": {
+          "minimum_angle_deg": 5.869782654928268,
+          "minimum_area_ratio": 18.799689595428482,
+          "minimum_normal_cosine": 0.977021560533612
+        },
+        "deltas": {
+          "area_ratio": 5.160232948568247,
+          "min_angle_deg": 1.0780694540349982,
+          "normal_cosine": 0.0032655764420441713
+        },
+        "score": [
+          5.160232948568247,
+          0.0032655764420441713,
+          1.0780694540349982
+        ]
+      },
+      "source_ancestry_union": [
+        5530
+      ],
+      "source_detail": 5530,
+      "source_subface": 5530,
+      "subface_ancestry_union": [
+        5530
+      ]
+    },
+    {
+      "edge": [
+        13167,
+        20683
+      ],
+      "face_rows": [
+        34064,
+        34065
+      ],
+      "immediate_parent_union": [
+        30022
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          13167,
+          19194,
+          19192
+        ],
+        [
+          19194,
+          20683,
+          19192
+        ]
+      ],
+      "old_faces": [
+        [
+          19192,
+          13167,
+          20683
+        ],
+        [
+          13167,
+          19194,
+          20683
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 12.960509355387643,
+          "minimum_area_ratio": 145.2252348149124,
+          "minimum_normal_cosine": 0.36034627363464633
+        },
+        "before": {
+          "minimum_angle_deg": 10.558135621799364,
+          "minimum_area_ratio": 140.41753551792294,
+          "minimum_normal_cosine": 0.06180416504631028
+        },
+        "deltas": {
+          "area_ratio": 4.807699296989455,
+          "min_angle_deg": 2.402373733588279,
+          "normal_cosine": 0.2985421085883361
+        },
+        "score": [
+          4.807699296989455,
+          0.2985421085883361,
+          2.402373733588279
+        ]
+      },
+      "source_ancestry_union": [
+        90091
+      ],
+      "source_detail": 90091,
+      "source_subface": 90099,
+      "subface_ancestry_union": [
+        90099
+      ]
+    },
+    {
+      "edge": [
+        13196,
+        20765
+      ],
+      "face_rows": [
+        34845,
+        34846
+      ],
+      "immediate_parent_union": [
+        30451
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          13196,
+          19216,
+          19214
+        ],
+        [
+          19216,
+          20765,
+          19214
+        ]
+      ],
+      "old_faces": [
+        [
+          19214,
+          13196,
+          20765
+        ],
+        [
+          13196,
+          19216,
+          20765
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 12.637784661774365,
+          "minimum_area_ratio": 5.517978790867405,
+          "minimum_normal_cosine": 0.6167347336583862
+        },
+        "before": {
+          "minimum_angle_deg": 4.956767034041883,
+          "minimum_area_ratio": 2.8426451591326773,
+          "minimum_normal_cosine": 0.6655533139364498
+        },
+        "deltas": {
+          "area_ratio": 2.6753336317347274,
+          "min_angle_deg": 7.681017627732482,
+          "normal_cosine": -0.04881858027806363
+        },
+        "score": [
+          2.6753336317347274,
+          -0.04881858027806363,
+          7.681017627732482
+        ]
+      },
+      "source_ancestry_union": [
+        90122
+      ],
+      "source_detail": 90122,
+      "source_subface": 90130,
+      "subface_ancestry_union": [
+        90130
+      ]
+    },
+    {
+      "edge": [
+        10551,
+        20006
+      ],
+      "face_rows": [
+        14884,
+        14889
+      ],
+      "immediate_parent_union": [
+        13709
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          20006,
+          18727,
+          18725
+        ],
+        [
+          18727,
+          10551,
+          18725
+        ]
+      ],
+      "old_faces": [
+        [
+          10551,
+          18725,
+          20006
+        ],
+        [
+          18727,
+          10551,
+          20006
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 2.0208623763285862,
+          "minimum_area_ratio": 4.881381910505522,
+          "minimum_normal_cosine": 0.952544776283861
+        },
+        "before": {
+          "minimum_angle_deg": 1.0849261338021747,
+          "minimum_area_ratio": 2.3888618108960995,
+          "minimum_normal_cosine": 0.7105672915535942
+        },
+        "deltas": {
+          "area_ratio": 2.4925200996094223,
+          "min_angle_deg": 0.9359362425264115,
+          "normal_cosine": 0.2419774847302668
+        },
+        "score": [
+          2.4925200996094223,
+          0.2419774847302668,
+          0.9359362425264115
+        ]
+      },
+      "source_ancestry_union": [
+        6103
+      ],
+      "source_detail": 6103,
+      "source_subface": 6103,
+      "subface_ancestry_union": [
+        6103
+      ]
+    },
+    {
+      "edge": [
+        14981,
+        19535
+      ],
+      "face_rows": [
+        29297,
+        29305
+      ],
+      "immediate_parent_union": [
+        26162,
+        26163
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          14981,
+          20471,
+          20470
+        ],
+        [
+          20471,
+          19535,
+          20470
+        ]
+      ],
+      "old_faces": [
+        [
+          14981,
+          19535,
+          20470
+        ],
+        [
+          19535,
+          14981,
+          20471
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 9.277778105718145,
+          "minimum_area_ratio": 4.515850451874927,
+          "minimum_normal_cosine": 0.47777916908596957
+        },
+        "before": {
+          "minimum_angle_deg": 9.962493247130286,
+          "minimum_area_ratio": 3.109556018256651,
+          "minimum_normal_cosine": 0.9434450309000184
+        },
+        "deltas": {
+          "area_ratio": 1.4062944336182763,
+          "min_angle_deg": -0.6847151414121413,
+          "normal_cosine": -0.46566586181404884
+        },
+        "score": [
+          1.4062944336182763,
+          -0.46566586181404884,
+          -0.6847151414121413
+        ]
+      },
+      "source_ancestry_union": [
+        87944
+      ],
+      "source_detail": 87944,
+      "source_subface": 87952,
+      "subface_ancestry_union": [
+        87952
+      ]
+    },
+    {
+      "edge": [
+        16752,
+        20010
+      ],
+      "face_rows": [
+        14909,
+        14910
+      ],
+      "immediate_parent_union": [
+        -1,
+        13713
+      ],
+      "material_kind": 2,
+      "new_faces": [
+        [
+          16752,
+          20013,
+          19342
+        ],
+        [
+          20013,
+          20010,
+          19342
+        ]
+      ],
+      "old_faces": [
+        [
+          19342,
+          16752,
+          20010
+        ],
+        [
+          16752,
+          20013,
+          20010
+        ]
+      ],
+      "owner_reason": "candidate",
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 8.146636023363767,
+          "minimum_area_ratio": 40.944939504240764,
+          "minimum_normal_cosine": 0.5682779399764927
+        },
+        "before": {
+          "minimum_angle_deg": 6.046555494853678,
+          "minimum_area_ratio": 42.491938283710326,
+          "minimum_normal_cosine": 0.3744921196539959
+        },
+        "deltas": {
+          "area_ratio": -1.5469987794695612,
+          "min_angle_deg": 2.100080528510089,
+          "normal_cosine": 0.19378582032249675
+        },
+        "score": [
+          -1.5469987794695612,
+          0.19378582032249675,
+          2.100080528510089
+        ]
+      },
+      "source_ancestry_union": [
+        6103
+      ],
+      "source_detail": 6103,
+      "source_subface": 6103,
+      "subface_ancestry_union": [
+        6103
+      ]
+    }
+  ],
+  "status": "FOCUSED_LOCAL_CONSTRUCTION_CANDIDATE_PENDING_ROOT_EXACT_AUDIT",
+  "typed_anchor_coordinates_bitwise_unchanged": true,
+  "typed_anchor_count": 237,
+  "zero_limit_means_unlimited": true
+}

@@ -1,0 +1,143 @@
+{
+  "arithmetic": {
+    "accepted_physical_steps": 0,
+    "area_gate": {
+      "area_floor": 0.1,
+      "bad_current_oriented_face_count": 0,
+      "bad_current_oriented_face_rows_first_64": [],
+      "bad_current_oriented_face_rows_truncated": false,
+      "bad_fixed_037_reference_face_count": 0,
+      "bad_fixed_037_reference_face_rows_first_64": [],
+      "bad_fixed_037_reference_face_rows_truncated": false,
+      "faces_checked": 41733,
+      "minimum_current_oriented_ratio": 0.9999999999999994,
+      "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+      "pass": true
+    },
+    "maximum_source_distance_mm": 11.987026024567324,
+    "maximum_step_mm": 0.0,
+    "minimum_edge_slack_mm": 0.0,
+    "native_admission": false,
+    "report_sha256": "0bdada0638a950615d454be91de732dce5a2d3b715351875791783962ed781cd",
+    "status": "ARITHMETIC_PASS"
+  },
+  "candidate_lineage": {
+    "filter_source_sha256": "e7ef0c70bcdd00d7231ade347a6764ea899021b0d1cfbce88a118559ca863228",
+    "filtered_report_sha256": "3832e580b650199b7e3152b5fa5f7846a18c4279f4014fc172293855f02c0db1",
+    "full_run006_candidate_sha256": "27611365f7816560a883d0ec7ab15ce4c39c606389228001da9f06306d20a87f",
+    "full_run006_report_sha256": "6ed2925fd7c184efd1c94157cdc233b117ec3a2a48a9792c288100baa0b6be03",
+    "removed_for_exact_self_witnesses": 26,
+    "retained_operations": 34,
+    "selected_operations": 60
+  },
+  "candidate_sha256": "a1fce94c3dc57b79f16f94b117e7d49e83a0ff7219de73ce6e7abcec17f22dae",
+  "exact_self_audit": {
+    "complete": true,
+    "inside_node_bank_pairs": 267,
+    "self_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-007-filtered/audit-130/surface-self-pairs.npy",
+    "self_pairs_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "summary_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-007-filtered/audit-130/summary.json",
+    "summary_sha256": "8a02298c09f69b912fec691b08a3b4c3381351321e5d23ea697b806ea9f3b9ab",
+    "surface_self_pairs": 0
+  },
+  "exact_skin_bone_audit": {
+    "bank_count": 185,
+    "complete": true,
+    "parent_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-005-filtered/audit-159/report.json",
+    "parent_report_sha256": "6a536b9a869f5909dbc521af9fbb8b5065344b24e2972c410f17c9d0bbd738fd",
+    "parent_surface_pairs": 2900,
+    "per_bank_deltas": {
+      "109/114": -2,
+      "115/118": -2,
+      "124/123": 1,
+      "43/16": 1,
+      "59/95": -2,
+      "65/99": -4
+    },
+    "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-007-filtered-rerun/audit-159/report.json",
+    "report_sha256": "38404eae3b620bf24cced157f31a3ceeaa7a8807da1784ebea4b5ad63f9b211d",
+    "surface_pair_delta": -8,
+    "surface_pairs": 2892
+  },
+  "joint_count_comparison": {
+    "candidate_total_surface_plus_inside_pairs": 3159,
+    "inside_node_bank_pairs": 267,
+    "parent_inside_node_bank_pairs": 267,
+    "parent_total_surface_plus_inside_pairs": 3167,
+    "strict_construction_progress": true,
+    "total_pair_delta": -8
+  },
+  "limitations": [
+    "Construction evidence only; no physical steps or native admission. Per-bank counts are not monotone: two typed banks increase by one pair each."
+  ],
+  "parent_candidate_sha256": "bd0b103a6c69697e935bf4ab74b2825dec61ccda8487526026337c3456d22c35",
+  "preserved_interrupted_attempt": {
+    "completed_banks": 140,
+    "expected_banks": 185,
+    "log_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-007-filtered/audit-159.log",
+    "log_sha256": "dc3187560574e86e46c391eb6af6f2ad9c0f13c5220e14c7589478d771ce3dfa",
+    "progress_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-007-filtered/audit-159/progress.json",
+    "progress_sha256": "9348347bf7457875c776ea000f18ddd96790336b7fc9f3d154ed1c9ebda4f0d3",
+    "used_for_final_result": false
+  },
+  "schema": "numi.human.focused-clearance-541.bound-exact-construction-receipt.v1",
+  "source_pins": {
+    "arithmetic": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-007-arithmetic/report.json",
+      "sha256": "0bdada0638a950615d454be91de732dce5a2d3b715351875791783962ed781cd"
+    },
+    "audit130": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-007-filtered/audit-130/summary.json",
+      "sha256": "8a02298c09f69b912fec691b08a3b4c3381351321e5d23ea697b806ea9f3b9ab"
+    },
+    "audit159": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-007-filtered-rerun/audit-159/report.json",
+      "sha256": "38404eae3b620bf24cced157f31a3ceeaa7a8807da1784ebea4b5ad63f9b211d"
+    },
+    "baseline005_130": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-005-filtered/audit-130/summary.json",
+      "sha256": "7d4f953a10f371747e40368bfb4184747693f8c01f91b5df4b0b2be2f453a196"
+    },
+    "baseline005_159": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-005-filtered/audit-159/report.json",
+      "sha256": "6a536b9a869f5909dbc521af9fbb8b5065344b24e2972c410f17c9d0bbd738fd"
+    },
+    "baseline005_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/run-005-filtered/candidate.npz",
+      "sha256": "bd0b103a6c69697e935bf4ab74b2825dec61ccda8487526026337c3456d22c35"
+    },
+    "candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/run-007-filtered/candidate.npz",
+      "sha256": "a1fce94c3dc57b79f16f94b117e7d49e83a0ff7219de73ce6e7abcec17f22dae"
+    },
+    "filter_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/run-007-filtered/report.json",
+      "sha256": "3832e580b650199b7e3152b5fa5f7846a18c4279f4014fc172293855f02c0db1"
+    },
+    "filter_source": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/filter_self_safe_run006_544.py",
+      "sha256": "e7ef0c70bcdd00d7231ade347a6764ea899021b0d1cfbce88a118559ca863228"
+    },
+    "interrupted159_log": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-007-filtered/audit-159.log",
+      "sha256": "dc3187560574e86e46c391eb6af6f2ad9c0f13c5220e14c7589478d771ce3dfa"
+    },
+    "interrupted159_progress": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-007-filtered/audit-159/progress.json",
+      "sha256": "9348347bf7457875c776ea000f18ddd96790336b7fc9f3d154ed1c9ebda4f0d3"
+    },
+    "run006_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/run-006-followup/candidate.npz",
+      "sha256": "27611365f7816560a883d0ec7ab15ce4c39c606389228001da9f06306d20a87f"
+    },
+    "run006_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/run-006-followup/report.json",
+      "sha256": "6ed2925fd7c184efd1c94157cdc233b117ec3a2a48a9792c288100baa0b6be03"
+    },
+    "self_pairs130": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/check-007-filtered/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+    }
+  },
+  "status": "PASS_CONSTRUCTION_ONLY"
+}
