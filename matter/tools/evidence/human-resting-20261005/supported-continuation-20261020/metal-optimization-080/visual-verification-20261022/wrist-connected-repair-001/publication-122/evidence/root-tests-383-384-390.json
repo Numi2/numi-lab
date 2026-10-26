@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/coherent-support-continuation-384/test_run_coherent_target_continuation_384.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/coherent-point-targets-390/test_build_coherent_point_targets_390.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-bulk-383/test_bulk_remesh_383.py"
+  ],
+  "returncode": 0,
+  "stdout": ".............................................                            [100%]\n45 passed in 0.54s\n",
+  "stderr": "",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

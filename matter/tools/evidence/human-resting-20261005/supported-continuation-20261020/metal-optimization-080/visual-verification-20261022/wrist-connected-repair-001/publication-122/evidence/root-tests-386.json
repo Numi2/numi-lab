@@ -1,0 +1,8 @@
+{
+  "returncode": 0,
+  "stdout": "..........                                                               [100%]\n10 passed in 0.05s\n",
+  "stderr": "",
+  "command": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-bulk-386/test_bulk_remesh_386.py",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}
