@@ -1,0 +1,24 @@
+test_degenerate_rejected (test_choose_coherent_exit_planes_550.TestChooser.test_degenerate_rejected) ... ok
+test_fallback_per_original_facet (test_choose_coherent_exit_planes_550.TestChooser.test_fallback_per_original_facet) ... ok
+test_identity_mismatch_rejected (test_choose_coherent_exit_planes_550.TestChooser.test_identity_mismatch_rejected) ... ok
+test_minimum_deficit (test_choose_coherent_exit_planes_550.TestChooser.test_minimum_deficit) ... ok
+test_opposed_exit_rejected (test_choose_coherent_exit_planes_550.TestChooser.test_opposed_exit_rejected) ... ok
+test_positive_exit_eligible (test_choose_coherent_exit_planes_550.TestChooser.test_positive_exit_eligible) ... ok
+test_stable_id_breaks_tie (test_choose_coherent_exit_planes_550.TestChooser.test_stable_id_breaks_tie) ... ok
+test_anchored_positive_preserved (test_coherent_exit_plane_adapter550.TestBundle.test_anchored_positive_preserved) ... ok
+test_coherent_plane_identity_and_equal_mass (test_coherent_exit_plane_adapter550.TestBundle.test_coherent_plane_identity_and_equal_mass) ... ok
+test_fallback_parity (test_coherent_exit_plane_adapter550.TestBundle.test_fallback_parity) ... ok
+test_inconsistent_group_rejected (test_coherent_exit_plane_adapter550.TestBundle.test_inconsistent_group_rejected) ... ok
+test_keyed_bad_shapes_rejected (test_coherent_exit_plane_adapter550.TestBundle.test_keyed_bad_shapes_rejected) ... ok
+test_missing_identity_rejected (test_coherent_exit_plane_adapter550.TestBundle.test_missing_identity_rejected) ... ok
+test_baseline_feasible_and_plane_excludes_inside (test_witness_facet550.TestWitnessFacet.test_baseline_feasible_and_plane_excludes_inside) ... ok
+test_conflicting_registered_geometry_rejected (test_witness_facet550.TestWitnessFacet.test_conflicting_registered_geometry_rejected) ... ok
+test_duplicate_and_bounds (test_witness_facet550.TestWitnessFacet.test_duplicate_and_bounds) ... ok
+test_geometry_mismatch_rejected (test_witness_facet550.TestWitnessFacet.test_geometry_mismatch_rejected) ... ok
+test_inside_baseline_rejected (test_witness_facet550.TestWitnessFacet.test_inside_baseline_rejected) ... ok
+test_nearest_other_facet_cannot_substitute (test_witness_facet550.TestWitnessFacet.test_nearest_other_facet_cannot_substitute) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.005s
+
+OK

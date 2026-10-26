@@ -1,0 +1,25 @@
+{
+  "omitted_payloads": [
+    {
+      "bytes": 43286851,
+      "package_path": null,
+      "reason": "Large stdout mirror of structured fit/report.json; candidate, exact check reports, audit witnesses, launch/execution metadata, and source pins remain included.",
+      "sha256": "9f38892e4909f9d8d1c3f2e0ba75b015031c7c7298b64d17632e32f3b48ffc9d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-017-coherent-exit550/fit-stage.log"
+    },
+    {
+      "bytes": 43374164,
+      "package_path": null,
+      "reason": "Large stdout mirror of structured fit/report.json; candidate, exact check reports, audit witnesses, launch/execution metadata, and source pins remain included.",
+      "sha256": "5979cd8439bad9550309fb80a1f3eb587981354980cac54a4ad4a6c78a350f18",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-018-coherent-witness550/fit-stage.log"
+    },
+    {
+      "bytes": 43162462,
+      "package_path": null,
+      "reason": "Large stdout mirror of structured fit/report.json; candidate, exact check reports, audit witnesses, launch/execution metadata, and source pins remain included.",
+      "sha256": "d959e92a3d1f59b4b8d7a2ee2032a254c1bdf9846a397c1d0c841c73a2fef774",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-019-pair-sat551/fit-stage.log"
+    }
+  ]
+}

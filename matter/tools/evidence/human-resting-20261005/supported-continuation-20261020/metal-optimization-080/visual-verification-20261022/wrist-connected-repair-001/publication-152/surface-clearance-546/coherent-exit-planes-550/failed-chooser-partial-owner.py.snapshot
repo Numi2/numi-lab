@@ -1,0 +1,214 @@
+#!/usr/bin/env python3
+"""Choose one existing target-witness facet plane per (skin face, typed bank).
+This is an arithmetic-only construction proposal. It does not run a fit or audit.
+"""
+from __future__ import annotations
+import argparse,csv,hashlib,json,importlib.util,sys
+from collections import defaultdict
+from pathlib import Path
+import numpy as np
+
+ROOT=Path('/Users/numi/Work/numi-human-connected-surface-069')
+D=ROOT/'D/surface-clearance-546/round-015-one-scp-component'
+BASE=D/'prepare/baseline.json'
+CANDIDATE=D/'../topology/round-014-from2274-chain-025/round-003/candidate.npz'
+TARGET_DIR=D/'prepare/surface-targets'
+TARGETS=TARGET_DIR/'targets.npz'
+TARGET_REPORT=TARGET_DIR/'report.json'
+TARGET_RECORDS=TARGET_DIR/'target-records.jsonl'
+SAT458=D/'fit.sat-crossing-inputs-458.npz'
+EMITTER314=ROOT/'D/connected-fixed-boundary-314/emit_introduced_skin_bone_barriers_314.py'
+EXPECTED_EMITTER314_SHA='3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78'
+
+EXPECTED_CANDIDATE_SHA='3ff88da6aa4a63ba849d7b9a497774b261b1785f8db322ad4b259cc9776bb717'
+SOURCE_KIND_RANK={'outward_hemisphere':0,'nearest_boundary':1,'original_crossed_fallback':2}
+
+def sha(path):
+ h=hashlib.sha256()
+ with Path(path).open('rb') as f:
+  for block in iter(lambda:f.read(1<<20),b''):h.update(block)
+ return h.hexdigest()
+
+def load_module(name,path):
+ spec=importlib.util.spec_from_file_location(name,path)
+ if spec is None or spec.loader is None:raise ImportError(f'cannot load pinned module: {path}')
+ m=importlib.util.module_from_spec(spec);sys.modules[name]=m;spec.loader.exec_module(m);return m
+
+def plane_metrics(corners_mm,tri_mm):
+ c=np.asarray(corners_mm,float);v=np.asarray(tri_mm,float)
+ if c.shape!=(3,3) or v.shape!=(3,3):raise ValueError('expected skin and bone triangles')
+ n=np.cross(v[1]-v[0],v[2]-v[0]);length=float(np.linalg.norm(n))
+ if not np.isfinite(length) or length<=1e-14:raise ValueError('degenerate candidate plane facet')
+ n=n/length;h=float(np.max(v@n)); deficits=np.maximum(0.,h-c@n)
+ return n,h,float(np.max(deficits)),deficits
+
+def choose_plane_candidate(corners_mm,candidates,original_fallback,*,positive_dot=0.0):
+ """Candidate is eligible only if it matches the group and n·its ray is positive."""
+ eligible=[]
+ for c in candidates:
+  if not c.get('identity_matches',False):continue
+  n,h,deficit,_=plane_metrics(corners_mm,c['triangle_world_mm'])
+  dot=float(n@np.asarray(c['certified_direction_world_unit'],float))
+  if dot>positive_dot:
+   eligible.append((deficit,int(c['triangle_stable_id']),SOURCE_KIND_RANK[c['source_kind']],int(c['source_pair_index']),c,n,h,dot))
+ if eligible:
+  _,_,_,_,c,n,h,dot=min(eligible,key=lambda x:x[:4])
+  mode='certified_endpoint_facet_minimum_corner_deficit'
+ else:
+  c=original_fallback
+  n,h,deficit,_=plane_metrics(corners_mm,c['triangle_world_mm'])
+  dot=float(n@np.asarray(c['certified_direction_world_unit'],float))
+  mode='original_crossed_facet_fallback_no_eligible_endpoint_plane'
+ return {'mode':mode,'triangle_stable_id':int(c['triangle_stable_id']),
+         'source_kind':c['source_kind'],'source_pair_index':int(c['source_pair_index']),
+         'triangle_world_mm':np.asarray(c['triangle_world_mm'],float),'normal_world_unit':n,
+         'support_mm':h,'max_positive_corner_deficit_mm':float(deficit),
+         'corner_deficits_mm':plane_metrics(corners_mm,c['triangle_world_mm'])[3],
+         'certified_direction_world_unit':np.asarray(c['certified_direction_world_unit'],float),
+         'normal_dot_source_direction':dot}
+
+def main():
+ ap=argparse.ArgumentParser();ap.add_argument('--output-dir',type=Path,default=Path(__file__).resolve().parent/'run-001');a=ap.parse_args()
+ if a.output_dir.exists():raise FileExistsError(a.output_dir)
+ paths={'baseline':BASE,'candidate':CANDIDATE,'targets':TARGETS,'target_report':TARGET_REPORT,'target_records':TARGET_RECORDS,'sat_inputs_458':SAT458,'emitter_314':EMITTER314}
+ pins={k:sha(v) for k,v in paths.items()}
+ if pins['candidate']!=EXPECTED_CANDIDATE_SHA:raise ValueError('round015 target-base candidate SHA mismatch')
+ base=json.loads(BASE.read_text());rep=json.loads(TARGET_REPORT.read_text())
+ if base.get('candidate_sha256')!=pins['candidate'] or rep.get('inputs',{}).get('candidate_sha256')!=pins['candidate']:
+  raise ValueError('target inputs do not bind frozen round015 baseline')
+ if rep.get('crossing_pairs')!=2232 or rep.get('matched_159_complete') is not True:
+  raise ValueError('expected complete matched round015 target set with 2232 pairs')
+ if pins['emitter_314']!=EXPECTED_EMITTER314_SHA:raise ValueError('314 exact triangle emitter source pin mismatch')
+ with np.load(CANDIDATE,allow_pickle=False) as z:C={k:z[k] for k in z.files}
+ with np.load(TARGETS,allow_pickle=False) as z:T={k:z[k] for k in z.files}
+ count=len(T['face_rows'])
+ if count!=2232 or not np.all(T['target_exactly_outside_all185']) or not np.all(T['outward_hemisphere_witness_valid']):
+  raise ValueError('matched target set incomplete or endpoint certification flags failed')
+ faces=np.asarray(C['source_O_faces']);points=np.asarray(C['points_world_m'],dtype=np.float64);fr=np.asarray(T['face_rows'],int);nodes=np.asarray(T['face_node_rows'],int)
+ if not np.array_equal(faces[fr],nodes):raise ValueError('target skin face rows do not match pinned candidate')
+ emitter=load_module('emitter314_exitchooser550',EMITTER314)
+ bank_reader=load_module('bankreader314_exitchooser550',emitter.BANK_HELPER)
+ if rep.get('inputs',{}).get('bank_reader_sha256')!=sha(emitter.BANK_HELPER):
+  raise ValueError('target report and pinned exact typed-bank reader differ')
+ if rep.get('inputs',{}).get('exact_bank_triangle_export_sha256')!=sha(emitter.BANK_DIR/'exact-emitted.triangles.csv'):
+  raise ValueError('target report and registered exact triangle export differ')
+ if rep.get('inputs',{}).get('exact_bank_body_export_sha256')!=sha(emitter.BANK_DIR/'exact-emitted.bodies.csv'):
+  raise ValueError('target report and registered exact body export differ')
+ # Use the same exact registered 039 Float32 source vertices and 314 inverse
+ # body-affine emission path as the reviewed 458/370 target reader.
+ tri_local,ids,_gids,_bodies,matrices,offsets,positions,bankkeys,bank_pins,_exact=bank_reader.read_bank_inputs(emitter.BANK_DIR,emitter.BANK_EVIDENCE)
+ triangle_lookup=emitter.typed_triangle_lookup(tri_local,ids)
+ transforms={int(b):(matrices[int(b)],offsets[int(b)],positions[int(b)]) for b in matrices}
+ original=[(int(T['bank_body'][i]),int(T['bank_stable_bone_id'][i]),int(T['bank_triangle_stable_id'][i])) for i in range(count)]
+ nearest=[(int(T['nearest_boundary_body'][i]),int(T['nearest_boundary_stable_bone_id'][i]),int(T['nearest_boundary_triangle_stable_id'][i])) for i in range(count)]
+ outward=[(int(T['outward_hemisphere_body'][i]),int(T['outward_hemisphere_stable_bone_id'][i]),int(T['outward_hemisphere_triangle_stable_id'][i])) for i in range(count)]
+ needed_pairs=set()
+ for i in range(count):
+  f=int(fr[i]);o=original[i]
+  needed_pairs.add((o[0],o[1],f,o[2]))
+  for key in (nearest[i],outward[i]):
+   if key[:2]==o[:2]:needed_pairs.add((key[0],key[1],f,key[2]))
+ emitted=emitter.make_barrier_arrays(needed_pairs,triangle_lookup,transforms)
+ exact_world={(int(b),int(s),int(f),int(t)):tri.copy() for b,s,f,t,tri in zip(
+   emitted['bank_body'],emitted['stable_bone_id'],emitted['skin_face_rows'],emitted['bank_triangle_stable_id'],emitted['fixed_triangles_world_mm'])}
+ # Bind each original crossing triangle to the exact round015 458 row and
+ # require the current 314 replay to agree at the owner tolerance.
+ with np.load(SAT458,allow_pickle=False) as z:sat={k:z[k] for k in z.files}
+ sat_ids=np.asarray(sat['pair_identity_body_bone_face_triangle'],dtype=np.int64)
+ target_ids=np.column_stack((np.asarray(T['bank_body'],int),np.asarray(T['bank_stable_bone_id'],int),fr,np.asarray(T['bank_triangle_stable_id'],int))).astype(np.int64)
+ if set(map(tuple,sat_ids))!=set(map(tuple,target_ids)) or len(sat_ids)!=count:
+  raise ValueError('round015 458 crossing identities do not exactly match target rows')
+ sat_world={tuple(map(int,k)):v for k,v in zip(sat_ids,np.asarray(sat['fixed_triangles_world_mm'],float))}
+ original_world=[]
+ for i,key in enumerate(target_ids):
+  k=tuple(map(int,key));emitted_tri=exact_world[k];sat_tri=sat_world[k]
+  if not np.allclose(emitted_tri,sat_tri,rtol=0.0,atol=1e-10):
+   raise ValueError(f'314 world triangle differs from matched 458 row beyond 1e-10 mm: {k}')
+  original_world.append(sat_tri.copy())
+ def triworld(key,face):return exact_world[(int(key[0]),int(key[1]),int(face),int(key[2]))]
+ bank_reader_sha=sha(emitter.BANK_HELPER)
+ paths['bank_reader_314']=emitter.BANK_HELPER
+ pins['bank_reader_314']=bank_reader_sha
+ paths['exact_triangle_export']=emitter.BANK_DIR/'exact-emitted.triangles.csv';pins['exact_triangle_export']=sha(paths['exact_triangle_export'])
+ paths['exact_body_export']=emitter.BANK_DIR/'exact-emitted.bodies.csv';pins['exact_body_export']=sha(paths['exact_body_export'])
+ paths['bank_inventory']=emitter.BANK_DIR/'all-bank-containment.csv.banks.csv';pins['bank_inventory']=sha(paths['bank_inventory'])
+ groups=defaultdict(list)
+ for i in range(count):groups[(int(fr[i]),int(T['bank_body'][i]),int(T['bank_stable_bone_id'][i]))].append(i)
+ group_rows=[];pair_group=np.empty(count,dtype=np.int32);member_ptr=[0];members=[];opp_input_group_count=0;selected_dot_min=float('inf')
+ for gi,(gkey,inds) in enumerate(sorted(groups.items())):
+  face,body,bone=gkey;corners=points[np.asarray(faces[face],int)]*1000.;corners_by_group.append(corners)
+  candidates=[];orig=[];cross_normals=[]
+  for i in inds:
+   d=np.asarray(T['proposal_direction_world_unit'][i],float)
+   okey=original[i];ook=(outward[i]);nkey=nearest[i]
+   if okey[:2]!=(body,bone):raise ValueError('original crossing typed identity differs from group')
+   otw=triworld(okey,face);on=np.cross(otw[1]-otw[0],otw[2]-otw[0]);on/=np.linalg.norm(on);cross_normals.append(on)
+   orig.append({'identity_matches':True,'triangle_stable_id':okey[2],'source_kind':'original_crossed_fallback','source_pair_index':int(T['pair_index'][i]),'triangle_world_mm':otw,'certified_direction_world_unit':d})
+   for kind,key in [('nearest_boundary',nkey),('outward_hemisphere',ook)]:
+    matches=key[:2]==(body,bone)
+    if not matches:continue
+    if kind=='outward_hemisphere' and not bool(T['outward_hemisphere_witness_valid'][i]):continue
+    candidates.append({'identity_matches':True,'triangle_stable_id':key[2],'source_kind':kind,'source_pair_index':int(T['pair_index'][i]),'triangle_world_mm':triworld(key,face),'certified_direction_world_unit':d})
+  if len(cross_normals)>1:
+   dots=np.array(cross_normals)@np.array(cross_normals).T
+   if float(np.min(dots[np.triu_indices(len(inds),1)]))<0:opp_input_group_count+=1
+  # Deterministic fallback: first original pair by target pair_index.
+  fallback=min(orig,key=lambda x:int(x['source_pair_index']))
+  chosen=choose_plane_candidate(corners,candidates,fallback)
+  selected_dot_min=min(selected_dot_min,chosen['normal_dot_source_direction'])
+  group_rows.append({'group_index':gi,'skin_face_row':face,'bank_body':body,'bank_stable_bone_id':bone,
+     'pair_rows':inds,'pair_indices':[int(T['pair_index'][i]) for i in inds],
+     'original_crossed_triangle_ids':[int(T['bank_triangle_stable_id'][i]) for i in inds],
+     'selected_plane_triangle_stable_id':chosen['triangle_stable_id'],'selected_plane_source_kind':chosen['source_kind'],
+     'selected_source_pair_index':chosen['source_pair_index'],'selection_mode':chosen['mode'],
+     'plane_normal_world_unit':chosen['normal_world_unit'].tolist(),'plane_support_mm':chosen['support_mm'],
+     'max_positive_corner_deficit_mm':chosen['max_positive_corner_deficit_mm'],
+     'corner_deficits_mm':chosen['corner_deficits_mm'].tolist(),'normal_dot_selected_ray':chosen['normal_dot_source_direction'],
+     'selected_plane_world_vertices_mm':chosen['triangle_world_mm'].tolist(),
+     'selected_certified_direction_world_unit':chosen['certified_direction_world_unit'].tolist()})
+  pair_group[inds]=gi;members.extend(inds);member_ptr.append(len(members))
+ modes=[r['selection_mode'] for r in group_rows];deficits=np.array([r['max_positive_corner_deficit_mm'] for r in group_rows])
+ # Expand the one selected group plane back to one row per original matched pair,
+ # so the frozen 458 adapter can preserve its 2232-row input cardinality.
+ expanded=expand_group_choices(pair_group,group_rows,fallback_by_pair,corners_by_group)
+ original_triangles=np.asarray(original_world,dtype=np.float64)
+ selected_triangles=np.asarray([r['selected_plane_world_vertices_mm'] for r in expanded],dtype=np.float64)
+ eligible=np.asarray([r['selection_mode']=='certified_endpoint_facet_minimum_corner_deficit' for r in expanded],dtype=bool)
+ outdir=a.output_dir;outdir.mkdir(parents=True)
+ npz=outdir/'coherent-exit-plane-rows.npz'
+ np.savez_compressed(npz,
+  pair_index=np.asarray(T['pair_index'],dtype=np.int64),
+  face_rows=fr.astype(np.int64),bank_body=np.asarray(T['bank_body'],dtype=np.int32),
+  bank_stable_bone_id=np.asarray(T['bank_stable_bone_id'],dtype=np.int32),
+  bank_triangle_stable_id=np.asarray(T['bank_triangle_stable_id'],dtype=np.int64),
+  selected_plane_triangle_stable_id=np.asarray([r['selected_plane_triangle_stable_id'] for r in expanded],dtype=np.int64),
+  selected_plane_triangles_world_mm=selected_triangles,selected_plane_eligible=eligible,
+  selected_plane_source_kind=np.asarray([r['selected_plane_source_kind'] for r in expanded]),
+  selected_source_pair_index=np.asarray([r['selected_source_pair_index'] for r in expanded],dtype=np.int64),
+  selected_plane_normals_world_unit=np.asarray([r['plane_normal_world_unit'] for r in expanded],dtype=np.float64),
+  selected_plane_support_mm=np.asarray([r['plane_support_mm'] for r in expanded],dtype=np.float64),
+  max_positive_corner_deficit_mm=np.asarray([r['max_positive_corner_deficit_mm'] for r in expanded],dtype=np.float64),
+  normal_dot_selected_certified_ray=np.asarray([r['normal_dot_selected_ray'] for r in expanded],dtype=np.float64),
+  original_crossed_triangles_world_mm=original_triangles,
+  pair_group_index=pair_group.astype(np.int32),
+  group_pair_indptr=np.asarray(member_ptr,dtype=np.int64),group_pair_target_row_indices=np.asarray(members,dtype=np.int64))
+ doc={'schema':'numi.human.round015_coherent_exit_plane_rows_550.v1',
+  'status':'EXPERIMENTAL_CONSTRUCTION_ROWS_ONLY_UNADMITTED',
+  'geometry_admitted':False,'native_admission':False,'accepted_physical_steps':0,
+  'clearance_claim':False,'solver_run':False,'geometry_audit_run':False,
+  'method':'For each (skin face, typed bank), choose one facet from that group’s existing nearest-boundary/outward-hemisphere target identities that matches the original bank and has positive normal dot with its own certified outgoing ray. Minimize maximum positive corner deficit; tie-break by stable triangle ID, witness kind, then source pair index. Fall back to the original crossed facet only if no eligible endpoint facet exists.',
+  'interpretation':'Construction routing/objective proposal only. Chosen planes are not new collision certificates and do not replace unchanged exact self, all185 bone, area, edge, source, anchor, or final endpoint gates.',
+  'input_pins':pins,'target_pair_count':count,'unique_skin_face_bank_groups':len(group_rows),
+  'groups_with_opposed_original_crossing_face_normals':int(opp_input_group_count),
+  'groups_using_certified_endpoint_facet':int(sum(m=='certified_endpoint_facet_minimum_corner_deficit' for m in modes)),
+  'groups_fallback_original_crossed_facet':int(sum(m!='certified_endpoint_facet_minimum_corner_deficit' for m in modes)),
+  'input_row_count_preserved':True,'selected_plane_geometry_repeats_one_plane_per_group':True,
+  'selected_plane_differs_from_original_crossed_triangle_rows':int(sum(not np.array_equal(selected_triangles[i],original_triangles[i]) for i in range(count))),
+  'minimum_selected_normal_dot_own_certified_ray':float(selected_dot_min),
+  'max_positive_corner_deficit_mm':{'median':float(np.median(deficits)),'p90':float(np.quantile(deficits,.9)),'max':float(np.max(deficits))},
+  'source_pins':pins,'matched_458_crossing_input_sha256':pins['sat_inputs_458'],'bank_reader_314_sha256':bank_reader_sha,'exact_world_transform':'same pinned 314 inverse body affine and 039 Float32 promotion used by 458; original crossings compared at 1e-10 mm','output_npz':str(npz),'output_npz_sha256':sha(npz),'groups':group_rows}
+ jsonpath=outdir/'report.json';jsonpath.write_text(json.dumps(doc,indent=2,sort_keys=True,allow_nan=False)+'\n');doc['report_json_sha256']=sha(jsonpath)
+ # Recheck every source pin before emitting final receipt.
+ if {k:sha(v) for k,v in paths.items()}!=pins:raise RuntimeError('an input changed during read-only target selection')
+ print(json.dumps({k:doc[k] for k in ('status','target_pair_count','unique_skin_face_bank_groups','groups_with_opposed_original_crossing_face_normals','groups_using_certified_endpoint_facet','groups_fallback_original_crossed_facet','minimum_selected_normal_dot_own_certified_ray','max_positive_corner_deficit_mm','output_npz','output_npz_sha256','report_json_sha256')},indent=2))
+if __name__=='__main__':main()

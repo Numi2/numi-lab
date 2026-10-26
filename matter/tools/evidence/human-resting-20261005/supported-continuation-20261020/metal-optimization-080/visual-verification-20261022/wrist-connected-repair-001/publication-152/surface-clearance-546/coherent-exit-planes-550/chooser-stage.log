@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-exit-planes-550/choose_coherent_exit_planes_550.py", line 214, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-exit-planes-550/choose_coherent_exit_planes_550.py", line 139, in main
+    face,body,bone=gkey;corners=points[np.asarray(faces[face],int)]*1000.;corners_by_group.append(corners)
+                                                                          ^^^^^^^^^^^^^^^^
+NameError: name 'corners_by_group' is not defined

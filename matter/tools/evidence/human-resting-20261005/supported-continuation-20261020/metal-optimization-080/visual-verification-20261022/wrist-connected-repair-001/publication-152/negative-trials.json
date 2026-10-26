@@ -1,0 +1,74 @@
+{
+  "rounds": [
+    {
+      "candidate_sha256": "9e88823ae91c1b72df9c483d658ea4ef8d283e820c8fa3621a64f2d69461cacb",
+      "counts": {
+        "contained_pairs": 0,
+        "self_pairs": 0,
+        "surface_pairs": 2202
+      },
+      "round": "topology/round-016-from2220-chain-025",
+      "selected_as_baseline_for_020": true,
+      "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS"
+    },
+    {
+      "candidate_sha256": "30214ca13ad6ba087e0ffe4d8c29d0aff577c52ad0f69af75f09b106941b8994",
+      "counts": {
+        "contained_pairs": 1,
+        "self_pairs": 0,
+        "surface_pairs": 2228
+      },
+      "round": "round-017-coherent-exit550",
+      "selected": false,
+      "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS_WITH_CONTAINMENT_FAILURE"
+    },
+    {
+      "candidate_sha256": "5f1997d7917eada6766c93e7ce15bff8cc95bacd329cd6447d5fa2028cec4111",
+      "counts": {
+        "contained_pairs": 0,
+        "self_pairs": 0,
+        "surface_pairs": 2226
+      },
+      "reason": "The 2202 baseline and later 2200 endpoint have fewer surface pairs.",
+      "round": "round-018-coherent-witness550",
+      "selected": false,
+      "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS_PASS_BUT_UNSELECTED"
+    },
+    {
+      "candidate_sha256": "2e7528838faa055a60fd797f97393c18ee8f206e6c8ce84751ca7bcbbf7a29ce",
+      "counts": {
+        "contained_pairs": 1,
+        "self_pairs": 0,
+        "surface_pairs": 2216
+      },
+      "round": "round-019-pair-sat551",
+      "selected": false,
+      "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS_WITH_CONTAINMENT_FAILURE"
+    },
+    {
+      "candidate_sha256": "408f9f35ccea4324d7103029f2353e3a321dfc816082fbc0d30c3a420e3884e0",
+      "classification": "separate raw-direction diagnostic; stopped at surface gate and is not a geometry candidate",
+      "counts": {
+        "contained_pairs": null,
+        "surface_self_pairs": 297
+      },
+      "round": "round-019-raw-direction-self-audit",
+      "status": "STOPPED_AT_SURFACE_GATE"
+    }
+  ],
+  "selected_checkpoint": {
+    "accepted_physical_steps": 0,
+    "candidate_selected_state_field": false,
+    "candidate_sha256": "10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366",
+    "counts": {
+      "anchor_rows": 237,
+      "complete_banks": 185,
+      "contained_pairs": 0,
+      "self_pairs": 0,
+      "surface_pairs": 2200
+    },
+    "native_admission": false,
+    "round": "round-020-retained-sat552",
+    "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS"
+  }
+}

@@ -1,0 +1,11 @@
+test_anchored_positive_preserved (test_coherent_exit_plane_adapter550.TestBundle.test_anchored_positive_preserved) ... ok
+test_coherent_plane_identity_and_equal_mass (test_coherent_exit_plane_adapter550.TestBundle.test_coherent_plane_identity_and_equal_mass) ... ok
+test_fallback_parity (test_coherent_exit_plane_adapter550.TestBundle.test_fallback_parity) ... ok
+test_inconsistent_group_rejected (test_coherent_exit_plane_adapter550.TestBundle.test_inconsistent_group_rejected) ... ok
+test_keyed_bad_shapes_rejected (test_coherent_exit_plane_adapter550.TestBundle.test_keyed_bad_shapes_rejected) ... ok
+test_missing_identity_rejected (test_coherent_exit_plane_adapter550.TestBundle.test_missing_identity_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.001s
+
+OK

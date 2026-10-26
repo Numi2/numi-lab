@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-018-coherent-witness550/full-check/audit-130/query/points-world.npz",
+  "input_sha256": "a461ac72307e90cdfbcad43741529c91fc13a8a2a714fe0ea270650d6d72a249",
+  "field": "points_world_f32",
+  "query_count": 20889,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-018-coherent-witness550/full-check/audit-130/query/points.csv",
+  "output_sha256": "1c38aa180bc1081c87936bc719e120dcb02e6f8e94aa74f4571d823216ca1bb3",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

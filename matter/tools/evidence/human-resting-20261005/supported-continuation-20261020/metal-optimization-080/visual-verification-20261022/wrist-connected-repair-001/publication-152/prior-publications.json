@@ -1,0 +1,15 @@
+{
+  "P151_candidate": {
+    "counts": {
+      "anchor_rows": 237,
+      "complete_banks": 185,
+      "contained_pairs": 0,
+      "self_pairs": 0,
+      "surface_pairs": 2220
+    },
+    "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-151/surface-clearance-546/round-015-one-scp-component/component-proposal/candidate.npz",
+    "sha256": "9b67a968dd5aebdf8d0cdf197dbd0701052ba449afa30082ff08a95aa3d28a29"
+  },
+  "P151_commit": "9c3ad556f85edffd79d37e63e4a61de9f6b61314",
+  "note": "P151 and earlier large unchanged input payloads remain in their exact published commits and are referenced, not duplicated. P152 begins with the separately checked 2202 round-016 endpoint."
+}

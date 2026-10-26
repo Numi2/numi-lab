@@ -1,0 +1,5 @@
+command: /Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q test_integration551.py test_pair_sat_routing_551.py
+working_directory: surface-clearance-546/pair-sat-routing-551
+stdout:
+.........                                                                [100%]
+9 passed in 0.10s

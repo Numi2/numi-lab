@@ -1,0 +1,17 @@
+{
+  "status": "EXPERIMENTAL_CONSTRUCTION_ROWS_ONLY_UNADMITTED",
+  "target_pair_count": 2232,
+  "unique_skin_face_bank_groups": 767,
+  "groups_with_opposed_original_crossing_face_normals": 503,
+  "groups_using_certified_endpoint_facet": 767,
+  "groups_fallback_original_crossed_facet": 0,
+  "minimum_selected_normal_dot_own_certified_ray": 0.16004771176405258,
+  "max_positive_corner_deficit_mm": {
+    "median": 2.886822499470526,
+    "p90": 6.363343863203653,
+    "max": 11.958254425695145
+  },
+  "output_npz": "chooser-run-2232/selection.npz",
+  "output_npz_sha256": "f896618f9a1332232d550b38d7b7e0051788fea77b600f298dd81a255d5a857f",
+  "report_json_sha256": "7c7421d6500bd3c1b7d9042c14b1b7b900ab90a167d538caac749777b33afcb3"
+}

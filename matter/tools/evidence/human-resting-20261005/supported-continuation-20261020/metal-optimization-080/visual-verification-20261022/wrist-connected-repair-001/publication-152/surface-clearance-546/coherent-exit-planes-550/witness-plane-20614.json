@@ -1,0 +1,32 @@
+{
+  "candidate_sha256": "3ff88da6aa4a63ba849d7b9a497774b261b1785f8db322ad4b259cc9776bb717",
+  "inside_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-017-coherent-exit550/full-check/audit-130/summary.json",
+  "inside_summary_sha256": "d53c4b9a3b5c2cb98b9b3110eb80fc72ec042e6b24e962abcb25969ebd19d20f",
+  "failed_candidate_sha256": "30214ca13ad6ba087e0ffe4d8c29d0aff577c52ad0f69af75f09b106941b8994",
+  "witnesses": [
+    {
+      "node": 20614,
+      "body": 109,
+      "bone": 114,
+      "triangle": 115,
+      "triangle_world_mm": [
+        [
+          257.58896805472455,
+          -961.3928393459797,
+          134.719701644396
+        ],
+        [
+          259.67133380762124,
+          -959.183516153783,
+          135.4397368777184
+        ],
+        [
+          260.9052422989904,
+          -968.2785606575575,
+          136.6944187721541
+        ]
+      ]
+    }
+  ],
+  "native_admission": false
+}

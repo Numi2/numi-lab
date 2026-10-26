@@ -1,0 +1,28 @@
+{
+  "environment_python": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "generated_utc": "2026-10-26T21:16:34.558153+00:00",
+  "schema": "numi.human.surface_clearance.focused_test_receipt.v1",
+  "suites": [
+    {
+      "command": "python -m pytest -q test_choose_coherent_exit_planes_550.py test_coherent_exit_plane_adapter550.py test_witness_facet550.py",
+      "log_path": "tested-sources/coherent_exit_planes_550_pytest.log",
+      "result": "19 passed in 0.06s",
+      "test_source_sha256": {
+        "coherent-exit-planes-550/test_choose_coherent_exit_planes_550.py": "a65f31a94412cb71c7bca26065469b65417330bc406bdae0b6ee0bb8e4d2d8c0",
+        "coherent-exit-planes-550/test_coherent_exit_plane_adapter550.py": "badce7fb9506e0f6c4493da1b74bf3926d902fc4cf9ae51d177aecf71f505848",
+        "coherent-exit-planes-550/test_witness_facet550.py": "b0b8d573d49fe13f41809cbf3b4c22c1209898f989eeaab8eb6b1e7aa2fb0f16"
+      },
+      "working_directory": "surface-clearance-546/coherent-exit-planes-550"
+    },
+    {
+      "command": "python -m pytest -q test_integration551.py test_pair_sat_routing_551.py",
+      "log_path": "tested-sources/pair_sat_routing_551_pytest.log",
+      "result": "9 passed in 0.10s",
+      "test_source_sha256": {
+        "pair-sat-routing-551/test_integration551.py": "00417419dbfc711f7b17217d8e876084f73e103d436fbe920d253f0fc2f79009",
+        "pair-sat-routing-551/test_pair_sat_routing_551.py": "1298161418df7fbd2992b769a552fa6be4347e347833fc726ef3e53f0d630578"
+      },
+      "working_directory": "surface-clearance-546/pair-sat-routing-551"
+    }
+  ]
+}

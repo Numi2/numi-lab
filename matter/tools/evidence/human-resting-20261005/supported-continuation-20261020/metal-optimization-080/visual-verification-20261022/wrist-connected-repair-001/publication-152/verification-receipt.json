@@ -1,0 +1,132 @@
+{
+  "compressed_preservation_receipt_sha256": "bca44501f0588cd3467f6964f725625f7c8b35cb763b459fc07b7824fcb3797a",
+  "compressed_restore_helper_sha256": "32476471781c11fa5eb1c6d5add247130168d45ef860554173984fd2ec41a99e",
+  "failed_or_unselected": [
+    {
+      "candidate_sha256": "9e88823ae91c1b72df9c483d658ea4ef8d283e820c8fa3621a64f2d69461cacb",
+      "counts": {
+        "contained_pairs": 0,
+        "self_pairs": 0,
+        "surface_pairs": 2202
+      },
+      "round": "topology/round-016-from2220-chain-025",
+      "selected_as_baseline_for_020": true,
+      "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS"
+    },
+    {
+      "candidate_sha256": "30214ca13ad6ba087e0ffe4d8c29d0aff577c52ad0f69af75f09b106941b8994",
+      "counts": {
+        "contained_pairs": 1,
+        "self_pairs": 0,
+        "surface_pairs": 2228
+      },
+      "round": "round-017-coherent-exit550",
+      "selected": false,
+      "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS_WITH_CONTAINMENT_FAILURE"
+    },
+    {
+      "candidate_sha256": "5f1997d7917eada6766c93e7ce15bff8cc95bacd329cd6447d5fa2028cec4111",
+      "counts": {
+        "contained_pairs": 0,
+        "self_pairs": 0,
+        "surface_pairs": 2226
+      },
+      "reason": "The 2202 baseline and later 2200 endpoint have fewer surface pairs.",
+      "round": "round-018-coherent-witness550",
+      "selected": false,
+      "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS_PASS_BUT_UNSELECTED"
+    },
+    {
+      "candidate_sha256": "2e7528838faa055a60fd797f97393c18ee8f206e6c8ce84751ca7bcbbf7a29ce",
+      "counts": {
+        "contained_pairs": 1,
+        "self_pairs": 0,
+        "surface_pairs": 2216
+      },
+      "round": "round-019-pair-sat551",
+      "selected": false,
+      "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS_WITH_CONTAINMENT_FAILURE"
+    },
+    {
+      "candidate_sha256": "408f9f35ccea4324d7103029f2353e3a321dfc816082fbc0d30c3a420e3884e0",
+      "classification": "separate raw-direction diagnostic; stopped at surface gate and is not a geometry candidate",
+      "counts": {
+        "contained_pairs": null,
+        "surface_self_pairs": 297
+      },
+      "round": "round-019-raw-direction-self-audit",
+      "status": "STOPPED_AT_SURFACE_GATE"
+    }
+  ],
+  "fresh_tests": [
+    {
+      "result": "19 passed in 0.06s",
+      "source_hashes": {
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-exit-planes-550/test_choose_coherent_exit_planes_550.py": "a65f31a94412cb71c7bca26065469b65417330bc406bdae0b6ee0bb8e4d2d8c0",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-exit-planes-550/test_coherent_exit_plane_adapter550.py": "badce7fb9506e0f6c4493da1b74bf3926d902fc4cf9ae51d177aecf71f505848",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-exit-planes-550/test_witness_facet550.py": "b0b8d573d49fe13f41809cbf3b4c22c1209898f989eeaab8eb6b1e7aa2fb0f16",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/pair-sat-routing-551/test_integration551.py": "00417419dbfc711f7b17217d8e876084f73e103d436fbe920d253f0fc2f79009",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/pair-sat-routing-551/test_pair_sat_routing_551.py": "1298161418df7fbd2992b769a552fa6be4347e347833fc726ef3e53f0d630578"
+      },
+      "suite": "550"
+    },
+    {
+      "result": "9 passed in 0.10s",
+      "source_hashes": {
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-exit-planes-550/test_choose_coherent_exit_planes_550.py": "a65f31a94412cb71c7bca26065469b65417330bc406bdae0b6ee0bb8e4d2d8c0",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-exit-planes-550/test_coherent_exit_plane_adapter550.py": "badce7fb9506e0f6c4493da1b74bf3926d902fc4cf9ae51d177aecf71f505848",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-exit-planes-550/test_witness_facet550.py": "b0b8d573d49fe13f41809cbf3b4c22c1209898f989eeaab8eb6b1e7aa2fb0f16",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/pair-sat-routing-551/test_integration551.py": "00417419dbfc711f7b17217d8e876084f73e103d436fbe920d253f0fc2f79009",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/pair-sat-routing-551/test_pair_sat_routing_551.py": "1298161418df7fbd2992b769a552fa6be4347e347833fc726ef3e53f0d630578"
+      },
+      "suite": "551"
+    }
+  ],
+  "latest_checked_candidate": {
+    "accepted_physical_steps": 0,
+    "anchor_rows": 237,
+    "candidate_selected_state_field": false,
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "exact_report_path": "surface-clearance-546/round-020-retained-sat552/full-check/report.json",
+    "exact_report_sha256": "c59b12a1fe39fd6de3afafacce7f543fa5af6c445bd2e2fd711fc3c52ea47494",
+    "native_admission": false,
+    "owner_final_report_path": "surface-clearance-546/round-020-retained-sat552/final/report.json",
+    "owner_final_report_sha256": "af45ed1ab9ed5aed21cf9390483d2fd48e39c2cd36275f99882f8161d6b64930",
+    "path": "surface-clearance-546/round-020-retained-sat552/candidate.npz",
+    "self_pairs": 0,
+    "sha256": "10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366",
+    "state_path": "surface-clearance-546/round-020-retained-sat552/final/state.json",
+    "state_sha256": "2bf71cb5fe9e74acec3f1f33bc5fc6808b352a41d1e99e424266762a74806e57",
+    "surface_pairs": 2200
+  },
+  "no_geometry_or_native_jobs_started_by_publisher": true,
+  "parent_main": "9c3ad556f85edffd79d37e63e4a61de9f6b61314",
+  "prepared_utc": "2026-10-26T21:16:34.816663+00:00",
+  "previous_checkpoints": {
+    "round016_candidate_sha256": "9e88823ae91c1b72df9c483d658ea4ef8d283e820c8fa3621a64f2d69461cacb",
+    "round017_candidate_sha256": "30214ca13ad6ba087e0ffe4d8c29d0aff577c52ad0f69af75f09b106941b8994",
+    "round018_candidate_sha256": "5f1997d7917eada6766c93e7ce15bff8cc95bacd329cd6447d5fa2028cec4111",
+    "round019_candidate_sha256": "2e7528838faa055a60fd797f97393c18ee8f206e6c8ce84751ca7bcbbf7a29ce",
+    "round019_raw_direction_candidate_sha256": "408f9f35ccea4324d7103029f2353e3a321dfc816082fbc0d30c3a420e3884e0"
+  },
+  "python_source_pin_count": 28,
+  "remote_main_before": "9c3ad556f85edffd79d37e63e4a61de9f6b61314",
+  "schema": "numi.human.surface_clearance.publication152.preparation.v1",
+  "shared_checkout_after": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "shared_checkout_before": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  }
+}
