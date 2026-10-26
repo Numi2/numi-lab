@@ -1,0 +1,346 @@
+{
+  "checkpoint_history": [
+    {
+      "candidate_sha256": "fad9b5e10bac48cfecf4fcded4b1c020e2eb2a14de8778990bf9d6226534b0f5",
+      "publication_commit": "94972aedbcb6c579106c824bc5d3f5c4b325bd29",
+      "stage": "publication-145 input",
+      "surface_pairs": 2586
+    },
+    {
+      "candidate_sha256": "860ad0fbdfbc48858748b092aa44bf03249a183c97229b30e8d3615b2aa353e4",
+      "chain_summary_sha256": "efa87cb6c9468735ede81000e84d4a0dcb6042dfbe2961cfe899944436be9d5c",
+      "chain_summary_status": "BOUNDED_CHAIN_COMPLETE_PENDING_ONE_FINAL_FULL_EXACT_AUDIT",
+      "complete_banks": 185,
+      "contained_pairs": 0,
+      "full_check_report_sha256": "bfb51aa7f781580a30210c885a673930071324d230f8c4648cba480b737e25cd",
+      "method_limits": [
+        "159 counts are exact per changed face and composed with unchanged identities from a pinned complete report.",
+        "130 self-free state is incremental carry-forward, not a fresh full audit on intermediate candidates.",
+        "One full final 130 and 159 audit is required after the chain.",
+        "All coordinates and typed anchors are required bitwise unchanged across each batch."
+      ],
+      "point_summary_sha256": "99d64acfce213d65c3bb5cdba538d337403b1c2fda12364fe803f69fab430730",
+      "round_results": [
+        {
+          "accepted_count": 4,
+          "after_pairs": 2578,
+          "before_pairs": 2586,
+          "candidate_sha256": "17a04abf110d71a37b01c4263d37af634fdcf0455a663905b22641d95063ef61",
+          "changed_face_count": 8,
+          "introduced_self_pair_count": 0,
+          "reduction": 8,
+          "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-002-chain-025/round-001/report.json",
+          "round": 1,
+          "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-002-chain-025/round-001/state.json"
+        },
+        {
+          "accepted_count": 3,
+          "after_pairs": 2573,
+          "before_pairs": 2578,
+          "candidate_sha256": "860ad0fbdfbc48858748b092aa44bf03249a183c97229b30e8d3615b2aa353e4",
+          "changed_face_count": 6,
+          "introduced_self_pair_count": 0,
+          "reduction": 5,
+          "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-002-chain-025/round-002/report.json",
+          "round": 2,
+          "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-002-chain-025/round-002/state.json"
+        },
+        {
+          "accepted_count": 0,
+          "after_pairs": 2573,
+          "before_pairs": 2573,
+          "candidate_sha256": "860ad0fbdfbc48858748b092aa44bf03249a183c97229b30e8d3615b2aa353e4",
+          "changed_face_count": 0,
+          "introduced_self_pair_count": 0,
+          "reduction": 0,
+          "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-002-chain-025/round-003/report.json",
+          "round": 3,
+          "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-002-chain-025/round-003/state.json"
+        }
+      ],
+      "self_pairs": 0,
+      "stage": "025 chain endpoint",
+      "surface_pairs": 2573,
+      "typed_bank_surface_report_sha256": "cff750682d6ee22bfa1e931166262d0ed523e592970734314ae44d3bec471e6e"
+    },
+    {
+      "accepted_operation_count": 21,
+      "candidate_sha256": "1d6700118debf712e630d08c0b5f10f10219ac998a2bd2d6113e72f3842d1962",
+      "combined_exact159_screen": {
+        "affected_face_rows": [
+          11827,
+          12060,
+          12408,
+          12409,
+          12548,
+          12549,
+          13798,
+          14133,
+          14253,
+          14260,
+          14841,
+          14842,
+          14925,
+          14926,
+          14983,
+          14988,
+          17293,
+          17294,
+          17349,
+          17376,
+          17456,
+          17457,
+          19031,
+          19045,
+          21268,
+          21273,
+          29248,
+          29394,
+          30879,
+          30982,
+          31062,
+          31097,
+          31244,
+          31275,
+          34897,
+          34898,
+          34928,
+          34935,
+          40584,
+          40591,
+          40601,
+          40617
+        ],
+        "new_pair_count": 47,
+        "old_pair_count": 91,
+        "per_bank": {
+          "109:114": {
+            "new": 5,
+            "old": 9
+          },
+          "114:117": {
+            "new": 5,
+            "old": 9
+          },
+          "115:118": {
+            "new": 9,
+            "old": 17
+          },
+          "43:16": {
+            "new": 0,
+            "old": 4
+          },
+          "59:95": {
+            "new": 7,
+            "old": 13
+          },
+          "64:98": {
+            "new": 9,
+            "old": 15
+          },
+          "65:99": {
+            "new": 10,
+            "old": 20
+          },
+          "74:104": {
+            "new": 2,
+            "old": 4
+          }
+        },
+        "status": "strict_exact_pair_decrease_all_banks_nonincreasing",
+        "strict_reduction": 44
+      },
+      "complete_banks": 185,
+      "contained_pairs": 0,
+      "full_check_report_sha256": "065f1d0a05c7f90b4887d7e9e2ed464c3d08d87e3b9dc670647c6e6a1927374b",
+      "limitations": [
+        "Proposal screen counts exact surface triangle pairs only on changed skin faces against all 185 banks; unchanged counts reuse the complete pinned base report.",
+        "Incremental self checks screen each accepted operation against the whole unchanged surface, but are not a substitute for final full 130 and 159 audits.",
+        "Fixed-coordinate flips preserve nodal containment coordinates, but no post-topology full admission is claimed."
+      ],
+      "point_summary_sha256": "20d5f29f1ce8a5b563a303d133716143d3cb862904659c046a2e5c606102d0f9",
+      "proposal_report_sha256": "b083b20db7949db17dc6e155931ff67005152f3475cdf6ade889dc5d21e6f74d",
+      "self_pairs": 0,
+      "stage": "wide-024 round-004 endpoint",
+      "standalone_proposal_launch_present": false,
+      "surface_audit_report_sha256": "738c187759a868cce1e2de77edd9badd0f2fe845543e81cbd08e98b914284b03",
+      "surface_pairs": 2529
+    },
+    {
+      "accepted_operation_count": 6,
+      "accepted_physical_steps": 0,
+      "candidate_sha256": "2ac7aa97c564b61995b01f5a96013d134634056c9719d7b2fd1230f3cf7be7c5",
+      "complete_banks": 185,
+      "contained_pairs": 0,
+      "full_check_report_sha256": "a17c2aa5263917891769a48270219c24216e7b7672ab46e5a88d2de3c68c6b79",
+      "native_admission": false,
+      "point_summary_sha256": "e29d66339703fbe21e389d5c061287f0bfd4f0cc1aa642110fc27ab4d5f221df",
+      "proposal_report_sha256": "52c9429d772bac453a8632b28a4d80d1e95b5ee9a63c95abae08b0161caa9586",
+      "self_pairs": 0,
+      "stage": "wide-024 round-005 final endpoint",
+      "state_sha256": "ff7259c9d37b78b26a5b1b8e6fa424d407f49398c17eadeff1595891e2811d6c",
+      "surface_audit_report_sha256": "6b222d6e3e6d336332f55629ab0ae7f0e3d8d9181b78f78b8714be0af5d38888",
+      "surface_pairs": 2517
+    }
+  ],
+  "compositional_limits": {
+    "025_chain": [
+      "159 counts are exact per changed face and composed with unchanged identities from a pinned complete report.",
+      "130 self-free state is incremental carry-forward, not a fresh full audit on intermediate candidates.",
+      "One full final 130 and 159 audit is required after the chain.",
+      "All coordinates and typed anchors are required bitwise unchanged across each batch."
+    ],
+    "final_point_check": {
+      "edge_and_solid_clearance_certified": false,
+      "inside_node_bank_pairs": 0,
+      "status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC"
+    },
+    "wide024_round004": [
+      "Proposal screen counts exact surface triangle pairs only on changed skin faces against all 185 banks; unchanged counts reuse the complete pinned base report.",
+      "Incremental self checks screen each accepted operation against the whole unchanged surface, but are not a substitute for final full 130 and 159 audits.",
+      "Fixed-coordinate flips preserve nodal containment coordinates, but no post-topology full admission is claimed."
+    ],
+    "wide024_round005": [
+      "Proposal screen counts exact surface triangle pairs only on changed skin faces against all 185 banks; unchanged counts reuse the complete pinned base report.",
+      "Incremental self checks screen each accepted operation against the whole unchanged surface, but are not a substitute for final full 130 and 159 audits.",
+      "Fixed-coordinate flips preserve nodal containment coordinates, but no post-topology full admission is claimed."
+    ]
+  },
+  "excluded_live_work": [
+    "active refresh",
+    "active barycentric work",
+    "topology after round-005-wide-024"
+  ],
+  "failure_evidence": {
+    "chain_round003_report_sha256": "7028b4d720f57e0f622e5c7979697f3b7a566474c296e2ebb798d2c7a44c8fda",
+    "chain_round003_status": "NO_EXACT_PAIR_REDUCING_SELF_SAFE_FLIPS",
+    "full_reports_and_progress_logs_included": true,
+    "wide024_round004_rejections": {
+      "037_nonpositive_new_face": 19,
+      "541_angle_loss_bound": 331,
+      "541_fixed037_area_floor": 2,
+      "541_no_measured_quality_gain": 25,
+      "alternate_diagonal_exists": 32,
+      "current_037_orientation_disagreement": 349,
+      "different_or_unselected_connected_patch": 1,
+      "exact159_no_strict_total_pair_decrease": 58,
+      "exact159_typed_bank_pair_count_increased": 16,
+      "incremental_self_witness": 11,
+      "nonconvex_quad": 1007,
+      "overlap_after_exact_ranking": 7
+    },
+    "wide024_round005_rejections": {
+      "037_nonpositive_new_face": 18,
+      "541_angle_loss_bound": 333,
+      "541_fixed037_area_floor": 2,
+      "541_no_measured_quality_gain": 23,
+      "alternate_diagonal_exists": 35,
+      "current_037_orientation_disagreement": 349,
+      "different_or_unselected_connected_patch": 1,
+      "exact159_no_strict_total_pair_decrease": 65,
+      "exact159_typed_bank_pair_count_increased": 16,
+      "incremental_self_witness": 13,
+      "nonconvex_quad": 973,
+      "overlap_after_exact_ranking": 1
+    }
+  },
+  "generated_utc": "2026-10-26T18:19:20.020383+00:00",
+  "measurement_limits": {
+    "accepted_physical_steps": 0,
+    "clinical_or_biological_admission": false,
+    "construction_only": true,
+    "edge_solid_clearance_certified": false,
+    "native_admission": false,
+    "physical_admission": false,
+    "visual_inspection": false
+  },
+  "parent_publication_commit": "94972aedbcb6c579106c824bc5d3f5c4b325bd29",
+  "prior_publication_145_reference": {
+    "candidate_sha256": "fad9b5e10bac48cfecf4fcded4b1c020e2eb2a14de8778990bf9d6226534b0f5",
+    "candidate_surface_pairs": 2586,
+    "commit": "94972aedbcb6c579106c824bc5d3f5c4b325bd29"
+  },
+  "publication": 146,
+  "publication_prefix": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-146",
+  "publication_ready": true,
+  "selected_candidate": {
+    "accepted_physical_steps": 0,
+    "anchor_rows": 237,
+    "baseline_candidate_sha256": "1d6700118debf712e630d08c0b5f10f10219ac998a2bd2d6113e72f3842d1962",
+    "complete_banks": 185,
+    "construction_progress": true,
+    "contained_pairs": 0,
+    "exact_report_path": "surface-clearance-546/topology/round-005-wide-024/check/report.json",
+    "exact_report_sha256": "a17c2aa5263917891769a48270219c24216e7b7672ab46e5a88d2de3c68c6b79",
+    "maximum_source_displacement_mm": 11.99157474221245,
+    "maximum_step_mm": 0.0,
+    "minimum_fixed_reference_area_ratio": 0.10009356948026137,
+    "native_admission": false,
+    "path": "surface-clearance-546/topology/round-005-wide-024/candidate.npz",
+    "self_pairs": 0,
+    "sha256": "2ac7aa97c564b61995b01f5a96013d134634056c9719d7b2fd1230f3cf7be7c5",
+    "state_sha256": "ff7259c9d37b78b26a5b1b8e6fa424d407f49398c17eadeff1595891e2811d6c",
+    "surface_delta_from_2529": -12,
+    "surface_delta_from_publication_145": -69,
+    "surface_pairs": 2517
+  },
+  "shared_checkout_after": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "shared_checkout_before": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "source_provenance": {
+    "chain_driver": {
+      "path": "surface-clearance-546/topology/chain_exact_flip_batches_025.py",
+      "sha256": "d42db71f6003f60eec69787156775e2133be2c54f69e37047ea8c451c76bd5a9"
+    },
+    "chain_operation_engine": {
+      "path": "surface-clearance-546/topology/topology-bone-aware-025.py",
+      "pinned_by_each_round_launch": true,
+      "sha256": "9123965621161beb6408f6c9663d8d36968cf1113c3a97106e968ea1c754d84e"
+    },
+    "round004_source_pins": {
+      "audit130": "99d64acfce213d65c3bb5cdba538d337403b1c2fda12364fe803f69fab430730",
+      "audit159": "cff750682d6ee22bfa1e931166262d0ed523e592970734314ae44d3bec471e6e",
+      "candidate": "860ad0fbdfbc48858748b092aa44bf03249a183c97229b30e8d3615b2aa353e4",
+      "check408": "01026156cccd5c1742e2edcaa6288f64f888731424dfb6337831412701020711",
+      "exact315": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "owner370": "c8650b8c311ca8f386ebf1713b5fc285b7bded860cfa878192472704ac1336d5",
+      "owner402": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764",
+      "owner405": "e995a2f460e60cb62fb24b80af400678757f62a2b0c1b51141bf0ef387993967",
+      "owner541": "26930be05518834f02724948cffa5ff74719f070a4ac4e4917b0965f42a412aa",
+      "search409": "64f05be466d672266d4265185c895fecc70113d476f69e7a1c6dc3af8ec514a8",
+      "self_pairs130": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+    },
+    "round005_check_stage_launch_sha256": "81989de976933ab4d34ff487a6835b0dc84f405662d40d4adb3ad36685fbd121",
+    "round005_launch_sha256": "fc767d83fe5b6184ff4fe860733fc0e066211b14b34179d9a16ba9346ea9278c",
+    "source_pins": {
+      "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-002-chain-025/round-004-wide-024/candidate.npz": "1d6700118debf712e630d08c0b5f10f10219ac998a2bd2d6113e72f3842d1962",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-002-chain-025/round-004-wide-024/check/audit-130/summary.json": "20d5f29f1ce8a5b563a303d133716143d3cb862904659c046a2e5c606102d0f9",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-002-chain-025/round-004-wide-024/check/audit-159/report.json": "738c187759a868cce1e2de77edd9badd0f2fe845543e81cbd08e98b914284b03",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-002-chain-025/round-004-wide-024/state.json": "3683ef20b1e3020f51618e2517fbe01d528cdf8df8a5d30edfe19fee7a65f57d",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-005-wide-024/candidate.npz": "2ac7aa97c564b61995b01f5a96013d134634056c9719d7b2fd1230f3cf7be7c5",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+      "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9",
+      "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+      "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+    },
+    "wide024_engine": {
+      "also_published_at": "publication-145/surface-clearance-546/topology/topology-bone-aware-024.py",
+      "path": "surface-clearance-546/topology/topology-bone-aware-024.py",
+      "sha256": "c06af4ab321099706dbed1a5ae20694586dd7739d209b0902f656f8ace318945"
+    }
+  }
+}

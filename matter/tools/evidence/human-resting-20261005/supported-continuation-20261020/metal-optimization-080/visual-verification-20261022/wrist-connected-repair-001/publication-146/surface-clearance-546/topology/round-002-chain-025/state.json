@@ -1,0 +1,10 @@
+{
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-002-chain-025/round-003/candidate.npz",
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-002-chain-025/final-check/audit-130/summary.json",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-002-chain-025/final-check/audit-159/report.json",
+  "candidate_sha256": "860ad0fbdfbc48858748b092aa44bf03249a183c97229b30e8d3615b2aa353e4",
+  "point_summary_sha256": "99d64acfce213d65c3bb5cdba538d337403b1c2fda12364fe803f69fab430730",
+  "surface_report_sha256": "cff750682d6ee22bfa1e931166262d0ed523e592970734314ae44d3bec471e6e",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

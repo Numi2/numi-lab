@@ -1,0 +1,110 @@
+{
+  "base_full_130_audit_sha256": "dcbfc51199298e42aaf9c96e3571b0544a02c53d4f2c64ad5d0f9a9fbfc37b15",
+  "base_full_130_candidate_sha256": "fad9b5e10bac48cfecf4fcded4b1c020e2eb2a14de8778990bf9d6226534b0f5",
+  "candidate_sha256": "860ad0fbdfbc48858748b092aa44bf03249a183c97229b30e8d3615b2aa353e4",
+  "claim_scope": "Exact 315/408 incremental self checks from a complete initial zero-self audit; not a fresh full 130 execution on this candidate.",
+  "incremental_chain": [
+    {
+      "accepted_operation_count": 4,
+      "final_self_pair_count": 0,
+      "full_130_execution": false,
+      "input_candidate_sha256": "fad9b5e10bac48cfecf4fcded4b1c020e2eb2a14de8778990bf9d6226534b0f5",
+      "introduced_self_pair_count": 0,
+      "operation_checks": [
+        {
+          "edge": [
+            14185,
+            18715
+          ],
+          "face_rows": [
+            14720,
+            15305
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            19822,
+            19830
+          ],
+          "face_rows": [
+            12165,
+            12210
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            15609,
+            19643
+          ],
+          "face_rows": [
+            40586,
+            40614
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            16569,
+            18977
+          ],
+          "face_rows": [
+            12408,
+            12415
+          ],
+          "introduced_self_pair_count": 0
+        }
+      ],
+      "output_candidate_sha256": "17a04abf110d71a37b01c4263d37af634fdcf0455a663905b22641d95063ef61",
+      "proposal_report_sha256": "53dfa49cae4aa2208595aac8fc30b6848a633aa7c0e6bd3aadb6bb578ac39d85"
+    },
+    {
+      "accepted_operation_count": 3,
+      "final_self_pair_count": 0,
+      "full_130_execution": false,
+      "input_candidate_sha256": "17a04abf110d71a37b01c4263d37af634fdcf0455a663905b22641d95063ef61",
+      "introduced_self_pair_count": 0,
+      "operation_checks": [
+        {
+          "edge": [
+            19643,
+            20801
+          ],
+          "face_rows": [
+            40585,
+            40586
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            10443,
+            18701
+          ],
+          "face_rows": [
+            12517,
+            12527
+          ],
+          "introduced_self_pair_count": 0
+        },
+        {
+          "edge": [
+            14185,
+            19345
+          ],
+          "face_rows": [
+            14730,
+            15305
+          ],
+          "introduced_self_pair_count": 0
+        }
+      ],
+      "output_candidate_sha256": "860ad0fbdfbc48858748b092aa44bf03249a183c97229b30e8d3615b2aa353e4",
+      "proposal_report_sha256": "315779d847ee0fad76f7ed998b2314a6cd26d0af1458fa19a8e250a2a175cb87"
+    }
+  ],
+  "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "type": "INCREMENTAL_ZERO_SELF_CARRYFORWARD",
+  "zero_self_pair_count": 0
+}
