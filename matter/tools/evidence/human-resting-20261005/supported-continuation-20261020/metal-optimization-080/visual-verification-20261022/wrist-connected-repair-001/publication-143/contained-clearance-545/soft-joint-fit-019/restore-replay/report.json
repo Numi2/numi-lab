@@ -1,0 +1,21 @@
+{
+  "status": "OUTSIDE_WITNESS_RESTORE_PENDING_EXACT_CHECKS",
+  "candidate_sha256": "a1a8c8a75d8097c9d99d96be33ddceef0ec971df67fa36758959fcbd2efe93ab",
+  "parent_candidate_sha256": "c8f25f31fe62e7495ce447450002675ec8f9ebb9f967658fd13fc2b26ce9509c",
+  "point_source_candidate_sha256": "215fa7da9bc9c3fa2a189b853343282e21403ef97c1d691a2a28cab36563ea82",
+  "introduced_typed_pairs": [
+    [
+      18591,
+      43,
+      16
+    ]
+  ],
+  "construction_protection_rows": [
+    18591
+  ],
+  "source_sha256": "e03b1ed60137e06c21e9bb7d0ed05a0bf27a7c0ff3f0b80863603bb36bd3b7bf",
+  "reference_state_sha256": "5581c52df8d382124f89a886fc57b27d9f49c515b25125b453bf0a73b1725c93",
+  "trial_result_sha256": "0554606cc64ba0b6d7247d85ca5ab4c3ec2517ba102ba1fb531a168b2ff88cd4",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

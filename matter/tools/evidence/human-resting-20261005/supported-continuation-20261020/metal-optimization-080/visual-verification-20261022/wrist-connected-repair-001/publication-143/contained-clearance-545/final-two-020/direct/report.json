@@ -1,0 +1,262 @@
+{
+  "status": "CONNECTED_ENDPOINT_SELECTION_PENDING_FULL_EXACT_CHECKS",
+  "candidate_sha256": "a1a8c8a75d8097c9d99d96be33ddceef0ec971df67fa36758959fcbd2efe93ab",
+  "base_sha256": "a1a8c8a75d8097c9d99d96be33ddceef0ec971df67fa36758959fcbd2efe93ab",
+  "source_sha256": "6faf31ed4f474d311f843402807663ffaa3139ee95dd1c7c4844e63dca38ae12",
+  "target_sha256": "0c3c7d1ac16039c6dcc8faf20436154dfeea613256a0bc4fade319a9c685480d",
+  "retained_node_rows": [],
+  "retained_operations": 0,
+  "selected_order": 0,
+  "initial_selection": null,
+  "trials": [
+    {
+      "order": 0,
+      "node": 20182,
+      "arithmetic": {
+        "bad_area_faces": [
+          19121
+        ],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": false
+    },
+    {
+      "order": 0,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": false,
+      "self_pairs": [
+        [
+          19054,
+          19418
+        ],
+        [
+          19054,
+          19433
+        ],
+        [
+          19055,
+          19418
+        ],
+        [
+          19055,
+          19433
+        ],
+        [
+          19058,
+          19418
+        ],
+        [
+          19058,
+          19433
+        ],
+        [
+          19063,
+          19418
+        ],
+        [
+          19063,
+          19433
+        ],
+        [
+          19414,
+          19432
+        ],
+        [
+          19415,
+          19418
+        ],
+        [
+          19415,
+          19432
+        ],
+        [
+          19415,
+          19433
+        ]
+      ],
+      "complete_pair_scope": {
+        "changed_faces": [
+          19414,
+          19418,
+          19419,
+          19432,
+          19433
+        ],
+        "complete_surface_faces": 41733
+      }
+    },
+    {
+      "order": 1,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": false,
+      "self_pairs": [
+        [
+          19054,
+          19418
+        ],
+        [
+          19054,
+          19433
+        ],
+        [
+          19055,
+          19418
+        ],
+        [
+          19055,
+          19433
+        ],
+        [
+          19058,
+          19418
+        ],
+        [
+          19058,
+          19433
+        ],
+        [
+          19063,
+          19418
+        ],
+        [
+          19063,
+          19433
+        ],
+        [
+          19414,
+          19432
+        ],
+        [
+          19415,
+          19418
+        ],
+        [
+          19415,
+          19432
+        ],
+        [
+          19415,
+          19433
+        ]
+      ],
+      "complete_pair_scope": {
+        "changed_faces": [
+          19414,
+          19418,
+          19419,
+          19432,
+          19433
+        ],
+        "complete_surface_faces": 41733
+      }
+    },
+    {
+      "order": 1,
+      "node": 20182,
+      "arithmetic": {
+        "bad_area_faces": [
+          19121
+        ],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": false
+    },
+    {
+      "order": 2,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": false,
+      "self_pairs": [
+        [
+          19054,
+          19418
+        ],
+        [
+          19054,
+          19433
+        ],
+        [
+          19055,
+          19418
+        ],
+        [
+          19055,
+          19433
+        ],
+        [
+          19058,
+          19418
+        ],
+        [
+          19058,
+          19433
+        ],
+        [
+          19063,
+          19418
+        ],
+        [
+          19063,
+          19433
+        ],
+        [
+          19414,
+          19432
+        ],
+        [
+          19415,
+          19418
+        ],
+        [
+          19415,
+          19432
+        ],
+        [
+          19415,
+          19433
+        ]
+      ],
+      "complete_pair_scope": {
+        "changed_faces": [
+          19414,
+          19418,
+          19419,
+          19432,
+          19433
+        ],
+        "complete_surface_faces": 41733
+      }
+    },
+    {
+      "order": 2,
+      "node": 20182,
+      "arithmetic": {
+        "bad_area_faces": [
+          19121
+        ],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": false
+    }
+  ],
+  "seconds": 1.570925708161667,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

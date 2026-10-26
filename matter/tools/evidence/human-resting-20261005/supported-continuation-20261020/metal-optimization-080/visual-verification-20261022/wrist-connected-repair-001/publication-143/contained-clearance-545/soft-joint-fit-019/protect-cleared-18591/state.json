@@ -1,0 +1,10 @@
+{
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/candidate.npz",
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/summary.json",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-159/report.json",
+  "candidate_sha256": "a1a8c8a75d8097c9d99d96be33ddceef0ec971df67fa36758959fcbd2efe93ab",
+  "point_summary_sha256": "17333220a641c0bd7e8473a1c5587095a5fae4589b182bef8833bf4cfd4f90d7",
+  "surface_report_sha256": "b5160007c76da3ae0e70c2f249ca0949a303953b2cd79152c72364edb5ebd1fb",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

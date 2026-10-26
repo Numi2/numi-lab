@@ -1,0 +1,7 @@
+{
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/spatial/candidate.npz",
+  "guard_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/fixed-guards/fixed-skin-bone-guards.npz",
+  "guard_report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/fixed-guards/report.json",
+  "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/merged-self-pair-seeds.npy",
+  "seed_report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/seed-preflight.json"
+}

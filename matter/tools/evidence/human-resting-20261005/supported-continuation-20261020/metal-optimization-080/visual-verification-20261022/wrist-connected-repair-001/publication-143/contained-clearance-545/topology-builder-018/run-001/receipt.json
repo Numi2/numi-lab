@@ -1,0 +1,1520 @@
+{
+  "accepted_flip_count": 7,
+  "accepted_operations": [
+    {
+      "angle_gain_deg": 8.736245372054068,
+      "connected_patch_group": 0,
+      "cross_detail": false,
+      "detail_face_union": [
+        8269
+      ],
+      "edge": [
+        17097,
+        18495
+      ],
+      "face_rows": [
+        19418,
+        19433
+      ],
+      "immediate_parent_union": [
+        17353,
+        17358
+      ],
+      "new_diagonal": [
+        20212,
+        20215
+      ],
+      "new_min_angle_deg": 11.178330552642993,
+      "old_min_angle_deg": 2.442085180588925,
+      "origin_018": "017_local_operation",
+      "quality_541": {
+        "after": {
+          "minimum_angle_deg": 11.178330552643027,
+          "minimum_area_ratio": 3.5452771149198323,
+          "minimum_normal_cosine": 0.7711571272048798
+        },
+        "before": {
+          "minimum_angle_deg": 2.4420851805890744,
+          "minimum_area_ratio": 2.2569937903035133,
+          "minimum_normal_cosine": 0.4468425264989718
+        },
+        "deltas": {
+          "area_ratio": 1.288283324616319,
+          "min_angle_deg": 8.736245372053952,
+          "normal_cosine": 0.324314600705908
+        },
+        "score": [
+          1.288283324616319,
+          0.324314600705908,
+          8.736245372053952
+        ]
+      },
+      "source_detail_face_row": 8269,
+      "source_subface_row": 8271,
+      "subface_union": [
+        8271
+      ]
+    },
+    {
+      "angle_gain_deg": 25.445408262128737,
+      "connected_patch_group": 0,
+      "cross_detail": true,
+      "detail_face_union": [
+        8265,
+        8269
+      ],
+      "edge": [
+        9106,
+        10749
+      ],
+      "face_rows": [
+        19168,
+        19316
+      ],
+      "immediate_parent_union": [
+        17201,
+        17325
+      ],
+      "new_diagonal": [
+        12580,
+        17092
+      ],
+      "new_min_angle_deg": 33.73211482785338,
+      "old_min_angle_deg": 8.286706565724645,
+      "origin_018": "focus_or_witness_one_ring",
+      "quality_541": {
+        "after": {
+          "minimum_angle_deg": 33.73211482785337,
+          "minimum_area_ratio": 3.141665426151925,
+          "minimum_normal_cosine": 0.9693750476638059
+        },
+        "before": {
+          "minimum_angle_deg": 8.286706565724556,
+          "minimum_area_ratio": 2.6136511291364215,
+          "minimum_normal_cosine": 0.7214197472783985
+        },
+        "deltas": {
+          "area_ratio": 0.5280142970155035,
+          "min_angle_deg": 25.445408262128815,
+          "normal_cosine": 0.24795530038540736
+        },
+        "score": [
+          0.5280142970155035,
+          0.24795530038540736,
+          25.445408262128815
+        ]
+      },
+      "source_detail_face_row": 8265,
+      "source_subface_row": 8267,
+      "subface_union": [
+        8267,
+        8271
+      ]
+    },
+    {
+      "angle_gain_deg": 9.632748598163186,
+      "connected_patch_group": 0,
+      "cross_detail": true,
+      "detail_face_union": [
+        8265,
+        8269
+      ],
+      "edge": [
+        9106,
+        12580
+      ],
+      "face_rows": [
+        19168,
+        19178
+      ],
+      "immediate_parent_union": [
+        17201,
+        17211,
+        17325
+      ],
+      "new_diagonal": [
+        17079,
+        17092
+      ],
+      "new_min_angle_deg": 19.944348884628802,
+      "old_min_angle_deg": 10.311600286465616,
+      "origin_018": "focus_or_witness_one_ring",
+      "quality_541": {
+        "after": {
+          "minimum_angle_deg": 19.944348884628788,
+          "minimum_area_ratio": 3.588009569726779,
+          "minimum_normal_cosine": 0.9744490123492984
+        },
+        "before": {
+          "minimum_angle_deg": 10.311600286465545,
+          "minimum_area_ratio": 3.141665426151925,
+          "minimum_normal_cosine": 0.8538777549222832
+        },
+        "deltas": {
+          "area_ratio": 0.4463441435748541,
+          "min_angle_deg": 9.632748598163243,
+          "normal_cosine": 0.12057125742701513
+        },
+        "score": [
+          0.4463441435748541,
+          0.12057125742701513,
+          9.632748598163243
+        ]
+      },
+      "source_detail_face_row": 8265,
+      "source_subface_row": 8267,
+      "subface_union": [
+        8267,
+        8271
+      ]
+    },
+    {
+      "angle_gain_deg": 2.682291340317672,
+      "connected_patch_group": 0,
+      "cross_detail": true,
+      "detail_face_union": [
+        8265,
+        8269
+      ],
+      "edge": [
+        9106,
+        17092
+      ],
+      "face_rows": [
+        19178,
+        19317
+      ],
+      "immediate_parent_union": [
+        17201,
+        17211,
+        17325,
+        17326
+      ],
+      "new_diagonal": [
+        14284,
+        17079
+      ],
+      "new_min_angle_deg": 22.626640224946474,
+      "old_min_angle_deg": 19.944348884628802,
+      "origin_018": "focus_or_witness_one_ring",
+      "quality_541": {
+        "after": {
+          "minimum_angle_deg": 22.62664022494649,
+          "minimum_area_ratio": 1.2962903578272915,
+          "minimum_normal_cosine": 0.6038856735678321
+        },
+        "before": {
+          "minimum_angle_deg": 19.944348884628788,
+          "minimum_area_ratio": 1.8429807449719469,
+          "minimum_normal_cosine": -0.027005111114047773
+        },
+        "deltas": {
+          "area_ratio": -0.5466903871446553,
+          "min_angle_deg": 2.682291340317704,
+          "normal_cosine": 0.6308907846818799
+        },
+        "score": [
+          -0.5466903871446553,
+          0.6308907846818799,
+          2.682291340317704
+        ]
+      },
+      "source_detail_face_row": 8265,
+      "source_subface_row": 8267,
+      "subface_union": [
+        8267,
+        8271
+      ]
+    },
+    {
+      "angle_gain_deg": 2.7694875287749485,
+      "connected_patch_group": 0,
+      "cross_detail": false,
+      "detail_face_union": [
+        8265
+      ],
+      "edge": [
+        9106,
+        20179
+      ],
+      "face_rows": [
+        19104,
+        19105
+      ],
+      "immediate_parent_union": [
+        17184
+      ],
+      "new_diagonal": [
+        18490,
+        18493
+      ],
+      "new_min_angle_deg": 5.902868834995788,
+      "old_min_angle_deg": 3.1333813062208393,
+      "origin_018": "focus_or_witness_one_ring",
+      "quality_541": {
+        "after": {
+          "minimum_angle_deg": 5.90286883499585,
+          "minimum_area_ratio": 6.461921221521958,
+          "minimum_normal_cosine": 0.22773456941772263
+        },
+        "before": {
+          "minimum_angle_deg": 3.1333813062208393,
+          "minimum_area_ratio": 6.923398178521931,
+          "minimum_normal_cosine": 0.36788582904096184
+        },
+        "deltas": {
+          "area_ratio": -0.4614769569999728,
+          "min_angle_deg": 2.7694875287750107,
+          "normal_cosine": -0.1401512596232392
+        },
+        "score": [
+          -0.4614769569999728,
+          -0.1401512596232392,
+          2.7694875287750107
+        ]
+      },
+      "source_detail_face_row": 8265,
+      "source_subface_row": 8267,
+      "subface_union": [
+        8267
+      ]
+    },
+    {
+      "angle_gain_deg": 0.14261726803886887,
+      "connected_patch_group": 0,
+      "cross_detail": true,
+      "detail_face_union": [
+        8265,
+        8269
+      ],
+      "edge": [
+        10749,
+        17092
+      ],
+      "face_rows": [
+        19316,
+        19319
+      ],
+      "immediate_parent_union": [
+        17201,
+        17325,
+        17328
+      ],
+      "new_diagonal": [
+        12580,
+        12591
+      ],
+      "new_min_angle_deg": 32.221181351104825,
+      "old_min_angle_deg": 32.078564083065956,
+      "origin_018": "focus_or_witness_one_ring",
+      "quality_541": {
+        "after": {
+          "minimum_angle_deg": 32.221181351104825,
+          "minimum_area_ratio": 0.752724566725029,
+          "minimum_normal_cosine": 0.07808181742983966
+        },
+        "before": {
+          "minimum_angle_deg": 32.07856408306597,
+          "minimum_area_ratio": 1.0385754682300379,
+          "minimum_normal_cosine": -0.4464254506086293
+        },
+        "deltas": {
+          "area_ratio": -0.2858509015050089,
+          "min_angle_deg": 0.14261726803885466,
+          "normal_cosine": 0.524507268038469
+        },
+        "score": [
+          -0.2858509015050089,
+          0.524507268038469,
+          0.14261726803885466
+        ]
+      },
+      "source_detail_face_row": 8265,
+      "source_subface_row": 8267,
+      "subface_union": [
+        8267,
+        8271
+      ]
+    },
+    {
+      "angle_gain_deg": 11.337567498343848,
+      "connected_patch_group": 0,
+      "cross_detail": false,
+      "detail_face_union": [
+        8265
+      ],
+      "edge": [
+        14281,
+        20174
+      ],
+      "face_rows": [
+        19077,
+        19078
+      ],
+      "immediate_parent_union": [
+        17179,
+        17180
+      ],
+      "new_diagonal": [
+        9106,
+        20175
+      ],
+      "new_min_angle_deg": 13.168409053716104,
+      "old_min_angle_deg": 1.8308415553722555,
+      "origin_018": "focus_or_witness_one_ring",
+      "quality_541": {
+        "after": {
+          "minimum_angle_deg": 13.168409053716116,
+          "minimum_area_ratio": 2.30998646571554,
+          "minimum_normal_cosine": 0.5213660865255538
+        },
+        "before": {
+          "minimum_angle_deg": 1.830841555372853,
+          "minimum_area_ratio": 0.1746125817248497,
+          "minimum_normal_cosine": 0.5212184882161043
+        },
+        "deltas": {
+          "area_ratio": 2.13537388399069,
+          "min_angle_deg": 11.337567498343263,
+          "normal_cosine": 0.0001475983094495481
+        },
+        "score": [
+          2.13537388399069,
+          0.0001475983094495481,
+          11.337567498343263
+        ]
+      },
+      "source_detail_face_row": 8265,
+      "source_subface_row": 8267,
+      "subface_union": [
+        8267
+      ]
+    }
+  ],
+  "adaptation": {
+    "405_parameterized_in_memory": true,
+    "cross_detail_union_enabled": true,
+    "detail_groups": [
+      [
+        8265,
+        8269
+      ]
+    ],
+    "group_count": 1
+  },
+  "attempts": [
+    {
+      "current_face_rows": [
+        19120,
+        19121
+      ],
+      "edge": [
+        12579,
+        20182
+      ],
+      "origin": "preferred_focus_edge",
+      "prior_face_rows": null,
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        19702,
+        20176
+      ],
+      "origin": "preferred_focus_edge",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19418,
+        19433
+      ],
+      "edge": [
+        17097,
+        18495
+      ],
+      "new_faces": [
+        [
+          17097,
+          20215,
+          20212
+        ],
+        [
+          20215,
+          18495,
+          20212
+        ]
+      ],
+      "origin": "017_local_operation",
+      "prior_face_rows": [
+        19418,
+        19433
+      ],
+      "quality_541": {
+        "after": {
+          "minimum_angle_deg": 11.178330552643027,
+          "minimum_area_ratio": 3.5452771149198323,
+          "minimum_normal_cosine": 0.7711571272048798
+        },
+        "before": {
+          "minimum_angle_deg": 2.4420851805890744,
+          "minimum_area_ratio": 2.2569937903035133,
+          "minimum_normal_cosine": 0.4468425264989718
+        },
+        "deltas": {
+          "area_ratio": 1.288283324616319,
+          "min_angle_deg": 8.736245372053952,
+          "normal_cosine": 0.324314600705908
+        },
+        "score": [
+          1.288283324616319,
+          0.324314600705908,
+          8.736245372053952
+        ]
+      },
+      "status": "accepted"
+    },
+    {
+      "current_face_rows": [
+        19128,
+        19129
+      ],
+      "edge": [
+        17075,
+        20183
+      ],
+      "origin": "017_local_operation",
+      "prior_face_rows": [
+        19128,
+        19129
+      ],
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19122,
+        19129
+      ],
+      "edge": [
+        20182,
+        20183
+      ],
+      "origin": "017_local_operation",
+      "prior_face_rows": [
+        19122,
+        19129
+      ],
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19168,
+        19316
+      ],
+      "edge": [
+        9106,
+        10749
+      ],
+      "new_faces": [
+        [
+          9106,
+          17092,
+          12580
+        ],
+        [
+          17092,
+          10749,
+          12580
+        ]
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "quality_541": {
+        "after": {
+          "minimum_angle_deg": 33.73211482785337,
+          "minimum_area_ratio": 3.141665426151925,
+          "minimum_normal_cosine": 0.9693750476638059
+        },
+        "before": {
+          "minimum_angle_deg": 8.286706565724556,
+          "minimum_area_ratio": 2.6136511291364215,
+          "minimum_normal_cosine": 0.7214197472783985
+        },
+        "deltas": {
+          "area_ratio": 0.5280142970155035,
+          "min_angle_deg": 25.445408262128815,
+          "normal_cosine": 0.24795530038540736
+        },
+        "score": [
+          0.5280142970155035,
+          0.24795530038540736,
+          25.445408262128815
+        ]
+      },
+      "status": "accepted"
+    },
+    {
+      "current_face_rows": [
+        19168,
+        19178
+      ],
+      "edge": [
+        9106,
+        12580
+      ],
+      "new_faces": [
+        [
+          12580,
+          17079,
+          17092
+        ],
+        [
+          17079,
+          9106,
+          17092
+        ]
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "quality_541": {
+        "after": {
+          "minimum_angle_deg": 19.944348884628788,
+          "minimum_area_ratio": 3.588009569726779,
+          "minimum_normal_cosine": 0.9744490123492984
+        },
+        "before": {
+          "minimum_angle_deg": 10.311600286465545,
+          "minimum_area_ratio": 3.141665426151925,
+          "minimum_normal_cosine": 0.8538777549222832
+        },
+        "deltas": {
+          "area_ratio": 0.4463441435748541,
+          "min_angle_deg": 9.632748598163243,
+          "normal_cosine": 0.12057125742701513
+        },
+        "score": [
+          0.4463441435748541,
+          0.12057125742701513,
+          9.632748598163243
+        ]
+      },
+      "status": "accepted"
+    },
+    {
+      "edge": [
+        9106,
+        14281
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        9106,
+        14284
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19177,
+        19178
+      ],
+      "edge": [
+        9106,
+        17079
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19178,
+        19317
+      ],
+      "edge": [
+        9106,
+        17092
+      ],
+      "new_faces": [
+        [
+          9106,
+          14284,
+          17079
+        ],
+        [
+          14284,
+          17092,
+          17079
+        ]
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "quality_541": {
+        "after": {
+          "minimum_angle_deg": 22.62664022494649,
+          "minimum_area_ratio": 1.2962903578272915,
+          "minimum_normal_cosine": 0.6038856735678321
+        },
+        "before": {
+          "minimum_angle_deg": 19.944348884628788,
+          "minimum_area_ratio": 1.8429807449719469,
+          "minimum_normal_cosine": -0.027005111114047773
+        },
+        "deltas": {
+          "area_ratio": -0.5466903871446553,
+          "min_angle_deg": 2.682291340317704,
+          "normal_cosine": 0.6308907846818799
+        },
+        "score": [
+          -0.5466903871446553,
+          0.6308907846818799,
+          2.682291340317704
+        ]
+      },
+      "status": "accepted"
+    },
+    {
+      "edge": [
+        9106,
+        18488
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        9106,
+        18489
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        9106,
+        18490
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        9106,
+        18491
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        9106,
+        18492
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        9106,
+        18493
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        9106,
+        18494
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19419,
+        19432
+      ],
+      "edge": [
+        9106,
+        18495
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "touches_exact_failed_self_witness_face",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        9106,
+        18496
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        9106,
+        20171
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "current_037_orientation_disagreement",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        9106,
+        20174
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19104,
+        19105
+      ],
+      "edge": [
+        9106,
+        20179
+      ],
+      "new_faces": [
+        [
+          9106,
+          18493,
+          18490
+        ],
+        [
+          18493,
+          20179,
+          18490
+        ]
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "quality_541": {
+        "after": {
+          "minimum_angle_deg": 5.90286883499585,
+          "minimum_area_ratio": 6.461921221521958,
+          "minimum_normal_cosine": 0.22773456941772263
+        },
+        "before": {
+          "minimum_angle_deg": 3.1333813062208393,
+          "minimum_area_ratio": 6.923398178521931,
+          "minimum_normal_cosine": 0.36788582904096184
+        },
+        "deltas": {
+          "area_ratio": -0.4614769569999728,
+          "min_angle_deg": 2.7694875287750107,
+          "normal_cosine": -0.1401512596232392
+        },
+        "score": [
+          -0.4614769569999728,
+          -0.1401512596232392,
+          2.7694875287750107
+        ]
+      },
+      "status": "accepted"
+    },
+    {
+      "current_face_rows": [
+        19320,
+        19325
+      ],
+      "edge": [
+        9106,
+        20196
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        9106,
+        20200
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19431,
+        19432
+      ],
+      "edge": [
+        9106,
+        20215
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "touches_exact_failed_self_witness_face",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19458,
+        19463
+      ],
+      "edge": [
+        9106,
+        20218
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "touches_exact_failed_self_witness_face",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        10749,
+        12580
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19316,
+        19319
+      ],
+      "edge": [
+        10749,
+        17092
+      ],
+      "new_faces": [
+        [
+          17092,
+          12591,
+          12580
+        ],
+        [
+          12591,
+          10749,
+          12580
+        ]
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "quality_541": {
+        "after": {
+          "minimum_angle_deg": 32.221181351104825,
+          "minimum_area_ratio": 0.752724566725029,
+          "minimum_normal_cosine": 0.07808181742983966
+        },
+        "before": {
+          "minimum_angle_deg": 32.07856408306597,
+          "minimum_area_ratio": 1.0385754682300379,
+          "minimum_normal_cosine": -0.4464254506086293
+        },
+        "deltas": {
+          "area_ratio": -0.2858509015050089,
+          "min_angle_deg": 0.14261726803885466,
+          "normal_cosine": 0.524507268038469
+        },
+        "score": [
+          -0.2858509015050089,
+          0.524507268038469,
+          0.14261726803885466
+        ]
+      },
+      "status": "accepted"
+    },
+    {
+      "edge": [
+        12579,
+        19055
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        12579,
+        19056
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        12579,
+        19057
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        12579,
+        19058
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        12579,
+        19059
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "alternate_diagonal_exists",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19092,
+        19093
+      ],
+      "edge": [
+        12579,
+        20177
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        12579,
+        20178
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        12580,
+        17079
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19058,
+        19415
+      ],
+      "edge": [
+        14280,
+        18488
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        14280,
+        19377
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "current_037_orientation_disagreement",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19058,
+        19063
+      ],
+      "edge": [
+        14280,
+        20171
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        14280,
+        20212
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        14281,
+        17079
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19077,
+        19078
+      ],
+      "edge": [
+        14281,
+        20174
+      ],
+      "new_faces": [
+        [
+          14281,
+          20175,
+          9106
+        ],
+        [
+          20175,
+          20174,
+          9106
+        ]
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "quality_541": {
+        "after": {
+          "minimum_angle_deg": 13.168409053716116,
+          "minimum_area_ratio": 2.30998646571554,
+          "minimum_normal_cosine": 0.5213660865255538
+        },
+        "before": {
+          "minimum_angle_deg": 1.830841555372853,
+          "minimum_area_ratio": 0.1746125817248497,
+          "minimum_normal_cosine": 0.5212184882161043
+        },
+        "deltas": {
+          "area_ratio": 2.13537388399069,
+          "min_angle_deg": 11.337567498343263,
+          "normal_cosine": 0.0001475983094495481
+        },
+        "score": [
+          2.13537388399069,
+          0.0001475983094495481,
+          11.337567498343263
+        ]
+      },
+      "status": "accepted"
+    },
+    {
+      "current_face_rows": [
+        19321,
+        19452
+      ],
+      "edge": [
+        14282,
+        18489
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        14282,
+        20196
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "current_037_orientation_disagreement",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        14282,
+        20217
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        14283,
+        19055
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "current_037_orientation_disagreement",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19099,
+        19108
+      ],
+      "edge": [
+        14283,
+        19382
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        14283,
+        20178
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19103,
+        19108
+      ],
+      "edge": [
+        14283,
+        20179
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        14284,
+        17092
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "current_037_orientation_disagreement",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        14284,
+        20200
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        14285,
+        18491
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "current_037_orientation_disagreement",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19427,
+        19435
+      ],
+      "edge": [
+        14285,
+        19383
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19460,
+        19467
+      ],
+      "edge": [
+        14285,
+        19384
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19430,
+        19435
+      ],
+      "edge": [
+        14285,
+        20215
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19459,
+        19460
+      ],
+      "edge": [
+        14285,
+        20218
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        14825,
+        19498
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        14825,
+        20182
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        14825,
+        20189
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "current_037_orientation_disagreement",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        15971,
+        19057
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        15971,
+        19702
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "current_037_orientation_disagreement",
+      "status": "rejected"
+    },
+    {
+      "current_face_rows": [
+        19086,
+        19087
+      ],
+      "edge": [
+        15971,
+        20176
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "541_angle_loss_bound",
+      "status": "rejected"
+    },
+    {
+      "edge": [
+        15971,
+        20177
+      ],
+      "origin": "focus_or_witness_one_ring",
+      "prior_face_rows": null,
+      "reason": "nonconvex_quad",
+      "status": "rejected"
+    }
+  ],
+  "base_face_topology_sha256": "d166551add5128a1c75cd69f19b2a4c761a9595da5613a55cd5d818845e015ab",
+  "base_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/connected-cones-014/15-270-spatial/candidate.npz",
+  "base_sha256": "215fa7da9bc9c3fa2a189b853343282e21403ef97c1d691a2a28cab36563ea82",
+  "blocked_prior_operations": [
+    {
+      "edge": [
+        17074,
+        20177
+      ],
+      "face_rows": [
+        19094,
+        19095
+      ],
+      "reason": "touches_exact_failed_self_witness_face"
+    },
+    {
+      "edge": [
+        9106,
+        20215
+      ],
+      "face_rows": [
+        19431,
+        19432
+      ],
+      "reason": "touches_exact_failed_self_witness_face"
+    },
+    {
+      "edge": [
+        9106,
+        18495
+      ],
+      "face_rows": [
+        19419,
+        19431
+      ],
+      "reason": "touches_exact_failed_self_witness_face"
+    }
+  ],
+  "candidate_edge_sources": [
+    "preferred structural edges",
+    "eligible 017 operations incident to focus nodes",
+    "one-ring edges at focus nodes or exact witness faces"
+  ],
+  "candidate_faces_sha256": "9b9e2ba9d5f8fad2a83ae53fa7beabde1f59d9bff2514b5fb532c34145fd9aa0",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/topology-builder-018/run-001/candidate.npz",
+  "candidate_points_sha256": "8cf5bf74165a00a8dbe14565f449cb53861a74c15abd9aac3dd6821d33c28184",
+  "candidate_sha256": "76ec607a3cc6105bce6ef6e26f2a66b881fcce46003f23bf3310c019eb069c20",
+  "changed_face_rows": [
+    19077,
+    19078,
+    19104,
+    19105,
+    19168,
+    19178,
+    19316,
+    19317,
+    19319,
+    19418,
+    19433
+  ],
+  "changed_npz_keys": [
+    "source_O_faces",
+    "parent_fine_detail_face_row",
+    "parent_source_face_marker",
+    "face_source_ancestry_indptr",
+    "face_source_ancestry_face_rows",
+    "parent_fine_subface_row",
+    "face_fine_subface_ancestry_indptr",
+    "face_fine_subface_ancestry_rows",
+    "refinement_face_parent_face_row",
+    "refinement_face_parent_barycentric",
+    "area_reference_037_source_O_faces",
+    "refinement_face_parent_ancestry_indptr",
+    "refinement_face_parent_ancestry_face_rows",
+    "face_fine_detail_ancestry_indptr",
+    "face_fine_detail_ancestry_rows"
+  ],
+  "current_037_faces_synchronized": true,
+  "face_topology_pin": "d166551add5128a1c75cd69f19b2a4c761a9595da5613a55cd5d818845e015ab",
+  "failure_evidence": {
+    "blacklisted_face_rows": [
+      19059,
+      19060,
+      19094,
+      19095,
+      19100,
+      19101,
+      19419,
+      19431,
+      19453,
+      19458,
+      19463
+    ],
+    "pair_count": 10,
+    "pairs_sha256": "8caa5c03ac230c202b218173fac490696a0aae6a24bf35fd4cc1b1d6bc1a3759",
+    "report_sha256": "c78c59961549066f882683ebaac198e7cce3f146378e7b4ec5e03f8916e2abed"
+  },
+  "focus_nodes": [
+    18495,
+    19702,
+    20182
+  ],
+  "full_exact_surface_and_all_185_bone_checks_required": true,
+  "geometry_admitted": false,
+  "input_points_bitwise_unchanged": true,
+  "limitations": [
+    "Construction-only fixed-coordinate 2:2 flips.",
+    "No exact self-intersection, bone-surface, or point-in-volume audit was run.",
+    "541 quality screening is not a collision-clearance certificate."
+  ],
+  "owner_pins": {
+    "failed_pairs": "8caa5c03ac230c202b218173fac490696a0aae6a24bf35fd4cc1b1d6bc1a3759",
+    "failed_report": "c78c59961549066f882683ebaac198e7cce3f146378e7b4ec5e03f8916e2abed",
+    "owner402": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764",
+    "prior_report": "f3dab3825f6b69f33dd38d6bfb494e667b867ac49cc15f97235461b06a454926",
+    "quality541": "26930be05518834f02724948cffa5ff74719f070a4ac4e4917b0965f42a412aa",
+    "replay405": "e995a2f460e60cb62fb24b80af400678757f62a2b0c1b51141bf0ef387993967"
+  },
+  "prior_proposal_report_sha256": "f3dab3825f6b69f33dd38d6bfb494e667b867ac49cc15f97235461b06a454926",
+  "quality_policy": {
+    "maximum_minimum_angle_loss_deg": 0.75,
+    "minimum_face_angle_deg": 2.0,
+    "minimum_fixed037_area_ratio": 0.1,
+    "owner": "541 evaluate_op"
+  },
+  "selected_patch_boundary_and_outer_edges_preserved": true,
+  "status": "CONSTRUCTION_PROPOSAL_UNAUDITED",
+  "typed_anchor_coordinates_bitwise_unchanged": true,
+  "typed_anchor_count": 237
+}

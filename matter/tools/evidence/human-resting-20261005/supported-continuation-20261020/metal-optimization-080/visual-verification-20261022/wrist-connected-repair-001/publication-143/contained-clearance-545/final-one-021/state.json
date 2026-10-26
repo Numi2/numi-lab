@@ -1,0 +1,10 @@
+{
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/fit/candidate.npz",
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-130/summary.json",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-159/report.json",
+  "candidate_sha256": "d3951dbf02dd2451fde308b4b0499ef3b059034e1e134853f32892842ebb53b5",
+  "point_summary_sha256": "1f9a60d5a6d5f453138f3850fec6bf9454b4f130890dbc511f301801239718fe",
+  "surface_report_sha256": "65153661f7e6881b8888567508dbc96593070e2f9b1baa54f78aaad6dd30e390",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

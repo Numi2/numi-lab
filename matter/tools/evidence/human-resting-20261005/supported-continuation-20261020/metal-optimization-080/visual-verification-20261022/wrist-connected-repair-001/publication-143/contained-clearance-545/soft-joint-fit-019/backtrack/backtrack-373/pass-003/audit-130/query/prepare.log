@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/points-world.npz",
+  "input_sha256": "bbbb88dccf0b40a4f51c2ab8322d5f714ed99e8afabb5a078c45850362723aca",
+  "field": "points_world_f32",
+  "query_count": 20889,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/points.csv",
+  "output_sha256": "c8db3082d1cdea128caddb649ed0e53038e62a6d75d8ad89a8b40510123d0a75",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

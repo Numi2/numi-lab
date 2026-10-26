@@ -1,0 +1,15 @@
+{
+  "state": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/state.json",
+  "state_sha256": "7c197fbc9316617c74ea58373c70d3eb067c7c838a165ffc74551b73247f342b",
+  "candidate_sha256": "ced651c06f4363139288fc006ce9bdbf62ef13f603491c16fbdf0d98eb654bc4",
+  "contained_node_bank_pairs": 0,
+  "self_pairs": 0,
+  "surface_pairs": 2861,
+  "expected_bank_count": 185,
+  "exact_check": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/report.json",
+  "exact_check_sha256": "c9c4b7d25a0e2e128f9449edfb951fb58c83cbe6eb5423a88749e676ab1bfb6d",
+  "accepted_physical_steps": 0,
+  "native_admission": false,
+  "surface_crossings_resolved": false,
+  "physical_skin_fat_transfer_qualified": false
+}

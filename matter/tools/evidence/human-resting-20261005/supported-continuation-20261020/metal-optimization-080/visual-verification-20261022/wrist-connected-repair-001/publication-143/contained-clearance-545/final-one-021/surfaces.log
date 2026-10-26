@@ -1,0 +1,13 @@
+waiting_for_human_geometry_slot pid=54017
+acquired_human_geometry_slot pid=54017
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/surface-targets/report.json",
+  "report_sha256": "54ee9500a0829424f02ee2978faef1a85f158f4ada5841008cd2fdfac8f488b1",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/surface-targets/targets.npz",
+  "npz_sha256": "386a4f6f211a8b3ada20a4710f5001cc64ff1b95e233f75d4085480ce283c53d",
+  "rows": 2860,
+  "pairs": 2860,
+  "targets": 2860,
+  "failures": {},
+  "elapsed_seconds": 24.69837662484497
+}

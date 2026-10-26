@@ -1,0 +1,105 @@
+{
+  "core_tests": {
+    "new_builder_unit_test_files_found": [],
+    "receipt_sha256_from_publication142": "e09f5869c38043206170b669bfd4efe6b2f2bd3d35e5c74b130b026759e81d54",
+    "rerun_this_turn": false,
+    "returncode": 0,
+    "run_timestamp_utc": "2026-10-26T17:07:31.368057+00:00",
+    "status": "........                                                                 [100%]\n8 passed in 0.09s",
+    "test_source_hashes": [
+      {
+        "path": "test_point_batch545.py",
+        "sha256": "cc59cc77128b080c00db2de4d1e1501cb7f76a1ba02f0a611d1d079ec80d6621"
+      },
+      {
+        "path": "test_direct_depth545.py",
+        "sha256": "a82b35e96485c2bc0052937ef9d4b2701c6da753d28c01166b64279bef504311"
+      },
+      {
+        "path": "test_connected_patch545.py",
+        "sha256": "9474ce722292bde1c191b96aa286da6a04c6de6f2b34152251d5729f8fc8fbd6"
+      },
+      {
+        "path": "test_project_patch545.py",
+        "sha256": "16d2526f0a36d366b7b9cb621a8c5eaf9e09f407c439d3e59e52be1b61bb4b17"
+      },
+      {
+        "path": "test_component_active545.py",
+        "sha256": "8877422af972a8ca03688d7477afe4cf04fbb69a0b96b638bad7e8ac4bc8dae6"
+      }
+    ],
+    "test_sources_unchanged_since_142": true
+  },
+  "final_zero_candidate": {
+    "accepted_physical_steps": 0,
+    "anchor_rows": 237,
+    "candidate_file": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/direct/candidate.npz",
+    "checkpoint_sha256": "6f0a26448c9a051c661b6f3cab6faf9b77143193995a351aea70e6b0213fbd1a",
+    "complete_banks": 185,
+    "construction_progress": false,
+    "contained_node_bank_pairs": 0,
+    "exact_check_sha256": "c9c4b7d25a0e2e128f9449edfb951fb58c83cbe6eb5423a88749e676ab1bfb6d",
+    "maximum_source_distance_mm": 11.988305485403343,
+    "maximum_step_mm": 0.055628653255699045,
+    "minimum_current_oriented_area_ratio": 0.25547094657514474,
+    "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+    "native_admission": false,
+    "self_pairs": 0,
+    "sha256": "ced651c06f4363139288fc006ce9bdbf62ef13f603491c16fbdf0d98eb654bc4",
+    "state_sha256": "7c197fbc9316617c74ea58373c70d3eb067c7c838a165ffc74551b73247f342b",
+    "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS",
+    "surface_pairs": 2861
+  },
+  "generated_utc": "2026-10-26T17:26:16.996540+00:00",
+  "initial_to_final_identity": {
+    "changed_coordinate_count": 2273,
+    "final_candidate_sha256": "ced651c06f4363139288fc006ce9bdbf62ef13f603491c16fbdf0d98eb654bc4",
+    "initial_candidate_sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939",
+    "maximum_cumulative_coordinate_delta_mm": 3.030683161162512,
+    "receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/initial-to-final-identity-check.json",
+    "receipt_sha256": "e956b181da273a0c6319101401845cd371049b9382a91805c49fc493547760c8",
+    "source_topology_and_provenance_arrays_bitwise_unchanged": true,
+    "unchanged_coordinate_count": 18616
+  },
+  "package_scope": "offline completed construction evidence through last-exit-022; no geometry/native execution performed by publisher",
+  "publication142_parent": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+  "registered_owner_receipt": {
+    "body_index": 43,
+    "member_id": "FJ3349",
+    "naming_correction_recorded": true,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/registered-bank-owner.json",
+    "registered_rigid_owner": "radius_r",
+    "sha256": "3031cb824fbf58ecf1f3506498252a88357ba2f4f231812303a6ef2e5e8d3cf6",
+    "source_record_index": 24,
+    "stable_bone_id": 16,
+    "triangle_count": 672
+  },
+  "remote_main_after_snapshot": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+  "remote_main_before_snapshot": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+  "restore_replay": {
+    "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/restore-replay/candidate.npz",
+    "deterministic_replay_rerun_this_turn": false,
+    "expected_and_actual_candidate_sha256": "a1a8c8a75d8097c9d99d96be33ddceef0ec971df67fa36758959fcbd2efe93ab",
+    "interpretation": "hash confirms retained replay output matches its report; report remains pending exact checks and is not promoted to final admission",
+    "original_status": "OUTSIDE_WITNESS_RESTORE_PENDING_EXACT_CHECKS",
+    "owner_reported_prior_replay_byte_match": true,
+    "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/restore-replay/report.json",
+    "report_sha256": "71405c12f1bfd18a2959347a5c52dd1ff13340201411540e662334a5c4420d4a",
+    "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/restore_outside_witness_rows545.py",
+    "source_sha256": "e03b1ed60137e06c21e9bb7d0ed05a0bf27a7c0ff3f0b80863603bb36bd3b7bf"
+  },
+  "reused_source_references_count": 40,
+  "schema_version": 1,
+  "shared_checkout_after_snapshot": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201"
+  },
+  "shared_checkout_before_snapshot": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201"
+  }
+}

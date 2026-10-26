@@ -1,0 +1,32 @@
+{
+  "body_index": 43,
+  "stable_bone_id": 16,
+  "registered_rigid_owner": "radius_r",
+  "source_record": {
+    "core_body_index": 43,
+    "member_id": "FJ3349",
+    "member_sha256": "0f824e639b13ea02959734a0d9bd8d7ca67d0b51f531a138d769e1d3b22e0c98",
+    "myosim_body": "radius_r",
+    "source_record_index": 24,
+    "triangle_count": 672,
+    "vertex_count": 388
+  },
+  "manifest_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.manifest.json",
+  "manifest_sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+  "bank_inventory_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv",
+  "bank_inventory_sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+  "matching_inventory_row": {
+    "body": "43",
+    "stable_bone_id": "16",
+    "triangle_count": "672",
+    "min_x": "-0.027333199977874756",
+    "min_y": "-0.010232626460492611",
+    "min_z": "-0.18684327602386475",
+    "max_x": "0.0065001840703189373",
+    "max_y": "0.03255811333656311",
+    "max_z": "0.057912286370992661"
+  },
+  "naming_correction": "Earlier left-hand wording was incorrect; typed identities were unchanged in all construction and exact checks.",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

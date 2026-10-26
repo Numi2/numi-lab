@@ -1,0 +1,81 @@
+{
+  "status": "CONNECTED_ENDPOINT_SELECTION_PENDING_FULL_EXACT_CHECKS",
+  "candidate_sha256": "ced651c06f4363139288fc006ce9bdbf62ef13f603491c16fbdf0d98eb654bc4",
+  "base_sha256": "d3951dbf02dd2451fde308b4b0499ef3b059034e1e134853f32892842ebb53b5",
+  "source_sha256": "6faf31ed4f474d311f843402807663ffaa3139ee95dd1c7c4844e63dca38ae12",
+  "target_sha256": "9b30a3ed623021289ddf4288354ac29ddbb5125e0155a1d07fbc145f61c330de",
+  "retained_node_rows": [
+    18495
+  ],
+  "retained_operations": 1,
+  "selected_order": 0,
+  "initial_selection": null,
+  "trials": [
+    {
+      "order": 0,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": true,
+      "self_pairs": [],
+      "complete_pair_scope": {
+        "changed_faces": [
+          19414,
+          19418,
+          19419,
+          19432,
+          19433
+        ],
+        "complete_surface_faces": 41733
+      }
+    },
+    {
+      "order": 1,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": true,
+      "self_pairs": [],
+      "complete_pair_scope": {
+        "changed_faces": [
+          19414,
+          19418,
+          19419,
+          19432,
+          19433
+        ],
+        "complete_surface_faces": 41733
+      }
+    },
+    {
+      "order": 2,
+      "node": 18495,
+      "arithmetic": {
+        "bad_area_faces": [],
+        "bad_edge_rows": [],
+        "bad_bound_nodes": []
+      },
+      "accepted": true,
+      "self_pairs": [],
+      "complete_pair_scope": {
+        "changed_faces": [
+          19414,
+          19418,
+          19419,
+          19432,
+          19433
+        ],
+        "complete_surface_faces": 41733
+      }
+    }
+  ],
+  "seconds": 1.5467746669892222,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

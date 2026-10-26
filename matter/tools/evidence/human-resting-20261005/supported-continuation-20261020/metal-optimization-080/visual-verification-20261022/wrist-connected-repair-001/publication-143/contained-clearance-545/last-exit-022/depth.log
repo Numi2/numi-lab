@@ -1,0 +1,21 @@
+waiting_for_human_geometry_slot pid=54128
+acquired_human_geometry_slot pid=54128
+{
+  "status": "PASS",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/fit/candidate.npz",
+  "candidate_sha256": "d3951dbf02dd2451fde308b4b0499ef3b059034e1e134853f32892842ebb53b5",
+  "output_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/depth",
+  "rows_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/depth/point-depth-rows.npz",
+  "rows_npz_sha256": "67c369daadf03f6a616fcae72b9f012d6165f80c8b2990407a8bb63465f257a3",
+  "raw_report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/depth/report.json",
+  "raw_report_sha256": "1eb5caacaadc4c931dd96a29cfedee3a39746b06b4f5a81e51a2b27a2571c3d6",
+  "compatible_report": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/depth/365-compatible-report.json",
+  "compatible_report_sha256": "f696bb913aac4be6a4de59c9ba18a7739ea9abda926b79985e54749e9cb08c89",
+  "validation": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/depth/365-validation.json",
+  "validation_sha256": "69385b26447760840413684aadf4e19f8f4843a0b42c346f1d0bec40664d7b52",
+  "inside": 1,
+  "outside": 6338,
+  "row_count": 6339,
+  "unique_nodes": 6249,
+  "max_zero_step_violation_m": 0.0
+}
