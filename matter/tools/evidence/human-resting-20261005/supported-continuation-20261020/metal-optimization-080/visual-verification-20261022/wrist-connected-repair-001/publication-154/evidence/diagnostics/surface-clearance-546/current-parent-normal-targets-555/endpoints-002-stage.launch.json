@@ -1,0 +1,20 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/recovered-target-applier-555/apply_recovered_targets555.py",
+    "--baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/state.json",
+    "--target-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/targets-001-recovered",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/endpoints-002",
+    "--expected-recovery-sha256",
+    "06ae6ce653c297b5c0f9a61fa9e50fd43a30f9df7dff36a3f1b4a0354f75a335"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/recovered-target-applier-555/apply_recovered_targets555.py": "30ddadcf2bf04cf39eb9072cbf3a49ee7860b70defee14b5faa7906cb050dbc6"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "accepted_physical_steps": 0,
+  "lineage_limitation": "inherited upstream same-parent barycentric metadata correction is separate; global node prolongation/reference geometry is retained unchanged",
+  "native_admission": false,
+  "scope": "diagnostic refined branch with joint old/new coordinates; remains unselected",
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/direct-depth-rows-002/365-compatible-report.json": "e2eb75a4b10e4e34b86230507adae8471f54ce115143bd800ba6e3f2b5b593e9",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/direct-depth-rows-002/point-depth-rows.npz": "e612840c9d8d113b7b1d6ef9a068521ae73a5ed03fefc5a3ed19e4bf4cdc4462",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/direct-depth-targets-002/nearest-union-exits.json": "9396971814d15927926bb933c08b196026ca9b3919acd2c39b79c3c597a3b6a1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/direct-depth-targets-002/nearest-union-exits.npz": "438c60dcbe6ba55e4f4c36992c08d34da33cbb8959b4a8a940130a76742ac684",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/state.json": "c2422fe24f4da00f6a48e40517a7d52ab3f7a4e0872ad51ce95b13c6b96b9c6a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py": "84bcd87e6ba2c877eeabf853ff2db7739041e6c96838a6b625ddea878c72e2a0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/constraint-context.json": "776f4e274c83d1b0d6623701065d1be2c838d8f53fddd0555866120f24b6c665",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz": "c617f603a0d91d6a4e0b2bb8c1214a9563848a11ce5f9c9db358ae27760354db",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/fixed-guards/report.json": "bf280bb667db3de0bd5fcdb3bdd003beb1d7881cdbad101a2e92be8e4aad0a93",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/self-seeds/merged-self-pair-seeds.npy": "ebc0e7f280f6edc18a4fd802f682004199bf1bbccc7d6d1fd9d9aa6bd761f88f"
+  }
+}

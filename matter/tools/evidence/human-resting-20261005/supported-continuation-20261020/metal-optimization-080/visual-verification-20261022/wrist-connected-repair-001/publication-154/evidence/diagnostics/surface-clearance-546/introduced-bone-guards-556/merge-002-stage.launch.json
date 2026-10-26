@@ -1,0 +1,24 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-fixed-boundary-556/merge_introduced_skin_bone_guards556.py",
+    "--base-candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/candidate.npz",
+    "--expected-base-sha256",
+    "10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366",
+    "--context",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/constraint-context.json",
+    "--introduced-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/export-002/report.json",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/merge-002"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-fixed-boundary-556/merge_introduced_skin_bone_guards556.py": "d8c43549c4a9311a0ee087939253aeb54e1d516e031c77617b686b6efd850e9c"
+  }
+}

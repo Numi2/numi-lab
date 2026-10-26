@@ -1,0 +1,75 @@
+"""Prepare and run the existing connected full-coordinate point fitter on the refined branch."""
+from pathlib import Path
+from types import SimpleNamespace
+import argparse,importlib.util,json,sys
+N=Path(__file__).resolve().parent
+def module(name,path):
+ s=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(s);sys.modules[name]=m;s.loader.exec_module(m);return m
+m=module('stages557',N/'continue_surface_round546.py')
+def main():
+ ap=argparse.ArgumentParser();ap.add_argument('--output',type=Path,required=True);a=ap.parse_args()
+ T=a.output;T.mkdir(parents=True,exist_ok=False);P=T/'prepare';P.mkdir()
+ state_path=N/'connected-source-refinement-553/refine-frozen30886-002/state.json'
+ state=json.loads(state_path.read_text());base=Path(state['candidate'])
+ for k in ['candidate','point_summary','surface_report']:
+  if m.sha(state[k])!=state[k+'_sha256']:raise ValueError('state pin '+k)
+ prior_path=N/'round-026-guard-cuts556/constraint-context.json'
+ prior=json.loads(prior_path.read_text())
+ h=N/'refresh_surface_constraints546.py'
+ # This is the existing declared contained-point construction mode. Its
+ # checks stay active; the surface-only convenience caller omits this flag.
+ refresh=[sys.executable,str(h),'--candidate',str(base),'--audit130',state['point_summary'],
+   '--audit159',state['surface_report'],'--query-dir',str(Path(state['point_summary']).parent/'query'),
+   '--ancestry-parent-candidate',prior['candidate'],'--prior-candidate',prior['candidate'],
+   '--prior-surface-report',prior['surface_report'],'--prior-guard-candidate',prior['candidate'],
+   '--prior-guard-npz',prior['guard_npz'],'--prior-guard-report',prior['guard_report'],
+   '--prior-seed-pairs',prior['seed_pairs_path'],'--prior-seed-report',prior['seed_report'],
+   '--failed-seed-candidate',str(base),'--failed-seed-audit130',state['point_summary'],
+   '--failed-seed-pairs',str(Path(state['point_summary']).parent/'surface-self-pairs.npy'),
+   '--output-dir',str(P/'constraints'),'--point-continuation']
+ m.run_stage(refresh,T/'refresh-stage',slot=True,source_paths=(h,N/'refresh_guards_multi_parent_546.py'),timeout=600)
+ rr=json.loads((P/'constraints/refresh-report.json').read_text())
+ ctx={**{k:state[k] for k in ['candidate','candidate_sha256','point_summary','point_summary_sha256','surface_report','surface_report_sha256']},
+   'seed_pairs_path':rr['seed_pairs_path'],'seed_report':rr['seed_report_path'],
+   'guard_npz':rr['fixed_guard_npz_path'],'guard_report':rr['fixed_guard_report_path'],
+   'native_admission':False,'accepted_physical_steps':0}
+ m.write_json(P/'constraint-context.json',ctx)
+ h=N.parent/'source-outward-proposal-500/build_outward_targets_multi_source_546.py'
+ m.run_stage([sys.executable,str(h),'--candidate',str(base),'--surface-report',state['surface_report'],
+   '--query-receipt',str(Path(state['point_summary']).parent/'query/query-receipt.json'),
+   '--output-dir',str(P/'surface-targets'),'--clearance-m','.00005','--direction-mode','outward-nearest'],
+   T/'surface-targets-stage',slot=True,source_paths=(h,),timeout=600)
+ targets=N/'connected-source-refinement-553/direct-depth-targets-002'
+ depth=N/'connected-source-refinement-553/direct-depth-rows-002'
+ matched=json.loads((N/'refined-point-001/matched-point-fit-inputs.json').read_text())
+ paths={'candidate':base,'audit159':Path(state['surface_report']),
+   'face_target_npz':P/'surface-targets/targets.npz','point_target_npz':targets/'nearest-union-exits.npz'}
+ if set(matched['inputs'])!=set(paths):raise ValueError('matched roles')
+ matched['inputs']={k:{'path':str(p),'sha256':m.sha(p)}for k,p in paths.items()}
+ m.write_json(P/'matched-inputs.json',matched)
+ argv=json.loads((N/'refined-point-001/point-fit-001-argv.prepared.json').read_text())
+ changes={'--base-candidate':base,'--raw-trial':base,'--area-reference-npz':base,
+   '--self-pairs':ctx['seed_pairs_path'],'--point-target-npz':targets/'nearest-union-exits.npz',
+   '--point-target-report':targets/'nearest-union-exits.json',
+   '--face-target-npz':paths['face_target_npz'],'--face-target-report':P/'surface-targets/report.json',
+   '--point-depth-rows-npz':depth/'point-depth-rows.npz',
+   '--point-depth-rows-report':depth/'365-compatible-report.json',
+   '--fixed-boundary-npz':ctx['guard_npz'],'--fixed-boundary-report':ctx['guard_report'],
+   '--matched-inputs-json-490':P/'matched-inputs.json','--audit159-490':state['surface_report'],'--output':T/'fit'}
+ for k,v in changes.items():m.replace_cli_value(argv,k,v)
+ m.write_json(T/'fit-argv.json',argv)
+ pins={str(p):m.sha(p)for p in [state_path,prior_path,N/'prepare_surface546.py',
+   targets/'nearest-union-exits.npz',targets/'nearest-union-exits.json',depth/'point-depth-rows.npz',
+   depth/'365-compatible-report.json',Path(ctx['seed_pairs_path']),Path(ctx['guard_npz']),Path(ctx['guard_report'])]}
+ m.write_json(T/'input-pins.json',{'source_pins':pins,'native_admission':False,'accepted_physical_steps':0,
+   'scope':'diagnostic refined branch with joint old/new coordinates; remains unselected',
+   'lineage_limitation':'inherited upstream same-parent barycentric metadata correction is separate; global node prolongation/reference geometry is retained unchanged'})
+ fit=Path(argv[1])
+ m.run_stage(argv,T/'fit-stage',slot=True,source_paths=(Path(__file__),fit,),timeout=900)
+ if not all(m.sha(p)==v for p,v in pins.items()):raise ValueError('matched input changed')
+ check=N.parent/'contained-clearance-545/run_candidate_checks545.py'
+ m.run_stage([sys.executable,str(check),'--candidate',str(T/'fit/candidate.npz'),'--baseline-state',str(state_path),
+   '--trust-mm','4','--output-dir',str(T/'full-check')],T/'full-check-stage',slot=False,source_paths=(check,),timeout=600)
+ r=json.loads((T/'full-check/report.json').read_text())
+ print(json.dumps({k:r.get(k)for k in ['status','surface_pairs','contained_pairs','self_pairs','construction_progress']}),flush=True)
+if __name__=='__main__':main()

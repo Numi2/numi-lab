@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/audit-130/query/points-world.npz",
+  "input_sha256": "a64d23d9fc994c16f9abd499b1c5b7a12e36106c8ccbd1ae6294450b8ef88c07",
+  "field": "points_world_f32",
+  "query_count": 20889,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/audit-130/query/points.csv",
+  "output_sha256": "be1ce37cbac4a6700548c6595bb875deb47376006560798456364e727bd3c40e",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

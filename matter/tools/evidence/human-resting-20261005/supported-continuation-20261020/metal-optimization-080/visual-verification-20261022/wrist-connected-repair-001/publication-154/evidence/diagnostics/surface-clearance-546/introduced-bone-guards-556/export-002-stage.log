@@ -1,0 +1,3 @@
+waiting_for_human_geometry_slot pid=78228
+acquired_human_geometry_slot pid=78228
+{"status": "COMPLETE_TYPED_INTRODUCED_SKIN_BONE_BARRIER_EXPORT", "base_candidate_sha256": "10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366", "introduced_pair_count": 274, "output_npz_sha256": "6fed7508f5a72304a4c328865b43ada1c59b310b8f30a4ab826d50dea4f0ff1c"}

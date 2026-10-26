@@ -1,0 +1,6 @@
+{
+  "p153_source_pin_index_sha256": "148ae3da47c0cdd94d3873e51b826705bd1be72f611704c8479b7cba6dcd3752",
+  "parent_publication": "P153",
+  "parent_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+  "relationship": "P154 is a new prefix-only commit. Exact unchanged P153 inputs are referenced by commit/path/hash instead of duplicated."
+}

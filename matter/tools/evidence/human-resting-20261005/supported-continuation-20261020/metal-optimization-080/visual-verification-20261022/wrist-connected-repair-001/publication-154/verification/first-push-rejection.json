@@ -1,0 +1,16 @@
+{
+  "attempted_commit": "d2d04a4f4e644275c5d814a9fb2b9c217e7ba717",
+  "generated_utc": "2026-10-26T22:28:13.177649+00:00",
+  "parent": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+  "publication": "P154",
+  "push_result": "REJECTED_BY_GITHUB",
+  "reason": "GitHub rejected the 139.47 MiB exact-emitted.triangles.csv blob because it exceeds the 100 MB per-file limit.",
+  "remote_main_after_rejection": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+  "shared_head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "shared_index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+  "shared_status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814",
+  "source_input_bytes": 146247212,
+  "source_input_left_untouched": true,
+  "source_input_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+  "source_input_sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac"
+}

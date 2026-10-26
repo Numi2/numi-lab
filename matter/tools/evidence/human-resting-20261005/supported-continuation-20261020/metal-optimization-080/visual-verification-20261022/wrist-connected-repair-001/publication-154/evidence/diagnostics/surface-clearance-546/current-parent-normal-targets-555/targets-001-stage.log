@@ -1,0 +1,35 @@
+waiting_for_human_geometry_slot pid=77335
+acquired_human_geometry_slot pid=77335
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/targets-001/nearest-union-exits.json",
+  "report_sha256": "41a6e53856bc6992611fc57a6b87708df7fb5cb4fe3fb7aa3c16b2bbeef003ed",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/targets-001/nearest-union-exits.npz",
+  "npz_sha256": "1eaa5086a099c38cc217fa4a64d0f83298adf134f5d13eb8e974cf61aeaeeb4d",
+  "query_rows": 1248,
+  "passing_targets": 1248,
+  "status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY",
+  "seconds": 23.99151137494482
+}
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/run_current_parent_normal_targets555.py", line 327, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/run_current_parent_normal_targets555.py", line 287, in main
+    report=invoke_and_annotate_builder(builder.main,args,report_path,arrays_path,
+        source_normals=registered_normals,source_provenance=registered_provenance,
+        parent_normals=parent_normals,parent_provenance=parent_provenance,
+        orientation_sign=orientation_sign.get("value",0),input_metadata=input_metadata)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/run_current_parent_normal_targets555.py", line 190, in invoke_and_annotate_builder
+    raise post_error
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/run_current_parent_normal_targets555.py", line 143, in invoke_and_annotate_builder
+    report,arrays=decorate_target_outputs(report,arrays,
+                  ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+        source_normals=source_normals,source_provenance=source_provenance,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        parent_normals=parent_normals,parent_provenance=parent_provenance,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        orientation_sign=orientation_sign)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/run_current_parent_normal_targets555.py", line 72, in decorate_target_outputs
+    raise ValueError("current-parent direction has no pinned orientation sign")
+ValueError: current-parent direction has no pinned orientation sign

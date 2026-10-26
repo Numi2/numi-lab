@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-001/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "331b4debe2dfd8a2da90278c669673f4ddf591beea48e841cc39c5fb9036d2ef",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/full-check/audit-130/summary.json",
+  "point_summary_sha256": "0d182e57bc497fefeef57d1f40e5155a88c575e0d8de609253020833b6866713",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/full-check/audit-159/report.json",
+  "surface_report_sha256": "f8e51a62ce89f621474af0bc6c2f2088465fc57f23a278f34d4eb4f6eb0665b4",
+  "temporary_unselected_construction": false
+}

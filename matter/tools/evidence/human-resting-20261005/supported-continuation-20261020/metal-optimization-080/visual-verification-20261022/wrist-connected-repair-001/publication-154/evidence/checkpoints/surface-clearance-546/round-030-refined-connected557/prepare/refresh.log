@@ -1,0 +1,13 @@
+waiting_for_human_geometry_slot pid=79195
+acquired_human_geometry_slot pid=79195
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py", line 597, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py", line 592, in main
+    result = execute(args, point_continuation=args.point_continuation)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py", line 375, in execute
+    contained_count = validate_containment_mode(current_a130, point_continuation=point_continuation)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py", line 323, in validate_containment_mode
+    raise ValueError("surface adapter requires current candidate with zero containment")
+ValueError: surface adapter requires current candidate with zero containment

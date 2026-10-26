@@ -1,0 +1,3 @@
+waiting_for_human_geometry_slot pid=78229
+acquired_human_geometry_slot pid=78229
+{"status": "COMPLETE_TYPED_INTRODUCED_SKIN_BONE_BARRIER_EXPORT", "base_candidate_sha256": "10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366", "existing_guard_pairs": 2690, "introduced_pairs": 274, "deduplicated_overlap": 0, "merged_pair_count": 2964, "validated_313_rows": 17784, "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/merge-002/introduced-skin-bone-barriers.npz", "npz_sha256": "fe7413d09543da4281e8562d9f5d2fbb9384c6bc8e85152236cb16762d5ca897", "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"}

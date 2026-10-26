@@ -1,0 +1,34 @@
+{
+  "accepted_physical_steps": 0,
+  "all185_endpoint_rows_and_targets_unchanged": true,
+  "candidate_sha256": "dc92a5285643fd6dd63801675744ca474fd036b9e68235c638f00d095dd50f9c",
+  "classification": "reannotation of completed exact endpoint outputs; no new endpoint query or geometry operation",
+  "coarse_outward_sign_from_pinned_303": -1,
+  "depth_covectors_used": false,
+  "native_admission": false,
+  "parent_candidate_sha256": "10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366",
+  "preserved_original_outputs": {
+    "classification": "preserved original outputs from completed target stage before metadata repair",
+    "npz_sha256": "1eaa5086a099c38cc217fa4a64d0f83298adf134f5d13eb8e974cf61aeaeeb4d",
+    "report_sha256": "dd9afc6932466a41275579979f9da06ea2994113b595c087686882664b927b45",
+    "reported_original_npz_sha256": "1eaa5086a099c38cc217fa4a64d0f83298adf134f5d13eb8e974cf61aeaeeb4d",
+    "reported_original_report_sha256": "dd9afc6932466a41275579979f9da06ea2994113b595c087686882664b927b45"
+  },
+  "recovered_npz_sha256": "2e41291619b3be9d98dc2c7a57fb967caca27ad5d728cf789812de24261ad4ed",
+  "recovered_report_sha256": "5713bd9619a39ba4d6e7b69d4e8f0d0592dd1df59d47d529a1c99863048e19c9",
+  "recovery_script_sha256": "ccb95c57b9a6eee139752f7c8e11ad7c829d6b9ea127a1bed49cfced1fe7cb77",
+  "registered_source_normal_provenance_reconstructed_for_all_rows": true,
+  "rows_are_appended_inside_refinement_nodes": true,
+  "schema": "numi.human.current_parent_normal_target_postprocess_recovery_555.v1",
+  "source_npz_sha256": "1eaa5086a099c38cc217fa4a64d0f83298adf134f5d13eb8e974cf61aeaeeb4d",
+  "source_owner_hashes": {
+    "helper555": "431f4af0b1308a1c8d90f22cf9be65e5dd13b97491ba6ddfd3b4c269bf56e5e5",
+    "orientation_report": "e43908188f134182635ac36a9a1602abad1918df374a04f3f7cc9eb1812d7497",
+    "source303": "c8fe5b7be2efb2c6867a2cde178ebc35280814c37f90eec5aea47e964fc17a1f",
+    "target_builder545": "2864d9547d2715c61c9c27b17bcfd11fac250197c47f4fd4870f8f6898cecb60"
+  },
+  "source_report_sha256": "dd9afc6932466a41275579979f9da06ea2994113b595c087686882664b927b45",
+  "status": "PASS_POSTPROCESS_ONLY_RECOVERY",
+  "target_count": 1248,
+  "verified_proposal_equals_current_parent_normal_bitwise": true
+}

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/apply_new_targets553.py", line 32, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/apply_new_targets553.py", line 18, in main
+    if not np.all(t['pass_mask']&t['target_exactly_outside_all185']) or tr['status']!='PASS_FIRST_UNION_EXIT_TARGETS_ONLY':raise ValueError('uncertified endpoints')
+                                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: uncertified endpoints

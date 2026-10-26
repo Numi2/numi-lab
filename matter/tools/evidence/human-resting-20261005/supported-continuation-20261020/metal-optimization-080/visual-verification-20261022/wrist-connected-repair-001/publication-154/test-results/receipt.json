@@ -1,0 +1,39 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/test_current_parent_normal_helper555.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/test_current_parent_normal_targets555.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/frozen-v4/test_diagnose_reference_degeneracy_557.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/recovered-target-applier-555/test_apply_recovered_targets555.py"
+  ],
+  "exit_code": 0,
+  "log_path": "test-results/pytest-focused.log",
+  "log_sha256": "2a8f3cc2ce90e193f10c464a3fc46bd271936d10725a78efb93d95c344170f8a",
+  "result": "30 passed in 9.63s",
+  "scope": "555 helper/targets, recovered applier, frozen-v4 degeneracy repair 557; focused CPU unit tests only",
+  "tested_sources": [
+    {
+      "package_path": "test-results/sources/test_current_parent_normal_helper555.py",
+      "sha256": "471602ccad8aed822235b5a03ed449df202eeafb16a51900beaa170b83d9b5ef",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/test_current_parent_normal_helper555.py"
+    },
+    {
+      "package_path": "test-results/sources/test_current_parent_normal_targets555.py",
+      "sha256": "af0a263ae7b9829a70fad7aeb5784ff4c5f8bd19d7533a9fca90901d5ac715de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/test_current_parent_normal_targets555.py"
+    },
+    {
+      "package_path": "test-results/sources/test_diagnose_reference_degeneracy_557.py",
+      "sha256": "245658279ce9a7d42441eb02b05cc17574facb6cad063fe3239202c5afe1ee51",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/frozen-v4/test_diagnose_reference_degeneracy_557.py"
+    },
+    {
+      "package_path": "test-results/sources/test_apply_recovered_targets555.py",
+      "sha256": "2318aa340355740dc29eb45f741182929a967f25cda026f5acd85c94ffcbd962",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/recovered-target-applier-555/test_apply_recovered_targets555.py"
+    }
+  ]
+}

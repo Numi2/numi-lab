@@ -1,0 +1,2082 @@
+{
+  "entries": [
+    {
+      "member_paths": [
+        "input-snapshots/46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df-all-bank-containment.csv.banks.csv"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "input-snapshots/dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90-exact-emitted.bodies.csv"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "input-snapshots/99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c-exact-emitted.nodes.csv"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "bytes": 146247212,
+      "compressed_bytes": 18943833,
+      "compressed_member_path": "compression-preservation/input-snapshots/0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac-exact-emitted.triangles.csv.zst",
+      "compressed_sha256": "a90dbbde3e18b9111c82813fcfc990a843df5c1817c03ba0072bd6793fa43162",
+      "original_bytes": 146247212,
+      "original_path_retained_locally": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+      "references": [
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+      "snapshot_method": "hardlink immutable exact input",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+      "status": "losslessly_compressed_source_input_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d-cardiac_cavity_intersections.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/component-proposal/report.json"
+        },
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "bytes": 18484,
+      "references": [
+        {
+          "pin_name": "decomposition475",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/matched-inputs.json"
+        },
+        {
+          "pin_name": "decomposition475",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/matched-inputs.json"
+        }
+      ],
+      "sha256": "af0b6a6bf40757a403a8b7c359233694241d34e1e016b6dd3a37d7c98789c46d",
+      "snapshot_method": "hardlink immutable exact input",
+      "snapshot_path": "source-snapshots/af0b6a6bf40757a403a8b7c359233694241d34e1e016b6dd3a37d7c98789c46d-component_lp_decomposition_475.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-475/component_lp_decomposition_475.py",
+      "status": "exact_source_snapshot_in_P154"
+    },
+    {
+      "bytes": 10317,
+      "references": [
+        {
+          "pin_name": "objective458",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/matched-inputs.json"
+        },
+        {
+          "pin_name": "objective458",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/matched-inputs.json"
+        }
+      ],
+      "sha256": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0",
+      "snapshot_method": "hardlink immutable exact input",
+      "snapshot_path": "source-snapshots/056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0-fixed_bone_outward_plane_458.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/fixed_bone_outward_plane_458.py",
+      "status": "exact_source_snapshot_in_P154"
+    },
+    {
+      "bytes": 22143,
+      "references": [
+        {
+          "pin_name": "runner458",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/matched-inputs.json"
+        },
+        {
+          "pin_name": "runner458",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/matched-inputs.json"
+        }
+      ],
+      "sha256": "08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93",
+      "snapshot_method": "hardlink immutable exact input",
+      "snapshot_path": "source-snapshots/08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93-run_grouped_fit_458.py",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/run_grouped_fit_458.py",
+      "status": "exact_source_snapshot_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/523b1aef89d92eef09bf63e9de2d4f3fa6bd938ef53a45915f9ea138f5b8f249-component_area_backtracking549.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/component-area-backtracking-549/component_area_backtracking549.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/component-proposal/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/component-area-backtracking-549/component_area_backtracking549.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/component-stage.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/component-area-backtracking-549/component_area_backtracking549.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/report.json"
+        }
+      ],
+      "sha256": "523b1aef89d92eef09bf63e9de2d4f3fa6bd938ef53a45915f9ea138f5b8f249",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/component-area-backtracking-549/component_area_backtracking549.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78-emit_introduced_skin_bone_barriers_314.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-fixed-boundary-314/emit_introduced_skin_bone_barriers_314.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/export-002-stage.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-fixed-boundary-314/emit_introduced_skin_bone_barriers_314.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-fixed-boundary-314/emit_introduced_skin_bone_barriers_314.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "prior_member_path": "methods/connected-fixed-boundary-556/merge_introduced_skin_bone_guards556.py",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-fixed-boundary-556/merge_introduced_skin_bone_guards556.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002-stage.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-fixed-boundary-556/merge_introduced_skin_bone_guards556.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "d8c43549c4a9311a0ee087939253aeb54e1d516e031c77617b686b6efd850e9c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-fixed-boundary-556/merge_introduced_skin_bone_guards556.py",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/dbef219f9d414a8cca41b54284bc78ffe1b1e15d339e7b35c42b31b7523e0b31-continue545.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/depth.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/refresh.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/surfaces.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-030-refined-connected557/prepare/refresh.launch.json"
+        }
+      ],
+      "sha256": "dbef219f9d414a8cca41b54284bc78ffe1b1e15d339e7b35c42b31b7523e0b31",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a-run_candidate_checks545.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check-stage.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/final/arithmetic/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/full-check-stage.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/full-check-stage.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check-stage.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/full-check-stage.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/arithmetic-002-stage.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/arithmetic-check/report.json"
+        }
+      ],
+      "sha256": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/af50878fa77ce7ab86ad80c5d316d1b12f5edb7a8efe5df3d0afeb7928ad0e83-run_full_coordinate_point_fit545.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_full_coordinate_point_fit545.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/fit-stage.launch.json"
+        }
+      ],
+      "sha256": "af50878fa77ce7ab86ad80c5d316d1b12f5edb7a8efe5df3d0afeb7928ad0e83",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_full_coordinate_point_fit545.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/293e4da49a10f07420d1da7c512823dcb182dca246e411c3775d18866b27a241-refresh_guards_541.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/refresh_guards_541.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/refresh_guards_541.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        }
+      ],
+      "sha256": "293e4da49a10f07420d1da7c512823dcb182dca246e411c3775d18866b27a241",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/refresh_guards_541.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/ee327a03af99bcb9b89f6344d1f3a7d6ead074cbf489fd985f04c22362ecff3f-refresh_point_depth_rows.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/depth.launch.json"
+        }
+      ],
+      "sha256": "ee327a03af99bcb9b89f6344d1f3a7d6ead074cbf489fd985f04c22362ecff3f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/2f1eda3f0d46d0f5497a1a04075b5dc2c3b37afe906d0389ff636fca8abc5869-propose_joint_clearance_witnesses_401.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/retained-gain-continuation-401/propose_joint_clearance_witnesses_401.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/retained-gain-continuation-401/propose_joint_clearance_witnesses_401.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/retained-gain-continuation-401/propose_joint_clearance_witnesses_401.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "2f1eda3f0d46d0f5497a1a04075b5dc2c3b37afe906d0389ff636fca8abc5869",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/retained-gain-continuation-401/propose_joint_clearance_witnesses_401.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68-build_outward_targets_multi_source_546.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_targets_multi_source_546.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/surfaces.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_targets_multi_source_546.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/surface-targets-stage.launch.json"
+        }
+      ],
+      "sha256": "dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_targets_multi_source_546.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-002/lineage-repaired-base.npz",
+        "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-003/lineage-repaired-base.npz",
+        "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/lineage-repaired-base.npz",
+        "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029/lineage-repaired-base.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/lineage-repaired-base.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/report.json"
+        }
+      ],
+      "sha256": "6cebc9e4d4d2cda4afbde1670f105b2b56b7e7f74de40cbb5f51b513e6bb4c7d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/lineage-repaired-base.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/diagnose_reference_degeneracy_557.py",
+        "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/frozen-v4/diagnose_reference_degeneracy_557.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/frozen-v4/diagnose_reference_degeneracy_557.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check-stage.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/frozen-v4/diagnose_reference_degeneracy_557.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/full-check-stage.launch.json"
+        }
+      ],
+      "sha256": "aecbb82aca291172de54b1529ca217100c935380afed03c057c868d7bcec5798",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/frozen-v4/diagnose_reference_degeneracy_557.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-002/diagnostic-proposal.npz",
+        "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-003/diagnostic-proposal.npz",
+        "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/diagnostic-proposal.npz",
+        "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027/diagnostic-proposal.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/diagnostic-proposal.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/full-check/report.json"
+        }
+      ],
+      "sha256": "c46ceb00c694ba88f07e93c295659f31303d0e30cef69feb2ab9fd7c5622a4ba",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/diagnostic-proposal.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "prior_member_path": "methods/connected-source-refinement-553/apply_new_targets553.py",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/apply_new_targets553.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-001-stage.launch.json"
+        }
+      ],
+      "sha256": "393d7c6ba88c0a5c475d08f29157c7325bdf2895b646460e6d497789d052e59d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/apply_new_targets553.py",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "prior_member_path": "methods/connected-source-refinement-553/direct-depth-rows-002/365-compatible-report.json",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/direct-depth-rows-002/365-compatible-report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/input-pins.json"
+        }
+      ],
+      "sha256": "e2eb75a4b10e4e34b86230507adae8471f54ce115143bd800ba6e3f2b5b593e9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/direct-depth-rows-002/365-compatible-report.json",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "prior_member_path": "methods/connected-source-refinement-553/direct-depth-rows-002/point-depth-rows.npz",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/direct-depth-rows-002/point-depth-rows.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/input-pins.json"
+        }
+      ],
+      "sha256": "e612840c9d8d113b7b1d6ef9a068521ae73a5ed03fefc5a3ed19e4bf4cdc4462",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/direct-depth-rows-002/point-depth-rows.npz",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "prior_member_path": "methods/connected-source-refinement-553/direct-depth-targets-002/nearest-union-exits.json",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/direct-depth-targets-002/nearest-union-exits.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/input-pins.json"
+        }
+      ],
+      "sha256": "9396971814d15927926bb933c08b196026ca9b3919acd2c39b79c3c597a3b6a1",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/direct-depth-targets-002/nearest-union-exits.json",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "prior_member_path": "methods/connected-source-refinement-553/direct-depth-targets-002/nearest-union-exits.npz",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/direct-depth-targets-002/nearest-union-exits.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/input-pins.json"
+        }
+      ],
+      "sha256": "438c60dcbe6ba55e4f4c36992c08d34da33cbb8959b4a8a940130a76742ac684",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/direct-depth-targets-002/nearest-union-exits.npz",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "member_paths": [
+        "methods/surface-clearance-546/recovered-target-applier-555/apply_recovered_targets555.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/recovered-target-applier-555/apply_recovered_targets555.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002-stage.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/recovered-target-applier-555/apply_recovered_targets555.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/report.json"
+        }
+      ],
+      "sha256": "30ddadcf2bf04cf39eb9072cbf3a49ee7860b70defee14b5faa7906cb050dbc6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/recovered-target-applier-555/apply_recovered_targets555.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "prior_member_path": "methods/connected-source-refinement-553/refine-frozen30886-002/audit-130/summary.json",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-130/summary.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-130/summary.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-130/summary.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/arithmetic-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-130/summary.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/report.json"
+        }
+      ],
+      "sha256": "0919979d7d124e4232cb2ef28629f65fed104ece6c528c786f630d512dbc824f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-130/summary.json",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check/audit-130/surface-self-pairs.npy",
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541/self-guards/current-self-pairs.npy",
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541/self-guards/mapped-trial-self-pairs.npy",
+        "evidence/checkpoints/surface-clearance-546/round-029-retained028/full-check/audit-130/surface-self-pairs.npy",
+        "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/self-guards/current-self-pairs.npy",
+        "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/self-guards/mapped-trial-self-pairs.npy",
+        "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/audit-130/surface-self-pairs.npy",
+        "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/full-check/audit-130/surface-self-pairs.npy"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-130/surface-self-pairs.npy",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        }
+      ],
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-130/surface-self-pairs.npy",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "prior_member_path": "methods/connected-source-refinement-553/refine-frozen30886-002/audit-159/report.json",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-159/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-159/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-159/report.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/arithmetic-check/report.json"
+        }
+      ],
+      "sha256": "46c76794b1c211c4d379ca889d4b627a09dfd87392a53e19931c805de7ad4cc2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/audit-159/report.json",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "prior_member_path": "methods/connected-source-refinement-553/refine-frozen30886-002/candidate.npz",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/candidate.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/arithmetic-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/candidate.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/report.json"
+        }
+      ],
+      "sha256": "dc92a5285643fd6dd63801675744ca474fd036b9e68235c638f00d095dd50f9c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/candidate.npz",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "prior_member_path": "methods/connected-source-refinement-553/refine-frozen30886-002/state.json",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/state.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/state.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/input-pins.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/state.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/arithmetic-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/state.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/report.json"
+        }
+      ],
+      "sha256": "c2422fe24f4da00f6a48e40517a7d52ab3f7a4e0872ad51ce95b13c6b96b9c6a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-source-refinement-553/refine-frozen30886-002/state.json",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/current_parent_normal_helper555.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/current_parent_normal_helper555.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/targets-001-stage.launch.json"
+        }
+      ],
+      "sha256": "431f4af0b1308a1c8d90f22cf9be65e5dd13b97491ba6ddfd3b4c269bf56e5e5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/current_parent_normal_helper555.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/candidate.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/candidate.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/arithmetic-check/report.json"
+        }
+      ],
+      "sha256": "0969136456a605b14b7aeba52e78f157d4bd73e782aa764532833bf8f34ae70c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/candidate.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "prior_gap_note": "Failed targets-001 launch preserves this source hash, but clearance_targets confirmed the exact historical source was not retained or recoverable. Current fixed runner is separately included and tested; the failed trial is annotation-only and not reproducible from this package.",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/run_current_parent_normal_targets555.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/targets-001-stage.launch.json"
+        }
+      ],
+      "sha256": "69dd8fb8ca21402289279c048ff650c28b15c2343795058d2af66455a9387a71",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/run_current_parent_normal_targets555.py",
+      "status": "UNRECOVERABLE_SOURCE_SNAPSHOT_GAP"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/targets-001-recovered/nearest-union-exits.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/targets-001-recovered/nearest-union-exits.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/report.json"
+        }
+      ],
+      "sha256": "5713bd9619a39ba4d6e7b69d4e8f0d0592dd1df59d47d529a1c99863048e19c9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/targets-001-recovered/nearest-union-exits.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/targets-001-recovered/nearest-union-exits.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/targets-001-recovered/nearest-union-exits.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/report.json"
+        }
+      ],
+      "sha256": "2e41291619b3be9d98dc2c7a57fb967caca27ad5d728cf789812de24261ad4ed",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/targets-001-recovered/nearest-union-exits.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/targets-001-recovered/postprocess-recovery-555.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/targets-001-recovered/postprocess-recovery-555.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/report.json"
+        }
+      ],
+      "sha256": "06ae6ce653c297b5c0f9a61fa9e50fd43a30f9df7dff36a3f1b4a0354f75a335",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/targets-001-recovered/postprocess-recovery-555.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781-finalize_existing_checks546.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/final-stage.launch.json"
+        }
+      ],
+      "sha256": "db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/export-002/introduced-skin-bone-barriers.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/export-002/introduced-skin-bone-barriers.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "6fed7508f5a72304a4c328865b43ada1c59b310b8f30a4ab826d50dea4f0ff1c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/export-002/introduced-skin-bone-barriers.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/export-002/report.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/export-002/report.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "b0b6d22c6376e0ceb740c528721a79e232abe95b49c296b78b6420a47048642e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/export-002/report.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/inputcases/raw026/audit159/report.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/raw026/audit159/report.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "6ed41373b4184692f84179ae017d26ae31eff8631c9aee6568e2db1890a8a03e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/raw026/audit159/report.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/inputcases/raw026/candidate.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/raw026/candidate.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "b984477875c5744f35d87abcf07a46fc97ca2d12605f1f9fa366306836c7ac3f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/inputcases/raw026/candidate.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/augmentation/augmented-prior-guard.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/merge-001/introduced-skin-bone-barriers.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/merge-001/introduced-skin-bone-barriers.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "c136b4eb2a55f8d44ff0de5b731e3ef0ef2351b912bfddb11c866d682369e54d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/merge-001/introduced-skin-bone-barriers.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "prior_member_path": "methods/introduced-bone-guards-556/merge-001/report.json",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/merge-001/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/merge-001/report.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "f97b130b6f373429161ccf37938ed3cd905308f1f7f6748a4406266d5ad34ccb",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/merge-001/report.json",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/introduced-skin-bone-barriers.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/merge-002/introduced-skin-bone-barriers.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        }
+      ],
+      "sha256": "fe7413d09543da4281e8562d9f5d2fbb9384c6bc8e85152236cb16762d5ca897",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/merge-002/introduced-skin-bone-barriers.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        }
+      ],
+      "sha256": "dc59cfc75eaf39fa54b648f2cc5f69b57c02df1cc44eaff90c5eb3f040170738",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/43042a5323fda3ffb8292f94986df3ce3065dfae69f5f5bbe00b7f9b3eef7128-fit_pair_sat_planes551.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/pair-sat-routing-551/fit_pair_sat_planes551.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/fit-stage.launch.json"
+        }
+      ],
+      "sha256": "43042a5323fda3ffb8292f94986df3ce3065dfae69f5f5bbe00b7f9b3eef7128",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/pair-sat-routing-551/fit_pair_sat_planes551.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/27431e9ed3e92886394b59f1156a743e508fba8c81cf8b1ff94a7d80e3ef201f-pair_sat_routing_551.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/pair-sat-routing-551/pair_sat_routing_551.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/fit-stage.launch.json"
+        }
+      ],
+      "sha256": "27431e9ed3e92886394b59f1156a743e508fba8c81cf8b1ff94a7d80e3ef201f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/pair-sat-routing-551/pair_sat_routing_551.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/84bcd87e6ba2c877eeabf853ff2db7739041e6c96838a6b625ddea878c72e2a0-prepare_surface546.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare-stage.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/input-pins.json"
+        }
+      ],
+      "sha256": "84bcd87e6ba2c877eeabf853ff2db7739041e6c96838a6b625ddea878c72e2a0",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/090e368e693bc6f7d12c403812c1b691dc8de6d3e409cfae8d869f910aae076f-refresh_guards_multi_parent_546.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/refresh-stage.launch.json"
+        }
+      ],
+      "sha256": "090e368e693bc6f7d12c403812c1b691dc8de6d3e409cfae8d869f910aae076f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/a9586a81d92f117040e774c980b6028168432386b2e9babd96a7b7f725175d09-refresh_surface_constraints546.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/refresh.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-030-refined-connected557/prepare/refresh.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/refresh-stage.launch.json"
+        }
+      ],
+      "sha256": "a9586a81d92f117040e774c980b6028168432386b2e9babd96a7b7f725175d09",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/88baf47524c02c525a2f121a99923777576e8603c16a6b84729032ce464ad671-retain_surface_components552.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/retain_surface_components552.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/report.json"
+        }
+      ],
+      "sha256": "88baf47524c02c525a2f121a99923777576e8603c16a6b84729032ce464ad671",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/retain_surface_components552.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "input-snapshots/10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366-candidate.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/candidate.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "10754c967d1319051319db1d01472cb559cba4d2dafdcda24fc288ce56998366",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/candidate.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "input-snapshots/3875a075fc43cdd4da78d9006a56b9ad45a71ed640fbe30ef2f42018e85bee46-report.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/full-check/audit-159/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/full-check/audit-159/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/full-check/audit-159/report.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "3875a075fc43cdd4da78d9006a56b9ad45a71ed640fbe30ef2f42018e85bee46",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-020-retained-sat552/full-check/audit-159/report.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "prior_member_path": "evidence/failures/round-023-pair-sat551-cut60/prepare/constraints/self-seeds/merged-self-pair-seeds.npy",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/prepare/constraints/self-seeds/merged-self-pair-seeds.npy",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/prepare/constraints/self-seeds/merged-self-pair-seeds.npy",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        }
+      ],
+      "sha256": "57bb1d22b6b8d8aa6f7b39bc1e6d15fd32162fedc50062fdb4169e63ddb70396",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/prepare/constraints/self-seeds/merged-self-pair-seeds.npy",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "prior_member_path": "evidence/failures/round-023-pair-sat551-cut60/prepare/constraints/self-seeds/seed-preflight.json",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/prepare/constraints/self-seeds/seed-preflight.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/prepare/constraints/self-seeds/seed-preflight.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        }
+      ],
+      "sha256": "1389212b44d76a7fa04d9c14f063ddba9d275e8e98f319b9162c128b4d56c6d4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-023-pair-sat551-cut60/prepare/constraints/self-seeds/seed-preflight.json",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "prior_member_path": "evidence/checkpoints/round-026-guard-cuts556/constraint-context.json",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/constraint-context.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/input-pins.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/constraint-context.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "776f4e274c83d1b0d6623701065d1be2c838d8f53fddd0555866120f24b6c665",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/constraint-context.json",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "member_paths": [
+        "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/inputcases/raw026/candidate.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-directions/raw-direction-001/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        }
+      ],
+      "sha256": "b984477875c5744f35d87abcf07a46fc97ca2d12605f1f9fa366306836c7ac3f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-directions/raw-direction-001/candidate.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "prior_member_path": "evidence/checkpoints/round-026-guard-cuts556/raw-self-audit130/summary.json",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-self-audit130/summary.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        }
+      ],
+      "sha256": "1f0063289f240afe1d5258ebe9408c817d1346561d7b71383086712686adbe1e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-self-audit130/summary.json",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "prior_member_path": "evidence/checkpoints/round-026-guard-cuts556/raw-self-audit130/surface-self-pairs.npy",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-self-audit130/surface-self-pairs.npy",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        }
+      ],
+      "sha256": "5f9e3b83dff59958e20edc2a5ba1551ec5008c34f7194520b55ef4f317c3ccec",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-self-audit130/surface-self-pairs.npy",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/component-proposal/candidate.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/component-proposal/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/component-proposal/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/report.json"
+        }
+      ],
+      "sha256": "b312752f4a36db3fd1e73c5647fd79218d83cbb460230298a904e843c3de95a3",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/component-proposal/candidate.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/component-proposal/report.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/component-proposal/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/report.json"
+        }
+      ],
+      "sha256": "327e09efc46b93f963c888fa37c52cb6e8ab9dc8396194671bca60e506c16b99",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/component-proposal/report.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check/audit-130/summary.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/full-check/audit-130/summary.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/report.json"
+        }
+      ],
+      "sha256": "e4dc7ba5a45491991c122439725c6618022247af61564e1b15cd9915a6d28211",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/full-check/audit-130/summary.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check/audit-159/report.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/full-check/audit-159/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/report.json"
+        }
+      ],
+      "sha256": "0ff49024d06993ff7a0eca93213f7af5358741d4aab93f565eaabf7ba398c7f7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/full-check/audit-159/report.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check/report.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/full-check/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/report.json"
+        }
+      ],
+      "sha256": "2d3f355a248ebd295f897bc693ed270954c43bba3cfbfa6de23d125251517cd1",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/full-check/report.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraint-context.json",
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/constraint-context.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/prepare/constraint-context.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/component-proposal/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/prepare/constraint-context.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/report.json"
+        }
+      ],
+      "sha256": "3ba4390996667b67931d0ea8a863ca9e709fc82472487b6d8bc2fc38dd72ea98",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/prepare/constraint-context.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/component-proposal/report.json"
+        }
+      ],
+      "sha256": "bd31f1d3efc2fc3297267d3bbcf798acd70b7835a38647843de0ee45179acbaa",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/self-seeds/merged-self-pair-seeds.npy"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/self-seeds/merged-self-pair-seeds.npy",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/component-proposal/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/self-seeds/merged-self-pair-seeds.npy",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/report.json"
+        }
+      ],
+      "sha256": "aa5d279ff97914acec42be842422b64e30faa1204b3257df958f7d571e2c0ff7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/self-seeds/merged-self-pair-seeds.npy",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/raw-directions/raw-direction-001/candidate.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/raw-directions/raw-direction-001/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/component-proposal/report.json"
+        }
+      ],
+      "sha256": "1d6bd573594a8d351120156bbc84086899b1f56e4c09815abe429eeada5ee7ff",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/raw-directions/raw-direction-001/candidate.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/raw-directions/raw-direction-001/report.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/raw-directions/raw-direction-001/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/component-proposal/report.json"
+        }
+      ],
+      "sha256": "586fc5f97d14da11580b02f1141050ccd5339a3aed25a14a0b61f5eae0122400",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-028-all-witnesses551/raw-directions/raw-direction-001/report.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-029-retained028/candidate.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-029-retained028/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/final/arithmetic/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-029-retained028/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-029-retained028/candidate.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/report.json"
+        }
+      ],
+      "sha256": "5e5db207c5bf4ceecc11553817194bfc49e28d772af2fb9ff123fc481497ea7f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-029-retained028/candidate.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-029-retained028/final/state.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-029-retained028/final/state.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/report.json"
+        }
+      ],
+      "sha256": "9f7e60da3b672d3e3d98809167ea761be05c6a1054b249f29284b70585be2ef9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-029-retained028/final/state.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-029-retained028/full-check/audit-130/summary.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-029-retained028/full-check/audit-130/summary.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/report.json"
+        }
+      ],
+      "sha256": "eb90da7fbbd87346460d1702c1516641ab7d94f8c63b47bf70c1a23bcb02775b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-029-retained028/full-check/audit-130/summary.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-029-retained028/full-check/audit-159/report.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-029-retained028/full-check/audit-159/report.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/report.json"
+        }
+      ],
+      "sha256": "9d0660d79f29686a61a74f20efa780c9652e96264bdf8ccb0b1aebcb926ba0ff",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-029-retained028/full-check/audit-159/report.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/fit/candidate.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/fit/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/full-check/report.json"
+        }
+      ],
+      "sha256": "7d250c34674da17f25529d398be871c1656aaa6fd0726416bbd513a355fa8a10",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/fit/candidate.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/input-pins.json"
+        }
+      ],
+      "sha256": "c617f603a0d91d6a4e0b2bb8c1214a9563848a11ce5f9c9db358ae27760354db",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/fixed-guards/report.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/fixed-guards/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/input-pins.json"
+        }
+      ],
+      "sha256": "bf280bb667db3de0bd5fcdb3bdd003beb1d7881cdbad101a2e92be8e4aad0a93",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/fixed-guards/report.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/self-seeds/merged-self-pair-seeds.npy"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/self-seeds/merged-self-pair-seeds.npy",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/input-pins.json"
+        }
+      ],
+      "sha256": "ebc0e7f280f6edc18a4fd802f682004199bf1bbccc7d6d1fd9d9aa6bd761f88f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/constraints/self-seeds/merged-self-pair-seeds.npy",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "methods/surface-clearance-546/run_refined_connected_point557.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/run_refined_connected_point557.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/fit-stage.launch.json"
+        }
+      ],
+      "sha256": "be071f2b650803827640ba6707525fa5ab62afe38da98695e72d834f09f0a9e2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/run_refined_connected_point557.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/9899e952efc24ef26cd82462fbe534d7abe3db7d3176be08c7486d9059c93446-run_surface_only_full_coordinate_fit546.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/run_surface_only_full_coordinate_fit546.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/fit-stage.launch.json"
+        }
+      ],
+      "sha256": "9899e952efc24ef26cd82462fbe534d7abe3db7d3176be08c7486d9059c93446",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/run_surface_only_full_coordinate_fit546.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/baseline.json"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/final/state.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/final/state.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/final/arithmetic/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/final/state.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/final/state.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/final/state.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/full-check/report.json"
+        }
+      ],
+      "sha256": "2ff2a7f1e30402fa156fa92ea577d23ed8489c9e3a55efa15aff514500ecad66",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/final/state.json",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "prior_member_path": "evidence/checkpoints/round-027-all-target-edges025/full-check/audit-130/summary.json",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/full-check/audit-130/summary.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/full-check/audit-130/summary.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/full-check/audit-130/summary.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/final/arithmetic/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/full-check/audit-130/summary.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/full-check/audit-130/summary.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/full-check/report.json"
+        }
+      ],
+      "sha256": "0d182e57bc497fefeef57d1f40e5155a88c575e0d8de609253020833b6866713",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/full-check/audit-130/summary.json",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "prior_member_path": "evidence/checkpoints/round-027-all-target-edges025/full-check/audit-159/report.json",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/full-check/audit-159/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/full-check/audit-159/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/full-check/audit-159/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/final/arithmetic/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/full-check/audit-159/report.json",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/full-check/audit-159/report.json",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/full-check/report.json"
+        }
+      ],
+      "sha256": "f8e51a62ce89f621474af0bc6c2f2088465fc57f23a278f34d4eb4f6eb0665b4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/full-check/audit-159/report.json",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "prior_member_path": "evidence/checkpoints/round-027-all-target-edges025/round-002/candidate.npz",
+      "prior_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-001/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/component-proposal/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-001/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-001/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-001/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/final/arithmetic/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-001/candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-001/candidate.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/full-check/report.json"
+        }
+      ],
+      "sha256": "331b4debe2dfd8a2da90278c669673f4ddf591beea48e841cc39c5fb9036d2ef",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-027-all-target-edges025/round-001/candidate.npz",
+      "status": "exact_content_in_P153"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2-propose_joint_clearance_witnesses_408.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/component-proposal/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check/report.json"
+        },
+        {
+          "pin_name": "owner408",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/matched-inputs.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/final/arithmetic/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/full-check/report.json"
+        },
+        {
+          "pin_name": "owner408",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/matched-inputs.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/arithmetic-check/report.json"
+        }
+      ],
+      "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9-audit_connected_outer_geometry_130.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/raw-self-audit130-stage.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/final/arithmetic/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/arithmetic-check/report.json"
+        }
+      ],
+      "sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1-audit_skin_bone_surfaces_159.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/raw-surface-audit159-stage.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/final/arithmetic/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/arithmetic-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "input-snapshots/70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31-endpoint-candidate.npz"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/component-proposal/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/final/arithmetic/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-029-retained028/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/connected-reference-degeneracy-repair-557/unselected-topology027-004/full-check/report.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/endpoints-002/arithmetic-check/report.json"
+        }
+      ],
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81-human_skin_fat_bone_audit.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/publication-084/canonical/matter/tools/human_skin_fat_bone_audit.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/publication-084/canonical/matter/tools/human_skin_fat_bone_audit.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/publication-084/canonical/matter/tools/human_skin_fat_bone_audit.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-084/canonical/matter/tools/human_skin_fat_bone_audit.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3-self_separation_026.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/204/source/fit/self_separation_026.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/204/source/fit/self_separation_026.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/204/source/fit/self_separation_026.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/204/source/fit/self_separation_026.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/dc9d4f953ecede00567c59cbbb6b6b63e0a3556b97972689de499cbce29d4c2e-fixed_bone_triangle_rows_313.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/publication-113/sources/connected-fixed-boundary-313/fixed_bone_triangle_rows_313.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/publication-113/sources/connected-fixed-boundary-313/fixed_bone_triangle_rows_313.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/publication-113/sources/connected-fixed-boundary-313/fixed_bone_triangle_rows_313.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/introduced-bone-guards-556/merge-002/report.json"
+        }
+      ],
+      "sha256": "dc9d4f953ecede00567c59cbbb6b6b63e0a3556b97972689de499cbce29d4c2e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-113/sources/connected-fixed-boundary-313/fixed_bone_triangle_rows_313.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78-emit_introduced_skin_bone_barriers_314.py"
+      ],
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/publication-113/sources/connected-fixed-boundary-314/emit_introduced_skin_bone_barriers_314.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541.launch.json"
+        },
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/publication-113/sources/connected-fixed-boundary-314/emit_introduced_skin_bone_barriers_314.py",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541.launch.json"
+        }
+      ],
+      "sha256": "3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-113/sources/connected-fixed-boundary-314/emit_introduced_skin_bone_barriers_314.py",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3-self_separation_026.py"
+      ],
+      "references": [
+        {
+          "pin_name": "026",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541/refresh-report.json"
+        },
+        {
+          "pin_name": "026",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-report.json"
+        },
+        {
+          "pin_name": "026",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/self-seeds/seed-preflight.json"
+        },
+        {
+          "pin_name": "026",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/refresh-report.json"
+        },
+        {
+          "pin_name": "026",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-report.json"
+        },
+        {
+          "pin_name": "026",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/self-seeds/seed-preflight.json"
+        }
+      ],
+      "sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+      "source_path": "026",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1-audit_skin_bone_surfaces_159.py"
+      ],
+      "references": [
+        {
+          "pin_name": "159_audit",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-report.json"
+        },
+        {
+          "pin_name": "159_audit",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-report.json"
+        }
+      ],
+      "sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+      "source_path": "159_audit",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d-cardiac_cavity_intersections.py"
+      ],
+      "references": [
+        {
+          "pin_name": "159_exact_predicate",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-report.json"
+        },
+        {
+          "pin_name": "159_exact_predicate",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-report.json"
+        }
+      ],
+      "sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+      "source_path": "159_exact_predicate",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/dc9d4f953ecede00567c59cbbb6b6b63e0a3556b97972689de499cbce29d4c2e-fixed_bone_triangle_rows_313.py"
+      ],
+      "references": [
+        {
+          "pin_name": "313",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541/refresh-report.json"
+        },
+        {
+          "pin_name": "313",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-report.json"
+        },
+        {
+          "pin_name": "313",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/self-seeds/seed-preflight.json"
+        },
+        {
+          "pin_name": "313",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/refresh-report.json"
+        },
+        {
+          "pin_name": "313",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-report.json"
+        },
+        {
+          "pin_name": "313",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/self-seeds/seed-preflight.json"
+        }
+      ],
+      "sha256": "dc9d4f953ecede00567c59cbbb6b6b63e0a3556b97972689de499cbce29d4c2e",
+      "source_path": "313",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78-emit_introduced_skin_bone_barriers_314.py"
+      ],
+      "references": [
+        {
+          "pin_name": "314",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541/refresh-report.json"
+        },
+        {
+          "pin_name": "314",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-report.json"
+        },
+        {
+          "pin_name": "314",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/self-seeds/seed-preflight.json"
+        },
+        {
+          "pin_name": "314",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/refresh-report.json"
+        },
+        {
+          "pin_name": "314",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-report.json"
+        },
+        {
+          "pin_name": "314",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/self-seeds/seed-preflight.json"
+        }
+      ],
+      "sha256": "3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78",
+      "source_path": "314",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81-human_skin_fat_bone_audit.py"
+      ],
+      "references": [
+        {
+          "pin_name": "314_bank_reader",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-report.json"
+        },
+        {
+          "pin_name": "314_bank_reader",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-report.json"
+        }
+      ],
+      "sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+      "source_path": "314_bank_reader",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/2f1eda3f0d46d0f5497a1a04075b5dc2c3b37afe906d0389ff636fca8abc5869-propose_joint_clearance_witnesses_401.py"
+      ],
+      "references": [
+        {
+          "pin_name": "401",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-541/refresh-report.json"
+        },
+        {
+          "pin_name": "401",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-report.json"
+        },
+        {
+          "pin_name": "401",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/self-seeds/seed-preflight.json"
+        },
+        {
+          "pin_name": "401",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-541/refresh-report.json"
+        },
+        {
+          "pin_name": "401",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-report.json"
+        },
+        {
+          "pin_name": "401",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/self-seeds/seed-preflight.json"
+        }
+      ],
+      "sha256": "2f1eda3f0d46d0f5497a1a04075b5dc2c3b37afe906d0389ff636fca8abc5869",
+      "source_path": "401",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/293e4da49a10f07420d1da7c512823dcb182dca246e411c3775d18866b27a241-refresh_guards_541.py"
+      ],
+      "references": [
+        {
+          "pin_name": "541",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-report.json"
+        },
+        {
+          "pin_name": "541",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/self-seeds/seed-preflight.json"
+        },
+        {
+          "pin_name": "541",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-report.json"
+        },
+        {
+          "pin_name": "541",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/self-seeds/seed-preflight.json"
+        }
+      ],
+      "sha256": "293e4da49a10f07420d1da7c512823dcb182dca246e411c3775d18866b27a241",
+      "source_path": "541",
+      "status": "exact_content_in_P154"
+    },
+    {
+      "member_paths": [
+        "source-snapshots/090e368e693bc6f7d12c403812c1b691dc8de6d3e409cfae8d869f910aae076f-refresh_guards_multi_parent_546.py"
+      ],
+      "references": [
+        {
+          "pin_name": "546_multi_parent_shim",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-028-all-witnesses551/prepare/constraints/refresh-report.json"
+        },
+        {
+          "pin_name": "546_multi_parent_shim",
+          "reference": "evidence/checkpoints/surface-clearance-546/round-031-refined-connected557/prepare/constraints/refresh-report.json"
+        }
+      ],
+      "sha256": "090e368e693bc6f7d12c403812c1b691dc8de6d3e409cfae8d869f910aae076f",
+      "source_path": "546_multi_parent_shim",
+      "status": "exact_content_in_P154"
+    }
+  ],
+  "known_historical_source_gaps": [
+    {
+      "prior_gap_note": "Failed targets-001 launch preserves this source hash, but clearance_targets confirmed the exact historical source was not retained or recoverable. Current fixed runner is separately included and tested; the failed trial is annotation-only and not reproducible from this package.",
+      "references": [
+        {
+          "pin_name": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/run_current_parent_normal_targets555.py",
+          "reference": "evidence/diagnostics/surface-clearance-546/current-parent-normal-targets-555/targets-001-stage.launch.json"
+        }
+      ],
+      "sha256": "69dd8fb8ca21402289279c048ff650c28b15c2343795058d2af66455a9387a71",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/current-parent-normal-targets-555/run_current_parent_normal_targets555.py",
+      "status": "UNRECOVERABLE_SOURCE_SNAPSHOT_GAP"
+    }
+  ],
+  "note": "Source pin hashes remain exact. The 146 MB untracked triangles CSV is retained losslessly as a compressed P154 member because GitHub rejects blobs above 100 MB; its original shared-repository path remains unchanged.",
+  "parent_publication_commit": "4bbcd30ccd20e85a86ca11541c9fc428cbd6530e",
+  "publication": "P154",
+  "schema": "numi.human.publication_source_pin_index.v1",
+  "source_helper_generations_included": [
+    "557 frozen-20261026",
+    "557 frozen-v3",
+    "557 frozen-v4",
+    "557 current v4"
+  ],
+  "status_counts": {
+    "UNRECOVERABLE_SOURCE_SNAPSHOT_GAP": 1,
+    "exact_content_in_P153": 19,
+    "exact_content_in_P154": 78,
+    "exact_source_snapshot_in_P154": 3,
+    "losslessly_compressed_source_input_in_P154": 1
+  },
+  "unique_pins": 102
+}

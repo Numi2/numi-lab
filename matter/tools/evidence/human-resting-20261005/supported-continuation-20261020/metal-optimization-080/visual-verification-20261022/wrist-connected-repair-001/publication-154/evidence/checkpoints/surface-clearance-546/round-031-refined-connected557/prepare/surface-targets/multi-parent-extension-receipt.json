@@ -1,0 +1,32 @@
+{
+  "candidate_sha256": "dc92a5285643fd6dd63801675744ca474fd036b9e68235c638f00d095dd50f9c",
+  "crossing_pairs": 5073,
+  "multi_parent_faces": [
+    11993,
+    11994,
+    11995,
+    11996,
+    11997,
+    11998,
+    15095,
+    15096,
+    15097,
+    15098,
+    15099,
+    15100,
+    23969,
+    23970,
+    23971,
+    23972,
+    23973,
+    23974
+  ],
+  "passing_targets": 5073,
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/surface-targets/report.json",
+  "report_sha256": "fa643fc30af7e9504f584e82c7b02a1eb5f16b6435a790f485d67f4659923426",
+  "surface_report_sha256": "46c76794b1c211c4d379ca889d4b627a09dfd87392a53e19931c805de7ad4cc2",
+  "target_records": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/surface-targets/target-records.jsonl",
+  "target_records_sha256": "0925b4b5790220c942b2157d80b2d2882a200a5e26b9488515a5939af75f19a5",
+  "targets_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-031-refined-connected557/prepare/surface-targets/targets.npz",
+  "targets_npz_sha256": "b9fb0093c4574389cf412ab7aaa99b199dcc07a7d424fef6768e12932de3e702"
+}

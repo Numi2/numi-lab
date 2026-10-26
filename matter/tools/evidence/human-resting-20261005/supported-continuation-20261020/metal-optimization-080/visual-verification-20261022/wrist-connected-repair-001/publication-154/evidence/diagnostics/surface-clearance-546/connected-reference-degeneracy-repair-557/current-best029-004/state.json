@@ -1,0 +1,25 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/lineage-repaired-base.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "6cebc9e4d4d2cda4afbde1670f105b2b56b7e7f74de40cbb5f51b513e6bb4c7d",
+  "construction_metadata_repair": {
+    "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-029-retained028/final/state.json",
+    "baseline_state_sha256": "9f7e60da3b672d3e3d98809167ea761be05c6a1054b249f29284b70585be2ef9",
+    "changed_fields": [
+      "refinement_face_parent_barycentric"
+    ],
+    "corrected_singleton_face_rows": 266,
+    "positions_faces_and_other_payload_bitwise_unchanged": true,
+    "receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/report.json",
+    "receipt_sha256": "c49a27d4b73abbb4ce48f9ee7d679c94cb81c0420e1191ba363999b8f7c9b591",
+    "scope": "provenance repair with complete matched static geometry checks; no native admission"
+  },
+  "continuation_mode": "metadata_repair",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/audit-130/summary.json",
+  "point_summary_sha256": "82ac7ef3161af21e49a9f2717ccc62853240b17d8220a6441ae51cc770c53d27",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/current-best029-004/full-check/audit-159/report.json",
+  "surface_report_sha256": "670ed94d7b470c6a60a75a22e3bd3f44076eba0bce00d10709021be52c62b1f8",
+  "temporary_unselected_construction": false
+}
