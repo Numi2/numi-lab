@@ -1,0 +1,35 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "/tmp/numi-human-geometry-slot.py",
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-composition-536/run-001/candidate.npz",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-composition-536/root-exact-run001/audit-130"
+      ],
+      "returncode": 0,
+      "seconds": 7.8849434580188245,
+      "script_sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9"
+    },
+    {
+      "argv": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "/tmp/numi-human-geometry-slot.py",
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-composition-536/run-001/candidate.npz",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-composition-536/root-exact-run001/audit-159",
+        "--max-seconds",
+        "600"
+      ],
+      "returncode": 0,
+      "seconds": 25.87814270798117,
+      "script_sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+    }
+  ],
+  "candidate_sha256": "e880f1c96e8bb540f1918673fecd07e9dccfea54ebe5cefc91fc14a77307edc5",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

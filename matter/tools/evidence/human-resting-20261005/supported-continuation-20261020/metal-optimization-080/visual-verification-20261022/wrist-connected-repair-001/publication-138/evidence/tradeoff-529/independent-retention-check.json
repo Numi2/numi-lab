@@ -1,0 +1,11 @@
+{
+  "status": "PASS_RETAINED_RESULT_UNCHANGED_LEGACY_VALUES",
+  "legacy_result_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-backtrack-530/current-scaled-001/backtrack-373/pass-012/result.json",
+  "legacy_result_sha256": "b521647fe3937e7f5bbcd75af4756c57d9f8814b18ad249eabe975b8e2cb9da4",
+  "retained_selection_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-backtrack-530/current-scaled-001/backtrack-373/selected-result.json",
+  "retained_selection_sha256": "125abd1830f543758d258754f9333fb5678728cca12a2e9438e81b18f2d061b3",
+  "all_original_nonselection_fields_identical": true,
+  "legacy_joint_merit_passed": false,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

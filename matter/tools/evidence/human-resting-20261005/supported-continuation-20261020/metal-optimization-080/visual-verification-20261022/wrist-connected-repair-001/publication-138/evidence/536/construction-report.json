@@ -1,0 +1,73 @@
+{
+  "status": "CONSTRUCTION_COMPOSITION_PENDING_EXACT_AUDITS",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-composition-536/run-001/candidate.npz",
+  "candidate_sha256": "e880f1c96e8bb540f1918673fecd07e9dccfea54ebe5cefc91fc14a77307edc5",
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/finite-triangle-backtrack-512/all-pairs-001/backtrack-373/pass-008/candidate.npz": "c1c0b63ee448703ef3240dbcc251e650022d7f76f475bc75db9cae040d1e3a6c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-quality-patch-534/run-001/candidate.npz": "20c6f2a40f1bcf21cab5c63d94e113f4b09f782454d1819295482a751d49e14b",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-backtrack-530/current-scaled-001/backtrack-373/pass-012/candidate.npz": "ee504ce47167ce04fa242743fabd777351887f740b7f70bf5e7ac4a248fe5fff",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-fit-529/current-scaled-001/candidate.npz": "84832ab3222b7d9eb851a9e7d6b966c66e9e8c13994292c90b23e588218e2963",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+  },
+  "coordinate_branch_noncoordinate_arrays_bitwise_equal_to_base": true,
+  "topology_branch_coordinates_bitwise_equal_to_base": true,
+  "selected_alpha": 0.5,
+  "trials": [
+    {
+      "alpha": 1.0,
+      "area_gate": {
+        "faces_checked": 41733,
+        "minimum_current_oriented_ratio": 0.15190742244414518,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.09425670116164543,
+        "bad_current_oriented_face_count": 0,
+        "bad_current_oriented_face_rows_first_64": [],
+        "bad_current_oriented_face_rows_truncated": false,
+        "bad_fixed_037_reference_face_count": 1,
+        "bad_fixed_037_reference_face_rows_first_64": [
+          22253
+        ],
+        "bad_fixed_037_reference_face_rows_truncated": false,
+        "area_floor": 0.1,
+        "pass": false
+      },
+      "edge_gradient_pass": false,
+      "min_edge_slack_mm": -0.008758302508721227,
+      "source_max_mm": 11.991219579029298,
+      "anchors_unchanged": true
+    },
+    {
+      "alpha": 0.5,
+      "area_gate": {
+        "faces_checked": 41733,
+        "minimum_current_oriented_ratio": 0.5667793174891005,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+        "bad_current_oriented_face_count": 0,
+        "bad_current_oriented_face_rows_first_64": [],
+        "bad_current_oriented_face_rows_truncated": false,
+        "bad_fixed_037_reference_face_count": 0,
+        "bad_fixed_037_reference_face_rows_first_64": [],
+        "bad_fixed_037_reference_face_rows_truncated": false,
+        "area_floor": 0.1,
+        "pass": true
+      },
+      "edge_gradient_pass": true,
+      "min_edge_slack_mm": 0.0037328687531086777,
+      "source_max_mm": 11.987026024567324,
+      "anchors_unchanged": true
+    }
+  ],
+  "edge_build_receipt": {
+    "enabled": true,
+    "max_component_gradient": 0.5,
+    "unique_mesh_edges": 62622,
+    "active_edges": 24263,
+    "inequality_rows": 145578,
+    "semantics": "componentwise |d_i-d_j| <= cap * reference_edge_length; nonsupport displacement is zero",
+    "maximum_reference_edge_length_mm": 132.85777725647887,
+    "minimum_reference_edge_length_mm": 0.011809844774693276
+  },
+  "physical_transfer_qualified": false,
+  "geometry_admitted": false,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

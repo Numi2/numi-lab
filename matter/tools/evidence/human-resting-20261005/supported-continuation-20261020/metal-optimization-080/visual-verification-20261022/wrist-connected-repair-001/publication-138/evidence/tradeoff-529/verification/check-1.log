@@ -1,0 +1,12 @@
+{
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-construction-verification-522/current-scaled-001-tradeoff/edge-gradient-check.json",
+  "rows": [
+    {
+      "label": "selected",
+      "min_slack_mm": 0.0020369469180071985,
+      "violated_rows": 0,
+      "max_ratio": 0.32531279223729515,
+      "pass": true
+    }
+  ]
+}

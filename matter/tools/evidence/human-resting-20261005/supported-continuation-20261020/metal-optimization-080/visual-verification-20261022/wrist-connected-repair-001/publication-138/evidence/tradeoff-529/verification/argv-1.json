@@ -1,0 +1,16 @@
+[
+  "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/D/area-local-backtrack-514/check_408_edge_gradient_514.py",
+  "--config",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-backtrack-530/current-scaled-001/backtrack-config.json",
+  "--support-source",
+  "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-fit-529/current-scaled-001/candidate.npz",
+  "--pass-root",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-backtrack-530/current-scaled-001/backtrack-373",
+  "--passes",
+  "",
+  "--selected-result",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-backtrack-530/current-scaled-001/backtrack-373/selected-result.json",
+  "--output",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/combined-construction-verification-522/current-scaled-001-tradeoff/edge-gradient-check.json"
+]

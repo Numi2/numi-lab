@@ -1,0 +1,12 @@
+{
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-construction-verification-522/current-priority-003/edge-gradient-check.json",
+  "rows": [
+    {
+      "label": "selected",
+      "min_slack_mm": 0.002405243025015513,
+      "violated_rows": 0,
+      "max_ratio": 0.28911386500575814,
+      "pass": true
+    }
+  ]
+}

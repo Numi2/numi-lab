@@ -1,0 +1,18 @@
+[
+  "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/independent-verifier-494/verify_construction_candidate_494.py",
+  "--candidate",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-backtrack-530/current-priority-003/backtrack-373/pass-012/candidate.npz",
+  "--base",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/finite-triangle-backtrack-512/all-pairs-001/backtrack-373/pass-008/candidate.npz",
+  "--fit-candidate",
+  "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-fit-529/current-priority-003/candidate.npz",
+  "--fit-report",
+  "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-fit-529/current-priority-003/report.json",
+  "--source-owner",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+  "--source-reference",
+  "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+  "--output",
+  "/Users/numi/Work/numi-human-connected-surface-069/D/combined-construction-verification-522/current-priority-003/independent-verifier-494.json"
+]

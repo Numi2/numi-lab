@@ -1,0 +1,34 @@
+{
+  "results": [
+    {
+      "test": "/Users/numi/Work/numi-human-connected-surface-069/D/D/point-priority-535/test_point_priority_535.py",
+      "test_sha256": "b4d35d35ed20084ab8701952fd46326f61ebd150f072ccd349b759034f60adb2",
+      "returncode": 0,
+      "seconds": 0.18851433298550546,
+      "unchanged": true
+    },
+    {
+      "test": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-quality-patch-531/test_repair_eligible_patches_531.py",
+      "test_sha256": "a9b8e4701cf8514f76eccc0fa07c21843040d24fe5b585e09a77c1a99d3530fd",
+      "returncode": 0,
+      "seconds": 10.747451249975711,
+      "unchanged": true
+    },
+    {
+      "test": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-quality-patch-534/test_replay_surviving_flips_534.py",
+      "test_sha256": "89c2fcd130848b6302573a1ae1cb52fcc88a9abf98f723a0952574ebfe4f3beb",
+      "returncode": 0,
+      "seconds": 1.011326874839142,
+      "unchanged": true
+    },
+    {
+      "test": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-quality-patch-538/test_compose_surviving_flips_538.py",
+      "test_sha256": "add4128854a51b8785afcfb7bc574b50a7214e821523015115b2c4374d8945c6",
+      "returncode": 0,
+      "seconds": 0.8255642920266837,
+      "unchanged": true
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

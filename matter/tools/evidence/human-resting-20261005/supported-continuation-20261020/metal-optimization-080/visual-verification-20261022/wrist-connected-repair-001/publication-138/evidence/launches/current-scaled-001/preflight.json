@@ -1,0 +1,26 @@
+{
+  "pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/distance-slack-scaling-523/run_distance_slack_527.py": "a5d55290eab2e0673a1db59bd8c5cdc30a5f84afa4eee54bbe993943e055e245",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-fit-529/run529.py": "62d596d95fc7269f92f79a0d006bcc0588ee45662d82724547b96a47d54df187",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/finite-triangle-backtrack-512/all-pairs-001/backtrack-373/pass-008/candidate.npz": "c1c0b63ee448703ef3240dbcc251e650022d7f76f475bc75db9cae040d1e3a6c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/connected-continuation-prep491/run-001/self-seeds/merged-self-pair-seeds.npy": "ba52f6b5caf18a276f3bfda6b34fd38a14a8413d619bcb4709319200a3464aa8",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-005/proposal/round-001/fit/self_separation_026.py": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-continuation-189-run001/round-005/proposal/round-001/fit/area_scp_support_023.py": "aaa9dbe32fbfeb71818a2afd673ef4eb7dfc0c209cee6d0ee1dbff1a6ce71abd",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-091/canonical/matter/tools/human_skin_fat_barycentric_constraints.py": "965a166e86952d79c019302c98e7684f2f8ef3a9d63b328430ac9c8c8edbaff2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/connected-continuation-prep491/run-001/point-targets-390/nearest-union-exits.npz": "de709c8eea102f120fb64ef3981e5cb7cafa4cb40b7e227bb4da62a5c9f9d797",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/connected-continuation-prep491/run-001/point-targets-390/nearest-union-exits.json": "3982c51038dd8c8cdad54d414d8ab72d892305b6806adceb33b88483e09b5129",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/connected-continuation-prep491/run-001/surface-targets-335/targets.npz": "50d7e7cf7f1651d18f7dd69948bda693e2c7754019cb156de635365f089d2ebc",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/connected-continuation-prep491/run-001/surface-targets-335/report.json": "f08f67e8f11cd799c6a5230940b4eab012254ae015a061f1e24d11572706ed6b",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/point-depth-refresh491/run-001/point-depth-rows.npz": "65ad23cbaccfab52807a653a193f5c94aa941004432f9946dbb545b3ca6072e4",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/point-depth-refresh491/run-001/365-compatible-report.json": "01c170d625cbf9fe33150950088742ede5fd4bb93fd16e088b7834b0b9fc412d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-barriers-357/point_depth_barriers_357.py": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/fixed-bone-guard-refresh491/run-001/introduced-skin-bone-barriers.npz": "59b9c38ca367b34aa30b2b5c1b2af8d8cd63a7e0ae96c0f51f7c6ad2e18db5eb",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/fixed-bone-guard-refresh491/run-001/report.json": "7537baadc8269905696bbc5397c25c27b522718bca5bb5bc24c0b9426a55127d",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-113/sources/connected-fixed-boundary-313/fixed_bone_triangle_rows_313.py": "dc9d4f953ecede00567c59cbbb6b6b63e0a3556b97972689de499cbce29d4c2e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-fit-529/current-scaled-001-launch/matched-inputs.json": "bc981dfb53f9de2805d265cf99dd37fc3820057a565c3243fbe7a9290b9dcfeb",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/finite-triangle-backtrack-512/all-pairs-001/backtrack-373/pass-008/audit-159/report.json": "6f0d2f262f799d7db8c26d3049c77f6ea2235af9b5c1661fa60dba6d981e727f"
+  },
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

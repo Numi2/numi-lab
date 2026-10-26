@@ -1,0 +1,28 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-backtrack-530/current-scaled-001/backtrack-373/pass-012/candidate.npz",
+  "candidate_sha256": "ee504ce47167ce04fa242743fabd777351887f740b7f70bf5e7ac4a248fe5fff",
+  "classification": "construction-only combined verification",
+  "edge_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-construction-verification-522/current-scaled-001-tradeoff/edge-gradient-check.json",
+  "independent_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-construction-verification-522/current-scaled-001-tradeoff/independent-verifier-494.json",
+  "native_admission": false,
+  "passed": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/area-local-backtrack-514/check_408_edge_gradient_514.py": "d2066c05a43cbcddcc31fad1891b6fc0a5e66b336ec890a00ab9e3b8fdbb6717",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-backtrack-530/current-scaled-001/backtrack-373/pass-012/candidate.npz": "ee504ce47167ce04fa242743fabd777351887f740b7f70bf5e7ac4a248fe5fff",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-backtrack-530/current-scaled-001/backtrack-373/selected-result.json": "125abd1830f543758d258754f9333fb5678728cca12a2e9438e81b18f2d061b3",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-backtrack-530/current-scaled-001/backtrack-config.json": "df225841181260f8c293331128b2578b30da4c188a29a2edb84add7f8a01ef16",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/independent-verifier-494/verify_construction_candidate_494.py": "257c2c3835995c2639b973cc4e6ab8b6f42abfb7f55a2096d9417661303cd722",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-fit-529/current-scaled-001/candidate.npz": "84832ab3222b7d9eb851a9e7d6b966c66e9e8c13994292c90b23e588218e2963",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-fit-529/current-scaled-001/report.json": "0720a1be176aa56eac3cf9735a936003e34b77c17951b52f5e72e906579a97b3",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+  },
+  "source_pins_unchanged": true,
+  "tool_returncodes": [
+    0,
+    0
+  ],
+  "unresolved_contained_pairs": 266,
+  "unresolved_surface_pairs": 3080
+}

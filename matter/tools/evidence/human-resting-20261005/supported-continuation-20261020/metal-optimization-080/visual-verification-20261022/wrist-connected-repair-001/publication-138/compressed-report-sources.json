@@ -1,0 +1,26 @@
+[
+  {
+    "original_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-fit-529/current-scaled-001/report.json",
+    "original_sha256": "0720a1be176aa56eac3cf9735a936003e34b77c17951b52f5e72e906579a97b3",
+    "stored_path": "evidence/fit-reports/current-scaled-001.json.gz",
+    "uncompressed_bytes": 47673502
+  },
+  {
+    "original_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-fit-529/current-priority-003/report.json",
+    "original_sha256": "1a6b0be72c419073f8f20fa0cc2a89d2605f4e3fc2960be880c224e1aee2af8b",
+    "stored_path": "evidence/fit-reports/current-priority-003.json.gz",
+    "uncompressed_bytes": 47687653
+  },
+  {
+    "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-fit-529/current-priority-003-launch/execution.log",
+    "original_sha256": "9d83f6d448bd5223c65587c6ae89d78e4f214c0590875eaed792586cfd28b31a",
+    "stored_path": "evidence/launches/current-priority-003/execution.log.gz",
+    "uncompressed_bytes": 46517379
+  },
+  {
+    "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-local-fit-529/current-scaled-001-launch/execution.log",
+    "original_sha256": "e553bc3b34ab2d9523c7d8df68aaa3b9ddeb2b52d6314831d77746b1054fff08",
+    "stored_path": "evidence/launches/current-scaled-001/execution.log.gz",
+    "uncompressed_bytes": 46503232
+  }
+]
