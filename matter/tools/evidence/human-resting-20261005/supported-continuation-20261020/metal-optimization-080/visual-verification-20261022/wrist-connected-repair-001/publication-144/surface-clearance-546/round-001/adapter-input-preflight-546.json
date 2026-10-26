@@ -1,0 +1,43 @@
+{
+  "candidate": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/direct/candidate.npz",
+    "sha256": "ced651c06f4363139288fc006ce9bdbf62ef13f603491c16fbdf0d98eb654bc4"
+  },
+  "construction_only": true,
+  "fit_or_geometry_audit_run": false,
+  "matched_inputs": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-001/matched-inputs.json",
+    "schema": "numi.human.matched_inputs_component_fit_475.v1",
+    "sha256": "4e023c8354f3ac582fde3b8b3590b18312b038edfb1313655b9c4a688fab0651",
+    "source_lock_count": 12
+  },
+  "outside_depth": {
+    "inside_rows": 0,
+    "outside_rows": 6339,
+    "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-001/depth/365-compatible-report.json",
+    "report_sha256": "415ce4c613800072993ba5d5ab6fee31e71766adb8e495a39e090ef091f8b080"
+  },
+  "point_input": {
+    "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-001/point-targets/nearest-union-exits.npz",
+    "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-001/point-targets/nearest-union-exits.json",
+    "report_sha256": "4452c8238378123be5d8604612728c5ba8866d9e6ab619c9da55a22ec80cdee6",
+    "rows": 0,
+    "sha256": "7f9feaef06e0a258b7a93891448e938172886b63ac826e4aba4db30f5357ed1c",
+    "status": "PASS_EMPTY_POINT_TARGETS_ZERO_CONTAINMENT"
+  },
+  "status": "PASS_INPUT_PRECHECKS_ONLY",
+  "surface_input": {
+    "matched_159_complete": true,
+    "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-001/surface-targets/targets.npz",
+    "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-001/surface-targets/report.json",
+    "report_sha256": "af685e120892703c58e108e90ec462d0f774926f56814fb17f37799c74d82ea5",
+    "rows": 2861,
+    "sha256": "c407a802f78755f37a86e244286a9745ce0691769dd88fa7b0fa5622e6b1e71c"
+  },
+  "validated_by": {
+    "408_owner": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+    "408_owner_sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "490_runner": "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-490/run_matched_component_fit_490.py",
+    "490_runner_sha256": "7719b5042d06abc8211400bd82fc5fed89d3d388e5a1c0794ddd7a0e084bf693"
+  }
+}

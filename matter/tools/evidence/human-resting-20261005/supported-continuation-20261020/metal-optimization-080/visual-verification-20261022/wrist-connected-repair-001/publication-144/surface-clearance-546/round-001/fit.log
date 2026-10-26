@@ -1,0 +1,21 @@
+waiting_for_human_geometry_slot pid=57335
+acquired_human_geometry_slot pid=57335
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/run_surface_only_full_coordinate_fit546.py", line 52, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/run_surface_only_full_coordinate_fit546.py", line 50, in main
+    out=Path(sys.argv[sys.argv.index('--output')+1]);selfsha=sha(__file__);entry.main();assert sha(__file__)==selfsha
+                                                                           ~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-490/run_matched_component_fit_490.py", line 204, in main
+    runner.main()
+    ~~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-485/run_matched_component_fit_485.py", line 65, in main
+    helper=load("component_lp_decomposition_485_for_run",H)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/run_surface_only_full_coordinate_fit546.py", line 24, in load485
+    extra=Path(__file__).with_name('component_lp_active545.py');sp=importlib.util.spec_from_file_location('component_active545',extra);active=importlib.util.module_from_spec(sp);sp.loader.exec_module(active)
+                                                                                                                                                                                  ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "<frozen importlib._bootstrap_external>", line 1023, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1160, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1218, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component_lp_active545.py'
