@@ -1,0 +1,1176 @@
+{
+  "status": "EXPECTED_PROJECTION_FAILURE_DIAGNOSTIC_ONLY",
+  "failure": "bounded patch projection did not converge",
+  "input_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/project_patch_quality545.py": "ac230cf06743aab449e9cd34d96b06ece27c35f6c36cbefdd0129311cffdb7c2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/point-fit-001-saved-scale-002/input/candidate.npz": "8bb703148e57980488ab31b43179cf6079fe904684e30626f7371caec58c201a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/point-fit-001-saved-scale-002/input/report.json": "5261bea61c451a6d89dc03c46154e48e1f8b8dcdd73d60a1bdeb168344baf099",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/replay_projector_failure546.py": "cc15f0600d769293843fa92f2131bbccfda4037781d601d8bdfd15ff70c1ac9a"
+  },
+  "history": [
+    {
+      "iteration": 0,
+      "minimum_oriented_ratio": -2.608913391313026,
+      "area_faces": [
+        15034,
+        15043,
+        15426,
+        15651,
+        19341,
+        19405,
+        19692,
+        21603,
+        21664,
+        21677,
+        21722,
+        21733,
+        22039,
+        22313,
+        22326,
+        22345,
+        22347,
+        24326,
+        29991,
+        29993,
+        30370,
+        30372,
+        30391,
+        30747,
+        30867,
+        31134,
+        31143,
+        39733,
+        39735,
+        39885,
+        39889,
+        39986,
+        40379,
+        40383,
+        40395,
+        40810,
+        41212,
+        41237,
+        46951,
+        46953
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 1,
+      "minimum_oriented_ratio": -1.7464303647231185,
+      "area_faces": [
+        15424,
+        22345,
+        24326,
+        29991,
+        30370,
+        39733,
+        39885,
+        40379,
+        46951
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 2,
+      "minimum_oriented_ratio": -0.5252953012356304,
+      "area_faces": [
+        15426,
+        22347,
+        24326,
+        29993,
+        30372,
+        39735,
+        39763,
+        39889,
+        40383,
+        46953
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 3,
+      "minimum_oriented_ratio": -0.23551291697203136,
+      "area_faces": [
+        15424,
+        22345,
+        24326,
+        29991,
+        30370,
+        39733,
+        39885,
+        40379,
+        46951
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 4,
+      "minimum_oriented_ratio": -0.005570393818262438,
+      "area_faces": [
+        15426,
+        24326,
+        29993,
+        30372,
+        39735,
+        39889,
+        40383,
+        46953
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 5,
+      "minimum_oriented_ratio": 0.048637030503639225,
+      "area_faces": [
+        24326,
+        29991,
+        39885,
+        46951
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 6,
+      "minimum_oriented_ratio": 0.09138604829910202,
+      "area_faces": [
+        24326,
+        46953
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 7,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326,
+        46951
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 8,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 9,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 10,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 11,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 12,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 13,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 14,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 15,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 16,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 17,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 18,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 19,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 20,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 21,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 22,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 23,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 24,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 25,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 26,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 27,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 28,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 29,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 30,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 31,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 32,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 33,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 34,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 35,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 36,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 37,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 38,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 39,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 40,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 41,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 42,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 43,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 44,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 45,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 46,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 47,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 48,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 49,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 50,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 51,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 52,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 53,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 54,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 55,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 56,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 57,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 58,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 59,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 60,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 61,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 62,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 63,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 64,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 65,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 66,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 67,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 68,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 69,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 70,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 71,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 72,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 73,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 74,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 75,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 76,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 77,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 78,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 79,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 80,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 81,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 82,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 83,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 84,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 85,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 86,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 87,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 88,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 89,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 90,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 91,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 92,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 93,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 94,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 95,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 96,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 97,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 98,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 99,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 100,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 101,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 102,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 103,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 104,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 105,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 106,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 107,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 108,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 109,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 110,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 111,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 112,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 113,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 114,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 115,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 116,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 117,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 118,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    },
+    {
+      "iteration": 119,
+      "minimum_oriented_ratio": 0.09494681674020834,
+      "area_faces": [
+        24326
+      ],
+      "magnitude_faces": [],
+      "edge_count": 0
+    }
+  ],
+  "final_bad_area_faces": [
+    24326
+  ],
+  "final_bad_edges": [],
+  "candidate_not_written_or_selected": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "artifact_sha256": "5d6a42673a7c223a0778b8aeb40af1c4794fb6a7c4d6b2c5ea667689efc04bbe"
+}

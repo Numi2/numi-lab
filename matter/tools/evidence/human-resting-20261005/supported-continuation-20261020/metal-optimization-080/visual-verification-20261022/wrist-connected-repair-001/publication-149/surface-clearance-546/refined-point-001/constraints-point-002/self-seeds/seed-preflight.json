@@ -1,0 +1,59 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-adapter546/run-2462-affine-exclude30887-003/candidate.npz",
+  "candidate_sha256": "58782164d80e46c137356572d7b93e909c542625db859d2f2449f0a17c1fdbda",
+  "construction_only": true,
+  "current_exact_self_pair_count": 0,
+  "current_self_pairs": 0,
+  "failed_trial_source": {
+    "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-adapter546/run-2462-affine-exclude30887-003/audit-130-root/summary.json",
+    "audit130_sha256": "a7e43e3ba775f6a7974ae33ba98f77895a84bbc36f24efc657666a61101d1ed5",
+    "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-adapter546/run-2462-affine-exclude30887-003/candidate.npz",
+    "candidate_sha256": "58782164d80e46c137356572d7b93e909c542625db859d2f2449f0a17c1fdbda",
+    "dropped_pair_count": 0,
+    "mapped_unique_pair_count": 0,
+    "mapping_payload_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/constraints-point-002/self-seeds/failed-trial-remap.npz",
+    "mapping_payload_sha256": "c5e0368a86a75265dadd72e2fa08ad9bf901be6d02561b390839a82c88a38898",
+    "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-adapter546/run-2462-affine-exclude30887-003/audit-130-root/surface-self-pairs.npy",
+    "pairs_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "source_pair_count": 0
+  },
+  "mapping_status": "PASS_PARTIAL_EXACT_FACE_REMAP_AND_ZERO_STEP_026_CERTIFICATE",
+  "mapping_status_codes": {
+    "0": "mapped_unique",
+    "1": "changed_or_missing_face",
+    "2": "ambiguous_face_identity",
+    "3": "pair_faces_collapsed"
+  },
+  "merged_unique_pair_count": 17209,
+  "native_admission": false,
+  "output_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/constraints-point-002/self-seeds/merged-self-pair-seeds.npy",
+  "output_pairs_sha256": "98ae60c37a8d22d696e4fed682e7d5913a41d87645aee4afbfbb9ae908693e4b",
+  "output_rows_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/constraints-point-002/self-seeds/merged-self-pair-rows.npz",
+  "output_rows_sha256": "7a1770d507ca62cd1e1f145e6283de10843af408ed2974295b660b42204fbb3e",
+  "pair_owner_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/204/source/fit/self_separation_026.py",
+  "pair_owner_sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+  "prior_context_source": {
+    "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/round-002/candidate.npz",
+    "candidate_sha256": "bc5827cc505ac17aebb9c939b432640dbebbdf5d3139bfd8cfe093ac084d987e",
+    "dropped_pair_count": 6167,
+    "mapped_unique_pair_count": 17209,
+    "mapping_payload_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/constraints-point-002/self-seeds/prior-context-remap.npz",
+    "mapping_payload_sha256": "9e042cde26646980e54ab10e1e541f4f1fe7f8da55e98d8e690160370250fbc3",
+    "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/prep-multiparent-001/constraints/self-seeds/merged-self-pair-seeds.npy",
+    "pairs_sha256": "dadcc87d10f47d2c9057b174ff14f45ddb737bb66d1182a4845ce42baac6fdec",
+    "source_pair_count": 23376
+  },
+  "rebuilt_linear_row_count": 95762,
+  "schema": "numi.human.continuation-self-seeds.v1",
+  "source_pins": {
+    "026": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+    "313": "dc9d4f953ecede00567c59cbbb6b6b63e0a3556b97972689de499cbce29d4c2e",
+    "314": "3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78",
+    "401": "2f1eda3f0d46d0f5497a1a04075b5dc2c3b37afe906d0389ff636fca8abc5869",
+    "541": "293e4da49a10f07420d1da7c512823dcb182dca246e411c3775d18866b27a241"
+  },
+  "status": "PASS_REBUILT_CONSTRUCTION_SEEDS_ONLY",
+  "zero_step_feasible": true,
+  "zero_step_max_rhs_mm": -3.465275415307986e-05
+}

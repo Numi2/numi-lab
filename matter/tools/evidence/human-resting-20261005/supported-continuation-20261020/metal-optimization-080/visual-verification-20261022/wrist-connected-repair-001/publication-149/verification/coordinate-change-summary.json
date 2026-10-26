@@ -1,0 +1,59 @@
+{
+  "baseline_candidate_sha256": "eadcd3838ec5bf4f2d72d45ba5d19c775e9fef4361f92ebea6f49e18d4bfe3a5",
+  "bitwise_identical_lineage_and_anchor_arrays": {
+    "coarse_boundary_anchor_rows": true,
+    "coarse_boundary_anchor_source_nodes": true,
+    "coarse_boundary_edge_endpoints": true,
+    "coarse_boundary_edge_path_indptr": true,
+    "coarse_boundary_edge_path_output_nodes": true,
+    "coarse_boundary_edge_path_parameters": true,
+    "coarse_boundary_edge_path_source_nodes": true,
+    "face_source_ancestry_face_rows": true,
+    "face_source_ancestry_indptr": true,
+    "node_parent_coarse_edge_a": true,
+    "node_parent_coarse_edge_b": true,
+    "node_parent_coarse_edge_parameter": true,
+    "node_parent_coarse_face_row": true,
+    "node_source_displacement_m": true,
+    "node_source_row": true,
+    "node_source_virtual_row": true,
+    "typed_coarse_anchor_output_rows_018": true,
+    "typed_coarse_anchor_source_ids_018": true
+  },
+  "bitwise_unchanged_coordinate_rows_vs_2409": 18548,
+  "changed_coordinate_rows_vs_2409": 2341,
+  "changed_row_baseline_absolute_bounds_m": {
+    "max": [
+      0.2735426723957062,
+      -0.8336980938911438,
+      0.1482977569103241
+    ],
+    "min": [
+      -0.32318323850631714,
+      -1.0190579891204834,
+      0.08300057053565979
+    ]
+  },
+  "changed_row_final_absolute_bounds_m": {
+    "max": [
+      0.2735426723957062,
+      -0.8336976766586304,
+      0.14829964935779572
+    ],
+    "min": [
+      -0.3232080042362213,
+      -1.0191174745559692,
+      0.08295207470655441
+    ]
+  },
+  "final_candidate_sha256": "ec3abc4da2bb84620c84d23457202dbdd54bea27f7478ac543124b6ded6938e6",
+  "maximum_per_node_euclidean_displacement_mm_vs_2409": 0.15236248668654614,
+  "note": "Topology round009 changed face connectivity and reduced pair count; it added no coordinate changes. This is an array comparison, not physical or anatomy qualification.",
+  "point_array_key": "points_world_m",
+  "point_array_shape": [
+    20889,
+    3
+  ],
+  "round008_and_round009_coordinates_bitwise_identical": true,
+  "round008_candidate_sha256": "ca5cffae1a942b00c72a11288d33904eacb562c264160e96951f06b6035fa391"
+}

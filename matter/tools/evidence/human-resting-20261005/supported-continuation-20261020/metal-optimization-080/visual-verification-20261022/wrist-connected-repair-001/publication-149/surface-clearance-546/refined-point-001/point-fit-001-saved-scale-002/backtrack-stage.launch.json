@@ -1,0 +1,18 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/construction-trust-546/run_checked_batch_context546.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/baseline.json",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/point-fit-001-saved-scale-002/rounding-repair",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/constraints-point-002/constraint-context.json",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/point-fit-001-saved-scale-002/backtrack",
+    "--construction-trust-mm",
+    "4"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/construction-trust-546/run_checked_batch_context546.py": "c911c414a15fe5e6630ff84b900d553ed098d41c9044f0142f5841a2f80ae413"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "accepted_physical_steps": 0,
+  "actual_target_generation_run": false,
+  "adapter_files": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-depth-targets-546/run_coherent_depth_targets546.py": "c5d0719741298c3490bdbe288fa6cb3ff5aa2a288a3d218a573193bcec1d8ad8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-depth-targets-546/test_coherent_depth_targets546.py": "13361d6dd36c9c63bfe5c11b2f153284c60e550eca45268f7eacf6172f0363b6"
+  },
+  "embedded_builder_pins": {
+    "depth357_sha256": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1",
+    "source303_sha256": "c8fe5b7be2efb2c6867a2cde178ebc35280814c37f90eec5aea47e964fc17a1f"
+  },
+  "group_policy": "Use pinned 545 coherent-depth mesh-witness groups: target nodes are connected when they share a mesh face or are separated by one intermediate mesh neighbor. No joint-source-patch mode or single-bank assumption. Report each group separately; a group without positive common depth direction is retained as an exact owner failure and is not forced.",
+  "multi_parent_policy": "Calls install_source303_extension from the pinned existing direct-depth 546 adapter; single-parent source-normal logic and the 545 exact all185 endpoint owner are unchanged.",
+  "native_admission": false,
+  "purpose": "Inert bounded comparison for ordinary mesh-witness coherent-depth grouping using existing 545 exact endpoints and the pinned 546 multi-parent source-normal installer.",
+  "requested_mode": {
+    "coherent_direction": "depth",
+    "direction_mode": "coherent-depth",
+    "joint_source_patch": false,
+    "minimum_depth_cosine_metadata": 0.05
+  },
+  "retained_joint_patch_failure": {
+    "owner_error": "joint source patch requires one exact typed bone bank",
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/coherent-target-stage.log",
+    "replacement_run_performed": false,
+    "sha256": "79c4a2eb425224a9eafa0d1a66324ad777f7c5481e4cea0ffc32deec479c5e99",
+    "target_rows_emitted": false
+  },
+  "retained_prior_joint_mode": {
+    "adapter_snapshot_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-depth-targets-546/source-snapshots/run_coherent_depth_targets546-joint-source-patch-81b8848f.py",
+    "adapter_snapshot_sha256": "81b8848f68a8d670c6cdd80bc5a028c0b823b07b1d7b372e80935c920f6f1866",
+    "prior_test_receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-depth-targets-546/test-coherent-depth.log",
+    "prior_test_receipt_sha256": "d271bc4c61476139fa75efa8c67eb55e8dd295b53d6f286ec6f1c70f6a20e581",
+    "prior_test_source_sha256": "205ceb6055d344aaa7648c0c0d559c3e6520d96aaf747b1d2a9cd3b4960add61",
+    "source_pins_snapshot_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-depth-targets-546/source-snapshots/source-pins-joint-source-patch-94040a84.json",
+    "source_pins_snapshot_sha256": "94040a84a681aee12d3bc27262755c1f2efe1cda469eb4faec8c02188bedbfe5"
+  },
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_joint_source_targets545.py": "f4066f7db73c37911ed75ef48eca92116e6a15ea8d1fe6543af597a5655398e0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-barriers-357/point_depth_barriers_357.py": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_nearest_union_targets_500.py": "454501303db7c6420ff3744729c62c723c208aaf9348a53534137c62b7e6afbf",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_targets_multi_source_546.py": "dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/direct-depth-targets-546/run_direct_depth_targets546.py": "0708d259c7bc7dd6341b8cac737f6516ac611011e6d4f599e05530cf91106ac5",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/build_outward_nearest_union_targets_303.py": "c8fe5b7be2efb2c6867a2cde178ebc35280814c37f90eec5aea47e964fc17a1f"
+  },
+  "status": "INERT_ORDINARY_COHERENT_DEPTH_ADAPTER_READY_NO_GEOMETRY_RUN",
+  "test_receipt": {
+    "compile_check": "py_compile passed",
+    "geometry_run": false,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-depth-targets-546/test-ordinary-coherent-depth.log",
+    "result": "...........                                                              [100%]\n11 passed in 0.05s\n",
+    "sha256": "9b11cb2f3356aba2b6bea79c5002067b83ed8c2e96bb42b301fec1fe49fd2c79"
+  }
+}

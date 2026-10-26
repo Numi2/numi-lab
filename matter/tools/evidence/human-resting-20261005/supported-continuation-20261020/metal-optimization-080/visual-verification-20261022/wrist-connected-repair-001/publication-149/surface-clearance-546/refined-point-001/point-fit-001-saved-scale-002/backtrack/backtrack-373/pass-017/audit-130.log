@@ -1,0 +1,3 @@
+waiting_for_human_geometry_slot pid=65061
+acquired_human_geometry_slot pid=65061
+{"candidate_sha256": "32f9aa6547e7b3ae1beb7cf761be9357982915d0966d049353441c7e262d572d", "points": 24382, "faces": 48719, "accepted_physical_steps": 0, "geometry_admitted": false, "exact_PLC_surface_pairs": 58, "complete_surface_audit": true, "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d", "status": "STOPPED_AT_SURFACE_GATE", "wall_seconds": 10.718224207870662}

@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/soft-field-direct-001/1p00/backtrack/final-check/audit-130/query/points-world.npz",
+  "input_sha256": "932839cf51c9983faf86d529267a1befaf267f3272d3e36c73bf3985e19cd38b",
+  "field": "points_world_f32",
+  "query_count": 24382,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/soft-field-direct-001/1p00/backtrack/final-check/audit-130/query/points.csv",
+  "output_sha256": "bf82f76d8f7af135b8a0276eef3533c2d1c66ed583815cde2e01562ebc0f6c30",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

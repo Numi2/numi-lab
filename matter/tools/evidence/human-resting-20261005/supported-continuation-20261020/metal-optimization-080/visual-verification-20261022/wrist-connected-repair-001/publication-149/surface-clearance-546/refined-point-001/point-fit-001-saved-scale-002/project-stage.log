@@ -1,0 +1,10 @@
+waiting_for_human_geometry_slot pid=64828
+acquired_human_geometry_slot pid=64828
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/project_patch_quality545.py", line 48, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/project_patch_quality545.py", line 44, in main
+    else:raise RuntimeError('bounded patch projection did not converge')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: bounded patch projection did not converge

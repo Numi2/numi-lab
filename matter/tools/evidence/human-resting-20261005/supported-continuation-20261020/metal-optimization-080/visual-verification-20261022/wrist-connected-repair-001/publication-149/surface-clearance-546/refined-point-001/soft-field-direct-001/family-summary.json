@@ -1,0 +1,86 @@
+[
+  {
+    "lambda": 0.03,
+    "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/soft-field-direct-001/0p03/candidate.npz",
+    "candidate_sha256": "e3703d13023b56d02c9f0fa791600579b863a8a2cedce4aa1d165d8120d861b2",
+    "counts": {
+      "bad_area_faces": 70,
+      "bad_edge_rows": 0,
+      "bad_trust_nodes": 0,
+      "bad_source_nodes": 2,
+      "bad_bound_nodes": 2
+    },
+    "maximum_step_mm": 0.8870292789608913,
+    "maximum_source_mm": 12.13581770242031
+  },
+  {
+    "lambda": 0.1,
+    "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/soft-field-direct-001/0p10/candidate.npz",
+    "candidate_sha256": "154ad18064dfd3afb72d7306666bbccc08a15a2e9dd33d8534573bdfe5bf7f0e",
+    "counts": {
+      "bad_area_faces": 165,
+      "bad_edge_rows": 4,
+      "bad_trust_nodes": 0,
+      "bad_source_nodes": 3,
+      "bad_bound_nodes": 3
+    },
+    "maximum_step_mm": 1.3275252947934328,
+    "maximum_source_mm": 12.191371497057307
+  },
+  {
+    "lambda": 0.3,
+    "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/soft-field-direct-001/0p30/candidate.npz",
+    "candidate_sha256": "7041d6725e0dc6e560f3cb8846eb9b3aa6f57eac676450cf15e3c3a932a4fb81",
+    "counts": {
+      "bad_area_faces": 302,
+      "bad_edge_rows": 150,
+      "bad_trust_nodes": 0,
+      "bad_source_nodes": 3,
+      "bad_bound_nodes": 3
+    },
+    "maximum_step_mm": 1.7591636620039048,
+    "maximum_source_mm": 12.277641263135656
+  },
+  {
+    "lambda": 1,
+    "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/soft-field-direct-001/1p00/candidate.npz",
+    "candidate_sha256": "356b27fac5769a2429804ab68e6f05a88799d922d6a88b6e29bd3b449a92f9c4",
+    "counts": {
+      "bad_area_faces": 464,
+      "bad_edge_rows": 386,
+      "bad_trust_nodes": 0,
+      "bad_source_nodes": 3,
+      "bad_bound_nodes": 3
+    },
+    "maximum_step_mm": 2.5932485613285787,
+    "maximum_source_mm": 12.342847919730952
+  },
+  {
+    "lambda": 3,
+    "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/soft-field-direct-001/3p00/candidate.npz",
+    "candidate_sha256": "615c1c81aeef997f619f3cf54c0db45f1d517245a8fed68b736d74108d85913c",
+    "counts": {
+      "bad_area_faces": 608,
+      "bad_edge_rows": 777,
+      "bad_trust_nodes": 0,
+      "bad_source_nodes": 3,
+      "bad_bound_nodes": 3
+    },
+    "maximum_step_mm": 3.162960731227443,
+    "maximum_source_mm": 12.362737159208999
+  },
+  {
+    "lambda": 10,
+    "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/soft-field-direct-001/10p00/candidate.npz",
+    "candidate_sha256": "c999aef39021d513dfbbd34d4c9f7584941842b90213ebdd47043b153953ef04",
+    "counts": {
+      "bad_area_faces": 723,
+      "bad_edge_rows": 1140,
+      "bad_trust_nodes": 0,
+      "bad_source_nodes": 3,
+      "bad_bound_nodes": 3
+    },
+    "maximum_step_mm": 3.5006809152808955,
+    "maximum_source_mm": 12.364186836952346
+  }
+]

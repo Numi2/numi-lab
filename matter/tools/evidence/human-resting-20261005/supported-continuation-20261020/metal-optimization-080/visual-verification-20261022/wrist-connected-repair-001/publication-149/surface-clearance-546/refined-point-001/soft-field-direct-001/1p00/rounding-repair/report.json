@@ -1,0 +1,94 @@
+{
+  "status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED",
+  "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/baseline.json",
+  "baseline_state_sha256": "872e5d0cf1716a4f329144434a36b50b9f9e81d96feedd12110c339fc61ff100",
+  "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-adapter546/run-2462-affine-exclude30887-003/candidate.npz",
+  "base_sha256": "58782164d80e46c137356572d7b93e909c542625db859d2f2449f0a17c1fdbda",
+  "parent_fit": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/soft-field-direct-001/1p00/candidate.npz",
+  "parent_fit_sha256": "356b27fac5769a2429804ab68e6f05a88799d922d6a88b6e29bd3b449a92f9c4",
+  "projected_input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/soft-field-direct-001/1p00/project-failure-diagnostic/failed-iterate.npz",
+  "projected_input_sha256": "a18c31b7b58413cae96462be268df1cf354bb8bf77f9a1a47e6afe1764a6a74a",
+  "initial_bad_faces": [
+    24327
+  ],
+  "allowed_free_nodes": [
+    14865,
+    21277,
+    23439
+  ],
+  "trials": [
+    {
+      "node": 14865,
+      "axis": 0,
+      "sign": -1,
+      "ulps": 1,
+      "step_m": -2.9802322387695312e-08,
+      "bad_counts": {
+        "bad_area_faces": 1,
+        "bad_edge_rows": 0,
+        "bad_trust_nodes": 0,
+        "bad_source_nodes": 0,
+        "bad_bound_nodes": 0
+      }
+    },
+    {
+      "node": 14865,
+      "axis": 0,
+      "sign": 1,
+      "ulps": 1,
+      "step_m": 2.9802322387695312e-08,
+      "bad_counts": {
+        "bad_area_faces": 1,
+        "bad_edge_rows": 0,
+        "bad_trust_nodes": 0,
+        "bad_source_nodes": 0,
+        "bad_bound_nodes": 0
+      }
+    },
+    {
+      "node": 14865,
+      "axis": 1,
+      "sign": -1,
+      "ulps": 1,
+      "step_m": -5.960464477539063e-08,
+      "bad_counts": {
+        "bad_area_faces": 0,
+        "bad_edge_rows": 0,
+        "bad_trust_nodes": 0,
+        "bad_source_nodes": 0,
+        "bad_bound_nodes": 0
+      }
+    }
+  ],
+  "source_sha256": "3c410d494ed61ae3a8d413301264cc1635c148966d635a7ee868e99ed4550dfa",
+  "helper_sha256": "9c3257524e95b3e00ee41c154caa90cfbc4fcd1031719d46a591338232e03f8b",
+  "checker_sha256": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "inputs": {
+    "base_candidate_sha256": "58782164d80e46c137356572d7b93e909c542625db859d2f2449f0a17c1fdbda"
+  },
+  "candidate_sha256": "e07ec78c8e047c6b7869af9cdef4a737e3f25a59b01726e8b49c8f74609d1b74",
+  "chosen": {
+    "node": 14865,
+    "axis": 1,
+    "sign": -1,
+    "ulps": 1,
+    "step_m": -5.960464477539063e-08,
+    "bad_counts": {
+      "bad_area_faces": 0,
+      "bad_edge_rows": 0,
+      "bad_trust_nodes": 0,
+      "bad_source_nodes": 0,
+      "bad_bound_nodes": 0
+    }
+  },
+  "arithmetic_limits": {
+    "trust_mm": 4.0,
+    "source_cap_mm": 12.0,
+    "area_floor": 0.1,
+    "edge_gradient": 0.5
+  },
+  "outside_rounding_operation_bitwise_unchanged": true,
+  "semantics": "Soft connected harmonic displacement, existing bounded quality projection, then explicit representable coordinate search on actual area witness; no new LP solve or physics admission"
+}

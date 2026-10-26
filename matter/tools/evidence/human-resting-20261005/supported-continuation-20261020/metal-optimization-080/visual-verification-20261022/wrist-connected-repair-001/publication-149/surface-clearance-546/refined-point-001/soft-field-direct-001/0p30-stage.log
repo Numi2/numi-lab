@@ -1,0 +1,3 @@
+waiting_for_human_geometry_slot pid=65409
+acquired_human_geometry_slot pid=65409
+{"status": "SOFT_HARMONIC_CONSTRUCTION_PROPOSAL_UNCERTIFIED", "candidate_sha256": "7041d6725e0dc6e560f3cb8846eb9b3aa6f57eac676450cf15e3c3a932a4fb81", "target_rows": 1371, "free_nodes": 6592, "rings": 4, "lambda": 0.3, "linear_residual_relative": 1.1314143633767146e-13}

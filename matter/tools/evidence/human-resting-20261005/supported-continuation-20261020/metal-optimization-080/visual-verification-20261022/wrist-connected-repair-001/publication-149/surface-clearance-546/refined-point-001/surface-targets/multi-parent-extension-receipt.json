@@ -1,0 +1,28 @@
+{
+  "candidate_sha256": "58782164d80e46c137356572d7b93e909c542625db859d2f2449f0a17c1fdbda",
+  "crossing_pairs": 5765,
+  "multi_parent_faces": [
+    12071,
+    12072,
+    12073,
+    12074,
+    12075,
+    12076,
+    15297,
+    15298,
+    15299,
+    15300,
+    15301,
+    15302,
+    16143,
+    16144
+  ],
+  "passing_targets": 5765,
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/surface-targets/report.json",
+  "report_sha256": "9c984666cd6afc7d17e92a67515447b5e548d9563269653952015cb47f7211af",
+  "surface_report_sha256": "f3ebf243deadff346f9dbe03c28af2b52a42cf8c29d3fbdc0377a4675203bad5",
+  "target_records": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/surface-targets/target-records.jsonl",
+  "target_records_sha256": "1591ac851d95d0e657da6ace0eb5ae05ac8b938a0bdae812ac612f77ca921680",
+  "targets_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/surface-targets/targets.npz",
+  "targets_npz_sha256": "c55d777c27b9c3420b8a628db77fb25ddb163c482487fc3610dbbdda4f0e11cc"
+}

@@ -1,0 +1,772 @@
+{
+  "accepted_operations": [],
+  "accepted_physical_steps": 0,
+  "candidate_output_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-009-from2397-chain-025/round-002/candidate.npz",
+  "candidate_output_sha256": "ec3abc4da2bb84620c84d23457202dbdd54bea27f7478ac543124b6ded6938e6",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-009-from2397-chain-025/round-001/candidate.npz",
+  "combined_exact159_replacement_screen": {
+    "affected_face_rows": [],
+    "new_pair_count": 0,
+    "old_pair_count": 0,
+    "per_bank": {},
+    "status": "no_operations_selected",
+    "strict_reduction": 0
+  },
+  "connected_patch_outer_and_seam_edges_preserved": true,
+  "current_037_faces_synchronized": true,
+  "exact_self_witness_rollback_cli": "rerun with --exclude-self-pairs <audit-130/surface-self-pairs.npy> --expected-exclusion-pairs-sha256 <file-sha256> and the same input candidate/report pins",
+  "excluded_self_witness_rows": [],
+  "fixed_coordinates_bitwise_unchanged": true,
+  "full_csr_ancestry_preserved_and_union_replayed": true,
+  "geometry_admitted": false,
+  "input_crossing_face_count": 846,
+  "input_detail_ids": [
+    2549,
+    4497,
+    5120,
+    5135,
+    5136,
+    5178,
+    5529,
+    5530,
+    6103,
+    6135,
+    6732,
+    8264,
+    8265,
+    8269,
+    9002,
+    9578,
+    9696,
+    10342,
+    83785,
+    83789,
+    87944,
+    88035,
+    88498,
+    88499,
+    89504,
+    90091,
+    90117,
+    90122,
+    108912,
+    108926
+  ],
+  "input_pins": {
+    "audit130": "a2e60ff0206eadb827aae548a2c18e38378b2903cb04fba7b797d4f414c73018",
+    "audit159": "143d6b8335e901729095570e53a5e0f524faa28c6f484217bea610d6343b1d7a",
+    "candidate": "ec3abc4da2bb84620c84d23457202dbdd54bea27f7478ac543124b6ded6938e6",
+    "check408": "01026156cccd5c1742e2edcaa6288f64f888731424dfb6337831412701020711",
+    "exact315": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "owner370": "c8650b8c311ca8f386ebf1713b5fc285b7bded860cfa878192472704ac1336d5",
+    "owner402": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764",
+    "owner405": "e995a2f460e60cb62fb24b80af400678757f62a2b0c1b51141bf0ef387993967",
+    "owner541": "26930be05518834f02724948cffa5ff74719f070a4ac4e4917b0965f42a412aa",
+    "search409": "64f05be466d672266d4265185c895fecc70113d476f69e7a1c6dc3af8ec514a8",
+    "self_pairs130": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+  },
+  "input_surface_triangle_pair_count": 2395,
+  "limitations": [
+    "Proposal screen counts exact surface triangle pairs only on changed skin faces against all 185 banks; unchanged counts reuse the complete pinned base report.",
+    "Incremental self checks screen each accepted operation against the whole unchanged surface, but are not a substitute for final full 130 and 159 audits.",
+    "Fixed-coordinate flips preserve nodal containment coordinates, but no post-topology full admission is claimed."
+  ],
+  "native_admission": false,
+  "progress_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-009-from2397-chain-025/round-002/progress.jsonl",
+  "screening": {
+    "accepted_count": 0,
+    "base_self_pairs_reused": 0,
+    "cheap_target_edge_count": 1724,
+    "each_accepted_operation_checked_against_full_surface_self_AABB": true,
+    "edge_prefilter_factor": 16,
+    "edge_validation_cap": 4096,
+    "exact_pair_reducing_count": 11,
+    "exact_pair_scored_count": 96,
+    "exact_skin_bone_owner": "370 Exact159PatchCounter, full 185 typed banks per replacement set",
+    "flip_owner": "402/405 compatible two-face source-connected flip",
+    "generated_quality_eligible_count": 96,
+    "local_541_evaluator_parity_checked": true,
+    "max_candidate_count": 256,
+    "quality_owner": "541 evaluate_op",
+    "rejection_counts": {
+      "037_nonpositive_new_face": 22,
+      "541_angle_loss_bound": 280,
+      "541_fixed037_area_floor": 2,
+      "541_no_measured_quality_gain": 25,
+      "alternate_diagonal_exists": 29,
+      "current_037_orientation_disagreement": 353,
+      "different_or_unselected_connected_patch": 1,
+      "exact159_no_strict_total_pair_decrease": 70,
+      "exact159_typed_bank_pair_count_increased": 15,
+      "incremental_self_witness": 11,
+      "nonconvex_quad": 916
+    },
+    "selected_for_validation": 1724,
+    "self_owner": "408 incremental checker with 315 predicate",
+    "self_rejections": [
+      {
+        "edge": [
+          15073,
+          19191
+        ],
+        "face_rows": [
+          34043,
+          34070
+        ],
+        "introduced_pairs": [
+          [
+            33978,
+            34043
+          ],
+          [
+            33978,
+            34070
+          ],
+          [
+            33983,
+            34043
+          ],
+          [
+            33983,
+            34070
+          ],
+          [
+            34043,
+            34058
+          ],
+          [
+            34043,
+            34059
+          ],
+          [
+            34043,
+            34060
+          ],
+          [
+            34043,
+            34066
+          ],
+          [
+            34043,
+            34073
+          ],
+          [
+            34043,
+            34080
+          ],
+          [
+            34043,
+            34081
+          ],
+          [
+            34043,
+            34085
+          ],
+          [
+            34043,
+            34098
+          ],
+          [
+            34043,
+            34099
+          ],
+          [
+            34043,
+            34100
+          ],
+          [
+            34058,
+            34070
+          ],
+          [
+            34065,
+            34070
+          ],
+          [
+            34067,
+            34070
+          ],
+          [
+            34068,
+            34070
+          ],
+          [
+            34070,
+            34074
+          ],
+          [
+            34070,
+            34081
+          ],
+          [
+            34070,
+            34082
+          ],
+          [
+            34070,
+            34083
+          ],
+          [
+            34070,
+            34084
+          ],
+          [
+            34070,
+            34098
+          ],
+          [
+            34070,
+            34101
+          ],
+          [
+            34070,
+            34102
+          ],
+          [
+            34070,
+            34103
+          ]
+        ]
+      },
+      {
+        "edge": [
+          16641,
+          18439
+        ],
+        "face_rows": [
+          13239,
+          13264
+        ],
+        "introduced_pairs": [
+          [
+            13219,
+            13239
+          ],
+          [
+            13219,
+            13264
+          ],
+          [
+            13226,
+            13239
+          ],
+          [
+            13226,
+            13264
+          ]
+        ]
+      },
+      {
+        "edge": [
+          19256,
+          20258
+        ],
+        "face_rows": [
+          20398,
+          20399
+        ],
+        "introduced_pairs": [
+          [
+            20238,
+            20398
+          ],
+          [
+            20238,
+            20399
+          ],
+          [
+            20239,
+            20399
+          ],
+          [
+            20241,
+            20398
+          ],
+          [
+            20241,
+            20399
+          ],
+          [
+            20245,
+            20399
+          ],
+          [
+            20246,
+            20399
+          ],
+          [
+            20247,
+            20398
+          ],
+          [
+            20247,
+            20399
+          ],
+          [
+            20248,
+            20399
+          ],
+          [
+            20249,
+            20399
+          ],
+          [
+            20250,
+            20399
+          ],
+          [
+            20251,
+            20399
+          ],
+          [
+            20252,
+            20398
+          ],
+          [
+            20253,
+            20398
+          ],
+          [
+            20254,
+            20398
+          ],
+          [
+            20255,
+            20399
+          ],
+          [
+            20260,
+            20398
+          ],
+          [
+            20261,
+            20399
+          ],
+          [
+            20262,
+            20399
+          ],
+          [
+            20263,
+            20399
+          ],
+          [
+            20264,
+            20399
+          ],
+          [
+            20265,
+            20398
+          ],
+          [
+            20277,
+            20399
+          ],
+          [
+            20278,
+            20398
+          ],
+          [
+            20278,
+            20399
+          ],
+          [
+            20279,
+            20398
+          ],
+          [
+            20280,
+            20399
+          ],
+          [
+            20281,
+            20399
+          ],
+          [
+            20282,
+            20399
+          ],
+          [
+            20313,
+            20398
+          ],
+          [
+            20313,
+            20399
+          ],
+          [
+            20398,
+            21426
+          ],
+          [
+            20398,
+            21436
+          ],
+          [
+            20399,
+            21425
+          ],
+          [
+            20399,
+            21426
+          ],
+          [
+            20399,
+            21427
+          ],
+          [
+            20399,
+            21428
+          ],
+          [
+            20399,
+            21429
+          ],
+          [
+            20399,
+            21430
+          ],
+          [
+            20399,
+            21436
+          ]
+        ]
+      },
+      {
+        "edge": [
+          9765,
+          18611
+        ],
+        "face_rows": [
+          22270,
+          22283
+        ],
+        "introduced_pairs": [
+          [
+            22032,
+            22270
+          ],
+          [
+            22032,
+            22283
+          ],
+          [
+            22033,
+            22270
+          ],
+          [
+            22033,
+            22283
+          ],
+          [
+            22034,
+            22270
+          ],
+          [
+            22035,
+            22270
+          ],
+          [
+            22038,
+            22270
+          ],
+          [
+            22039,
+            22270
+          ],
+          [
+            22055,
+            22283
+          ],
+          [
+            22056,
+            22283
+          ],
+          [
+            22058,
+            22270
+          ],
+          [
+            22059,
+            22270
+          ],
+          [
+            22059,
+            22283
+          ],
+          [
+            22060,
+            22283
+          ],
+          [
+            22247,
+            22270
+          ],
+          [
+            22248,
+            22270
+          ],
+          [
+            22249,
+            22270
+          ],
+          [
+            22249,
+            22283
+          ]
+        ]
+      },
+      {
+        "edge": [
+          9765,
+          20332
+        ],
+        "face_rows": [
+          22248,
+          22249
+        ],
+        "introduced_pairs": [
+          [
+            22034,
+            22249
+          ],
+          [
+            22038,
+            22249
+          ],
+          [
+            22039,
+            22249
+          ],
+          [
+            22057,
+            22248
+          ],
+          [
+            22058,
+            22248
+          ],
+          [
+            22058,
+            22249
+          ]
+        ]
+      },
+      {
+        "edge": [
+          18857,
+          19970
+        ],
+        "face_rows": [
+          14170,
+          14212
+        ],
+        "introduced_pairs": [
+          [
+            14170,
+            14172
+          ],
+          [
+            14170,
+            14179
+          ],
+          [
+            14171,
+            14212
+          ],
+          [
+            14179,
+            14212
+          ],
+          [
+            14180,
+            14212
+          ]
+        ]
+      },
+      {
+        "edge": [
+          14367,
+          18807
+        ],
+        "face_rows": [
+          31045,
+          31215
+        ],
+        "introduced_pairs": [
+          [
+            31045,
+            31218
+          ],
+          [
+            31045,
+            31225
+          ],
+          [
+            31215,
+            31218
+          ],
+          [
+            31215,
+            31225
+          ]
+        ]
+      },
+      {
+        "edge": [
+          14278,
+          19375
+        ],
+        "face_rows": [
+          18905,
+          18914
+        ],
+        "introduced_pairs": [
+          [
+            18892,
+            18905
+          ],
+          [
+            18892,
+            18914
+          ],
+          [
+            18893,
+            18905
+          ],
+          [
+            18893,
+            18914
+          ]
+        ]
+      },
+      {
+        "edge": [
+          13031,
+          19161
+        ],
+        "face_rows": [
+          31245,
+          31255
+        ],
+        "introduced_pairs": [
+          [
+            31245,
+            31270
+          ],
+          [
+            31245,
+            31274
+          ],
+          [
+            31255,
+            31270
+          ],
+          [
+            31255,
+            31274
+          ]
+        ]
+      },
+      {
+        "edge": [
+          17074,
+          20177
+        ],
+        "face_rows": [
+          19094,
+          19095
+        ],
+        "introduced_pairs": [
+          [
+            19094,
+            19100
+          ],
+          [
+            19095,
+            19100
+          ],
+          [
+            19095,
+            19101
+          ]
+        ]
+      },
+      {
+        "edge": [
+          17177,
+          20258
+        ],
+        "face_rows": [
+          20399,
+          20400
+        ],
+        "introduced_pairs": [
+          [
+            20252,
+            20399
+          ],
+          [
+            20252,
+            20400
+          ],
+          [
+            20253,
+            20399
+          ],
+          [
+            20253,
+            20400
+          ],
+          [
+            20313,
+            20399
+          ],
+          [
+            20313,
+            20400
+          ]
+        ]
+      }
+    ]
+  },
+  "self_state_basis": "incremental exact 408 carry-forward from pinned full zero-self 130 audit",
+  "self_state_carryforward": {
+    "base_full_130_audit_sha256": "fa3ec5e268c311a13805832635c2c7b1c717715933457f998f32f679043ff5d9",
+    "base_full_130_candidate_sha256": "ca5cffae1a942b00c72a11288d33904eacb562c264160e96951f06b6035fa391",
+    "candidate_sha256": "ec3abc4da2bb84620c84d23457202dbdd54bea27f7478ac543124b6ded6938e6",
+    "claim_scope": "Exact 315/408 incremental self checks from a complete initial zero-self audit; not a fresh full 130 execution on this candidate.",
+    "incremental_chain": [
+      {
+        "accepted_operation_count": 1,
+        "final_self_pair_count": 0,
+        "full_130_execution": false,
+        "input_candidate_sha256": "ca5cffae1a942b00c72a11288d33904eacb562c264160e96951f06b6035fa391",
+        "introduced_self_pair_count": 0,
+        "operation_checks": [
+          {
+            "edge": [
+              18794,
+              20807
+            ],
+            "face_rows": [
+              40576,
+              40616
+            ],
+            "introduced_self_pair_count": 0
+          }
+        ],
+        "output_candidate_sha256": "ec3abc4da2bb84620c84d23457202dbdd54bea27f7478ac543124b6ded6938e6",
+        "proposal_report_sha256": "39420b8adcc284d551eec7c4ba4c430c24d69cf676c148defe71505951cc1806"
+      }
+    ],
+    "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "type": "INCREMENTAL_ZERO_SELF_CARRYFORWARD",
+    "zero_self_pair_count": 0
+  },
+  "status": "NO_EXACT_PAIR_REDUCING_SELF_SAFE_FLIPS",
+  "surface_audit_bank_count": 185,
+  "typed_anchor_coordinates_bitwise_unchanged": true,
+  "typed_anchor_count": 237,
+  "witness_filtered_out_operations": []
+}

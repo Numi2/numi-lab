@@ -1,0 +1,36 @@
+{
+  "accepted_physical_steps": 0,
+  "actual_target_generation_run": false,
+  "adapter_files": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-depth-targets-546/run_coherent_depth_targets546.py": "81b8848f68a8d670c6cdd80bc5a028c0b823b07b1d7b372e80935c920f6f1866",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-depth-targets-546/test_coherent_depth_targets546.py": "205ceb6055d344aaa7648c0c0d559c3e6520d96aaf747b1d2a9cd3b4960add61"
+  },
+  "embedded_builder_pins": {
+    "depth357_sha256": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1",
+    "source303_sha256": "c8fe5b7be2efb2c6867a2cde178ebc35280814c37f90eec5aea47e964fc17a1f"
+  },
+  "group_policy": "The pinned 545 builder requires a single connected joint source-support patch and applies one shared depth-progress direction and maximum first-exit distance. Adapter records per-group all185 status and retains partial failures; it does not force all-target success.",
+  "multi_parent_policy": "Calls install_source303_extension from the pinned existing direct-depth 546 adapter; single-parent source-normal logic and the 545 exact all185 endpoint owner are unchanged.",
+  "native_admission": false,
+  "purpose": "Bounded comparison using existing 545 coherent-depth plus joint-source-patch mode and the existing 546 multi-parent source-normal installer.",
+  "requested_mode": {
+    "coherent_direction": "depth",
+    "direction_mode": "coherent-depth",
+    "joint_source_patch": true,
+    "minimum_depth_cosine_metadata": 0.05
+  },
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_joint_source_targets545.py": "f4066f7db73c37911ed75ef48eca92116e6a15ea8d1fe6543af597a5655398e0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-barriers-357/point_depth_barriers_357.py": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_nearest_union_targets_500.py": "454501303db7c6420ff3744729c62c723c208aaf9348a53534137c62b7e6afbf",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_targets_multi_source_546.py": "dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/direct-depth-targets-546/run_direct_depth_targets546.py": "0708d259c7bc7dd6341b8cac737f6516ac611011e6d4f599e05530cf91106ac5",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/build_outward_nearest_union_targets_303.py": "c8fe5b7be2efb2c6867a2cde178ebc35280814c37f90eec5aea47e964fc17a1f"
+  },
+  "status": "INERT_COHERENT_DEPTH_TARGET_ADAPTER_READY",
+  "test_receipt": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-depth-targets-546/test-coherent-depth.log",
+    "result": "......                                                                   [100%]\n6 passed in 0.05s",
+    "sha256": "d271bc4c61476139fa75efa8c67eb55e8dd295b53d6f286ec6f1c70f6a20e581"
+  }
+}

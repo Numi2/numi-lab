@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py", line 187, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py", line 183, in main
+    refresh.main()
+    ~~~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/refresh_guards_541.py", line 113, in main
+    ancestry_receipt=validate_ancestry(z,ancestry_parent,current_surface)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py", line 90, in validate_ancestry
+    _semantic(candidate, "refinement_face_parent_ancestry_semantics", "CSR union of immediate parent face rows")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py", line 70, in _semantic
+    raise ValueError(f"unexpected {key} semantics: {value!r}")
+ValueError: unexpected refinement_face_parent_ancestry_semantics semantics: 'CSR singleton immediate input-face row for each affine child; older input unions are archived under prior_input_parent_546__input_refinement_face_parent_ancestry_*'

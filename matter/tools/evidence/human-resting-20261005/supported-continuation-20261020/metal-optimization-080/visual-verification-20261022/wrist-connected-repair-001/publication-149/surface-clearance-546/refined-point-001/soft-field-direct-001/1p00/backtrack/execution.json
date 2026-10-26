@@ -1,0 +1,23 @@
+{
+  "selected_result_exists": true,
+  "returncode": 0,
+  "seconds": 74.4915304579772,
+  "unchanged_runtime_pins": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "final_checker_argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/soft-field-direct-001/1p00/backtrack/backtrack-373/pass-019/candidate.npz",
+    "--baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/baseline.json",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/soft-field-direct-001/1p00/backtrack/final-check",
+    "--trust-mm",
+    "4"
+  ],
+  "final_checker_returncode": 0,
+  "final_checker_status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS",
+  "construction_trust_mm": 4.0
+}

@@ -1,0 +1,26 @@
+waiting_for_human_geometry_slot pid=63312
+acquired_human_geometry_slot pid=63312
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_direct_depth_targets545.py", line 787, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_direct_depth_targets545.py", line 779, in main
+    report, paths = run(args)
+                    ~~~^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_direct_depth_targets545.py", line 514, in run
+    source_normals, normal_provenance = vertex_source_outward_normals(
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        z, source303, detail, base, orientation, target_rows
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_direct_depth_targets545.py", line 234, in vertex_source_outward_normals
+    n, src = source303.registered_source_outward_face_normal(
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        face_row, candidate, detail, base, orientation
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/n/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/build_outward_nearest_union_targets_303.py", line 477, in registered_source_outward_face_normal
+    raise ValueError("fine source face ancestry missing or invalid")
+ValueError: fine source face ancestry missing or invalid

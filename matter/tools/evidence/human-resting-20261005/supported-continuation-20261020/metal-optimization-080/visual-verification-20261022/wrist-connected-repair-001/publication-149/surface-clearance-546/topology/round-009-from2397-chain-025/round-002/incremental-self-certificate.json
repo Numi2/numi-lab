@@ -1,0 +1,43 @@
+{
+  "base_full_130_audit_sha256": "fa3ec5e268c311a13805832635c2c7b1c717715933457f998f32f679043ff5d9",
+  "base_full_130_candidate_sha256": "ca5cffae1a942b00c72a11288d33904eacb562c264160e96951f06b6035fa391",
+  "candidate_sha256": "ec3abc4da2bb84620c84d23457202dbdd54bea27f7478ac543124b6ded6938e6",
+  "claim_scope": "Exact 315/408 incremental self checks from a complete initial zero-self audit; not a fresh full 130 execution on this candidate.",
+  "incremental_chain": [
+    {
+      "accepted_operation_count": 1,
+      "final_self_pair_count": 0,
+      "full_130_execution": false,
+      "input_candidate_sha256": "ca5cffae1a942b00c72a11288d33904eacb562c264160e96951f06b6035fa391",
+      "introduced_self_pair_count": 0,
+      "operation_checks": [
+        {
+          "edge": [
+            18794,
+            20807
+          ],
+          "face_rows": [
+            40576,
+            40616
+          ],
+          "introduced_self_pair_count": 0
+        }
+      ],
+      "output_candidate_sha256": "ec3abc4da2bb84620c84d23457202dbdd54bea27f7478ac543124b6ded6938e6",
+      "proposal_report_sha256": "39420b8adcc284d551eec7c4ba4c430c24d69cf676c148defe71505951cc1806"
+    },
+    {
+      "accepted_operation_count": 0,
+      "final_self_pair_count": 0,
+      "full_130_execution": false,
+      "input_candidate_sha256": "ec3abc4da2bb84620c84d23457202dbdd54bea27f7478ac543124b6ded6938e6",
+      "introduced_self_pair_count": 0,
+      "operation_checks": [],
+      "output_candidate_sha256": "ec3abc4da2bb84620c84d23457202dbdd54bea27f7478ac543124b6ded6938e6",
+      "proposal_report_sha256": "1cd02b829fd8cb8c5b0a0349beae897c9db41c7b96ec5a8c357bafc42c7cb246"
+    }
+  ],
+  "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "type": "INCREMENTAL_ZERO_SELF_CARRYFORWARD",
+  "zero_self_pair_count": 0
+}

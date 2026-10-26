@@ -1,0 +1,16 @@
+{
+  "command": [
+    "sample",
+    "64314",
+    "1",
+    "10",
+    "-file",
+    "/tmp/numi-human-point-fit-001-sample.txt"
+  ],
+  "pid": 64314,
+  "fit_launch_sha256": "7d3d11e9370db049fa4b92b0ce15589ac45febffbd2898df6f88869152bfaab8",
+  "stack_sample_sha256": "71a8ad20d999004ed0aeb5349d216a117c430e3644df801c02ae9aa2134db310",
+  "observation": "Main sampled thread was in HiGHS IPX interior-point KKT factorization/iteration; this is a single diagnostic sample, not stage cost attribution or a performance benchmark.",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

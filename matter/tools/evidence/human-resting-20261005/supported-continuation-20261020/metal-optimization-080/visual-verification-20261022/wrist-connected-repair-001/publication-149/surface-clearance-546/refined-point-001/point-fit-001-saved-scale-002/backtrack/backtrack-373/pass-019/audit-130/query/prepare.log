@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/point-fit-001-saved-scale-002/backtrack/backtrack-373/pass-019/audit-130/query/points-world.npz",
+  "input_sha256": "8673d37f97a1367c0b3bd0b512687c529b442c18f2a5dbb4ab412ecf28e48461",
+  "field": "points_world_f32",
+  "query_count": 24382,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/point-fit-001-saved-scale-002/backtrack/backtrack-373/pass-019/audit-130/query/points.csv",
+  "output_sha256": "542dd9a4798389c2245efc7411e18b24203d8c150fc4d73e2be658388bdf7dec",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

@@ -1,0 +1,12 @@
+waiting_for_human_geometry_slot pid=63831
+acquired_human_geometry_slot pid=63831
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/select_batch_endpoint_operations546.py", line 140, in <module>
+    if __name__=="__main__": main()
+                             ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/select_batch_endpoint_operations546.py", line 133, in main
+    try: result=select_batch(x,F,rows,T,anchors,ar,selfcheck)
+                ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/select_batch_endpoint_operations546.py", line 84, in select_batch
+    raise BatchRoundsExhausted(hist,rows[keep])
+BatchRoundsExhausted: unresolved after four witness-removal rounds

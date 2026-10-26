@@ -1,0 +1,16 @@
+waiting_for_human_geometry_slot pid=65664
+acquired_human_geometry_slot pid=65664
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-depth-targets-546/run_coherent_depth_targets546.py", line 260, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/coherent-depth-targets-546/run_coherent_depth_targets546.py", line 204, in main
+    builder.main(argv)
+    ~~~~~~~~~~~~^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_joint_source_targets545.py", line 848, in main
+    report, paths = run(args)
+                    ~~~^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_joint_source_targets545.py", line 569, in run
+    if len(inside_keys)!=1:raise ValueError("joint source patch requires one exact typed bone bank")
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: joint source patch requires one exact typed bone bank

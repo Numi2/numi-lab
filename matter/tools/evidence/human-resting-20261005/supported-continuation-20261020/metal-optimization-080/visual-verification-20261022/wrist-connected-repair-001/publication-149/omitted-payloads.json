@@ -1,0 +1,16 @@
+{
+  "omitted_payloads": [
+    {
+      "bytes": 34675615,
+      "reason": "Large stdout JSON mirror; the corresponding full structured report is included and contains all JSON-body fields plus expanded structured report sections. Original remains in source workspace.",
+      "sha256": "5a811cce1525766ff25949dc7f1cad0006da07ca1ee8941a03eda90c356c7994",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/point-fit-001-stage.log"
+    },
+    {
+      "bytes": 40005631,
+      "reason": "Large stdout JSON mirror; the corresponding full structured report is included and contains all JSON-body fields plus expanded structured report sections. Original remains in source workspace.",
+      "sha256": "9b7d12a6722a809e67e42f68e66eafe2d9fd8ac8075aceb93d6afde10c5d360b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-008-barycentric/fit-stage.log"
+    }
+  ]
+}

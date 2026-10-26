@@ -1,0 +1,29 @@
+{
+  "factors": {
+    "2": {
+      "counts": {
+        "bad_area_faces": 40,
+        "bad_edge_rows": 0,
+        "bad_trust_nodes": 0,
+        "bad_source_nodes": 0,
+        "bad_bound_nodes": 0
+      },
+      "maximum_step_mm": 1.5664010105713289,
+      "maximum_source_mm": 11.994679822819071,
+      "bound_rows": []
+    },
+    "4": {
+      "counts": {
+        "bad_area_faces": 460,
+        "bad_edge_rows": 1604,
+        "bad_trust_nodes": 0,
+        "bad_source_nodes": 0,
+        "bad_bound_nodes": 0
+      },
+      "maximum_step_mm": 3.1328020211426577,
+      "maximum_source_mm": 11.99488956058788,
+      "bound_rows": []
+    }
+  },
+  "semantics": "Cheap arithmetic of scaled final accepted SCP iterate; no fresh LP solve, exact audit or candidate admission."
+}

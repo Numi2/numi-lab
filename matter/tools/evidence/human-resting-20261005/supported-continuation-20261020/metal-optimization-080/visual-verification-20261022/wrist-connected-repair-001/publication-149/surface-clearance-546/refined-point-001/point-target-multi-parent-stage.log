@@ -1,0 +1,21 @@
+waiting_for_human_geometry_slot pid=63790
+acquired_human_geometry_slot pid=63790
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/point-targets-multi-parent/nearest-union-exits.json",
+  "report_sha256": "7999588c8bcc7f413c58962fafdce87e368c576e07e27f452b81b5dd09d270f2",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/point-targets-multi-parent/nearest-union-exits.npz",
+  "npz_sha256": "22857b277b5fee943ac3148f882a661bf4ba5382f7d4c3ea68899910e6e7e37e",
+  "query_rows": 1371,
+  "passing_targets": 1371,
+  "status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY",
+  "seconds": 19.797124166972935
+}
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/point-targets-multi-parent/nearest-union-exits.json",
+  "report_sha256": "19bffe4036b15353c4dbe9b92ff5b84266d9cb59a3b1347178c74b822d82e197",
+  "target_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/point-targets-multi-parent/nearest-union-exits.npz",
+  "target_npz_sha256": "22857b277b5fee943ac3148f882a661bf4ba5382f7d4c3ea68899910e6e7e37e",
+  "direction_mode": "direct-depth",
+  "multi_parent_face_count": 14,
+  "status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY"
+}
